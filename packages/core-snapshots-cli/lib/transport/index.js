@@ -12,6 +12,7 @@ module.exports = {
   exportTable: async (snapFileName, query, database, append = false) => {
     logger.info(`Starting to export table to ${snapFileName}, append:${append}`)
 
+    await fs.ensureFile(env.getPath(snapFileName))
     const snapshotWriteStream = fs.createWriteStream(env.getPath(snapFileName), append ? {flags: 'a'} : {})
     const encodeStream = msgpack.createEncodeStream()
     const qs = new QueryStream(query)
