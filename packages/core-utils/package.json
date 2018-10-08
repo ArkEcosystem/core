@@ -1,9 +1,8 @@
 {
-  "name": "@arkecosystem/core-api",
-  "description": "Public API for ARK Core",
-  "version": "0.1.1",
+  "name": "@arkecosystem/core-utils",
+  "description": "Utilities for Ark Core",
+  "version": "0.1.0",
   "contributors": [
-    "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
@@ -20,32 +19,10 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-transaction-pool": "^0.1.1",
-    "@arkecosystem/core-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.0",
-    "ajv": "^6.5.0",
-    "boom": "^7.2.0",
-    "bs58check": "^2.1.1",
-    "catbox-redis": "^4.1.0",
-    "hapi": "^17.5.0",
-    "hapi-api-version": "^2.0.0",
-    "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
-    "hapi-rate-limit": "^2.1.2",
-    "inert": "^5.1.0",
-    "ip": "^1.1.5",
-    "joi": "^13.3.0",
-    "lodash": "^4.17.10",
-    "lout": "^11.0.1",
-    "micromatch": "^3.1.10",
-    "moment": "^2.22.1",
-    "request-ip": "^2.1.1",
-    "vision": "^5.3.2"
+    "moment": "^2.22.1"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1",
-    "axios": "^0.18.0"
   }
 }
