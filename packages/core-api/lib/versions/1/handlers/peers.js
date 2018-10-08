@@ -22,7 +22,12 @@ exports.index = {
       return utils.respondWith('No peers found', true)
     }
 
-    let peers = allPeers.sort((a, b) => a.delay - b.delay)
+    let peers = allPeers.map(peer => {
+        // just use 'OK' status for API instead of p2p http status codes
+        peer.status = peer.status === 200 ? 'OK' : peer.status
+        return peer
+      })
+      .sort((a, b) => a.delay - b.delay)
     peers = request.query.os ? allPeers.filter(peer => peer.os === request.query.os) : peers
     peers = request.query.status ? allPeers.filter(peer => peer.status === request.query.status) : peers
     peers = request.query.port ? allPeers.filter(peer => peer.port === request.query.port) : peers
