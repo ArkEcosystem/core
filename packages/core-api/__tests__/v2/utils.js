@@ -109,6 +109,9 @@ class Helpers {
     expect(delegate.production).toBeObject()
     expect(delegate.production.approval).toBeNumber()
     expect(delegate.production.productivity).toBeNumber()
+    expect(delegate.forged.fees).toBeNumber()
+    expect(delegate.forged.rewards).toBeNumber()
+    expect(delegate.forged.total).toBeNumber()
 
     Object.keys(expected || {}).forEach(attr => {
       expect(delegate[attr]).toBe(expected[attr])
