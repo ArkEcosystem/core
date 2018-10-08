@@ -3,15 +3,13 @@
 const { Bignum } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
-const delegateCalculator = require('../../lib/utils/delegate-calculator')
+const delegateCalculator = require('../lib/delegate-calculator')
 
 let delegate
 
 beforeEach(() => {
   delegate = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
   Object.entries({
-    balance: new Bignum(109390000000),
-    voteBalance: Bignum.ZERO,
     producedBlocks: 0,
     missedBlocks: 0
   }).forEach((key, value) => (delegate[key] = value))
@@ -23,25 +21,18 @@ describe('Delegate Calculator', () => {
       expect(delegateCalculator.calculateApproval).toBeFunction()
     })
 
-    it.skip('should calculate correctly', () => {
-      delegate.voteBalance = 100000 * Math.pow(10, 8)
+    it('should calculate correctly', () => {
+      delegate.missedBlocks = 10
+      delegate.producedBlocks = 100
+      delegate.voteBalance = new Bignum(10000 * Math.pow(10, 8))
+
       container.resolvePlugin = jest.fn(plugin => {
-        if (plugin === 'blockchain') {
-          return {
-            getLastBlock: () => {
-              return {
-                data: {
-                  height: 1
-                }
-              }
-            }
-          }
-        } else if (plugin === 'config') {
+        if (plugin === 'config') {
           return {
             getConstants: () => {
               return {
                 height: 1,
-                reward: 1 * Math.pow(10, 8)
+                reward: 2 * Math.pow(10, 8)
               }
             },
             genesisBlock: {
@@ -51,7 +42,7 @@ describe('Delegate Calculator', () => {
         }
       })
 
-      expect(delegateCalculator.calculateApproval(delegate)).toBe(0.5)
+      expect(delegateCalculator.calculateApproval(delegate, 1)).toBe(1)
     })
   })
 
@@ -60,11 +51,18 @@ describe('Delegate Calculator', () => {
       expect(delegateCalculator.calculateProductivity).toBeFunction()
     })
 
-    it('should calculate correctly', () => {
+    it('should calculate correctly for a value above 0', () => {
       delegate.missedBlocks = 10
       delegate.producedBlocks = 100
 
       expect(delegateCalculator.calculateProductivity(delegate)).toBe(90.91)
+    })
+
+    it('should calculate correctly for a value of 0', () => {
+      delegate.missedBlocks = 0
+      delegate.producedBlocks = 0
+
+      expect(delegateCalculator.calculateProductivity(delegate)).toBe(0.00)
     })
   })
 })

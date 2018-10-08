@@ -1,14 +1,13 @@
 'use strict'
 
-const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
-const formatTimestamp = require('./utils/format-timestamp')
+const { formatTimestamp, delegateCalculator } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "delegate" object into a generic object.
  * @param  {Object} delegate
  * @return {Object}
  */
-module.exports = (delegate) => {
+module.exports = delegate => {
   const data = {
     username: delegate.username,
     address: delegate.address,
@@ -20,8 +19,13 @@ module.exports = (delegate) => {
       missed: delegate.missedBlocks
     },
     production: {
-      approval: calculateApproval(delegate),
-      productivity: calculateProductivity(delegate)
+      approval: delegateCalculator.calculateApproval(delegate),
+      productivity: delegateCalculator.calculateProductivity(delegate)
+    },
+    forged: {
+      fees: delegate.forgedFees.toNumber(),
+      rewards: delegate.forgedRewards.toNumber(),
+      total: delegate.forgedFees.plus(delegate.forgedRewards).toNumber()
     }
   }
 
