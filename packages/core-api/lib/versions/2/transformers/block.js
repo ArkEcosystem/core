@@ -1,14 +1,14 @@
 'use strict'
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
-const formatTimestamp = require('./utils/format-timestamp')
+const { formatTimestamp } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "block" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */
-module.exports = (model) => {
+module.exports = model => {
   const generator = database.walletManager.findByPublicKey(model.generatorPublicKey)
 
   return {

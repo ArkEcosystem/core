@@ -21,6 +21,7 @@ module.exports = {
     '**/packages/core-tester-cli/**/__tests__/**/*.test.js',
     '**/packages/core-transaction-pool-redis/**/__tests__/**/*.test.js',
     '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
+    '**/packages/core-utils/**/__tests__/**/*.test.js',
     '**/packages/core-webhooks/**/__tests__/**/*.test.js',
     '**/packages/crypto/**/__tests__/**/*.test.js'
     // '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
