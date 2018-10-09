@@ -16,7 +16,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
-      amount: this.__arkToArktoshi(5),
+      amount: Command.__arkToArktoshi(5),
       skipTesting: true
     })
 
@@ -26,7 +26,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
     wallets.forEach((wallet, i) => {
       wallet.secondPassphrase = this.config.secondPassphrase || wallet.passphrase
       const transaction = client.getBuilder().secondSignature()
-        .fee(this.parseFee(this.options.signatureFee))
+        .fee(Command.parseFee(this.options.signatureFee))
         .signatureAsset(wallet.secondPassphrase)
         .network(this.config.network.version)
         .sign(wallet.passphrase)

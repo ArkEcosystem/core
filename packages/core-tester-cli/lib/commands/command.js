@@ -176,7 +176,7 @@ module.exports = class Command {
    * @param  {(String|Number)} fee
    * @return {Bignum}
    */
-  parseFee (fee) {
+  static parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
       const feeRange = fee.split('-').map(f => new Bignum(f).toNumber())
       if (feeRange[1] < feeRange[0]) {
@@ -282,7 +282,7 @@ module.exports = class Command {
    * @param  {Number} ark
    * @return {Bignum}
    */
-  __arkToArktoshi (ark) {
+  static __arkToArktoshi (ark) {
     return new Bignum(ark * Math.pow(10, 8))
   }
 

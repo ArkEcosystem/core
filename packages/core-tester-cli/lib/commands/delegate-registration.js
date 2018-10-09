@@ -17,7 +17,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
-      amount: this.__arkToArktoshi(25),
+      amount: Command.__arkToArktoshi(25),
       skipTesting: true
     })
 
@@ -40,7 +40,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
       usedDelegateNames.push(wallet.username)
 
       const transaction = client.getBuilder().delegateRegistration()
-        .fee(this.parseFee(this.options.delegateFee))
+        .fee(Command.parseFee(this.options.delegateFee))
         .usernameAsset(wallet.username)
         .network(this.config.network.version)
         .sign(wallet.passphrase)
