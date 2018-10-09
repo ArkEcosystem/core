@@ -101,8 +101,7 @@ module.exports = class HttpClient {
    * @throws Will throw an error if the HTTP request fails.
    */
   sendRequest (method, path, payload) {
-    const acceptHeader = `application/vnd.arkCoreApi.v${this.version}`
-    this.headers.Accept = acceptHeader
+    this.headers.Accept = `application/vnd.ark.core-api.v${this.version}+json`
 
     const client = axios.create({
       baseURL: `${this.host}/api/`,
