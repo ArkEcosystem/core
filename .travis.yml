@@ -23,13 +23,6 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
   - yarn config set cache-folder $HOME/.cache/yarn
-  - sudo service postgresql stop
-  - sudo apt-get remove -q 'postgresql-*'
-  - sudo apt-get update -q
-  - sudo apt-get install -q postgresql-10 postgresql-client-10
-  - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
-  - sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/10/main/postgresql.conf
-  - sudo service postgresql restart
 
 install: yarn
 
