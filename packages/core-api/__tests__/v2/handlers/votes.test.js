@@ -16,25 +16,35 @@ afterAll(async () => {
 
 describe('API 2.0 - Votes', () => {
   describe('GET /votes', () => {
-    it('should GET all the votes', async () => {
-      const response = await utils.request('GET', 'votes')
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-      utils.expectPaginator(response)
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should GET all the votes', async () => {
+        const response = await utils[request]('GET', 'votes')
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+        utils.expectPaginator(response)
 
-      expect(response.data.data[0]).toBeObject()
-      expect(response.data.meta.count).toBeNumber()
+        expect(response.data.data[0]).toBeObject()
+        expect(response.data.meta.count).toBeNumber()
+      })
     })
   })
 
   describe('GET /votes/:id', () => {
-    it('should GET a vote by the given identifier', async () => {
-      const response = await utils.request('GET', `votes/${voteId}`)
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeObject()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should GET a vote by the given identifier', async () => {
+        const response = await utils[request]('GET', `votes/${voteId}`)
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeObject()
 
-      expect(response.data.data).toBeObject()
-      expect(response.data.data.id).toBe(voteId)
+        expect(response.data.data).toBeObject()
+        expect(response.data.data.id).toBe(voteId)
+      })
     })
   })
 })
