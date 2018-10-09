@@ -251,9 +251,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async removeForgedAndGetPending (transactionIds) {
     const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
-    await Promise.all(forgedIdsSet, async (transactionId) => {
-      await this.removeTransactionById(transactionId)
-    })
+    await Promise.all(Array.from(forgedIdsSet).map(id => this.removeTransactionById(id)))
 
     return transactionIds.filter(id => !forgedIdsSet.has(id))
   }
