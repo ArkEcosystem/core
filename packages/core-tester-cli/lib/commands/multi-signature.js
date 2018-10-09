@@ -98,8 +98,8 @@ module.exports = class MultiSignatureCommand extends Command {
         .network(this.config.network.version)
         .sign(wallet.passphrase)
 
-      if (wallet.secondPassphrase || this.options.secondPassphrase) {
-        builder.secondSign(wallet.secondPassphrase || this.options.secondPassphrase)
+      if (wallet.secondPassphrase || this.config.secondPassphrase) {
+        builder.secondSign(wallet.secondPassphrase || this.config.secondPassphrase)
       }
 
       if (approvalWallets) {
