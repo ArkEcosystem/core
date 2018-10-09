@@ -58,290 +58,390 @@ afterAll(async () => {
 
 describe('API 2.0 - Transactions', () => {
   describe('GET /transactions', () => {
-    it('should GET all the transactions', async () => {
-      const response = await utils.request('GET', 'transactions')
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should GET all the transactions', async () => {
+        const response = await utils[request]('GET', 'transactions')
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      utils.expectTransaction(response.data.data[0])
+        utils.expectTransaction(response.data.data[0])
+      })
     })
   })
 
   describe('GET /transactions/:id', () => {
-    it('should GET a transaction by the given identifier', async () => {
-      const response = await utils.request('GET', `transactions/${transactionId}`)
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeObject()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should GET a transaction by the given identifier', async () => {
+        const response = await utils[request]('GET', `transactions/${transactionId}`)
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeObject()
 
-      const transaction = response.data.data
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
+        const transaction = response.data.data
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
+      })
     })
   })
 
   describe('GET /transactions/unconfirmed', () => {
-    it('should GET all the unconfirmed transactions', async () => {
-      await utils.createTransaction()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should GET all the unconfirmed transactions', async () => {
+        await utils.createTransaction()
 
-      const response = await utils.request('GET', 'transactions/unconfirmed')
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+        const response = await utils[request]('GET', 'transactions/unconfirmed')
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toBeArray()
-      expect(response.data.data).not.toBeEmpty()
+        expect(response.data.data).toBeArray()
+        expect(response.data.data).not.toBeEmpty()
+      })
     })
   })
 
   describe('GET /transactions/unconfirmed/:id', () => {
-    it('should GET an unconfirmed transaction by the given identifier', async () => {
-      const transaction = await utils.createTransaction()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should GET an unconfirmed transaction by the given identifier', async () => {
+        const transaction = await utils.createTransaction()
 
-      const response = await utils.request('GET', `transactions/unconfirmed/${transaction.id}`)
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeObject()
+        const response = await utils[request]('GET', `transactions/unconfirmed/${transaction.id}`)
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeObject()
 
-      expect(response.data.data).toHaveProperty('id', transaction.id)
+        expect(response.data.data).toHaveProperty('id', transaction.id)
+      })
     })
   })
 
   describe('POST /transactions/search', () => {
-    it('should POST a search for transactions with the exact specified transactionId', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified transactionId', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { id: transactionId })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(1)
+        expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
+      })
     })
 
-    it('should POST a search for transactions with the exact specified blockId', async () => {
-      const response = await utils.request('POST', 'transactions/search', { blockId })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified blockId', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { blockId })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(100)
-      expect(response.data.meta.totalCount).toBe(153)
+        expect(response.data.data).toHaveLength(100)
+        expect(response.data.meta.totalCount).toBe(153)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
-      expect(transaction.blockId).toBe(blockId)
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
+        expect(transaction.blockId).toBe(blockId)
+      })
     })
 
-    it('should POST a search for transactions with the exact specified type', async () => {
-      const response = await utils.request('POST', 'transactions/search', { type })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified type', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { type })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(51)
+        expect(response.data.data).toHaveLength(51)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
-      expect(transaction.type).toBe(type)
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
+        expect(transaction.type).toBe(type)
+      })
     })
 
-    it('should POST a search for transactions with the exact specified version', async () => {
-      const response = await utils.request('POST', 'transactions/search', { version })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified version', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { version })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(100)
-      expect(response.data.meta.totalCount).toBe(153)
+        expect(response.data.data).toHaveLength(100)
+        expect(response.data.meta.totalCount).toBe(153)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
+      })
     })
 
-    it('should POST a search for transactions with the exact specified senderPublicKey', async () => {
-      const response = await utils.request('POST', 'transactions/search', { senderPublicKey })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified senderPublicKey', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { senderPublicKey })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(51)
+        expect(response.data.data).toHaveLength(51)
 
-      // TODO rework and check the 51 transactions match the genesis transactions
+        // TODO rework and check the 51 transactions match the genesis transactions
+      })
     })
 
-    it('should POST a search for transactions with the exact specified senderId', async () => {
-      const response = await utils.request('POST', 'transactions/search', { senderId: senderAddress })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified senderId', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { senderId: senderAddress })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(51)
+        expect(response.data.data).toHaveLength(51)
 
-      // TODO rework and check the 51 transactions match the genesis transactions
+        // TODO rework and check the 51 transactions match the genesis transactions
+      })
     })
 
-    it('should POST a search for transactions with the exact specified recipientId (Address)', async () => {
-      const response = await utils.request('POST', 'transactions/search', { recipientId: recipientAddress })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified recipientId (Address)', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { recipientId: recipientAddress })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(2)
+        expect(response.data.data).toHaveLength(2)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
-      expect(transaction.recipient).toBe(recipientAddress)
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
+        expect(transaction.recipient).toBe(recipientAddress)
+      })
     })
 
     // TODO remove the search by id, to be sure that is OK
-    it('should POST a search for transactions with the exact specified timestamp', async () => {
-      const response = await utils.request('POST', 'transactions/search', {
-        id: transactionId,
-        timestamp: {
-          from: timestamp,
-          to: timestamp
-        }
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified timestamp', async () => {
+        const response = await utils[request]('POST', 'transactions/search', {
+          id: transactionId,
+          timestamp: {
+            from: timestamp,
+            to: timestamp
+          }
+        })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toHaveLength(1)
+
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
       })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-
-      expect(response.data.data).toHaveLength(1)
-
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
     })
 
     // TODO remove the search by id, to be sure that is OK
-    it('should POST a search for transactions with the specified timestamp range', async () => {
-      const response = await utils.request('POST', 'transactions/search', {
-        id: transactionId,
-        timestamp: {
-          from: timestampFrom,
-          to: timestampTo
-        }
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the specified timestamp range', async () => {
+        const response = await utils[request]('POST', 'transactions/search', {
+          id: transactionId,
+          timestamp: {
+            from: timestampFrom,
+            to: timestampTo
+          }
+        })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toHaveLength(1)
+
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
       })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-
-      expect(response.data.data).toHaveLength(1)
-
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
     })
 
     // TODO remove the search by id, to be sure that is OK
-    it('should POST a search for transactions with the exact specified amount', async () => {
-      const response = await utils.request('POST', 'transactions/search', {
-        id: transactionId,
-        amount: {
-          from: amount,
-          to: amount
-        }
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified amount', async () => {
+        const response = await utils[request]('POST', 'transactions/search', {
+          id: transactionId,
+          amount: {
+            from: amount,
+            to: amount
+          }
+        })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toHaveLength(1)
+
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
       })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-
-      expect(response.data.data).toHaveLength(1)
-
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
     })
 
     // TODO remove the search by id, to be sure that is OK
-    it('should POST a search for transactions with the specified amount range', async () => {
-      const response = await utils.request('POST', 'transactions/search', {
-        id: transactionId,
-        amount: {
-          from: amountFrom,
-          to: amountTo
-        }
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the specified amount range', async () => {
+        const response = await utils[request]('POST', 'transactions/search', {
+          id: transactionId,
+          amount: {
+            from: amountFrom,
+            to: amountTo
+          }
+        })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toHaveLength(1)
+
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
       })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-
-      expect(response.data.data).toHaveLength(1)
-
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
     })
 
     // TODO remove the search by id, to be sure that is OK
-    it('should POST a search for transactions with the exact specified fee', async () => {
-      const response = await utils.request('POST', 'transactions/search', {
-        id: transactionId,
-        fee: {
-          from: fee,
-          to: fee
-        }
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the exact specified fee', async () => {
+        const response = await utils[request]('POST', 'transactions/search', {
+          id: transactionId,
+          fee: {
+            from: fee,
+            to: fee
+          }
+        })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toHaveLength(1)
+
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
       })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-
-      expect(response.data.data).toHaveLength(1)
-
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
     })
 
     // TODO remove the search by id, to be sure that is OK
-    it('should POST a search for transactions with the specified fee range', async () => {
-      const response = await utils.request('POST', 'transactions/search', {
-        id: transactionId,
-        fee: {
-          from: feeFrom,
-          to: feeTo
-        }
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the specified fee range', async () => {
+        const response = await utils[request]('POST', 'transactions/search', {
+          id: transactionId,
+          fee: {
+            from: feeFrom,
+            to: feeTo
+          }
+        })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toHaveLength(1)
+
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
       })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-
-      expect(response.data.data).toHaveLength(1)
-
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
     })
 
     // TODO remove the search by id, to be sure that is OK
-    it.skip('should POST a search for transactions with the exact specified vendorFieldHex', async () => {
-      const transactionId = '0000faa27b422f7648b1a2f634f15c7e5c8e96b84929624fda44abf716bdf784'
-      const vendorFieldHex = '64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f'
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it.skip('should POST a search for transactions with the exact specified vendorFieldHex', async () => {
+        const transactionId = '0000faa27b422f7648b1a2f634f15c7e5c8e96b84929624fda44abf716bdf784'
+        const vendorFieldHex = '64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f'
 
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, vendorFieldHex })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+        const response = await utils[request]('POST', 'transactions/search', { id: transactionId, vendorFieldHex })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      expect(response.data.data).toHaveLength(1)
+        expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
-    })
-
-    it('should POST a search for transactions with the wrong specified type', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, type: wrongType })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
-
-      expect(response.data.data).toHaveLength(0)
-    })
-
-    it('should POST a search for transactions with the specific criteria', async () => {
-      const response = await utils.request('POST', 'transactions/search', {
-        senderPublicKey,
-        type,
-        timestamp: {
-          from: timestampFrom,
-          to: timestampTo
-        }
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.id).toBe(transactionId)
       })
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    })
 
-      expect(response.data.data).toBeArray()
-      utils.expectTransaction(response.data.data[0])
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the wrong specified type', async () => {
+        const response = await utils[request]('POST', 'transactions/search', { id: transactionId, type: wrongType })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toHaveLength(0)
+      })
+    })
+
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should POST a search for transactions with the specific criteria', async () => {
+        const response = await utils[request]('POST', 'transactions/search', {
+          senderPublicKey,
+          type,
+          timestamp: {
+            from: timestampFrom,
+            to: timestampTo
+          }
+        })
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
+
+        expect(response.data.data).toBeArray()
+        utils.expectTransaction(response.data.data[0])
+      })
     })
   })
 })
