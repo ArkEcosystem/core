@@ -109,10 +109,10 @@ module.exports = class TransferCommand extends Command {
         .network(this.config.network.version)
         .amount(transactionAmount)
         .vendorField(vendorField === undefined ? `Transaction ${i + 1}` : vendorField)
-        .sign(overridePassphrase ? this.options.passphrase : wallet.passphrase)
+        .sign(overridePassphrase ? this.config.passphrase : wallet.passphrase)
 
-      if (wallet.secondPassphrase || this.options.secondPassphrase) {
-        builder.secondSign(wallet.secondPassphrase || this.options.secondPassphrase)
+      if (wallet.secondPassphrase || this.config.secondPassphrase) {
+        builder.secondSign(wallet.secondPassphrase || this.config.secondPassphrase)
       }
 
       if (approvalWallets) {
