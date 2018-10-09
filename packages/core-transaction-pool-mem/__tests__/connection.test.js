@@ -393,7 +393,7 @@ describe('Connection', () => {
     it('multiple additions and retrievals', async () => {
       // Abstract number which decides how many iterations are run by the test.
       // Increase it to run more iterations.
-      const testSize = connection.options.syncToDiskMods * 2
+      const testSize = connection.options.syncInterval * 2
 
       for (let i = 0; i < testSize; i++) {
         let transaction = new Transaction(mockData.dummy1)
@@ -423,7 +423,7 @@ describe('Connection', () => {
     })
 
     it('delete + add after sync', async () => {
-      for (let i = 0; i < connection.options.syncToDiskMods; i++) {
+      for (let i = 0; i < connection.options.syncInterval; i++) {
         let transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
         await connection.addTransaction(transaction)

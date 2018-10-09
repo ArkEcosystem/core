@@ -6,7 +6,7 @@ module.exports = {
   // The number designates count of added or deleted transactions that are not in
   // the persistent storage. When that number is reached a new sync of the pool is
   // triggered.
-  syncToDiskMods: 512,
+  syncInterval: 512,
   maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
   whitelist: [],
   allowedSenders: [],

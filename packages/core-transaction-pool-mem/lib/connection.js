@@ -469,7 +469,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async __memSyncToPermanentStorageIfNecessary () {
-    if (this.mem.dirty.added.size + this.mem.dirty.removed.size >= this.options.syncToDiskMods) {
+    if (this.mem.dirty.added.size + this.mem.dirty.removed.size >= this.options.syncInterval) {
       await this.__memSyncToPermanentStorage()
     }
   }
