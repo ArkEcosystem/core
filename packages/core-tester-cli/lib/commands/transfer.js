@@ -31,7 +31,7 @@ module.exports = class TransferCommand extends Command {
     }
 
     let totalDeductions = Bignum.ZERO
-    let transactionAmount = new Bignum(this.options.amount || this.__arkToArktoshi(2))
+    let transactionAmount = new Bignum(this.options.amount || Command.__arkToArktoshi(2))
 
     const transactions = this.generateTransactions(transactionAmount, wallets, null, true)
     for (const transaction of transactions) {
@@ -40,7 +40,7 @@ module.exports = class TransferCommand extends Command {
 
     if (this.options.copy) {
       this.copyToClipboard(transactions)
-      process.exit() // eslint-disable-line no-unreachable
+      return
     }
 
     const expectedSenderBalance = (new Bignum(walletBalance)).minus(totalDeductions)
@@ -54,7 +54,7 @@ module.exports = class TransferCommand extends Command {
       wallets,
       transactionAmount,
       expectedSenderBalance,
-      skipValidation: false
+      skipValidation: this.options.skipValidation
     }
 
     try {
@@ -98,13 +98,14 @@ module.exports = class TransferCommand extends Command {
     approvalWallets = [],
     overridePassphrase = false,
     vendorField,
-    log = true
-  ) {
+    log = true) {
+    vendorField = vendorField || this.options.smartBridge
     const transactions = []
     wallets.forEach((wallet, i) => {
       const builder = client.getBuilder().transfer()
+      // noinspection JSCheckFunctionSignatures
       builder
-        .fee(this.parseFee(this.options.transferFee))
+        .fee(Command.parseFee(this.options.transferFee))
         .recipientId(this.options.recipient || wallet.address)
         .network(this.config.network.version)
         .amount(transactionAmount)
@@ -125,7 +126,7 @@ module.exports = class TransferCommand extends Command {
       transactions.push(transaction)
 
       if (log) {
-        logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
+        logger.info(`${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${transaction.fee})`)
       }
     })
 

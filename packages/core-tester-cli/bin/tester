@@ -24,6 +24,7 @@ registerCommand('transfer', 'send multiple transactions')
   .option('--flood-attempts <value>', 'flood node with same transactions', 0)
   .option('--recipient <value>', 'recipient address')
   .option('--skip-second-run', 'skip second sending of transactions', false)
+  .option('--smart-bridge <value>', 'smart-bridge value to use')
   .action(async (options) => {
     const command = await require('../lib/commands/transfer').init(options)
     await command.run()
