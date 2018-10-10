@@ -12,10 +12,6 @@ module.exports = {
     statistics: loadQueryFile(__dirname, './blocks/statistics.sql'),
     delete: loadQueryFile(__dirname, './blocks/delete.sql')
   },
-  pool: {
-    delete: loadQueryFile(__dirname, './pool/delete.sql'),
-    load: loadQueryFile(__dirname, './pool/load.sql')
-  },
   rounds: {
     delegates: loadQueryFile(__dirname, './rounds/delegates.sql'),
     placeholders: loadQueryFile(__dirname, './rounds/placeholders.sql'),

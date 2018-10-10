@@ -1,31 +1,35 @@
 'use strict'
 
+const Storage = require('./storage')
 const ark = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 const emitter = container.resolvePlugin('event-emitter')
-const { formatTimestamp } = require('@arkecosystem/core-utils')
 const logger = container.resolvePlugin('logger')
 const { TRANSACTION_TYPES } = ark.constants
+const { Transaction } = require('@arkecosystem/crypto').models
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
+const { formatTimestamp } = require('@arkecosystem/core-utils')
 
 /**
- * This transaction pool uses a hybrid storage - caching the data
+ * Transaction pool. It uses a hybrid storage - caching the data
  * in memory and occasionally saving it to a permanent, on-disk storage (SQLite),
  * every N modifications, and also during shutdown. The operations that only read
  * data (everything other than add or remove transaction) are served from the
  * in-memory storage.
  */
-module.exports = class TransactionPool extends TransactionPoolInterface {
+class TransactionPool extends TransactionPoolInterface {
   /**
    * Make the transaction pool instance. Load all transactions in the pool from
    * the on-disk database, saved there from a previous run.
    * @return {TransactionPool}
    */
-  async make () {
+  make () {
+    this.storage = new Storage()
+
     this.__memConstruct()
 
-    await this.__memLoadFromDB()
+    this.__memLoadFromDB()
 
     return this
   }
@@ -34,16 +38,17 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * Disconnect from transaction pool.
    * @return {void}
    */
-  async disconnect () {
-    await this.__memSyncToPermanentStorage()
+  disconnect () {
+    this.__memSyncToPermanentStorage()
+    this.db.close()
   }
 
   /**
    * Get the number of transactions in the pool.
    * @return {Number}
    */
-  async getPoolSize () {
-    await this.__purgeExpired()
+  getPoolSize () {
+    this.__purgeExpired()
 
     return this.mem.byId.size
   }
@@ -53,8 +58,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {String} senderPublicKey
    * @returns {Number}
    */
-  async getSenderSize (senderPublicKey) {
-    await this.__purgeExpired()
+  getSenderSize (senderPublicKey) {
+    this.__purgeExpired()
 
     const ids = this.mem.idsBySender.get(senderPublicKey)
 
@@ -65,22 +70,24 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * Add a transaction to the pool.
    * @param {Transaction} transaction
    */
-  async addTransaction (transaction) {
-    if (await this.transactionExists(transaction.id)) {
-      return logger.debug(`Duplicated transaction ${transaction.id} - transaction already in pool.`)
+  addTransaction (transaction) {
+    if (this.transactionExists(transaction.id)) {
+      return logger.debug(
+        'Transaction pool: ignoring attempt to add a transaction that is already ' +
+        `in the pool, id: ${transaction.id}`)
     }
 
     this.__memAddTransaction(transaction)
 
-    await this.__memSyncToPermanentStorageIfNecessary()
+    this.__memSyncToPermanentStorageIfNecessary()
   }
 
   /**
    * Add many transactions to the pool.
    * @param {Array}   transactions, already transformed and verified by transaction guard - must have serialized field
    */
-  async addTransactions (transactions) {
-    await Promise.all(transactions.map(t => this.addTransaction(t)))
+  addTransactions (transactions) {
+    transactions.map(t => this.addTransaction(t))
   }
 
   /**
@@ -88,8 +95,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  async removeTransaction (transaction) {
-    await this.removeTransactionById(transaction.id, transaction.senderPublicKey)
+  removeTransaction (transaction) {
+    this.removeTransactionById(transaction.id, transaction.senderPublicKey)
   }
 
   /**
@@ -98,10 +105,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {void}
    */
-  async removeTransactionById (id, senderPublicKey = undefined) {
+  removeTransactionById (id, senderPublicKey = undefined) {
     this.__memRemoveTransaction(id, senderPublicKey)
 
-    await this.__memSyncToPermanentStorageIfNecessary()
+    this.__memSyncToPermanentStorageIfNecessary()
   }
 
   /**
@@ -109,8 +116,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {Array} transactions
    * @return {void}
    */
-  async removeTransactions (transactions) {
-    await Promise.all(transactions.map(t => this.removeTransaction(t)))
+  removeTransactions (transactions) {
+    transactions.map(t => this.removeTransaction(t))
   }
 
   /**
@@ -118,11 +125,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {Transaction} transaction
    * @return {(Boolean|void)}
    */
-  async hasExceededMaxTransactions (transaction) {
-    await this.__purgeExpired()
+  hasExceededMaxTransactions (transaction) {
+    this.__purgeExpired()
 
     if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
-      logger.debug(`Transaction pool allowing ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
+      logger.debug(
+        `Transaction pool: allowing sender public key: ${transaction.senderPublicKey} ` +
+        '(listed in options.allowedSenders), thus skipping throttling.')
       return false
     }
 
@@ -137,8 +146,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {String} id
    * @return {(Transaction|undefined)}
    */
-  async getTransaction (id) {
-    await this.__purgeExpired()
+  getTransaction (id) {
+    this.__purgeExpired()
 
     return this.mem.byId.get(id)
   }
@@ -151,7 +160,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async removeForgedAndGetPending (transactionIds) {
     const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
-    await Promise.all(Array.from(forgedIdsSet).map(id => this.removeTransactionById(id)))
+    Array.from(forgedIdsSet).map(id => this.removeTransactionById(id))
 
     return transactionIds.filter(id => !forgedIdsSet.has(id))
   }
@@ -162,7 +171,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Array|void)}
    */
   async getTransactionsForForging (blockSize) {
-    await this.__purgeExpired()
+    this.__purgeExpired()
 
     try {
       let transactionsIds = await this.getTransactionIdsForForging(0, this.mem.byId.size)
@@ -196,8 +205,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {Number} size
    * @return {(Array|void)} array of serialized transaction hex strings
    */
-  async getTransactions (start, size) {
-    await this.__purgeExpired()
+  getTransactions (start, size) {
+    this.__purgeExpired()
 
     let serializedTransactions = []
 
@@ -224,7 +233,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Array} array of transactions IDs in the specified range
    */
   async getTransactionIdsForForging (start, size) {
-    await this.__purgeExpired()
+    this.__purgeExpired()
 
     let ids = []
 
@@ -248,10 +257,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * Flush the pool (delete all transactions from it).
    * @return {void}
    */
-  async flush () {
+  flush () {
     this.__memFlush()
 
-    await database.transactionPoolDeleteAll()
+    this.storage.deleteAll()
   }
 
   /**
@@ -259,9 +268,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {void}
    */
-  async removeTransactionsForSender (senderPublicKey) {
+  removeTransactionsForSender (senderPublicKey) {
     const ids = Array.from(this.mem.idsBySender.get(senderPublicKey))
-    await Promise.all(ids.map(id => this.removeTransactionById(id)))
+    ids.map(id => this.removeTransactionById(id))
   }
 
   /**
@@ -269,8 +278,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {String} transactionId
    * @return {Boolean}
    */
-  async transactionExists (transactionId) {
-    await this.__purgeExpired()
+  transactionExists (transactionId) {
+    this.__purgeExpired()
 
     return this.mem.byId.has(transactionId)
   }
@@ -279,7 +288,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * Remove all transactions from the pool that have expired.
    * @return {void}
    */
-  async __purgeExpired () {
+  __purgeExpired () {
     const now = new Date()
 
     let ids = []
@@ -300,7 +309,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       this.__memRemoveTransaction(id, transaction.senderPublicKey)
 
-      await this.__memSyncToPermanentStorageIfNecessary()
+      this.__memSyncToPermanentStorageIfNecessary()
     }
   }
 
@@ -354,12 +363,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * before the restart.
    * @return {void}
    */
-  async __memLoadFromDB () {
-    const transactions = await database.transactionPoolLoad()
+  __memLoadFromDB () {
+    const serialized = this.storage.loadAllInInsertionOrder()
 
-    for (const t of transactions) {
-      this.__memAddTransaction(t, true)
-    }
+    serialized.map(s => this.__memAddTransaction(new Transaction(s), true))
   }
 
   /**
@@ -468,9 +475,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * many changes have been accumulated in-memory.
    * @return {void}
    */
-  async __memSyncToPermanentStorageIfNecessary () {
+  __memSyncToPermanentStorageIfNecessary () {
     if (this.mem.dirty.added.size + this.mem.dirty.removed.size >= this.options.syncInterval) {
-      await this.__memSyncToPermanentStorage()
+      this.__memSyncToPermanentStorage()
     }
   }
 
@@ -478,20 +485,20 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * Sync the in-memory storage to the permanent (on-disk) storage.
    * @return {void}
    */
-  async __memSyncToPermanentStorage () {
+  __memSyncToPermanentStorage () {
     if (this.mem.dirty.added.size > 0) {
       // Convert transaction ids from `this.mem.dirty.added` to Transaction
       // objects in `toAdd`.
       let toAdd = []
       this.mem.dirty.added.forEach(id => toAdd.push(this.mem.byId.get(id)))
       this.mem.dirty.added.clear()
-      await database.transactionPoolAdd(toAdd)
+      this.storage.bulkAdd(toAdd)
     }
 
     if (this.mem.dirty.removed.size > 0) {
       let toRemove = Array.from(this.mem.dirty.removed)
       this.mem.dirty.removed.clear()
-      await database.transactionPoolRemoveById(toRemove)
+      this.storage.bulkRemoveById(toRemove)
     }
   }
 
@@ -508,3 +515,5 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     this.mem.dirty.removed.clear()
   }
 }
+
+module.exports = TransactionPool
