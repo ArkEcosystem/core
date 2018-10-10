@@ -15,11 +15,11 @@ beforeEach(() => {
 })
 
 describe('API - HTTP Client', () => {
-  let headers
+  let defaultHeaders
 
   beforeEach(() => {
-    headers = {
-      'Accept': `application/vnd.arkCoreApi.v${client.version}`
+    defaultHeaders = {
+      'Accept': `application/vnd.ark.core-api.v${client.version}+json`
     }
   })
 
@@ -91,7 +91,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.get('ENDPOINT')
 
-      expect(response.config).toHaveAtLeastHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(defaultHeaders)
     })
 
     it('should send the request params', async () => {
@@ -120,7 +120,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.post('ENDPOINT')
 
-      expect(response.config).toHaveAtLeastHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(defaultHeaders)
     })
   })
 
@@ -138,7 +138,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.put('ENDPOINT')
 
-      expect(response.config).toHaveAtLeastHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(defaultHeaders)
     })
   })
 
@@ -156,7 +156,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.patch('ENDPOINT')
 
-      expect(response.config).toHaveAtLeastHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(defaultHeaders)
     })
   })
 
@@ -174,7 +174,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.delete('ENDPOINT')
 
-      expect(response.config).toHaveAtLeastHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(defaultHeaders)
     })
 
     it('should send the request params', async () => {
