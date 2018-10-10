@@ -189,7 +189,7 @@ exports.postBlock = {
       const b = new Block(block)
 
       if (!b.verification.verified) {
-        throw new Error('invalid block received')
+        return {success: false}
       }
 
       blockchain.pushPingBlock(b.data)
