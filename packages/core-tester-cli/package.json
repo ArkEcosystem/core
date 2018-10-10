@@ -32,6 +32,9 @@
     "pino": "^4.16.1",
     "superheroes": "^1.0.0"
   },
+  "devDependencies": {
+    "axios-mock-adapter": "^1.15.0"
+  },
   "publishConfig": {
     "access": "public"
   }
