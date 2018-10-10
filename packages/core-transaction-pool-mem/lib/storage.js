@@ -28,10 +28,8 @@ class Storage {
       CREATE TABLE IF NOT EXISTS ${this.table} (
         "sequence" INTEGER PRIMARY KEY AUTOINCREMENT,
         "id" VARCHAR(64) UNIQUE,
-        "senderPublicKey" VARCHAR(66) NOT NULL,
         "serialized" TEXT NOT NULL
       );
-      CREATE INDEX IF NOT EXISTS "pool_sender" ON pool ("senderPublicKey");
     `)
   }
 
@@ -48,7 +46,7 @@ class Storage {
    * @param {Array of Transaction} data new entries to be added
    */
   bulkAdd (data) {
-    const columns = [ 'id', 'senderPublicKey', 'serialized' ]
+    const columns = [ 'id', 'serialized' ]
     const columnsSql = columns.join(', ')
     const valuesSql = columns.map(c => ':' + c).join(', ')
 
