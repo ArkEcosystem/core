@@ -46,6 +46,10 @@ class Storage {
    * @param {Array of Transaction} data new entries to be added
    */
   bulkAdd (data) {
+    if (data.length === 0) {
+      return
+    }
+
     const insertStatement = this.db.prepare(
       `INSERT INTO ${this.table} (id, serialized) VALUES (:id, :serialized);`)
 
@@ -64,6 +68,10 @@ class Storage {
    * @param {Array of String} ids of the elements to be removed
    */
   bulkRemoveById (ids) {
+    if (ids.length === 0) {
+      return
+    }
+
     const deleteStatement = this.db.prepare(
       `DELETE FROM ${this.table} WHERE id = :id;`)
 
