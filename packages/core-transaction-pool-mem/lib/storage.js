@@ -28,7 +28,7 @@ class Storage {
       CREATE TABLE IF NOT EXISTS ${this.table} (
         "sequence" INTEGER PRIMARY KEY AUTOINCREMENT,
         "id" VARCHAR(64) UNIQUE,
-        "serialized" TEXT NOT NULL
+        "serialized" BLOB NOT NULL
       );
     `)
   }
@@ -46,20 +46,15 @@ class Storage {
    * @param {Array of Transaction} data new entries to be added
    */
   bulkAdd (data) {
-    const columns = [ 'id', 'serialized' ]
-    const columnsSql = columns.join(', ')
-    const valuesSql = columns.map(c => ':' + c).join(', ')
-
     const insertStatement = this.db.prepare(
-      `INSERT INTO ${this.table} (${columnsSql}) VALUES (${valuesSql});`)
+      `INSERT INTO ${this.table} (id, serialized) VALUES (:id, :serialized);`)
 
     this.db.prepare('BEGIN;').run()
 
-    data.map(d => {
-      const params = {}
-      columns.map(c => { params[c] = d[c] })
-      insertStatement.run(params)
-    })
+    data.map(d => insertStatement.run({
+      id: d.id,
+      serialized: Buffer.from(d.serialized, 'hex')
+    }))
 
     this.db.prepare('COMMIT;').run()
   }
@@ -84,7 +79,9 @@ class Storage {
    * @return {Array of String} representing serialized entries
    */
   loadAllInInsertionOrder () {
-    return this.db.prepare(`SELECT * FROM ${this.table} ORDER BY sequence;`).all()
+    const rows = this.db.prepare(
+      `SELECT HEX(serialized) AS serializedHex FROM ${this.table} ORDER BY sequence;`).all()
+    return rows.map(r => r.serializedHex)
   }
 
   /**
