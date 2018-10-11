@@ -12,7 +12,7 @@ exports.calculateApproval = (delegate, height) => {
   const constants = config.getConstants(height)
   const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus((height - constants.height) * constants.reward)
 
-  return delegate.balance.times(100).dividedBy(totalSupply).toNumber().toFixed(2)
+  return delegate.balance.times(100).dividedBy(totalSupply).toFixed().toFixed(2)
 }
 
 /**

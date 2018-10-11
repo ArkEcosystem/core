@@ -201,7 +201,7 @@ exports.supply = {
     const rewards = new Bignum(constants.reward).times(lastBlock.data.height - constants.height)
 
     return utils.respondWith({
-      supply: new Bignum(config.genesisBlock.totalAmount).plus(rewards).toNumber()
+      supply: new Bignum(config.genesisBlock.totalAmount).plus(rewards).toFixed()
     })
   }
 }
@@ -227,7 +227,7 @@ exports.status = {
       milestone: ~~(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
-      supply: new Bignum(config.genesisBlock.totalAmount).plus(rewards).toNumber()
+      supply: new Bignum(config.genesisBlock.totalAmount).plus(rewards).toFixed()
     })
   }
 }

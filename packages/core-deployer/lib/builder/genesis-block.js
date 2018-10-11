@@ -207,7 +207,7 @@ module.exports = class GenesisBlockBuilder {
       blockBuffer[i] = hash[7 - i]
     }
 
-    return new Bignum(blockBuffer.toString('hex'), 16).toString()
+    return new Bignum(blockBuffer.toString('hex'), 16).toFixed()
   }
 
   /**

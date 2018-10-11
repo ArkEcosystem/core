@@ -39,12 +39,12 @@ module.exports = class Transaction extends Model {
     }, {
       name: 'amount',
       init: col => {
-        return +col.value.toString()
+        return +col.value.toFixed()
       }
     }, {
       name: 'fee',
       init: col => {
-        return +col.value.toString()
+        return +col.value.toFixed()
       }
     }, {
       name: 'serialized',
