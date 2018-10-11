@@ -149,7 +149,7 @@ module.exports = class Client {
         await delay(wait)
       }
 
-      await this.__chooseHost()
+      await this.__chooseHost(wait)
     }
   }
 
