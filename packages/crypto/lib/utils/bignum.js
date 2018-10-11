@@ -1,6 +1,11 @@
-const Bignum = require('bignumber.js')
+const BigNumberJS = require('bignumber.js')
 
-Bignum.ZERO = new Bignum(0)
-Bignum.ONE = new Bignum(1)
+BigNumberJS.ZERO = new Bignum(0)
+BigNumberJS.ONE = new Bignum(1)
 
-module.exports = Bignum
+BigNumberJS.config({
+    DECIMAL_PLACES: 0,
+    EXPONENTIAL_AT: 1e9
+})
+
+module.exports = BigNumberJS
