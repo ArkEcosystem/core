@@ -1,0 +1,97 @@
+version: 2
+jobs:
+  test-node9:
+    working_directory: ~/ark-core
+    docker:
+      - image: circleci/node:9-browsers
+      - image: redis:alpine
+      - image: postgres:alpine
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    steps: &teststeps
+      - checkout
+      - run:
+          name: Apt update
+          command: sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: 'sudo apt-get install -q xsel'
+      - run:
+          name: Install yarn 
+          command: 'curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH="$HOME/.yarn/bin:$PATH" && yarn config set cache-folder $HOME/.cache/yarn'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install packages
+          command: yarn
+      - run:
+          name: Create .ark/database directory
+          command: mkdir -p $HOME/.ark/database
+      - run:
+          name: Test
+          command: ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit
+      
+  test-node10:
+    working_directory: ~/ark-core
+    docker:
+      - image: circleci/node:10-browsers
+      - image: redis:alpine
+      - image: postgres:alpine
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    steps: *teststeps
+
+  lint:
+    working_directory: ~/ark-core
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install yarn 
+          command: 'curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH="$HOME/.yarn/bin:$PATH" && yarn config set cache-folder $HOME/.cache/yarn'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install packages
+          command: yarn
+      - run:
+          name: Lint
+          command: yarn lint
+
+  depcheck:
+    working_directory: ~/ark-core
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install yarn 
+          command: 'curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH="$HOME/.yarn/bin:$PATH" && yarn config set cache-folder $HOME/.cache/yarn'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install packages
+          command: yarn
+      - run:
+          name: Depcheck
+          command: yarn depcheck
+
+workflows:
+  version: 2
+  test_depcheck_lint:
+    jobs:
+      - test-node9
+      - test-node10
+      - lint
+      - depcheck
