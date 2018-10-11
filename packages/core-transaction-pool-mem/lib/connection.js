@@ -120,7 +120,7 @@ class TransactionPool extends TransactionPoolInterface {
   /**
    * Check whether sender of transaction has exceeded max transactions in queue.
    * @param  {Transaction} transaction
-   * @return {(Boolean|void)}
+   * @return {Boolean} true if exceeded
    */
   hasExceededMaxTransactions (transaction) {
     this.__purgeExpired()
@@ -134,7 +134,7 @@ class TransactionPool extends TransactionPoolInterface {
 
     const count = this.mem.getIdsBySender(transaction.senderPublicKey).size
 
-    return count > 0 ? count >= this.options.maxTransactionsPerSender : false
+    return !(count <= this.options.maxTransactionsPerSender)
   }
 
   /**
