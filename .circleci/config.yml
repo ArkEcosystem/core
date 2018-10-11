@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  node9test:
+  test-node9:
     working_directory: ~/ark-core
     docker:
       - image: circleci/node:9-browsers
@@ -33,7 +33,7 @@ jobs:
           name: Test
           command: ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit
       
-  node10test:
+  test-node10:
     working_directory: ~/ark-core
     docker:
       - image: circleci/node:10-browsers
@@ -45,7 +45,7 @@ jobs:
           POSTGRES_USER: ark
     steps: *teststeps
 
-  node10lint:
+  lint:
     working_directory: ~/ark-core
     docker:
       - image: circleci/node:10
@@ -66,7 +66,7 @@ jobs:
           name: Lint
           command: yarn lint
 
-  node10depcheck:
+  depcheck:
     working_directory: ~/ark-core
     docker:
       - image: circleci/node:10
@@ -91,7 +91,7 @@ workflows:
   version: 2
   test_depcheck_lint:
     jobs:
-      - node9test
-      - node10test
-      - node10lint
-      - node10depcheck
+      - test-node9
+      - test-node10
+      - lint
+      - depcheck
