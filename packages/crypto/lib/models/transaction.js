@@ -146,10 +146,6 @@ module.exports = class Transaction {
 
   // AIP11 serialization
   static serialize (transaction) {
-    if (!(transaction.fee instanceof Bignum)) {
-      transaction.fee = new Bignum(transaction.fee)
-    }
-
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
@@ -157,7 +153,7 @@ module.exports = class Transaction {
     bb.writeByte(transaction.type)
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')
-    bb.writeUInt64(+transaction.fee.toFixed())
+    bb.writeUInt64(+transaction.fee.toString())
 
     if (transaction.vendorField) {
       let vf = Buffer.from(transaction.vendorField, 'utf8')
