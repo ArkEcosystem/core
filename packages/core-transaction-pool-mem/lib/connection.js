@@ -29,7 +29,7 @@ class TransactionPool extends TransactionPoolInterface {
     this.storage = new Storage()
 
     const allSerialized = this.storage.loadAllInInsertionOrder()
-    allSerialized.map(s => this.mem.add(new Transaction(s), this.options.maxTransactionAge, true))
+    allSerialized.forEach(s => this.mem.add(new Transaction(s), this.options.maxTransactionAge, true))
 
     return this
   }
@@ -85,7 +85,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @param {Array}   transactions, already transformed and verified by transaction guard - must have serialized field
    */
   addTransactions (transactions) {
-    transactions.map(t => this.addTransaction(t))
+    transactions.forEach(t => this.addTransaction(t))
   }
 
   /**
@@ -115,7 +115,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   removeTransactions (transactions) {
-    transactions.map(t => this.removeTransaction(t))
+    transactions.forEach(t => this.removeTransaction(t))
   }
 
   /**
@@ -157,7 +157,7 @@ class TransactionPool extends TransactionPoolInterface {
   async removeForgedAndGetPending (transactionIds) {
     const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
-    Array.from(forgedIdsSet).map(id => this.removeTransactionById(id))
+    forgedIdsSet.forEach(id => this.removeTransactionById(id))
 
     return transactionIds.filter(id => !forgedIdsSet.has(id))
   }

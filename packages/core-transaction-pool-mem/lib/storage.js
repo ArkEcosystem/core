@@ -55,7 +55,7 @@ class Storage {
 
     this.db.prepare('BEGIN;').run()
 
-    data.map(d => insertStatement.run({
+    data.forEach(d => insertStatement.run({
       id: d.id,
       serialized: Buffer.from(d.serialized, 'hex')
     }))
@@ -77,7 +77,7 @@ class Storage {
 
     this.db.prepare('BEGIN;').run()
 
-    ids.map(id => deleteStatement.run({ id: id }))
+    ids.forEach(id => deleteStatement.run({ id: id }))
 
     this.db.prepare('COMMIT;').run()
   }
