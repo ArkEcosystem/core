@@ -1,6 +1,6 @@
 const bs58check = require('bs58check')
 const { cloneDeepWith } = require('lodash')
-const Bignum = require('../utils/bignum')
+const { Bignum, bignumify } = require('../utils')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
 const crypto = require('../crypto/crypto')
@@ -146,6 +146,8 @@ module.exports = class Transaction {
 
   // AIP11 serialization
   static serialize (transaction) {
+    bignumify(transaction, ['fee', 'amount'])
+
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
