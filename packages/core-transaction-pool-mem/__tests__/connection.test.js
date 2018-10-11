@@ -433,5 +433,31 @@ describe('Connection', () => {
       connection.removeTransaction(transaction)
       connection.addTransaction(transaction)
     })
+
+    /*
+    it('add 30k then get first 150', () => {
+      const nAdd = 30000
+
+      console.time(`time to add ${nAdd}`)
+      const allTransactions = []
+      for (let i = 0; i < nAdd; i++) {
+        const transaction = new Transaction(mockData.dummy1)
+        transaction.id = fakeTransactionId(i)
+        allTransactions.push(transaction)
+
+        connection.addTransaction(allTransactions[allTransactions.length - 1])
+      }
+      console.timeEnd(`time to add ${nAdd}`)
+
+      const n = 150
+
+      console.time(`time to get first ${n}`)
+      const firstTransactions = connection.getTransactions(0, n)
+      console.timeEnd(`time to get first ${n}`)
+
+      expect(firstTransactions[0]).toBe(allTransactions[0].serialized)
+      expect(firstTransactions[n - 1]).toBe(allTransactions[n - 1].serialized)
+    })
+    */
   })
 })
