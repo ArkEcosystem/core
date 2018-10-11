@@ -60,9 +60,7 @@ class TransactionPool extends TransactionPoolInterface {
   getSenderSize (senderPublicKey) {
     this.__purgeExpired()
 
-    const ids = this.mem.getIdsBySender(senderPublicKey)
-
-    return ids === undefined ? 0 : ids.size
+    return this.mem.getIdsBySender(senderPublicKey).size
   }
 
   /**
@@ -134,8 +132,7 @@ class TransactionPool extends TransactionPoolInterface {
       return false
     }
 
-    const ids = this.mem.getIdsBySender(transaction.senderPublicKey)
-    const count = ids === undefined ? 0 : ids.size
+    const count = this.mem.getIdsBySender(transaction.senderPublicKey).size
 
     return count > 0 ? count >= this.options.maxTransactionsPerSender : false
   }
@@ -268,10 +265,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   removeTransactionsForSender (senderPublicKey) {
-    const ids = this.mem.getIdsBySender(senderPublicKey)
-    if (ids !== undefined) {
-      ids.forEach(id => this.removeTransactionById(id))
-    }
+    this.mem.getIdsBySender(senderPublicKey).forEach(id => this.removeTransactionById(id))
   }
 
   /**

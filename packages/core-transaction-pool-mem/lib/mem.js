@@ -146,10 +146,14 @@ class Mem {
   /**
    * Get all transactions ids from a given sender.
    * @param {String} senderPublicKey public key of the sender
-   * @return {Set of String|undefined} all ids for the given sender
+   * @return {Set of String} all ids for the given sender, could be empty Set
    */
   getIdsBySender (senderPublicKey) {
-    return this.idsBySender.get(senderPublicKey)
+    const ids = this.idsBySender.get(senderPublicKey)
+    if (ids !== undefined) {
+      return ids
+    }
+    return new Set()
   }
 
   /**
