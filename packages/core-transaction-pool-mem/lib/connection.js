@@ -6,6 +6,7 @@ const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 const emitter = container.resolvePlugin('event-emitter')
 const logger = container.resolvePlugin('logger')
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { Transaction } = require('@arkecosystem/crypto').models
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 
@@ -277,6 +278,24 @@ class TransactionPool extends TransactionPoolInterface {
     this.__purgeExpired()
 
     return this.mem.transactionExists(transactionId)
+  }
+
+  /**
+   * Check whether there are any vote or unvote
+   * transactions (transaction.type == TRANSACTION_TYPES.VOTE) in the pool
+   * from a given sender.
+   * @return {Boolean} true if exist
+   */
+  checkIfSenderHasVoteTransactions (senderPublicKey) {
+    this.__purgeExpired()
+
+    for (const id of this.mem.getIdsBySender(senderPublicKey)) {
+      if (this.mem.getTransactionById(id).type === TRANSACTION_TYPES.VOTE) {
+        return true
+      }
+    }
+
+    return false
   }
 
   /**

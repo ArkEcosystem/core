@@ -6,6 +6,7 @@ const delay = require('delay')
 const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const mockData = require('./__fixtures__/transactions')
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { Transaction } = require('@arkecosystem/crypto').models
 
 let connection
@@ -393,6 +394,41 @@ describe('Connection', () => {
       connection.flush()
 
       expect(connection.getPoolSize()).toBe(0)
+    })
+  })
+
+  describe('checkIfSenderHasVoteTransactions', () => {
+    it('should be a function', () => {
+      expect(connection.checkIfSenderHasVoteTransactions).toBeFunction()
+    })
+
+    it('should be false for non-existent sender', () => {
+      connection.addTransaction(mockData.dummy1)
+
+      expect(connection.checkIfSenderHasVoteTransactions('nonexistent')).toBeFalsy()
+    })
+
+    it('should be false for existent sender with no votes', () => {
+      const tx = mockData.dummy1
+
+      connection.addTransaction(tx)
+
+      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeFalsy()
+    })
+
+    it('should be true for existent sender with votes', () => {
+      const tx = mockData.dummy1
+
+      connection.addTransaction(tx)
+
+      const voteTx = new Transaction(tx)
+      voteTx.id = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+      voteTx.type = TRANSACTION_TYPES.VOTE
+      connection.addTransaction(voteTx)
+
+      connection.addTransaction(mockData.dummy2)
+
+      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeTruthy()
     })
   })
 
