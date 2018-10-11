@@ -182,7 +182,7 @@ class TransactionPool extends TransactionPoolInterface {
 
         if (!transaction ||
             !this.checkDynamicFeeMatch(transaction) ||
-            !this.checkApplyToBlockchain(transaction)) {
+            !(await this.checkApplyToBlockchain(transaction))) {
           continue
         }
 
@@ -268,8 +268,10 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   removeTransactionsForSender (senderPublicKey) {
-    const ids = Array.from(this.mem.getIdsBySender(senderPublicKey))
-    ids.map(id => this.removeTransactionById(id))
+    const ids = this.mem.getIdsBySender(senderPublicKey)
+    if (ids !== undefined) {
+      ids.forEach(id => this.removeTransactionById(id))
+    }
   }
 
   /**

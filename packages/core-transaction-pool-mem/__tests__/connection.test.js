@@ -1,10 +1,12 @@
 'use strict'
 
 const app = require('./__support__/setup')
+const defaultConfig = require('../lib/defaults')
 const delay = require('delay')
+const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
+const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const mockData = require('./__fixtures__/transactions')
 const { Transaction } = require('@arkecosystem/crypto').models
-const defaultConfig = require('../lib/defaults')
 
 let connection
 
@@ -359,6 +361,16 @@ describe('Connection', () => {
       expect(transactions[3].id).toBe(mockData.dummy4.id)
       expect(transactions[4].id).toBe(mockData.dummy5.id)
       expect(transactions[5].id).toBe(mockData.dummy6.id)
+    })
+
+    it('should not accept transaction with amount > wallet balance', async () => {
+      const amount = 333300000000000 // more than any genesis wallet
+      const generatedTransfers = generateTransfer('testnet', delegatesSecrets[0], mockData.dummy1.recipientId, amount, 2)
+
+      await connection.addTransaction(generatedTransfers[0])
+
+      let transactions = await connection.getTransactionsForForging(0)
+      expect(transactions).toEqual([])
     })
   })
 
