@@ -23,9 +23,9 @@ module.exports = delegate => {
       productivity: delegateCalculator.calculateProductivity(delegate)
     },
     forged: {
-      fees: delegate.forgedFees.toNumber(),
-      rewards: delegate.forgedRewards.toNumber(),
-      total: delegate.forgedFees.plus(delegate.forgedRewards).toNumber()
+      fees: +delegate.forgedFees.toFixed(),
+      rewards: +delegate.forgedRewards.toFixed(),
+      total: +(delegate.forgedFees.plus(delegate.forgedRewards)).toFixed()
     }
   }
 

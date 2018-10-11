@@ -178,7 +178,7 @@ module.exports = class Command {
    */
   static parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => new Bignum(f).toNumber())
+      const feeRange = fee.split('-').map(f => +(new Bignum(f)).toFixed())
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }
