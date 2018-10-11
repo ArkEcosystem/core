@@ -270,7 +270,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         const id = transactionsIds.shift()
         const transaction = await this.getTransaction(id)
 
-        if (!transaction || !this.checkDynamicFeeMatch(transaction) || !this.checkApplyToBlockchain(transaction)) {
+        if (!transaction || !this.checkDynamicFeeMatch(transaction) || !(await this.checkApplyToBlockchain(transaction))) {
           continue
         }
 
