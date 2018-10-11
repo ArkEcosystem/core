@@ -1,7 +1,7 @@
 const { cloneDeepWith } = require('lodash')
 const { createHash } = require('crypto')
 const ByteBuffer = require('bytebuffer')
-const { Bignum, bignumify } = require('../utils')
+const { Bignum } = require('../utils')
 const Transaction = require('./transaction')
 const configManager = require('../managers/config')
 const { crypto, slots } = require('../crypto')
@@ -394,8 +394,6 @@ module.exports = class Block {
    * @static
    */
   static serialize (block, includeSignature = true) {
-    bignumify(block, ['totalAmount', 'totalFee', 'reward'])
-
     block.previousBlockHex = toBytesHex(block.previousBlock)
 
     const bb = new ByteBuffer(256, true)
@@ -404,9 +402,9 @@ module.exports = class Block {
     bb.writeUInt32(block.height)
     bb.append(block.previousBlockHex, 'hex')
     bb.writeUInt32(block.numberOfTransactions)
-    bb.writeUInt64(+block.totalAmount.toFixed())
-    bb.writeUInt64(+block.totalFee.toFixed())
-    bb.writeUInt64(+block.reward.toFixed())
+    bb.writeUInt64(+(new Bignum(block.totalAmount)).toFixed())
+    bb.writeUInt64(+(new Bignum(block.totalFee)).toFixed())
+    bb.writeUInt64(+(new Bignum(block.reward)).toFixed())
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
@@ -490,7 +488,7 @@ module.exports = class Block {
     // Convert Bignums
     let blockData = cloneDeepWith(this.data, (value, key) => {
       if (['reward', 'totalAmount', 'totalFee'].indexOf(key) !== -1) {
-        return value.toNumber()
+        return +value.toFixed()
       }
     })
 

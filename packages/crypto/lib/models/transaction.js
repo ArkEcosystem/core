@@ -1,6 +1,6 @@
 const bs58check = require('bs58check')
 const { cloneDeepWith } = require('lodash')
-const { Bignum, bignumify } = require('../utils')
+const { Bignum } = require('../utils')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
 const crypto = require('../crypto/crypto')
@@ -146,8 +146,6 @@ module.exports = class Transaction {
 
   // AIP11 serialization
   static serialize (transaction) {
-    bignumify(transaction, ['fee', 'amount'])
-
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
@@ -155,7 +153,7 @@ module.exports = class Transaction {
     bb.writeByte(transaction.type)
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')
-    bb.writeUInt64(+transaction.fee.toFixed())
+    bb.writeUInt64(+(new Bignum(transaction.fee)).toFixed())
 
     if (transaction.vendorField) {
       let vf = Buffer.from(transaction.vendorField, 'utf8')
@@ -169,7 +167,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      bb.writeUInt64(+transaction.amount.toFixed())
+      bb.writeUInt64(+(new Bignum(transaction.amount)).toFixed())
       bb.writeUInt32(transaction.expiration || 0)
       bb.append(bs58check.decode(transaction.recipientId))
     } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
