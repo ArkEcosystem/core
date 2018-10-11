@@ -19,7 +19,7 @@ exports.usernames = {
     const walletManager = container.resolvePlugin('database').walletManager
 
     const lastBlock = blockchain.getLastBlock()
-    const delegates = await blockchain.database.getActiveDelegates(lastBlock.data.height + 1)
+    const delegates = await blockchain.database.getActiveDelegates(lastBlock ? lastBlock.data.height + 1 : 1)
 
     const data = {}
     for (const delegate of delegates) {
