@@ -1,6 +1,7 @@
 'use strict'
 const axios = require('axios')
 const sample = require('lodash/sample')
+const delay = require('delay')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -90,8 +91,8 @@ module.exports = class Client {
    * Get a list of all active delegate usernames.
    * @return {Object}
    */
-  async getUsernames () {
-    await this.__chooseHost()
+  async getUsernames (wait = 0) {
+    await this.__chooseHost(wait)
 
     try {
       const response = await this.__get(`${this.host}/internal/utils/usernames`)
@@ -134,7 +135,7 @@ module.exports = class Client {
    * Chose a responsive host.
    * @return {void}
    */
-  async __chooseHost () {
+  async __chooseHost (wait = 0) {
     const host = sample(this.hosts)
 
     try {
@@ -143,6 +144,10 @@ module.exports = class Client {
       this.host = host
     } catch (error) {
       logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`)
+
+      if (wait > 0) {
+        await delay(wait)
+      }
 
       await this.__chooseHost()
     }

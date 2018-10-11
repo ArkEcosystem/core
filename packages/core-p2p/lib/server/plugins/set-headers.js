@@ -25,7 +25,10 @@ const register = async (server, options) => {
     async method (request, h) {
       const blockchain = container.resolvePlugin('blockchain')
       if (blockchain) {
-        headers.height = blockchain.getLastBlock().data.height
+        const lastBlock = blockchain.getLastBlock()
+        if (lastBlock) {
+          headers.height = lastBlock.data.height
+        }
       }
 
       const response = request.response
