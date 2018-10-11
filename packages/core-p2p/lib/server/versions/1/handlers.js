@@ -150,10 +150,10 @@ exports.getStatus = {
 
     return {
       success: true,
-      height: lastBlock.data.height,
+      height: lastBlock ? lastBlock.data.height : 0,
       forgingAllowed: slots.isForgingAllowed(),
       currentSlot: slots.getSlotNumber(),
-      header: lastBlock.getHeader()
+      header: lastBlock ? lastBlock.getHeader() : {}
     }
   }
 }
