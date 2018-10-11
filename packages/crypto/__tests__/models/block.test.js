@@ -89,15 +89,15 @@ describe('Models - Block', () => {
     })
 
     it('`totalAmount` of transactions is serialized as a UInt64', () => {
-      expect(serialize(data).readUInt64(24).toFixed()).toEqual(data.totalAmount)
+      expect(serialize(data).readUInt64(24).toString()).toEqual(data.totalAmount)
     })
 
     it('`totalFee` of transactions is serialized as a UInt64', () => {
-      expect(serialize(data).readUInt64(32).toFixed()).toEqual(data.totalFee)
+      expect(serialize(data).readUInt64(32).toString()).toEqual(data.totalFee)
     })
 
     it('`reward` of transactions is serialized as a UInt64', () => {
-      expect(serialize(data).readUInt64(40).toFixed()).toEqual(data.reward)
+      expect(serialize(data).readUInt64(40).toString()).toEqual(data.reward)
     })
 
     it('`payloadLength` of transactions is serialized as a UInt32', () => {

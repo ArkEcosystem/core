@@ -139,13 +139,17 @@ module.exports = class Transaction {
     // Convert Bignums
     return cloneDeepWith(this.data, (value, key) => {
       if (['amount', 'fee'].indexOf(key) !== -1) {
-        return value.toFixed()
+        return value.toNumber()
       }
     })
   }
 
   // AIP11 serialization
   static serialize (transaction) {
+    if (!(transaction.fee instanceof Bignum)) {
+      transaction.fee = new Bignum(transaction.fee)
+    }
+
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
