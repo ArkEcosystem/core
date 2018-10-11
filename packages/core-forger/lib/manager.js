@@ -41,7 +41,7 @@ module.exports = class ForgerManager {
       this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
-    await this.__loadUsernames()
+    await this.__loadUsernames(2000)
 
     const delegates = this.delegates.map(delegate => {
       return `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`
@@ -245,7 +245,7 @@ module.exports = class ForgerManager {
    * Get a list of all active delegate usernames.
    * @return {Object}
    */
-  async __loadUsernames () {
-    this.usernames = await this.client.getUsernames()
+  async __loadUsernames (wait = 0) {
+    this.usernames = await this.client.getUsernames(wait)
   }
 }
