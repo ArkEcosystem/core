@@ -1,6 +1,8 @@
 'use strict'
 
 const blockchainHelper = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
+const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const { client } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
 require('@arkecosystem/core-test-utils/lib/matchers')
@@ -155,6 +157,21 @@ describe('API P2P - Version 2', () => {
       expect(response).toHaveProperty('status')
       expect(response.status).toBe(200)
       expect(response.headers.height).toBe(1)
+    })
+
+    it('should fail when sending 2 transactions double spending', async () => {
+      const amount = 245098000000000 - 5098000000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers('testnet', delegates[0].secret, delegates[1].address, amount, 2, true)
+
+      const response = await utils.POST('peer/transactions', {
+        transactions
+      })
+
+      expect(response).toHaveProperty('status')
+      expect(response.status).toBe(406)
+
+      expect(response.result.error).toBeObject()
+      expect(response.result.error[transactions[1].id]).toEqual([ `Error: PoolWalletManager: Can't apply transaction ${transactions[1].id}` ])
     })
   })
 
