@@ -160,7 +160,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     const data = await this.db.rounds.findById(round)
 
-    const seedSource = round.toString()
+    const seedSource = round.toFixed()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
 
     for (let i = 0, delCount = data.length; i < delCount; i++) {

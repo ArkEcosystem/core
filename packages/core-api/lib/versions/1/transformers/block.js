@@ -18,7 +18,7 @@ module.exports = (model) => {
     height: model.height,
     numberOfTransactions: model.numberOfTransactions,
     totalAmount: Number(model.totalAmount),
-    totalForged: (Number(model.reward) + Number(model.totalFee)).toString(),
+    totalForged: (Number(model.reward) + Number(model.totalFee)).toFixed(),
     totalFee: Number(model.totalFee),
     reward: Number(model.reward),
     payloadLength: model.payloadLength,

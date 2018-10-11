@@ -20,7 +20,7 @@ module.exports = class Round extends Model {
     }, {
       name: 'balance',
       init: col => {
-        return +col.value.toString()
+        return +col.value.toFixed()
       }
     }, {
       name: 'round'

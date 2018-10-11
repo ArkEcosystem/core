@@ -173,7 +173,7 @@ module.exports = class TransactionGuard {
       try {
         await this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
-        this.__pushError(transaction, error.toString())
+        this.__pushError(transaction, error.toFixed())
         return
       }
 

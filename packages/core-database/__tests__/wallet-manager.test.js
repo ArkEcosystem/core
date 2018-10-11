@@ -228,8 +228,8 @@ describe('Wallet Manager', () => {
         const balance = new Bignum(100000000)
         sender.balance = balance
 
-        expect(sender.balance.toNumber()).toBe(100000000)
-        expect(recipient.balance.toNumber()).toBe(0)
+        expect(sender.balance.toFixed()).toBe(100000000)
+        expect(recipient.balance.toFixed()).toBe(0)
 
         await walletManager.applyTransaction(transaction)
 
@@ -241,8 +241,8 @@ describe('Wallet Manager', () => {
         const balance = Bignum.ONE
         sender.balance = balance
 
-        expect(sender.balance.toNumber()).toBe(1)
-        expect(recipient.balance.toNumber()).toBe(0)
+        expect(sender.balance.toFixed()).toBe(1)
+        expect(recipient.balance.toFixed()).toBe(0)
 
         try {
           expect(async () => {
@@ -251,8 +251,8 @@ describe('Wallet Manager', () => {
 
           expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {
-          expect(sender.balance.toNumber()).toBe(1)
-          expect(recipient.balance.toNumber()).toBe(0)
+          expect(sender.balance.toFixed()).toBe(1)
+          expect(recipient.balance.toFixed()).toBe(0)
         }
       })
     })
@@ -284,7 +284,7 @@ describe('Wallet Manager', () => {
         const balance = new Bignum(30 * ARKTOSHI)
         sender.balance = balance
 
-        expect(sender.balance.toNumber()).toBe(30 * ARKTOSHI)
+        expect(sender.balance.toFixed()).toBe(30 * ARKTOSHI)
 
         await walletManager.applyTransaction(transaction)
 
@@ -536,7 +536,7 @@ describe('Wallet Manager', () => {
 
     it('should update vote balance of delegates', async () => {
       for (let i = 0; i < 5; i++) {
-        const delegateKey = i.toString().repeat(66)
+        const delegateKey = i.toFixed().repeat(66)
         const delegate = {
           address: crypto.getAddress(delegateKey),
           publicKey: delegateKey,
@@ -545,7 +545,7 @@ describe('Wallet Manager', () => {
         }
 
         const voter = {
-          address: crypto.getAddress((i + 5).toString().repeat(66)),
+          address: crypto.getAddress((i + 5).toFixed().repeat(66)),
           balance: new Bignum((i + 1) * 1000 * ARKTOSHI),
           publicKey: 'v' + delegateKey,
           vote: delegateKey

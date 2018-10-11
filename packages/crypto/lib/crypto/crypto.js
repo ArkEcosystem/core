@@ -132,8 +132,8 @@ class Crypto {
       }
     }
 
-    bb.writeLong(+transaction.amount.toString())
-    bb.writeLong(+transaction.fee.toString())
+    bb.writeLong(+transaction.amount.toFixed())
+    bb.writeLong(+transaction.fee.toFixed())
 
     if (assetSize > 0) {
       for (let i = 0; i < assetSize; i++) {

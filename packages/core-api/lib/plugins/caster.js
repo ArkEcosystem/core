@@ -53,7 +53,7 @@ const register = async (server, options) => {
         else if (isNumber(query[key])) {
           query[key] = (query[key] == Number(query[key]))
             ? Number(query[key])
-            : Bignum(query[key]).toString()
+            : Bignum(query[key]).toFixed()
         }
         // Strings
         else {

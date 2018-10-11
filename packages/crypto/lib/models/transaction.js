@@ -139,7 +139,7 @@ module.exports = class Transaction {
     // Convert Bignums
     return cloneDeepWith(this.data, (value, key) => {
       if (['amount', 'fee'].indexOf(key) !== -1) {
-        return value.toNumber()
+        return value.toFixed()
       }
     })
   }
@@ -153,7 +153,7 @@ module.exports = class Transaction {
     bb.writeByte(transaction.type)
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')
-    bb.writeUInt64(+transaction.fee.toString())
+    bb.writeUInt64(+transaction.fee.toFixed())
 
     if (transaction.vendorField) {
       let vf = Buffer.from(transaction.vendorField, 'utf8')
@@ -167,7 +167,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      bb.writeUInt64(+transaction.amount.toString())
+      bb.writeUInt64(+transaction.amount.toFixed())
       bb.writeUInt32(transaction.expiration || 0)
       bb.append(bs58check.decode(transaction.recipientId))
     } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
@@ -198,7 +198,7 @@ module.exports = class Transaction {
       bb.writeByte(transaction.asset.ipfs.dag.length / 2)
       bb.append(transaction.asset.ipfs.dag, 'hex')
     } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      bb.writeUInt64(+transaction.amount.toString())
+      bb.writeUInt64(+transaction.amount.toFixed())
       bb.writeByte(transaction.timelockType)
       bb.writeUInt32(transaction.timelock)
       bb.append(bs58check.decode(transaction.recipientId))
@@ -318,7 +318,7 @@ module.exports = class Transaction {
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2))
       transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff
-      transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
+      transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toFixed()
       transaction.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21))
 
       Transaction.parseSignatures(hexString, transaction, assetOffset + (21 + 13) * 2)

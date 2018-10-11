@@ -184,6 +184,6 @@ module.exports = class Delegate {
     decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)))
     decipher.finish()
 
-    return decipher.output.toString()
+    return decipher.output.toFixed()
   }
 }

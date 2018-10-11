@@ -17,9 +17,9 @@ module.exports = model => {
     height: +model.height,
     previous: model.previousBlock,
     forged: {
-      reward: +model.reward.toString(),
-      fee: +model.totalFee.toString(),
-      total: +model.reward.toString() + +model.totalFee.toString()
+      reward: +model.reward.toFixed(),
+      fee: +model.totalFee.toFixed(),
+      total: +model.reward.toFixed() + +model.totalFee.toFixed()
     },
     payload: {
       hash: model.payloadHash,
