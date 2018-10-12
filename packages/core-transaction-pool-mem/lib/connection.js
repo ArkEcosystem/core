@@ -26,7 +26,7 @@ class TransactionPool extends TransactionPoolInterface {
   make () {
     this.mem = new Mem()
 
-    this.storage = new Storage()
+    this.storage = new Storage(this.options.storage)
 
     const allSerialized = this.storage.loadAllInInsertionOrder()
     allSerialized.forEach(s => this.mem.add(new Transaction(s), this.options.maxTransactionAge, true))
