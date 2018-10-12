@@ -28,11 +28,29 @@ describe('GraphQL API { blocks }', () => {
     })
   })
 
-  describe.skip('GraphQL queries for Blocks - testing relationships', () => {
+  describe('GraphQL queries for Blocks - testing relationships', () => {
+    it('should verify that relationships are valid', async () => {
+      const query = '{ blocks(limit: 1) { generator { address } } }'
+      const response = await utils.request(query)
 
+      expect(response).toBeSuccessfulResponse()
+
+      const data = response.data.data
+      expect(data).toBeObject()
+      expect(data.blocks[0].generator.address).toEqual('AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins')
+    })
   })
 
-  describe.skip('GraphQL queries for Blocks - testing api errors', () => {
-    // example: filter by column not defined in WalletFilter (lib/defs/inputs.js)
+  describe('GraphQL queries for Blocks - testing api errors', () => {
+    it('should...', async () => {
+      const query = '{ blocks(filter: { vers } ) { id } }'
+      const response = await utils.request(query)
+
+      expect(response).not.toBeSuccessfulResponse()
+
+      const error = response.data.errors
+      expect(error).toBeArray()
+      expect(response.status).toEqual(400)
+    })
   })
 })
