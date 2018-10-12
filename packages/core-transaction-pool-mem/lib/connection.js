@@ -70,9 +70,11 @@ class TransactionPool extends TransactionPoolInterface {
    */
   addTransaction (transaction) {
     if (this.transactionExists(transaction.id)) {
-      return logger.debug(
+      logger.debug(
         'Transaction pool: ignoring attempt to add a transaction that is already ' +
         `in the pool, id: ${transaction.id}`)
+
+      return
     }
 
     this.mem.add(transaction, this.options.maxTransactionAge)
@@ -203,24 +205,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {(Array|void)} array of serialized transaction hex strings
    */
   getTransactions (start, size) {
-    this.__purgeExpired()
-
-    let serializedTransactions = []
-
-    let i = 0
-    for (let transaction of this.mem.getTransactionsInInsertionOrder()) {
-      if (i >= start + size) {
-        break
-      }
-
-      if (i >= start) {
-        serializedTransactions.push(transaction.serialized)
-      }
-
-      i++
-    }
-
-    return serializedTransactions
+    return this.getTransactionsData(start, size, 'serialized')
   }
 
   /**
@@ -230,24 +215,36 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {Array} array of transactions IDs in the specified range
    */
   async getTransactionIdsForForging (start, size) {
+    const ids = this.getTransactionsData(start, size, 'id')
+    return this.removeForgedAndGetPending(ids)
+  }
+
+  /**
+   * Get data from all transactions within the specified range
+   * @param  {Number} start
+   * @param  {Number} size
+   * @param  {String} property
+   * @return {Array} array of transaction[property]
+   */
+  getTransactionsData (start, size, property) {
     this.__purgeExpired()
 
-    let ids = []
+    const data = []
 
     let i = 0
-    for (let transaction of this.mem.getTransactionsInInsertionOrder()) {
+    for (const transaction of this.mem.getTransactionsInInsertionOrder()) {
       if (i >= start + size) {
         break
       }
 
       if (i >= start) {
-        ids.push(transaction.id)
+        data.push(transaction[property])
       }
 
       i++
     }
 
-    return this.removeForgedAndGetPending(ids)
+    return data
   }
 
   /**

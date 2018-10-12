@@ -191,8 +191,8 @@ class Mem {
 
     let transactions = []
 
-    for (let e of this.idsByExpiration) {
-      if (e.expireAt < now) {
+    for (const e of this.idsByExpiration) {
+      if (e.expireAt <= now) {
         transactions.push(this.byId.get(e.transactionId))
       } else {
         break
