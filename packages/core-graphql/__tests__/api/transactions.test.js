@@ -2,8 +2,11 @@ const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 require('@arkecosystem/core-test-utils/lib/matchers')
 
+let genesisBlock
+
 beforeAll(async () => {
   await app.setUp()
+  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(() => {
@@ -35,8 +38,23 @@ describe('GraphQL API { transactions }', () => {
     })
   })
 
-  describe.skip('GraphQL queries for Transactions - filter by blockId', () => {
+  describe('GraphQL queries for Transactions - filter by blockId', () => {
+    it('should get transactions for given blockId', async () => {
+      const query = `{ transactions(filter: { blockId: "${genesisBlock.id}" }) { id } }`
+      const response = await utils.request(query)
 
+      expect(response).toBeSuccessfulResponse()
+
+      const data = response.data.data
+      expect(data).toBeObject()
+
+      const genesisBlockTransactionIds = genesisBlock.transactions.map(transaction => {
+        return transaction.id
+      })
+      data.transactions.forEach(transaction => {
+        expect(genesisBlockTransactionIds).toContain(transaction.id)
+      })
+    })
   })
 
   describe.skip('GraphQL queries for Transactions - filter by senderPublicKey', () => {
