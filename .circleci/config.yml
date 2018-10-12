@@ -31,10 +31,7 @@ jobs:
           command: mkdir -p $HOME/.ark/database
       - run:
           name: Test
-          command: ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit --ci --coverage
-      - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
+          command: ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit
       - run: # Running lint here but not in test-node10 as lint doesn't need to be done on both
           name: Lint
           command: yarn lint
@@ -68,10 +65,10 @@ jobs:
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
-      - run:
+      - run: # Running --ci --coverage only here because causes "heap out of memory" error on node 9
           name: Test
           command: ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit --ci --coverage
-      - run:
+      - run: # See above, so codecov only here, not on node 9
           name: Codecov
           command: ./node_modules/.bin/codecov
       - run: # Running depcheck here but not in test-node9 as depcheck doesn't need to be done on both
