@@ -3,18 +3,20 @@ const Base = require('../../base')
 module.exports = class Wallets extends Base {
   /**
    * Get all wallets.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  all () {
-    return this.http.get('wallets')
+  all (query) {
+    return this.http.get('wallets', query)
   }
 
   /**
    * Get top wallets.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  top () {
-    return this.http.get('wallets/top')
+  top (query) {
+    return this.http.get('wallets/top', query)
   }
 
   /**
@@ -29,28 +31,31 @@ module.exports = class Wallets extends Base {
   /**
    * Get transactions by wallet id.
    * @param  {String} id
+   * @param {Object} [query]
    * @return {Promise}
    */
-  transactions (id) {
-    return this.http.get(`wallets/${id}/transactions`)
+  transactions (id, query) {
+    return this.http.get(`wallets/${id}/transactions`, query)
   }
 
   /**
    * Get sent transactions by wallet id.
    * @param  {String} id
+   * @param {Object} [query]
    * @return {Promise}
    */
-  transactionsSent (id) {
-    return this.http.get(`wallets/${id}/transactions/sent`)
+  transactionsSent (id, query) {
+    return this.http.get(`wallets/${id}/transactions/sent`, query)
   }
 
   /**
    * Get received transactions by wallet id.
    * @param  {String} id
+   * @param {Object} [query]
    * @return {Promise}
    */
-  transactionsReceived (id) {
-    return this.http.get(`wallets/${id}/transactions/received`)
+  transactionsReceived (id, query) {
+    return this.http.get(`wallets/${id}/transactions/received`, query)
   }
 
   /**
