@@ -312,7 +312,7 @@ describe('API 2.0 - Transactions', () => {
         })
 
         expect(response).toBeSuccessfulResponse()
-        
+
         const data = response.data.data
         expect(data).toBeArray()
         expect(data).toHaveLength(100)
