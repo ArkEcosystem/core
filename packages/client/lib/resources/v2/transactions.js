@@ -3,10 +3,11 @@ const Base = require('../../base')
 module.exports = class Transactions extends Base {
   /**
    * Get all transactions.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  all () {
-    return this.http.get('transactions')
+  all (query) {
+    return this.http.get('transactions', query)
   }
 
   /**
@@ -29,10 +30,11 @@ module.exports = class Transactions extends Base {
 
   /**
    * Get all unconfirmed transactions.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  allUnconfirmed () {
-    return this.http.get('transactions/unconfirmed')
+  allUnconfirmed (query) {
+    return this.http.get('transactions/unconfirmed', query)
   }
 
   /**
