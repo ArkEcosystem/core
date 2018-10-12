@@ -19,7 +19,7 @@ module.exports = (model) => {
     height: model.height,
     numberOfTransactions: model.numberOfTransactions,
     totalAmount: +bignumify(model.totalAmount).toFixed(),
-    totalForged: +bignumify(model.reward).plus(model.totalFee).toFixed(),
+    totalForged: +bignumify(model.reward).plus(model.totalFee).toString(),
     totalFee: +bignumify(model.totalFee).toFixed(),
     reward: +bignumify(model.reward).toFixed(),
     payloadLength: model.payloadLength,
