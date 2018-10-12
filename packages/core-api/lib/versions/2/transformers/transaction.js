@@ -7,7 +7,7 @@ const blockchain = container.resolvePlugin('blockchain')
 const { crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
 
-const { formatTimestamp } = require('@arkecosystem/core-utils')
+const { bignumify, formatTimestamp } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "transaction" object into a generic object.
@@ -22,8 +22,8 @@ module.exports = (model) => {
     id: data.id,
     blockId: model.blockId,
     type: data.type,
-    amount: +data.amount.toString(),
-    fee: +data.fee.toString(),
+    amount: +bignumify(data.amount).toFixed(),
+    fee: +bignumify(data.fee).toFixed(),
     sender: crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
     recipient: data.recipientId,
     signature: data.signature,

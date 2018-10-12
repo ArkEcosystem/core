@@ -2,5 +2,6 @@
 
 module.exports = {
   delegateCalculator: require('./delegate-calculator'),
-  formatTimestamp: require('./format-timestamp')
+  formatTimestamp: require('./format-timestamp'),
+  bignumify: require('./bignumify')
 }

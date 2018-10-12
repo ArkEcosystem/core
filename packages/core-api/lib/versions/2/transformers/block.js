@@ -1,7 +1,7 @@
 'use strict'
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
-const { formatTimestamp } = require('@arkecosystem/core-utils')
+const { formatTimestamp, bignumify } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "block" object into a generic object.
@@ -17,9 +17,9 @@ module.exports = model => {
     height: +model.height,
     previous: model.previousBlock,
     forged: {
-      reward: +model.reward.toString(),
-      fee: +model.totalFee.toString(),
-      total: +model.reward.toString() + +model.totalFee.toString()
+      reward: +bignumify(model.reward).toFixed(),
+      fee: +bignumify(model.totalFee).toFixed(),
+      total: +bignumify(model.reward).plus(model.totalFee).toFixed()
     },
     payload: {
       hash: model.payloadHash,

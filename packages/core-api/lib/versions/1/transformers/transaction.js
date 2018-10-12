@@ -1,6 +1,7 @@
 'use strict'
 
 const { crypto } = require('@arkecosystem/crypto')
+const { bignumify } = require('@arkecosystem/core-utils')
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
@@ -21,8 +22,8 @@ module.exports = (model) => {
     blockid: model.blockId,
     type: data.type,
     timestamp: data.timestamp,
-    amount: +data.amount.toString(),
-    fee: +data.fee.toString(),
+    amount: +bignumify(data.amount).toFixed(),
+    fee: +bignumify(data.fee).toFixed(),
     recipientId: data.recipientId,
     senderId: crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
     senderPublicKey: data.senderPublicKey,
