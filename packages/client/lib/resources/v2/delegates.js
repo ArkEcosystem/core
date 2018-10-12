@@ -3,10 +3,11 @@ const Base = require('../../base')
 module.exports = class Delegates extends Base {
   /**
    * Get all delegates.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  all () {
-    return this.http.get('delegates')
+  all (query) {
+    return this.http.get('delegates', query)
   }
 
   /**
@@ -21,18 +22,20 @@ module.exports = class Delegates extends Base {
   /**
    * Get blocks forged by delegate id.
    * @param  {String} id
+   * @param {Object} [query]
    * @return {Promise}
    */
-  blocks (id) {
-    return this.http.get(`delegates/${id}/blocks`)
+  blocks (id, query) {
+    return this.http.get(`delegates/${id}/blocks`, query)
   }
 
   /**
    * Get voters by delegate id.
    * @param  {String} id
+   * @param {Object} [query]
    * @return {Promise}
    */
-  voters (id) {
-    return this.http.get(`delegates/${id}/voters`)
+  voters (id, query) {
+    return this.http.get(`delegates/${id}/voters`, query)
   }
 }
