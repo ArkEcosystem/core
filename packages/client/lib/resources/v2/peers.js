@@ -3,10 +3,11 @@ const Base = require('../../base')
 module.exports = class Peers extends Base {
   /**
    * Get all peers.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  all () {
-    return this.http.get('peers')
+  all (query) {
+    return this.http.get('peers', query)
   }
 
   /**

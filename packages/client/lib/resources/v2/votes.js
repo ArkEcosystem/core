@@ -3,10 +3,11 @@ const Base = require('../../base')
 module.exports = class Votes extends Base {
   /**
    * Get all votes.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  all () {
-    return this.http.get('votes')
+  all (query) {
+    return this.http.get('votes', query)
   }
 
   /**

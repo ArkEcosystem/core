@@ -3,10 +3,11 @@ const Base = require('../../base')
 module.exports = class Blocks extends Base {
   /**
    * Get all blocks.
+   * @param {Object} [query]
    * @return {Promise}
    */
-  all () {
-    return this.http.get('blocks')
+  all (query) {
+    return this.http.get('blocks', query)
   }
 
   /**
@@ -21,10 +22,11 @@ module.exports = class Blocks extends Base {
   /**
    * Get transactions by block id.
    * @param  {String} id
+   * @param {Object} [query]
    * @return {Promise}
    */
-  transactions (id) {
-    return this.http.get(`blocks/${id}/transactions`)
+  transactions (id, query) {
+    return this.http.get(`blocks/${id}/transactions`, query)
   }
 
   /**
