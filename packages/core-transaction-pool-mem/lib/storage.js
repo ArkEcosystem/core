@@ -1,6 +1,7 @@
 'use strict'
 
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const BetterSqlite3 = require('better-sqlite3')
 
 /**
  * A permanent storage (on-disk), supporting some basic functionalities required
@@ -11,10 +12,9 @@ class Storage {
    * Construct the storage.
    */
   constructor () {
-    this.file = 'transaction_pool.sqlite'
+    this.file = `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`
     this.table = 'pool'
 
-    const BetterSqlite3 = require('better-sqlite3')
     this.db = new BetterSqlite3(this.file)
 
     const newMode = this.db.pragma('journal_mode=WAL', true)
