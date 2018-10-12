@@ -82,7 +82,7 @@ describe('API - Client', () => {
       }
 
       peers.forEach(peer => {
-        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, data)
       })
 
       const foundPeers = await Client.findPeers('devnet')
@@ -112,7 +112,7 @@ describe('API - Client', () => {
         }
 
         peers.forEach(peer => {
-          httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+          httpMock.onGet(/http.*\/api\/peers/).reply(200, data)
         })
 
         const foundPeers = await Client.findPeers('devnet')
@@ -135,7 +135,7 @@ describe('API - Client', () => {
       }
 
       peers.forEach(peer => {
-        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, data)
       })
 
       const foundPeers = await Client.findPeers('devnet')
@@ -192,7 +192,7 @@ describe('API - Client', () => {
         peers
       }
       peers.forEach(peer => {
-        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, data)
       })
 
       const client = await Client.connect('devnet')

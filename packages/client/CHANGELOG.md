@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 0.1.5 - 2018-10-09
+## 0.1.7 - 2018-10-12
+
+### Fixed
+ - Add query parameters to the v2 endpoints.(https://github.com/ArkEcosystem/core/pull/1103)
+
+## 0.1.6 - 2018-10-09
 
 ### Fixed
  - Use the definitive `accept` header instead of the previous one (https://github.com/ArkEcosystem/core/pull/1082)

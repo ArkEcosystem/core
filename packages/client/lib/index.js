@@ -27,14 +27,15 @@ module.exports = class ApiClient {
     let peers = null
 
     // Connect to each peer to get an updated list of peers until a success response
+    const client = new ApiClient('http://', version)
+    client.http.setTimeout(5000)
     for (const peer of networkPeers) {
       const peerUrl = `http://${peer.ip}:${peer.port}`
 
       // This method should not crash when a peer fails
       try {
-        const client = new ApiClient(peerUrl, version)
-        const response = await client.resource('peers').all()
-        const { data } = response.data
+        client.http.host = peerUrl
+        const { data } = await client.resource('peers').all()
 
         if (data.success && data.peers) {
           // Ignore local and unavailable peers
