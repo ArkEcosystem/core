@@ -11,15 +11,18 @@ const { formatTimestamp, bignumify } = require('@arkecosystem/core-utils')
 module.exports = model => {
   const generator = database.walletManager.findByPublicKey(model.generatorPublicKey)
 
+  model.reward = bignumify(model.reward)
+  model.totalFee = bignumify(model.totalFee)
+
   return {
     id: model.id,
     version: +model.version,
     height: +model.height,
     previous: model.previousBlock,
     forged: {
-      reward: +bignumify(model.reward).toFixed(),
-      fee: +bignumify(model.totalFee).toFixed(),
-      total: +bignumify(model.reward).plus(model.totalFee).toFixed()
+      reward: +model.reward.toFixed(),
+      fee: +model.totalFee.toFixed(),
+      total: +model.reward.plus(model.totalFee).toFixed()
     },
     payload: {
       hash: model.payloadHash,

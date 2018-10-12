@@ -46,6 +46,9 @@
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1",
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "good": "^8.1.1",
+    "good-console": "^7.1.0",
+    "good-squeeze": "^5.1.0"
   }
 }
