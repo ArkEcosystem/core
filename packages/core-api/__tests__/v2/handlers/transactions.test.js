@@ -360,7 +360,9 @@ describe('API 2.0 - Transactions', () => {
           genesisTransactions[transaction.id] = true
         })
         const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
+          if (!genesisTransactions[transaction.id]) {
+            return true
+          }
         })
 
         expect(!failed).toBeTrue()
