@@ -1,6 +1,6 @@
 'use strict'
 
-const { bignumify } = require('@arkecosystem/core-utils')
+const { Bignum } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 
 /**
@@ -17,7 +17,7 @@ exports.calculateApproval = (delegate, height) => {
   }
 
   const constants = config.getConstants(height)
-  const totalSupply = bignumify(config.genesisBlock.totalAmount).plus((height - constants.height) * constants.reward)
+  const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus((height - constants.height) * constants.reward)
 
   return +delegate.voteBalance.times(100).dividedBy(totalSupply).toFixed(2)
 }
