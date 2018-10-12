@@ -1,6 +1,8 @@
 'use strict'
 
 require('@arkecosystem/core-test-utils/lib/matchers')
+const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -439,9 +441,30 @@ describe('API 2.0 - Transactions', () => {
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
-        expect(response.data.data).toBeArray()
         utils.expectTransaction(response.data.data[0])
       })
+    })
+  })
+
+  describe('POST /transactions', () => {
+    it('should POST 2 transactions double spending and get only 1 accepted and broadcasted', async () => {
+      const amount = 245098000000000 - 5098000000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers('testnet', delegates[0].secret, delegates[1].address, amount, 2, true)
+      const response = await utils.requestWithAcceptHeader('POST', 'transactions', {
+        transactions
+      })
+
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
+
+      expect(response.data.data.accept.length).toBe(1)
+      expect(response.data.data.accept[0]).toBe(transactions[0].id)
+
+      expect(response.data.data.broadcast.length).toBe(1)
+      expect(response.data.data.broadcast[0]).toBe(transactions[0].id)
+
+      expect(response.data.data.invalid.length).toBe(1)
+      expect(response.data.data.invalid[0]).toBe(transactions[1].id)
     })
   })
 })
