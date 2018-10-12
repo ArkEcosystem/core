@@ -23,6 +23,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await connection.disconnect()
   await app.tearDown()
 })
 

@@ -40,7 +40,7 @@ class TransactionPool extends TransactionPoolInterface {
    */
   disconnect () {
     this.__syncToPersistentStorage()
-    this.db.close()
+    this.storage.close()
   }
 
   /**
