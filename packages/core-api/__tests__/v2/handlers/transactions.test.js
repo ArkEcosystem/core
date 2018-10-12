@@ -286,30 +286,50 @@ describe('API 2.0 - Transactions', () => {
         data.forEach(transaction => {
           utils.expectTransaction(transaction)
         })
+
+        let genesisTransactions = {}
+        genesisBlock.transactions.forEach(transaction => {
+          genesisTransactions[transaction.id] = true
+        })
+        const failed = data.some(transaction => {
+          if (!genesisTransactions[transaction.id]) return true
+        })
+
+        expect(!failed).toBeTrue()
       })
     })
 
-    // TODO remove the search by id, to be sure that is OK
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader']
     ])('using the %s header', (header, request) => {
       it('should POST a search for transactions with the specified timestamp range', async () => {
         const response = await utils[request]('POST', 'transactions/search', {
-          id: transactionId,
           timestamp: {
             from: timestampFrom,
             to: timestampTo
           }
         })
+
         expect(response).toBeSuccessfulResponse()
-        expect(response.data.data).toBeArray()
+        
+        const data = response.data.data
+        expect(data).toBeArray()
+        expect(data).toHaveLength(100)
 
-        expect(response.data.data).toHaveLength(1)
+        data.forEach(transaction => {
+          utils.expectTransaction(transaction)
+        })
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        let genesisTransactions = {}
+        genesisBlock.transactions.forEach(transaction => {
+          genesisTransactions[transaction.id] = true
+        })
+        const failed = data.some(transaction => {
+          if (!genesisTransactions[transaction.id]) return true
+        })
+
+        expect(!failed).toBeTrue()
       })
     })
 
@@ -334,78 +354,118 @@ describe('API 2.0 - Transactions', () => {
         data.forEach(transaction => {
           utils.expectTransaction(transaction)
         })
+
+        let genesisTransactions = {}
+        genesisBlock.transactions.forEach(transaction => {
+          genesisTransactions[transaction.id] = true
+        })
+        const failed = data.some(transaction => {
+          if (!genesisTransactions[transaction.id]) return true
+        })
+
+        expect(!failed).toBeTrue()
       })
     })
 
-    // TODO remove the search by id, to be sure that is OK
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader']
     ])('using the %s header', (header, request) => {
       it('should POST a search for transactions with the specified amount range', async () => {
         const response = await utils[request]('POST', 'transactions/search', {
-          id: transactionId,
           amount: {
             from: amountFrom,
             to: amountTo
           }
         })
+
         expect(response).toBeSuccessfulResponse()
-        expect(response.data.data).toBeArray()
 
-        expect(response.data.data).toHaveLength(1)
+        const data = response.data.data
+        expect(data).toBeArray()
+        expect(data).toHaveLength(50)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        data.forEach(transaction => {
+          utils.expectTransaction(transaction)
+        })
+
+        let genesisTransactions = {}
+        genesisBlock.transactions.forEach(transaction => {
+          genesisTransactions[transaction.id] = true
+        })
+        const failed = data.some(transaction => {
+          if (!genesisTransactions[transaction.id]) return true
+        })
+
+        expect(!failed).toBeTrue()
       })
     })
 
-    // TODO remove the search by id, to be sure that is OK
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader']
     ])('using the %s header', (header, request) => {
       it('should POST a search for transactions with the exact specified fee', async () => {
         const response = await utils[request]('POST', 'transactions/search', {
-          id: transactionId,
           fee: {
             from: fee,
             to: fee
           }
         })
+
         expect(response).toBeSuccessfulResponse()
-        expect(response.data.data).toBeArray()
 
-        expect(response.data.data).toHaveLength(1)
+        const data = response.data.data
+        expect(data).toBeArray()
+        expect(data).toHaveLength(100)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        data.forEach(transaction => {
+          utils.expectTransaction(transaction)
+        })
+
+        let genesisTransactions = {}
+        genesisBlock.transactions.forEach(transaction => {
+          genesisTransactions[transaction.id] = true
+        })
+        const failed = data.some(transaction => {
+          if (!genesisTransactions[transaction.id]) return true
+        })
+
+        expect(!failed).toBeTrue()
       })
     })
 
-    // TODO remove the search by id, to be sure that is OK
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader']
     ])('using the %s header', (header, request) => {
       it('should POST a search for transactions with the specified fee range', async () => {
         const response = await utils[request]('POST', 'transactions/search', {
-          id: transactionId,
           fee: {
             from: feeFrom,
             to: feeTo
           }
         })
+
         expect(response).toBeSuccessfulResponse()
-        expect(response.data.data).toBeArray()
 
-        expect(response.data.data).toHaveLength(1)
+        const data = response.data.data
+        expect(data).toBeArray()
+        expect(data).toHaveLength(100)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        data.forEach(transaction => {
+          utils.expectTransaction(transaction)
+        })
+
+        let genesisTransactions = {}
+        genesisBlock.transactions.forEach(transaction => {
+          genesisTransactions[transaction.id] = true
+        })
+        const failed = data.some(transaction => {
+          if (!genesisTransactions[transaction.id]) return true
+        })
+
+        expect(!failed).toBeTrue()
       })
     })
 
