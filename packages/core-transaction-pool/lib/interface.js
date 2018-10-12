@@ -291,4 +291,14 @@ module.exports = class TransactionPoolInterface {
   checkDynamicFeeMatch (transaction) {
     return dynamicFeeMatch(transaction)
   }
+
+  /**
+   * Check whether there are any vote or unvote
+   * transactions (transaction.type == TRANSACTION_TYPES.VOTE) in the pool
+   * from a given sender.
+   * @return {Boolean} true if exist
+   */
+  checkIfSenderHasVoteTransactions (senderPublicKey) {
+    throw new Error('Method [checkIfSenderHasVoteTransactions] not implemented!')
+  }
 }

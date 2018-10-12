@@ -410,4 +410,42 @@ describe('Connection', () => {
       expect(connection.__isReady()).toBeTruthy()
     })
   })
+
+  describe('stress', () => {
+    it('multiple additions and retrievals', async () => {
+      // Abstract number which decides how many iterations are run by the test.
+      // Increase it to run more iterations.
+      const testSize = 128
+
+      const fakeTransactionId = function (i) {
+        return 'id' + String(i) + 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      }
+
+      for (let i = 0; i < testSize; i++) {
+        let transaction = new Transaction(mockData.dummy1)
+        transaction.id = fakeTransactionId(i)
+        await connection.addTransaction(transaction)
+
+        if (i % 27 === 0) {
+          await connection.removeTransaction(transaction)
+        }
+      }
+
+      for (let i = 0; i < testSize * 2; i++) {
+        await connection.getPoolSize()
+        for (const sender of ['nonexistent', mockData.dummy1.senderPublicKey]) {
+          await connection.getSenderSize(sender)
+          await connection.hasExceededMaxTransactions(sender)
+        }
+        await connection.getTransaction(fakeTransactionId(i))
+        await connection.getTransactions(0, i)
+      }
+
+      for (let i = 0; i < testSize; i++) {
+        let transaction = new Transaction(mockData.dummy1)
+        transaction.id = fakeTransactionId(i)
+        await connection.removeTransaction(transaction)
+      }
+    })
+  })
 })
