@@ -453,9 +453,9 @@ module.exports = class Block {
       }
 
       bb.writeInt(block.numberOfTransactions)
-      bb.writeLong(+block.totalAmount.toString())
-      bb.writeLong(+block.totalFee.toString())
-      bb.writeLong(+block.reward.toString())
+      bb.writeLong(+block.totalAmount.toFixed())
+      bb.writeLong(+block.totalFee.toFixed())
+      bb.writeLong(+block.reward.toFixed())
 
       bb.writeInt(block.payloadLength)
 
