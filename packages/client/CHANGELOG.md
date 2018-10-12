@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.1.8 - 2018-10-12
+
+### Changed
+ - Use 5 second timeout for finding peers (https://github.com/ArkEcosystem/core/pull/1103)
+
+### Fixed
+ - Get peer response data correctly (https://github.com/ArkEcosystem/core/pull/1103)
+
 ## 0.1.7 - 2018-10-12
 
 ### Fixed

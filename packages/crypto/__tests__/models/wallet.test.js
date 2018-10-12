@@ -13,7 +13,7 @@ describe('Models - Wallet', () => {
     it('returns the address and the balance', () => {
       const address = 'Abcde'
       const wallet = new Wallet(address)
-      const balance = parseFloat((Math.random() * 1000).toFixed(8))
+      const balance = parseInt((Math.random() * 1000).toFixed(8))
       wallet.balance = new Bignum(balance * ARKTOSHI)
       expect(wallet.toString()).toBe(`${address} (${balance} ${configManager.config.client.symbol})`)
     })

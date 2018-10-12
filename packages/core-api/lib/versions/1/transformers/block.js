@@ -1,5 +1,6 @@
 'use strict'
 
+const { bignumify } = require('@arkecosystem/core-utils')
 const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockchain')
 
 /**
@@ -17,10 +18,10 @@ module.exports = (model) => {
     previousBlock: model.previousBlock,
     height: model.height,
     numberOfTransactions: model.numberOfTransactions,
-    totalAmount: Number(model.totalAmount),
-    totalForged: (Number(model.reward) + Number(model.totalFee)).toString(),
-    totalFee: Number(model.totalFee),
-    reward: Number(model.reward),
+    totalAmount: +bignumify(model.totalAmount).toFixed(),
+    totalForged: +bignumify(model.reward).plus(model.totalFee).toString(),
+    totalFee: +bignumify(model.totalFee).toFixed(),
+    reward: +bignumify(model.reward).toFixed(),
     payloadLength: model.payloadLength,
     payloadHash: model.payloadHash,
     generatorPublicKey: model.generatorPublicKey,

@@ -202,7 +202,7 @@ module.exports = class Wallet {
     if (this.multisignature) {
       audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
     } else {
-      audit.push({'Remaining amount': this.balance.minus(transaction.amount).minus(transaction.fee).toNumber()})
+      audit.push({'Remaining amount': +(this.balance.minus(transaction.amount).minus(transaction.fee)).toFixed()})
       audit.push({'Signature validation': crypto.verify(transaction)})
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       if (this.secondPublicKey) {
@@ -272,7 +272,7 @@ module.exports = class Wallet {
    * @return {String}
    */
   toString () {
-    return `${this.address} (${this.balance.toNumber() / ARKTOSHI} ${configManager.config.client.symbol})`
+    return `${this.address} (${+(this.balance.dividedBy(ARKTOSHI)).toFixed()} ${configManager.config.client.symbol})`
   }
 
   /**

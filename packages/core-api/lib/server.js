@@ -111,6 +111,27 @@ module.exports = async (config) => {
     options: config
   })
 
+  if (process.env.NODE_ENV === 'test') {
+    await server.register({
+      plugin: require('good'),
+      options: {
+        reporters: {
+          console: [
+            {
+              module: 'good-squeeze',
+              name: 'Squeeze',
+              args: [{ log: '*', response: '*', request: '*' }]
+            },
+            {
+              module: 'good-console'
+            },
+            'stdout'
+          ]
+        }
+      }
+    })
+  }
+
   try {
     await server.start()
 

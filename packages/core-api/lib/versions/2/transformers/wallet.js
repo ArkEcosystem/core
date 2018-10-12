@@ -1,5 +1,7 @@
 'use strict'
 
+const { bignumify } = require('@arkecosystem/core-utils')
+
 /**
  * Turns a "wallet" object into a generic object.
  * @param  {Object} model
@@ -10,7 +12,7 @@ module.exports = (model) => {
     address: model.address,
     publicKey: model.publicKey,
     secondPublicKey: model.secondPublicKey,
-    balance: +model.balance.toString(),
+    balance: +bignumify(model.balance).toFixed(),
     isDelegate: !!model.username
   }
 }

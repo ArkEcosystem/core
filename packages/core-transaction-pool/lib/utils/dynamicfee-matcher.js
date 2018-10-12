@@ -9,7 +9,7 @@ const logger = container.resolvePlugin('logger')
  * @return {Boolean} matches T/F
  */
  module.exports = (transaction) => {
-  const transactionFee = transaction.fee.toNumber()
+  const transactionFee = +transaction.fee.toFixed()
   const staticFee = feeManager.getForTransaction(transaction)
   const blockchain = container.resolvePlugin('blockchain')
   const feeConstants = config.getConstants(blockchain.getLastBlock().data.height).fees

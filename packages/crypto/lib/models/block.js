@@ -1,7 +1,7 @@
 const { cloneDeepWith } = require('lodash')
 const { createHash } = require('crypto')
 const ByteBuffer = require('bytebuffer')
-const Bignum = require('../utils/bignum')
+const { Bignum } = require('../utils')
 const Transaction = require('./transaction')
 const configManager = require('../managers/config')
 const { crypto, slots } = require('../crypto')
@@ -162,7 +162,7 @@ module.exports = class Block {
 
   static getId (data) {
     const idHex = Block.getIdHex(data)
-    return new Bignum(idHex, 16).toString()
+    return new Bignum(idHex, 16).toFixed()
   }
 
   /**
@@ -337,7 +337,7 @@ module.exports = class Block {
     block.timestamp = buf.readUInt32(4)
     block.height = buf.readUInt32(8)
     block.previousBlockHex = buf.slice(12, 20).toString('hex')
-    block.previousBlock = new Bignum(block.previousBlockHex, 16).toString()
+    block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed()
     block.numberOfTransactions = buf.readUInt32(20)
     block.totalAmount = new Bignum(buf.readUInt64(24))
     block.totalFee = new Bignum(buf.readUInt64(32))
@@ -402,9 +402,9 @@ module.exports = class Block {
     bb.writeUInt32(block.height)
     bb.append(block.previousBlockHex, 'hex')
     bb.writeUInt32(block.numberOfTransactions)
-    bb.writeUInt64(+block.totalAmount.toString())
-    bb.writeUInt64(+block.totalFee.toString())
-    bb.writeUInt64(+block.reward.toString())
+    bb.writeUInt64(+(new Bignum(block.totalAmount)).toFixed())
+    bb.writeUInt64(+(new Bignum(block.totalFee)).toFixed())
+    bb.writeUInt64(+(new Bignum(block.reward)).toFixed())
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
@@ -453,9 +453,9 @@ module.exports = class Block {
       }
 
       bb.writeInt(block.numberOfTransactions)
-      bb.writeLong(+block.totalAmount.toString())
-      bb.writeLong(+block.totalFee.toString())
-      bb.writeLong(+block.reward.toString())
+      bb.writeLong(+block.totalAmount.toFixed())
+      bb.writeLong(+block.totalFee.toFixed())
+      bb.writeLong(+block.reward.toFixed())
 
       bb.writeInt(block.payloadLength)
 
@@ -488,7 +488,7 @@ module.exports = class Block {
     // Convert Bignums
     let blockData = cloneDeepWith(this.data, (value, key) => {
       if (['reward', 'totalAmount', 'totalFee'].indexOf(key) !== -1) {
-        return value.toNumber()
+        return +value.toFixed()
       }
     })
 
