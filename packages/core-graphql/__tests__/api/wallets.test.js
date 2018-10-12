@@ -49,8 +49,20 @@ describe('GraphQL API { wallets }', () => {
     })
   })
 
-  describe.skip('GraphQL queries for Wallets - using orderBy, limit', () => {
+  describe('GraphQL queries for Wallets - using orderBy, limit', () => {
+    it('should get 5 wallets in order of ASCending address', async () => {
+      const query = '{ wallets(orderBy: { field: "address", direction: ASC }, limit: 5 ) { address } }'
+      const response = await utils.request(query)
 
+      expect(response).toBeSuccessfulResponse()
+
+      const data = response.data.data
+      expect(data).toBeObject()
+      expect(data.wallets.length).toBe(5)
+      expect(data.wallets.sort((a, b) => {
+        return parseInt(a) <= parseInt(b) ? -1 : 0
+      })).toEqual(data.wallets)
+    })
   })
 
   describe.skip('GraphQL queries for Wallets - testing relationships', () => {
