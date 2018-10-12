@@ -313,27 +313,27 @@ describe('API 2.0 - Transactions', () => {
       })
     })
 
-    // TODO remove the search by id, to be sure that is OK
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader']
     ])('using the %s header', (header, request) => {
       it('should POST a search for transactions with the exact specified amount', async () => {
         const response = await utils[request]('POST', 'transactions/search', {
-          id: transactionId,
           amount: {
             from: amount,
             to: amount
           }
         })
+
         expect(response).toBeSuccessfulResponse()
-        expect(response.data.data).toBeArray()
 
-        expect(response.data.data).toHaveLength(1)
+        const data = response.data.data
+        expect(data).toBeArray()
+        expect(data).toHaveLength(50)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        data.forEach(transaction => {
+          utils.expectTransaction(transaction)
+        })
       })
     })
 
