@@ -120,15 +120,15 @@ module.exports = async (config) => {
             {
               module: 'good-squeeze',
               name: 'Squeeze',
-              args: [{ log: '*', response: '*', request: '*' }],
+              args: [{ log: '*', response: '*', request: '*' }]
             },
             {
-              module: 'good-console',
+              module: 'good-console'
             },
-            'stdout',
-          ],
-        },
-      },
+            'stdout'
+          ]
+        }
+      }
     })
   }
 
