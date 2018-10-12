@@ -20,6 +20,7 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-database": "^0.1.1",
+    "@arkecosystem/core-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.0",
     "bluebird": "^3.5.2",
     "ioredis": "^3.2.2",

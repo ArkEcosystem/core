@@ -1,3 +1,4 @@
+const { bignumify } = require('@arkecosystem/core-utils')
 const Model = require('./model')
 
 module.exports = class Round extends Model {
@@ -20,7 +21,7 @@ module.exports = class Round extends Model {
     }, {
       name: 'balance',
       init: col => {
-        return +col.value.toString()
+        return +bignumify(col.value).toFixed()
       }
     }, {
       name: 'round'

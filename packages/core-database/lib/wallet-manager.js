@@ -197,7 +197,7 @@ module.exports = class WalletManager {
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
       })
     Object.values(this.byUsername)
-      .sort((a, b) => (b.voteBalance.toNumber() - a.voteBalance.toNumber()))
+      .sort((a, b) => +(b.voteBalance.minus(a.voteBalance)).toFixed())
       .forEach((delegate, index) => (delegate.rate = index + 1))
   }
 

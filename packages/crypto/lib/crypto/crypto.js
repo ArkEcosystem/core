@@ -6,6 +6,7 @@ const wif = require('wif')
 
 const configManager = require('../managers/config')
 const utils = require('./utils')
+const { Bignum } = require('../utils')
 const feeManager = require('../managers/fee')
 const { transactionIdFixTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
@@ -132,8 +133,8 @@ class Crypto {
       }
     }
 
-    bb.writeLong(+transaction.amount.toString())
-    bb.writeLong(+transaction.fee.toString())
+    bb.writeLong(+(new Bignum(transaction.amount)).toFixed())
+    bb.writeLong(+(new Bignum(transaction.fee)).toFixed())
 
     if (assetSize > 0) {
       for (let i = 0; i < assetSize; i++) {

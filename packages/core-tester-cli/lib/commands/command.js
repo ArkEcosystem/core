@@ -1,6 +1,7 @@
 'use strict'
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
+const { bignumify } = require('@arkecosystem/core-utils')
 const bip39 = require('bip39')
 const clipboardy = require('clipboardy')
 const delay = require('delay')
@@ -143,7 +144,7 @@ module.exports = class Command {
    */
   async getWalletBalance (address) {
     try {
-      return new Bignum((await this.getWallet(address)).balance)
+      return bignumify((await this.getWallet(address)).balance)
     } catch (error) {
       //
     }
@@ -178,15 +179,15 @@ module.exports = class Command {
    */
   static parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => new Bignum(f).toNumber())
+      const feeRange = fee.split('-').map(f => +bignumify(f).toFixed())
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }
 
-      return new Bignum(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
+      return bignumify(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
     }
 
-    return new Bignum(fee)
+    return bignumify(fee)
   }
 
   /**
@@ -283,7 +284,7 @@ module.exports = class Command {
    * @return {Bignum}
    */
   static __arkToArktoshi (ark) {
-    return new Bignum(ark * Math.pow(10, 8))
+    return bignumify(ark * Math.pow(10, 8))
   }
 
   /**

@@ -144,7 +144,7 @@ exports.voterBalances = {
 
     const voters = {}
     orderBy(wallets, ['balance'], ['desc'])
-      .forEach(wallet => (voters[wallet.address] = wallet.balance.toNumber()))
+      .forEach(wallet => (voters[wallet.address] = +wallet.balance.toFixed()))
 
     return { data: voters }
   },

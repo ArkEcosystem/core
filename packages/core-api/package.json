@@ -16,7 +16,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores catbox-redis"
+    "depcheck": "depcheck ./ --ignores catbox-redis,good-console,good-squeeze"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -46,6 +46,9 @@
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1",
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "good": "^8.1.1",
+    "good-console": "^7.1.0",
+    "good-squeeze": "^5.1.0"
   }
 }
