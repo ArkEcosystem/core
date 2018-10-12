@@ -31,7 +31,7 @@ jobs:
           command: mkdir -p $HOME/.ark/database
       - run:
           name: Test
-          command: ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit
+          command: ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit --ci --coverage
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
