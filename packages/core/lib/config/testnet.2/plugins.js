@@ -40,13 +40,13 @@ module.exports = {
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-mem': {
-    // Defaults, commented out
-    // enabled: true,
-    // maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
-    // whitelist: [],
-    // allowedSenders: [],
-    // maxTransactionsPerRequest: 200,
-    // maxTransactionAge: 21600
+    enabled: true,
+    storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`,
+    maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
+    whitelist: [],
+    allowedSenders: [],
+    maxTransactionsPerRequest: 200,
+    maxTransactionAge: 21600
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',

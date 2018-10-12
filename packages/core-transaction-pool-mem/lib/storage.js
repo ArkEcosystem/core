@@ -1,6 +1,7 @@
 'use strict'
 
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const fs = require('fs-extra')
 const BetterSqlite3 = require('better-sqlite3')
 
 /**
@@ -10,12 +11,14 @@ const BetterSqlite3 = require('better-sqlite3')
 class Storage {
   /**
    * Construct the storage.
+   * @param {String} file
    */
-  constructor () {
-    this.file = `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`
+  constructor (file) {
     this.table = 'pool'
 
-    this.db = new BetterSqlite3(this.file)
+    fs.ensureFileSync(file)
+
+    this.db = new BetterSqlite3(file)
 
     const newMode = this.db.pragma('journal_mode=WAL', true)
     if (newMode.toUpperCase() !== 'WAL') {
