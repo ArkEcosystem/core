@@ -9,11 +9,11 @@ module.exports = class ApiClient {
    * Finds all the available peers, sorted by block height and delay
    *
    * @param {String}    network - Network name ('devnet' or 'mainnet')
-   * @param {Number}    version - API version
-   * @param {Object[]}  peersOverride - List of peers to use instead of initialPeers
+   * @param {Number}    [version=1] - API version
+   * @param {Object[]}  [peersOverride] - List of peers to use instead of initialPeers
    * @return {Object[]}
    */
-  static async findPeers (network, version, peersOverride) {
+  static async findPeers (network, version = 1, peersOverride) {
     if (peersOverride === undefined && !initialPeers.hasOwnProperty(network)) {
       throw new Error(`Network "${network}" is not supported`)
     }
