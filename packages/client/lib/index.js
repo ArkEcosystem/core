@@ -24,7 +24,11 @@ module.exports = class ApiClient {
     shuffle(networkPeers)
 
     const selfIps = ['127.0.0.1', '::ffff:127.0.0.1', '::1']
-    let peers = null
+    let peers = []
+    const versionStatus = {
+      1: 'OK',
+      2: 200
+    }
 
     // Connect to each peer to get an updated list of peers until a success response
     const client = new ApiClient('http://', version)
@@ -37,15 +41,20 @@ module.exports = class ApiClient {
         client.http.host = peerUrl
         const { data } = await client.resource('peers').all()
 
-        if (data.success && data.peers) {
+        let responsePeers = []
+        if (version === 1 && data.success && data.peers) {
+          responsePeers = data.peers
+        } else if (version === 2 && data.data.length) {
+          responsePeers = data.data
+        }
+
+        if (responsePeers.length) {
           // Ignore local and unavailable peers
-          peers = data.peers.filter(peer => {
-            return selfIps.indexOf(peer.ip) === -1 && peer.status === 'OK'
+          peers = responsePeers.filter(peer => {
+            return selfIps.indexOf(peer.ip) === -1 && peer.status === versionStatus[version]
           })
 
-          if (peers.length) {
-            break
-          }
+          break
         }
       } catch (error) {
         // TODO only if a new feature to enable logging is added
