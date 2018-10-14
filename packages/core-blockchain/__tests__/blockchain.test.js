@@ -44,6 +44,9 @@ afterAll(async () => {
 
   await __resetToHeight1()
 
+  // Manually stop the blockchain
+  await blockchain.stop()
+
   await app.tearDown()
 })
 
