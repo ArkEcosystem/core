@@ -2219,13 +2219,13 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-better-sqlite3@^4.1.4:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-4.2.0.tgz#68b0c52e5d95022d86dbe837b96e1a7938e1652c"
-  integrity sha512-m6vGein6wZWexQ+yaBSHM8MSoSJ9hU2pO+4Ap5THwS0WSro/RKDvwO9a5m1WYvMTh74snnPTVMWeUmiB12UitQ==
+better-sqlite3@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-5.0.1.tgz#5addb5dcf18c9374c570a1eab7694e67fc9437a3"
+  integrity sha512-dyZk+gDYNPw14maYX5LG/2SCUTiB7jCvETd+bBYqhFyji3oG+UQFN452sUWSjCHCmfg1JtMbLT7WmqB8GLq8Gw==
   dependencies:
-    bindings "^1.3.0"
-    integer "^1.0.5"
+    integer "^2.1.0"
+    tar "^4.4.6"
 
 big-time@2.x.x:
   version "2.0.1"
@@ -5655,12 +5655,10 @@ inquirer@^6.1.0, inquirer@^6.2.0:
     strip-ansi "^4.0.0"
     through "^2.3.6"
 
-integer@^1.0.5:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/integer/-/integer-1.0.7.tgz#28b4aa59412bcd7159c337020ba9aed939ab4467"
-  integrity sha512-V/HQn/gkGjY5La5r1bzOkCSwnmrk+DmiZ8jWJMiW2zwLhU9plNvOSh1jcYUHa5ee/7u6DXKjws5b2I7QPW1+Nw==
-  dependencies:
-    bindings "^1.3.0"
+integer@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/integer/-/integer-2.1.0.tgz#29134ea2f7ba3362ed4dbe6bcca992b1f18ff276"
+  integrity sha512-vBtiSgrEiNocWvvZX1RVfeOKa2mCHLZQ2p9nkQkQZ/BvEiY+6CcUz0eyjvIiewjJoeNidzg2I+tpPJvpyspL1w==
 
 interpret@^1.1.0:
   version "1.1.0"
@@ -10413,7 +10411,7 @@ tar@^2.0.0:
     fstream "^1.0.2"
     inherits "2"
 
-tar@^4, tar@^4.4.3:
+tar@^4, tar@^4.4.3, tar@^4.4.6:
   version "4.4.6"
   resolved "https://registry.yarnpkg.com/tar/-/tar-4.4.6.tgz#63110f09c00b4e60ac8bcfe1bf3c8660235fbc9b"
   integrity sha512-tMkTnh9EdzxyfW+6GK6fCahagXsnYk6kE6S9Gr9pjVdys769+laCTbodXDhPAjzVtEBazRgP0gYqOjnk9dQzLg==
