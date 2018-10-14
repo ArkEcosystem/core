@@ -31,7 +31,8 @@
     "fs-extra": "^7.0.0",
     "joi": "^13.3.0",
     "lodash": "^4.17.10",
-    "pino": "^5.7.0"
+    "pino": "^5.7.0",
+    "pino-pretty": "^2.2.2"
   },
   "publishConfig": {
     "access": "public"
