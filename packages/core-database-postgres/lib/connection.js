@@ -418,8 +418,12 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       this.asyncTransaction = []
     }
 
-    await this.db.transactions.deleteByBlock(block.data.id)
-    await this.db.blocks.delete(block.data.id)
+    const queries = [
+      this.db.transactions.deleteByBlock(block.data.id),
+      this.db.blocks.delete(block.data.id)
+    ]
+
+    this.asyncTransaction.push(...queries)
   }
 
   /**
