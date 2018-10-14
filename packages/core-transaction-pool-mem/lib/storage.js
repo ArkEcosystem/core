@@ -20,7 +20,7 @@ class Storage {
 
     this.db = new BetterSqlite3(file)
 
-    const newMode = this.db.pragma('journal_mode=WAL', true)
+    const newMode = this.db.pragma('journal_mode=WAL', { simple: true })
     if (newMode.toUpperCase() !== 'WAL') {
       logger.warn(
         'Transaction pool: could not switch SQLite journal mode to WAL. ' +
