@@ -13,17 +13,9 @@ let blockchain
 beforeAll(async () => {
   container = await app.setUp()
 
-  stateMachine = require('../lib/state-machine')
-})
-
-afterAll(async () => {
-  await app.tearDown()
-})
-
-beforeEach(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = true
 
-  // manually register the blockchain
+  // Manually register the blockchain
   const plugin = require('../lib').plugin
 
   blockchain = await plugin.register(container, {
@@ -36,11 +28,19 @@ beforeEach(async () => {
     plugin: blockchain,
     options: {}
   }))
+
+  stateMachine = require('../lib/state-machine')
 })
 
-afterEach(async () => {
-  process.env.ARK_SKIP_BLOCKCHAIN = false
+afterAll(async () => {
+  // Manually stop  the blockchain
+  await blockchain.stop()
 
+  await app.tearDown()
+})
+
+beforeEach(async () => {
+  process.env.ARK_SKIP_BLOCKCHAIN = false
   await blockchain.resetState()
 })
 
