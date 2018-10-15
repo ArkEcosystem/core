@@ -1,45 +1,21 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
-  '@arkecosystem/core-logger': {},
   '@arkecosystem/core-logger-winston': {
     transports: {
       console: {
         options: {
-          colorize: true,
-          level: process.env.ARK_LOG_LEVEL || 'debug',
-          format: require('@arkecosystem/core-logger-winston/lib/formatter')
+          level: process.env.ARK_LOG_LEVEL || 'debug'
         }
       },
       dailyRotate: {
         options: {
-          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
-          datePattern: 'YYYY-MM-DD',
           level: process.env.ARK_LOG_LEVEL || 'debug',
-          zippedArchive: true,
-          maxSize: '100m',
-          maxFiles: '10'
+          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`
         }
       }
     }
   },
-  '@arkecosystem/core-database': {
-    snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
-  },
-  // '@arkecosystem/core-database-sequelize': {
-  //   dialect: 'sqlite',
-  //   storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}_sequence2.sqlite`,
-  //   // host: process.env.ARK_DB_HOST || 'localhost',
-  //   // dialect: process.env.ARK_DB_DIALECT || 'postgres',
-  //   // username: process.env.ARK_DB_USERNAME || 'ark',
-  //   // password: process.env.ARK_DB_PASSWORD || 'password',
-  //   // database: process.env.ARK_DB_DATABASE || 'ark_mainnet',
-  //   logging: process.env.ARK_DB_LOGGING,
-  //   redis: {
-  //     host: process.env.ARK_REDIS_HOST || 'localhost',
-  //     port: process.env.ARK_REDIS_PORT || 6379
-  //   }
-  // },
   '@arkecosystem/core-database-postgres': {
     connection: {
       host: process.env.ARK_DB_HOST || 'localhost',
@@ -53,9 +29,8 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
-  '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-mem': {
-    enabled: true,
+    enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
     storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`,
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     whitelist: [],

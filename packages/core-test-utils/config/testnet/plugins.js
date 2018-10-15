@@ -1,28 +1,20 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
-  '@arkecosystem/core-logger': {},
   '@arkecosystem/core-logger-winston': {
     transports: {
       console: {
         options: {
-          colorize: true,
-          level: process.env.ARK_LOG_LEVEL || 'debug',
-          format: require('@arkecosystem/core-logger-winston/lib/formatter')
+          level: process.env.ARK_LOG_LEVEL || 'debug'
         }
       },
       dailyRotate: {
         options: {
-          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
-          datePattern: 'YYYY-MM-DD',
           level: process.env.ARK_LOG_LEVEL || 'debug',
-          zippedArchive: true
+          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`
         }
       }
     }
-  },
-  '@arkecosystem/core-database': {
-    snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
   },
   '@arkecosystem/core-database-postgres': {
     connection: {
@@ -37,7 +29,6 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
-  '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
     key: 'ark-testnet',
