@@ -142,8 +142,8 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async commit () {
-    throw new Error('Method [commit] not implemented!')
+  async commitQueuedQueries () {
+    throw new Error('Method [commitQueuedQueries] not implemented!')
   }
 
   /**

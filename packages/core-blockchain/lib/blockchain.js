@@ -197,7 +197,7 @@ module.exports = class Blockchain {
     }
 
     // Commit delete blocks
-    await this.database.commit()
+    await this.database.commitQueuedQueries()
 
     logger.stopTracker(`${max} blocks removed`, count, max)
 
@@ -252,7 +252,7 @@ module.exports = class Blockchain {
     await __removeBlocks(nblocks)
 
     // Commit delete blocks
-    await this.database.commit()
+    await this.database.commitQueuedQueries()
 
     this.queue.resume()
   }
@@ -274,7 +274,7 @@ module.exports = class Blockchain {
 
         // committing to db every 20,000 blocks
         if (block.data.height % 20000 === 0) {
-          await this.database.commit()
+          await this.database.commitQueuedQueries()
         }
 
         state.lastBlock = block

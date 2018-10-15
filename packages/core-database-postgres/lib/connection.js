@@ -70,7 +70,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       }
     }
 
-    const pgp = pgPromise({...this.config.initialization, ...initialization})
+    const pgp = pgPromise({ ...this.config.initialization, ...initialization })
 
     this.pgp = pgp
     this.db = this.pgp(this.config.connection)
@@ -82,7 +82,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    */
   async disconnect () {
     try {
-      await this.commit()
+      await this.commitQueuedQueries()
       this.cache.destroy()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
@@ -381,7 +381,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Generated delete statements are stored in this.queuedQueries to be later executed by calling this.commit.
+   * Generated delete statements are stored in this.queuedQueries to be later executed by calling this.commitQueuedQueries.
    * See also enqueueSaveBlock.
    * @param  {Block} block
    * @return {void}
@@ -412,7 +412,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * NOTE: to be used in combination with enqueueSaveBlock and enqueueDeleteBlock.
    * @return {void}
    */
-  async commit () {
+  async commitQueuedQueries () {
     if (!this.queuedQueries || this.queuedQueries.length === 0) {
       return
     }

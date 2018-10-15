@@ -119,11 +119,11 @@ describe('Connection Interface', () => {
 
   describe('commit', () => {
     it('should be a function', () => {
-      expect(connectionInterface.commit).toBeFunction()
+      expect(connectionInterface.commitQueuedQueries).toBeFunction()
     })
 
     it('should throw an exception', async () => {
-      await expect(connectionInterface.commit()).rejects.toThrowError('Method [commit] not implemented!')
+      await expect(connectionInterface.commitQueuedQueries()).rejects.toThrowError('Method [commitQueuedQueries] not implemented!')
     })
   })
 
