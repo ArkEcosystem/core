@@ -15,7 +15,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores sqlite3"
+    "depcheck": "depcheck ./ --ignores sqlite3,good-console,good-squeeze"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
