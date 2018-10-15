@@ -9,6 +9,7 @@ exports.setUp = async () => {
   await containerHelper.setUp({
     exclude: [
       '@arkecosystem/core-api',
+      '@arkecosystem/core-webhooks',
       '@arkecosystem/core-forger'
     ]
   })
