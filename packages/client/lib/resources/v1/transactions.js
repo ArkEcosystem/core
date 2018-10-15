@@ -16,7 +16,7 @@ module.exports = class Transactions extends Base {
    * @return {Promise}
    */
   get (id) {
-    return this.http.get('transactions/get', {id})
+    return this.http.get('transactions/get', { id })
   }
 
   /**
@@ -34,6 +34,6 @@ module.exports = class Transactions extends Base {
    * @return {Promise}
    */
   getUnconfirmed (id) {
-    return this.http.get('transactions/unconfirmed/get', {id})
+    return this.http.get('transactions/unconfirmed/get', { id })
   }
 }

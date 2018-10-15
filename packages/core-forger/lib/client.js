@@ -125,7 +125,7 @@ module.exports = class Client {
     }
 
     try {
-      await this.__post(`${host}/internal/utils/events`, {event, body})
+      await this.__post(`${host}/internal/utils/events`, { event, body })
     } catch (error) {
       logger.error(`Failed to emit "${event}" to "${host}"`)
     }

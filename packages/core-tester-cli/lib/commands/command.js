@@ -217,7 +217,7 @@ module.exports = class Command {
    */
   async postTransactions (transactions) {
     try {
-      const response = (await request(this.config).post('/api/v2/transactions', {transactions}))
+      const response = (await request(this.config).post('/api/v2/transactions', { transactions }))
       return response.data
     } catch (error) {
       const message = error.response ? error.response.data.message : error.message
@@ -230,7 +230,7 @@ module.exports = class Command {
    * @return {void}
    */
   __applyConfig () {
-    this.config = {...config}
+    this.config = { ...config }
     if (this.options.baseUrl) {
       this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, '')
     }
