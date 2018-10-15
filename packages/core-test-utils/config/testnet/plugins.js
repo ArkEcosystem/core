@@ -52,7 +52,7 @@ module.exports = {
     fastRebuild: false
   },
   '@arkecosystem/core-api': {
-    enabled: !!process.env.ARK_API_DISABLED,
+    enabled: !process.env.ARK_API_DISABLED,
     host: process.env.ARK_API_HOST || '0.0.0.0',
     port: process.env.ARK_API_PORT || 4003,
     whitelist: ['*']
