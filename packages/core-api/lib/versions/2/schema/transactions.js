@@ -9,7 +9,7 @@ const container = require('@arkecosystem/core-container')
  * @type {Object}
  */
 exports.index = {
-  query: {...pagination, ...{ orderBy: Joi.string() }}
+  query: { ...pagination, ...{ orderBy: Joi.string() } }
 }
 
 /**

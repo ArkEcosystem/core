@@ -21,7 +21,7 @@ describe('Signature transaction', () => {
 
   it('should return an array of 4 signature objects', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.SECOND_SIGNATURE})
+      expect(transactions[i]).toMatchObject({ type: TRANSACTION_TYPES.SECOND_SIGNATURE })
     }
   })
 })

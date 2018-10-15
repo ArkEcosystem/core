@@ -17,7 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const delegates = await database.delegates.paginate({...request.query, ...utils.paginate(request)})
+    const delegates = await database.delegates.paginate({ ...request.query, ...utils.paginate(request) })
 
     return utils.toPagination(request, delegates, 'delegate')
   },

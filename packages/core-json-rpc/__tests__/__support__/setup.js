@@ -6,8 +6,6 @@ const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/conta
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  process.env.ARK_JSON_RPC_ENABLED = true
-
   await containerHelper.setUp({
     exclude: [
       '@arkecosystem/core-api',

@@ -6,14 +6,19 @@ const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/conta
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  process.env.ARK_WEBHOOKS_ENABLED = true
-
   await containerHelper.setUp({
     exclude: [
       '@arkecosystem/core-api',
       '@arkecosystem/core-graphql',
+      '@arkecosystem/core-webhooks',
       '@arkecosystem/core-forger'
     ]
+  })
+
+  await require('../../lib/database').setUp({
+    dialect: 'sqlite',
+    storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}/webhooks.sqlite`,
+    logging: process.env.ARK_DB_LOGGING
   })
 
   await require('../../lib/manager').setUp({

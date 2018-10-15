@@ -12,7 +12,14 @@ exports.setUp = async () => {
 
   process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
 
-  await containerHelper.setUp({})
+  await containerHelper.setUp({
+    exclude: [
+      '@arkecosystem/core-webhooks',
+      '@arkecosystem/core-graphql',
+      '@arkecosystem/core-forger',
+      '@arkecosystem/core-json-rpc'
+    ]
+  })
 
   const connection = container.resolvePlugin('database')
   await connection.db.rounds.truncate()

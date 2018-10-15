@@ -17,7 +17,7 @@ module.exports = class Peers extends Base {
    * @return {Promise}
    */
   get (ip, port) {
-    return this.http.get('peers/get', {ip, port})
+    return this.http.get('peers/get', { ip, port })
   }
 
   /**

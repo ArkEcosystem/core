@@ -15,13 +15,16 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores sqlite3"
+    "depcheck": "depcheck ./ --ignores sqlite3,good-console,good-squeeze"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "axios": "^0.18.0",
     "boom": "^7.2.0",
     "fs-extra": "^7.0.0",
+    "good": "^8.1.1",
+    "good-console": "^7.1.0",
+    "good-squeeze": "^5.1.0",
     "hapi": "^17.5.0",
     "hapi-pagination": "^2.0.0",
     "joi": "^13.3.0",
