@@ -172,11 +172,11 @@ blockchainMachine.actionMap = blockchain => {
         const blockchainAudit = await blockchain.database.verifyBlockchain()
 
         if (!blockchainAudit.valid) {
-          logger.error('FATAL: The database is corrupted :rotating_light:')
+          logger.error('FATAL: The database is corrupted :fire:')
 
           console.error(blockchainAudit.errors)
 
-          return blockchain.dispatch('RECOVERY')
+          return blockchain.dispatch('DATABASE_RECOVERY')
         }
 
         logger.info('Verified database integrity :smile_cat:')
@@ -340,6 +340,17 @@ blockchainMachine.actionMap = blockchain => {
       await blockchain.p2p.resetSuspendedPeers()
 
       blockchain.dispatch('SUCCESS')
+    },
+
+    async startDatabaseRecovery () {
+      logger.info('Starting database recovery :fire_engine:')
+
+      const topBlocks = 1000
+
+      await blockchain.removeTopBlocks(topBlocks)
+      logger.info(`Removed top ${topBlocks} blocks :wastebasket:`)
+
+      blockchain.dispatch('RETRY')
     }
   }
 }

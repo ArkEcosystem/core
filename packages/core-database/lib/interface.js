@@ -187,6 +187,16 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Get top blocks.
+   * @param  {Number} top
+   * @return {void}
+   * @throws Error
+   */
+  async getTopBlocks (top) {
+    throw new Error('Method [getTopBlocks] not implemented!')
+  }
+
+  /**
    * Get recent block ids.
    * @return {[]String}
    */
