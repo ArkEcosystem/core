@@ -1,12 +1,10 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
-  '@arkecosystem/core-logger': {},
   '@arkecosystem/core-logger-winston': {
     transports: {
       console: {
         options: {
-          colorize: true,
           level: process.env.ARK_LOG_LEVEL || 'debug',
           format: require('@arkecosystem/core-logger-winston/lib/formatter')
         }
@@ -21,9 +19,6 @@ module.exports = {
       }
     }
   },
-  '@arkecosystem/core-database': {
-    snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
-  },
   '@arkecosystem/core-database-postgres': {
     connection: {
       host: process.env.ARK_DB_HOST || 'localhost',
@@ -37,7 +32,6 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
-  '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
     key: 'ark-testnet',

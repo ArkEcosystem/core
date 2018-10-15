@@ -5,7 +5,6 @@ module.exports = {
     console: {
       constructor: 'Console',
       options: {
-        colorize: true,
         level: process.env.ARK_LOG_LEVEL || 'debug',
         format: require('./formatter')
       }
