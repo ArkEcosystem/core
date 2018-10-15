@@ -13,7 +13,7 @@ module.exports = class TransferCommand extends Command {
    * @return {void}
    */
   async run (options) {
-    this.options = {...this.options, ...options}
+    this.options = { ...this.options, ...options }
 
     const primaryAddress = crypto.getAddress(crypto.getKeys(this.config.passphrase).publicKey, this.config.network.version)
 

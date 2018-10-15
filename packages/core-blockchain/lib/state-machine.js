@@ -269,7 +269,7 @@ blockchainMachine.actionMap = blockchain => {
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
-          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
           blockchain.rebuildQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
         } else {
@@ -299,7 +299,7 @@ blockchainMachine.actionMap = blockchain => {
 
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
           state.noBlockCounter = 0
-          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
 
           blockchain.processQueue.push(blocks)
 

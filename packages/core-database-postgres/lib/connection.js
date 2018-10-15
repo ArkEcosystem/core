@@ -70,7 +70,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       }
     }
 
-    const pgp = pgPromise({...this.config.initialization, ...initialization})
+    const pgp = pgPromise({ ...this.config.initialization, ...initialization })
 
     this.pgp = pgp
     this.db = this.pgp(this.config.connection)
