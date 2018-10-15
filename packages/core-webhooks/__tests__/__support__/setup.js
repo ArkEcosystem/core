@@ -6,7 +6,7 @@ const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/conta
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  process.env.ARK_WEBHOOKS_ENABLED = true
+  process.env.ARK_WEBHOOKS_DISABLED = false
 
   await containerHelper.setUp({
     exclude: [
