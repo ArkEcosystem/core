@@ -127,6 +127,16 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
+  describe('checkIfSenderHasVoteTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.checkIfSenderHasVoteTransactions).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.checkIfSenderHasVoteTransactions()).rejects.toThrowError('Method [checkIfSenderHasVoteTransactions] not implemented!')
+    })
+  })
+
   describe('transactionExists', () => {
     it('should be a function', () => {
       expect(poolInterface.transactionExists).toBeFunction()
@@ -216,12 +226,6 @@ describe('Transaction Pool Interface', () => {
   describe('checkDynamicFeeMatch', () => {
     it('should be a function', () => {
       expect(poolInterface.checkDynamicFeeMatch).toBeFunction()
-    })
-  })
-
-  describe('checkIfSenderHasVoteTransactions', () => {
-    it('should be a function', () => {
-      expect(poolInterface.checkIfSenderHasVoteTransactions).toBeFunction()
     })
   })
 })
