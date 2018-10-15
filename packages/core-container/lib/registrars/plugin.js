@@ -95,6 +95,10 @@ module.exports = class PluginRegistrars {
       return
     }
 
+    if (item.plugin.extends) {
+      await this.__registerWithContainer(item.plugin.extends)
+    }
+
     const name = item.plugin.name || item.plugin.pkg.name
     const version = item.plugin.version || item.plugin.pkg.version
     const defaults = item.plugin.defaults || item.plugin.pkg.defaults

@@ -19,7 +19,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=commander"
+    "depcheck": "depcheck ./ --ignores=commander,pino-pretty"
   },
   "dependencies": {
     "@arkecosystem/core-utils": "^0.1.0",
@@ -28,10 +28,11 @@
     "bip39": "^2.5.0",
     "clipboardy": "^1.2.3",
     "commander": "^2.15.1",
-    "delay": "^2.0.0",
+    "delay": "^4.1.0",
     "lodash": "^4.2.1",
-    "pino": "^4.16.1",
-    "superheroes": "^1.0.0"
+    "pino": "^5.7.0",
+    "pino-pretty": "^2.2.2",
+    "superheroes": "^2.0.0"
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.15.0"

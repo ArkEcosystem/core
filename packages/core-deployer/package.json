@@ -19,7 +19,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=commander"
+    "depcheck": "depcheck ./ --ignores=commander,pino-pretty"
   },
   "dependencies": {
     "@arkecosystem/crypto": "^0.2.0",
@@ -28,10 +28,11 @@
     "commander": "^2.15.1",
     "envfile": "^2.3.0",
     "expand-home-dir": "0.0.3",
-    "fs-extra": "^6.0.1",
+    "fs-extra": "^7.0.0",
     "joi": "^13.3.0",
     "lodash": "^4.17.10",
-    "pino": "^4.16.1"
+    "pino": "^5.7.0",
+    "pino-pretty": "^2.2.2"
   },
   "publishConfig": {
     "access": "public"
