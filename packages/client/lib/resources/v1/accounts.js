@@ -16,7 +16,7 @@ module.exports = class Wallets extends Base {
    * @return {Promise}
    */
   get (address) {
-    return this.http.get('accounts', {address})
+    return this.http.get('accounts', { address })
   }
 
   /**
@@ -33,7 +33,7 @@ module.exports = class Wallets extends Base {
    * @return {Promise}
    */
   delegates (address) {
-    return this.http.get('accounts/delegates', {address})
+    return this.http.get('accounts/delegates', { address })
   }
 
   /**
@@ -50,7 +50,7 @@ module.exports = class Wallets extends Base {
    * @return {Promise}
    */
   balance (address) {
-    return this.http.get('accounts/getBalance', {address})
+    return this.http.get('accounts/getBalance', { address })
   }
 
   /**
@@ -59,7 +59,7 @@ module.exports = class Wallets extends Base {
    * @return {Promise}
    */
   publicKey (address) {
-    return this.http.get('accounts/getPublicKey', {address})
+    return this.http.get('accounts/getPublicKey', { address })
   }
 
   /**

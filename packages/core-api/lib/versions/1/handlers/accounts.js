@@ -70,7 +70,7 @@ exports.balance = {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
-      return utils.respondWith({balance: '0', unconfirmedBalance: '0'})
+      return utils.respondWith({ balance: '0', unconfirmedBalance: '0' })
     }
 
     return utils.respondWith({
