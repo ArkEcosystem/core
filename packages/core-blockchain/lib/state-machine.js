@@ -114,7 +114,7 @@ blockchainMachine.actionMap = blockchain => {
 
         state.rebuild = false
 
-        await blockchain.database.saveBlockCommit()
+        await blockchain.database.commitQueuedQueries()
         await blockchain.rollbackCurrentRound()
         await blockchain.database.buildWallets(state.lastBlock.data.height)
         await blockchain.database.saveWallets(true)
@@ -325,7 +325,7 @@ blockchainMachine.actionMap = blockchain => {
     async startForkRecovery () {
       logger.info('Starting fork recovery :fork_and_knife:')
 
-      await blockchain.database.saveBlockCommit()
+      await blockchain.database.commitQueuedQueries()
       // state.forked = true
       let random = ~~(4 / Math.random())
 
