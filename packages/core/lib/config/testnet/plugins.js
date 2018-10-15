@@ -54,21 +54,21 @@ module.exports = {
     whitelist: ['*']
   },
   '@arkecosystem/core-webhooks': {
-    enabled: !process.env.ARK_WEBHOOKS_DISABLED,
+    enabled: process.env.ARK_WEBHOOKS_ENABLED,
     database: {
       dialect: 'sqlite',
       storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}/webhooks.sqlite`,
       logging: process.env.ARK_DB_LOGGING
     },
     server: {
-      enabled: !process.env.ARK_WEBHOOKS_API_DISABLED,
+      enabled: process.env.ARK_WEBHOOKS_API_ENABLED,
       host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
       port: process.env.ARK_WEBHOOKS_PORT || 4004,
       whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
     }
   },
   '@arkecosystem/core-graphql': {
-    enabled: !process.env.ARK_GRAPHQL_DISABLED,
+    enabled: process.env.ARK_GRAPHQL_ENABLED,
     host: process.env.ARK_GRAPHQL_HOST || '0.0.0.0',
     port: process.env.ARK_GRAPHQL_PORT || 4005,
     path: '/graphql',
@@ -78,7 +78,7 @@ module.exports = {
     hosts: [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`]
   },
   '@arkecosystem/core-json-rpc': {
-    enabled: !process.env.ARK_JSON_RPC_DISABLED,
+    enabled: process.env.ARK_JSON_RPC_ENABLED,
     host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
     port: process.env.ARK_JSON_RPC_PORT || 8080,
     allowRemote: true,
