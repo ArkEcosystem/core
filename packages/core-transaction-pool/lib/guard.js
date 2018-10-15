@@ -187,8 +187,9 @@ module.exports = class TransactionGuard {
   async __determineExcessTransactions () {
     for (let transaction of this.broadcast) {
       const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
+      const hasVote = await this.pool.checkIfSenderHasVoteTransactions(transaction.senderPublicKey)
 
-      if (hasExceeded) {
+      if (hasExceeded || hasVote) {
         this.excess.push(transaction)
       } else {
         /**
