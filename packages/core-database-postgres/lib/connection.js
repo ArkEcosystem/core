@@ -519,8 +519,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     const lastBlock = await this.getLastBlock()
 
     const height = lastBlock.data.height
+
+    if (top >= height) {
+      top = height - 1
+    }
+
     const offset = height - top
-    const limit = height - top
+    const limit = height - top - 1
 
     // Blocks are returned ASC height, but be want them in a DESC order.
     const blocks = await this.getBlocks(offset, limit)
