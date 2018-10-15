@@ -7,7 +7,7 @@ const pagination = require('./pagination')
  * @type {Object}
  */
 exports.index = {
-  query: {...pagination, ...{ orderBy: Joi.string() }}
+  query: { ...pagination, ...{ orderBy: Joi.string() } }
 }
 
 /**
