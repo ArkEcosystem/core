@@ -5,7 +5,7 @@ const defaultConfig = require('../lib/defaults')
 const delegate = require('./__fixtures__/delegate')
 const sampleTransaction = require('./__fixtures__/transaction')
 const sampleBlock = require('./__fixtures__/block')
-const {Delegate, Transaction} = require('@arkecosystem/crypto').models
+const { Delegate, Transaction } = require('@arkecosystem/crypto').models
 
 jest.setTimeout(30000)
 jest.mock('../lib/client')

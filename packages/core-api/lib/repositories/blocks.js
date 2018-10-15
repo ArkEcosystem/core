@@ -48,7 +48,7 @@ class BlocksRepository extends Repository {
    * @return {Object}
    */
   async findAllByGenerator (generatorPublicKey, paginator) {
-    return this.findAll({...{ generatorPublicKey }, ...paginator})
+    return this.findAll({ ...{ generatorPublicKey }, ...paginator })
   }
 
   /**

@@ -16,7 +16,7 @@ module.exports = class Delegates extends Base {
    * @return {Promise}
    */
   get (id) {
-    return this.http.get('delegates/get', {id})
+    return this.http.get('delegates/get', { id })
   }
 
   /**
@@ -41,7 +41,7 @@ module.exports = class Delegates extends Base {
    * @return {Promise}
    */
   forged (generatorPublicKey) {
-    return this.http.get('delegates/forging/getForgedByAccount', {generatorPublicKey})
+    return this.http.get('delegates/forging/getForgedByAccount', { generatorPublicKey })
   }
 
   /**
@@ -61,6 +61,6 @@ module.exports = class Delegates extends Base {
    * @return {Promise}
    */
   voters (publicKey) {
-    return this.http.get('delegates/voters', {publicKey})
+    return this.http.get('delegates/voters', { publicKey })
   }
 }

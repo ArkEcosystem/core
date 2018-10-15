@@ -8,16 +8,6 @@
 yarn add @arkecosystem/core-database
 ```
 
-## Configuration
-
-### Defaults
-
-```js
-module.exports = {
-  snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK_NAME}/snapshots`
-}
-```
-
 ## Security
 
 If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.
