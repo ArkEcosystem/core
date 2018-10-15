@@ -348,6 +348,7 @@ blockchainMachine.actionMap = blockchain => {
       const topBlocks = 1000
 
       await blockchain.removeTopBlocks(topBlocks)
+
       logger.info(`Removed top ${topBlocks} blocks :wastebasket:`)
 
       blockchain.dispatch('RETRY')

@@ -268,7 +268,7 @@ module.exports = class Blockchain {
     for (let block of blocks) {
       block = new Block(block)
 
-      await this.database.revertRound(block.data.height)
+      await this.database.revertRound(block.data.height, false)
       this.database.enqueueDeleteBlock(block)
     }
 

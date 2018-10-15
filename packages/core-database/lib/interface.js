@@ -320,7 +320,7 @@ module.exports = class ConnectionInterface {
    * @param  {Number} height
    * @return {void}
    */
-  async revertRound (height) {
+  async revertRound (height, updateState = true) {
     const maxDelegates = config.getConstants(height).activeDelegates
     const nextHeight = height + 1
 
@@ -330,9 +330,11 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
-      this.blocksInCurrentRound = await this.__getBlocksForRound(round)
+      if (updateState) {
+        this.blocksInCurrentRound = await this.__getBlocksForRound(round)
 
-      this.activedelegates = await this.getActiveDelegates(height)
+        this.activeDelegates = await this.getActiveDelegates(height)
+      }
 
       await this.deleteRound(nextRound)
     }
