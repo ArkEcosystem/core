@@ -114,7 +114,7 @@ blockchainMachine.actionMap = blockchain => {
 
         state.rebuild = false
 
-        await blockchain.database.saveBlockCommit()
+        await blockchain.database.commitQueuedQueries()
         await blockchain.rollbackCurrentRound()
         await blockchain.database.buildWallets(state.lastBlock.data.height)
         await blockchain.database.saveWallets(true)
@@ -269,7 +269,7 @@ blockchainMachine.actionMap = blockchain => {
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
-          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
           blockchain.rebuildQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
         } else {
@@ -299,7 +299,7 @@ blockchainMachine.actionMap = blockchain => {
 
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
           state.noBlockCounter = 0
-          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
 
           blockchain.processQueue.push(blocks)
 
@@ -325,7 +325,7 @@ blockchainMachine.actionMap = blockchain => {
     async startForkRecovery () {
       logger.info('Starting fork recovery :fork_and_knife:')
 
-      await blockchain.database.saveBlockCommit()
+      await blockchain.database.commitQueuedQueries()
       // state.forked = true
       let random = ~~(4 / Math.random())
 

@@ -6,7 +6,7 @@ module.exports = {
       constructor: 'Console',
       options: {
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        format: require('./formatter')
+        format: require('./formatter')(true)
       }
     },
     dailyRotate: {
@@ -14,6 +14,7 @@ module.exports = {
       constructor: 'DailyRotateFile',
       options: {
         level: process.env.ARK_LOG_LEVEL || 'debug',
+        format: require('./formatter')(false),
         filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
         datePattern: 'YYYY-MM-DD',
         zippedArchive: true,
