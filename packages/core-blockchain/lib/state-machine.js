@@ -169,14 +169,14 @@ blockchainMachine.actionMap = blockchain => {
 
         logger.info('Verifying database integrity :hourglass_flowing_sand:')
 
-        const databaseBlokchain = await blockchain.database.verifyBlockchain()
+        const blockchainAudit = await blockchain.database.verifyBlockchain()
 
-        if (!databaseBlokchain.valid) {
+        if (!blockchainAudit.valid) {
           logger.error('FATAL: The database is corrupted :rotating_light:')
 
-          console.error(databaseBlokchain.errors)
+          console.error(blockchainAudit.errors)
 
-          return blockchain.dispatch('FAILURE')
+          return blockchain.dispatch('RECOVERY')
         }
 
         logger.info('Verified database integrity :smile_cat:')
