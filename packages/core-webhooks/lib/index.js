@@ -32,9 +32,11 @@ exports.plugin = {
   },
   async deregister (container, options) {
     if (options.server.enabled) {
-      container.resolvePlugin('logger').info('Stopping Webhook API')
+      if (container.resolvePlugin('webhooks')) {
+        container.resolvePlugin('logger').info('Stopping Webhook API')
 
-      return container.resolvePlugin('webhooks').stop()
+        return container.resolvePlugin('webhooks').stop()
+      }
     }
   }
 }
