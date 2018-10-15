@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.1.9 - 2018-10-13
+
+### Fixed
+ - Handle v2 endpoints when finding peers (https://github.com/ArkEcosystem/core/pull/1103)
+
 ## 0.1.8 - 2018-10-12
 
 ### Changed
