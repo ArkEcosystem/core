@@ -10,8 +10,6 @@ yarn add @arkecosystem/core-logger-winston
 
 ## Configuration
 
-### Defaults
-
 ```js
 module.exports = {
   transports: {
@@ -26,9 +24,9 @@ module.exports = {
       package: 'winston-daily-rotate-file',
       constructor: 'DailyRotateFile',
       options: {
+        level: process.env.ARK_LOG_LEVEL || 'debug',
         filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
         datePattern: 'YYYY-MM-DD',
-        level: process.env.ARK_LOG_LEVEL || 'debug',
         zippedArchive: true,
         maxSize: '100m',
         maxFiles: '10'

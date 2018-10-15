@@ -8,6 +8,18 @@
 yarn add @arkecosystem/core-graphql
 ```
 
+## Configuration
+
+```js
+module.exports = {
+  enabled: !process.env.ARK_GRAPHQL_DISABLED,
+  host: process.env.ARK_GRAPHQL_HOST || '0.0.0.0',
+  port: process.env.ARK_GRAPHQL_PORT || 4005,
+  path: '/graphql',
+  graphiql: true
+}
+```
+
 ## Usage
 
 You can play with the data using the [GraphQL Playground](https://github.com/prisma/graphql-playground), or programmatically posting querys directly to the endpoint. By default the endpoint is `http://0.0.0.0:4005/graphql`, but can be changed in your configuration.

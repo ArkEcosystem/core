@@ -40,7 +40,7 @@ describe('API 2.0 - Webhooks', () => {
   })
 
   describe('POST /webhooks', () => {
-    it.only('should POST a new webhook with a simple condition', async () => {
+    it('should POST a new webhook with a simple condition', async () => {
       const response = await createWebhook()
       utils.expectSuccessful(response, 201)
       utils.expectResource(response)
