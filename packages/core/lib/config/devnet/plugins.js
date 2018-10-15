@@ -5,16 +5,13 @@ module.exports = {
     transports: {
       console: {
         options: {
-          level: process.env.ARK_LOG_LEVEL || 'debug',
-          format: require('@arkecosystem/core-logger-winston/lib/formatter')
+          level: process.env.ARK_LOG_LEVEL || 'debug'
         }
       },
       dailyRotate: {
         options: {
-          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
-          datePattern: 'YYYY-MM-DD',
           level: process.env.ARK_LOG_LEVEL || 'debug',
-          zippedArchive: true
+          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`
         }
       }
     }
@@ -33,7 +30,7 @@ module.exports = {
     }
   },
   '@arkecosystem/core-transaction-pool-mem': {
-    enabled: true,
+    enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
     storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`,
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     whitelist: [],
