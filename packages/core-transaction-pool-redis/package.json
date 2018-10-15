@@ -23,8 +23,8 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-transaction-pool": "^0.1.1",
     "@arkecosystem/crypto": "^0.2.0",
-    "delay": "^3.0.0",
-    "ioredis": "^3.2.2",
+    "delay": "^4.1.0",
+    "ioredis": "^4.0.2",
     "lodash": "^4.17.10"
   },
   "devDependencies": {

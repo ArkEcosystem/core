@@ -55,3 +55,6 @@ packages/**/dist/
 
 # Microsoft Visual Studio settings
 .vs
+
+# Databases
+*.sqlite
