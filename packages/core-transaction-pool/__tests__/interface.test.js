@@ -218,4 +218,10 @@ describe('Transaction Pool Interface', () => {
       expect(poolInterface.checkDynamicFeeMatch).toBeFunction()
     })
   })
+
+  describe('checkIfSenderHasVoteTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.checkIfSenderHasVoteTransactions).toBeFunction()
+    })
+  })
 })
