@@ -115,45 +115,35 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Save the given number of block (async version) in the memory Must call saveBlockCommit() to save to database.
-   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
+   * Save the given number of block (async version) in the memory Must call commit() to save to database.
+   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) by calling commit
    * @param  {Block} block
    * @return {void}
    * @throws Error
    */
-  async enqueueSaveBlockAsync (block) {
-    throw new Error('Method [enqueueSaveBlockAsync] not implemented!')
-  }
-
-  /**
-   * Commit the block save database transaction.
-   * NOTE: to be used in combination with enqueueSaveBlockAsync
-   * @return {void}
-   * @throws Error
-   */
-  async saveBlockCommit () {
-    throw new Error('Method [saveBlockCommit] not implemented!')
+  async enqueueSaveBlock (block) {
+    throw new Error('Method [enqueueSaveBlock] not implemented!')
   }
 
   /**
    * Delete the given block (async version).
-   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
+   * See also enqueueSaveBlock
    * @param  {Block} block
    * @return {void}
    * @throws Error
    */
-  async deleteBlockAsync (block) {
-    throw new Error('Method [deleteBlockAsync] not implemented!')
+  async enqueueDeleteBlock (block) {
+    throw new Error('Method [enqueueDeleteBlock] not implemented!')
   }
 
   /**
-   * Commit the block delete database transaction.
-   * NOTE: to be used in combination with deleteBlockAsync
+   * Commit all queued queries to the database.
+   * NOTE: to be used in combination with enqueueDeleteBlock/enqueueSaveBlock
    * @return {void}
    * @throws Error
    */
-  async deleteBlockCommit () {
-    throw new Error('Method [deleteBlockCommit] not implemented!')
+  async commitQueuedQueries () {
+    throw new Error('Method [commitQueuedQueries] not implemented!')
   }
 
   /**
