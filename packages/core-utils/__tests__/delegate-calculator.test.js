@@ -22,8 +22,6 @@ describe('Delegate Calculator', () => {
     })
 
     it('should calculate correctly', () => {
-      delegate.missedBlocks = 10
-      delegate.producedBlocks = 100
       delegate.voteBalance = new Bignum(10000 * Math.pow(10, 8))
 
       container.resolvePlugin = jest.fn(plugin => {
@@ -43,6 +41,28 @@ describe('Delegate Calculator', () => {
       })
 
       expect(delegateCalculator.calculateApproval(delegate, 1)).toBe(1)
+    })
+
+    it('should calculate correctly with 2 decimals', () => {
+      delegate.voteBalance = new Bignum(16500 * Math.pow(10, 8))
+
+      container.resolvePlugin = jest.fn(plugin => {
+        if (plugin === 'config') {
+          return {
+            getConstants: () => {
+              return {
+                height: 1,
+                reward: 2 * Math.pow(10, 8)
+              }
+            },
+            genesisBlock: {
+              totalAmount: 1000000 * Math.pow(10, 8)
+            }
+          }
+        }
+      })
+
+      expect(delegateCalculator.calculateApproval(delegate, 1)).toBe(1.65)
     })
   })
 

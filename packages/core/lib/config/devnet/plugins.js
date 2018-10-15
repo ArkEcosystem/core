@@ -7,7 +7,8 @@ module.exports = {
       console: {
         options: {
           colorize: true,
-          level: process.env.ARK_LOG_LEVEL || 'debug'
+          level: process.env.ARK_LOG_LEVEL || 'debug',
+          format: require('@arkecosystem/core-logger-winston/lib/formatter')
         }
       },
       dailyRotate: {

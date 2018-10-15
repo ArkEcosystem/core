@@ -7,8 +7,7 @@ module.exports = {
       options: {
         colorize: true,
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        timestamp: () => Date.now(),
-        formatter: (info) => require('./formatter')(info)
+        format: require('./formatter')
       }
     },
     dailyRotate: {
@@ -18,7 +17,9 @@ module.exports = {
         filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
         datePattern: 'YYYY-MM-DD',
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        zippedArchive: true
+        zippedArchive: true,
+        maxSize: '100m',
+        maxFiles: '10'
       }
     }
   }
