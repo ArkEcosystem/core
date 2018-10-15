@@ -10,13 +10,11 @@ yarn add @arkecosystem/core-json-rpc
 
 ## Configuration
 
-### Defaults
-
 ```js
-'use strict'
-
 module.exports = {
-  port: 8080,
+  enabled: !process.env.ARK_JSON_RPC_DISABLED,
+  host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
+  port: process.env.ARK_JSON_RPC_PORT || 8080,
   allowRemote: true,
   whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
 }

@@ -50,12 +50,6 @@ describe('Monitor', () => {
     })
   })
 
-  describe('start', () => {
-    it('should have timeout of 60 minutes', () => {
-      expect(monitor.config.suspendMinutes).toBe(60)
-    })
-  })
-
   describe('cleanPeers', () => {
     it('should be a function', () => {
       expect(monitor.cleanPeers).toBeFunction()
