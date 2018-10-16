@@ -45,7 +45,7 @@ module.exports = {
   },
   '@arkecosystem/core-blockchain': {
     fastRebuild: false,
-    recovery: {
+    databaseRollback: {
       maxBlockRewind: 10000,
       steps: 1000
     }

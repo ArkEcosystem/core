@@ -348,7 +348,7 @@ blockchainMachine.actionMap = blockchain => {
     async rollbackDatabase () {
       logger.info('Trying to restore database integrity :fire_engine:')
 
-      const { maxBlockRewind, steps } = container.resolveOptions('blockchain').recovery
+      const { maxBlockRewind, steps } = container.resolveOptions('blockchain').databaseRollback
       let blockchainAudit
 
       for (let i = maxBlockRewind; i >= 0; i -= steps) {
