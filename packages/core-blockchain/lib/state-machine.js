@@ -177,7 +177,7 @@ blockchainMachine.actionMap = blockchain => {
 
             console.error(blockchainAudit.errors)
 
-            return blockchain.dispatch('RESTORE_INTEGRITY')
+            return blockchain.dispatch('ROLLBACK')
           }
 
           logger.info('Verified database integrity :smile_cat:')
@@ -346,7 +346,7 @@ blockchainMachine.actionMap = blockchain => {
       blockchain.dispatch('SUCCESS')
     },
 
-    async restoreDatabaseIntegrity () {
+    async rollbackDatabase () {
       logger.info('Trying to restore database integrity :fire_engine:')
 
       const maxBlockRewind = 10000
@@ -373,7 +373,7 @@ blockchainMachine.actionMap = blockchain => {
       blockchain.restoredDatabaseIntegrity = true
 
       const lastBlock = await blockchain.database.getLastBlock()
-      logger.info(`Database integrity verified again after going back to height ${lastBlock.data.height.toLocaleString()} :bell:`)
+      logger.info(`Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()} :bell:`)
 
       blockchain.dispatch('SUCCESS')
     }

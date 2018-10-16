@@ -18,7 +18,7 @@ module.exports = Machine({
         REBUILD: 'rebuild',
         NETWORKSTART: 'idle',
         STARTED: 'syncWithNetwork',
-        RESTORE_INTEGRITY: 'restoreIntegrity',
+        ROLLBACK: 'rollback',
         FAILURE: 'exit'
       }
     },
@@ -61,8 +61,8 @@ module.exports = Machine({
       },
       ...fork
     },
-    restoreIntegrity: {
-      onEntry: ['restoreDatabaseIntegrity'],
+    rollback: {
+      onEntry: ['rollbackDatabase'],
       on: {
         SUCCESS: 'init',
         FAILURE: 'exit'
