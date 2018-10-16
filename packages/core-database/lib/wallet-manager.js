@@ -398,7 +398,7 @@ module.exports = class WalletManager {
 
       let placeholders = this.allByUsername()
 
-      if(publicKeys.length) {
+      if (publicKeys.length) {
         placeholders = placeholders.filter(wallet => publicKeys.includes(wallet.publicKey))
       }
 
