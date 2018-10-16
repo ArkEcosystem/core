@@ -1,6 +1,5 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const fs = require('fs-extra')
 const BetterSqlite3 = require('better-sqlite3')
 
@@ -20,14 +19,8 @@ class Storage {
 
     this.db = new BetterSqlite3(file)
 
-    const newMode = this.db.pragma('journal_mode=WAL', { simple: true })
-    if (newMode.toUpperCase() !== 'WAL') {
-      logger.warn(
-        'Transaction pool: could not switch SQLite journal mode to WAL. ' +
-        `The journal mode is '${newMode}'. Expect reduced performance.`)
-    }
-
     this.db.exec(`
+      PRAGMA journal_mode=WAL;
       CREATE TABLE IF NOT EXISTS ${this.table} (
         "sequence" INTEGER PRIMARY KEY AUTOINCREMENT,
         "id" VARCHAR(64) UNIQUE,

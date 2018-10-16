@@ -29,18 +29,16 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
-  '@arkecosystem/core-transaction-pool-redis': {
+  '@arkecosystem/core-transaction-pool-mem': {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
-    key: 'ark-testnet',
+    storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`,
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     whitelist: [],
     allowedSenders: [],
     maxTransactionsPerRequest: 200,
-    maxTransactionAge: 21600,
-    redis: {
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379
-    }
+    // 100+ years in the future to avoid our hardcoded transactions used in the
+    // tests to expire immediately
+    maxTransactionAge: 4036608000
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
