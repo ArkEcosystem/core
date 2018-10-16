@@ -12,6 +12,8 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
+const { roundCalculator } = require('@arkecosystem/core-utils')
+
 const { Bignum, models: { Block, Transaction } } = require('@arkecosystem/crypto')
 
 const SPV = require('./spv')
@@ -393,6 +395,19 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     ]
 
     this.enqueueQueries(queries)
+  }
+
+  /**
+   * Generated delete statements are stored in this.queuedQueries to be later executed by calling this.commitQueuedQueries.
+   * @param  {Number} round
+   * @return {void}
+   */
+  enqueueDeleteRound (height) {
+    const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height)
+
+    if (nextRound === round + 1 && height >= maxDelegates) {
+      this.enqueueQueries([this.db.rounds.delete(nextRound)])
+    }
   }
 
   /**

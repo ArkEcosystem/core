@@ -138,8 +138,19 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Delete the round at given height (async version).
+   * See also enqueueSaveBlock and enqueueDeleteBlock
+   * @param  {Number} height
+   * @return {void}
+   * @throws Error
+   */
+  async enqueueDeleteRound (height) {
+    throw new Error('Method [enqueueDeleteRound] not implemented!')
+  }
+
+  /**
    * Commit all queued queries to the database.
-   * NOTE: to be used in combination with enqueueDeleteBlock/enqueueSaveBlock
+   * NOTE: to be used in combination with other enqueue-functions
    * @return {void}
    * @throws Error
    */
