@@ -1,6 +1,7 @@
 'use strict'
 
 const Promise = require('bluebird')
+const orderBy = require('lodash/orderBy')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
@@ -401,17 +402,7 @@ module.exports = class WalletManager {
         placeholders = placeholders.filter(wallet => publicKeys.includes(wallet.publicKey))
       }
 
-      placeholders = placeholders.sort((a, b) => {
-        if (a.publicKey < b.publicKey) {
-          return -1
-        }
-
-        if (a.publicKey > b.publicKey) {
-          return 1
-        }
-
-        return 0
-      })
+      placeholders = orderBy(placeholders, ['publicKey'], ['asc'])
 
       delegates = delegates.concat(mapWallets(placeholders))
     }
