@@ -4,13 +4,14 @@ module.exports = {
   blocks: {
     common: loadQueryFile(__dirname, './blocks/common.sql'),
     count: loadQueryFile(__dirname, './blocks/count.sql'),
+    delete: loadQueryFile(__dirname, './blocks/delete.sql'),
     findById: loadQueryFile(__dirname, './blocks/find-by-id.sql'),
     headers: loadQueryFile(__dirname, './blocks/headers.sql'),
     heightRange: loadQueryFile(__dirname, './blocks/height-range.sql'),
     latest: loadQueryFile(__dirname, './blocks/latest.sql'),
     recent: loadQueryFile(__dirname, './blocks/recent.sql'),
     statistics: loadQueryFile(__dirname, './blocks/statistics.sql'),
-    delete: loadQueryFile(__dirname, './blocks/delete.sql')
+    top: loadQueryFile(__dirname, './blocks/top.sql')
   },
   rounds: {
     delegates: loadQueryFile(__dirname, './rounds/delegates.sql'),

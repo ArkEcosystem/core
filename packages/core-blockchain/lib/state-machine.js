@@ -7,6 +7,7 @@ const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
+const { roundCalculator } = require('@arkecosystem/core-utils')
 
 const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
@@ -167,19 +168,21 @@ blockchainMachine.actionMap = blockchain => {
           await blockchain.database.saveBlock(block)
         }
 
-        logger.info('Verifying database integrity :hourglass_flowing_sand:')
+        if (!blockchain.restoredDatabaseIntegrity) {
+          logger.info('Verifying database integrity :hourglass_flowing_sand:')
 
-        const databaseBlokchain = await blockchain.database.verifyBlockchain()
+          const blockchainAudit = await blockchain.database.verifyBlockchain()
+          if (!blockchainAudit.valid) {
+            logger.error('FATAL: The database is corrupted :fire:')
+            logger.error(JSON.stringify(blockchainAudit.errors, null, 4))
 
-        if (!databaseBlokchain.valid) {
-          logger.error('FATAL: The database is corrupted :rotating_light:')
+            return blockchain.dispatch('ROLLBACK')
+          }
 
-          console.error(databaseBlokchain.errors)
-
-          return blockchain.dispatch('FAILURE')
+          logger.info('Verified database integrity :smile_cat:')
+        } else {
+          logger.info('Skipping database integrity check after successful database recovery :smile_cat:')
         }
-
-        logger.info('Verified database integrity :smile_cat:')
 
         // only genesis block? special case of first round needs to be dealt with
         if (block.data.height === 1) {
@@ -237,8 +240,8 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.saveWallets(true)
 
         // NOTE: if the node is shutdown between round, the round has already been applied
-        if (blockchain.database.isNewRound(block.data.height + 1)) {
-          const round = blockchain.database.getRound(block.data.height + 1)
+        if (roundCalculator.isNewRound(block.data.height + 1)) {
+          const { round } = roundCalculator.calculateRound(block.data.height + 1)
 
           logger.info(`New round ${round} detected. Cleaning calculated data before restarting!`)
 
@@ -338,6 +341,37 @@ blockchainMachine.actionMap = blockchain => {
       logger.info(`Removed ${random} blocks :wastebasket:`)
 
       await blockchain.p2p.resetSuspendedPeers()
+
+      blockchain.dispatch('SUCCESS')
+    },
+
+    async rollbackDatabase () {
+      logger.info('Trying to restore database integrity :fire_engine:')
+
+      const { maxBlockRewind, steps } = container.resolveOptions('blockchain').databaseRollback
+      let blockchainAudit
+
+      for (let i = maxBlockRewind; i >= 0; i -= steps) {
+        await blockchain.removeTopBlocks(steps)
+
+        blockchainAudit = await blockchain.database.verifyBlockchain()
+        if (blockchainAudit.valid) {
+          break
+        }
+      }
+
+      if (!blockchainAudit.valid) {
+        // TODO: multiple attempts? rewind further? restore snapshot?
+        logger.error('FATAL: Failed to restore database integrity :skull: :skull: :skull:')
+        logger.error(JSON.stringify(blockchainAudit.errors, null, 4))
+        blockchain.dispatch('FAILURE')
+        return
+      }
+
+      blockchain.restoredDatabaseIntegrity = true
+
+      const lastBlock = await blockchain.database.getLastBlock()
+      logger.info(`Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()} :green_heart:`)
 
       blockchain.dispatch('SUCCESS')
     }

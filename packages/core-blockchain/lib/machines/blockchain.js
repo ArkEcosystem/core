@@ -18,6 +18,7 @@ module.exports = Machine({
         REBUILD: 'rebuild',
         NETWORKSTART: 'idle',
         STARTED: 'syncWithNetwork',
+        ROLLBACK: 'rollback',
         FAILURE: 'exit'
       }
     },
@@ -59,6 +60,13 @@ module.exports = Machine({
         FAILURE: 'exit'
       },
       ...fork
+    },
+    rollback: {
+      onEntry: ['rollbackDatabase'],
+      on: {
+        SUCCESS: 'init',
+        FAILURE: 'exit'
+      }
     },
     /**
      * This state should be used for stopping the blockchain on purpose, not as
