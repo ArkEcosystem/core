@@ -379,10 +379,9 @@ module.exports = class WalletManager {
   /**
    * Determine the list of active delegates for the given round.
    * @param  {Number} maxDelegates
-   * @param  {Number} height
    * @return {Array}
    */
-  determineActiveDelegates (maxDelegates, height) {
+  determineActiveDelegates (maxDelegates) {
     const mapWallets = wallets => wallets.map(wallet => ({
       publicKey: wallet.vote || wallet.publicKey,
       balance: wallet.balance ? wallet.balance.toFixed() : 0
@@ -407,12 +406,9 @@ module.exports = class WalletManager {
       delegates = delegates.concat(mapWallets(placeholders))
     }
 
-    const round = Math.floor((height - 1) / maxDelegates) + 1
-
     return delegates
       .sort((a, b) => b.balance - a.balance) // TODO: improve sorting here to avoid collision of equal vote balances
       .slice(0, maxDelegates)
-      .map(delegate => ({ ...{ round }, ...delegate }))
   }
 
   /**
