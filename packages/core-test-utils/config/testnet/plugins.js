@@ -36,7 +36,9 @@ module.exports = {
     whitelist: [],
     allowedSenders: [],
     maxTransactionsPerRequest: 200,
-    maxTransactionAge: 21600
+    // 100+ years in the future to avoid our hardcoded transactions used in the
+    // tests to expire immediately
+    maxTransactionAge: 4036608000
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
