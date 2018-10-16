@@ -217,7 +217,7 @@ module.exports = class Blockchain {
 
       // TODO: if revertBlock Failed, it might corrupt the database because one block could be left stored
       await this.database.revertBlock(lastBlock)
-      await this.database.enqueueDeleteBlock(lastBlock)
+      this.database.enqueueDeleteBlock(lastBlock)
 
       if (this.transactionPool) {
         await this.transactionPool.addTransactions(lastBlock.transactions)
@@ -255,6 +255,27 @@ module.exports = class Blockchain {
     await this.database.commitQueuedQueries()
 
     this.queue.resume()
+  }
+
+  /**
+   * Remove the top blocks from database.
+   * NOTE: Only used when trying to restore database integrity.
+   * @param  {Number} count
+   * @return {void}
+   */
+  async removeTopBlocks (count) {
+    const blocks = await this.database.getTopBlocks(count)
+
+    logger.info(`Removing ${blocks.length} blocks from height ${blocks[0].height.toLocaleString()}`)
+
+    for (let block of blocks) {
+      block = new Block(block)
+
+      this.database.enqueueDeleteRound(block.data.height)
+      this.database.enqueueDeleteBlock(block)
+    }
+
+    await this.database.commitQueuedQueries()
   }
 
   /**

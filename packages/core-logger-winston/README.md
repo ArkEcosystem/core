@@ -25,7 +25,7 @@ module.exports = {
       constructor: 'DailyRotateFile',
       options: {
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
+        filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/current.log`,
         datePattern: 'YYYY-MM-DD',
         zippedArchive: true,
         maxSize: '100m',
