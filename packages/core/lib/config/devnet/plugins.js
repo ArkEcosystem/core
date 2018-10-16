@@ -44,11 +44,7 @@ module.exports = {
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   },
   '@arkecosystem/core-blockchain': {
-    fastRebuild: false,
-    databaseRollback: {
-      maxBlockRewind: 10000,
-      steps: 1000
-    }
+    fastRebuild: false
   },
   '@arkecosystem/core-api': {
     enabled: !process.env.ARK_API_DISABLED,
