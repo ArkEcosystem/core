@@ -35,11 +35,12 @@
     "bluebird": "^3.5.2",
     "commander": "^2.18.0",
     "create-hash": "^1.2.0",
-    "delay": "^4.0.1",
+    "delay": "^4.1.0",
     "fs-extra": "^7.0.0",
     "msgpack-lite": "^0.1.26",
     "pg-promise": "^8.4.6",
     "pg-query-stream": "^1.1.1",
+    "spex": "^2.0.2",
     "xcase": "^2.0.1"
   },
   "publishConfig": {
