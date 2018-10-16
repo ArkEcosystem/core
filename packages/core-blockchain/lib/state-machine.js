@@ -174,8 +174,7 @@ blockchainMachine.actionMap = blockchain => {
           const blockchainAudit = await blockchain.database.verifyBlockchain()
           if (!blockchainAudit.valid) {
             logger.error('FATAL: The database is corrupted :fire:')
-
-            console.error(blockchainAudit.errors)
+            logger.error(JSON.stringify(blockchainAudit.errors, null, 4))
 
             return blockchain.dispatch('ROLLBACK')
           }
@@ -365,7 +364,7 @@ blockchainMachine.actionMap = blockchain => {
       if (!blockchainAudit.valid) {
         // TODO: multiple attempts? rewind further? restore snapshot?
         logger.error('FATAL: Failed to restore database integrity :skull: :skull: :skull:')
-        logger.error(blockchainAudit.errors)
+        logger.error(JSON.stringify(blockchainAudit.errors, null, 4))
         blockchain.dispatch('FAILURE')
         return
       }
