@@ -2,7 +2,7 @@
 
 ![ARK Core](./banner.png)
 
-[![Build Status](https://badgen.now.sh/travis/ArkEcosystem/core/master)](https://travis-ci.org/ArkEcosystem/core)
+[![Build Status](https://badgen.now.sh/circleci/github/ArkEcosystem/core)](https://circleci.com/gh/ArkEcosystem/core)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
 ## Introduction
