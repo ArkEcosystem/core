@@ -358,8 +358,7 @@ module.exports = class WalletManager {
 
   /**
    * Remove the given transaction from a delegate.
-   * @param  {Number} type
-   * @param  {Object} data
+   * @param  {Transaction} transaction
    * @return {Transaction}
    */
   revertTransaction (transaction) {
@@ -421,7 +420,7 @@ module.exports = class WalletManager {
   /**
    * Update the vote balance of the delegate the vote is for.
    * @param  {Object} sender
-   * @param  {Object} transaction
+   * @param  {Transaction} transaction
    * @return {void}
    */
   __updateVoteBalance (sender, transaction) {
