@@ -1,13 +1,14 @@
 'use strict'
 
 const Mem = require('./mem')
+const MemPoolTransaction = require('./mem-pool-transaction')
 const Storage = require('./storage')
+const assert = require('assert')
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 const emitter = container.resolvePlugin('event-emitter')
 const logger = container.resolvePlugin('logger')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const { Transaction } = require('@arkecosystem/crypto').models
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 
 /**
@@ -28,8 +29,8 @@ class TransactionPool extends TransactionPoolInterface {
 
     this.storage = new Storage(this.options.storage)
 
-    const allSerialized = this.storage.loadAllInInsertionOrder()
-    allSerialized.forEach(s => this.mem.add(new Transaction(s), this.options.maxTransactionAge, true))
+    const all = this.storage.loadAll()
+    all.forEach(t => this.mem.add(t, this.options.maxTransactionAge, true))
 
     return this
   }
@@ -77,7 +78,7 @@ class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    this.mem.add(transaction, this.options.maxTransactionAge)
+    this.mem.add(new MemPoolTransaction(transaction), this.options.maxTransactionAge)
 
     this.__syncToPersistentStorageIfNecessary()
   }
@@ -199,7 +200,7 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions within the specified range (in insertion order).
+   * Get all transactions within the specified range (ordered by fee).
    * @param  {Number} start
    * @param  {Number} size
    * @return {(Array|void)} array of serialized transaction hex strings
@@ -220,7 +221,9 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get data from all transactions within the specified range
+   * Get data from all transactions within the specified range.
+   * Transactions are ordered by fee (highest fee first) or by
+   * insertion time, if fees equal (earliest transaction first).
    * @param  {Number} start
    * @param  {Number} size
    * @param  {String} property
@@ -232,12 +235,15 @@ class TransactionPool extends TransactionPoolInterface {
     const data = []
 
     let i = 0
-    for (const transaction of this.mem.getTransactionsInInsertionOrder()) {
+    for (const id of this.mem.getTransactionsIdsOrderedByFee()) {
       if (i >= start + size) {
         break
       }
 
       if (i >= start) {
+        const transaction = this.mem.getTransactionById(id)
+        assert.notEqual(transaction, undefined)
+        assert.notEqual(transaction[property], undefined)
         data.push(transaction[property])
       }
 
