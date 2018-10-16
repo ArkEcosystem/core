@@ -5,7 +5,7 @@ const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/conta
 
 const generateRound = require('./utils/generate-round')
 const activeDelegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
-const round = generateRound(activeDelegates.publicKeys, 1)
+const round = generateRound(activeDelegates.map(delegate => delegate.publicKey), 1)
 
 exports.setUp = async () => {
   jest.setTimeout(60000)

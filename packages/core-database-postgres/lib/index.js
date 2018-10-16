@@ -10,6 +10,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'database',
+  extends: '@arkecosystem/core-database',
   async register (container, options) {
     container.resolvePlugin('logger').info('Establishing Database Connection')
 

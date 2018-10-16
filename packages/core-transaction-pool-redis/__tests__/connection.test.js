@@ -1,5 +1,7 @@
 'use strict'
 
+const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
 const app = require('./__support__/setup')
 const delay = require('delay')
 const mockData = require('./__fixtures__/transactions')
@@ -19,6 +21,10 @@ beforeAll(async () => {
 afterAll(async () => {
   await connection.disconnect()
   await app.tearDown()
+})
+
+beforeEach(async () => {
+  await connection.flush()
 })
 
 afterEach(async () => {
@@ -361,6 +367,16 @@ describe('Connection', () => {
       await expect(transactions[4].id).toBe(mockData.dummy5.id)
       await expect(transactions[5].id).toBe(mockData.dummy6.id)
     })
+
+    it('should not accept transaction with amount > wallet balance', async () => {
+      const amount = 333300000000000 // more than any genesis wallet
+      const generatedTransfers = generateTransfer('testnet', delegatesSecrets[0], mockData.dummy1.recipientId, amount, 2)
+
+      await connection.addTransaction(generatedTransfers[0])
+
+      let transactions = await connection.getTransactionsForForging(0)
+      expect(transactions).toEqual([])
+    })
   })
 
   describe('removeForgedAndGetPending', () => {
@@ -392,6 +408,44 @@ describe('Connection', () => {
 
     it('should be truthy if connected', async () => {
       expect(connection.__isReady()).toBeTruthy()
+    })
+  })
+
+  describe('stress', () => {
+    it('multiple additions and retrievals', async () => {
+      // Abstract number which decides how many iterations are run by the test.
+      // Increase it to run more iterations.
+      const testSize = 128
+
+      const fakeTransactionId = function (i) {
+        return 'id' + String(i) + 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      }
+
+      for (let i = 0; i < testSize; i++) {
+        let transaction = new Transaction(mockData.dummy1)
+        transaction.id = fakeTransactionId(i)
+        await connection.addTransaction(transaction)
+
+        if (i % 27 === 0) {
+          await connection.removeTransaction(transaction)
+        }
+      }
+
+      for (let i = 0; i < testSize * 2; i++) {
+        await connection.getPoolSize()
+        for (const sender of ['nonexistent', mockData.dummy1.senderPublicKey]) {
+          await connection.getSenderSize(sender)
+          await connection.hasExceededMaxTransactions(sender)
+        }
+        await connection.getTransaction(fakeTransactionId(i))
+        await connection.getTransactions(0, i)
+      }
+
+      for (let i = 0; i < testSize; i++) {
+        let transaction = new Transaction(mockData.dummy1)
+        transaction.id = fakeTransactionId(i)
+        await connection.removeTransaction(transaction)
+      }
     })
   })
 })

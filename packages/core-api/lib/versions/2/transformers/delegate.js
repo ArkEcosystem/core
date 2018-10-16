@@ -1,6 +1,6 @@
 'use strict'
 
-const { formatTimestamp, delegateCalculator } = require('@arkecosystem/core-utils')
+const { bignumify, formatTimestamp, delegateCalculator } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "delegate" object into a generic object.
@@ -12,7 +12,7 @@ module.exports = delegate => {
     username: delegate.username,
     address: delegate.address,
     publicKey: delegate.publicKey,
-    votes: +delegate.voteBalance.toString(),
+    votes: +bignumify(delegate.voteBalance).toFixed(),
     rank: delegate.rate || 0, // forcing to 0 if undefined  as it is not yet reliable
     blocks: {
       produced: delegate.producedBlocks,
@@ -23,9 +23,9 @@ module.exports = delegate => {
       productivity: delegateCalculator.calculateProductivity(delegate)
     },
     forged: {
-      fees: delegate.forgedFees.toNumber(),
-      rewards: delegate.forgedRewards.toNumber(),
-      total: delegate.forgedFees.plus(delegate.forgedRewards).toNumber()
+      fees: +delegate.forgedFees.toFixed(),
+      rewards: +delegate.forgedRewards.toFixed(),
+      total: +(delegate.forgedFees.plus(delegate.forgedRewards)).toFixed()
     }
   }
 

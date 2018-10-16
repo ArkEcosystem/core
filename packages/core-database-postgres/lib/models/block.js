@@ -1,3 +1,4 @@
+const { bignumify } = require('@arkecosystem/core-utils')
 const Model = require('./model')
 
 module.exports = class Block extends Model {
@@ -33,18 +34,18 @@ module.exports = class Block extends Model {
       name: 'total_amount',
       prop: 'totalAmount',
       init: col => {
-        return +col.value.toString()
+        return +bignumify(col.value).toFixed()
       }
     }, {
       name: 'total_fee',
       prop: 'totalFee',
       init: col => {
-        return +col.value.toString()
+        return +bignumify(col.value).toFixed()
       }
     }, {
       name: 'reward',
       init: col => {
-        return +col.value.toString()
+        return +bignumify(col.value).toFixed()
       }
     }, {
       name: 'payload_length',

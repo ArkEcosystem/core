@@ -1,3 +1,4 @@
+const { bignumify } = require('@arkecosystem/core-utils')
 const Model = require('./model')
 
 module.exports = class WalletModel extends Model {
@@ -30,13 +31,13 @@ module.exports = class WalletModel extends Model {
     }, {
       name: 'balance',
       init: col => {
-        return +col.value.toString()
+        return +bignumify(col.value).toFixed()
       }
     }, {
       name: 'vote_balance',
       prop: 'voteBalance',
       init: col => {
-        return col.value ? +col.value.toString() : null
+        return col.value ? +bignumify(col.value).toFixed() : null
       }
     }, {
       name: 'produced_blocks',

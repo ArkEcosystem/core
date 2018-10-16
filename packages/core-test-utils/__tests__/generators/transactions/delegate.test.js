@@ -21,7 +21,7 @@ describe('Delegate transaction', () => {
 
   it('should return an array of 4 delegate objects', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.DELEGATE_REGISTRATION})
+      expect(transactions[i]).toMatchObject({ type: TRANSACTION_TYPES.DELEGATE_REGISTRATION })
     }
   })
 })

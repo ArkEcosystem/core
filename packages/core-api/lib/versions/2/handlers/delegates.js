@@ -17,7 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const delegates = await database.delegates.paginate({...request.query, ...utils.paginate(request)})
+    const delegates = await database.delegates.paginate({ ...request.query, ...utils.paginate(request) })
 
     return utils.toPagination(request, delegates, 'delegate')
   },
@@ -144,7 +144,7 @@ exports.voterBalances = {
 
     const voters = {}
     orderBy(wallets, ['balance'], ['desc'])
-      .forEach(wallet => (voters[wallet.address] = wallet.balance.toNumber()))
+      .forEach(wallet => (voters[wallet.address] = +wallet.balance.toFixed()))
 
     return { data: voters }
   },

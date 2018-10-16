@@ -62,7 +62,7 @@ class Database {
    * @return {Array}
    */
   findByEvent (event) {
-    return this.model.findAll({ where: {event} })
+    return this.model.findAll({ where: { event } })
   }
 
   /**

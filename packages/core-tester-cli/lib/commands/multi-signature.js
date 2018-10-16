@@ -22,7 +22,7 @@ module.exports = class MultiSignatureCommand extends Command {
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
-      amount: this.__arkToArktoshi(((publicKeys.length + 1) * 5) + testCosts),
+      amount: Command.__arkToArktoshi(((publicKeys.length + 1) * 5) + testCosts),
       skipTesting: true
     })
 
@@ -89,7 +89,7 @@ module.exports = class MultiSignatureCommand extends Command {
       const builder = client.getBuilder().multiSignature()
 
       builder
-        .fee(this.parseFee(this.options.multisigFee))
+        .fee(Command.parseFee(this.options.multisigFee))
         .multiSignatureAsset({
           lifetime: this.options.lifetime,
           keysgroup: publicKeys,
@@ -98,8 +98,8 @@ module.exports = class MultiSignatureCommand extends Command {
         .network(this.config.network.version)
         .sign(wallet.passphrase)
 
-      if (wallet.secondPassphrase || this.options.secondPassphrase) {
-        builder.secondSign(wallet.secondPassphrase || this.options.secondPassphrase)
+      if (wallet.secondPassphrase || this.config.secondPassphrase) {
+        builder.secondSign(wallet.secondPassphrase || this.config.secondPassphrase)
       }
 
       if (approvalWallets) {

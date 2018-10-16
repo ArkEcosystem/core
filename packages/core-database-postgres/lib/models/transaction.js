@@ -1,3 +1,4 @@
+const { bignumify } = require('@arkecosystem/core-utils')
 const Model = require('./model')
 
 module.exports = class Transaction extends Model {
@@ -39,12 +40,12 @@ module.exports = class Transaction extends Model {
     }, {
       name: 'amount',
       init: col => {
-        return +col.value.toString()
+        return +bignumify(col.value).toFixed()
       }
     }, {
       name: 'fee',
       init: col => {
-        return +col.value.toString()
+        return +bignumify(col.value).toFixed()
       }
     }, {
       name: 'serialized',

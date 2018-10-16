@@ -75,14 +75,16 @@ describe('Models - Transaction', () => {
   beforeEach(() => configManager.setConfig(network))
 
   describe('static fromBytes', () => {
-    it('returns a new transaction', () => {
-      [0, 1, 2, 3, 4].map(type => createRandomTx(type))
-        .map(transaction => {
-          const ser = Transaction.serialize(transaction.data).toString('hex')
-          const newTransaction = Transaction.fromBytes(ser)
-          expect(newTransaction.data).toEqual(transaction.data)
-          expect(newTransaction.verified).toBeTruthy()
-        })
+    it('should verify all transactions', () => {
+      [0, 1, 2, 3, 4].map(type => createRandomTx(type)).map(transaction => {
+        const ser = Transaction.serialize(transaction.data).toString('hex')
+        const newTransaction = Transaction.fromBytes(ser)
+        expect(newTransaction.data).toEqual(transaction.data)
+        expect(newTransaction.verified).toBeTruthy()
+      })
+    })
+
+    it('should create a transaction', () => {
       const hex = Transaction.serialize(transactionData).toString('hex')
       const transaction = Transaction.fromBytes(hex)
       expect(transaction).toBeInstanceOf(Transaction)

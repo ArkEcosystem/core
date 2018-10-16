@@ -34,7 +34,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     logger.debug('Connecting to database')
 
-    this.asyncTransaction = null
+    this.queuedQueries = null
 
     try {
       await this.connect()
@@ -70,7 +70,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       }
     }
 
-    const pgp = pgPromise({...this.config.initialization, ...initialization})
+    const pgp = pgPromise({ ...this.config.initialization, ...initialization })
 
     this.pgp = pgp
     this.db = this.pgp(this.config.connection)
@@ -82,8 +82,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    */
   async disconnect () {
     try {
-      await this.saveBlockCommit()
-      await this.deleteBlockCommit()
+      await this.commitQueuedQueries()
       this.cache.destroy()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
@@ -346,49 +345,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Stores the block in memory. Generated insert statements are stored in the this.asyncTransaction, to be later saved to the database by calling saveBlockCommit.
-   * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
-   * @param  {Block} block
-   * @return {void}
-   */
-  enqueueSaveBlockAsync (block) {
-    if (!this.asyncTransaction) {
-      this.asyncTransaction = []
-    }
-
-    this.asyncTransaction.push(this.db.blocks.create(block.data))
-
-    if (block.transactions.length > 0) {
-      this.asyncTransaction.push(this.db.transactions.create(block.transactions))
-    }
-  }
-
-  /**
-   * Commit the block database transaction.
-   * NOTE: to be used in combination with enqueueSaveBlockAsync
-   * @return {void}
-   */
-  async saveBlockCommit () {
-    if (!this.asyncTransaction) {
-      return
-    }
-
-    logger.debug('Committing database transaction')
-
-    try {
-      await this.db.tx(t => t.batch(this.asyncTransaction))
-
-      this.asyncTransaction = null
-    } catch (error) {
-      logger.error(error)
-
-      this.asyncTransaction = null
-
-      throw error
-    }
-  }
-
-  /**
    * Delete the given block.
    * @param  {Block} block
    * @return {void}
@@ -409,41 +365,68 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Delete the given block (async version).
+   * Stores the block in memory. Generated insert statements are stored in this.queuedQueries, to be later saved to the database by calling commit.
+   * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) by calling commit.
    * @param  {Block} block
    * @return {void}
    */
-  async deleteBlockAsync (block) {
-    if (!this.asyncTransaction) {
-      this.asyncTransaction = []
+  enqueueSaveBlock (block) {
+    const queries = [this.db.blocks.create(block.data)]
+
+    if (block.transactions.length > 0) {
+      queries.push(this.db.transactions.create(block.transactions))
     }
 
-    await this.db.transactions.deleteByBlock(block.data.id)
-    await this.db.blocks.delete(block.data.id)
+    this.enqueueQueries(queries)
   }
 
   /**
-   * Commit the block database transaction.
-   * NOTE: to be used in combination with deleteBlockAsync
+   * Generated delete statements are stored in this.queuedQueries to be later executed by calling this.commitQueuedQueries.
+   * See also enqueueSaveBlock.
+   * @param  {Block} block
    * @return {void}
    */
-  async deleteBlockCommit () {
-    if (!this.asyncTransaction) {
+  enqueueDeleteBlock (block) {
+    const queries = [
+      this.db.transactions.deleteByBlock(block.data.id),
+      this.db.blocks.delete(block.data.id)
+    ]
+
+    this.enqueueQueries(queries)
+  }
+
+  /**
+   * Add queries to the queue to be executed when calling commit.
+   * @param {Array} queries
+   */
+  enqueueQueries (queries) {
+    if (!this.queuedQueries) {
+      this.queuedQueries = []
+    }
+
+    this.queuedQueries.push(...queries)
+  }
+
+  /**
+   * Commit all queued queries.
+   * NOTE: to be used in combination with enqueueSaveBlock and enqueueDeleteBlock.
+   * @return {void}
+   */
+  async commitQueuedQueries () {
+    if (!this.queuedQueries || this.queuedQueries.length === 0) {
       return
     }
 
-    logger.debug('Committing database transaction')
+    logger.debug('Committing database transactions.')
 
     try {
-      await this.db.tx(t => t.batch(this.asyncTransaction))
-
-      this.asyncTransaction = null
+      await this.db.tx(t => t.batch(this.queuedQueries))
     } catch (error) {
       logger.error(error)
 
-      this.asyncTransaction = null
-
       throw error
+    } finally {
+      this.queuedQueries = null
     }
   }
 

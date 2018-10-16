@@ -9,11 +9,11 @@ module.exports = class ApiClient {
    * Finds all the available peers, sorted by block height and delay
    *
    * @param {String}    network - Network name ('devnet' or 'mainnet')
-   * @param {Number}    version - API version
-   * @param {Object[]}  peersOverride - List of peers to use instead of initialPeers
+   * @param {Number}    [version=1] - API version
+   * @param {Object[]}  [peersOverride] - List of peers to use instead of initialPeers
    * @return {Object[]}
    */
-  static async findPeers (network, version, peersOverride) {
+  static async findPeers (network, version = 1, peersOverride) {
     if (peersOverride === undefined && !initialPeers.hasOwnProperty(network)) {
       throw new Error(`Network "${network}" is not supported`)
     }
@@ -24,27 +24,37 @@ module.exports = class ApiClient {
     shuffle(networkPeers)
 
     const selfIps = ['127.0.0.1', '::ffff:127.0.0.1', '::1']
-    let peers = null
+    let peers = []
+    const versionStatus = {
+      1: 'OK',
+      2: 200
+    }
 
     // Connect to each peer to get an updated list of peers until a success response
+    const client = new ApiClient('http://', version)
+    client.http.setTimeout(5000)
     for (const peer of networkPeers) {
       const peerUrl = `http://${peer.ip}:${peer.port}`
 
       // This method should not crash when a peer fails
       try {
-        const client = new ApiClient(peerUrl, version)
-        const response = await client.resource('peers').all()
-        const { data } = response.data
+        client.http.host = peerUrl
+        const { data } = await client.resource('peers').all()
 
-        if (data.success && data.peers) {
+        let responsePeers = []
+        if (version === 1 && data.success && data.peers) {
+          responsePeers = data.peers
+        } else if (version === 2 && data.data.length) {
+          responsePeers = data.data
+        }
+
+        if (responsePeers.length) {
           // Ignore local and unavailable peers
-          peers = data.peers.filter(peer => {
-            return selfIps.indexOf(peer.ip) === -1 && peer.status === 'OK'
+          peers = responsePeers.filter(peer => {
+            return selfIps.indexOf(peer.ip) === -1 && peer.status === versionStatus[version]
           })
 
-          if (peers.length) {
-            break
-          }
+          break
         }
       } catch (error) {
         // TODO only if a new feature to enable logging is added

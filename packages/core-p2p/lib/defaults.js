@@ -3,7 +3,6 @@
 module.exports = {
   port: process.env.ARK_P2P_PORT || 4002,
   remoteInterface: true,
-  suspendMinutes: 60,
   dns: [
     // Google
     '8.8.8.8',

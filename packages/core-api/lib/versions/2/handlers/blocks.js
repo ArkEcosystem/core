@@ -19,7 +19,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blocks = await blocksRepository.findAll({...request.query, ...utils.paginate(request)})
+    const blocks = await blocksRepository.findAll({ ...request.query, ...utils.paginate(request) })
 
     return utils.toPagination(request, blocks, 'block')
   },

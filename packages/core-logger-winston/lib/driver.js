@@ -11,11 +11,11 @@ module.exports = class Logger extends LoggerInterface {
    * @return {Winston.Logger}
    */
   make () {
-    this.driver = new (winston.Logger)()
+    this.driver = winston.createLogger()
 
     this.__registerTransports()
 
-    this.__registerFilters()
+    // this.__registerFilters()
 
     this.driver.printTracker = this.printTracker
     this.driver.stopTracker = this.stopTracker
@@ -86,13 +86,13 @@ module.exports = class Logger extends LoggerInterface {
    * @return {void}
    */
   __registerTransports () {
-    Object.values(this.options.transports).forEach(transport => {
+    for (const transport of Object.values(this.options.transports)) {
       if (transport.package) {
         require(transport.package)
       }
 
-      this.driver.add(winston.transports[transport.constructor], transport.options)
-    })
+      this.driver.add(new winston.transports[transport.constructor](transport.options))
+    }
   }
 
   /**

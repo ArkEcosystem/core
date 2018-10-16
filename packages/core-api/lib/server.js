@@ -52,7 +52,7 @@ module.exports = async (config) => {
       validVersions: config.versions.valid,
       defaultVersion: config.versions.default,
       basePath: '/api/',
-      vendorName: 'arkCoreApi'
+      vendorName: 'ark.core-api'
     }
   })
 
@@ -110,6 +110,27 @@ module.exports = async (config) => {
     routes: { prefix: '/api/v2' },
     options: config
   })
+
+  if (process.env.NODE_ENV === 'test') {
+    await server.register({
+      plugin: require('good'),
+      options: {
+        reporters: {
+          console: [
+            {
+              module: 'good-squeeze',
+              name: 'Squeeze',
+              args: [{ log: '*', response: '*', request: '*' }]
+            },
+            {
+              module: 'good-console'
+            },
+            'stdout'
+          ]
+        }
+      }
+    })
+  }
 
   try {
     await server.start()

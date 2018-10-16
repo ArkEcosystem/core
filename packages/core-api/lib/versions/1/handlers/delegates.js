@@ -97,7 +97,7 @@ exports.search = {
     const query = {
       username: request.query.q
     }
-    const { rows } = await database.delegates.search({...query, ...utils.paginate(request)})
+    const { rows } = await database.delegates.search({ ...query, ...utils.paginate(request) })
 
     return utils.respondWith({
       delegates: utils.toCollection(request, rows, 'delegate')

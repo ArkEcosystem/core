@@ -8,7 +8,7 @@ describe('Transfer transaction', () => {
     expect(createTransfer).toBeFunction()
   })
 
-  const amount = 20
+  const amount = new Bignum(20 * ARKTOSHI)
   const quantity = 4
   const transactions = createTransfer(
     undefined,
@@ -30,7 +30,7 @@ describe('Transfer transaction', () => {
 
   it('should return an array sending 20 ark', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({ amount: new Bignum(amount * ARKTOSHI) })
+      expect(transactions[i]).toMatchObject({ amount })
     }
   })
 })

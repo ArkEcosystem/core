@@ -25,7 +25,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactions = await repository.findAll({...request.query, ...utils.paginate(request)})
+    const transactions = await repository.findAll({ ...request.query, ...utils.paginate(request) })
 
     return utils.toPagination(request, transactions, 'transaction')
   }

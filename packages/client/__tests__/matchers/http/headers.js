@@ -23,7 +23,7 @@ module.exports = (actual, expected) => {
   }
 
   return {
-    message: () => `Expected actual headers to include and match expected: ${JSON.stringify(actual)} vs. ${JSON.stringify(expected)}`,
+    message: () => `Expected actual headers to include and match expected: ${JSON.stringify(actual.headers)} vs. ${JSON.stringify(expected)}`,
     pass: found === Object.keys(expected).length
   }
 }

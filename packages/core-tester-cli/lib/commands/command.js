@@ -1,6 +1,7 @@
 'use strict'
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
+const { bignumify } = require('@arkecosystem/core-utils')
 const bip39 = require('bip39')
 const clipboardy = require('clipboardy')
 const delay = require('delay')
@@ -143,7 +144,7 @@ module.exports = class Command {
    */
   async getWalletBalance (address) {
     try {
-      return new Bignum((await this.getWallet(address)).balance)
+      return bignumify((await this.getWallet(address)).balance)
     } catch (error) {
       //
     }
@@ -176,17 +177,17 @@ module.exports = class Command {
    * @param  {(String|Number)} fee
    * @return {Bignum}
    */
-  parseFee (fee) {
+  static parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => new Bignum(f).toNumber())
+      const feeRange = fee.split('-').map(f => +bignumify(f).toFixed())
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }
 
-      return new Bignum(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
+      return bignumify(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
     }
 
-    return new Bignum(fee)
+    return bignumify(fee)
   }
 
   /**
@@ -216,7 +217,7 @@ module.exports = class Command {
    */
   async postTransactions (transactions) {
     try {
-      const response = (await request(this.config).post('/api/v2/transactions', {transactions}))
+      const response = (await request(this.config).post('/api/v2/transactions', { transactions }))
       return response.data
     } catch (error) {
       const message = error.response ? error.response.data.message : error.message
@@ -229,7 +230,7 @@ module.exports = class Command {
    * @return {void}
    */
   __applyConfig () {
-    this.config = {...config}
+    this.config = { ...config }
     if (this.options.baseUrl) {
       this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, '')
     }
@@ -282,8 +283,8 @@ module.exports = class Command {
    * @param  {Number} ark
    * @return {Bignum}
    */
-  __arkToArktoshi (ark) {
-    return new Bignum(ark * Math.pow(10, 8))
+  static __arkToArktoshi (ark) {
+    return bignumify(ark * Math.pow(10, 8))
   }
 
   /**

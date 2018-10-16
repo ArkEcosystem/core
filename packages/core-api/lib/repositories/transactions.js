@@ -142,7 +142,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllBySender (senderPublicKey, parameters = {}) {
-    return this.findAll({...{senderPublicKey}, ...parameters})
+    return this.findAll({ ...{ senderPublicKey }, ...parameters })
   }
 
   /**
@@ -152,7 +152,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllByRecipient (recipientId, parameters = {}) {
-    return this.findAll({...{recipientId}, ...parameters})
+    return this.findAll({ ...{ recipientId }, ...parameters })
   }
 
   /**
@@ -163,7 +163,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async allVotesBySender (senderPublicKey, parameters = {}) {
-    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...parameters})
+    return this.findAll({ ...{ senderPublicKey, type: TRANSACTION_TYPES.VOTE }, ...parameters })
   }
 
   /**
@@ -173,7 +173,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllByBlock (blockId, parameters = {}) {
-    return this.findAll({...{blockId}, ...parameters})
+    return this.findAll({ ...{ blockId }, ...parameters })
   }
 
   /**
@@ -183,7 +183,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllByType (type, parameters = {}) {
-    return this.findAll({...{type}, ...parameters})
+    return this.findAll({ ...{ type }, ...parameters })
   }
 
   /**
