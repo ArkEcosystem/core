@@ -348,8 +348,7 @@ blockchainMachine.actionMap = blockchain => {
     async rollbackDatabase () {
       logger.info('Trying to restore database integrity :fire_engine:')
 
-      const maxBlockRewind = 10000
-      const steps = 1000
+      const { maxBlockRewind, steps } = container.resolveOptions('blockchain').recovery
       let blockchainAudit
 
       for (let i = maxBlockRewind; i >= 0; i -= steps) {
@@ -372,7 +371,7 @@ blockchainMachine.actionMap = blockchain => {
       blockchain.restoredDatabaseIntegrity = true
 
       const lastBlock = await blockchain.database.getLastBlock()
-      logger.info(`Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()} :bell:`)
+      logger.info(`Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()} :green_heart:`)
 
       blockchain.dispatch('SUCCESS')
     }

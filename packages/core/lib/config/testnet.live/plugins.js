@@ -44,7 +44,11 @@ module.exports = {
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   },
   '@arkecosystem/core-blockchain': {
-    fastRebuild: false
+    fastRebuild: false,
+    recovery: {
+      maxBlockRewind: 10000,
+      steps: 1000
+    }
   },
   '@arkecosystem/core-api': {
     enabled: true,
