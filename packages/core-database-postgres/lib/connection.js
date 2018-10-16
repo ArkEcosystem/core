@@ -207,9 +207,14 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
-
-    let data = await this.db.rounds.delegates()
-
+    
+    let data = this.walletManager.allByPublicKey()
+        .filter(wallet => !!wallet.vote)
+        .map(wallet => ({
+            publicKey: wallet.vote || wallet.publicKey,
+            balance: wallet.balance.toFixed()
+        }))
+    
     // NOTE: At the launch of the blockchain we may not have enough delegates.
     // In order to have enough forging delegates we complete the list in a
     // deterministic way (alphabetical order of publicKey).
