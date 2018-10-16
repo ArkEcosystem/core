@@ -384,10 +384,10 @@ module.exports = class WalletManager {
   determineActiveDelegates (maxDelegates) {
     const mapWallets = wallets => wallets.map(wallet => ({
       publicKey: wallet.vote || wallet.publicKey,
-      balance: wallet.balance ? wallet.balance.toFixed() : 0
+      balance: wallet.balance ? +wallet.balance.toFixed() : 0
     }))
 
-    let delegates = mapWallets(this.allByPublicKey().filter(wallet => !!wallet.vote))
+    let delegates = mapWallets(this.allByPublicKey().filter(wallet => wallet.vote))
 
     // NOTE: At the launch of the blockchain we may not have enough delegates.
     // In order to have enough forging delegates we complete the list in a
@@ -401,7 +401,17 @@ module.exports = class WalletManager {
         placeholders = placeholders.filter(wallet => publicKeys.includes(wallet.publicKey))
       }
 
-      placeholders = placeholders.sort((a, b) => a.publicKey - b.publicKey)
+      placeholders = placeholders.sort((a, b) => {
+        if (a.publicKey < b.publicKey) {
+          return -1
+        }
+
+        if (a.publicKey > b.publicKey) {
+          return 1
+        }
+
+        return 0
+      })
 
       delegates = delegates.concat(mapWallets(placeholders))
     }
