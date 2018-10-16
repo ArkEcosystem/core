@@ -17,7 +17,6 @@ const { roundCalculator } = require('@arkecosystem/core-utils')
 const { Bignum, models: { Block, Transaction } } = require('@arkecosystem/crypto')
 
 const SPV = require('./spv')
-const Cache = require('./cache')
 
 const migrations = require('./migrations')
 const QueryExecutor = require('./sql/query-executor')
@@ -37,11 +36,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     logger.debug('Connecting to database')
 
     this.queuedQueries = null
+    this.cache = new Map()
 
     try {
       await this.connect()
       await this.__registerQueryExecutor()
-      await this.__registerCache()
       await this.__runMigrations()
       await this.__registerModels()
       await super._registerRepositories()
@@ -85,7 +84,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async disconnect () {
     try {
       await this.commitQueuedQueries()
-      this.cache.destroy()
+      this.cache.clear()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
       logger.warn(error.message)
@@ -663,14 +662,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         logger.error(err)
       }
     })
-  }
-
-  /**
-   * Register the cache.
-   * @return {void}
-   */
-  __registerCache () {
-    this.cache = new Cache(this.config.redis)
   }
 
   /**
