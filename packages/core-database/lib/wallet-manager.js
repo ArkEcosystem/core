@@ -349,6 +349,10 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(data)
     }
 
+    if (recipient && type === TRANSACTION_TYPES.VOTE) {
+      this.__updateVoteBalance(sender, transaction)
+    }
+
     return transaction
   }
 
@@ -358,14 +362,15 @@ module.exports = class WalletManager {
    * @param  {Object} data
    * @return {Transaction}
    */
-  revertTransaction ({ type, data }) {
+  revertTransaction (transaction) {
+    const { type, data } = transaction
     const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.byAddress[data.recipientId]
 
     sender.revertTransactionForSender(data)
 
     // removing the wallet from the delegates index
-    if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       delete this.byUsername[data.asset.delegate.username]
     }
 
@@ -373,7 +378,22 @@ module.exports = class WalletManager {
       recipient.revertTransactionForRecipient(data)
     }
 
+    if (recipient && type === TRANSACTION_TYPES.VOTE) {
+      this.__updateVoteBalance(sender, transaction)
+    }
+
     return data
+  }
+
+  /**
+   * Load a list of all active delegates.
+   * @param  {Number} maxDelegates
+   * @return {Array}
+   */
+  allActiveDelegates (maxDelegates) {
+    return this.allByUsername()
+      .sort((a, b) => b.voteBalance - a.voteBalance)
+      .slice(0, maxDelegates)
   }
 
   /**
@@ -398,4 +418,20 @@ module.exports = class WalletManager {
     return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
+  /**
+   * Update the vote balance of the delegate the vote is for.
+   * @param  {Object} sender
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __updateVoteBalance (sender, transaction) {
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      const vote = transaction.asset.votes[0]
+      const delegate = this.findByPublicKey(vote.substr(1))
+
+      vote.startsWith('+')
+        ? delegate.voteBalance.plus(sender.balance)
+        : delegate.voteBalance.minus(sender.balance)
+    }
+  }
 }
