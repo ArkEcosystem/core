@@ -1,6 +1,5 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const fs = require('fs-extra')
 const BetterSqlite3 = require('better-sqlite3')
 
