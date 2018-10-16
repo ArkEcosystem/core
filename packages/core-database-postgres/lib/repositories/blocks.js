@@ -74,6 +74,14 @@ module.exports = class BlocksRepository extends Repository {
   }
 
   /**
+   * Get top count blocks
+   * @return {Promise}
+   */
+  async top (count) {
+    return this.db.many(sql.top, { top: count })
+  }
+
+  /**
    * Delete the block from the database.
    * @param  {Number} id
    * @return {Promise}
