@@ -2,6 +2,7 @@
 
 const blockchainHelper = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const { client } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
@@ -9,6 +10,7 @@ require('@arkecosystem/core-test-utils/lib/matchers')
 
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
+const transferFee = 10000000
 
 let genesisBlock
 
@@ -172,6 +174,49 @@ describe('API P2P - Version 2', () => {
 
       expect(response.result.error).toBeObject()
       expect(response.result.error[transactions[1].id]).toEqual([ `Error: PoolWalletManager: Can't apply transaction ${transactions[1].id}` ])
+    })
+
+    it.each([3, 5, 8])('should accept %i transactions emptying a wallet', async (txNumber) => {
+      const sender = delegates[txNumber] // use txNumber so that we use a different delegate for each test case
+      const receivers = generateWallets('testnet', 2)
+      const amountPlusFee = Math.floor(sender.balance / txNumber)
+      const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee
+
+      const transactions = generateTransfers('testnet', sender.secret, receivers[0].address, amountPlusFee - transferFee, txNumber - 1, true)
+      const lastTransaction = generateTransfers('testnet', sender.secret, receivers[1].address, lastAmountPlusFee - transferFee, 1, true)
+      // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
+
+      const allTransactions = transactions.concat(lastTransaction)
+
+      const response = await utils.POST('peer/transactions', {
+        transactions: allTransactions
+      })
+
+      expect(response).toHaveProperty('status')
+      expect(response.status).toBe(200)
+    })
+
+    it.each([3, 5, 8])('should not accept the last of %i transactions emptying a wallet when the last one is 1 arktoshi too much', async (txNumber) => {
+      const sender = delegates[txNumber + 1] // use txNumber + 1 so that we don't use the same delegates as the above test
+      const receivers = generateWallets('testnet', 2)
+      const amountPlusFee = Math.floor(sender.balance / txNumber)
+      const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1
+
+      const transactions = generateTransfers('testnet', sender.secret, receivers[0].address, amountPlusFee - transferFee, txNumber - 1, true)
+      const lastTransaction = generateTransfers('testnet', sender.secret, receivers[1].address, lastAmountPlusFee - transferFee, 1, true)
+      // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
+
+      const allTransactions = transactions.concat(lastTransaction)
+
+      const response = await utils.POST('peer/transactions', {
+        transactions: allTransactions
+      })
+
+      expect(response).toHaveProperty('status')
+      expect(response.status).toBe(406)
+
+      expect(response.result.error).toBeObject()
+      expect(response.result.error[lastTransaction[0].id]).toEqual([ `Error: PoolWalletManager: Can't apply transaction ${lastTransaction[0].id}` ])
     })
   })
 
