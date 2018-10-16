@@ -8,6 +8,7 @@ const emitter = container.resolvePlugin('event-emitter')
 const WalletManager = require('./wallet-manager')
 const { Block } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { roundCalculator } = require('@arkecosystem/core-utils')
 
 module.exports = class ConnectionInterface {
   /**
@@ -259,27 +260,6 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Detect if height is the beginning of a new round.
-   * @param  {Number} height
-   * @return {boolean} true if new round, false if not
-   */
-  isNewRound (height) {
-    const maxDelegates = config.getConstants(height).activeDelegates
-
-    return height % maxDelegates === 1
-  }
-
-  getRound (height) {
-    const maxDelegates = config.getConstants(height).activeDelegates
-
-    if (height < maxDelegates + 1) {
-      return 1
-    }
-
-    return Math.floor((height - 1) / maxDelegates) + 1
-  }
-
-  /**
    * Apply the round.
    * Note that the round is applied and the end of the round (so checking height + 1)
    * so the next block to apply starting the new round will be ready to be validated
@@ -321,21 +301,14 @@ module.exports = class ConnectionInterface {
    * @param  {Number} height
    * @return {void}
    */
-  async revertRound (height, updateState = true) {
-    const maxDelegates = config.getConstants(height).activeDelegates
-    const nextHeight = height + 1
-
-    const round = Math.floor((height - 1) / maxDelegates) + 1
-    const nextRound = Math.floor((nextHeight - 1) / config.getConstants(nextHeight).activeDelegates) + 1
+  async revertRound (height) {
+    const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height)
 
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
-      if (updateState) {
-        this.blocksInCurrentRound = await this.__getBlocksForRound(round)
-
-        this.activeDelegates = await this.getActiveDelegates(height)
-      }
+      this.blocksInCurrentRound = await this.__getBlocksForRound(round)
+      this.activeDelegates = await this.getActiveDelegates(height)
 
       await this.deleteRound(nextRound)
     }
@@ -474,7 +447,7 @@ module.exports = class ConnectionInterface {
 
     let height = +lastBlock.data.height
     if (!round) {
-      round = this.getRound(height)
+      round = roundCalculator.calculateRound(height).round
     }
 
     const maxDelegates = config.getConstants(height).activeDelegates

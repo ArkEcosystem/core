@@ -7,6 +7,7 @@ const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
+const { roundCalculator } = require('@arkecosystem/core-utils')
 
 const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
@@ -240,8 +241,8 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.saveWallets(true)
 
         // NOTE: if the node is shutdown between round, the round has already been applied
-        if (blockchain.database.isNewRound(block.data.height + 1)) {
-          const round = blockchain.database.getRound(block.data.height + 1)
+        if (roundCalculator.isNewRound(block.data.height + 1)) {
+          const { round } = roundCalculator.calculateRound(block.data.height + 1)
 
           logger.info(`New round ${round} detected. Cleaning calculated data before restarting!`)
 
