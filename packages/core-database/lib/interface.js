@@ -79,7 +79,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async buildDelegates (maxDelegates, height) {
+  buildDelegates (maxDelegates, height) {
     throw new Error('Method [buildDelegates] not implemented!')
   }
 
