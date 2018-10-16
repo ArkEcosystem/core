@@ -511,30 +511,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Get top blocks.
-   * @param  {Number} top
-   * @return {Array}
-   */
-  async getTopBlocks (top) {
-    const lastBlock = await this.getLastBlock()
-
-    const height = lastBlock.data.height
-
-    if (top >= height) {
-      top = height - 1
-    }
-
-    const offset = height - top
-    const limit = height - top - 1
-
-    // Blocks are returned ASC height, but be want them in a DESC order.
-    const blocks = await this.getBlocks(offset, limit)
-    blocks.reverse()
-
-    return blocks
-  }
-
-  /**
    * Get blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
@@ -543,27 +519,49 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async getBlocks (offset, limit) {
     const blocks = await this.db.blocks.heightRange(offset, offset + limit)
 
-    let transactions = []
+    await this.loadTransactionsForBlocks(blocks)
+
+    return blocks
+  }
+
+  /**
+   * Get top count blocks ordered by height DESC.
+   * NOTE: Only used when trying to restore database integrity. The returned blocks may be unchained.
+   * @param  {Number} count
+   * @return {Array}
+   */
+  async getTopBlocks (count) {
+    const blocks = await this.db.blocks.top(count)
+
+    await this.loadTransactionsForBlocks(blocks)
+
+    return blocks
+  }
+
+  /**
+   * Load all transactions for the given blocks
+   * @param  {Array} blocks
+   * @return {void}
+   */
+  async loadTransactionsForBlocks (blocks) {
+    if (!blocks.length) {
+      return
+    }
 
     const ids = blocks.map(block => block.id)
 
-    if (ids.length) {
-      transactions = await this.db.transactions.latestByBlocks(ids)
-
-      transactions = transactions.map(tx => {
-        const data = Transaction.deserialize(tx.serialized.toString('hex'))
-        data.blockId = tx.blockId
-        return data
-      })
-    }
+    let transactions = await this.db.transactions.latestByBlocks(ids)
+    transactions = transactions.map(tx => {
+      const data = Transaction.deserialize(tx.serialized.toString('hex'))
+      data.blockId = tx.blockId
+      return data
+    })
 
     for (const block of blocks) {
       if (block.numberOfTransactions > 0) {
         block.transactions = transactions.filter(transaction => transaction.blockId === block.id)
       }
     }
-
-    return blocks
   }
 
   /**

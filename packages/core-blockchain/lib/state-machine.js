@@ -167,19 +167,22 @@ blockchainMachine.actionMap = blockchain => {
           await blockchain.database.saveBlock(block)
         }
 
-        logger.info('Verifying database integrity :hourglass_flowing_sand:')
+        if (!blockchain.restoredDatabaseIntegrity) {
+          logger.info('Verifying database integrity :hourglass_flowing_sand:')
 
-        const blockchainAudit = await blockchain.database.verifyBlockchain()
+          const blockchainAudit = await blockchain.database.verifyBlockchain()
+          if (!blockchainAudit.valid) {
+            logger.error('FATAL: The database is corrupted :fire:')
 
-        if (!blockchainAudit.valid) {
-          logger.error('FATAL: The database is corrupted :fire:')
+            console.error(blockchainAudit.errors)
 
-          console.error(blockchainAudit.errors)
+            return blockchain.dispatch('RESTORE_INTEGRITY')
+          }
 
-          return blockchain.dispatch('DATABASE_RECOVERY')
+          logger.info('Verified database integrity :smile_cat:')
+        } else {
+          logger.info('Skipping database integrity check after successful database recovery :smile_cat:')
         }
-
-        logger.info('Verified database integrity :smile_cat:')
 
         // only genesis block? special case of first round needs to be dealt with
         if (block.data.height === 1) {
@@ -342,16 +345,36 @@ blockchainMachine.actionMap = blockchain => {
       blockchain.dispatch('SUCCESS')
     },
 
-    async startDatabaseRecovery () {
-      logger.info('Starting database recovery :fire_engine:')
+    async restoreDatabaseIntegrity () {
+      logger.info('Trying to restore database integrity :fire_engine:')
 
-      const topBlocks = 1000
+      const maxBlockRewind = 10000
+      const steps = 1000
+      let blockchainAudit
 
-      await blockchain.removeTopBlocks(topBlocks)
+      for (let i = maxBlockRewind; i >= 0; i -= steps) {
+        await blockchain.removeTopBlocks(steps)
 
-      logger.info(`Removed top ${topBlocks} blocks :wastebasket:`)
+        blockchainAudit = await blockchain.database.verifyBlockchain()
+        if (blockchainAudit.valid) {
+          break
+        }
+      }
 
-      blockchain.dispatch('RETRY')
+      if (!blockchainAudit.valid) {
+        // TODO: multiple attempts? rewind further? restore snapshot?
+        logger.error('FATAL: Failed to restore database integrity :skull: :skull: :skull:')
+        logger.error(blockchainAudit.errors)
+        blockchain.dispatch('FAILURE')
+        return
+      }
+
+      blockchain.restoredDatabaseIntegrity = true
+
+      const lastBlock = await blockchain.database.getLastBlock()
+      logger.info(`Database integrity verified again after going back to height ${lastBlock.data.height.toLocaleString()} :bell:`)
+
+      blockchain.dispatch('SUCCESS')
     }
   }
 }

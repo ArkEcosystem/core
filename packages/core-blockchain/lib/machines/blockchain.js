@@ -18,7 +18,7 @@ module.exports = Machine({
         REBUILD: 'rebuild',
         NETWORKSTART: 'idle',
         STARTED: 'syncWithNetwork',
-        DATABASE_RECOVERY: 'databaseRecovery',
+        RESTORE_INTEGRITY: 'restoreIntegrity',
         FAILURE: 'exit'
       }
     },
@@ -61,10 +61,10 @@ module.exports = Machine({
       },
       ...fork
     },
-    databaseRecovery: {
-      onEntry: ['startDatabaseRecovery'],
+    restoreIntegrity: {
+      onEntry: ['restoreDatabaseIntegrity'],
       on: {
-        RETRY: 'init',
+        SUCCESS: 'init',
         FAILURE: 'exit'
       }
     },

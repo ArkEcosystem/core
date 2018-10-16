@@ -258,12 +258,15 @@ module.exports = class Blockchain {
   }
 
   /**
-   * Remove the top blocks from database. Used to recover from a corrupt database.
-   * @param  {Number} top
+   * Remove the top blocks from database.
+   * NOTE: Only used when trying to restore database integrity.
+   * @param  {Number} count
    * @return {void}
    */
-  async removeTopBlocks (top) {
-    const blocks = await this.database.getTopBlocks(top)
+  async removeTopBlocks (count) {
+    const blocks = await this.database.getTopBlocks(count)
+
+    logger.info(`Removing ${blocks.length} blocks from height ${blocks[0].height.toLocaleString()}`)
 
     for (let block of blocks) {
       block = new Block(block)
@@ -271,8 +274,6 @@ module.exports = class Blockchain {
       await this.database.revertRound(block.data.height, false)
       this.database.enqueueDeleteBlock(block)
     }
-
-    logger.info(`Removing top ${top} blocks from height ${blocks[0].height.toLocaleString()}`)
 
     await this.database.commitQueuedQueries()
   }

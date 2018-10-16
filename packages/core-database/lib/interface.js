@@ -187,12 +187,13 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Get top blocks.
-   * @param  {Number} top
+   * Get top count blocks ordered by height DESC.
+   * NOTE: Only used when trying to restore database integrity. The returned blocks may be unchained.
+   * @param  {Number} count
    * @return {void}
    * @throws Error
    */
-  async getTopBlocks (top) {
+  async getTopBlocks (count) {
     throw new Error('Method [getTopBlocks] not implemented!')
   }
 
