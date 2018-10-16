@@ -159,6 +159,7 @@ module.exports = class TransactionGuard {
    * Determines valid transactions by checking rules, according to:
    * - if recipient is on the same network
    * - if sender has enough funds
+   * - if sender has more than one vote/unvote transaction in pool
    * Transaction that can be broadcasted are confirmed here
    */
   async __determineValidTransactions () {
@@ -168,6 +169,11 @@ module.exports = class TransactionGuard {
           this.__pushError(transaction, `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
           return
         }
+      }
+
+      if (this.pool.checkIfSenderHasVoteTransactions(transaction.senderPublicKey)) {
+        this.__pushError(transaction, `Sender ${transaction.senderPublicKey} already has a pending vote transaction in pool`)
+        return
       }
 
       try {
@@ -187,9 +193,8 @@ module.exports = class TransactionGuard {
   async __determineExcessTransactions () {
     for (let transaction of this.broadcast) {
       const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
-      const hasVote = this.pool.checkIfSenderHasVoteTransactions(transaction.senderPublicKey)
 
-      if (hasExceeded || hasVote) {
+      if (hasExceeded) {
         this.excess.push(transaction)
       } else {
         /**
