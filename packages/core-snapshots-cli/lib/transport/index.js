@@ -86,14 +86,14 @@ module.exports = {
       })
 
       const getNextData = async (t, pageIndex) => {
-        await delay(400)
+        await delay(600)
         rs.pause()
         const data = values.slice()
         values = []
         return Promise.resolve(data.length === 0 ? null : data)
       }
 
-      database.db.tx('massive-insert', t => {
+      database.db.task('massive-insert', t => {
         return t.sequence(index => {
           rs.resume()
           return getNextData(t, index)
@@ -108,7 +108,7 @@ module.exports = {
       })
       .then(data => {
           // COMMIT has been executed
-          logger.info('Total batches:', data.total, ', Duration:', data.duration)
+          logger.info('Total batches:', data)
           resolve(data)
       })
       .catch(error => {
