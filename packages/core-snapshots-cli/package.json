@@ -40,7 +40,6 @@
     "msgpack-lite": "^0.1.26",
     "pg-promise": "^8.4.6",
     "pg-query-stream": "^1.1.1",
-    "spex": "^2.0.2",
     "xcase": "^2.0.1"
   },
   "publishConfig": {
