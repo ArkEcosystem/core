@@ -1,7 +1,7 @@
 'use strict'
 
 const Promise = require('bluebird')
-const sumBy = require('lodash/sumBy')
+const { sumBy, orderBy } = require('lodash')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
@@ -387,7 +387,26 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   allActiveDelegates (maxDelegates) {
-    return this.allByUsername()
+    let delegates = this.allByUsername()
+
+    // NOTE: At the launch of the blockchain we may not have enough delegates.
+    // In order to have enough forging delegates we complete the list in a
+    // deterministic way (alphabetical order of publicKey).
+    if (delegates.length < maxDelegates) {
+      const publicKeys = delegates.map(delegate => delegate.publicKey)
+
+      let fillerWallets = this.allByUsername()
+
+      if (publicKeys.length) {
+        fillerWallets = fillerWallets.filter(wallet => !publicKeys.includes(wallet.publicKey))
+      }
+
+      fillerWallets = orderBy(fillerWallets, ['publicKey'], ['asc'])
+
+      delegates = delegates.concat(fillerWallets.slice(0, maxDelegates - delegates.length))
+    }
+
+    return delegates
       .sort((a, b) => +b.voteBalance.toFixed() - +a.voteBalance.toFixed())
       .slice(0, maxDelegates)
   }
