@@ -291,7 +291,7 @@ module.exports = class ConnectionInterface {
           this.walletManager.updateDelegates()
           this.updateDelegateStats(height, this.activeDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
-          const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
+          const delegates = this.buildDelegates(maxDelegates, nextHeight) // build active delegate list from in-memory wallet manager
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
 

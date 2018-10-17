@@ -185,6 +185,38 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Load a list of all active delegates.
+   * @param  {Number} maxDelegates
+   * @return {Array}
+   */
+  allActiveDelegates (maxDelegates) {
+    let delegates = this.allByUsername()
+
+    if (delegates.length < maxDelegates) {
+      throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
+    }
+
+    this.updateDelegates()
+
+    return delegates.sort((a, b) => {
+      const aBalance = +a.voteBalance.toFixed()
+      const bBalance = +b.voteBalance.toFixed()
+
+      if (aBalance === bBalance) {
+        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
+
+        if (a.publicKey === b.publicKey) {
+          logger.warn(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
+        }
+
+        // return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
+      }
+
+      return bBalance - aBalance
+    }).slice(0, maxDelegates)
+  }
+
+  /**
    * Update the vote balances of delegates.
    * @return {void}
    */
@@ -382,38 +414,6 @@ module.exports = class WalletManager {
     this.__updateVoteBalance('revert', sender, transaction)
 
     return data
-  }
-
-  /**
-   * Load a list of all active delegates.
-   * @param  {Number} maxDelegates
-   * @return {Array}
-   */
-  allActiveDelegates (maxDelegates) {
-    let delegates = this.allByUsername()
-
-    if (delegates.length < maxDelegates) {
-      throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
-    }
-
-    this.updateDelegates()
-
-    return delegates.sort((a, b) => {
-      const aBalance = +a.voteBalance.toFixed()
-      const bBalance = +b.voteBalance.toFixed()
-
-      if (aBalance === bBalance) {
-        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
-
-        if (a.publicKey === b.publicKey) {
-          logger.warn(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
-        }
-
-        // return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
-      }
-
-      return bBalance - aBalance
-    }).slice(0, maxDelegates)
   }
 
   /**

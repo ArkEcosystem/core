@@ -204,14 +204,14 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @param  {Number} height
    * @return {Array}
    */
-  async buildDelegates (maxDelegates, height) {
+  buildDelegates (maxDelegates, height) {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
 
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
-    const delegates = await this.walletManager.allActiveDelegates(maxDelegates)
+    const delegates = this.walletManager.allActiveDelegates(maxDelegates)
       .map(delegate => ({ ...{ round }, ...delegate }))
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
