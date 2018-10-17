@@ -432,7 +432,7 @@ describe('Wallet Manager', () => {
     it('should be removed if all criteria are satisfied', async () => {
       const wallet = new Wallet(walletData1.address)
 
-      expect(walletManager.__canBePurged(wallet)).toBeTruthy()
+      expect(walletManager.__canBePurged(wallet)).toBeTrue()
     })
 
     it('should not be removed if wallet.secondPublicKey is set', async () => {
@@ -440,7 +440,7 @@ describe('Wallet Manager', () => {
       wallet.secondPublicKey = 'secondPublicKey'
 
       expect(wallet.secondPublicKey).toBe('secondPublicKey')
-      expect(walletManager.__canBePurged(wallet)).toBeFalsy()
+      expect(walletManager.__canBePurged(wallet)).toBeFalse()
     })
 
     it('should not be removed if wallet.multisignature is set', async () => {
@@ -448,7 +448,7 @@ describe('Wallet Manager', () => {
       wallet.multisignature = 'multisignature'
 
       expect(wallet.multisignature).toBe('multisignature')
-      expect(walletManager.__canBePurged(wallet)).toBeFalsy()
+      expect(walletManager.__canBePurged(wallet)).toBeFalse()
     })
 
     it('should not be removed if wallet.username is set', async () => {
@@ -456,7 +456,7 @@ describe('Wallet Manager', () => {
       wallet.username = 'username'
 
       expect(wallet.username).toBe('username')
-      expect(walletManager.__canBePurged(wallet)).toBeFalsy()
+      expect(walletManager.__canBePurged(wallet)).toBeFalse()
     })
   })
 

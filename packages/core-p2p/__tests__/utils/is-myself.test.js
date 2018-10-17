@@ -9,9 +9,9 @@ describe('isMyself', () => {
   })
 
   it('should be ok for localhost addresses', () => {
-    expect(isMyself('127.0.0.1')).toBeTruthy()
-    // expect(isMyself('::1')).toBeTruthy() // doesn't work on Travis
-    expect(isMyself('192.167.22.1')).toBeFalsy()
+    expect(isMyself('127.0.0.1')).toBeTrue()
+
+    expect(isMyself('192.167.22.1')).toBeFalse()
   })
 
   it('should be ok for LAN addresses', () => {
@@ -24,7 +24,7 @@ describe('isMyself', () => {
     })
 
     addresses.forEach(ipAddress => {
-      expect(isMyself(ipAddress)).toBeTruthy()
+      expect(isMyself(ipAddress)).toBeTrue()
     })
   })
 })

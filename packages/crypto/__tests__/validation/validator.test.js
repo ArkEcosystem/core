@@ -20,20 +20,20 @@ describe('Validator', () => {
       expect(validator.passes).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       validator.results = {
         passes: true
       }
 
-      expect(validator.passes()).toBeTruthy()
+      expect(validator.passes()).toBeTrue()
     })
 
-    it('should be falsy', () => {
+    it('should be false', () => {
       validator.results = {
         passes: false
       }
 
-      expect(validator.passes()).toBeFalsy()
+      expect(validator.passes()).toBeFalse()
     })
   })
 
@@ -42,20 +42,20 @@ describe('Validator', () => {
       expect(validator.fails).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       validator.results = {
         fails: true
       }
 
-      expect(validator.fails()).toBeTruthy()
+      expect(validator.fails()).toBeTrue()
     })
 
-    it('should be falsy', () => {
+    it('should be false', () => {
       validator.results = {
         fails: false
       }
 
-      expect(validator.fails()).toBeFalsy()
+      expect(validator.fails()).toBeFalse()
     })
   })
 
@@ -64,7 +64,7 @@ describe('Validator', () => {
       expect(validator.validated).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       validator.results = {
         data: {
           key: 'value'
@@ -74,7 +74,7 @@ describe('Validator', () => {
       expect(validator.validated()).toHaveProperty('key', 'value')
     })
 
-    it('should be falsy', () => {
+    it('should be false', () => {
       validator.results = {
         data: {
           invalidKey: 'value'
@@ -104,16 +104,16 @@ describe('Validator', () => {
       expect(validator.__validateWithRule).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       validator.__validateWithRule('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN', 'address')
 
-      expect(validator.passes()).toBeTruthy()
+      expect(validator.passes()).toBeTrue()
     })
 
-    it('should be falsy', () => {
+    it('should be false', () => {
       validator.__validateWithRule('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_', 'address')
 
-      expect(validator.passes()).toBeFalsy()
+      expect(validator.passes()).toBeFalse()
     })
   })
 
@@ -122,7 +122,7 @@ describe('Validator', () => {
       expect(validator.__validateWithFunction).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       validator.__validateWithFunction('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN', value => {
         return {
           data: value,
@@ -131,10 +131,10 @@ describe('Validator', () => {
         }
       })
 
-      expect(validator.passes()).toBeTruthy()
+      expect(validator.passes()).toBeTrue()
     })
 
-    it('should be falsy', () => {
+    it('should be false', () => {
       validator.__validateWithFunction('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_', value => {
         return {
           data: value,
@@ -143,7 +143,7 @@ describe('Validator', () => {
         }
       })
 
-      expect(validator.passes()).toBeFalsy()
+      expect(validator.passes()).toBeFalse()
     })
   })
 
@@ -152,22 +152,22 @@ describe('Validator', () => {
       expect(validator.__validateWithJoi).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       validator.__validateWithJoi(
         'DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN',
         Joi.string().alphanum().length(34).required()
       )
 
-      expect(validator.passes()).toBeTruthy()
+      expect(validator.passes()).toBeTrue()
     })
 
-    it('should be falsy', () => {
+    it('should be false', () => {
       validator.__validateWithJoi(
         '_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_',
         Joi.string().alphanum().length(34).required()
       )
 
-      expect(validator.passes()).toBeFalsy()
+      expect(validator.passes()).toBeFalse()
     })
   })
 

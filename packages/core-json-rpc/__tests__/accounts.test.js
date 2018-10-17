@@ -111,7 +111,7 @@ describe('Accounts', () => {
       })
 
       await expect(response.data.result.recipientId).toBe('AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv')
-      await expect(crypto.verify(response.data.result)).toBeTruthy()
+      await expect(crypto.verify(response.data.result)).toBeTrue()
     })
   })
 })
