@@ -1,7 +1,7 @@
 'use strict'
 
 const Promise = require('bluebird')
-const { sumBy, orderBy } = require('lodash')
+const { sumBy } = require('lodash')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
@@ -389,21 +389,8 @@ module.exports = class WalletManager {
   allActiveDelegates (maxDelegates) {
     let delegates = this.allByUsername()
 
-    // NOTE: At the launch of the blockchain we may not have enough delegates.
-    // In order to have enough forging delegates we complete the list in a
-    // deterministic way (alphabetical order of publicKey).
     if (delegates.length < maxDelegates) {
-      const publicKeys = delegates.map(delegate => delegate.publicKey)
-
-      let fillerWallets = this.allByUsername()
-
-      if (publicKeys.length) {
-        fillerWallets = fillerWallets.filter(wallet => !publicKeys.includes(wallet.publicKey))
-      }
-
-      fillerWallets = orderBy(fillerWallets, ['publicKey'], ['asc'])
-
-      delegates = delegates.concat(fillerWallets.slice(0, maxDelegates - delegates.length))
+      throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
     }
 
     return delegates.sort((a, b) => {
@@ -424,7 +411,7 @@ module.exports = class WalletManager {
         // return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
       }
 
-      return aBalance - bBalance
+      return bBalance - aBalance
     }).slice(0, maxDelegates)
   }
 
@@ -470,6 +457,9 @@ module.exports = class WalletManager {
       const delegate = this.findByPublicKey(vote.substr(1))
 
       delegate.voteBalance[vote.startsWith('+') ? 'plus' : 'minus'](sender.balance)
+
+      // const voters = this.allByPublicKey().filter(wallet => (wallet.vote === sender.vote))
+      // delegate.voteBalance = new Bignum(sumBy(voters, 'balance'))
     }
   }
 }
