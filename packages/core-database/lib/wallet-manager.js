@@ -1,6 +1,7 @@
 'use strict'
 
 const Promise = require('bluebird')
+const sumBy = require('lodash/sumBy')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
@@ -349,9 +350,7 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(data)
     }
 
-    if (recipient && type === TRANSACTION_TYPES.VOTE) {
-      this.__updateVoteBalance(sender, transaction)
-    }
+    this.__updateVoteBalance(sender, transaction)
 
     return transaction
   }
@@ -377,9 +376,7 @@ module.exports = class WalletManager {
       recipient.revertTransactionForRecipient(data)
     }
 
-    if (recipient && type === TRANSACTION_TYPES.VOTE) {
-      this.__updateVoteBalance(sender, transaction)
-    }
+    this.__updateVoteBalance(sender, transaction)
 
     return data
   }
@@ -424,13 +421,18 @@ module.exports = class WalletManager {
    * @return {void}
    */
   __updateVoteBalance (sender, transaction) {
+    if (sender.vote && transaction.type === TRANSACTION_TYPES.TRANSFER) {
+      const delegate = this.findByPublicKey(sender.vote)
+      const voters = this.allByPublicKey().filter(wallet => (wallet.vote === sender.vote))
+
+      delegate.voteBalance = sumBy(voters, 'balance')
+    }
+
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const vote = transaction.asset.votes[0]
       const delegate = this.findByPublicKey(vote.substr(1))
 
-      vote.startsWith('+')
-        ? delegate.voteBalance.plus(sender.balance)
-        : delegate.voteBalance.minus(sender.balance)
+      delegate.voteBalance[vote.startsWith('+') ? 'plus' : 'minus'](sender.balance)
     }
   }
 }
