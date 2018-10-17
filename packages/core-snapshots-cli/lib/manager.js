@@ -59,7 +59,9 @@ module.exports = class SnapshotManager {
     const lastBlock = await this.database.getLastBlock()
     const rollBackHeight = options.height === -1 ? lastBlock.height : options.height
 
-    await this.database.rollbackChain(rollBackHeight)
+    const newLastBlock = await this.database.rollbackChain(rollBackHeight)
+    logger.info(`Rolling back chain to last finished round ${newLastBlock.height / 51} with last block height ${newLastBlock.height}`)
+
   }
 
   async truncateChain () {

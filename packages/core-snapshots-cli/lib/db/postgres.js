@@ -12,10 +12,10 @@ module.exports = class Database {
       this.db = pgp(container.resolveOptions('database').connection)
     } catch (error) {
       logger.error(`Error while creating and connecting to postgres: ${error}`)
+      process.exit(1)
     }
 
     this.__createColumnSets()
-    logger.info('Snapshots: Database connected')
   }
 
   async getLastBlock () {
@@ -43,7 +43,6 @@ module.exports = class Database {
     const lastBlockHeight = currentRound * maxDelegates
     const lastRemainingBlock = await this.getBlockByHeight(lastBlockHeight)
 
-    logger.debug(`Rolling back chain to last finished round ${currentRound} with last block height ${lastBlockHeight}`)
     if (lastRemainingBlock) {
       await Promise.all([
         this.db.none(this.__truncateStatement('wallets')),

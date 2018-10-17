@@ -65,13 +65,24 @@ module.exports = {
   },
 
   importTable: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       const decodeStream = msgpack.createDecodeStream()
       const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
 
+      const table = fileName.split('.')[0]
       let values = []
+      let prevData = lastBlock
       decodeStream.on('data', (data) => {
-        values.push(data)
+        if (!verifyData(table, data, prevData, skipVerifySignature)) {
+          logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+          process.exit(1)
+        }
+
+        if (canImportRecord(table, data, lastBlock)) {
+          values.push(data)
+        }
+
+        prevData = data
       })
 
       const getNextData = async (t, pageIndex) => {
@@ -83,27 +94,27 @@ module.exports = {
       }
 
       database.db.tx('massive-insert', t => {
-      return t.sequence(index => {
+        return t.sequence(index => {
           rs.resume()
           return getNextData(t, index)
-              .then(data => {
-                  if (data) {
-                      console.log(data.length)
-                      const insert = database.pgp.helpers.insert(data, database.getColumnSet(fileName.split('.')[0]))
-                      return t.none(insert);
-                  }
-              })
+          .then(data => {
+            if (data) {
+              logger.info(`Importing ${data.length} records from ${fileName}`)
+              const insert = database.pgp.helpers.insert(data, database.getColumnSet(fileName.split('.')[0]))
+              return t.none(insert)
+            }
+          })
         })
       })
       .then(data => {
           // COMMIT has been executed
+          logger.info('Total batches:', data.total, ', Duration:', data.duration)
           resolve(data)
-          console.log('Total batches:', data.total, ', Duration:', data.duration);
       })
       .catch(error => {
           // ROLLBACK has been executed
+          logger.error(error)
           reject(error)
-          console.log(error);
       })
     })
   },
