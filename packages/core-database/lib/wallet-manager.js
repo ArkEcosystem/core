@@ -388,7 +388,7 @@ module.exports = class WalletManager {
    */
   allActiveDelegates (maxDelegates) {
     return this.allByUsername()
-      .sort((a, b) => b.voteBalance - a.voteBalance)
+      .sort((a, b) => +b.voteBalance.toFixed() - +a.voteBalance.toFixed())
       .slice(0, maxDelegates)
   }
 
@@ -398,6 +398,7 @@ module.exports = class WalletManager {
    */
   __isDelegate (publicKey) {
     const delegateWallet = this.byPublicKey[publicKey]
+
     if (delegateWallet && delegateWallet.username) {
       return !!this.byUsername[delegateWallet.username]
     }
