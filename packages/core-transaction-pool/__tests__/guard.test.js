@@ -149,13 +149,13 @@ describe('Transaction Guard', () => {
     it('should be ok', () => {
       guard.excess = [{ id: 1 }, { id: 2 }]
 
-      expect(guard.has('excess', 2)).toBeTruthy()
+      expect(guard.has('excess', 2)).toBeTrue()
     })
 
     it('should not be ok', () => {
       guard.excess = [{ id: 1 }, { id: 2 }]
 
-      expect(guard.has('excess', 1)).toBeFalsy()
+      expect(guard.has('excess', 1)).toBeFalse()
     })
   })
 
@@ -167,13 +167,13 @@ describe('Transaction Guard', () => {
     it('should be ok', () => {
       guard.excess = [{ id: 1 }, { id: 2 }]
 
-      expect(guard.hasAtLeast('excess', 2)).toBeTruthy()
+      expect(guard.hasAtLeast('excess', 2)).toBeTrue()
     })
 
     it('should not be ok', () => {
       guard.excess = [{ id: 1 }]
 
-      expect(guard.hasAtLeast('excess', 2)).toBeFalsy()
+      expect(guard.hasAtLeast('excess', 2)).toBeFalse()
     })
   })
 
@@ -185,13 +185,13 @@ describe('Transaction Guard', () => {
     it('should be ok', () => {
       guard.excess = [{ id: 1 }]
 
-      expect(guard.hasAny('excess')).toBeTruthy()
+      expect(guard.hasAny('excess')).toBeTrue()
     })
 
     it('should not be ok', () => {
       guard.excess = []
 
-      expect(guard.hasAny('excess')).toBeFalsy()
+      expect(guard.hasAny('excess')).toBeFalse()
     })
   })
 

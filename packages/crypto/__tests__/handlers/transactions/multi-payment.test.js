@@ -50,14 +50,14 @@ describe('MultiPaymentHandler', () => {
     it('should be ok', () => {
       const amount = transaction.asset.payments.reduce((a, p) => (a.plus(p.amount)), Bignum.ZERO)
 
-      expect(handler.canApply(wallet, transaction)).toBeTruthy()
+      expect(handler.canApply(wallet, transaction)).toBeTrue()
     })
 
     it('should not be ok', () => {
       const amount = transaction.asset.payments.reduce((a, p) => (a.plus(p.amount)), Bignum.ZERO)
       wallet.balance = Bignum.ZERO
 
-      expect(handler.canApply(wallet, transaction)).toBeFalsy()
+      expect(handler.canApply(wallet, transaction)).toBeFalse()
     })
   })
 

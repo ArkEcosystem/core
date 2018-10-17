@@ -7,11 +7,11 @@ describe('Address Rule', () => {
     expect(rule).toBeFunction()
   })
 
-  it('should be truthy', () => {
-    expect(rule('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN').passes).toBeTruthy()
+  it('should be true', () => {
+    expect(rule('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN').passes).toBeTrue()
   })
 
-  it('should be falsy', () => {
-    expect(rule('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_').passes).toBeFalsy()
+  it('should be false', () => {
+    expect(rule('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_').passes).toBeFalse()
   })
 })

@@ -7,11 +7,11 @@ describe('Public Key Rule', () => {
     expect(rule).toBeFunction()
   })
 
-  it('should be truthy', () => {
-    expect(rule('022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d').passes).toBeTruthy()
+  it('should be true', () => {
+    expect(rule('022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d').passes).toBeTrue()
   })
 
-  it('should be falsy', () => {
-    expect(rule('_022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d_').passes).toBeFalsy()
+  it('should be false', () => {
+    expect(rule('_022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d_').passes).toBeFalse()
   })
 })

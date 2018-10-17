@@ -12,9 +12,5 @@ module.exports = {
     database: process.env.ARK_DB_DATABASE || `ark_${process.env.ARK_NETWORK_NAME}`,
     user: process.env.ARK_DB_USERNAME || 'ark',
     password: process.env.ARK_DB_PASSWORD || 'password'
-  },
-  redis: {
-    host: process.env.ARK_REDIS_HOST || 'localhost',
-    port: process.env.ARK_REDIS_PORT || 6379
   }
 }
