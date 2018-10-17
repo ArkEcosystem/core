@@ -1,5 +1,6 @@
 'use strict'
 
+const SortedSet = require('collections/sorted-set');
 const assert = require('assert')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { formatTimestamp } = require('@arkecosystem/core-utils')
@@ -32,7 +33,20 @@ class Mem {
      * - get the transactions with the highest fee
      * - get the number of all transactions in the pool
      */
-    this.sortedByFee = []
+    this._sortByFeeComparator = function (a, b) {
+      if (a.transaction.fee > b.transaction.fee) {
+        return -1
+      }
+      if (a.transaction.fee < b.transaction.fee) {
+        return 1
+      }
+      return a.sequence - b.sequence
+    }
+    this.sortedByFee = new SortedSet(
+      [],
+      (a, b) => this._sortByFeeComparator(a, b) === 0,
+      this._sortByFeeComparator
+    )
 
     /**
      * A map of (key=sender public key, value=Set of MemPoolTransaction).
@@ -50,7 +64,14 @@ class Mem {
      * - find all transactions that have expired (have an expiration date
      *   earlier than a given date) - they are at the beginning of the array.
      */
-    this.sortedByExpiration = []
+    this._sortByExpirationComparator = function (a, b) {
+      return a.expireAt - b.expireAt
+    }
+    this.sortedByExpiration = new SortedSet(
+      [],
+      (a, b) => this._sortByExpirationComparator(a, b) === 0,
+      this._sortByExpirationComparator
+    )
 
     /**
      * List of dirty transactions ids (that are not saved in the on-disk
@@ -91,18 +112,6 @@ class Mem {
     this.byId[transaction.id] = memPoolTransaction
 
     this.sortedByFee.push(memPoolTransaction)
-    // Sort largest fee first, if fees equal, then
-    // smaller sequence (earlier transaction) first.
-    // XXX worst case: O(n * log(n))
-    this.sortedByFee.sort(function (a, b) {
-      if (a.transaction.fee > b.transaction.fee) {
-        return -1
-      }
-      if (a.transaction.fee < b.transaction.fee) {
-        return 1
-      }
-      return a.sequence - b.sequence
-    })
 
     const sender = transaction.senderPublicKey
     if (this.bySender[sender] === undefined) {
@@ -125,9 +134,6 @@ class Mem {
       memPoolTransaction.expireAt = new Date(msSinceEpoch)
 
       this.sortedByExpiration.push(memPoolTransaction)
-
-      // XXX worst case: O(n * log(n))
-      this.sortedByExpiration.sort((a, b) => a.expireAt - b.expireAt)
     }
 
     if (!thisIsDBLoad) {
@@ -159,21 +165,14 @@ class Mem {
 
     const memPoolTransaction = this.byId[id]
 
-    // XXX worst case: O(n)
-    let i = this.sortedByExpiration.findIndex(e => e.transaction.id === id)
-    if (i !== -1) {
-      this.sortedByExpiration.splice(i, 1)
-    }
+    this.sortedByExpiration.delete(memPoolTransaction)
 
     this.bySender[senderPublicKey].delete(memPoolTransaction)
     if (this.bySender[senderPublicKey].size === 0) {
       delete this.bySender[senderPublicKey]
     }
 
-    // XXX worst case: O(n)
-    i = this.sortedByFee.findIndex(e => e.transaction.id === id)
-    assert.notEqual(i, -1)
-    this.sortedByFee.splice(i, 1)
+    this.sortedByFee.delete(memPoolTransaction)
 
     delete this.byId[id]
 
@@ -227,7 +226,7 @@ class Mem {
    * @return {Array of MemPoolTransaction} transactions
    */
   getTransactionsOrderedByFee () {
-    return this.sortedByFee
+    return this.sortedByFee.sorted()
   }
 
   /**
@@ -248,7 +247,7 @@ class Mem {
 
     let transactions = []
 
-    for (const memPoolTransaction of this.sortedByExpiration) {
+    for (const memPoolTransaction of this.sortedByExpiration.sorted()) {
       if (memPoolTransaction.expireAt <= now) {
         transactions.push(memPoolTransaction.transaction)
       } else {
@@ -264,9 +263,9 @@ class Mem {
    */
   flush () {
     this.byId = {}
-    this.sortedByFee = []
+    this.sortedByFee.clear()
     this.bySender = {}
-    this.sortedByExpiration = []
+    this.sortedByExpiration.clear()
     this.dirty.added.clear()
     this.dirty.removed.clear()
   }
