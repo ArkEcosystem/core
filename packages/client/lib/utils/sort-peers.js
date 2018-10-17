@@ -9,5 +9,8 @@ module.exports = peers => {
   }
   else if(myObj.hasOwnProperty('delay')){
     return orderBy(peers, ['height', 'delay'], ['desc', 'asc'])
-  }	
+  }
+  else {
+    return peers
+  }
 }
