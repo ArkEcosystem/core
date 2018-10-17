@@ -50,8 +50,6 @@ module.exports = {
         return verifyBlock(data, prevData, skipVerifySignature)
       case 'transactions':
         return verifyTransaction(data, skipVerifySignature)
-      case 'rounds':
-        return true
       default:
         return false
     }
@@ -66,8 +64,6 @@ module.exports = {
         return data.height > lastBlock.height
       case 'transactions':
         return data.timestamp > lastBlock.timestamp
-      case 'rounds':
-        return true
       default:
         return false
     }

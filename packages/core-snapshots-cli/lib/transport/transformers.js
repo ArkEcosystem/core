@@ -1,6 +1,6 @@
 'use strict'
 
-const {Transaction} = require('@arkecosystem/crypto').models
+const { Transaction } = require('@arkecosystem/crypto').models
 
 module.exports = {
   transformData: (context, data) => {

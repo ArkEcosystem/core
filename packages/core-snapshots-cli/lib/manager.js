@@ -4,8 +4,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const Database = require('./db/postgres')
 const env = require('./env')
-const delay = require('delay')
-const {exportTable, importTable, verifyTable} = require('./transport')
+const { exportTable, importTable, verifyTable } = require('./transport')
 
 module.exports = class SnapshotManager {
   constructor () {
@@ -18,8 +17,7 @@ module.exports = class SnapshotManager {
 
     await Promise.all([
       exportTable(params.filename, params.queries.blocks, this.database, !!options.filename),
-      exportTable('transactions.dat', params.queries.transactions, this.database, !!options.filename),
-      exportTable('rounds.dat', params.queries.rounds, this.database)
+      exportTable('transactions.dat', params.queries.transactions, this.database, !!options.filename)
     ])
 
     logger.info('Export completed.')
@@ -33,11 +31,8 @@ module.exports = class SnapshotManager {
 
     await Promise.all([
       importTable(options.filename, this.database, lastBlock, options.skipSignVerify),
-      importTable('transactions.dat', this.database, lastBlock, options.skipSignVerify),
-      importTable('rounds.dat', this.database, lastBlock, options.skipSignVerify)
+      importTable('transactions.dat', this.database, lastBlock, options.skipSignVerify)
     ])
-
-    await delay(1000) // sometimes last batch insert is too long, although the promise resolves
 
     lastBlock = await this.database.getLastBlock()
 
@@ -54,15 +49,17 @@ module.exports = class SnapshotManager {
 
     await Promise.all([
       verifyTable(options.filename, this.database, options.skipSignVerify),
-      verifyTable('transactions.dat', this.database, options.skipSignVerify),
-      verifyTable('rounds.dat', this.database, options.skipSignVerify)
+      verifyTable('transactions.dat', this.database, options.skipSignVerify)
     ])
 
     logger.info(`Verifying snapshot ${options.filename} completed`)
   }
 
   async rollbackChain (options) {
-    await this.database.rollbackChain(options.height)
+    const lastBlock = await this.database.getLastBlock()
+    const rollBackHeight = options.height === -1 ? lastBlock.height : options.height
+
+    await this.database.rollbackChain(rollBackHeight)
   }
 
   async truncateChain () {
@@ -89,7 +86,7 @@ module.exports = class SnapshotManager {
       startBlock = await this.database.getBlockByHeight(+metaData[1])
       endBlock = await this.database.getBlockByHeight(+metaData[2])
     } else {
-      startBlock = (options.start !== -1) ? await this.database.getBlockByHeight(options.start) : {height: 0, timestamp: 0}
+      startBlock = (options.start !== -1) ? await this.database.getBlockByHeight(options.start) : { height: 0, timestamp: 0 }
       endBlock = (options.end !== -1) ? await this.database.getBlockByHeight(options.end) : lastBlock
     }
 

@@ -76,6 +76,8 @@ yarn rollback:devnet -h 350000
 ```
 Above command will rollback the chain to block height of 350 000.
 
+If the `-h` or `--height` argument is not set, the command will rollback the chain to the last completed round.
+
 ## Security
 If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.
 

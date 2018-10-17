@@ -51,7 +51,7 @@ registerCommand('verify', 'check validity of specified snapshot')
   })
 
 registerCommand('rollback', 'rollback chain to specified height')
-  .option('-h, --height <number>', 'network height')
+  .option('-h, --height <number>', 'network height', -1)
   .action(async (options) => {
     await env.setUpLite(options)
     require('../lib/commands/rollback')(options)
