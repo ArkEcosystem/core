@@ -3,7 +3,7 @@ const transactionBuilder = require('./builder')
 const configManager = require('./managers/config')
 const feeManager = require('./managers/fee')
 
-class Client {
+module.exports = class Client {
   /**
    * @constructor
    * @param {Object} config
@@ -44,5 +44,3 @@ class Client {
     return transactionBuilder
   }
 }
-
-module.exports = new Client()
