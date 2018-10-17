@@ -4,7 +4,6 @@ jobs:
     working_directory: ~/ark-core
     docker:
       - image: circleci/node:9-browsers
-      - image: redis:alpine
       - image: postgres:alpine
         environment:
           POSTGRES_PASSWORD: password
@@ -19,7 +18,7 @@ jobs:
           name: Install xsel
           command: 'sudo apt-get install -q xsel'
       - run:
-          name: Install yarn 
+          name: Install yarn
           command: 'curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH="$HOME/.yarn/bin:$PATH" && yarn config set cache-folder $HOME/.cache/yarn'
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
@@ -35,12 +34,11 @@ jobs:
       - run: # Running lint here but not in test-node10 as lint doesn't need to be done on both
           name: Lint
           command: yarn lint
-      
+
   test-node10:
     working_directory: ~/ark-core
     docker:
       - image: circleci/node:10-browsers
-      - image: redis:alpine
       - image: postgres:alpine
         environment:
           POSTGRES_PASSWORD: password
@@ -55,7 +53,7 @@ jobs:
           name: Install xsel
           command: 'sudo apt-get install -q xsel'
       - run:
-          name: Install yarn 
+          name: Install yarn
           command: 'curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH="$HOME/.yarn/bin:$PATH" && yarn config set cache-folder $HOME/.cache/yarn'
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}

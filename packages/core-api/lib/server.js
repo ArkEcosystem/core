@@ -25,10 +25,10 @@ module.exports = async (config) => {
   }
 
   if (config.cache.enabled) {
-    const cacheOptions = config.cache.options
-    cacheOptions.engine = require(cacheOptions.engine)
-    baseConfig.cache = [cacheOptions]
-    baseConfig.routes.cache = { expiresIn: cacheOptions.expiresIn }
+    // const cacheOptions = config.cache.options
+    // cacheOptions.engine = require(cacheOptions.engine)
+    // baseConfig.cache = [cacheOptions]
+    // baseConfig.routes.cache = { expiresIn: cacheOptions.expiresIn }
   }
 
   const server = new Hapi.Server(baseConfig)
