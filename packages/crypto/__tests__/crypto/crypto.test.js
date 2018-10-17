@@ -330,13 +330,13 @@ describe('crypto.js', () => {
     it('should validate MAINNET addresses', () => {
       configManager.setConfig(CONFIGURATIONS.ARK.MAINNET)
 
-      expect(crypto.validateAddress('AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX')).toBeTruthy()
+      expect(crypto.validateAddress('AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX')).toBeTrue()
     })
 
     it('should validate DEVNET addresses', () => {
       configManager.setConfig(CONFIGURATIONS.ARK.DEVNET)
 
-      expect(crypto.validateAddress('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN')).toBeTruthy()
+      expect(crypto.validateAddress('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN')).toBeTrue()
     })
   })
 })
