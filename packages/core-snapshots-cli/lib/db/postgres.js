@@ -31,9 +31,7 @@ module.exports = class Database {
     logger.info('Truncating tables: wallets, rounds, transactions, blocks')
 
     return this.db.tx('truncate-chain', t => {
-      tables.forEach(table => {
-        t.none(this.__truncateStatement(table))
-      })
+      tables.forEach(table => t.none(this.__truncateStatement(table)))
     })
   }
 
