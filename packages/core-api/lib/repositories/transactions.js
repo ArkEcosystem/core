@@ -338,7 +338,7 @@ class TransactionsRepository extends Repository {
       const missingFromCache = []
 
       for (let i = 0; i < data.length; i++) {
-        const cachedBlock = await this.__getBlockCache(data[i].blockId)
+        const cachedBlock = this.__getBlockCache(data[i].blockId)
 
         if (cachedBlock) {
           data[i].block = cachedBlock
@@ -374,7 +374,7 @@ class TransactionsRepository extends Repository {
 
     // Object...
     if (data) {
-      const cachedBlock = await this.__getBlockCache(data.blockId)
+      const cachedBlock = this.__getBlockCache(data.blockId)
 
       if (cachedBlock) {
         data.block = cachedBlock
@@ -398,8 +398,8 @@ class TransactionsRepository extends Repository {
    * @param  {String} blockId
    * @return {Object|null}
    */
-  async __getBlockCache (blockId) {
-    const height = await this.cache.get(`heights:${blockId}`)
+  __getBlockCache (blockId) {
+    const height = this.cache.get(`heights:${blockId}`)
 
     return height ? ({ height, id: blockId }) : null
   }

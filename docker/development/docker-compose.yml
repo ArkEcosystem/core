@@ -4,14 +4,6 @@
 version: '2'
 services:
 
-  redis:
-    image: "redis:alpine"
-    container_name: ark-development-redis
-    ports:
-      - '127.0.0.1:6379:6379'
-    volumes:
-      - 'redis:/data'
-
   postgres:
     image: "postgres:alpine"
     container_name: ark-development-postgres
@@ -25,5 +17,4 @@ services:
      POSTGRES_USER: ark
 
 volumes:
-  redis:
   postgres:
