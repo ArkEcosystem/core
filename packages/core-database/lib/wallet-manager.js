@@ -1,7 +1,6 @@
 'use strict'
 
 const Promise = require('bluebird')
-const { sumBy } = require('lodash')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
@@ -190,13 +189,17 @@ module.exports = class WalletManager {
    * @return {void}
    */
   updateDelegates () {
-    Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
+    Object
+      .values(this.byUsername)
+      .forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
+
     Object.values(this.byPublicKey)
       .filter(voter => !!voter.vote)
       .forEach(voter => {
         const delegate = this.byPublicKey[voter.vote]
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
       })
+
     Object.values(this.byUsername)
       .sort((a, b) => +(b.voteBalance.minus(a.voteBalance)).toFixed())
       .forEach((delegate, index) => (delegate.rate = index + 1))
@@ -350,7 +353,7 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(data)
     }
 
-    this.__updateVoteBalance(sender, transaction)
+    this.__updateVoteBalance('apply', sender, transaction)
 
     return transaction
   }
@@ -376,7 +379,7 @@ module.exports = class WalletManager {
       recipient.revertTransactionForRecipient(data)
     }
 
-    this.__updateVoteBalance(sender, transaction)
+    this.__updateVoteBalance('revert', sender, transaction)
 
     return data
   }
@@ -393,20 +396,18 @@ module.exports = class WalletManager {
       throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
     }
 
+    this.updateDelegates()
+
     return delegates.sort((a, b) => {
       const aBalance = +a.voteBalance.toFixed()
       const bBalance = +b.voteBalance.toFixed()
 
-      // FIXME: The issues with block 178 and 441 are resolved on devnet but
-      // now other blocks cause issues where delegates have the same balance and
-      // sorting the public keys alphabetically doesn't solve the issue.
-
       if (aBalance === bBalance) {
         logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
 
-        // if (a.publicKey === b.publicKey) {
-        //   throw new Error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
-        // }
+        if (a.publicKey === b.publicKey) {
+          logger.warn(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
+        }
 
         // return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
       }
@@ -440,26 +441,28 @@ module.exports = class WalletManager {
 
   /**
    * Update the vote balance of the delegate the vote is for.
+   * @param  {String} action
    * @param  {Object} sender
    * @param  {Transaction} transaction
    * @return {void}
    */
-  __updateVoteBalance (sender, transaction) {
-    if (sender.vote && transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      const delegate = this.findByPublicKey(sender.vote)
-      const voters = this.allByPublicKey().filter(wallet => (wallet.vote === sender.vote))
+  __updateVoteBalance (action, sender, transaction) {
+    const update = (delegate, condition) => {
+      const method = action === 'apply'
+        ? (condition ? 'plus' : 'minus')
+        : (condition ? 'minus' : 'plus')
 
-      delegate.voteBalance = new Bignum(sumBy(voters, 'balance'))
+      delegate.voteBalance = delegate.voteBalance[method](sender.balance)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.TRANSFER && sender.vote) {
+      update(this.findByPublicKey(sender.vote), transaction.recipientId === sender.address)
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const vote = transaction.asset.votes[0]
-      const delegate = this.findByPublicKey(vote.substr(1))
 
-      delegate.voteBalance[vote.startsWith('+') ? 'plus' : 'minus'](sender.balance)
-
-      // const voters = this.allByPublicKey().filter(wallet => (wallet.vote === sender.vote))
-      // delegate.voteBalance = new Bignum(sumBy(voters, 'balance'))
+      update(this.findByPublicKey(vote.substr(1)), vote.startsWith('+'))
     }
   }
 }
