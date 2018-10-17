@@ -411,13 +411,17 @@ module.exports = class WalletManager {
         const aBalance = +a.voteBalance.toFixed()
         const bBalance = +b.voteBalance.toFixed()
 
-        if (aBalance === bBalance) {
-            if (a.publicKey === b.publicKey) {
-                throw new Error(`The balance and public keys of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
-            }
+        // FIXME: The issues with block 178 and 441 are resolved on devnet but
+        // now other blocks cause issues where delegates have the same balance and
+        // sorting the public keys alphabetically doesn't solve the issue.
 
-            return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
-        }
+        // if (aBalance === bBalance) {
+        //     if (a.publicKey === b.publicKey) {
+        //         throw new Error(`The balance and public keys of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
+        //     }
+
+        //     return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
+        // }
 
         return aBalance - bBalance
       })
