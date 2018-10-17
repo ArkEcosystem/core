@@ -274,43 +274,23 @@ describe('crypto.js', () => {
     })
   })
 
-  describe('getAddress', () => {
+  describe('getAddressBySecret', () => {
     it('should be a function', () => {
-      expect(crypto.getAddress).toBeFunction()
+      expect(crypto.getAddressBySecret).toBeFunction()
     })
 
-    it('should generate address by publicKey', () => {
-      const keys = crypto.getKeys('secret')
-      const address = crypto.getAddress(keys.publicKey)
+    it('should generate address by secret', () => {
+      const address = crypto.getAddressBySecret('secret')
 
       expect(address).toBeString()
       expect(address).toBe('D7seWn8JLVwX4nHd9hh2Lf7gvZNiRJ7qLk')
     })
 
-    it('should generate address by publicKey - second test', () => {
-      const keys = crypto.getKeys('secret second test to be sure it works correctly')
-      const address = crypto.getAddress(keys.publicKey)
+    it('should generate address by address - second test', () => {
+      const address = crypto.getAddressBySecret('secret second test to be sure it works correctly')
 
       expect(address).toBeString()
       expect(address).toBe('DDp4SYpnuzFPuN4W79PYY762d7FtW3DFFN')
-    })
-
-    it('should not throw an error if the publicKey is valid', () => {
-      try {
-        const validKeys = ['02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af', 'a'.repeat(66)]
-        for (const validKey of validKeys) {
-          crypto.getAddress(validKey)
-        }
-      } catch (error) {
-        expect().fail('Should not have failed to call getAddress with a valid publicKey')
-      }
-    })
-
-    it('should throw an error if the publicKey is invalid', () => {
-      const invalidKeys = ['invalid', 'a'.repeat(65), 'a'.repeat(67), 'z'.repeat(66)]
-      for (const invalidKey of invalidKeys) {
-        expect(() => crypto.getAddress(invalidKey)).toThrowError(new Error(`publicKey '${invalidKey}' is invalid`))
-      }
     })
   })
 
