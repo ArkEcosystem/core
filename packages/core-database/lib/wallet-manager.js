@@ -5,6 +5,7 @@ const Promise = require('bluebird')
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { roundCalculator } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -189,7 +190,12 @@ module.exports = class WalletManager {
    * @param  {Number} maxDelegates
    * @return {Array}
    */
-  activeDelegation (maxDelegates) {
+  activeDelegation (maxDelegates, height) {
+    if (height > 1 && height % maxDelegates !== 1) {
+      throw new Error('Trying to build delegates outside of round change')
+    }
+
+    const { round } = roundCalculator.calculateRound(height, maxDelegates)
     let delegates = this.allByUsername()
 
     if (delegates.length < maxDelegates) {
@@ -197,11 +203,11 @@ module.exports = class WalletManager {
     }
 
     // TODO: review performance here
-    this.updateDelegates()
+   // this.updateDelegates()
 
-    return delegates.sort((a, b) => {
-      const aBalance = +a.voteBalance.toFixed()
-      const bBalance = +b.voteBalance.toFixed()
+    delegates = delegates.sort((a, b) => {
+      const aBalance = +a.balance.toFixed()
+      const bBalance = +b.balance.toFixed()
 
       if (aBalance === bBalance) {
         logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
@@ -215,6 +221,10 @@ module.exports = class WalletManager {
 
       return bBalance - aBalance
     }).slice(0, maxDelegates)
+
+    logger.debug(`Loaded ${delegates.length} active delegates`)
+
+    return delegates.map(delegate => ({ ...{ round }, ...delegate }))
   }
 
   /**
