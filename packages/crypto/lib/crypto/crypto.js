@@ -386,6 +386,7 @@ class Crypto {
    * @param  {(Number|undefined)} networkVersion
    * @return {String}
    */
+
   getAddress (publicKey, networkVersion) {
     var pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
     if (!pubKeyRegex.test(publicKey)) {
@@ -403,6 +404,15 @@ class Crypto {
     buffer.copy(payload, 1)
 
     return bs58check.encode(payload)
+  }
+
+  /** Get address from secret.
+   * @param  {String}             secret
+   * @param  {(Number|undefined)} networkVersion
+   * @return {String}
+   */
+  getAddressBySecret (secret, networkVersion) {
+    return this.getAddress(this.getKeys(secret).publicKey, networkVersion)
   }
 
   /**

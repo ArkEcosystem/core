@@ -314,6 +314,26 @@ describe('crypto.js', () => {
     })
   })
 
+  describe('getAddressBySecret', () => {
+    it('should be a function', () => {
+      expect(crypto.getAddressBySecret).toBeFunction()
+    })
+
+    it('should generate address by secret', () => {
+      const address = crypto.getAddressBySecret('secret')
+
+      expect(address).toBeString()
+      expect(address).toBe('D7seWn8JLVwX4nHd9hh2Lf7gvZNiRJ7qLk')
+    })
+
+    it('should generate address by address - second test', () => {
+      const address = crypto.getAddressBySecret('secret second test to be sure it works correctly')
+
+      expect(address).toBeString()
+      expect(address).toBe('DDp4SYpnuzFPuN4W79PYY762d7FtW3DFFN')
+    })
+  })
+
   describe('verify', () => {
     it('should be a function', () => {
       expect(crypto.verify).toBeFunction()
