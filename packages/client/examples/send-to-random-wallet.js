@@ -105,6 +105,10 @@ const sendGift = async () => {
   if (senderWallet.balance < amount) {
     fail(`The sender wallet (${senderWallet.address}) does not have enough balance (${senderWallet.balance} DARK)`)
   }
+  
+  if (senderWallet.balance < amount + 0.1 ) {
+    console.log(`The sender wallet (${senderWallet.address}) may not have enough balance to cover fees of transaction`)
+  }
 
   const recipientWallet = await getRandomWallet()
   const recipient = recipientWallet.address
