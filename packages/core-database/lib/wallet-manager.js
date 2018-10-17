@@ -445,7 +445,7 @@ module.exports = class WalletManager {
       const delegate = this.findByPublicKey(sender.vote)
       const voters = this.allByPublicKey().filter(wallet => (wallet.vote === sender.vote))
 
-      delegate.voteBalance = sumBy(voters, 'balance')
+      delegate.voteBalance = new Bignum(sumBy(voters, 'balance'))
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
