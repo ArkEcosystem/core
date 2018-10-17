@@ -10,14 +10,7 @@ module.exports = {
   },
   cache: {
     enabled: false,
-    options: {
-      name: 'redisCache',
-      engine: 'catbox-redis',
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379,
-      partition: 'cache',
-      expiresIn: 60000
-    }
+    options: {}
   },
   rateLimit: {
     enabled: false,
