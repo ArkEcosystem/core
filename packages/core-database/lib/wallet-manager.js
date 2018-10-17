@@ -440,7 +440,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * Update the vote balance of the delegate the vote is for.
+   * Update the vote balance of the delegate the sender is voting for.
    * @param  {String} action
    * @param  {Object} sender
    * @param  {Transaction} transaction
