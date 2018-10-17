@@ -16,7 +16,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores catbox-redis,good-console,good-squeeze"
+    "depcheck": "depcheck ./ --ignores good-console,good-squeeze"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -26,7 +26,6 @@
     "ajv": "^6.5.0",
     "boom": "^7.2.0",
     "bs58check": "^2.1.1",
-    "catbox-redis": "^4.1.0",
     "hapi": "^17.5.0",
     "hapi-api-version": "^2.0.0",
     "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
