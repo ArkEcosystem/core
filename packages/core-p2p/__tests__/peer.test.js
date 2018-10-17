@@ -68,7 +68,7 @@ describe('Peer', () => {
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')
-      expect(response.success).toBeTruthy()
+      expect(response.success).toBeTrue()
     })
   })
 
@@ -82,7 +82,7 @@ describe('Peer', () => {
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')
-      expect(response.success).toBeTruthy()
+      expect(response.success).toBeTrue()
     })
   })
 
@@ -125,7 +125,7 @@ describe('Peer', () => {
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')
-      expect(response.success).toBeTruthy()
+      expect(response.success).toBeTrue()
     })
 
     it('should not be ok', async () => {
