@@ -407,7 +407,20 @@ module.exports = class WalletManager {
     }
 
     return delegates
-      .sort((a, b) => +b.voteBalance.toFixed() - +a.voteBalance.toFixed())
+      .sort((a, b) => {
+        const aBalance = +a.voteBalance.toFixed()
+        const bBalance = +b.voteBalance.toFixed()
+
+        if (aBalance === bBalance) {
+            if (a.publicKey === b.publicKey) {
+                throw new Error(`The balance and public keys of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
+            }
+
+            return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
+        }
+
+        return aBalance - bBalance
+      })
       .slice(0, maxDelegates)
   }
 
