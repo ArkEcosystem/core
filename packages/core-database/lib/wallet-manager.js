@@ -415,7 +415,7 @@ module.exports = class WalletManager {
       // sorting the public keys alphabetically doesn't solve the issue.
 
       if (aBalance === bBalance) {
-        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
+        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
 
         // if (a.publicKey === b.publicKey) {
         //   throw new Error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
