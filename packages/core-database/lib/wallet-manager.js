@@ -415,15 +415,15 @@ module.exports = class WalletManager {
         // now other blocks cause issues where delegates have the same balance and
         // sorting the public keys alphabetically doesn't solve the issue.
 
-        // if (aBalance === bBalance) {
-        //     if (a.publicKey === b.publicKey) {
+        // if (bBalance === aBalance) {
+        //     if (b.publicKey === a.publicKey) {
         //         throw new Error(`The balance and public keys of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
         //     }
 
-        //     return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
+        //     return b.publicKey.localeCompare(a.publicKey, 'en-US-u-kf-lower')
         // }
 
-        return aBalance - bBalance
+        return bBalance - aBalance
       })
       .slice(0, maxDelegates)
   }
