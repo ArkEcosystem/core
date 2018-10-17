@@ -154,11 +154,11 @@ describe('Transaction Pool Interface', () => {
 
     it('should return true', async () => {
       poolInterface.blockSender('keykeykey')
-      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTruthy()
+      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTrue()
     })
 
     it('should return false', async () => {
-      expect(poolInterface.isSenderBlocked('keykeykey2')).toBeFalsy()
+      expect(poolInterface.isSenderBlocked('keykeykey2')).toBeFalse()
     })
   })
 
@@ -172,7 +172,7 @@ describe('Transaction Pool Interface', () => {
       const blockedTime = poolInterface.blockSender('keykeykey')
       const duration = moment.duration(blockedTime.diff(time))
 
-      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTruthy()
+      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTrue()
       expect(parseInt(duration.asHours())).toEqual(1)
     })
   })

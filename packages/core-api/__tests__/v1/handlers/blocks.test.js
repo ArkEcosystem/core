@@ -49,7 +49,7 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks', { limit: 500 })
       utils.expectError(response)
 
-      expect(response.data.success).toBeFalsy()
+      expect(response.data.success).toBeFalse()
       expect(response.data.error).toContain('should be <= 100')
     })
   })

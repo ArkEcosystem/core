@@ -36,7 +36,7 @@ describe('Models - Wallet', () => {
 
     xit('should be ok for a multi-transaction', () => {
       Object.keys(data).forEach(k => (testWallet[k] = data[k]))
-      expect(testWallet.canApply(multiTx)).toBeTruthy()
+      expect(testWallet.canApply(multiTx)).toBeTrue()
     })
   })
 
@@ -68,7 +68,7 @@ describe('Models - Wallet', () => {
       expect(testWallet.forgedFees).toEqual(block.totalFee)
       expect(testWallet.forgedRewards).toEqual(block.totalFee)
       expect(testWallet.lastBlock).toBeObject(block)
-      expect(testWallet.dirty).toBeTruthy()
+      expect(testWallet.dirty).toBeTrue()
     })
 
     // Doesn't make sense anymore?
@@ -83,7 +83,7 @@ describe('Models - Wallet', () => {
       expect(testWallet.forgedFees).toBe(originalBlock.totalFee)
       expect(testWallet.forgedRewards).toBe(originalBlock.totalFee)
       expect(testWallet.lastBlock).toBeObject(originalBlock)
-      expect(testWallet.dirty).toBeTruthy()
+      expect(testWallet.dirty).toBeTrue()
     })
 
     it('should not apply incorrect block', () => {
@@ -95,7 +95,7 @@ describe('Models - Wallet', () => {
       expect(testWallet.forgedFees).toEqual(originalWallet.forgedFees)
       expect(testWallet.forgedRewards).toEqual(originalWallet.forgedRewards)
       expect(testWallet.lastBlock).toBe(originalWallet.lastBlock)
-      expect(testWallet.dirty).toBeTruthy()
+      expect(testWallet.dirty).toBeTrue()
     })
   })
 })

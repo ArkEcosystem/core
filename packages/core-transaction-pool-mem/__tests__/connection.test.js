@@ -230,7 +230,7 @@ describe('Connection', () => {
       expect(connection.hasExceededMaxTransactions).toBeFunction()
     })
 
-    it('should be truthy if exceeded', () => {
+    it('should be true if exceeded', () => {
       connection.options.maxTransactionsPerSender = 5
       connection.options.allowedSenders = []
       connection.addTransaction(mockData.dummy3)
@@ -243,7 +243,7 @@ describe('Connection', () => {
 
       expect(connection.getPoolSize()).toBe(7)
       const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3)
-      expect(exceeded).toBeTruthy()
+      expect(exceeded).toBeTrue()
     })
 
     it('should be falsy if not exceeded', () => {
@@ -256,7 +256,7 @@ describe('Connection', () => {
 
       expect(connection.getPoolSize()).toBe(3)
       const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3)
-      expect(exceeded).toBeFalsy()
+      expect(exceeded).toBeFalse()
     })
 
     it('should be allowed to exceed if whitelisted', () => {
@@ -273,7 +273,7 @@ describe('Connection', () => {
 
       expect(connection.getPoolSize()).toBe(7)
       const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3)
-      expect(exceeded).toBeFalsy()
+      expect(exceeded).toBeFalse()
     })
   })
 
@@ -406,7 +406,7 @@ describe('Connection', () => {
     it('should be false for non-existent sender', () => {
       connection.addTransaction(mockData.dummy1)
 
-      expect(connection.checkIfSenderHasVoteTransactions('nonexistent')).toBeFalsy()
+      expect(connection.checkIfSenderHasVoteTransactions('nonexistent')).toBeFalse()
     })
 
     it('should be false for existent sender with no votes', () => {
@@ -414,7 +414,7 @@ describe('Connection', () => {
 
       connection.addTransaction(tx)
 
-      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeFalsy()
+      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeFalse()
     })
 
     it('should be true for existent sender with votes', () => {
@@ -429,7 +429,7 @@ describe('Connection', () => {
 
       connection.addTransaction(mockData.dummy2)
 
-      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeTruthy()
+      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeTrue()
     })
   })
 

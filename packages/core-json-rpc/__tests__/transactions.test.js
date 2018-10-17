@@ -53,7 +53,7 @@ describe('Transactions', () => {
       })
 
       expect(response.data.result.recipientId).toBe('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn')
-      expect(ark.crypto.verify(response.data.result)).toBeTruthy()
+      expect(ark.crypto.verify(response.data.result)).toBeTrue()
 
       transaction = response.data.result
     })
@@ -65,7 +65,7 @@ describe('Transactions', () => {
         transactions: [transaction]
       })
 
-      expect(ark.crypto.verify(response.data.result[0])).toBeTruthy()
+      expect(ark.crypto.verify(response.data.result[0])).toBeTrue()
     })
 
     it('should broadcast tx on mainnet using the new method', async () => {
@@ -73,7 +73,7 @@ describe('Transactions', () => {
 
       const response = await request('transactions.broadcast', { id: transaction.id })
 
-      expect(ark.crypto.verify(response.data.result)).toBeTruthy()
+      expect(ark.crypto.verify(response.data.result)).toBeTrue()
     })
   })
 })

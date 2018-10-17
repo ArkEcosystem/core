@@ -42,13 +42,13 @@ describe('Handler', () => {
     })
 
     it('should be truthy', () => {
-      expect(handler.canApply(wallet, transaction)).toBeTruthy()
+      expect(handler.canApply(wallet, transaction)).toBeTrue()
     })
 
     it('should be falsy', () => {
       transaction.senderPublicKey = 'a'.repeat(66)
 
-      expect(handler.canApply(wallet, transaction)).toBeFalsy()
+      expect(handler.canApply(wallet, transaction)).toBeFalse()
     })
   })
 
