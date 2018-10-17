@@ -12,10 +12,11 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
+const { roundCalculator } = require('@arkecosystem/core-utils')
+
 const { Bignum, models: { Block, Transaction } } = require('@arkecosystem/crypto')
 
 const SPV = require('./spv')
-const Cache = require('./cache')
 
 const migrations = require('./migrations')
 const QueryExecutor = require('./sql/query-executor')
@@ -35,11 +36,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     logger.debug('Connecting to database')
 
     this.queuedQueries = null
+    this.cache = new Map()
 
     try {
       await this.connect()
       await this.__registerQueryExecutor()
-      await this.__registerCache()
       await this.__runMigrations()
       await this.__registerModels()
       await super._registerRepositories()
@@ -83,7 +84,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async disconnect () {
     try {
       await this.commitQueuedQueries()
-      this.cache.destroy()
+      this.cache.clear()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
       logger.warn(error.message)
@@ -396,6 +397,19 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
+   * Generated delete statements are stored in this.queuedQueries to be later executed by calling this.commitQueuedQueries.
+   * @param  {Number} round
+   * @return {void}
+   */
+  enqueueDeleteRound (height) {
+    const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height)
+
+    if (nextRound === round + 1 && height >= maxDelegates) {
+      this.enqueueQueries([this.db.rounds.delete(nextRound)])
+    }
+  }
+
+  /**
    * Add queries to the queue to be executed when calling commit.
    * @param {Array} queries
    */
@@ -519,27 +533,49 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async getBlocks (offset, limit) {
     const blocks = await this.db.blocks.heightRange(offset, offset + limit)
 
-    let transactions = []
+    await this.loadTransactionsForBlocks(blocks)
+
+    return blocks
+  }
+
+  /**
+   * Get top count blocks ordered by height DESC.
+   * NOTE: Only used when trying to restore database integrity. The returned blocks may be unchained.
+   * @param  {Number} count
+   * @return {Array}
+   */
+  async getTopBlocks (count) {
+    const blocks = await this.db.blocks.top(count)
+
+    await this.loadTransactionsForBlocks(blocks)
+
+    return blocks
+  }
+
+  /**
+   * Load all transactions for the given blocks
+   * @param  {Array} blocks
+   * @return {void}
+   */
+  async loadTransactionsForBlocks (blocks) {
+    if (!blocks.length) {
+      return
+    }
 
     const ids = blocks.map(block => block.id)
 
-    if (ids.length) {
-      transactions = await this.db.transactions.latestByBlocks(ids)
-
-      transactions = transactions.map(tx => {
-        const data = Transaction.deserialize(tx.serialized.toString('hex'))
-        data.blockId = tx.blockId
-        return data
-      })
-    }
+    let transactions = await this.db.transactions.latestByBlocks(ids)
+    transactions = transactions.map(tx => {
+      const data = Transaction.deserialize(tx.serialized.toString('hex'))
+      data.blockId = tx.blockId
+      return data
+    })
 
     for (const block of blocks) {
       if (block.numberOfTransactions > 0) {
         block.transactions = transactions.filter(transaction => transaction.blockId === block.id)
       }
     }
-
-    return blocks
   }
 
   /**
@@ -626,14 +662,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         logger.error(err)
       }
     })
-  }
-
-  /**
-   * Register the cache.
-   * @return {void}
-   */
-  __registerCache () {
-    this.cache = new Cache(this.config.redis)
   }
 
   /**

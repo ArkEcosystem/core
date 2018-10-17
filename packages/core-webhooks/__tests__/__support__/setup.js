@@ -16,12 +16,7 @@ exports.setUp = async () => {
     ]
   })
 
-  await require('../../lib/manager').setUp({
-    redis: {
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379
-    }
-  })
+  await require('../../lib/manager').setUp({})
 
   await require('../../lib/server')({
     enabled: false,
