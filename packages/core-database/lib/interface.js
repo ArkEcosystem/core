@@ -80,7 +80,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async buildDelegates (maxDelegates, height) {
+  buildDelegates (maxDelegates, height) {
     throw new Error('Method [buildDelegates] not implemented!')
   }
 
@@ -291,7 +291,7 @@ module.exports = class ConnectionInterface {
           this.walletManager.updateDelegates()
           this.updateDelegateStats(height, this.activeDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
-          const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
+          const delegates = this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
 

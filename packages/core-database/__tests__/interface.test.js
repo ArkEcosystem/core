@@ -73,7 +73,9 @@ describe('Connection Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      await expect(connectionInterface.buildDelegates()).rejects.toThrowError('Method [buildDelegates] not implemented!')
+      expect(() => {
+        connectionInterface.buildDelegates()
+      }).toThrow('Method [buildDelegates] not implemented!')
     })
   })
 

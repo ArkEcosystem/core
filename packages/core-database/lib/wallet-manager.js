@@ -1,6 +1,7 @@
 'use strict'
 
 const Promise = require('bluebird')
+const orderBy = require('lodash/orderBy')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
@@ -377,6 +378,41 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Determine the list of active delegates for the given round.
+   * @param  {Number} maxDelegates
+   * @return {Array}
+   */
+  determineActiveDelegates (maxDelegates) {
+    const mapWallets = wallets => wallets.map(wallet => ({
+      publicKey: wallet.vote || wallet.publicKey,
+      balance: wallet.balance ? +wallet.balance.toFixed() : 0
+    }))
+
+    let delegates = mapWallets(this.allByPublicKey().filter(wallet => wallet.vote))
+
+    // NOTE: At the launch of the blockchain we may not have enough delegates.
+    // In order to have enough forging delegates we complete the list in a
+    // deterministic way (alphabetical order of publicKey).
+    if (delegates.length < maxDelegates) {
+      const publicKeys = delegates.map(delegate => delegate.publicKey)
+
+      let placeholders = this.allByUsername()
+
+      if (publicKeys.length) {
+        placeholders = placeholders.filter(wallet => publicKeys.includes(wallet.publicKey))
+      }
+
+      placeholders = orderBy(placeholders, ['publicKey'], ['asc'])
+
+      delegates = delegates.concat(mapWallets(placeholders))
+    }
+
+    return delegates
+      .sort((a, b) => b.balance - a.balance) // TODO: improve sorting here to avoid collision of equal vote balances
+      .slice(0, maxDelegates)
+  }
+
+  /**
    * Checks if a given publicKey is a registered delegate
    * @param {String} publicKey
    */
@@ -397,5 +433,4 @@ module.exports = class WalletManager {
   __canBePurged (wallet) {
     return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
-
 }
