@@ -5,7 +5,7 @@ const { sumBy, orderBy } = require('lodash')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -406,26 +406,26 @@ module.exports = class WalletManager {
       delegates = delegates.concat(fillerWallets.slice(0, maxDelegates - delegates.length))
     }
 
-    return delegates
-      .sort((a, b) => {
-        const aBalance = +a.voteBalance.toFixed()
-        const bBalance = +b.voteBalance.toFixed()
+    return delegates.sort((a, b) => {
+      const aBalance = +a.voteBalance.toFixed()
+      const bBalance = +b.voteBalance.toFixed()
 
-        // FIXME: The issues with block 178 and 441 are resolved on devnet but
-        // now other blocks cause issues where delegates have the same balance and
-        // sorting the public keys alphabetically doesn't solve the issue.
+      // FIXME: The issues with block 178 and 441 are resolved on devnet but
+      // now other blocks cause issues where delegates have the same balance and
+      // sorting the public keys alphabetically doesn't solve the issue.
 
-        // if (bBalance === aBalance) {
-        //     if (b.publicKey === a.publicKey) {
-        //         throw new Error(`The balance and public keys of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
-        //     }
+      if (aBalance === bBalance) {
+        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
 
-        //     return b.publicKey.localeCompare(a.publicKey, 'en-US-u-kf-lower')
+        // if (a.publicKey === b.publicKey) {
+        //   throw new Error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
         // }
 
-        return bBalance - aBalance
-      })
-      .slice(0, maxDelegates)
+        // return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
+      }
+
+      return aBalance - bBalance
+    }).slice(0, maxDelegates)
   }
 
   /**
