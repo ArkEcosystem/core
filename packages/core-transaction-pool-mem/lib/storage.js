@@ -1,6 +1,5 @@
 'use strict'
 
-const fs = require('fs-extra')
 const BetterSqlite3 = require('better-sqlite3')
 const MemPoolTransaction = require('./mem-pool-transaction')
 const fs = require('fs-extra')
