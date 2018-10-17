@@ -189,13 +189,14 @@ module.exports = class WalletManager {
    * @param  {Number} maxDelegates
    * @return {Array}
    */
-  allActiveDelegates (maxDelegates) {
+  activeDelegation (maxDelegates) {
     let delegates = this.allByUsername()
 
     if (delegates.length < maxDelegates) {
       throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
     }
 
+    // TODO: review performance here
     this.updateDelegates()
 
     return delegates.sort((a, b) => {
@@ -385,8 +386,6 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(data)
     }
 
-    this.__updateVoteBalance('apply', sender, transaction)
-
     return transaction
   }
 
@@ -410,8 +409,6 @@ module.exports = class WalletManager {
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.revertTransactionForRecipient(data)
     }
-
-    this.__updateVoteBalance('revert', sender, transaction)
 
     return data
   }
@@ -437,32 +434,5 @@ module.exports = class WalletManager {
    */
   __canBePurged (wallet) {
     return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
-  }
-
-  /**
-   * Update the vote balance of the delegate the sender is voting for.
-   * @param  {String} action
-   * @param  {Object} sender
-   * @param  {Transaction} transaction
-   * @return {void}
-   */
-  __updateVoteBalance (action, sender, transaction) {
-    const update = (delegate, condition) => {
-      const method = action === 'apply'
-        ? (condition ? 'plus' : 'minus')
-        : (condition ? 'minus' : 'plus')
-
-      delegate.voteBalance = delegate.voteBalance[method](sender.balance)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.TRANSFER && sender.vote) {
-      update(this.findByPublicKey(sender.vote), transaction.recipientId === sender.address)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      const vote = transaction.asset.votes[0]
-
-      update(this.findByPublicKey(vote.substr(1)), vote.startsWith('+'))
-    }
   }
 }

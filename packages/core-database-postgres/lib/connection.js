@@ -211,7 +211,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
-    const delegates = this.walletManager.allActiveDelegates(maxDelegates)
+    const delegates = this.walletManager.activeDelegation(maxDelegates)
       .map(delegate => ({ ...{ round }, ...delegate }))
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
