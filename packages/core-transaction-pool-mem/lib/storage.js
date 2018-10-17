@@ -3,7 +3,6 @@
 const BetterSqlite3 = require('better-sqlite3')
 const MemPoolTransaction = require('./mem-pool-transaction')
 const fs = require('fs-extra')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const { Transaction } = require('@arkecosystem/crypto').models
 
 /**
@@ -91,7 +90,8 @@ class Storage {
   loadAll () {
     const rows = this.db.prepare(
       `SELECT sequence, HEX(serialized) AS serialized FROM ${this.table};`).all()
-    return rows.map(r => new MemPoolTransaction(new Transaction(r.serialized), r.sequence))
+    return rows.map(r =>
+      new MemPoolTransaction(new Transaction(r.serialized), { sequence: r.sequence }))
   }
 
   /**

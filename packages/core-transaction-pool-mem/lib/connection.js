@@ -62,7 +62,7 @@ class TransactionPool extends TransactionPoolInterface {
   getSenderSize (senderPublicKey) {
     this.__purgeExpired()
 
-    return this.mem.getIdsBySender(senderPublicKey).size
+    return this.mem.getBySender(senderPublicKey).size
   }
 
   /**
@@ -136,7 +136,7 @@ class TransactionPool extends TransactionPoolInterface {
       return false
     }
 
-    const count = this.mem.getIdsBySender(transaction.senderPublicKey).size
+    const count = this.mem.getBySender(transaction.senderPublicKey).size
 
     return !(count <= this.options.maxTransactionsPerSender)
   }
@@ -235,16 +235,14 @@ class TransactionPool extends TransactionPoolInterface {
     const data = []
 
     let i = 0
-    for (const id of this.mem.getTransactionsIdsOrderedByFee()) {
+    for (const memPoolTransaction of this.mem.getTransactionsOrderedByFee()) {
       if (i >= start + size) {
         break
       }
 
       if (i >= start) {
-        const transaction = this.mem.getTransactionById(id)
-        assert.notEqual(transaction, undefined)
-        assert.notEqual(transaction[property], undefined)
-        data.push(transaction[property])
+        assert.notEqual(memPoolTransaction.transaction[property], undefined)
+        data.push(memPoolTransaction.transaction[property])
       }
 
       i++
@@ -269,7 +267,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   removeTransactionsForSender (senderPublicKey) {
-    this.mem.getIdsBySender(senderPublicKey).forEach(id => this.removeTransactionById(id))
+    this.mem.getBySender(senderPublicKey).forEach(e => this.removeTransactionById(e.transaction.id))
   }
 
   /**
@@ -292,8 +290,8 @@ class TransactionPool extends TransactionPoolInterface {
   checkIfSenderHasVoteTransactions (senderPublicKey) {
     this.__purgeExpired()
 
-    for (const id of this.mem.getIdsBySender(senderPublicKey)) {
-      if (this.mem.getTransactionById(id).type === TRANSACTION_TYPES.VOTE) {
+    for (const memPoolTransaction of this.mem.getBySender(senderPublicKey)) {
+      if (memPoolTransaction.transaction.type === TRANSACTION_TYPES.VOTE) {
         return true
       }
     }
