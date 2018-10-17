@@ -57,8 +57,8 @@ module.exports = class Database {
 
   buildExportQueries (startBlock, endBlock) {
     return {
-      blocks: `SELECT id, version, timestamp, previous_block, height, number_of_transactions, total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key, block_signature, created_at FROM BLOCKS WHERE HEIGHT BETWEEN ${startBlock.height} AND ${endBlock.height} ORDER BY HEIGHT`,
-      transactions: `SELECT id, block_id, version, sequence, timestamp, sender_public_key, recipient_id, type, vendor_field_hex, amount, fee, serialized, created_at from TRANSACTIONS WHERE TIMESTAMP BETWEEN ${startBlock.timestamp} AND ${endBlock.timestamp} ORDER BY TIMESTAMP`
+      blocks: `SELECT id, version, timestamp, previous_block, height, number_of_transactions, total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key, block_signature FROM BLOCKS WHERE HEIGHT BETWEEN ${startBlock.height} AND ${endBlock.height} ORDER BY HEIGHT`,
+      transactions: `SELECT id, block_id, version, sequence, timestamp, sender_public_key, recipient_id, type, vendor_field_hex, amount, fee, serialized from TRANSACTIONS WHERE TIMESTAMP BETWEEN ${startBlock.timestamp} AND ${endBlock.timestamp} ORDER BY TIMESTAMP`
     }
   }
 
@@ -77,11 +77,11 @@ module.exports = class Database {
 
   __createColumnSets () {
     this.blocksColumnSet = this.pgp.helpers.ColumnSet([
-      'id', 'version', 'timestamp', 'previous_block', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length', 'payload_hash', 'generator_public_key', 'block_signature', 'created_at'], { table: 'blocks' }
+      'id', 'version', 'timestamp', 'previous_block', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length', 'payload_hash', 'generator_public_key', 'block_signature'], { table: 'blocks' }
     )
 
     this.transactionsColumnSet = new this.pgp.helpers.ColumnSet([
-      'id', 'version', 'block_id', 'sequence', 'timestamp', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized', 'created_at'], { table: 'transactions' }
+      'id', 'version', 'block_id', 'sequence', 'timestamp', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized'], { table: 'transactions' }
     )
   }
 }
