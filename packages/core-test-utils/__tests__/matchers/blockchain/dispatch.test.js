@@ -11,7 +11,7 @@ describe('.toDispatch', () => {
     expect(() => blockchain.dispatch('EVENT')).toDispatch(blockchain, 'EVENT')
   })
 
-  test('fails when the dispatch method is not called with the argument', () => {
+  test('fails when the dispatch method is called without the argument', () => {
     expect(() => {}).not.toDispatch(blockchain, 'FAKE-EVENT')
     expect(() => blockchain.dispatch('OTHER-EVENT')).not.toDispatch(blockchain, 'EVENT')
   })
