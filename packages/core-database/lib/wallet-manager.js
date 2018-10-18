@@ -235,7 +235,7 @@ module.exports = class WalletManager {
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
 
-    return delegates.map(delegate => ({ ...{ round }, ...delegate }))
+    return delegates.map((delegate, i) => ({ ...{ round }, ...delegate, rate: i + 1 }))
   }
 
   /**
@@ -253,10 +253,6 @@ module.exports = class WalletManager {
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
       }
     })
-
-    Object.values(this.byUsername)
-      .sort((a, b) => +b.voteBalance.minus(a.voteBalance).toFixed())
-      .forEach((delegate, index) => (delegate.rate = index + 1))
   }
 
   /**
