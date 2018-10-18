@@ -331,6 +331,10 @@ module.exports = class ConnectionInterface {
    * @return {void}
    */
   async validateDelegate (block) {
+    if (this.__isException(block.data)) {
+      return true
+    }
+
     const delegates = await this.getActiveDelegates(block.data.height)
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
@@ -494,5 +498,22 @@ module.exports = class ConnectionInterface {
   async _registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
+  }
+
+  /**
+   * Determine if the given block is an exception.
+   * @param  {Object} block
+   * @return {Boolean}
+   */
+  __isException (block) {
+    if (!config) {
+      return false
+    }
+
+    if (!Array.isArray(config.network.exceptions.blocks)) {
+      return false
+    }
+
+    return config.network.exceptions.blocks.includes(block.id)
   }
 }

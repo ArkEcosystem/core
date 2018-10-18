@@ -10,8 +10,6 @@ const round = generateRound(activeDelegates.map(delegate => delegate.publicKey),
 exports.setUp = async () => {
   jest.setTimeout(60000)
 
-  process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
-
   await containerHelper.setUp({})
 
   const connection = container.resolvePlugin('database')

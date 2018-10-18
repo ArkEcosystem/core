@@ -15,7 +15,6 @@ module.exports = class WalletManager {
    * @constructor
    */
   constructor () {
-    this.exceptions = config ? config.network.exceptions : {}
     this.networkId = config ? config.network.pubKeyHash : 0x17
     this.reset()
   }
@@ -328,7 +327,7 @@ module.exports = class WalletManager {
 
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = ''
-    } else if (this.exceptions[data.id]) {
+    } else if (this.__isException(data)) {
 
       logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
 
@@ -398,4 +397,20 @@ module.exports = class WalletManager {
     return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
+  /**
+   * Determine if the given transaction is an exception.
+   * @param  {Object} transaction
+   * @return {Boolean}
+   */
+  __isException (transaction) {
+    if (!config) {
+      return false
+    }
+
+    if (!Array.isArray(config.network.exceptions.transactions)) {
+      return false
+    }
+
+    return config.network.exceptions.transactions.includes(transaction.id)
+  }
 }
