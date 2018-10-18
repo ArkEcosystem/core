@@ -328,7 +328,7 @@ module.exports = class WalletManager {
 
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = ''
-    } else if (this.exceptions[data.id]) {
+    } else if (this.exceptions.includes(data.id)) {
 
       logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
 
