@@ -44,6 +44,8 @@ module.exports = {
   },
   wallets: {
     all: loadQueryFile(__dirname, './wallets/all.sql'),
-    findByAddress: loadQueryFile(__dirname, './wallets/find-by-address.sql')
+    findByAddress: loadQueryFile(__dirname, './wallets/find-by-address.sql'),
+    findNegativeBalances: loadQueryFile(__dirname, './wallets/find-negative-balances.sql'),
+    findNegativeVoteBalances: loadQueryFile(__dirname, './wallets/find-negative-vote-balances.sql')
   }
 }
