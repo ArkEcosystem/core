@@ -184,7 +184,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     }
 
     this.activeDelegates = data.map(delegate => {
-      delegate.round = +round
+      delegate.round = +delegate.round
       return delegate
     })
 
