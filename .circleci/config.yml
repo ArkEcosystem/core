@@ -28,12 +28,12 @@ jobs:
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
-          key: dependency-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}
       - run:
           name: Install packages
           command: yarn
       - save_cache:
-          key: dependency-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}
           paths:
             - ./node_modules
             - ./packages/core/node_modules
@@ -83,12 +83,12 @@ jobs:
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
-          key: dependency-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}
       - run:
           name: Install packages
           command: yarn
       - save_cache:
-          key: dependency-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}
           paths:
             - ./node_modules
             - ./packages/core/node_modules
