@@ -6,4 +6,18 @@ const configManager = require('../managers/config')
  * @param  {Number|String|Bignum} amount
  * @return {String}
  */
-module.exports = (amount) => `${(+amount / ARKTOSHI).toLocaleString()} ${configManager.config.client.symbol}`
+module.exports = (amount) => {
+  let localeString = (+amount / ARKTOSHI).toLocaleString(undefined, { minimumFractionDigits: 8 })
+
+  if (localeString.includes('.')) {
+    while (localeString.slice(-1) === '0') {
+      localeString = localeString.slice(0, -1)
+    }
+
+    if (localeString.slice(-1) === '.') {
+      localeString = localeString.slice(0, -1)
+    }
+  }
+
+  return `${localeString} ${configManager.config.client.symbol}`
+}
