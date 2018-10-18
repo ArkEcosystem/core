@@ -206,10 +206,10 @@ module.exports = class WalletManager {
       const bBalance = +b.voteBalance.toFixed()
 
       if (aBalance === bBalance) {
-        // logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(Math.pow(10, 8)).toLocaleString()}.`)
+        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(Math.pow(10, 8)).toLocaleString()}.`)
 
         if (a.publicKey === b.publicKey) {
-          logger.error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
+          throw new Error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
         }
 
         return a.publicKey.localeCompare(b.publicKey, 'en')
