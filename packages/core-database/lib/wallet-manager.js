@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird')
 
-const { Bignum, crypto } = require('@arkecosystem/crypto')
+const { Bignum, crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
@@ -201,11 +201,19 @@ module.exports = class WalletManager {
       throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
     }
 
+    const equalVotesMap = new Map()
+
     delegates = delegates.sort((a, b) => {
       const diff = b.voteBalance.comparedTo(a.voteBalance)
 
       if (diff === 0) {
-        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(Math.pow(10, 8)).toLocaleString()}.`)
+        if (!equalVotesMap.has(a.voteBalance.toFixed())) {
+          equalVotesMap.set(a.voteBalance.toFixed(), new Set())
+        }
+
+        const set = equalVotesMap.get(a.voteBalance.toFixed())
+        set.add(a)
+        set.add(b)
 
         if (a.publicKey === b.publicKey) {
           throw new Error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
@@ -216,6 +224,14 @@ module.exports = class WalletManager {
 
       return diff
     }).slice(0, maxDelegates)
+
+    for (const [voteBalance, set] of equalVotesMap.entries()) {
+      const values = Array.from(set.values())
+      if (delegates.includes(values[0])) {
+        const mapped = values.map(v => `${v.username} (${v.publicKey})`)
+        logger.warn(`Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatArktoshi(voteBalance)}`)
+      }
+    }
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
 
