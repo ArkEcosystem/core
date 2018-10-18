@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Generate cache key
           command: |
-            sh ./.circleci/checksum.sh > checksum.txt
+            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
           key: dependency-cache-{{ checksum "checksum.txt" }}
@@ -78,7 +78,7 @@ jobs:
       - run:
           name: Generate cache key
           command: |
-            sh ./.circleci/checksum.sh > checksum.txt
+            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
           key: dependency-cache-{{ checksum "checksum.txt" }}

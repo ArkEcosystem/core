@@ -1,1 +1,0 @@
-find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum -
