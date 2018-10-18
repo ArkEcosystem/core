@@ -132,12 +132,6 @@ module.exports = async (config) => {
     })
   }
 
-  server.events.on('log', (event, tags) => {
-    if (tags.error) {
-        logger.error(`Server error: ${event.error ? event.error.message : 'unknown'}`);
-    }
-  })
-
   try {
     await server.start()
 
