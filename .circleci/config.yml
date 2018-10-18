@@ -24,6 +24,10 @@ jobs:
       - run:
           name: Generate cache key
           command: |
+            find ./packages/ -name package.json -print
+            find ./packages/ -name package.json -print | xargs echo ./package.json
+            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum
+            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum
             find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
@@ -78,6 +82,10 @@ jobs:
       - run:
           name: Generate cache key
           command: |
+            find ./packages/ -name package.json -print
+            find ./packages/ -name package.json -print | xargs echo ./package.json
+            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum
+            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum
             find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
