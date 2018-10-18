@@ -4,7 +4,7 @@ const Promise = require('bluebird')
 
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
-const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
@@ -207,10 +207,10 @@ module.exports = class WalletManager {
       const bBalance = +b.voteBalance.toFixed()
 
       if (aBalance === bBalance) {
-        logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
+        // logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(Math.pow(10, 8)).toLocaleString()}.`)
 
         if (a.publicKey === b.publicKey) {
-          logger.warn(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
+          logger.error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
         }
 
         // return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
