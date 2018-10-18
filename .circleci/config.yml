@@ -9,7 +9,7 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: ark_development
           POSTGRES_USER: ark
-    parallelism: 7
+    parallelism: 2
     steps:
       - checkout
       - run:
@@ -30,6 +30,13 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-deployer/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-tester-cli/node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
@@ -51,6 +58,7 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: ark_development
           POSTGRES_USER: ark
+    parallelism: 2
     steps:
       - checkout
       - run:
@@ -71,6 +79,13 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-deployer/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-tester-cli/node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
