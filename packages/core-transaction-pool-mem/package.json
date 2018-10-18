@@ -28,11 +28,11 @@
     "better-sqlite3": "^5.0.1",
     "collections": "^5.1.5",
     "delay": "^4.1.0",
-    "fs-extra": "^7.0.0",
-    "random-seed": "^0.3.0"
+    "fs-extra": "^7.0.0"
   },
   "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1"
+    "@arkecosystem/core-test-utils": "^0.1.1",
+    "random-seed": "^0.3.0"
   },
   "publishConfig": {
     "access": "public"
