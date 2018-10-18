@@ -88,7 +88,7 @@ module.exports = class PoolWalletManager extends WalletManager {
       logger.error(`PoolWalletManager: Can't apply vote transaction: delegate ${asset.votes[0]} does not exist.`, JSON.stringify(data))
       throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`)
 
-    } else if (config.network.exceptions[data.id]) {
+    } else if (this.__isException(data)) {
 
       logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
 
