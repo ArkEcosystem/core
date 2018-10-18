@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const app = require('commander')
-const env = require('../lib/env')
+const util = require('../lib/utils')
 
 app.version(require('../package.json').version)
 
@@ -20,7 +20,7 @@ registerCommand('create', 'create a full snapshot of the database')
   .option('-s, --start <number>', 'start network height to export', -1)
   .option('-e, --end <number>', 'end network height to export', -1)
   .action(async (options) => {
-    await env.setUpLite(options)
+    await util.setUpLite(options)
     await require('../lib/commands/create')(options)
   })
 
@@ -29,7 +29,7 @@ registerCommand('slice', 'slice existing snapshot to new start and endd height a
   .option('-s, --start <number>', 'new start height of snapshot', 0)
   .option('-e, --end <number>', 'new end height of snapshot', 0)
   .action(async (options) => {
-    await env.setUpLite(options)
+    await util.setUpLite(options)
     await require('../lib/commands/slice')(options)
   })
 
@@ -38,7 +38,7 @@ registerCommand('import', 'import data from specified snapshot')
   .option('--truncate', 'skip transaction validations', false)
   .option('--skip-sign-verify', 'skip signature verification', false)
   .action(async (options) => {
-    await env.setUpLite(options)
+    await util.setUpLite(options)
     await require('../lib/commands/import')(options)
   })
 
@@ -46,14 +46,14 @@ registerCommand('verify', 'check validity of specified snapshot')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
   .option('--skip-sign-verify', 'skip signature verification', false)
   .action(async (options) => {
-    await env.setUpLite(options)
+    await util.setUpLite(options)
     await require('../lib/commands/verify')(options)
   })
 
 registerCommand('rollback', 'rollback chain to specified height')
   .option('-h, --height <number>', 'network height', -1)
   .action(async (options) => {
-    await env.setUpLite(options)
+    await util.setUpLite(options)
     require('../lib/commands/rollback')(options)
   })
 

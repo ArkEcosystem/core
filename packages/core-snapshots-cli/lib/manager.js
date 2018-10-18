@@ -1,9 +1,8 @@
 'use strict'
-const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const Database = require('./db/postgres')
-const env = require('./env')
+const utils = require('./utils')
 const { exportTable, importTable, verifyTable } = require('./transport')
 
 module.exports = class SnapshotManager {
@@ -16,8 +15,8 @@ module.exports = class SnapshotManager {
     const params = await this.__init(options)
 
     await Promise.all([
-      exportTable(params.filename, params.queries.blocks, this.database, !!options.filename),
-      exportTable('transactions.dat', params.queries.transactions, this.database, !!options.filename)
+      exportTable(`blocks.${params.meta.startHeight}.${params.meta.endHeight}`, params.queries.blocks, this.database, !!options.filename),
+      exportTable(`transactions.${params.meta.startHeight}.${params.meta.endHeight}`, params.queries.transactions, this.database, !!options.filename)
     ])
 
     logger.info('Export completed.')
@@ -30,8 +29,8 @@ module.exports = class SnapshotManager {
     let lastBlock = await this.database.getLastBlock()
 
     await Promise.all([
-      importTable(options.filename, this.database, lastBlock, options.skipSignVerify),
-      importTable('transactions.dat', this.database, lastBlock, options.skipSignVerify)
+      importTable(`${options.filename}`, this.database, lastBlock, options.skipSignVerify),
+      importTable(`transactions.${options.filename.split('.').slice(1).join('.')}`, this.database, lastBlock, options.skipSignVerify)
     ])
 
     lastBlock = await this.database.getLastBlock()
@@ -52,7 +51,7 @@ module.exports = class SnapshotManager {
       verifyTable('transactions.dat', this.database, options.skipSignVerify)
     ])
 
-    logger.info(`Verifying snapshot ${options.filename} completed`)
+    logger.info(`Verifying of snapshot ${options.filename} completed with success :100:.`)
   }
 
   async rollbackChain (options) {
@@ -68,32 +67,23 @@ module.exports = class SnapshotManager {
   }
 
   async __init (options) {
-    let params = {}
     const lastBlock = await this.database.getLastBlock()
-    if (!lastBlock) {
-      logger.debug('Empty database. Exiting.')
-      process.exit(1)
+    let params = {
+      meta: {
+        startHeight: (options.start !== -1) ? options.start : 1,
+        endHeight: (options.end !== -1) ? options.end : lastBlock.height
+      }
     }
 
-    if (options.filename && !fs.existsSync(env.getPath(options.filename))) {
-      logger.error(`Appending not possible. Existing snapshot ${this.options.filename} not found. Exiting...`)
-      process.exit(1)
-    }
-
-    let startBlock = {}
-    let endBlock = {}
     if (options.filename) {
-      const metaData = this.options.filename.split('.')
-      startBlock = await this.database.getBlockByHeight(+metaData[1])
-      endBlock = await this.database.getBlockByHeight(+metaData[2])
-    } else {
-      startBlock = (options.start !== -1) ? await this.database.getBlockByHeight(options.start) : { height: 0, timestamp: 0 }
-      endBlock = (options.end !== -1) ? await this.database.getBlockByHeight(options.end) : lastBlock
+      params.meta.startHeight = +(options.filename.split('.')[2]) + 1
+
+      utils.copySnapshot(options.filename, params.meta.endHeight)
     }
 
-    params.queries = this.database.buildExportQueries(startBlock, endBlock)
-    params.filename = `blocks.${startBlock.height}.${endBlock.height}.dat`
+    params.queries = await this.database.buildExportQueries(params.meta.startHeight, params.meta.endHeight)
 
+    console.log(params)
     return params
   }
 }

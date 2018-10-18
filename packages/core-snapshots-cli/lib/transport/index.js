@@ -8,15 +8,15 @@ const delay = require('delay')
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const env = require('../env')
+const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
 
 module.exports = {
   exportTable: async (snapFileName, query, database, append = false) => {
     logger.info(`Starting to export table to ${snapFileName}, append:${append}`)
 
-    await fs.ensureFile(env.getPath(snapFileName))
-    const snapshotWriteStream = fs.createWriteStream(env.getPath(snapFileName), append ? { flags: 'a' } : {})
+    await fs.ensureFile(utils.getPath(snapFileName))
+    const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName), append ? { flags: 'a' } : {})
     const encodeStream = msgpack.createEncodeStream()
     const qs = new QueryStream(query)
 
@@ -26,14 +26,13 @@ module.exports = {
       return data
     } catch (error) {
       logger.error(`Error while exporting data via query stream ${error}, callstack: ${error.stack}`)
-      logger.error(error.stack)
       process.exit(1)
     }
   },
 
   importTableStream: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
     const decodeStream = msgpack.createDecodeStream()
-    const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
+    const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
     const streamRead = database.pgp.spex.stream.read
 
     function receiver (_, data) {
@@ -67,7 +66,7 @@ module.exports = {
   importTable: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
     return new Promise((resolve, reject) => {
       const decodeStream = msgpack.createDecodeStream()
-      const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
+      const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
 
       const table = fileName.split('.')[0]
       let values = []
@@ -121,7 +120,7 @@ module.exports = {
 
   importTableOld: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
     const decodeStream = msgpack.createDecodeStream()
-    const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
+    const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
 
     let values = []
     const saveChunk = async (end = false) => {
@@ -163,7 +162,7 @@ module.exports = {
 
   verifyTable: async (fileName, database, skipVerifySignature = false) => {
     const decodeStream = msgpack.createDecodeStream()
-    const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
+    const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
     const lastBlock = await database.getLastBlock()
 
     logger.info(`Starting to verify snapshot file ${fileName}`)
