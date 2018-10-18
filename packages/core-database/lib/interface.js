@@ -331,22 +331,6 @@ module.exports = class ConnectionInterface {
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       const forgingUsername = this.walletManager.findByPublicKey(forgingDelegate.publicKey).username
 
-      // Non-deterministic order...
-      const sameBalanceDelegates = delegates.filter(d => d.balance === forgingDelegate.balance)
-      if (sameBalanceDelegates.length > 0) {
-        logger.warn(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`)
-        logger.warn(`...but found ${sameBalanceDelegates.length} delegates with equal balance :exclamation:`)
-
-        for (const delegate of sameBalanceDelegates) {
-          // Validation ok, order just messed up because it is random
-          if (delegate.publicKey === block.data.generatorPublicKey) {
-            const username = this.walletManager.findByPublicKey(delegate.publicKey).username
-            logger.warn(`...confirmed generator ${username} (${block.data.generatorPublicKey}) for block ${block.data.height.toLocaleString()} :see_no_evil:`)
-            return true
-          }
-        }
-      }
-
       throw new Error(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`)
     } else {
       logger.debug(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
