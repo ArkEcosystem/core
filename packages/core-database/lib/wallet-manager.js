@@ -15,8 +15,8 @@ module.exports = class WalletManager {
    * @constructor
    */
   constructor () {
-    this.exceptions = config ? config.network.exceptions : {}
-    this.networkId = config ? config.network.pubKeyHash : 0x17
+    this.exceptions = config.network.exceptions.transactions || []
+    this.networkId = config.network.pubKeyHash || 0x17
     this.reset()
   }
 

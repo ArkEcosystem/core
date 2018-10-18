@@ -331,6 +331,10 @@ module.exports = class ConnectionInterface {
    * @return {void}
    */
   async validateDelegate (block) {
+    if (config.network.exceptions.blocks.includes(block.data.id)) {
+      return true
+    }
+
     const delegates = await this.getActiveDelegates(block.data.height)
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
