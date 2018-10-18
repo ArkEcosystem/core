@@ -41,11 +41,11 @@ module.exports = class SPV {
     logger.printTracker('SPV', 5, 8, 'Second Signatures')
     await this.__buildSecondSignatures()
 
-    logger.printTracker('SPV', 6, 8, 'Delegates')
-    await this.__buildDelegates()
-
-    logger.printTracker('SPV', 7, 8, 'Votes')
+    logger.printTracker('SPV', 6, 8, 'Votes')
     await this.__buildVotes()
+
+    logger.printTracker('SPV', 7, 8, 'Delegates')
+    await this.__buildDelegates()
 
     logger.printTracker('SPV', 8, 8, 'MultiSignatures')
     await this.__buildMultisignatures()
@@ -138,6 +138,30 @@ module.exports = class SPV {
   }
 
   /**
+   * Load and apply votes to wallets.
+   * @return {void}
+   */
+  async __buildVotes () {
+    const transactions = await this.query.manyOrNone(queries.spv.votes)
+
+    for (const transaction of transactions) {
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
+
+      if (!wallet.voted) {
+        const vote = Transaction.deserialize(transaction.serialized.toString('hex')).asset.votes[0]
+
+        if (vote.startsWith('+')) {
+          wallet.vote = vote.slice(1)
+        }
+
+        wallet.voted = true
+      }
+    }
+
+    this.walletManager.buildVoteBalances()
+  }
+
+  /**
    * Load and apply delegate usernames to wallets.
    * @return {void}
    */
@@ -167,30 +191,6 @@ module.exports = class SPV {
       wallet.missedBlocks = parseInt(delegate.missedBlocks)
       this.walletManager.reindex(wallet)
     })
-  }
-
-  /**
-   * Load and apply votes to wallets.
-   * @return {void}
-   */
-  async __buildVotes () {
-    const transactions = await this.query.manyOrNone(queries.spv.votes)
-
-    for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
-
-      if (!wallet.voted) {
-        const vote = Transaction.deserialize(transaction.serialized.toString('hex')).asset.votes[0]
-
-        if (vote.startsWith('+')) {
-          wallet.vote = vote.slice(1)
-        }
-
-        wallet.voted = true
-      }
-    }
-
-    this.walletManager.updateDelegates()
   }
 
   /**

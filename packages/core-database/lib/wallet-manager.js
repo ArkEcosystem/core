@@ -256,6 +256,20 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Build vote balances of all delegates.
+   * NOTE: Only called during SPV.
+   * @return {void}
+   */
+  buildVoteBalances () {
+    Object.values(this.byPublicKey).forEach(voter => {
+      if (voter.vote) {
+        const delegate = this.byPublicKey[voter.vote]
+        delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
+      }
+    })
+  }
+
+  /**
    * Remove non-delegate wallets that have zero (0) balance from memory.
    * @return {void}
    */
