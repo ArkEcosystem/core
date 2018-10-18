@@ -24,11 +24,8 @@ jobs:
       - run:
           name: Generate cache key
           command: |
-            find ./packages/ -name package.json -print
-            find ./packages/ -name package.json -print | xargs echo ./package.json
-            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum
-            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum
-            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
           key: dependency-cache-{{ checksum "checksum.txt" }}
@@ -82,11 +79,8 @@ jobs:
       - run:
           name: Generate cache key
           command: |
-            find ./packages/ -name package.json -print
-            find ./packages/ -name package.json -print | xargs echo ./package.json
-            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum
-            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum
-            find ./packages/ -name package.json -print | xargs echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
           key: dependency-cache-{{ checksum "checksum.txt" }}
