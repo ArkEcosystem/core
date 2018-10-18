@@ -189,6 +189,14 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   saveRound (delegates) {
     logger.info(`Saving round ${delegates[0].round}`)
 
+    delegates = delegates.map(d => {
+      return {
+        publicKey: d.publicKey,
+        balance: d.voteBalance,
+        round: d.round
+      }
+    })
+
     return this.db.rounds.create(delegates)
   }
 
