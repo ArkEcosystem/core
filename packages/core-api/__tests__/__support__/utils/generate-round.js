@@ -4,6 +4,6 @@ module.exports = (delegates, round) => {
   return delegates.map(delegate => ({
     round,
     publicKey: delegate,
-    balance: bignumify('245098000000000')
+    voteBalance: bignumify('245098000000000')
   }))
 }

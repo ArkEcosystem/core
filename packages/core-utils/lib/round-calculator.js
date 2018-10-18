@@ -5,11 +5,12 @@ const container = require('@arkecosystem/core-container')
 /**
  * Calculate the round and nextRound based on the height and active delegates.
  * @param  {Number} height
+ * @param  {Number} maxDelegates
  * @return {Object}
  */
-exports.calculateRound = (height) => {
+exports.calculateRound = (height, maxDelegates = undefined) => {
   const config = container.resolvePlugin('config')
-  const maxDelegates = config.getConstants(height).activeDelegates
+  maxDelegates = maxDelegates || config.getConstants(height).activeDelegates
 
   const round = Math.floor((height - 1) / maxDelegates) + 1
   const nextRound = Math.floor((height) / maxDelegates) + 1

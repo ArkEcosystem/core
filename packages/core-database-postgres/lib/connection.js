@@ -212,44 +212,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Load a list of delegates into memory.
-   * @param  {Number} maxDelegates
-   * @param  {Number} height
-   * @return {Array}
-   */
-  async buildDelegates (maxDelegates, height) {
-    if (height > 1 && height % maxDelegates !== 1) {
-      throw new Error('Trying to build delegates outside of round change')
-    }
-
-    let data = await this.db.rounds.delegates()
-
-    // NOTE: At the launch of the blockchain we may not have enough delegates.
-    // In order to have enough forging delegates we complete the list in a
-    // deterministic way (alphabetical order of publicKey).
-    if (data.length < maxDelegates) {
-      const chosen = data.map(delegate => delegate.publicKey)
-
-      const fillerWallets = chosen.length
-        ? await this.db.rounds.placeholdersWithout(maxDelegates - data.length, chosen)
-        : await this.db.rounds.placeholders(maxDelegates - data.length)
-
-      data = data.concat(fillerWallets)
-    }
-
-    // logger.info(`got ${data.length} voted delegates`)
-    const round = Math.floor((height - 1) / maxDelegates) + 1
-    data = data
-      .sort((a, b) => b.balance - a.balance)
-      .slice(0, maxDelegates)
-      .map(delegate => ({ ...{ round }, ...delegate }))
-
-    logger.debug(`Loaded ${data.length} active delegates`)
-
-    return data
-  }
-
-  /**
    * Load a list of wallets into memory.
    * @param  {Number} height
    * @return {Array}
