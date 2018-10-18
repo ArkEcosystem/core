@@ -501,7 +501,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Determine if the given transaction is an exception.
+   * Determine if the given block is an exception.
    * @param  {Object} block
    * @return {Boolean}
    */
