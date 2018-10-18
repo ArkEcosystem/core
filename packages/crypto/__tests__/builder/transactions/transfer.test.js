@@ -36,32 +36,12 @@ describe('Transfer Transaction', () => {
     })
   })
 
-  transactionBuilderTests()
-
-  it('should have its specific properties', () => {
-    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.TRANSFER)
-    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.TRANSFER))
-    expect(builder).toHaveProperty('data.amount', 0)
-    expect(builder).toHaveProperty('data.recipientId', null)
-    expect(builder).toHaveProperty('data.senderPublicKey', null)
-    expect(builder).toHaveProperty('data.expiration', 0)
-  })
-
-  describe('vendorField', () => {
-    it('should set the vendorField', () => {
-      builder.vendorField('fake')
-      expect(builder.data.vendorField).toBe('fake')
-    })
-  })
-
   describe('signWithWif', () => {
     it('should sign a transaction and match signed with a passphrase', () => {
       const passphrase = 'sample passphrase'
       const network = 23
       const keys = crypto.getKeys(passphrase)
-      const wif = crypto.keysToWIF(keys, {
-        wif: 170
-      })
+      const wif = crypto.keysToWIF(keys, {wif: 170})
 
       const wifTransaction = builder.amount(10)
         .fee(10)
@@ -83,9 +63,7 @@ describe('Transfer Transaction', () => {
       const secondPassphrase = 'second passphrase'
       const network = 23
       const keys = crypto.getKeys(secondPassphrase)
-      const wif = crypto.keysToWIF(keys, {
-        wif: 170
-      })
+      const wif = crypto.keysToWIF(keys, {wif: 170})
 
       const wifTransaction = builder.amount(10)
         .fee(10)
@@ -99,6 +77,24 @@ describe('Transfer Transaction', () => {
       passphraseTransaction.secondSign(secondPassphrase)
 
       expect(wifTransaction.data.signSignature).toBe(passphraseTransaction.data.signSignature)
+    })
+  })
+
+  transactionBuilderTests()
+
+  it('should have its specific properties', () => {
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.TRANSFER)
+    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.TRANSFER))
+    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.recipientId', null)
+    expect(builder).toHaveProperty('data.senderPublicKey', null)
+    expect(builder).toHaveProperty('data.expiration', 0)
+  })
+
+  describe('vendorField', () => {
+    it('should set the vendorField', () => {
+      builder.vendorField('fake')
+      expect(builder.data.vendorField).toBe('fake')
     })
   })
 })

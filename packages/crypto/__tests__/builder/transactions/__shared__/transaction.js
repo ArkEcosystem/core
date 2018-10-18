@@ -139,7 +139,7 @@ module.exports = () => {
       builder.network(23)
         .signWithWif('dummy pass')
 
-      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('dummy pass', 23)
+      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('dummy pass', {wif:170})
       expect(crypto.sign).toHaveBeenCalledWith(signingObject, keys)
     })
 
@@ -182,7 +182,7 @@ module.exports = () => {
       builder.network(23)
         .secondSignWithWif('my very real second pass')
 
-      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('my very real second pass', 23)
+      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('my very real second pass', {wif:170})
       expect(crypto.secondSign).toHaveBeenCalledWith(signingObject, keys)
     })
   })
