@@ -1,4 +1,4 @@
-const { Bignum, models: { Transaction } } = require('@arkecosystem/crypto')
+const { Bignum, formatArktoshi, models: { Transaction } } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -189,6 +189,13 @@ module.exports = class SPV {
     delegates.forEach(delegate => {
       const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
       wallet.missedBlocks = parseInt(delegate.missedBlocks)
+
+      if (!wallet.voteBalance.isEqualTo(delegate.voteBalance)) {
+        // TODO: throw exception?
+        logger.error(`Delegate ${wallet.username} (${delegate.publicKey}) vote balance discrepancy. :shock:`)
+        logger.error(`Got ${formatArktoshi(delegate.voteBalance)} from database, but calculated ${formatArktoshi(wallet.voteBalance)}`)
+      }
+
       this.walletManager.reindex(wallet)
     })
   }
