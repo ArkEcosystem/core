@@ -133,7 +133,7 @@ describe('Transaction Pool Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      await expect(poolInterface.checkIfSenderHasVoteTransactions()).rejects.toThrowError('Method [checkIfSenderHasVoteTransactions] not implemented!')
+      expect(poolInterface.checkIfSenderHasVoteTransactions).toThrowError('Method [checkIfSenderHasVoteTransactions] not implemented!')
     })
   })
 
