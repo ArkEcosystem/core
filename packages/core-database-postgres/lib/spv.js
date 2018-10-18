@@ -186,12 +186,13 @@ module.exports = class SPV {
 
     // NOTE: This is highly NOT reliable, however the number of missed blocks is NOT used for the consensus
     const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks)
-    delegates.forEach(delegate => {
+    delegates.forEach((delegate, i) => {
       const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
       wallet.missedBlocks = parseInt(delegate.missedBlocks)
+      wallet.rate = i + 1
 
       if (!wallet.voteBalance.isEqualTo(delegate.voteBalance)) {
-        // TODO: throw exception?
+        // This could mean that the node didn't write the wallets properly to disk on shutdown!
         logger.error(`Delegate ${wallet.username} (${delegate.publicKey}) vote balance discrepancy. :shock:`)
         logger.error(`Got ${formatArktoshi(delegate.voteBalance)} from database, but calculated ${formatArktoshi(wallet.voteBalance)}`)
       }

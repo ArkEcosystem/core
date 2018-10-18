@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird')
 
-const { Bignum, crypto, formatArktoshi } = require('@arkecosystem/crypto')
+const { crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
@@ -236,23 +236,6 @@ module.exports = class WalletManager {
     logger.debug(`Loaded ${delegates.length} active delegates`)
 
     return delegates.map((delegate, i) => ({ ...{ round }, ...delegate, rate: i + 1 }))
-  }
-
-  /**
-   * Update the vote balances of delegates.
-   * @return {void}
-   */
-  updateDelegates () {
-    Object
-      .values(this.byUsername)
-      .forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
-
-    Object.values(this.byPublicKey).forEach(voter => {
-      if (voter.vote) {
-        const delegate = this.byPublicKey[voter.vote]
-        delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
-      }
-    })
   }
 
   /**
