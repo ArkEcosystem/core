@@ -74,17 +74,6 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Load a list of delegates into memory.
-   * @param  {Number} maxDelegates
-   * @param  {Number} height
-   * @return {void}
-   * @throws Error
-   */
-  async buildDelegates (maxDelegates, height) {
-    throw new Error('Method [buildDelegates] not implemented!')
-  }
-
-  /**
    * Load a list of wallets into memory.
    * @param  {Number} height
    * @return {void}
@@ -291,7 +280,7 @@ module.exports = class ConnectionInterface {
           this.walletManager.updateDelegates()
           this.updateDelegateStats(height, this.activeDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
-          const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
+          const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
 

@@ -20,6 +20,7 @@ module.exports = class Round extends Model {
       prop: 'publicKey'
     }, {
       name: 'balance',
+      prop: 'voteBalance',
       init: col => {
         return +bignumify(col.value).toFixed()
       }
