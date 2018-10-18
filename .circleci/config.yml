@@ -9,7 +9,7 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: ark_development
           POSTGRES_USER: ark
-    parallelism: 4
+    parallelism: 7
     steps:
       - checkout
       - run:
