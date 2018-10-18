@@ -67,16 +67,6 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('buildDelegates', () => {
-    it('should be a function', () => {
-      expect(connectionInterface.buildDelegates).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      await expect(connectionInterface.buildDelegates()).rejects.toThrowError('Method [buildDelegates] not implemented!')
-    })
-  })
-
   describe('buildWallets', () => {
     it('should be a function', () => {
       expect(connectionInterface.buildWallets).toBeFunction()
