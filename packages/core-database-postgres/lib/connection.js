@@ -183,11 +183,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
     }
 
-    this.activeDelegates = data.map(delegate => {
-      delegate.round = +round
-      return delegate
-    })
-
     return this.activeDelegates
   }
 
