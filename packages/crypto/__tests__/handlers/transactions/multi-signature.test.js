@@ -102,13 +102,13 @@ describe('MultiSignatureHandler', () => {
     it('should be ok', () => {
       delete wallet.multisignature
 
-      expect(handler.canApply(wallet, transaction)).toBeTruthy()
+      expect(handler.canApply(wallet, transaction)).toBeTrue()
     })
 
     it('should not be ok', () => {
       wallet.multisignature = multisignatureTest
 
-      expect(handler.canApply(wallet, transaction)).toBeFalsy()
+      expect(handler.canApply(wallet, transaction)).toBeFalse()
     })
   })
 

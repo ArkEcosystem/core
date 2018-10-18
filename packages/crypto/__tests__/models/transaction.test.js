@@ -80,7 +80,7 @@ describe('Models - Transaction', () => {
         const ser = Transaction.serialize(transaction.data).toString('hex')
         const newTransaction = Transaction.fromBytes(ser)
         expect(newTransaction.data).toEqual(transaction.data)
-        expect(newTransaction.verified).toBeTruthy()
+        expect(newTransaction.verified).toBeTrue()
       })
     })
 
@@ -197,6 +197,6 @@ describe('Models - Transaction', () => {
   it('Signatures are verified', () => {
     [0, 1, 2, 3, 4]
       .map(type => createRandomTx(type))
-      .forEach(transaction => expect(crypto.verify(transaction)).toBeTruthy())
+      .forEach(transaction => expect(crypto.verify(transaction)).toBeTrue())
   })
 })

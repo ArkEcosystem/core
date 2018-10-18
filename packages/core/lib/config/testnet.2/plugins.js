@@ -11,7 +11,7 @@ module.exports = {
       dailyRotate: {
         options: {
           level: process.env.ARK_LOG_LEVEL || 'debug',
-          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}.2/%DATE%.log`
+          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}.2/current.log`
         }
       }
     }
@@ -23,10 +23,6 @@ module.exports = {
       database: process.env.ARK_DB_DATABASE || `ark_${process.env.ARK_NETWORK_NAME}2`,
       user: process.env.ARK_DB_USERNAME || 'ark',
       password: process.env.ARK_DB_PASSWORD || 'password'
-    },
-    redis: {
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379
     }
   },
   '@arkecosystem/core-transaction-pool-mem': {

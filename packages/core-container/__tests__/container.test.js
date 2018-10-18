@@ -37,7 +37,7 @@ describe('Container', () => {
   it('should determine if a registration exists', () => {
     container.register('fake', asValue('value'))
 
-    expect(container.has('fake')).toBeTruthy()
+    expect(container.has('fake')).toBeTrue()
   })
 
   it('should resolve and export paths', () => {

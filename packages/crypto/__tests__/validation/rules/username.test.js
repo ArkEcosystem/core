@@ -7,11 +7,11 @@ describe('Username Rule', () => {
     expect(rule).toBeFunction()
   })
 
-  it('should be truthy', () => {
-    expect(rule('boldninja').passes).toBeTruthy()
+  it('should be true', () => {
+    expect(rule('boldninja').passes).toBeTrue()
   })
 
-  it('should be falsy', () => {
-    expect(rule('bold ninja').passes).toBeFalsy()
+  it('should be false', () => {
+    expect(rule('bold ninja').passes).toBeFalse()
   })
 })

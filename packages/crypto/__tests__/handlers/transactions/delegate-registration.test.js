@@ -39,13 +39,13 @@ describe('DelegateRegistrationHandler', () => {
     })
 
     it('should be ok', () => {
-      expect(handler.canApply(wallet, transaction)).toBeTruthy()
+      expect(handler.canApply(wallet, transaction)).toBeTrue()
     })
 
     it('should not be ok', () => {
       wallet.username = 'dummy'
 
-      expect(handler.canApply(wallet, transaction)).toBeFalsy()
+      expect(handler.canApply(wallet, transaction)).toBeFalse()
     })
   })
 

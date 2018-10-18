@@ -1,14 +1,6 @@
 version: '2'
 services:
 
-  redis:
-    image: "redis:alpine"
-    container_name: ark-testnet-redis
-    ports:
-      - '127.0.0.1:6379:6379'
-    volumes:
-      - 'redis:/data'
-
   postgres:
     image: "postgres:alpine"
     container_name: ark-testnet-postgres
@@ -34,10 +26,8 @@ services:
     privileged: true
     links:
      - postgres
-     - redis
     depends_on:
       - postgres
-      - redis
     command:
       - /bin/sh
       - -c
@@ -45,7 +35,6 @@ services:
           /entrypoint.sh
 
 volumes:
-  redis:
   postgres:
   ark-core:
     driver_opts:
