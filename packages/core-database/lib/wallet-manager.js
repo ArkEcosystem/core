@@ -202,10 +202,9 @@ module.exports = class WalletManager {
     }
 
     delegates = delegates.sort((a, b) => {
-      const aBalance = +a.voteBalance.toFixed()
-      const bBalance = +b.voteBalance.toFixed()
+      const diff = b.voteBalance.comparedTo(a.voteBalance)
 
-      if (aBalance === bBalance) {
+      if (diff === 0) {
         logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(Math.pow(10, 8)).toLocaleString()}.`)
 
         if (a.publicKey === b.publicKey) {
@@ -215,7 +214,7 @@ module.exports = class WalletManager {
         return a.publicKey.localeCompare(b.publicKey, 'en')
       }
 
-      return bBalance - aBalance
+      return diff
     }).slice(0, maxDelegates)
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
