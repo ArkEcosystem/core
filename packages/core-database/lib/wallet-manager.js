@@ -202,12 +202,9 @@ module.exports = class WalletManager {
       throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
     }
 
-    // TODO: review performance here
-   // this.updateDelegates()
-
     delegates = delegates.sort((a, b) => {
-      const aBalance = +a.balance.toFixed()
-      const bBalance = +b.balance.toFixed()
+      const aBalance = +a.voteBalance.toFixed()
+      const bBalance = +b.voteBalance.toFixed()
 
       if (aBalance === bBalance) {
         logger.warn(`Delegate ${a.username} (${a.publicKey}) and ${b.username} (${b.publicKey}) have a matching vote balance of ${a.voteBalance.dividedBy(ARKTOSHI).toLocaleString()}.`)
