@@ -129,6 +129,29 @@ module.exports = () => {
     })
   })
 
+  describe('signWithWif', () => {
+    it('signs this transaction with keys from a wif', () => {
+      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      crypto.getKeysFromWIF = jest.fn(() => keys)
+      crypto.sign = jest.fn()
+      const signingObject = builder.__getSigningObject()
+
+      builder.network(23)
+        .signWithWif('dummy pass')
+
+      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('dummy pass', { wif: 170 })
+      expect(crypto.sign).toHaveBeenCalledWith(signingObject, keys)
+    })
+
+    it('establishes the public key of the sender', () => {
+      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      crypto.getKeysFromWIF = jest.fn(() => keys)
+      crypto.sign = jest.fn()
+      builder.signWithWif('my real pass')
+      expect(builder.data.senderPublicKey).toBe(keys.publicKey)
+    })
+  })
+
   describe('secondSign', () => {
     it('signs this transaction with the keys of the second passphrase', () => {
       let keys
@@ -142,6 +165,24 @@ module.exports = () => {
       builder.secondSign('my very real second pass')
 
       expect(crypto.getKeys).toHaveBeenCalledWith('my very real second pass')
+      expect(crypto.secondSign).toHaveBeenCalledWith(signingObject, keys)
+    })
+  })
+
+  describe('secondSignWithWif', () => {
+    it('signs this transaction with the keys of a second wif', () => {
+      let keys
+      crypto.getKeysFromWIF = jest.fn(pass => {
+        keys = { publicKey: `${pass} public key` }
+        return keys
+      })
+      crypto.secondSign = jest.fn()
+      const signingObject = builder.__getSigningObject()
+
+      builder.network(23)
+        .secondSignWithWif('my very real second pass')
+
+      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('my very real second pass', { wif: 170 })
       expect(crypto.secondSign).toHaveBeenCalledWith(signingObject, keys)
     })
   })
