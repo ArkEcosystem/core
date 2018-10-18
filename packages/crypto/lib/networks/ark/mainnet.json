@@ -53,7 +53,9 @@
     "reward": 200000000
   }],
   "exceptions": {
-    "608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e": true
+    "transactions": [
+      "608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e"
+    ]
   },
   "outlookTable": {
     "5139199631254983076": "1000099631254983076",
