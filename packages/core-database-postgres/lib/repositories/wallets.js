@@ -21,6 +21,22 @@ module.exports = class WalletsRepository extends Repository {
   }
 
   /**
+   * Find all wallets that have a negative balance.
+   * @return {Promise}
+   */
+  async findNegativeBalances () {
+    return this.db.oneOrNone(sql.findNegativeBalances)
+  }
+
+  /**
+   * Find all wallets that have a negative vote balance.
+   * @return {Promise}
+   */
+  async findNegativeVoteBalances () {
+    return this.db.oneOrNone(sql.findNegativeVoteBalances)
+  }
+
+  /**
    * Create or update a record matching the attributes, and fill it with values.
    * @param  {Object} wallet
    * @return {Promise}
