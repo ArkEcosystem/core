@@ -190,7 +190,7 @@ module.exports = class WalletManager {
    * @param  {Number} maxDelegates
    * @return {Array}
    */
-  activeDelegation (maxDelegates, height) {
+  loadActiveDelegateList (maxDelegates, height) {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
@@ -213,7 +213,7 @@ module.exports = class WalletManager {
           logger.error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
         }
 
-        return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
+        return a.publicKey.localeCompare(b.publicKey, 'en')
       }
 
       return bBalance - aBalance
@@ -233,15 +233,15 @@ module.exports = class WalletManager {
       .values(this.byUsername)
       .forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
 
-    Object.values(this.byPublicKey)
-      .filter(voter => !!voter.vote)
-      .forEach(voter => {
+    Object.values(this.byPublicKey).forEach(voter => {
+      if(voter.vote) {
         const delegate = this.byPublicKey[voter.vote]
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
-      })
+      }
+    })
 
     Object.values(this.byUsername)
-      .sort((a, b) => +(b.voteBalance.minus(a.voteBalance)).toFixed())
+      .sort((a, b) => +b.voteBalance.minus(a.voteBalance).toFixed())
       .forEach((delegate, index) => (delegate.rate = index + 1))
   }
 
