@@ -331,9 +331,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    */
   async validateDelegate (block) {
-    const exceptions = config ? config.network.exceptions.blocks || [] : []
-
-    if (exceptions.includes(block.data.id)) {
+    if (this.__isException(block.data)) {
       return true
     }
 
@@ -500,5 +498,22 @@ module.exports = class ConnectionInterface {
   async _registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
+  }
+
+  /**
+   * Determine if the given transaction is an exception.
+   * @param  {Object} block
+   * @return {Boolean}
+   */
+  __isException (block) {
+    if (!config) {
+      return false
+    }
+
+    if (!Array.isArray(config.network.exceptions.blocks)) {
+      return false
+    }
+
+    return config.network.exceptions.blocks.includes(block.id)
   }
 }
