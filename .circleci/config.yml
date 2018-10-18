@@ -25,6 +25,10 @@ jobs:
       - run:
           name: Install packages
           command: yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
@@ -60,6 +64,10 @@ jobs:
       - run:
           name: Install packages
           command: yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
