@@ -331,7 +331,9 @@ module.exports = class ConnectionInterface {
    * @return {void}
    */
   async validateDelegate (block) {
-    if (config.network.exceptions.blocks.includes(block.data.id)) {
+    const exceptions = config ? config.network.exceptions.blocks || [] : []
+
+    if (exceptions.includes(block.data.id)) {
       return true
     }
 
