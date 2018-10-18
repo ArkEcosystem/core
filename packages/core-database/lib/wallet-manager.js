@@ -213,7 +213,7 @@ module.exports = class WalletManager {
           logger.error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
         }
 
-        // return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
+        return a.publicKey.localeCompare(b.publicKey, 'en-US-u-kf-lower')
       }
 
       return bBalance - aBalance
