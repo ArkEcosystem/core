@@ -18,13 +18,6 @@ class Mem {
     this.sequence = 0
 
     /**
-     * A map of (key=transaction id, value=MemPoolTransaction).
-     * Used to:
-     * - get a transaction, given its ID
-     */
-    this.byId = {}
-
-    /**
      * An array of MemPoolTransaction sorted by fee (the transaction with the
      * highest fee is first). If the fee is equal, they are sorted by insertion
      * order.
@@ -32,7 +25,23 @@ class Mem {
      * - get the transactions with the highest fee
      * - get the number of all transactions in the pool
      */
-    this.sortedByFee = []
+    this.all = []
+
+    /**
+     * A boolean flag indicating whether `this.all` is indeed sorted or
+     * temporarily left unsorted. We use lazy sorting of `this.all`:
+     * - insertion just appends at the end (O(1)) + flag it as unsorted
+     * - deletion removes by using splice() (O(n)) + flag it as unsorted
+     * - lookup sorts if it is not sorted (O(n*log(n)) + flag it as sorted
+     */
+    this.allIsSorted = true
+
+    /**
+     * A map of (key=transaction id, value=MemPoolTransaction).
+     * Used to:
+     * - get a transaction, given its ID
+     */
+    this.byId = {}
 
     /**
      * A map of (key=sender public key, value=Set of MemPoolTransaction).
@@ -88,21 +97,10 @@ class Mem {
       memPoolTransaction.sequence = this.sequence++
     }
 
-    this.byId[transaction.id] = memPoolTransaction
+    this.all.push(memPoolTransaction)
+    this.allIsSorted = false
 
-    this.sortedByFee.push(memPoolTransaction)
-    // Sort largest fee first, if fees equal, then
-    // smaller sequence (earlier transaction) first.
-    // XXX worst case: O(n * log(n))
-    this.sortedByFee.sort(function (a, b) {
-      if (a.transaction.fee > b.transaction.fee) {
-        return -1
-      }
-      if (a.transaction.fee < b.transaction.fee) {
-        return 1
-      }
-      return a.sequence - b.sequence
-    })
+    this.byId[transaction.id] = memPoolTransaction
 
     const sender = transaction.senderPublicKey
     if (this.bySender[sender] === undefined) {
@@ -170,12 +168,12 @@ class Mem {
       delete this.bySender[senderPublicKey]
     }
 
-    // XXX worst case: O(n)
-    i = this.sortedByFee.findIndex(e => e.transaction.id === id)
-    assert.notEqual(i, -1)
-    this.sortedByFee.splice(i, 1)
-
     delete this.byId[id]
+
+    i = this.all.findIndex(e => e.transaction.id === id)
+    assert.notEqual(i, -1)
+    this.all.splice(i, 1)
+    this.allIsSorted = false
 
     if (this.dirty.added.has(id)) {
       // This transaction has been added and deleted without data being synced
@@ -192,7 +190,7 @@ class Mem {
    * @return Number
    */
   getSize () {
-    return this.sortedByFee.length
+    return this.all.length
   }
 
   /**
@@ -227,7 +225,20 @@ class Mem {
    * @return {Array of MemPoolTransaction} transactions
    */
   getTransactionsOrderedByFee () {
-    return this.sortedByFee
+    if (!this.allIsSorted) {
+      this.all.sort(function (a, b) {
+        if (a.transaction.fee > b.transaction.fee) {
+          return -1
+        }
+        if (a.transaction.fee < b.transaction.fee) {
+          return 1
+        }
+        return a.sequence - b.sequence
+      })
+      this.allIsSorted = true
+    }
+
+    return this.all
   }
 
   /**
@@ -263,8 +274,9 @@ class Mem {
    * Remove all transactions.
    */
   flush () {
+    this.all = []
+    this.allIsSorted = true
     this.byId = {}
-    this.sortedByFee = []
     this.bySender = {}
     this.sortedByExpiration = []
     this.dirty.added.clear()
