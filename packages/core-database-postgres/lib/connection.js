@@ -174,8 +174,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
 
     for (let i = 0, delCount = data.length; i < delCount; i++) {
-      data[i].round = +round
-
       for (let x = 0; x < 4 && i < delCount; i++, x++) {
         const newIndex = currentSeed[x] % delCount
         const b = data[newIndex]
@@ -185,7 +183,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
     }
 
-    this.activeDelegates = data
+    this.activeDelegates = data.map(delegate => {
+      delegate.round = +delegate.round
+      return delegate
+    })
 
     return this.activeDelegates
   }
