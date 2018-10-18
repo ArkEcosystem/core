@@ -41,7 +41,7 @@ describe('Transfer Transaction', () => {
       const passphrase = 'sample passphrase'
       const network = 23
       const keys = crypto.getKeys(passphrase)
-      const wif = crypto.keysToWIF(keys, {wif: 170})
+      const wif = crypto.keysToWIF(keys, { wif: 170 })
 
       const wifTransaction = builder.amount(10)
         .fee(10)
@@ -63,7 +63,7 @@ describe('Transfer Transaction', () => {
       const secondPassphrase = 'second passphrase'
       const network = 23
       const keys = crypto.getKeys(secondPassphrase)
-      const wif = crypto.keysToWIF(keys, {wif: 170})
+      const wif = crypto.keysToWIF(keys, { wif: 170 })
 
       const wifTransaction = builder.amount(10)
         .fee(10)
