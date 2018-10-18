@@ -113,7 +113,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (!lastBlock) {
       errors.push('Last block is not available')
     } else {
-      const numberOfBlocks = await this.__numberOfBlocks()
+      const { count: numberOfBlocks } = await this.db.blocks.count()
 
       // Last block height equals the number of stored blocks
       if (lastBlock.data.height !== +numberOfBlocks) {
@@ -121,8 +121,18 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       }
     }
 
-    const blockStats = await this.__blockStats()
-    const transactionStats = await this.__transactionStats()
+    const blockStats = await this.db.blocks.statistics()
+    const transactionStats = await this.db.transactions.statistics()
+    const { count: negativeBalances } = await this.db.wallets.findNegativeBalances()
+    const { count: negativeVoteBalances } = await this.db.wallets.findNegativeVoteBalances()
+
+    if (+negativeBalances > 1) {
+      errors.push(`Expected 1 wallet with a negative balance but found ${negativeBalances}`)
+    }
+
+    if (+negativeVoteBalances !== 0) {
+      errors.push(`Expected 0 wallets with a negative vote balance but found ${negativeVoteBalances}`)
+    }
 
     // Number of stored transactions equals the sum of block.numberOfTransactions in the database
     if (blockStats.numberOfTransactions !== transactionStats.count) {
@@ -664,34 +674,5 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         logger.error(err)
       }
     })
-  }
-
-  /**
-   * This auxiliary method returns the number of blocks of the blockchain and
-   * is used to verify it
-   * @return {Number}
-   */
-  async __numberOfBlocks () {
-    const { count } = await this.db.blocks.count()
-
-    return count
-  }
-
-  /**
-   * This auxiliary method returns some stats about the blocks that are
-   * used to verify the blockchain
-   * @return {Promise}
-   */
-  async __blockStats () {
-    return this.db.blocks.statistics()
-  }
-
-  /**
-   * This auxiliary method returns some stats about the transactions that are
-   * used to verify the blockchain
-   * @return {Promise}
-   */
-  async __transactionStats () {
-    return this.db.transactions.statistics()
   }
 }
