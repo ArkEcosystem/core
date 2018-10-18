@@ -127,6 +127,16 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
+  describe('checkIfSenderHasVoteTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.checkIfSenderHasVoteTransactions).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      expect(poolInterface.checkIfSenderHasVoteTransactions).toThrowError('Method [checkIfSenderHasVoteTransactions] not implemented!')
+    })
+  })
+
   describe('transactionExists', () => {
     it('should be a function', () => {
       expect(poolInterface.transactionExists).toBeFunction()

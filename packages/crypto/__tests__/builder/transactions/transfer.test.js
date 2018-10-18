@@ -1,5 +1,6 @@
 const ark = require('../../../lib/client')
 const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const { crypto } = require('../../../lib/crypto')
 const feeManager = require('../../../lib/managers/fee')
 const transactionBuilderTests = require('./__shared__/transaction')
 
@@ -32,6 +33,50 @@ describe('Transfer Transaction', () => {
         .secondSign('dummy passphrase')
 
       expect(actual.build().verify()).toBeTrue()
+    })
+  })
+
+  describe('signWithWif', () => {
+    it('should sign a transaction and match signed with a passphrase', () => {
+      const passphrase = 'sample passphrase'
+      const network = 23
+      const keys = crypto.getKeys(passphrase)
+      const wif = crypto.keysToWIF(keys, { wif: 170 })
+
+      const wifTransaction = builder.amount(10)
+        .fee(10)
+        .network(network)
+
+      const passphraseTransaction = ark.getBuilder().transfer()
+      passphraseTransaction.data = { ...wifTransaction.data }
+
+      wifTransaction.signWithWif(wif, 170)
+      passphraseTransaction.sign(passphrase)
+
+      expect(wifTransaction.data.signature).toBe(passphraseTransaction.data.signature)
+    })
+  })
+
+  describe('secondSignWithWif', () => {
+    it('should sign a transaction and match signed with a passphrase', () => {
+      const passphrase = 'first passphrase'
+      const secondPassphrase = 'second passphrase'
+      const network = 23
+      const keys = crypto.getKeys(secondPassphrase)
+      const wif = crypto.keysToWIF(keys, { wif: 170 })
+
+      const wifTransaction = builder.amount(10)
+        .fee(10)
+        .network(network)
+        .sign(passphrase)
+
+      const passphraseTransaction = ark.getBuilder().transfer()
+      passphraseTransaction.data = { ...wifTransaction.data }
+
+      wifTransaction.secondSignWithWif(wif, 170)
+      passphraseTransaction.secondSign(secondPassphrase)
+
+      expect(wifTransaction.data.signSignature).toBe(passphraseTransaction.data.signSignature)
     })
   })
 
