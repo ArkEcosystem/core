@@ -23,14 +23,16 @@ jobs:
           command: 'curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH="$HOME/.yarn/bin:$PATH" && yarn config set cache-folder $HOME/.cache/yarn'
       - run:
           name: Generate cache key
-          command: sh ./.circleci/checksum.sh > $HOME/checksum.txt
+          command: |
+            sh ./.circleci/checksum.sh > checksum.txt
+            cat checksum.txt
       - restore_cache:
-          key: dependency-cache-{{ checksum "$HOME/checksum.txt" }}
+          key: dependency-cache-{{ checksum "checksum.txt" }}
       - run:
           name: Install packages
           command: yarn
       - save_cache:
-          key: dependency-cache-{{ checksum "$HOME/checksum.txt" }}
+          key: dependency-cache-{{ checksum "checksum.txt" }}
           paths:
             - ./node_modules
             - ./packages/core/node_modules
@@ -76,15 +78,15 @@ jobs:
       - run:
           name: Generate cache key
           command: |
-            sh ./.circleci/checksum.sh > $HOME/checksum.txt
-            cat .circleci/checksum.txt
+            sh ./.circleci/checksum.sh > checksum.txt
+            cat checksum.txt
       - restore_cache:
-          key: dependency-cache-{{ checksum "$HOME/checksum.txt" }}
+          key: dependency-cache-{{ checksum "checksum.txt" }}
       - run:
           name: Install packages
           command: yarn
       - save_cache:
-          key: dependency-cache-{{ checksum "$HOME/checksum.txt" }}
+          key: dependency-cache-{{ checksum "checksum.txt" }}
           paths:
             - ./node_modules
             - ./packages/core/node_modules
