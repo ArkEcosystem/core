@@ -28,21 +28,38 @@ jobs:
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
-          key: core-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}-1
       - run:
           name: Install packages
           command: yarn
       - save_cache:
-          key: core-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}-1
           paths:
-            - ./node_modules
-            - ./packages/core/node_modules
-            - ./packages/core-api/node_modules
-            - ./packages/core-container/node_modules
-            - ./packages/core-deployer/node_modules
-            - ./packages/core-json-rpc/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-tester-cli/node_modules
+            -  ./node_modules
+            -  ./packages/client/node_modules
+            -  ./packages/core-api/node_modules
+            -  ./packages/core-blockchain/node_modules
+            -  ./packages/core-config/node_modules
+            -  ./packages/core-container/node_modules
+            -  ./packages/core-database-postgres/node_modules
+            -  ./packages/core-database/node_modules
+            -  ./packages/core-debugger-cli/node_modules
+            -  ./packages/core-deployer/node_modules
+            -  ./packages/core-event-emitter/node_modules
+            -  ./packages/core-forger/node_modules
+            -  ./packages/core-graphql/node_modules
+            -  ./packages/core-json-rpc/node_modules
+            -  ./packages/core-logger-winston/node_modules
+            -  ./packages/core-logger/node_modules
+            -  ./packages/core-p2p/node_modules
+            -  ./packages/core-test-utils/node_modules
+            -  ./packages/core-tester-cli/node_modules
+            -  ./packages/core-transaction-pool-mem/node_modules
+            -  ./packages/core-transaction-pool/node_modules
+            -  ./packages/core-utils/node_modules
+            -  ./packages/core-webhooks/node_modules
+            -  ./packages/core/node_modules
+            -  ./packages/crypto/node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
@@ -83,21 +100,38 @@ jobs:
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
             cat checksum.txt
       - restore_cache:
-          key: core-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}-1
       - run:
           name: Install packages
           command: yarn
       - save_cache:
-          key: core-cache-{{ checksum "checksum.txt" }}
+          key: core-cache-{{ checksum "checksum.txt" }}-1
           paths:
-            - ./node_modules
-            - ./packages/core/node_modules
-            - ./packages/core-api/node_modules
-            - ./packages/core-container/node_modules
-            - ./packages/core-deployer/node_modules
-            - ./packages/core-json-rpc/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-tester-cli/node_modules
+            -  ./node_modules
+            -  ./packages/client/node_modules
+            -  ./packages/core-api/node_modules
+            -  ./packages/core-blockchain/node_modules
+            -  ./packages/core-config/node_modules
+            -  ./packages/core-container/node_modules
+            -  ./packages/core-database-postgres/node_modules
+            -  ./packages/core-database/node_modules
+            -  ./packages/core-debugger-cli/node_modules
+            -  ./packages/core-deployer/node_modules
+            -  ./packages/core-event-emitter/node_modules
+            -  ./packages/core-forger/node_modules
+            -  ./packages/core-graphql/node_modules
+            -  ./packages/core-json-rpc/node_modules
+            -  ./packages/core-logger-winston/node_modules
+            -  ./packages/core-logger/node_modules
+            -  ./packages/core-p2p/node_modules
+            -  ./packages/core-test-utils/node_modules
+            -  ./packages/core-tester-cli/node_modules
+            -  ./packages/core-transaction-pool-mem/node_modules
+            -  ./packages/core-transaction-pool/node_modules
+            -  ./packages/core-utils/node_modules
+            -  ./packages/core-webhooks/node_modules
+            -  ./packages/core/node_modules
+            -  ./packages/crypto/node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
