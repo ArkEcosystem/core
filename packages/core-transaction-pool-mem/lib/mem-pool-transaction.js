@@ -22,7 +22,7 @@ module.exports = class MemPoolTransaction {
     this._transaction = transaction
 
     if (extra !== undefined && extra.sequence !== undefined) {
-      assert(extra.sequence instanceof Number)
+      assert(Number.isInteger(extra.sequence))
       this._sequence = extra.sequence
     }
 
