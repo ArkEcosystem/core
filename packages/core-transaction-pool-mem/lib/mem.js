@@ -89,7 +89,7 @@ class Mem {
       // Sequence is provided from outside, make sure we avoid duplicates
       // later when we start using our this.sequence.
       assert.equal(typeof memPoolTransaction.sequence, 'number')
-      this.sequence = Math.max(this.sequence, memPoolTransaction.sequence)
+      this.sequence = Math.max(this.sequence, memPoolTransaction.sequence) + 1
     } else {
       // Sequence should only be set during DB load (when sequences come
       // from the database). In other scenarios sequence is not set and we
