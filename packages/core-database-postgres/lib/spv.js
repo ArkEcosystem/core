@@ -192,9 +192,9 @@ module.exports = class SPV {
       wallet.rate = i + 1
 
       if (!wallet.voteBalance.isEqualTo(delegate.voteBalance)) {
-        // This could mean that the node didn't write the wallets properly to disk on shutdown!
-        logger.error(`Delegate ${wallet.username} (${delegate.publicKey}) vote balance discrepancy. :shock:`)
-        logger.error(`Got ${formatArktoshi(delegate.voteBalance)} from database, but calculated ${formatArktoshi(wallet.voteBalance)}`)
+        // NOTE: This most likely means that the node didn't write the wallets properly to disk on shutdown!
+        logger.warn(`Delegate ${wallet.username} (${delegate.publicKey}) vote balance discrepancy. :horse:`)
+        logger.warn(`Got ${formatArktoshi(delegate.voteBalance)} from database, but calculated ${formatArktoshi(wallet.voteBalance)}`)
       }
 
       this.walletManager.reindex(wallet)
