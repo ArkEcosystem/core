@@ -123,6 +123,18 @@ describe('Guard', () => {
       expect(reason).toBe('Blacklisted')
     })
 
+    it('should return a 5 minutes suspension for "No Common Blocks"', () => {
+      const { until, reason } = guard.__determineOffence({
+        ...dummy,
+        ...{
+          commonBlocks: false
+        }
+      })
+
+      expect(convertToMinutes(until)).toBe(5)
+      expect(reason).toBe('No Common Blocks')
+    })
+
     it('should return a 6 hours suspension for "Invalid Version"', () => {
       const { until, reason } = guard.__determineOffence({
         nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
