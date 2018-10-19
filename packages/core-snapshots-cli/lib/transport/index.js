@@ -30,6 +30,70 @@ module.exports = {
     }
   },
 
+  importTable: async (sourceFile, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
+    const decodeStream = msgpack.createDecodeStream()
+    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
+    const tableName = sourceFile.split('.')[0]
+
+    let values = []
+    let prevData = lastBlock
+    decodeStream.on('data', (data) => {
+      if (!verifyData(tableName, data, prevData, skipVerifySignature)) {
+        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+        process.exit(1)
+      }
+      if (canImportRecord(tableName, data, lastBlock)) {
+        values.push(data)
+      }
+      prevData = data
+    })
+
+    const getNextData = async (t, pageIndex) => {
+      await delay(600)
+      rs.pause()
+      const data = values.slice()
+      values = []
+      return Promise.resolve(data.length === 0 ? null : data)
+    }
+
+    await database.db.task('massive-insert', t => {
+      return t.sequence(index => {
+        rs.resume()
+        return getNextData(t, index)
+        .then(data => {
+          if (data) {
+            logger.info(`Importing ${data.length} records from ${sourceFile}`)
+            const insert = database.pgp.helpers.insert(data, database.getColumnSet(tableName))
+            return t.none(insert)
+          }
+        })
+      })
+    })
+    logger.info(`Table ${tableName} restored from ${sourceFile} :+1:`)
+  },
+
+  verifyTable: async (fileName, database, skipVerifySignature = false) => {
+    const decodeStream = msgpack.createDecodeStream()
+    const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
+    const lastBlock = await database.getLastBlock()
+
+    logger.info(`Starting to verify snapshot file ${fileName}`)
+    let prevData = lastBlock
+    const table = fileName.split('.')[0]
+    decodeStream.on('data', (data) => {
+      if (!verifyData(table, data, prevData, skipVerifySignature)) {
+        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+        process.exit(1)
+      }
+      prevData = data
+    })
+
+    rs.on('finish', () => {
+      logger.info(`Snapshot succesfully verified ${fileName} :+1:`)
+    })
+  },
+
+    // TODO: leave for now, not used yet - stream import
   importTableStream: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
     const decodeStream = msgpack.createDecodeStream()
     const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
@@ -60,124 +124,6 @@ module.exports = {
     })
     .catch(error => {
         console.log('ERROR:', error);
-    })
-  },
-
-  importTable: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
-    return new Promise((resolve, reject) => {
-      const decodeStream = msgpack.createDecodeStream()
-      const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
-
-      const table = fileName.split('.')[0]
-      let values = []
-      let prevData = lastBlock
-      decodeStream.on('data', (data) => {
-        if (!verifyData(table, data, prevData, skipVerifySignature)) {
-          logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-          process.exit(1)
-        }
-
-        if (canImportRecord(table, data, lastBlock)) {
-          values.push(data)
-        }
-
-        prevData = data
-      })
-
-      const getNextData = async (t, pageIndex) => {
-        await delay(600)
-        rs.pause()
-        const data = values.slice()
-        values = []
-        return Promise.resolve(data.length === 0 ? null : data)
-      }
-
-      database.db.task('massive-insert', t => {
-        return t.sequence(index => {
-          rs.resume()
-          return getNextData(t, index)
-          .then(data => {
-            if (data) {
-              logger.info(`Importing ${data.length} records from ${fileName}`)
-              const insert = database.pgp.helpers.insert(data, database.getColumnSet(fileName.split('.')[0]))
-              return t.none(insert)
-            }
-          })
-        })
-      })
-      .then(data => {
-          // COMMIT has been executed
-          logger.info('Total batches:', data)
-          resolve(data)
-      })
-      .catch(error => {
-          // ROLLBACK has been executed
-          logger.error(error)
-          reject(error)
-      })
-    })
-  },
-
-  importTableOld: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
-    const decodeStream = msgpack.createDecodeStream()
-    const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
-
-    let values = []
-    const saveChunk = async (end = false) => {
-      rs.pause()
-
-      logger.info(`Importing ${values.length} records from ${fileName}`)
-      const insert = database.pgp.helpers.insert(values.slice(), database.getColumnSet(fileName.split('.')[0]))
-      values = []
-
-      return database.db.tx(t => t.batch([insert]))
-    }
-
-    let prevData = lastBlock
-    const table = fileName.split('.')[0]
-    decodeStream.on('data', async (data) => {
-      if (!verifyData(table, data, prevData, skipVerifySignature)) {
-        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-        process.exit(1)
-      }
-
-      if (canImportRecord(table, data, lastBlock)) {
-        // values.push(transformData(table, data))
-        values.push(data)
-      }
-      prevData = data
-      if (values.length % chunkSize === 0) {
-        await saveChunk()
-      }
-    })
-
-    // saving last batch
-    rs.on('finish', async () => {
-      if (values.length > 0) {
-        const data = await saveChunk(true)
-        console.log(data)
-      }
-    })
-  },
-
-  verifyTable: async (fileName, database, skipVerifySignature = false) => {
-    const decodeStream = msgpack.createDecodeStream()
-    const rs = fs.createReadStream(utils.getPath(fileName)).pipe(decodeStream)
-    const lastBlock = await database.getLastBlock()
-
-    logger.info(`Starting to verify snapshot file ${fileName}`)
-    let prevData = lastBlock
-    const table = fileName.split('.')[0]
-    decodeStream.on('data', (data) => {
-      if (!verifyData(table, data, prevData, skipVerifySignature)) {
-        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-        process.exit(1)
-      }
-      prevData = data
-    })
-
-    rs.on('finish', () => {
-      logger.info(`Finished verifying snapshot file ${fileName}`)
     })
   }
 }

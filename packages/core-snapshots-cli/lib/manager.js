@@ -15,8 +15,8 @@ module.exports = class SnapshotManager {
     const params = await this.__init(options)
 
     await Promise.all([
-      exportTable(`blocks.${params.meta.startHeight}.${params.meta.endHeight}`, params.queries.blocks, this.database, !!options.filename),
-      exportTable(`transactions.${params.meta.startHeight}.${params.meta.endHeight}`, params.queries.transactions, this.database, !!options.filename)
+      exportTable(`blocks.${params.meta.stringInfo}`, params.queries.blocks, this.database, !!options.filename),
+      exportTable(`transactions.${params.meta.stringInfo}`, params.queries.transactions, this.database, !!options.filename)
     ])
 
     logger.info('Export completed.')
@@ -27,10 +27,10 @@ module.exports = class SnapshotManager {
       await this.database.truncateChain()
     }
     let lastBlock = await this.database.getLastBlock()
-
+    const fileMeta = utils.getSnapshotInfo(options.filename)
     await Promise.all([
-      importTable(`${options.filename}`, this.database, lastBlock, options.skipSignVerify),
-      importTable(`transactions.${options.filename.split('.').slice(1).join('.')}`, this.database, lastBlock, options.skipSignVerify)
+      importTable(`blocks.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify),
+      importTable(`transactions.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify)
     ])
 
     lastBlock = await this.database.getLastBlock()
@@ -45,13 +45,14 @@ module.exports = class SnapshotManager {
     if (options.truncate) {
       await this.database.truncateChain()
     }
+    const fileMeta = utils.getSnapshotInfo(options.filename)
 
     await Promise.all([
-      verifyTable(options.filename, this.database, options.skipSignVerify),
-      verifyTable('transactions.dat', this.database, options.skipSignVerify)
+      verifyTable(`blocks.${fileMeta.stringInfo}`, this.database, options.skipSignVerify),
+      verifyTable(`transactions.${fileMeta.stringInfo}`, this.database, options.skipSignVerify)
     ])
 
-    logger.info(`Verifying of snapshot ${options.filename} completed with success :100:.`)
+    logger.info(`Verifying of snapshot ${options.filename} completed with success :100:`)
   }
 
   async rollbackChain (options) {
@@ -68,19 +69,12 @@ module.exports = class SnapshotManager {
 
   async __init (options) {
     const lastBlock = await this.database.getLastBlock()
-    let params = {
-      meta: {
-        startHeight: (options.start !== -1) ? options.start : 1,
-        endHeight: (options.end !== -1) ? options.end : lastBlock.height
-      }
-    }
+    let params = {}
+    params.meta = utils.setSnapshotInfo(options, lastBlock)
 
     if (options.filename) {
-      params.meta.startHeight = +(options.filename.split('.')[2]) + 1
-
-      utils.copySnapshot(options.filename, params.meta.endHeight)
+      utils.copySnapshot(utils.getSnapshotInfo(options.filename).stringInfo, params.meta.stringInfo)
     }
-
     params.queries = await this.database.buildExportQueries(params.meta.startHeight, params.meta.endHeight)
 
     console.log(params)
