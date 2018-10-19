@@ -7,7 +7,7 @@ const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const mockData = require('./__fixtures__/transactions')
 const randomSeed = require('random-seed')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { Transaction } = require('@arkecosystem/crypto').models
 
 let connection
@@ -495,7 +495,7 @@ describe('Connection', () => {
       for (let i = 0; i < nAdd; i++) {
         const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
-        transaction.fee = rand.intBetween(200000 /* 0.002 ARK */, 200000000 /* 2 ARK */)
+        transaction.fee = rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI)
         transaction.serialized = Transaction.serialize(transaction).toString('hex')
         allTransactions.push(transaction)
       }
