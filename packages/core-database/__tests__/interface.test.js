@@ -103,11 +103,31 @@ describe('Connection Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      await expect(connectionInterface.enqueueSaveBlock()).rejects.toThrowError('Method [enqueueSaveBlock] not implemented!')
+      expect(connectionInterface.enqueueSaveBlock).toThrowError('Method [enqueueSaveBlock] not implemented!')
     })
   })
 
-  describe('commit', () => {
+  describe('enqueueDeleteBlock', () => {
+    it('should be a function', () => {
+      expect(connectionInterface.enqueueDeleteBlock).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      expect(connectionInterface.enqueueDeleteBlock).toThrowError('Method [enqueueDeleteBlock] not implemented!')
+    })
+  })
+
+  describe('enqueueDeleteRound', () => {
+    it('should be a function', () => {
+      expect(connectionInterface.enqueueDeleteRound).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      expect(connectionInterface.enqueueDeleteRound).toThrowError('Method [enqueueDeleteRound] not implemented!')
+    })
+  })
+
+  describe('commitQueuedQueries', () => {
     it('should be a function', () => {
       expect(connectionInterface.commitQueuedQueries).toBeFunction()
     })
