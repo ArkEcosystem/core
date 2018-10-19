@@ -1,13 +1,16 @@
 'use strict'
 
 const app = require('./__support__/setup')
+const crypto = require('@arkecosystem/crypto')
 const defaultConfig = require('../lib/defaults')
 const delay = require('delay')
 const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const mockData = require('./__fixtures__/transactions')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const { Transaction } = require('@arkecosystem/crypto').models
+
+const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
+const Transaction = crypto.models.Transaction
+const slots = crypto.slots
 
 let connection
 
@@ -114,10 +117,16 @@ describe('Connection', () => {
     it('should add the transactions to the pool and they should expire', async () => {
       expect(connection.getPoolSize()).toBe(0)
 
+      const expireAfterSeconds = 3
+      const expiration = slots.getTime() + expireAfterSeconds
+
+      mockData.dummyExp1.expiration = expiration
+      mockData.dummyExp2.expiration = expiration
+
       connection.addTransactions([mockData.dummyExp1, mockData.dummyExp2])
 
       expect(connection.getPoolSize()).toBe(2)
-      await delay(7000)
+      await delay((expireAfterSeconds + 1) * 1000)
       expect(connection.getPoolSize()).toBe(0)
     })
   })
