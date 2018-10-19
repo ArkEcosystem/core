@@ -110,8 +110,11 @@ module.exports = class Wallet {
   /**
    * Add block data to this wallet.
    * @param {Block} block
+   * @returns {Boolean}
    */
   applyBlock (block) {
+    this.dirty = true
+
     if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance = this.balance.plus(block.reward).plus(block.totalFee)
 
@@ -120,9 +123,10 @@ module.exports = class Wallet {
       this.forgedFees = this.forgedFees.plus(block.totalFee)
       this.forgedRewards = this.forgedRewards.plus(block.reward)
       this.lastBlock = block
+      return true
     }
 
-    this.dirty = true
+    return false
   }
 
   /**
@@ -130,6 +134,8 @@ module.exports = class Wallet {
    * @param {Block} block
    */
   revertBlock (block) {
+    this.dirty = true
+
     if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance = this.balance.minus(block.reward).minus(block.totalFee)
 
@@ -141,9 +147,10 @@ module.exports = class Wallet {
 
       // TODO: get it back from database?
       this.lastBlock = null
+      return true
     }
 
-    this.dirty = true
+    return false
   }
 
   /**
