@@ -185,15 +185,6 @@ class Guard {
   }
 
   /**
-   * Determine if the peer is on the same chain.
-   * @param  {Peer}  peer
-   * @return {Boolean}
-   */
-  hasCommonBlocks (peer) {
-    return !!peer.commonBlocks
-  }
-
-  /**
    * Decide for how long the peer should be banned.
    * @param  {Peer}  peer
    * @return {moment}
@@ -203,7 +194,7 @@ class Guard {
       return this.__determinePunishment(peer, offences.BLACKLISTED)
     }
 
-    if (!this.hasCommonBlocks(peer)) {
+    if (peer.commonBlocks === false) {
       delete peer.commonBlocks
 
       return this.__determinePunishment(peer, offences.NO_COMMON_BLOCKS)
