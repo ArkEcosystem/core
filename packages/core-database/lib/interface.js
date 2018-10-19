@@ -74,17 +74,6 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Load a list of delegates into memory.
-   * @param  {Number} maxDelegates
-   * @param  {Number} height
-   * @return {void}
-   * @throws Error
-   */
-  async buildDelegates (maxDelegates, height) {
-    throw new Error('Method [buildDelegates] not implemented!')
-  }
-
-  /**
    * Load a list of wallets into memory.
    * @param  {Number} height
    * @return {void}
@@ -291,7 +280,7 @@ module.exports = class ConnectionInterface {
           this.walletManager.updateDelegates()
           this.updateDelegateStats(height, this.activeDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
-          const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
+          const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
 
@@ -331,6 +320,10 @@ module.exports = class ConnectionInterface {
    * @return {void}
    */
   async validateDelegate (block) {
+    if (this.__isException(block.data)) {
+      return true
+    }
+
     const delegates = await this.getActiveDelegates(block.data.height)
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
@@ -494,5 +487,22 @@ module.exports = class ConnectionInterface {
   async _registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
+  }
+
+  /**
+   * Determine if the given block is an exception.
+   * @param  {Object} block
+   * @return {Boolean}
+   */
+  __isException (block) {
+    if (!config) {
+      return false
+    }
+
+    if (!Array.isArray(config.network.exceptions.blocks)) {
+      return false
+    }
+
+    return config.network.exceptions.blocks.includes(block.id)
   }
 }

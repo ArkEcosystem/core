@@ -2,9 +2,10 @@
 
 const Promise = require('bluebird')
 
-const { Bignum, crypto } = require('@arkecosystem/crypto')
+const { Bignum, crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { roundCalculator } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -15,7 +16,6 @@ module.exports = class WalletManager {
    * @constructor
    */
   constructor () {
-    this.exceptions = config ? config.network.exceptions : {}
     this.networkId = config ? config.network.pubKeyHash : 0x17
     this.reset()
   }
@@ -185,19 +185,77 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Load a list of all active delegates.
+   * @param  {Number} maxDelegates
+   * @return {Array}
+   */
+  loadActiveDelegateList (maxDelegates, height) {
+    if (height > 1 && height % maxDelegates !== 1) {
+      throw new Error('Trying to build delegates outside of round change')
+    }
+
+    const { round } = roundCalculator.calculateRound(height, maxDelegates)
+    let delegates = this.allByUsername()
+
+    if (delegates.length < maxDelegates) {
+      throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
+    }
+
+    const equalVotesMap = new Map()
+
+    delegates = delegates.sort((a, b) => {
+      const diff = b.voteBalance.comparedTo(a.voteBalance)
+
+      if (diff === 0) {
+        if (!equalVotesMap.has(a.voteBalance.toFixed())) {
+          equalVotesMap.set(a.voteBalance.toFixed(), new Set())
+        }
+
+        const set = equalVotesMap.get(a.voteBalance.toFixed())
+        set.add(a)
+        set.add(b)
+
+        if (a.publicKey === b.publicKey) {
+          throw new Error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
+        }
+
+        return a.publicKey.localeCompare(b.publicKey, 'en')
+      }
+
+      return diff
+    }).slice(0, maxDelegates)
+
+    for (const [voteBalance, set] of equalVotesMap.entries()) {
+      const values = Array.from(set.values())
+      if (delegates.includes(values[0])) {
+        const mapped = values.map(v => `${v.username} (${v.publicKey})`)
+        logger.warn(`Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatArktoshi(voteBalance)}`)
+      }
+    }
+
+    logger.debug(`Loaded ${delegates.length} active delegates`)
+
+    return delegates.map(delegate => ({ ...{ round }, ...delegate }))
+  }
+
+  /**
    * Update the vote balances of delegates.
    * @return {void}
    */
   updateDelegates () {
-    Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
-    Object.values(this.byPublicKey)
-      .filter(voter => !!voter.vote)
-      .forEach(voter => {
+    Object
+      .values(this.byUsername)
+      .forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
+
+    Object.values(this.byPublicKey).forEach(voter => {
+      if (voter.vote) {
         const delegate = this.byPublicKey[voter.vote]
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
-      })
+      }
+    })
+
     Object.values(this.byUsername)
-      .sort((a, b) => +(b.voteBalance.minus(a.voteBalance)).toFixed())
+      .sort((a, b) => +b.voteBalance.minus(a.voteBalance).toFixed())
       .forEach((delegate, index) => (delegate.rate = index + 1))
   }
 
@@ -328,7 +386,7 @@ module.exports = class WalletManager {
 
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = ''
-    } else if (this.exceptions[data.id]) {
+    } else if (this.__isException(data)) {
 
       logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
 
@@ -354,18 +412,18 @@ module.exports = class WalletManager {
 
   /**
    * Remove the given transaction from a delegate.
-   * @param  {Number} type
-   * @param  {Object} data
+   * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  revertTransaction ({ type, data }) {
+  revertTransaction (transaction) {
+    const { type, data } = transaction
     const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.byAddress[data.recipientId]
 
     sender.revertTransactionForSender(data)
 
     // removing the wallet from the delegates index
-    if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       delete this.byUsername[data.asset.delegate.username]
     }
 
@@ -382,6 +440,7 @@ module.exports = class WalletManager {
    */
   __isDelegate (publicKey) {
     const delegateWallet = this.byPublicKey[publicKey]
+
     if (delegateWallet && delegateWallet.username) {
       return !!this.byUsername[delegateWallet.username]
     }
@@ -398,4 +457,20 @@ module.exports = class WalletManager {
     return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
+  /**
+   * Determine if the given transaction is an exception.
+   * @param  {Object} transaction
+   * @return {Boolean}
+   */
+  __isException (transaction) {
+    if (!config) {
+      return false
+    }
+
+    if (!Array.isArray(config.network.exceptions.transactions)) {
+      return false
+    }
+
+    return config.network.exceptions.transactions.includes(transaction.id)
+  }
 }
