@@ -329,8 +329,7 @@ class Monitor {
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
-    const heights = {}
-
+    
     let allowedToForge = 0
     let syncedPeers = 0
 
@@ -343,8 +342,6 @@ class Monitor {
             allowedToForge++
           }
         }
-
-        heights[peer.state.height] = heights[peer.state.height] ? heights[peer.state.height] + 1 : 1
       }
     }
 
