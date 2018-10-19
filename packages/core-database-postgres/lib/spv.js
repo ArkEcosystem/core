@@ -179,14 +179,12 @@ module.exports = class SPV {
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
 
-      if (!wallet.voted) {
+      if (!wallet.vote) {
         const vote = Transaction.deserialize(transaction.serialized.toString('hex')).asset.votes[0]
 
         if (vote.startsWith('+')) {
           wallet.vote = vote.slice(1)
         }
-
-        wallet.voted = true
       }
     }
 
