@@ -5,6 +5,12 @@ module.exports = {
     reason: 'Blacklisted',
     weight: 10
   },
+  NO_COMMON_BLOCKS: {
+    number: 5,
+    period: 'minutes',
+    reason: 'Invalid Network',
+    weight: 5
+  },
   INVALID_VERSION: {
     number: 6,
     period: 'hours',
