@@ -196,7 +196,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @param  {Array} delegates
    * @return {Array}
    */
-  saveRound (delegates) {
+  async saveRound (delegates) {
     logger.info(`Saving round ${delegates[0].round}`)
 
     return this.db.rounds.create(delegates)
