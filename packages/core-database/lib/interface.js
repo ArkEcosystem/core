@@ -105,35 +105,36 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Save the given number of block (async version) in the memory Must call commit() to save to database.
+   * Save the given number of block in the memory.
+   * NOTE: Must call commitQueuedQueries() to save to database.
    * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) by calling commit
    * @param  {Block} block
    * @return {void}
    * @throws Error
    */
-  async enqueueSaveBlock (block) {
+  enqueueSaveBlock (block) {
     throw new Error('Method [enqueueSaveBlock] not implemented!')
   }
 
   /**
-   * Delete the given block (async version).
+   * Delete the given block.
    * See also enqueueSaveBlock
    * @param  {Block} block
    * @return {void}
    * @throws Error
    */
-  async enqueueDeleteBlock (block) {
+  enqueueDeleteBlock (block) {
     throw new Error('Method [enqueueDeleteBlock] not implemented!')
   }
 
   /**
-   * Delete the round at given height (async version).
+   * Delete the round at given height.
    * See also enqueueSaveBlock and enqueueDeleteBlock
    * @param  {Number} height
    * @return {void}
    * @throws Error
    */
-  async enqueueDeleteRound (height) {
+  enqueueDeleteRound (height) {
     throw new Error('Method [enqueueDeleteRound] not implemented!')
   }
 
@@ -212,7 +213,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  saveRound (activeDelegates) {
+  async saveRound (activeDelegates) {
     throw new Error('Method [saveRound] not implemented!')
   }
 
@@ -222,7 +223,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  deleteRound (round) {
+  async deleteRound (round) {
     throw new Error('Method [deleteRound] not implemented!')
   }
 
