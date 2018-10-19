@@ -201,7 +201,7 @@ describe('Connection Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      await expect(() => connectionInterface.saveRound()).toThrowError('Method [saveRound] not implemented!')
+      await expect(connectionInterface.saveRound()).rejects.toThrowError('Method [saveRound] not implemented!')
     })
   })
 
@@ -211,7 +211,7 @@ describe('Connection Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      await expect(() => connectionInterface.deleteRound()).toThrowError('Method [deleteRound] not implemented!')
+      await expect(connectionInterface.deleteRound()).rejects.toThrowError('Method [deleteRound] not implemented!')
     })
   })
 
