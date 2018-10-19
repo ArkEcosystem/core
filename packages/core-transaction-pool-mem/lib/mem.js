@@ -88,7 +88,7 @@ class Mem {
     if (thisIsDBLoad) {
       // Sequence is provided from outside, make sure we avoid duplicates
       // later when we start using our this.sequence.
-      assert.equal(typeof memPoolTransaction.sequence, 'number')
+      assert.strictEqual(typeof memPoolTransaction.sequence, 'number')
       this.sequence = Math.max(this.sequence, memPoolTransaction.sequence) + 1
     } else {
       // Sequence should only be set during DB load (when sequences come
@@ -171,7 +171,7 @@ class Mem {
     delete this.byId[id]
 
     i = this.all.findIndex(e => e.transaction.id === id)
-    assert.notEqual(i, -1)
+    assert.notStrictEqual(i, -1)
     this.all.splice(i, 1)
     this.allIsSorted = false
 

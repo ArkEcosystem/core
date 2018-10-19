@@ -241,7 +241,7 @@ class TransactionPool extends TransactionPoolInterface {
       }
 
       if (i >= start) {
-        assert.notEqual(memPoolTransaction.transaction[property], undefined)
+        assert.notStrictEqual(memPoolTransaction.transaction[property], undefined)
         data.push(memPoolTransaction.transaction[property])
       }
 
