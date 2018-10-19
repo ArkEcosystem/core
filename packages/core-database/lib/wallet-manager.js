@@ -471,8 +471,8 @@ module.exports = class WalletManager {
           ? delegate.voteBalance.minus(sender.balance)
           : delegate.voteBalance.plus(sender.balance)
         : revert
-          ? delegate.voteBalance.plus(sender.balance)
-          : delegate.voteBalance.minus(sender.balance)
+          ? delegate.voteBalance.plus(sender.balance.plus(transaction.fee))
+          : delegate.voteBalance.minus(sender.balance.plus(transaction.fee))
     }
 
   }
