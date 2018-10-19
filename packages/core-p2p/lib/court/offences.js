@@ -8,8 +8,8 @@ module.exports = {
   NO_COMMON_BLOCKS: {
     number: 5,
     period: 'minutes',
-    reason: 'Invalid Network',
-    weight: 5
+    reason: 'No Common Blocks',
+    weight: 1
   },
   INVALID_VERSION: {
     number: 6,

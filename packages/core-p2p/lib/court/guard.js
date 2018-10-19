@@ -190,7 +190,7 @@ class Guard {
    * @return {Boolean}
    */
   hasCommonBlocks (peer) {
-    return peer.commonBlocks
+    return !!peer.commonBlocks
   }
 
   /**
