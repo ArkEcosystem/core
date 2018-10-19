@@ -107,8 +107,8 @@ module.exports = {
           }
       }
       function dest (index, data) {
-          console.log('Iiiiiii', data.length)
-          console.log(data)
+          console.log('boldninja is awesome', data.length)
+          // console.log(data)
           const insert = database.pgp.helpers.insert(data, database.getColumnSet(fileName.split('.')[0]))
           return this.none(insert);
       }
