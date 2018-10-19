@@ -36,6 +36,7 @@ module.exports = class Wallet {
     this.secondPublicKey = null
     this.balance = Bignum.ZERO
     this.vote = null
+    this.voted = false
     this.username = null
     this.lastBlock = null
     this.voteBalance = Bignum.ZERO
