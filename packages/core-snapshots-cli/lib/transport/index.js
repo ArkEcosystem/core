@@ -95,7 +95,6 @@ module.exports = {
         resolve(true)
       })
     })
-
   },
 
   backupTransactionsToJSON: async (snapFileName, query, database) => {

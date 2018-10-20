@@ -52,7 +52,7 @@ module.exports = class SnapshotManager {
       verifyTable(`transactions.${fileMeta.stringInfo}`, this.database, options.skipSignVerify)
     ])
 
-    logger.info(`Verifying of snapshot completed with success :100:`)
+    logger.info('Verifying of snapshot completed with success :100:')
   }
 
   async rollbackChain (options) {
