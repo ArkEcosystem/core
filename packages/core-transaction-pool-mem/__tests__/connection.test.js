@@ -7,7 +7,9 @@ const delay = require('delay')
 const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const mockData = require('./__fixtures__/transactions')
+const randomSeed = require('random-seed')
 
+const ARKTOSHI = crypto.constants.ARKTOSHI
 const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
 const Transaction = crypto.models.Transaction
 const slots = crypto.slots
@@ -492,30 +494,42 @@ describe('Connection', () => {
       connection.addTransaction(transaction)
     })
 
-    /*
-    it('add 30k then get first 150', () => {
-      const nAdd = 30000
+    it('add many then get first few', () => {
+      const nAdd = 2000
 
-      console.time(`time to add ${nAdd}`)
+      // We use a predictable random number calculator in order to get
+      // a deterministic test.
+      const rand = randomSeed.create(0)
+
       const allTransactions = []
       for (let i = 0; i < nAdd; i++) {
         const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
+        transaction.fee = rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI)
+        transaction.serialized = Transaction.serialize(transaction).toString('hex')
         allTransactions.push(transaction)
-
-        connection.addTransaction(allTransactions[allTransactions.length - 1])
       }
-      console.timeEnd(`time to add ${nAdd}`)
 
-      const n = 150
+      // console.time(`time to add ${nAdd}`)
+      connection.addTransactions(allTransactions)
+      // console.timeEnd(`time to add ${nAdd}`)
 
-      console.time(`time to get first ${n}`)
-      const firstTransactions = connection.getTransactions(0, n)
-      console.timeEnd(`time to get first ${n}`)
+      const nGet = 150
 
-      expect(firstTransactions[0]).toBe(allTransactions[0].serialized)
-      expect(firstTransactions[n - 1]).toBe(allTransactions[n - 1].serialized)
+      const topFeesExpected = allTransactions
+        .map(t => t.fee)
+        .sort((a, b) => b - a)
+        .slice(0, nGet)
+        .map(f => f.toString())
+
+      // console.time(`time to get first ${nGet}`)
+      const topTransactionsSerialized = connection.getTransactions(0, nGet)
+      // console.timeEnd(`time to get first ${nGet}`)
+
+      const topFeesReceived = topTransactionsSerialized
+        .map(e => (new Transaction(e)).fee.toString())
+
+      expect(topFeesReceived).toEqual(topFeesExpected)
     })
-    */
   })
 })
