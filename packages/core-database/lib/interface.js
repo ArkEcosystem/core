@@ -105,7 +105,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Save the given number of block in the memory.
+   * Queue a query to save the given block.
    * NOTE: Must call commitQueuedQueries() to save to database.
    * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) by calling commit
    * @param  {Block} block
@@ -117,7 +117,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Delete the given block.
+   * Queue a query to delete the given block.
    * See also enqueueSaveBlock
    * @param  {Block} block
    * @return {void}
@@ -128,7 +128,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Delete the round at given height.
+   * Queue a query to delete the round at given height.
    * See also enqueueSaveBlock and enqueueDeleteBlock
    * @param  {Number} height
    * @return {void}
@@ -140,7 +140,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * Commit all queued queries to the database.
-   * NOTE: to be used in combination with other enqueue-functions
+   * NOTE: to be used in combination with other enqueue-functions.
    * @return {void}
    * @throws Error
    */
