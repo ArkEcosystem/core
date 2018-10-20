@@ -1,5 +1,6 @@
 'use strict'
 
+const assert = require('assert')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { formatTimestamp } = require('@arkecosystem/core-utils')
 
@@ -9,30 +10,56 @@ class Mem {
    */
   constructor () {
     /**
-     * A map of (key=transaction id, value=Transaction object).
+     * A monotonically increasing number, assigned to each new transaction and
+     * then incremented.
+     * Used to:
+     * - keep insertion order.
+     */
+    this.sequence = 0
+
+    /**
+     * An array of MemPoolTransaction sorted by fee (the transaction with the
+     * highest fee is first). If the fee is equal, they are sorted by insertion
+     * order.
+     * Used to:
+     * - get the transactions with the highest fee
+     * - get the number of all transactions in the pool
+     */
+    this.all = []
+
+    /**
+     * A boolean flag indicating whether `this.all` is indeed sorted or
+     * temporarily left unsorted. We use lazy sorting of `this.all`:
+     * - insertion just appends at the end (O(1)) + flag it as unsorted
+     * - deletion removes by using splice() (O(n)) + flag it as unsorted
+     * - lookup sorts if it is not sorted (O(n*log(n)) + flag it as sorted
+     */
+    this.allIsSorted = true
+
+    /**
+     * A map of (key=transaction id, value=MemPoolTransaction).
      * Used to:
      * - get a transaction, given its ID
-     * - get the number of all transactions in the pool
-     * - get all transactions in a given range [start, end) in insertion order.
      */
-    this.byId = new Map()
+    this.byId = {}
 
     /**
-     * A map of (key=sender public key, value=Set of transaction ids).
+     * A map of (key=sender public key, value=Set of MemPoolTransaction).
      * Used to:
-     * - get all transactions ids from a given sender
+     * - get all transactions from a given sender
      * - get the number of all transactions from a given sender.
      */
-    this.idsBySender = new Map()
+    this.bySender = {}
 
     /**
-     * An array of { expireAt: Date, transactionId: ... } objects, sorted
-     * by expireAt (earliest date comes first).
+     * An array of MemPoolTransaction, sorted by expiration (earliest date
+     * comes first). This array may not contain all transactions that are
+     * in the pool, transactions that are without expiration are not included.
      * Used to:
      * - find all transactions that have expired (have an expiration date
      *   earlier than a given date) - they are at the beginning of the array.
      */
-    this.idsByExpiration = []
+    this.sortedByExpiration = []
 
     /**
      * List of dirty transactions ids (that are not saved in the on-disk
@@ -46,24 +73,42 @@ class Mem {
 
   /**
    * Add a transaction.
-   * @param {Transaction} transaction       transaction to add
-   * @param {Number}      maxTransactionAge maximum age of a transaction in seconds
-   * @param {Boolean}     thisIsDBLoad      if true, then this is the initial
-   *                                        loading from the database and we do
-   *                                        not need to schedule the transaction
-   *                                        that is being added for saving to disk
+   * @param {MemPoolTransaction} memPoolTransaction transaction to add
+   * @param {Number}             maxTransactionAge  maximum age of a transaction in seconds
+   * @param {Boolean}            thisIsDBLoad       if true, then this is the initial
+   *                                                loading from the database and we do
+   *                                                not need to schedule the transaction
+   *                                                that is being added for saving to disk
    */
-  add (transaction, maxTransactionAge, thisIsDBLoad = false) {
-    this.byId.set(transaction.id, transaction)
+  add (memPoolTransaction, maxTransactionAge, thisIsDBLoad = false) {
+    const transaction = memPoolTransaction.transaction
+
+    assert.strictEqual(this.byId[transaction.id], undefined)
+
+    if (thisIsDBLoad) {
+      // Sequence is provided from outside, make sure we avoid duplicates
+      // later when we start using our this.sequence.
+      assert.strictEqual(typeof memPoolTransaction.sequence, 'number')
+      this.sequence = Math.max(this.sequence, memPoolTransaction.sequence) + 1
+    } else {
+      // Sequence should only be set during DB load (when sequences come
+      // from the database). In other scenarios sequence is not set and we
+      // set it here.
+      memPoolTransaction.sequence = this.sequence++
+    }
+
+    this.all.push(memPoolTransaction)
+    this.allIsSorted = false
+
+    this.byId[transaction.id] = memPoolTransaction
 
     const sender = transaction.senderPublicKey
-    let s = this.idsBySender.get(sender)
-    if (s === undefined) {
+    if (this.bySender[sender] === undefined) {
       // First transaction from this sender, create a new Set.
-      this.idsBySender.set(sender, new Set([transaction.id]))
+      this.bySender[sender] = new Set([memPoolTransaction])
     } else {
       // Append to existing transaction ids for this sender.
-      s.add(transaction.id)
+      this.bySender[sender].add(memPoolTransaction)
     }
 
     let expireSecondsSinceGenesis
@@ -73,25 +118,24 @@ class Mem {
       expireSecondsSinceGenesis = transaction.timestamp + maxTransactionAge
     }
     if (expireSecondsSinceGenesis) {
-      const expireAt = new Date(formatTimestamp(expireSecondsSinceGenesis).unix * 1000)
+      const msSinceEpoch = formatTimestamp(expireSecondsSinceGenesis).unix * 1000
 
-      this.idsByExpiration.push({ expireAt: expireAt, transactionId: transaction.id })
+      memPoolTransaction.expireAt = new Date(msSinceEpoch)
 
-      // The array is almost sorted or even fully sorted here, so the below is quick.
+      this.sortedByExpiration.push(memPoolTransaction)
 
-      this.idsByExpiration.sort(function (a, b) {
-        return a.expireAt - b.expireAt
-      })
+      // XXX worst case: O(n * log(n))
+      this.sortedByExpiration.sort((a, b) => a.expireAt - b.expireAt)
+    }
 
-      if (!thisIsDBLoad) {
-        if (this.dirty.removed.has(transaction.id)) {
-          // If the transaction has been already in the pool and has been removed
-          // and the removal has not propagated to disk yet, just wipe it from the
-          // list of removed transactions, so that the old copy stays on disk.
-          this.dirty.removed.delete(transaction.id)
-        } else {
-          this.dirty.added.add(transaction.id)
-        }
+    if (!thisIsDBLoad) {
+      if (this.dirty.removed.has(transaction.id)) {
+        // If the transaction has been already in the pool and has been removed
+        // and the removal has not propagated to disk yet, just wipe it from the
+        // list of removed transactions, so that the old copy stays on disk.
+        this.dirty.removed.delete(transaction.id)
+      } else {
+        this.dirty.added.add(transaction.id)
       }
     }
   }
@@ -102,28 +146,34 @@ class Mem {
    * @param {String} senderPublicKey public key of the sender, could be undefined
    */
   remove (id, senderPublicKey) {
-    if (senderPublicKey === undefined) {
-      const transaction = this.byId.get(id)
-      if (transaction === undefined) {
-        // Not found, not in pool
-        return
-      }
-      senderPublicKey = transaction.senderPublicKey
-    }
-
-    // O(n)
-    const index = this.idsByExpiration.findIndex(function (element) {
-      return element.transactionId === id
-    })
-    if (index === -1) {
+    if (this.byId[id] === undefined) {
       // Not found, not in pool
       return
     }
-    this.idsByExpiration.splice(index, 1)
 
-    this.idsBySender.delete(senderPublicKey)
+    if (senderPublicKey === undefined) {
+      senderPublicKey = this.byId[id].transaction.senderPublicKey
+    }
 
-    this.byId.delete(id)
+    const memPoolTransaction = this.byId[id]
+
+    // XXX worst case: O(n)
+    let i = this.sortedByExpiration.findIndex(e => e.transaction.id === id)
+    if (i !== -1) {
+      this.sortedByExpiration.splice(i, 1)
+    }
+
+    this.bySender[senderPublicKey].delete(memPoolTransaction)
+    if (this.bySender[senderPublicKey].size === 0) {
+      delete this.bySender[senderPublicKey]
+    }
+
+    delete this.byId[id]
+
+    i = this.all.findIndex(e => e.transaction.id === id)
+    assert.notStrictEqual(i, -1)
+    this.all.splice(i, 1)
+    this.allIsSorted = false
 
     if (this.dirty.added.has(id)) {
       // This transaction has been added and deleted without data being synced
@@ -140,18 +190,18 @@ class Mem {
    * @return Number
    */
   getSize () {
-    return this.byId.size
+    return this.all.length
   }
 
   /**
-   * Get all transactions ids from a given sender.
+   * Get all transactions from a given sender.
    * @param {String} senderPublicKey public key of the sender
-   * @return {Set of String} all ids for the given sender, could be empty Set
+   * @return {Set of MemPoolTransaction} all transactions for the given sender, could be empty Set
    */
-  getIdsBySender (senderPublicKey) {
-    const ids = this.idsBySender.get(senderPublicKey)
-    if (ids !== undefined) {
-      return ids
+  getBySender (senderPublicKey) {
+    const memPoolTransactions = this.bySender[senderPublicKey]
+    if (memPoolTransactions !== undefined) {
+      return memPoolTransactions
     }
     return new Set()
   }
@@ -162,15 +212,33 @@ class Mem {
    * @return {Transaction|undefined}
    */
   getTransactionById (id) {
-    return this.byId.get(id)
+    if (this.byId[id] === undefined) {
+      return undefined
+    }
+    return this.byId[id].transaction
   }
 
   /**
-   * Get an interator to all transactions in insertion order.
-   * @return {Iterator}
+   * Get an array of all transactions ordered by fee.
+   * Transactions are ordered by fee (highest fee first) or by
+   * insertion time, if fees equal (earliest transaction first).
+   * @return {Array of MemPoolTransaction} transactions
    */
-  getTransactionsInInsertionOrder () {
-    return this.byId.values()
+  getTransactionsOrderedByFee () {
+    if (!this.allIsSorted) {
+      this.all.sort(function (a, b) {
+        if (a.transaction.fee > b.transaction.fee) {
+          return -1
+        }
+        if (a.transaction.fee < b.transaction.fee) {
+          return 1
+        }
+        return a.sequence - b.sequence
+      })
+      this.allIsSorted = true
+    }
+
+    return this.all
   }
 
   /**
@@ -179,7 +247,7 @@ class Mem {
    * @return {Boolean} true if exists
    */
   transactionExists (id) {
-    return this.byId.has(id)
+    return this.byId[id] !== undefined
   }
 
   /**
@@ -191,9 +259,9 @@ class Mem {
 
     let transactions = []
 
-    for (const e of this.idsByExpiration) {
-      if (e.expireAt <= now) {
-        transactions.push(this.byId.get(e.transactionId))
+    for (const memPoolTransaction of this.sortedByExpiration) {
+      if (memPoolTransaction.expireAt <= now) {
+        transactions.push(memPoolTransaction.transaction)
       } else {
         break
       }
@@ -206,9 +274,11 @@ class Mem {
    * Remove all transactions.
    */
   flush () {
-    this.byId.clear()
-    this.idsBySender.clear()
-    this.idsByExpiration = []
+    this.all = []
+    this.allIsSorted = true
+    this.byId = {}
+    this.bySender = {}
+    this.sortedByExpiration = []
     this.dirty.added.clear()
     this.dirty.removed.clear()
   }
@@ -226,11 +296,11 @@ class Mem {
    * Get the dirty transactions that were added and forget they are dirty.
    * In other words, get the transactions that were added since the last
    * call to this method (or to the flush() method).
-   * @return {Array of Transaction}
+   * @return {Array of MemPoolTransaction}
    */
   getDirtyAddedAndForget () {
     let added = []
-    this.dirty.added.forEach(id => added.push(this.byId.get(id)))
+    this.dirty.added.forEach(id => added.push(this.byId[id]))
     this.dirty.added.clear()
     return added
   }
