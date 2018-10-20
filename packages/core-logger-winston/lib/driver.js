@@ -38,8 +38,8 @@ module.exports = class Logger extends LoggerInterface {
     let line = '\u{1b}[0G  '
     line += title.blue
     line += ' ['
-    line += ('='.repeat(progress / 2)).green
-    line += ' '.repeat(50 - progress / 2) + '] '
+    line += ('='.repeat(Math.floor(progress / 2))).green
+    line += ' '.repeat(Math.ceil(50 - progress / 2)) + '] '
     line += progress.toFixed(figures) + '% '
 
     if (postTitle) {

@@ -186,6 +186,9 @@ module.exports = class SPV {
           wallet.vote = vote.slice(1)
         }
 
+        // NOTE: The "voted" property is only used within this loop to avoid an issue
+        // that results in not properly applying "unvote" transactions as the "vote" property
+        // would be empty in that case and return a false result.
         wallet.voted = true
       }
     }
