@@ -13,22 +13,22 @@ module.exports = class MemPoolTransaction {
   /**
    * Construct a MemPoolTransaction object.
    * @param {Transaction} transaction base transaction object
-   * @param {Object}      extra       additional properties, the object can have
+   * @param {Object}      options     additional properties, the object can have
    *                                  `sequence` (Number) or `expireAt` (Date)
    *                                  set or it can be omitted.
    */
-  constructor (transaction, extra) {
+  constructor (transaction, options) {
     assert(transaction instanceof Transaction)
     this._transaction = transaction
 
-    if (extra !== undefined && extra.sequence !== undefined) {
-      assert(Number.isInteger(extra.sequence))
-      this._sequence = extra.sequence
+    if (options !== undefined && options.sequence !== undefined) {
+      assert(Number.isInteger(options.sequence))
+      this._sequence = options.sequence
     }
 
-    if (extra !== undefined && extra.expireAt !== undefined) {
-      assert(extra.expireAt instanceof Date)
-      this._expireAt = extra.expireAt
+    if (options !== undefined && options.expireAt !== undefined) {
+      assert(options.expireAt instanceof Date)
+      this._expireAt = options.expireAt
     }
   }
 
