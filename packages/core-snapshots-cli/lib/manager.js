@@ -3,7 +3,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const Database = require('./db/postgres')
 const utils = require('./utils')
-const { exportTable, importTable, verifyTable } = require('./transport')
+const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
 
 module.exports = class SnapshotManager {
   constructor () {
@@ -35,10 +35,10 @@ module.exports = class SnapshotManager {
 
     lastBlock = await this.database.getLastBlock()
 
-    logger.info(`Import from ${options.filename} completed. Last Block in database: ${lastBlock.height}`)
+    logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
 
     const newLastBlock = await this.database.rollbackChain(lastBlock.height)
-    logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last Block in database: ${newLastBlock.height}`)
+    logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last block in database: ${newLastBlock.height}`)
   }
 
   async verifyData (options) {
@@ -52,12 +52,17 @@ module.exports = class SnapshotManager {
       verifyTable(`transactions.${fileMeta.stringInfo}`, this.database, options.skipSignVerify)
     ])
 
-    logger.info(`Verifying of snapshot ${options.filename} completed with success :100:`)
+    logger.info(`Verifying of snapshot completed with success :100:`)
   }
 
   async rollbackChain (options) {
     const lastBlock = await this.database.getLastBlock()
     const rollBackHeight = options.height === -1 ? lastBlock.height : options.height
+
+    if (options.height) {
+      const queries = await this.database.buildExportQueries(+options.height + 1, lastBlock.height)
+      await backupTransactionsToJSON(`rollbackTransactionBackup.${(+options.height + 1)}.${lastBlock.height}.json`, queries.transactions, this.database)
+    }
 
     const newLastBlock = await this.database.rollbackChain(rollBackHeight)
     logger.info(`Rolling back chain to last finished round ${newLastBlock.height / 51} with last block height ${newLastBlock.height}`)
