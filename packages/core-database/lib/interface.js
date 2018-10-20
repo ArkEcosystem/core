@@ -66,10 +66,11 @@ module.exports = class ConnectionInterface {
   /**
    * Get the top 51 delegates.
    * @param  {Number} height
+   * @param  {Array} delegates
    * @return {void}
    * @throws Error
    */
-  async getActiveDelegates (height) {
+  async getActiveDelegates (height, delegates) {
     throw new Error('Method [getActiveDelegates] not implemented!')
   }
 
@@ -278,13 +279,11 @@ module.exports = class ConnectionInterface {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          this.walletManager.updateDelegates()
           this.updateDelegateStats(height, this.activeDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
           const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
           await this.saveRound(delegates) // save next round delegate list
-          await this.getActiveDelegates(nextHeight) // generate the new active delegates list
-
+          await this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list
           this.blocksInCurrentRound.length = 0
         } catch (error) {
           // trying to leave database state has it was

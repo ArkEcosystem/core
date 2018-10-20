@@ -158,9 +158,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * Get the top 51 delegates.
    * @param  {Number} height
+   * @param  {Array} delegates
    * @return {Array}
    */
-  async getActiveDelegates (height) {
+  async getActiveDelegates (height, delegates) {
     const maxDelegates = config.getConstants(height).activeDelegates
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
@@ -168,22 +169,25 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return this.activeDelegates
     }
 
-    const data = await this.db.rounds.findById(round)
+    // When called during applyRound we already know the delegates, so we don't have to query the database.
+    if (!delegates || delegates.length === 0) {
+      delegates = await this.db.rounds.findById(round)
+    }
 
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
 
-    for (let i = 0, delCount = data.length; i < delCount; i++) {
+    for (let i = 0, delCount = delegates.length; i < delCount; i++) {
       for (let x = 0; x < 4 && i < delCount; i++, x++) {
         const newIndex = currentSeed[x] % delCount
-        const b = data[newIndex]
-        data[newIndex] = data[i]
-        data[i] = b
+        const b = delegates[newIndex]
+        delegates[newIndex] = delegates[i]
+        delegates[i] = b
       }
       currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
     }
 
-    this.activeDelegates = data.map(delegate => {
+    this.activeDelegates = delegates.map(delegate => {
       delegate.round = +delegate.round
       return delegate
     })

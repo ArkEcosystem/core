@@ -529,9 +529,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('updateDelegates', () => {
+  describe('buildVoteBalances', () => {
     it('should be a function', () => {
-      expect(walletManager.updateDelegates).toBeFunction()
+      expect(walletManager.buildVoteBalances).toBeFunction()
     })
 
     it('should update vote balance of delegates', async () => {
@@ -554,7 +554,7 @@ describe('Wallet Manager', () => {
         walletManager.index([delegate, voter])
       }
 
-      walletManager.updateDelegates()
+      walletManager.buildVoteBalances()
 
       const delegates = walletManager.allByUsername()
       for (let i = 0; i < 5; i++) {
