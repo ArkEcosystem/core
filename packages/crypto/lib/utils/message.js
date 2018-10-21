@@ -1,19 +1,24 @@
 const crypto = require('crypto')
 const { crypto: arkCrypto } = require('../crypto')
 
-class Message {
+const createHash = message => crypto
+    .createHash('sha256')
+    .update(Buffer.from(message, 'utf-8'))
+    .digest()
+
+module.exports = class Message {
   /**
    * Sign the given message.
    * @param  {String} message
    * @param  {String} passphrase
    * @return {Object}
    */
-  sign (message, passphrase) {
+  static sign (message, passphrase) {
     const keys = arkCrypto.getKeys(passphrase)
 
     return {
       publicKey: keys.publicKey,
-      signature: arkCrypto.signHash(this.__createHash(message), keys),
+      signature: arkCrypto.signHash(createHash(message), keys),
       message
     }
   }
@@ -25,21 +30,7 @@ class Message {
    * @param  {String} options.signature
    * @return {Boolean}
    */
-  verify ({ message, publicKey, signature }) {
-    return arkCrypto.verifyHash(this.__createHash(message), signature, publicKey)
-  }
-
-  /**
-   * Create a new hash.
-   * @param  {String} message
-   * @return {String}
-   */
-  __createHash (message) {
-    return crypto
-      .createHash('sha256')
-      .update(Buffer.from(message, 'utf-8'))
-      .digest()
+  static verify ({ message, publicKey, signature }) {
+    return arkCrypto.verifyHash(createHash(message), signature, publicKey)
   }
 }
-
-module.exports = new Message()
