@@ -1,0 +1,3 @@
+SELECT *
+FROM BLOCKS
+WHERE HEIGHT = ${height}

@@ -1,7 +1,7 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const Database = require('./db/postgres')
+const Database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
 
@@ -28,6 +28,7 @@ module.exports = class SnapshotManager {
     }
     let lastBlock = await this.database.getLastBlock()
     const fileMeta = utils.getSnapshotInfo(options.filename)
+
     await Promise.all([
       importTable(`blocks.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify),
       importTable(`transactions.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify)

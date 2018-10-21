@@ -3,6 +3,7 @@
 const promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
+const queries = require('./queries')
 
 module.exports = class Database {
   constructor () {
@@ -19,11 +20,11 @@ module.exports = class Database {
   }
 
   async getLastBlock () {
-    return this.db.oneOrNone('SELECT * FROM blocks ORDER BY height DESC LIMIT 1')
+    return this.db.oneOrNone(queries.blocks.latest)
   }
 
   async getBlockByHeight (height) {
-    return this.db.oneOrNone(`SELECT id, height, timestamp FROM blocks WHERE height = ${height}`)
+    return this.db.oneOrNone(queries.blocks.findByHeight, { height })
   }
 
   async truncateChain () {
@@ -40,19 +41,25 @@ module.exports = class Database {
     const currentRound = Math.floor(height / maxDelegates)
     const lastBlockHeight = currentRound * maxDelegates
     const lastRemainingBlock = await this.getBlockByHeight(lastBlockHeight)
-
-    if (lastRemainingBlock) {
-      await Promise.all([
-        this.db.none(this.__truncateStatement('wallets')),
-        this.db.none(`DELETE FROM TRANSACTIONS WHERE TIMESTAMP > ${lastRemainingBlock.timestamp}`),
-        this.db.none(`DELETE FROM BLOCKS WHERE HEIGHT > ${lastRemainingBlock.height}`),
-        this.db.none(`DELETE FROM ROUNDS WHERE ROUND > ${currentRound}`)
-      ])
+    console.log(lastRemainingBlock)
+    try {
+      if (lastRemainingBlock) {
+        await Promise.all([
+          this.db.none(this.__truncateStatement('wallets')),
+          this.db.none(queries.transactions.deleteFromTimestamp, { timestamp: lastRemainingBlock.timestamp }),
+          this.db.none(queries.blocks.deleteFromHeight, { height: lastRemainingBlock.height }),
+          this.db.none(queries.rounds.deleteFromRound, { round: currentRound })
+        ])
+      }
+    } catch (error) {
+      logger.error(error, error.stack)
     }
-
     return this.getLastBlock()
   }
 
+  /**
+  * Used for stream export query stream, where string query is expected.
+  */
   async buildExportQueries (startHeight, endHeight) {
     const startBlock = await this.getBlockByHeight(startHeight)
     const endBlock = await this.getBlockByHeight(endHeight)

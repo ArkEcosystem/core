@@ -1,0 +1,2 @@
+DELETE FROM ROUNDS
+WHERE ROUND > ${round}

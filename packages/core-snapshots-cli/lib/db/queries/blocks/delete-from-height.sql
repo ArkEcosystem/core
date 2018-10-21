@@ -1,0 +1,2 @@
+DELETE FROM BLOCKS
+WHERE HEIGHT > ${height}
