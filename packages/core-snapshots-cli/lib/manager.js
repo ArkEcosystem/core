@@ -36,7 +36,6 @@ module.exports = class SnapshotManager {
     .then(() => {
       lastBlock = this.database.getLastBlockSync()
       logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
-
     })
     if (!options.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
