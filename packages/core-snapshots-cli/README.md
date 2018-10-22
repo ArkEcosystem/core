@@ -35,7 +35,7 @@ A snapshot can be also created by specifying `--start` and `--end` options where
 ### Append data to an existing snapshot
 To enable rolling snapshost and their faster import execution, it is possible to append data to the existing snapshot.
 The command is the same as for creating of snapshot with additional parameter for `-f` or `--filename` where we specify the existing snapshot we want to append.
-As a filename you only provide the `blocks.X.X.dat` filename, for example `blocks.0.331985.dat`. Other files (`transactions.dat, rounds.dat`) are auto appended.
+As a filename you only provide the `blocks.X.X.dat` filename, for example `blocks.0.331985.dat`. Other files are auto appended.
 
 When append is complete a new file is created, while preserving the old snapshost. You must manually delete old files if needed.
 ```bash
@@ -44,18 +44,21 @@ yarn create:devnet -f blocks.0.331985.dat
 
 ### Importing a snapshot
 The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snapshot filename must be specified. You specify only first filename - from the blocks.
+
 >Make sure that your node is not running.
+
 ```bash
 yarn import:devnet -f blocks.0.331985.dat
 ```
 > Add option `--truncate` to empty all the tables before import
+
 ```bash
 yarn import:devnet -f blocks.0.331985.dat --truncate
 ```
 #### Speeding up the import of large amounts of data
 If your snapshot is large and import slow, there is an option to disable signature verification checks. Imports are still validated according to their own hashes and if blocks are correctly chained.
 ```bash
-yarn import:devnet -f blocks.0.331985.dat --truncate --skip-sign-
+yarn import:devnet -f blocks.0.331985.dat --truncate --skip-sign-verify
 ```
 
 By default behaviour when snapshot is imported, the block heigth is set to last finished round (some blocks are deleted at the end). If you have more snaphshot files following each other, then you can disable this with the `--skip-revert-round` flag. If this flag is present, block height will not be reverted at the end of import.
