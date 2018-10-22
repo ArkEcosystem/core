@@ -9,6 +9,8 @@ const WalletManager = require('./wallet-manager')
 const { Block } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
+const cloneDeep = require('lodash/cloneDeep')
+const assert = require('assert')
 
 module.exports = class ConnectionInterface {
   /**
@@ -307,11 +309,47 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
-      this.blocksInCurrentRound = await this.__getBlocksForRound(round)
-      this._activeDelegates = await this.getActiveDelegates(height)
+      this._activeDelegates = await this.__calcPreviousActiveDelegates(round)
 
       await this.deleteRound(nextRound)
     }
+  }
+
+  /**
+   * Calculate the active delegates of the previous round. In order to do
+   * so we need to go back to the start of that round. Therefore we create
+   * a temporary wallet manager with all delegates and revert all blocks
+   * and transactions of that round to get the initial vote balances
+   * which are then used to restore the original order.
+   * @param {Number} round
+   */
+  async __calcPreviousActiveDelegates (round) {
+    // TODO: cache the blocks of the last X rounds
+    this.blocksInCurrentRound = await this.__getBlocksForRound(round)
+
+    // Create temp wallet manager from all delegates
+    const tempWalletManager = new WalletManager()
+    tempWalletManager.index(cloneDeep(this.walletManager.allByUsername()))
+
+    // Revert all blocks in reverse order
+    let height = 0
+    for (let i = this.blocksInCurrentRound.length - 1; i >= 0; i--) {
+      tempWalletManager.revertBlock(this.blocksInCurrentRound[i])
+      height = this.blocksInCurrentRound[i].data.height
+    }
+
+    // The first round has no active delegates
+    if (height === 1) {
+      return []
+    }
+
+    // Assert that the height is the beginning of a round.
+    const { maxDelegates } = roundCalculator.calculateRound(height)
+    assert(height > 1 && height % maxDelegates === 1)
+
+    // Now retrieve the active delegate list from the temporary wallet manager.
+    const delegates = tempWalletManager.loadActiveDelegateList(maxDelegates, height)
+    return this.getActiveDelegates(height, delegates)
   }
 
   /**

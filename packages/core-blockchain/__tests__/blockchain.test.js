@@ -474,6 +474,11 @@ async function __start () {
 async function __resetToHeight1 () {
   const lastBlock = await blockchain.database.getLastBlock()
   if (lastBlock) {
+    // Make sure the wallet manager has been fed or else revertRound
+    // cannot determine the previous delegates. This is only necessary, because
+    // the database is not dropped after the unit tests are done.
+    await blockchain.database.buildWallets(lastBlock.data.height)
+
     blockchain.stateMachine.state.lastBlock = lastBlock
     await blockchain.removeBlocks(lastBlock.data.height - 1)
   }
