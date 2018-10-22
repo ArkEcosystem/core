@@ -50,7 +50,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
       return this
     } catch (error) {
-      logger.error('Unable to connect to the database', error.stack)
+      logger.error('Unable to connect to the database')
+      logger.error(error.stack)
       process.exit(1)
     }
   }
