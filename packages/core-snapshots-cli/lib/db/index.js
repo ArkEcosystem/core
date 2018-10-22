@@ -70,11 +70,14 @@ module.exports = class Database {
     }
 
     return {
-      blocks: queries.blocksExportString(startBlock.height, endBlock.height),
-      transactions: queries.transactionsExportString(startBlock.timestamp, endBlock.timestamp)
+      blocks: queries.blocksExport(startBlock.height, endBlock.height),
+      transactions: queries.transactionsExport(startBlock.timestamp, endBlock.timestamp)
     }
   }
 
+  /**
+  * Used for stream export query stream, where string query is expected.
+  */
   getTransactionsBackupQuery (startTimestamp) {
     return queries.transactionsBackup(startTimestamp)
   }

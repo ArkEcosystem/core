@@ -31,7 +31,7 @@ module.exports = {
     }
   },
 
-  importTable: async (sourceFile, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
+  importTable: async (sourceFile, database, lastBlock, skipVerifySignature = false) => {
     const decodeStream = msgpack.createDecodeStream()
     const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
     const tableName = sourceFile.split('.')[0]
@@ -57,24 +57,18 @@ module.exports = {
       return Promise.resolve(data.length === 0 ? null : data)
     }
 
-    database.db.task('massive-insert', t => {
+    await database.db.task('massive-inserts', t => {
       return t.sequence(index => {
         rs.resume()
         return getNextData(t, index)
         .then(data => {
           if (data) {
-            logger.info(`Importing ${data.length} records from ${sourceFile}`)
+            logger.debug(`Importing ${data.length} records from ${sourceFile}`)
             const insert = database.pgp.helpers.insert(data, database.getColumnSet(tableName))
             return t.none(insert)
           }
         })
       })
-    })
-    .then((data) => {
-      logger.info(`Table ${tableName} restored from ${sourceFile} :+1: ${JSON.stringify(data)}`)
-    })
-    .catch((error) => {
-      logger.error(error)
     })
   },
 

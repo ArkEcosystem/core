@@ -8,7 +8,6 @@ const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = requ
 module.exports = class SnapshotManager {
   constructor () {
     this.database = new Database()
-    this.chunkSize = 50000
   }
 
   async exportData (options) {
@@ -29,14 +28,13 @@ module.exports = class SnapshotManager {
     let lastBlock = await this.database.getLastBlock()
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
-    Promise.all([
+   await Promise.all([
       importTable(`blocks.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify),
       importTable(`transactions.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify)
     ])
-    .then(() => {
-      lastBlock = this.database.getLastBlockSync()
-      logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
-    })
+    lastBlock = await this.database.getLastBlock()
+    logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
+
     if (!options.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last block in database: ${newLastBlock.height}`)
