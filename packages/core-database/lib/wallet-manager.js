@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird')
 
-const { Bignum, crypto, formatArktoshi } = require('@arkecosystem/crypto')
+const { crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
@@ -235,28 +235,21 @@ module.exports = class WalletManager {
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
 
-    return delegates.map(delegate => ({ ...{ round }, ...delegate }))
+    return delegates.map((delegate, i) => ({ ...{ round }, ...delegate, rate: i + 1 }))
   }
 
   /**
-   * Update the vote balances of delegates.
+   * Build vote balances of all delegates.
+   * NOTE: Only called during SPV.
    * @return {void}
    */
-  updateDelegates () {
-    Object
-      .values(this.byUsername)
-      .forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
-
+  buildVoteBalances () {
     Object.values(this.byPublicKey).forEach(voter => {
       if (voter.vote) {
         const delegate = this.byPublicKey[voter.vote]
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
       }
     })
-
-    Object.values(this.byUsername)
-      .sort((a, b) => +b.voteBalance.minus(a.voteBalance).toFixed())
-      .forEach((delegate, index) => (delegate.rate = index + 1))
   }
 
   /**
@@ -310,7 +303,17 @@ module.exports = class WalletManager {
         appliedTransactions.push(block.transactions[i])
       }
 
-      delegate.applyBlock(block.data)
+      const applied = delegate.applyBlock(block.data)
+
+      // If the block has been applied to the delegate, the balance is increased
+      // by reward + totalFee. In which case the vote balance of the
+      // delegate's delegate has to be updated.
+      if (applied && delegate.vote) {
+        const increase = block.data.reward.plus(block.data.totalFee)
+        const votedDelegate = this.byPublicKey[delegate.vote]
+        votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase)
+      }
+
     } catch (error) {
       logger.error('Failed to apply all transactions in block - reverting previous transactions')
       // Revert the applied transactions from last to first
@@ -351,7 +354,17 @@ module.exports = class WalletManager {
         revertedTransactions.push(transaction)
       })
 
-      delegate.revertBlock(block.data)
+      const reverted = delegate.revertBlock(block.data)
+
+      // If the block has been reverted, the balance is decreased
+      // by reward + totalFee. In which case the vote balance of the
+      // delegate's delegate has to be updated.
+      if (reverted && delegate.vote) {
+        const decrease = block.data.reward.plus(block.data.totalFee)
+        const votedDelegate = this.byPublicKey[delegate.vote]
+        votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease)
+      }
+
     } catch (error) {
       logger.error(error.stack)
 
@@ -407,7 +420,61 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(data)
     }
 
+    this._updateVoteBalances(sender, recipient, data)
+
     return transaction
+  }
+
+  /**
+   * Updates the vote balances of the respective delegates of sender and recipient.
+   * If the transaction is not a vote...
+   *    1. fee + amount is removed from the sender's delegate vote balance
+   *    2. amount is added to the recipient's delegate vote balance
+   *
+   * in case of a vote...
+   *    1. the full sender balance is added to the sender's delegate vote balance
+   *
+   * If revert is set to true, the operations are reversed (plus -> minus, minus -> plus).
+   * @param  {Wallet} sender
+   * @param  {Wallet} recipient
+   * @param  {Transaction} transaction
+   * @param  {Boolean} revert
+   * @return {Transaction}
+   */
+  _updateVoteBalances (sender, recipient, transaction, revert = false) {
+    // TODO: multipayment?
+    if (transaction.type !== TRANSACTION_TYPES.VOTE) {
+
+      // Update vote balance of the sender's delegate
+      if (sender.vote) {
+        const delegate = this.findByPublicKey(sender.vote)
+        const total = transaction.amount.plus(transaction.fee)
+        delegate.voteBalance = revert
+          ? delegate.voteBalance.plus(total)
+          : delegate.voteBalance.minus(total)
+      }
+
+      // Update vote balance of recipient's delegate
+      if (recipient && recipient.vote) {
+        const delegate = this.findByPublicKey(recipient.vote)
+        delegate.voteBalance = revert
+          ? delegate.voteBalance.minus(transaction.amount)
+          : delegate.voteBalance.plus(transaction.amount)
+      }
+
+    } else {
+      const vote = transaction.asset.votes[0]
+      const delegate = this.findByPublicKey(vote.substr(1))
+
+      delegate.voteBalance = vote.startsWith('+')
+        ? revert
+          ? delegate.voteBalance.minus(sender.balance)
+          : delegate.voteBalance.plus(sender.balance)
+        : revert
+          ? delegate.voteBalance.plus(sender.balance.plus(transaction.fee))
+          : delegate.voteBalance.minus(sender.balance.plus(transaction.fee))
+    }
+
   }
 
   /**
@@ -430,6 +497,9 @@ module.exports = class WalletManager {
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.revertTransactionForRecipient(data)
     }
+
+    // Revert vote balance updates
+    this._updateVoteBalances(sender, recipient, data, true)
 
     return data
   }

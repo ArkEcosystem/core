@@ -66,10 +66,11 @@ module.exports = class ConnectionInterface {
   /**
    * Get the top 51 delegates.
    * @param  {Number} height
+   * @param  {Array} delegates
    * @return {void}
    * @throws Error
    */
-  async getActiveDelegates (height) {
+  async getActiveDelegates (height, delegates) {
     throw new Error('Method [getActiveDelegates] not implemented!')
   }
 
@@ -105,41 +106,42 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Save the given number of block (async version) in the memory Must call commit() to save to database.
+   * Queue a query to save the given block.
+   * NOTE: Must call commitQueuedQueries() to save to database.
    * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) by calling commit
    * @param  {Block} block
    * @return {void}
    * @throws Error
    */
-  async enqueueSaveBlock (block) {
+  enqueueSaveBlock (block) {
     throw new Error('Method [enqueueSaveBlock] not implemented!')
   }
 
   /**
-   * Delete the given block (async version).
+   * Queue a query to delete the given block.
    * See also enqueueSaveBlock
    * @param  {Block} block
    * @return {void}
    * @throws Error
    */
-  async enqueueDeleteBlock (block) {
+  enqueueDeleteBlock (block) {
     throw new Error('Method [enqueueDeleteBlock] not implemented!')
   }
 
   /**
-   * Delete the round at given height (async version).
+   * Queue a query to delete the round at given height.
    * See also enqueueSaveBlock and enqueueDeleteBlock
    * @param  {Number} height
    * @return {void}
    * @throws Error
    */
-  async enqueueDeleteRound (height) {
+  enqueueDeleteRound (height) {
     throw new Error('Method [enqueueDeleteRound] not implemented!')
   }
 
   /**
    * Commit all queued queries to the database.
-   * NOTE: to be used in combination with other enqueue-functions
+   * NOTE: to be used in combination with other enqueue-functions.
    * @return {void}
    * @throws Error
    */
@@ -212,7 +214,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  saveRound (activeDelegates) {
+  async saveRound (activeDelegates) {
     throw new Error('Method [saveRound] not implemented!')
   }
 
@@ -222,7 +224,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  deleteRound (round) {
+  async deleteRound (round) {
     throw new Error('Method [deleteRound] not implemented!')
   }
 
@@ -277,13 +279,11 @@ module.exports = class ConnectionInterface {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          this.walletManager.updateDelegates()
           this.updateDelegateStats(height, this.activeDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
           const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
           await this.saveRound(delegates) // save next round delegate list
-          await this.getActiveDelegates(nextHeight) // generate the new active delegates list
-
+          await this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list
           this.blocksInCurrentRound.length = 0
         } catch (error) {
           // trying to leave database state has it was

@@ -214,6 +214,8 @@ class Monitor {
     if (!this.guard.isMyself(peer) && !(await peer.hasCommonBlocks(blockIds))) {
       logger.error(`Could not get common block for ${peer.ip}`)
 
+      peer.commonBlocks = false
+
       this.guard.suspend(peer)
 
       return false
@@ -329,7 +331,7 @@ class Monitor {
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
-    
+
     let allowedToForge = 0
     let syncedPeers = 0
 
