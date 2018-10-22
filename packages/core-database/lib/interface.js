@@ -287,7 +287,7 @@ module.exports = class ConnectionInterface {
           this.blocksInCurrentRound.length = 0
         } catch (error) {
           // trying to leave database state has it was
-          this.deleteRound(round)
+          await this.deleteRound(round)
           throw error
         }
       } else {
