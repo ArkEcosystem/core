@@ -7,7 +7,7 @@ The plugin provides a cli interface, with the following available commands:
 - create (with option to append, or to select `--start` and `--end` block height to export)
 - import
 - verify
-- rollback
+- rollback (and backup forged transactions during the process)
 
 The commands and their usage is described below.
 
@@ -30,6 +30,8 @@ Files are named following this pattern:  `table.startHeight.endHeight.dat`. For 
 - rounds.dat (last few rounds)
 
 The filename `blocks.0.331985.dat` indicates that the snapshot includes data between block 0 and block 331985.
+
+A snaphsot can be also created by specifying `--start` and `--end` options where we can specify start end end block height we want to export.
 
 ### Append data to an existing snapshot
 To enable rolling snapshost and their faster import execution, it is possible to append data to the existing snapshot.
