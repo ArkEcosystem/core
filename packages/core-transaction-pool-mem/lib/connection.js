@@ -195,7 +195,7 @@ class TransactionPool extends TransactionPoolInterface {
 
       return transactions
     } catch (error) {
-      logger.error('Could not get transactions for forging: ', error, error.stack)
+      logger.error('Could not get transactions for forging: ' + error.stack)
     }
   }
 
