@@ -173,7 +173,7 @@ describe('API P2P - Version 2', () => {
       expect(response.status).toBe(406)
 
       expect(response.result.error).toBeObject()
-      expect(response.result.error[transactions[1].id]).toEqual([ `Error: PoolWalletManager: Can't apply transaction ${transactions[1].id}` ])
+      expect(response.result.error[transactions[1].id]).toEqual([ `Error: [PoolWalletManager] Can't apply transaction ${transactions[1].id}` ])
     })
 
     it.each([3, 5, 8])('should accept %i transactions emptying a wallet', async (txNumber) => {
@@ -216,7 +216,7 @@ describe('API P2P - Version 2', () => {
       expect(response.status).toBe(406)
 
       expect(response.result.error).toBeObject()
-      expect(response.result.error[lastTransaction[0].id]).toEqual([ `Error: PoolWalletManager: Can't apply transaction ${lastTransaction[0].id}` ])
+      expect(response.result.error[lastTransaction[0].id]).toEqual([ `Error: [PoolWalletManager] Can't apply transaction ${lastTransaction[0].id}` ])
     })
   })
 
