@@ -174,22 +174,20 @@ class TransactionPool extends TransactionPoolInterface {
     this.__purgeExpired()
 
     try {
-      let transactionsIds = await this.getTransactionIdsForForging(0, this.mem.getSize())
+      const transactions = []
 
-      let transactions = []
-      while (transactionsIds.length) {
-        const id = transactionsIds.shift()
+      for (const id of await this.getTransactionIdsForForging(0, this.mem.getSize())) {
         const transaction = this.mem.getTransactionById(id)
 
-        if (!transaction ||
-            !this.checkDynamicFeeMatch(transaction) ||
-            !(await this.checkApplyToBlockchain(transaction))) {
-          continue
-        }
+        if (transaction &&
+            this.checkDynamicFeeMatch(transaction) &&
+            await this.checkApplyToBlockchain(transaction)) {
 
-        transactions.push(transaction.serialized)
-        if (transactions.length === blockSize) {
-          break
+          transactions.push(transaction.serialized)
+
+          if (transactions.length === blockSize) {
+            break
+          }
         }
       }
 
