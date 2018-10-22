@@ -11,12 +11,11 @@ module.exports = class Database {
       const pgp = require('pg-promise')({ promiseLib: promise })
       this.pgp = pgp
       this.db = pgp(container.resolveOptions('database').connection)
+      this.__createColumnSets()
     } catch (error) {
-      logger.error(`Error while creating and connecting to postgres: ${error}`)
+      logger.error(`Error while connecting to postgres: ${error}`)
       process.exit(1)
     }
-
-    this.__createColumnSets()
   }
 
   async getLastBlock () {
@@ -41,7 +40,7 @@ module.exports = class Database {
     const currentRound = Math.floor(height / maxDelegates)
     const lastBlockHeight = currentRound * maxDelegates
     const lastRemainingBlock = await this.getBlockByHeight(lastBlockHeight)
-    console.log(lastRemainingBlock)
+
     try {
       if (lastRemainingBlock) {
         await Promise.all([
@@ -52,8 +51,9 @@ module.exports = class Database {
         ])
       }
     } catch (error) {
-      logger.error(error, error.stack)
+      logger.error(error)
     }
+
     return this.getLastBlock()
   }
 
