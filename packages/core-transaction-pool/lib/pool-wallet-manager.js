@@ -79,14 +79,14 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.byUsername[asset.delegate.username.toLowerCase()]) {
 
-      logger.error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
-      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`)
+      logger.error(`[PoolWalletManager] Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
+      throw new Error(`[PoolWalletManager] Can't apply transaction ${data.id}: delegate name already taken.`)
 
     // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
     } else if (type === TRANSACTION_TYPES.VOTE && !database.walletManager.__isDelegate(asset.votes[0].slice(1))) {
 
-      logger.error(`PoolWalletManager: Can't apply vote transaction: delegate ${asset.votes[0]} does not exist.`, JSON.stringify(data))
-      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`)
+      logger.error(`[PoolWalletManager] Can't apply vote transaction: delegate ${asset.votes[0]} does not exist.`, JSON.stringify(data))
+      throw new Error(`[PoolWalletManager] Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`)
 
     } else if (this.__isException(data)) {
 
@@ -94,9 +94,9 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     } else if (!sender.canApply(data)) {
 
-      logger.error(`PoolWalletManager: Can't apply transaction for ${sender.address}`, JSON.stringify(data))
-      logger.debug('PoolWalletManager: Audit', JSON.stringify(sender.auditApply(data), null, 2))
-      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}`)
+      logger.error(`[PoolWalletManager] Can't apply transaction for ${sender.address}: ` + JSON.stringify(data))
+      logger.debug('[PoolWalletManager] Audit: ' + JSON.stringify(sender.auditApply(data), null, 2))
+      throw new Error(`[PoolWalletManager] Can't apply transaction ${data.id}`)
     }
 
     sender.applyTransactionToSender(data)

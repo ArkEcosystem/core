@@ -405,8 +405,8 @@ module.exports = class WalletManager {
 
     } else if (!sender.canApply(data)) {
 
-      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(data))
-      logger.debug('Audit', JSON.stringify(sender.auditApply(data), null, 2))
+      logger.error(`Can't apply transaction for ${sender.address}: ` + JSON.stringify(data))
+      logger.debug('Audit: ' + JSON.stringify(sender.auditApply(data), null, 2))
       throw new Error(`Can't apply transaction ${data.id}`)
     }
 

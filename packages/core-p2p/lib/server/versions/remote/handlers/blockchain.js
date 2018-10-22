@@ -17,7 +17,7 @@ exports.emitEvent = {
     const event = container.resolvePlugin('blockchain').events[request.params.event]
 
     request.query.param
-      ? event(request.query.paramrequest.params.param)
+      ? event(request.query.params)
       : event()
 
     return h.response(null).code(204)

@@ -2,7 +2,7 @@
 
 const Boom = require('boom')
 const requestIp = require('request-ip')
-const isWhitelist = require('../../utils/is-whitelist')
+const isWhitelisted = require('../../utils/is-whitelist')
 const monitor = require('../../monitor')
 
 /**
@@ -23,15 +23,14 @@ const register = async (server, options) => {
         return h.continue
       }
 
-      if (!monitor.guard) {
-        return Boom.serverUnavailable('Peer Monitor not ready')
+      if (request.path.startsWith('/internal') || request.path.startsWith('/remote')) {
+        return isWhitelisted(options.whitelist, remoteAddress)
+          ? h.continue
+          : Boom.forbidden()
       }
 
-      if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isWhitelist(options.whitelist, remoteAddress)) {
-        return h.response({
-          code: 'ResourceNotFound',
-          message: `${request.path} does not exist`
-        }).code(400).takeover()
+      if (!monitor.guard) {
+        return Boom.serverUnavailable('Peer Monitor not ready')
       }
 
       if (request.path.startsWith('/peer')) {
