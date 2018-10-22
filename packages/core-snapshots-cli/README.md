@@ -23,7 +23,7 @@ The following action creates a new snapshot in .ark/snapshots/devnet/ folder.
 ```bash
 yarn create:devnet
 ```
-The command will generate snapshot files in your configured folder. By default this folder will be in `~.ark/NETWORK_NAME/snapshots`.
+The command will generate snapshot files in your configured folder. By default this folder will be in `~.ark/snapshots/NETWORK_NAME`.
 Files are named following this pattern:  `table.startHeight.endHeight.dat`. For example, command `yarn create:devnet` will create the following files:
 - blocks.0.331985.dat
 - transactions.dat
@@ -60,14 +60,15 @@ yarn import:devnet -f blocks.0.331985.dat --truncate --skip-sign-verify
 ```
 
 ### Verify existing snapshot
-If is wise to validate a snapshot. Functionality is simillar to import, just that there is no database interaction - so is basic chain validation with crypto. To check your snapshot run the following command.
+If is wise to validate a snapshot. Functionality is simillar to import, just that there is no database interaction - so basic chain validation with crypto. To check your snapshot run the following command.
 ```bash
 yarn verify:devnet -f blocks.0.331985.dat
 ```
-You can also just verify the chaining process and skip signature verification with `--skip-sign-verify` option.
+You can also just verify the chaining process and skip signature verification with `--no-sign-verify` option.
 ```bash
-yarn verify:devnet -f blocks.0.331985.dat --skip-sign-verify
+yarn verify:devnet -f blocks.0.331985.dat --no-sign-verify
 ```
+Also note that a database verification is performed when the core starts.
 
 ### Rolling back chain
 The command enables you to rollback you local blockhain database. By specifying the end height you can rollback chain to a history state.
@@ -77,6 +78,8 @@ yarn rollback:devnet -h 350000
 Above command will rollback the chain to block height of 350 000.
 
 If the `-h` or `--height` argument is not set, the command will rollback the chain to the last completed round.
+
+Rollback command also makes a backup of forged transactions. Transactions are stored next to the snapshot files (usually in `./ark/snapshots/NETWORK_NAME`). File is named `rollbackTransactionBackup.startBlockHeight.endBlockHeight.json`, for example: rollbackTransactionBackup.53001.54978.json containes transactions from block 53001 to block 54978.
 
 ## Security
 If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.

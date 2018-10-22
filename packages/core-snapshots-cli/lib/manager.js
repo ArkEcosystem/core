@@ -29,15 +29,16 @@ module.exports = class SnapshotManager {
     let lastBlock = await this.database.getLastBlock()
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
-    await Promise.all([
-      importTable(`blocks.${fileMeta.stringInfo}`, this.database, lastBlock, options.noSignVerify),
-      importTable(`transactions.${fileMeta.stringInfo}`, this.database, lastBlock, options.noSignVerify)
+    Promise.all([
+      importTable(`blocks.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify),
+      importTable(`transactions.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify)
     ])
+    .then(() => {
+      lastBlock = this.database.getLastBlockSync()
+      logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
 
-    lastBlock = await this.database.getLastBlock()
-    logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
-
-    if (!options.noRevert) {
+    })
+    if (!options.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last block in database: ${newLastBlock.height}`)
     }
@@ -62,8 +63,9 @@ module.exports = class SnapshotManager {
     const rollBackHeight = options.height === -1 ? lastBlock.height : options.height
 
     if (options.height) {
-      const queries = await this.database.buildExportQueries(+options.height + 1, lastBlock.height)
-      await backupTransactionsToJSON(`rollbackTransactionBackup.${(+options.height + 1)}.${lastBlock.height}.json`, queries.transactions, this.database)
+      const rollBackBlock = await this.database.getBlockByHeight(rollBackHeight)
+      const qTransactionBackup = await this.database.getTransactionsBackupQuery(rollBackBlock.timestamp)
+      await backupTransactionsToJSON(`rollbackTransactionBackup.${(+options.height + 1)}.${lastBlock.height}.json`, qTransactionBackup, this.database)
     }
 
     const newLastBlock = await this.database.rollbackChain(rollBackHeight)
@@ -82,7 +84,7 @@ module.exports = class SnapshotManager {
     if (options.filename) {
       utils.copySnapshot(utils.getSnapshotInfo(options.filename).stringInfo, params.meta.stringInfo)
     }
-    params.queries = await this.database.buildExportQueries(params.meta.startHeight, params.meta.endHeight)
+    params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
 
     console.log(params)
     return params

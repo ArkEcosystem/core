@@ -57,7 +57,7 @@ module.exports = {
       return Promise.resolve(data.length === 0 ? null : data)
     }
 
-    await database.db.task('massive-insert', t => {
+    database.db.task('massive-insert', t => {
       return t.sequence(index => {
         rs.resume()
         return getNextData(t, index)
@@ -70,7 +70,12 @@ module.exports = {
         })
       })
     })
-    logger.info(`Table ${tableName} restored from ${sourceFile} :+1:`)
+    .then((data) => {
+      logger.info(`Table ${tableName} restored from ${sourceFile} :+1: ${JSON.stringify(data)}`)
+    })
+    .catch((error) => {
+      logger.error(error)
+    })
   },
 
   verifyTable: async (filename, database, skipVerifySignature = false) => {

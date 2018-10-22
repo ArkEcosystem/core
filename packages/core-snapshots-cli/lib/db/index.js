@@ -60,7 +60,7 @@ module.exports = class Database {
   /**
   * Used for stream export query stream, where string query is expected.
   */
-  async buildExportQueries (startHeight, endHeight) {
+  async getExportQueries (startHeight, endHeight) {
     const startBlock = await this.getBlockByHeight(startHeight)
     const endBlock = await this.getBlockByHeight(endHeight)
 
@@ -73,6 +73,10 @@ module.exports = class Database {
       blocks: queries.blocksExportString(startBlock.height, endBlock.height),
       transactions: queries.transactionsExportString(startBlock.timestamp, endBlock.timestamp)
     }
+  }
+
+  getTransactionsBackupQuery (startTimestamp) {
+    return queries.transactionsBackup(startTimestamp)
   }
 
   getColumnSet (tableName) {
