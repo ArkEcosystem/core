@@ -1,4 +1,4 @@
-const { Message } = require('../../lib/utils')
+const { Message } = require('../../lib/crypto')
 
 const fixture = {
   data: {

@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const { crypto: arkCrypto } = require('../crypto')
+const arkCrypto = require('./crypto')
 
 const createHash = message => crypto
     .createHash('sha256')
