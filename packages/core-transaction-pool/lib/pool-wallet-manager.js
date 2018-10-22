@@ -95,7 +95,7 @@ module.exports = class PoolWalletManager extends WalletManager {
     } else if (!sender.canApply(data)) {
 
       logger.error(`PoolWalletManager: Can't apply transaction for ${sender.address}`, JSON.stringify(data))
-      logger.debug('PoolWalletManager: Audit', JSON.stringify(sender.auditApply(data), null, 2))
+      logger.debug('PoolWalletManager: Audit' + JSON.stringify(sender.auditApply(data), null, 2))
       throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}`)
     }
 
