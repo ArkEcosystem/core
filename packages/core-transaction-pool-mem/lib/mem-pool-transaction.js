@@ -1,34 +1,33 @@
 'use strict'
 
 const assert = require('assert')
-const { Transaction } = require('@arkecosystem/crypto').models
+const crypto = require('@arkecosystem/crypto')
+
+const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
+const Transaction = crypto.models.Transaction
 
 /**
  * A mem pool transaction.
  * A normal transaction
  * + a sequence number used to order by insertion time
- * + an expiration time (Date object) used to remove old transactions from the pool
+ * + a get-expiration-time method used to remove old transactions from the pool
  */
 module.exports = class MemPoolTransaction {
   /**
    * Construct a MemPoolTransaction object.
    * @param {Transaction} transaction base transaction object
-   * @param {Object}      options     additional properties, the object can have
-   *                                  `sequence` (Number) or `expireAt` (Date)
-   *                                  set or it can be omitted.
+   * @param {Number}      sequence    insertion order sequence or undefined;
+   *                                  if this is undefined at creation time,
+   *                                  then it is assigned later using the
+   *                                  setter method below
    */
-  constructor (transaction, options) {
+  constructor (transaction, sequence) {
     assert(transaction instanceof Transaction)
     this._transaction = transaction
 
-    if (options !== undefined && options.sequence !== undefined) {
-      assert(Number.isInteger(options.sequence))
-      this._sequence = options.sequence
-    }
-
-    if (options !== undefined && options.expireAt !== undefined) {
-      assert(options.expireAt instanceof Date)
-      this._expireAt = options.expireAt
+    if (sequence !== undefined) {
+      assert(Number.isInteger(sequence))
+      this._sequence = sequence
     }
   }
 
@@ -45,12 +44,23 @@ module.exports = class MemPoolTransaction {
     this._sequence = seq
   }
 
-  get expireAt () {
-    return this._expireAt
-  }
+  /**
+   * Derive the transaction expiration time in number of seconds since
+   * the genesis block.
+   * @param {Number} maxTransactionAge maximum age (in seconds) of a transaction
+   * @return {Number} expiration time or null if the transaction does not expire
+   */
+  expireAt (maxTransactionAge) {
+    const t = this._transaction
 
-  set expireAt (exp) {
-    assert.strictEqual(this._expireAt, undefined)
-    this._expireAt = exp
+    if (t.expiration > 0) {
+      return t.expiration
+    }
+
+    if (t.type !== TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+      return t.timestamp + maxTransactionAge
+    }
+
+    return null
   }
 }

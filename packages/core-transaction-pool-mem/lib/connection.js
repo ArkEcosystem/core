@@ -301,7 +301,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   __purgeExpired () {
-    for (const transaction of this.mem.getExpired()) {
+    for (const transaction of this.mem.getExpired(this.options.maxTransactionAge)) {
       emitter.emit('transaction.expired', transaction.data)
 
       this.walletManager.revertTransaction(transaction)
