@@ -23,6 +23,12 @@ const register = async (server, options) => {
         return h.continue
       }
 
+      if (request.path.startsWith('/remote')) {
+        return isWhitelist(options.whitelist, remoteAddress)
+          ? h.continue
+          : Boom.unauthorized()
+      }
+
       if (!monitor.guard) {
         return Boom.serverUnavailable('Peer Monitor not ready')
       }
