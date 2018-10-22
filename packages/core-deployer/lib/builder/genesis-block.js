@@ -13,7 +13,7 @@ module.exports = class GenesisBlockBuilder {
     this.network = network
     this.prefixHash = network.pubKeyHash
     this.totalPremine = options.totalPremine
-    this.activeDelegates = options.activeDelegates
+    this.maxDelegates = options.activeDelegates
   }
 
   /**
@@ -74,7 +74,7 @@ module.exports = class GenesisBlockBuilder {
    */
   __buildDelegates () {
     const wallets = []
-    for (let i = 0; i < this.activeDelegates; i++) {
+    for (let i = 0; i < this.maxDelegates; i++) {
       wallets.push(this.__createDelegateWallet(`genesis_${i + 1}`))
     }
 
