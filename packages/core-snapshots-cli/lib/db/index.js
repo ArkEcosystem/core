@@ -70,8 +70,8 @@ module.exports = class Database {
     }
 
     return {
-      blocks: `SELECT id, version, timestamp, previous_block, height, number_of_transactions, total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key, block_signature FROM BLOCKS WHERE HEIGHT BETWEEN ${startBlock.height} AND ${endBlock.height} ORDER BY HEIGHT`,
-      transactions: `SELECT id, block_id, version, sequence, timestamp, sender_public_key, recipient_id, type, vendor_field_hex, amount, fee, serialized from TRANSACTIONS WHERE TIMESTAMP BETWEEN ${startBlock.timestamp} AND ${endBlock.timestamp} ORDER BY TIMESTAMP`
+      blocks: queries.blocksExportString(startBlock.height, endBlock.height),
+      transactions: queries.transactionsExportString(startBlock.timestamp, endBlock.timestamp)
     }
   }
 
