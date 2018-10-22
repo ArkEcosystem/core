@@ -69,7 +69,7 @@ describe('API - Client', () => {
     })
 
     it('should throw an Error if the API version is falsy', async () => {
-      expect(client.setVersion).toThrowError(/api.*version/i)
+      expect(() => client.setVersion(0)).toThrowError(/api.*version/i)
     })
   })
 
