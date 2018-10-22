@@ -22,5 +22,8 @@ module.exports = {
   },
   transactionsBackup: (start) => {
     return `SELECT id, sequence, serialized from TRANSACTIONS WHERE TIMESTAMP > ${start}`
+  },
+  truncateTable: (table) => {
+    return `TRUNCATE TABLE ${table} RESTART IDENTITY`
   }
 }

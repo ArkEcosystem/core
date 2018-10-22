@@ -31,7 +31,7 @@ module.exports = class Database {
     logger.info('Truncating tables: wallets, rounds, transactions, blocks')
 
     return this.db.tx('truncate-chain', t => {
-      tables.forEach(table => t.none(this.__truncateStatement(table)))
+      tables.forEach(table => t.none(queries.truncateTable(table)))
     })
   }
 
@@ -44,7 +44,7 @@ module.exports = class Database {
     try {
       if (lastRemainingBlock) {
         await Promise.all([
-          this.db.none(this.__truncateStatement('wallets')),
+          this.db.none(queries.truncateTable('wallets')),
           this.db.none(queries.transactions.deleteFromTimestamp, { timestamp: lastRemainingBlock.timestamp }),
           this.db.none(queries.blocks.deleteFromHeight, { height: lastRemainingBlock.height }),
           this.db.none(queries.rounds.deleteFromRound, { round: currentRound })
@@ -89,10 +89,6 @@ module.exports = class Database {
       case 'transactions':
         return this.transactionsColumnSet
     }
-  }
-
-  __truncateStatement (table) {
-    return `TRUNCATE TABLE ${table} RESTART IDENTITY`
   }
 
   __createColumnSets () {
