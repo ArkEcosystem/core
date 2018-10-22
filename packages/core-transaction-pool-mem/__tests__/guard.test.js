@@ -51,7 +51,7 @@ describe('Transaction Guard', () => {
 
       await guard.validate(transactions)
 
-      expect(guard.errors[transactions[1].id]).toEqual([`Error: PoolWalletManager: Can't apply transaction ${transactions[1].id}`])
+      expect(guard.errors[transactions[1].id]).toEqual([`Error: [PoolWalletManager] Can't apply transaction ${transactions[1].id}`])
     })
 
     it.each([3, 5, 8])('should validate emptying wallet with %i transactions', async (txNumber) => {
@@ -87,7 +87,7 @@ describe('Transaction Guard', () => {
 
         await guard.validate(allTransactions)
 
-        expect(guard.errors[allTransactions[txNumber - 1].id]).toEqual([`Error: PoolWalletManager: Can't apply transaction ${allTransactions[txNumber - 1].id}`])
+        expect(guard.errors[allTransactions[txNumber - 1].id]).toEqual([`Error: [PoolWalletManager] Can't apply transaction ${allTransactions[txNumber - 1].id}`])
       })
   })
 })
