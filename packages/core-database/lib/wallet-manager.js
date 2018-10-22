@@ -223,6 +223,10 @@ module.exports = class WalletManager {
       }
 
       return diff
+    }).map((delegate, i) => {
+      const rate = i + 1
+      this.byUsername[delegate.username].rate = rate
+      return { ...{ round }, ...delegate, rate }
     }).slice(0, maxDelegates)
 
     for (const [voteBalance, set] of equalVotesMap.entries()) {
@@ -235,7 +239,7 @@ module.exports = class WalletManager {
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
 
-    return delegates.map((delegate, i) => ({ ...{ round }, ...delegate, rate: i + 1 }))
+    return delegates
   }
 
   /**
