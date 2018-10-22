@@ -1,7 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
-
 const { crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
@@ -301,11 +299,10 @@ module.exports = class WalletManager {
     const appliedTransactions = []
 
     try {
-      for (let i = 0; i < block.transactions.length; i++) {
-        this.applyTransaction(block.transactions[i])
-
-        appliedTransactions.push(block.transactions[i])
-      }
+      block.transactions.forEach(transaction => {
+        this.applyTransaction(transaction)
+        appliedTransactions.push(transaction)
+      })
 
       const applied = delegate.applyBlock(block.data)
 
@@ -352,11 +349,12 @@ module.exports = class WalletManager {
     const revertedTransactions = []
 
     try {
-      await Promise.each(block.transactions, async (transaction) => {
-        await this.revertTransaction(transaction)
-
+      // Revert the transactions from last to first
+      for (let i = block.transactions.length - 1; i >= 0; i--) {
+        const transaction = block.transactions[i]
+        this.revertTransaction(transaction)
         revertedTransactions.push(transaction)
-      })
+      }
 
       const reverted = delegate.revertBlock(block.data)
 
@@ -372,7 +370,8 @@ module.exports = class WalletManager {
     } catch (error) {
       logger.error(error.stack)
 
-      await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
+      revertedTransactions.reverse()
+      revertedTransactions.forEach(transaction => this.applyTransaction(transaction))
 
       throw error
     }

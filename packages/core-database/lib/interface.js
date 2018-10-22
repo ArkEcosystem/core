@@ -307,6 +307,7 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
+      // TODO: cache blocks of previous round
       this.blocksInCurrentRound = await this.__getBlocksForRound(round)
       this.activeDelegates = await this.getActiveDelegates(height)
 
