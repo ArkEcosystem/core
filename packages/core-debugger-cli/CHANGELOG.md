@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- Retrieve identities
+- Verify second signature
+
+### Changed
+- Change `transaction.serialized` from `Buffer` to hex
+
 ## 0.1.0 - 2018-10-02
+
 ### Added
 - initial release
