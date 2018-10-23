@@ -6,7 +6,12 @@ const logger = container.resolvePlugin('logger')
 const queries = require('./queries')
 
 module.exports = class Database {
-  constructor () {
+  constructor (db, pgp) {
+    if (pgp) {
+      this.db = db
+      this.pgp = pgp
+      return
+    }
     try {
       const pgp = require('pg-promise')({ promiseLib: promise })
       this.pgp = pgp

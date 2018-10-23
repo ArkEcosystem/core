@@ -3,7 +3,7 @@ const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 
-const SnapshotManager = require('../manager')
+const SnapshotManager = container.resolvePlugin('snapshot-manager')
 const utils = require('../utils')
 
 module.exports = async (options) => {

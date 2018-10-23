@@ -5,9 +5,9 @@ const Database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
 
-class SnapshotManager {
-  constructor () {
-    this.database = new Database()
+module.exports = class SnapshotManager {
+  constructor (db, pgp) {
+    this.database = new Database(db, pgp)
   }
 
   async exportData (options) {
@@ -66,7 +66,7 @@ class SnapshotManager {
       process.exit(1)
     }
 
-    if  (height) {
+    if (height) {
       const rollBackBlock = await this.database.getBlockByHeight(rollBackHeight)
       const qTransactionBackup = await this.database.getTransactionsBackupQuery(rollBackBlock.timestamp)
       await backupTransactionsToJSON(`rollbackTransactionBackup.${(+height + 1)}.${lastBlock.height}.json`, qTransactionBackup, this.database)
@@ -90,5 +90,3 @@ class SnapshotManager {
     return params
   }
 }
-
-module.exports = new SnapshotManager()

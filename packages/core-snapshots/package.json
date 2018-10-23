@@ -1,24 +1,12 @@
 {
-  "name": "@arkecosystem/core-snapshots-cli",
-  "description": "Provides live cli interface to the core-snapshots module for ARK Core",
+  "name": "@arkecosystem/core-snapshots",
+  "description": "Provides live local streamed snapshots functionality for ARK Core",
   "version": "0.1.0",
   "contributors": [
     "Kristjan Košič <chris@ark.io>"
   ],
   "license": "MIT",
-  "bin": {
-    "ark:snapshot": "./bin/snapshot"
-  },
   "scripts": {
-    "start": "./bin/snapshot",
-    "create:mainnet": "./bin/snapshot create --config ../core/lib/config/mainnet --network mainnet",
-    "create:devnet": "./bin/snapshot create --config ../core/lib/config/devnet --network devnet",
-    "import:mainnet": "./bin/snapshot import --config ../core/lib/config/mainnet --network mainnet",
-    "import:devnet": "./bin/snapshot import --config ../core/lib/config/devnet --network devnet",
-    "verify:mainnet": "./bin/snapshot verify --config ../core/lib/config/mainnet --network mainnet",
-    "verify:devnet": "./bin/snapshot verify --config ../core/lib/config/devnet --network devnet",
-    "rollback:mainnet": "./bin/snapshot rollback --config ../core/lib/config/mainnet --network mainnet",
-    "rollback:devnet": "./bin/snapshot rollback --config ../core/lib/config/devnet --network devnet",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
@@ -30,7 +18,6 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-snapshots": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.0",
     "JSONStream": "^1.3.5",
     "bluebird": "^3.5.2",
