@@ -173,23 +173,6 @@ describe('Connection', () => {
     })
   })
 
-  describe('removeTransactions', () => {
-    it('should be a function', () => {
-      expect(connection.removeTransactions).toBeFunction()
-    })
-
-    it('should remove the specified transactions from the pool', () => {
-      connection.addTransaction(mockData.dummy1)
-      connection.addTransaction(mockData.dummy2)
-
-      expect(connection.getPoolSize()).toBe(2)
-
-      connection.removeTransactions([mockData.dummy1, mockData.dummy2])
-
-      expect(connection.getPoolSize()).toBe(0)
-    })
-  })
-
   describe('removeTransactionsForSender', () => {
     it('should be a function', () => {
       expect(connection.removeTransactionsForSender).toBeFunction()

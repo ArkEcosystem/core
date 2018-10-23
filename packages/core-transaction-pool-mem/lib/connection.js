@@ -122,15 +122,6 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Remove multiple transactions from the pool (by object).
-   * @param  {Array} transactions
-   * @return {void}
-   */
-  removeTransactions (transactions) {
-    transactions.forEach(t => this.removeTransaction(t))
-  }
-
-  /**
    * Check whether sender of transaction has exceeded max transactions in queue.
    * @param  {Transaction} transaction
    * @return {Boolean} true if exceeded
