@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-tester-cli",
-  "description": "Tester CLI for ARK Core",
+  "description": "Tester CLI for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>",

@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-config",
   "version": "0.1.1",
-  "description": "Configuration Loader for ARK Core",
+  "description": "Configuration Loader for Ark Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
