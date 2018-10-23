@@ -3,7 +3,6 @@
 const container = require('@arkecosystem/core-container')
 
 exports.setUpLite = async (options) => {
-  console.log('setup')
   process.env.ARK_SKIP_BLOCKCHAIN = true
   await container.setUp(options, {
     include: [
@@ -14,7 +13,6 @@ exports.setUpLite = async (options) => {
     ]
   })
 
-  console.log(container.plugins)
   return container
 }
 

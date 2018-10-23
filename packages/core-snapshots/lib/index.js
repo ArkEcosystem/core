@@ -10,7 +10,6 @@ exports.plugin = {
   pkg: require('../package.json'),
   alias: 'snapshots',
   async register (container, options) {
-    console.log('starting.........')
     return new SnapshotManager()
   }
 }
