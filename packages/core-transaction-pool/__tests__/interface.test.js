@@ -193,12 +193,6 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('removeForgedAndGetPending', () => {
-    it('should be a function', () => {
-      expect(poolInterface.removeForgedAndGetPending).toBeFunction()
-    })
-  })
-
   describe('acceptChainedBlock', () => {
     it('should be a function', () => {
       expect(poolInterface.acceptChainedBlock).toBeFunction()
