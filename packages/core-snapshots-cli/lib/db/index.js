@@ -36,7 +36,8 @@ module.exports = class Database {
   }
 
   async rollbackChain (height) {
-    const maxDelegates = 51
+    const config = container.resolvePlugin('config')
+    const maxDelegates = config.getConstants(height).activeDelegates
     const currentRound = Math.floor(height / maxDelegates)
     const lastBlockHeight = currentRound * maxDelegates
     const lastRemainingBlock = await this.getBlockByHeight(lastBlockHeight)
