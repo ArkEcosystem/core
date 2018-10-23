@@ -271,12 +271,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (force) { // all wallets to be updated, performance is better without upsert
       await this.db.wallets.truncate()
 
-      for (const items of chunk(wallets, 5000)) {
-        try {
-          await this.db.wallets.create(items)
-        } catch (error) {
-          logger.error(error)
-        }
+      try {
+        const chunks = chunk(wallets, 5000).map(c => this.db.wallets.create(c))
+        await this.db.tx(t => t.batch(chunks))
+      } catch (error) {
+        logger.error(error.stack)
       }
     } else {
       // NOTE: UPSERT is far from optimal. It can takes several seconds here
@@ -290,10 +289,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
       try {
         const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallet))
-
         await this.db.tx(t => t.batch(queries))
       } catch (error) {
-        logger.error(error)
+        logger.error(error.stack)
       }
     }
 
