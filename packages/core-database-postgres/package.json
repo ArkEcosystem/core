@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-database-postgres",
-  "description": "PostgreSQL integration for ARK Core",
+  "description": "PostgreSQL integration for Ark Core",
   "version": "0.1.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"

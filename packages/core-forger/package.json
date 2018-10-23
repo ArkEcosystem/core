@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-forger",
-  "description": "Forger for ARK Core",
+  "description": "Forger for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
