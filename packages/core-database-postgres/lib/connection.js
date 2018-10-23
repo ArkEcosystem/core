@@ -229,7 +229,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (fs.existsSync(spvPath)) {
       fs.removeSync(spvPath)
 
-      logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
+      logger.info('Ark Core ended unexpectedly - resuming from where we left off :runner:')
 
       return this.loadWallets()
     }

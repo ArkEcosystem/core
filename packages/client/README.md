@@ -1,6 +1,8 @@
-![ARK Core](banner.png)
+# Ark - Client
 
-# ARK - Client
+<p align="center">
+    <img src="./banner.png?sanitize=true" />
+</p>
 
 ## Installation
 

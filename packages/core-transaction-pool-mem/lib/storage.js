@@ -91,7 +91,7 @@ class Storage {
     const rows = this.db.prepare(
       `SELECT sequence, HEX(serialized) AS serialized FROM ${this.table};`).all()
     return rows.map(r =>
-      new MemPoolTransaction(new Transaction(r.serialized), { sequence: r.sequence }))
+      new MemPoolTransaction(new Transaction(r.serialized), r.sequence))
   }
 
   /**

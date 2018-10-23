@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-debugger-cli",
-  "description": "Debugger CLI for ARK Core",
+  "description": "Debugger CLI for Ark Core",
   "version": "0.1.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"

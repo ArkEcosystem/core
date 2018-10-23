@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-container",
-  "description": "Container for ARK Core",
+  "description": "Container for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"

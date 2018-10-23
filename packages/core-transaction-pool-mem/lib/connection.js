@@ -122,15 +122,6 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Remove multiple transactions from the pool (by object).
-   * @param  {Array} transactions
-   * @return {void}
-   */
-  removeTransactions (transactions) {
-    transactions.forEach(t => this.removeTransaction(t))
-  }
-
-  /**
    * Check whether sender of transaction has exceeded max transactions in queue.
    * @param  {Transaction} transaction
    * @return {Boolean} true if exceeded
@@ -310,7 +301,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   __purgeExpired () {
-    for (const transaction of this.mem.getExpired()) {
+    for (const transaction of this.mem.getExpired(this.options.maxTransactionAge)) {
       emitter.emit('transaction.expired', transaction.data)
 
       this.walletManager.revertTransaction(transaction)

@@ -125,7 +125,7 @@ module.exports = class Container {
 
       const logger = this.resolvePlugin('logger')
       logger.info('EXIT handled, trying to shut down gracefully')
-      logger.info('Stopping ARK Core')
+      logger.info('Stopping Ark Core')
 
       try {
         logger.info('Saving wallets')
