@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 0.0.1 - 2018-05-31
+### Changed
+- Upgraded `winston` to `3.0.0`
+
+### Fixed
+- Calculate correct logger padding
+
+## 0.1.1 - 2018-06-14
+
 ### Added
 - initial release
