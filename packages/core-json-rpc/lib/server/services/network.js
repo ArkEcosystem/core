@@ -96,7 +96,7 @@ class Network {
       try {
         const response = await this.getFromNodeApi('/api/loader/autoconfigure')
 
-        this.network.config = response.data.network
+        this.network = response.data.network
       } catch (error) {
         return this.connect()
       }
@@ -116,6 +116,11 @@ class Network {
   }
 
   async __selectResponsivePeer (peer) {
+    if (this.network.name === 'testnet') {
+      // TODO: use port from configuration
+      return '127.0.0.1:4003'
+    }
+
     const reachable = await isReachable(peer)
 
     if (!reachable) {
