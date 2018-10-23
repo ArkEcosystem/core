@@ -6,6 +6,7 @@
     "Kristjan Košič <chris@ark.io>"
   ],
   "license": "MIT",
+  "main": "lib/index.js",
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
