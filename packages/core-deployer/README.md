@@ -1,7 +1,7 @@
 # Ark Core - Deployer
 
 <p align="center">
-    <img src="./banner.png" />
+    <img src="../../banner.png" />
 </p>
 
 ## Installation
