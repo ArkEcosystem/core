@@ -1,20 +1,20 @@
 SELECT
-  ID,
-  VERSION,
-  TIMESTAMP,
-  PREVIOUS_BLOCK,
-  HEIGHT,
-  NUMBER_OF_TRANSACTIONS,
-  TOTAL_AMOUNT,
-  TOTAL_FEE,
-  REWARD,
-  PAYLOAD_LENGTH,
-  PAYLOAD_HASH,
-  GENERATOR_PUBLIC_KEY,
-  BLOCK_SIGNATURE
+  id,
+  version,
+  timestamp,
+  previous_block,
+  height,
+  number_of_transactions,
+  total_amount,
+  total_fee,
+  reward,
+  payload_length,
+  payload_hash,
+  generator_public_key,
+  block_signature
 FROM
-  BLOCKS
+  blocks
 WHERE
-  HEIGHT BETWEEN ${start} AND ${end}
+  height BETWEEN ${start} AND ${end}
 ORDER BY
-  HEIGHT
+  height

@@ -1,2 +1,2 @@
-DELETE FROM ROUNDS
-WHERE ROUND > ${round}
+DELETE FROM rounds
+WHERE round > ${round}

@@ -1,19 +1,19 @@
 SELECT
-  ID,
-  BLOCK_ID,
-  VERSION,
-  SEQUENCE,
-  TIMESTAMP,
-  SENDER_PUBLIC_KEY,
-  RECIPIENT_ID,
-  TYPE,
-  VENDOR_FIELD_HEX,
-  AMOUNT,
-  FEE,
-  SERIALIZED
+  id,
+  block_id,
+  version,
+  sequence,
+  timestamp,
+  sender_public_key,
+  recipient_id,
+  type,
+  vendor_field_hex,
+  amount,
+  fee,
+  serialized
 FROM
-  TRANSACTIONS
+  transactions
 WHERE
-  TIMESTAMP BETWEEN ${start} AND ${end}
+  timestamp BETWEEN ${start} AND ${end}
 ORDER BY
-  TIMESTAMP
+  timestamp

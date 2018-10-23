@@ -1,3 +1,3 @@
 SELECT *
-FROM BLOCKS
-WHERE HEIGHT = ${height}
+FROM blocks
+WHERE height = ${height}

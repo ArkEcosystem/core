@@ -1,2 +1,2 @@
-DELETE FROM BLOCKS
-WHERE HEIGHT > ${height}
+DELETE FROM blocks
+WHERE height > ${height}

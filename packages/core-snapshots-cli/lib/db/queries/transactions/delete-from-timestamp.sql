@@ -1,2 +1,2 @@
-DELETE FROM TRANSACTIONS
-WHERE TIMESTAMP > ${timestamp}
+DELETE FROM transactions
+WHERE timestamp > ${timestamp}

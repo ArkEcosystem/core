@@ -15,13 +15,13 @@ module.exports = {
     deleteFromRound: loadQueryFile(__dirname, './rounds/delete-from-round.sql')
   },
   transactionsExport: (start, end) => {
-    return `SELECT id, block_id, version, sequence, timestamp, sender_public_key, recipient_id, type, vendor_field_hex, amount, fee, serialized from TRANSACTIONS WHERE TIMESTAMP BETWEEN ${start} AND ${end} ORDER BY TIMESTAMP`
+    return `SELECT id, block_id, version, sequence, timestamp, sender_public_key, recipient_id, type, vendor_field_hex, amount, fee, serialized FROM transactions WHERE timestamp BETWEEN ${start} AND ${end} ORDER BY timestamp`
   },
   blocksExport: (start, end) => {
-    return `SELECT id, version, timestamp, previous_block, height, number_of_transactions, total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key, block_signature FROM BLOCKS WHERE HEIGHT BETWEEN ${start} AND ${end} ORDER BY HEIGHT`
+    return `SELECT id, version, timestamp, previous_block, height, number_of_transactions, total_amount, total_fee, reward, payload_length, payload_hash, generator_public_key, block_signature FROM blocks WHERE height BETWEEN ${start} AND ${end} ORDER BY height`
   },
   transactionsBackup: (start) => {
-    return `SELECT id, sequence, serialized from TRANSACTIONS WHERE TIMESTAMP > ${start}`
+    return `SELECT id, sequence, serialized FROM transactions WHERE timestamp > ${start}`
   },
   truncateTable: (table) => {
     return `TRUNCATE TABLE ${table} RESTART IDENTITY`
