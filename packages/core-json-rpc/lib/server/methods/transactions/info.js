@@ -4,7 +4,7 @@ const network = require('../../services/network')
 module.exports = {
   name: 'transactions.info',
   async method (params) {
-    const response = await network.getFromNode(`/api/transactions/get?id=${params.id}`)
+    const response = await network.getFromNodeApi(`/api/transactions/get?id=${params.id}`)
 
     return response.data.transaction
   },

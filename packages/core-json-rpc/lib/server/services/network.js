@@ -24,7 +24,11 @@ class Network {
     return this.server
   }
 
-  async getFromNode (url, params = {}, peer = null) {
+  async getFromNodeApi (url, params = {}, peer = null) {
+    return this.getFromNode(url, params, peer, true)
+  }
+
+  async getFromNode (url, params = {}, peer = null, apiEndpoint = false) {
     const nethash = this.network ? this.network.nethash : null
 
     if (!peer && !this.server) {
@@ -32,52 +36,19 @@ class Network {
     }
 
     peer = await this.__selectResponsivePeer(peer || this.server)
+    const peerIPandPort = peer.split(':')
 
-    let uri
-    if (!url.startsWith('http')) {
-      uri = `http://${peer}${url}`
-    }
+    const uri = `http://${peerIPandPort[0]}:${apiEndpoint ? 4003 : peerIPandPort[1]}${url}`
 
     try {
       logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
 
-      return axios.get(uri, {
+      return await axios.get(uri, {
         params,
         headers: {
           nethash,
           version: '2.0.0',
           port: 1
-        }
-      })
-      .catch(err => {
-        if (err.message === 'Request failed with status code 404') {
-          // We are trying on the wrong API version
-          let peerParts = peer.split(':')
-          let port = peerParts[peerParts.length - 1]
-          switch (port) {
-            case '4003':
-              if (this.network.name === 'devnet') {
-                peerParts[peerParts.length - 1] = '4002' // Set devnet port
-              } else if (this.network.name === 'mainnet') {
-                peerParts[peerParts.length - 1] = '4001' // Set mainnet port
-              }
-              break;
-            case '4001':
-            case '4002':
-            default:
-              peerParts[peerParts.length - 1] = '4003' // Set the public API port
-          }
-          peer = peerParts.join(':')
-          uri = `http://${peer}${url}`
-          logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
-          return axios.get(uri, {
-            params,
-            headers: {
-              nethash,
-              version: '2.0.0',
-              port: 1
-            }
-          })
         }
       })
     } catch (error) {
@@ -150,7 +121,7 @@ class Network {
       await this.findAvailablePeers()
 
       try {
-        const response = await this.getFromNode('/api/loader/autoconfigure')
+        const response = await this.getFromNodeApi('/api/loader/autoconfigure')
 
         this.network.config = response.data.network
       } catch (error) {
@@ -174,7 +145,7 @@ class Network {
   // TODO: adjust this to core-p2p
   __filterPeers (peers) {
     let filteredPeers = peers
-      .filter(peer => peer.status === 'OK')
+      .filter(peer => peer.status === 200)
       .filter(peer => peer.ip !== '127.0.0.1')
 
     filteredPeers = orderBy(filteredPeers, ['height', 'delay'], ['desc', 'asc'])
