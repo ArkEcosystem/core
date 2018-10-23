@@ -1,7 +1,7 @@
 const axios = require('axios')
 const { client } = require('@arkecosystem/crypto')
 const isReachable = require('is-reachable')
-const { sample, orderBy } = require('lodash')
+const { sample } = require('lodash')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const p2p = container.resolvePlugin('p2p')
@@ -56,31 +56,6 @@ class Network {
     }
   }
 
-  async findAvailablePeers () {
-    try {
-      const response = await this.getFromNode('/peer/list')
-
-      let { networkHeight, peers } = this.__filterPeers(response.data.peers)
-
-      if (process.env.NODE_ENV === 'test') {
-        peers = peers.slice(0, 10)
-      }
-
-      let responsivePeers = []
-      for (let i = 0; i < peers.length; i++) {
-        const response = await this.getFromNode('/peer/status', {}, peers[i])
-
-        if (Math.abs(response.data.height - networkHeight) <= 10) {
-          responsivePeers.push(peers[i])
-        }
-      }
-
-      this.network.peers = responsivePeers
-    } catch (error) {
-      logger.error(error.message)
-    }
-  }
-
   async postTransaction (transaction, peer) {
     const server = peer || this.server
 
@@ -118,8 +93,6 @@ class Network {
       this.setNetwork()
       this.setServer()
 
-      await this.findAvailablePeers()
-
       try {
         const response = await this.getFromNodeApi('/api/loader/autoconfigure')
 
@@ -140,24 +113,6 @@ class Network {
     const response = p2p.getPeers()
 
     this.network.peers = response.map(peer => `${peer.ip}:${peer.port}`)
-  }
-
-  // TODO: adjust this to core-p2p
-  __filterPeers (peers) {
-    let filteredPeers = peers
-      .filter(peer => peer.status === 200)
-      .filter(peer => peer.ip !== '127.0.0.1')
-
-    filteredPeers = orderBy(filteredPeers, ['height', 'delay'], ['desc', 'asc'])
-
-    const networkHeight = filteredPeers[0].height
-
-    return {
-      networkHeight,
-      peers: filteredPeers
-        .filter(peer => Math.abs(peer.height - networkHeight) <= 10)
-        .map(peer => (`${peer.ip}:${peer.port}`))
-    }
   }
 
   async __selectResponsivePeer (peer) {
