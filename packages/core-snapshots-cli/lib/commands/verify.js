@@ -2,8 +2,7 @@
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-
-const SnapshotManager = container.resolvePlugin('snapshot-manager')
+const snapshotManager = container.resolvePlugin('snapshots')
 const utils = require('../utils')
 
 module.exports = async (options) => {
@@ -13,5 +12,5 @@ module.exports = async (options) => {
     process.exit(1)
   }
 
-  await SnapshotManager.verifyData(options)
+  await snapshotManager.verifyData(options)
 }
