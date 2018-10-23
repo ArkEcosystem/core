@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 0.0.1 - 2018-05-31
+### Changed
+- Improved the logic of how blocks are being processed
+
+### Fixed
+- Properly stop blockchain if manually started
+- Various state issues with the last downloaded blocks
+- Various state issues with the wallet manager
+
+## 0.1.1 - 2018-06-14
+
 ### Added
 - initial release
