@@ -178,7 +178,6 @@ class TransactionPool extends TransactionPoolInterface {
         if (transaction &&
             this.checkDynamicFeeMatch(transaction) &&
             await this.checkApplyToBlockchain(transaction)) {
-
           transactions.push(transaction.serialized)
 
           if (transactions.length === blockSize) {
