@@ -1,8 +1,7 @@
 'use strict'
 
 const assert = require('assert')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const { formatTimestamp } = require('@arkecosystem/core-utils')
+const { slots } = require('@arkecosystem/crypto')
 
 class Mem {
   /**
@@ -111,21 +110,13 @@ class Mem {
       this.bySender[sender].add(memPoolTransaction)
     }
 
-    let expireSecondsSinceGenesis
-    if (transaction.expiration > 0) {
-      expireSecondsSinceGenesis = transaction.expiration
-    } else if (transaction.type !== TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      expireSecondsSinceGenesis = transaction.timestamp + maxTransactionAge
-    }
-    if (expireSecondsSinceGenesis) {
-      const msSinceEpoch = formatTimestamp(expireSecondsSinceGenesis).unix * 1000
-
-      memPoolTransaction.expireAt = new Date(msSinceEpoch)
-
+    if (memPoolTransaction.expireAt(maxTransactionAge) !== null) {
       this.sortedByExpiration.push(memPoolTransaction)
 
       // XXX worst case: O(n * log(n))
-      this.sortedByExpiration.sort((a, b) => a.expireAt - b.expireAt)
+      this.sortedByExpiration.sort(
+        (a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge)
+      )
     }
 
     if (!thisIsDBLoad) {
@@ -252,15 +243,16 @@ class Mem {
 
   /**
    * Get the expired transactions.
+   * @param {Number} maxTransactionAge maximum age of a transaction in seconds
    * @return {Array of Transaction} expired transactions
    */
-  getExpired () {
-    const now = new Date()
+  getExpired (maxTransactionAge) {
+    const now = slots.getTime()
 
     let transactions = []
 
     for (const memPoolTransaction of this.sortedByExpiration) {
-      if (memPoolTransaction.expireAt <= now) {
+      if (memPoolTransaction.expireAt(maxTransactionAge) <= now) {
         transactions.push(memPoolTransaction.transaction)
       } else {
         break
