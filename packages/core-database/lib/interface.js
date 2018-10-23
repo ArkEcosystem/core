@@ -285,7 +285,7 @@ module.exports = class ConnectionInterface {
           await this.saveWallets(false) // save only modified wallets during the last round
           const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
           await this.saveRound(delegates) // save next round delegate list
-          await this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list
+          this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list
           this.blocksInCurrentRound.length = 0
         } catch (error) {
           // trying to leave database state has it was
@@ -309,7 +309,8 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
-      this.forgingDelegates = await this.__calcPreviousActiveDelegates(round)
+      const delegates = await this.__calcPreviousActiveDelegates(round)
+      this.forgingDelegates = await this.getActiveDelegates(height, delegates)
 
       await this.deleteRound(nextRound)
     }
@@ -348,8 +349,7 @@ module.exports = class ConnectionInterface {
     assert(height > 1 && height % maxDelegates === 1)
 
     // Now retrieve the active delegate list from the temporary wallet manager.
-    const delegates = tempWalletManager.loadActiveDelegateList(maxDelegates, height)
-    return this.getActiveDelegates(height, delegates)
+    return tempWalletManager.loadActiveDelegateList(maxDelegates, height)
   }
 
   /**
