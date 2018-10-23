@@ -10,5 +10,5 @@ module.exports = async (options) => {
   }
   logger.info(`Starting the process of blockchain rollback to block height of ${options.height}`)
 
-  await new SnapshotManager().rollbackChain(options)
+  await SnapshotManager.rollbackChain(options)
 }

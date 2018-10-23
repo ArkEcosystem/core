@@ -3,5 +3,5 @@
 const SnapshotManager = require('../manager')
 
 module.exports = async (options) => {
-  await new SnapshotManager().importData(options)
+  await SnapshotManager.importData(options)
 }

@@ -12,7 +12,7 @@ module.exports = async (options) => {
     process.exit(1)
   }
 
-  await new SnapshotManager().exportData(options)
+  await SnapshotManager.exportData(options)
 
   await utils.tearDown()
 }

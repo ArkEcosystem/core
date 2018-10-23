@@ -81,6 +81,7 @@ module.exports = {
       logger.info(`Starting to verify snapshot file ${filename}`)
       let prevData = lastBlock
       const table = filename.split('.')[0]
+
       decodeStream.on('data', (data) => {
         if (!verifyData(table, data, prevData, skipVerifySignature)) {
           logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)

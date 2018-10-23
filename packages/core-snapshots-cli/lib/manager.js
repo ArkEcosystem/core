@@ -5,7 +5,7 @@ const Database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
 
-module.exports = class SnapshotManager {
+class SnapshotManager {
   constructor () {
     this.database = new Database()
   }
@@ -69,10 +69,6 @@ module.exports = class SnapshotManager {
     logger.info(`Rolling back chain to last finished round ${newLastBlock.height / 51} with last block height ${newLastBlock.height}`)
   }
 
-  async truncateChain () {
-    return this.database.truncateChain()
-  }
-
   async __init (options) {
     const lastBlock = await this.database.getLastBlock()
     let params = {}
@@ -87,3 +83,5 @@ module.exports = class SnapshotManager {
     return params
   }
 }
+
+module.exports = new SnapshotManager()
