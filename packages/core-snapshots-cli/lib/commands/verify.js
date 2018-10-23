@@ -9,7 +9,7 @@ const utils = require('../utils')
 module.exports = async (options) => {
   if (options.filename && !fs.existsSync(utils.getPath(options.filename))) {
     logger.error(`Verify not possible. Snapshot ${options.filename} not found.`)
-    logger.info(`Use -f parameter with just the filename and not the full path.`)
+    logger.info('Use -f parameter with just the filename and not the full path.')
     process.exit(1)
   }
 
