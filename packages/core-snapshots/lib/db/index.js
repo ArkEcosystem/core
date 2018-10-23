@@ -4,6 +4,7 @@ const promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const queries = require('./queries')
+const { rawQuery } = require('./utils')
 
 module.exports = class Database {
   constructor (db, pgp) {
@@ -36,7 +37,7 @@ module.exports = class Database {
     logger.info('Truncating tables: wallets, rounds, transactions, blocks')
 
     return this.db.tx('truncate-chain', t => {
-      tables.forEach(table => t.none(queries.truncateTable(table)))
+      tables.forEach(table => t.none(queries.truncate(table)))
     })
   }
 
@@ -50,7 +51,7 @@ module.exports = class Database {
     try {
       if (lastRemainingBlock) {
         await Promise.all([
-          this.db.none(queries.truncateTable('wallets')),
+          this.db.none(queries.truncate('wallets')),
           this.db.none(queries.transactions.deleteFromTimestamp, { timestamp: lastRemainingBlock.timestamp }),
           this.db.none(queries.blocks.deleteFromHeight, { height: lastRemainingBlock.height }),
           this.db.none(queries.rounds.deleteFromRound, { round: currentRound })
@@ -63,9 +64,6 @@ module.exports = class Database {
     return this.getLastBlock()
   }
 
-  /**
-  * Used for stream export query stream, where string query is expected.
-  */
   async getExportQueries (startHeight, endHeight) {
     const startBlock = await this.getBlockByHeight(startHeight)
     const endBlock = await this.getBlockByHeight(endHeight)
@@ -74,18 +72,14 @@ module.exports = class Database {
       logger.error('Wrong input height parameters for building export queries. Blocks at height not found in db.')
       process.exit(1)
     }
-
     return {
-      blocks: queries.blocksExport(startBlock.height, endBlock.height),
-      transactions: queries.transactionsExport(startBlock.timestamp, endBlock.timestamp)
+      blocks: rawQuery(this.pgp, queries.blocks.heightRange, { start: startBlock.height, end: endBlock.height }),
+      transactions: rawQuery(this.pgp, queries.transactions.timestampRange, { start: startBlock.timestamp, end: endBlock.timestamp })
     }
   }
 
-  /**
-  * Used for stream export query stream, where string query is expected.
-  */
   getTransactionsBackupQuery (startTimestamp) {
-    return queries.transactionsBackup(startTimestamp)
+    return rawQuery(this.pgp, queries.transactions.timestampHigher, { start: startTimestamp })
   }
 
   getColumnSet (tableName) {
