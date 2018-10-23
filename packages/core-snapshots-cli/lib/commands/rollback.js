@@ -5,10 +5,10 @@ const logger = container.resolvePlugin('logger')
 const SnapshotManager = require('../manager')
 
 module.exports = async (options) => {
-  if (options.height === -1) {
+  if (options.blockHeight === -1) {
     logger.warn('Rollback height is not specified. Rolling back to last completed round.')
   }
-  logger.info(`Starting the process of blockchain rollback to block height of ${options.height}`)
+  logger.info(`Starting the process of blockchain rollback to block height of ${options.blockHeight}`)
 
-  await SnapshotManager.rollbackChain(options)
+  await SnapshotManager.rollbackChain(options.blockHeight)
 }

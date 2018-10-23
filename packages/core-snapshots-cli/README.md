@@ -77,11 +77,11 @@ Also note that a database verification is performed when the core starts.
 ### Rolling back chain
 The command enables you to rollback you local blockhain database. By specifying the end height you can rollback chain to a history state.
 ```bash
-yarn rollback:devnet -h 350000
+yarn rollback:devnet -b 350000
 ```
 Above command will rollback the chain to block height of 350000.
 
-If the `-h` or `--height` argument is not set, the command will rollback the chain to the last completed round.
+If the `-b` or `--block-height` argument is not set, the command will rollback the chain to the last completed round.
 
 Rollback command also makes a backup of forged transactions. Transactions are stored next to the snapshot files (in `./ark/snapshots/NETWORK_NAME`). File is named `rollbackTransactionBackup.startBlockHeight.endBlockHeight.json`, for example: rollbackTransactionBackup.53001.54978.json containes transactions from block 53001 to block 54978.
 

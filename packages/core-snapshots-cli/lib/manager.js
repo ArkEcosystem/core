@@ -55,21 +55,21 @@ class SnapshotManager {
     logger.info('Verifying of snapshot completed with success :100:')
   }
 
-  async rollbackChain (options) {
+  async rollbackChain (height) {
     const lastBlock = await this.database.getLastBlock()
     const config = container.resolvePlugin('config')
     const maxDelegates = config.getConstants(lastBlock.height).activeDelegates
 
-    const rollBackHeight = options.height === -1 ? lastBlock.height : options.height
+    const rollBackHeight = height === -1 ? lastBlock.height : height
     if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
       logger.error(`Specified rollback block height: ${rollBackHeight} is not valid. Current database height: ${lastBlock.height}. Exiting.`)
       process.exit(1)
     }
 
-    if (options.height) {
+    if  (height) {
       const rollBackBlock = await this.database.getBlockByHeight(rollBackHeight)
       const qTransactionBackup = await this.database.getTransactionsBackupQuery(rollBackBlock.timestamp)
-      await backupTransactionsToJSON(`rollbackTransactionBackup.${(+options.height + 1)}.${lastBlock.height}.json`, qTransactionBackup, this.database)
+      await backupTransactionsToJSON(`rollbackTransactionBackup.${(+height + 1)}.${lastBlock.height}.json`, qTransactionBackup, this.database)
     }
 
     const newLastBlock = await this.database.rollbackChain(rollBackHeight)
