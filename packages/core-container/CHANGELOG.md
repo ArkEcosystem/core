@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 0.0.1 - 2018-05-31
+### Added
+- Support plugin extensions
+
+### Changed
+- No longer load the `.env` file in test environments
+
+## 0.1.1 - 2018-06-14
+
 ### Added
 - initial release

@@ -223,6 +223,10 @@ module.exports = class WalletManager {
       }
 
       return diff
+    }).map((delegate, i) => {
+      const rate = i + 1
+      this.byUsername[delegate.username].rate = rate
+      return { ...{ round }, ...delegate, rate }
     }).slice(0, maxDelegates)
 
     for (const [voteBalance, set] of equalVotesMap.entries()) {
@@ -235,7 +239,7 @@ module.exports = class WalletManager {
 
     logger.debug(`Loaded ${delegates.length} active delegates`)
 
-    return delegates.map((delegate, i) => ({ ...{ round }, ...delegate, rate: i + 1 }))
+    return delegates
   }
 
   /**
@@ -405,8 +409,8 @@ module.exports = class WalletManager {
 
     } else if (!sender.canApply(data)) {
 
-      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(data))
-      logger.debug('Audit', JSON.stringify(sender.auditApply(data), null, 2))
+      logger.error(`Can't apply transaction for ${sender.address}: ` + JSON.stringify(data))
+      logger.debug('Audit: ' + JSON.stringify(sender.auditApply(data), null, 2))
       throw new Error(`Can't apply transaction ${data.id}`)
     }
 

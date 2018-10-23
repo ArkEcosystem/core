@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 0.0.1 - 2018-05-31
+### Added
+- Return forged rewards and fees via v2 API
+- Return error feedback for transaction posting via v2 API
+- Cache block heights to reduce database load
+- Implement database repositories
+- Limit the number of transactions per request if posting
+
+### Changed
+- Use the IANA format for the API vendor in the `Accept` header
+- Use the official `hapi-api-version` dependency
+- Return ports as integers
+- Improved some error messages
+- Return broadcast IDs for improved feedback
+- Sort peers by latency
+
+### Removed
+- All `redis` integrations and dependencies
+
+### Fixed
+- Return the delegate list in the v1 format with correct limits
+- Add the missing `vendorField` property to transactions
+- Broken search in the v2 API for blocks and transactions
+- Various search, sort and pagination issues
+- Failing search because of unknown parameters
+- Properly handle CORS headers
+- Race condition that would result in duplicate transactions in the transaction pool
+- Fixed the value returned by `unconfirmedBalance`
+- Various inconsistencies of string/integer values in the v1 API
+- Various inconsistencies of property names in the v1 API
+- Various validation schemas
+
+## 0.1.1 - 2018-06-14
+
 ### Added
 - initial release

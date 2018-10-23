@@ -85,15 +85,6 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Removes any transactions in the pool that have already been forged.
-   * @param  {Array} transactionIds
-   * @return {Array} IDs of pending transactions that have yet to be forged.
-   */
-  async removeForgedAndGetPending (transactionIds) {
-    throw new Error('Method [removeForgedAndGetPending] not implemented!')
-  }
-
-  /**
    * Get all transactions that are ready to be forged.
    * @param  {Number} blockSize
    * @return {(Array|void)}
@@ -246,7 +237,7 @@ module.exports = class TransactionPoolInterface {
    */
   async buildWallets () {
     this.walletManager.reset()
-    const poolTransactions = await this.getTransactionIdsForForging(0, 0)
+    const poolTransactions = await this.getTransactionIdsForForging(0, this.getPoolSize())
 
     await Promise.each(poolTransactions, async (transactionId) => {
       const transaction = await this.getTransaction(transactionId)
