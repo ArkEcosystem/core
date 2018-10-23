@@ -5,8 +5,6 @@ const JSONStream = require('JSONStream')
 const msgpack = require('msgpack-lite')
 const delay = require('delay')
 
-// const stream = require('spex')(Promise).stream
-
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const utils = require('../utils')
