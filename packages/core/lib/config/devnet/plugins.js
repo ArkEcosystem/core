@@ -84,5 +84,5 @@ module.exports = {
     }
   },
   '@arkecosystem/core-snapshots': {
-  },
+  }
 }
