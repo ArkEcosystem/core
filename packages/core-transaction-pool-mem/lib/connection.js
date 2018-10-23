@@ -24,13 +24,22 @@ class TransactionPool extends TransactionPoolInterface {
    * the on-disk database, saved there from a previous run.
    * @return {TransactionPool}
    */
-  make () {
+  async make () {
     this.mem = new Mem()
 
     this.storage = new Storage(this.options.storage)
 
     const all = this.storage.loadAll()
     all.forEach(t => this.mem.add(t, this.options.maxTransactionAge, true))
+
+    this.__purgeExpired()
+
+    // Remove transactions that were forged while we were offline.
+    const allIds = all.map(memPoolTransaction => memPoolTransaction.transaction.id)
+
+    const forgedIds = await database.getForgedTransactionsIds(allIds)
+
+    forgedIds.forEach(id => this.removeTransactionById(id))
 
     return this
   }
@@ -153,19 +162,6 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Removes any transactions in the pool that have already been forged.
-   * @param  {Array} transactionIds
-   * @return {Array} IDs of pending transactions that have yet to be forged.
-   */
-  async removeForgedAndGetPending (transactionIds) {
-    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
-
-    forgedIdsSet.forEach(id => this.removeTransactionById(id))
-
-    return transactionIds.filter(id => !forgedIdsSet.has(id))
-  }
-
-  /**
    * Get all transactions that are ready to be forged.
    * @param  {Number} blockSize
    * @return {(Array|void)}
@@ -174,22 +170,20 @@ class TransactionPool extends TransactionPoolInterface {
     this.__purgeExpired()
 
     try {
-      let transactionsIds = await this.getTransactionIdsForForging(0, this.mem.getSize())
+      const transactions = []
 
-      let transactions = []
-      while (transactionsIds.length) {
-        const id = transactionsIds.shift()
+      for (const id of await this.getTransactionIdsForForging(0, this.mem.getSize())) {
         const transaction = this.mem.getTransactionById(id)
 
-        if (!transaction ||
-            !this.checkDynamicFeeMatch(transaction) ||
-            !(await this.checkApplyToBlockchain(transaction))) {
-          continue
-        }
+        if (transaction &&
+            this.checkDynamicFeeMatch(transaction) &&
+            await this.checkApplyToBlockchain(transaction)) {
 
-        transactions.push(transaction.serialized)
-        if (transactions.length === blockSize) {
-          break
+          transactions.push(transaction.serialized)
+
+          if (transactions.length === blockSize) {
+            break
+          }
         }
       }
 
@@ -210,14 +204,26 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions within the specified range, removes already forged ones and possible duplicates
+   * Get all transactions within the specified range, removes already forged ones.
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array} array of transactions IDs in the specified range
    */
   async getTransactionIdsForForging (start, size) {
     const ids = this.getTransactionsData(start, size, 'id')
-    return this.removeForgedAndGetPending(ids)
+
+    /* There should be no forged transactions in the mem pool. */
+    assert.strictEqual((await database.getForgedTransactionsIds(ids)).length, 0)
+
+    return ids
+
+    /*
+    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(ids))
+
+    forgedIdsSet.forEach(id => this.removeTransactionById(id))
+
+    return ids.filter(id => !forgedIdsSet.has(id))
+    */
   }
 
   /**
