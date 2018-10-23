@@ -338,12 +338,8 @@ module.exports = class WalletManager {
     let delegate = this.byPublicKey[block.data.generatorPublicKey]
 
     if (!delegate) {
-      const generator = crypto.getAddress(block.data.generatorPublicKey, this.networkId)
-
-      delegate = new Wallet(generator)
-      delegate.publicKey = block.data.generatorPublicKey
-
-      this.reindex(delegate)
+      logger.error(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`)
+      process.exit(1)
     }
 
     const revertedTransactions = []
@@ -370,8 +366,9 @@ module.exports = class WalletManager {
     } catch (error) {
       logger.error(error.stack)
 
-      revertedTransactions.reverse()
-      revertedTransactions.forEach(transaction => this.applyTransaction(transaction))
+      revertedTransactions
+        .reverse()
+        .forEach(transaction => this.applyTransaction(transaction))
 
       throw error
     }

@@ -24,7 +24,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async build (height) {
-    this.maxDelegates = config.getConstants(height).activeDelegates
+    this.activeDelegates = config.getConstants(height).activeDelegates
 
     logger.printTracker('SPV', 1, 8, 'Received Transactions')
     await this.__buildReceivedTransactions()
@@ -90,7 +90,7 @@ module.exports = class SPV {
    */
   async __buildLastForgedBlocks () {
     const blocks = await this.query.many(queries.spv.lastForgedBlocks, {
-      limit: this.maxDelegates
+      limit: this.activeDelegates
     })
 
     for (const block of blocks) {

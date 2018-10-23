@@ -277,11 +277,11 @@ module.exports = class ConnectionInterface {
     if (nextHeight % maxDelegates === 1) {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
-      if (!this._activeDelegates || this._activeDelegates.length === 0 || (this._activeDelegates.length && this._activeDelegates[0].round !== round)) {
+      if (!this.forgingDelegates || this.forgingDelegates.length === 0 || (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)) {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          this.updateDelegateStats(height, this._activeDelegates)
+          this.updateDelegateStats(height, this.forgingDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
           const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
           await this.saveRound(delegates) // save next round delegate list
@@ -309,7 +309,7 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
-      this._activeDelegates = await this.__calcPreviousActiveDelegates(round)
+      this.forgingDelegates = await this.__calcPreviousActiveDelegates(round)
 
       await this.deleteRound(nextRound)
     }
