@@ -65,6 +65,13 @@ class Network {
       const plugin = response.data.data.plugins['@arkecosystem/core-api']
 
       if (!plugin.enabled) {
+        const index = this.peers.findIndex(peer => (peer.ip === this.server.ip))
+        this.peers.splice(index, 1)
+
+        if(!this.peers.length) {
+          this.__loadRemotePeers()
+        }
+
         return this.connect()
       }
 
@@ -77,11 +84,11 @@ class Network {
   __getRandomPeer () {
     this.__loadRemotePeers()
 
-    return sample(this.network.peers)
+    return sample(this.peers)
   }
 
   __loadRemotePeers () {
-    this.network.peers = this.network.name === 'testnet'
+    this.peers = this.network.name === 'testnet'
       ? [{ ip: '127.0.0.1', port: container.resolveOptions('api').port }]
       : p2p.getPeers()
   }
