@@ -10,13 +10,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Use network WIF as default for WIF operations
 
-## 0.2.2 - 2018-06-14
+## 0.2.2 - 2018-10-23
 
 ### Added
 - Message signing
 - Message verification
 
-## 0.2.1 - 2018-06-14
+## 0.2.1 - 2018-10-18
 
 ### Added
 - Sign transactions via WIF
@@ -33,12 +33,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Broken verification of faulty type 1 and 4
 - Broken multisignature serialization
 
-## 0.2.0 - 2018-06-14
+## 0.2.0 - 2018-09-17
 
 ### Changed
 - Improved overall performance of the crypto by calling the `secp256k1` methods directly instead of using a BTC package
 
-## 0.1.2 - 2018-06-14
+## 0.1.2 - 2018-08-10
 
 ### Fixed
 - Webpack build
