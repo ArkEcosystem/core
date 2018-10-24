@@ -32,8 +32,7 @@ class Network {
 
     peer = await this.__selectResponsivePeer(peer || this.server)
 
-    const [ip, port] = peer.split(':')
-    const uri = `http://${ip}:${port}/api/${url}`
+    const uri = `http://${peer.ip}:${peer.port}/api/${url}`
 
     try {
       logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
@@ -49,7 +48,7 @@ class Network {
   async postTransaction (transaction, peer) {
     const server = peer || this.server
 
-    return this.client.post(`http://${server}/api/transactions`, {
+    return this.client.post(`http://${server.ip}/api/transactions`, {
       transactions: [transaction]
     })
   }
@@ -66,14 +65,21 @@ class Network {
 
   async connect () {
     if (this.server) {
-      logger.info(`Server is already configured as "${this.server}"`)
+      logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
       return
     }
 
     this.setServer()
 
     try {
-      await this.sendRequest('node/configuration')
+      const peerPort = container.resolveOptions('p2p').port
+      const response = await axios.get(`http://${this.server.ip}:${peerPort}/config`)
+
+      const plugin = response.data.data.plugins['@arkecosystem/core-api']
+
+      if (!plugin.enabled) {
+        return this.connect()
+      }
     } catch (error) {
       return this.connect()
     }
@@ -87,12 +93,12 @@ class Network {
 
   __loadRemotePeers () {
     this.network.peers = this.network.name === 'testnet'
-      ? ['127.0.0.1:4003'] // TODO: replace 4003 with port from config
-      : p2p.getPeers().map(peer => `${peer.ip}:${peer.port}`)
+      ? [{ ip: '127.0.0.1', port: container.resolveOptions('api').port }]
+      : p2p.getPeers()
   }
 
   async __selectResponsivePeer (peer) {
-    const reachable = await isReachable(peer)
+    const reachable = await isReachable(`${peer.ip}:${peer.port}`)
 
     if (!reachable) {
       logger.warn(`${peer} is unresponsive. Choosing new peer.`)
