@@ -7,24 +7,44 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Fixed
+- Use network WIF as default for WIF operations
+
+## 0.2.2 - 2018-06-14
+
 ### Added
 - Message signing
 - Message verification
+
+## 0.2.1 - 2018-06-14
+
+### Added
 - Sign transactions via WIF
 - HDWallet handling
 
 ### Changed
+- Exclude the network from the signing object
 - Handle numerical values as `BigNumber` instances
 - Change `transaction.serialized` from `Buffer` to hex
-- Exclude the network from the signing object
-- Improved overall performance of the crypto by calling the `secp256k1` methods directly instead of using a BTC package
 
 ### Fixed
 - Limit decimals to 0 to avoid floating numbers
 - Properly verify block payload length
 - Broken verification of faulty type 1 and 4
 - Broken multisignature serialization
-- Use network WIF as default for WIF operations
+
+## 0.2.0 - 2018-06-14
+
+### Changed
+- Improved overall performance of the crypto by calling the `secp256k1` methods directly instead of using a BTC package
+
+## 0.1.2 - 2018-06-14
+
+### Fixed
+- Webpack build
+
+### Removed
+- Old and unused methods
 
 ## 0.1.1 - 2018-06-14
 
