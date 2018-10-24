@@ -12,7 +12,7 @@ module.exports = async (userId, bip38password) => {
       const wifKey = wif.encode(configManager.get('wif'), decrypted.privateKey, decrypted.compressed)
       const keys = crypto.getKeysFromWIF(wifKey)
 
-      return { keys, wif: encryptedWif }
+      return { keys, wif: wifKey }
     }
   } catch (error) {
     throw Error('Could not find a matching WIF')
