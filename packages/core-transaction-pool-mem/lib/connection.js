@@ -199,7 +199,7 @@ class TransactionPool extends TransactionPoolInterface {
     const ids = this.getTransactionsData(start, size, 'id')
 
     /* There should be no forged transactions in the mem pool. */
-    assert.strictEqual((await database.getForgedTransactionsIds(ids)).length, 0)
+    assert.deepStrictEqual((await database.getForgedTransactionsIds(ids)), [])
 
     return ids
 
