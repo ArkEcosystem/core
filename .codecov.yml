@@ -1,2 +1,3 @@
 ignore:
   - "packages/core-tester-cli/**/*"
+  - "packages/**/lib/index"
