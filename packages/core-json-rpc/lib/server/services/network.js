@@ -25,13 +25,12 @@ class Network {
     this.server = this.__getRandomPeer()
   }
 
-  async sendRequest (url, params = {}, peer = null) {
-    if (!peer && !this.server) {
+  async sendRequest (url, params = {}) {
+    if (!this.server) {
       this.setServer()
     }
 
-    peer = await this.__selectResponsivePeer(peer || this.server)
-
+    const peer = await this.__selectResponsivePeer(this.server)
     const uri = `http://${peer.ip}:${peer.port}/api/${url}`
 
     try {
@@ -45,22 +44,10 @@ class Network {
     }
   }
 
-  async postTransaction (transaction, peer) {
-    const server = peer || this.server
-
-    return this.client.post(`http://${server.ip}:${server.port}/api/transactions`, {
+  async broadcast (transaction) {
+    return this.client.post(`http://${this.server.ip}:${this.server.port}/api/transactions`, {
       transactions: [transaction]
     })
-  }
-
-  async broadcast (transaction) {
-    const peers = this.network.peers.slice(0, 10)
-
-    for (const peer of peers) {
-      logger.info(`Broadcasting to ${peer.ip}`)
-
-      await this.postTransaction(transaction, peer)
-    }
   }
 
   async connect () {
