@@ -48,7 +48,7 @@ class Network {
   async postTransaction (transaction, peer) {
     const server = peer || this.server
 
-    return this.client.post(`http://${server.ip}/api/transactions`, {
+    return this.client.post(`http://${server.ip}:${server.port}/api/transactions`, {
       transactions: [transaction]
     })
   }
@@ -57,7 +57,7 @@ class Network {
     const peers = this.network.peers.slice(0, 10)
 
     for (const peer of peers) {
-      logger.info(`Broadcasting to ${peer}`)
+      logger.info(`Broadcasting to ${peer.ip}`)
 
       await this.postTransaction(transaction, peer)
     }
@@ -65,7 +65,7 @@ class Network {
 
   async connect () {
     if (this.server) {
-      logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
+      // logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
       return
     }
 
@@ -80,6 +80,8 @@ class Network {
       if (!plugin.enabled) {
         return this.connect()
       }
+
+      this.server.port = plugin.port
     } catch (error) {
       return this.connect()
     }
