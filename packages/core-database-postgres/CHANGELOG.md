@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Handle numbers as `BigNumber` instances
 - Reduced complexity and duplicated logic
 - Improved performance of various SQL queries
+- Improved performance of wallet saving
 
 ### Removed
 - All `redis` integrations and dependencies

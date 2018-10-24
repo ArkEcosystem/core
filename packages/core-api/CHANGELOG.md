@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Cache block heights to reduce database load
 - Implement database repositories
 - Limit the number of transactions per request if posting
+- `ownerId` property for transaction searches
 
 ### Changed
 - Use the IANA format for the API vendor in the `Accept` header
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Various inconsistencies of string/integer values in the v1 API
 - Various inconsistencies of property names in the v1 API
 - Various validation schemas
+- Added missing `orderBy` property for block transaction sorting
 
 ## 0.1.1 - 2018-06-14
 
