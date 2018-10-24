@@ -32,7 +32,7 @@ module.exports = async (options) => {
 
   await server.register({ plugin: require('./plugins/whitelist'), options })
 
-  registerMethods(server, 'accounts')
+  registerMethods(server, 'wallets')
   registerMethods(server, 'blocks')
   registerMethods(server, 'transactions')
 
