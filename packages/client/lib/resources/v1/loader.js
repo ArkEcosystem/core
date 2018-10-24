@@ -2,7 +2,7 @@ const Base = require('../../base')
 
 module.exports = class Loader extends Base {
   /**
-   * Get node syncing status.
+   * Get node status.
    * @return {Promise}
    */
   status () {
@@ -10,7 +10,7 @@ module.exports = class Loader extends Base {
   }
 
   /**
-   * Get node status.
+   * Get node syncing status.
    * @return {Promise}
    */
   syncing () {
