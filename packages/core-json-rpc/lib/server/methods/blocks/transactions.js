@@ -5,8 +5,8 @@ module.exports = {
   name: 'blocks.transactions',
   async method (params) {
     const response = await network.sendRequest(`blocks/${params.id}/transactions`, {
-      offset: params.offset
-      // orderBy: 'timestamp:desc'
+      offset: params.offset,
+      orderBy: 'timestamp:desc'
     })
 
     return {
