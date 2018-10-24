@@ -6,7 +6,7 @@ module.exports = {
   async method (params) {
     const response = await network.sendRequest(`blocks/${params.id}`)
 
-    return response.data
+    return response ? response.data : {}
   },
   schema: {
     id: Joi.number().required()

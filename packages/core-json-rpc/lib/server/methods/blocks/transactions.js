@@ -9,10 +9,10 @@ module.exports = {
       orderBy: 'timestamp:desc'
     })
 
-    return {
+    return response ? {
       count: response.meta.totalCount,
       data: response.data
-    }
+    } : {}
   },
   schema: {
     id: Joi.number().required(),
