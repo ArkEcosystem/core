@@ -23,7 +23,7 @@
     "axios": "^0.18.0",
     "directory-tree": "^2.1.0",
     "fs-extra": "^7.0.0",
-    "ow": "^0.7.0"
+    "ow": "^0.8.0"
   },
   "publishConfig": {
     "access": "public"
