@@ -7,8 +7,7 @@ module.exports = {
     const response = await network.sendRequest('transactions', {
       offset: params.offset,
       orderBy: 'timestamp:desc',
-      senderId: params.address,
-      recipientId: params.address
+      ownerId: params.address
     })
 
     return {
