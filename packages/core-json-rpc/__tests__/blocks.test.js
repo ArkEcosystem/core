@@ -31,9 +31,6 @@ afterAll(async () => {
 })
 
 beforeEach(async () => {
-  axiosMock.onGet(/.*\/api\/loader\/autoconfigure/).reply(() => [200, { network: {} }, peerMock.headers])
-  axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 5 }, peerMock.headers])
-  axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { success: true, peers: [ { status: 'OK', ip: peerMock.ip, port: 4002, height: 5, delay: 8 } ] }, peerMock.headers])
   axiosMock.onPost(/.*:8080.*/).passThrough()
 })
 
@@ -42,9 +39,9 @@ afterEach(async () => {
 })
 
 describe('Blocks', () => {
-  describe('GET /mainnet/blocks/latest', () => {
+  describe('POST blocks.latest', () => {
     it('should get the latest block', async () => {
-      axiosMock.onGet(/.*\/api\/blocks/).reply(() => [200, { blocks: [ { id: '123' } ] }, peerMock.headers])
+      axiosMock.onGet(/.*\/api\/blocks/).reply(() => [200, { data: [ { id: '123' } ] }, peerMock.headers])
 
       const response = await request('blocks.latest')
 
@@ -52,9 +49,9 @@ describe('Blocks', () => {
     })
   })
 
-  describe('GET /mainnet/blocks/{id}', () => {
+  describe('POST blocks.info', () => {
     it('should get the block information', async () => {
-      axiosMock.onGet(/.*\/api\/blocks\/get/).reply(() => [200, { block: { id: '123' } }, peerMock.headers])
+      axiosMock.onGet(/.*\/api\/blocks\/123/).reply(() => [200, { data: { id: '123' } }, peerMock.headers])
 
       const response = await request('blocks.info', {
         id: '123'
@@ -64,15 +61,15 @@ describe('Blocks', () => {
     })
   })
 
-  describe('GET /mainnet/blocks/{id}/transactions', () => {
+  describe('POST blocks.transactions', () => {
     it('should get the block transactions', async () => {
-      axiosMock.onGet(/.*\/api\/transactions/).reply(() => [200, { count: 2, transactions: [ { id: '123' }, { id: '1234' } ] }, peerMock.headers])
+      axiosMock.onGet(/.*\/api\/blocks\/123\/transactions/).reply(() => [200, { meta: { totalCount: 1 }, data: [ { id: '123' }, { id: '123' } ] }, peerMock.headers])
 
       const response = await request('blocks.transactions', {
         id: '123'
       })
 
-      expect(response.data.result.transactions).toHaveLength(2)
+      expect(response.data.result.data).toHaveLength(2)
     })
   })
 })

@@ -11,7 +11,10 @@ module.exports = {
       recipientId: params.address
     })
 
-    return response.data
+    return {
+      count: response.meta.totalCount,
+      data: response.data
+    }
   },
   schema: {
     address: Joi.string().length(34).required(),

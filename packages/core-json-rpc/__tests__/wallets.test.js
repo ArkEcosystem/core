@@ -43,9 +43,11 @@ afterEach(async () => {
 })
 
 describe('Accounts', () => {
-  describe('GET /mainnet/wallets/{address}', () => {
-    it('should GET wallet with a given address on mainnet', async () => {
-      axiosMock.onGet(/.*\/api\/wallets/).reply(() => [200, { wallet: { address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv' } }, peerMock.headers])
+  describe('POST wallets.info', () => {
+    it('should POST wallet with a given address on mainnet', async () => {
+      axiosMock
+        .onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/)
+        .reply(() => [200, { data: { address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv' } }, peerMock.headers])
 
       const response = await request('wallets.info', {
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
@@ -55,20 +57,22 @@ describe('Accounts', () => {
     })
   })
 
-  describe('GET /mainnet/wallets/{address}/transactions', () => {
-    it('should GET last wallet transactions on mainnet', async () => {
-      axiosMock.onGet(/.*\/api\/transactions/).reply(() => [200, { count: 2, transactions: [ { id: '123' }, { id: '1234' } ] }, peerMock.headers])
+  describe('POST wallets.transactions', () => {
+    it('should POST last wallet transactions on mainnet', async () => {
+      axiosMock
+        .onGet(/.*\/api\/transactions/)
+        .reply(() => [200, { meta: { totalCount: 2 }, data: [ { id: '123' }, { id: '1234' } ] }, peerMock.headers])
 
       const response = await request('wallets.transactions', {
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
       })
 
-      await expect(parseInt(response.data.result.count)).toBe(2)
-      await expect(response.data.result.transactions.length).toBe(2)
+      await expect(response.data.result.count).toBe(2)
+      await expect(response.data.result.data).toHaveLength(2)
     })
   })
 
-  describe('POST /mainnet/wallets/*', () => {
+  describe('POST wallets.create.*', () => {
     it('should create an wallet on mainnet', async () => {
       const response = await request('wallets.create', {
         passphrase: 'this is a test'

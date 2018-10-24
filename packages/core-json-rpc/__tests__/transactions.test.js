@@ -31,9 +31,6 @@ afterAll(async () => {
 })
 
 beforeEach(async () => {
-  axiosMock.onGet(/.*\/api\/loader\/autoconfigure/).reply(() => [200, { network: {} }, peerMock.headers])
-  axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 5 }, peerMock.headers])
-  axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { success: true, peers: [ { status: 'OK', ip: peerMock.ip, port: 4002, height: 5, delay: 8 } ] }, peerMock.headers])
   axiosMock.onPost(/.*:8080.*/).passThrough()
 })
 
@@ -58,18 +55,8 @@ describe('Transactions', () => {
       transaction = response.data.result
     })
 
-    it('should broadcast tx on mainnet using the old method', async () => {
-      axiosMock.onPost(/.*\/peer\/transactions/).reply(() => [200, { success: true }, peerMock.headers])
-
-      const response = await request('transactions.broadcast', {
-        transactions: [transaction]
-      })
-
-      expect(ark.crypto.verify(response.data.result[0])).toBeTrue()
-    })
-
     it('should broadcast tx on mainnet using the new method', async () => {
-      axiosMock.onPost(/.*\/peer\/transactions/).reply(() => [200, { success: true }, peerMock.headers])
+      axiosMock.onPost(/.*\/api\/transactions/).reply(() => [200, { success: true }, peerMock.headers])
 
       const response = await request('transactions.broadcast', { id: transaction.id })
 
