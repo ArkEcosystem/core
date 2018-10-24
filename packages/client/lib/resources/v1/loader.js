@@ -6,7 +6,7 @@ module.exports = class Loader extends Base {
    * @return {Promise}
    */
   status () {
-    return this.http.get('loader/status/sync')
+    return this.http.get('loader/status')
   }
 
   /**
@@ -14,7 +14,7 @@ module.exports = class Loader extends Base {
    * @return {Promise}
    */
   syncing () {
-    return this.http.get('loader/status')
+    return this.http.get('loader/status/sync')
   }
 
   /**
