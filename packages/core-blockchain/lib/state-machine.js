@@ -291,6 +291,10 @@ blockchainMachine.actionMap = blockchain => {
       const lastBlock = state.lastDownloadedBlock || state.lastBlock
       const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
 
+      if (blockchain.isStopped) {
+        return
+      }
+
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
 

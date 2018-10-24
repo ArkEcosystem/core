@@ -4,6 +4,7 @@ const pgPromise = require('pg-promise')
 const crypto = require('crypto')
 const chunk = require('lodash/chunk')
 const fs = require('fs')
+const delay = require('delay')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
@@ -237,6 +238,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     try {
       const spv = new SPV(this)
       await spv.build(height)
+
+      this._spvFinished = true
 
       await this.__registerListeners()
 
@@ -632,6 +635,14 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         }
       } catch (err) {
         logger.error(err)
+      }
+    })
+
+    // NOTE: Only answer if SPV has finished.
+    emitter.once('shutdown:ping', async () => {
+      await delay(1) // Wait for next event cycle
+      if (this._spvFinished) {
+        emitter.emit('shutdown:pong')
       }
     })
   }
