@@ -236,8 +236,11 @@ blockchainMachine.actionMap = blockchain => {
          * database init                 *
          ********************************/
         // SPV rebuild
-        await blockchain.database.buildWallets(block.data.height)
-        await blockchain.database.saveWallets(true)
+        const verifiedWalletsIntegrity = await blockchain.database.buildWallets(block.data.height)
+        if (!verifiedWalletsIntegrity) {
+          logger.warn('Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown. :hammer:')
+          await blockchain.database.saveWallets(true)
+        }
 
         // NOTE: if the node is shutdown between round, the round has already been applied
         if (roundCalculator.isNewRound(block.data.height + 1)) {
