@@ -29,7 +29,7 @@
     "envfile": "^2.3.0",
     "expand-home-dir": "0.0.3",
     "fs-extra": "^7.0.0",
-    "joi": "^13.3.0",
+    "joi": "^14.0.1",
     "lodash": "^4.17.10",
     "pino": "^5.7.0",
     "pino-pretty": "^2.2.2"
