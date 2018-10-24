@@ -358,7 +358,7 @@ describe('Connection', () => {
       connection.addTransaction(mockData.dummy1)
       connection.addTransaction(mockData.dummy2)
 
-      // This should be dropped by due to checkDynamicFeeMatch()
+      // This should be dropped due to checkDynamicFeeMatch()
       const lowFeeTransaction = new Transaction(mockData.dummy3)
       lowFeeTransaction.fee = 1 // 1 ARKTOSHI
 
@@ -384,14 +384,27 @@ describe('Connection', () => {
     })
 
     it('should not accept transaction with amount > wallet balance', async () => {
-      const amount = 333300000000000 // more than any genesis wallet
-      const generatedTransfers = generateTransfer(
-        'testnet', delegatesSecrets[0], mockData.dummy1.recipientId, amount, 2)
+      const transactions = [
+        // Invalid, not enough funds, will also cause the transaction below to be
+        // purged as it is from the same sender.
+        generateTransfer(
+          'testnet', delegatesSecrets[0], mockData.dummy1.recipientId,
+          333300000000000 /* more than any genesis wallet */, 1)[0],
+        // This alone is a valid transaction, but will get purged because of the
+        // first transaction we add which is invalid (not enough funds) and from
+        // the same sender.
+        generateTransfer(
+          'testnet', delegatesSecrets[0], mockData.dummy1.recipientId,
+          1, 1)[0],
+        // Valid, only this transaction will classify for forging.
+        generateTransfer(
+          'testnet', delegatesSecrets[1], mockData.dummy1.recipientId,
+          1, 1)[0]
+      ]
 
-      await connection.addTransaction(generatedTransfers[0])
+      connection.addTransactions(transactions)
 
-      let transactions = await connection.getTransactionsForForging(0)
-      expect(transactions).toEqual([])
+      expect((await connection.getTransactionsForForging(10)).length).toEqual(1)
     })
   })
 
