@@ -68,7 +68,7 @@ class Network {
         const index = this.peers.findIndex(peer => (peer.ip === this.server.ip))
         this.peers.splice(index, 1)
 
-        if(!this.peers.length) {
+        if (!this.peers.length) {
           this.__loadRemotePeers()
         }
 
@@ -91,6 +91,11 @@ class Network {
     this.peers = this.network.name === 'testnet'
       ? [{ ip: '127.0.0.1', port: container.resolveOptions('api').port }]
       : p2p.getPeers()
+
+    if (!this.peers.length) {
+      logger.error('No peers found. Shutting down...')
+      process.exit()
+    }
   }
 
   async __selectResponsivePeer (peer) {
