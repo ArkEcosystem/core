@@ -132,12 +132,12 @@ module.exports = class TransactionBuilder {
   /**
    * Sign transaction using wif.
    * @param  {String} wif
-   * @param  {String} networkWif - value associated with network (Ark is 170)
+   * @param  {String} networkWif - value associated with network
    * @return {TransactionBuilder}
    */
-  signWithWif (wif, networkWif = 170) {
+  signWithWif (wif, networkWif) {
     const keys = crypto.getKeysFromWIF(wif, {
-      wif: networkWif
+      wif: networkWif || configManager.get('wif')
     })
     this.data.senderPublicKey = keys.publicKey
     this.data.signature = crypto.sign(this.__getSigningObject(), keys)
@@ -163,13 +163,13 @@ module.exports = class TransactionBuilder {
   /**
    * Sign transaction with wif.
    * @param  {String} wif
-   * @param  {String} networkWif - value associated with network (Ark is 170)
+   * @param  {String} networkWif - value associated with network
    * @return {TransactionBuilder}
    */
-  secondSignWithWif (wif, networkWif = 170) {
+  secondSignWithWif (wif, networkWif) {
     if (wif) {
       const keys = crypto.getKeysFromWIF(wif, {
-        wif: networkWif
+        wif: networkWif || configManager.get('wif')
       })
       // TODO sign or second?
       this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)

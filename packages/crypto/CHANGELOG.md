@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Properly verify block payload length
 - Broken verification of faulty type 1 and 4
 - Broken multisignature serialization
+- Use network WIF as default for WIF operations
 
 ## 0.1.1 - 2018-06-14
 
