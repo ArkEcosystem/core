@@ -9,6 +9,8 @@ const WalletManager = require('./wallet-manager')
 const { Block } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
+const cloneDeep = require('lodash/cloneDeep')
+const assert = require('assert')
 
 module.exports = class ConnectionInterface {
   /**
@@ -275,21 +277,19 @@ module.exports = class ConnectionInterface {
     if (nextHeight % maxDelegates === 1) {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
-      if (!this.activeDelegates || this.activeDelegates.length === 0 || (this.activeDelegates.length && this.activeDelegates[0].round !== round)) {
+      if (!this.forgingDelegates || this.forgingDelegates.length === 0 || (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)) {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          this.updateDelegateStats(height, this.activeDelegates)
-          this.saveWallets(false) // save modified wallets non-blocking
-
+          this.updateDelegateStats(height, this.forgingDelegates)
+          this.saveWallets(false) // save only modified wallets during the last round
           const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
           this.saveRound(delegates) // save next round delegate list non-blocking
-          this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list non-blocking
-
+          this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list
           this.blocksInCurrentRound.length = 0
         } catch (error) {
           // trying to leave database state has it was
-          this.deleteRound(round)
+          await this.deleteRound(round)
           throw error
         }
       } else {
@@ -309,11 +309,47 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
-      this.blocksInCurrentRound = await this.__getBlocksForRound(round)
-      this.activeDelegates = await this.getActiveDelegates(height)
+      const delegates = await this.__calcPreviousActiveDelegates(round)
+      this.forgingDelegates = await this.getActiveDelegates(height, delegates)
 
       await this.deleteRound(nextRound)
     }
+  }
+
+  /**
+   * Calculate the active delegates of the previous round. In order to do
+   * so we need to go back to the start of that round. Therefore we create
+   * a temporary wallet manager with all delegates and revert all blocks
+   * and transactions of that round to get the initial vote balances
+   * which are then used to restore the original order.
+   * @param {Number} round
+   */
+  async __calcPreviousActiveDelegates (round) {
+    // TODO: cache the blocks of the last X rounds
+    this.blocksInCurrentRound = await this.__getBlocksForRound(round)
+
+    // Create temp wallet manager from all delegates
+    const tempWalletManager = new WalletManager()
+    tempWalletManager.index(cloneDeep(this.walletManager.allByUsername()))
+
+    // Revert all blocks in reverse order
+    let height = 0
+    for (let i = this.blocksInCurrentRound.length - 1; i >= 0; i--) {
+      tempWalletManager.revertBlock(this.blocksInCurrentRound[i])
+      height = this.blocksInCurrentRound[i].data.height
+    }
+
+    // The first round has no active delegates
+    if (height === 1) {
+      return []
+    }
+
+    // Assert that the height is the beginning of a round.
+    const { maxDelegates } = roundCalculator.calculateRound(height)
+    assert(height > 1 && height % maxDelegates === 1)
+
+    // Now retrieve the active delegate list from the temporary wallet manager.
+    return tempWalletManager.loadActiveDelegateList(maxDelegates, height)
   }
 
   /**

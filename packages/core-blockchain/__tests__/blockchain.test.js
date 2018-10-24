@@ -6,8 +6,8 @@ const axiosMock = new MockAdapter(axios)
 const delay = require('delay')
 
 const { asValue } = require('awilix')
-const { slots } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
+const { crypto, slots } = require('@arkecosystem/crypto')
+const { Block, Wallet } = require('@arkecosystem/crypto').models
 
 const app = require('./__support__/setup')
 
@@ -31,12 +31,12 @@ beforeAll(async () => {
   // Mock peer responses so that we can have blocks
   __mockPeer()
 
-  // Manually register the blockchain and start it
-  await __start()
-
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
+
+  // Manually register the blockchain and start it
+  await __start()
 })
 
 afterAll(async () => {
@@ -474,6 +474,18 @@ async function __start () {
 async function __resetToHeight1 () {
   const lastBlock = await blockchain.database.getLastBlock()
   if (lastBlock) {
+    // Make sure the wallet manager has been fed or else revertRound
+    // cannot determine the previous delegates. This is only necessary, because
+    // the database is not dropped after the unit tests are done.
+    await blockchain.database.buildWallets(lastBlock.data.height)
+
+    // Index the genesis wallet or else revert block at height 1 fails
+    const generator = crypto.getAddress(genesisBlock.data.generatorPublicKey)
+    const genesis = new Wallet(generator)
+    genesis.publicKey = genesisBlock.data.generatorPublicKey
+    genesis.username = 'genesis'
+    blockchain.database.walletManager.reindex(genesis)
+
     blockchain.stateMachine.state.lastBlock = lastBlock
     await blockchain.removeBlocks(lastBlock.data.height - 1)
   }
