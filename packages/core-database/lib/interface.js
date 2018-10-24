@@ -282,9 +282,9 @@ module.exports = class ConnectionInterface {
 
         try {
           this.updateDelegateStats(height, this.forgingDelegates)
-          await this.saveWallets(false) // save only modified wallets during the last round
+          this.saveWallets(false) // save only modified wallets during the last round
           const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
-          await this.saveRound(delegates) // save next round delegate list
+          this.saveRound(delegates) // save next round delegate list non-blocking
           this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list
           this.blocksInCurrentRound.length = 0
         } catch (error) {

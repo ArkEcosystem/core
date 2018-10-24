@@ -97,6 +97,9 @@ describe('Connection', () => {
 
       connection.addTransaction(mockData.dummy1)
 
+      // Test adding already existent transaction
+      connection.addTransaction(mockData.dummy1)
+
       expect(connection.getPoolSize()).toBe(1)
     })
   })
@@ -122,14 +125,26 @@ describe('Connection', () => {
       const expireAfterSeconds = 3
       const expiration = slots.getTime() + expireAfterSeconds
 
-      mockData.dummyExp1.expiration = expiration
-      mockData.dummyExp2.expiration = expiration
+      const transactions = []
 
-      connection.addTransactions([mockData.dummyExp1, mockData.dummyExp2])
+      transactions.push(new Transaction(mockData.dummyExp1))
+      transactions[transactions.length - 1].expiration = expiration
 
-      expect(connection.getPoolSize()).toBe(2)
+      transactions.push(new Transaction(mockData.dummy1))
+      transactions[transactions.length - 1].type = TRANSACTION_TYPES.TIMELOCK_TRANSFER
+
+      transactions.push(new Transaction(mockData.dummyExp2))
+      transactions[transactions.length - 1].expiration = expiration
+
+      transactions.push(mockData.dummy2)
+
+      connection.addTransactions(transactions)
+
+      expect(connection.getPoolSize()).toBe(4)
       await delay((expireAfterSeconds + 1) * 1000)
-      expect(connection.getPoolSize()).toBe(0)
+      expect(connection.getPoolSize()).toBe(2)
+
+      transactions.forEach(t => connection.removeTransactionById(t.id))
     })
   })
 
@@ -203,19 +218,13 @@ describe('Connection', () => {
     it('should return true if transaction is IN pool', () => {
       connection.addTransactions([mockData.dummy1, mockData.dummy2])
 
-      const res1 = connection.transactionExists(mockData.dummy1.id)
-      expect(res1).toBe(true)
-
-      const res2 = connection.transactionExists(mockData.dummy2.id)
-      expect(res2).toBe(true)
+      expect(connection.transactionExists(mockData.dummy1.id)).toBeTrue()
+      expect(connection.transactionExists(mockData.dummy2.id)).toBeTrue()
     })
 
    it('should return false if transaction is NOT pool', () => {
-      const res1 = connection.transactionExists(mockData.dummy1.id)
-      expect(res1).toBe(false)
-
-      const res2 = connection.transactionExists(mockData.dummy2.id)
-      expect(res2).toBe(false)
+      expect(connection.transactionExists(mockData.dummy1.id)).toBeFalse()
+      expect(connection.transactionExists(mockData.dummy2.id)).toBeFalse()
     })
   })
 
@@ -296,14 +305,22 @@ describe('Connection', () => {
     })
 
     it('should return transactions within the specified range', () => {
-      connection.addTransaction(mockData.dummy1)
-      connection.addTransaction(mockData.dummy2)
+      const transactions = [ mockData.dummy1, mockData.dummy2 ]
 
-      let transactions = connection.getTransactions(0, 1)
-      transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
+      connection.addTransactions(transactions)
 
-      expect(transactions[0]).toBeObject()
-      expect(transactions[0].id).toBe(mockData.dummy1.id)
+      if (transactions[1].fee > transactions[0].fee) {
+        transactions.reverse()
+      }
+
+      for (const i of [0, 1]) {
+        const retrieved = connection.getTransactions(i, 1)
+          .map(serializedTx => Transaction.fromBytes(serializedTx))
+
+        expect(retrieved.length).toBe(1)
+        expect(retrieved[0]).toBeObject()
+        expect(retrieved[0].id).toBe(transactions[i].id)
+      }
     })
   })
 
@@ -340,28 +357,36 @@ describe('Connection', () => {
     it('should return an array of transactions', async () => {
       connection.addTransaction(mockData.dummy1)
       connection.addTransaction(mockData.dummy2)
-      connection.addTransaction(mockData.dummy3)
+
+      // This should be dropped by due to checkDynamicFeeMatch()
+      const lowFeeTransaction = new Transaction(mockData.dummy3)
+      lowFeeTransaction.fee = 1 // 1 ARKTOSHI
+
+      connection.addTransaction(lowFeeTransaction)
       connection.addTransaction(mockData.dummy4)
       connection.addTransaction(mockData.dummy5)
       connection.addTransaction(mockData.dummy6)
 
-      let transactions = await connection.getTransactionsForForging(0, 6)
+      let transactions = await connection.getTransactionsForForging(6)
       expect(transactions).toBeArray()
-      expect(transactions.length).toBe(6)
+      expect(transactions.length).toBe(5)
+
+      transactions = await connection.getTransactionsForForging(4)
+      expect(transactions).toBeArray()
+      expect(transactions.length).toBe(4)
       transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
 
       expect(transactions[0]).toBeObject()
       expect(transactions[0].id).toBe(mockData.dummy1.id)
       expect(transactions[1].id).toBe(mockData.dummy2.id)
-      expect(transactions[2].id).toBe(mockData.dummy3.id)
-      expect(transactions[3].id).toBe(mockData.dummy4.id)
-      expect(transactions[4].id).toBe(mockData.dummy5.id)
-      expect(transactions[5].id).toBe(mockData.dummy6.id)
+      expect(transactions[2].id).toBe(mockData.dummy4.id)
+      expect(transactions[3].id).toBe(mockData.dummy5.id)
     })
 
     it('should not accept transaction with amount > wallet balance', async () => {
       const amount = 333300000000000 // more than any genesis wallet
-      const generatedTransfers = generateTransfer('testnet', delegatesSecrets[0], mockData.dummy1.recipientId, amount, 2)
+      const generatedTransfers = generateTransfer(
+        'testnet', delegatesSecrets[0], mockData.dummy1.recipientId, amount, 2)
 
       await connection.addTransaction(generatedTransfers[0])
 
@@ -418,6 +443,83 @@ describe('Connection', () => {
       connection.addTransaction(mockData.dummy2)
 
       expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeTrue()
+    })
+  })
+
+  describe('shutdown and start', () => {
+    it('save and restore transactions', () => {
+      expect(connection.getPoolSize()).toBe(0)
+
+      const transactions = [ mockData.dummy1, mockData.dummy2 ]
+
+      connection.addTransactions(transactions)
+
+      expect(connection.getPoolSize()).toBe(2)
+
+      connection.disconnect()
+
+      connection.make()
+
+      expect(connection.getPoolSize()).toBe(2)
+
+      transactions.forEach(
+        t => expect(
+          connection.getTransaction(t.id).serialized.toLowerCase()
+        ).toBe(
+          t.serialized.toLowerCase()
+        )
+      )
+
+      connection.flush()
+    })
+
+    it('remove forged during our downtime', () => {
+      expect(connection.getPoolSize()).toBe(0)
+
+      const transactions = [ mockData.dummy1, mockData.dummy2, mockData.dummy3 ]
+
+      connection.addTransactions(transactions)
+
+      expect(connection.getPoolSize()).toBe(3)
+
+      connection.disconnect()
+
+      // Forge mockData.dummy2
+      /* XXX
+      forgeManager.client.getTransactions.mockReturnValue({
+        transactions: [ Transaction.serialize(sampleTransaction).toString('hex') ]
+      })
+      forgeManager.usernames = []
+      const del = new Delegate('a secret', 100)
+      const round = {
+        lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
+        timestamp: 1,
+        reward: 2
+      }
+
+      await forgeManager.__forgeNewBlock(del, round)
+      */
+
+      connection.make()
+
+      /* Enable this when mockData.dummy2 gets forged. */
+      // if (false) {
+      //  expect(connection.getPoolSize()).toBe(2)
+
+      //  transactions.splice(1, 1)
+      // } else {
+        expect(connection.getPoolSize()).toBe(3)
+      // }
+
+      transactions.forEach(
+        t => expect(
+          connection.getTransaction(t.id).serialized.toLowerCase()
+        ).toBe(
+          t.serialized.toLowerCase()
+        )
+      )
+
+      connection.flush()
     })
   })
 
