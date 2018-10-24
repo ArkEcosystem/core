@@ -31,9 +31,9 @@ class Network {
     }
 
     peer = await this.__selectResponsivePeer(peer || this.server)
-    const peerIPandPort = peer.split(':')
 
-    const uri = `http://${peerIPandPort[0]}:4003/api/${url}`
+    const [ip, port] = peer.split(':')
+    const uri = `http://${ip}:${port}/api/${url}`
 
     try {
       logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
@@ -87,7 +87,7 @@ class Network {
 
   __loadRemotePeers () {
     this.network.peers = this.network.name === 'testnet'
-      ? ['127.0.0.1:4003']
+      ? ['127.0.0.1:4003'] // TODO: replace 4003 with port from config
       : p2p.getPeers().map(peer => `${peer.ip}:${peer.port}`)
   }
 
