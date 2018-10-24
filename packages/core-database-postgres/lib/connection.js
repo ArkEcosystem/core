@@ -4,7 +4,6 @@ const pgPromise = require('pg-promise')
 const crypto = require('crypto')
 const chunk = require('lodash/chunk')
 const fs = require('fs')
-const delay = require('delay')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
@@ -271,8 +270,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return wallet.publicKey && (force || wallet.dirty)
     })
 
-    // Remove dirty flag immediately to not run save the wallets again
-    // when the exit handler is called during a force insert right after SPV.
+    // Remove dirty flags first to not save all dirty wallets in the exit handler
+    // when called during a force insert right after SPV.
     this.walletManager.clear()
 
     if (force) { // all wallets to be updated, performance is better without upsert
@@ -640,11 +639,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       }
     })
 
-    // NOTE: Only answer if SPV has finished.
-    emitter.once('shutdown:ping', async () => {
-      await delay(1) // Wait for next event cycle
-      if (this._spvFinished) {
-        emitter.emit('shutdown:pong')
+    emitter.once('shutdown', async () => {
+      if (!this._spvFinished) {
+        // Prevent dirty wallets to be saved when SPV didn't finish
+        this.walletManager.clear()
       }
     })
   }

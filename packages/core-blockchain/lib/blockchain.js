@@ -66,7 +66,7 @@ module.exports = class Blockchain {
 
     this.dispatch('START')
 
-    emitter.once('shutdown:ping', () => {
+    emitter.once('shutdown', () => {
       this.stop()
     })
 

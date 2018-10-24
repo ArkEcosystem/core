@@ -134,25 +134,13 @@ module.exports = class Container {
           const emitter = this.resolvePlugin('event-emitter')
 
           // Notify plugins about shutdown
-          emitter.emit('shutdown:ping')
+          emitter.emit('shutdown')
 
-          // If we get a response, we have to wait for a graceful shutdown.
-          let pong = false
-          emitter.once('shutdown:pong', () => {
-            pong = true
-          })
+          // Wait for event to be emitted and give time to finish
+          await delay(1000)
 
-          // Wait for event to be emitted and give time to answer
-          await delay(10)
-
-          // We only get a pong when the SPV finished. In which case we gracefully save all dirty wallets.
-          // Otherwise the process can just be killed immediately.
-          if (pong) {
-            // Make sure we give enough time to finish
-            await delay(1000)
-            // Save dirty wallets
-            await database.saveWallets(false)
-          }
+          // Save dirty wallets
+          await database.saveWallets(false)
         }
       } catch (error) {
         console.log(error.stack)

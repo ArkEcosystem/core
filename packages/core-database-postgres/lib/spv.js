@@ -229,8 +229,7 @@ module.exports = class SPV {
     if (dbWallets.length !== inMemoryWallets.length) {
       detectedInconsistency = true
     } else {
-      for (let i = 0; i < dbWallets.length; i++) {
-        const dbWallet = dbWallets[i]
+      for (const dbWallet of dbWallets) {
         const inMemoryWallet = this.walletManager.findByPublicKey(dbWallet.publicKey)
 
         if ((!inMemoryWallet.balance.isEqualTo(dbWallet.balance)) ||
