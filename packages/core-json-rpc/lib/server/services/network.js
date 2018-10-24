@@ -55,10 +55,10 @@ class Network {
   async broadcast (transaction) {
     const peers = this.network.peers.slice(0, 10)
 
-    for (let i = 0; i < peers.length; i++) {
-      logger.info(`Broadcasting to ${peers[i]}`)
+    for (const peer of peers) {
+      logger.info(`Broadcasting to ${peer}`)
 
-      await this.postTransaction(transaction, peers[i])
+      await this.postTransaction(transaction, peer)
     }
   }
 
@@ -84,15 +84,12 @@ class Network {
   }
 
   __loadRemotePeers () {
-    this.network.peers = p2p.getPeers().map(peer => `${peer.ip}:${peer.port}`)
+    this.network.peers = this.network.name === 'testnet'
+      ? ['127.0.0.1:4003']
+      : p2p.getPeers().map(peer => `${peer.ip}:${peer.port}`)
   }
 
   async __selectResponsivePeer (peer) {
-    if (this.network.name === 'testnet') {
-      // TODO: use port from configuration
-      return '127.0.0.1:4003'
-    }
-
     const reachable = await isReachable(peer)
 
     if (!reachable) {

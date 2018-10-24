@@ -4,10 +4,9 @@ const network = require('../../services/network')
 module.exports = {
   name: 'blocks.transactions',
   async method (params) {
-    const response = await network.getFromNodeApi('/api/transactions', {
+    const response = await network.getFromNodeApi(`blocks/${params.id}/transactions`, {
       offset: params.offset,
-      orderBy: 'timestamp:desc',
-      blockId: params.id
+      orderBy: 'timestamp:desc'
     })
 
     return {
