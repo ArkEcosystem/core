@@ -25,7 +25,7 @@ class Network {
     this.server = this.__getRandomPeer()
   }
 
-  async getFromNodeApi (url, params = {}, peer = null) {
+  async sendRequest (url, params = {}, peer = null) {
     if (!peer && !this.server) {
       this.setServer()
     }
@@ -38,7 +38,9 @@ class Network {
     try {
       logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
 
-      return this.client.get(uri, { params })
+      const response = await this.client.get(uri, { params })
+
+      return response.data
     } catch (error) {
       logger.error(error.message)
     }
@@ -71,7 +73,7 @@ class Network {
     this.setServer()
 
     try {
-      await this.getFromNodeApi('node/configuration')
+      await this.sendRequest('node/configuration')
     } catch (error) {
       return this.connect()
     }

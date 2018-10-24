@@ -4,9 +4,9 @@ const network = require('../../services/network')
 module.exports = {
   name: 'transactions.info',
   async method (params) {
-    const response = await network.getFromNodeApi(`transactions/${params.id}`)
+    const response = await network.sendRequest(`transactions/${params.id}`)
 
-    return response.data.data
+    return response.data
   },
   schema: {
     id: Joi.string().length(64).required()

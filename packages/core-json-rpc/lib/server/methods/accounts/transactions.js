@@ -4,14 +4,14 @@ const network = require('../../services/network')
 module.exports = {
   name: 'accounts.transactions',
   async method (params) {
-    const response = await network.getFromNodeApi('transactions', {
+    const response = await network.sendRequest('transactions', {
       offset: params.offset,
       orderBy: 'timestamp:desc',
       senderId: params.address,
       recipientId: params.address
     })
 
-    return response.data.data
+    return response.data
   },
   schema: {
     address: Joi.string().length(34).required(),
