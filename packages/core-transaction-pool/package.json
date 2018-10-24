@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-transaction-pool",
-  "description": "Transaction Pool Manager for ARK Core",
+  "description": "Transaction Pool Manager for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",

@@ -21,7 +21,7 @@ beforeAll(async () => {
 
   const Connection = require('../lib/connection.js')
   connection = new Connection(defaultConfig)
-  connection = connection.make()
+  await connection.make()
   // 100+ years in the future to avoid our hardcoded transactions used in these
   // tests to expire
   connection.options.maxTransactionAge = 4036608000
@@ -170,23 +170,6 @@ describe('Connection', () => {
       connection.removeTransactionById('nonexistenttransactionid')
 
       expect(connection.getPoolSize()).toBe(1)
-    })
-  })
-
-  describe('removeTransactions', () => {
-    it('should be a function', () => {
-      expect(connection.removeTransactions).toBeFunction()
-    })
-
-    it('should remove the specified transactions from the pool', () => {
-      connection.addTransaction(mockData.dummy1)
-      connection.addTransaction(mockData.dummy2)
-
-      expect(connection.getPoolSize()).toBe(2)
-
-      connection.removeTransactions([mockData.dummy1, mockData.dummy2])
-
-      expect(connection.getPoolSize()).toBe(0)
     })
   })
 
@@ -384,12 +367,6 @@ describe('Connection', () => {
 
       let transactions = await connection.getTransactionsForForging(0)
       expect(transactions).toEqual([])
-    })
-  })
-
-  describe('removeForgedAndGetPending', () => {
-    it('should be a function', () => {
-      expect(connection.removeForgedAndGetPending).toBeFunction()
     })
   })
 

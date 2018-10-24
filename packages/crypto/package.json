@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/crypto",
-  "description": "Crypto utilities for the ARK blockchain",
+  "description": "Crypto utilities for the Ark Blockchain",
   "version": "0.2.0",
   "contributors": [
     "François-Xavier Thoorens <fx.thoorens@ark.io>",

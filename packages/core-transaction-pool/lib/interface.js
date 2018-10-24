@@ -76,24 +76,6 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Remove multiple transactions from the pool.
-   * @param  {Array} transactions
-   * @return {void}
-   */
-  async removeTransactions (transactions) {
-    throw new Error('Method [removeTransactions] not implemented!')
-  }
-
-  /**
-   * Removes any transactions in the pool that have already been forged.
-   * @param  {Array} transactionIds
-   * @return {Array} IDs of pending transactions that have yet to be forged.
-   */
-  async removeForgedAndGetPending (transactionIds) {
-    throw new Error('Method [removeForgedAndGetPending] not implemented!')
-  }
-
-  /**
    * Get all transactions that are ready to be forged.
    * @param  {Number} blockSize
    * @return {(Array|void)}

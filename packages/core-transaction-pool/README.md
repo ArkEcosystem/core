@@ -1,6 +1,8 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Transaction Pool Interface
 
-# ARK Core - Transaction Pool Interface
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
 ## Installation
 

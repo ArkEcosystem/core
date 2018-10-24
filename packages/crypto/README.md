@@ -1,6 +1,8 @@
-![ARK Core](banner.png)
+# Ark - Crypto
 
-# ARK - Crypto
+<p align="center">
+    <img src="./banner.png?sanitize=true" />
+</p>
 
 ## Installation
 

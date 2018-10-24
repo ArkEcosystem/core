@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- Tests for timestamp formatting
+- Helper to create tables in the CLI
+
+### Fixed
+- Properly calculate delegate approval
+
 ## 0.1.0 - 2018-10-08
+
 ### Added
 - initial release
