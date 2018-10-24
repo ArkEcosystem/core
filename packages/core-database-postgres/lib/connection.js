@@ -271,29 +271,21 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (force) { // all wallets to be updated, performance is better without upsert
       await this.db.wallets.truncate()
 
-      for (const items of chunk(wallets, 5000)) {
-        try {
-          await this.db.wallets.create(items)
-        } catch (error) {
-          logger.error(error)
-        }
+      try {
+        const chunks = chunk(wallets, 5000).map(c => this.db.wallets.create(c))
+        await this.db.tx(t => t.batch(chunks))
+      } catch (error) {
+        logger.error(error.stack)
       }
     } else {
-      // NOTE: UPSERT is far from optimal. It can takes several seconds here
-      // if many accounts have to be updated at each round turn
-      //
-      // What can be done is to update accounts at each block in unsync manner
-      // what is really important is that db is sync with wallets in memory
-      // at round turn because votes computation to calculate active delegate list is made against database
-      //
-      // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
-      // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
+      // NOTE: The list of delegates is calculated in-memory against the WalletManager,
+      // so it is safe to perform the costly UPSERT non-blocking during round change only:
+      // 'await saveWallets(false)' -> 'saveWallets(false)'
       try {
         const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallet))
-
         await this.db.tx(t => t.batch(queries))
       } catch (error) {
-        logger.error(error)
+        logger.error(error.stack)
       }
     }
 

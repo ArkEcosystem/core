@@ -280,10 +280,12 @@ module.exports = class ConnectionInterface {
 
         try {
           this.updateDelegateStats(height, this.activeDelegates)
-          await this.saveWallets(false) // save only modified wallets during the last round
+          this.saveWallets(false) // save modified wallets non-blocking
+
           const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight) // get active delegate list from in-memory wallet manager
-          await this.saveRound(delegates) // save next round delegate list
-          await this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list
+          this.saveRound(delegates) // save next round delegate list non-blocking
+          this.getActiveDelegates(nextHeight, delegates) // generate the new active delegates list non-blocking
+
           this.blocksInCurrentRound.length = 0
         } catch (error) {
           // trying to leave database state has it was
