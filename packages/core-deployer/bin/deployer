@@ -87,7 +87,7 @@ let networkConfig = {
       epoch: options.epoch,
       activeDelegates: options.activeDelegates,
       fees: {
-        dynamic : false,
+        dynamic: false,
         transfer: options.feeTransfer,
         secondSignature: options.feeVote,
         delegateRegistration: options.feeSecondSignature,
@@ -114,7 +114,7 @@ let networkConfig = {
   client: {
     token: options.token,
     symbol: options.symbol,
-    explorer: options.explorerUrl,
+    explorer: options.explorerUrl
   },
   exceptions: {}
 }

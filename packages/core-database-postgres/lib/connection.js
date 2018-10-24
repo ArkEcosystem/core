@@ -166,8 +166,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     const maxDelegates = config.getConstants(height).activeDelegates
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
-    if (this.activeDelegates && this.activeDelegates.length && this.activeDelegates[0].round === round) {
-      return this.activeDelegates
+    if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
+      return this.forgingDelegates
     }
 
     // When called during applyRound we already know the delegates, so we don't have to query the database.
@@ -188,12 +188,12 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
     }
 
-    this.activeDelegates = delegates.map(delegate => {
+    this.forgingDelegates = delegates.map(delegate => {
       delegate.round = +delegate.round
       return delegate
     })
 
-    return this.activeDelegates
+    return this.forgingDelegates
   }
 
   /**

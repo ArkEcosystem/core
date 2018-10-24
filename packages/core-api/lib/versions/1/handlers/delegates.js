@@ -26,7 +26,7 @@ exports.index = {
         limit: request.query.limit || 51
       }
     })
-    
+
     return utils.respondWith({
       delegates: utils.toCollection(request, rows, 'delegate'),
       totalCount: count
