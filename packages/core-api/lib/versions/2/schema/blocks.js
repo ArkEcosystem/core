@@ -24,7 +24,8 @@ exports.show = {
  */
 exports.transactions = {
   params: {
-    id: Joi.string()
+    id: Joi.string(),
+    orderBy: Joi.string()
   },
   query: pagination
 }
