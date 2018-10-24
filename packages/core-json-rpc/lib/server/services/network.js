@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { client } = require('@arkecosystem/crypto')
+const { configManager } = require('@arkecosystem/crypto')
 const isReachable = require('is-reachable')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
@@ -8,29 +8,24 @@ const p2p = container.resolvePlugin('p2p')
 const config = container.resolvePlugin('config')
 
 class Network {
-  setNetwork () {
+  constructor () {
     this.network = config.network
 
     this.__loadRemotePeers()
 
-    client.setConfig(config.network)
+    configManager.setConfig(config.network)
 
-    return this.network
+    this.client = axios.create({
+      headers: { Accept: 'application/vnd.ark.core-api.v2+json' },
+      timeout: 3000
+    })
   }
 
   setServer () {
     this.server = this.__getRandomPeer()
-
-    return this.server
   }
 
   async getFromNodeApi (url, params = {}, peer = null) {
-    return this.getFromNode(url, params, peer, true)
-  }
-
-  async getFromNode (url, params = {}, peer = null, apiEndpoint = false) {
-    const nethash = this.network ? this.network.nethash : null
-
     if (!peer && !this.server) {
       this.setServer()
     }
@@ -38,19 +33,12 @@ class Network {
     peer = await this.__selectResponsivePeer(peer || this.server)
     const peerIPandPort = peer.split(':')
 
-    const uri = `http://${peerIPandPort[0]}:${apiEndpoint ? 4003 : peerIPandPort[1]}${url}`
+    const uri = `http://${peerIPandPort[0]}:4003/api/${url}`
 
     try {
       logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
 
-      return await axios.get(uri, {
-        params,
-        headers: {
-          nethash,
-          version: '2.0.0',
-          port: 1
-        }
-      })
+      return this.client.get(uri, { params })
     } catch (error) {
       logger.error(error.message)
     }
@@ -59,14 +47,8 @@ class Network {
   async postTransaction (transaction, peer) {
     const server = peer || this.server
 
-    return axios.post(`http://${server}/peer/transactions`, {
+    return this.client.post(`http://${server}/api/transactions`, {
       transactions: [transaction]
-    }, {
-      headers: {
-        nethash: this.network.nethash,
-        version: '0.1.0',
-        port: 1
-      }
     })
   }
 
@@ -83,23 +65,15 @@ class Network {
   async connect () {
     if (this.server) {
       logger.info(`Server is already configured as "${this.server}"`)
+      return
     }
 
-    if (this.network) {
-      logger.info(`Network is already configured as "${this.network.name}"`)
-    }
+    this.setServer()
 
-    if (!this.server || !this.network) {
-      this.setNetwork()
-      this.setServer()
-
-      try {
-        const response = await this.getFromNodeApi('/api/loader/autoconfigure')
-
-        this.network = response.data.network
-      } catch (error) {
-        return this.connect()
-      }
+    try {
+      await this.getFromNodeApi('node/configuration')
+    } catch (error) {
+      return this.connect()
     }
   }
 
@@ -110,9 +84,7 @@ class Network {
   }
 
   __loadRemotePeers () {
-    const response = p2p.getPeers()
-
-    this.network.peers = response.map(peer => `${peer.ip}:${peer.port}`)
+    this.network.peers = p2p.getPeers().map(peer => `${peer.ip}:${peer.port}`)
   }
 
   async __selectResponsivePeer (peer) {
