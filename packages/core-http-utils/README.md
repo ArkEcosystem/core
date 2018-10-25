@@ -1,4 +1,4 @@
-# Ark Core - Test Utilities
+# Ark Core - HTTP Utilities
 
 <p align="center">
     <img src="../../banner.png?sanitize=true" />
@@ -7,7 +7,7 @@
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-test-utils
+yarn add @arkecosystem/core-http-utils
 ```
 
 ## Security
