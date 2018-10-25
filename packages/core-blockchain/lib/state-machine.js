@@ -236,8 +236,11 @@ blockchainMachine.actionMap = blockchain => {
          * database init                 *
          ********************************/
         // SPV rebuild
-        await blockchain.database.buildWallets(block.data.height)
-        await blockchain.database.saveWallets(true)
+        const verifiedWalletsIntegrity = await blockchain.database.buildWallets(block.data.height)
+        if (!verifiedWalletsIntegrity) {
+          logger.warn('Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown. :hammer:')
+          await blockchain.database.saveWallets(true)
+        }
 
         // NOTE: if the node is shutdown between round, the round has already been applied
         if (roundCalculator.isNewRound(block.data.height + 1)) {
@@ -290,6 +293,10 @@ blockchainMachine.actionMap = blockchain => {
     async downloadBlocks () {
       const lastBlock = state.lastDownloadedBlock || state.lastBlock
       const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
+
+      if (blockchain.isStopped) {
+        return
+      }
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
