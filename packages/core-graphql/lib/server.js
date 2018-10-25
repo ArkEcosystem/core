@@ -1,8 +1,7 @@
-'use strict';
+'use strict'
 
-const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-utils')
-
-const apolloServer = require('./schema')
+const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
+const server = require('./schema')
 
 /**
  * Create a new hapi.js server.
@@ -10,22 +9,17 @@ const apolloServer = require('./schema')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  const server = await createServer({
+  const app = await createServer({
     host: config.host,
     port: config.port
   })
 
-  await server.register({
-    plugin: plugins.whitelist,
-    options: { whitelist: config.whitelist }
-  })
-
-  await apolloServer.applyMiddleware({
-    server,
+  await server.applyMiddleware({
+    app,
     path: config.path
   })
 
-  await apolloServer.installSubscriptionHandlers(server.listener)
+  await server.installSubscriptionHandlers(app.listener)
 
-  return mountServer('GraphQL', server)
+  return mountServer('GraphQL', app)
 }
