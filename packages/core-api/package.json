@@ -16,10 +16,11 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores good-console,good-squeeze"
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/core-http-utils": "^0.1.0",
     "@arkecosystem/core-transaction-pool": "^0.1.1",
     "@arkecosystem/core-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.0",
@@ -45,9 +46,6 @@
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1",
-    "axios": "^0.18.0",
-    "good": "^8.1.1",
-    "good-console": "^7.1.0",
-    "good-squeeze": "^5.1.0"
+    "axios": "^0.18.0"
   }
 }
