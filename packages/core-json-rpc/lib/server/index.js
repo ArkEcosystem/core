@@ -1,6 +1,6 @@
 'use strict'
 
-const Hapi = require('hapi')
+const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 function registerMethods (server, group) {
@@ -23,7 +23,7 @@ module.exports = async (options) => {
     logger.warn('JSON-RPC server allows remote connections, this is a potential security risk :warning:')
   }
 
-  const server = new Hapi.Server({
+  const server = await createServer({
     host: options.host,
     port: options.port
   })
@@ -38,15 +38,5 @@ module.exports = async (options) => {
 
   server.route(require('./handler'))
 
-  try {
-    await server.start()
-
-    logger.info(`JSON-RPC Server running at: ${server.info.uri}`)
-
-    return server
-  } catch (error) {
-    logger.error(error.message)
-    // TODO no exit here?
-    process.exit(1)
-  }
+  return mountServer('JSON-RPC', server)
 }

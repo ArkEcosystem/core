@@ -1,7 +1,6 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
-const Hapi = require('hapi')
+const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
 
 /**
  * Create a new hapi.js server.
@@ -9,7 +8,7 @@ const Hapi = require('hapi')
  * @return {Hapi.Server}
  */
 module.exports = async (p2p, config) => {
-  const server = new Hapi.Server({
+  const server = await createServer({
     host: config.host,
     port: config.port
   })
@@ -69,6 +68,7 @@ module.exports = async (p2p, config) => {
 
   // ARK_V2 process variable enables V2-specific behavior
   // Here defining which version is behind /peer endpoint
+
   if (process.env.ARK_V2) {
     await server.register({
       plugin: require('./versions/peer'),
@@ -93,15 +93,5 @@ module.exports = async (p2p, config) => {
     })
   }
 
-  try {
-    await server.start()
-
-    logger.info(`P2P API available and listening on ${server.info.uri}`)
-
-    return server
-  } catch (err) {
-    logger.error(err)
-
-    process.exit(1)
-  }
+  return mountServer('P2P API', server)
 }

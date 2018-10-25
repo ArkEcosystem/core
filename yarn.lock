@@ -5211,7 +5211,7 @@ hapi-rate-limit@^2.1.2:
     boom "^7.2.0"
     hoek "^5.0.4"
 
-hapi@^17.1.1, hapi@^17.5.0:
+hapi@^17.1.1, hapi@^17.6.0:
   version "17.6.0"
   resolved "https://registry.yarnpkg.com/hapi/-/hapi-17.6.0.tgz#158a2276253a8de727be678c4daeb1f73929e588"
   integrity sha512-GSHjE1hJExluAukrT/QuYSk96irmbYBDd3wOgywiHsPoR2QeKgDnIttD+dB6NbADEmSdb9MS5gTUIVq0uHTdkA==
@@ -7107,7 +7107,7 @@ loud-rejection@^1.0.0:
     currently-unhandled "^0.4.1"
     signal-exit "^3.0.0"
 
-lout@^11.0.1:
+lout@^11.1.0:
   version "11.1.0"
   resolved "https://registry.yarnpkg.com/lout/-/lout-11.1.0.tgz#4c48b6b068b42197acb6420d79b856095d174589"
   integrity sha512-HAowXHOraHWEPrYPuNc7mR8v1Sn1Gnmy8uvpXYDidVHsTMlrkxqUZ1liBXGOf4eN22kVB+eG29NWymPhZG/wKg==
@@ -10868,7 +10868,7 @@ vise@3.x.x:
   dependencies:
     hoek "5.x.x"
 
-vision@^5.3.2:
+vision@^5.4.0:
   version "5.4.0"
   resolved "https://registry.yarnpkg.com/vision/-/vision-5.4.0.tgz#fc620deb95227881ea8b8d8a044dc1d1fd40e584"
   integrity sha512-f8kbjvo/dUbR4ZDF0pHPuOjQFg/6zOMlP1Tb9gK2ukCa7Ksd24174DCzubtov6AxIDhZhO5RYQeeDlF8ujlKWQ==
