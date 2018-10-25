@@ -69,6 +69,11 @@ class StateStorage {
     return _lastBlocks.map(b => b.data.id)
   }
 
+  getLastBlocksByHeight (start, end) {
+    end = end || start
+    return _lastBlocks.filter(block => block.data.height >= start && block.data.height <= end)
+  }
+
   /**
    * Ping a block.
    * @param {Block} incomingBlock
