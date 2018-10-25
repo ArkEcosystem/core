@@ -25,7 +25,7 @@ exports.plugin = {
 }
 
 /**
- * The state machine state storage.
+ * Access to the state.
  * @type {StateStorage}
  */
-exports.storage = require('./state-storage')
+exports.state = require('./state-storage')

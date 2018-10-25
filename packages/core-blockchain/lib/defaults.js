@@ -6,5 +6,8 @@ module.exports = {
   databaseRollback: {
     maxBlockRewind: 10000,
     steps: 1000
+  },
+  state: {
+    maxLastBlocks: 100
   }
 }

@@ -119,19 +119,11 @@ module.exports = class Blockchain {
    */
   async resetState () {
     this.queue.pause()
-    this.queue.clear(stateMachine)
+    this.queue.clear()
 
-    stateMachine.state = {
-      blockchain: stateMachine.initialState,
-      started: false,
-      lastBlock: null,
-      lastDownloadedBlock: null,
-      blockPing: null,
-      noBlockCounter: 0
-    }
+    stateMachine.state.reset()
 
     // this.queue.resume()
-
     // return this.start()
   }
 
@@ -253,7 +245,10 @@ module.exports = class Blockchain {
     logger.info(`Removing ${nblocks} blocks. Reset to height ${resetHeight.toLocaleString()}`)
 
     this.queue.pause()
-    this.queue.clear(stateMachine)
+    this.queue.clear()
+
+    stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
+
     await __removeBlocks(nblocks)
 
     // Commit delete blocks

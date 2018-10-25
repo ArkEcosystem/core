@@ -118,20 +118,10 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', async () => {
-      const stateBackup = Object.assign({}, blockchain.stateMachine.state)
+      blockchain.stateMachine.state.reset = jest.fn()
+      blockchain.resetState()
 
-      await blockchain.resetState()
-
-      expect(blockchain.stateMachine.state).toEqual({
-        blockchain: blockchain.stateMachine.initialState,
-        started: false,
-        lastBlock: null,
-        lastDownloadedBlock: null,
-        blockPing: null,
-        noBlockCounter: 0
-      })
-
-      blockchain.stateMachine.state = stateBackup
+      expect(blockchain.stateMachine.state.reset).toHaveBeenCalled()
     })
   })
 
