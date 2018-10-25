@@ -12,24 +12,10 @@ const { roundCalculator } = require('@arkecosystem/core-utils')
 const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
+const state = require('./state-storage')
 
 /**
- * Initial state of the machine.
- * @type {Object}
- */
-const state = {
-  blockchain: blockchainMachine.initialState,
-  lastDownloadedBlock: null,
-  lastBlock: null,
-  blockPing: null,
-  started: false,
-  rebuild: true,
-  fastRebuild: false,
-  noBlockCounter: 0
-}
-
-/**
- * @type {Object}
+ * @type {StateStorage}
  */
 blockchainMachine.state = state
 

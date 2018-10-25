@@ -23,3 +23,9 @@ exports.plugin = {
     await container.resolvePlugin('blockchain').stop()
   }
 }
+
+/**
+ * The state machine state storage.
+ * @type {StateStorage}
+ */
+exports.storage = require('./state-storage')
