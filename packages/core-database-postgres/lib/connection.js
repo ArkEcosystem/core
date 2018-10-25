@@ -219,7 +219,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * Load a list of wallets into memory.
    * @param  {Number} height
-   * @return {Array}
+   * @return {Boolean} success
    */
   async buildWallets (height) {
     this.walletManager.reset()
@@ -231,16 +231,18 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
       logger.info('Ark Core ended unexpectedly - resuming from where we left off :runner:')
 
-      return this.loadWallets()
+      return true
     }
 
     try {
       const spv = new SPV(this)
-      await spv.build(height)
+      const success = await spv.build(height)
+
+      this._spvFinished = true
 
       await this.__registerListeners()
 
-      return this.walletManager.all()
+      return success
     } catch (error) {
       logger.error(error.stack)
     }
@@ -268,6 +270,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return wallet.publicKey && (force || wallet.dirty)
     })
 
+    // Remove dirty flags first to not save all dirty wallets in the exit handler
+    // when called during a force insert right after SPV.
+    this.walletManager.clear()
+
     if (force) { // all wallets to be updated, performance is better without upsert
       await this.db.wallets.truncate()
 
@@ -293,8 +299,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     // NOTE: commented out as more use cases to be taken care of
     // this.walletManager.purgeEmptyNonDelegates()
-
-    this.walletManager.clear()
   }
 
   /**
@@ -632,6 +636,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         }
       } catch (err) {
         logger.error(err)
+      }
+    })
+
+    emitter.once('shutdown', async () => {
+      if (!this._spvFinished) {
+        // Prevent dirty wallets to be saved when SPV didn't finish
+        this.walletManager.clear()
       }
     })
   }
