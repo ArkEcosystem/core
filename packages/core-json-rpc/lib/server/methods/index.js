@@ -1,5 +1,5 @@
 module.exports = {
-  ...require('./accounts'),
+  ...require('./wallets'),
   ...require('./blocks'),
   ...require('./transactions')
 }

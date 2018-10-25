@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Handle numbers as `BigNumber` instances
 - Reduced complexity and duplicated logic
 - Improved method names to more clearly show their intent
+- Calculate previous rounds in-memory rather then hitting the database
+- non-blocking wallet saving
 
 ### Fixed
 - Wrong documentation

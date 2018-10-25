@@ -2,16 +2,18 @@ const Joi = require('joi')
 const network = require('../../services/network')
 
 module.exports = {
-  name: 'accounts.transactions',
+  name: 'wallets.transactions',
   async method (params) {
-    const response = await network.getFromNode('/api/transactions', {
+    const response = await network.sendRequest('transactions', {
       offset: params.offset,
       orderBy: 'timestamp:desc',
-      senderId: params.address,
-      recipientId: params.address
+      ownerId: params.address
     })
 
-    return response.data
+    return {
+      count: response.meta.totalCount,
+      data: response.data
+    }
   },
   schema: {
     address: Joi.string().length(34).required(),

@@ -43,11 +43,13 @@ afterEach(async () => {
 })
 
 describe('Accounts', () => {
-  describe('GET /mainnet/accounts/{address}', () => {
-    it('should GET account with a given address on mainnet', async () => {
-      axiosMock.onGet(/.*\/api\/accounts/).reply(() => [200, { account: { address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv' } }, peerMock.headers])
+  describe('POST wallets.info', () => {
+    it('should POST wallet with a given address on mainnet', async () => {
+      axiosMock
+        .onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/)
+        .reply(() => [200, { data: { address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv' } }, peerMock.headers])
 
-      const response = await request('accounts.info', {
+      const response = await request('wallets.info', {
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
       })
 
@@ -55,22 +57,24 @@ describe('Accounts', () => {
     })
   })
 
-  describe('GET /mainnet/accounts/{address}/transactions', () => {
-    it('should GET last account transactions on mainnet', async () => {
-      axiosMock.onGet(/.*\/api\/transactions/).reply(() => [200, { count: 2, transactions: [ { id: '123' }, { id: '1234' } ] }, peerMock.headers])
+  describe('POST wallets.transactions', () => {
+    it('should POST last wallet transactions on mainnet', async () => {
+      axiosMock
+        .onGet(/.*\/api\/transactions/)
+        .reply(() => [200, { meta: { totalCount: 2 }, data: [ { id: '123' }, { id: '1234' } ] }, peerMock.headers])
 
-      const response = await request('accounts.transactions', {
+      const response = await request('wallets.transactions', {
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
       })
 
-      await expect(parseInt(response.data.result.count)).toBe(2)
-      await expect(response.data.result.transactions.length).toBe(2)
+      await expect(response.data.result.count).toBe(2)
+      await expect(response.data.result.data).toHaveLength(2)
     })
   })
 
-  describe('POST /mainnet/accounts/*', () => {
-    it('should create an account on mainnet', async () => {
-      const response = await request('accounts.create', {
+  describe('POST wallets.create.*', () => {
+    it('should create an wallet on mainnet', async () => {
+      const response = await request('wallets.create', {
         passphrase: 'this is a test'
       })
 
@@ -81,8 +85,8 @@ describe('Accounts', () => {
     let bip38wif
     let userId = require('crypto').randomBytes(32).toString('hex')
 
-    it('should create an account on mainnet using bip38 encryption', async () => {
-      const response = await request('accounts.bip38.create', {
+    it('should create an wallet on mainnet using bip38 encryption', async () => {
+      const response = await request('wallets.bip38.create', {
         bip38: 'master password',
         userId
       })
@@ -95,7 +99,7 @@ describe('Accounts', () => {
     })
 
     it('should find bip38 backup from userId', async () => {
-      const response = await request('accounts.bip38.info', { userId
+      const response = await request('wallets.bip38.info', { userId
       })
 
       await expect(response.data.result).toHaveProperty('wif')
