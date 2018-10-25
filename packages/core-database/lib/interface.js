@@ -79,7 +79,7 @@ module.exports = class ConnectionInterface {
   /**
    * Load a list of wallets into memory.
    * @param  {Number} height
-   * @return {void}
+   * @return {Boolean} success
    * @throws Error
    */
   async buildWallets (height) {
