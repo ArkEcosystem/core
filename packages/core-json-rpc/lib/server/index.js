@@ -30,10 +30,7 @@ module.exports = async (options) => {
 
   server.app.schemas = {}
 
-  await server.register({
-    plugin: require('./plugins/whitelist'),
-    options: { whitelist: options.whitelist }
-  })
+  await server.register({ plugin: require('./plugins/whitelist'), options })
 
   registerMethods(server, 'wallets')
   registerMethods(server, 'blocks')
