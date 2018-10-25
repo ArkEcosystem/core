@@ -3,6 +3,7 @@
 const PluginRegistrar = require('./registrars/plugin')
 const Environment = require('./environment')
 const { createContainer } = require('awilix')
+const delay = require('delay')
 
 module.exports = class Container {
   /**
@@ -128,16 +129,22 @@ module.exports = class Container {
       logger.info('Stopping Ark Core')
 
       try {
-        logger.info('Saving wallets')
-        await this.resolvePlugin('database').saveWallets(false)
-      } catch (error) {}
+        const database = this.resolvePlugin('database')
+        if (database) {
+          const emitter = this.resolvePlugin('event-emitter')
 
-      // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
+          // Notify plugins about shutdown
+          emitter.emit('shutdown')
 
-      // if (lastBlock) {
-      //   const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`
-      //   await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
-      // }
+          // Wait for event to be emitted and give time to finish
+          await delay(1000)
+
+          // Save dirty wallets
+          await database.saveWallets(false)
+        }
+      } catch (error) {
+        console.log(error.stack)
+      }
 
       await this.plugins.tearDown()
 

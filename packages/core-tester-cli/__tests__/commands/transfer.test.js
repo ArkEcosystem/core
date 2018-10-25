@@ -42,19 +42,97 @@ describe('Commands - Transfer', async () => {
     }
     const command = await TransferCommand.init(opts)
     mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    let expectedTransactions = []
+    jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
+      expectedTransactions = transactions
+    })
 
     await command.run()
 
-    expect(axios.post).toHaveBeenCalledWith(
-      'http://localhost:4003/api/v2/transactions',
+    expect(expectedTransactions).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        transactions: expect.arrayContaining([expect.objectContaining({
-          vendorField: 'foo bar',
-          amount: expectedTransactionAmount,
-          fee: expectedFee,
-          recipientId: expectedRecipientId
-        })])
-      }),
-      expect.any(Object))
+        vendorField: 'foo bar',
+        amount: expectedTransactionAmount,
+        fee: expectedFee,
+        recipientId: expectedRecipientId
+      })
+      ])
+    )
+  })
+
+  it('should generate n transactions', async () => {
+    const expectedTxCount = 5
+    const opts = {
+      ...defaultOpts,
+      amount: TransferCommand.__arkToArktoshi(2),
+      transferFee: TransferCommand.__arkToArktoshi(0.1),
+      number: expectedTxCount
+    }
+    const command = await TransferCommand.init(opts)
+    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    let expectedTransactions = []
+    jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
+      expectedTransactions = transactions
+    })
+
+    await command.run()
+
+    expect(expectedTransactions).toHaveLength(expectedTxCount)
+    for (const t of expectedTransactions) {
+      expect(t.vendorField).toMatch(/Transaction \d/)
+      expect(t.amount).toBeDefined()
+      expect(t.fee).toBeDefined()
+    }
+  })
+
+  it('should send n transactions to specified recipient', async () => {
+    const expectedTxCount = 10
+    const expectedRecipientId = 'DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq'
+    const opts = {
+      ...defaultOpts,
+      amount: TransferCommand.__arkToArktoshi(2),
+      transferFee: TransferCommand.__arkToArktoshi(0.1),
+      number: expectedTxCount,
+      recipient: expectedRecipientId
+    }
+    const command = await TransferCommand.init(opts)
+    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    let expectedTransactions = []
+    jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
+      expectedTransactions = transactions
+    })
+
+    await command.run()
+
+    expect(expectedTransactions).toHaveLength(expectedTxCount)
+    for (const t of expectedTransactions) {
+      expect(t.recipientId).toEqual(expectedRecipientId)
+    }
+  })
+
+  it('should sign with 2nd passphrase if specified', async () => {
+    const expectedTransactionAmount = TransferCommand.__arkToArktoshi(2)
+    const expectedFee = TransferCommand.__arkToArktoshi(0.1)
+    const opts = {
+      ...defaultOpts,
+      amount: expectedTransactionAmount,
+      transferFee: expectedFee,
+      number: 1,
+      secondPassphrase: 'she sells sea shells down by the sea shore'
+    }
+    const command = await TransferCommand.init(opts)
+    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    let expectedTransactions = []
+    jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
+      expectedTransactions = transactions
+    })
+
+    await command.run()
+
+    expect(expectedTransactions).toHaveLength(1)
+    for (const t of expectedTransactions) {
+      expect(t.secondSignature).toBeDefined()
+      expect(t.signSignature).toEqual(t.secondSignature)
+    }
   })
 })

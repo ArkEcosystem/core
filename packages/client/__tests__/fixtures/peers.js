@@ -56,3 +56,18 @@ exports.peersOverride = [
     port: 4003
   }
 ]
+
+exports.initialPeers = [
+  {
+    ip: '0.0.0.1',
+    port: 4002
+  },
+  {
+    ip: '0.0.0.2',
+    port: 4002
+  },
+  {
+    ip: '0.0.0.3',
+    port: 4002
+  }
+]

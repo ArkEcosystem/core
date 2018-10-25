@@ -4,6 +4,7 @@ const { slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
+const emitter = container.resolvePlugin('event-emitter')
 const stateMachine = require('./state-machine')
 const Queue = require('./queue')
 const delay = require('delay')
@@ -65,12 +66,16 @@ module.exports = class Blockchain {
 
     this.dispatch('START')
 
+    emitter.once('shutdown', () => {
+      this.stop()
+    })
+
     if (skipStartedCheck || process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK) {
       return true
     }
 
     // TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=test
-    while (!stateMachine.state.started) {
+    while (!stateMachine.state.started && !this.isStopped) {
       await delay(1000)
     }
 
