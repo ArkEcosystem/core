@@ -1,4 +1,4 @@
-const { Bignum, formatArktoshi, models: { Transaction } } = require('@arkecosystem/crypto')
+const { Bignum, models: { Transaction } } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -53,6 +53,8 @@ module.exports = class SPV {
     logger.stopTracker('SPV', 8, 8)
     logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`)
     logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`)
+
+    return this.__verifyWalletsConsistency()
   }
 
   /**
@@ -193,13 +195,6 @@ module.exports = class SPV {
       const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
       wallet.missedBlocks = parseInt(delegate.missedBlocks)
       wallet.rate = i + 1
-
-      if (!wallet.voteBalance.isEqualTo(delegate.voteBalance)) {
-        // NOTE: This most likely means that the node didn't write the wallets properly to disk on shutdown!
-        logger.warn(`Delegate ${wallet.username} (${delegate.publicKey}) vote balance discrepancy. :horse:`)
-        logger.warn(`Got ${formatArktoshi(delegate.voteBalance)} from database, but calculated ${formatArktoshi(wallet.voteBalance)}`)
-      }
-
       this.walletManager.reindex(wallet)
     })
   }
@@ -218,5 +213,39 @@ module.exports = class SPV {
         wallet.multisignature = Transaction.deserialize(transaction.serialized.toString('hex')).asset.multisignature
       }
     }
+  }
+
+  /**
+   * Verify the consistency of the wallets table by comparing all records against
+   * the in memory wallets.
+   * NOTE: This is faster than rebuilding the entire table from scratch each time.
+   * @returns {Boolean}
+   */
+  async __verifyWalletsConsistency () {
+    const dbWallets = await this.query.many(queries.wallets.all)
+    const inMemoryWallets = this.walletManager.allByPublicKey()
+
+    let detectedInconsistency = false
+    if (dbWallets.length !== inMemoryWallets.length) {
+      detectedInconsistency = true
+    } else {
+      for (const dbWallet of dbWallets) {
+        const inMemoryWallet = this.walletManager.findByPublicKey(dbWallet.publicKey)
+
+        if ((!inMemoryWallet.balance.isEqualTo(dbWallet.balance)) ||
+            (!inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance)) ||
+            (dbWallet.username !== inMemoryWallet.username)) {
+            detectedInconsistency = true
+            break
+        }
+      }
+    }
+
+    // Remove dirty flags when no inconsistency has been found
+    if (!detectedInconsistency) {
+      this.walletManager.clear()
+    }
+
+    return !detectedInconsistency
   }
 }
