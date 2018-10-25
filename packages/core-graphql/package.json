@@ -23,11 +23,7 @@
     "@arkecosystem/crypto": "^0.2.0",
     "apollo-server-hapi": "^2.0.0-rc.10",
     "graphql-tools-types": "^1.1.21",
-    "hapi": "^17.5.0",
-    "inert": "^5.1.0",
-    "lout": "^11.0.1",
-    "moment": "^2.22.1",
-    "vision": "^5.3.2"
+    "moment": "^2.22.1"
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1"
