@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Fixed
-- Wrong loader methods
+- Use the configured `core-api` port instead of the `core-p2p` port, which would fail (https://github.com/ArkEcosystem/core/pull/1138)
+- Wrong loader methods (https://github.com/ArkEcosystem/core/pull/1194)
 
 ## 0.1.9 - 2018-10-13
 
