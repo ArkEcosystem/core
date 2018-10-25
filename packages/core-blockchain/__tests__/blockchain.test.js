@@ -68,7 +68,7 @@ describe('Blockchain', () => {
     it('should be ok', () => {
       const nextState = blockchain.dispatch('START')
 
-      expect(blockchain.stateMachine.state.blockchain).toEqual(nextState)
+      expect(blockchain.state.blockchain).toEqual(nextState)
     })
   })
 
@@ -116,13 +116,6 @@ describe('Blockchain', () => {
     it('should be a function', () => {
       expect(blockchain.resetState).toBeFunction()
     })
-
-    it('should be ok', async () => {
-      blockchain.stateMachine.state.reset = jest.fn()
-      blockchain.resetState()
-
-      expect(blockchain.stateMachine.state.reset).toHaveBeenCalled()
-    })
   })
 
   describe('postTransactions', () => {
@@ -154,7 +147,7 @@ describe('Blockchain', () => {
 
       await blockchain.queueBlock(blocks101to155[54])
 
-      expect(blockchain.stateMachine.state.lastDownloadedBlock).toEqual(block)
+      expect(blockchain.state.lastDownloadedBlock).toEqual(block)
     })
   })
 
@@ -261,8 +254,8 @@ describe('Blockchain', () => {
 
       expect(await blockchain.database.getLastBlock()).toEqual(lastBlock)
 
-      // manually set blockchain.stateMachine.state.lastBlock because acceptChainedBlock doesn't do it
-      blockchain.stateMachine.state.lastBlock = lastBlock
+      // manually set lastBlock because acceptChainedBlock doesn't do it
+      blockchain.state.setLastBlock(lastBlock)
     })
   })
 
@@ -364,7 +357,7 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', () => {
-      blockchain.stateMachine.state.lastBlock = genesisBlock
+      blockchain.state.setLastBlock(genesisBlock)
 
       expect(blockchain.getLastBlock()).toEqual(genesisBlock)
     })
@@ -476,7 +469,7 @@ async function __resetToHeight1 () {
     genesis.username = 'genesis'
     blockchain.database.walletManager.reindex(genesis)
 
-    blockchain.stateMachine.state.lastBlock = lastBlock
+    blockchain.state.setLastBlock(lastBlock)
     await blockchain.removeBlocks(lastBlock.data.height - 1)
   }
 }
