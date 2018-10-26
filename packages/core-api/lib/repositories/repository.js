@@ -54,20 +54,16 @@ module.exports = class Repository {
       prop: column.prop || column.name
     }))
 
-    const columnNames = columns.map(column => column.name)
-    const columnProps = columns.map(column => column.prop)
+    return Object
+      .keys(parameters)
+      .filter(arg => this.columns.includes(arg))
+      .reduce((items, item) => {
+        const columnName = columns.find(column => (column.prop === item)).name
 
-    const filter = args => args.filter(arg => {
-      return columnNames.includes(arg) || columnProps.includes(arg)
-    })
+        items[columnName] = parameters[item]
 
-    return filter(Object.keys(parameters)).reduce((items, item) => {
-      const columnName = columns.find(column => (column.prop === item)).name
-
-      items[columnName] = parameters[item]
-
-      return items
-    }, {})
+        return items
+      }, {})
   }
 
   __mapColumns () {
