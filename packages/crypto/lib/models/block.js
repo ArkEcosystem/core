@@ -353,15 +353,19 @@ module.exports = class Block {
     block.transactions = []
     if (hexString.length === transactionOffset * 2) return block
 
-    for (let i = 0; i < block.numberOfTransactions; i++) {
-      block.transactions.push(buf.readUint32(transactionOffset))
-      transactionOffset += 4
-    }
+    // A serialized block stores transactions like this:
+    // |L1|L2|L3|...|LN|  TX1  |    TX2    | TX3 | ... |  TXN  |
+    // Each L is 4 bytes and denotes the length in bytes of the corresponding TX.
+    const lengthOffset = transactionOffset // Position right before L1
+    transactionOffset += block.numberOfTransactions * 4 // Position right after LN
 
     for (let i = 0; i < block.numberOfTransactions; i++) {
-      const transactionsLength = block.transactions[i]
-      block.transactions[i] = Transaction.deserialize(buf.slice(transactionOffset, transactionOffset + transactionsLength).toString('hex'))
-      transactionOffset += transactionsLength
+      const transactionLength = buf.readUint32(lengthOffset + (i * 4))
+
+      const transaction = Transaction.deserialize(buf.slice(transactionOffset, transactionOffset + transactionLength).toString('hex'))
+      block.transactions.push(transaction)
+
+      transactionOffset += transactionLength
     }
 
     return block
@@ -374,15 +378,20 @@ module.exports = class Block {
    * @static
    */
   static serializeFull (block) {
+    const serializedBlock = Block.serialize(block, true);
+    const transactions = block.transactions
+
     const buf = new ByteBuffer(1024, true)
-    buf.append(Block.serialize(block, true))
+      .append(serializedBlock)
+      .skip(transactions.length * 4)
 
-    const serializedTransactions = block.transactions.map(transaction => Transaction.serialize(transaction))
-    serializedTransactions.forEach(transaction => buf.writeUInt32(transaction.length))
-    serializedTransactions.forEach(transaction => buf.append(transaction))
-    buf.flip()
+    for (let i = 0; i < transactions.length; i++) {
+      const serialized = Transaction.serialize(transactions[i])
+      buf.writeUint32(serialized.length, serializedBlock.length + (i * 4))
+      buf.append(serialized)
+    }
 
-    return buf.toBuffer()
+    return buf.flip().toBuffer()
   }
 
   /**
