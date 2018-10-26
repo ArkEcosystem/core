@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.3 - 2018-10-26
+
+### Added
+- Allow Message signing with WIF
+
 ### Fixed
 - Use network WIF as default for WIF operations
 
