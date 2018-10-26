@@ -3,10 +3,11 @@
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const blockchainMachine = require('./machines/blockchain')
+const immutable = require('immutable')
 
-// Stores the last n blocks. The amount of last blocks
+// Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured by the option `state.maxLastBlocks`.
-const _lastBlocks = []
+let _lastBlocks = immutable.OrderedMap()
 
 /**
  * Represents an in-memory storage for state machine data.
@@ -38,7 +39,7 @@ class StateStorage {
    * @returns {Block|null}
    */
   getLastBlock () {
-    return _lastBlocks.slice(-1)[0] || null
+    return _lastBlocks.last() || null
   }
 
   /**
@@ -46,32 +47,43 @@ class StateStorage {
    * @returns {void}
    */
   setLastBlock (block) {
-    _lastBlocks.push(block)
+    // Only keep blocks which are below the new block height (i.e. rollback)
+    if (_lastBlocks.last() && _lastBlocks.last().data.height !== block.data.height - 1) {
+      _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height)
+    }
 
-    if (_lastBlocks.length > container.resolveOptions('blockchain').state.maxLastBlocks) {
-      _lastBlocks.shift()
+    _lastBlocks = _lastBlocks.set(block.data.height, block)
+
+    // Delete oldest block if size exceeds the maximum
+    if (_lastBlocks.size > container.resolveOptions('blockchain').state.maxLastBlocks) {
+      _lastBlocks = _lastBlocks.delete(_lastBlocks.first().data.height)
     }
   }
 
   /**
-   * Gets the last blocks.
+   * Get the last blocks.
    * @returns {Array}
    */
   getLastBlocks () {
-    return _lastBlocks
+    return _lastBlocks.reverse().toArray()
   }
 
   /**
-   * Gets the last block ids.
+   * Get the last block ids.
    * @returns {Array}
    */
   getLastBlockIds () {
-    return _lastBlocks.map(b => b.data.id)
+    return this.getLastBlocks().map(b => b.data.id)
   }
 
+  /**
+   * Get last blocks in the given height range in ascending order.
+   * @param {Number} start
+   * @param {Number} end
+   */
   getLastBlocksByHeight (start, end) {
     end = end || start
-    return _lastBlocks.filter(block => block.data.height >= start && block.data.height <= end)
+    return _lastBlocks.filter(block => block.data.height >= start && block.data.height <= end).toArray()
   }
 
   /**
