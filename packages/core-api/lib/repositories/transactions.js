@@ -19,8 +19,9 @@ class TransactionsRepository extends Repository {
     const selectQuery = this.query.select().from(this.query)
     const countQuery = this._makeEstimateQuery()
 
-    if (parameters.senderId) {
-      const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
+    const senderId = parameters.sender_id || parameters.senderId
+    if (senderId) {
+      const senderPublicKey = this.__publicKeyFromSenderId(senderId)
 
       if (!senderPublicKey) {
         return { rows: [], count: 0 }
