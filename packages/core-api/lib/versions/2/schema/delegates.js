@@ -19,7 +19,7 @@ exports.index = {
       balance: Joi.number().integer(),
       voteBalance: Joi.number().integer(),
       producedBlocks: Joi.number().integer(),
-      missedBlocks: Joi.number().integer(),
+      missedBlocks: Joi.number().integer()
     }
   }
 }
@@ -90,7 +90,7 @@ exports.voters = {
       balance: Joi.number().integer(),
       voteBalance: Joi.number().integer(),
       producedBlocks: Joi.number().integer(),
-      missedBlocks: Joi.number().integer(),
+      missedBlocks: Joi.number().integer()
     }
   }
 }
