@@ -21,7 +21,7 @@ module.exports = class WalletsRepository extends Repository {
   }
 
   /**
-   * Find all wallets that have a negative balance.
+   * Get the count of wallets that have a negative balance.
    * @return {Promise}
    */
   async findNegativeBalances () {
@@ -29,7 +29,7 @@ module.exports = class WalletsRepository extends Repository {
   }
 
   /**
-   * Find all wallets that have a negative vote balance.
+   * Get the count of wallets that have a negative vote balance.
    * @return {Promise}
    */
   async findNegativeVoteBalances () {
