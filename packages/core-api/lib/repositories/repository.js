@@ -1,5 +1,6 @@
 'use strict'
 
+const snakeCase = require('lodash/snakeCase')
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 
@@ -24,7 +25,7 @@ module.exports = class Repository {
     const { count } = await this._find(countQuery)
 
     if (this.columns.includes(orderBy[0])) {
-      selectQuery.order(this.query[orderBy[0]][orderBy[1]])
+      selectQuery.order(this.query[(snakeCase(orderBy[0]))][orderBy[1]])
     }
 
     selectQuery.offset(offset).limit(limit)
