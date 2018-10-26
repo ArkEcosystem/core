@@ -78,7 +78,7 @@ exports.getCommonBlocks = {
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlocks = await blockchain.database.getss(ids)
+      const commonBlocks = await blockchain.database.getCommonBlocks(ids)
 
       return {
         success: true,
