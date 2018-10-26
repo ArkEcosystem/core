@@ -1,6 +1,7 @@
 'use strict'
 
 const app = require('./__support__/setup')
+const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 const defaultConfig = require('../lib/defaults')
 const delay = require('delay')
@@ -14,10 +15,14 @@ const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
 const Transaction = crypto.models.Transaction
 const slots = crypto.slots
 
+let database
+
 let connection
 
 beforeAll(async () => {
   await app.setUp()
+
+  database = container.resolvePlugin('database')
 
   const Connection = require('../lib/connection.js')
   connection = new Connection(defaultConfig)
@@ -486,10 +491,18 @@ describe('Connection', () => {
       connection.flush()
     })
 
-    it('remove forged during our downtime', () => {
+    it('remove forged when starting', async () => {
       expect(connection.getPoolSize()).toBe(0)
 
-      const transactions = [ mockData.dummy1, mockData.dummy2, mockData.dummy3 ]
+      const block = await database.getLastBlock()
+
+      // XXX This accesses directly block.transactions which is not even
+      // documented in packages/crypto/lib/models/block.js
+      const forgedTransaction = block.transactions[0]
+
+      expect(forgedTransaction instanceof Transaction).toBeTrue()
+
+      const transactions = [ mockData.dummy1, forgedTransaction, mockData.dummy2 ]
 
       connection.addTransactions(transactions)
 
@@ -497,32 +510,11 @@ describe('Connection', () => {
 
       connection.disconnect()
 
-      // Forge mockData.dummy2
-      /* XXX
-      forgeManager.client.getTransactions.mockReturnValue({
-        transactions: [ Transaction.serialize(sampleTransaction).toString('hex') ]
-      })
-      forgeManager.usernames = []
-      const del = new Delegate('a secret', 100)
-      const round = {
-        lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
-        timestamp: 1,
-        reward: 2
-      }
+      await connection.make()
 
-      await forgeManager.__forgeNewBlock(del, round)
-      */
+      expect(connection.getPoolSize()).toBe(2)
 
-      connection.make()
-
-      /* Enable this when mockData.dummy2 gets forged. */
-      // if (false) {
-      //  expect(connection.getPoolSize()).toBe(2)
-
-      //  transactions.splice(1, 1)
-      // } else {
-        expect(connection.getPoolSize()).toBe(3)
-      // }
+      transactions.splice(1, 1)
 
       transactions.forEach(
         t => expect(
