@@ -11,7 +11,7 @@ exports.index = {
     ...pagination,
     ...{
       orderBy: Joi.string(),
-      id: Joi.string().hex().length(66),
+      id: Joi.string().hex().length(64),
       blockId: Joi.string(),
       type: Joi.number().integer(),
       version: Joi.number().integer(),
