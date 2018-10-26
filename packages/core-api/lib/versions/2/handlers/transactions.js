@@ -28,6 +28,9 @@ exports.index = {
     const transactions = await repository.findAll({ ...request.query, ...utils.paginate(request) })
 
     return utils.toPagination(request, transactions, 'transaction')
+  },
+  options: {
+    validate: schema.index
   }
 }
 
@@ -131,6 +134,9 @@ exports.unconfirmed = {
       count: await transactionPool.getPoolSize(),
       rows: transactions
     }, 'transaction')
+  },
+  options: {
+    validate: schema.unconfirmed
   }
 }
 
@@ -157,6 +163,9 @@ exports.showUnconfirmed = {
     transaction = { serialized: transaction.serialized }
 
     return utils.respondWithResource(request, transaction, 'transaction')
+  },
+  options: {
+    validate: schema.showUnconfirmed
   }
 }
 
