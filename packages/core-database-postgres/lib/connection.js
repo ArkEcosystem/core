@@ -470,10 +470,16 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * Get common blocks for the given IDs.
    * @param  {Array} ids
-   * @return {Promise}
+   * @return {Array}
    */
-  getCommonBlocks (ids) {
-    return this.db.blocks.common(ids)
+  async getCommonBlocks (ids) {
+    const state = container.resolvePlugin('state')
+    let commonBlocks = state.getCommonBlocks(ids)
+    if (commonBlocks.length < ids.length) {
+      commonBlocks = await this.db.blocks.common(ids)
+    }
+
+    return commonBlocks
   }
 
   /**

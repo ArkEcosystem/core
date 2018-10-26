@@ -100,6 +100,14 @@ class StateStorage {
   }
 
   /**
+   * Get common blocks for the given IDs.
+   * @returns {Array}
+   */
+  getCommonBlocks (ids) {
+    return this.getLastBlocksData().filter(block => ids.includes(block.id))
+  }
+
+  /**
    * Ping a block.
    * @param {Block} incomingBlock
    * @returns {Boolean}
