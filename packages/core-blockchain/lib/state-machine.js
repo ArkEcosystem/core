@@ -237,7 +237,7 @@ blockchainMachine.actionMap = blockchain => {
          ********************************/
         // SPV rebuild
         const verifiedWalletsIntegrity = await blockchain.database.buildWallets(block.data.height)
-        if (!verifiedWalletsIntegrity) {
+        if (!verifiedWalletsIntegrity && block.data.height > 1) {
           logger.warn('Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown. :hammer:')
           await blockchain.database.saveWallets(true)
         }
