@@ -14,9 +14,9 @@ exports.plugin = {
   async register (container, options) {
     const blockchain = new Blockchain(options.networkStart)
 
-    container.register('state', asValue({
-        plugin: require('./state-storage')
-    }))
+    container.register('state', asValue(
+      require('./state-storage')
+    ))
 
     if (!process.env.ARK_SKIP_BLOCKCHAIN) {
       await blockchain.start()

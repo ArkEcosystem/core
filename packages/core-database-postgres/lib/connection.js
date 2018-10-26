@@ -473,7 +473,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getCommonBlocks (ids) {
-    const state = container.resolvePlugin('state')
+    const state = container.resolve('state')
     let commonBlocks = state.getCommonBlocks(ids)
     if (commonBlocks.length < ids.length) {
       commonBlocks = await this.db.blocks.common(ids)
@@ -515,13 +515,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async getBlocks (offset, limit) {
     let blocks = []
 
-    // First try to get the blocks from the state storage
-    const state = container.resolvePlugin('state')
-    if (state) {
-      blocks = state.getLastBlocksByHeight(offset, offset + limit)
+    if (container.has('state')) {
+      blocks = container.resolve('state').getLastBlocksByHeight(offset, offset + limit)
     }
 
-    // Only fall back to database if necessary.
     if (blocks.length !== limit) {
       blocks = await this.db.blocks.heightRange(offset, offset + limit)
 
@@ -576,7 +573,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {[]String}
    */
   async getRecentBlockIds () {
-    const state = container.resolvePlugin('state')
+    const state = container.resolve('state')
     let blocks = state.getLastBlockIds().reverse().slice(0, 10)
 
     if (blocks.length < 10) {
