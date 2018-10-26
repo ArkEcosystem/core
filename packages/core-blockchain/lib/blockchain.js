@@ -117,7 +117,7 @@ module.exports = class Blockchain {
    * Reset the state of the blockchain.
    * @return {void}
    */
-  async resetState () {
+  resetState () {
     this.queue.pause()
     this.queue.clear()
 

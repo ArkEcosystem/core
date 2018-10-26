@@ -4,6 +4,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const blockchainMachine = require('./machines/blockchain')
 const immutable = require('immutable')
+const assert = require('assert')
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured by the option `state.maxLastBlocks`.
@@ -36,7 +37,15 @@ class StateStorage {
     this.noBlockCounter = 0
     this.networkStart = false
 
-    _lastBlocks.length = 0
+    this.clear()
+  }
+
+  /**
+   * Clear last blocks.
+   * @returns {void}
+   */
+  clear () {
+    _lastBlocks = _lastBlocks.clear()
   }
 
   /**
@@ -54,6 +63,7 @@ class StateStorage {
   setLastBlock (block) {
     // Only keep blocks which are below the new block height (i.e. rollback)
     if (_lastBlocks.last() && _lastBlocks.last().data.height !== block.data.height - 1) {
+      assert(block.data.height - 1 <= _lastBlocks.last().data.height)
       _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height)
     }
 

@@ -469,6 +469,8 @@ async function __resetToHeight1 () {
     genesis.username = 'genesis'
     blockchain.database.walletManager.reindex(genesis)
 
+    blockchain.state.clear()
+
     blockchain.state.setLastBlock(lastBlock)
     await blockchain.removeBlocks(lastBlock.data.height - 1)
   }
