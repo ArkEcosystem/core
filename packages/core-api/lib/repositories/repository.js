@@ -8,6 +8,8 @@ module.exports = class Repository {
     this.cache = database.getCache()
     this.model = this.getModel()
     this.query = this.model.query()
+
+    this.__mapColumns()
   }
 
   async _find (query) {
@@ -21,10 +23,11 @@ module.exports = class Repository {
   async _findManyWithCount (selectQuery, countQuery, { limit, offset, orderBy }) {
     const { count } = await this._find(countQuery)
 
-    selectQuery
-      .order(this.query[orderBy[0]][orderBy[1]])
-      .offset(offset)
-      .limit(limit)
+    if (this.columns.includes(orderBy[0])) {
+      selectQuery.order(this.query[orderBy[0]][orderBy[1]])
+    }
+
+    selectQuery.offset(offset).limit(limit)
 
     return {
       rows: await this._findMany(selectQuery),
@@ -64,5 +67,17 @@ module.exports = class Repository {
 
       return items
     }, {})
+  }
+
+  __mapColumns () {
+    this.columns = []
+
+    for (const column of this.model.getColumnSet().columns) {
+      this.columns.push(column.name)
+
+      if (column.prop) {
+        this.columns.push(column.prop)
+      }
+    }
   }
 }
