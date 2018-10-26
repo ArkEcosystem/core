@@ -62,11 +62,9 @@ module.exports = class Repository {
           return column.name === item || column.prop === item
         })
 
-        if (column) {
-          items[snakeCase(column.name)] = parameters[item]
-        }
-
-        delete items[item]
+        column
+          ? items[column.name] = parameters[item]
+          : delete items[item]
 
         return items
       }, {})
