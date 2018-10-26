@@ -570,12 +570,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {[]String}
    */
   async getRecentBlockIds () {
-    let blocks = []
-
     const state = container.resolvePlugin('state')
-    if (state) {
-      blocks = state.getLastBlockIds().reverse().slice(0, 10)
-    }
+    let blocks = state.getLastBlockIds().reverse().slice(0, 10)
 
     if (blocks.length < 10) {
       blocks = await this.db.blocks.recent()

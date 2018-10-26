@@ -9,6 +9,11 @@ const immutable = require('immutable')
 // can be configured by the option `state.maxLastBlocks`.
 let _lastBlocks = immutable.OrderedMap()
 
+// Map Block instances to block data.
+const _mapToBlockData = blocks => blocks.map(block => {
+  return { ...block.data, transactions: block.transactions }
+})
+
 /**
  * Represents an in-memory storage for state machine data.
  */
@@ -69,11 +74,19 @@ class StateStorage {
   }
 
   /**
+   * Get the last blocks data.
+   * @returns {Array}
+   */
+  getLastBlocksData () {
+    return _mapToBlockData(_lastBlocks.reverse()).toArray()
+  }
+
+  /**
    * Get the last block ids.
    * @returns {Array}
    */
   getLastBlockIds () {
-    return this.getLastBlocks().map(b => b.data.id)
+    return _lastBlocks.reverse().map(b => b.data.id).toArray()
   }
 
   /**
@@ -83,7 +96,7 @@ class StateStorage {
    */
   getLastBlocksByHeight (start, end) {
     end = end || start
-    return _lastBlocks.filter(block => block.data.height >= start && block.data.height <= end).toArray()
+    return _mapToBlockData(_lastBlocks.filter(block => block.data.height >= start && block.data.height <= end)).toArray()
   }
 
   /**
