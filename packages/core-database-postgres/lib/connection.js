@@ -472,7 +472,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @param  {Array} ids
    * @return {Promise}
    */
-  getCommonBlock (ids) {
+  getCommonBlocks (ids) {
     return this.db.blocks.common(ids)
   }
 

@@ -89,7 +89,7 @@ module.exports = {
   getBlock: {
     type: 'object'
   },
-  getCommonBlock: {
+  getCommonBlocks: {
     type: 'object'
   },
   getPeers: {
