@@ -222,7 +222,7 @@ module.exports = class SPV {
    * @returns {Boolean}
    */
   async __verifyWalletsConsistency () {
-    const dbWallets = await this.query.many(queries.wallets.all)
+    const dbWallets = await this.query.manyOrNone(queries.wallets.all)
     const inMemoryWallets = this.walletManager.allByPublicKey()
 
     let detectedInconsistency = false
