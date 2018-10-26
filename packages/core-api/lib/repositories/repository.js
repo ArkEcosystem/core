@@ -63,9 +63,10 @@ module.exports = class Repository {
         })
 
         if (column) {
-          delete items[item]
           items[snakeCase(column.name)] = parameters[item]
         }
+
+        delete items[item]
 
         return items
       }, {})
