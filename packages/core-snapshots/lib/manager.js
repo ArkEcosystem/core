@@ -4,7 +4,7 @@ const logger = container.resolvePlugin('logger')
 const Database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
-const { blockCodec } = require('./transport/codec')
+const { blockCodec, transactionCodec } = require('./transport/codec')
 
 module.exports = class SnapshotManager {
   constructor (db, pgp) {
@@ -15,8 +15,8 @@ module.exports = class SnapshotManager {
     const params = await this.__init(options)
 
     await Promise.all([
-      exportTable(`blocks.${params.meta.stringInfo}`, params.queries.blocks, this.database, blockCodec(), !!options.filename)
-      // exportTable(`transactions.${params.meta.stringInfo}`, params.queries.transactions, this.database, !!options.filename)
+      exportTable(`blocks.${params.meta.stringInfo}`, params.queries.blocks, this.database, blockCodec(), !!options.filename),
+      exportTable(`transactions.${params.meta.stringInfo}`, params.queries.transactions, this.database, transactionCodec(), !!options.filename)
     ])
 
     logger.info('Export completed.')
@@ -29,17 +29,16 @@ module.exports = class SnapshotManager {
     let lastBlock = await this.database.getLastBlock()
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
-   await Promise.all([
-      importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.skipSignVerify)
-      // importTable(`transactions.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify)
-    ])
-    lastBlock = await this.database.getLastBlock()
-    // logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
+    await importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.skipSignVerify)
+    await importTable(`transactions.${fileMeta.stringInfo}`, this.database, transactionCodec(), lastBlock, options.skipSignVerify)
 
-    /* if (!options.skipRestartRound) {
+    lastBlock = await this.database.getLastBlock()
+    logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
+
+    if (!options.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last block in database: ${newLastBlock.height}`)
-    } */
+    }
   }
 
   async verifyData (options) {

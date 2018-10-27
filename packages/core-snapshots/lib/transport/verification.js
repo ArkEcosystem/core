@@ -3,21 +3,12 @@
 const { camelizeKeys } = require('xcase')
 const createHash = require('create-hash')
 const { crypto } = require('@arkecosystem/crypto')
-const { Block, Transaction } = require('@arkecosystem/crypto').models
+const { Block } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 
 module.exports = {
   verifyData: (context, data, prevData, skipVerifySignature) => {
-    const verifyTransaction = (data, skipVerifySignature) => {
-      if (skipVerifySignature) {
-        return true
-      }
-
-      const transaction = new Transaction(Buffer.from(data.serialized).toString('hex'))
-      return transaction.verified
-    }
-
     const isBlockChained = (data, prevData) => {
       if (!prevData) {
         return true
@@ -56,7 +47,7 @@ module.exports = {
       case 'blocks':
         return verifyBlock(data, prevData, skipVerifySignature)
       case 'transactions':
-        return verifyTransaction(data, skipVerifySignature)
+        return data.verified
       default:
         return false
     }
