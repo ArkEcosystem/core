@@ -135,6 +135,20 @@ describe('Models - Block', () => {
         expect(serialize(data, false).limit).toEqual(117)
       })
     })
+  })
+
+  describe('serializeFull', () => {
+    describe('genesis block', () => {
+      describe.each([
+        ['mainnet', 468048], ['devnet', 14492], ['testnet', 46488]
+      ])('%s', (network, length) => {
+        const genesis = require(`@arkecosystem/core/lib/config/${network}/genesisBlock.json`)
+        const serialized = Block.serializeFull(genesis).toString('hex')
+        const genesisBlock = new Block(Block.deserialize(serialized))
+        expect(serialized).toHaveLength(length)
+        expect(genesisBlock.verifySignature()).toBeTrue()
+      })
+    })
 
     describe('should validate hash', () => {
       const b = {
