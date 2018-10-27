@@ -15,7 +15,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/transactionsFromIds', ...handlers.getTransactionsFromIds },
     { method: 'GET', path: '/height', ...handlers.getHeight },
     { method: 'GET', path: '/transactions', ...handlers.getTransactions },
-    { method: 'GET', path: '/blocks/common', ...handlers.getCommonBlock },
+    { method: 'GET', path: '/blocks/common', ...handlers.getCommonBlocks },
     { method: 'GET', path: '/status', ...handlers.getStatus },
     { method: 'POST', path: '/blocks', ...handlers.postBlock },
     { method: 'POST', path: '/transactions', ...handlers.postTransactions }

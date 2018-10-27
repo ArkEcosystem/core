@@ -12,24 +12,10 @@ const { roundCalculator } = require('@arkecosystem/core-utils')
 const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
+const state = require('./state-storage')
 
 /**
- * Initial state of the machine.
- * @type {Object}
- */
-const state = {
-  blockchain: blockchainMachine.initialState,
-  lastDownloadedBlock: null,
-  lastBlock: null,
-  blockPing: null,
-  started: false,
-  rebuild: true,
-  fastRebuild: false,
-  noBlockCounter: 0
-}
-
-/**
- * @type {Object}
+ * @type {StateStorage}
  */
 blockchainMachine.state = state
 
@@ -117,10 +103,9 @@ blockchainMachine.actionMap = blockchain => {
 
         await blockchain.database.commitQueuedQueries()
         await blockchain.rollbackCurrentRound()
-        await blockchain.database.buildWallets(state.lastBlock.data.height)
+        await blockchain.database.buildWallets(state.getLastBlock().data.height)
         await blockchain.database.saveWallets(true)
         await blockchain.transactionPool.buildWallets()
-        // await blockchain.database.applyRound(blockchain.getLastBlock().data.height)
 
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
@@ -193,7 +178,7 @@ blockchainMachine.actionMap = blockchain => {
          *  state machine data init      *
          ********************************/
         const constants = config.getConstants(block.data.height)
-        state.lastBlock = block
+        state.setLastBlock(block)
         state.lastDownloadedBlock = block
 
         if (state.networkStart) {
@@ -212,7 +197,7 @@ blockchainMachine.actionMap = blockchain => {
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY. :bangbang:')
 
-          state.lastBlock = new Block(config.genesisBlock)
+          state.setLastBlock(new Block(config.genesisBlock))
           await blockchain.database.buildWallets(block.data.height)
 
           return blockchain.dispatch('STARTED')
@@ -263,7 +248,7 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async rebuildBlocks () {
-      const lastBlock = state.lastDownloadedBlock || state.lastBlock
+      const lastBlock = state.lastDownloadedBlock || state.getLastBlock()
       const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
 
       tickSyncTracker(blocks.length, lastBlock.data.height)
@@ -279,8 +264,6 @@ blockchainMachine.actionMap = blockchain => {
           blockchain.rebuildQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
         } else {
-          // state.lastDownloadedBlock = state.lastBlock
-
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
@@ -291,7 +274,7 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async downloadBlocks () {
-      const lastBlock = state.lastDownloadedBlock || state.lastBlock
+      const lastBlock = state.lastDownloadedBlock || state.getLastBlock()
       const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
 
       if (blockchain.isStopped) {
@@ -315,7 +298,7 @@ blockchainMachine.actionMap = blockchain => {
 
           blockchain.dispatch('DOWNLOADED')
         } else {
-          state.lastDownloadedBlock = state.lastBlock
+          state.lastDownloadedBlock = lastBlock
 
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))

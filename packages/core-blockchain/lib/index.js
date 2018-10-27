@@ -1,5 +1,6 @@
 'use strict'
 
+const { asValue } = require('awilix')
 const Blockchain = require('./blockchain')
 
 /**
@@ -13,6 +14,10 @@ exports.plugin = {
   async register (container, options) {
     const blockchain = new Blockchain(options.networkStart)
 
+    container.register('state', asValue(
+      require('./state-storage')
+    ))
+
     if (!process.env.ARK_SKIP_BLOCKCHAIN) {
       await blockchain.start()
     }
@@ -23,3 +28,9 @@ exports.plugin = {
     await container.resolvePlugin('blockchain').stop()
   }
 }
+
+/**
+ * Access to the state.
+ * @type {StateStorage}
+ */
+exports.state = require('./state-storage')
