@@ -482,7 +482,13 @@ module.exports = class ConnectionInterface {
    * @return {[]Block}
    */
   async __getBlocksForRound (round) {
-    const lastBlock = await this.getLastBlock()
+    let lastBlock
+    if (container.has('state')) {
+      lastBlock = container.resolve('state').getLastBlock()
+    } else {
+      lastBlock = await this.getLastBlock()
+    }
+
     if (!lastBlock) {
       return []
     }

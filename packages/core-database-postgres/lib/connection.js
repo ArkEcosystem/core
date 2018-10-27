@@ -470,10 +470,16 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * Get common blocks for the given IDs.
    * @param  {Array} ids
-   * @return {Promise}
+   * @return {Array}
    */
-  getCommonBlock (ids) {
-    return this.db.blocks.common(ids)
+  async getCommonBlocks (ids) {
+    const state = container.resolve('state')
+    let commonBlocks = state.getCommonBlocks(ids)
+    if (commonBlocks.length < ids.length) {
+      commonBlocks = await this.db.blocks.common(ids)
+    }
+
+    return commonBlocks
   }
 
   /**
@@ -507,9 +513,17 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getBlocks (offset, limit) {
-    const blocks = await this.db.blocks.heightRange(offset, offset + limit)
+    let blocks = []
 
-    await this.loadTransactionsForBlocks(blocks)
+    if (container.has('state')) {
+      blocks = container.resolve('state').getLastBlocksByHeight(offset, offset + limit)
+    }
+
+    if (blocks.length !== limit) {
+      blocks = await this.db.blocks.heightRange(offset, offset + limit)
+
+      await this.loadTransactionsForBlocks(blocks)
+    }
 
     return blocks
   }
@@ -555,13 +569,19 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Get recent block ids.
+   * Get the 10 recent block ids.
    * @return {[]String}
    */
   async getRecentBlockIds () {
-    const blocks = await this.db.blocks.recent()
+    const state = container.resolve('state')
+    let blocks = state.getLastBlockIds().reverse().slice(0, 10)
 
-    return blocks.map(block => block.id)
+    if (blocks.length < 10) {
+      blocks = await this.db.blocks.recent()
+      blocks = blocks.map(block => block.id)
+    }
+
+    return blocks
   }
 
   /**

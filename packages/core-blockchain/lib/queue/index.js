@@ -24,13 +24,10 @@ module.exports = class Queue {
 
   /**
    * Flush all queues.
-   * @param  {Object} stateMachine
    * @return {void}
    */
-  clear (stateMachine) {
+  clear () {
     this.rebuild.clear()
-    // TODO: move this, not the responsibility of the queue
-    stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.process.clear()
   }
 
