@@ -10,6 +10,15 @@ module.exports = {
     Wallet: require('./models/wallet')
   },
 
+  // Identities...
+  identities: {
+    address: require('./identities/address'),
+    keys: require('./identities/keys'),
+    privateKey: require('./identities/private-key'),
+    publicKey: require('./identities/public-key'),
+    wif: require('./identities/wif')
+  },
+
   // Builder...
   transactionBuilder: require('./builder'),
 
