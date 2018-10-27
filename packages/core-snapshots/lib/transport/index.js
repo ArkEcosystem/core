@@ -11,12 +11,12 @@ const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
 
 module.exports = {
-  exportTable: async (snapFileName, query, database, append = false) => {
+  exportTable: async (snapFileName, query, database, codec, append = false) => {
     logger.info(`Starting to export table to ${snapFileName}, append:${append}`)
 
     await fs.ensureFile(utils.getPath(snapFileName))
     const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName), append ? { flags: 'a' } : {})
-    const encodeStream = msgpack.createEncodeStream()
+    const encodeStream = msgpack.createEncodeStream({ codec: codec })
     const qs = new QueryStream(query)
 
     try {
@@ -25,21 +25,21 @@ module.exports = {
       return data
     } catch (error) {
       logger.error(`Error while exporting data via query stream ${error}, callstack: ${error.stack}`)
-      process.exit(1)
+      throw new Error(error)
     }
   },
 
-  importTable: async (sourceFile, database, lastBlock, skipVerifySignature = false) => {
-    const decodeStream = msgpack.createDecodeStream()
+  importTable: async (sourceFile, database, codec, lastBlock, skipVerifySignature = false) => {
+    const decodeStream = msgpack.createDecodeStream({ codec: codec })
     const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
     const tableName = sourceFile.split('.')[0]
 
     let values = []
     let prevData = lastBlock
-    decodeStream.on('data', (data) => {
+    rs.on('data', (data) => {
       if (!verifyData(tableName, data, prevData, skipVerifySignature)) {
         logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-        process.exit(1)
+        throw new Error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
       }
       if (canImportRecord(tableName, data, lastBlock)) {
         values.push(data)
@@ -47,7 +47,7 @@ module.exports = {
       prevData = data
     })
 
-    const getNextData = async (t, pageIndex) => {
+     const getNextData = async (t, pageIndex) => {
       await delay(600)
       rs.pause()
       const data = values.slice()

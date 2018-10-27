@@ -5,6 +5,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const queries = require('./queries')
 const { rawQuery } = require('./utils')
+const columns = require('./utils/column-set')
 
 module.exports = class Database {
   constructor (db, pgp) {
@@ -92,12 +93,10 @@ module.exports = class Database {
   }
 
   __createColumnSets () {
-    this.blocksColumnSet = this.pgp.helpers.ColumnSet([
-      'id', 'version', 'timestamp', 'previous_block', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length', 'payload_hash', 'generator_public_key', 'block_signature'], { table: 'blocks' }
+    this.blocksColumnSet = this.pgp.helpers.ColumnSet(columns.blocks, { table: 'blocks' }
     )
 
-    this.transactionsColumnSet = new this.pgp.helpers.ColumnSet([
-      'id', 'version', 'block_id', 'sequence', 'timestamp', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized'], { table: 'transactions' }
+    this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: 'transactions' }
     )
   }
 }
