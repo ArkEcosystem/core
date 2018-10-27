@@ -160,9 +160,9 @@ module.exports = class Block {
     return temp.toString('hex')
   }
 
-/*
+  /**
    * Get block id from already serialized buffer
-   * @param  {Buffer} serialized block buffer
+   * @param  {Buffer} serialized block buffer with block-signature included
    * @return {String}
    * @static
    */
