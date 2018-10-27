@@ -160,6 +160,22 @@ module.exports = class Block {
     return temp.toString('hex')
   }
 
+/*
+   * Get block id from already serialized buffer
+   * @param  {Buffer} serialized block buffer
+   * @return {String}
+   * @static
+   */
+  static getIdFromSerialized (serializedBuffer) {
+    const hash = createHash('sha256').update(serializedBuffer).digest()
+    const temp = Buffer.alloc(8)
+
+    for (let i = 0; i < 8; i++) {
+      temp[i] = hash[7 - i]
+    }
+    return new Bignum(temp.toString('hex'), 16).toFixed()
+  }
+
   static getId (data) {
     const idHex = Block.getIdHex(data)
     return new Bignum(idHex, 16).toFixed()
