@@ -343,10 +343,11 @@ module.exports = class Block {
   /**
    * Deserialize block from hex string.
    * @param  {String} hexString
+   * @param  {Boolean} headerOnly - deserialize onlu headers
    * @return {Object}
    * @static
    */
-  static deserialize (hexString) {
+  static deserialize (hexString, headerOnly = false) {
     const block = {}
     const buf = ByteBuffer.fromHex(hexString, true)
     block.version = buf.readUInt32(0)
@@ -364,6 +365,8 @@ module.exports = class Block {
 
     const length = parseInt('0x' + hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4), 16) + 2
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
+
+    if (headerOnly) return block
 
     let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2
     block.transactions = []
