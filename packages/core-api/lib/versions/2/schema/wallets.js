@@ -7,7 +7,21 @@ const pagination = require('./pagination')
  * @type {Object}
  */
 exports.index = {
-  query: { ...pagination, ...{ orderBy: Joi.string() } }
+  query: {
+    ...pagination,
+    ...{
+      orderBy: Joi.string(),
+      address: Joi.string().alphanum().length(34),
+      publicKey: Joi.string().hex().length(66),
+      secondPublicKey: Joi.string().hex().length(66),
+      vote: Joi.string().hex().length(66),
+      username: Joi.string(),
+      balance: Joi.number().integer(),
+      voteBalance: Joi.number().integer(),
+      producedBlocks: Joi.number().integer(),
+      missedBlocks: Joi.number().integer()
+    }
+  }
 }
 
 /**
@@ -65,11 +79,14 @@ exports.votes = {
 exports.search = {
   query: pagination,
   payload: {
-    address: Joi.string(),
-    publicKey: Joi.string(),
-    secondPublicKey: Joi.string(),
-    vote: Joi.string(),
+    orderBy: Joi.string(),
+    address: Joi.string().alphanum().length(34),
+    publicKey: Joi.string().hex().length(66),
+    secondPublicKey: Joi.string().hex().length(66),
+    vote: Joi.string().hex().length(66),
     username: Joi.string(),
+    producedBlocks: Joi.number().integer(),
+    missedBlocks: Joi.number().integer(),
     balance: Joi.object().keys({
       from: Joi.number().integer(),
       to: Joi.number().integer()

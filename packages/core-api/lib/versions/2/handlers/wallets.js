@@ -39,6 +39,7 @@ exports.top = {
 
     return utils.toPagination(request, wallets, 'wallet')
   }
+  // TODO: create top schema
 }
 
 /**
