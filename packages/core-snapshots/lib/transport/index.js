@@ -36,15 +36,15 @@ module.exports = {
 
     let values = []
     let prevData = lastBlock
-    rs.on('data', (data) => {
-      if (!verifyData(tableName, data, prevData, skipVerifySignature)) {
-        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-        throw new Error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+    rs.on('data', (record) => {
+      if (!verifyData(tableName, record.data, prevData, skipVerifySignature)) {
+        logger.error(`Error verifying data. Payload ${JSON.stringify(record.data, null, 2)}`)
+        throw new Error(`Error verifying data. Payload ${JSON.stringify(record.data, null, 2)}`)
       }
-      if (canImportRecord(tableName, data, lastBlock)) {
-        values.push(data)
+      if (canImportRecord(tableName, record.data, lastBlock)) {
+        values.push(record.data)
       }
-      prevData = data
+      prevData = record.data
     })
 
      const getNextData = async (t, pageIndex) => {

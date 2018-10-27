@@ -2,6 +2,7 @@
 
 const { camelizeKeys, decamelizeKeys } = require('xcase')
 const { Block } = require('@arkecosystem/crypto').models
+const TableRecord = require('../record')
 
 module.exports = {
   blockEncode: (blockRecord) => {
@@ -17,6 +18,6 @@ module.exports = {
     blockData.totalFee = blockData.totalFee.toFixed()
     blockData.reward = blockData.reward.toFixed()
 
-    return decamelizeKeys(blockData)
+    return new TableRecord(decamelizeKeys(blockData))
   }
 }
