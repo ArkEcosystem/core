@@ -6,7 +6,7 @@ const { Block } = require('@arkecosystem/crypto').models
 
 class BlockDecoder extends Transform {
   constructor () {
-    super({ objectMode: true,  highWaterMark: 16 })
+    super({ objectMode: true, highWaterMark: 16 })
   }
 
   _transform (chunk, enc, done) {
@@ -25,8 +25,7 @@ class BlockDecoder extends Transform {
 
       const object = decamelizeKeys(blockData)
       this.push(object)
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error)
     }
     done()

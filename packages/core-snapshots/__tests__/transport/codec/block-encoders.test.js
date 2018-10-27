@@ -5,7 +5,6 @@ const { blockSnake } = require('../../fixtures/blocks')
 const msgpack = require('msgpack-lite')
 const { blockCodec } = require('../../../lib/transport/codec')
 
-
 describe('Codecs - Block', () => {
   test('codec enode/decode block test', () => {
     console.time('encode')

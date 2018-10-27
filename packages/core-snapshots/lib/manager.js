@@ -15,7 +15,7 @@ module.exports = class SnapshotManager {
     const params = await this.__init(options)
 
     await Promise.all([
-      exportTable(`blocks.${params.meta.stringInfo}`, params.queries.blocks, this.database, blockCodec(), !!options.filename),
+      exportTable(`blocks.${params.meta.stringInfo}`, params.queries.blocks, this.database, blockCodec(), !!options.filename)
       // exportTable(`transactions.${params.meta.stringInfo}`, params.queries.transactions, this.database, !!options.filename)
     ])
 
@@ -30,16 +30,16 @@ module.exports = class SnapshotManager {
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
    await Promise.all([
-      importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.skipSignVerify),
+      importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.skipSignVerify)
       // importTable(`transactions.${fileMeta.stringInfo}`, this.database, lastBlock, options.skipSignVerify)
     ])
     lastBlock = await this.database.getLastBlock()
     // logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
 
-    /*if (!options.skipRestartRound) {
+    /* if (!options.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last block in database: ${newLastBlock.height}`)
-    }*/
+    } */
   }
 
   async verifyData (options) {
