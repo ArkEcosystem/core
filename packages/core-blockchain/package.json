@@ -27,7 +27,8 @@
     "awilix": "^4.0.0",
     "delay": "^4.1.0",
     "pretty-ms": "^4.0.0",
-    "xstate": "^3.2.1"
+    "xstate": "^3.2.1",
+    "immutable": "^3.8.2"
   },
   "publishConfig": {
     "access": "public"

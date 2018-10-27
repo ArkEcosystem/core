@@ -32,7 +32,7 @@ module.exports = {
     },
     required: ['ip', 'port', 'nethash', 'version']
   },
-  commonBlock: {
+  commonBlocks: {
     type: 'object',
     properties: {
       ids: {

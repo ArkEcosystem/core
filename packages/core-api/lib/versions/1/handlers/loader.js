@@ -16,10 +16,12 @@ exports.status = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
+    const lastBlock = blockchain.getLastBlock()
+
     return utils.respondWith({
       loaded: blockchain.isSynced(),
-      now: blockchain.state.lastBlock ? blockchain.getLastBlock().data.height : 0,
-      blocksCount: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock().data.height
+      now: lastBlock ? lastBlock.data.height : 0,
+      blocksCount: blockchain.p2p.getNetworkHeight() - lastBlock ? lastBlock.data.height : 0
     })
   }
 }
@@ -34,11 +36,13 @@ exports.syncing = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
+    const lastBlock = blockchain.getLastBlock()
+
     return utils.respondWith({
       syncing: !blockchain.isSynced(),
-      blocks: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock().data.height,
-      height: blockchain.getLastBlock().data.height,
-      id: blockchain.getLastBlock().data.id
+      blocks: blockchain.p2p.getNetworkHeight() - lastBlock.data.height,
+      height: lastBlock.data.height,
+      id: lastBlock.data.id
     })
   }
 }

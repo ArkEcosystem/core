@@ -9,7 +9,7 @@ const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockc
  * @return {Object}
  */
 module.exports = (model) => {
-  const lastBlock = blockchain.state.lastBlock
+  const lastBlock = blockchain.getLastBlock()
 
   return {
     id: model.id,
