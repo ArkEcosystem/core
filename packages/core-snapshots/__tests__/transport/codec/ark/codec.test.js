@@ -7,11 +7,11 @@ const pick = require('lodash/pick')
 const msgpack = require('msgpack-lite')
 const { blockCodec, transactionCodec } = require('../../../../lib/transport/codec')
 
-describe('Codecs - Block', () => {
-  test('testing block encode/decode for 10 blocks', () => {
+describe('Ark codec testing', () => {
+  test('Block codec should encode/decode with no differences', () => {
     console.time('blocks')
     for (const [index, block] of blocks.entries()) {
-      // TODO: skipping genesis for now
+      // TODO: skipping genesis for now - wrong id calculation
       if (index === 0) {
         continue
       }
@@ -26,28 +26,14 @@ describe('Codecs - Block', () => {
     console.timeEnd('blocks')
   })
 
-  test('testing transactions encode/decode ', () => {
+  test('Transaction codec should encode/decode with no differences', () => {
     console.time('transactions')
-    const properties = [
-      'id',
-      'sequence',
-      'version',
-      'timestamp',
-      'senderPublicKey',
-      'type',
-      'amount',
-      'fee',
-      'blockId',
-      'signature',
-      'asset'
-    ]
+    const properties = ['id', 'sequence', 'version', 'timestamp', 'senderPublicKey', 'type', 'amount', 'fee', 'blockId', 'signature', 'asset']
     for (const transaction of transactions) {
       transaction.serialized = Buffer.from(transaction.serializedHex, 'hex')
 
       const encoded = msgpack.encode(transaction, { codec: transactionCodec() })
       const decoded = msgpack.decode(encoded, { codec: transactionCodec() })
-      // removing helper property
-      // delete decoded.data.previous_block_hex
 
       const source = pick(transaction, properties)
       const dest = pick(decoded.data, properties)
