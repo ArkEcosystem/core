@@ -29,8 +29,8 @@ module.exports = class SnapshotManager {
     let lastBlock = await this.database.getLastBlock()
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
-    await importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.skipSignVerify)
-    await importTable(`transactions.${fileMeta.stringInfo}`, this.database, transactionCodec(), lastBlock, options.skipSignVerify)
+    // await importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.signatureVerify)
+    await importTable(`transactions.${fileMeta.stringInfo}`, this.database, transactionCodec(), lastBlock, options.signatureVerify)
 
     lastBlock = await this.database.getLastBlock()
     logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
@@ -48,8 +48,8 @@ module.exports = class SnapshotManager {
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
     await Promise.all([
-      verifyTable(`blocks.${fileMeta.stringInfo}`, this.database, options.skipSignVerify),
-      verifyTable(`transactions.${fileMeta.stringInfo}`, this.database, options.skipSignVerify)
+      verifyTable(`blocks.${fileMeta.stringInfo}`, this.database, options.signatureVerify),
+      verifyTable(`transactions.${fileMeta.stringInfo}`, this.database, options.signatureVerify)
     ])
 
     logger.info('Verifying of snapshot completed with success :100:')

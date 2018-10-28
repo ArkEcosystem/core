@@ -29,7 +29,7 @@ module.exports = {
     }
   },
 
-  importTable: async (sourceFile, database, codec, lastBlock, skipVerifySignature = false) => {
+  importTable: async (sourceFile, database, codec, lastBlock, signatureVerification = false) => {
     const decodeStream = msgpack.createDecodeStream({ codec: codec })
     const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
     const tableName = sourceFile.split('.')[0]
@@ -37,7 +37,7 @@ module.exports = {
     let values = []
     let prevData = lastBlock
     rs.on('data', (record) => {
-      if (!verifyData(tableName, record.data, prevData, skipVerifySignature)) {
+      if (!verifyData(tableName, record.data, prevData, signatureVerification)) {
         logger.error(`Error verifying data. Payload ${JSON.stringify(record.data, null, 2)}`)
         throw new Error(`Error verifying data. Payload ${JSON.stringify(record.data, null, 2)}`)
       }
@@ -70,7 +70,7 @@ module.exports = {
     })
   },
 
-  verifyTable: async (filename, database, skipVerifySignature = false) => {
+  verifyTable: async (filename, database, signatureVerification = false) => {
     const decodeStream = msgpack.createDecodeStream()
     const rs = fs.createReadStream(utils.getPath(filename)).pipe(decodeStream)
     const lastBlock = await database.getLastBlock()
@@ -81,7 +81,7 @@ module.exports = {
       const table = filename.split('.')[0]
 
       decodeStream.on('data', (data) => {
-        if (!verifyData(table, data, prevData, skipVerifySignature)) {
+        if (!verifyData(table, data, prevData, signatureVerification)) {
           logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
           process.exit(1)
         }

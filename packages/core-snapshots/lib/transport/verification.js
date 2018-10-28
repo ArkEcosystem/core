@@ -3,12 +3,21 @@
 const { camelizeKeys } = require('xcase')
 const createHash = require('create-hash')
 const { crypto } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
+const { Block, Transaction } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 
 module.exports = {
-  verifyData: (context, data, prevData, skipVerifySignature) => {
+  verifyData: (context, data, prevData, signatureVerification) => {
+    const verifyTransaction = (data, signatureVerification) => {
+      if (!signatureVerification) {
+        return true
+      }
+
+      const transaction = new Transaction(Buffer.from(data.serialized).toString('hex'))
+      return transaction.verified
+    }
+
     const isBlockChained = (data, prevData) => {
       if (!prevData) {
         return true
@@ -16,20 +25,20 @@ module.exports = {
       // genesis payload different as block.serialize stores block.previous_block with 00000 instead of null
       // it fails on height 2 - chain check
       // hardcoding for now
-      // TODO: check to improve ser/deser for genesis
+      // TODO: check to improve ser/deser for genesis, add mainnet
       if (data.height === 2 && data.previous_block === '13114381566690093367' && prevData.id === '12760288562212273414') {
         return true
       }
       return (data.height - prevData.height === 1) && (data.previous_block === prevData.id)
     }
 
-    const verifyBlock = (data, prevData, skipVerifySignature) => {
+    const verifyBlock = (data, prevData, signatureVerification) => {
       if (!isBlockChained(data, prevData)) {
         logger.error(`Blocks are not chained. Current block: ${JSON.stringify(data)}, previous block: ${JSON.stringify(prevData)}`)
         return false
       }
 
-      if (!skipVerifySignature) {
+      if (signatureVerification) {
         const bytes = Block.serialize(camelizeKeys(data), false)
         const hash = createHash('sha256').update(bytes).digest()
 
@@ -45,9 +54,9 @@ module.exports = {
 
     switch (context) {
       case 'blocks':
-        return verifyBlock(data, prevData, skipVerifySignature)
+        return verifyBlock(data, prevData, signatureVerification)
       case 'transactions':
-        return data.verified
+        return verifyTransaction(data, signatureVerification)
       default:
         return false
     }

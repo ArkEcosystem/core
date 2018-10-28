@@ -28,7 +28,7 @@ registerCommand('import', 'import data from specified snapshot')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
   .option('--truncate', 'skip transaction validations', false)
   .option('--skip-restart-round', 'skip revert to current round', false)
-  .option('--skip-sign-verify', 'skip signature verification', false)
+  .option('--signature-verify', 'signature verification', false)
   .action(async (options) => {
     await util.setUpLite(options)
     await require('../lib/commands/import')(options)
@@ -36,7 +36,7 @@ registerCommand('import', 'import data from specified snapshot')
 
 registerCommand('verify', 'check validity of specified snapshot')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
-  .option('--skip-sign-verify', 'skip signature verification', false)
+  .option('--signature-verify', 'signature verification', false)
   .action(async (options) => {
     await util.setUpLite(options)
     await require('../lib/commands/verify')(options)
