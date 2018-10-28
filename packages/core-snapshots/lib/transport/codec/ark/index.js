@@ -25,21 +25,20 @@ module.exports = {
   },
 
   transactionEncode: (transactionRecord) => {
-    const values = pick(transactionRecord, ['block_id', 'sequence', 'serialized'])
+    const values = pick(transactionRecord, ['id', 'block_id', 'sequence', 'serialized'])
     return msgpack.encode(values)
   },
 
   transactionDecode: (bufferData) => {
-    console.time('bufferDecode')
     const values = msgpack.decode(bufferData)
-    console.timeEnd('bufferDecode')
-    console.time('fromBytes')
-    let transaction = Transaction.fromBytes(Buffer.from(values.serialized).toString('hex'))
-    console.timeEnd('fromBytes')
-    transaction.blockId = values.block_id
-    transaction.sequence = values.sequence
+    let transaction = {}
+    transaction = Transaction.deserialize(Buffer.from(values.serialized).toString('hex'))
+
+    transaction = Object.assign(values, transaction)
     transaction.amount = transaction.amount.toFixed()
     transaction.fee = transaction.fee.toFixed()
+    transaction.vendor_field_hex = transaction.vendor_field_hex ? transaction.vendor_field_hex : null
+    transaction.recipient_id = transaction.recipient_id ? transaction.recipient_id : null
 
     return new TableRecord(decamelizeKeys(transaction))
   }
