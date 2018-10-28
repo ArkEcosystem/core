@@ -5,7 +5,6 @@ const msgpack = require('msgpack-lite')
 const pick = require('lodash/pick')
 
 const { Block, Transaction } = require('@arkecosystem/crypto').models
-const TableRecord = require('../record')
 
 module.exports = {
   blockEncode: (blockRecord) => {
@@ -21,7 +20,7 @@ module.exports = {
     blockData.totalFee = blockData.totalFee.toFixed()
     blockData.reward = blockData.reward.toFixed()
 
-    return new TableRecord(decamelizeKeys(blockData))
+    return decamelizeKeys(blockData)
   },
 
   transactionEncode: (transactionRecord) => {
@@ -40,6 +39,6 @@ module.exports = {
     transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null
     transaction.recipientId = transaction.recipientId ? transaction.recipientId : null
 
-    return new TableRecord(decamelizeKeys(transaction))
+    return decamelizeKeys(transaction)
   }
 }

@@ -55,11 +55,12 @@ yarn import:devnet -f blocks.0.331985.dat
 ```bash
 yarn import:devnet -f blocks.0.331985.dat --truncate
 ```
-#### Speeding up the import of large amounts of data
-If your snapshot is large and import slow, there is an option to disable signature verification checks. Imports are still validated according to their own hashes and if blocks are correctly chained.
+#### Verifiying records during import `--signature-verify`
+If you want to do additional `crpto.verify` check for each block and transaction a flag `--signature-verify` can be added to the import command
 ```bash
-yarn import:devnet -f blocks.0.331985.dat --truncate --skip-sign-verify
+yarn import:devnet -f blocks.0.331985.dat --truncate --signature-verify
 ```
+>Please not that this will increase the import time drastically.
 
 By default behaviour when snapshot is imported, the block heigth is set to last finished round (some blocks are deleted at the end). If you have more snaphshot files following each other, then you can disable this with the `--skip-revert-round` flag. If this flag is present, block height will not be reverted at the end of import.
 

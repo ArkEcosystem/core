@@ -18,10 +18,11 @@ describe('Ark codec testing', () => {
 
       const encoded = msgpack.encode(block, { codec: blockCodec() })
       const decoded = msgpack.decode(encoded, { codec: blockCodec() })
-      // removing helper property
-      delete decoded.data.previous_block_hex
 
-      expect(block).toEqual(decoded.data)
+      // removing helper property
+      delete decoded.previous_block_hex
+
+      expect(block).toEqual(decoded)
     }
     console.timeEnd('blocks')
   })
@@ -36,7 +37,7 @@ describe('Ark codec testing', () => {
       const decoded = msgpack.decode(encoded, { codec: transactionCodec() })
 
       const source = pick(transaction, properties)
-      const dest = pick(decoded.data, properties)
+      const dest = pick(decoded, properties)
 
       expect(dest).toEqual(source)
     }
