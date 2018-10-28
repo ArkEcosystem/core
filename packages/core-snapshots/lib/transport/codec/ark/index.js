@@ -2,7 +2,7 @@
 
 const { camelizeKeys, decamelizeKeys } = require('xcase')
 const msgpack = require('msgpack-lite')
-const pick = require('lodash/pick');
+const pick = require('lodash/pick')
 
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 const TableRecord = require('../record')
