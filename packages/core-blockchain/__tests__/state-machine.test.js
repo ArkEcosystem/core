@@ -41,7 +41,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = false
-  await blockchain.resetState()
+  blockchain.resetState()
 })
 
 describe('State Machine', () => {

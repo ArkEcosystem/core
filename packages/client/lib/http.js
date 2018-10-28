@@ -49,7 +49,7 @@ module.exports = class HttpClient {
    * @return {Promise}
    */
   get (path, params = {}) {
-    return this.sendRequest('get', path, { params })
+    return this.sendApiRequest('get', path, { params })
   }
 
   /**
@@ -59,7 +59,7 @@ module.exports = class HttpClient {
    * @return {Promise}
    */
   post (path, data = {}) {
-    return this.sendRequest('post', path, data)
+    return this.sendApiRequest('post', path, data)
   }
 
   /**
@@ -69,7 +69,7 @@ module.exports = class HttpClient {
    * @return {Promise}
    */
   put (path, data = {}) {
-    return this.sendRequest('put', path, data)
+    return this.sendApiRequest('put', path, data)
   }
 
   /**
@@ -79,7 +79,7 @@ module.exports = class HttpClient {
    * @return {Promise}
    */
   patch (path, data = {}) {
-    return this.sendRequest('patch', path, data)
+    return this.sendApiRequest('patch', path, data)
   }
 
   /**
@@ -89,7 +89,19 @@ module.exports = class HttpClient {
    * @return {Promise}
    */
   delete (path, params = {}) {
-    return this.sendRequest('delete', path, { params })
+    return this.sendApiRequest('delete', path, { params })
+  }
+
+  /**
+   * Performs a request to the API using the headers that are expected by the network.
+   * @param  {String} method
+   * @param  {String} path
+   * @param  {Object} payload
+   * @return {Promise}
+   * @throws Will throw an error if the HTTP request fails.
+   */
+  sendApiRequest (method, path, payload) {
+    return this.sendRequest(method, `/api/${path}`, payload)
   }
 
   /**
@@ -104,7 +116,7 @@ module.exports = class HttpClient {
     this.headers.Accept = `application/vnd.ark.core-api.v${this.version}+json`
 
     const client = axios.create({
-      baseURL: `${this.host}/api/`,
+      baseURL: this.host,
       headers: this.headers,
       timeout: this.timeout
     })

@@ -1,6 +1,8 @@
-# ARK Core
+# Ark Core
 
-![ARK Core](./banner.png)
+<p align="center">
+    <img src="./banner.png" />
+</p>
 
 [![Build Status](https://badgen.now.sh/circleci/github/ArkEcosystem/core)](https://circleci.com/gh/ArkEcosystem/core)
 [![Codecov](https://badgen.now.sh/codecov/c/github/arkecosystem/core)](https://codecov.io/gh/arkecosystem/core)
@@ -8,7 +10,7 @@
 
 ## Introduction
 
-This repository contains all plugins that make up the ARK Core.
+This repository contains all plugins that make up the Ark Core.
 
 ## Documentation
 
@@ -22,14 +24,14 @@ This repository contains all plugins that make up the ARK Core.
 
 ## GitHub Development Bounty
 
-- Get involved with ARK development and earn ARK coins : https://bounty.ark.io
+- Get involved with Ark development and start earning ARK : https://bounty.ark.io
 
 ## Core Packages
 
 | Package | Version | Description
 |---|---|---|
 | **[core](/packages/core)** | [![npm](https://img.shields.io/npm/v/@arkecosystem/core.svg)](https://www.npmjs.com/package/@arkecosystem/core) | **Includes all packages** |
-| [client](/packages/client) | [![npm](https://img.shields.io/npm/v/@arkecosystem/client.svg)](https://www.npmjs.com/package/@arkecosystem/client) | A JavaScript library to interact with the ARK Blockchain |
+| [client](/packages/client) | [![npm](https://img.shields.io/npm/v/@arkecosystem/client.svg)](https://www.npmjs.com/package/@arkecosystem/client) | A JavaScript library to interact with the Ark Blockchain |
 | [core-api](/packages/core-api) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-api.svg)](https://www.npmjs.com/package/@arkecosystem/core-api) | Public API |
 | [core-blockchain](/packages/core-blockchain) |  [![npm](https://img.shields.io/npm/v/@arkecosystem/core-blockchain.svg)](https://www.npmjs.com/package/@arkecosystem/core-blockchain) | Blockchain Management |
 | [core-config](/packages/core-config) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-config.svg)](https://www.npmjs.com/package/@arkecosystem/core-config) | Configuration Loader |

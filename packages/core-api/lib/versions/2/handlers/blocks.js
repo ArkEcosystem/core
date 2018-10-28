@@ -67,7 +67,9 @@ exports.transactions = {
       return Boom.notFound('Block not found')
     }
 
-    const transactions = await transactionsRepository.findAllByBlock(block.id, utils.paginate(request))
+    const transactions = await transactionsRepository.findAllByBlock(block.id, {
+      ...request.query, ...utils.paginate(request)
+    })
 
     return utils.toPagination(request, transactions, 'transaction')
   },

@@ -1,6 +1,8 @@
 'use strict'
 
+const Boom = require('boom')
 const mm = require('micromatch')
+const requestIp = require('request-ip')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 /**
@@ -15,7 +17,7 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method (request, h) {
-      let remoteAddress = request.info.remoteAddress
+      let remoteAddress = requestIp.getClientIp(request)
 
       if (remoteAddress.startsWith('::ffff:')) {
         remoteAddress = remoteAddress.replace('::ffff:', '')
@@ -41,7 +43,7 @@ const register = async (server, options) => {
 
       logger.warn(`${remoteAddress} tried to access the JSON-RPC without being whitelisted :warning:`)
 
-      return h.response().code(403).takeover()
+      return Boom.forbidden()
     }
   })
 }

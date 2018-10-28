@@ -1,7 +1,6 @@
 'use strict'
 
-const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-utils')
 
 /**
  * Create a new hapi.js server.
@@ -9,7 +8,7 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  const baseConfig = {
+  const server = await createServer({
     host: config.host,
     port: config.port,
     routes: {
@@ -22,24 +21,11 @@ module.exports = async (config) => {
         }
       }
     }
-  }
-
-  if (config.cache.enabled) {
-    // const cacheOptions = config.cache.options
-    // cacheOptions.engine = require(cacheOptions.engine)
-    // baseConfig.cache = [cacheOptions]
-    // baseConfig.routes.cache = { expiresIn: cacheOptions.expiresIn }
-  }
-
-  const server = new Hapi.Server(baseConfig)
-
-  await server.register([require('vision'), require('inert'), require('lout')])
+  })
 
   await server.register({
-    plugin: require('./plugins/whitelist'),
-    options: {
-      whitelist: config.whitelist
-    }
+    plugin: plugins.whitelist,
+    options: { whitelist: config.whitelist }
   })
 
   await server.register({
@@ -111,36 +97,5 @@ module.exports = async (config) => {
     options: config
   })
 
-  if (process.env.NODE_ENV === 'test') {
-    await server.register({
-      plugin: require('good'),
-      options: {
-        reporters: {
-          console: [
-            {
-              module: 'good-squeeze',
-              name: 'Squeeze',
-              args: [{ log: '*', response: '*', request: '*' }]
-            },
-            {
-              module: 'good-console'
-            },
-            'stdout'
-          ]
-        }
-      }
-    })
-  }
-
-  try {
-    await server.start()
-
-    logger.info(`Public API Server running at: ${server.info.uri}`)
-
-    return server
-  } catch (error) {
-    logger.error(error.stack)
-
-    process.exit(1)
-  }
+  return mountServer('Public API', server)
 }

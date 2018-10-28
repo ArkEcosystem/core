@@ -67,16 +67,6 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('removeTransactions', () => {
-    it('should be a function', () => {
-      expect(poolInterface.removeTransactions).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      await expect(poolInterface.removeTransactions()).rejects.toThrowError('Method [removeTransactions] not implemented!')
-    })
-  })
-
   describe('getTransaction', () => {
     it('should be a function', () => {
       expect(poolInterface.getTransaction).toBeFunction()

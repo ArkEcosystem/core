@@ -64,7 +64,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'ARK Public API - v2',
+  name: 'Ark Public API - v2',
   version: '2.0.0',
   register
 }

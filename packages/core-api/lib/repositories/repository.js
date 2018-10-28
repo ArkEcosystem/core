@@ -1,5 +1,6 @@
 'use strict'
 
+const snakeCase = require('lodash/snakeCase')
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 
@@ -8,6 +9,8 @@ module.exports = class Repository {
     this.cache = database.getCache()
     this.model = this.getModel()
     this.query = this.model.query()
+
+    this.__mapColumns()
   }
 
   async _find (query) {
@@ -21,10 +24,11 @@ module.exports = class Repository {
   async _findManyWithCount (selectQuery, countQuery, { limit, offset, orderBy }) {
     const { count } = await this._find(countQuery)
 
-    selectQuery
-      .order(this.query[orderBy[0]][orderBy[1]])
-      .offset(offset)
-      .limit(limit)
+    if (this.columns.includes(orderBy[0])) {
+      selectQuery.order(this.query[(snakeCase(orderBy[0]))][orderBy[1]])
+    }
+
+    selectQuery.offset(offset).limit(limit)
 
     return {
       rows: await this._findMany(selectQuery),
@@ -50,19 +54,31 @@ module.exports = class Repository {
       prop: column.prop || column.name
     }))
 
-    const columnNames = columns.map(column => column.name)
-    const columnProps = columns.map(column => column.prop)
+    return Object
+      .keys(parameters)
+      .filter(arg => this.columns.includes(arg))
+      .reduce((items, item) => {
+        const column = columns.find(column => {
+          return column.name === item || column.prop === item
+        })
 
-    const filter = args => args.filter(arg => {
-      return columnNames.includes(arg) || columnProps.includes(arg)
-    })
+        column
+          ? items[column.name] = parameters[item]
+          : delete items[item]
 
-    return filter(Object.keys(parameters)).reduce((items, item) => {
-      const columnName = columns.find(column => (column.prop === item)).name
+        return items
+      }, {})
+  }
 
-      items[columnName] = parameters[item]
+  __mapColumns () {
+    this.columns = []
 
-      return items
-    }, {})
+    for (const column of this.model.getColumnSet().columns) {
+      this.columns.push(column.name)
+
+      if (column.prop) {
+        this.columns.push(column.prop)
+      }
+    }
   }
 }

@@ -5,12 +5,6 @@ const requestIp = require('request-ip')
 const mm = require('micromatch')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
-/**
- * The register method used by hapi.js.
- * @param  {Hapi.Server} server
- * @param  {Object} options
- * @return {void}
- */
 const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
@@ -18,8 +12,8 @@ const register = async (server, options) => {
       const remoteAddress = requestIp.getClientIp(request)
 
       if (Array.isArray(options.whitelist)) {
-        for (let i = 0; i < options.whitelist.length; i++) {
-          if (mm.isMatch(remoteAddress, options.whitelist[i])) {
+        for (const ip of options.whitelist) {
+          if (mm.isMatch(remoteAddress, ip)) {
             return h.continue
           }
         }
@@ -32,12 +26,8 @@ const register = async (server, options) => {
   })
 }
 
-/**
- * The struct used by hapi.js.
- * @type {Object}
- */
 exports.plugin = {
-  name: 'core-api-whitelist',
+  name: 'whitelist',
   version: '0.1.0',
   register
 }

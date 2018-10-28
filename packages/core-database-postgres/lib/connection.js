@@ -166,8 +166,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     const maxDelegates = config.getConstants(height).activeDelegates
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
-    if (this.activeDelegates && this.activeDelegates.length && this.activeDelegates[0].round === round) {
-      return this.activeDelegates
+    if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
+      return this.forgingDelegates
     }
 
     // When called during applyRound we already know the delegates, so we don't have to query the database.
@@ -188,12 +188,12 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
     }
 
-    this.activeDelegates = delegates.map(delegate => {
+    this.forgingDelegates = delegates.map(delegate => {
       delegate.round = +delegate.round
       return delegate
     })
 
-    return this.activeDelegates
+    return this.forgingDelegates
   }
 
   /**
@@ -219,7 +219,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * Load a list of wallets into memory.
    * @param  {Number} height
-   * @return {Array}
+   * @return {Boolean} success
    */
   async buildWallets (height) {
     this.walletManager.reset()
@@ -229,18 +229,20 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (fs.existsSync(spvPath)) {
       fs.removeSync(spvPath)
 
-      logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
+      logger.info('Ark Core ended unexpectedly - resuming from where we left off :runner:')
 
-      return this.loadWallets()
+      return true
     }
 
     try {
       const spv = new SPV(this)
-      await spv.build(height)
+      const success = await spv.build(height)
+
+      this._spvFinished = true
 
       await this.__registerListeners()
 
-      return this.walletManager.all()
+      return success
     } catch (error) {
       logger.error(error.stack)
     }
@@ -268,32 +270,28 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return wallet.publicKey && (force || wallet.dirty)
     })
 
+    // Remove dirty flags first to not save all dirty wallets in the exit handler
+    // when called during a force insert right after SPV.
+    this.walletManager.clear()
+
     if (force) { // all wallets to be updated, performance is better without upsert
       await this.db.wallets.truncate()
 
-      for (const items of chunk(wallets, 5000)) {
-        try {
-          await this.db.wallets.create(items)
-        } catch (error) {
-          logger.error(error)
-        }
+      try {
+        const chunks = chunk(wallets, 5000).map(c => this.db.wallets.create(c))
+        await this.db.tx(t => t.batch(chunks))
+      } catch (error) {
+        logger.error(error.stack)
       }
     } else {
-      // NOTE: UPSERT is far from optimal. It can takes several seconds here
-      // if many accounts have to be updated at each round turn
-      //
-      // What can be done is to update accounts at each block in unsync manner
-      // what is really important is that db is sync with wallets in memory
-      // at round turn because votes computation to calculate active delegate list is made against database
-      //
-      // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
-      // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
+      // NOTE: The list of delegates is calculated in-memory against the WalletManager,
+      // so it is safe to perform the costly UPSERT non-blocking during round change only:
+      // 'await saveWallets(false)' -> 'saveWallets(false)'
       try {
         const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallet))
-
         await this.db.tx(t => t.batch(queries))
       } catch (error) {
-        logger.error(error)
+        logger.error(error.stack)
       }
     }
 
@@ -301,8 +299,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     // NOTE: commented out as more use cases to be taken care of
     // this.walletManager.purgeEmptyNonDelegates()
-
-    this.walletManager.clear()
   }
 
   /**
@@ -474,10 +470,16 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * Get common blocks for the given IDs.
    * @param  {Array} ids
-   * @return {Promise}
+   * @return {Array}
    */
-  getCommonBlock (ids) {
-    return this.db.blocks.common(ids)
+  async getCommonBlocks (ids) {
+    const state = container.resolve('state')
+    let commonBlocks = state.getCommonBlocks(ids)
+    if (commonBlocks.length < ids.length) {
+      commonBlocks = await this.db.blocks.common(ids)
+    }
+
+    return commonBlocks
   }
 
   /**
@@ -511,9 +513,17 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getBlocks (offset, limit) {
-    const blocks = await this.db.blocks.heightRange(offset, offset + limit)
+    let blocks = []
 
-    await this.loadTransactionsForBlocks(blocks)
+    if (container.has('state')) {
+      blocks = container.resolve('state').getLastBlocksByHeight(offset, offset + limit)
+    }
+
+    if (blocks.length !== limit) {
+      blocks = await this.db.blocks.heightRange(offset, offset + limit)
+
+      await this.loadTransactionsForBlocks(blocks)
+    }
 
     return blocks
   }
@@ -559,13 +569,19 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Get recent block ids.
+   * Get the 10 recent block ids.
    * @return {[]String}
    */
   async getRecentBlockIds () {
-    const blocks = await this.db.blocks.recent()
+    const state = container.resolve('state')
+    let blocks = state.getLastBlockIds().reverse().slice(0, 10)
 
-    return blocks.map(block => block.id)
+    if (blocks.length < 10) {
+      blocks = await this.db.blocks.recent()
+      blocks = blocks.map(block => block.id)
+    }
+
+    return blocks
   }
 
   /**
@@ -640,6 +656,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         }
       } catch (err) {
         logger.error(err)
+      }
+    })
+
+    emitter.once('shutdown', async () => {
+      if (!this._spvFinished) {
+        // Prevent dirty wallets to be saved when SPV didn't finish
+        this.walletManager.clear()
       }
     })
   }

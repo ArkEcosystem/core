@@ -22,8 +22,12 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method (request, h) {
-      if (!request.path.startsWith('/peer')) {
+      if (request.path.startsWith('/config')) {
         return h.continue
+      }
+
+      if (request.headers.port) {
+        request.headers.port = +request.headers.port
       }
 
       const errors = ajv.validate({

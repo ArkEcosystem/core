@@ -43,6 +43,15 @@ class TransactionsRepository extends Repository {
           }
         }
       }
+
+      for (const item of queries) {
+        if (parameters.ownerId) {
+          const owner = database.walletManager.findByAddress(parameters.ownerId)
+
+          item.and(this.query.sender_public_key.equals(owner.publicKey))
+          item.or(this.query.recipient_id.equals(owner.address))
+        }
+      }
     }
 
     applyConditions([selectQuery, countQuery])

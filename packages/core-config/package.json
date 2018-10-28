@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-config",
   "version": "0.1.1",
-  "description": "Configuration Loader for ARK Core",
+  "description": "Configuration Loader for Ark Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -11,7 +11,7 @@
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
@@ -23,7 +23,7 @@
     "axios": "^0.18.0",
     "directory-tree": "^2.1.0",
     "fs-extra": "^7.0.0",
-    "ow": "^0.7.0"
+    "ow": "^0.8.0"
   },
   "publishConfig": {
     "access": "public"

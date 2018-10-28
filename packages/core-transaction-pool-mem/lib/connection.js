@@ -122,15 +122,6 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Remove multiple transactions from the pool (by object).
-   * @param  {Array} transactions
-   * @return {void}
-   */
-  removeTransactions (transactions) {
-    transactions.forEach(t => this.removeTransaction(t))
-  }
-
-  /**
    * Check whether sender of transaction has exceeded max transactions in queue.
    * @param  {Transaction} transaction
    * @return {Boolean} true if exceeded
@@ -169,27 +160,23 @@ class TransactionPool extends TransactionPoolInterface {
   async getTransactionsForForging (blockSize) {
     this.__purgeExpired()
 
-    try {
-      const transactions = []
+    const transactions = []
 
-      for (const id of await this.getTransactionIdsForForging(0, this.mem.getSize())) {
-        const transaction = this.mem.getTransactionById(id)
-
-        if (transaction &&
-            this.checkDynamicFeeMatch(transaction) &&
-            await this.checkApplyToBlockchain(transaction)) {
-          transactions.push(transaction.serialized)
-
-          if (transactions.length === blockSize) {
-            break
-          }
-        }
+    for (const id of await this.getTransactionIdsForForging(0, this.mem.getSize())) {
+      if (transactions.length === blockSize) {
+        break
       }
 
-      return transactions
-    } catch (error) {
-      logger.error('Could not get transactions for forging: ' + error.stack)
+      const transaction = this.mem.getTransactionById(id)
+
+      if (transaction &&
+          this.checkDynamicFeeMatch(transaction) &&
+          await this.checkApplyToBlockchain(transaction)) {
+        transactions.push(transaction.serialized)
+      }
     }
+
+    return transactions
   }
 
   /**
@@ -212,7 +199,7 @@ class TransactionPool extends TransactionPoolInterface {
     const ids = this.getTransactionsData(start, size, 'id')
 
     /* There should be no forged transactions in the mem pool. */
-    assert.strictEqual((await database.getForgedTransactionsIds(ids)).length, 0)
+    assert.deepStrictEqual((await database.getForgedTransactionsIds(ids)), [])
 
     return ids
 
@@ -309,7 +296,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   __purgeExpired () {
-    for (const transaction of this.mem.getExpired()) {
+    for (const transaction of this.mem.getExpired(this.options.maxTransactionAge)) {
       emitter.emit('transaction.expired', transaction.data)
 
       this.walletManager.revertTransaction(transaction)

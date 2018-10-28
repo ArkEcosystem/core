@@ -1,6 +1,8 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - JSON-RPC Server
 
-# ARK Core - JSON-RPC Server
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
 ## Installation
 
@@ -12,11 +14,15 @@ yarn add @arkecosystem/core-json-rpc
 
 ```js
 module.exports = {
-  enabled: !process.env.ARK_JSON_RPC_DISABLED,
+  enabled: process.env.ARK_JSON_RPC_ENABLED,
   host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
   port: process.env.ARK_JSON_RPC_PORT || 8080,
   allowRemote: true,
-  whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
+  whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
+  database: {
+    uri: process.env.ARK_JSON_RPC_DATABASE || `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
+    options: {}
+  }
 }
 ```
 

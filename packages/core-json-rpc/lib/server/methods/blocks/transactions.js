@@ -4,16 +4,15 @@ const network = require('../../services/network')
 module.exports = {
   name: 'blocks.transactions',
   async method (params) {
-    const response = await network.getFromNode('/api/transactions', {
+    const response = await network.sendRequest(`blocks/${params.id}/transactions`, {
       offset: params.offset,
-      orderBy: 'timestamp:desc',
-      blockId: params.id
+      orderBy: 'timestamp:desc'
     })
 
-    return {
-      count: response.data.count,
-      transactions: response.data.transactions
-    }
+    return response ? {
+      count: response.meta.totalCount,
+      data: response.data
+    } : {}
   },
   schema: {
     id: Joi.number().required(),

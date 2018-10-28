@@ -60,7 +60,7 @@ exports.getHeight = {
 /**
  * @type {Object}
  */
-exports.getCommonBlock = {
+exports.getCommonBlocks = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -78,11 +78,11 @@ exports.getCommonBlock = {
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlock = await blockchain.database.getCommonBlock(ids)
+      const commonBlocks = await blockchain.database.getCommonBlocks(ids)
 
       return {
         success: true,
-        common: commonBlock.length ? commonBlock[0] : null,
+        common: commonBlocks.length ? commonBlocks[0] : null,
         lastBlockHeight: blockchain.getLastBlock().data.height
       }
     } catch (error) {
