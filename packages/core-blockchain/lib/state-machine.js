@@ -210,6 +210,13 @@ blockchainMachine.actionMap = blockchain => {
           return blockchain.dispatch('REBUILD')
         }
 
+        // removing blocks up to the last round to compute active delegate list later if needed
+        const activeDelegates = await blockchain.database.getActiveDelegates(block.data.height)
+
+        if (!activeDelegates) {
+          await blockchain.rollbackCurrentRound()
+        }
+
         /*********************************
          * database init                 *
          ********************************/
@@ -218,13 +225,6 @@ blockchainMachine.actionMap = blockchain => {
         if (!verifiedWalletsIntegrity && block.data.height > 1) {
           logger.warn('Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown. :hammer:')
           await blockchain.database.saveWallets(true)
-        }
-
-        // removing blocks up to the last round to compute active delegate list later if needed
-        const activeDelegates = await blockchain.database.getActiveDelegates(block.data.height)
-
-        if (!activeDelegates) {
-          await blockchain.rollbackCurrentRound()
         }
 
         // NOTE: if the node is shutdown between round, the round has already been applied
