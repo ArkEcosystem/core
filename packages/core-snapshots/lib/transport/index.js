@@ -16,7 +16,7 @@ module.exports = {
 
     await fs.ensureFile(utils.getPath(snapFileName))
     const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName), append ? { flags: 'a' } : {})
-    const encodeStream = msgpack.createEncodeStream({ codec: codec })
+    const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec } : {})
     const qs = new QueryStream(query)
 
     try {
@@ -30,7 +30,7 @@ module.exports = {
   },
 
   importTable: async (sourceFile, database, codec, lastBlock, signatureVerification = false) => {
-    const decodeStream = msgpack.createDecodeStream({ codec: codec })
+    const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec } : {})
     const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
     const tableName = sourceFile.split('.')[0]
 
@@ -70,6 +70,7 @@ module.exports = {
     })
   },
 
+  // TODO: add codec
   verifyTable: async (filename, database, signatureVerification = false) => {
     const decodeStream = msgpack.createDecodeStream()
     const rs = fs.createReadStream(utils.getPath(filename)).pipe(decodeStream)
@@ -106,7 +107,7 @@ module.exports = {
       return data
     } catch (error) {
       logger.error(`Error while exporting data via query stream ${error}, callstack: ${error.stack}`)
-      process.exit(1)
+      throw new Error(error)
     }
   }
 }

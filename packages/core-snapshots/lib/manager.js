@@ -13,10 +13,21 @@ module.exports = class SnapshotManager {
 
   async exportData (options) {
     const params = await this.__init(options)
-
+    // TODO: simplify params
     await Promise.all([
-      exportTable(`blocks.${params.meta.stringInfo}`, params.queries.blocks, this.database, blockCodec(), !!options.filename),
-      exportTable(`transactions.${params.meta.stringInfo}`, params.queries.transactions, this.database, transactionCodec(), !!options.filename)
+      exportTable(
+        `blocks.${params.meta.stringInfo}`,
+        params.queries.blocks,
+        this.database,
+        this.__selectCodec('blocks', options.ignoreCodec),
+        !!options.filename),
+
+      exportTable(
+        `transactions.${params.meta.stringInfo}`,
+        params.queries.transactions,
+        this.database,
+        this.__selectCodec('transactions', options.ignoreCodec),
+        !!options.filename)
     ])
 
     logger.info('Export completed.')
@@ -29,8 +40,8 @@ module.exports = class SnapshotManager {
     let lastBlock = await this.database.getLastBlock()
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
-    await importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.signatureVerify)
-    await importTable(`transactions.${fileMeta.stringInfo}`, this.database, transactionCodec(), lastBlock, options.signatureVerify)
+    await importTable(`blocks.${fileMeta.stringInfo}`, this.database, this.__selectCodec('blocks', options.ignoreCodec), lastBlock, options.signatureVerify)
+    await importTable(`transactions.${fileMeta.stringInfo}`, this.database, this.__selectCodec('transactions', options.ignoreCodec), lastBlock, options.signatureVerify)
 
     lastBlock = await this.database.getLastBlock()
     logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
@@ -88,5 +99,18 @@ module.exports = class SnapshotManager {
 
     console.log(params)
     return params
+  }
+
+  __selectCodec (tableName, ignore) {
+    if (ignore) {
+      console.log('no codec')
+      return null
+    }
+    if (tableName === 'blocks') {
+      return blockCodec()
+    }
+    if (tableName === 'transactions') {
+      return transactionCodec()
+    }
   }
 }
