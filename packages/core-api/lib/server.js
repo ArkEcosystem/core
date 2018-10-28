@@ -25,7 +25,10 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: plugins.whitelist,
-    options: { whitelist: config.whitelist }
+    options: {
+      whitelist: config.whitelist,
+      name: 'Public API'
+    }
   })
 
   await server.register({

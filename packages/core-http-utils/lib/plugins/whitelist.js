@@ -19,7 +19,7 @@ const register = async (server, options) => {
         }
       }
 
-      logger.warn(`${remoteAddress} tried to access the Public API without being whitelisted :warning:`)
+      logger.warn(`${remoteAddress} tried to access the ${options.name} without being whitelisted :warning:`)
 
       return Boom.forbidden()
     }

@@ -23,7 +23,10 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: plugins.whitelist,
-    options: { whitelist: config.whitelist }
+    options: {
+      whitelist: config.whitelist,
+      name: 'Webhook API'
+    }
   })
 
   await server.register({
