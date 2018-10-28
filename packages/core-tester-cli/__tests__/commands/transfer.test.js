@@ -56,7 +56,7 @@ describe('Commands - Transfer', async () => {
         fee: expectedFee,
         recipientId: expectedRecipientId
       })
-      ])
+    ])
     )
   })
 

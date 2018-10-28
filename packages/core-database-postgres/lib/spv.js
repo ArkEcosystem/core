@@ -235,8 +235,8 @@ module.exports = class SPV {
         if ((!inMemoryWallet.balance.isEqualTo(dbWallet.balance)) ||
             (!inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance)) ||
             (dbWallet.username !== inMemoryWallet.username)) {
-            detectedInconsistency = true
-            break
+          detectedInconsistency = true
+          break
         }
       }
     }

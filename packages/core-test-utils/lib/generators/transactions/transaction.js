@@ -23,20 +23,20 @@ module.exports = (network, type, passphrase, address, amount = 2, quantity = 10,
   for (let i = 0; i < quantity; i++) {
     let builder = client.getBuilder()
     switch (type) {
-      case TRANSFER:
-        builder = builder.transfer().recipientId(address).amount(amount).vendorField(`Test Transaction ${i + 1}`)
-        break
-      case SECOND_SIGNATURE:
-        builder = builder.secondSignature().signatureAsset(passphrase)
-        break
-      case DELEGATE_REGISTRATION:
-        const username = superheroes.random().toLowerCase().replace(/[^a-z0-9]/g, '_')
-        builder = builder.delegateRegistration().usernameAsset(username)
-        break
-      case VOTE:
-        const publicKey = crypto.getKeys(passphrase).publicKey
-        builder = builder.vote().votesAsset([`+${publicKey}`])
-        break
+    case TRANSFER:
+      builder = builder.transfer().recipientId(address).amount(amount).vendorField(`Test Transaction ${i + 1}`)
+      break
+    case SECOND_SIGNATURE:
+      builder = builder.secondSignature().signatureAsset(passphrase)
+      break
+    case DELEGATE_REGISTRATION:
+      const username = superheroes.random().toLowerCase().replace(/[^a-z0-9]/g, '_')
+      builder = builder.delegateRegistration().usernameAsset(username)
+      break
+    case VOTE:
+      const publicKey = crypto.getKeys(passphrase).publicKey
+      builder = builder.vote().votesAsset([`+${publicKey}`])
+      break
     }
 
     builder = builder.sign(passphrase)

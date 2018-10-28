@@ -11,12 +11,12 @@ const toBeValidArrayOfBlocks = (actual, expected) => {
   const message = () => `Expected ${JSON.stringify(actual)} to be a valid array of blocks`
 
   if (!Array.isArray(actual)) {
-      return { message, pass: false }
+    return { message, pass: false }
   }
 
   actual.forEach(peer => {
     if (!isValidBlock(peer)) {
-        return { message, pass: false }
+      return { message, pass: false }
     }
   })
 
@@ -24,14 +24,14 @@ const toBeValidArrayOfBlocks = (actual, expected) => {
 }
 
 function isValidBlock (block) {
-    const allowedKeys = sortBy(['blockSignature', 'createdAt', 'generatorPublicKey', 'height', 'id', 'numberOfTransactions', 'payloadHash',
-      'payloadLength', 'previousBlock', 'reward', 'timestamp', 'totalAmount', 'totalFee', 'transactions', 'updatedAt', 'version'])
-    const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key))
+  const allowedKeys = sortBy(['blockSignature', 'createdAt', 'generatorPublicKey', 'height', 'id', 'numberOfTransactions', 'payloadHash',
+    'payloadLength', 'previousBlock', 'reward', 'timestamp', 'totalAmount', 'totalFee', 'transactions', 'updatedAt', 'version'])
+  const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key))
 
-    return isEqual(sortBy(actualKeys), allowedKeys)
+  return isEqual(sortBy(actualKeys), allowedKeys)
 }
 
 expect.extend({
-    toBeValidBlock,
-    toBeValidArrayOfBlocks
+  toBeValidBlock,
+  toBeValidArrayOfBlocks
 })

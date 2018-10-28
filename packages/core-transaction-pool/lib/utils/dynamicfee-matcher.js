@@ -8,7 +8,7 @@ const logger = container.resolvePlugin('logger')
  * @param {Transaction} Transaction - transaction to check
  * @return {Boolean} matches T/F
  */
- module.exports = (transaction) => {
+module.exports = (transaction) => {
   const transactionFee = +transaction.fee.toFixed()
   const staticFee = feeManager.getForTransaction(transaction)
   const blockchain = container.resolvePlugin('blockchain')

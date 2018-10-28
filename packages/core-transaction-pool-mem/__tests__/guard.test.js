@@ -72,22 +72,22 @@ describe('Transaction Guard', () => {
     })
 
     it.each([3, 5, 8])('should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much', async (txNumber) => {
-        guard.__reset()
+      guard.__reset()
 
-        const sender = delegates[txNumber + 1] // use txNumber + 1 so that we don't use the same delegates as the above test
-        const receivers = generateWallets('testnet', 2)
-        const amountPlusFee = Math.floor(sender.balance / txNumber)
-        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1
+      const sender = delegates[txNumber + 1] // use txNumber + 1 so that we don't use the same delegates as the above test
+      const receivers = generateWallets('testnet', 2)
+      const amountPlusFee = Math.floor(sender.balance / txNumber)
+      const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1
 
-        const transactions = generateTransfers('testnet', sender.secret, receivers[0].address, amountPlusFee - transferFee, txNumber - 1, true)
-        const lastTransaction = generateTransfers('testnet', sender.secret, receivers[1].address, lastAmountPlusFee - transferFee, 1, true)
-        // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
+      const transactions = generateTransfers('testnet', sender.secret, receivers[0].address, amountPlusFee - transferFee, txNumber - 1, true)
+      const lastTransaction = generateTransfers('testnet', sender.secret, receivers[1].address, lastAmountPlusFee - transferFee, 1, true)
+      // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
 
-        const allTransactions = transactions.concat(lastTransaction)
+      const allTransactions = transactions.concat(lastTransaction)
 
-        await guard.validate(allTransactions)
+      await guard.validate(allTransactions)
 
-        expect(guard.errors[allTransactions[txNumber - 1].id]).toEqual([`Error: [PoolWalletManager] Can't apply transaction ${allTransactions[txNumber - 1].id}`])
-      })
+      expect(guard.errors[allTransactions[txNumber - 1].id]).toEqual([`Error: [PoolWalletManager] Can't apply transaction ${allTransactions[txNumber - 1].id}`])
+    })
   })
 })
