@@ -25,6 +25,7 @@ exports.transactions = [
   timestamp: 0,
   sender_public_key:
    '02511f16ffb7b7e9afc12f04f317a11d9644e4be9eb5a5f64673946ad0f6336f34',
+  recipient_id: null,
   type: 2,
   amount: '0',
   fee: '0',
@@ -41,6 +42,7 @@ exports.transactions = [
   timestamp: 0,
   sender_public_key:
    '03697abb61ee85e020a35a1d2701112e7e16477ac9d2eb2e8900a27995edc917a2',
+  recipient_id: null,
   type: 2,
   amount: '0',
   fee: '0',

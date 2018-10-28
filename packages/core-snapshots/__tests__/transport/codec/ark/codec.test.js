@@ -21,14 +21,14 @@ describe('Ark codec testing', () => {
       // removing helper property
       delete decoded.data.previous_block_hex
 
-      expect(decoded.data).toEqual(block)
+      expect(block).toEqual(decoded.data)
     }
     console.timeEnd('blocks')
   })
 
   test('Transaction codec should encode/decode with no differences', () => {
     console.time('transactions')
-    const properties = ['id', 'sequence', 'version', 'timestamp', 'senderPublicKey', 'type', 'amount', 'fee', 'blockId', 'signature', 'asset']
+    const properties = ['id', 'sequence', 'version', 'timestamp', 'senderPublicKey', 'recipient_id', 'type', 'amount', 'fee', 'blockId', 'signature', 'asset']
     for (const transaction of transactions) {
       transaction.serialized = Buffer.from(transaction.serializedHex, 'hex')
 
@@ -38,7 +38,7 @@ describe('Ark codec testing', () => {
       const source = pick(transaction, properties)
       const dest = pick(decoded.data, properties)
 
-      expect(source).toEqual(dest)
+      expect(dest).toEqual(source)
     }
     console.timeEnd('transactions')
   })

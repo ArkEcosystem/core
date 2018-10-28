@@ -29,7 +29,7 @@ module.exports = class SnapshotManager {
     let lastBlock = await this.database.getLastBlock()
     const fileMeta = utils.getSnapshotInfo(options.filename)
 
-    // await importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.signatureVerify)
+    await importTable(`blocks.${fileMeta.stringInfo}`, this.database, blockCodec(), lastBlock, options.signatureVerify)
     await importTable(`transactions.${fileMeta.stringInfo}`, this.database, transactionCodec(), lastBlock, options.signatureVerify)
 
     lastBlock = await this.database.getLastBlock()

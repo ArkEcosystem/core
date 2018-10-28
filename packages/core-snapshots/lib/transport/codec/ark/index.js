@@ -37,8 +37,8 @@ module.exports = {
     transaction = Object.assign(values, transaction)
     transaction.amount = transaction.amount.toFixed()
     transaction.fee = transaction.fee.toFixed()
-    transaction.vendor_field_hex = transaction.vendor_field_hex ? transaction.vendor_field_hex : null
-    transaction.recipient_id = transaction.recipient_id ? transaction.recipient_id : null
+    transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null
+    transaction.recipientId = transaction.recipientId ? transaction.recipientId : null
 
     return new TableRecord(decamelizeKeys(transaction))
   }
