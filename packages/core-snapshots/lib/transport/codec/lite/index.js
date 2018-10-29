@@ -1,19 +1,33 @@
 'use strict'
+const msgpack = require('msgpack-lite')
+const columns = require('../../../db/utils/column-set')
 
 module.exports = {
   blockEncode: (block) => {
-    throw new Error('Not implemented')
+    const values = Object.values(block)
+    return msgpack.encode(values)
   },
 
-  blockDecode: (hexString) => {
-    throw new Error('Not implemented')
+  blockDecode: (bufferData) => {
+    const values = msgpack.decode(bufferData)
+    let block = {}
+    columns.blocks.forEach((column, i) => {
+      block[column] = values[i]
+    })
+    return block
   },
 
   transactionEncode: (transactionRecord) => {
-    throw new Error('Not implemented')
+    const values = Object.values(transactionRecord)
+    return msgpack.encode(values)
   },
 
   transactionDecode: (bufferData) => {
-    throw new Error('Not implemented')
+    const values = msgpack.decode(bufferData)
+    let transaction = {}
+    columns.transactions.forEach((column, i) => {
+      transaction[column] = values[i]
+    })
+    return transaction
   }
 }
