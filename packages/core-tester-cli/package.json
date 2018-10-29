@@ -23,15 +23,15 @@
   },
   "dependencies": {
     "@arkecosystem/core-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.0",
+    "@arkecosystem/crypto": "^0.2.3",
     "axios": "^0.18.0",
     "bip39": "^2.5.0",
     "clipboardy": "^1.2.3",
-    "commander": "^2.15.1",
+    "commander": "^2.19.0",
     "delay": "^4.1.0",
-    "lodash": "^4.2.1",
-    "pino": "^5.7.0",
-    "pino-pretty": "^2.2.2",
+    "lodash": "^4.17.11",
+    "pino": "^5.8.0",
+    "pino-pretty": "^2.2.3",
     "superheroes": "^2.0.0"
   },
   "devDependencies": {
