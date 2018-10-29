@@ -5,9 +5,27 @@ const { transactions } = require('../../../fixtures/transactions')
 const pick = require('lodash/pick')
 
 const msgpack = require('msgpack-lite')
-const arkCodec = require('../../../../lib/transport/codec').get('ark')
+const codec = require('../../../../lib/transport/codec').get('ark')
+
+beforeAll(async () => {
+  transactions.forEach(transaction => {
+    transaction.serialized = Buffer.from(transaction.serializedHex, 'hex')
+  })
+})
 
 describe('Ark codec testing', () => {
+  test('Single encode', () => {
+    console.time('singleblock')
+    const encoded = msgpack.encode(blocks[1], { codec: codec.blocks })
+    const decoded = msgpack.decode(encoded, { codec: codec.blocks })
+
+    // removing helper property
+    delete decoded.previous_block_hex
+
+    expect(decoded).toEqual(blocks[1])
+    console.timeEnd('singleblock')
+  })
+
   test('Block codec should encode/decode with no differences', () => {
     console.time('blocks')
     for (const [index, block] of blocks.entries()) {
@@ -16,8 +34,8 @@ describe('Ark codec testing', () => {
         continue
       }
 
-      const encoded = msgpack.encode(block, { codec: arkCodec.blocks })
-      const decoded = msgpack.decode(encoded, { codec: arkCodec.blocks })
+      const encoded = msgpack.encode(block, { codec: codec.blocks })
+      const decoded = msgpack.decode(encoded, { codec: codec.blocks })
 
       // removing helper property
       delete decoded.previous_block_hex
@@ -29,13 +47,12 @@ describe('Ark codec testing', () => {
 
   test('Transaction codec should encode/decode with no differences', () => {
     console.time('transactions')
-    const properties = ['id', 'sequence', 'version', 'timestamp', 'senderPublicKey', 'recipient_id', 'type', 'amount', 'fee', 'blockId', 'signature', 'asset']
+    const properties = ['id', 'version', 'block_id', 'sequence', 'timestamp', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized']
     for (const transaction of transactions) {
-      transaction.serialized = Buffer.from(transaction.serializedHex, 'hex')
-
-      const encoded = msgpack.encode(transaction, { codec: arkCodec.transactions })
-      const decoded = msgpack.decode(encoded, { codec: arkCodec.transactions })
-
+      const encoded = msgpack.encode(transaction, { codec: codec.transactions })
+      const decoded = msgpack.decode(encoded, { codec: codec.transactions })
+      console.log(decoded)
+      decoded.serialized = transactions.serialized
       const source = pick(transaction, properties)
       const dest = pick(decoded, properties)
 

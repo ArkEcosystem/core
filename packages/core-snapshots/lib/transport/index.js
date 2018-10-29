@@ -4,8 +4,10 @@ const QueryStream = require('pg-query-stream')
 const JSONStream = require('JSONStream')
 const msgpack = require('msgpack-lite')
 const delay = require('delay')
+const zlib = require('zlib');
 
 const container = require('@arkecosystem/core-container')
+const emitter = container.resolvePlugin('event-emitter')
 const logger = container.resolvePlugin('logger')
 const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
@@ -15,6 +17,7 @@ module.exports = {
   exportTable: async (table, options) => {
     const snapFileName = `${table}.${options.meta.stringInfo}`
     const codec = codecs.get(options.codec)
+    const gzip = zlib.createGzip()
 
     await fs.ensureFile(utils.getPath(snapFileName))
     const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName), options.filename ? { flags: 'a' } : {})
@@ -23,8 +26,9 @@ module.exports = {
 
     logger.info(`Starting to export table to ${snapFileName}, append:${!!options.filename}`)
     try {
-      const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(snapshotWriteStream))
-      logger.info(`Snapshot: ${snapFileName} ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
+      const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
+
+      emitter.emit('export:done', data)
       return data
     } catch (error) {
       logger.error(`Error while exporting data via query stream ${error}, callstack: ${error.stack}`)
@@ -35,8 +39,9 @@ module.exports = {
   importTable: async (table, options) => {
     const sourceFile = `${table}.${options.meta.stringInfo}`
     const codec = codecs.get(options.codec)
+    const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
+    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(gunzip).pipe(decodeStream)
 
     let values = []
     let prevData = null
@@ -59,7 +64,7 @@ module.exports = {
       return Promise.resolve(data.length === 0 ? null : data)
     }
 
-    await options.database.db.task('massive-inserts', t => {
+    options.database.db.task('massive-inserts', t => {
       return t.sequence(index => {
         rs.resume()
         return getNextData(t, index)
@@ -71,7 +76,7 @@ module.exports = {
             }
           })
       }).then((res) => {
-        logger.debug(`Importing from ${sourceFile} completed :+1:`)
+        emitter.emit('import:done', table)
       })
     })
   },
@@ -79,26 +84,24 @@ module.exports = {
   verifyTable: async (table, options) => {
     const sourceFile = `${table}.${options.meta.stringInfo}`
     const codec = codecs.get(options.codec)
+    const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
+    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(gunzip).pipe(decodeStream)
 
-    return new Promise((resolve, reject) => {
-      logger.info(`Starting to verify snapshot file ${sourceFile}`)
-      let prevData = null
-      const table = sourceFile.split('.')[0]
+    logger.info(`Starting to verify snapshot file ${sourceFile}`)
+    let prevData = null
 
-      decodeStream.on('data', (data) => {
-        if (!verifyData(table, data, prevData, options.signatureVerification)) {
-          logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-          process.exit(1)
-        }
-        prevData = data
-      })
+    decodeStream.on('data', (data) => {
+      if (!verifyData(table, data, prevData, options.signatureVerification)) {
+        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+        throw new Error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+      }
+      prevData = data
+    })
 
-      rs.on('finish', () => {
-        logger.info(`Snapshot succesfully verified ${sourceFile} :+1:`)
-        resolve(true)
-      })
+    rs.on('finish', () => {
+      logger.info(`Snapshot succesfully verified ${sourceFile} :+1:`)
+      emitter.emit('verify:success', table)
     })
   },
 

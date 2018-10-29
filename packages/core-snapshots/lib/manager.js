@@ -1,6 +1,8 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
+
 const Database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
@@ -18,8 +20,6 @@ module.exports = class SnapshotManager {
       exportTable('blocks', params),
       exportTable('transactions', params)
     ])
-
-    logger.info('Export completed.')
   }
 
   async importData (options) {
@@ -31,13 +31,18 @@ module.exports = class SnapshotManager {
     await importTable('blocks', params)
     await importTable('transactions', params)
 
-    const lastBlock = await this.database.getLastBlock()
-    logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height}`)
+    let jobs = 2
+    emitter.on('import:table:done', async (table) => {
+      logger.info(`Importing from ${table} completed :+1:`)
+      jobs -= 1
 
-    if (!params.skipRestartRound) {
-      const newLastBlock = await this.database.rollbackChain(lastBlock.height)
-      logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last block in database: ${newLastBlock.height}`)
-    }
+      if (jobs === 0) {
+        const lastBlock = await this.database.getLastBlock()
+        logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height}`)
+
+        emitter.emit('import:complete', lastBlock)
+      }
+    })
   }
 
   async verifyData (options) {
@@ -47,8 +52,6 @@ module.exports = class SnapshotManager {
       verifyTable('blocks', params),
       verifyTable('transactions', params)
     ])
-
-    logger.info('Verifying of snapshot completed with success :100:')
   }
 
   async rollbackChain (height) {

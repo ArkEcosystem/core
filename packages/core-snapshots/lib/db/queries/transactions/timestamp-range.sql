@@ -1,7 +1,7 @@
 SELECT
   id,
-  block_id,
   version,
+  block_id,
   sequence,
   timestamp,
   sender_public_key,
