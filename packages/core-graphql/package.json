@@ -20,10 +20,10 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-http-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.0",
-    "apollo-server-hapi": "^2.0.0-rc.10",
-    "graphql-tools-types": "^1.1.21",
-    "moment": "^2.22.1"
+    "@arkecosystem/crypto": "^0.2.3",
+    "apollo-server-hapi": "^2.1.0",
+    "graphql-tools-types": "^1.1.26",
+    "moment": "^2.22.2"
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1"

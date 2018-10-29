@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.15.0",
-    "webpack-merge": "^4.1.3",
+    "webpack-merge": "^4.1.4",
     "webpack-node-externals": "^1.7.2"
   },
   "publishConfig": {

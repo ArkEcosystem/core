@@ -21,10 +21,10 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-database": "^0.1.1",
     "@arkecosystem/core-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.0",
+    "@arkecosystem/crypto": "^0.2.3",
     "bluebird": "^3.5.2",
-    "lodash": "^4.17.10",
-    "pg-promise": "^8.4.6",
+    "lodash": "^4.17.11",
+    "pg-promise": "^8.5.1",
     "sql": "^0.78.0"
   },
   "publishConfig": {
