@@ -70,7 +70,7 @@ class Guard {
       reason: offence.reason
     }
 
-    delete this.monitor.peers[peer.ip]
+    this.monitor.removePeer(peer)
   }
 
   /**

@@ -25,6 +25,7 @@ class Monitor {
    */
   constructor () {
     this.peers = {}
+    this.peersByHeight = new Map()
     this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
   }
 
@@ -114,6 +115,8 @@ class Monitor {
       await newPeer.ping(1500)
 
       this.peers[peer.ip] = newPeer
+      this.__addPeerToHeight(newPeer)
+
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
       emitter.emit('peer.added', newPeer)
@@ -122,6 +125,34 @@ class Monitor {
 
       this.guard.suspend(newPeer)
     }
+  }
+
+  /**
+   * Remove peer from monitor.
+   * @param {Peer} peer
+   */
+  removePeer (peer) {
+    delete this.peers[peer.ip]
+    this.__removePeerFromHeight(peer)
+  }
+
+  /**
+   * Update peer height.
+   * @param {Peer} peer
+   */
+  updatePeerHeight (peer, previousHeight) {
+    // Remove peer from previous height
+    if (!this.peersByHeight.has(previousHeight)) {
+      throw new Error('yikes')
+    }
+    const index = this.peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
+    if (index === -1) {
+      throw new Error('yikes yikes')
+    }
+    this.peersByHeight.get(previousHeight).splice(index, 1)
+
+    // Add peer to new height
+    this.__addPeerToHeight(peer)
   }
 
   /**
@@ -137,8 +168,9 @@ class Monitor {
 
     logger.info(`Checking ${max} peers :telescope:`)
     await Promise.all(keys.map(async (ip) => {
+      const peer = this.getPeer(ip)
       try {
-        await this.getPeer(ip).ping(pingDelay)
+        await peer.ping(pingDelay)
 
         if (tracker) {
           logger.printTracker('Peers Discovery', ++count, max)
@@ -148,9 +180,9 @@ class Monitor {
 
         const formattedDelay = prettyMs(pingDelay, { verbose: true })
         logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`)
-        emitter.emit('peer.removed', this.getPeer(ip))
+        emitter.emit('peer.removed', peer)
 
-        delete this.peers[ip]
+        this.removePeer(peer)
 
         return null
       }
@@ -296,6 +328,8 @@ class Monitor {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
+
+      this.__buildPeersByHeight()
 
       return this.peers
     } catch (error) {
@@ -468,6 +502,49 @@ class Monitor {
 
     for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+    }
+
+    this.__buildPeersByHeight()
+  }
+
+  /**
+   * Group peers by height.
+   * @return {void}
+   */
+  __buildPeersByHeight () {
+    this.peersByHeight.clear()
+    for (const peer of this.getPeers()) {
+      this.__addPeerToHeight(peer)
+    }
+  }
+
+  /**
+   * Set peer by height.
+   * @param {Peer} peer
+   */
+  __addPeerToHeight (peer) {
+    if (!this.peersByHeight.has(peer.state.height)) {
+      this.peersByHeight.set(peer.state.height, [])
+    }
+
+    this.peersByHeight.get(peer.state.height).push(peer)
+  }
+
+  /**
+   * Remove peer from height.
+   * @param {Peer} peer
+   */
+  __removePeerFromHeight (peer) {
+    const peers = this.peersByHeight.get(peer.state.height)
+    if (peers) {
+      const index = peers.findIndex(p => p.ip === peer.ip)
+      if (index !== -1) {
+        peers.splice(index, 1)
+      }
+
+      if (peers.length === 0) {
+        delete this.peersByHeight[peer.state.height]
+      }
     }
   }
 
