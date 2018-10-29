@@ -31,6 +31,6 @@ function isValidPeer (peer) {
 }
 
 expect.extend({
-    toBeValidPeer,
-    toBeValidArrayOfPeers
+  toBeValidPeer,
+  toBeValidArrayOfPeers
 })

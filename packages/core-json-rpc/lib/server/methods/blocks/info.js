@@ -1,3 +1,4 @@
+const Boom = require('boom')
 const Joi = require('joi')
 const network = require('../../services/network')
 
@@ -6,9 +7,11 @@ module.exports = {
   async method (params) {
     const response = await network.sendRequest(`blocks/${params.id}`)
 
-    return response ? response.data : {}
+    return response
+      ? response.data
+      : Boom.notFound(`Block ${params.id} could not be found.`)
   },
   schema: {
-    id: Joi.number().required()
+    id: Joi.number().unsafe().required()
   }
 }

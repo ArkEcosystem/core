@@ -1,6 +1,4 @@
 const request = require('./__support__/request')
-const { crypto } = require('@arkecosystem/crypto')
-
 const app = require('./__support__/setup')
 
 const axios = require('axios')
@@ -42,9 +40,9 @@ afterEach(async () => {
   axiosMock.reset() // important: resets any existing mocking behavior
 })
 
-describe('Accounts', () => {
+describe('Wallets', () => {
   describe('POST wallets.info', () => {
-    it('should POST wallet with a given address on mainnet', async () => {
+    it('should get information about the given wallet', async () => {
       axiosMock
         .onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/)
         .reply(() => [200, { data: { address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv' } }, peerMock.headers])
@@ -53,12 +51,25 @@ describe('Accounts', () => {
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
       })
 
-      await expect(response.data.result.address).toBe('AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv')
+      expect(response.data.result.address).toBe('AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv')
+    })
+
+    it('should fail to get information about the given wallet', async () => {
+      axiosMock
+        .onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/)
+        .reply(() => [404, { error: { code: 404, message: 'Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.' } }, peerMock.headers])
+
+      const response = await request('wallets.info', {
+        address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
+      })
+
+      expect(response.data.error.code).toBe(404)
+      expect(response.data.error.message).toBe('Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.')
     })
   })
 
   describe('POST wallets.transactions', () => {
-    it('should POST last wallet transactions on mainnet', async () => {
+    it('should get the transactions for the given wallet', async () => {
       axiosMock
         .onGet(/.*\/api\/transactions/)
         .reply(() => [200, { meta: { totalCount: 2 }, data: [ { id: '123' }, { id: '1234' } ] }, peerMock.headers])
@@ -67,55 +78,64 @@ describe('Accounts', () => {
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
       })
 
-      await expect(response.data.result.count).toBe(2)
-      await expect(response.data.result.data).toHaveLength(2)
+      expect(response.data.result.count).toBe(2)
+      expect(response.data.result.data).toHaveLength(2)
+    })
+
+    it('should fail to get transactions for the given wallet', async () => {
+      const response = await request('wallets.transactions', {
+        address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
+      })
+
+      expect(response.data.error.code).toBe(404)
+      expect(response.data.error.message).toBe('Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.')
     })
   })
 
-  describe('POST wallets.create.*', () => {
-    it('should create an wallet on mainnet', async () => {
+  describe('POST wallets.create', () => {
+    it('should create a new wallet', async () => {
       const response = await request('wallets.create', {
-        passphrase: 'this is a test'
+        passphrase: 'this is a top secret passphrase'
       })
 
-      await expect(response.data.result.address).toBe('AUdAwTiByRp5BFyGz9uxXuNYa1KGHT4rmt')
-      await expect(response.data.result.publicKey).toBe('03675c61dcc23eab75f9948c6510b54d34fced4a73d3c9f2132c76a29750e7a614')
+      expect(response.data.result.address).toBe('AGeYmgbg2LgGxRW2vNNJvQ88PknEJsYizC')
+      expect(response.data.result.publicKey).toBe('034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192')
     })
+  })
 
+  describe('POST wallets.bip38.*', () => {
     let bip38wif
     let userId = require('crypto').randomBytes(32).toString('hex')
 
-    it('should create an wallet on mainnet using bip38 encryption', async () => {
-      const response = await request('wallets.bip38.create', {
-        bip38: 'master password',
-        userId
+    describe('create', async () => {
+      it('should create a new wallet', async () => {
+        const response = await request('wallets.bip38.create', {
+          bip38: 'this is a top secret passphrase',
+          userId
+        })
+
+        expect(response.data.result).toHaveProperty('address')
+        expect(response.data.result).toHaveProperty('publicKey')
+        expect(response.data.result).toHaveProperty('wif')
+
+        bip38wif = response.data.result.wif
       })
-
-      await expect(response.data.result).toHaveProperty('address')
-      await expect(response.data.result).toHaveProperty('publicKey')
-      await expect(response.data.result).toHaveProperty('wif')
-
-      bip38wif = response.data.result.wif
     })
 
-    it('should find bip38 backup from userId', async () => {
-      const response = await request('wallets.bip38.info', { userId
+    describe('info', async () => {
+      it('should find the wallet for the given userId', async () => {
+        const response = await request('wallets.bip38.info', { userId })
+
+        expect(response.data.result).toHaveProperty('wif')
+        expect(response.data.result.wif).toBe(bip38wif)
       })
 
-      await expect(response.data.result).toHaveProperty('wif')
-      await expect(response.data.result.wif).toBe(bip38wif)
-    })
+      it('should fail to find the wallet for the given userId', async () => {
+        const response = await request('wallets.bip38.info', { userId: '123456789' })
 
-    it('should create transaction from bip38 backup using userId', async () => {
-      const response = await request('transactions.bip38.create', {
-        bip38: 'master password',
-        userId,
-        amount: 1000000000,
-        recipientId: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
+        expect(response.data.error.code).toBe(404)
+        expect(response.data.error.message).toBe('User 123456789 could not be found.')
       })
-
-      await expect(response.data.result.recipientId).toBe('AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv')
-      await expect(crypto.verify(response.data.result)).toBeTrue()
     })
   })
 })

@@ -22,17 +22,17 @@
     "depcheck": "depcheck ./ --ignores=commander,pino-pretty"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.0",
+    "@arkecosystem/crypto": "^0.2.3",
     "bip39": "^2.5.0",
     "bytebuffer": "^5.0.1",
-    "commander": "^2.15.1",
+    "commander": "^2.19.0",
     "envfile": "^2.3.0",
     "expand-home-dir": "0.0.3",
     "fs-extra": "^7.0.0",
     "joi": "^14.0.1",
-    "lodash": "^4.17.10",
-    "pino": "^5.7.0",
-    "pino-pretty": "^2.2.2"
+    "lodash": "^4.17.11",
+    "pino": "^5.8.0",
+    "pino-pretty": "^2.2.3"
   },
   "publishConfig": {
     "access": "public"

@@ -15,7 +15,7 @@ const registerCommand = (name, description) => {
     .option('--api-port <number>', 'base api port', 4003)
     .option('--p2p-port <number>', 'base p2p port', 4002)
     .option('-p, --passphrase <value>', 'passphrase of initial wallet')
-    .option('-s, --second-passphrase <value>', 'passphrase of initial wallet')
+    .option('-s, --second-passphrase <value>', 'second passphrase of initial wallet')
     .option('--skip-validation', 'skip transaction validations', false)
     .option('-c, --copy', 'copy the transactions to the clipboard', false)
 }

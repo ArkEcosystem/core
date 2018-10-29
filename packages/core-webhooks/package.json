@@ -23,10 +23,10 @@
     "axios": "^0.18.0",
     "boom": "^7.2.0",
     "fs-extra": "^7.0.0",
-    "hapi-pagination": "^2.0.0",
+    "hapi-pagination": "^2.0.1",
     "joi": "^14.0.1",
-    "sequelize": "^4.37.8",
-    "sqlite3": "^4.0.2",
+    "sequelize": "^4.41.0",
+    "sqlite3": "^4.0.3",
     "umzug": "^2.1.0"
   },
   "devDependencies": {

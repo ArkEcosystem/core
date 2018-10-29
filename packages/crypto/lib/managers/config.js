@@ -23,7 +23,7 @@ class ConfigManager {
 
     for (const [key, value] of Object.entries(config)) {
       this.config[key] = value
-     }
+    }
 
     this.buildConstants()
     this.buildFees()

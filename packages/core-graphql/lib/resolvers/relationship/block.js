@@ -8,7 +8,7 @@ const { formatOrderBy, unserializeTransactions } = require('../../helpers')
  */
 module.exports = {
 
- /**
+  /**
   * Get the transactions for a given block
   * @param {Block}: block
   * @param {Object}: args

@@ -1,3 +1,4 @@
+const Boom = require('boom')
 const Joi = require('joi')
 const network = require('../../services/network')
 
@@ -9,6 +10,10 @@ module.exports = {
       orderBy: 'timestamp:desc',
       ownerId: params.address
     })
+
+    if (!response) {
+      return Boom.notFound(`Wallet ${params.address} could not be found.`)
+    }
 
     return {
       count: response.meta.totalCount,
