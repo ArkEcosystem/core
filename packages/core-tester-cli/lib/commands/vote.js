@@ -27,7 +27,7 @@ module.exports = class VoteCommand extends Command {
         delegate = sample(await this.getDelegates()).publicKey
       } catch (error) {
         logger.error(error)
-        process.exit(1)
+        return
       }
     }
 
@@ -51,7 +51,7 @@ module.exports = class VoteCommand extends Command {
 
     if (this.options.copy) {
       this.copyToClipboard(transactions)
-      process.exit() // eslint-disable-line no-unreachable
+      return
     }
 
     const expectedVoterCount = voters.length + wallets.length
