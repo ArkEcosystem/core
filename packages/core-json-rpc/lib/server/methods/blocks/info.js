@@ -9,6 +9,6 @@ module.exports = {
     return response ? response.data : {}
   },
   schema: {
-    id: Joi.number().required()
+    id: Joi.number().unsafe().required()
   }
 }
