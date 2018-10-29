@@ -227,7 +227,7 @@ describe('Connection', () => {
       expect(connection.transactionExists(mockData.dummy2.id)).toBeTrue()
     })
 
-   it('should return false if transaction is NOT pool', () => {
+    it('should return false if transaction is NOT pool', () => {
       expect(connection.transactionExists(mockData.dummy1.id)).toBeFalse()
       expect(connection.transactionExists(mockData.dummy2.id)).toBeFalse()
     })

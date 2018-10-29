@@ -63,11 +63,11 @@ module.exports = class Peer {
    */
   async postTransactions (transactions) {
     return this.__post(`${this.url}/peer/transactions`, {
-        transactions,
-        isBroadCasted: true
-      }, {
-        headers: this.headers,
-        timeout: 8000
+      transactions,
+      isBroadCasted: true
+    }, {
+      headers: this.headers,
+      timeout: 8000
     })
   }
 
