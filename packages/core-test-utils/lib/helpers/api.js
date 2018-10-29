@@ -7,10 +7,10 @@ class ApiHelpers {
 
     // Injecting the request into Hapi server instead of using axios
     const injectOptions = {
-        method,
-        url: ['GET', 'DELETE'].includes(method) ? `${url}?${getParams}` : url,
-        headers,
-        payload: ['GET', 'DELETE'].includes(method) ? {} : params
+      method,
+      url: ['GET', 'DELETE'].includes(method) ? `${url}?${getParams}` : url,
+      headers,
+      payload: ['GET', 'DELETE'].includes(method) ? {} : params
     }
 
     const response = await server.inject(injectOptions)

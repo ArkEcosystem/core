@@ -3,9 +3,9 @@ const arkCrypto = require('./crypto')
 const configManager = require('../managers/config')
 
 const createHash = message => crypto
-    .createHash('sha256')
-    .update(Buffer.from(message, 'utf-8'))
-    .digest()
+  .createHash('sha256')
+  .update(Buffer.from(message, 'utf-8'))
+  .digest()
 
 module.exports = class Message {
   /**

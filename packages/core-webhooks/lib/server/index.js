@@ -15,7 +15,7 @@ module.exports = async (config) => {
       cors: true,
       validate: {
         async failAction (request, h, err) {
-           throw err
+          throw err
         }
       }
     }

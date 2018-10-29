@@ -11,7 +11,7 @@ module.exports = {
     const blockchain = container.resolvePlugin('blockchain')
     const height = blockchain.getLastBlock().data.height
     if (height) {
-        await blockchain.removeBlocks(height - 1)
+      await blockchain.removeBlocks(height - 1)
     }
 
     const transactionPool = container.resolvePlugin('transactionPool')

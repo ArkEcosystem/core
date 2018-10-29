@@ -36,53 +36,53 @@ class Crypto {
     let assetBytes = null
 
     switch (transaction.type) {
-      case 1: { // Signature
-        const { signature } = transaction.asset
-        let bb = new ByteBuffer(33, true)
-        let publicKeyBuffer = Buffer.from(signature.publicKey, 'hex');
+    case 1: { // Signature
+      const { signature } = transaction.asset
+      let bb = new ByteBuffer(33, true)
+      let publicKeyBuffer = Buffer.from(signature.publicKey, 'hex');
 
-        for (let i = 0; i < publicKeyBuffer.length; i++) {
-          bb.writeByte(publicKeyBuffer[i]);
-        }
+      for (let i = 0; i < publicKeyBuffer.length; i++) {
+        bb.writeByte(publicKeyBuffer[i]);
+      }
 
-        bb.flip()
+      bb.flip()
 
-        assetBytes = new Uint8Array(bb.toArrayBuffer())
+      assetBytes = new Uint8Array(bb.toArrayBuffer())
+      assetSize = assetBytes.length
+      break
+    }
+
+    case 2: { // Delegate
+      assetBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
+      assetSize = assetBytes.length
+      break
+    }
+
+    case 3: { // Vote
+      if (transaction.asset.votes !== null) {
+        assetBytes = Buffer.from(transaction.asset.votes.join(''), 'utf8')
         assetSize = assetBytes.length
-        break
+      }
+      break
+    }
+
+    case 4: { // Multi-Signature
+      let keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'utf8')
+      let bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
+
+      bb.writeByte(transaction.asset.multisignature.min)
+      bb.writeByte(transaction.asset.multisignature.lifetime)
+
+      for (let i = 0; i < keysgroupBuffer.length; i++) {
+        bb.writeByte(keysgroupBuffer[i])
       }
 
-      case 2: { // Delegate
-        assetBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
-        assetSize = assetBytes.length
-        break
-      }
+      bb.flip()
 
-      case 3: { // Vote
-        if (transaction.asset.votes !== null) {
-          assetBytes = Buffer.from(transaction.asset.votes.join(''), 'utf8')
-          assetSize = assetBytes.length
-        }
-        break
-      }
-
-      case 4: { // Multi-Signature
-        let keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'utf8')
-        let bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
-
-        bb.writeByte(transaction.asset.multisignature.min)
-        bb.writeByte(transaction.asset.multisignature.lifetime)
-
-        for (let i = 0; i < keysgroupBuffer.length; i++) {
-          bb.writeByte(keysgroupBuffer[i])
-        }
-
-        bb.flip()
-
-        assetBytes = bb.toBuffer()
-        assetSize = assetBytes.length
-        break
-      }
+      assetBytes = bb.toBuffer()
+      assetSize = assetBytes.length
+      break
+    }
     }
 
     let bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true)
@@ -291,7 +291,7 @@ class Crypto {
     }
 
     return this.verifyHash(hash, secondSignature, publicKey)
- }
+  }
 
   /**
    * Verify the hash.
@@ -336,7 +336,7 @@ class Crypto {
     return keyPair
   }
 
-    /**
+  /**
    * Get keys from WIF key.
    * @param  {String} wifKey
    * @param  {Object} network

@@ -2965,7 +2965,7 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-codecov@^3.0.4:
+codecov@^3.0.4, codecov@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/codecov/-/codecov-3.1.0.tgz#340bd968d361f256976b5af782dd8ba9f82bc849"
   integrity sha512-aWQc/rtHbcWEQLka6WmBAOpV58J2TwyXqlpAQGhQaSiEUoigTTUk6lLd2vB3kXkhnDyzyH74RXfmV4dq2txmdA==
@@ -3872,6 +3872,15 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
+elasticsearch@^15.1.1:
+  version "15.1.1"
+  resolved "https://registry.yarnpkg.com/elasticsearch/-/elasticsearch-15.1.1.tgz#242f2378fccd601586ff763a8a933cd5d41c945f"
+  integrity sha512-Yr9xy10rUMjDty7qCys7X9AIW5+PX4Gtv2NksZqXIc+AZiWna/y2QwZdiSLtb5LTOKDp7PbegfuokhIjMHUpKw==
+  dependencies:
+    agentkeepalive "^3.4.1"
+    chalk "^1.0.0"
+    lodash "^4.17.10"
+
 electron-to-chromium@^1.3.73:
   version "1.3.74"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.74.tgz#443f60655e0de630491ca4e48e4436bc375debd1"
@@ -4064,7 +4073,7 @@ eslint-plugin-es@^1.3.1:
     eslint-utils "^1.3.0"
     regexpp "^2.0.0"
 
-eslint-plugin-import@^2.12.0, eslint-plugin-import@~2.14.0:
+eslint-plugin-import@^2.11.0, eslint-plugin-import@^2.12.0, eslint-plugin-import@~2.14.0:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.14.0.tgz#6b17626d2e3e6ad52cfce8807a845d15e22111a8"
   integrity sha512-FpuRtniD/AY6sXByma2Wr0TXvXJ4nA/2/04VPlfpmUDPOpOY264x+ILiwnrk/k4RINgDAyFZByxqPUbSQ5YE7g==
@@ -4092,7 +4101,7 @@ eslint-plugin-node@^7.0.1, eslint-plugin-node@~7.0.1:
     resolve "^1.8.1"
     semver "^5.5.0"
 
-eslint-plugin-promise@^4.0.1, eslint-plugin-promise@~4.0.0:
+eslint-plugin-promise@^4.0.0, eslint-plugin-promise@^4.0.1, eslint-plugin-promise@~4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-promise/-/eslint-plugin-promise-4.0.1.tgz#2d074b653f35a23d1ba89d8e976a985117d1c6a2"
   integrity sha512-Si16O0+Hqz1gDHsys6RtFRrW7cCTB6P7p3OJmKp3Y3dxpQE2qwOA7d3xnV+0mBmrPoi0RBnxlCKvqu70te6wjg==
@@ -4130,6 +4139,50 @@ eslint-visitor-keys@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#3f3180fb2e291017716acb4c9d6d5b5c34a6a81d"
   integrity sha512-qzm/XxIbxm/FHyH341ZrbnMUpe+5Bocte9xkmFMzPMjRaZMcXww+MpBptFvtU+79L362nqiLhekCxCxDPaUMBQ==
+
+eslint@^5.5.0:
+  version "5.8.0"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-5.8.0.tgz#91fbf24f6e0471e8fdf681a4d9dd1b2c9f28309b"
+  integrity sha512-Zok6Bru3y2JprqTNm14mgQ15YQu/SMDkWdnmHfFg770DIUlmMFd/gqqzCHekxzjHZJxXv3tmTpH0C1icaYJsRQ==
+  dependencies:
+    "@babel/code-frame" "^7.0.0"
+    ajv "^6.5.3"
+    chalk "^2.1.0"
+    cross-spawn "^6.0.5"
+    debug "^4.0.1"
+    doctrine "^2.1.0"
+    eslint-scope "^4.0.0"
+    eslint-utils "^1.3.1"
+    eslint-visitor-keys "^1.0.0"
+    espree "^4.0.0"
+    esquery "^1.0.1"
+    esutils "^2.0.2"
+    file-entry-cache "^2.0.0"
+    functional-red-black-tree "^1.0.1"
+    glob "^7.1.2"
+    globals "^11.7.0"
+    ignore "^4.0.6"
+    imurmurhash "^0.1.4"
+    inquirer "^6.1.0"
+    is-resolvable "^1.1.0"
+    js-yaml "^3.12.0"
+    json-stable-stringify-without-jsonify "^1.0.1"
+    levn "^0.3.0"
+    lodash "^4.17.5"
+    minimatch "^3.0.4"
+    mkdirp "^0.5.1"
+    natural-compare "^1.4.0"
+    optionator "^0.8.2"
+    path-is-inside "^1.0.2"
+    pluralize "^7.0.0"
+    progress "^2.0.0"
+    regexpp "^2.0.1"
+    require-uncached "^1.0.3"
+    semver "^5.5.1"
+    strip-ansi "^4.0.0"
+    strip-json-comments "^2.0.1"
+    table "^5.0.2"
+    text-table "^0.2.0"
 
 eslint@^5.7.0:
   version "5.7.0"
@@ -5211,7 +5264,7 @@ hapi-rate-limit@^2.1.2:
     boom "^7.2.0"
     hoek "^5.0.4"
 
-hapi@^17.1.1, hapi@^17.6.0:
+hapi@^17.1.1, hapi@^17.4.0, hapi@^17.6.0:
   version "17.6.0"
   resolved "https://registry.yarnpkg.com/hapi/-/hapi-17.6.0.tgz#158a2276253a8de727be678c4daeb1f73929e588"
   integrity sha512-GSHjE1hJExluAukrT/QuYSk96irmbYBDd3wOgywiHsPoR2QeKgDnIttD+dB6NbADEmSdb9MS5gTUIVq0uHTdkA==
@@ -5449,6 +5502,22 @@ humanize-ms@^1.2.1:
   integrity sha1-xG4xWaKT9riW2ikxbYtv6Lt5u+0=
   dependencies:
     ms "^2.0.0"
+
+husky@^1.0.0:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-1.1.2.tgz#574c2bb16958db8a8120b63306efaff110525c23"
+  integrity sha512-9TdkUpBeEOjz0AnFdUN4i3w8kEbOsVs9/WSeJqWLq2OO6bcKQhVW64Zi+pVd/AMRLpN3QTINb6ZXiELczvdmqQ==
+  dependencies:
+    cosmiconfig "^5.0.6"
+    execa "^0.9.0"
+    find-up "^3.0.0"
+    get-stdin "^6.0.0"
+    is-ci "^1.2.1"
+    pkg-dir "^3.0.0"
+    please-upgrade-node "^3.1.1"
+    read-pkg "^4.0.1"
+    run-node "^1.0.0"
+    slash "^2.0.0"
 
 husky@^1.0.0-rc.2:
   version "1.1.1"
@@ -6510,7 +6579,7 @@ jest-worker@^23.2.0:
   dependencies:
     merge-stream "^1.0.1"
 
-jest@^23.3.0:
+jest@^23.3.0, jest@^23.5.0:
   version "23.6.0"
   resolved "https://registry.yarnpkg.com/jest/-/jest-23.6.0.tgz#ad5835e923ebf6e19e7a1d7529a432edfee7813d"
   integrity sha512-lWzcd+HSiqeuxyhG+EnZds6iO3Y3ZEnMrfZq/OTGvF/C+Z4fPMCdhWTGSAiO2Oym9rbEXfwddHhh6jqrTF3+Lw==
@@ -6551,7 +6620,7 @@ joi@^10.6.0:
     items "2.x.x"
     topo "2.x.x"
 
-joi@^14.0.1:
+joi@^14.0.0, joi@^14.0.1:
   version "14.0.1"
   resolved "https://registry.yarnpkg.com/joi/-/joi-14.0.1.tgz#5bc53e8fff6e6da19d6cd8c76e2afe5c0815a2d3"
   integrity sha512-M8yD7j1G/9UfJ40h97ophm/flC0zDXUn1RrK3GEm2IsyxOOJAnjQiYLLFS5p75gDGtaKwAPMB4JNLLr5yvCadw==

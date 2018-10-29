@@ -209,7 +209,7 @@ module.exports = class Transaction {
         bb.append(bs58check.decode(p.recipientId))
       })
     } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-       // delegate resignation - empty payload
+      // delegate resignation - empty payload
     }
 
     if (transaction.signature) {

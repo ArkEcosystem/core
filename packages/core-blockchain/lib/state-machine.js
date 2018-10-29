@@ -85,13 +85,13 @@ blockchainMachine.actionMap = blockchain => {
     downloadFinished () {
       logger.info('Block download finished :rocket:')
 
-     if (state.networkStart) {
+      if (state.networkStart) {
         // next time we will use normal behaviour
         state.networkStart = false
 
         blockchain.dispatch('SYNCFINISHED')
       } else if (blockchain.rebuildQueue.length() === 0) {
-          blockchain.dispatch('PROCESSFINISHED')
+        blockchain.dispatch('PROCESSFINISHED')
       }
     },
 

@@ -14,7 +14,7 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
-   plugin: require('./plugins/validate-headers')
+    plugin: require('./plugins/validate-headers')
   })
 
   await server.register({
