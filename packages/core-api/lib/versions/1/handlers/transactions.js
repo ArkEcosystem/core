@@ -77,10 +77,10 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  handler (request, h) {
     const pagination = utils.paginate(request)
 
-    let transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
+    let transactions = transactionPool.getTransactions(pagination.offset, pagination.limit)
     transactions = transactions.map(transaction => ({ serialized: transaction }))
 
     return utils.respondWith({
@@ -98,8 +98,8 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    let transaction = await transactionPool.getTransaction(request.query.id)
+  handler (request, h) {
+    let transaction = transactionPool.getTransaction(request.query.id)
 
     if (!transaction) {
       return utils.respondWith('Transaction not found', true)
