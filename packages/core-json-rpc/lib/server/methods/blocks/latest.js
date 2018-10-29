@@ -1,3 +1,4 @@
+const Boom = require('boom')
 const network = require('../../services/network')
 
 module.exports = {
@@ -5,6 +6,8 @@ module.exports = {
   async method (params) {
     const response = await network.sendRequest('blocks?orderBy=height:desc&limit=1')
 
-    return response.data[0]
+    return response
+      ? response.data[0]
+      : Boom.notFound(`Block ${params.id} could not be found.`)
   }
 }
