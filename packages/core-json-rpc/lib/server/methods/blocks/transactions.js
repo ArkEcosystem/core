@@ -15,7 +15,7 @@ module.exports = {
     } : {}
   },
   schema: {
-    id: Joi.number().required(),
+    id: Joi.number().unsafe().required(),
     offset: Joi.number().default(0)
   }
 }
