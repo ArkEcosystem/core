@@ -11,10 +11,10 @@ module.exports = (network, quantity = 10) => {
 
   const wallets = []
   for (let i = 0; i < quantity; i++) {
-      const passphrase = bip39.generateMnemonic()
-      const address = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
+    const passphrase = bip39.generateMnemonic()
+    const address = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
 
-      wallets.push({ address, passphrase })
+    wallets.push({ address, passphrase })
   }
 
   return wallets
