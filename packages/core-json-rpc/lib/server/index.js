@@ -1,6 +1,6 @@
 'use strict'
 
-const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
+const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-utils')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 function registerMethods (server, group) {
@@ -30,7 +30,15 @@ module.exports = async (options) => {
 
   server.app.schemas = {}
 
-  await server.register({ plugin: require('./plugins/whitelist'), options })
+  if (!options.allowRemote) {
+    await server.register({
+      plugin: plugins.whitelist,
+      options: {
+        whitelist: options.whitelist,
+        name: 'JSON-RPC'
+      }
+    })
+  }
 
   registerMethods(server, 'wallets')
   registerMethods(server, 'blocks')
