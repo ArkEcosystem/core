@@ -59,6 +59,13 @@ describe('Blocks', () => {
 
       expect(response.data.result.id).toBe('123')
     })
+
+    it('should fail to get the block information', async () => {
+      const response = await request('blocks.info', { id: '123' })
+
+      expect(response.data.error.code).toBe(404)
+      expect(response.data.error.message).toBe('Block 123 could not be found.')
+    })
   })
 
   describe('POST blocks.transactions', () => {
@@ -70,6 +77,13 @@ describe('Blocks', () => {
       })
 
       expect(response.data.result.data).toHaveLength(2)
+    })
+
+    it('should fail to get the block transactions', async () => {
+      const response = await request('blocks.transactions', { id: '123' })
+
+      expect(response.data.error.code).toBe(404)
+      expect(response.data.error.message).toBe('Block 123 could not be found.')
     })
   })
 })
