@@ -21,7 +21,7 @@ const SPV = require('./spv')
 const migrations = require('./migrations')
 const QueryExecutor = require('./sql/query-executor')
 const repositories = require('./repositories')
-const { camelizeColumns } = require('./utils')
+const { camelizeColumns, loadQueryFile } = require('./utils')
 
 module.exports = class PostgresConnection extends ConnectionInterface {
   /**
@@ -587,6 +587,25 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async __runMigrations () {
     for (const migration of migrations) {
       await this.query.none(migration)
+    }
+  }
+
+  /**
+   * Run custom migrations from a directory path. Primarily intended for user-defined plugins.
+   * @param {string} directory Path to directory containing migrations
+   * @return {void}
+   */
+  async runMigrationsFromDirectory (directory) {
+    try {
+      const migrations = fs.readdirSync(directory)
+
+      if (Array.isArray(migrations) && migrations.length) {
+        migrations.forEach(migration => {
+          this.query.none(loadQueryFile(directory, migration))
+        })
+      }
+    } catch (e) {
+      logger.warn(e.message)
     }
   }
 
