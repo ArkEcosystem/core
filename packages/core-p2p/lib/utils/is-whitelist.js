@@ -10,7 +10,7 @@ const mm = require('micromatch')
  */
 module.exports = (whitelist, value) => {
   if (Array.isArray(whitelist)) {
-    for (let i = 0; i < whitelist.length; i++) {
+    for (const i in whitelist) {
       if (mm.isMatch(value, whitelist[i])) {
         return true
       }
