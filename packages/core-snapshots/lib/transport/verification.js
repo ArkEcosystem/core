@@ -54,12 +54,12 @@ module.exports = {
     }
 
     switch (context) {
-      case 'blocks':
-        return verifyBlock(data, prevData, signatureVerification)
-      case 'transactions':
-        return verifyTransaction(data, signatureVerification)
-      default:
-        return false
+    case 'blocks':
+      return verifyBlock(data, prevData, signatureVerification)
+    case 'transactions':
+      return verifyTransaction(data, signatureVerification)
+    default:
+      return false
     }
   },
 
@@ -68,12 +68,12 @@ module.exports = {
       return true
     }
     switch (context) {
-      case 'blocks':
-        return data.height > lastBlock.height
-      case 'transactions':
-        return data.timestamp > lastBlock.timestamp
-      default:
-        return false
+    case 'blocks':
+      return data.height > lastBlock.height
+    case 'transactions':
+      return data.timestamp > lastBlock.timestamp
+    default:
+      return false
     }
   }
 }

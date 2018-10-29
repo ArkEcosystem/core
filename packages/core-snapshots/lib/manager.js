@@ -13,7 +13,6 @@ module.exports = class SnapshotManager {
 
   async exportData (options) {
     const params = await this.__init(options, true)
-    console.log(params)
 
     await Promise.all([
       exportTable('blocks', params),
@@ -33,9 +32,9 @@ module.exports = class SnapshotManager {
     await importTable('transactions', params)
 
     const lastBlock = await this.database.getLastBlock()
-    logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
+    logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height}`)
 
-    if (!options.skipRestartRound) {
+    if (!params.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(`Rollback performed to last completed round ${newLastBlock.height / 51} completed. Last block in database: ${newLastBlock.height}`)
     }
@@ -73,8 +72,13 @@ module.exports = class SnapshotManager {
     logger.info(`Rolling back chain to last finished round ${newLastBlock.height / maxDelegates} with last block height ${newLastBlock.height}`)
   }
 
+  /**
+   * Inits the process and creates json with needed paramaters for functions
+   * @param  {JSONObject} from commander or util function {filename, codec, truncate, signatureVerify, skipRestartRound, start, end}
+   * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, strinInfo}, queries {blocks, transactions}}
+   */
   async __init (options, exportAction = false) {
-    let params = pick(options, ['truncate', 'signatureVerify', 'filename', 'codec'])
+    let params = pick(options, ['truncate', 'signatureVerify', 'filename', 'codec', 'skipRestartRound'])
 
     const lastBlock = await this.database.getLastBlock()
     params.lastBlock = lastBlock
@@ -82,7 +86,7 @@ module.exports = class SnapshotManager {
 
     if (exportAction) {
       params.meta = utils.setSnapshotInfo(options, lastBlock)
-      if (options.filename) {
+      if (params.filename) {
         utils.copySnapshot(utils.getSnapshotInfo(options.filename).stringInfo, params.meta.stringInfo)
       }
       params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
@@ -90,7 +94,8 @@ module.exports = class SnapshotManager {
       params.meta = utils.getSnapshotInfo(options.filename, lastBlock)
     }
 
-    console.log(params)
+    console.log(params.meta)
+    console.log(params.queries)
     return params
   }
 }

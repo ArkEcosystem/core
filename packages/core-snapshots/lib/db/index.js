@@ -85,10 +85,10 @@ module.exports = class Database {
 
   getColumnSet (tableName) {
     switch (tableName) {
-      case 'blocks':
-        return this.blocksColumnSet
-      case 'transactions':
-        return this.transactionsColumnSet
+    case 'blocks':
+      return this.blocksColumnSet
+    case 'transactions':
+      return this.transactionsColumnSet
     }
   }
 

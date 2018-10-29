@@ -13,13 +13,13 @@ const registerCommand = (name, description) => {
     .option('-c, --config <config>', 'network config', '~/.ark/config')
     .option('-t, --token <token>', 'token name', 'ark')
     .option('-n, --network <network>', 'token network')
-  }
+}
 
 registerCommand('create', 'create a full snapshot of the database')
   .option('-f, --filename <filename>', 'block snapshot filename')
   .option('-s, --start <number>', 'start network height to export', -1)
   .option('-e, --end <number>', 'end network height to export', -1)
-  .option('-c, --codec <string>', 'codec name, default is msg-lite binary')
+  .option('--codec <string>', 'codec name, default is msg-lite binary')
   .action(async (options) => {
     await util.setUpLite(options)
     await require('../lib/commands/create')(options)
@@ -30,7 +30,7 @@ registerCommand('import', 'import data from specified snapshot')
   .option('--truncate', 'skip transaction validations', false)
   .option('--skip-restart-round', 'skip revert to current round', false)
   .option('--signature-verify', 'signature verification', false)
-  .option('-c, --codec <string>', 'codec name, use none for default')
+  .option('--codec <string>', 'codec name, use none for default')
   .action(async (options) => {
     await util.setUpLite(options)
     await require('../lib/commands/import')(options)
