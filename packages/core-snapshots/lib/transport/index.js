@@ -51,7 +51,7 @@ module.exports = {
       prevData = record
     })
 
-     const getNextData = async (t, pageIndex) => {
+    const getNextData = async (t, pageIndex) => {
       await delay(600)
       rs.pause()
       const data = values.slice()
@@ -63,13 +63,13 @@ module.exports = {
       return t.sequence(index => {
         rs.resume()
         return getNextData(t, index)
-        .then(data => {
-          if (data) {
-            logger.debug(`Importing ${data.length} records from ${sourceFile}`)
-            const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
-            return t.none(insert)
-          }
-        })
+          .then(data => {
+            if (data) {
+              logger.debug(`Importing ${data.length} records from ${sourceFile}`)
+              const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
+              return t.none(insert)
+            }
+          })
       })
     })
   },

@@ -28,8 +28,8 @@
     "fs-extra": "^7.0.0",
     "lodash": "^4.17.11",
     "msgpack-lite": "^0.1.26",
-    "pg-promise": "^8.4.6",
-    "pg-query-stream": "^1.1.1",
+    "pg-promise": "^8.5.1",
+    "pg-query-stream": "^1.1.2",
     "xcase": "^2.0.1"
   },
   "publishConfig": {
