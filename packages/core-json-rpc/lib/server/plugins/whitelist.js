@@ -17,25 +17,17 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method (request, h) {
-      let remoteAddress = requestIp.getClientIp(request)
-
-      if (remoteAddress.startsWith('::ffff:')) {
-        remoteAddress = remoteAddress.replace('::ffff:', '')
-      }
+      const remoteAddress = requestIp.getClientIp(request)
 
       if (options.allowRemote) {
-        return h.continue
-      }
-
-      if (request.path.includes('broadcast')) {
         return h.continue
       }
 
       if (options.whitelist) {
         const whitelist = defaultRemoteAddresses.concat(options.whitelist)
 
-        for (let i = 0; i < whitelist.length; i++) {
-          if (mm.isMatch(remoteAddress, whitelist[i])) {
+        for (const ip of whitelist) {
+          if (mm.isMatch(remoteAddress, ip)) {
             return h.continue
           }
         }
