@@ -1,3 +1,4 @@
+const Boom = require('boom')
 const Joi = require('joi')
 const network = require('../../services/network')
 
@@ -8,6 +9,10 @@ module.exports = {
       offset: params.offset,
       orderBy: 'timestamp:desc'
     })
+
+    if (!response) {
+      return Boom.notFound(`Block ${params.id} could not be found.`)
+    }
 
     return response ? {
       count: response.meta.totalCount,

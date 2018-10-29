@@ -9,6 +9,10 @@ module.exports = {
   async method (params) {
     const transaction = await database.get(params.id)
 
+    if (!transaction) {
+      return Boom.notFound(`Transaction ${params.id} could not be found.`)
+    }
+
     if (!crypto.verify(transaction)) {
       return Boom.badData()
     }
