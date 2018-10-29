@@ -26,9 +26,9 @@ module.exports = class Repository {
       .offset(offset)
       .limit(limit)
 
-      limit = 100
-      offset = 0
-      const rows = await this._findMany(selectQuery)
+    limit = 100
+    offset = 0
+    const rows = await this._findMany(selectQuery)
     return {
       rows: rows,
       count: +count

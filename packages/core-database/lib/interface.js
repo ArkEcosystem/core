@@ -416,23 +416,23 @@ module.exports = class ConnectionInterface {
   __emitTransactionEvents (transaction) {
     emitter.emit('transaction.applied', transaction.data)
 
-     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       emitter.emit('delegate.registered', transaction.data)
-     }
+    }
 
-     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
       emitter.emit('delegate.resigned', transaction.data)
-     }
+    }
 
-     if (transaction.type === TRANSACTION_TYPES.VOTE) {
-       const vote = transaction.asset.votes[0]
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      const vote = transaction.asset.votes[0]
 
-       emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
-         delegate: vote,
-         transaction: transaction.data
-       })
-     }
-   }
+      emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+        delegate: vote,
+        transaction: transaction.data
+      })
+    }
+  }
 
   /**
    * Remove the given block.

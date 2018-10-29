@@ -12,6 +12,6 @@ const toBePaginated = (actual, expected) => ({
 })
 
 expect.extend({
-    toBeSuccessfulResponse,
-    toBePaginated
+  toBeSuccessfulResponse,
+  toBePaginated
 })

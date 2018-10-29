@@ -10,6 +10,8 @@ module.exports = async (config, endpoint, limit) => {
       page++
       maxPages = response.meta.pageCount
       data.push(...response.data)
+    } else {
+      break
     }
   }
 

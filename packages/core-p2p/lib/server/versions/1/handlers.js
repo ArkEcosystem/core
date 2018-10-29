@@ -167,7 +167,7 @@ exports.postBlock = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
- async handler (request, h) {
+  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
     try {

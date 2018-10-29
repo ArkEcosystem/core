@@ -12,7 +12,7 @@
   },
   "rules": {
     "no-console": "off",
-    "indent": ["off", 2],
+    "indent": ["error", 2],
     "linebreak-style": 0,
     "quotes": ["error", "single"],
     "semi": ["off", "always"]
