@@ -32,12 +32,16 @@ module.exports = {
     const values = msgpack.decode(bufferData)
     let transaction = {}
     transaction = Transaction.deserialize(Buffer.from(values.serialized).toString('hex'))
-
+    // TODO: check why serialised not saving to db
     transaction = Object.assign(values, transaction)
     transaction.amount = transaction.amount.toFixed()
     transaction.fee = transaction.fee.toFixed()
     transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null
     transaction.recipientId = transaction.recipientId ? transaction.recipientId : null
+    transaction = decamelizeKeys(transaction)
+    transaction.serialized = values.serialized
+
+    console.log(transaction)
 
     return decamelizeKeys(transaction)
   }

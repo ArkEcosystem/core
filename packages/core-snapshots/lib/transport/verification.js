@@ -38,6 +38,7 @@ module.exports = {
         return false
       }
 
+      // TODO: manually calculate block ID and compare to existing
       if (signatureVerification) {
         const bytes = Block.serialize(camelizeKeys(data), false)
         const hash = createHash('sha256').update(bytes).digest()
@@ -63,7 +64,7 @@ module.exports = {
   },
 
   canImportRecord: (context, data, lastBlock) => {
-    if (!lastBlock) {
+    if (!lastBlock) { // empty db
       return true
     }
     switch (context) {

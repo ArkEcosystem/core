@@ -9,18 +9,21 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
+const codecs = require('./codec')
 
 module.exports = {
-  exportTable: async (snapFileName, query, database, codec, append = false) => {
-    logger.info(`Starting to export table to ${snapFileName}, append:${append}`)
+  exportTable: async (table, options) => {
+    const snapFileName = `${table}.${options.meta.stringInfo}`
+    const codec = codecs.get(options.codec)
 
     await fs.ensureFile(utils.getPath(snapFileName))
-    const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName), append ? { flags: 'a' } : {})
-    const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec } : {})
-    const qs = new QueryStream(query)
+    const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName), options.filename ? { flags: 'a' } : {})
+    const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
+    const qs = new QueryStream(options.queries[table])
 
+    logger.info(`Starting to export table to ${snapFileName}, append:${!!options.filename}`)
     try {
-      const data = await database.db.stream(qs, s => s.pipe(encodeStream).pipe(snapshotWriteStream))
+      const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(snapshotWriteStream))
       logger.info(`Snapshot: ${snapFileName} ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
       return data
     } catch (error) {
@@ -29,19 +32,20 @@ module.exports = {
     }
   },
 
-  importTable: async (sourceFile, database, codec, lastBlock, signatureVerification = false) => {
-    const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec } : {})
+  importTable: async (table, options) => {
+    const sourceFile = `${table}.${options.meta.stringInfo}`
+    const codec = codecs.get(options.codec)
+    const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
     const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
-    const tableName = sourceFile.split('.')[0]
 
     let values = []
-    let prevData = lastBlock
+    let prevData = null
     rs.on('data', (record) => {
-      if (!verifyData(tableName, record, prevData, signatureVerification)) {
+      if (!verifyData(table, record, prevData, options.signatureVerification)) {
         logger.error(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
         throw new Error(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
       }
-      if (canImportRecord(tableName, record, lastBlock)) {
+      if (canImportRecord(table, record, options.lastBlock)) {
         values.push(record)
       }
       prevData = record
@@ -55,14 +59,14 @@ module.exports = {
       return Promise.resolve(data.length === 0 ? null : data)
     }
 
-    await database.db.task('massive-inserts', t => {
+    await options.database.db.task('massive-inserts', t => {
       return t.sequence(index => {
         rs.resume()
         return getNextData(t, index)
         .then(data => {
           if (data) {
             logger.debug(`Importing ${data.length} records from ${sourceFile}`)
-            const insert = database.pgp.helpers.insert(data, database.getColumnSet(tableName))
+            const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
             return t.none(insert)
           }
         })
@@ -70,19 +74,19 @@ module.exports = {
     })
   },
 
-  // TODO: add codec
-  verifyTable: async (filename, database, signatureVerification = false) => {
-    const decodeStream = msgpack.createDecodeStream()
-    const rs = fs.createReadStream(utils.getPath(filename)).pipe(decodeStream)
-    const lastBlock = await database.getLastBlock()
+  verifyTable: async (table, options) => {
+    const sourceFile = `${table}.${options.meta.stringInfo}`
+    const codec = codecs.get(options.codec)
+    const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
+    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(decodeStream)
 
     return new Promise((resolve, reject) => {
-      logger.info(`Starting to verify snapshot file ${filename}`)
-      let prevData = lastBlock
-      const table = filename.split('.')[0]
+      logger.info(`Starting to verify snapshot file ${sourceFile}`)
+      let prevData = null
+      const table = sourceFile.split('.')[0]
 
       decodeStream.on('data', (data) => {
-        if (!verifyData(table, data, prevData, signatureVerification)) {
+        if (!verifyData(table, data, prevData, options.signatureVerification)) {
           logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
           process.exit(1)
         }
@@ -90,7 +94,7 @@ module.exports = {
       })
 
       rs.on('finish', () => {
-        logger.info(`Snapshot succesfully verified ${filename} :+1:`)
+        logger.info(`Snapshot succesfully verified ${sourceFile} :+1:`)
         resolve(true)
       })
     })

@@ -4,7 +4,7 @@ const logger = container.resolvePlugin('logger')
 const Database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
-const { blockCodec, transactionCodec } = require('./transport/codec')
+const pick = require('lodash/pick')
 
 module.exports = class SnapshotManager {
   constructor (db, pgp) {
@@ -12,38 +12,27 @@ module.exports = class SnapshotManager {
   }
 
   async exportData (options) {
-    const params = await this.__init(options)
-    // TODO: simplify params
-    await Promise.all([
-      exportTable(
-        `blocks.${params.meta.stringInfo}`,
-        params.queries.blocks,
-        this.database,
-        this.__selectCodec('blocks', options.ignoreCodec),
-        !!options.filename),
+    const params = await this.__init(options, true)
+    console.log(params)
 
-      exportTable(
-        `transactions.${params.meta.stringInfo}`,
-        params.queries.transactions,
-        this.database,
-        this.__selectCodec('transactions', options.ignoreCodec),
-        !!options.filename)
+    await Promise.all([
+      exportTable('blocks', params),
+      exportTable('transactions', params)
     ])
 
     logger.info('Export completed.')
   }
 
   async importData (options) {
-    if (options.truncate) {
+    const params = await this.__init(options)
+    if (params.truncate) {
       await this.database.truncateChain()
     }
-    let lastBlock = await this.database.getLastBlock()
-    const fileMeta = utils.getSnapshotInfo(options.filename)
 
-    await importTable(`blocks.${fileMeta.stringInfo}`, this.database, this.__selectCodec('blocks', options.ignoreCodec), lastBlock, options.signatureVerify)
-    await importTable(`transactions.${fileMeta.stringInfo}`, this.database, this.__selectCodec('transactions', options.ignoreCodec), lastBlock, options.signatureVerify)
+    await importTable('blocks', params)
+    await importTable('transactions', params)
 
-    lastBlock = await this.database.getLastBlock()
+    const lastBlock = await this.database.getLastBlock()
     logger.info(`Import from ${options.filename} completed. Last block in database: ${lastBlock.height}`)
 
     if (!options.skipRestartRound) {
@@ -53,14 +42,11 @@ module.exports = class SnapshotManager {
   }
 
   async verifyData (options) {
-    if (options.truncate) {
-      await this.database.truncateChain()
-    }
-    const fileMeta = utils.getSnapshotInfo(options.filename)
+    const params = await this.__init(options)
 
     await Promise.all([
-      verifyTable(`blocks.${fileMeta.stringInfo}`, this.database, options.signatureVerify),
-      verifyTable(`transactions.${fileMeta.stringInfo}`, this.database, options.signatureVerify)
+      verifyTable('blocks', params),
+      verifyTable('transactions', params)
     ])
 
     logger.info('Verifying of snapshot completed with success :100:')
@@ -87,30 +73,24 @@ module.exports = class SnapshotManager {
     logger.info(`Rolling back chain to last finished round ${newLastBlock.height / maxDelegates} with last block height ${newLastBlock.height}`)
   }
 
-  async __init (options) {
-    const lastBlock = await this.database.getLastBlock()
-    let params = {}
-    params.meta = utils.setSnapshotInfo(options, lastBlock)
+  async __init (options, exportAction = false) {
+    let params = pick(options, ['truncate', 'signatureVerify', 'filename', 'codec'])
 
-    if (options.filename) {
-      utils.copySnapshot(utils.getSnapshotInfo(options.filename).stringInfo, params.meta.stringInfo)
+    const lastBlock = await this.database.getLastBlock()
+    params.lastBlock = lastBlock
+    params.database = this.database
+
+    if (exportAction) {
+      params.meta = utils.setSnapshotInfo(options, lastBlock)
+      if (options.filename) {
+        utils.copySnapshot(utils.getSnapshotInfo(options.filename).stringInfo, params.meta.stringInfo)
+      }
+      params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
+    } else {
+      params.meta = utils.getSnapshotInfo(options.filename, lastBlock)
     }
-    params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
 
     console.log(params)
     return params
-  }
-
-  __selectCodec (tableName, ignore) {
-    if (ignore) {
-      console.log('no codec')
-      return null
-    }
-    if (tableName === 'blocks') {
-      return blockCodec()
-    }
-    if (tableName === 'transactions') {
-      return transactionCodec()
-    }
   }
 }
