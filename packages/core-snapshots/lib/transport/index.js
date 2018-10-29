@@ -70,6 +70,8 @@ module.exports = {
               return t.none(insert)
             }
           })
+      }).then((res) => {
+        logger.debug(`Importing from ${sourceFile} completed :+1:`)
       })
     })
   },
