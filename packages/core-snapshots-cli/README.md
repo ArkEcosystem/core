@@ -24,22 +24,30 @@ The following action creates a new snapshot in .ark/snapshots/devnet/ folder.
 yarn create:devnet
 ```
 The command will generate snapshot files in your configured folder. By default this folder will be in `~.ark/snapshots/NETWORK_NAME`.
-Files names are following this pattern:  `table.startHeight.endHeight.dat`. For example, command `yarn create:devnet` will create the following files:
-- blocks.0.331985.dat
-- transactions.0.331985.dat
+Files names are following this pattern:  `table.startHeight.endHeight.ark`. For example, command `yarn create:devnet` will create the following files:
+- blocks.0.331985.ark
+- transactions.0.331985.ark
 
-The filename `blocks.0.331985.dat` indicates that the snapshot includes data between block 0 and block 331985.
+The filename `blocks.0.331985.ark` indicates that the snapshot includes data between block 0 and block 331985.
 
 A snapshot can be also created by specifying `--start` and `--end` options where we can specify start end end block height we want to export.
+
+#### Selecting codec for export
+Snapshot creation supports three different codes, to work with. Each of them is a balance between speed and size of the local snapshot. Currently we have:
+- lite codec: uses basic serialization with minimall storage informations. It is the default choice between size and speed
+- ark codec: uses Ark's block and transactions serialization/deserialization mechanism to store and import data. It is a bit slower than lite codec, but uses less data.
+- msgpack coded: uses msgpack's library default compression, giving us maximum speed, but also maximum disk size usage.
+
+Snapshots created with a selected codec have their corresponding file extensions (`lite`, `ark` and `msgpack`), when naming files. For example a snapshot file created with lite codec would look like this: `blocks.1.100.lite`. When importing codec is selected from the filename extension, so please do not rename snapshot files.
 
 ### Append data to an existing snapshot
 To enable rolling snapshost and their faster import execution, it is possible to append data to the existing snapshot.
 The command is the same as for creating of snapshot with additional parameter for `-f` or `--filename` where we specify the existing snapshot we want to append.
-As a filename you only provide the `blocks.X.X.dat` filename, for example `blocks.0.331985.dat`. Other files are auto appended.
+As a filename you only provide the `blocks.X.X.ark` filename, for example `blocks.0.331985.ark`. Other files are auto appended.
 
 When append is complete a new file is created, while preserving the old snapshost. You must manually delete old files if needed.
 ```bash
-yarn create:devnet -f blocks.0.331985.dat
+yarn create:devnet -f blocks.0.331985.ark
 ```
 
 ### Importing a snapshot
@@ -48,17 +56,17 @@ The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snap
 >Make sure that your node is not running.
 
 ```bash
-yarn import:devnet -f blocks.0.331985.dat
+yarn import:devnet -f blocks.0.331985.ark
 ```
 > Add option `--truncate` to empty all the tables before import
 
 ```bash
-yarn import:devnet -f blocks.0.331985.dat --truncate
+yarn import:devnet -f blocks.0.331985.ark --truncate
 ```
 #### Verifiying records during import `--signature-verify`
 If you want to do additional `crpto.verify` check for each block and transaction a flag `--signature-verify` can be added to the import command
 ```bash
-yarn import:devnet -f blocks.0.331985.dat --truncate --signature-verify
+yarn import:devnet -f blocks.0.331985.ark --truncate --signature-verify
 ```
 >Please not that this will increase the import time drastically.
 
@@ -67,11 +75,11 @@ By default behaviour when snapshot is imported, the block heigth is set to last 
 ### Verify existing snapshot
 If is wise to validate a snapshot. Functionality is simillar to import, just that there is no database interaction - so basic chain validation with crypto. To check your snapshot run the following command.
 ```bash
-yarn verify:devnet -f blocks.0.331985.dat
+yarn verify:devnet -f blocks.0.331985.ark
 ```
 You can also just verify the chaining process and skip signature verification with `--skip-sign-verify` option.
 ```bash
-yarn verify:devnet -f blocks.0.331985.dat --skip-sign-verify
+yarn verify:devnet -f blocks.0.331985.ark --skip-sign-verify
 ```
 Also note that a database verification is performed when the core starts.
 
