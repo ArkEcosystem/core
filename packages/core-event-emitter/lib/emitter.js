@@ -1,6 +1,6 @@
 'use strict'
 
-const EventEmitter = require('eventemitter3')
+const Emittery = require('emittery')
 
 class Emitter {
   /**
@@ -8,7 +8,7 @@ class Emitter {
    * @return {WebhookManager}
    */
   constructor () {
-    this.emitter = new EventEmitter()
+    this.emitter = new Emittery()
 
     return this.emitter
   }
