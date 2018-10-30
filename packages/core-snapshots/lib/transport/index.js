@@ -7,7 +7,6 @@ const delay = require('delay')
 const zlib = require('zlib');
 
 const container = require('@arkecosystem/core-container')
-const emitter = container.resolvePlugin('event-emitter')
 const logger = container.resolvePlugin('logger')
 const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
@@ -29,7 +28,6 @@ module.exports = {
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
       logger.info(`Snapshot: ${snapFileName} ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
-      emitter.emit('export:done', data)
       return data
     } catch (error) {
       logger.error(`Error while exporting data via query stream ${error}, callstack: ${error.stack}`)
@@ -111,7 +109,6 @@ module.exports = {
 
     rs.on('finish', () => {
       logger.info(`Snapshot succesfully verified ${sourceFile} :+1:`)
-      emitter.emit('verify:success', table)
     })
   },
 
