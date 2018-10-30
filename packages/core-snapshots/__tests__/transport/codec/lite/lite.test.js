@@ -56,4 +56,18 @@ describe('Lite codec testing', () => {
     }
     console.timeEnd('transactions')
   })
+
+  test('Encode/Decode transfer transactions', () => {
+    console.time('transactions lite transfer')
+    const transferTransactions = transactions.filter(trx => trx.type === 0)
+    for (let i = 0; i < 100; i++) {
+      for (const transaction of transferTransactions) {
+        const encoded = msgpack.encode(transaction, { codec: codec.transactions })
+        const decoded = msgpack.decode(encoded, { codec: codec.transactions })
+
+        expect(decoded).toEqual(transaction)
+      }
+    }
+    console.timeEnd('transactions lite transfer')
+  })
 })

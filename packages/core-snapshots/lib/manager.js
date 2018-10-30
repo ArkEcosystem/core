@@ -2,6 +2,7 @@
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
+const delay = require('delay')
 
 const Database = require('./db')
 const utils = require('./utils')
@@ -26,21 +27,26 @@ module.exports = class SnapshotManager {
     const params = await this.__init(options)
     if (params.truncate) {
       await this.database.truncateChain()
+      await delay(1000)
     }
 
     await importTable('blocks', params)
     await importTable('transactions', params)
 
-    let jobs = 2
-    emitter.on('import:table:done', async (table) => {
-      logger.info(`Importing from ${table} completed :+1:`)
-      jobs -= 1
+    let results = []
+    emitter.on('import:table:done', async (data) => {
+      logger.info(`Importing from ${data} completed :+1:`)
+      results.push(data)
 
-      if (jobs === 0) {
+      if (results.length === 2) {
         const lastBlock = await this.database.getLastBlock()
         logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height}`)
+        if (!params.skipRestartRound) {
+          const newLastBlock = await this.database.rollbackChain(lastBlock.height)
+          logger.info(`Rolling back chain to last finished round with last block height ${newLastBlock.height}`)
+        }
 
-        emitter.emit('import:complete', lastBlock)
+        emitter.emit('import:complete', results)
       }
     })
   }
@@ -99,6 +105,7 @@ module.exports = class SnapshotManager {
 
     console.log(params.meta)
     console.log(params.queries)
+    console.log(options.codec)
     return params
   }
 }

@@ -46,18 +46,20 @@ describe('Ark codec testing', () => {
   })
 
   test('Encode/Decode transfer transactions', () => {
-    console.time('transactions')
+    console.time('transactions ark transfer')
     const properties = ['id', 'version', 'block_id', 'sequence', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized']
     const transferTransactions = transactions.filter(trx => trx.type === 0)
-    for (const transaction of transferTransactions) {
-      const encoded = msgpack.encode(transaction, { codec: codec.transactions })
-      const decoded = msgpack.decode(encoded, { codec: codec.transactions })
+    for (let i = 0; i < 100; i++) {
+      for (const transaction of transferTransactions) {
+        const encoded = msgpack.encode(transaction, { codec: codec.transactions })
+        const decoded = msgpack.decode(encoded, { codec: codec.transactions })
 
-      const source = pick(transaction, properties)
-      const dest = pick(decoded, properties)
-      expect(dest).toEqual(source)
+        const source = pick(transaction, properties)
+        const dest = pick(decoded, properties)
+        expect(dest).toEqual(source)
+      }
     }
-    console.timeEnd('transactions')
+    console.timeEnd('transactions ark transfer')
   })
 
   test('Encode/Decode transactions other than transfer', () => {

@@ -8,7 +8,7 @@ module.exports = {
     case 'lite':
       return require('./lite-codec')
     default:
-      return null // msgpack default encoding
+      return 'lite' // msgpack default encoding
     }
   }
 }

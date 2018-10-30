@@ -77,7 +77,7 @@ module.exports = {
             }
           })
       }).then((res) => {
-        emitter.emit('import:done', table)
+        emitter.emit('import:table:done', table)
       })
     })
   },
