@@ -19,7 +19,7 @@ yarn add @arkecosystem/core-snapshots
 The plugin allows for manipulation, creation and import functionality of various snapshots via the CLI interface
 
 ### Creating a fresh new snapshot
-The following action creates a new snapshot in .ark/snapshots/devnet/ folder.
+The following action creates a new snapshot in ./ark/snapshots/devnet/ folder.
 ```bash
 yarn create:devnet
 ```
@@ -30,7 +30,7 @@ Files names are following this pattern:  `table.startHeight.endHeight.ark`. For 
 
 The filename `blocks.0.331985.ark` indicates that the snapshot includes data between block 0 and block 331985.
 
-A snapshot can be also created by specifying `--start` and `--end` options where we can specify start end end block height we want to export.
+A snapshot can also be created by specifying `--start` and `--end` options where we can specify start and end block height we want to export.
 
 #### Selecting codec for export
 Snapshot creation supports three different codes, to work with. Each of them is a balance between speed and size of the local snapshot. Currently we have:
@@ -41,8 +41,8 @@ Snapshot creation supports three different codes, to work with. Each of them is 
 Snapshots created with a selected codec have their corresponding file extensions (`lite`, `ark` and `msgpack`), when naming files. For example a snapshot file created with lite codec would look like this: `blocks.1.100.lite`. When importing codec is selected from the filename extension, so please do not rename snapshot files.
 
 ### Append data to an existing snapshot
-To enable rolling snapshost and their faster import execution, it is possible to append data to the existing snapshot.
-The command is the same as for creating of snapshot with additional parameter for `-f` or `--filename` where we specify the existing snapshot we want to append.
+To enable rolling snapshost and their faster import execution, it is possible to append data to an the existing snapshot.
+The command is the same as for creating of snapshot with additional parameter for `-f` or `--filename` where we specify the existing snapshot we want to append to.
 As a filename you only provide the `blocks.X.X.ark` filename, for example `blocks.0.331985.ark`. Other files are auto appended.
 
 When append is complete a new file is created, while preserving the old snapshost. You must manually delete old files if needed.
