@@ -82,5 +82,6 @@ module.exports = {
       uri: process.env.ARK_JSON_RPC_DATABASE || `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
       options: {}
     }
-  }
+  },
+  '@arkecosystem/core-snapshots': {}
 }

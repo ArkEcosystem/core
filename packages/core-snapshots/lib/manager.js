@@ -9,8 +9,8 @@ const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = requ
 const pick = require('lodash/pick')
 
 module.exports = class SnapshotManager {
-  constructor (db, pgp) {
-    this.database = new Database(db, pgp)
+  constructor (database) {
+    this.database = new Database(database)
   }
 
   async exportData (options) {

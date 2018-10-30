@@ -8,20 +8,25 @@ const { rawQuery } = require('./utils')
 const columns = require('./utils/column-set')
 
 module.exports = class Database {
-  constructor (db, pgp) {
-    if (pgp) {
-      this.db = db
-      this.pgp = pgp
+  constructor (database) {
+    if (database) {
+      this.db = database.db
+      this.pgp = database.pgp
+      this.__createColumnSets()
+      logger.info('Snapshots: reusing core-database-postgres connection from running core')
+
       return
     }
+
     try {
       const pgp = require('pg-promise')({ promiseLib: promise })
       this.pgp = pgp
       this.db = pgp(container.resolveOptions('database').connection)
       this.__createColumnSets()
+      logger.info('Snapshots: Database connected')
     } catch (error) {
       logger.error(`Error while connecting to postgres: ${error}`)
-      process.exit(1)
+      throw new Error(error.stack)
     }
   }
 
@@ -71,7 +76,7 @@ module.exports = class Database {
 
     if (!startBlock || !endBlock) {
       logger.error('Wrong input height parameters for building export queries. Blocks at height not found in db.')
-      process.exit(1)
+      throw new Error('Wrong input height parameters for building export queries. Blocks at height not found in db.')
     }
     return {
       blocks: rawQuery(this.pgp, queries.blocks.heightRange, { start: startBlock.height, end: endBlock.height }),

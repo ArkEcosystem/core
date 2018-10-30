@@ -83,6 +83,5 @@ module.exports = {
       options: {}
     }
   },
-  '@arkecosystem/core-snapshots': {
-  }
+  '@arkecosystem/core-snapshots': {}
 }
