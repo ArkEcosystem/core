@@ -102,9 +102,7 @@ module.exports = class Database {
   }
 
   __createColumnSets () {
-    this.blocksColumnSet = this.pgp.helpers.ColumnSet(columns.blocks, { table: 'blocks' })
-
-    this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: 'transactions' }
-    )
+    this.blocksColumnSet = new this.pgp.helpers.ColumnSet(columns.blocks, { table: 'blocks' })
+    this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: 'transactions' })
   }
 }
