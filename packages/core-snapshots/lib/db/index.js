@@ -41,10 +41,14 @@ module.exports = class Database {
   async truncateChain () {
     const tables = ['wallets', 'rounds', 'transactions', 'blocks']
     logger.info('Truncating tables: wallets, rounds, transactions, blocks')
-
-    return this.db.tx('truncate-chain', t => {
-      tables.forEach(table => t.none(queries.truncate(table)))
-    })
+    try {
+      await this.db.tx('truncate-chain', t => {
+        tables.forEach(table => t.none(queries.truncate(table)))
+      })
+    } catch (error) {
+      logger.error(error.stack)
+      throw new Error(error.stack)
+    }
   }
 
   async rollbackChain (height) {

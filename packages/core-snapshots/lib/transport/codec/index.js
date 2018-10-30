@@ -7,8 +7,10 @@ module.exports = {
       return require('./ark-codec')
     case 'lite':
       return require('./lite-codec')
+    case 'msgpack':
+      return null
     default:
-      return 'lite' // msgpack default encoding
+      return require('./lite-codec')
     }
   }
 }

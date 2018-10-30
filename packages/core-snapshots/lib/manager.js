@@ -9,8 +9,9 @@ const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = requ
 const pick = require('lodash/pick')
 
 module.exports = class SnapshotManager {
-  constructor (database) {
+  constructor (database, options) {
     this.database = new Database(database)
+    this.options = options
   }
 
   async exportData (options) {
@@ -32,11 +33,8 @@ module.exports = class SnapshotManager {
     await importTable('blocks', params)
     await importTable('transactions', params)
 
-    logger.info('Importing from completed :+1:')
-
     const lastBlock = await this.database.getLastBlock()
-
-    logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height}`)
+    logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height} :+1:`)
 
     if (!params.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
@@ -61,7 +59,7 @@ module.exports = class SnapshotManager {
     const rollBackHeight = height === -1 ? lastBlock.height : height
     if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
       logger.error(`Specified rollback block height: ${rollBackHeight} is not valid. Current database height: ${lastBlock.height}. Exiting.`)
-      process.exit(1)
+      throw new Error(`Specified rollback block height: ${rollBackHeight} is not valid. Current database height: ${lastBlock.height}.`)
     }
 
     if (height) {
@@ -80,14 +78,15 @@ module.exports = class SnapshotManager {
    * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, strinInfo}, queries {blocks, transactions}}
    */
   async __init (options, exportAction = false) {
-    let params = pick(options, ['truncate', 'signatureVerify', 'filename', 'codec', 'skipRestartRound'])
+    let params = pick(options, ['truncate', 'signatureVerify', 'filename', 'codec', 'skipRestartRound', 'start', 'end'])
 
     const lastBlock = await this.database.getLastBlock()
     params.lastBlock = lastBlock
     params.database = this.database
+    params.codec = params.codec || this.options.codec
 
     if (exportAction) {
-      params.meta = utils.setSnapshotInfo(options, lastBlock)
+      params.meta = utils.setSnapshotInfo(params, lastBlock)
       if (params.filename) {
         utils.copySnapshot(utils.getSnapshotInfo(options.filename).stringInfo, params.meta.stringInfo)
       }

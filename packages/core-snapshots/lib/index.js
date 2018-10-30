@@ -8,9 +8,8 @@ const SnapshotManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'snapshots',
+  defaults: require('./defaults'),
   async register (container, options) {
-    const logger = container.resolvePlugin('logger')
-    logger.info('Starting Snapshot Manager with already established core-database-postgres connection.')
-    return new SnapshotManager(container.resolvePlugin('database'))
+    return new SnapshotManager(container.resolvePlugin('database'), options)
   }
 }

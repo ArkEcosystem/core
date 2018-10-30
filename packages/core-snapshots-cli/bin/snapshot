@@ -30,7 +30,6 @@ registerCommand('import', 'import data from specified snapshot')
   .option('--truncate', 'skip transaction validations', false)
   .option('--skip-restart-round', 'skip revert to current round', false)
   .option('--signature-verify', 'signature verification', false)
-  .option('--codec <string>', 'codec name, use none for default')
   .action(async (options) => {
     await util.setUpLite(options)
     await require('../lib/commands/import')(options)

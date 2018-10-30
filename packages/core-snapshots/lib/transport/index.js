@@ -23,7 +23,7 @@ module.exports = {
     const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
     const qs = new QueryStream(options.queries[table])
 
-    logger.info(`Starting to export table to ${snapFileName}, append:${!!options.filename}`)
+    logger.info(`Starting to export table to ${snapFileName}, codec: ${options.codec}, append:${!!options.filename}`)
     try {
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
       logger.info(`Snapshot: ${snapFileName} ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
@@ -40,8 +40,9 @@ module.exports = {
     const codec = codecs.get(options.codec)
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(gunzip).pipe(decodeStream)
+    logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}`)
 
+    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(gunzip).pipe(decodeStream)
     let values = []
     let prevData = null
     rs.on('data', (record) => {
@@ -108,7 +109,7 @@ module.exports = {
     })
 
     rs.on('finish', () => {
-      logger.info(`Snapshot succesfully verified ${sourceFile} :+1:`)
+      logger.info(`Snapshot file ${sourceFile} succesfully verified  :+1:`)
     })
   },
 
