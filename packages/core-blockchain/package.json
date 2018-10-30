@@ -30,13 +30,16 @@
     "xstate": "^3.3.3",
     "immutable": "^3.8.2"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1",
     "@arkecosystem/core-p2p": "^0.1.1",
     "axios": "^0.18.0",
     "axios-mock-adapter": "^1.15.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node" : ">=10.x"
   }
 }
