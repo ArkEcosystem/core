@@ -26,20 +26,20 @@ module.exports = {
   },
 
   transactionDecode: (bufferData) => {
-    const values = msgpack.decode(bufferData)
+    const [id, blockId, sequence, serialized] = msgpack.decode(bufferData)
     let transaction = {}
-    transaction = Transaction.deserialize(values[3].toString('hex'))
+    transaction = Transaction.deserialize(serialized.toString('hex'))
 
-    transaction.id = values[0]
-    transaction.block_id = values[1]
-    transaction.sequence = values[2]
+    transaction.id = id
+    transaction.block_id = blockId
+    transaction.sequence = sequence
     transaction.amount = transaction.amount.toFixed()
     transaction.fee = transaction.fee.toFixed()
     transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null
     transaction.recipientId = transaction.recipientId ? transaction.recipientId : null
     transaction = decamelizeKeys(transaction)
 
-    transaction.serialized = values[3]
+    transaction.serialized = serialized
     return transaction
   }
 }
