@@ -20,21 +20,23 @@ exports.getSnapshotInfo = (filename) => {
   return {
     startHeight: +fileInfo[1],
     endHeight: +fileInfo[2],
-    stringInfo: `${(fileInfo[1])}.${fileInfo[2]}.dat`
+    codec: fileInfo[3],
+    stringInfo: `${(fileInfo[1])}.${fileInfo[2]}.${fileInfo[3]}`
   }
 }
 
 exports.setSnapshotInfo = (options, lastBlock) => {
   let meta = {
     startHeight: (options.start !== -1) ? options.start : 1,
-    endHeight: (options.end !== -1) ? options.end : lastBlock.height
+    endHeight: (options.end !== -1) ? options.end : lastBlock.height,
+    codec: options.codec
   }
-  meta.stringInfo = `${meta.startHeight}.${meta.endHeight}.dat`
+  meta.stringInfo = `${meta.startHeight}.${meta.endHeight}.${meta.codec}`
 
   if (options.filename) {
     const oldMeta = this.getSnapshotInfo(options.filename)
     meta.startHeight = oldMeta.endHeight + 1
-    meta.stringInfo = `${oldMeta.startHeight}.${meta.endHeight}.dat`
+    meta.stringInfo = `${oldMeta.startHeight}.${meta.endHeight}.${meta.codec}`
   }
 
   return meta
