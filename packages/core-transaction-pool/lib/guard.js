@@ -28,7 +28,7 @@ module.exports = class TransactionGuard {
 
     await this.__removeForgedTransactions()
 
-    await this.__determineValidTransactions()
+    this.__determineValidTransactions()
 
     this.__determineExcessTransactions()
   }
@@ -161,7 +161,7 @@ module.exports = class TransactionGuard {
    * - if sender has more than one vote/unvote transaction in pool
    * Transaction that can be broadcasted are confirmed here
    */
-  async __determineValidTransactions () {
+  __determineValidTransactions () {
     this.transactions.forEach(transaction => {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
         if (!isRecipientOnActiveNetwork(transaction)) {
