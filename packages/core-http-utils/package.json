@@ -31,5 +31,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node" : ">=10.x"
   }
 }
