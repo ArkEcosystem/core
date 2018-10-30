@@ -58,8 +58,7 @@ module.exports = class SnapshotManager {
 
     const rollBackHeight = height === -1 ? lastBlock.height : height
     if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
-      logger.error(`Specified rollback block height: ${rollBackHeight} is not valid. Current database height: ${lastBlock.height}. Exiting.`)
-      throw new Error(`Specified rollback block height: ${rollBackHeight} is not valid. Current database height: ${lastBlock.height}.`)
+      container.forceExit(`Specified rollback block height: ${rollBackHeight} is not valid. Current database height: ${lastBlock.height}. Exiting.`)
     }
 
     if (height) {

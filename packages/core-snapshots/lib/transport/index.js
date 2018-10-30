@@ -30,8 +30,7 @@ module.exports = {
 
       return data
     } catch (error) {
-      logger.error(`Error while exporting data via query stream ${error}, callstack: ${error.stack}`)
-      throw new Error(error)
+      container.forceExit('Error while exporting data via query stream', error)
     }
   },
 
@@ -51,8 +50,7 @@ module.exports = {
     let prevData = null
     for await (const record of readStream) {
       if (!verifyData(table, record, prevData, options.signatureVerification)) {
-        logger.error(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
-        throw new Error(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
+        container.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
       }
       if (canImportRecord(table, record, options.lastBlock)) {
         values.push(record)
@@ -106,8 +104,7 @@ module.exports = {
 
     decodeStream.on('data', (data) => {
       if (!verifyData(table, data, prevData, options.signatureVerification)) {
-        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-        throw new Error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+        container.forceExit(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
       }
       prevData = data
     })
@@ -127,8 +124,7 @@ module.exports = {
       logger.info(`Transactions(n=${data.processed}) from rollbacked blocks where safely exported to file ${snapFileName}`)
       return data
     } catch (error) {
-      logger.error(`Error while exporting data via query stream ${error}, callstack: ${error.stack}`)
-      throw new Error(error)
+      container.forceExit('Error while exporting data via query stream', error)
     }
   }
 }

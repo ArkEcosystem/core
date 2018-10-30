@@ -25,8 +25,7 @@ module.exports = class Database {
       this.__createColumnSets()
       logger.info('Snapshots: Database connected')
     } catch (error) {
-      logger.error(`Error while connecting to postgres: ${error}`)
-      throw new Error(error.stack)
+      container.forceExit('Error while connecting to postgres', error)
     }
   }
 
@@ -46,8 +45,7 @@ module.exports = class Database {
         tables.forEach(table => t.none(queries.truncate(table)))
       })
     } catch (error) {
-      logger.error(error.stack)
-      throw new Error(error.stack)
+      container.forceExit('Truncate chain error', error)
     }
   }
 
@@ -79,8 +77,7 @@ module.exports = class Database {
     const endBlock = await this.getBlockByHeight(endHeight)
 
     if (!startBlock || !endBlock) {
-      logger.error('Wrong input height parameters for building export queries. Blocks at height not found in db.')
-      throw new Error('Wrong input height parameters for building export queries. Blocks at height not found in db.')
+      container.forceExit('Wrong input height parameters for building export queries. Blocks at height not found in db.')
     }
     return {
       blocks: rawQuery(this.pgp, queries.blocks.heightRange, { start: startBlock.height, end: endBlock.height }),
