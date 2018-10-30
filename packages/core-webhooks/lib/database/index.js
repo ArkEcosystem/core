@@ -5,7 +5,7 @@ const Op = Sequelize.Op
 const Umzug = require('umzug')
 const path = require('path')
 const fs = require('fs-extra')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
 
 class Database {
   /**
@@ -32,10 +32,7 @@ class Database {
       await this.__runMigrations()
       await this.__registerModels()
     } catch (error) {
-      logger.error('Unable to connect to the database')
-      logger.error(error.stack)
-      // TODO no exit here?
-      process.exit(1)
+      container.forceExit('Unable to connect to the database!', error)
     }
   }
 
