@@ -2,8 +2,6 @@
 
 const { camelizeKeys, decamelizeKeys } = require('xcase')
 const msgpack = require('msgpack-lite')
-const pick = require('lodash/pick')
-
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 module.exports = {
@@ -23,29 +21,25 @@ module.exports = {
     return decamelizeKeys(blockData)
   },
 
-  transactionEncode: (transactionRecord) => {
-    const values = pick(transactionRecord, ['id', 'block_id', 'sequence', 'serialized'])
-    return msgpack.encode(values)
+  transactionEncode: (transaction) => {
+    return msgpack.encode([transaction.id, transaction.block_id, transaction.sequence, transaction.serialized])
   },
 
   transactionDecode: (bufferData) => {
     const values = msgpack.decode(bufferData)
-    // console.log(values)
     let transaction = {}
-    const hexString = Buffer.from(values.serialized).toString('hex')
-    console.log(hexString)
-    transaction = Transaction.deserialize(hexString)
+    transaction = Transaction.deserialize(values[3].toString('hex'))
 
-    // TODO: check why serialised not saving to db
-    transaction = Object.assign(values, transaction)
+    transaction.id = values[0]
+    transaction.block_id = values[1]
+    transaction.sequence = values[2]
     transaction.amount = transaction.amount.toFixed()
     transaction.fee = transaction.fee.toFixed()
     transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null
     transaction.recipientId = transaction.recipientId ? transaction.recipientId : null
-    transaction.serialized = values.serialized
-
     transaction = decamelizeKeys(transaction)
 
-    return decamelizeKeys(transaction)
+    transaction.serialized = values[3]
+    return transaction
   }
 }

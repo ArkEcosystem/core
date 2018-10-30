@@ -27,6 +27,7 @@ module.exports = {
     logger.info(`Starting to export table to ${snapFileName}, append:${!!options.filename}`)
     try {
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
+      logger.info(`Snapshot: ${snapFileName} ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
       emitter.emit('export:done', data)
       return data

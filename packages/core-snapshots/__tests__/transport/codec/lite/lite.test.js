@@ -13,7 +13,7 @@ beforeAll(async () => {
 })
 
 describe('Lite codec testing', () => {
-  test('Single encode', () => {
+  test('Encode/Decode single block', () => {
     console.time('singleblock')
     const encoded = msgpack.encode(blocks[1], { codec: codec.blocks })
     const decoded = msgpack.decode(encoded, { codec: codec.blocks })
@@ -25,7 +25,7 @@ describe('Lite codec testing', () => {
     console.timeEnd('singleblock')
   })
 
-  test('Block codec should encode/decode with no differences', () => {
+  test('Encode/Decode blocks', () => {
     console.time('blocks')
     for (const [index, block] of blocks.entries()) {
       // TODO: skipping genesis for now - wrong id calculation
@@ -44,7 +44,7 @@ describe('Lite codec testing', () => {
     console.timeEnd('blocks')
   })
 
-  test('Transaction codec should encode/decode with no differences', () => {
+  test('Encode/Decode transactions - all types', () => {
     console.time('transactions')
     for (const transaction of transactions) {
       delete transaction.serializedHex

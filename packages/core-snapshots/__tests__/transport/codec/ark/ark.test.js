@@ -9,12 +9,12 @@ const codec = require('../../../../lib/transport/codec').get('ark')
 
 beforeAll(async () => {
   transactions.forEach(transaction => {
-    transaction.serialized = Buffer.from(transaction.serializedHex, 'hex')
+    transaction.serialized = transaction.serializedHex
   })
 })
 
 describe('Ark codec testing', () => {
-  test('Single encode', () => {
+  test('Encode/Decode single block', () => {
     console.time('singleblock')
     const encoded = msgpack.encode(blocks[1], { codec: codec.blocks })
     const decoded = msgpack.decode(encoded, { codec: codec.blocks })
@@ -26,7 +26,7 @@ describe('Ark codec testing', () => {
     console.timeEnd('singleblock')
   })
 
-  test('Block codec should encode/decode with no differences', () => {
+  test('Encode/Decode blocks', () => {
     console.time('blocks')
     for (const [index, block] of blocks.entries()) {
       // TODO: skipping genesis for now - wrong id calculation
@@ -45,17 +45,32 @@ describe('Ark codec testing', () => {
     console.timeEnd('blocks')
   })
 
-  test('Transaction codec should encode/decode with no differences', () => {
+  test('Encode/Decode transfer transactions', () => {
     console.time('transactions')
-    const properties = ['id', 'version', 'block_id', 'sequence', 'timestamp', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized']
-    for (const transaction of transactions) {
+    const properties = ['id', 'version', 'block_id', 'sequence', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized']
+    const transferTransactions = transactions.filter(trx => trx.type === 0)
+    for (const transaction of transferTransactions) {
       const encoded = msgpack.encode(transaction, { codec: codec.transactions })
       const decoded = msgpack.decode(encoded, { codec: codec.transactions })
-      console.log(decoded)
-      decoded.serialized = transactions.serialized
+
       const source = pick(transaction, properties)
       const dest = pick(decoded, properties)
+      expect(dest).toEqual(source)
+    }
+    console.timeEnd('transactions')
+  })
 
+  test('Encode/Decode transactions other than transfer', () => {
+    console.time('transactions')
+    const properties = ['id', 'version', 'block_id', 'sequence', 'sender_public_key', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized']
+
+    const otherTransactions = transactions.filter(trx => trx.type > 0)
+    for (const transaction of otherTransactions) {
+      const encoded = msgpack.encode(transaction, { codec: codec.transactions })
+      const decoded = msgpack.decode(encoded, { codec: codec.transactions })
+
+      const source = pick(transaction, properties)
+      const dest = pick(decoded, properties)
       expect(dest).toEqual(source)
     }
     console.timeEnd('transactions')
