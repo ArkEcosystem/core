@@ -454,9 +454,7 @@ class Monitor {
    */
   __filterPeers () {
     if (!config.peers.list) {
-      logger.error('No seed peers defined in peers.json :interrobang:')
-
-      process.exit(1)
+      container.forceExit('No seed peers defined in peers.json :interrobang:')
     }
 
     const filteredPeers = config.peers.list

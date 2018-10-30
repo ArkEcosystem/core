@@ -1,6 +1,7 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 
 module.exports = async (name, server) => {
   try {
@@ -10,8 +11,6 @@ module.exports = async (name, server) => {
 
     return server
   } catch (error) {
-    logger.error(error.stack)
-
-    process.exit(1)
+    container.forceExit(`Could not start ${name} Server!`, error)
   }
 }
