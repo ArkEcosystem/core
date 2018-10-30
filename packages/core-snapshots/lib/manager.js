@@ -1,7 +1,6 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const emitter = container.resolvePlugin('event-emitter')
 const delay = require('delay')
 
 const Database = require('./db')
@@ -33,22 +32,16 @@ module.exports = class SnapshotManager {
     await importTable('blocks', params)
     await importTable('transactions', params)
 
-    let results = []
-    emitter.on('import:table:done', async (data) => {
-      logger.info(`Importing from ${data} completed :+1:`)
-      results.push(data)
+    logger.info('Importing from completed :+1:')
 
-      if (results.length === 2) {
-        const lastBlock = await this.database.getLastBlock()
-        logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height}`)
-        if (!params.skipRestartRound) {
-          const newLastBlock = await this.database.rollbackChain(lastBlock.height)
-          logger.info(`Rolling back chain to last finished round with last block height ${newLastBlock.height}`)
-        }
+    const lastBlock = await this.database.getLastBlock()
 
-        emitter.emit('import:complete', results)
-      }
-    })
+    logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height}`)
+
+    if (!params.skipRestartRound) {
+      const newLastBlock = await this.database.rollbackChain(lastBlock.height)
+      logger.info(`Rolling back chain to last finished round with last block height ${newLastBlock.height}`)
+    }
   }
 
   async verifyData (options) {
@@ -103,9 +96,6 @@ module.exports = class SnapshotManager {
       params.meta = utils.getSnapshotInfo(options.filename, lastBlock)
     }
 
-    console.log(params.meta)
-    console.log(params.queries)
-    console.log(options.codec)
     return params
   }
 }

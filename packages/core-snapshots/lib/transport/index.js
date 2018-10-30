@@ -65,21 +65,30 @@ module.exports = {
       return Promise.resolve(data.length === 0 ? null : data)
     }
 
-    options.database.db.task('massive-inserts', t => {
-      return t.sequence(index => {
-        rs.resume()
-        return getNextData(t, index)
-          .then(data => {
+    try {
+      await options.database.db.task('massive-inserts', t => {
+        return t.sequence(async index => {
+          rs.resume()
+
+          try {
+            const data = await getNextData(t, index)
+
             if (data) {
               logger.debug(`Importing ${data.length} records from ${sourceFile}`)
               const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
               return t.none(insert)
             }
-          })
-      }).then((res) => {
-        emitter.emit('import:table:done', table)
+          } catch (error) {
+            logger.error(error.message)
+          }
+        })
       })
-    })
+
+      return true
+    } catch (error) {
+      logger.error(error.stack)
+      return false
+    }
   },
 
   verifyTable: async (table, options) => {
