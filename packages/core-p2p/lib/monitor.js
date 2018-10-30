@@ -141,18 +141,23 @@ class Monitor {
    * @param {Peer} peer
    */
   updatePeerHeight (peer, previousHeight) {
-    // Remove peer from previous height
-    if (!this.peersByHeight.has(previousHeight)) {
-      throw new Error('yikes')
-    }
-    const index = this.peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
-    if (index === -1) {
-      throw new Error('yikes yikes')
-    }
-    this.peersByHeight.get(previousHeight).splice(index, 1)
+    if (peer.state.height !== previousHeight) {
+      // Remove peer from previous height
+      if (!this.peersByHeight.has(previousHeight)) {
+        throw new Error('yikes')
+      }
+      const index = this.peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
+      if (index === -1) {
+        throw new Error('yikes yikes')
+      }
+      this.peersByHeight.get(previousHeight).splice(index, 1)
+      if (this.peersByHeight.get(previousHeight).length === 0) {
+        this.peersByHeight.delete(previousHeight)
+      }
 
-    // Add peer to new height
-    this.__addPeerToHeight(peer)
+      // Add peer to new height
+      this.__addPeerToHeight(peer)
+    }
   }
 
   /**
@@ -264,9 +269,24 @@ class Monitor {
   getRandomPeer (acceptableDelay, downloadSize, failedAttempts) {
     failedAttempts = failedAttempts === undefined ? 0 : failedAttempts
 
-    let keys = Object.keys(this.peers)
-    keys = keys.filter((key) => {
-      const peer = this.getPeer(key)
+    const totalPeers = Object.keys(this.peers).length
+    const heights = Array.from(this.peersByHeight.keys()).sort((a, b) => b - a)
+
+    // Determine height of majority of peers
+    let peers
+    while (!peers && heights.length > 0) {
+      let peersAtHeight = this.peersByHeight.get(heights.shift())
+      if (peersAtHeight.length >= Math.floor(totalPeers * 0.66)) {
+        peers = peersAtHeight
+      }
+    }
+
+    // Heights are too spread... Fallback to all peers
+    if (!peers) {
+      peers = this.getPeers()
+    }
+
+    peers = peers.filter(peer => {
       if (peer.ban < new Date().getTime()) {
         return true
       }
@@ -282,9 +302,7 @@ class Monitor {
       return false
     })
 
-    const random = keys[keys.length * Math.random() << 0]
-    const randomPeer = this.getPeer(random)
-
+    const randomPeer = peers[peers.length * Math.random() << 0]
     if (!randomPeer) {
       failedAttempts++
 
@@ -401,6 +419,7 @@ class Monitor {
    */
   async downloadBlocks (fromBlockHeight) {
     let randomPeer
+
     try {
       randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight)
     } catch (error) {
@@ -543,7 +562,7 @@ class Monitor {
       }
 
       if (peers.length === 0) {
-        delete this.peersByHeight[peer.state.height]
+        this.peersByHeight.delete(peer.state.height)
       }
     }
   }
