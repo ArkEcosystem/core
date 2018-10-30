@@ -1,4 +1,3 @@
-const Promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 const { configManager, models: { Transaction }, constants: { TRANSACTION_TYPES } } = crypto
@@ -163,7 +162,7 @@ module.exports = class TransactionGuard {
    * Transaction that can be broadcasted are confirmed here
    */
   async __determineValidTransactions () {
-    await Promise.each(this.transactions, async (transaction) => {
+    this.transactions.forEach(transaction => {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
         if (!isRecipientOnActiveNetwork(transaction)) {
           this.__pushError(transaction, `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
@@ -177,7 +176,7 @@ module.exports = class TransactionGuard {
       }
 
       try {
-        await this.pool.walletManager.applyPoolTransaction(transaction)
+        this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
         this.__pushError(transaction, error.toString())
         return
