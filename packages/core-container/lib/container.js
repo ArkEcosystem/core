@@ -138,9 +138,7 @@ module.exports = class Container {
       logger.error(error.stack)
     }
 
-    setTimeout(() => {
-      process.exit(exitCode)
-    }, 10)
+    process.exit(exitCode)
   }
 
   /**

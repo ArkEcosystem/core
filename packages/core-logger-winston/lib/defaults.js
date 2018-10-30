@@ -6,7 +6,8 @@ module.exports = {
       constructor: 'Console',
       options: {
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        format: require('./formatter')(true)
+        format: require('./formatter')(true),
+        stderrLevels: [ 'error', 'warn' ]
       }
     },
     dailyRotate: {
