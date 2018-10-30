@@ -115,14 +115,12 @@ module.exports = class Container {
    * @return {void}
    */
   __registerExitHandler () {
-    let shuttingDown = false
-
     const handleExit = async () => {
-      if (shuttingDown) {
+      if (this.shuttingDown) {
         return
       }
 
-      shuttingDown = true
+      this.shuttingDown = true
 
       const logger = this.resolvePlugin('logger')
       logger.info('EXIT handled, trying to shut down gracefully')
