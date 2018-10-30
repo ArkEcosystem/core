@@ -23,7 +23,6 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-database": "^0.1.1",
     "@arkecosystem/crypto": "^0.2.3",
-    "bluebird": "^3.5.2",
     "bs58check": "^2.1.2",
     "lodash": "^4.17.11",
     "moment": "^2.22.2"

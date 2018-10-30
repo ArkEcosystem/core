@@ -63,7 +63,7 @@ exports.store = {
     if (guard.hasAny('accept')) {
       logger.info(`Received ${guard.accept.length} new transactions`)
 
-      await transactionPool.addTransactions(guard.accept)
+      transactionPool.addTransactions(guard.accept)
 
       transactionPool.memory
         .forget(guard.getIds('accept'))
@@ -127,11 +127,11 @@ exports.unconfirmed = {
 
     const pagination = utils.paginate(request)
 
-    let transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
+    let transactions = transactionPool.getTransactions(pagination.offset, pagination.limit)
     transactions = transactions.map(transaction => ({ serialized: transaction }))
 
     return utils.toPagination(request, {
-      count: await transactionPool.getPoolSize(),
+      count: transactionPool.getPoolSize(),
       rows: transactions
     }, 'transaction')
   },
@@ -149,12 +149,12 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  handler (request, h) {
     if (!transactionPool.options.enabled) {
       return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
-    let transaction = await transactionPool.getTransaction(request.params.id)
+    let transaction = transactionPool.getTransaction(request.params.id)
 
     if (!transaction) {
       return Boom.notFound('Transaction not found')
