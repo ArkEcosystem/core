@@ -370,7 +370,7 @@ module.exports = class Blockchain {
 
     if (this.transactionPool) {
       try {
-        await this.transactionPool.acceptChainedBlock(block)
+        this.transactionPool.acceptChainedBlock(block)
       } catch (error) {
         logger.warn('Issue applying block to transaction pool')
         logger.debug(error.stack)
@@ -414,11 +414,11 @@ module.exports = class Blockchain {
   async getUnconfirmedTransactions (blockSize, forForging = false) {
     const transactions = forForging
       ? await this.transactionPool.getTransactionsForForging(blockSize)
-      : await this.transactionPool.getTransactions(0, blockSize)
+      : this.transactionPool.getTransactions(0, blockSize)
 
     return {
       transactions,
-      poolSize: await this.transactionPool.getPoolSize(),
+      poolSize: this.transactionPool.getPoolSize(),
       count: transactions ? transactions.length : -1
     }
   }

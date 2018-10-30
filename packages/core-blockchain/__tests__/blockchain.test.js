@@ -126,7 +126,7 @@ describe('Blockchain', () => {
     it('should be ok', async () => {
       await blockchain.transactionPool.flush()
       await blockchain.postTransactions(genesisBlock.transactions, false)
-      const transactions = await blockchain.transactionPool.getTransactions(0, 200)
+      const transactions = blockchain.transactionPool.getTransactions(0, 200)
 
       expect(transactions.length).toBe(genesisBlock.transactions.length)
 
