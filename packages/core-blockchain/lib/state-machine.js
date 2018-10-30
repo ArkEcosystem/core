@@ -131,8 +131,7 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     exitApp () {
-      logger.error('Failed to startup blockchain. Exiting Ark Core! :rotating_light:')
-      process.exit(1)
+      container.forceExit('Failed to startup blockchain. Exiting Ark Core! :rotating_light:')
     },
 
     async init () {

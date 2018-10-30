@@ -338,8 +338,7 @@ module.exports = class WalletManager {
     let delegate = this.byPublicKey[block.data.generatorPublicKey]
 
     if (!delegate) {
-      logger.error(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`)
-      process.exit(1)
+      container.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`)
     }
 
     const revertedTransactions = []

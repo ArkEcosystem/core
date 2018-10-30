@@ -111,6 +111,39 @@ module.exports = class Container {
   }
 
   /**
+   * Force the container to exit and print the given message and associated error.
+   * @param  {String} message
+   * @param  {Error} error
+   * @return {void}
+   */
+  forceExit (message, error = null) {
+    this.exit(1, message, error)
+  }
+
+  /**
+   * Exit the container with the given exitCode, message and associated error.
+   * @param  {Number} exitCode
+   * @param  {String} message
+   * @param  {Error} error
+   * @return {void}
+   */
+  exit (exitCode, message, error = null) {
+    this.shuttingDown = true
+
+    const logger = this.resolvePlugin('logger')
+    logger.error(':boom: Container force shutdown :boom:')
+    logger.error(message)
+
+    if (error) {
+      logger.error(error.stack)
+    }
+
+    setTimeout(() => {
+      process.exit(exitCode)
+    }, 10)
+  }
+
+  /**
    * Handle any exit signals.
    * @return {void}
    */
