@@ -16,12 +16,13 @@ exports.copySnapshot = (currentFileInfo, newFileInfo) => {
 }
 
 exports.getSnapshotInfo = (filename) => {
-  const fileInfo = filename.split('.')
+  const [table, startHeight, endHeight, codec] = filename.split('.')
   return {
-    startHeight: +fileInfo[1],
-    endHeight: +fileInfo[2],
-    codec: fileInfo[3],
-    stringInfo: `${(fileInfo[1])}.${fileInfo[2]}.${fileInfo[3]}`
+    table: table,
+    startHeight: +startHeight,
+    endHeight: +endHeight,
+    codec: codec,
+    stringInfo: `${startHeight}.${endHeight}.${codec}`
   }
 }
 
