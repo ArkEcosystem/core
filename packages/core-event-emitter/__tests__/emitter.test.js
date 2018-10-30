@@ -1,6 +1,6 @@
 'use strict'
 
-const EventEmitter = require('eventemitter3')
+const Emittery = require('emittery')
 const emitter = require('../lib/emitter')
 
 let lastEmit
@@ -10,11 +10,11 @@ beforeAll(() => {
 
 describe('Event Manager', () => {
   it('should be an instance', () => {
-    expect(emitter).toBeInstanceOf(EventEmitter)
+    expect(emitter).toBeInstanceOf(Emittery)
   })
 
-  it('should emit the event', () => {
-    emitter.emit('fake', 'news')
+  it('should emit the event', async () => {
+    await emitter.emit('fake', 'news')
 
     expect(lastEmit).toBe('news')
   })
