@@ -89,16 +89,13 @@ module.exports = async (config) => {
     }
   })
 
-  await server.register({
-    plugin: require('./versions/1'),
-    routes: { prefix: '/api/v1' }
-  })
+  for (const plugin of config.plugins) {
+    if (typeof plugin.plugin === 'string') {
+      plugin.plugin = require(plugin.plugin)
+    }
 
-  await server.register({
-    plugin: require('./versions/2'),
-    routes: { prefix: '/api/v2' },
-    options: config
-  })
+    await server.register(plugin)
+  }
 
   return mountServer('Public API', server)
 }

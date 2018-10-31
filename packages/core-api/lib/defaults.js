@@ -1,5 +1,7 @@
 'use strict'
 
+const path = require('path')
+
 module.exports = {
   enabled: false,
   host: process.env.ARK_API_HOST || '0.0.0.0',
@@ -44,5 +46,12 @@ module.exports = {
   whitelist: [
     '127.0.0.1',
     '::ffff:127.0.0.1'
-  ]
+  ],
+  plugins: [{
+    plugin: path.resolve(__dirname, './versions/1'),
+    routes: { prefix: '/api/v1' }
+  }, {
+    plugin: path.resolve(__dirname, './versions/2'),
+    routes: { prefix: '/api/v2' }
+  }]
 }

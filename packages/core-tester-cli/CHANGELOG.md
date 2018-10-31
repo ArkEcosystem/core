@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Moved from modules to classes to reduce duplication
 - Use the v2 API for any API calls
 - Handle duplicate transaction IDs
+- Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Fixed
 - Undefined passphrases for the `overridingPassphrase` option in transfers
