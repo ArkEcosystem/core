@@ -6,16 +6,16 @@ module.exports = (transaction) => {
     id: engine.joi.string().alphanum().required(),
     blockid: engine.joi.number().unsafe(),
     type: engine.joi.number().valid(TRANSACTION_TYPES.TRANSFER),
-    timestamp: engine.joi.number().min(0).required(),
-    amount: engine.joi.alternatives().try(engine.joi.bignumber(), engine.joi.number().min(1).required()),
-    fee: engine.joi.alternatives().try(engine.joi.bignumber(), engine.joi.number().min(1).required()),
+    timestamp: engine.joi.number().integer().min(0).required(),
+    amount: engine.joi.alternatives().try(engine.joi.bignumber(), engine.joi.number().integer().positive().required()),
+    fee: engine.joi.alternatives().try(engine.joi.bignumber(), engine.joi.number().integer().positive().required()),
     senderId: engine.joi.arkAddress(),
     recipientId: engine.joi.arkAddress().required(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
     signatures: engine.joi.array(),
     secondSignature: engine.joi.string().alphanum(),
-    confirmations: engine.joi.number().min(0)
+    confirmations: engine.joi.number().integer().min(0)
   }), {
     allowUnknown: true
   })
