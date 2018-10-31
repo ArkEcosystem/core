@@ -12,15 +12,15 @@ exports.index = {
     ...{
       orderBy: Joi.string(),
       id: Joi.string(),
-      version: Joi.number().integer(),
-      timestamp: Joi.number().integer(),
+      version: Joi.number().integer().min(0),
+      timestamp: Joi.number().integer().min(0),
       previousBlock: Joi.string(),
-      height: Joi.number().integer(),
-      numberOfTransactions: Joi.number().integer(),
-      totalAmount: Joi.number().integer(),
-      totalFee: Joi.number().integer(),
-      reward: Joi.number().integer(),
-      payloadLength: Joi.number().integer(),
+      height: Joi.number().integer().positive(),
+      numberOfTransactions: Joi.number().integer().min(0),
+      totalAmount: Joi.number().integer().positive(),
+      totalFee: Joi.number().integer().min(0),
+      reward: Joi.number().integer().min(0),
+      payloadLength: Joi.number().integer().positive(),
       payloadHash: Joi.string().hex(),
       generatorPublicKey: Joi.string().hex().length(66),
       blockSignature: Joi.string().hex()
@@ -50,14 +50,14 @@ exports.transactions = {
       orderBy: Joi.string(),
       id: Joi.string().hex().length(66),
       blockId: Joi.string(),
-      type: Joi.number().integer(),
-      version: Joi.number().integer(),
+      type: Joi.number().integer().min(0),
+      version: Joi.number().integer().min(0),
       senderPublicKey: Joi.string().hex().length(66),
       senderId: Joi.string().alphanum().length(34),
       recipientId: Joi.string().alphanum().length(34),
-      timestamp: Joi.number().integer(),
-      amount: Joi.number().integer(),
-      fee: Joi.number().integer(),
+      timestamp: Joi.number().integer().min(0),
+      amount: Joi.number().integer().min(0),
+      fee: Joi.number().integer().min(0),
       vendorFieldHex: Joi.string().hex()
     }
   }
@@ -70,38 +70,38 @@ exports.search = {
   query: pagination,
   payload: {
     id: Joi.string(),
-    version: Joi.number().integer(),
+    version: Joi.number().integer().min(0),
     previousBlock: Joi.string(),
     payloadHash: Joi.string().hex(),
     generatorPublicKey: Joi.string().hex().length(66),
     blockSignature: Joi.string().hex(),
     timestamp: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     }),
     height: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().positive(),
+      to: Joi.number().integer().positive()
     }),
     numberOfTransactions: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     }),
     totalAmount: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().positive(),
+      to: Joi.number().integer().positive()
     }),
     totalFee: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     }),
     reward: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     }),
     payloadLength: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().positive(),
+      to: Joi.number().integer().positive()
     })
   }
 }
