@@ -94,10 +94,7 @@ class Guard {
    */
   async resetSuspendedPeers () {
     logger.info('Clearing suspended peers')
-
-    for (const ip of Object.keys(this.suspensions)) {
-      await this.unsuspend(this.get(ip).peer)
-    }
+    await Promise.all(Object.values(this.suspensions).map(peer => this.unsuspend(peer)))
   }
 
   /**
