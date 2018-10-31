@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Database rollback
 - Block exceptions
 - Common blocks
+- More graceful handling of shutdown
 
 ### Changed
 - Build delegate list in-memory to reduce database load
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improved method names to more clearly show their intent
 - Calculate previous rounds in-memory rather then hitting the database
 - non-blocking wallet saving
+- Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Fixed
 - Wrong documentation

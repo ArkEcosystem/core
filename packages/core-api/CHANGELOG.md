@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Implement database repositories
 - Limit the number of transactions per request if posting
 - `ownerId` property for transaction searches
+- Blockchains endpoint to provide information like supply
 
 ### Changed
 - Use the IANA format for the API vendor in the `Accept` header
@@ -22,6 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improved some error messages
 - Return broadcast IDs for improved feedback
 - Sort peers by latency
+- Stricter validation of parameters
+- Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Removed
 - All `redis` integrations and dependencies
@@ -39,6 +42,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Various inconsistencies of property names in the v1 API
 - Various validation schemas
 - Added missing `orderBy` property for block transaction sorting
+- Crashes caused by bad sorting handling
 
 ## 0.1.1 - 2018-06-14
 
