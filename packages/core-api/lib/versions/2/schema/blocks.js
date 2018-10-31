@@ -12,7 +12,7 @@ exports.index = {
     ...{
       orderBy: Joi.string(),
       id: Joi.string(),
-      version: Joi.number().integer().positive(),
+      version: Joi.number().integer().min(0),
       timestamp: Joi.number().integer().positive(),
       previousBlock: Joi.string(),
       height: Joi.number().integer().positive(),
@@ -51,7 +51,7 @@ exports.transactions = {
       id: Joi.string().hex().length(66),
       blockId: Joi.string(),
       type: Joi.number().integer().positive(),
-      version: Joi.number().integer().positive(),
+      version: Joi.number().integer().min(0),
       senderPublicKey: Joi.string().hex().length(66),
       senderId: Joi.string().alphanum().length(34),
       recipientId: Joi.string().alphanum().length(34),
@@ -70,7 +70,7 @@ exports.search = {
   query: pagination,
   payload: {
     id: Joi.string(),
-    version: Joi.number().integer().positive(),
+    version: Joi.number().integer().min(0),
     previousBlock: Joi.string(),
     payloadHash: Joi.string().hex(),
     generatorPublicKey: Joi.string().hex().length(66),
