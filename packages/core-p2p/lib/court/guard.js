@@ -83,18 +83,25 @@ class Guard {
       return
     }
 
+    // Peers who caused a fork stay banned for the entire duration.
+    if (peer.offences.some(offence => offence.reason === 'Fork')) {
+      if (moment().isBefore(this.suspensions[peer.ip].until)) {
+        return
+      }
+    }
+
     delete this.suspensions[peer.ip]
 
     await this.monitor.acceptNewPeer(peer)
   }
 
   /**
-   * Reset suspended peer list.
+   * Reset suspended peers except peers who caused a fork.
    * @return {void}
    */
   async resetSuspendedPeers () {
-    logger.info('Clearing suspended peers')
-    await Promise.all(Object.values(this.suspensions).map(peer => this.unsuspend(peer)))
+    logger.info('Clearing suspended peers.')
+    await Promise.all(Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)))
   }
 
   /**
@@ -189,6 +196,11 @@ class Guard {
   __determineOffence (peer) {
     if (this.isBlacklisted(peer)) {
       return this.__determinePunishment(peer, offences.BLACKLISTED)
+    }
+
+    const forkedBlock = container.resolve('state').forkedBlock
+    if (forkedBlock && peer.ip === forkedBlock.ip) {
+      return this.__determinePunishment(peer, offences.FORK)
     }
 
     if (peer.commonBlocks === false) {

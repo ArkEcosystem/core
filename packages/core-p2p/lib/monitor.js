@@ -212,14 +212,6 @@ class Monitor {
   }
 
   /**
-   * Reset banned peer list.
-   * @return {void}
-   */
-  async resetSuspendedPeers () {
-    return this.guard.resetSuspendedPeers()
-  }
-
-  /**
    * Get a list of all suspended peers.
    * @return {void}
    */
@@ -402,7 +394,12 @@ class Monitor {
 
     logger.info(`Refreshing ${peers.length} peers after fork.`)
 
-    await this.resetSuspendedPeers()
+    // Ban peer who caused the fork
+    const forkedBlock = container.resolve('state').forkedBlock
+    this.suspendPeer(forkedBlock.ip)
+
+    // Reset all peers, except peers banned because of causing a fork.
+    await this.guard.resetSuspendedPeers()
 
     const recentBlockIds = await this.__getRecentBlockIds()
 
