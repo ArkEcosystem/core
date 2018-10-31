@@ -16,10 +16,10 @@ exports.index = {
       secondPublicKey: Joi.string().hex().length(66),
       vote: Joi.string().hex().length(66),
       username: Joi.string(),
-      balance: Joi.number().integer(),
-      voteBalance: Joi.number().integer(),
-      producedBlocks: Joi.number().integer(),
-      missedBlocks: Joi.number().integer()
+      balance: Joi.number().integer().positive(),
+      voteBalance: Joi.number().integer().positive(),
+      producedBlocks: Joi.number().integer().positive(),
+      missedBlocks: Joi.number().integer().positive()
     }
   }
 }
@@ -55,15 +55,15 @@ exports.blocks = {
     ...{
       orderBy: Joi.string(),
       id: Joi.string(),
-      version: Joi.number().integer(),
-      timestamp: Joi.number().integer(),
+      version: Joi.number().integer().positive(),
+      timestamp: Joi.number().integer().positive(),
       previousBlock: Joi.string(),
-      height: Joi.number().integer(),
-      numberOfTransactions: Joi.number().integer(),
-      totalAmount: Joi.number().integer(),
-      totalFee: Joi.number().integer(),
-      reward: Joi.number().integer(),
-      payloadLength: Joi.number().integer(),
+      height: Joi.number().integer().positive(),
+      numberOfTransactions: Joi.number().integer().positive(),
+      totalAmount: Joi.number().integer().positive(),
+      totalFee: Joi.number().integer().positive(),
+      reward: Joi.number().integer().positive(),
+      payloadLength: Joi.number().integer().positive(),
       payloadHash: Joi.string().hex(),
       generatorPublicKey: Joi.string().hex().length(66),
       blockSignature: Joi.string().hex()
@@ -87,10 +87,10 @@ exports.voters = {
       secondPublicKey: Joi.string().hex().length(66),
       vote: Joi.string().hex().length(66),
       username: Joi.string(),
-      balance: Joi.number().integer(),
-      voteBalance: Joi.number().integer(),
-      producedBlocks: Joi.number().integer(),
-      missedBlocks: Joi.number().integer()
+      balance: Joi.number().integer().positive(),
+      voteBalance: Joi.number().integer().positive(),
+      producedBlocks: Joi.number().integer().positive(),
+      missedBlocks: Joi.number().integer().positive()
     }
   }
 }

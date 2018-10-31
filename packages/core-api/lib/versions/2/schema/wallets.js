@@ -16,10 +16,10 @@ exports.index = {
       secondPublicKey: Joi.string().hex().length(66),
       vote: Joi.string().hex().length(66),
       username: Joi.string(),
-      balance: Joi.number().integer(),
-      voteBalance: Joi.number().integer(),
-      producedBlocks: Joi.number().integer(),
-      missedBlocks: Joi.number().integer()
+      balance: Joi.number().integer().positive(),
+      voteBalance: Joi.number().integer().positive(),
+      producedBlocks: Joi.number().integer().positive(),
+      missedBlocks: Joi.number().integer().positive()
     }
   }
 }
@@ -85,15 +85,15 @@ exports.search = {
     secondPublicKey: Joi.string().hex().length(66),
     vote: Joi.string().hex().length(66),
     username: Joi.string(),
-    producedBlocks: Joi.number().integer(),
-    missedBlocks: Joi.number().integer(),
+    producedBlocks: Joi.number().integer().positive(),
+    missedBlocks: Joi.number().integer().positive(),
     balance: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().positive(),
+      to: Joi.number().integer().positive()
     }),
     voteBalance: Joi.object().keys({
-      from: Joi.number().integer(),
-      to: Joi.number().integer()
+      from: Joi.number().integer().positive(),
+      to: Joi.number().integer().positive()
     })
   }
 }

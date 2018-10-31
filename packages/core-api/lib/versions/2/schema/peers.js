@@ -12,7 +12,7 @@ exports.index = {
     ...{
       os: Joi.string(),
       status: Joi.string(),
-      port: Joi.number().integer(),
+      port: Joi.number().integer().positive(),
       version: Joi.string(),
       orderBy: Joi.string()
     }
