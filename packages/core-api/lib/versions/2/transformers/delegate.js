@@ -13,7 +13,7 @@ module.exports = delegate => {
     address: delegate.address,
     publicKey: delegate.publicKey,
     votes: +bignumify(delegate.voteBalance).toFixed(),
-    rank: delegate.rate || 0, // forcing to 0 if undefined  as it is not yet reliable
+    rank: delegate.rate,
     blocks: {
       produced: delegate.producedBlocks,
       missed: delegate.missedBlocks
