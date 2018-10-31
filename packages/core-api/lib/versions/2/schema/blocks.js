@@ -17,7 +17,7 @@ exports.index = {
       previousBlock: Joi.string(),
       height: Joi.number().integer().positive(),
       numberOfTransactions: Joi.number().integer().min(0),
-      totalAmount: Joi.number().integer().positive(),
+      totalAmount: Joi.number().integer().min(0),
       totalFee: Joi.number().integer().min(0),
       reward: Joi.number().integer().min(0),
       payloadLength: Joi.number().integer().positive(),
@@ -88,8 +88,8 @@ exports.search = {
       to: Joi.number().integer().min(0)
     }),
     totalAmount: Joi.object().keys({
-      from: Joi.number().integer().positive(),
-      to: Joi.number().integer().positive()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     }),
     totalFee: Joi.object().keys({
       from: Joi.number().integer().min(0),
@@ -100,8 +100,8 @@ exports.search = {
       to: Joi.number().integer().min(0)
     }),
     payloadLength: Joi.object().keys({
-      from: Joi.number().integer().positive(),
-      to: Joi.number().integer().positive()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     })
   }
 }
