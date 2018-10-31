@@ -19,8 +19,8 @@ exports.index = {
       senderId: Joi.string().alphanum().length(34),
       recipientId: Joi.string().alphanum().length(34),
       timestamp: Joi.number().integer().min(0),
-      amount: Joi.number().integer().positive(),
-      fee: Joi.number().integer().positive(),
+      amount: Joi.number().integer().min(0),
+      fee: Joi.number().integer().min(0),
       vendorFieldHex: Joi.string().hex()
     }
   }

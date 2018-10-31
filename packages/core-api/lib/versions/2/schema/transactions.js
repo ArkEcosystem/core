@@ -22,8 +22,8 @@ exports.index = {
       recipientId: Joi.string().alphanum().length(34),
       ownerId: Joi.string().alphanum().length(34),
       timestamp: Joi.number().integer().min(0),
-      amount: Joi.number().integer().positive(),
-      fee: Joi.number().integer().positive(),
+      amount: Joi.number().integer().min(0),
+      fee: Joi.number().integer().min(0),
       vendorFieldHex: Joi.string().hex()
     }
   }
@@ -84,12 +84,12 @@ exports.search = {
       to: Joi.number().integer().min(0)
     }),
     amount: Joi.object().keys({
-      from: Joi.number().integer().positive(),
-      to: Joi.number().integer().positive()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     }),
     fee: Joi.object().keys({
-      from: Joi.number().integer().positive(),
-      to: Joi.number().integer().positive()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     })
   }
 }
