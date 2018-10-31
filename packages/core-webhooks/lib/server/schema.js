@@ -12,8 +12,8 @@ const conditions = [
  */
 exports.index = {
   query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
+    page: Joi.number().integer().positive(),
+    limit: Joi.number().integer().positive()
   }
 }
 
