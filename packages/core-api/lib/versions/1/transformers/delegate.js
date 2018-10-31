@@ -16,7 +16,7 @@ module.exports = (delegate) => {
     producedblocks: delegate.producedBlocks,
     missedblocks: delegate.missedBlocks,
     forged: delegate.forged,
-    rate: delegate.rate || 0, // forcing to 0 if undefined  as it is not yet reliable
+    rate: delegate.rate,
     approval: delegateCalculator.calculateApproval(delegate),
     productivity: delegateCalculator.calculateProductivity(delegate)
   }
