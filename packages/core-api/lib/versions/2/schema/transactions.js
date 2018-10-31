@@ -21,7 +21,7 @@ exports.index = {
       senderId: Joi.string().alphanum().length(34),
       recipientId: Joi.string().alphanum().length(34),
       ownerId: Joi.string().alphanum().length(34),
-      timestamp: Joi.number().integer().positive(),
+      timestamp: Joi.number().integer().min(0),
       amount: Joi.number().integer().positive(),
       fee: Joi.number().integer().positive(),
       vendorFieldHex: Joi.string().hex()
@@ -80,8 +80,8 @@ exports.search = {
     ownerId: Joi.string().alphanum().length(34),
     vendorFieldHex: Joi.string().hex(),
     timestamp: Joi.object().keys({
-      from: Joi.number().integer().positive(),
-      to: Joi.number().integer().positive()
+      from: Joi.number().integer().min(0),
+      to: Joi.number().integer().min(0)
     }),
     amount: Joi.object().keys({
       from: Joi.number().integer().positive(),
