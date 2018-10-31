@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Network state calculation (new internal/networkState) taking PBFT into account
 - Peer optimisations (blacklisting, whitelisting, coldstart) options for peers and forger
 - Overall reduced the complexity of how the P2P API is structured
+- Allow config to be retrieved without P2P headers
+- Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Removed
 - Remove threading for block downloads
