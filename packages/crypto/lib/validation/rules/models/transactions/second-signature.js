@@ -6,9 +6,9 @@ module.exports = (transaction) => {
     id: engine.joi.string().alphanum().required(),
     blockid: engine.joi.number().unsafe(),
     type: engine.joi.number().valid(TRANSACTION_TYPES.SECOND_SIGNATURE),
-    timestamp: engine.joi.number().min(0).required(),
+    timestamp: engine.joi.number().integer().min(0).required(),
     amount: engine.joi.alternatives().try(engine.joi.bignumber(), engine.joi.number().valid(0)),
-    fee: engine.joi.alternatives().try(engine.joi.bignumber(), engine.joi.number().min(1).required()),
+    fee: engine.joi.alternatives().try(engine.joi.bignumber(), engine.joi.number().integer().positive().required()),
     senderId: engine.joi.arkAddress(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
@@ -19,7 +19,7 @@ module.exports = (transaction) => {
         publicKey: engine.joi.arkPublicKey().required()
       }).required()
     }).required(),
-    confirmations: engine.joi.number().min(0)
+    confirmations: engine.joi.number().integer().min(0)
   }), {
     allowUnknown: true
   })

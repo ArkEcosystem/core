@@ -60,10 +60,10 @@ exports.blocks = {
       previousBlock: Joi.string(),
       height: Joi.number().integer().positive(),
       numberOfTransactions: Joi.number().integer().min(0),
-      totalAmount: Joi.number().integer().positive(),
+      totalAmount: Joi.number().integer().min(0),
       totalFee: Joi.number().integer().min(0),
       reward: Joi.number().integer().min(0),
-      payloadLength: Joi.number().integer().positive(),
+      payloadLength: Joi.number().integer().min(0),
       payloadHash: Joi.string().hex(),
       generatorPublicKey: Joi.string().hex().length(66),
       blockSignature: Joi.string().hex()
