@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Limit the number of transactions per request if posting
 - `ownerId` property for transaction searches
 - Blockchains endpoint to provide information like supply
+- Allow registration of additional plugins
 
 ### Changed
 - Use the IANA format for the API vendor in the `Accept` header
