@@ -390,22 +390,18 @@ class Monitor {
    * @return {void}
    */
   async refreshPeersAfterFork () {
-    const peers = this.getPeers()
+    logger.info(`Refreshing ${this.getPeers().length} peers after fork.`)
 
-    logger.info(`Refreshing ${peers.length} peers after fork.`)
+    // Reset all peers, except peers banned because of causing a fork.
+    await this.guard.resetSuspendedPeers()
 
     // Ban peer who caused the fork
     const forkedBlock = container.resolve('state').forkedBlock
     this.suspendPeer(forkedBlock.ip)
 
-    // Reset all peers, except peers banned because of causing a fork.
-    await this.guard.resetSuspendedPeers()
-
     const recentBlockIds = await this.__getRecentBlockIds()
 
-    await Promise.all(peers.map(async peer => {
-      await this.peerHasCommonBlocks(peer, recentBlockIds)
-    }))
+    await Promise.all(this.getPeers().map(peer => this.peerHasCommonBlocks(peer, recentBlockIds)))
   }
 
   /**
