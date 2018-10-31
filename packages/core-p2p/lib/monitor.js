@@ -3,6 +3,7 @@
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
+const assert = require('assert')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -143,13 +144,9 @@ class Monitor {
   updatePeerHeight (peer, previousHeight) {
     if (peer.state.height !== previousHeight) {
       // Remove peer from previous height
-      if (!this.peersByHeight.has(previousHeight)) {
-        throw new Error('yikes')
-      }
+      assert(this.peersByHeight.has(previousHeight))
       const index = this.peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
-      if (index === -1) {
-        throw new Error('yikes yikes')
-      }
+      assert(index !== -1)
       this.peersByHeight.get(previousHeight).splice(index, 1)
       if (this.peersByHeight.get(previousHeight).length === 0) {
         this.peersByHeight.delete(previousHeight)
@@ -413,6 +410,25 @@ class Monitor {
   }
 
   /**
+   * Refresh all peers after a fork. Peers with no common blocks are
+   * suspended.
+   * @return {void}
+   */
+  async refreshPeersAfterFork () {
+    const peers = this.getPeers()
+
+    logger.info(`Refreshing ${peers.length} peers after fork.`)
+
+    await this.resetSuspendedPeers()
+
+    const recentBlockIds = await this.__getRecentBlockIds()
+
+    await Promise.all(peers.map(async peer => {
+      await this.peerHasCommonBlocks(peer, recentBlockIds)
+    }))
+  }
+
+  /**
    * Download blocks from a random peer.
    * @param  {Number}   fromBlockHeight
    * @return {Object[]}
@@ -429,8 +445,6 @@ class Monitor {
     }
     try {
       logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`)
-
-      await randomPeer.ping()
 
       const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
       blocks.forEach(block => (block.ip = randomPeer.ip))

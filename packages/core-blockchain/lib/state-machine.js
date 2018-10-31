@@ -302,7 +302,8 @@ blockchainMachine.actionMap = blockchain => {
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
-          blockchain.p2p.suspendPeer(blocks[0].ip)
+          state.forked = true
+          state.forkedBlock = blocks[0]
 
           // disregard the whole block list
           blockchain.dispatch('FORK')
@@ -318,18 +319,16 @@ blockchainMachine.actionMap = blockchain => {
       logger.info('Starting fork recovery :fork_and_knife:')
 
       await blockchain.database.commitQueuedQueries()
-      // state.forked = true
-      let random = ~~(4 / Math.random())
 
-      if (random > 102) {
-        random = 102
-      }
+      // Remove last 3 rounds
+      // TODO: calculate correct number for each round separately
+      let count = 3 * config.getConstants(state.lastDownloadedBlock.data.height).activeDelegates
 
-      await blockchain.removeBlocks(random)
+      await blockchain.removeBlocks(count)
 
-      logger.info(`Removed ${random} blocks :wastebasket:`)
+      logger.info(`Removed ${count} blocks :wastebasket:`)
 
-      await blockchain.p2p.resetSuspendedPeers()
+      await blockchain.p2p.refreshPeersAfterFork()
 
       blockchain.dispatch('SUCCESS')
     },
