@@ -9,8 +9,7 @@ exports.setUpLite = async (options) => {
       '@arkecosystem/core-config',
       '@arkecosystem/core-logger',
       '@arkecosystem/core-logger-winston',
-      '@arkecosystem/core-snapshots',
-      '@arkecosystem/core-event-emitter'
+      '@arkecosystem/core-snapshots'
     ]
   })
 

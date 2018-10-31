@@ -3,26 +3,28 @@
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 
-exports.getPath = (filename) => {
-  return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${filename}`
+exports.getPath = (table, folder, codec) => {
+  return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${table}.${codec}`
 }
 
-exports.copySnapshot = (currentFileInfo, newFileInfo) => {
+exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   const logger = container.resolvePlugin('logger')
-  logger.info(`Copying snapshot from ${currentFileInfo} to a new file  ${newFileInfo} for appending of data`)
+  logger.info(`Copying snapshot from ${sourceFolder} to a new file  ${destFolder} for appending of data`)
 
-  fs.copyFileSync(this.getPath(`blocks.${currentFileInfo}`), this.getPath(`blocks.${newFileInfo}`))
-  fs.copyFileSync(this.getPath(`transactions.${currentFileInfo}`), this.getPath(`transactions.${newFileInfo}`))
+  fs.ensureFileSync(this.getPath('blocks', destFolder, codec))
+  fs.ensureFileSync(this.getPath('transactions', destFolder, codec))
+
+  fs.copyFileSync(this.getPath('blocks', sourceFolder, codec), this.getPath('blocks', destFolder, codec))
+  fs.copyFileSync(this.getPath('transactions', sourceFolder, codec), this.getPath('transactions', sourceFolder, codec))
 }
 
-exports.getSnapshotInfo = (filename) => {
-  const [table, startHeight, endHeight, codec] = filename.split('.')
+exports.getSnapshotInfo = (folder) => {
+  const [name, startHeight, endHeight] = folder.split('.')
   return {
-    table: table,
+    name: name,
     startHeight: +startHeight,
     endHeight: +endHeight,
-    codec: codec,
-    stringInfo: `${startHeight}.${endHeight}.${codec}`
+    folder: `${startHeight}.${endHeight}`
   }
 }
 
@@ -32,12 +34,12 @@ exports.setSnapshotInfo = (options, lastBlock) => {
     endHeight: (options.end !== -1) ? options.end : lastBlock.height,
     codec: options.codec
   }
-  meta.stringInfo = `${meta.startHeight}.${meta.endHeight}.${meta.codec}`
+  meta.folder = `snapshot.${meta.startHeight}.${meta.endHeight}`
 
-  if (options.filename) {
-    const oldMeta = this.getSnapshotInfo(options.filename)
+  if (options.folder) {
+    const oldMeta = this.getSnapshotInfo(options.folder)
     meta.startHeight = oldMeta.endHeight + 1
-    meta.stringInfo = `${oldMeta.startHeight}.${meta.endHeight}.${meta.codec}`
+    meta.folder = `snapshot.${oldMeta.startHeight}.${meta.endHeight}`
   }
 
   return meta

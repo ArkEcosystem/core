@@ -16,7 +16,7 @@ const registerCommand = (name, description) => {
 }
 
 registerCommand('create', 'create a full snapshot of the database')
-  .option('-f, --filename <filename>', 'block snapshot filename')
+  .option('-f, --folder <folder>', 'snapshot folder for appending')
   .option('-s, --start <number>', 'start network height to export', -1)
   .option('-e, --end <number>', 'end network height to export', -1)
   .option('--codec <string>', 'codec name, default is msg-lite binary')
@@ -26,7 +26,8 @@ registerCommand('create', 'create a full snapshot of the database')
   })
 
 registerCommand('import', 'import data from specified snapshot')
-  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .option('-f, --folder <folder>', 'snapshot folder for importing')
+  .option('--codec <string>', 'codec name, default is msg-lite binary')
   .option('--truncate', 'skip transaction validations', false)
   .option('--skip-restart-round', 'skip revert to current round', false)
   .option('--signature-verify', 'signature verification', false)
@@ -36,8 +37,8 @@ registerCommand('import', 'import data from specified snapshot')
   })
 
 registerCommand('verify', 'check validity of specified snapshot')
-  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
-  .option('-c, --codec <string>', 'codec name, default is msg-lite binary')
+  .option('-f, --folder <folder>', 'snapshot folder')
+  .option('--codec <string>', 'codec name, default is msg-lite binary')
   .option('--signature-verify', 'signature verification', false)
   .action(async (options) => {
     await util.setUpLite(options)

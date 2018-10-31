@@ -34,7 +34,7 @@ module.exports = class SnapshotManager {
     await importTable('transactions', params)
 
     const lastBlock = await this.database.getLastBlock()
-    logger.info(`Import from ${params.filename} completed. Last block in database: ${lastBlock.height} :+1:`)
+    logger.info(`Import from folder ${params.folder} completed. Last block in database: ${lastBlock.height} :+1:`)
 
     if (!params.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
@@ -73,27 +73,28 @@ module.exports = class SnapshotManager {
 
   /**
    * Inits the process and creates json with needed paramaters for functions
-   * @param  {JSONObject} from commander or util function {filename, codec, truncate, signatureVerify, skipRestartRound, start, end}
-   * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, strinInfo}, queries {blocks, transactions}}
+   * @param  {JSONObject} from commander or util function {folder, codec, truncate, signatureVerify, skipRestartRound, start, end}
+   * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
    */
   async __init (options, exportAction = false) {
-    let params = pick(options, ['truncate', 'signatureVerify', 'filename', 'codec', 'skipRestartRound', 'start', 'end'])
+    let params = pick(options, ['truncate', 'signatureVerify', 'folder', 'codec', 'skipRestartRound', 'start', 'end'])
 
     const lastBlock = await this.database.getLastBlock()
     params.lastBlock = lastBlock
-    params.database = this.database
     params.codec = params.codec || this.options.codec
 
     if (exportAction) {
       params.meta = utils.setSnapshotInfo(params, lastBlock)
-      if (params.filename) {
-        utils.copySnapshot(utils.getSnapshotInfo(options.filename).stringInfo, params.meta.stringInfo)
+      if (params.folder) {
+        utils.copySnapshot(options.folder, params.meta.folder, params.codec)
+        params.append = true
       }
       params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
     } else {
-      params.meta = utils.getSnapshotInfo(options.filename, lastBlock)
+      params.meta = utils.getSnapshotInfo(options.folder)
     }
-
+    console.log(params)
+    params.database = this.database
     return params
   }
 }

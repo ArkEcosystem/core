@@ -14,19 +14,19 @@ const codecs = require('./codec')
 
 module.exports = {
   exportTable: async (table, options) => {
-    const snapFileName = `${table}.${options.meta.stringInfo}`
+    const snapFileName = utils.getPath(table, options.meta.folder, options.codec)
     const codec = codecs.get(options.codec)
     const gzip = zlib.createGzip()
 
-    await fs.ensureFile(utils.getPath(snapFileName))
-    const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName), options.filename ? { flags: 'a' } : {})
+    await fs.ensureFile(snapFileName)
+    const snapshotWriteStream = fs.createWriteStream(snapFileName, options.append ? { flags: 'a' } : {})
     const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
     const qs = new QueryStream(options.queries[table])
 
-    logger.info(`Starting to export table to ${snapFileName}, codec: ${options.codec}, append:${!!options.filename}`)
+    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.meta.folder}`)
     try {
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
-      logger.info(`Snapshot: ${snapFileName} ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
+      logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
       return data
     } catch (error) {
@@ -35,14 +35,15 @@ module.exports = {
   },
 
   importTable: async (table, options) => {
-    const sourceFile = `${table}.${options.meta.stringInfo}`
+    const sourceFile = utils.getPath(table, options.meta.folder, options.codec)
+    console.log(sourceFile)
     const codec = codecs.get(options.codec)
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}`)
+    logger.info(`Starting to import table ${table}, codec: ${options.codec}`)
 
     const readStream = fs
-      .createReadStream(utils.getPath(sourceFile), { highWaterMark: 1024 })
+      .createReadStream(sourceFile)
       .pipe(gunzip)
       .pipe(decodeStream)
 
@@ -75,7 +76,7 @@ module.exports = {
             const data = await getNextData(t, index)
 
             if (data) {
-              logger.debug(`Importing ${data.length} records from ${sourceFile}`)
+              logger.debug(`Importing ${data.length} records from ${table}.${options.codec}`)
               const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
               return t.none(insert)
             }
