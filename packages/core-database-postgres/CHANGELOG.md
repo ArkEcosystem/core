@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Reduced complexity and duplicated logic
 - Improved performance of various SQL queries
 - Improved performance of wallet saving
+- Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Removed
 - All `redis` integrations and dependencies
