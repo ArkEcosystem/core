@@ -33,7 +33,7 @@ describe('Commands - Vote', () => {
     const opts = {
       ...defaultOpts,
       number: 1,
-      voteFee: VoteCommand.__arkToArktoshi(1),
+      voteFee: 1,
       delegate: expectedDelegate
     }
     const command = await VoteCommand.init(opts)
@@ -46,7 +46,7 @@ describe('Commands - Vote', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: opts.voteFee,
+            fee: VoteCommand.__arkToArktoshi(opts.voteFee),
             asset: {
               votes: [`+${expectedDelegate}`]
             }
@@ -61,7 +61,7 @@ describe('Commands - Vote', () => {
     const opts = {
       ...defaultOpts,
       number: 1,
-      voteFee: VoteCommand.__arkToArktoshi(1),
+      voteFee: 1,
       delegate: null
     }
     const command = await VoteCommand.init(opts)
@@ -80,7 +80,7 @@ describe('Commands - Vote', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: opts.voteFee,
+            fee: VoteCommand.__arkToArktoshi(opts.voteFee),
             asset: {
               votes: [`+${expectedDelegate}`]
             }

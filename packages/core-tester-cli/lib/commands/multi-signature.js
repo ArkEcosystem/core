@@ -22,7 +22,7 @@ module.exports = class MultiSignatureCommand extends Command {
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
-      amount: Command.__arkToArktoshi(((publicKeys.length + 1) * 5) + testCosts),
+      amount: ((publicKeys.length + 1) * 5) + testCosts,
       skipTesting: true
     })
 
