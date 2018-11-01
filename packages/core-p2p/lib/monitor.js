@@ -3,6 +3,7 @@
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
+const assert = require('assert')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -25,6 +26,7 @@ class Monitor {
    */
   constructor () {
     this.peers = {}
+    this._peersByHeight = new Map() // NOTE: not used yet
     this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
   }
 
@@ -114,6 +116,8 @@ class Monitor {
       await newPeer.ping(1500)
 
       this.peers[peer.ip] = newPeer
+      this.__addPeerToHeight(newPeer)
+
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
       emitter.emit('peer.added', newPeer)
@@ -121,6 +125,35 @@ class Monitor {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
 
       this.guard.suspend(newPeer)
+    }
+  }
+
+  /**
+   * Remove peer from monitor.
+   * @param {Peer} peer
+   */
+  removePeer (peer) {
+    delete this.peers[peer.ip]
+    this.__removePeerFromHeight(peer)
+  }
+
+  /**
+   * Update peer height.
+   * @param {Peer} peer
+   */
+  updatePeerHeight (peer, previousHeight) {
+    if (peer.state.height !== previousHeight) {
+      // Remove peer from previous height
+      assert(this._peersByHeight.has(previousHeight))
+      const index = this._peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
+      assert(index !== -1)
+      this._peersByHeight.get(previousHeight).splice(index, 1)
+      if (this._peersByHeight.get(previousHeight).length === 0) {
+        this._peersByHeight.delete(previousHeight)
+      }
+
+      // Add peer to new height
+      this.__addPeerToHeight(peer)
     }
   }
 
@@ -137,8 +170,9 @@ class Monitor {
 
     logger.info(`Checking ${max} peers :telescope:`)
     await Promise.all(keys.map(async (ip) => {
+      const peer = this.getPeer(ip)
       try {
-        await this.getPeer(ip).ping(pingDelay)
+        await peer.ping(pingDelay)
 
         if (tracker) {
           logger.printTracker('Peers Discovery', ++count, max)
@@ -148,9 +182,9 @@ class Monitor {
 
         const formattedDelay = prettyMs(pingDelay, { verbose: true })
         logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`)
-        emitter.emit('peer.removed', this.getPeer(ip))
+        emitter.emit('peer.removed', peer)
 
-        delete this.peers[ip]
+        this.removePeer(peer)
 
         return null
       }
@@ -175,14 +209,6 @@ class Monitor {
     if (peer && !this.guard.isSuspended(peer)) {
       this.guard.suspend(peer)
     }
-  }
-
-  /**
-   * Reset banned peer list.
-   * @return {void}
-   */
-  async resetSuspendedPeers () {
-    return this.guard.resetSuspendedPeers()
   }
 
   /**
@@ -232,9 +258,7 @@ class Monitor {
   getRandomPeer (acceptableDelay, downloadSize, failedAttempts) {
     failedAttempts = failedAttempts === undefined ? 0 : failedAttempts
 
-    let keys = Object.keys(this.peers)
-    keys = keys.filter((key) => {
-      const peer = this.getPeer(key)
+    const peers = this.getPeers().filter(peer => {
       if (peer.ban < new Date().getTime()) {
         return true
       }
@@ -250,9 +274,7 @@ class Monitor {
       return false
     })
 
-    const random = keys[keys.length * Math.random() << 0]
-    const randomPeer = this.getPeer(random)
-
+    const randomPeer = peers[peers.length * Math.random() << 0]
     if (!randomPeer) {
       failedAttempts++
 
@@ -296,6 +318,8 @@ class Monitor {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
+
+      this.__buildPeersByHeight()
 
       return this.peers
     } catch (error) {
@@ -361,12 +385,33 @@ class Monitor {
   }
 
   /**
+   * Refresh all peers after a fork. Peers with no common blocks are
+   * suspended.
+   * @return {void}
+   */
+  async refreshPeersAfterFork () {
+    logger.info(`Refreshing ${this.getPeers().length} peers after fork.`)
+
+    // Reset all peers, except peers banned because of causing a fork.
+    await this.guard.resetSuspendedPeers()
+
+    // Ban peer who caused the fork
+    const forkedBlock = container.resolve('state').forkedBlock
+    this.suspendPeer(forkedBlock.ip)
+
+    const recentBlockIds = await this.__getRecentBlockIds()
+
+    await Promise.all(this.getPeers().map(peer => this.peerHasCommonBlocks(peer, recentBlockIds)))
+  }
+
+  /**
    * Download blocks from a random peer.
    * @param  {Number}   fromBlockHeight
    * @return {Object[]}
    */
   async downloadBlocks (fromBlockHeight) {
     let randomPeer
+
     try {
       randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight)
     } catch (error) {
@@ -376,8 +421,6 @@ class Monitor {
     }
     try {
       logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`)
-
-      await randomPeer.ping()
 
       const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
       blocks.forEach(block => (block.ip = randomPeer.ip))
@@ -468,6 +511,49 @@ class Monitor {
 
     for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+    }
+
+    this.__buildPeersByHeight()
+  }
+
+  /**
+   * Group peers by height.
+   * @return {void}
+   */
+  __buildPeersByHeight () {
+    this._peersByHeight.clear()
+    for (const peer of this.getPeers()) {
+      this.__addPeerToHeight(peer)
+    }
+  }
+
+  /**
+   * Set peer by height.
+   * @param {Peer} peer
+   */
+  __addPeerToHeight (peer) {
+    if (!this._peersByHeight.has(peer.state.height)) {
+      this._peersByHeight.set(peer.state.height, [])
+    }
+
+    this._peersByHeight.get(peer.state.height).push(peer)
+  }
+
+  /**
+   * Remove peer from height.
+   * @param {Peer} peer
+   */
+  __removePeerFromHeight (peer) {
+    const peers = this._peersByHeight.get(peer.state.height)
+    if (peers) {
+      const index = peers.findIndex(p => p.ip === peer.ip)
+      if (index !== -1) {
+        peers.splice(index, 1)
+      }
+
+      if (peers.length === 0) {
+        this._peersByHeight.delete(peer.state.height)
+      }
     }
   }
 

@@ -30,8 +30,8 @@ describe('Commands - Transfer', async () => {
 
   it('should postTransactions using custom smartBridge value', async () => {
     const expectedRecipientId = 'DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq'
-    const expectedTransactionAmount = TransferCommand.__arkToArktoshi(2)
-    const expectedFee = TransferCommand.__arkToArktoshi(0.1)
+    const expectedTransactionAmount = 2
+    const expectedFee = 0.1
     const opts = {
       ...defaultOpts,
       amount: expectedTransactionAmount,
@@ -52,8 +52,8 @@ describe('Commands - Transfer', async () => {
     expect(expectedTransactions).toEqual(expect.arrayContaining([
       expect.objectContaining({
         vendorField: 'foo bar',
-        amount: expectedTransactionAmount,
-        fee: expectedFee,
+        amount: TransferCommand.__arkToArktoshi(expectedTransactionAmount),
+        fee: TransferCommand.__arkToArktoshi(expectedFee),
         recipientId: expectedRecipientId
       })
     ])

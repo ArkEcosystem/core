@@ -13,7 +13,7 @@ The commands and their usage is described below.
 
 ## Installation
 ```bash
-yarn add @arkecosystem/core-snapshots
+yarn add @arkecosystem/core-snapshots-cli
 ```
 ## Usage
 The plugin allows for manipulation, creation and import functionality of various snapshots via the CLI interface
