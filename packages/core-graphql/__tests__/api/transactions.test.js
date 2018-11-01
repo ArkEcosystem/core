@@ -28,7 +28,7 @@ describe('GraphQL API { transactions }', () => {
   })
 
   describe('GraphQL queries for Transactions - orderBy', () => {
-    it('should get 100 transactions', async () => {
+    it('should get 100 transactionsin ascending order of their id', async () => {
       const query = '{ transactions(orderBy: { field: "id", direction: ASC }) { id } }'
       const response = await utils.request(query)
 
@@ -37,6 +37,9 @@ describe('GraphQL API { transactions }', () => {
       const data = response.data.data
       expect(data).toBeObject()
       expect(data.transactions.length).toBe(100)
+      expect(data.transactions.sort((a, b) => {
+        return parseInt(a) <= parseInt(b) ? -1 : 0
+      })).toEqual(data.transactions)
     })
   })
 
