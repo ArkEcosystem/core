@@ -13,6 +13,7 @@ const registerCommand = (name, description) => {
     .option('-c, --config <config>', 'network config', '~/.ark/config')
     .option('-t, --token <token>', 'token name', 'ark')
     .option('-n, --network <network>', 'token network')
+    .option('--trace', 'dumps generated queries and settings to console', false)
 }
 
 registerCommand('create', 'create a full snapshot of the database')

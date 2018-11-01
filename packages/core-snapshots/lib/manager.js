@@ -92,7 +92,9 @@ module.exports = class SnapshotManager {
     } else {
       params.meta = utils.getSnapshotInfo(options.blocks)
     }
-    console.log(params)
+    if (options.trace) {
+      console.log(params)
+    }
     params.database = this.database
     return params
   }
