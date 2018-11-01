@@ -7,12 +7,12 @@ const bugsnag = require('bugsnag')
  * @type {Object}
  */
 exports.plugin = {
-    pkg: require('../package.json'),
-    defaults: require('./defaults'),
-    alias: 'error-tracker',
-    async register (container, options) {
-        bugsnag.register(options.apiKey, options.configuration)
+  pkg: require('../package.json'),
+  defaults: require('./defaults'),
+  alias: 'error-tracker',
+  async register (container, options) {
+    bugsnag.register(options.apiKey, options.configuration)
 
-        return bugsnag
-    }
+    return bugsnag
+  }
 }
