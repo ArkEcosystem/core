@@ -34,7 +34,7 @@ module.exports = class SnapshotManager {
     await importTable('transactions', params)
 
     const lastBlock = await this.database.getLastBlock()
-    logger.info(`Import from folder ${params.folder} completed. Last block in database: ${lastBlock.height} :+1:`)
+    logger.info(`Import from folder ${params.meta.folder} completed. Last block in database: ${lastBlock.height} :+1:`)
 
     if (!params.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
@@ -73,11 +73,11 @@ module.exports = class SnapshotManager {
 
   /**
    * Inits the process and creates json with needed paramaters for functions
-   * @param  {JSONObject} from commander or util function {blocks, append, codec, truncate, signatureVerify, skipRestartRound, start, end}
+   * @param  {JSONObject} from commander or util function {blocks, codec, truncate, signatureVerify, skipRestartRound, start, end}
    * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
    */
   async __init (options, exportAction = false) {
-    let params = pick(options, ['truncate', 'signatureVerify', 'append', 'blocks', 'codec', 'skipRestartRound', 'start', 'end'])
+    let params = pick(options, ['truncate', 'signatureVerify', 'blocks', 'codec', 'skipRestartRound', 'start', 'end'])
 
     const lastBlock = await this.database.getLastBlock()
     params.lastBlock = lastBlock
@@ -85,8 +85,8 @@ module.exports = class SnapshotManager {
 
     if (exportAction) {
       params.meta = utils.setSnapshotInfo(params, lastBlock)
-      if (params.append) {
-        utils.copySnapshot(options.append, params.meta.folder, params.codec)
+      if (params.blocks) {
+        utils.copySnapshot(options.blocks, params.meta.folder, params.codec)
       }
       params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
     } else {

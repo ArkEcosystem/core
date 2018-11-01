@@ -16,7 +16,7 @@ const registerCommand = (name, description) => {
 }
 
 registerCommand('create', 'create a full snapshot of the database')
-  .option('--append <folder>', 'start and end blocks of the previous snapshot, e.g. 1-560000')
+  .option('-b, --blocks <folder>', 'blocks to append to, correlates to folder name')
   .option('-s, --start <number>', 'start network height to export', -1)
   .option('-e, --end <number>', 'end network height to export', -1)
   .option('--codec <string>', 'codec name, default is msg-lite binary')

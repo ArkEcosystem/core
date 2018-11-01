@@ -23,7 +23,7 @@ exports.getSnapshotInfo = (blocks) => {
   return {
     startHeight: +startHeight,
     endHeight: +endHeight,
-    folder: `${startHeight}.${endHeight}`
+    folder: `${startHeight}-${endHeight}`
   }
 }
 
@@ -33,12 +33,12 @@ exports.setSnapshotInfo = (options, lastBlock) => {
     endHeight: (options.end !== -1) ? options.end : lastBlock.height,
     codec: options.codec
   }
-  meta.folder = `${meta.startHeight}.${meta.endHeight}`
+  meta.folder = `${meta.startHeight}-${meta.endHeight}`
 
   if (options.blocks) {
     const oldMeta = this.getSnapshotInfo(options.blocks)
     meta.startHeight = oldMeta.endHeight + 1
-    meta.folder = `${oldMeta.startHeight}.${meta.endHeight}`
+    meta.folder = `${oldMeta.startHeight}-${meta.endHeight}`
   }
 
   return meta

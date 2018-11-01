@@ -19,11 +19,11 @@ module.exports = {
     const gzip = zlib.createGzip()
 
     await fs.ensureFile(snapFileName)
-    const snapshotWriteStream = fs.createWriteStream(snapFileName, options.append ? { flags: 'a' } : {})
+    const snapshotWriteStream = fs.createWriteStream(snapFileName, options.blocks ? { flags: 'a' } : {})
     const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
     const qs = new QueryStream(options.queries[table])
 
-    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.append}`)
+    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.blocks}`)
     try {
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
       logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
