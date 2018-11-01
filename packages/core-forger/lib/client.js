@@ -19,6 +19,8 @@ module.exports = class Client {
       port: container.resolveOptions('p2p').port,
       nethash: config.network.nethash
     }
+
+    this.headers['x-auth'] = 'forger'
   }
 
   /**
