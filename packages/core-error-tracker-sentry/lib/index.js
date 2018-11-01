@@ -7,12 +7,12 @@ const Sentry = require('@sentry/node')
  * @type {Object}
  */
 exports.plugin = {
-    pkg: require('../package.json'),
-    defaults: require('./defaults'),
-    alias: 'sentry',
-    async register (container, options) {
-        Sentry.init(options)
+  pkg: require('../package.json'),
+  defaults: require('./defaults'),
+  alias: 'sentry',
+  async register (container, options) {
+    Sentry.init(options)
 
-        return Sentry
-    }
+    return Sentry
+  }
 }
