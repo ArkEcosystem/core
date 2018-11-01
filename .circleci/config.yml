@@ -33,7 +33,6 @@ jobs:
           key: core-node10-{{ checksum "checksum.txt" }}-1
           paths:
             -  ./node_modules
-            -  ./packages/client/node_modules
             -  ./packages/core-api/node_modules
             -  ./packages/core-blockchain/node_modules
             -  ./packages/core-config/node_modules
