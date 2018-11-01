@@ -50,6 +50,13 @@ describe('Handler', () => {
 
       expect(handler.canApply(wallet, transaction)).toBeFalse()
     })
+
+    it('should be truthy even with case mismatch', () => {
+      transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase()
+      wallet.publicKey = wallet.publicKey.toLowerCase()
+
+      expect(handler.canApply(wallet, transaction)).toBeTrue()
+    })
   })
 
   describe('applyTransactionToSender', () => {
@@ -80,6 +87,19 @@ describe('Handler', () => {
 
       expect(wallet.balance).toEqual(new Bignum(initialBalance))
     })
+
+    it('should not fail due to case mismatch', () => {
+      handler.apply = jest.fn()
+
+      const initialBalance = 1000 * ARKTOSHI
+      wallet.balance = new Bignum(initialBalance)
+      transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase()
+      wallet.publicKey = wallet.publicKey.toLowerCase()
+
+      handler.applyTransactionToSender(wallet, transaction)
+
+      expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount).minus(transaction.fee))
+    })
   })
 
   describe('revertTransactionForSender', () => {
@@ -109,6 +129,19 @@ describe('Handler', () => {
       handler.revertTransactionForSender(wallet, transaction)
 
       expect(wallet.balance).toEqual(new Bignum(initialBalance))
+    })
+
+    it('should not fail due to case mismatch', () => {
+      handler.revert = jest.fn()
+
+      const initialBalance = 1000 * ARKTOSHI
+      wallet.balance = new Bignum(initialBalance)
+      transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase()
+      wallet.publicKey = wallet.publicKey.toLowerCase()
+
+      handler.revertTransactionForSender(wallet, transaction)
+
+      expect(wallet.balance).toEqual(new Bignum(initialBalance).plus(transaction.amount).plus(transaction.fee))
     })
   })
 
