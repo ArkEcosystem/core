@@ -12,7 +12,6 @@ module.exports = `
   scalar JSON
   scalar Limit
   scalar Offset
-  scalar Address
 
   enum OrderDirection {
     ASC
