@@ -44,6 +44,8 @@ module.exports = class Database {
       await this.db.tx('truncate-chain', t => {
         tables.forEach(table => t.none(queries.truncate(table)))
       })
+
+      return true
     } catch (error) {
       container.forceExit('Truncate chain error', error)
     }

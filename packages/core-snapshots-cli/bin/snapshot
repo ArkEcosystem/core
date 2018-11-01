@@ -16,7 +16,7 @@ const registerCommand = (name, description) => {
 }
 
 registerCommand('create', 'create a full snapshot of the database')
-  .option('-f, --folder <folder>', 'snapshot folder for appending')
+  .option('--append <folder>', 'start and end blocks of the previous snapshot, e.g. 1-560000')
   .option('-s, --start <number>', 'start network height to export', -1)
   .option('-e, --end <number>', 'end network height to export', -1)
   .option('--codec <string>', 'codec name, default is msg-lite binary')
@@ -26,7 +26,7 @@ registerCommand('create', 'create a full snapshot of the database')
   })
 
 registerCommand('import', 'import data from specified snapshot')
-  .option('-f, --folder <folder>', 'snapshot folder for importing')
+  .option('-b, --blocks <folder>', 'blocks to import, corelates to folder name')
   .option('--codec <string>', 'codec name, default is msg-lite binary')
   .option('--truncate', 'skip transaction validations', false)
   .option('--skip-restart-round', 'skip revert to current round', false)
@@ -37,7 +37,7 @@ registerCommand('import', 'import data from specified snapshot')
   })
 
 registerCommand('verify', 'check validity of specified snapshot')
-  .option('-f, --folder <folder>', 'snapshot folder')
+  .option('-b, --blocks <folder>', 'blocks to verify, corelates to folder name')
   .option('--codec <string>', 'codec name, default is msg-lite binary')
   .option('--signature-verify', 'signature verification', false)
   .action(async (options) => {

@@ -9,7 +9,7 @@ exports.getPath = (table, folder, codec) => {
 
 exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   const logger = container.resolvePlugin('logger')
-  logger.info(`Copying snapshot from ${sourceFolder} to a new file  ${destFolder} for appending of data`)
+  logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`)
 
   fs.ensureFileSync(this.getPath('blocks', destFolder, codec))
   fs.ensureFileSync(this.getPath('transactions', destFolder, codec))
@@ -18,10 +18,9 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   fs.copyFileSync(this.getPath('transactions', sourceFolder, codec), this.getPath('transactions', sourceFolder, codec))
 }
 
-exports.getSnapshotInfo = (folder) => {
-  const [name, startHeight, endHeight] = folder.split('.')
+exports.getSnapshotInfo = (blocks) => {
+  const [startHeight, endHeight] = blocks.split('-')
   return {
-    name: name,
     startHeight: +startHeight,
     endHeight: +endHeight,
     folder: `${startHeight}.${endHeight}`
@@ -34,12 +33,12 @@ exports.setSnapshotInfo = (options, lastBlock) => {
     endHeight: (options.end !== -1) ? options.end : lastBlock.height,
     codec: options.codec
   }
-  meta.folder = `snapshot.${meta.startHeight}.${meta.endHeight}`
+  meta.folder = `${meta.startHeight}.${meta.endHeight}`
 
-  if (options.folder) {
-    const oldMeta = this.getSnapshotInfo(options.folder)
+  if (options.blocks) {
+    const oldMeta = this.getSnapshotInfo(options.blocks)
     meta.startHeight = oldMeta.endHeight + 1
-    meta.folder = `snapshot.${oldMeta.startHeight}.${meta.endHeight}`
+    meta.folder = `${oldMeta.startHeight}.${meta.endHeight}`
   }
 
   return meta

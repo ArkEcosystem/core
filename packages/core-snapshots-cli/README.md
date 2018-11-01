@@ -23,32 +23,30 @@ The following action creates a new snapshot in ./ark/snapshots/devnet/ folder.
 ```bash
 yarn create:devnet
 ```
-The command will generate snapshot files in your configured folder. By default this folder will be in `~.ark/snapshots/NETWORK_NAME`.
-Files names are following this pattern:  `table.startHeight.endHeight.ark`. For example, command `yarn create:devnet` will create the following files:
-- blocks.0.331985.ark
-- transactions.0.331985.ark
+The command will generate snapshot files in your configured folder. By default this folder will be in `~./ark/snapshots/NETWORK_NAME`.
+Files names are following this pattern:  `table.codec`. For example, command `yarn create:devnet` will create the following files in the folder:
+`~./ark/snapshots/NETWORK_NAME/0-331985`
+- blocks.lite
+- transactions.lite
 
-The filename `blocks.0.331985.ark` indicates that the snapshot includes data between block 0 and block 331985.
+The folder `0-331985` indicates that the snapshot includes data between block 0 and block 331985.
 
 A snapshot can also be created by specifying `--start` and `--end` options where we can specify start and end block height we want to export.
 
 #### Selecting codec for export
-Snapshot creation supports three different codes, to work with. Each of them is a balance between speed and size of the local snapshot. Currently we have:
+Snapshot creation supports three different codecs, to work with. Each of them is a balance between speed and size of the local snapshot. Currently we have:
 - lite codec: uses basic serialization with minimall storage informations. It is the default choice between size and speed
 - ark codec: uses Ark's block and transactions serialization/deserialization mechanism to store and import data. It is a bit slower than lite codec, but uses less data.
 - msgpack coded: uses msgpack's library default compression, giving us maximum speed, but also maximum disk size usage.
 
-Snapshots created with a selected codec have their corresponding file extensions (`lite`, `ark` and `msgpack`), when naming files. For example a snapshot file created with lite codec would look like this: `blocks.1.100.lite`. When importing codec is selected from the filename extension, so please do not rename snapshot files.
+Snapshots created with a selected codec have their corresponding file extensions (`lite`, `ark` and `msgpack`), when naming files. For example a snapshot file created with lite codec would look like this: `blocks.lite`.
 
 ### Append data to an existing snapshot
 To enable rolling snapshost and their faster import execution, it is possible to append data to an the existing snapshot.
-The command is the same as for creating of snapshot with additional parameter for `-f` or `--filename` where we specify the existing snapshot we want to append to.
-As a filename you only provide the `blocks.X.X.ark` filename, for example `blocks.0.331985.ark`. Other files are auto appended.
+The command is the same as for creating of snapshot with additional parameter for `-a` or `--append` where we specify the existing snapshot blocks/folder we want to append to.
+As a `--append` parameter you only provide the `0-331985` blocks number or folder name, for example `yarn create:devnet --appendend 0-331985`.
 
-When append is complete a new file is created, while preserving the old snapshost. You must manually delete old files if needed.
-```bash
-yarn create:devnet -f blocks.0.331985.ark
-```
+When append is completed a new folder is created, while preserving the old snapshost. You must manually delete snapshost folders if needed.
 
 ### Importing a snapshot
 The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snapshot filename must be specified. You specify only first filename - from the blocks.
@@ -56,17 +54,17 @@ The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snap
 >Make sure that your node is not running.
 
 ```bash
-yarn import:devnet -f blocks.0.331985.ark
+yarn import:devnet -b 0-331985
 ```
 > Add option `--truncate` to empty all the tables before import
 
 ```bash
-yarn import:devnet -f blocks.0.331985.ark --truncate
+yarn import:devnet --blocks 0-331985 --truncate
 ```
 #### Verifiying records during import `--signature-verify`
 If you want to do additional `crpto.verify` check for each block and transaction a flag `--signature-verify` can be added to the import command
 ```bash
-yarn import:devnet -f blocks.0.331985.ark --truncate --signature-verify
+yarn import:devnet --blocks 0-331985 --truncate --signature-verify
 ```
 >Please not that this will increase the import time drastically.
 
@@ -75,11 +73,11 @@ By default behaviour when snapshot is imported, the block heigth is set to last 
 ### Verify existing snapshot
 If is wise to validate a snapshot. Functionality is simillar to import, just that there is no database interaction - so basic chain validation with crypto. To check your snapshot run the following command.
 ```bash
-yarn verify:devnet -f blocks.0.331985.ark
+yarn verify:devnet --blocks 0-331985
 ```
 You can also just verify the chaining process and skip signature verification with `--skip-sign-verify` option.
 ```bash
-yarn verify:devnet -f blocks.0.331985.ark --skip-sign-verify
+yarn verify:devnet --blocks 0-331985 --skip-sign-verify
 ```
 Also note that a database verification is performed when the core starts.
 

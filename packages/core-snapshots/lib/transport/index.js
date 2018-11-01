@@ -23,7 +23,7 @@ module.exports = {
     const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
     const qs = new QueryStream(options.queries[table])
 
-    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.meta.folder}`)
+    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.append}`)
     try {
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
       logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)

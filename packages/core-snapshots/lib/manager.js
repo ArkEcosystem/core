@@ -73,11 +73,11 @@ module.exports = class SnapshotManager {
 
   /**
    * Inits the process and creates json with needed paramaters for functions
-   * @param  {JSONObject} from commander or util function {folder, codec, truncate, signatureVerify, skipRestartRound, start, end}
+   * @param  {JSONObject} from commander or util function {blocks, append, codec, truncate, signatureVerify, skipRestartRound, start, end}
    * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
    */
   async __init (options, exportAction = false) {
-    let params = pick(options, ['truncate', 'signatureVerify', 'folder', 'codec', 'skipRestartRound', 'start', 'end'])
+    let params = pick(options, ['truncate', 'signatureVerify', 'append', 'blocks', 'codec', 'skipRestartRound', 'start', 'end'])
 
     const lastBlock = await this.database.getLastBlock()
     params.lastBlock = lastBlock
@@ -85,13 +85,12 @@ module.exports = class SnapshotManager {
 
     if (exportAction) {
       params.meta = utils.setSnapshotInfo(params, lastBlock)
-      if (params.folder) {
-        utils.copySnapshot(options.folder, params.meta.folder, params.codec)
-        params.append = true
+      if (params.append) {
+        utils.copySnapshot(options.append, params.meta.folder, params.codec)
       }
       params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
     } else {
-      params.meta = utils.getSnapshotInfo(options.folder)
+      params.meta = utils.getSnapshotInfo(options.blocks)
     }
     console.log(params)
     params.database = this.database
