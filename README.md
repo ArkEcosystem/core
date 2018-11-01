@@ -30,7 +30,6 @@ This repository contains all plugins that make up the Ark Core.
 | Package | Version | Description
 |---|---|---|
 | **[core](/packages/core)** | [![npm](https://img.shields.io/npm/v/@arkecosystem/core.svg)](https://www.npmjs.com/package/@arkecosystem/core) | **Includes all packages** |
-| [client](/packages/client) | [![npm](https://img.shields.io/npm/v/@arkecosystem/client.svg)](https://www.npmjs.com/package/@arkecosystem/client) | A JavaScript library to interact with the Ark Blockchain |
 | [core-api](/packages/core-api) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-api.svg)](https://www.npmjs.com/package/@arkecosystem/core-api) | Public API |
 | [core-blockchain](/packages/core-blockchain) |  [![npm](https://img.shields.io/npm/v/@arkecosystem/core-blockchain.svg)](https://www.npmjs.com/package/@arkecosystem/core-blockchain) | Blockchain Management |
 | [core-config](/packages/core-config) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-config.svg)](https://www.npmjs.com/package/@arkecosystem/core-config) | Configuration Loader |
