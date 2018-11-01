@@ -23,10 +23,15 @@ const register = async (server, options) => {
         return h.continue
       }
 
-      if (request.path.startsWith('/internal') || request.path.startsWith('/remote')) {
+      if (request.headers['x-auth'] === 'forger' || request.path.startsWith('/remote')) {
         return isWhitelisted(options.whitelist, remoteAddress)
           ? h.continue
           : Boom.forbidden()
+      }
+
+      // Only forger requests are internal
+      if (request.path.startsWith('/internal')) {
+        return Boom.forbidden()
       }
 
       if (!monitor.guard) {
