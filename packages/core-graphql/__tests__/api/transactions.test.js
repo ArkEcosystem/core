@@ -123,13 +123,16 @@ describe('GraphQL API { transactions }', () => {
 
   describe('GraphQL queries for Transactions - filter by type', () => {
     it('should get transactions for given type', async () => {
-      const query = '{ transactions(filter: { type: TRANSFER } ) { id } }'
+      const query = '{ transactions(filter: { type: TRANSFER } ) { type } }'
       const response = await utils.request(query)
-
       expect(response).toBeSuccessfulResponse()
 
-    /** BUG: invalid syntax "TRANSFER"
-    */
+      const data = response.data.data
+      expect(data).toBeObject()
+
+      data.transactions.forEach(tx => {
+        expect(tx.type).toBe(Number(0))
+      })
     })
   })
 
@@ -139,8 +142,11 @@ describe('GraphQL API { transactions }', () => {
       const response = await utils.request(query)
       expect(response).toBeSuccessfulResponse()
 
-    /** BUG: still gets 100 (max)
-    */
+      const data = response.data.data
+      expect(data).toBeObject()
+      expect(data.transactions.length).toBe(5)
+
+      expect(parseInt(data.transactions[0].id, 16)).toBeLessThan(parseInt(data.transactions[1].id, 16))
     })
   })
 
