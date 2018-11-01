@@ -9,10 +9,10 @@ const storage = require('../services/storage')
 
 module.exports = class Index {
   /**
-     * Create a new index instance.
-     * @param  {Number} chunkSize
-     * @return {void}
-     */
+   * Create a new index instance.
+   * @param  {Number} chunkSize
+   * @return {void}
+   */
   setUp (chunkSize) {
     logger.info(`[Elasticsearch] Initialising ${this.getType()} index :scroll:`)
     this.chunkSize = chunkSize
@@ -25,10 +25,10 @@ module.exports = class Index {
   }
 
   /**
-     * Register a new "CREATE" operation listener.
-     * @param  {String} event
-     * @return {void}
-     */
+   * Register a new "CREATE" operation listener.
+   * @param  {String} event
+   * @return {void}
+   */
   _registerCreateListener (event) {
     emitter.on(event, async doc => {
       try {
@@ -44,10 +44,10 @@ module.exports = class Index {
   }
 
   /**
-     * Register a new "DELETE" operation listener.
-     * @param  {String} event
-     * @return {void}
-     */
+   * Register a new "DELETE" operation listener.
+   * @param  {String} event
+   * @return {void}
+   */
   _registerDeleteListener (event) {
     emitter.on(event, async doc => {
       try {
@@ -63,19 +63,19 @@ module.exports = class Index {
   }
 
   /**
-     * Check if the specified document exists.
-     * @param  {String} doc
-     * @return {Promise}
-     */
+   * Check if the specified document exists.
+   * @param  {String} doc
+   * @return {Promise}
+   */
   _exists (doc) {
     return client.exists(this._getReadQuery(doc))
   }
 
   /**
-     * Create a new document.
-     * @param  {String} doc
-     * @return {Promise}
-     */
+   * Create a new document.
+   * @param  {String} doc
+   * @return {Promise}
+   */
   _create (doc) {
     logger.info(`[Elasticsearch] Creating ${this.getType()} with ID ${doc.id}`)
 
@@ -89,10 +89,10 @@ module.exports = class Index {
   }
 
   /**
-     * Delete the specified document.
-     * @param  {String} doc
-     * @return {Promise}
-     */
+   * Delete the specified document.
+   * @param  {String} doc
+   * @return {Promise}
+   */
   _delete (doc) {
     logger.info(`[Elasticsearch] Deleting ${this.getType()} with ID ${doc.id}`)
 
@@ -100,10 +100,10 @@ module.exports = class Index {
   }
 
   /**
-     * Get a query for a "WRITE" operation.
-     * @param  {String} doc
-     * @return {Object}
-     */
+   * Get a query for a "WRITE" operation.
+   * @param  {String} doc
+   * @return {Object}
+   */
   _getWriteQuery (doc) {
     return {
       index: this.getIndex(),
@@ -114,10 +114,10 @@ module.exports = class Index {
   }
 
   /**
-     * Get a query for a "READ" operation.
-     * @param  {String} doc
-     * @return {Object}
-     */
+   * Get a query for a "READ" operation.
+   * @param  {String} doc
+   * @return {Object}
+   */
   _getReadQuery (doc) {
     return {
       index: this.getIndex(),
@@ -127,10 +127,10 @@ module.exports = class Index {
   }
 
   /**
-     * Get a query for a "READ" operation.
-     * @param  {String} doc
-     * @return {Object}
-     */
+   * Get a query for a "READ" operation.
+   * @param  {String} doc
+   * @return {Object}
+   */
   _getUpsertQuery (doc) {
     return {
       action: {
@@ -148,10 +148,10 @@ module.exports = class Index {
   }
 
   /**
-     * Get a query for a "READ" operation.
-     * @param  {Array} items
-     * @return {Object}
-     */
+   * Get a query for a "READ" operation.
+   * @param  {Array} items
+   * @return {Object}
+   */
   _buildBulkUpsert (items) {
     const actions = []
 

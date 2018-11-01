@@ -10,9 +10,9 @@ const storage = require('../services/storage')
 
 class BlockIndex extends Index {
   /**
-     * Index blocks using the specified chunk size.
-     * @return {void}
-     */
+   * Index blocks using the specified chunk size.
+   * @return {void}
+   */
   async index () {
     const { count } = await this.__count()
 
@@ -58,9 +58,9 @@ class BlockIndex extends Index {
   }
 
   /**
-     * Register listeners for "block.*" events.
-     * @return {void}
-     */
+   * Register listeners for "block.*" events.
+   * @return {void}
+   */
   listen () {
     this._registerCreateListener('block.applied')
     // this._registerCreateListener('block.forged')
@@ -69,17 +69,17 @@ class BlockIndex extends Index {
   }
 
   /**
-     * Get the document index.
-     * @return {String}
-     */
+   * Get the document index.
+   * @return {String}
+   */
   getIndex () {
     return 'blocks'
   }
 
   /**
-     * Get the document type.
-     * @return {String}
-     */
+   * Get the document type.
+   * @return {String}
+   */
   getType () {
     return 'block'
   }

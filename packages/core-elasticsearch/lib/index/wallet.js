@@ -8,9 +8,9 @@ const client = require('../services/client')
 
 class WalletIndex extends Index {
   /**
-     * Index wallets using the specified chunk size.
-     * @return {void}
-     */
+   * Index wallets using the specified chunk size.
+   * @return {void}
+   */
   async index () {
     const { count } = await this.__count()
 
@@ -51,25 +51,25 @@ class WalletIndex extends Index {
   }
 
   /**
-     * Register listeners for "wallet.*" events.
-     * @return {void}
-     */
+   * Register listeners for "wallet.*" events.
+   * @return {void}
+   */
   listen () {
     setInterval(() => this.index(), 8000)
   }
 
   /**
-     * Get the document index.
-     * @return {String}
-     */
+   * Get the document index.
+   * @return {String}
+   */
   getIndex () {
     return 'wallets'
   }
 
   /**
-     * Get the document type.
-     * @return {String}
-     */
+   * Get the document type.
+   * @return {String}
+   */
   getType () {
     return 'wallet'
   }

@@ -10,9 +10,9 @@ const storage = require('../services/storage')
 
 class RoundIndex extends Index {
   /**
-     * Index rounds using the specified chunk size.
-     * @return {void}
-     */
+   * Index rounds using the specified chunk size.
+   * @return {void}
+   */
   async index () {
     const { count } = await this.__count()
 
@@ -58,25 +58,25 @@ class RoundIndex extends Index {
   }
 
   /**
-     * Register listeners for "round.*" events.
-     * @return {void}
-     */
+   * Register listeners for "round.*" events.
+   * @return {void}
+   */
   listen () {
     setInterval(() => this.index(), 51 * 8000)
   }
 
   /**
-     * Get the document index.
-     * @return {String}
-     */
+   * Get the document index.
+   * @return {String}
+   */
   getIndex () {
     return 'rounds'
   }
 
   /**
-     * Get the document type.
-     * @return {String}
-     */
+   * Get the document type.
+   * @return {String}
+   */
   getType () {
     return 'round'
   }

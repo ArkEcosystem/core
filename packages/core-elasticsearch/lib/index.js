@@ -29,11 +29,7 @@ exports.plugin = {
     walletIndex.setUp(options.chunkSize)
     roundIndex.setUp(options.chunkSize)
 
-    const server = await require('./server')(options.server)
-
-    logger.info('[Elasticsearch] Let\'s Get It Started :fist:')
-
-    return server
+    return require('./server')(options.server)
   },
   async deregister (container, options) {
     container.resolvePlugin('logger').info('[Elasticsearch] Stopping API :warning:')

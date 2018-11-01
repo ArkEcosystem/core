@@ -8,10 +8,10 @@ const client = require('../services/client')
  */
 exports.index = {
   /**
-     * @param  {Hapi.Request} request
-     * @param  {Hapi.Toolkit} h
-     * @return {Hapi.Response}
-     */
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   async handler (request, h) {
     const query = await client.search(request.payload)
 

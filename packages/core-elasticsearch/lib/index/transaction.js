@@ -11,9 +11,9 @@ const storage = require('../services/storage')
 
 class TransactionIndex extends Index {
   /**
-     * Index transactions using the specified chunk size.
-     * @return {void}
-     */
+   * Index transactions using the specified chunk size.
+   * @return {void}
+   */
   async index () {
     const { count } = await this.__count()
 
@@ -59,9 +59,9 @@ class TransactionIndex extends Index {
   }
 
   /**
-     * Register listeners for "transaction.*" events.
-     * @return {void}
-     */
+   * Register listeners for "transaction.*" events.
+   * @return {void}
+   */
   listen () {
     this._registerCreateListener('transaction.applied')
     this._registerCreateListener('transaction.forged')
@@ -71,17 +71,17 @@ class TransactionIndex extends Index {
   }
 
   /**
-     * Get the document index.
-     * @return {String}
-     */
+   * Get the document index.
+   * @return {String}
+   */
   getIndex () {
     return 'transactions'
   }
 
   /**
-     * Get the document type.
-     * @return {String}
-     */
+   * Get the document type.
+   * @return {String}
+   */
   getType () {
     return 'transaction'
   }
