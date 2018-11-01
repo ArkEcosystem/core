@@ -43,7 +43,7 @@ module.exports = {
     logger.info(`Starting to import table ${table}, codec: ${options.codec}`)
 
     const readStream = fs
-      .createReadStream(sourceFile)
+      .createReadStream(sourceFile, { highWaterMark: 1024 })
       .pipe(gunzip)
       .pipe(decodeStream)
 
