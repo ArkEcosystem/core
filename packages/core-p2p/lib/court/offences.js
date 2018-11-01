@@ -64,5 +64,11 @@ module.exports = {
     period: 'day',
     reason: 'Repeat Offender',
     weight: 100
+  },
+  FORK: {
+    number: 1,
+    period: 'day',
+    reason: 'Fork',
+    weight: 150
   }
 }
