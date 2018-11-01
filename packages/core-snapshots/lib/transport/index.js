@@ -93,11 +93,11 @@ module.exports = {
   },
 
   verifyTable: async (table, options) => {
-    const sourceFile = `${table}.${options.meta.stringInfo}`
+    const sourceFile = utils.getPath(table, options.meta.folder, options.codec)
     const codec = codecs.get(options.codec)
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    const rs = fs.createReadStream(utils.getPath(sourceFile)).pipe(gunzip).pipe(decodeStream)
+    const rs = fs.createReadStream(sourceFile).pipe(gunzip).pipe(decodeStream)
 
     logger.info(`Starting to verify snapshot file ${sourceFile}`)
     let prevData = null
