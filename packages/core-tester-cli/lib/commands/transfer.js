@@ -31,7 +31,7 @@ module.exports = class TransferCommand extends Command {
     }
 
     let totalDeductions = Bignum.ZERO
-    let transactionAmount = new Bignum(this.options.amount || Command.__arkToArktoshi(2))
+    let transactionAmount = Command.__arkToArktoshi(this.options.amount || 2)
 
     const transactions = this.generateTransactions(transactionAmount, wallets, null, true)
     for (const transaction of transactions) {
@@ -84,7 +84,7 @@ module.exports = class TransferCommand extends Command {
 
   /**
    * Generate batch of transactions based on wallets.
-   * @param  {Number}  transactionAmount
+   * @param  {Bignum}  transactionAmount
    * @param  {Object[]}  wallets
    * @param  {Object[]}  [approvalWallets=[]]
    * @param  {Boolean}  [overridePassphrase=false]
@@ -105,7 +105,7 @@ module.exports = class TransferCommand extends Command {
       const builder = client.getBuilder().transfer()
       // noinspection JSCheckFunctionSignatures
       builder
-        .fee(Command.parseFee(this.options.transferFee))
+        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.transferFee)))
         .recipientId(this.options.recipient || wallet.address)
         .network(this.config.network.version)
         .amount(transactionAmount)
@@ -254,7 +254,7 @@ module.exports = class TransferCommand extends Command {
   async __testVendorField (wallets) {
     logger.info('Testing VendorField value is set correctly')
 
-    const transactions = this.generateTransactions(2, wallets, null, null, 'Testing VendorField')
+    const transactions = this.generateTransactions(Command.__arkToArktoshi(2), wallets, null, null, 'Testing VendorField')
 
     try {
       await this.sendTransactions(transactions)

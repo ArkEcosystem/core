@@ -17,7 +17,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
-      amount: Command.__arkToArktoshi(25),
+      amount: this.options.amount || 25,
       skipTesting: true
     })
 
@@ -40,7 +40,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
       usedDelegateNames.push(wallet.username)
 
       const transaction = client.getBuilder().delegateRegistration()
-        .fee(Command.parseFee(this.options.delegateFee))
+        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.delegateFee)))
         .usernameAsset(wallet.username)
         .network(this.config.network.version)
         .sign(wallet.passphrase)
@@ -54,7 +54,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
 
     if (this.options.copy) {
       this.copyToClipboard(transactions)
-      process.exit() // eslint-disable-line no-unreachable
+      return
     }
 
     const expectedDelegates = delegates.length + wallets.length

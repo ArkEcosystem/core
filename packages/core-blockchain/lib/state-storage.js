@@ -32,6 +32,8 @@ class StateStorage {
     this.lastDownloadedBlock = null
     this.blockPing = null
     this.started = false
+    this.forked = false
+    this.forkedBlock = null
     this.rebuild = true
     this.fastRebuild = false
     this.noBlockCounter = 0
