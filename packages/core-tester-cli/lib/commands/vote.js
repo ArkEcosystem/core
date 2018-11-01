@@ -17,7 +17,7 @@ module.exports = class VoteCommand extends Command {
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
-      amount: Command.__arkToArktoshi(2),
+      amount: 2,
       skipTesting: true
     })
 
@@ -37,7 +37,7 @@ module.exports = class VoteCommand extends Command {
     const transactions = []
     wallets.forEach((wallet, i) => {
       const transaction = client.getBuilder().vote()
-        .fee(Command.parseFee(this.options.voteFee))
+        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.voteFee)))
         .votesAsset([`+${delegate}`])
         .network(this.config.network.version)
         .sign(wallet.passphrase)
