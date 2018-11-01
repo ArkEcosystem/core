@@ -85,7 +85,7 @@ module.exports = class ForgerManager {
         return
       }
 
-      await this.__loadUsernames()
+      await this.__loadUsernames(2000)
 
       round = await this.client.getRound()
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
