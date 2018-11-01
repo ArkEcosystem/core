@@ -13,9 +13,11 @@ const renderDelegates = (delegates, contents) => {
       .allByPublicKey()
       .filter(wallet => wallet.vote === delegate.publicKey)
 
-    const approval = delegateCalculator.calculateApproval(delegate)
+    const approval = delegateCalculator.calculateApproval(delegate).toString()
+    const rank = delegate.rate.toLocaleString(undefined, { minimumIntegerDigits: 2 })
+    const votes = (delegate.voteBalance.toFixed() / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })
 
-    contents += `|  ${delegate.rate.toLocaleString(undefined, { minimumIntegerDigits: 2 })}  | ${delegate.username.padEnd(25)} |  ${approval.toString().padEnd(4)}  | ${(delegate.voteBalance.toFixed() / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 }).padEnd(10)} |  ${voters.length.toString().padEnd(4)}  |`
+    contents += `|  ${rank}  | ${delegate.username.padEnd(25)} |  ${approval.padEnd(4)}  | ${votes.padEnd(10)} |  ${voters.length.toString().padEnd(4)}  |`
     contents += '\r\n'
   })
 
