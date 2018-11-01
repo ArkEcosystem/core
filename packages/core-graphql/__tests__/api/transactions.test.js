@@ -14,6 +14,32 @@ afterAll(() => {
 })
 
 describe('GraphQL API { transactions }', () => {
+  describe('GraphQL queries for Transactions - all', () => {
+    it('should get 100 transactions', async () => {
+      const query = '{ transactions { id } }'
+      const response = await utils.request(query)
+
+      expect(response).toBeSuccessfulResponse()
+
+      const data = response.data.data
+      expect(data).toBeObject()
+      expect(data.transactions.length).toBe(100)
+    })
+  })
+
+  describe('GraphQL queries for Transactions - orderBy', () => {
+    it('should get 100 transactions', async () => {
+      const query = '{ transactions(orderBy: { field: "id", direction: ASC }) { id } }'
+      const response = await utils.request(query)
+
+      expect(response).toBeSuccessfulResponse()
+
+      const data = response.data.data
+      expect(data).toBeObject()
+      expect(data.transactions.length).toBe(100)
+    })
+  })
+
   describe('GraphQL queries for Transactions - filter by fee', () => {
     it('should get all transactions with fee = 0', async () => {
       const query = '{ transactions(filter: { fee: 0 }) { id } }'
@@ -67,10 +93,11 @@ describe('GraphQL API { transactions }', () => {
       const data = response.data.data
       expect(data).toBeObject()
       expect(data.transactions.length).toEqual(51) // number of outgoing transactions for the 0th transaction's sender address
-      console.log(genesisBlock.transactions[0].recipientId)
+
       const genesisBlockTransactionIds = genesisBlock.transactions.map(transaction => {
         return transaction.id
       })
+
       data.transactions.forEach(transaction => {
         expect(genesisBlockTransactionIds).toContain(transaction.id)
       })
@@ -84,32 +111,22 @@ describe('GraphQL API { transactions }', () => {
 
       expect(response).toBeSuccessfulResponse()
 
-      console.log(response.data)
-      /**
-       *  { data: { transactions: null },
-            errors: [ { message: 'Argument "filter" has invalid value {recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri"}.',
-              locations: [Array],
-              path: [Array],
-              extensions: [Object] } ] }
-       */
+      const data = response.data.data
+      expect(data).toBeObject()
+
+      expect(data.transactions.length).toBe(2)
     })
   })
 
-  describe.skip('GraphQL queries for Transactions - filter by type', () => {
+  describe('GraphQL queries for Transactions - filter by type', () => {
     it('should get transactions for given type', async () => {
-      const query = '{ transactions(filter: { type: TRANSFER }) { id } }'
+      const query = '{ transactions(filter: { type: TRANSFER } ) { id } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
 
-      console.log(response.data)
-      /**
-       *  { data: { transactions: null },
-            errors: [ { message: 'invalid input syntax for integer: "TRANSFER"',
-              locations: [Array],
-              path: [Array],
-              extensions: [Object] } ] }
-       */
+    /** BUG: invalid syntax "TRANSFER"
+    */
     })
   })
 
@@ -117,42 +134,19 @@ describe('GraphQL API { transactions }', () => {
     it('should get 5 transactions in order of ASCending address', async () => {
       const query = '{ transactions(orderBy: { field: "id", direction: ASC }, limit: 5 ) { id } }'
       const response = await utils.request(query)
-
       expect(response).toBeSuccessfulResponse()
 
-      console.log(response.data)
-      /**
-       *  { data: { transactions: null },
-            errors: [ { message: 'AssertionError [ERR_ASSERTION]: Error while trying to add a non-existant node to a query',
-              locations: [Array],
-              path: [Array],
-              extensions: [Object] } ] }
-       */
+    /** BUG: still gets 100 (max)
+    */
     })
   })
 
-  describe.skip('GraphQL queries for Transactions - testing relationships', () => {
+  describe('GraphQL queries for Transactions - testing relationships', () => {
     it('should verify that relationships are valid', async () => {
       const query = '{ transactions(limit: 1) { recipient { address } } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
-
-      console.log(response.data)
-      /**
-       * { data:
-          { transactions: [
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            ...
-            ...
-          ]
-       */
     })
   })
 
