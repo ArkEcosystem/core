@@ -36,16 +36,19 @@ module.exports = {
 
   importTable: async (table, options) => {
     const sourceFile = utils.getPath(table, options.meta.folder, options.codec)
-    console.log(sourceFile)
     const codec = codecs.get(options.codec)
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    logger.info(`Starting to import table ${table}, codec: ${options.codec}`)
+    logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}`)
 
-    const rs = fs.createReadStream(sourceFile).pipe(gunzip).pipe(decodeStream)
+    const readStream = fs
+      .createReadStream(sourceFile)
+      .pipe(gunzip)
+      .pipe(decodeStream)
+
     let values = []
     let prevData = null
-    rs.on('data', (record) => {
+    readStream.on('data', (record) => {
       if (!verifyData(table, record, prevData, options.signatureVerification)) {
         container.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
       }
@@ -57,7 +60,7 @@ module.exports = {
 
     const getNextData = async (t, pageIndex) => {
       await delay(600)
-      rs.pause()
+      readStream.pause()
       const data = values.slice()
       values = []
       return Promise.resolve(data.length === 0 ? null : data)
@@ -66,7 +69,7 @@ module.exports = {
     try {
       await options.database.db.task('massive-inserts', t => {
         return t.sequence(async index => {
-          rs.resume()
+          readStream.resume()
 
           try {
             const data = await getNextData(t, index)
