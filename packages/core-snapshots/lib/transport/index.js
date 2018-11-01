@@ -42,14 +42,10 @@ module.exports = {
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
     logger.info(`Starting to import table ${table}, codec: ${options.codec}`)
 
-    const readStream = fs
-      .createReadStream(sourceFile, { highWaterMark: 1024 })
-      .pipe(gunzip)
-      .pipe(decodeStream)
-
+    const rs = fs.createReadStream(sourceFile).pipe(gunzip).pipe(decodeStream)
     let values = []
     let prevData = null
-    for await (const record of readStream) {
+    rs.on('data', (record) => {
       if (!verifyData(table, record, prevData, options.signatureVerification)) {
         container.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
       }
@@ -57,11 +53,11 @@ module.exports = {
         values.push(record)
       }
       prevData = record
-    }
+    })
 
     const getNextData = async (t, pageIndex) => {
       await delay(600)
-      readStream.pause()
+      rs.pause()
       const data = values.slice()
       values = []
       return Promise.resolve(data.length === 0 ? null : data)
@@ -70,7 +66,7 @@ module.exports = {
     try {
       await options.database.db.task('massive-inserts', t => {
         return t.sequence(async index => {
-          readStream.resume()
+          rs.resume()
 
           try {
             const data = await getNextData(t, index)
