@@ -368,6 +368,13 @@ module.exports = class Blockchain {
     await this.database.applyBlock(block)
     await this.database.saveBlock(block)
 
+    // Check if we recovered from a fork
+    if (this.state.forked && this.state.forkedBlock.height === block.data.height) {
+      logger.info('Successfully recovered from fork :star2:')
+      this.state.forked = false
+      this.state.forkedBlock = null
+    }
+
     if (this.transactionPool) {
       try {
         this.transactionPool.acceptChainedBlock(block)
