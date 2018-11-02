@@ -50,8 +50,11 @@ module.exports = (request, h) => {
   const totalVotes = sumBy(voters, wallet => +wallet.balance.toFixed())
   const percentage = (totalVotes * 100) / supply
 
+  const client = configManager.get('client')
+
   return h.view('index', {
-    client: configManager.get('client'),
+    client,
+    token: client.token.padEnd(client.token.length === 4 ? 0 : (client.token.length * 2) - 1),
     activeDelegatesCount: constants.activeDelegates,
     activeDelegates: formatDelegates(active),
     standbyDelegates: formatDelegates(standby),
