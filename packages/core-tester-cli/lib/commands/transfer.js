@@ -281,7 +281,7 @@ module.exports = class TransferCommand extends Command {
   async __testEmptyVendorField (wallets) {
     logger.info('Testing empty VendorField value')
 
-    const transactions = this.generateTransactions(2, wallets, null, null, null)
+    const transactions = this.generateTransactions(Command.__arkToArktoshi(2), wallets, null, null, null)
 
     try {
       await this.sendTransactions(transactions)
