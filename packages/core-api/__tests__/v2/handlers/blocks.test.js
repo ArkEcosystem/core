@@ -29,7 +29,22 @@ describe('API 2.0 - Blocks', () => {
         expect(response).toBeSuccessfulResponse()
         expect(response).toBePaginated()
         expect(response.data.data).toBeArray()
+        const block = response.data.data[0]
+        utils.expectBlock(block)
+      })
+    })
+  })
 
+  describe('GET /blocks?orderBy=invalidinput', () => {
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the "%s" header', (header, request) => {
+      it('should GET all the blocks in descending order', async () => {
+        const response = await utils[request]('GET', 'blocks?orderBy=invalidinput')
+        expect(response).toBeSuccessfulResponse()
+        expect(response).toBePaginated()
+        expect(response.data.data).toBeArray()
         const block = response.data.data[0]
         utils.expectBlock(block)
       })
