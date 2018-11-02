@@ -1,10 +1,10 @@
 Top {{activeDelegatesCount}} Delegates Stats
 
 => Total Votes  : {{percentage}}% ({{totalVotes}} / {{supply}})
-=> Total Voters : {{voters}} (only voters with more than 0.1 {{token}})
+=> Total Voters : {{voters}} (only voters with more than 0.1 {{client.symbol}})
 
 ===================================================================
-| Rank | Delegate                  | Vote % |  Vote ARK  | Voters |
+| Rank | Delegate                  | Vote % |  Vote {{client.symbol}}  | Voters |
 ===================================================================
 {{#each activeDelegates}}
 |  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voterCount}} |

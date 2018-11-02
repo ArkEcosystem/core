@@ -51,7 +51,7 @@ module.exports = (request, h) => {
   const percentage = (totalVotes * 100) / supply
 
   return h.view('index', {
-    token: configManager.get('client').symbol,
+    client: configManager.get('client'),
     activeDelegatesCount: constants.activeDelegates,
     activeDelegates: formatDelegates(active),
     standbyDelegates: formatDelegates(standby),
