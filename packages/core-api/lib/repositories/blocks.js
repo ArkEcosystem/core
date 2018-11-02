@@ -126,7 +126,7 @@ class BlocksRepository extends Repository {
     if (!parameters.orderBy) return ['height', 'desc']
     else {
       let orderBy = parameters.orderBy.split(':').map(p => p.toLowerCase())
-      if (orderBy.length !== 2 || ['desc','asc'].includes(orderBy[1])) {
+      if (orderBy.length !== 2 || ['desc', 'asc'].includes(orderBy[1]) !== true) {
         return ['height', 'desc']
       }
 
