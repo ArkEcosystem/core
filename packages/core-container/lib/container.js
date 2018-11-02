@@ -154,8 +154,7 @@ module.exports = class Container {
       this.shuttingDown = true
 
       const logger = this.resolvePlugin('logger')
-      logger.info('EXIT handled, trying to shut down gracefully')
-      logger.info('Stopping Ark Core')
+      logger.info('Ark Core is trying to gracefully shut down to avoid data corruption :pizza:')
 
       try {
         const database = this.resolvePlugin('database')
