@@ -7,6 +7,15 @@ exports.getPath = (table, folder, codec) => {
   return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${table}.${codec}`
 }
 
+exports.writeMetaFile = (snapshotInfo) => {
+  const path = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${snapshotInfo.folder}/meta.json`
+  fs.writeFileSync(path, JSON.stringify(snapshotInfo, 'utf8'))
+}
+
+exports.getFilePath = (filename, folder) => {
+  return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${filename}`
+}
+
 exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   const logger = container.resolvePlugin('logger')
   logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`)
@@ -33,12 +42,14 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   fs.copyFileSync(paths.source.transactions, paths.dest.transactions)
 }
 
-exports.getSnapshotInfo = (blocks) => {
-  const [startHeight, endHeight] = blocks.split('-')
+exports.getSnapshotInfo = (folder) => {
+  const snapshotInfo = fs.readJSONSync(this.getFilePath('meta.json', folder))
   return {
-    startHeight: +startHeight,
-    endHeight: +endHeight,
-    folder: `${startHeight}-${endHeight}`
+    startHeight: +snapshotInfo.blocks.startHeight,
+    endHeight: +snapshotInfo.blocks.endHeight,
+    folder: snapshotInfo.folder,
+    blocks: snapshotInfo.blocks,
+    transactions: snapshotInfo.transactions
   }
 }
 

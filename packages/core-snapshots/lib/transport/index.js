@@ -8,6 +8,7 @@ const zlib = require('zlib');
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
 const codecs = require('./codec')
@@ -28,7 +29,7 @@ module.exports = {
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
       logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
-      return data
+      return { count: data.processed, startHeight: options.meta.startHeight, endHeight: options.meta.endHeight }
     } catch (error) {
       container.forceExit('Error while exporting data via query stream', error)
     }
@@ -40,6 +41,7 @@ module.exports = {
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
     logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}`)
+    emitter.emit('start', { count: options.meta[table].count })
 
     const readStream = fs
       .createReadStream(sourceFile)
@@ -48,6 +50,7 @@ module.exports = {
 
     let values = []
     let prevData = null
+    let counter = 0
     readStream.on('data', (record) => {
       if (!verifyData(table, record, prevData, options.signatureVerification)) {
         container.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
@@ -73,9 +76,9 @@ module.exports = {
 
           try {
             const data = await getNextData(t, index)
-
             if (data) {
-              logger.debug(`Importing ${data.length} records from ${table}.${options.codec}`)
+              counter += data.length
+              emitter.emit('progress', { value: counter, table: table })
               const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
               return t.none(insert)
             }
@@ -84,7 +87,7 @@ module.exports = {
           }
         })
       })
-
+      emitter.emit('complete')
       return true
     } catch (error) {
       logger.error(error.stack)

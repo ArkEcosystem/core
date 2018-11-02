@@ -2957,6 +2957,14 @@ cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
+cli-progress@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/cli-progress/-/cli-progress-2.1.0.tgz#a212e7e6b685687644ca703904ea49c34ee302c8"
+  integrity sha512-mY0GFIADTooScUe8ERTiQjJoOvXv1z0SzA8gzKO8imLqB7tBwEnNN10gWHcKoltDL4gLdi1GGoPEbxxbvJtR4A==
+  dependencies:
+    colors "^1.1.2"
+    string-width "^2.1.1"
+
 cli-table3@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/cli-table3/-/cli-table3-0.5.1.tgz#0252372d94dfc40dbd8df06005f48f31f656f202"

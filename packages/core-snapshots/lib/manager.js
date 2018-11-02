@@ -23,10 +23,14 @@ module.exports = class SnapshotManager {
   async exportData (options) {
     const params = await this.__init(options, true)
 
-    await Promise.all([
-      exportTable('blocks', params),
-      exportTable('transactions', params)
-    ])
+    const metaInfo = {
+      blocks: await exportTable('blocks', params),
+      transactions: await exportTable('transactions', params),
+      folder: params.meta.folder,
+      codec: options.codec
+    }
+
+    utils.writeMetaFile(metaInfo)
   }
 
   async importData (options) {
