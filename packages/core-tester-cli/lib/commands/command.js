@@ -293,7 +293,7 @@ module.exports = class Command {
    * @return {String}
    */
   static __arktoshiToArk (arktoshi) {
-    return (arktoshi.toNumber() / Math.pow(10, 8)).toFixed()
+    return arktoshi.div(1e8).toFixed()
   }
 
   /**
