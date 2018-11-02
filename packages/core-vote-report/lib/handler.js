@@ -54,7 +54,7 @@ module.exports = (request, h) => {
 
   return h.view('index', {
     client,
-    token: client.token.padEnd(client.token.length === 4 ? 0 : (client.token.length * 2) - 1),
+    token: client.token.padEnd(client.token.length === 4 ? client.token.length + 1 : (client.token.length * 2) - 1),
     activeDelegatesCount: constants.activeDelegates,
     activeDelegates: formatDelegates(active),
     standbyDelegates: formatDelegates(standby),
