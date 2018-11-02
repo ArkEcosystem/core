@@ -33,7 +33,7 @@ module.exports = `
     version: Int!
     timestamp: Int!
     senderPublicKey: String
-    recipientId: String
+    recipientId: Address
     type: Int!
     vendorField: String
     amount: Float
@@ -45,7 +45,7 @@ module.exports = `
   }
 
   type Wallet {
-    address: String
+    address: Address
     publicKey: String
     secondPublicKey: String
     vote: String

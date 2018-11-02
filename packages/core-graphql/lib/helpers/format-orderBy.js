@@ -10,7 +10,7 @@ module.exports = (parameter, defaultValue) => {
   let order
 
   if (parameter) {
-    order = `${parameter.field}:${parameter.direction}`
+    order = `${parameter.field}:${parameter.direction.toLowerCase()}`
   }
 
   return order || defaultValue

@@ -17,12 +17,12 @@ const GraphQLTypes = require('graphql-tools-types')
  * these hold the data processing responsibilities of the complete
  * GraphQL query flow.
  */
+
 module.exports = {
   JSON: GraphQLTypes.JSON({ name: 'Json' }),
   Limit: GraphQLTypes.Int({ name: 'Limit', min: 1, max: 100 }),
   Offset: GraphQLTypes.Int({ name: 'Offset', min: 0 }),
-  Address: GraphQLTypes.String({ name: 'Address', regex: /^[AaDd]{1}[0-9a-zA-Z]{33}/g }),
-
+  Address: GraphQLTypes.String({ name: 'Address', regex: /^[AaDd]{1}[0-9a-zA-Z]{33}/ }),
   Query: queries,
   Block,
   Transaction,
