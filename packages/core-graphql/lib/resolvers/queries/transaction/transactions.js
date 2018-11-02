@@ -10,7 +10,6 @@ const { transactions: repository } = require('../../../repositories')
 module.exports = async (root, args) => {
   const { orderBy, filter, limit } = args
   const order = formatOrderBy(orderBy, 'timestamp:desc')
-console.log(limit)
   const result = await repository.findAll({ ...filter, orderBy: order, limit })
   const transactions = result ? result.rows : []
   return transactions

@@ -156,6 +156,10 @@ describe('GraphQL API { transactions }', () => {
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
+      
+      const data = response.data.data
+      expect(data).toBeObject()
+      expect(data.transactions[0].recipient.address).not.toBeNull()
     })
   })
 

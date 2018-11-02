@@ -65,27 +65,14 @@ describe('GraphQL API { wallets }', () => {
     })
   })
 
-  describe.skip('GraphQL queries for Wallets - testing relationships', () => {
+  describe('GraphQL queries for Wallets - testing relationships', () => {
     it('should verify that relationships are valid', async () => {
       const query = '{ wallets(limit: 1) { transactions { id } } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
 
-      console.log(response.data)
-      /**
-       *  { data: { wallets: [ [Object] ] },
-            errors: [ { message: 'database.createCondition is not a function',
-              locations: [Array],
-              path: [Array],
-              extensions: [Object] } ]
-          }
-       */
-
-      console.log(response.data.wallets)
-      /**
-       *  [ { transactions: null } ]
-       */
+      expect(response.data.errors).toBeFalsy() //relationships doesn't function well (unimplemented)
     })
   })
 
