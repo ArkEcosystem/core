@@ -2,12 +2,8 @@ const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 require('@arkecosystem/core-test-utils/lib/matchers')
 
-let genesisBlock
-
 beforeAll(async () => {
   await app.setUp()
-
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(() => {
@@ -17,7 +13,7 @@ afterAll(() => {
 describe('GraphQL API { address }', () => {
   describe('GraphQL resolver for Address', () => {
     it('should get wallter for a correctly formatted Address', async () => {
-      const query = `{ wallet(address: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn") { producedBlocks } }`
+      const query = '{ wallet(address: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn") { producedBlocks } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
