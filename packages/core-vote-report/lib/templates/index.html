@@ -1,18 +1,18 @@
-Top {{activeDelegatesCount}} Delegates Stats<br><br>
+Top {{activeDelegatesCount}} Delegates Stats
 
-=> Total Votes  : {{percentage}}% ({{totalVotes}} / {{supply}})<br>
-=> Total Voters : {{voters}}<br><br>
+=> Total Votes  : {{percentage}}% ({{totalVotes}} / {{supply}})
+=> Total Voters : {{voters}}
 
-===================================================================<br>
-| Rank | Delegate                  | Vote % |  Vote ARK  | Voters |<br>
-===================================================================<br>
+===================================================================
+| Rank | Delegate                  | Vote % |  Vote ARK  | Voters |
+===================================================================
 {{#each activeDelegates}}
-|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}}  |<br>
+|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}}  |
 {{/each}}
-===================================================================<br>
+===================================================================
 {{#if standbyDelegates}}
 {{#each standbyDelegates}}
-|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}}  |<br>
+|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}}  |
 {{/each}}
 ===================================================================
 {{/if}}

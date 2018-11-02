@@ -56,5 +56,5 @@ module.exports = (request, h) => {
     supply: (supply / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 }),
     totalVotes: (totalVotes / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 }),
     percentage: percentage.toLocaleString(undefined, { maximumFractionDigits: 2 })
-  })
+  }).type('text/plain')
 }
