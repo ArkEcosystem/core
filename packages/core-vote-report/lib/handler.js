@@ -15,13 +15,14 @@ const formatDelegates = delegates => delegates.map(delegate => {
   const approval = delegateCalculator.calculateApproval(delegate).toString()
   const rank = delegate.rate.toLocaleString(undefined, { minimumIntegerDigits: 2 })
   const votes = delegate.voteBalance.div(1e8).toFixed().toLocaleString(undefined, { maximumFractionDigits: 0 })
+  const voterCount = voters.length.toLocaleString(undefined, { maximumFractionDigits: 0 })
 
   return {
     rank,
     username: delegate.username.padEnd(25),
     approval: approval.padEnd(4),
     votes: votes.padEnd(10),
-    voters: voters.length.toString().padEnd(4)
+    voterCount: voterCount.padEnd(5)
   }
 })
 

@@ -7,12 +7,12 @@ Top {{activeDelegatesCount}} Delegates Stats
 | Rank | Delegate                  | Vote % |  Vote ARK  | Voters |
 ===================================================================
 {{#each activeDelegates}}
-|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}} |
+|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voterCount}} |
 {{/each}}
 ===================================================================
 {{#if standbyDelegates}}
 {{#each standbyDelegates}}
-|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}} |
+|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voterCount}} |
 {{/each}}
 ===================================================================
 {{/if}}
