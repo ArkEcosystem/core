@@ -97,7 +97,7 @@ class ConfigLoader {
 
     let configTree = {}
 
-    dirTree(basePath, { extensions: /\.js/ }).children.forEach(entry => {
+    dirTree(basePath, { extensions: /\.(js|json)$/ }).children.forEach(entry => {
       if (entry.type === 'file') {
         configTree[formatName(entry)] = entry.path
       }
