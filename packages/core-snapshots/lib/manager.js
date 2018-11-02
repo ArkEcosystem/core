@@ -1,17 +1,23 @@
 'use strict'
+
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const delay = require('delay')
 
-const Database = require('./db')
+const database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
 const pick = require('lodash/pick')
 
 module.exports = class SnapshotManager {
-  constructor (database, options) {
-    this.database = new Database(database)
+  constructor (options) {
     this.options = options
+  }
+
+  async make (connection) {
+    this.database = await database.make(connection)
+
+    return this
   }
 
   async exportData (options) {

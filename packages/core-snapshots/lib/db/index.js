@@ -1,21 +1,21 @@
 'use strict'
 
 const promise = require('bluebird')
+const { migrations } = require('@arkecosystem/core-database-postgres')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const queries = require('./queries')
 const { rawQuery } = require('./utils')
 const columns = require('./utils/column-set')
 
-module.exports = class Database {
-  constructor (database) {
+class Database {
+  async make (database) {
     if (database) {
       this.db = database.db
       this.pgp = database.pgp
       this.__createColumnSets()
       logger.info('Snapshots: reusing core-database-postgres connection from running core')
-
-      return
+      return this
     }
 
     try {
@@ -25,7 +25,9 @@ module.exports = class Database {
       options.idleTimeoutMillis = 100
       this.db = pgp(options)
       this.__createColumnSets()
+      await this.__runMigrations()
       logger.info('Snapshots: Database connected')
+      return this
     } catch (error) {
       container.forceExit('Error while connecting to postgres', error)
     }
@@ -104,4 +106,12 @@ module.exports = class Database {
     this.blocksColumnSet = new this.pgp.helpers.ColumnSet(columns.blocks, { table: 'blocks' })
     this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: 'transactions' })
   }
+
+  async __runMigrations () {
+    for (const migration of migrations) {
+      await this.db.none(migration)
+    }
+  }
 }
+
+module.exports = new Database()

@@ -27,3 +27,9 @@ exports.plugin = {
     return container.resolvePlugin('database').disconnect()
   }
 }
+
+/**
+ * The files required to migrate the database.
+ * @type {Array}
+ */
+exports.migrations = require('./migrations')

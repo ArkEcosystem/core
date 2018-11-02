@@ -1,6 +1,7 @@
 'use strict'
 
 const SnapshotManager = require('./manager')
+
 /**
  * The struct used by the plugin container.
  * @type {Object}
@@ -10,6 +11,8 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'snapshots',
   async register (container, options) {
-    return new SnapshotManager(container.resolvePlugin('database'), options)
+    const manager = new SnapshotManager(options)
+
+    return manager.make(container.resolvePlugin('database'))
   }
 }
