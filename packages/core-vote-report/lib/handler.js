@@ -10,7 +10,7 @@ const database = container.resolvePlugin('database')
 const formatDelegates = delegates => delegates.map(delegate => {
   const voters = database.walletManager
     .allByPublicKey()
-    .filter(wallet => wallet.vote === delegate.publicKey)
+    .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance > 0.1 * Math.pow(10, 8))
 
   const approval = delegateCalculator.calculateApproval(delegate).toString()
   const rank = delegate.rate.toLocaleString(undefined, { minimumIntegerDigits: 2 })
@@ -43,16 +43,17 @@ module.exports = (request, h) => {
 
   const voters = database.walletManager
     .allByPublicKey()
-    .filter(wallet => wallet.vote)
+    .filter(wallet => wallet.vote && wallet.balance > 0.1 * Math.pow(10, 8))
 
   const totalVotes = sumBy(voters, wallet => +wallet.balance.toFixed())
   const percentage = (totalVotes * 100) / supply
 
   return h.view('index', {
+    token: config.get('client').token,
     activeDelegatesCount: constants.activeDelegates,
     activeDelegates: formatDelegates(active),
     standbyDelegates: formatDelegates(standby),
-    voters: voters.length,
+    voters: voters.length.toLocaleString(undefined, { maximumFractionDigits: 0 }),
     supply: (supply / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 }),
     totalVotes: (totalVotes / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 }),
     percentage: percentage.toLocaleString(undefined, { maximumFractionDigits: 2 })
