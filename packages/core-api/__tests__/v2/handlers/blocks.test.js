@@ -35,13 +35,13 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('GET /blocks?orderBy=invalidinput', () => {
+  describe('GET /blocks?orderBy=height:', () => {
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader']
     ])('using the "%s" header', (header, request) => {
       it('should GET all the blocks in descending order', async () => {
-        const response = await utils[request]('GET', 'blocks?orderBy=invalidinput')
+        const response = await utils[request]('GET', 'blocks?orderBy=height:')
         expect(response).toBeSuccessfulResponse()
         expect(response).toBePaginated()
         expect(response.data.data).toBeArray()
