@@ -16,7 +16,12 @@ beforeAll(async () => {
   genesisTransaction = new Transaction(genesisBlock.transactions[0])
 })
 
+beforeEach(() => {
+  utils.headers['x-auth'] = 'forger'
+})
+
 afterAll(async () => {
+  delete utils.headers['x-auth']
   await app.tearDown()
 })
 
@@ -31,6 +36,13 @@ describe('API - Internal', () => {
 
       expect(response.data).toHaveProperty('data')
     })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.GET('internal/rounds/current')
+
+      expect(response.status).toBe(403)
+    })
   })
 
   describe('POST /blocks', () => {
@@ -40,6 +52,15 @@ describe('API - Internal', () => {
       })
 
       expect(response.status).toBe(204)
+    })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.POST('internal/blocks', {
+        block: genesisBlock.toJson()
+      })
+
+      expect(response.status).toBe(403)
     })
   })
 
@@ -55,6 +76,15 @@ describe('API - Internal', () => {
 
       expect(response.data).toHaveProperty('data')
     })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.POST('internal/transactions/verify', {
+        transaction: genesisTransaction
+      })
+
+      expect(response.status).toBe(403)
+    })
   })
 
   describe('GET /transactions/forging', () => {
@@ -67,6 +97,13 @@ describe('API - Internal', () => {
 
       expect(response.data).toHaveProperty('data')
     })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.GET('internal/transactions/forging')
+
+      expect(response.status).toBe(403)
+    })
   })
 
   describe('GET /network/state', () => {
@@ -78,6 +115,13 @@ describe('API - Internal', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('data')
+    })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.GET('internal/network/state')
+
+      expect(response.status).toBe(403)
     })
   })
 })

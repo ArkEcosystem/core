@@ -21,7 +21,9 @@ module.exports = class Database {
     try {
       const pgp = require('pg-promise')({ promiseLib: promise })
       this.pgp = pgp
-      this.db = pgp(container.resolveOptions('database').connection)
+      const options = container.resolveOptions('database').connection
+      options.idleTimeoutMillis = 100
+      this.db = pgp(options)
       this.__createColumnSets()
       logger.info('Snapshots: Database connected')
     } catch (error) {
