@@ -42,7 +42,7 @@ describe('GraphQL API { blocks }', () => {
   })
 
   describe('GraphQL queries for Blocks - testing api errors', () => {
-    it('should...', async () => {
+    it('should not be a successful query', async () => {
       const query = '{ blocks(filter: { vers } ) { id } }'
       const response = await utils.request(query)
 
