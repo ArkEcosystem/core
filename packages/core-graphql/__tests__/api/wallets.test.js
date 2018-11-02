@@ -72,7 +72,7 @@ describe('GraphQL API { wallets }', () => {
 
       expect(response).toBeSuccessfulResponse()
 
-      expect(response.data.errors).toBeFalsy() //relationships doesn't function well (unimplemented)
+      expect(response.data.errors).toBeFalsy() // relationships doesn't function well (unimplemented)
     })
   })
 

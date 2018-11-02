@@ -24,5 +24,16 @@ describe('GraphQL API { address }', () => {
 
       expect(data.wallet.producedBlocks).toBe(0)
     })
+    it('should return an error for an incorrectly formatted Address', async () => {
+      const query = '{ wallet(address: "bad address") { producedBlocks } }'
+      const response = await utils.request(query)
+
+      expect(response).not.toBeSuccessfulResponse()
+
+      const data = response.data.data
+      expect(data).toBeFalsy()
+      expect(response.data.errors[0]).toBeObject()
+      expect(response.data.errors[0].message).not.toBeNull()
+    })
   })
 })
