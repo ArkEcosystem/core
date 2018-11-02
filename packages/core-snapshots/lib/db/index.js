@@ -14,7 +14,6 @@ class Database {
       this.db = database.db
       this.pgp = database.pgp
       this.__createColumnSets()
-      await this.__runMigrations()
       logger.info('Snapshots: reusing core-database-postgres connection from running core')
       return this
     }
