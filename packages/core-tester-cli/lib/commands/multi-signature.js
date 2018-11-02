@@ -89,7 +89,7 @@ module.exports = class MultiSignatureCommand extends Command {
       const builder = client.getBuilder().multiSignature()
 
       builder
-        .fee(Command.parseFee(this.options.multisigFee))
+        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.multisigFee)))
         .multiSignatureAsset({
           lifetime: this.options.lifetime,
           keysgroup: publicKeys,
@@ -129,7 +129,7 @@ module.exports = class MultiSignatureCommand extends Command {
   async __testSendWithSignatures (transfer, wallets, approvalWallets = []) {
     logger.info('Sending transactions with signatures')
 
-    const transactions = transfer.generateTransactions(2, wallets, approvalWallets)
+    const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets, approvalWallets)
 
     try {
       await this.sendTransactions(transactions)
@@ -155,7 +155,7 @@ module.exports = class MultiSignatureCommand extends Command {
   async __testSendWithMinSignatures (transfer, wallets, approvalWallets = [], min = 2) {
     logger.info(`Sending transactions with ${min} (min) of ${approvalWallets.length} signatures`)
 
-    const transactions = transfer.generateTransactions(2, wallets, take(approvalWallets, min))
+    const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets, take(approvalWallets, min))
 
     try {
       await this.sendTransactions(transactions)
@@ -182,7 +182,7 @@ module.exports = class MultiSignatureCommand extends Command {
     const max = min - 1
     logger.info(`Sending transactions with ${max} (below min) of ${approvalWallets.length} signatures`)
 
-    const transactions = transfer.generateTransactions(2, wallets, take(approvalWallets, max))
+    const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets, take(approvalWallets, max))
 
     try {
       await this.sendTransactions(transactions)
@@ -213,7 +213,7 @@ module.exports = class MultiSignatureCommand extends Command {
   async __testSendWithoutSignatures (transfer, wallets) {
     logger.info('Sending transactions without signatures')
 
-    const transactions = transfer.generateTransactions(2, wallets)
+    const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets)
 
     try {
       await this.sendTransactions(transactions)
@@ -244,7 +244,7 @@ module.exports = class MultiSignatureCommand extends Command {
   async __testSendWithEmptySignatures (transfer, wallets) {
     logger.info('Sending transactions with empty signatures')
 
-    const transactions = transfer.generateTransactions(2, wallets)
+    const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets)
     for (const transaction of transactions) {
       transaction.data.signatures = []
     }
