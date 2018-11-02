@@ -1,6 +1,7 @@
 'use strict'
 
 const sumBy = require('lodash/sumBy')
+const { configManager } = require('@arkecosystem/crypto')
 const { bignumify, delegateCalculator } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
@@ -50,7 +51,7 @@ module.exports = (request, h) => {
   const percentage = (totalVotes * 100) / supply
 
   return h.view('index', {
-    token: config.get('client').token,
+    token: configManager.get('client').symbol,
     activeDelegatesCount: constants.activeDelegates,
     activeDelegates: formatDelegates(active),
     standbyDelegates: formatDelegates(standby),
