@@ -11,6 +11,10 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   const logger = container.resolvePlugin('logger')
   logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`)
 
+  if (!fs.pathExistsSync(sourceFolder)) {
+    return container.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`)
+  }
+
   fs.ensureFileSync(this.getPath('blocks', destFolder, codec))
   fs.ensureFileSync(this.getPath('transactions', destFolder, codec))
 
