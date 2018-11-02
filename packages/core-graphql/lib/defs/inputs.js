@@ -35,7 +35,7 @@ module.exports = `
     fee: Float
     blockId: String
     senderPublicKey: String
-    recipientId: Address
+    recipientId: String
     type: TransactionType
   }
 

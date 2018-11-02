@@ -12,7 +12,7 @@ module.exports = `
     blocks(limit: Limit, offset: Offset, orderBy: OrderByInput, filter: BlockFilter): [Block]
     transaction(id: String): Transaction
     transactions(limit: Limit, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]
-    wallet(address: String, publicKey: String, username: String): Wallet
+    wallet(address: Address, publicKey: String, username: String): Wallet
     wallets(limit: Limit, orderBy: OrderByInput, filter: WalletFilter): [Wallet]
   }
 
