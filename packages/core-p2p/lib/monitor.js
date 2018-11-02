@@ -3,7 +3,6 @@
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
-const assert = require('assert')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -144,12 +143,12 @@ class Monitor {
   updatePeerHeight (peer, previousHeight) {
     if (peer.state.height !== previousHeight) {
       // Remove peer from previous height
-      assert(this._peersByHeight.has(previousHeight))
-      const index = this._peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
-      assert(index !== -1)
-      this._peersByHeight.get(previousHeight).splice(index, 1)
-      if (this._peersByHeight.get(previousHeight).length === 0) {
-        this._peersByHeight.delete(previousHeight)
+      if (this._peersByHeight.has(previousHeight)) {
+        const index = this._peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
+        this._peersByHeight.get(previousHeight).splice(index, 1)
+        if (this._peersByHeight.get(previousHeight).length === 0) {
+          this._peersByHeight.delete(previousHeight)
+        }
       }
 
       // Add peer to new height

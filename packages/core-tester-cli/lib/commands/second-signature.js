@@ -26,7 +26,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
     wallets.forEach((wallet, i) => {
       wallet.secondPassphrase = this.config.secondPassphrase || wallet.passphrase
       const transaction = client.getBuilder().secondSignature()
-        .fee(Command.parseFee(this.options.signatureFee))
+        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.signatureFee)))
         .signatureAsset(wallet.secondPassphrase)
         .network(this.config.network.version)
         .sign(wallet.passphrase)
