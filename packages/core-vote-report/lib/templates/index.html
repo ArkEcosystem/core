@@ -1,0 +1,18 @@
+Top {{activeDelegatesCount}} Delegates Stats
+
+=> Total Votes  : {{percentage}}% ({{totalVotes}} / {{supply}})
+=> Total Voters : {{voters}}
+
+===================================================================
+| Rank | Delegate                  | Vote % |  Vote ARK  | Voters |
+===================================================================
+{{#each activeDelegates}}
+|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}}  |
+{{/each}}
+===================================================================
+{{#if standbyDelegates}}
+{{#each standbyDelegates}}
+|  {{rank}}  | {{username}} |  {{approval}}  | {{votes}} |  {{voters}}  |
+{{/each}}
+===================================================================
+{{/if}}

@@ -7,24 +7,25 @@ const config = container.resolvePlugin('config')
 const blockchain = container.resolvePlugin('blockchain')
 const database = container.resolvePlugin('database')
 
-const renderDelegates = (delegates, contents) => {
-  delegates.forEach(delegate => {
-    const voters = database.walletManager
-      .allByPublicKey()
-      .filter(wallet => wallet.vote === delegate.publicKey)
+const formatDelegates = delegates => delegates.map(delegate => {
+  const voters = database.walletManager
+    .allByPublicKey()
+    .filter(wallet => wallet.vote === delegate.publicKey)
 
-    const approval = delegateCalculator.calculateApproval(delegate).toString()
-    const rank = delegate.rate.toLocaleString(undefined, { minimumIntegerDigits: 2 })
-    const votes = delegate.voteBalance.div(1e8).toFixed().toLocaleString(undefined, { maximumFractionDigits: 0 })
+  const approval = delegateCalculator.calculateApproval(delegate).toString()
+  const rank = delegate.rate.toLocaleString(undefined, { minimumIntegerDigits: 2 })
+  const votes = delegate.voteBalance.div(1e8).toFixed().toLocaleString(undefined, { maximumFractionDigits: 0 })
 
-    contents += `|  ${rank}  | ${delegate.username.padEnd(25)} |  ${approval.padEnd(4)}  | ${votes.padEnd(10)} |  ${voters.length.toString().padEnd(4)}  |`
-    contents += '\r\n'
-  })
+  return {
+    rank,
+    username: delegate.username.padEnd(25),
+    approval: approval.padEnd(4),
+    votes: votes.padEnd(10),
+    voters: voters.length.toString().padEnd(4)
+  }
+})
 
-  return contents
-}
-
-module.exports = () => {
+module.exports = (request, h) => {
   const lastBlock = blockchain.getLastBlock()
   const constants = config.getConstants(lastBlock.data.height)
   const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height)
@@ -44,26 +45,16 @@ module.exports = () => {
     .allByPublicKey()
     .filter(wallet => wallet.vote)
 
-  const totalVotes = sumBy(voters, o => +o.balance.toFixed())
+  const totalVotes = sumBy(voters, wallet => +wallet.balance.toFixed())
   const percentage = (totalVotes * 100) / supply
 
-  let contents = `Top ${constants.activeDelegates} Delegates Stats`
-  contents += '\r\n\r\n'
-  contents += `=> Total Votes  : ${percentage.toLocaleString(undefined, { maximumFractionDigits: 2 })}% (${(totalVotes / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${(supply / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })})`
-  contents += '\r\n'
-  contents += `=> Total Voters : ${voters.length}`
-  contents += '\r\n\r\n'
-  contents += '===================================================================\r\n'
-  contents += '| Rank | Delegate                  | Vote % |  Vote ARK  | Voters |'
-  contents += '\r\n'
-  contents += '===================================================================\r\n'
-  contents = renderDelegates(active, contents)
-  contents += '===================================================================\r\n'
-
-  if (standby) {
-    contents = renderDelegates(standby, contents)
-    contents += '===================================================================\r\n'
-  }
-
-  return contents
+  return h.view('index', {
+    activeDelegatesCount: constants.activeDelegates,
+    activeDelegates: formatDelegates(active),
+    standbyDelegates: formatDelegates(standby),
+    voters: voters.length,
+    supply: (supply / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 }),
+    totalVotes: (totalVotes / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 }),
+    percentage: percentage.toLocaleString(undefined, { maximumFractionDigits: 2 })
+  })
 }

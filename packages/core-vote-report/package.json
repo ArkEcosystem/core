@@ -2,7 +2,9 @@
   "name": "@arkecosystem/core-vote-report",
   "description": "Vote Report for Ark Core",
   "version": "0.1.0",
-  "contributors": ["Brian Faust <brian@ark.io>"],
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
@@ -19,12 +21,13 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-http-utils": "^0.1.0",
     "@arkecosystem/core-utils": "^0.1.0",
+    "handlebars": "^4.0.12",
     "lodash": "^4.17.11"
   },
   "publishConfig": {
     "access": "public"
   },
   "engines": {
-    "node" : ">=10.x"
+    "node": ">=10.x"
   }
 }
