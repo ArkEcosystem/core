@@ -434,7 +434,7 @@ class TransactionsRepository extends Repository {
 
   __orderBy (parameters) {
     return parameters.orderBy
-      ? parameters.orderBy.split(':')
+      ? parameters.orderBy.split(':').map(p => p.toLowerCase())
       : ['timestamp', 'desc']
   }
 }
