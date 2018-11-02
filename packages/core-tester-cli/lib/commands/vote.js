@@ -46,7 +46,7 @@ module.exports = class VoteCommand extends Command {
 
       transactions.push(transaction)
 
-      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
+      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)})`)
     })
 
     if (this.options.copy) {

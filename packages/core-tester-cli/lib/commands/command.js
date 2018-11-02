@@ -288,6 +288,15 @@ module.exports = class Command {
   }
 
   /**
+   * Convert Arktoshi to ARK.
+   * @param  {Bignum} arktoshi
+   * @return {String}
+   */
+  static __arktoshiToArk (arktoshi) {
+    return (arktoshi.toNumber() / Math.pow(10, 8)).toFixed()
+  }
+
+  /**
    * Quit command and output error when problem sending transactions.
    * @param  {Error} error
    * @return {void}

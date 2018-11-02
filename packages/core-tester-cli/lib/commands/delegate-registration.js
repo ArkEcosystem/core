@@ -49,7 +49,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
 
       transactions.push(transaction)
 
-      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee}, username: ${wallet.username})`)
+      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)}, username: ${wallet.username})`)
     })
 
     if (this.options.copy) {
