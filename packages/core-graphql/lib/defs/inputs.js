@@ -13,7 +13,7 @@ module.exports = `
   scalar Limit
   scalar Offset
   scalar Address
-  
+
   enum OrderDirection {
     ASC
     DESC
