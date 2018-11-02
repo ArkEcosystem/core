@@ -2,15 +2,19 @@
 
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 
 exports.getPath = (table, folder, codec) => {
   return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${table}.${codec}`
 }
 
-exports.copySnapshot = (sourceFolder, destFolder, codec) => {
-  const logger = container.resolvePlugin('logger')
-  logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`)
+exports.copySnapshot = async (sourceFolder, destFolder, codec) => {
+  const exists = await fs.pathExists(this.getPath('blocks', sourceFolder, codec))
+  if (!exists) {
+    container.forceExit(`Specified snapshot to append to doesn't exist. Source path ${sourceFolder} not found.`)
+  }
 
+  logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`)
   fs.ensureFileSync(this.getPath('blocks', destFolder, codec))
   fs.ensureFileSync(this.getPath('transactions', destFolder, codec))
 
