@@ -17,14 +17,14 @@ module.exports = {
     const snapFileName = utils.getPath(table, options.meta.folder, options.codec)
     const codec = codecs.get(options.codec)
     const gzip = zlib.createGzip()
-
     await fs.ensureFile(snapFileName)
-    const snapshotWriteStream = fs.createWriteStream(snapFileName, options.blocks ? { flags: 'a' } : {})
-    const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
-    const qs = new QueryStream(options.queries[table])
 
     logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.blocks}`)
     try {
+      const snapshotWriteStream = fs.createWriteStream(snapFileName, options.blocks ? { flags: 'a' } : {})
+      const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
+      const qs = new QueryStream(options.queries[table])
+
       const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
       logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
