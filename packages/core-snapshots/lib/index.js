@@ -7,8 +7,8 @@ const SnapshotManager = require('./manager')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  alias: 'snapshots',
   defaults: require('./defaults'),
+  alias: 'snapshots',
   async register (container, options) {
     return new SnapshotManager(container.resolvePlugin('database'), options)
   }
