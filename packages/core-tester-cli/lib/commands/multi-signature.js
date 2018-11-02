@@ -89,7 +89,7 @@ module.exports = class MultiSignatureCommand extends Command {
       const builder = client.getBuilder().multiSignature()
 
       builder
-        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.multisigFee)))
+        .fee(Command.parseFee(this.options.multisigFee))
         .multiSignatureAsset({
           lifetime: this.options.lifetime,
           keysgroup: publicKeys,

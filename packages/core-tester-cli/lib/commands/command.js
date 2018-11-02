@@ -179,7 +179,7 @@ module.exports = class Command {
    */
   static parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => +bignumify(f).toFixed())
+      const feeRange = fee.split('-').map(f => +bignumify(f * Math.pow(10, 8)).toFixed())
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }

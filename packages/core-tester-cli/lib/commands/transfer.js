@@ -105,7 +105,7 @@ module.exports = class TransferCommand extends Command {
       const builder = client.getBuilder().transfer()
       // noinspection JSCheckFunctionSignatures
       builder
-        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.transferFee)))
+        .fee(Command.parseFee(this.options.transferFee))
         .recipientId(this.options.recipient || wallet.address)
         .network(this.config.network.version)
         .amount(transactionAmount)
