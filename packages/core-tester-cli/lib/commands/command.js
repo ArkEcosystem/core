@@ -179,7 +179,7 @@ module.exports = class Command {
    */
   static parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => +bignumify(f * Math.pow(10, 8)).toFixed())
+      const feeRange = fee.split('-').map(f => +bignumify(Number(f) * Math.pow(10, 8)).toFixed())
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }
@@ -187,7 +187,7 @@ module.exports = class Command {
       return bignumify(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
     }
 
-    return bignumify(fee)
+    return bignumify(fee * Math.pow(10, 8))
   }
 
   /**
