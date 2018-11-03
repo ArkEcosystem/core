@@ -170,7 +170,7 @@ describe('API - Version 1', () => {
     })
   })
 
-  describe('POST /peer/transactions', () => {
+  describe.skip('POST /peer/transactions', () => {
     it('should be ok', async () => {
       const response = await utils.POST('peer/transactions', {
         transactions: [genesisTransaction.toJson()]

@@ -29,6 +29,10 @@ class TransactionsRepository extends Repository {
       parameters.senderPublicKey = senderPublicKey
     }
 
+    if (parameters.type) {
+      parameters.type = TRANSACTION_TYPES[parameters.type]
+    }
+
     const applyConditions = queries => {
       const conditions = Object.entries(this._formatConditions(parameters))
 
@@ -424,7 +428,7 @@ class TransactionsRepository extends Repository {
 
   __orderBy (parameters) {
     return parameters.orderBy
-      ? parameters.orderBy.split(':')
+      ? parameters.orderBy.split(':').map(p => p.toLowerCase())
       : ['timestamp', 'desc']
   }
 }

@@ -140,7 +140,7 @@ class Helpers {
 
     let transaction = transactionBuilder
       .transfer()
-      .amount(1 * Math.pow(10, 8))
+      .amount(1 * 1e8)
       .recipientId('AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1')
       .vendorField('test')
       .sign('prison tobacco acquire stone dignity palace note decade they current lesson robot')

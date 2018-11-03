@@ -36,7 +36,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
       wallet.secondPublicKey = transaction.asset.signature.publicKey
       transactions.push(transaction)
 
-      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
+      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)})`)
     })
 
     if (this.options.copy) {

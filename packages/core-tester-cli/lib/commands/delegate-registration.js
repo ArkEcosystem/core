@@ -40,7 +40,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
       usedDelegateNames.push(wallet.username)
 
       const transaction = client.getBuilder().delegateRegistration()
-        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.delegateFee)))
+        .fee(Command.parseFee(this.options.delegateFee))
         .usernameAsset(wallet.username)
         .network(this.config.network.version)
         .sign(wallet.passphrase)
@@ -49,7 +49,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
 
       transactions.push(transaction)
 
-      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee}, username: ${wallet.username})`)
+      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)}, username: ${wallet.username})`)
     })
 
     if (this.options.copy) {
