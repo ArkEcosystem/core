@@ -6,7 +6,7 @@ const configTestnet = require('./networks/ark/testnet.json')
  * The Arktoshi base.
  * @type {Number}
  */
-exports.ARKTOSHI = Math.pow(10, 8)
+exports.ARKTOSHI = 1e8
 
 /**
  * Available transaction types.
