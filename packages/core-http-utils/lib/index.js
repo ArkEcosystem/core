@@ -5,6 +5,7 @@ module.exports = {
   monitorServer: require('./server/monitor'),
   mountServer: require('./server/mount'),
   plugins: {
-    whitelist: require('./plugins/whitelist')
+    corsHeaders: require('./plugins/cors-headers'),
+    whitelist: require('./plugins/whitelist'),
   }
 }
