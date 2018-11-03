@@ -23,6 +23,8 @@ module.exports = async (config) => {
     }
   })
 
+  await server.register({ plugin: plugins.corsHeaders })
+
   await server.register({
     plugin: plugins.whitelist,
     options: {

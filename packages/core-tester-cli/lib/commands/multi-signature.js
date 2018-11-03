@@ -89,7 +89,7 @@ module.exports = class MultiSignatureCommand extends Command {
       const builder = client.getBuilder().multiSignature()
 
       builder
-        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.multisigFee)))
+        .fee(Command.parseFee(this.options.multisigFee))
         .multiSignatureAsset({
           lifetime: this.options.lifetime,
           keysgroup: publicKeys,
@@ -112,7 +112,7 @@ module.exports = class MultiSignatureCommand extends Command {
       transactions.push(transaction)
 
       if (log) {
-        logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
+        logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)})`)
       }
     })
 

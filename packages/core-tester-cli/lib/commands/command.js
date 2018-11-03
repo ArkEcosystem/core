@@ -1,6 +1,6 @@
 'use strict'
 
-const { Bignum, crypto } = require('@arkecosystem/crypto')
+const { Bignum, crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { bignumify } = require('@arkecosystem/core-utils')
 const bip39 = require('bip39')
 const clipboardy = require('clipboardy')
@@ -179,7 +179,7 @@ module.exports = class Command {
    */
   static parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => +bignumify(f).toFixed())
+      const feeRange = fee.split('-').map(f => +bignumify(f).times(1e8).toFixed())
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }
@@ -187,7 +187,7 @@ module.exports = class Command {
       return bignumify(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
     }
 
-    return bignumify(fee)
+    return bignumify(fee).times(1e8)
   }
 
   /**
@@ -284,7 +284,16 @@ module.exports = class Command {
    * @return {Bignum}
    */
   static __arkToArktoshi (ark) {
-    return bignumify(ark * Math.pow(10, 8))
+    return bignumify(ark * 1e8)
+  }
+
+  /**
+   * Convert Arktoshi to ARK.
+   * @param  {Bignum} arktoshi
+   * @return {String}
+   */
+  static __arktoshiToArk (arktoshi) {
+    return formatArktoshi(arktoshi)
   }
 
   /**
