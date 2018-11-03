@@ -1,4 +1,5 @@
 'use strict'
+
 module.exports = {
   testEnvironment: 'node',
   bail: false,
