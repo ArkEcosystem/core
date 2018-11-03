@@ -27,7 +27,7 @@ module.exports = class TransferCommand extends Command {
     const walletBalance = await this.getWalletBalance(primaryAddress)
 
     if (!this.options.skipValidation) {
-      logger.info(`Sender starting balance: ${walletBalance}`)
+      logger.info(`Sender starting balance: ${Command.__arktoshiToArk(walletBalance)}`)
     }
 
     let totalDeductions = Bignum.ZERO
@@ -45,7 +45,7 @@ module.exports = class TransferCommand extends Command {
 
     const expectedSenderBalance = (new Bignum(walletBalance)).minus(totalDeductions)
     if (!this.options.skipValidation) {
-      logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
+      logger.info(`Sender expected ending balance: ${Command.__arktoshiToArk(expectedSenderBalance)}`)
     }
 
     const runOptions = {
@@ -105,7 +105,7 @@ module.exports = class TransferCommand extends Command {
       const builder = client.getBuilder().transfer()
       // noinspection JSCheckFunctionSignatures
       builder
-        .fee(Command.__arkToArktoshi(Command.parseFee(this.options.transferFee)))
+        .fee(Command.parseFee(this.options.transferFee))
         .recipientId(this.options.recipient || wallet.address)
         .network(this.config.network.version)
         .amount(transactionAmount)
@@ -126,7 +126,7 @@ module.exports = class TransferCommand extends Command {
       transactions.push(transaction)
 
       if (log) {
-        logger.info(`${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${transaction.fee})`)
+        logger.info(`${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${Command.__arktoshiToArk(transaction.fee)})`)
       }
     })
 
@@ -231,7 +231,7 @@ module.exports = class TransferCommand extends Command {
       const walletBalance = await this.getWalletBalance(runOptions.primaryAddress)
       if (!walletBalance.isEqualTo(runOptions.expectedSenderBalance)) {
         successfulTest = false
-        logger.error(`Sender balance incorrect: '${walletBalance}' but should be '${runOptions.expectedSenderBalance}'`)
+        logger.error(`Sender balance incorrect: '${Command.__arktoshiToArk(walletBalance)}' but should be '${Command.__arktoshiToArk(runOptions.expectedSenderBalance)}'`)
       }
     }
 
@@ -239,7 +239,7 @@ module.exports = class TransferCommand extends Command {
       const balance = await this.getWalletBalance(wallet.address)
       if (!balance.isEqualTo(runOptions.transactionAmount)) {
         successfulTest = false
-        logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${runOptions.transactionAmount}' but is '${balance}'`)
+        logger.error(`Incorrect destination balance for ${Command.__arktoshiToArk(wallet.address)}. Should be '${runOptions.transactionAmount}' but is '${Command.__arktoshiToArk(balance)}'`)
       }
     }
 
