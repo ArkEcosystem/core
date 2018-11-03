@@ -23,6 +23,11 @@ module.exports = class SnapshotManager {
   async exportData (options) {
     const params = await this.__init(options, true)
 
+    if (params.skipExportWhenNoChange) {
+      logger.info(`Skipping export of snapshot, because ${params.meta.folder} is already up to date.`)
+      return
+    }
+
     const metaInfo = {
       blocks: await exportTable('blocks', params),
       transactions: await exportTable('transactions', params),
@@ -96,6 +101,11 @@ module.exports = class SnapshotManager {
     if (exportAction) {
       params.meta = utils.setSnapshotInfo(params, lastBlock)
       if (params.blocks) {
+        if (options.blocks === params.meta.folder) {
+          params.skipExportWhenNoChange = true
+          return params
+        }
+
         utils.copySnapshot(options.blocks, params.meta.folder, params.codec)
       }
       params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
