@@ -1,6 +1,6 @@
 'use strict'
 
-// Based on https://github.com/gr2m/hapi-cors-headers
+// Based on https://github.com/gr2m/hapi-cors-headers which was never updated to support hapi.js 17
 
 const register = async (server, options) => {
   server.ext({
