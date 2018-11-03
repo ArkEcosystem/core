@@ -284,7 +284,7 @@ module.exports = class Command {
    * @return {Bignum}
    */
   static __arkToArktoshi (ark) {
-    return bignumify(ark * Math.pow(10, 8))
+    return bignumify(ark * 1e8)
   }
 
   /**
