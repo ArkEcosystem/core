@@ -32,7 +32,8 @@ module.exports = class SnapshotManager {
       blocks: await exportTable('blocks', params),
       transactions: await exportTable('transactions', params),
       folder: params.meta.folder,
-      codec: options.codec
+      codec: options.codec,
+      skipCompression: options.skipCompression
     }
 
     utils.writeMetaFile(metaInfo)
@@ -92,7 +93,7 @@ module.exports = class SnapshotManager {
    * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
    */
   async __init (options, exportAction = false) {
-    let params = pick(options, ['truncate', 'signatureVerify', 'blocks', 'codec', 'skipRestartRound', 'start', 'end'])
+    let params = pick(options, ['truncate', 'signatureVerify', 'blocks', 'codec', 'skipRestartRound', 'start', 'end', 'skipCompression'])
 
     const lastBlock = await this.database.getLastBlock()
     params.lastBlock = lastBlock

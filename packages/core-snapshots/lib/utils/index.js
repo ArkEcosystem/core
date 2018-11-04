@@ -4,7 +4,8 @@ const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 
 exports.getPath = (table, folder, codec) => {
-  return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${table}.${codec}`
+  const filename = `${table}.${codec}`
+  return this.getFilePath(filename, folder)
 }
 
 exports.writeMetaFile = (snapshotInfo) => {
@@ -43,13 +44,19 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
 }
 
 exports.getSnapshotInfo = (folder) => {
-  const snapshotInfo = fs.readJSONSync(this.getFilePath('meta.json', folder))
+  const metaFileInfo = this.getFilePath('meta.json', folder)
+  if (!fs.existsSync(metaFileInfo)) {
+    container.forceExit('Meta file meta.json not found. Exiting :bomb:')
+  }
+
+  const snapshotInfo = fs.readJSONSync(metaFileInfo)
   return {
     startHeight: +snapshotInfo.blocks.startHeight,
     endHeight: +snapshotInfo.blocks.endHeight,
     folder: snapshotInfo.folder,
     blocks: snapshotInfo.blocks,
-    transactions: snapshotInfo.transactions
+    transactions: snapshotInfo.transactions,
+    skipCompression: snapshotInfo.skipCompression
   }
 }
 
@@ -57,7 +64,8 @@ exports.setSnapshotInfo = (options, lastBlock) => {
   let meta = {
     startHeight: (options.start !== -1) ? options.start : 1,
     endHeight: (options.end !== -1) ? options.end : lastBlock.height,
-    codec: options.codec
+    codec: options.codec,
+    skipCompression: options.skipCompression
   }
   meta.folder = `${meta.startHeight}-${meta.endHeight}`
 

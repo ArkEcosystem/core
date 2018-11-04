@@ -20,13 +20,19 @@ module.exports = {
     const gzip = zlib.createGzip()
     await fs.ensureFile(snapFileName)
 
-    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.blocks}`)
+    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.blocks}, skipCompression: ${options.skipCompression}`)
     try {
       const snapshotWriteStream = fs.createWriteStream(snapFileName, options.blocks ? { flags: 'a' } : {})
       const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
       const qs = new QueryStream(options.queries[table])
 
-      const data = await options.database.db.stream(qs, s => s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream))
+      const data = await options.database.db.stream(qs, s => {
+        if (options.meta.skipCompression) {
+          return s.pipe(encodeStream).pipe(snapshotWriteStream)
+        }
+
+        return s.pipe(encodeStream).pipe(gzip).pipe(snapshotWriteStream)
+      })
       logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
       return { count: data.processed, startHeight: options.meta.startHeight, endHeight: options.meta.endHeight }
@@ -43,10 +49,9 @@ module.exports = {
     logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}`)
     emitter.emit('start', { count: options.meta[table].count })
 
-    const readStream = fs
-      .createReadStream(sourceFile)
-      .pipe(gunzip)
-      .pipe(decodeStream)
+    const readStream = options.meta.skipCompression
+      ? fs.createReadStream(sourceFile).pipe(decodeStream)
+      : fs.createReadStream(sourceFile).pipe(gunzip).pipe(decodeStream)
 
     let values = []
     let prevData = null
@@ -100,7 +105,9 @@ module.exports = {
     const codec = codecs.get(options.codec)
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    const rs = fs.createReadStream(sourceFile).pipe(gunzip).pipe(decodeStream)
+    const readStream = options.meta.skipCompression
+      ? fs.createReadStream(sourceFile).pipe(decodeStream)
+      : fs.createReadStream(sourceFile).pipe(gunzip).pipe(decodeStream)
 
     logger.info(`Starting to verify snapshot file ${sourceFile}`)
     let prevData = null
@@ -112,7 +119,7 @@ module.exports = {
       prevData = data
     })
 
-    rs.on('finish', () => {
+    readStream.on('finish', () => {
       logger.info(`Snapshot file ${sourceFile} succesfully verified  :+1:`)
     })
   },
