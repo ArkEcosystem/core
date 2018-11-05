@@ -239,7 +239,7 @@ module.exports = class TransferCommand extends Command {
       const balance = await this.getWalletBalance(wallet.address)
       if (!balance.isEqualTo(runOptions.transactionAmount)) {
         successfulTest = false
-        logger.error(`Incorrect destination balance for ${Command.__arktoshiToArk(wallet.address)}. Should be '${runOptions.transactionAmount}' but is '${Command.__arktoshiToArk(balance)}'`)
+        logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${Command.__arktoshiToArk(runOptions.transactionAmount)}' but is '${Command.__arktoshiToArk(balance)}'`)
       }
     }
 

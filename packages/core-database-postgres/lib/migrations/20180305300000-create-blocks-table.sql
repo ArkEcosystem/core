@@ -12,8 +12,7 @@ CREATE TABLE IF NOT EXISTS ${schema~}.blocks (
     "payload_length" INTEGER NOT NULL,
     "payload_hash" VARCHAR(64) NOT NULL,
     "generator_public_key" VARCHAR(66) NOT NULL,
-    "block_signature" VARCHAR(256) NOT NULL,
-    "created_at" timestamptz DEFAULT now() NOT NULL
+    "block_signature" VARCHAR(256) NOT NULL
 );
 
 -- Constraints
