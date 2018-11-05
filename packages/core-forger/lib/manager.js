@@ -31,8 +31,9 @@ module.exports = class ForgerManager {
    * @return {Array}
    */
   async loadDelegates (bip38, password) {
-    if (!bip38 && !this.secrets) {
-      throw new Error('No delegate found')
+    if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
+      logger.warn('No delegate found! Please check your "delegates.json" file and try again.')
+      return
     }
 
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, password))
