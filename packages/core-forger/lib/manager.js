@@ -9,6 +9,8 @@ const config = container.resolvePlugin('config')
 const { slots } = require('@arkecosystem/crypto')
 const { Delegate, Transaction } = require('@arkecosystem/crypto').models
 
+const isEmpty = require('lodash/isEmpty')
+
 const Client = require('./client')
 
 module.exports = class ForgerManager {
@@ -184,7 +186,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * Gets the unconfirmed transactions from the relay nodes transactio pool
+   * Gets the unconfirmed transactions from the relay nodes transaction pool
    */
   async __getTransactionsForForging () {
     const response = await this.client.getTransactions()
@@ -193,7 +195,11 @@ module.exports = class ForgerManager {
       ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
       : []
 
-    logger.debug(`Received ${transactions.length} transactions from the pool containing ${response.poolSize} :money_with_wings:`)
+    if (isEmpty(response)) {
+      logger.error('Could not get unconfirmed transactions from transaction pool.')
+    } else {
+      logger.debug(`Received ${transactions.length} transactions from the pool containing ${response.poolSize} :money_with_wings:`)
+    }
 
     return transactions
   }
