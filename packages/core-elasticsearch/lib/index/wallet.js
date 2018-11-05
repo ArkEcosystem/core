@@ -35,13 +35,9 @@ class WalletIndex extends Index {
       logger.info(`[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`)
 
       try {
-        const wallets = rows.map(row => {
-          row.id = row.address
+        rows.forEach(row => (row.id = row.address))
 
-          return row
-        })
-
-        await client.bulk(this._buildBulkUpsert(wallets))
+        await client.bulk(this._buildBulkUpsert(rows))
       } catch (error) {
         logger.error(`[Elasticsearch] ${error.message} :exclamation:`)
       }
