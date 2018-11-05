@@ -21,7 +21,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'Elasticsearch Routes',
+  name: 'routes',
   version: '0.1.0',
   register
 }
