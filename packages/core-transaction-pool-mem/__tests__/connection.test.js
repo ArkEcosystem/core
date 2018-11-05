@@ -1,6 +1,7 @@
 'use strict'
 
 const app = require('./__support__/setup')
+const { bignumify } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 const defaultConfig = require('../lib/defaults')
@@ -365,7 +366,7 @@ describe('Connection', () => {
 
       // This should be dropped due to checkDynamicFeeMatch()
       const lowFeeTransaction = new Transaction(mockData.dummy3)
-      lowFeeTransaction.fee = 1 // 1 ARKTOSHI
+      lowFeeTransaction.fee = bignumify(1) // 1 ARKTOSHI
 
       connection.addTransaction(lowFeeTransaction)
       connection.addTransaction(mockData.dummy4)
@@ -589,7 +590,7 @@ describe('Connection', () => {
       for (let i = 0; i < nAdd; i++) {
         const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
-        transaction.fee = rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI)
+        transaction.fee = bignumify(rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI))
         transaction.serialized = Transaction.serialize(transaction).toString('hex')
         allTransactions.push(transaction)
       }
