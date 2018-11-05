@@ -51,7 +51,7 @@ class Database {
         await this.db.none(queries.truncate(table))
       }
 
-      return
+      return this.getLastBlock()
     } catch (error) {
       container.forceExit('Truncate chain error', error)
     }

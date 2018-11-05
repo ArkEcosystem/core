@@ -57,9 +57,13 @@ The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snap
 ```bash
 yarn import:devnet -b 0-331985
 ```
-> If you want to import from block 1, e.g. empty database first, you should run the `yarn truncate:NETWORK_NAME` command.
+> If you want to import from block 1, e.g. empty database first, you should run the `yarn truncate:NETWORK_NAME` command or add `--truncate` parameter to the `import` command.
 ```bash
 yarn truncate:devnet
+```
+Using the `--truncate` parameter
+```bash
+yarn import:devnet -b 0-331985 --truncate
 ```
 #### Verifiying records during import `--signature-verify`
 If you want to do additional `crpto.verify` check for each block and transaction a flag `--signature-verify` can be added to the import command

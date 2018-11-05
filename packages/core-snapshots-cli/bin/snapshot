@@ -30,6 +30,7 @@ registerCommand('create', 'create a full snapshot of the database')
 registerCommand('import', 'import data from specified snapshot')
   .option('-b, --blocks <folder>', 'blocks to import, corelates to folder name')
   .option('--codec <string>', 'codec name, default is msg-lite binary')
+  .option('--truncate', 'empty all tables before running import', false)
   .option('--skip-restart-round', 'skip revert to current round', false)
   .option('--signature-verify', 'signature verification', false)
   .action(async (options) => {

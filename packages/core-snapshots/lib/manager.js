@@ -41,6 +41,10 @@ module.exports = class SnapshotManager {
   async importData (options) {
     const params = await this.__init(options)
 
+    if (params.truncate) {
+      params.lastBlock = await this.database.truncateChain()
+    }
+
     await importTable('blocks', params)
     await importTable('transactions', params)
 
