@@ -76,7 +76,7 @@ class BlocksRepository extends Repository {
       .select(this.query.id, this.query.timestamp)
       .from(this.query)
       .where(this.query.generator_public_key.equals(generatorPublicKey))
-      .order(this.query.created_at.desc)
+      .order(this.query.height.desc)
 
     return this._find(query)
   }

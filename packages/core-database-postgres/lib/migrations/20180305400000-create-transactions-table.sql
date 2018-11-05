@@ -11,8 +11,7 @@ CREATE TABLE IF NOT EXISTS ${schema~}.transactions (
     "vendor_field_hex" bytea,
     "amount" BIGINT NOT NULL,
     "fee" BIGINT NOT NULL,
-    "serialized" bytea NOT NULL,
-    "created_at" timestamptz DEFAULT now() NOT NULL
+    "serialized" bytea NOT NULL
 );
 
 -- Constraints
