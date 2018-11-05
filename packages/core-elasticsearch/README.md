@@ -23,7 +23,7 @@ module.exports = {
     host: 'localhost:9200',
     log: 'info'
   },
-  chunkSize: 5000
+  chunkSize: 50000
 }
 ```
 
