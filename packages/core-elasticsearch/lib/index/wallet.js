@@ -38,9 +38,6 @@ class WalletIndex extends Index {
         const wallets = rows.map(row => {
           row.id = row.address
 
-          delete row.createdAt
-          delete row.updatedAt
-
           return row
         })
 

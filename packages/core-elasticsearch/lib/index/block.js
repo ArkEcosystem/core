@@ -39,14 +39,7 @@ class BlockIndex extends Index {
       logger.info(`[Elasticsearch] Indexing blocks from height ${first(heights)} to ${last(heights)} :card_index_dividers:`)
 
       try {
-        const blocks = rows.map(row => {
-          delete row.createdAt
-          delete row.updatedAt
-
-          return row
-        })
-
-        await client.bulk(this._buildBulkUpsert(blocks))
+        await client.bulk(this._buildBulkUpsert(rows))
 
         storage.update('history', {
           lastBlock: last(heights)

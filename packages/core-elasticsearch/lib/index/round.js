@@ -40,14 +40,7 @@ class RoundIndex extends Index {
       logger.info(`[Elasticsearch] Indexing rounds from ${first(roundIds)} to ${last(roundIds)} :card_index_dividers:`)
 
       try {
-        const rounds = rows.map(row => {
-          delete row.createdAt
-          delete row.updatedAt
-
-          return row
-        })
-
-        await client.bulk(this._buildBulkUpsert(rounds))
+        await client.bulk(this._buildBulkUpsert(rows))
 
         storage.update('history', {
           lastRound: last(roundIds)
