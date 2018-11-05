@@ -13,4 +13,3 @@ module.exports = {
     network: options.network || 'testnet'
   }, options)
 }
-
