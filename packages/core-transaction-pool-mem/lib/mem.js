@@ -2,7 +2,6 @@
 
 const assert = require('assert')
 const { slots } = require('@arkecosystem/crypto')
-const { bignumify } = require('@arkecosystem/core-utils')
 
 class Mem {
   /**
