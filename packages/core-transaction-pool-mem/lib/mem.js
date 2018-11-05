@@ -2,6 +2,7 @@
 
 const assert = require('assert')
 const { slots } = require('@arkecosystem/crypto')
+const { bignumify } = require('@arkecosystem/core-utils')
 
 class Mem {
   /**
@@ -218,10 +219,10 @@ class Mem {
   getTransactionsOrderedByFee () {
     if (!this.allIsSorted) {
       this.all.sort(function (a, b) {
-        if (a.transaction.fee > b.transaction.fee) {
+        if (+bignumify(a.transaction.fee).toFixed() > +bignumify(b.transaction.fee).toFixed()) {
           return -1
         }
-        if (a.transaction.fee < b.transaction.fee) {
+        if (+bignumify(a.transaction.fee).toFixed() < +bignumify(b.transaction.fee).toFixed()) {
           return 1
         }
         return a.sequence - b.sequence
