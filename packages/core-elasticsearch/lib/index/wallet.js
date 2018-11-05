@@ -32,6 +32,8 @@ class WalletIndex extends Index {
         continue
       }
 
+      logger.info(`[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`)
+
       try {
         const wallets = rows.map(row => {
           row.id = row.address
