@@ -25,12 +25,12 @@ jobs:
           name: Generate cache key
           command: find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
       - restore_cache:
-          key: core-node10-{{ checksum "checksum.txt" }}-1
+          key: core-node-10-{{ checksum "checksum.txt" }}-1
       - run:
           name: Install packages
           command: yarn
       - save_cache:
-          key: core-node10-{{ checksum "checksum.txt" }}-1
+          key: core-node-10-{{ checksum "checksum.txt" }}-1
           paths:
             -  ./node_modules
             -  ./packages/core-api/node_modules
