@@ -11,6 +11,7 @@
   },
   "scripts": {
     "start": "./bin/snapshot",
+    "debug": "node --inspect-brk ./bin/snapshot",
     "create:mainnet": "./bin/snapshot create --config ../core/lib/config/mainnet --network mainnet",
     "create:devnet": "./bin/snapshot create --config ../core/lib/config/devnet --network devnet",
     "create:testnet": "./bin/snapshot create --config ../core/lib/config/testnet --network testnet",

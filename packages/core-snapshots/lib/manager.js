@@ -98,6 +98,7 @@ module.exports = class SnapshotManager {
     const lastBlock = await this.database.getLastBlock()
     params.lastBlock = lastBlock
     params.codec = params.codec || this.options.codec
+    params.chunkSize = this.options.chunkSize || 50000
 
     if (exportAction) {
       params.meta = utils.setSnapshotInfo(params, lastBlock)

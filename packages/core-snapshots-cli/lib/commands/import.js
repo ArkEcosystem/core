@@ -5,10 +5,12 @@ const emitter = container.resolvePlugin('event-emitter')
 const _cliProgress = require('cli-progress')
 
 module.exports = async (options) => {
-  const progressBar = new _cliProgress.Bar({}, _cliProgress.Presets.shades_classic);
+  const progressBar = new _cliProgress.Bar({
+    format: '{bar} {percentage}% | ETA: {eta}s | {value}/{total} | Duration: {duration}s'
+  },
+  _cliProgress.Presets.shades_classic);
 
   emitter.on('start', data => {
-    console.log()
     progressBar.start(data.count, 1)
   })
 

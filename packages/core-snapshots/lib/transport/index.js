@@ -3,8 +3,7 @@ const fs = require('fs-extra')
 const QueryStream = require('pg-query-stream')
 const JSONStream = require('JSONStream')
 const msgpack = require('msgpack-lite')
-const delay = require('delay')
-const zlib = require('zlib');
+const zlib = require('zlib')
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -47,7 +46,6 @@ module.exports = {
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
     logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}`)
-    emitter.emit('start', { count: options.meta[table].count })
 
     const readStream = options.meta.skipCompression
       ? fs.createReadStream(sourceFile).pipe(decodeStream)
@@ -56,48 +54,36 @@ module.exports = {
     let values = []
     let prevData = null
     let counter = 0
-    readStream.on('data', (record) => {
+
+    const saveData = async (data) => {
+      if (data && data.length > 0) {
+        counter += data.length
+        const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
+        emitter.emit('progress', { value: counter, table: table })
+        values = []
+        return options.database.db.none(insert)
+      }
+    }
+
+    emitter.emit('start', { count: options.meta[table].count })
+    for await (const record of readStream) {
       if (!verifyData(table, record, prevData, options.signatureVerification)) {
         container.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
       }
       if (canImportRecord(table, record, options.lastBlock)) {
         values.push(record)
       }
+
+      if (values.length % options.chunkSize === 0) {
+        await saveData(values)
+      }
       prevData = record
-    })
-
-    const getNextData = async (t, pageIndex) => {
-      await delay(600)
-      readStream.pause()
-      const data = values.slice()
-      values = []
-      return Promise.resolve(data.length === 0 ? null : data)
     }
 
-    try {
-      await options.database.db.task('massive-inserts', t => {
-        return t.sequence(async index => {
-          readStream.resume()
-
-          try {
-            const data = await getNextData(t, index)
-            if (data) {
-              counter += data.length
-              emitter.emit('progress', { value: counter, table: table })
-              const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
-              return t.none(insert)
-            }
-          } catch (error) {
-            logger.error(error.message)
-          }
-        })
-      })
-      emitter.emit('complete')
-      return true
-    } catch (error) {
-      logger.error(error.stack)
-      return false
+    if (values.length > 0) {
+      await saveData(values)
     }
+    emitter.emit('complete')
   },
 
   verifyTable: async (table, options) => {
