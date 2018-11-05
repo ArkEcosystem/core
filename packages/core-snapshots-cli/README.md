@@ -8,6 +8,7 @@ The plugin provides a cli interface, with the following available commands:
 - import
 - verify
 - rollback (and backup forged transactions during the process)
+- truncate
 
 The commands and their usage is described below.
 
@@ -25,7 +26,7 @@ yarn create:devnet
 ```
 The command will generate snapshot files in your configured folder. By default this folder will be in `~./ark/snapshots/NETWORK_NAME`.
 Files names are following this pattern:  `table.codec`. For example, command `yarn create:devnet` will create the following files in the folder:
-`~./ark/snapshots/NETWORK_NAME/0-331985`
+`~./ark/snapshots/NETWORK_NAME/0-331985/`
 - blocks.lite
 - transactions.lite
 
@@ -56,10 +57,9 @@ The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snap
 ```bash
 yarn import:devnet -b 0-331985
 ```
-> Add option `--truncate` to empty all the tables before import
-
+> If you want to import from block 1, e.g. empty database first, you should run the `yarn truncate:NETWORK_NAME` command.
 ```bash
-yarn import:devnet --blocks 0-331985 --truncate
+yarn truncate:devnet
 ```
 #### Verifiying records during import `--signature-verify`
 If you want to do additional `crpto.verify` check for each block and transaction a flag `--signature-verify` can be added to the import command

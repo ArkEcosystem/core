@@ -14,6 +14,7 @@ class Database {
       this.db = database.db
       this.pgp = database.pgp
       this.__createColumnSets()
+      this.isSharedConnection = true
       logger.info('Snapshots: reusing core-database-postgres connection from running core')
       return this
     }
@@ -27,6 +28,7 @@ class Database {
       this.__createColumnSets()
       await this.__runMigrations()
       logger.info('Snapshots: Database connected')
+      this.isSharedConnection = false
       return this
     } catch (error) {
       container.forceExit('Error while connecting to postgres', error)
@@ -45,9 +47,11 @@ class Database {
     const tables = ['wallets', 'rounds', 'transactions', 'blocks']
     logger.info('Truncating tables: wallets, rounds, transactions, blocks')
     try {
-      await this.db.tx('truncate-chain', t => {
-        tables.forEach(table => t.none(queries.truncate(table)))
-      })
+      for (const table of tables) {
+        await this.db.none(queries.truncate(table))
+      }
+
+      return
     } catch (error) {
       container.forceExit('Truncate chain error', error)
     }
@@ -99,6 +103,14 @@ class Database {
       return this.blocksColumnSet
     case 'transactions':
       return this.transactionsColumnSet
+    }
+  }
+
+  close () {
+    if (!this.isSharedConnection) {
+      logger.debug('Closing snapshots-cli database connection')
+      this.db.$pool.end()
+      this.pgp.end()
     }
   }
 

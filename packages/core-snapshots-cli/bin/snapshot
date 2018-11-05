@@ -30,7 +30,6 @@ registerCommand('create', 'create a full snapshot of the database')
 registerCommand('import', 'import data from specified snapshot')
   .option('-b, --blocks <folder>', 'blocks to import, corelates to folder name')
   .option('--codec <string>', 'codec name, default is msg-lite binary')
-  .option('--truncate', 'skip transaction validations', false)
   .option('--skip-restart-round', 'skip revert to current round', false)
   .option('--signature-verify', 'signature verification', false)
   .action(async (options) => {
@@ -52,6 +51,12 @@ registerCommand('rollback', 'rollback chain to specified height')
   .action(async (options) => {
     await util.setUpLite(options)
     require('../lib/commands/rollback')(options)
+  })
+
+registerCommand('truncate', 'truncate blockchain database')
+  .action(async (options) => {
+    await util.setUpLite(options)
+    require('../lib/commands/truncate')(options)
   })
 
 app

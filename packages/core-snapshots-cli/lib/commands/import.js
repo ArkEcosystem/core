@@ -8,7 +8,7 @@ module.exports = async (options) => {
   const progressBar = new _cliProgress.Bar({
     format: '{bar} {percentage}% | ETA: {eta}s | {value}/{total} | Duration: {duration}s'
   },
-  _cliProgress.Presets.shades_classic);
+  _cliProgress.Presets.shades_classic)
 
   emitter.on('start', data => {
     progressBar.start(data.count, 1)

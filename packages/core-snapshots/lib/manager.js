@@ -2,8 +2,6 @@
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const delay = require('delay')
-
 const database = require('./db')
 const utils = require('./utils')
 const { exportTable, importTable, verifyTable, backupTransactionsToJSON } = require('./transport')
@@ -37,25 +35,23 @@ module.exports = class SnapshotManager {
     }
 
     utils.writeMetaFile(metaInfo)
+    this.database.close()
   }
 
   async importData (options) {
     const params = await this.__init(options)
-    if (params.truncate) {
-      await this.database.truncateChain()
-      await delay(1000)
-    }
 
     await importTable('blocks', params)
     await importTable('transactions', params)
 
     const lastBlock = await this.database.getLastBlock()
     logger.info(`Import from folder ${params.meta.folder} completed. Last block in database: ${lastBlock.height} :+1:`)
-
     if (!params.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(`Rolling back chain to last finished round with last block height ${newLastBlock.height}`)
     }
+
+    this.database.close()
   }
 
   async verifyData (options) {
@@ -65,6 +61,12 @@ module.exports = class SnapshotManager {
       verifyTable('blocks', params),
       verifyTable('transactions', params)
     ])
+  }
+
+  async truncateChain () {
+    await this.database.truncateChain()
+
+    this.database.close()
   }
 
   async rollbackChain (height) {
@@ -85,6 +87,8 @@ module.exports = class SnapshotManager {
 
     const newLastBlock = await this.database.rollbackChain(rollBackHeight)
     logger.info(`Rolling back chain to last finished round ${newLastBlock.height / maxDelegates} with last block height ${newLastBlock.height}`)
+
+    this.database.close()
   }
 
   /**
