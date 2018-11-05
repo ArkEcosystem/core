@@ -202,7 +202,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async saveRound (delegates) {
     logger.info(`Saving round ${delegates[0].round}`)
 
-    return this.db.rounds.create(delegates)
+    await this.db.rounds.create(delegates)
+
+    emitter.emit('round.created', delegates)
   }
 
   /**
@@ -294,6 +296,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     }
 
     logger.info(`${wallets.length} modified wallets committed to database`)
+
+    emitter.emit('wallet.saved', wallets.length)
 
     // NOTE: commented out as more use cases to be taken care of
     // this.walletManager.purgeEmptyNonDelegates()
@@ -639,7 +643,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   __registerListeners () {
     super.__registerListeners()
 
-    emitter.on('wallet:cold:created', async coldWallet => {
+    emitter.on('wallet.created.cold', async coldWallet => {
       try {
         const wallet = await this.db.wallets.findByAddress(coldWallet.address)
 

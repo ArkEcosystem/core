@@ -2,6 +2,7 @@
 
 const { first, last } = require('lodash')
 const container = require('@arkecosystem/core-container')
+const emitter = container.resolvePlugin('event-emitter')
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
 const Index = require('./index')
@@ -62,7 +63,7 @@ class RoundIndex extends Index {
    * @return {void}
    */
   listen () {
-    setInterval(() => this.index(), 51 * 8000)
+    emitter.on('round.created', data => this.index())
   }
 
   /**

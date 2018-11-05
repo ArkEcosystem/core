@@ -1,6 +1,7 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
+const emitter = container.resolvePlugin('event-emitter')
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
 const Index = require('./index')
@@ -31,8 +32,6 @@ class WalletIndex extends Index {
         continue
       }
 
-      logger.info(`[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`)
-
       try {
         const wallets = rows.map(row => {
           row.id = row.address
@@ -55,7 +54,7 @@ class WalletIndex extends Index {
    * @return {void}
    */
   listen () {
-    setInterval(() => this.index(), 8000)
+    emitter.on('wallets:updated', data => this.index())
   }
 
   /**
