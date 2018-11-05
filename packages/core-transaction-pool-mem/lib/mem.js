@@ -218,10 +218,10 @@ class Mem {
   getTransactionsOrderedByFee () {
     if (!this.allIsSorted) {
       this.all.sort(function (a, b) {
-        if (a.transaction.fee > b.transaction.fee) {
+        if (a.transaction.fee.isGreaterThan(b.transaction.fee)) {
           return -1
         }
-        if (a.transaction.fee < b.transaction.fee) {
+        if (a.transaction.fee.isLessThan(b.transaction.fee)) {
           return 1
         }
         return a.sequence - b.sequence
