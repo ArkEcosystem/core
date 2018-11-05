@@ -8,8 +8,7 @@ CREATE TABLE IF NOT EXISTS ${schema~}.wallets (
     "balance" BIGINT NOT NULL,
     "vote_balance" BIGINT NOT NULL,
     "produced_blocks" BIGINT NOT NULL,
-    "missed_blocks" BIGINT NOT NULL,
-    "created_at" timestamptz DEFAULT now() NOT NULL
+    "missed_blocks" BIGINT NOT NULL
 );
 
 -- Constraints

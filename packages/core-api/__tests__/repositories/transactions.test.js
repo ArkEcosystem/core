@@ -40,7 +40,7 @@ describe('Transaction Repository', () => {
       transactions.rows.forEach(transaction => {
         expect(transaction).toContainKeys([
           'id', 'version', 'sequence', 'timestamp', 'type', 'amount', 'fee', 'serialized',
-          'blockId', 'senderPublicKey', 'vendorFieldHex', 'createdAt', 'block'
+          'blockId', 'senderPublicKey', 'vendorFieldHex', 'block'
         ])
       })
 

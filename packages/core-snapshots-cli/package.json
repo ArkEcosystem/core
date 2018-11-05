@@ -1,0 +1,51 @@
+{
+  "name": "@arkecosystem/core-snapshots-cli",
+  "description": "Provides live cli interface to the core-snapshots module for ARK Core",
+  "version": "0.1.0",
+  "contributors": [
+    "Kristjan Košič <chris@ark.io>"
+  ],
+  "license": "MIT",
+  "bin": {
+    "ark:snapshot": "./bin/snapshot"
+  },
+  "scripts": {
+    "start": "./bin/snapshot",
+    "debug": "node --inspect-brk ./bin/snapshot",
+    "create:mainnet": "./bin/snapshot create --config ../core/lib/config/mainnet --network mainnet",
+    "create:devnet": "./bin/snapshot create --config ../core/lib/config/devnet --network devnet",
+    "create:testnet": "./bin/snapshot create --config ../core/lib/config/testnet --network testnet",
+    "import:mainnet": "./bin/snapshot import --config ../core/lib/config/mainnet --network mainnet",
+    "import:devnet": "./bin/snapshot import --config ../core/lib/config/devnet --network devnet",
+    "import:testnet": "./bin/snapshot import --config ../core/lib/config/testnet --network testnet",
+    "verify:mainnet": "./bin/snapshot verify --config ../core/lib/config/mainnet --network mainnet",
+    "verify:devnet": "./bin/snapshot verify --config ../core/lib/config/devnet --network devnet",
+    "verify:testnet": "./bin/snapshot verify --config ../core/lib/config/testnet --network testnet",
+    "rollback:mainnet": "./bin/snapshot rollback --config ../core/lib/config/mainnet --network mainnet",
+    "rollback:devnet": "./bin/snapshot rollback --config ../core/lib/config/devnet --network devnet",
+    "rollback:testnet": "./bin/snapshot rollback --config ../core/lib/config/testnet --network testnet",
+    "truncate:mainnet": "./bin/snapshot truncate --config ../core/lib/config/mainnet --network mainnet",
+    "truncate:devnet": "./bin/snapshot truncate --config ../core/lib/config/devnet --network devnet",
+    "truncate:testnet": "./bin/snapshot truncate --config ../core/lib/config/testnet --network testnet",
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
+    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./ --ignores=commander"
+  },
+  "dependencies": {
+    "@arkecosystem/core-container": "^0.1.1",
+    "cli-progress": "^2.1.0",
+    "commander": "^2.18.0",
+    "fs-extra": "^7.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=10.x"
+  }
+}
