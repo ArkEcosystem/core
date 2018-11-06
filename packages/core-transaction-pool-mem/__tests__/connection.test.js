@@ -430,15 +430,16 @@ describe('Connection', () => {
     })
   })
 
-  describe('checkIfSenderHasVoteTransactions', () => {
+  describe('senderHasTransactionsOfType', () => {
     it('should be a function', () => {
-      expect(connection.checkIfSenderHasVoteTransactions).toBeFunction()
+      expect(connection.senderHasTransactionsOfType).toBeFunction()
     })
 
     it('should be false for non-existent sender', () => {
       connection.addTransaction(mockData.dummy1)
 
-      expect(connection.checkIfSenderHasVoteTransactions('nonexistent')).toBeFalse()
+      expect(connection.senderHasTransactionsOfType(
+        'nonexistent', TRANSACTION_TYPES.VOTE)).toBeFalse()
     })
 
     it('should be false for existent sender with no votes', () => {
@@ -446,7 +447,8 @@ describe('Connection', () => {
 
       connection.addTransaction(tx)
 
-      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeFalse()
+      expect(connection.senderHasTransactionsOfType(
+        tx.senderPublicKey, TRANSACTION_TYPES.VOTE)).toBeFalse()
     })
 
     it('should be true for existent sender with votes', () => {
@@ -461,7 +463,8 @@ describe('Connection', () => {
 
       connection.addTransaction(mockData.dummy2)
 
-      expect(connection.checkIfSenderHasVoteTransactions(tx.senderPublicKey)).toBeTrue()
+      expect(connection.senderHasTransactionsOfType(
+        tx.senderPublicKey, TRANSACTION_TYPES.VOTE)).toBeTrue()
     })
   })
 

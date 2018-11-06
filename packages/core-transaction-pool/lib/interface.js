@@ -273,32 +273,14 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Check whether there are any vote or unvote
-   * transactions (transaction.type == TRANSACTION_TYPES.VOTE) in the pool
-   * from a given sender.
+   * Check whether a given sender has any transactions of the specified type
+   * in the pool.
+   * @param {String} senderPublicKey public key of the sender
+   * @param {Number} transactionType transaction type, must be one of
+   * TRANSACTION_TYPES.* and is compared against transaction.type.
    * @return {Boolean} true if exist
    */
-  checkIfSenderHasVoteTransactions (senderPublicKey) {
-    throw new Error('Method [checkIfSenderHasVoteTransactions] not implemented!')
-  }
-
-  /**
-   * Check whether there are any second signature
-   * transactions (transaction.type == TRANSACTION_TYPES.SECOND_SIGNATURE) in the pool
-   * from a given sender.
-   * @return {Boolean} true if exist
-   */
-  checkIfSenderHasSecondSignatureTransactions (senderPublicKey) {
-    throw new Error('Method [checkIfSenderHasSecondSignatureTransactions] not implemented!')
-  }
-
-  /**
-   * Check whether there are any vote or unvote
-   * transactions (transaction.type == TRANSACTION_TYPES.DELEGATE_REGISTRATION) in the pool
-   * from a given sender.
-   * @return {Boolean} true if exist
-   */
-  checkIfSenderHasDelegateRegistrationTransactions (senderPublicKey) {
-    throw new Error('Method [checkIfSenderHasDelegateRegistrationTransactions] not implemented!')
+  senderHasTransactionsOfType (senderPublicKey, transactionType) {
+    throw new Error('Method [senderHasTransactionsOfType] not implemented!')
   }
 }
