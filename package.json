@@ -2,7 +2,6 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build:docs": "lerna run build:docs",
     "clean": "lerna clean",
     "commit": "git-cz",
     "lint": "lerna run lint",
@@ -32,7 +31,6 @@
     "husky": "^1.0.0-rc.2",
     "jest": "^23.3.0",
     "jest-extended": "^0.11.0",
-    "jsdoc": "^3.5.5",
     "lerna": "^3.4.3",
     "lint-staged": "^7.1.2",
     "regenerator-runtime": "^0.12.1",
