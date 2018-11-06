@@ -110,7 +110,7 @@ module.exports = {
   },
 
   backupTransactionsToJSON: async (snapFileName, query, database) => {
-    const transactionBackupPath = utils.getFilePath(snapFileName, 'transactionBackup')
+    const transactionBackupPath = utils.getFilePath(snapFileName, 'rollbackTransactions')
     await fs.ensureFile(transactionBackupPath)
     const snapshotWriteStream = fs.createWriteStream(transactionBackupPath)
     const qs = new QueryStream(query)
