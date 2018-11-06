@@ -30,10 +30,11 @@ module.exports = class Webhooks extends Base {
   /**
    * Update webhook by id.
    * @param  {String} id
+   * @param  {Object} payload
    * @return {Promise}
    */
-  update (id) {
-    return this.http.put(`webhooks/${id}`)
+  update (id, payload) {
+    return this.http.put(`webhooks/${id}`, payload)
   }
 
   /**
