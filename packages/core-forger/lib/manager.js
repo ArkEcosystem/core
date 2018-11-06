@@ -31,8 +31,9 @@ module.exports = class ForgerManager {
    * @return {Array}
    */
   async loadDelegates (bip38, password) {
-    if (!bip38 && !this.secrets) {
-      throw new Error('No delegate found')
+    if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
+      logger.warn('No delegate found! Please check your "delegates.json" file and try again.')
+      return
     }
 
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, password))
@@ -143,7 +144,9 @@ module.exports = class ForgerManager {
       // README: The Blockchain is ready but an action still failed.
       logger.error(`Forging failed: ${error.message} :bangbang:`)
 
-      logger.info('Round:', round ? round.current : '', 'Height:', round ? round.lastBlock.height.toLocaleString() : '')
+      if (!isEmpty(round)) {
+        logger.info(`Round: ${round.current.toLocaleString()}, Height: ${round.lastBlock.height.toLocaleString()}`)
+      }
 
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
 

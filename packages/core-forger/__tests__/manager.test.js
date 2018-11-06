@@ -33,11 +33,6 @@ describe('Forger Manager', () => {
       expect(forgeManager.loadDelegates).toBeFunction()
     })
 
-    it('should throw an error without configured delegates', async () => {
-      forgeManager.secrets = null
-      await expect(forgeManager.loadDelegates()).rejects.toThrowError('No delegate found')
-    })
-
     it('should be ok with configured delegates', async () => {
       let secret = 'a secret'
       forgeManager.secrets = [secret]
