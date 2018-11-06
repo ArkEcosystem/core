@@ -521,12 +521,14 @@ module.exports = class Blockchain {
       'forger.started',
       'peer.added',
       'peer.removed',
+      'round.created',
       'state:started',
       'transaction.applied',
       'transaction.expired',
       'transaction.forged',
       'transaction.reverted',
-      'wallet:cold:created'
+      'wallet.saved',
+      'wallet.created.cold'
     ]
   }
 
