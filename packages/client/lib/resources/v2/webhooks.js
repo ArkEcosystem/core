@@ -45,12 +45,4 @@ module.exports = class Webhooks extends Base {
   delete (id) {
     return this.http.delete(`webhooks/${id}`)
   }
-
-  /**
-   * Get webhook events.
-   * @return {Promise}
-   */
-  events () {
-    return this.http.get('webhooks/events')
-  }
 }
