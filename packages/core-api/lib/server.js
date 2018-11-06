@@ -60,7 +60,7 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('hapi-rate-limit'),
-    options: config.rateLimit.enabled
+    options: config.rateLimit
   })
 
   await server.register({
