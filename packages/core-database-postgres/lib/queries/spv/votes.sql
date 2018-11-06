@@ -2,4 +2,4 @@ SELECT sender_public_key,
        serialized
 FROM transactions
 WHERE TYPE = 3
-ORDER BY (timestamp + sequence) DESC
+ORDER BY timestamp DESC, sequence DESC
