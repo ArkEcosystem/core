@@ -280,10 +280,39 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {Boolean} true if exist
    */
   checkIfSenderHasVoteTransactions (senderPublicKey) {
+    return this.__checkIfSenderHasUnconfirmedTransactionsOfType(senderPublicKey, TRANSACTION_TYPES.VOTE)
+  }
+
+  /**
+   * Check whether there are any second signature
+   * transactions (transaction.type == TRANSACTION_TYPES.SECOND_SIGNATURE) in the pool
+   * from a given sender.
+   * @return {Boolean} true if exist
+   */
+  checkIfSenderHasSecondSignatureTransactions (senderPublicKey) {
+    return this.__checkIfSenderHasUnconfirmedTransactionsOfType(senderPublicKey, TRANSACTION_TYPES.SECOND_SIGNATURE)
+  }
+
+  /**
+   * Check whether there are any vote or unvote
+   * transactions (transaction.type == TRANSACTION_TYPES.DELEGATE_REGISTRATION) in the pool
+   * from a given sender.
+   * @return {Boolean} true if exist
+   */
+  checkIfSenderHasDelegateRegistrationTransactions (senderPublicKey) {
+    return this.__checkIfSenderHasUnconfirmedTransactionsOfType(senderPublicKey, TRANSACTION_TYPES.DELEGATE_REGISTRATION)
+  }
+  /**
+   * Check whether there are unconfirmed transactions of a given
+   * transaction type (transaction.type == transactionType) in the pool
+   * from a given sender.
+   * @return {Boolean} true if exist
+   */
+  __checkIfSenderHasUnconfirmedTransactionsOfType (senderPublicKey, transactionType) {
     this.__purgeExpired()
 
     for (const memPoolTransaction of this.mem.getBySender(senderPublicKey)) {
-      if (memPoolTransaction.transaction.type === TRANSACTION_TYPES.VOTE) {
+      if (memPoolTransaction.transaction.type === transactionType) {
         return true
       }
     }
