@@ -8,5 +8,5 @@ module.exports = {
   whitelist: [],
   allowedSenders: [],
   maxTransactionsPerRequest: 200,
-  maxTransactionAge: 21600
+  maxTransactionAge: 2700
 }
