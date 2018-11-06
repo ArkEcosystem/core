@@ -195,9 +195,9 @@ describe('Transaction Guard', () => {
     })
   })
 
-  describe('__transformAndFilterTransations', () => {
+  describe('__transformAndFilterTransactions', () => {
     it('should be a function', () => {
-      expect(guard.__transformAndFilterTransations).toBeFunction()
+      expect(guard.__transformAndFilterTransactions).toBeFunction()
     })
   })
 
