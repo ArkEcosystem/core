@@ -19,7 +19,7 @@ module.exports = {
     const gzip = zlib.createGzip()
     await fs.ensureFile(snapFileName)
 
-    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.blocks}, skipCompression: ${options.skipCompression}`)
+    logger.info(`Starting to export table ${table} to folder ${options.meta.folder}, codec: ${options.codec}, append:${!!options.blocks}, skipCompression: ${options.meta.skipCompression}`)
     try {
       const snapshotWriteStream = fs.createWriteStream(snapFileName, options.blocks ? { flags: 'a' } : {})
       const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {})
@@ -34,7 +34,7 @@ module.exports = {
       })
       logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
-      return { count: data.processed, startHeight: options.meta.startHeight, endHeight: options.meta.endHeight }
+      return { count: utils.getRecordCount(table, data.processed, options.blocks), startHeight: utils.getStartHeight(table, options.meta.startHeight, options.blocks), endHeight: options.meta.endHeight }
     } catch (error) {
       container.forceExit('Error while exporting data via query stream', error)
     }
@@ -45,7 +45,7 @@ module.exports = {
     const codec = codecs.get(options.codec)
     const gunzip = zlib.createGunzip()
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {})
-    logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}`)
+    logger.info(`Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}, skipCompression: ${options.meta.skipCompression}`)
 
     const readStream = options.meta.skipCompression
       ? fs.createReadStream(sourceFile).pipe(decodeStream)
@@ -54,10 +54,8 @@ module.exports = {
     let values = []
     let prevData = null
     let counter = 0
-
     const saveData = async (data) => {
       if (data && data.length > 0) {
-        counter += data.length
         const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table))
         emitter.emit('progress', { value: counter, table: table })
         values = []
@@ -67,6 +65,7 @@ module.exports = {
 
     emitter.emit('start', { count: options.meta[table].count })
     for await (const record of readStream) {
+      counter++
       if (!verifyData(table, record, prevData, options.signatureVerification)) {
         container.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`)
       }

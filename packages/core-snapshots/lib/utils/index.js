@@ -43,13 +43,26 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   fs.copyFileSync(paths.source.transactions, paths.dest.transactions)
 }
 
-exports.getSnapshotInfo = (folder) => {
-  const metaFileInfo = this.getFilePath('meta.json', folder)
-  if (!fs.existsSync(metaFileInfo)) {
-    container.forceExit('Meta file meta.json not found. Exiting :bomb:')
+exports.getRecordCount = (table, currentCount, sourceFolder) => {
+  if (sourceFolder) {
+    const snapshotInfo = this.readMetaJSON(sourceFolder)
+    return +snapshotInfo[table].count + currentCount
   }
 
-  const snapshotInfo = fs.readJSONSync(metaFileInfo)
+  return currentCount
+}
+
+exports.getStartHeight = (table, currentHeight, sourceFolder) => {
+  if (sourceFolder) {
+    const snapshotInfo = this.readMetaJSON(sourceFolder)
+    return +snapshotInfo[table].startHeight
+  }
+
+  return currentHeight
+}
+
+exports.getSnapshotInfo = (folder) => {
+  const snapshotInfo = this.readMetaJSON(folder)
   return {
     startHeight: +snapshotInfo.blocks.startHeight,
     endHeight: +snapshotInfo.blocks.endHeight,
@@ -60,12 +73,21 @@ exports.getSnapshotInfo = (folder) => {
   }
 }
 
+exports.readMetaJSON = (folder) => {
+  const metaFileInfo = this.getFilePath('meta.json', folder)
+  if (!fs.existsSync(metaFileInfo)) {
+    container.forceExit('Meta file meta.json not found. Exiting :bomb:')
+  }
+
+  return fs.readJSONSync(metaFileInfo)
+}
+
 exports.setSnapshotInfo = (options, lastBlock) => {
   let meta = {
     startHeight: (options.start !== -1) ? options.start : 1,
     endHeight: (options.end !== -1) ? options.end : lastBlock.height,
     codec: options.codec,
-    skipCompression: options.skipCompression
+    skipCompression: options.skipCompression || false
   }
   meta.folder = `${meta.startHeight}-${meta.endHeight}`
 
