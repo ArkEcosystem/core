@@ -127,6 +127,26 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
+  describe('checkIfSenderHasSecondSignatureTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.checkIfSenderHasSecondSignatureTransactions).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      expect(poolInterface.checkIfSenderHasSecondSignatureTransactions).toThrowError('Method [checkIfSenderHasSecondSignatureTransactions] not implemented!')
+    })
+  })
+
+  describe('checkIfSenderHasDelegateRegistrationTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.checkIfSenderHasDelegateRegistrationTransactions).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      expect(poolInterface.checkIfSenderHasDelegateRegistrationTransactions).toThrowError('Method [checkIfSenderHasDelegateRegistrationTransactions] not implemented!')
+    })
+  })
+
   describe('transactionExists', () => {
     it('should be a function', () => {
       expect(poolInterface.transactionExists).toBeFunction()
