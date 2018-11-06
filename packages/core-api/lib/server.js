@@ -39,19 +39,12 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('hapi-api-version'),
-    options: {
-      validVersions: config.versions.valid,
-      defaultVersion: config.versions.default,
-      basePath: '/api/',
-      vendorName: 'ark.core-api'
-    }
+    options: config.versions
   })
 
   await server.register({
     plugin: require('./plugins/endpoint-version'),
-    options: {
-      validVersions: config.versions.valid
-    }
+    options: { validVersions: config.versions.validVersions }
   })
 
   await server.register({ plugin: require('./plugins/caster') })
@@ -60,14 +53,7 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('hapi-rate-limit'),
-    options: {
-      enabled: config.rateLimit.enabled,
-      pathLimit: false,
-      userLimit: config.rateLimit.limit,
-      userCache: {
-        expiresIn: config.rateLimit.expires
-      }
-    }
+    options: config.rateLimit
   })
 
   await server.register({

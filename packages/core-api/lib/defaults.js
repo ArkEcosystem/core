@@ -6,19 +6,27 @@ module.exports = {
   enabled: false,
   host: process.env.ARK_API_HOST || '0.0.0.0',
   port: process.env.ARK_API_PORT || 4003,
+  // @see https://github.com/p-meier/hapi-api-version
   versions: {
-    default: 1,
-    valid: [1, 2]
+    validVersions: [1, 2],
+    defaultVersion: 1,
+    basePath: '/api/',
+    vendorName: 'ark.core-api'
   },
   cache: {
     enabled: false,
     options: {}
   },
+  // @see https://github.com/wraithgar/hapi-rate-limit
   rateLimit: {
-    enabled: false,
-    limit: 300,
-    expires: 60000
+    enabled: true,
+    pathLimit: false,
+    userLimit: 300,
+    userCache: {
+      expiresIn: 60000
+    }
   },
+  // @see https://github.com/fknop/hapi-pagination
   pagination: {
     limit: 100,
     include: [
