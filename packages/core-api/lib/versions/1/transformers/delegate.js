@@ -1,6 +1,6 @@
 'use strict'
 
-const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
+const { delegateCalculator } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "delegate" object into a generic object.
@@ -12,12 +12,12 @@ module.exports = (delegate) => {
     username: delegate.username,
     address: delegate.address,
     publicKey: delegate.publicKey,
-    vote: delegate.votebalance + '',
+    vote: delegate.voteBalance + '',
     producedblocks: delegate.producedBlocks,
     missedblocks: delegate.missedBlocks,
     forged: delegate.forged,
     rate: delegate.rate,
-    approval: calculateApproval(delegate),
-    productivity: calculateProductivity(delegate)
+    approval: delegateCalculator.calculateApproval(delegate),
+    productivity: delegateCalculator.calculateProductivity(delegate)
   }
 }

@@ -1,7 +1,6 @@
 'use strict'
 
-const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-utils')
 
 /**
  * Create a new hapi.js server.
@@ -9,7 +8,7 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  const baseConfig = {
+  const server = await createServer({
     host: config.host,
     port: config.port,
     routes: {
@@ -22,24 +21,20 @@ module.exports = async (config) => {
         }
       }
     }
-  }
+  })
 
-  if (config.cache.enabled) {
-    const cacheOptions = config.cache.options
-    cacheOptions.engine = require(cacheOptions.engine)
-    baseConfig.cache = [cacheOptions]
-    baseConfig.routes.cache = { expiresIn: cacheOptions.expiresIn }
-  }
-
-  const server = new Hapi.Server(baseConfig)
-
-  await server.register([require('vision'), require('inert'), require('lout')])
+  await server.register({ plugin: plugins.corsHeaders })
 
   await server.register({
-    plugin: require('./plugins/whitelist'),
+    plugin: plugins.whitelist,
     options: {
-      whitelist: config.whitelist
+      whitelist: config.whitelist,
+      name: 'Public API'
     }
+  })
+
+  await server.register({
+    plugin: require('./plugins/set-headers')
   })
 
   await server.register({
@@ -48,7 +43,14 @@ module.exports = async (config) => {
       validVersions: config.versions.valid,
       defaultVersion: config.versions.default,
       basePath: '/api/',
-      vendorName: 'ark-core-api'
+      vendorName: 'ark.core-api'
+    }
+  })
+
+  await server.register({
+    plugin: require('./plugins/endpoint-version'),
+    options: {
+      validVersions: config.versions.valid
     }
   })
 
@@ -89,26 +91,13 @@ module.exports = async (config) => {
     }
   })
 
-  await server.register({
-    plugin: require('./versions/1'),
-    routes: { prefix: '/api/v1' }
-  })
+  for (const plugin of config.plugins) {
+    if (typeof plugin.plugin === 'string') {
+      plugin.plugin = require(plugin.plugin)
+    }
 
-  await server.register({
-    plugin: require('./versions/2'),
-    routes: { prefix: '/api/v2' },
-    options: config
-  })
-
-  try {
-    await server.start()
-
-    logger.info(`Public API Server running at: ${server.info.uri}`)
-
-    return server
-  } catch (error) {
-    logger.error(error.stack)
-
-    process.exit(1)
+    await server.register(plugin)
   }
+
+  return mountServer('Public API', server)
 }

@@ -1,0 +1,41 @@
+{
+  "name": "@arkecosystem/core-snapshots",
+  "description": "Provides live local streamed snapshots functionality for ARK Core",
+  "version": "0.1.0",
+  "contributors": [
+    "Kristjan Košič <chris@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
+    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./ --ignores=commander"
+  },
+  "dependencies": {
+    "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/core-database-postgres": "^0.1.0",
+    "@arkecosystem/crypto": "^0.2.0",
+    "JSONStream": "^1.3.5",
+    "bluebird": "^3.5.2",
+    "commander": "^2.18.0",
+    "create-hash": "^1.2.0",
+    "fs-extra": "^7.0.0",
+    "lodash": "^4.17.11",
+    "msgpack-lite": "^0.1.26",
+    "pg-promise": "^8.5.1",
+    "pg-query-stream": "^1.1.2",
+    "xcase": "^2.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=10.x"
+  }
+}

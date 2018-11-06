@@ -1,9 +1,7 @@
-const Promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
-const { Transaction } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
-const helpers = require('./utils/validation-helpers')
+const crypto = require('@arkecosystem/crypto')
+const { configManager, models: { Transaction }, constants: { TRANSACTION_TYPES } } = crypto
+const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 const database = container.resolvePlugin('database')
 const _ = require('lodash')
 
@@ -26,15 +24,26 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   async validate (transactions) {
-    await this.__transformAndFilterTransations(_.uniqBy(transactions, 'id'))
+    this.__transformAndFilterTransations(_.uniqBy(transactions, 'id'))
 
     await this.__removeForgedTransactions()
 
-    await this.__determineValidTransactions()
+    this.__determineValidTransactions()
 
-    await this.__determineExcessTransactions()
+    this.__determineExcessTransactions()
+  }
 
-    this.__determineFeeMatchingTransactions()
+  /**
+   * Invalidate the specified transactions with the given reason.
+   * @param  {Object|Array} transactions
+   * @param  {String} reason
+   * @return {void}
+   */
+  invalidate (transactions, reason) {
+    transactions = Array.isArray(transactions) ? transactions : [transactions]
+    transactions.forEach(tx => {
+      this.__pushError(tx, reason)
+    })
   }
 
   /**
@@ -82,7 +91,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   has (type, count) {
-    return this.hasAny(type) === count
+    return this[type].length === count
   }
 
   /**
@@ -92,7 +101,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   hasAtLeast (type, count) {
-    return this.hasAny(type) >= count
+    return this[type].length >= count
   }
 
   /**
@@ -101,7 +110,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   hasAny (type) {
-    return this[type].length
+    return !!this[type].length
   }
 
   /**
@@ -111,17 +120,19 @@ module.exports = class TransactionGuard {
    * @param  {Array} transactions
    * @return {void}
    */
-  async __transformAndFilterTransations (transactions) {
+  __transformAndFilterTransations (transactions) {
     this.transactions = []
 
-    await Promise.each(transactions, async (transaction) => {
-      const exists = await this.pool.transactionExists(transaction.id)
+    transactions.forEach(transaction => {
+      const exists = this.pool.transactionExists(transaction.id)
 
       if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         const trx = new Transaction(transaction)
 
         if (trx.verified) {
-          this.transactions.push(new Transaction(transaction))
+          this.transactions.push(trx)
+        } else {
+          this.__pushError(transaction, 'Transaction didn\'t pass the verification process.')
         }
       }
     })
@@ -137,7 +148,7 @@ module.exports = class TransactionGuard {
 
     this.transactions = this.transactions.filter(transaction => {
       if (forgedIdsSet.has(transaction.id)) {
-        this.invalid.push(transaction)
+        this.__pushError(transaction, 'Already forged.')
         return false
       }
 
@@ -149,22 +160,27 @@ module.exports = class TransactionGuard {
    * Determines valid transactions by checking rules, according to:
    * - if recipient is on the same network
    * - if sender has enough funds
+   * - if sender has more than one vote/unvote transaction in pool
    * Transaction that can be broadcasted are confirmed here
    */
-  async __determineValidTransactions () {
-    await Promise.each(this.transactions, async (transaction) => {
+  __determineValidTransactions () {
+    this.transactions.forEach(transaction => {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-        if (!helpers.isRecipientOnActiveNetwork(transaction)) {
-          this.invalid.push(transaction)
-
+        if (!isRecipientOnActiveNetwork(transaction)) {
+          this.__pushError(transaction, `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
           return
         }
       }
 
+      if (this.pool.checkIfSenderHasVoteTransactions(transaction.senderPublicKey)) {
+        this.__pushError(transaction, `Sender ${transaction.senderPublicKey} already has a pending vote transaction in pool`)
+        return
+      }
+
       try {
-        await this.pool.walletManager.applyPoolTransaction(transaction)
+        this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
-        this.invalid.push(transaction)
+        this.__pushError(transaction, error.toString())
         return
       }
 
@@ -175,9 +191,9 @@ module.exports = class TransactionGuard {
   /**
    * Determine exccess transactions
    */
-  async __determineExcessTransactions () {
+  __determineExcessTransactions () {
     for (let transaction of this.broadcast) {
-      const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
+      const hasExceeded = this.pool.hasExceededMaxTransactions(transaction)
 
       if (hasExceeded) {
         this.excess.push(transaction)
@@ -187,10 +203,10 @@ module.exports = class TransactionGuard {
          * because the state of the transaction pool could have changed since then
          * if concurrent requests are occurring via API.
          */
-        const exists = await this.pool.transactionExists(transaction.id)
+        const exists = this.pool.transactionExists(transaction.id)
 
         if (exists) {
-          this.invalid.push(transaction)
+          this.__pushError(transaction, 'Already exists in pool.')
         } else {
           this.accept.push(transaction)
         }
@@ -199,12 +215,37 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
-   * Matched transactions stay in this.transaction, fee not accepted by node/delegate are still broadcasted.
+   * Adds a transaction to the errors object. The transaction id is mapped to an
+   * array of errors. There may be multiple errors associated with a transaction in
+   * which case __pushError is called multiple times.
+   * @param {Transaction} transaction
+   * @param {String} error
    * @return {void}
    */
-  __determineFeeMatchingTransactions () {
-    this.accept = this.accept.filter(transaction => dynamicFeeMatch(transaction))
+  __pushError (transaction, error) {
+    if (!this.errors.hasOwnProperty(transaction.id)) {
+      this.errors[transaction.id] = []
+    }
+
+    this.errors[transaction.id].push(error)
+
+    if (!this.invalid.some(tx => tx.id === transaction.id)) {
+      this.invalid.push(transaction)
+    }
+  }
+
+  /**
+   * Get a json object.
+   * @return {Object}
+   */
+  toJson () {
+    const data = this.getIds()
+    delete data.transactions
+
+    return {
+      data,
+      errors: Object.keys(this.errors).length > 0 ? this.errors : null
+    }
   }
 
   /**
@@ -217,5 +258,6 @@ module.exports = class TransactionGuard {
     this.excess = []
     this.invalid = []
     this.broadcast = []
+    this.errors = {}
   }
 }

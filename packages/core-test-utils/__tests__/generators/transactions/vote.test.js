@@ -21,7 +21,7 @@ describe('Vote transaction', () => {
 
   it('should return an array of 4 vote objects', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.VOTE})
+      expect(transactions[i]).toMatchObject({ type: TRANSACTION_TYPES.VOTE })
     }
   })
 })

@@ -3,6 +3,7 @@
 const PluginRegistrar = require('./registrars/plugin')
 const Environment = require('./environment')
 const { createContainer } = require('awilix')
+const delay = require('delay')
 
 module.exports = class Container {
   /**
@@ -110,34 +111,68 @@ module.exports = class Container {
   }
 
   /**
+   * Force the container to exit and print the given message and associated error.
+   * @param  {String} message
+   * @param  {Error} error
+   * @return {void}
+   */
+  forceExit (message, error = null) {
+    this.exit(1, message, error)
+  }
+
+  /**
+   * Exit the container with the given exitCode, message and associated error.
+   * @param  {Number} exitCode
+   * @param  {String} message
+   * @param  {Error} error
+   * @return {void}
+   */
+  exit (exitCode, message, error = null) {
+    this.shuttingDown = true
+
+    const logger = this.resolvePlugin('logger')
+    logger.error(':boom: Container force shutdown :boom:')
+    logger.error(message)
+
+    if (error) {
+      logger.error(error.stack)
+    }
+
+    process.exit(exitCode)
+  }
+
+  /**
    * Handle any exit signals.
    * @return {void}
    */
   __registerExitHandler () {
-    let shuttingDown = false
-
     const handleExit = async () => {
-      if (shuttingDown) {
+      if (this.shuttingDown) {
         return
       }
 
-      shuttingDown = true
+      this.shuttingDown = true
 
       const logger = this.resolvePlugin('logger')
-      logger.info('EXIT handled, trying to shut down gracefully')
-      logger.info('Stopping ARK Core')
+      logger.info('Ark Core is trying to gracefully shut down to avoid data corruption :pizza:')
 
       try {
-        logger.info('Saving wallets')
-        await this.resolvePlugin('database').saveWallets(false)
-      } catch (error) {}
+        const database = this.resolvePlugin('database')
+        if (database) {
+          const emitter = this.resolvePlugin('event-emitter')
 
-      // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
+          // Notify plugins about shutdown
+          emitter.emit('shutdown')
 
-      // if (lastBlock) {
-      //   const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`
-      //   await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
-      // }
+          // Wait for event to be emitted and give time to finish
+          await delay(1000)
+
+          // Save dirty wallets
+          await database.saveWallets(false)
+        }
+      } catch (error) {
+        console.log(error.stack)
+      }
 
       await this.plugins.tearDown()
 

@@ -5,6 +5,7 @@ const orderBy = require('lodash/orderBy')
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/delegates')
+const { blocks: blocksRepository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -16,7 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const delegates = await database.delegates.paginate(utils.paginate(request))
+    const delegates = await database.delegates.paginate({ ...request.query, ...utils.paginate(request) })
 
     return utils.toPagination(request, delegates, 'delegate')
   },
@@ -87,7 +88,7 @@ exports.blocks = {
       return Boom.notFound('Delegate not found')
     }
 
-    const blocks = await database.blocks.findAllByGenerator(delegate.publicKey, utils.paginate(request))
+    const blocks = await blocksRepository.findAllByGenerator(delegate.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, blocks, 'block')
   },
@@ -138,12 +139,12 @@ exports.voterBalances = {
     }
 
     const wallets = await database.wallets
-      .getLocalWallets()
+      .all()
       .filter(wallet => wallet.vote === delegate.publicKey)
 
     const voters = {}
     orderBy(wallets, ['balance'], ['desc'])
-      .forEach(wallet => (voters[wallet.address] = wallet.balance))
+      .forEach(wallet => (voters[wallet.address] = +wallet.balance.toFixed()))
 
     return { data: voters }
   },

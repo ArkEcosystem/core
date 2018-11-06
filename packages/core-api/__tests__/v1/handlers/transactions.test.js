@@ -1,6 +1,6 @@
 'use strict'
 
-require('@arkecosystem/core-test-utils')
+require('@arkecosystem/core-test-utils/lib/matchers')
 
 const app = require('../../__support__/setup')
 const utils = require('../utils')
@@ -16,7 +16,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('../../__support__/config/genesisBlock.json')
+  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
   transactionList = genesisBlock.transactions
 })
 
@@ -37,7 +37,7 @@ describe('API 1.0 - Transactions', () => {
       }
 
       const response = await utils.request('GET', 'transactions', data)
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
       expect(response.data.transactions).not.toBeEmpty()
@@ -54,7 +54,7 @@ describe('API 1.0 - Transactions', () => {
       }
 
       const response = await utils.request('GET', 'transactions', data)
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
       expect(response.data.transactions).not.toBeEmpty()
@@ -73,7 +73,7 @@ describe('API 1.0 - Transactions', () => {
       const type = 3
 
       const response = await utils.request('GET', 'transactions', { type })
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
       expect(response.data.transactions).not.toBeEmpty()
@@ -86,7 +86,7 @@ describe('API 1.0 - Transactions', () => {
 
     it('should be ok using no params', async () => {
       const response = await utils.request('GET', 'transactions')
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
       expect(response.data.transactions).not.toBeEmpty()
@@ -110,7 +110,7 @@ describe('API 1.0 - Transactions', () => {
 
     it('should be ok ordered by ascending timestamp', async () => {
       const response = await utils.request('GET', 'transactions', { orderBy: 'timestamp:asc' })
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
       expect(response.data.transactions).not.toBeEmpty()
@@ -135,7 +135,7 @@ describe('API 1.0 - Transactions', () => {
 
     it('should be ok using offset == 1', async () => {
       const response = await utils.request('GET', 'transactions', { offset: 1 })
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
       expect(response.data.transactions).not.toBeEmpty()
@@ -181,13 +181,12 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  describe('GET /transactions/get?id=3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9', () => {
+  describe('GET /transactions/get?id=', () => {
     it('should be ok using valid id', async () => {
       const transactionInCheck = transactionList[0]
-      const params = `id=${transactionInCheck.id}`
-      const response = await utils.request('GET', `transactions/get?${params}`)
+      const response = await utils.request('GET', 'transactions/get', { id: transactionInCheck.id })
 
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transaction).toBeApiTransaction()
 
@@ -200,8 +199,7 @@ describe('API 1.0 - Transactions', () => {
     })
 
     it('should fail using invalid id', async () => {
-      const params = 'id=invalid'
-      const response = await utils.request('GET', `transactions/get?${params}`)
+      const response = await utils.request('GET', 'transactions/get', { id: 'invalid' })
 
       utils.expectError(response)
 
@@ -213,12 +211,20 @@ describe('API 1.0 - Transactions', () => {
     it('should be ok using valid id', async () => {
       const transaction = await utils.createTransaction()
 
-      const response = await utils.request('GET', `transactions/unconfirmed/get?id=${transaction.id}`)
-      utils.expectSuccessful(response)
+      const response = await utils.request('GET', 'transactions/unconfirmed/get', { id: transaction.id })
+      expect(response).toBeSuccessfulResponse()
 
       if (response.data.success && response.data.transaction != null) {
         expect(response.data.transaction).toBeObject()
         expect(response.data.transaction).toHaveProperty('id', transaction.id)
+        expect(response.data.transaction).toHaveProperty('type', transaction.type)
+        expect(response.data.transaction).toHaveProperty('amount', transaction.amount)
+        expect(response.data.transaction).toHaveProperty('fee', transaction.fee)
+        expect(response.data.transaction).toHaveProperty('recipientId', transaction.recipientId)
+        expect(response.data.transaction).toHaveProperty('senderPublicKey', transaction.senderPublicKey)
+        expect(response.data.transaction).toHaveProperty('signature', transaction.signature)
+        expect(response.data.transaction).toHaveProperty('timestamp', transaction.timestamp)
+        expect(response.data.transaction).toHaveProperty('vendorField', transaction.vendorField)
       } else {
         expect(response.data.error).toBeString()
       }
@@ -228,7 +234,7 @@ describe('API 1.0 - Transactions', () => {
   describe('GET /transactions/unconfirmed', () => {
     it('should be ok', async () => {
       const response = await utils.request('GET', 'transactions/unconfirmed')
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
     })

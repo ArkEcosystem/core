@@ -2,16 +2,25 @@
 
 const axios = require('axios')
 const { client, transactionBuilder, NetworkManager } = require('@arkecosystem/crypto')
+const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
 
 class Helpers {
-  request (method, path, params = {}) {
+  async request (method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
     const headers = { 'API-Version': 2 }
-    const request = axios[method.toLowerCase()]
 
-    return ['GET', 'DELETE'].includes(method)
-      ? request(url, { params, headers })
-      : request(url, params, { headers })
+    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+
+    return apiHelpers.request(server, method, url, headers, params)
+  }
+
+  async requestWithAcceptHeader (method, path, params = {}) {
+    const url = `http://localhost:4003/api/${path}`
+    const headers = { 'Accept': 'application/vnd.ark.core-api.v2+json' }
+
+    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+
+    return apiHelpers.request(server, method, url, headers, params)
   }
 
   expectJson (response) {
@@ -50,7 +59,7 @@ class Helpers {
   expectSuccessful (response, statusCode = 200) {
     this.expectStatus(response, statusCode)
     this.expectJson(response)
-    this.assertVersion(response, '2')
+    this.assertVersion(response, 2)
   }
 
   expectError (response, statusCode = 404) {
@@ -107,8 +116,11 @@ class Helpers {
     expect(delegate.blocks.missed).toBeNumber()
     expect(delegate.blocks.produced).toBeNumber()
     expect(delegate.production).toBeObject()
-    expect(delegate.production.approval).toBeString()
-    expect(delegate.production.productivity).toBeString()
+    expect(delegate.production.approval).toBeNumber()
+    expect(delegate.production.productivity).toBeNumber()
+    expect(delegate.forged.fees).toBeNumber()
+    expect(delegate.forged.rewards).toBeNumber()
+    expect(delegate.forged.total).toBeNumber()
 
     Object.keys(expected || {}).forEach(attr => {
       expect(delegate[attr]).toBe(expected[attr])
@@ -128,7 +140,7 @@ class Helpers {
 
     let transaction = transactionBuilder
       .transfer()
-      .amount(1 * Math.pow(10, 8))
+      .amount(1 * 1e8)
       .recipientId('AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1')
       .vendorField('test')
       .sign('prison tobacco acquire stone dignity palace note decade they current lesson robot')

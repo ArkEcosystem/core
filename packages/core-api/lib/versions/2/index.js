@@ -1,5 +1,6 @@
 'use strict'
 
+const blockchain = require('./handlers/blockchain')
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const node = require('./handlers/node')
@@ -16,6 +17,8 @@ const wallets = require('./handlers/wallets')
  */
 const register = async (server, options) => {
   server.route([
+    { method: 'GET', path: '/blockchain', ...blockchain.index },
+
     { method: 'GET', path: '/blocks', ...blocks.index },
     { method: 'GET', path: '/blocks/{id}', ...blocks.show },
     { method: 'GET', path: '/blocks/{id}/transactions', ...blocks.transactions },
@@ -64,7 +67,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'ARK Public API - v2',
+  name: 'Ark Public API - v2',
   version: '2.0.0',
   register
 }

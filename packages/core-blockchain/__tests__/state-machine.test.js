@@ -1,6 +1,6 @@
 'use strict'
 
-require('@arkecosystem/core-test-utils/lib') // eslint-disable-line no-unused-vars
+require('@arkecosystem/core-test-utils/lib/matchers') // eslint-disable-line no-unused-vars
 
 const { asValue } = require('awilix')
 
@@ -13,17 +13,9 @@ let blockchain
 beforeAll(async () => {
   container = await app.setUp()
 
-  stateMachine = require('../lib/state-machine')
-})
-
-afterAll(async () => {
-  await app.tearDown()
-})
-
-beforeEach(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = true
 
-  // manually register the blockchain
+  // Manually register the blockchain
   const plugin = require('../lib').plugin
 
   blockchain = await plugin.register(container, {
@@ -36,12 +28,20 @@ beforeEach(async () => {
     plugin: blockchain,
     options: {}
   }))
+
+  stateMachine = require('../lib/state-machine')
 })
 
-afterEach(async () => {
-  process.env.ARK_SKIP_BLOCKCHAIN = false
+afterAll(async () => {
+  // Manually stop  the blockchain
+  await blockchain.stop()
 
-  await blockchain.resetState()
+  await app.tearDown()
+})
+
+beforeEach(async () => {
+  process.env.ARK_SKIP_BLOCKCHAIN = false
+  blockchain.resetState()
 })
 
 describe('State Machine', () => {
@@ -62,7 +62,7 @@ describe('State Machine', () => {
       })
 
       xit('should dispatch the event "WAKEUP" after a delay', async () => {
-        await expect(() => actionMap.checkLater()).toDispatch([blockchain, 'WAKEUP'])
+        await expect(() => actionMap.checkLater()).toDispatch(blockchain, 'WAKEUP')
       })
     })
 
@@ -73,12 +73,12 @@ describe('State Machine', () => {
 
       it('should dispatch the event "SYNCED" if the blockchain is synced', () => {
         blockchain.isSynced = jest.fn(() => true)
-        expect(() => actionMap.checkLastBlockSynced()).toDispatch([blockchain, 'SYNCED'])
+        expect(actionMap.checkLastBlockSynced).toDispatch(blockchain, 'SYNCED')
       })
 
       it('should dispatch the event "NOTSYNCED" if the blockchain is not synced', () => {
         blockchain.isSynced = jest.fn(() => false)
-        expect(() => actionMap.checkLastBlockSynced()).toDispatch([blockchain, 'NOTSYNCED'])
+        expect(() => actionMap.checkLastBlockSynced()).toDispatch(blockchain, 'NOTSYNCED')
       })
     })
 
@@ -89,12 +89,12 @@ describe('State Machine', () => {
 
       it('should dispatch the event "SYNCED" if the blockchain is synced after a rebuild', () => {
         blockchain.isRebuildSynced = jest.fn(() => true)
-        expect(() => actionMap.checkRebuildBlockSynced()).toDispatch([blockchain, 'SYNCED'])
+        expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(blockchain, 'SYNCED')
       })
 
       it('should dispatch the event "NOTSYNCED" if the blockchain is not synced after a rebuild', () => {
         blockchain.isRebuildSynced = jest.fn(() => false)
-        expect(() => actionMap.checkRebuildBlockSynced()).toDispatch([blockchain, 'NOTSYNCED'])
+        expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(blockchain, 'NOTSYNCED')
       })
     })
 
@@ -149,7 +149,7 @@ describe('State Machine', () => {
       })
 
       it('should dispatch the event "SYNCFINISHED"', () => {
-        expect(() => actionMap.syncingComplete()).toDispatch([blockchain, 'SYNCFINISHED'])
+        expect(() => actionMap.syncingComplete()).toDispatch(blockchain, 'SYNCFINISHED')
       })
     })
 
@@ -159,7 +159,7 @@ describe('State Machine', () => {
       })
 
       it('should dispatch the event "REBUILDCOMPLETE"', () => {
-        expect(() => actionMap.rebuildingComplete()).toDispatch([blockchain, 'REBUILDCOMPLETE'])
+        expect(() => actionMap.rebuildingComplete()).toDispatch(blockchain, 'REBUILDCOMPLETE')
       })
     })
 

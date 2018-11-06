@@ -2,9 +2,13 @@
 
 const { crypto } = require('@arkecosystem/crypto')
 
-module.exports = (actual, expected) => {
+const toHaveValidSecondSignature = (actual, expected) => {
   return {
     message: () => 'Expected value to have a valid second signature',
     pass: crypto.verifySecondSignature(actual, expected.publicKey, expected.network)
   }
 }
+
+expect.extend({
+  toHaveValidSecondSignature
+})

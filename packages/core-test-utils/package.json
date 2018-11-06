@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-test-utils",
-  "description": "Test Utilities for ARK Core",
+  "description": "Test Utilities for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"
@@ -9,23 +9,25 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.1",
-    "arkjs": "^0.2.1",
+    "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/crypto": "^0.2.3",
     "bip39": "^2.5.0",
-    "chalk": "^2.4.1",
-    "lodash": "^4.17.10",
-    "superheroes": "^1.0.0",
+    "lodash": "^4.17.11",
+    "superheroes": "^2.0.0",
     "xstate": "^3.3.3"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node" : ">=10.x"
   }
 }

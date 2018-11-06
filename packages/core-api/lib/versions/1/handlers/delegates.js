@@ -19,7 +19,13 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const { count, rows } = await database.delegates.findAll(request.query)
+    const { count, rows } = await database.delegates.paginate({
+      ...request.query,
+      ...{
+        offset: request.query.offset || 0,
+        limit: request.query.limit || 51
+      }
+    })
 
     return utils.respondWith({
       delegates: utils.toCollection(request, rows, 'delegate'),
@@ -97,7 +103,7 @@ exports.search = {
     const query = {
       username: request.query.q
     }
-    const { rows } = await database.delegates.search({...query, ...utils.paginate(request)})
+    const { rows } = await database.delegates.search({ ...query, ...utils.paginate(request) })
 
     return utils.respondWith({
       delegates: utils.toCollection(request, rows, 'delegate')
@@ -123,6 +129,13 @@ exports.voters = {
    */
   async handler (request, h) {
     const delegate = await database.delegates.findById(request.query.publicKey)
+
+    if (!delegate) {
+      return utils.respondWith({
+        accounts: []
+      })
+    }
+
     const accounts = await database.wallets.findAllByVote(delegate.publicKey)
 
     return utils.respondWith({
@@ -164,7 +177,7 @@ exports.forged = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const wallet = database.walletManager.getWalletByPublicKey(request.query.generatorPublicKey)
+    const wallet = database.walletManager.findByPublicKey(request.query.generatorPublicKey)
 
     return utils.respondWith({
       fees: Number(wallet.forgedFees),

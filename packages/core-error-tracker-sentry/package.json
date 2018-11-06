@@ -1,0 +1,24 @@
+{
+  "name": "@arkecosystem/core-error-tracker-sentry",
+  "description": "Sentry error tracker integration for Ark Core.",
+  "version": "0.1.0",
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
+  },
+  "dependencies": {
+    "@sentry/node": "^4.2.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node" : ">=10.x"
+  }
+}

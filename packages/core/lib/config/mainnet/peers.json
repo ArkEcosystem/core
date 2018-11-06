@@ -1,5 +1,5 @@
 {
-  "minimumVersion": ">=1.1.1",
+  "minimumVersion": ">=1.3.3",
   "minimumNetworkReach": 20,
   "globalTimeout": 5000,
   "coldStart": 30,
@@ -136,6 +136,6 @@
     }
   ],
   "sources": [
-    "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/mainnet.json"
+    "https://raw.githubusercontent.com/ArkEcosystem/peers/master/mainnet.json"
   ]
 }

@@ -1,3 +1,4 @@
+const Bignum = require('../../../lib/utils/bignum')
 const handler = require('../../../lib/handlers/transactions/delegate-registration')
 
 let wallet
@@ -12,8 +13,8 @@ beforeEach(() => {
     blockid: '11233167632577333611',
     type: 2,
     timestamp: 36482198,
-    amount: 0,
-    fee: 10000000,
+    amount: Bignum.ZERO,
+    fee: new Bignum(10000000),
     senderId: 'DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh',
     recipientId: 'DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh',
     senderPublicKey: '034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126',
@@ -38,13 +39,13 @@ describe('DelegateRegistrationHandler', () => {
     })
 
     it('should be ok', () => {
-      expect(handler.canApply(wallet, transaction)).toBeTruthy()
+      expect(handler.canApply(wallet, transaction)).toBeTrue()
     })
 
     it('should not be ok', () => {
       wallet.username = 'dummy'
 
-      expect(handler.canApply(wallet, transaction)).toBeFalsy()
+      expect(handler.canApply(wallet, transaction)).toBeFalse()
     })
   })
 

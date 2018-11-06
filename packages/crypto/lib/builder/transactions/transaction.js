@@ -34,12 +34,25 @@ module.exports = class TransactionBuilder {
   }
 
   /**
+   * Set transaction network.
+   * @param {Number} network
+   * @return {TransactionBuilder}
+   */
+  network (network) {
+    this.data.network = network
+    return this
+  }
+
+  /**
    * Set transaction fee.
    * @param {Number} fee
    * @return {TransactionBuilder}
    */
   fee (fee) {
-    this.data.fee = fee
+    if (fee != null) {
+      this.data.fee = fee
+    }
+
     return this
   }
 
@@ -74,6 +87,19 @@ module.exports = class TransactionBuilder {
   }
 
   /**
+   * Set vendor field.
+   * @param  {String} vendorField
+   * @return {TransactionBuilder}
+   */
+  vendorField (vendorField) {
+    if (vendorField && vendorField.length <= 64) {
+      this.data.vendorField = vendorField
+    }
+
+    return this
+  }
+
+  /**
    * Verify the transaction.
    * @return {Boolean}
    */
@@ -104,14 +130,50 @@ module.exports = class TransactionBuilder {
   }
 
   /**
+   * Sign transaction using wif.
+   * @param  {String} wif
+   * @param  {String} networkWif - value associated with network
+   * @return {TransactionBuilder}
+   */
+  signWithWif (wif, networkWif) {
+    const keys = crypto.getKeysFromWIF(wif, {
+      wif: networkWif || configManager.get('wif')
+    })
+    this.data.senderPublicKey = keys.publicKey
+    this.data.signature = crypto.sign(this.__getSigningObject(), keys)
+
+    return this
+  }
+
+  /**
    * Sign transaction with second passphrase.
    * @param  {String} secondPassphrase
    * @return {TransactionBuilder}
    */
   secondSign (secondPassphrase) {
-    const keys = crypto.getKeys(secondPassphrase)
-    // TODO sign or second?
-    this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+    if (secondPassphrase) {
+      const keys = crypto.getKeys(secondPassphrase)
+      // TODO sign or second?
+      this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+    }
+
+    return this
+  }
+
+  /**
+   * Sign transaction with wif.
+   * @param  {String} wif
+   * @param  {String} networkWif - value associated with network
+   * @return {TransactionBuilder}
+   */
+  secondSignWithWif (wif, networkWif) {
+    if (wif) {
+      const keys = crypto.getKeysFromWIF(wif, {
+        wif: networkWif || configManager.get('wif')
+      })
+      // TODO sign or second?
+      this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+    }
 
     return this
   }

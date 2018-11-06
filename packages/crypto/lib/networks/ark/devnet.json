@@ -8,6 +8,7 @@
   "pubKeyHash": 30,
   "nethash": "2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867",
   "wif": 170,
+  "aip20": 1,
   "client": {
     "token": "DARK",
     "symbol": "DѦ",
@@ -50,7 +51,18 @@
   }, {
     "height": 10800,
     "reward": 200000000
+  }, {
+    "height": 21600,
+    "block": {
+      "maxTransactions": 150,
+      "maxPayload": 6300000
+    }
   }],
   "exceptions": {
+    "blocks": ["15895730198424359628", "14746174532446639362"],
+    "transactions": [
+      "76bd168e57a4431a64617c4e7864df1e0be89831eabaa230e37643efae2def6f",
+      "90d06cb306dcc33faba59545e03d91ee83b0409e66a45ffe6a9e3b1049a0c521"
+    ]
   }
 }

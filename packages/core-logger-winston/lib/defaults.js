@@ -5,20 +5,22 @@ module.exports = {
     console: {
       constructor: 'Console',
       options: {
-        colorize: true,
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        timestamp: () => Date.now(),
-        formatter: (info) => require('./formatter')(info)
+        format: require('./formatter')(true),
+        stderrLevels: [ 'error', 'warn' ]
       }
     },
     dailyRotate: {
       package: 'winston-daily-rotate-file',
       constructor: 'DailyRotateFile',
       options: {
+        level: process.env.ARK_LOG_LEVEL || 'debug',
+        format: require('./formatter')(false),
         filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
         datePattern: 'YYYY-MM-DD',
-        level: process.env.ARK_LOG_LEVEL || 'debug',
-        zippedArchive: true
+        zippedArchive: true,
+        maxSize: '100m',
+        maxFiles: '10'
       }
     }
   }

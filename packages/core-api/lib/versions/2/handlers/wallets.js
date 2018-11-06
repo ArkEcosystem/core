@@ -4,6 +4,7 @@ const Boom = require('boom')
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/wallets')
+const { transactions: transactionsRepository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -15,7 +16,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const wallets = await database.wallets.findAll(utils.paginate(request))
+    const wallets = await database.wallets.findAll({ ...request.query, ...utils.paginate(request) })
 
     return utils.toPagination(request, wallets, 'wallet')
   },
@@ -38,6 +39,7 @@ exports.top = {
 
     return utils.toPagination(request, wallets, 'wallet')
   }
+  // TODO: create top schema
 }
 
 /**
@@ -79,7 +81,7 @@ exports.transactions = {
       return Boom.notFound('Wallet not found')
     }
 
-    const transactions = await database.transactions.findAllByWallet(
+    const transactions = await transactionsRepository.findAllByWallet(
       wallet, {
         ...request.params,
         ...utils.paginate(request)
@@ -109,7 +111,10 @@ exports.transactionsSent = {
       return Boom.notFound('Wallet not found')
     }
 
-    const transactions = await database.transactions.findAllBySender(
+    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
+    delete request.params.id
+
+    const transactions = await transactionsRepository.findAllBySender(
       wallet.publicKey, {
         ...request.params,
         ...utils.paginate(request)
@@ -139,7 +144,10 @@ exports.transactionsReceived = {
       return Boom.notFound('Wallet not found')
     }
 
-    const transactions = await database.transactions.findAllByRecipient(
+    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
+    delete request.params.id
+
+    const transactions = await transactionsRepository.findAllByRecipient(
       wallet.address, {
         ...request.params,
         ...utils.paginate(request)
@@ -169,7 +177,10 @@ exports.votes = {
       return Boom.notFound('Wallet not found')
     }
 
-    const transactions = await database.transactions.allVotesBySender(
+    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
+    delete request.params.id
+
+    const transactions = await transactionsRepository.allVotesBySender(
       wallet.publicKey, {
         ...request.params,
         ...utils.paginate(request)

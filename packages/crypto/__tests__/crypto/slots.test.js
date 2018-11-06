@@ -5,6 +5,44 @@ const slots = require('../../lib/crypto/slots')
 beforeEach(() => configManager.setConfig(network))
 
 describe('Slots', () => {
+  describe('getHeight', () => {
+    it('should be a function', () => {
+      expect(slots.getHeight).toBeFunction()
+    })
+
+    it('should return the set height', () => {
+      expect(slots.getHeight()).toBe(1)
+    })
+  })
+
+  describe('setHeight', () => {
+    it('should be a function', () => {
+      expect(slots.setHeight).toBeFunction()
+    })
+
+    it('should set the height', () => {
+      slots.setHeight(123)
+
+      expect(slots.getHeight()).toBe(123)
+    })
+  })
+
+  describe('resetHeight', () => {
+    it('should be a function', () => {
+      expect(slots.resetHeight).toBeFunction()
+    })
+
+    it('should reset the height', () => {
+      slots.setHeight(123)
+
+      expect(slots.getHeight()).toBe(123)
+
+      slots.resetHeight()
+
+      expect(slots.getHeight()).toBe(1)
+    })
+  })
+
   describe('getEpochTime', () => {
     it('should be a function', () => {
       expect(slots.getEpochTime).toBeFunction()

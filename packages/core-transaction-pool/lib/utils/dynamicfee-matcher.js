@@ -1,6 +1,7 @@
 const container = require('@arkecosystem/core-container')
 const { feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
 const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
 
 /**
  * Determine if transaction matches the accepted fee by delegate or max fee set by sender
@@ -8,32 +9,35 @@ const config = container.resolvePlugin('config')
  * @return {Boolean} matches T/F
  */
 module.exports = (transaction) => {
+  const transactionFee = +transaction.fee.toFixed()
   const staticFee = feeManager.getForTransaction(transaction)
   const blockchain = container.resolvePlugin('blockchain')
   const feeConstants = config.getConstants(blockchain.getLastBlock().data.height).fees
-  if (!feeConstants.dynamic && transaction.fee !== staticFee) {
-    // logger.debug(`Received transaction fee '${transaction.fee}' for '${transaction.id}' does not match static fee of '${staticFee}'`)
+
+  if (!feeConstants.dynamic && transactionFee !== staticFee) {
+    logger.debug(`Received transaction fee '${transactionFee}' for '${transaction.id}' does not match static fee of '${staticFee}'`)
     return false
   }
 
   if (feeConstants.dynamic) {
-    const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
+    const calculatedFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
 
-    if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
-      // logger.debug(`Fee not accepted - transaction fee of '${transaction.fee}' for '${transaction.id}' is below delegate minimum fee of '${config.delegates.dynamicFees.minAcceptableFee}'`)
+    if (transactionFee < config.delegates.dynamicFees.minAcceptableFee) {
+      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transactionFee}" which is below the minimum accepted fee of "${config.delegates.dynamicFees.minAcceptableFee}" by this delegate.`)
       return false
     }
 
-    if (dynamicFee > transaction.fee) {
-      // logger.debug(`Fee not accepted - calculated delegate fee of '${dynamicFee}' is above maximum transcation fee of '${transaction.fee}' for '${transaction.id}'`)
+    if (calculatedFee > transactionFee) {
+      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transactionFee}" which is below the calculated fee of "${calculatedFee}".`)
       return false
     }
 
-    if (transaction.fee > staticFee) {
-      // logger.debug(`Fee not accepted - transaction fee of '${transaction.fee}' for '${transaction.id}' is above static fee of '${feeManager.get(transaction.type)}'`)
+    if (transactionFee > staticFee) {
+      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transactionFee}" which is higher than the static fee of "${feeManager.get(transaction.type)}".`)
       return false
     }
-    // logger.debug(`Transaction accepted with fee of '${transaction.fee}' for '${transaction.id}' - calculated fee for transaction is '${dynamicFee}'`)
+
+    logger.debug(`Transaction "${transaction.id}" accepted with fee of "${transactionFee}". The calculated fee is "${calculatedFee}".`)
   }
   return true
 }

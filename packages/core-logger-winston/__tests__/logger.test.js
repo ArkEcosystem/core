@@ -1,7 +1,6 @@
 'use strict'
 
 const capcon = require('capture-console')
-const winston = require('winston')
 const WinstonDriver = require('../lib/driver')
 
 let logger
@@ -21,7 +20,7 @@ beforeAll(() => {
 
 describe('Logger', () => {
   it('should be an object', () => {
-    expect(logger).toBeInstanceOf(winston.Logger)
+    expect(logger).toBeObject()
   })
 
   describe('error', () => {

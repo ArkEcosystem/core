@@ -1,6 +1,8 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Forger Manager
 
-# ARK Core - Forger Manager
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
 ## Installation
 
@@ -10,11 +12,9 @@ yarn add @arkecosystem/core-forger
 
 ## Configuration
 
-### Defaults
-
 ```js
 module.exports = {
-  hosts: ['http://127.0.0.1:4002']
+  hosts: [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4002}`]
 }
 ```
 

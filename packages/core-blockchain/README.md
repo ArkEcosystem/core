@@ -1,11 +1,26 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Blockchain Management
 
-# ARK Core - Blockchain Management
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
 ## Installation
 
 ```bash
 yarn add @arkecosystem/core-blockchain
+```
+
+## Configuration
+
+```js
+module.exports = {
+  version: '2.0.0',
+  fastRebuild: false,
+  databaseRollback: {
+    maxBlockRewind: 10000,
+    steps: 1000
+  }
+}
 ```
 
 ## Security

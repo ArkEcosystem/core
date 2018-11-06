@@ -14,18 +14,18 @@ describe('isWhitelist', () => {
   })
 
   it('should be ok for 127.0.0.1', () => {
-    expect(isWhitelist(whitelisted, '127.0.0.1')).toBeTruthy()
+    expect(isWhitelist(whitelisted, '127.0.0.1')).toBeTrue()
   })
 
   it('should be ok for ::ffff:127.0.0.1', () => {
-    expect(isWhitelist(whitelisted, '::ffff:127.0.0.1')).toBeTruthy()
+    expect(isWhitelist(whitelisted, '::ffff:127.0.0.1')).toBeTrue()
   })
 
   it('should be ok for 192.168.0.10', () => {
-    expect(isWhitelist(whitelisted, '192.168.0.10')).toBeTruthy()
+    expect(isWhitelist(whitelisted, '192.168.0.10')).toBeTrue()
   })
 
   it('should not be ok', () => {
-    expect(isWhitelist(whitelisted, 'dummy')).toBeFalsy()
+    expect(isWhitelist(whitelisted, 'dummy')).toBeFalse()
   })
 })

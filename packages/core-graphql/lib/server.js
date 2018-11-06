@@ -1,8 +1,7 @@
-'use strict';
+'use strict'
 
-const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
-const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
+const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
+const server = require('./schema')
 
 /**
  * Create a new hapi.js server.
@@ -10,45 +9,17 @@ const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  const server = new Hapi.Server({
+  const app = await createServer({
     host: config.host,
     port: config.port
   })
 
-  await server.register([require('vision'), require('inert'), require('lout')])
-
-  await server.register({
-    plugin: graphqlHapi,
-    options: {
-      path: config.path,
-      graphqlOptions: require('./schema'),
-      route: {
-        cors: true
-      }
-    }
+  await server.applyMiddleware({
+    app,
+    path: config.path
   })
 
-  if (config.graphiql) {
-    await server.register({
-      plugin: graphiqlHapi,
-      options: {
-        path: '/graphiql',
-        graphiqlOptions: {
-          endpointURL: config.path
-        }
-      }
-    })
-  }
+  await server.installSubscriptionHandlers(app.listener)
 
-  try {
-    await server.start()
-
-    logger.info(`GraphQL API Server running at: ${server.info.uri}`)
-
-    return server
-  } catch (error) {
-    logger.error(error.stack)
-    // TODO no exit here?
-    process.exit(1)
-  }
+  return mountServer('GraphQL', app)
 }

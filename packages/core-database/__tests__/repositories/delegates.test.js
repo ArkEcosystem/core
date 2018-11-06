@@ -1,24 +1,20 @@
 'use strict'
 
 const app = require('../__support__/setup')
-const { crypto } = require('@arkecosystem/crypto')
+const { Bignum, crypto, constants: { ARKTOSHI } } = require('@arkecosystem/crypto')
+const { Block } = require('@arkecosystem/crypto').models
+const { delegateCalculator } = require('@arkecosystem/core-utils')
 
 let genesisBlock
 let repository
 let walletManager
-let calculateApproval
-let calculateProductivity
 
 beforeAll(async (done) => {
   await app.setUp()
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('../__fixtures__/genesisBlock')
-
-  const delegateCalculator = require('../../lib/repositories/utils/delegate-calculator')
-  calculateApproval = delegateCalculator.calculateApproval
-  calculateProductivity = delegateCalculator.calculateProductivity
+  genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
 
   done()
 })
@@ -46,8 +42,8 @@ function generateWallets () {
       secondPublicKey: `secondPublicKey-${address}`,
       vote: `vote-${address}`,
       username: `username-${address}`,
-      balance: 100,
-      votebalance: 200
+      balance: new Bignum(100),
+      voteBalance: new Bignum(200)
     }
   })
 }
@@ -77,10 +73,10 @@ describe('Delegate Repository', () => {
     })
 
     it('should return the local wallets of the connection that are delegates', () => {
-      repository.connection.walletManager.getLocalWallets = jest.fn(() => wallets)
+      repository.connection.walletManager.all = jest.fn(() => wallets)
 
       expect(repository.getLocalDelegates()).toEqual(expect.arrayContaining(delegates))
-      expect(repository.connection.walletManager.getLocalWallets).toHaveBeenCalled()
+      expect(repository.connection.walletManager.all).toHaveBeenCalled()
     })
   })
 
@@ -298,7 +294,7 @@ describe('Delegate Repository', () => {
       const delegate = {
         username: 'test',
         publicKey: 'test',
-        balance: 10000 * Math.pow(10, 8),
+        voteBalance: new Bignum(10000 * ARKTOSHI),
         producedBlocks: 1000,
         missedBlocks: 500
       }
@@ -313,10 +309,10 @@ describe('Delegate Repository', () => {
 
       expect(results).toBeArray()
       expect(results[0].username).toBeString()
-      expect(results[0].approval).toBeNumber() // 0.18
-      expect(results[0].productivity).toBeNumber() // 98.97
-      expect(results[0].approval).toBe(calculateApproval(delegate, height))
-      expect(results[0].productivity).toBe(calculateProductivity(delegate))
+      expect(results[0].approval).toBeNumber()
+      expect(results[0].productivity).toBeNumber()
+      expect(results[0].approval).toBe(delegateCalculator.calculateApproval(delegate, height))
+      expect(results[0].productivity).toBe(delegateCalculator.calculateProductivity(delegate))
     })
   })
 })

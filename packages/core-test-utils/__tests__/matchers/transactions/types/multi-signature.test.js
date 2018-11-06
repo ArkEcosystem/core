@@ -1,8 +1,6 @@
 const { MULTI_SIGNATURE } = require('@arkecosystem/crypto').constants
 
-expect.extend({
-  toBeMultiSignatureType: require('../../../../lib/matchers/transactions/types/multi-signature')
-})
+require('../../../../lib/matchers/transactions/types/multi-signature')
 
 describe('.toBeMultiSignatureType', () => {
   test('passes when given a valid transaction', () => {

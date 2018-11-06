@@ -1,6 +1,6 @@
 'use strict'
 
-require('@arkecosystem/core-test-utils/lib') // eslint-disable-line no-unused-vars
+require('@arkecosystem/core-test-utils/lib/matchers') // eslint-disable-line no-unused-vars
 
 const machine = require('../../../lib/machines/blockchain')
 
@@ -26,14 +26,6 @@ describe('Blockchain machine > Fork', () => {
   describe('state `network`', () => {
     it('should execute the `checkNetwork` action when is entered', () => {
       expect(machine).toExecuteOnEntry({ state: 'fork.network', actions: ['checkNetwork'] })
-    })
-
-    it('should transition to `blockchain` on `SUCCESS`', () => {
-      expect(machine).toTransition({ from: 'fork.network', on: 'SUCCESS', to: 'fork.blockchain' })
-    })
-
-    it('should transition to `exit` on `FAILURE`', () => {
-      expect(machine).toTransition({ from: 'fork.network', on: 'FAILURE', to: 'fork.reset' })
     })
   })
 

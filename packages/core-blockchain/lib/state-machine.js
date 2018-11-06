@@ -7,28 +7,15 @@ const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
+const { roundCalculator } = require('@arkecosystem/core-utils')
 
 const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
+const state = require('./state-storage')
 
 /**
- * Initial state of the machine.
- * @type {Object}
- */
-const state = {
-  blockchain: blockchainMachine.initialState,
-  lastDownloadedBlock: null,
-  lastBlock: null,
-  blockPing: null,
-  started: false,
-  rebuild: true,
-  fastRebuild: true,
-  noBlockCounter: 0
-}
-
-/**
- * @type {Object}
+ * @type {StateStorage}
  */
 blockchainMachine.state = state
 
@@ -47,9 +34,10 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async checkLater () {
-      await delay(60000)
-
-      return blockchain.dispatch('WAKEUP')
+      if (!blockchain.isStopped) {
+        await delay(60000)
+        return blockchain.dispatch('WAKEUP')
+      }
     },
 
     checkLastBlockSynced () {
@@ -62,9 +50,10 @@ blockchainMachine.actionMap = blockchain => {
 
     checkLastDownloadedBlockSynced () {
       let event = 'NOTSYNCED'
-      logger.debug(`Blocks in queue: ${blockchain.rebuildQueue.length()}`)
+      logger.debug(`Queued blocks for rebuildQueue: ${blockchain.rebuildQueue.length()}`)
+      logger.debug(`Queued blocks for processQueue: ${blockchain.processQueue.length()}`)
 
-      if (blockchain.rebuildQueue.length() > 10000) {
+      if (blockchain.rebuildQueue.length() > 10000 || blockchain.processQueue.length() > 10000) {
         event = 'PAUSED'
       }
 
@@ -96,13 +85,13 @@ blockchainMachine.actionMap = blockchain => {
     downloadFinished () {
       logger.info('Block download finished :rocket:')
 
-     if (state.networkStart) {
+      if (state.networkStart) {
         // next time we will use normal behaviour
         state.networkStart = false
 
         blockchain.dispatch('SYNCFINISHED')
       } else if (blockchain.rebuildQueue.length() === 0) {
-          blockchain.dispatch('PROCESSFINISHED')
+        blockchain.dispatch('PROCESSFINISHED')
       }
     },
 
@@ -112,12 +101,11 @@ blockchainMachine.actionMap = blockchain => {
 
         state.rebuild = false
 
-        await blockchain.database.saveBlockCommit()
+        await blockchain.database.commitQueuedQueries()
         await blockchain.rollbackCurrentRound()
-        await blockchain.database.buildWallets(state.lastBlock.data.height)
+        await blockchain.database.buildWallets(state.getLastBlock().data.height)
         await blockchain.database.saveWallets(true)
         await blockchain.transactionPool.buildWallets()
-        // await blockchain.database.applyRound(blockchain.getLastBlock().data.height)
 
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
@@ -138,14 +126,15 @@ blockchainMachine.actionMap = blockchain => {
       blockchain.dispatch('REBUILDCOMPLETE')
     },
 
+    stopped () {
+      logger.info('The blockchain has been stopped :guitar:')
+    },
+
     exitApp () {
-      logger.error('Failed to startup blockchain. Exiting ARK Core! :rotating_light:')
-      process.exit(1)
+      container.forceExit('Failed to startup blockchain. Exiting Ark Core! :rotating_light:')
     },
 
     async init () {
-      // p2p = container.resolvePlugin('p2p')
-
       try {
         let block = await blockchain.database.getLastBlock()
 
@@ -163,19 +152,21 @@ blockchainMachine.actionMap = blockchain => {
           await blockchain.database.saveBlock(block)
         }
 
-        logger.info('Verifying database integrity :hourglass_flowing_sand:')
+        if (!blockchain.restoredDatabaseIntegrity) {
+          logger.info('Verifying database integrity :hourglass_flowing_sand:')
 
-        const databaseBlokchain = await blockchain.database.verifyBlockchain()
+          const blockchainAudit = await blockchain.database.verifyBlockchain()
+          if (!blockchainAudit.valid) {
+            logger.error('FATAL: The database is corrupted :fire:')
+            logger.error(JSON.stringify(blockchainAudit.errors, null, 4))
 
-        if (!databaseBlokchain.valid) {
-          logger.error('FATAL: The database is corrupted :rotating_light:')
+            return blockchain.dispatch('ROLLBACK')
+          }
 
-          console.error(databaseBlokchain.errors)
-
-          return blockchain.dispatch('FAILURE')
+          logger.info('Verified database integrity :smile_cat:')
+        } else {
+          logger.info('Skipping database integrity check after successful database recovery :smile_cat:')
         }
-
-        logger.info('Verified database integrity :smile_cat:')
 
         // only genesis block? special case of first round needs to be dealt with
         if (block.data.height === 1) {
@@ -186,7 +177,7 @@ blockchainMachine.actionMap = blockchain => {
          *  state machine data init      *
          ********************************/
         const constants = config.getConstants(block.data.height)
-        state.lastBlock = block
+        state.setLastBlock(block)
         state.lastDownloadedBlock = block
 
         if (state.networkStart) {
@@ -205,7 +196,7 @@ blockchainMachine.actionMap = blockchain => {
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY. :bangbang:')
 
-          state.lastBlock = new Block(config.genesisBlock)
+          state.setLastBlock(new Block(config.genesisBlock))
           await blockchain.database.buildWallets(block.data.height)
 
           return blockchain.dispatch('STARTED')
@@ -229,12 +220,15 @@ blockchainMachine.actionMap = blockchain => {
          * database init                 *
          ********************************/
         // SPV rebuild
-        await blockchain.database.buildWallets(block.data.height)
-        await blockchain.database.saveWallets(true)
+        const verifiedWalletsIntegrity = await blockchain.database.buildWallets(block.data.height)
+        if (!verifiedWalletsIntegrity && block.data.height > 1) {
+          logger.warn('Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown. :hammer:')
+          await blockchain.database.saveWallets(true)
+        }
 
-        // Edge case: if the node is shutdown between round, the round has already been applied
-        if (blockchain.database.isNewRound(block.data.height + 1)) {
-          const round = blockchain.database.getRound(block.data.height + 1)
+        // NOTE: if the node is shutdown between round, the round has already been applied
+        if (roundCalculator.isNewRound(block.data.height + 1)) {
+          const { round } = roundCalculator.calculateRound(block.data.height + 1)
 
           logger.info(`New round ${round} detected. Cleaning calculated data before restarting!`)
 
@@ -253,10 +247,10 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async rebuildBlocks () {
-      const lastBlock = state.lastDownloadedBlock || state.lastBlock
+      const lastBlock = state.lastDownloadedBlock || state.getLastBlock()
       const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
 
-      tickSyncTracker(blocks.length)
+      tickSyncTracker(blocks.length, lastBlock.data.height)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new blocks found on this peer')
@@ -265,12 +259,10 @@ blockchainMachine.actionMap = blockchain => {
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
-          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
           blockchain.rebuildQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
         } else {
-          // state.lastDownloadedBlock = state.lastBlock
-
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
@@ -281,8 +273,12 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async downloadBlocks () {
-      const lastBlock = state.lastDownloadedBlock || state.lastBlock
+      const lastBlock = state.lastDownloadedBlock || state.getLastBlock()
       const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
+
+      if (blockchain.isStopped) {
+        return
+      }
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
@@ -295,18 +291,19 @@ blockchainMachine.actionMap = blockchain => {
 
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
           state.noBlockCounter = 0
-          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
 
           blockchain.processQueue.push(blocks)
 
           blockchain.dispatch('DOWNLOADED')
         } else {
-          state.lastDownloadedBlock = state.lastBlock
+          state.lastDownloadedBlock = lastBlock
 
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
-          blockchain.p2p.banPeer(blocks[0].ip)
+          state.forked = true
+          state.forkedBlock = blocks[0]
 
           // disregard the whole block list
           blockchain.dispatch('FORK')
@@ -321,8 +318,8 @@ blockchainMachine.actionMap = blockchain => {
     async startForkRecovery () {
       logger.info('Starting fork recovery :fork_and_knife:')
 
-      await blockchain.database.saveBlockCommit()
-      // state.forked = true
+      await blockchain.database.commitQueuedQueries()
+
       let random = ~~(4 / Math.random())
 
       if (random > 102) {
@@ -332,6 +329,39 @@ blockchainMachine.actionMap = blockchain => {
       await blockchain.removeBlocks(random)
 
       logger.info(`Removed ${random} blocks :wastebasket:`)
+
+      await blockchain.p2p.refreshPeersAfterFork()
+
+      blockchain.dispatch('SUCCESS')
+    },
+
+    async rollbackDatabase () {
+      logger.info('Trying to restore database integrity :fire_engine:')
+
+      const { maxBlockRewind, steps } = container.resolveOptions('blockchain').databaseRollback
+      let blockchainAudit
+
+      for (let i = maxBlockRewind; i >= 0; i -= steps) {
+        await blockchain.removeTopBlocks(steps)
+
+        blockchainAudit = await blockchain.database.verifyBlockchain()
+        if (blockchainAudit.valid) {
+          break
+        }
+      }
+
+      if (!blockchainAudit.valid) {
+        // TODO: multiple attempts? rewind further? restore snapshot?
+        logger.error('FATAL: Failed to restore database integrity :skull: :skull: :skull:')
+        logger.error(JSON.stringify(blockchainAudit.errors, null, 4))
+        blockchain.dispatch('FAILURE')
+        return
+      }
+
+      blockchain.restoredDatabaseIntegrity = true
+
+      const lastBlock = await blockchain.database.getLastBlock()
+      logger.info(`Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()} :green_heart:`)
 
       blockchain.dispatch('SUCCESS')
     }

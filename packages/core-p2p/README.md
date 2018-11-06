@@ -1,6 +1,8 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - P2P API
 
-# ARK Core - P2P API
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
 ## Installation
 
@@ -10,12 +12,10 @@ yarn add @arkecosystem/core-p2p
 
 ## Configuration
 
-### Defaults
-
 ```js
 module.exports = {
   port: process.env.ARK_P2P_PORT || 4002,
-  remoteinterface: true,
+  remoteInterface: true,
   dns: [
     // Google
     '8.8.8.8',
@@ -30,6 +30,10 @@ module.exports = {
   ntp: [
     'pool.ntp.org',
     'time.google.com'
+  ],
+  whitelist: [
+    '127.0.0.1',
+    '::ffff:127.0.0.1'
   ]
 }
 ```

@@ -1,6 +1,6 @@
 'use strict'
 
-const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
+const { delegateCalculator } = require('@arkecosystem/core-utils')
 const limitRows = require('./utils/limit-rows')
 const orderBy = require('lodash/orderBy')
 
@@ -18,7 +18,7 @@ module.exports = class DelegatesRepository {
    * @return {Array}
    */
   getLocalDelegates () {
-    return this.connection.walletManager.getLocalWallets().filter(wallet => !!wallet.username)
+    return this.connection.walletManager.all().filter(wallet => !!wallet.username)
   }
 
   /**
@@ -105,8 +105,8 @@ module.exports = class DelegatesRepository {
 
       return {
         username: wallet.username,
-        approval: calculateApproval(delegate, height),
-        productivity: calculateProductivity(wallet)
+        approval: delegateCalculator.calculateApproval(delegate, height),
+        productivity: delegateCalculator.calculateProductivity(wallet)
       }
     })
   }

@@ -1,6 +1,7 @@
 'use strict'
 
 const axios = require('axios')
+const util = require('util')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -17,11 +18,13 @@ module.exports = class Peer {
     this.ban = new Date().getTime()
     this.url = (port % 443 === 0 ? 'https://' : 'http://') + `${ip}:${port}`
     this.state = {}
+    this.offences = []
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,
       port: container.resolveOptions('p2p').port,
-      nethash: config.network.nethash
+      nethash: config.network.nethash,
+      height: null
     }
   }
 
@@ -32,7 +35,7 @@ module.exports = class Peer {
   toBroadcastInfo () {
     return {
       ip: this.ip,
-      port: this.port,
+      port: +this.port,
       version: this.version,
       os: this.os,
       status: this.status,
@@ -47,20 +50,10 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postBlock (block) {
-    try {
-      const response = await axios.post(`${this.url}/peer/blocks`, { block }, {
-        headers: this.headers,
-        timeout: 5000
-      })
-
-      this.__parseHeaders(response)
-
-      return response.data
-    } catch (error) {
-      // logger.debug('Peer unresponsive', this.url + '/peer/blocks/', error.code)
-
-      this.status = error.code
-    }
+    return this.__post(`${this.url}/peer/blocks`, { block }, {
+      headers: this.headers,
+      timeout: 5000
+    })
   }
 
   /**
@@ -69,21 +62,13 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postTransactions (transactions) {
-    try {
-      const response = await axios.post(`${this.url}/peer/transactions`, {
-        transactions,
-        isBroadCasted: true
-      }, {
-        headers: this.headers,
-        timeout: 8000
-      })
-
-      this.__parseHeaders(response)
-
-      return response.data
-    } catch (error) {
-      this.status = error.code
-    }
+    return this.__post(`${this.url}/peer/transactions`, {
+      transactions,
+      isBroadCasted: true
+    }, {
+      headers: this.headers,
+      timeout: 8000
+    })
   }
 
   async getTransactionsFromIds (ids) {
@@ -106,21 +91,24 @@ module.exports = class Peer {
    */
   async downloadBlocks (fromBlockHeight) {
     try {
-      const { data } = await axios.get(`${this.url}/peer/blocks`, {
+      const response = await axios.get(`${this.url}/peer/blocks`, {
         params: { lastBlockHeight: fromBlockHeight },
         headers: this.headers,
         timeout: 60000
       })
 
-      const size = data.blocks.length
+      this.__parseHeaders(response)
+
+      const { blocks } = response.data
+      const size = blocks.length
 
       if (size === 100 || size === 400) {
         this.downloadSize = size
       }
 
-      return data.blocks
+      return blocks
     } catch (error) {
-      logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
+      logger.debug(`Cannot download blocks from peer ${this.url} - ${util.inspect(error, { depth: 1 })}`)
 
       this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000
 
@@ -202,7 +190,32 @@ module.exports = class Peer {
 
       return response.data
     } catch (error) {
-      this.status = error.code
+      this.delay = -1
+
+      if (error.response) {
+        this.__parseHeaders(error.response)
+      }
+    }
+  }
+
+  /**
+   * Perform POST request.
+   * @param  {String} endpoint
+   * @param  {Object} body
+   * @param  {Object} headers
+   * @return {(Object|undefined)}
+   */
+  async __post (endpoint, body, headers) {
+    try {
+      const response = await axios.post(endpoint, body, headers)
+
+      this.__parseHeaders(response)
+
+      return response.data
+    } catch (error) {
+      if (error.response) {
+        this.__parseHeaders(error.response)
+      }
     }
   }
 
@@ -212,10 +225,21 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders (response) {
-    ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
+    ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key] || this[key]))
 
-    this.status = 'OK'
+    if (response.headers.height) {
+      const previousHeight = this.state.height
+      this.state.height = +response.headers.height
+      // Work around circular dependency
+      require('./monitor').updatePeerHeight(this, previousHeight)
+    }
+
+    this.status = response.status
 
     return response
+  }
+
+  static isOk (peer) {
+    return peer.status === 200
   }
 }

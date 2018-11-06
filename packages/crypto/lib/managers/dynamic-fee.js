@@ -14,11 +14,11 @@ class DynamicFeeManager {
   * @returns {Number} Calculated dynamic fee in ARKTOSHI
   */
   calculateFee (feeMultiplier, transaction) {
-    if (feeMultiplier === 0) {
+    if (feeMultiplier <= 0) {
       feeMultiplier = 1
     }
 
-    return (this.get(transaction.type) + (transaction.serialized.length)) * feeMultiplier
+    return (this.get(transaction.type) + Buffer.from(transaction.serialized, 'hex').length) * feeMultiplier
   }
 
   /**

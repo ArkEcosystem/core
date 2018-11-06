@@ -52,10 +52,11 @@ module.exports = class QueueInterface {
 
   /**
    * Push the item to the queue.
+   * @param {Function} callback
    * @return {void}
    */
-  push (item) {
-    return this.queue.push(item)
+  push (callback) {
+    return this.queue.push(callback)
   }
 
   /**
@@ -64,5 +65,9 @@ module.exports = class QueueInterface {
    */
   length () {
     return this.queue.length()
+  }
+
+  destroy () {
+    return this.queue.kill()
   }
 }

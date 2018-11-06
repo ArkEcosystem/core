@@ -6,11 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-## 0.0.2 -
-- Added PBFT call to p2p layer to assess network state
-- Ping blockchain (relay node) to wake-up one slot before forging
-- Refactor (spliting monitor into more functions)
 
-## 0.0.1 - 2018-05-31
+### Added
+- Ping blockchain (relay node) to wake-up one slot before forging
+- PBFT call to p2p layer to assess network state
+
+### Changed
+- Split monitor and client to seperate HTTP logic
+- Read BIP38 from `.env`
+- Read Passphrase from `.env`
+- Dropped node.js 9 as minimum requirement in favour of node.js 10
+
+## 0.1.1 - 2018-06-14
+
 ### Added
 - initial release

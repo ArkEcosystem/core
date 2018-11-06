@@ -1,6 +1,8 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Winston Logger
 
-# ARK Core - Winston Logger
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
 ## Installation
 
@@ -10,28 +12,26 @@ yarn add @arkecosystem/core-logger-winston
 
 ## Configuration
 
-### Defaults
-
 ```js
 module.exports = {
   transports: {
     console: {
       constructor: 'Console',
       options: {
-        colorize: true,
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        timestamp: () => Date.now(),
-        formatter: (info) => require('./formatter')(info)
+        format: require('./formatter')
       }
     },
     dailyRotate: {
       package: 'winston-daily-rotate-file',
       constructor: 'DailyRotateFile',
       options: {
-        filename: `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
-        datePattern: 'YYYY-MM-DD',
         level: process.env.ARK_LOG_LEVEL || 'debug',
-        zippedArchive: true
+        filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
+        datePattern: 'YYYY-MM-DD',
+        zippedArchive: true,
+        maxSize: '100m',
+        maxFiles: '10'
       }
     }
   }

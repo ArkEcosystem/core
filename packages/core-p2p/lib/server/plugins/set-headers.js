@@ -14,18 +14,35 @@ const register = async (server, options) => {
     nethash: config.network.nethash,
     version: container.resolveOptions('blockchain').version,
     port: container.resolveOptions('p2p').port,
-    os: require('os').platform()
+    os: require('os').platform(),
+    height: null
   }
 
-  const requiredHeaders = ['nethash', 'version', 'port', 'os']
+  const requiredHeaders = ['nethash', 'version', 'port', 'os', 'height']
 
   server.ext({
     type: 'onPreResponse',
     async method (request, h) {
-      if (request.response.isBoom) {
-        requiredHeaders.forEach((key) => (request.response.output.headers[key] = headers[key]))
+      const blockchain = container.resolvePlugin('blockchain')
+      if (blockchain) {
+        const lastBlock = blockchain.getLastBlock()
+        if (lastBlock) {
+          headers.height = lastBlock.data.height
+        }
+      }
+
+      const response = request.response
+      if (response.isBoom) {
+        if (response.data) {
+          // Deleting the property beforehand makes it appear last in the
+          // response body.
+          delete response.output.payload.error
+          response.output.payload.error = response.data
+        }
+
+        requiredHeaders.forEach((key) => (response.output.headers[key] = headers[key]))
       } else {
-        requiredHeaders.forEach((key) => request.response.header(key, headers[key]))
+        requiredHeaders.forEach((key) => response.header(key, headers[key]))
       }
 
       return h.continue
@@ -38,7 +55,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-p2p-set-headers',
+  name: 'set-headers',
   version: '0.1.0',
   register
 }

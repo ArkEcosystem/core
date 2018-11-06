@@ -3,13 +3,14 @@
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { Block } = require('@arkecosystem/crypto').models
-const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
-const transactionPool = container.resolvePlugin('transactionPool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
 
-const schema = require('./schema')
+const transactionPool = container.resolvePlugin('transactionPool')
+const logger = container.resolvePlugin('logger')
+
+const monitor = require('../../../monitor')
 
 /**
  * @type {Object}
@@ -22,7 +23,7 @@ exports.getPeers = {
    */
   async handler (request, h) {
     try {
-      const peers = request.server.app.p2p.getPeers()
+      const peers = monitor.getPeers()
         .map(peer => peer.toBroadcastInfo())
         .sort((a, b) => a.delay - b.delay)
 
@@ -32,13 +33,6 @@ exports.getPeers = {
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getPeers
-      }
     }
   }
 }
@@ -60,20 +54,13 @@ exports.getHeight = {
       height: lastBlock.data.height,
       id: lastBlock.data.id
     }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getHeight
-      }
-    }
   }
 }
 
 /**
  * @type {Object}
  */
-exports.getCommonBlock = {
+exports.getCommonBlocks = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -85,27 +72,21 @@ exports.getCommonBlock = {
         success: false
       }
     }
+
     const blockchain = container.resolvePlugin('blockchain')
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlock = await blockchain.database.getCommonBlock(ids)
+      const commonBlocks = await blockchain.database.getCommonBlocks(ids)
 
       return {
         success: true,
-        common: commonBlock.length ? commonBlock[0] : null,
+        common: commonBlocks.length ? commonBlocks[0] : null,
         lastBlockHeight: blockchain.getLastBlock().data.height
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getCommonBlock
-      }
     }
   }
 }
@@ -138,13 +119,6 @@ exports.getTransactionsFromIds = {
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getTransactionsFromIds
-      }
-    }
   }
 }
 
@@ -159,13 +133,6 @@ exports.getTransactions = {
    */
   handler (request, h) {
     return { success: true, transactions: [] }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getTransactions
-      }
-    }
   }
 }
 
@@ -179,34 +146,14 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    let lastBlock = null
-
-    if (blockchain) {
-      lastBlock = blockchain.getLastBlock()
-    }
-
-    if (!lastBlock) {
-      return {
-        success: false,
-        message: 'Node is not ready'
-      }
-    }
+    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
       success: true,
-      height: lastBlock.data.height,
+      height: lastBlock ? lastBlock.data.height : 0,
       forgingAllowed: slots.isForgingAllowed(),
       currentSlot: slots.getSlotNumber(),
-      header: lastBlock.getHeader()
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getStatus
-      }
+      header: lastBlock ? lastBlock.getHeader() : {}
     }
   }
 }
@@ -220,12 +167,8 @@ exports.postBlock = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
- async handler (request, h) {
+  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: false }
-    }
 
     try {
       if (!request.payload || !request.payload.block) {
@@ -234,7 +177,7 @@ exports.postBlock = {
 
       const block = request.payload.block
 
-      if (blockchain.pingBlock(block)) return {success: true}
+      if (blockchain.pingBlock(block)) return { success: true }
       // already got it?
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
@@ -246,7 +189,7 @@ exports.postBlock = {
       const b = new Block(block)
 
       if (!b.verification.verified) {
-        throw new Error('invalid block received')
+        return { success: false }
       }
 
       blockchain.pushPingBlock(b.data)
@@ -261,24 +204,28 @@ exports.postBlock = {
         //   missingIds = block.transactionIds.slice(0)
         // }
         // if (missingIds.length > 0) {
-          let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
-          // only for test because it can be used for DDOS attack
-          if (!peer && process.env.NODE_ENV === 'test_p2p') {
-            peer = await request.server.app.p2p.getRandomPeer()
-          }
-
-          if (!peer) return { success: false }
-
-          transactions = await peer.getTransactionsFromIds(block.transactionIds)
-          // issue on v1, using /api/ instead of /peer/
-          if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
-
-          // reorder them correctly
-          block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
-          logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
-
-          if (block.transactions.length !== block.numberOfTransactions) return { success: false }
+        let peer = await monitor.getPeer(requestIp.getClientIp(request))
+        // only for test because it can be used for DDOS attack
+        if (!peer && process.env.NODE_ENV === 'test_p2p') {
+          peer = await monitor.getRandomPeer()
         }
+
+        if (!peer) {
+          return { success: false }
+        }
+
+        transactions = await peer.getTransactionsFromIds(block.transactionIds)
+        // issue on v1, using /api/ instead of /peer/
+        if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
+
+        // reorder them correctly
+        block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
+        logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
+
+        if (block.transactions.length !== block.numberOfTransactions) {
+          return { success: false }
+        }
+      }
       // } else return { success: false }
 
       block.ip = requestIp.getClientIp(request)
@@ -288,13 +235,6 @@ exports.postBlock = {
     } catch (error) {
       logger.error(error)
       return { success: false }
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        payloadSchema: schema.postBlock
-      }
     }
   }
 }
@@ -309,16 +249,26 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!request.payload || !request.payload.transactions || !transactionPool) {
+    let error
+    if (!request.payload || !request.payload.transactions) {
+      error = 'No transactions received'
+    } else if (!transactionPool) {
+      error = 'Transaction pool not available'
+    }
+
+    if (error) {
       return {
         success: false,
-        transactionIds: []
+        message: error,
+        error: error
       }
     }
 
-    const blockchain = container.resolvePlugin('blockchain')
-    if (!blockchain) {
-      return { success: false }
+    if (request.payload.transactions.length > transactionPool.options.maxTransactionsPerRequest) {
+      return h.response({
+        success: false,
+        error: 'Number of transactions is exceeding max payload size per single request.'
+      }).code(500)
     }
 
     /**
@@ -329,8 +279,17 @@ exports.postTransactions = {
     const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
-    guard.invalid = invalid
+    guard.invalidate(invalid, 'Already memorized.')
+
     await guard.validate(valid)
+
+    if (guard.hasAny('invalid')) {
+      return {
+        success: false,
+        message: 'Transactions list is not conform',
+        error: 'Transactions list is not conform'
+      }
+    }
 
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
@@ -338,7 +297,7 @@ exports.postTransactions = {
 
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
 
-      await transactionPool.addTransactions(guard.accept)
+      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
 
       transactionPool.memory
         .forget(guard.getIds('accept'))
@@ -357,10 +316,8 @@ exports.postTransactions = {
     }
   },
   config: {
-    plugins: {
-      'hapi-ajv': {
-        payloadSchema: schema.postTransactions
-      }
+    cors: {
+      additionalHeaders: ['nethash', 'port', 'version']
     }
   }
 }
@@ -376,7 +333,15 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
-      const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const database = container.resolvePlugin('database')
+      const blockchain = container.resolvePlugin('blockchain')
+      let reqBlockHeight = parseInt(request.query.lastBlockHeight)
+      let blocks = []
+      if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
+        blocks.push(blockchain.getLastBlock())
+      } else {
+        blocks = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
+      }
 
       logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 
@@ -385,13 +350,6 @@ exports.getBlocks = {
       logger.error(error.stack)
 
       return h.response({ success: false, error: error }).code(500)
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getBlocks
-      }
     }
   }
 }

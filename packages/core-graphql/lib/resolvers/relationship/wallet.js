@@ -3,7 +3,17 @@
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { formatOrderBy, unserializeTransactions } = require('../../helpers')
 
+/**
+ * Useful and common database operations with wallet data.
+ */
 module.exports = {
+
+  /*
+   * Get the transactions for a given wallet.
+   * @param {Wallet} wallet
+   * @param {Object} args
+   * @return {Transaction[]}
+   */
   async transactions (wallet, args) {
     const { orderBy, filter, ...params } = args
 
@@ -19,17 +29,27 @@ module.exports = {
       ...walletOr,
       ...params
     }, false)
+    const rows = result ? result.rows : []
 
-    return unserializeTransactions(result)
+    return unserializeTransactions(rows)
   },
+
+  /*
+   * Get the blocks generated for a given wallet.
+   * @param {Wallet} wallet
+   * @param {Object} args
+   * @return {Block[]}
+   */
   blocks (wallet, args) {
     const { orderBy, ...params } = args
 
     params.generatorPublickKey = wallet.publicKey
 
-    return database.blocks.findAll({
+    const result = database.blocks.findAll({
       orderBy: formatOrderBy(orderBy, 'height:DESC'),
       ...params
     }, false)
+    const rows = result ? result.rows : []
+    return rows
   }
 }

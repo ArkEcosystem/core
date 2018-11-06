@@ -25,7 +25,7 @@ describe('Configuration', () => {
   })
 
   it('key should be "get"', () => {
-    expect(configManager.get('nethash')).toBe('578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23')
+    expect(configManager.get('nethash')).toBe('2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867')
   })
 
   it('should build constants', () => {
@@ -61,7 +61,7 @@ describe('Configuration', () => {
   })
 
   it('should get constants for height', () => {
-    expect(configManager.getConstants(75600)).toEqual(network.constants[1])
+    expect(configManager.getConstants(75600)).toEqual(Object.assign({}, ...network.constants))
   })
 
   it('should set the height', () => {

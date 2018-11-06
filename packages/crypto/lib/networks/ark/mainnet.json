@@ -8,6 +8,7 @@
   "pubKeyHash": 23,
   "nethash": "6e84d08bd299ed97c212c886c98a57e36545c8f5d645ca7eeae63a8bd62d8988",
   "wif": 170,
+  "aip20": 0,
   "client": {
     "token": "ARK",
     "symbol": "Ѧ",
@@ -20,7 +21,7 @@
     "blocktime": 8,
     "block": {
       "version": 0,
-      "maxTransactions": 50,
+      "maxTransactions": 150,
       "maxPayload": 2097152
     },
     "epoch": "2017-03-21T13:00:00.000Z",
@@ -52,7 +53,9 @@
     "reward": 200000000
   }],
   "exceptions": {
-    "608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e": true
+    "transactions": [
+      "608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e"
+    ]
   },
   "outlookTable": {
     "5139199631254983076": "1000099631254983076",
@@ -91,5 +94,8 @@
     "5059382813585250340": "1000082813585250340",
     "7091362542116598855": "1000062542116598855",
     "8225244493039935740": "1000044493039935740"
+  },
+  "transactionIdFixTable": {
+    "ca764c01dd78f93393b02f7f6c4f0c12ed8e7ca26d3098e91d6e461a238a6b33": "80d75c7b90288246199e4a97ba726bad6639595ef92ad7c2bd14fd31563241ab"
   }
 }

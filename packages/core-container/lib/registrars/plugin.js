@@ -46,7 +46,7 @@ module.exports = class PluginRegistrars {
     for (const [name, options] of Object.entries(this.plugins)) {
       await this.register(name, options)
 
-      if (this.options.exit && this.options.exit === name) {
+      if ((this.options.exit && this.options.exit === name) || this.container.shuttingDown) {
         break
       }
     }
@@ -93,6 +93,10 @@ module.exports = class PluginRegistrars {
 
     if (!item.plugin.register) {
       return
+    }
+
+    if (item.plugin.extends) {
+      await this.__registerWithContainer(item.plugin.extends)
     }
 
     const name = item.plugin.name || item.plugin.pkg.name
@@ -187,12 +191,14 @@ module.exports = class PluginRegistrars {
    * @return {[Object|void]}
    */
   __loadPlugins () {
-    const available = ['plugins.js', 'plugins.json']
+    const files = ['plugins.js', 'plugins.json']
 
-    for (let i = 0; i < available.length; i++) {
-      const configPath = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${available[i]}`))
+    for (const file of files) {
+      const configPath = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${file}`))
+
       if (fs.existsSync(configPath)) {
         this.pluginsConfigPath = configPath
+
         return require(configPath)
       }
     }

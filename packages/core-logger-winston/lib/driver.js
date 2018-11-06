@@ -11,11 +11,11 @@ module.exports = class Logger extends LoggerInterface {
    * @return {Winston.Logger}
    */
   make () {
-    this.driver = new (winston.Logger)()
+    this.driver = winston.createLogger()
 
     this.__registerTransports()
 
-    this.__registerFilters()
+    // this.__registerFilters()
 
     this.driver.printTracker = this.printTracker
     this.driver.stopTracker = this.stopTracker
@@ -38,8 +38,8 @@ module.exports = class Logger extends LoggerInterface {
     let line = '\u{1b}[0G  '
     line += title.blue
     line += ' ['
-    line += ('='.repeat(progress / 2)).green
-    line += ' '.repeat(50 - progress / 2) + '] '
+    line += ('='.repeat(Math.floor(progress / 2))).green
+    line += ' '.repeat(Math.ceil(50 - progress / 2)) + '] '
     line += progress.toFixed(figures) + '% '
 
     if (postTitle) {
@@ -86,13 +86,13 @@ module.exports = class Logger extends LoggerInterface {
    * @return {void}
    */
   __registerTransports () {
-    Object.values(this.options.transports).forEach(transport => {
+    for (const transport of Object.values(this.options.transports)) {
       if (transport.package) {
         require(transport.package)
       }
 
-      this.driver.add(winston.transports[transport.constructor], transport.options)
-    })
+      this.driver.add(new winston.transports[transport.constructor](transport.options))
+    }
   }
 
   /**

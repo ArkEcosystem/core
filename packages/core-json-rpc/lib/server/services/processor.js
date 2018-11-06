@@ -38,7 +38,9 @@ class Processor {
 
       const result = await targetMethod(params)
 
-      return this.__createSuccessResponse(id, result)
+      return result.isBoom
+        ? this.__createErrorResponse(id, result.output.statusCode, result.output.payload)
+        : this.__createSuccessResponse(id, result)
     } catch (error) {
       return this.__createErrorResponse(id, -32603, error)
     }

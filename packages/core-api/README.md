@@ -1,6 +1,8 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - API
 
-# ARK Core - API
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
 ## Installation
 
@@ -10,11 +12,10 @@ yarn add @arkecosystem/core-api
 
 ## Configuration
 
-### Defaults
-
 ```js
 module.exports = {
-  enabled: true,
+  enabled: !process.env.ARK_API_DISABLED,
+  host: process.env.ARK_API_HOST || '0.0.0.0',
   port: process.env.ARK_API_PORT || 4003,
   versions: {
     default: 1,
@@ -22,14 +23,7 @@ module.exports = {
   },
   cache: {
     enabled: false,
-    options: {
-      name: 'redisCache',
-      engine: 'catbox-redis',
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379,
-      partition: 'cache',
-      expiresIn: 60000
-    }
+    options: {}
   },
   rateLimit: {
     enabled: false,
@@ -45,11 +39,11 @@ module.exports = {
       '/api/v2/delegates',
       '/api/v2/delegates/{id}/blocks',
       '/api/v2/delegates/{id}/voters',
-      '/api/v2/multisignatures',
+      '/api/v2/delegates/search',
       '/api/v2/peers',
-      '/api/v2/signatures',
       '/api/v2/transactions',
       '/api/v2/transactions/search',
+      '/api/v2/transactions/unconfirmed',
       '/api/v2/votes',
       '/api/v2/wallets',
       '/api/v2/wallets/top',
@@ -60,9 +54,10 @@ module.exports = {
       '/api/v2/wallets/search'
     ]
   },
-  statistics: {
-    enabled: false
-  }
+  whitelist: [
+    '127.0.0.1',
+    '::ffff:127.0.0.1'
+  ]
 }
 ```
 

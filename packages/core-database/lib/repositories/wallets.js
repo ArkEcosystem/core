@@ -1,8 +1,8 @@
 'use strict'
 
-const sortBy = require('lodash/sortBy')
 const filterRows = require('./utils/filter-rows')
 const limitRows = require('./utils/limit-rows')
+const orderBy = require('lodash/orderBy')
 
 module.exports = class WalletsRepository {
   /**
@@ -17,8 +17,8 @@ module.exports = class WalletsRepository {
    * Get all local wallets.
    * @return {Array}
    */
-  getLocalWallets () {
-    return this.connection.walletManager.getLocalWallets()
+  all () {
+    return this.connection.walletManager.all()
   }
 
   /**
@@ -27,10 +27,14 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAll (params = {}) {
-    const wallets = this.getLocalWallets()
+    const wallets = this.all()
+
+    let [iteratee, order] = params.orderBy
+      ? params.orderBy.split(':')
+      : ['rate', 'asc']
 
     return {
-      rows: limitRows(wallets, params),
+      rows: limitRows(orderBy(wallets, iteratee, order), params),
       count: wallets.length
     }
   }
@@ -43,7 +47,7 @@ module.exports = class WalletsRepository {
    */
   findAllByVote (publicKey, params = {}) {
     const wallets = this
-      .getLocalWallets()
+      .all()
       .filter(wallet => wallet.vote === publicKey)
 
     return {
@@ -58,7 +62,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.getLocalWallets().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
+    return this.all().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
   }
 
   /**
@@ -66,7 +70,7 @@ module.exports = class WalletsRepository {
    * @return {Number}
    */
   count () {
-    return this.getLocalWallets().length
+    return this.all().length
   }
 
   /**
@@ -75,7 +79,8 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   top (params = {}) {
-    const wallets = sortBy(this.getLocalWallets(), 'balance').reverse()
+    const wallets = Object.values(this.all())
+      .sort((a, b) => +(b.balance.minus(a.balance)).toFixed())
 
     return {
       rows: limitRows(wallets, params),
@@ -97,15 +102,15 @@ module.exports = class WalletsRepository {
    * @param  {Object} [params.balance] - Search by balance
    * @param  {Number} [params.balance.from] - Search by balance (minimum)
    * @param  {Number} [params.balance.to] - Search by balance (maximum)
-   * @param  {Object} [params.votebalance] - Search by votebalance
-   * @param  {Number} [params.votebalance.from] - Search by votebalance (minimum)
-   * @param  {Number} [params.votebalance.to] - Search by votebalance (maximum)
+   * @param  {Object} [params.voteBalance] - Search by voteBalance
+   * @param  {Number} [params.voteBalance.from] - Search by voteBalance (minimum)
+   * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
    * @return {Object}
    */
   search (params) {
-    const wallets = filterRows(this.getLocalWallets(), params, {
+    const wallets = filterRows(this.all(), params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
-      between: ['balance', 'votebalance']
+      between: ['balance', 'voteBalance']
     })
 
     return {
