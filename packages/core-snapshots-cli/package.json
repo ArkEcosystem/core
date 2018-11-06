@@ -27,7 +27,6 @@
     "truncate:mainnet": "./bin/snapshot truncate --config ../core/lib/config/mainnet --network mainnet",
     "truncate:devnet": "./bin/snapshot truncate --config ../core/lib/config/devnet --network devnet",
     "truncate:testnet": "./bin/snapshot truncate --config ../core/lib/config/testnet --network testnet",
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",

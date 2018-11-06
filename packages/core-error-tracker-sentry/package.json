@@ -8,7 +8,6 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
   },
