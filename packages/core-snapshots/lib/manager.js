@@ -31,7 +31,7 @@ module.exports = class SnapshotManager {
       transactions: await exportTable('transactions', params),
       folder: params.meta.folder,
       codec: options.codec,
-      skipCompression: options.skipCompression
+      skipCompression: params.meta.skipCompression
     }
 
     utils.writeMetaFile(metaInfo)
@@ -109,21 +109,28 @@ module.exports = class SnapshotManager {
     params.chunkSize = this.options.chunkSize || 50000
 
     if (exportAction) {
+      if (!lastBlock) {
+        container.forceExit('Database is empty. Export not possible.')
+      }
       params.meta = utils.setSnapshotInfo(params, lastBlock)
+      params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
+
       if (params.blocks) {
         if (options.blocks === params.meta.folder) {
           params.skipExportWhenNoChange = true
           return params
         }
-
+        const sourceSnapshotParams = utils.readMetaJSON(params.blocks)
+        params.meta.skipCompression = sourceSnapshotParams.skipCompression
+        params.meta.startHeight = sourceSnapshotParams.blocks.startHeight
         utils.copySnapshot(options.blocks, params.meta.folder, params.codec)
       }
-      params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight)
     } else {
       params.meta = utils.getSnapshotInfo(options.blocks)
     }
     if (options.trace) {
-      console.log(params)
+      console.log(params.meta)
+      console.log(params.queries)
     }
     params.database = this.database
     return params
