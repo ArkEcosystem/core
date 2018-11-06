@@ -46,6 +46,9 @@ exports.store = {
  * @return {Object}
  */
 exports.update = {
+  params: {
+    id: Joi.string()
+  },
   payload: {
     event: Joi.string(),
     target: Joi.string().uri(),
