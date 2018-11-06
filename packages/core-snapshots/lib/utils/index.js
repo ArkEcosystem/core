@@ -43,7 +43,7 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   fs.copyFileSync(paths.source.transactions, paths.dest.transactions)
 }
 
-exports.getRecordCount = (table, currentCount, sourceFolder) => {
+exports.calcRecordCount = (table, currentCount, sourceFolder) => {
   if (sourceFolder) {
     const snapshotInfo = this.readMetaJSON(sourceFolder)
     return +snapshotInfo[table].count + currentCount
@@ -52,7 +52,7 @@ exports.getRecordCount = (table, currentCount, sourceFolder) => {
   return currentCount
 }
 
-exports.getStartHeight = (table, currentHeight, sourceFolder) => {
+exports.calcStartHeight = (table, currentHeight, sourceFolder) => {
   if (sourceFolder) {
     const snapshotInfo = this.readMetaJSON(sourceFolder)
     return +snapshotInfo[table].startHeight

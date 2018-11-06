@@ -34,7 +34,7 @@ module.exports = {
       })
       logger.info(`Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`)
 
-      return { count: utils.getRecordCount(table, data.processed, options.blocks), startHeight: utils.getStartHeight(table, options.meta.startHeight, options.blocks), endHeight: options.meta.endHeight }
+      return { count: utils.calcRecordCount(table, data.processed, options.blocks), startHeight: utils.calcStartHeight(table, options.meta.startHeight, options.blocks), endHeight: options.meta.endHeight }
     } catch (error) {
       container.forceExit('Error while exporting data via query stream', error)
     }
@@ -110,8 +110,9 @@ module.exports = {
   },
 
   backupTransactionsToJSON: async (snapFileName, query, database) => {
-    await fs.ensureFile(utils.getPath(snapFileName))
-    const snapshotWriteStream = fs.createWriteStream(utils.getPath(snapFileName))
+    const transactionBackupPath = utils.getFilePath(snapFileName, 'rollbackTransactions')
+    await fs.ensureFile(transactionBackupPath)
+    const snapshotWriteStream = fs.createWriteStream(transactionBackupPath)
     const qs = new QueryStream(query)
 
     try {
