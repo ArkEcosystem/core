@@ -39,19 +39,12 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('hapi-api-version'),
-    options: {
-      validVersions: config.versions.valid,
-      defaultVersion: config.versions.default,
-      basePath: '/api/',
-      vendorName: 'ark.core-api'
-    }
+    options: config.versions
   })
 
   await server.register({
     plugin: require('./plugins/endpoint-version'),
-    options: {
-      validVersions: config.versions.valid
-    }
+    options: { validVersions: config.versions.validVersions }
   })
 
   await server.register({ plugin: require('./plugins/caster') })
