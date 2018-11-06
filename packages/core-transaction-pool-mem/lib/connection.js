@@ -303,16 +303,16 @@ class TransactionPool extends TransactionPoolInterface {
     return this.__checkIfSenderHasUnconfirmedTransactionsOfType(senderPublicKey, TRANSACTION_TYPES.DELEGATE_REGISTRATION)
   }
   /**
-   * Check whether there are unconfirmed transactions of a
-   * given type (transaction.type == txtype) in the pool
+   * Check whether there are unconfirmed transactions of a given
+   * transaction type (transaction.type == transactionType) in the pool
    * from a given sender.
    * @return {Boolean} true if exist
    */
-  __checkIfSenderHasUnconfirmedTransactionsOfType (senderPublicKey, txtype) {
+  __checkIfSenderHasUnconfirmedTransactionsOfType (senderPublicKey, transactionType) {
     this.__purgeExpired()
 
     for (const memPoolTransaction of this.mem.getBySender(senderPublicKey)) {
-      if (memPoolTransaction.transaction.type === txtype) {
+      if (memPoolTransaction.transaction.type === transactionType) {
         return true
       }
     }
