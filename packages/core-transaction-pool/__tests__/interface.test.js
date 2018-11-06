@@ -117,33 +117,13 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('checkIfSenderHasVoteTransactions', () => {
+  describe('senderHasTransactionsOfType', () => {
     it('should be a function', () => {
-      expect(poolInterface.checkIfSenderHasVoteTransactions).toBeFunction()
+      expect(poolInterface.senderHasTransactionsOfType).toBeFunction()
     })
 
     it('should throw an exception', async () => {
-      expect(poolInterface.checkIfSenderHasVoteTransactions).toThrowError('Method [checkIfSenderHasVoteTransactions] not implemented!')
-    })
-  })
-
-  describe('checkIfSenderHasSecondSignatureTransactions', () => {
-    it('should be a function', () => {
-      expect(poolInterface.checkIfSenderHasSecondSignatureTransactions).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      expect(poolInterface.checkIfSenderHasSecondSignatureTransactions).toThrowError('Method [checkIfSenderHasSecondSignatureTransactions] not implemented!')
-    })
-  })
-
-  describe('checkIfSenderHasDelegateRegistrationTransactions', () => {
-    it('should be a function', () => {
-      expect(poolInterface.checkIfSenderHasDelegateRegistrationTransactions).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      expect(poolInterface.checkIfSenderHasDelegateRegistrationTransactions).toThrowError('Method [checkIfSenderHasDelegateRegistrationTransactions] not implemented!')
+      expect(poolInterface.senderHasTransactionsOfType).toThrowError('Method [senderHasTransactionsOfType] not implemented!')
     })
   })
 

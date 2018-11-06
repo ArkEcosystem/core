@@ -160,20 +160,38 @@ module.exports = class TransactionGuard {
    * Determines valid transactions by checking rules, according to:
    * - if recipient is on the same network
    * - if sender has enough funds
-   * - if sender has more than one vote/unvote transaction in pool
+   * - if sender already has another transaction of the same type, for types that
+   *   only allow one transaction at a time in the pool (e.g. vote)
    * Transaction that can be broadcasted are confirmed here
    */
   __determineValidTransactions () {
     this.transactions.forEach(transaction => {
-      if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
+      switch (transaction.type) {
+      case TRANSACTION_TYPES.TRANSFER:
         if (!isRecipientOnActiveNetwork(transaction)) {
           this.__pushError(transaction, `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
           return
         }
-      }
-
-      if (this.pool.checkIfSenderHasVoteTransactions(transaction.senderPublicKey)) {
-        this.__pushError(transaction, `Sender ${transaction.senderPublicKey} already has a pending vote transaction in pool`)
+        break
+      case TRANSACTION_TYPES.SECOND_SIGNATURE:
+      case TRANSACTION_TYPES.DELEGATE_REGISTRATION:
+      case TRANSACTION_TYPES.VOTE:
+        if (this.pool.senderHasTransactionsOfType(transaction.senderPublicKey, transaction.type)) {
+          this.__pushError(transaction,
+            `Sender ${transaction.senderPublicKey} already has a transaction of type ` +
+            `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`)
+          return
+        }
+        break
+      case TRANSACTION_TYPES.MULTI_SIGNATURE:
+      case TRANSACTION_TYPES.IPFS:
+      case TRANSACTION_TYPES.TIMELOCK_TRANSFER:
+      case TRANSACTION_TYPES.MULTI_PAYMENT:
+      case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
+      default:
+        this.__pushError(transaction,
+          `Invalidating transaction of unsupported type ` +
+          `'${TRANSACTION_TYPES.toString(transaction.type)}'`)
         return
       }
 
