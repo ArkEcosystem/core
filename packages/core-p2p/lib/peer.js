@@ -240,6 +240,6 @@ module.exports = class Peer {
   }
 
   static isOk (peer) {
-    return peer.status === 200
+    return peer.status === 200 || peer.status === 'OK'
   }
 }
