@@ -24,7 +24,7 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   async validate (transactions) {
-    this.__transformAndFilterTransations(_.uniqBy(transactions, 'id'))
+    this.__transformAndFilterTransactions(_.uniqBy(transactions, 'id'))
 
     await this.__removeForgedTransactions()
 
@@ -120,7 +120,7 @@ module.exports = class TransactionGuard {
    * @param  {Array} transactions
    * @return {void}
    */
-  __transformAndFilterTransations (transactions) {
+  __transformAndFilterTransactions (transactions) {
     this.transactions = []
 
     transactions.forEach(transaction => {
@@ -217,7 +217,7 @@ module.exports = class TransactionGuard {
         this.excess.push(transaction)
       } else {
         /**
-         * We need to check this again after checking it in "__transformAndFilterTransations"
+         * We need to check this again after checking it in "__transformAndFilterTransactions"
          * because the state of the transaction pool could have changed since then
          * if concurrent requests are occurring via API.
          */
