@@ -40,12 +40,16 @@ Snapshot creation supports three different codecs, to work with. Each of them is
 - ark codec: uses Ark's block and transactions serialization/deserialization mechanism to store and import data. It is a bit slower than lite codec, but uses less data.
 - msgpack coded: uses msgpack's library default compression, giving us maximum speed, but also maximum disk size usage.
 
+```bash
+  yarn create:devnet --codec lite
+```
+
 Snapshots created with a selected codec have their corresponding file extensions (`lite`, `ark` and `msgpack`), when naming files. For example a snapshot file created with lite codec would look like this: `blocks.lite`.
 
 ### Append data to an existing snapshot
 To enable rolling snapshost and their faster import execution, it is possible to append data to an the existing snapshot.
-The command is the same as for creating of snapshot with additional parameter for `-a` or `--append` where we specify the existing snapshot blocks/folder we want to append to.
-As a `--append` parameter you only provide the `0-331985` blocks number or folder name, for example `yarn create:devnet --appendend 0-331985`.
+The command is the same as for creating of snapshot with additional parameter for `-b` or `--blocks` where we specify the existing snapshot blocks/folder we want to append to.
+As a `--blocks` parameter you only provide the `0-331985` blocks number or folder name, for example `yarn create:devnet --blocks 0-331985`.
 
 When append is completed a new folder is created, while preserving the old snapshost. You must manually delete snapshost folders if needed.
 
@@ -72,7 +76,7 @@ yarn import:devnet --blocks 0-331985 --truncate --signature-verify
 ```
 >Please not that this will increase the import time drastically.
 
-By default behaviour when snapshot is imported, the block heigth is set to last finished round (some blocks are deleted at the end). If you have more snaphshot files following each other, then you can disable this with the `--skip-revert-round` flag. If this flag is present, block height will not be reverted at the end of import.
+By default behaviour when snapshot is imported, the block heigth is set to last finished round (blocks are deleted at the end). If you have more snaphshot files following each other, then you can disable this with the `--skip-revert-round` flag. If this flag is present, block height will not be reverted at the end of import to last completed round.
 
 ### Verify existing snapshot
 If is wise to validate a snapshot. Functionality is simillar to import, just that there is no database interaction - so basic chain validation with crypto. To check your snapshot run the following command.
