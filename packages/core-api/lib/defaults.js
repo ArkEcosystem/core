@@ -16,8 +16,11 @@ module.exports = {
   },
   rateLimit: {
     enabled: false,
-    limit: 300,
-    expires: 60000
+    pathLimit: false,
+    userLimit: 300,
+    userCache: {
+      expiresIn: 60000
+    }
   },
   pagination: {
     limit: 100,
