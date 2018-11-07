@@ -87,7 +87,7 @@ class Helpers {
     expect(transaction.confirmations).toBeNumber()
   }
 
-  expectBlock (block) {
+  expectBlock (block, expected) {
     expect(block).toBeObject()
     expect(block.id).toBeString()
     expect(block.version).toBeNumber()
@@ -103,6 +103,10 @@ class Helpers {
     expect(block.generator.publicKey).toBeString()
     expect(block.signature).toBeString()
     expect(block.transactions).toBeNumber()
+
+    Object.keys(expected || {}).forEach(attr => {
+      expect(block[attr]).toEqual(expected[attr])
+    })
   }
 
   expectDelegate (delegate, expected) {
