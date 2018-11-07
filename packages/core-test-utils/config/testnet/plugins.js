@@ -31,7 +31,7 @@ module.exports = {
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     whitelist: [],
     allowedSenders: [],
-    maxTransactionsPerRequest: 200,
+    maxTransactionsPerRequest: 40,
     // 100+ years in the future to avoid our hardcoded transactions used in the
     // tests to expire immediately
     maxTransactionAge: 4036608000
