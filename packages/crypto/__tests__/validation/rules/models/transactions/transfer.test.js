@@ -32,6 +32,38 @@ describe('Transfer Transaction Rule', () => {
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
+  it('should be valid with up to 64 bytes in vendor field', () => {
+    transaction.recipientId(address)
+      .amount(amount)
+      .fee(fee)
+      .vendorField('a'.repeat(64))
+      .sign('passphrase')
+    expect(rule(transaction.getStruct()).errors).toBeNull()
+
+    transaction.recipientId(address)
+      .amount(amount)
+      .fee(fee)
+      .vendorField('⊁'.repeat(21))
+      .sign('passphrase')
+    expect(rule(transaction.getStruct()).errors).toBeNull()
+  })
+
+  it('should be invalid with more than 64 bytes in vendor field', () => {
+    transaction.recipientId(address)
+      .amount(amount)
+      .fee(fee)
+      .vendorField('a'.repeat(65))
+      .sign('passphrase')
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+
+    transaction.recipientId(address)
+      .amount(amount)
+      .fee(fee)
+      .vendorField('⊁'.repeat(22))
+      .sign('passphrase')
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
   it('should be invalid due to no transaction as object', () => {
     expect(rule('test').errors).not.toBeNull()
   })
