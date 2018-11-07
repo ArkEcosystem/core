@@ -13,7 +13,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/network', ...handlers.network },
     { method: 'GET', path: '/genesis-block', ...handlers.genesisBlock },
     { method: 'GET', path: '/peers', ...handlers.peers },
-    { method: 'GET', path: '/delegates', ...handlers.delegates },
+    { method: 'GET', path: '/delegates', ...handlers.delegates }
   ])
 }
 

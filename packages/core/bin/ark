@@ -16,7 +16,6 @@ app
   .option('-n, --network <network>', 'token network')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-p, --password <password>', 'forger password')
-  .option('-r, --remote <remote>', 'remote peer for config')
   .option('--network-start', 'force genesis network start', false)
   .action(async (options) => require('../lib/start-relay-and-forger')(options))
 
