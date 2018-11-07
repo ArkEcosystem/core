@@ -54,10 +54,10 @@ exports.blocks = {
     ...pagination,
     ...{
       orderBy: Joi.string(),
-      id: Joi.string(),
+      id: Joi.string().regex(/^[0-9]+$/, 'numbers'),
       version: Joi.number().integer().min(0),
       timestamp: Joi.number().integer().min(0),
-      previousBlock: Joi.string(),
+      previousBlock: Joi.string().regex(/^[0-9]+$/, 'numbers'),
       height: Joi.number().integer().positive(),
       numberOfTransactions: Joi.number().integer().min(0),
       totalAmount: Joi.number().integer().min(0),

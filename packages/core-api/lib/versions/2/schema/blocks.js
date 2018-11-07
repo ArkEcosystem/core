@@ -11,10 +11,10 @@ exports.index = {
     ...pagination,
     ...{
       orderBy: Joi.string(),
-      id: Joi.string(),
+      id: Joi.string().regex(/^[0-9]+$/, 'numbers'),
       version: Joi.number().integer().min(0),
       timestamp: Joi.number().integer().min(0),
-      previousBlock: Joi.string(),
+      previousBlock: Joi.string().regex(/^[0-9]+$/, 'numbers'),
       height: Joi.number().integer().positive(),
       numberOfTransactions: Joi.number().integer().min(0),
       totalAmount: Joi.number().integer().min(0),
@@ -33,7 +33,7 @@ exports.index = {
  */
 exports.show = {
   params: {
-    id: Joi.string()
+    id: Joi.string().regex(/^[0-9]+$/, 'numbers')
   }
 }
 
@@ -49,7 +49,7 @@ exports.transactions = {
     ...{
       orderBy: Joi.string(),
       id: Joi.string().hex().length(66),
-      blockId: Joi.string(),
+      blockId: Joi.string().regex(/^[0-9]+$/, 'numbers'),
       type: Joi.number().integer().min(0),
       version: Joi.number().integer().min(0),
       senderPublicKey: Joi.string().hex().length(66),
@@ -69,9 +69,9 @@ exports.transactions = {
 exports.search = {
   query: pagination,
   payload: {
-    id: Joi.string(),
+    id: Joi.string().regex(/^[0-9]+$/, 'numbers'),
     version: Joi.number().integer().min(0),
-    previousBlock: Joi.string(),
+    previousBlock: Joi.string().regex(/^[0-9]+$/, 'numbers'),
     payloadHash: Joi.string().hex(),
     generatorPublicKey: Joi.string().hex().length(66),
     blockSignature: Joi.string().hex(),
