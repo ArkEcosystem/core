@@ -44,7 +44,7 @@ module.exports = class RemoteLoader {
 
     if (!genesisBlockModel.verification.verified) {
       console.error('Failed to verify the genesis block. Try another remote host.')
-      process.exit()
+      process.exit(1)
     }
 
     this.__writeConfig('genesisBlock', genesisBlock)
@@ -73,7 +73,7 @@ module.exports = class RemoteLoader {
 
     if (command.stderr) {
       console.error(command.stderr.toString())
-      process.exit()
+      process.exit(1)
     }
 
     console.log(command.stdout.toString())
@@ -86,7 +86,7 @@ module.exports = class RemoteLoader {
       return data.data
     } catch (error) {
       console.error(error.message)
-      process.exit()
+      process.exit(1)
     }
   }
 

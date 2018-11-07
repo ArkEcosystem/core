@@ -2,6 +2,7 @@
 
 const RemoteLoader = require('../lib/remote-loader')
 const fs = require('fs-extra')
+const mockProcess = require('jest-mock-process')
 
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
@@ -14,22 +15,6 @@ beforeEach(() => {
     config: './config',
     data: './data'
   })
-
-  axiosMock.onGet('http://127.0.0.1:4002/config/network').reply(() => [200, {
-    data: require('../../crypto/lib/networks/ark/devnet.json')
-  }])
-
-  axiosMock.onGet('http://127.0.0.1:4002/config/genesis-block').reply(() => [200, {
-    data: require('../../core/lib/config/devnet/genesisBlock.json')
-  }])
-
-  axiosMock.onGet('http://127.0.0.1:4002/config/peers').reply(() => [200, {
-    data: require('../../core/lib/config/devnet/peers.json')
-  }])
-
-  axiosMock.onGet('http://127.0.0.1:4002/config/delegates').reply(() => [200, {
-    data: require('../../core/lib/config/devnet/delegates.json')
-  }])
 })
 
 afterEach(() => {
@@ -50,7 +35,21 @@ describe('Remote Loader', () => {
       expect(testSubject.__configureNetwork).toBeFunction()
     })
 
+    it('should not be OK', async () => {
+      const mockExit = mockProcess.mockProcessExit()
+
+      axiosMock.onGet('http://127.0.0.1:4002/config/network').reply(() => [404, {}])
+
+      await testSubject.__configureNetwork()
+
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
+
     it('should be OK', async () => {
+      axiosMock.onGet('http://127.0.0.1:4002/config/network').reply(() => [200, {
+        data: require('../../crypto/lib/networks/ark/devnet.json')
+      }])
+
       await testSubject.__configureNetwork()
 
       expect(fs.existsSync('./config/network.json')).toBeTrue()
@@ -62,7 +61,17 @@ describe('Remote Loader', () => {
       expect(testSubject.__configureGenesisBlock).toBeFunction()
     })
 
+    it('should not be OK', async () => {
+      axiosMock.onGet('http://127.0.0.1:4002/config/genesis-block').reply(() => [404, {}])
+
+      await expect(testSubject.__configureGenesisBlock()).rejects.toThrowError()
+    })
+
     it('should be OK', async () => {
+      axiosMock.onGet('http://127.0.0.1:4002/config/genesis-block').reply(() => [200, {
+        data: require('../../core/lib/config/devnet/genesisBlock.json')
+      }])
+
       await testSubject.__configureGenesisBlock()
 
       expect(fs.existsSync('./config/genesisBlock.json')).toBeTrue()
@@ -74,7 +83,21 @@ describe('Remote Loader', () => {
       expect(testSubject.__configurePeers).toBeFunction()
     })
 
+    it('should not be OK', async () => {
+      const mockExit = mockProcess.mockProcessExit()
+
+      axiosMock.onGet('http://127.0.0.1:4002/config/peers').reply(() => [404, {}])
+
+      await testSubject.__configurePeers()
+
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
+
     it('should be OK', async () => {
+      axiosMock.onGet('http://127.0.0.1:4002/config/peers').reply(() => [200, {
+        data: require('../../core/lib/config/devnet/peers.json')
+      }])
+
       await testSubject.__configurePeers()
 
       expect(fs.existsSync('./config/peers.json')).toBeTrue()
@@ -86,7 +109,21 @@ describe('Remote Loader', () => {
       expect(testSubject.__configureDelegates).toBeFunction()
     })
 
+    it('should not be OK', async () => {
+      const mockExit = mockProcess.mockProcessExit()
+
+      axiosMock.onGet('http://127.0.0.1:4002/config/delegates').reply(() => [404, {}])
+
+      await testSubject.__configureDelegates()
+
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
+
     it('should be OK', async () => {
+      axiosMock.onGet('http://127.0.0.1:4002/config/delegates').reply(() => [200, {
+        data: require('../../core/lib/config/devnet/delegates.json')
+      }])
+
       await testSubject.__configureDelegates()
 
       expect(fs.existsSync('./config/delegates.json')).toBeTrue()
