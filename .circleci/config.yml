@@ -68,6 +68,15 @@ jobs:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Depcheck
+          command: yarn depcheck
   test-node11:
     working_directory: ~/ark-core
     docker:
@@ -136,15 +145,6 @@ jobs:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
-      - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Depcheck
-          command: yarn depcheck
 
 workflows:
   version: 2
