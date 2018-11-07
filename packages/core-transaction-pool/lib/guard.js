@@ -251,6 +251,7 @@ module.exports = class TransactionGuard {
 
     this.errors[transaction.id].push(error)
 
+    // XXX O(this.invalid.some.length), can be O(1)
     if (!this.invalid.some(tx => tx.id === transaction.id)) {
       this.invalid.push(transaction)
     }

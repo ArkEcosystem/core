@@ -37,17 +37,16 @@ exports.store = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    /**
-     * Here we will make sure we memorize the transactions for future requests
-     * and decide which transactions are valid or invalid in order to prevent
-     * duplication and race conditions caused by concurrent requests.
-     */
-    const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
+    const { eligible, notEligible } =
+      transactionPool.checkEligibility(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
-    guard.invalidate(invalid, 'Already memorized.')
 
-    await guard.validate(valid)
+    for (const ne of notEligible) {
+      guard.invalidate(ne.transaction, ne.reason)
+    }
+
+    await guard.validate(eligible)
 
     if (guard.hasAny('invalid')) {
       return Boom.notAcceptable('Transactions list could not be accepted.', guard.errors)
@@ -60,10 +59,6 @@ exports.store = {
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
 
       await transactionPool.addTransactions([...guard.accept, ...guard.excess])
-
-      transactionPool.memory
-        .forget(guard.getIds('accept'))
-        .forget(guard.getIds('excess'))
     }
 
     if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
