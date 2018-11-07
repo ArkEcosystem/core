@@ -77,9 +77,78 @@ jobs:
       - run:
           name: Depcheck
           command: yarn depcheck
+  test-node11:
+    working_directory: ~/ark-core
+    docker:
+      - image: circleci/node:11-browsers
+      - image: postgres:alpine
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    parallelism: 2
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: 'sudo apt-get install -q xsel'
+      - run:
+          name: Install yarn
+          command: 'curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH="$HOME/.yarn/bin:$PATH" && yarn config set cache-folder $HOME/.cache/yarn'
+      - run:
+          name: Generate cache key
+          command: find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: core-node11-{{ checksum "checksum.txt" }}-1
+      - run:
+          name: Install packages
+          command: yarn
+      - save_cache:
+          key: core-node11-{{ checksum "checksum.txt" }}-1
+          paths:
+            -  ./node_modules
+            -  ./packages/core-api/node_modules
+            -  ./packages/core-blockchain/node_modules
+            -  ./packages/core-config/node_modules
+            -  ./packages/core-container/node_modules
+            -  ./packages/core-database-postgres/node_modules
+            -  ./packages/core-database/node_modules
+            -  ./packages/core-debugger-cli/node_modules
+            -  ./packages/core-deployer/node_modules
+            -  ./packages/core-event-emitter/node_modules
+            -  ./packages/core-forger/node_modules
+            -  ./packages/core-graphql/node_modules
+            -  ./packages/core-json-rpc/node_modules
+            -  ./packages/core-logger-winston/node_modules
+            -  ./packages/core-logger/node_modules
+            -  ./packages/core-p2p/node_modules
+            -  ./packages/core-test-utils/node_modules
+            -  ./packages/core-tester-cli/node_modules
+            -  ./packages/core-transaction-pool-mem/node_modules
+            -  ./packages/core-transaction-pool/node_modules
+            -  ./packages/core-utils/node_modules
+            -  ./packages/core-webhooks/node_modules
+            -  ./packages/core/node_modules
+            -  ./packages/crypto/node_modules
+      - run:
+          name: Create .ark/database directory
+          command: mkdir -p $HOME/.ark/database
+      - run:
+          name: Test
+          command: |
+            TESTFILES=$(circleci tests glob "packages/**/*.test.js" | circleci tests split --split-by=filesize)
+            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest ${TESTFILES} --detectOpenHandles --runInBand --forceExit --ci --coverage | tee test_output.txt
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
 
 workflows:
   version: 2
   test_depcheck_lint:
     jobs:
       - test-node10
+      # - test-node11
