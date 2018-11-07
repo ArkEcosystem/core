@@ -198,9 +198,14 @@ class Guard {
       return this.__determinePunishment(peer, offences.BLACKLISTED)
     }
 
-    const forkedBlock = container.resolve('state').forkedBlock
-    if (forkedBlock && peer.ip === forkedBlock.ip) {
-      return this.__determinePunishment(peer, offences.FORK)
+    try {
+      const state = container.resolve('state')
+
+      if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
+        return this.__determinePunishment(peer, offences.FORK)
+      }
+    } catch (error) {
+      logger.warn(`The state storage is not ready, skipped fork check for ${peer.ip}.`)
     }
 
     if (peer.commonBlocks === false) {
