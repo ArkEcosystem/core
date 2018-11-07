@@ -30,6 +30,6 @@ exports.index = {
  */
 exports.show = {
   params: {
-    id: Joi.string()
+    id: Joi.string().hex().length(64)
   }
 }
