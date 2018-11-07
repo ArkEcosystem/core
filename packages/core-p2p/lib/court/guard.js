@@ -198,8 +198,9 @@ class Guard {
       return this.__determinePunishment(peer, offences.BLACKLISTED)
     }
 
-    const forkedBlock = container.resolve('state').forkedBlock
-    if (forkedBlock && peer.ip === forkedBlock.ip) {
+    const state = container.resolve('state')
+
+    if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
       return this.__determinePunishment(peer, offences.FORK)
     }
 
