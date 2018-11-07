@@ -3,6 +3,7 @@
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
+const { flatten, groupBy } = require('lodash')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -396,7 +397,9 @@ class Monitor {
 
     // Ban peer who caused the fork
     const forkedBlock = container.resolve('state').forkedBlock
-    this.suspendPeer(forkedBlock.ip)
+    if (forkedBlock) {
+      this.suspendPeer(forkedBlock.ip)
+    }
 
     const recentBlockIds = await this.__getRecentBlockIds()
 
@@ -488,6 +491,77 @@ class Monitor {
     transactions.forEach(transaction => transactionsV1.push(transaction.toJson()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Update all peers based on height and last block id.
+   *
+   * Grouping peers by height and then by common id results in one of the following
+   * scenarios:
+   *
+   *  1) Same height, same common id
+   *  2) Same height, mixed common id
+   *  3) Mixed height, same common id
+   *  4) Mixed height, mixed common id
+   *
+   * NOTE: Only called when the network is missing blocks.
+   * @return {String}
+   */
+  updatePeersOnMissingBlocks () {
+    const commonHeightGroups = Array.from(this._peersByHeight.values()).sort((a, b) => b.length - a.length)
+    const peersMostCommonHeight = commonHeightGroups[0]
+    const groupedByCommonId = groupBy(peersMostCommonHeight, 'state.header.id')
+    const commonIdGroupCount = Object.keys(groupedByCommonId).length
+    let state = ''
+
+    if (commonHeightGroups.length === 1 && commonIdGroupCount === 1) {
+      // No need to do anything.
+      return state
+    }
+
+    // Do nothing if majority of peers are lagging behind
+    if (commonHeightGroups.length > 1) {
+      const lastBlockHeight = container.resolve('state').getLastBlock().data.height
+      if (lastBlockHeight > peersMostCommonHeight[0].state.height) {
+        logger.info(`${peersMostCommonHeight.length} peers are at height ${peersMostCommonHeight[0].state.height}, but last block is at height ${lastBlockHeight}.`)
+        return state
+      }
+    }
+
+    if (Object.keys(groupedByCommonId).length > 1) {
+      logger.info(`Detected peers at the same height ${peersMostCommonHeight[0].state.height} with different block ids: ${JSON.stringify(Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`), null, 4)}`)
+    } else {
+      logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id '${peersMostCommonHeight[0].state.header.id}'. :white_check_mark:`)
+      return state
+    }
+
+    if (commonHeightGroups.length === 1 && commonIdGroupCount > 1) {
+      // Peers are sitting on the same height, but there might not be enough
+      // quorum to move on, because of different last blocks.
+      state = 'rollback'
+    }
+
+    // Sort common id by length DESC
+    const commonIdGroups = Object.values(groupedByCommonId).sort((a, b) => b.length - a.length)
+    const chosenPeers = commonIdGroups[0]
+    const remainingGroups = commonIdGroups.slice(1)
+
+    if (remainingGroups.some(group => group.length === chosenPeers.length)) {
+      logger.warning('Peers are evenly split at same height with different block ids. :zap:')
+    }
+
+    // Ban all other common id peers from chosen height
+    const peersToBan = flatten(remainingGroups)
+    if (peersToBan.length > 0) {
+      peersToBan.forEach(peer => {
+        peer.commonId = false
+        this.suspendPeer(peer.ip)
+      })
+
+      logger.debug(`Banned ${peersToBan.length} peers at height '${peersMostCommonHeight[0].state.height}' which do not have common id '${chosenPeers[0].state.header.id}'.`)
+    }
+
+    return state
   }
 
   /**
