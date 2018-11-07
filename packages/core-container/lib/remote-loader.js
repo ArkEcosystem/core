@@ -85,12 +85,18 @@ module.exports = class RemoteLoader {
 
       return data.data
     } catch (error) {
-      console.error(error.message)
-      process.exit(1)
+      if (!this.__exists(type)) {
+        console.error(error.message)
+        process.exit(1)
+      }
     }
   }
 
   __writeConfig (file, data) {
     fs.writeFileSync(`${this.config}/${file}.json`, JSON.stringify(data, null, 4))
+  }
+
+  __exists (file) {
+    return fs.existsSync(`${this.config}/${file}.json`)
   }
 }
