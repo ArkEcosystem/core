@@ -14,6 +14,11 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
+    plugin: require('hapi-rate-limit'),
+    options: config.rateLimit
+  })
+
+  await server.register({
     plugin: require('./plugins/validate-headers')
   })
 
@@ -23,10 +28,6 @@ module.exports = async (p2p, config) => {
       whitelist: config.whitelist
     }
   })
-
-  // await server.register({
-  //   plugin: require('./plugins/throttle')
-  // })
 
   await server.register({
     plugin: require('./plugins/set-headers')
