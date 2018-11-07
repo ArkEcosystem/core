@@ -25,9 +25,9 @@ module.exports = class RemoteLoader {
 
     await this.__configureDelegates()
 
-    await this.__configurePlugins(network)
+    this.__configurePlugins(network)
 
-    await this.__configureDatabase(network)
+    this.__configureDatabase(network)
   }
 
   async __configureNetwork () {
@@ -62,13 +62,13 @@ module.exports = class RemoteLoader {
     this.__writeConfig('delegates', delegates)
   }
 
-  async __configurePlugins (network) {
+  __configurePlugins (network) {
     const plugins = path.resolve(__dirname, `../../core/lib/config/${network.name}/plugins.js`)
 
-    await fs.copy(plugins, `${this.config}/plugins.js`)
+    fs.copySync(plugins, `${this.config}/plugins.js`)
   }
 
-  async __configureDatabase (network) {
+  __configureDatabase (network) {
     const command = spawnSync('createdb', [`ark_${network.name}`])
 
     if (command.stderr) {
