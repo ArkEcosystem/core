@@ -23,12 +23,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Guard updated with wallet manager
 - Handle numbers as `BigNumber` instances
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
+- Adjusted timeouts & lifetimes
 
 ### Fixed
 - Handling duplicates also on incomming payload level (before entering and checking with pool)
 - Fix on applychained block - to use correct wallet and update from blockchain wallet only if necesary
 - Call getTransactionIdsForForging() properly
 - Properly log the transaction audit
+- Properly determine valid transactions based on their type
+- Handle unexpected errors in the guard
 
 ## 0.1.1 - 2018-06-14
 

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Support plugin extensions
 - More graceful handling of shutdown
+- Silent shutdown to hide output
+- Configuration through a remote peer
 
 ### Changed
 - No longer load the `.env` file in test environments

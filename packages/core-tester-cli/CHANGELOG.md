@@ -19,9 +19,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Use the v2 API for any API calls
 - Handle duplicate transaction IDs
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
+- Use human-readable values as input for amounts and fees
 
 ### Fixed
 - Undefined passphrases for the `overridingPassphrase` option in transfers
+- Display of human-readable numbers
 
 ## 0.1.1 - 2018-06-14
 
