@@ -360,7 +360,13 @@ describe('Connection', () => {
       expect(connection.getTransactionsForForging).toBeFunction()
     })
 
-    it('should return an array of transactions', async () => {
+    it('should return empty array when 0 is requested', async () => {
+      const transactions = await connection.getTransactionsForForging(0)
+      expect(transactions).toBeArray()
+      expect(transactions.length).toBe(0)
+    })
+
+    it('should skip low fee transactions', async () => {
       connection.addTransaction(mockData.dummy1)
       connection.addTransaction(mockData.dummy2)
 
@@ -387,6 +393,23 @@ describe('Connection', () => {
       expect(transactions[1].id).toBe(mockData.dummy2.id)
       expect(transactions[2].id).toBe(mockData.dummy4.id)
       expect(transactions[3].id).toBe(mockData.dummy5.id)
+    })
+
+    it('force retry internally', async () => {
+      for (let i = 0; i < 60; i++) {
+        const tx = new Transaction(mockData.dummy1)
+        tx.id = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789' + i
+        if (i < 57) {
+          // 57 out of 60 transactions will be skipped due to low fee.
+          tx.fee = bignumify(1) // 1 ARKTOSHI
+        }
+        connection.addTransaction(tx)
+      }
+
+      // The pool has 3 big fee and 57 low fee transactions. Try to get 5 with big fee.
+      const transactions = await connection.getTransactionsForForging(5)
+      expect(transactions).toBeArray()
+      expect(transactions.length).toBe(3)
     })
 
     it('should not accept transaction with amount > wallet balance', async () => {

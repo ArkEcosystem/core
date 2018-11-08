@@ -159,23 +159,65 @@ class TransactionPool extends TransactionPoolInterface {
   async getTransactionsForForging (blockSize) {
     this.__purgeExpired()
 
-    const transactions = []
+    // We are asked to get the first blockSize transactions (with the highest fee).
+    // The for-loop below would fetch some transactions, possibly ignore some of them
+    // and add the others to transactions[].
+    //
+    // - we do not know in advance how many are going to be ignored
+    // - getTransactionIdsForForging(0, big number) could be slow
+    // Thus we prefetch a little bit more than requested.
+    // Requested: blockSize,
+    // we prefetch: blockSize + nExtraPrefetchTheFirstTime.
+    //
+    // If after the for-loop we still have not filled transactions[] with enough
+    // entries and if we have not prefetched the entire pool with
+    // getTransactionIdsForForging(0, pool size) then we retry the entire
+    // operation, this time prefetching more.
+    //
+    // If a range (0, N) failed to deliver blockSize transactions, and we want to
+    // retry a bigger range (0, M), it is important to retry the complete new
+    // range (0, M) instead of keeping the results from the (0, N) range and only
+    // fetching (N, M). This is because (due to async) the pool may have changed
+    // in between the (0, N) and (N, M) fetches and this may lead to returning
+    // inconsistent result, like e.g. returning a result with duplicates.
 
-    for (const id of await this.getTransactionIdsForForging(0, this.mem.getSize())) {
-      if (transactions.length === blockSize) {
-        break
-      }
+    const nExtraPrefetchTheFirstTime = 50
+    let transactions
+    let poolSize = this.mem.getSize()
+    let nPrefetch = Math.min(poolSize, blockSize + nExtraPrefetchTheFirstTime)
 
-      const transaction = this.mem.getTransactionById(id)
-
-      if (transaction &&
-          this.checkDynamicFeeMatch(transaction) &&
-          this.checkApplyToBlockchain(transaction)) {
-        transactions.push(transaction.serialized)
-      }
+    if (poolSize === 0 || blockSize === 0) {
+      return []
     }
 
-    return transactions
+    while (true) {
+      transactions = []
+
+      for (const id of await this.getTransactionIdsForForging(0, nPrefetch)) {
+        const transaction = this.mem.getTransactionById(id)
+
+        if (transaction &&
+          this.checkDynamicFeeMatch(transaction) &&
+          this.checkApplyToBlockchain(transaction)) {
+          // can be forged
+          transactions.push(transaction.serialized)
+
+          if (transactions.length === blockSize) {
+            return transactions
+          }
+        }
+      }
+
+      assert.strictEqual(transactions.length < blockSize, true)
+
+      if (nPrefetch === poolSize) {
+        return transactions
+      }
+
+      poolSize = this.mem.getSize()
+      nPrefetch = Math.min(poolSize, nPrefetch * 2)
+    }
+    // not reached
   }
 
   /**
