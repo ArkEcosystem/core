@@ -293,6 +293,37 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Check each of a set of transactions for eligibility to enter the pool.
+   * This method is quick and is used to drop transactions early at the entrance
+   * for which we can quickly assess that will not be allowed to enter the pool.
+   *
+   * So we can avoid the costy validation process only to discover later that a
+   * transaction is not allowed to enter the pool.
+   *
+   * @param {Array} transactions An array of Transaction objects to be checked.
+   * @return { eligible, notEligible } where:
+   * - eligible is an array of Transaction objects, a subset of the input array
+   * - notEligible is an array of objects { transaction, reason } where:
+   *   - transaction is a Transaction object, from the input
+   *   - reason is a String describing why the transaction is not eligible
+   */
+  checkEligibility (transactions) {
+    this.__purgeExpired()
+
+    const ret = { eligible: [], notEligible: [] }
+
+    for (const t of transactions) {
+      if (this.mem.transactionExists(t.id)) {
+        ret.notEligible.push({ transaction: t, reason: 'Already in pool' })
+      } else {
+        ret.eligible.push(t)
+      }
+    }
+
+    return ret
+  }
+
+  /**
    * Remove all transactions from the pool that have expired.
    * @return {void}
    */

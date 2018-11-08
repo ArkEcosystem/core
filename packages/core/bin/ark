@@ -17,6 +17,8 @@ app
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-p, --password <password>', 'forger password')
   .option('--network-start', 'force genesis network start', false)
+  .option('--disable-discovery', 'disable any peer discovery')
+  .option('--skip-discovery', 'skip the initial peer discovery')
   .action(async (options) => require('../lib/start-relay-and-forger')(options))
 
 app
@@ -26,6 +28,10 @@ app
   .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-t, --token <token>', 'token name', 'ark')
   .option('-n, --network <network>', 'token network')
+  .option('-r, --remote <remote>', 'remote peer for config')
+  .option('--network-start', 'force genesis network start', false)
+  .option('--disable-discovery', 'disable any peer discovery')
+  .option('--skip-discovery', 'skip the initial peer discovery')
   .action(async (options) => require('../lib/start-relay')(options))
 
 app
@@ -37,17 +43,7 @@ app
   .option('-n, --network <network>', 'token network')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-p, --password <password>', 'forger password')
-  .option('--network-start', 'force genesis network start', false)
   .action(async (options) => require('../lib/start-forger')(options))
-
-app
-  .command('snapshot')
-  .description('take a snapshot of the database')
-  .option('-d, --data <data>', 'data directory', '~/.ark')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
-  .option('-t, --token <token>', 'token name', 'ark')
-  .option('-n, --network <network>', 'token network')
-  .action(async (options) => require('../lib/snapshot')(options))
 
 app
   .command('forger-plain')

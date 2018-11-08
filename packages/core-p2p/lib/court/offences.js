@@ -11,6 +11,12 @@ module.exports = {
     reason: 'No Common Blocks',
     weight: 1
   },
+  NO_COMMON_ID: {
+    number: 5,
+    period: 'minutes',
+    reason: 'No Common Id',
+    weight: 1
+  },
   INVALID_VERSION: {
     number: 6,
     period: 'hours',
@@ -51,6 +57,12 @@ module.exports = {
     number: 30,
     period: 'seconds',
     reason: 'Blockchain not ready',
+    weight: 0
+  },
+  TOO_MANY_REQUESTS: {
+    number: 60,
+    period: 'seconds',
+    reason: 'Rate limit exceeded',
     weight: 0
   },
   UNKNOWN: {

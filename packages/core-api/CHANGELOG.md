@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Blockchains endpoint to provide information like supply
 - Allow registration of additional plugins
 
+### Fixed
+- Ensure order parameters are treated as lower-case and properly formatted
+
 ### Changed
 - Use the IANA format for the API vendor in the `Accept` header
 - Use the official `hapi-api-version` dependency

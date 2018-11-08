@@ -12,7 +12,7 @@ exports.index = {
     ...{
       orderBy: Joi.string(),
       id: Joi.string().hex().length(64),
-      blockId: Joi.string(),
+      blockId: Joi.string().regex(/^[0-9]+$/, 'numbers'),
       version: Joi.number().integer().positive(),
       senderPublicKey: Joi.string().hex().length(66),
       senderId: Joi.string().alphanum().length(34),
@@ -30,6 +30,6 @@ exports.index = {
  */
 exports.show = {
   params: {
-    id: Joi.string()
+    id: Joi.string().hex().length(64)
   }
 }

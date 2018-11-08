@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - More graceful handling of shutdown
 - State Storage to handle state machine data
+- Peer banning after forks
 
 ### Changed
 - Improved the logic of how blocks are being processed

@@ -127,12 +127,16 @@ module.exports = class TransactionGuard {
       const exists = this.pool.transactionExists(transaction.id)
 
       if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
-        const trx = new Transaction(transaction)
+        try {
+          const trx = new Transaction(transaction)
 
-        if (trx.verified) {
-          this.transactions.push(trx)
-        } else {
-          this.__pushError(transaction, 'Transaction didn\'t pass the verification process.')
+          if (trx.verified) {
+            this.transactions.push(trx)
+          } else {
+            this.__pushError(transaction, 'Transaction didn\'t pass the verification process.')
+          }
+        } catch (error) {
+          this.__pushError(transaction, error.message)
         }
       }
     })
@@ -247,6 +251,7 @@ module.exports = class TransactionGuard {
 
     this.errors[transaction.id].push(error)
 
+    // XXX O(this.invalid.some.length), can be O(1)
     if (!this.invalid.some(tx => tx.id === transaction.id)) {
       this.invalid.push(transaction)
     }

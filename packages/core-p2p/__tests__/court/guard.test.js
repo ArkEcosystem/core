@@ -201,6 +201,16 @@ describe('Guard', () => {
       expect(reason).toBe('Blockchain not ready')
     })
 
+    it('should return a 60 seconds suspension for "Rate limit exceeded"', () => {
+      const { until, reason } = guard.__determineOffence({
+        ...dummy,
+        ...{ status: 429 }
+      })
+
+      expect(convertToSeconds(until)).toBe(60)
+      expect(reason).toBe('Rate limit exceeded')
+    })
+
     it('should return a 30 minutes suspension for "Unknown"', () => {
       const { until, reason } = guard.__determineOffence(dummy)
 
