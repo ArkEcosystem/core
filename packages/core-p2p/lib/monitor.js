@@ -26,7 +26,6 @@ class Monitor {
    */
   constructor () {
     this.peers = {}
-    this._peersByHeight = new Map() // NOTE: not used yet
     this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
   }
 
@@ -151,27 +150,6 @@ class Monitor {
    */
   removePeer (peer) {
     delete this.peers[peer.ip]
-    this.__removePeerFromHeight(peer)
-  }
-
-  /**
-   * Update peer height.
-   * @param {Peer} peer
-   */
-  updatePeerHeight (peer, previousHeight) {
-    if (peer.state.height !== previousHeight) {
-      // Remove peer from previous height
-      if (this._peersByHeight.has(previousHeight)) {
-        const index = this._peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
-        this._peersByHeight.get(previousHeight).splice(index, 1)
-        if (this._peersByHeight.get(previousHeight).length === 0) {
-          this._peersByHeight.delete(previousHeight)
-        }
-      }
-
-      // Add peer to new height
-      this.__addPeerToHeight(peer)
-    }
   }
 
   /**
@@ -335,8 +313,6 @@ class Monitor {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
-
-      this.__buildPeersByHeight()
 
       return this.peers
     } catch (error) {
@@ -525,7 +501,8 @@ class Monitor {
    * @return {String}
    */
   updatePeersOnMissingBlocks () {
-    const commonHeightGroups = Array.from(this._peersByHeight.values()).sort((a, b) => b.length - a.length)
+    const peersGroupedByHeight = groupBy(this.getPeers(), 'state.height')
+    const commonHeightGroups = Object.values(peersGroupedByHeight).sort((a, b) => b.length - a.length)
     const peersMostCommonHeight = commonHeightGroups[0]
     const groupedByCommonId = groupBy(peersMostCommonHeight, 'state.header.id')
     const commonIdGroupCount = Object.keys(groupedByCommonId).length
@@ -601,49 +578,6 @@ class Monitor {
 
     for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-    }
-
-    this.__buildPeersByHeight()
-  }
-
-  /**
-   * Group peers by height.
-   * @return {void}
-   */
-  __buildPeersByHeight () {
-    this._peersByHeight.clear()
-    for (const peer of this.getPeers()) {
-      this.__addPeerToHeight(peer)
-    }
-  }
-
-  /**
-   * Set peer by height.
-   * @param {Peer} peer
-   */
-  __addPeerToHeight (peer) {
-    if (!this._peersByHeight.has(peer.state.height)) {
-      this._peersByHeight.set(peer.state.height, [])
-    }
-
-    this._peersByHeight.get(peer.state.height).push(peer)
-  }
-
-  /**
-   * Remove peer from height.
-   * @param {Peer} peer
-   */
-  __removePeerFromHeight (peer) {
-    const peers = this._peersByHeight.get(peer.state.height)
-    if (peers) {
-      const index = peers.findIndex(p => p.ip === peer.ip)
-      if (index !== -1) {
-        peers.splice(index, 1)
-      }
-
-      if (peers.length === 0) {
-        this._peersByHeight.delete(peer.state.height)
-      }
     }
   }
 
