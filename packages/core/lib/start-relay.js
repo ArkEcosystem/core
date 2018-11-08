@@ -11,6 +11,9 @@ module.exports = async (options) => {
   await container.setUp(options, {
     exclude: ['@arkecosystem/core-forger'],
     options: {
+      '@arkecosystem/core-p2p': {
+        networkStart: options.networkStart
+      },
       '@arkecosystem/core-blockchain': {
         networkStart: options.networkStart
       }
