@@ -226,6 +226,10 @@ class Guard {
       return this.__determinePunishment(peer, offences.BLOCKCHAIN_NOT_READY)
     }
 
+    if (peer.status === 429) {
+      return this.__determinePunishment(peer, offences.TOO_MANY_REQUESTS)
+    }
+
     if (peer.status !== 200) {
       return this.__determinePunishment(peer, offences.INVALID_STATUS)
     }
