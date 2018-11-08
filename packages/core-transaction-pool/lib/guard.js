@@ -4,6 +4,7 @@ const { configManager, models: { Transaction }, constants: { TRANSACTION_TYPES }
 const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 const database = container.resolvePlugin('database')
 const _ = require('lodash')
+const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionGuard {
   /**
@@ -117,6 +118,7 @@ module.exports = class TransactionGuard {
    * Transforms and filters incomming transactions.
    * It skips duplicates and not valid crypto transactions
    * It skips blocked senders
+   * It skips not matching fees, but still adds them to broadcast mode
    * @param  {Array} transactions
    * @return {void}
    */
@@ -124,8 +126,12 @@ module.exports = class TransactionGuard {
     this.transactions = []
 
     transactions.forEach(transaction => {
-      const exists = this.pool.transactionExists(transaction.id)
+      if (!dynamicFeeMatch(transactions)) {
+        this.broadcast.push(transaction)
+        return
+      }
 
+      const exists = this.pool.transactionExists(transaction.id)
       if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         try {
           const trx = new Transaction(transaction)
@@ -194,7 +200,7 @@ module.exports = class TransactionGuard {
       case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
       default:
         this.__pushError(transaction,
-          `Invalidating transaction of unsupported type ` +
+          'Invalidating transaction of unsupported type ' +
           `'${TRANSACTION_TYPES.toString(transaction.type)}'`)
         return
       }
