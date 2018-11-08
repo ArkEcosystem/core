@@ -44,26 +44,36 @@ class Monitor {
 
     this.__filterPeers()
 
-    if (!config.networkStart) {
-      await this.updateNetworkStatus()
-    }
+    await this.updateNetworkStatus(config.networkStart)
 
     return this
   }
 
   /**
    * Update network status (currently only peers are updated).
+   * @param  {Boolean} networkStart
    * @return {Promise}
    */
-  async updateNetworkStatus () {
+  async updateNetworkStatus (networkStart) {
+    if (networkStart) {
+      logger.warn('Skipped peer discovery because the relay is in genesis start mode.')
+      return
+    }
+
+    if (this.config.disableDiscovery) {
+      logger.warn('Skipped peer discovery because the relay is in non-discovery mode.')
+      return
+    }
+
     try {
-      // TODO: for tests that involve peers we need to sync them
-      if (process.env.ARK_ENV !== 'test' && config.peers.discover) {
+      const realEnvironment = process.env.ARK_ENV !== 'test'
+
+      if (realEnvironment) {
         await this.discoverPeers()
         await this.cleanPeers()
       }
 
-      if (Object.keys(this.peers).length < config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
+      if (Object.keys(this.peers).length < config.peers.list.length - 1 && realEnvironment) {
         config.peers.list
           .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
@@ -84,7 +94,7 @@ class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (!config.peers.discover) {
+    if (this.config.disableDiscovery) {
       logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`)
       return
     }
