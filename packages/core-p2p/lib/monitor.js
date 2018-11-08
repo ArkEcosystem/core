@@ -54,7 +54,7 @@ class Monitor {
    * @return {Promise}
    */
   async updateNetworkStatus (networkStart) {
-    if (!networkStart) {
+    if (networkStart) {
       logger.warn('Skipped peer discovery because the relay is in genesis start mode.')
       return
     }
