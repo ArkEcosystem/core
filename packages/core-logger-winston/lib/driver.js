@@ -19,6 +19,7 @@ module.exports = class Logger extends LoggerInterface {
 
     this.driver.printTracker = this.printTracker
     this.driver.stopTracker = this.stopTracker
+    this.driver.suppressConsoleOutput = this.suppressConsoleOutput
 
     return this.driver
   }
@@ -79,6 +80,18 @@ module.exports = class Logger extends LoggerInterface {
     line += '                                                     \n'
     process.stdout.write(line)
     tracker = null
+  }
+
+  /**
+   * Suppress console output.
+   * @param  {Boolean}
+   * @return {void}
+   */
+  suppressConsoleOutput (suppress) {
+    const consoleTransport = this.transports.find(t => t.name === 'console')
+    if (consoleTransport) {
+      consoleTransport.silent = suppress
+    }
   }
 
   /**

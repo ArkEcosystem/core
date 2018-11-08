@@ -109,4 +109,24 @@ describe('Logger', () => {
       message = null
     })
   })
+
+  describe('suppressConsoleOutput', () => {
+    it('should be a function', () => {
+      expect(logger.suppressConsoleOutput).toBeFunction()
+    })
+
+    it('should suppress console output', () => {
+      logger.suppressConsoleOutput(true)
+
+      logger.info('silent_message')
+      expect(message).toBeNull()
+
+      logger.suppressConsoleOutput(false)
+
+      logger.info('non_silent_message')
+      expect(message).toMatch(/non_silent_message/)
+
+      message = null
+    })
+  })
 })
