@@ -192,6 +192,8 @@ module.exports = class Peer {
     } catch (error) {
       this.delay = -1
 
+      logger.debug(error.message)
+
       if (error.response) {
         this.__parseHeaders(error.response)
       }
@@ -213,6 +215,8 @@ module.exports = class Peer {
 
       return response.data
     } catch (error) {
+      logger.debug(error.message)
+
       if (error.response) {
         this.__parseHeaders(error.response)
       }
