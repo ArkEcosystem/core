@@ -76,4 +76,13 @@ module.exports = class LoggerInterface {
   stopTracker (title, current, max) {
     throw new Error('Method [stopTracker] not implemented!')
   }
+
+  /**
+   * Suppress console output.
+   * @param  {Boolean}
+   * @return {void}
+   */
+  suppressConsoleOutput (suppress) {
+    throw new Error('Method [suppressConsoleOutput] not implemented!')
+  }
 }
