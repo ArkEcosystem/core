@@ -30,7 +30,7 @@
     "commander": "^2.19.0",
     "delay": "^4.1.0",
     "lodash": "^4.17.11",
-    "pino": "^5.8.0",
+    "pino": "^5.8.1",
     "pino-pretty": "^2.2.3",
     "superheroes": "^2.0.0"
   },

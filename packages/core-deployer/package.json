@@ -28,10 +28,10 @@
     "commander": "^2.19.0",
     "envfile": "^2.3.0",
     "expand-home-dir": "0.0.3",
-    "fs-extra": "^7.0.0",
-    "joi": "^14.0.1",
+    "fs-extra": "^7.0.1",
+    "joi": "^14.0.4",
     "lodash": "^4.17.11",
-    "pino": "^5.8.0",
+    "pino": "^5.8.1",
     "pino-pretty": "^2.2.3"
   },
   "publishConfig": {
