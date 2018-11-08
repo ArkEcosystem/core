@@ -85,6 +85,7 @@ class Monitor {
    */
   async acceptNewPeer (peer) {
     if (!this.config.discover) {
+      logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`)
       return
     }
 
