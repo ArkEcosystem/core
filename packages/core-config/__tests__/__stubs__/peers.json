@@ -1,5 +1,4 @@
 {
-  "discover": true,
   "blackList": [],
   "list": [{
     "ip": "127.0.0.1",
