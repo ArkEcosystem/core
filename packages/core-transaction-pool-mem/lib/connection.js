@@ -169,7 +169,6 @@ class TransactionPool extends TransactionPoolInterface {
       const transaction = this.mem.getTransactionById(id)
 
       if (transaction &&
-          this.checkDynamicFeeMatch(transaction) &&
           this.checkApplyToBlockchain(transaction)) {
         transactions.push(transaction.serialized)
       }
