@@ -51,6 +51,7 @@ class Monitor {
 
   /**
    * Update network status (currently only peers are updated).
+   * @param  {Boolean} networkStart
    * @return {Promise}
    */
   async updateNetworkStatus (networkStart) {
