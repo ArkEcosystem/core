@@ -19,7 +19,7 @@ module.exports = {
   },
   // @see https://github.com/wraithgar/hapi-rate-limit
   rateLimit: {
-    enabled: true,
+    enabled: !process.env.ARK_API_RATE_LIMIT,
     pathLimit: false,
     userLimit: 300,
     userCache: {
