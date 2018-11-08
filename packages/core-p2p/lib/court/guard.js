@@ -214,6 +214,12 @@ class Guard {
       return this.__determinePunishment(peer, offences.NO_COMMON_BLOCKS)
     }
 
+    if (peer.commonId === false) {
+      delete peer.commonId
+
+      return this.__determinePunishment(peer, offences.NO_COMMON_ID)
+    }
+
     // NOTE: We check this extra because a response can still succeed if
     // it returns any codes that are not 4xx or 5xx.
     if (peer.status === 503) {
