@@ -44,7 +44,7 @@ class Monitor {
 
     this.__filterPeers()
 
-    await this.updateNetworkStatus(config.networkStart)
+    await this.updateNetworkStatus(config.networkStart, true)
 
     return this
   }
@@ -52,9 +52,10 @@ class Monitor {
   /**
    * Update network status (currently only peers are updated).
    * @param  {Boolean} networkStart
+   * @param  {Boolean} firstCall
    * @return {Promise}
    */
-  async updateNetworkStatus (networkStart) {
+  async updateNetworkStatus (networkStart, firstCall) {
     if (networkStart) {
       logger.warn('Skipped peer discovery because the relay is in genesis start mode.')
       return
@@ -67,8 +68,9 @@ class Monitor {
 
     try {
       const realEnvironment = process.env.ARK_ENV !== 'test'
+      const skipDiscovery = firstCall && this.config.skipDiscovery
 
-      if (realEnvironment) {
+      if (realEnvironment && !skipDiscovery) {
         await this.discoverPeers()
         await this.cleanPeers()
       }
