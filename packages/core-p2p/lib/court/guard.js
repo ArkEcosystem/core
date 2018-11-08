@@ -17,6 +17,7 @@ class Guard {
    */
   constructor () {
     this.suspensions = {}
+    this.bigOffences = [offences.FORK, offences.NO_COMMON_ID, offences.NO_COMMON_BLOCKS]
   }
 
   /**
@@ -83,8 +84,8 @@ class Guard {
       return
     }
 
-    // Peers who caused a fork stay banned for the entire duration.
-    if (peer.offences.some(offence => offence.reason === 'Fork')) {
+    // Don't unsuspend big offenders
+    if (peer.offences.some(offence => this.bigOffences.some(bigOffence => offence.reason === bigOffence.reason))) {
       if (moment().isBefore(this.suspensions[peer.ip].until)) {
         return
       }

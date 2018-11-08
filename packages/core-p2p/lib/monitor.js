@@ -132,7 +132,6 @@ class Monitor {
       await newPeer.ping(1500)
 
       this.peers[peer.ip] = newPeer
-      this.__addPeerToHeight(newPeer)
 
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
