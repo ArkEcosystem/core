@@ -11,6 +11,12 @@ module.exports = {
     reason: 'No Common Blocks',
     weight: 1
   },
+  NO_COMMON_ID: {
+    number: 5,
+    period: 'minutes',
+    reason: 'No Common Id',
+    weight: 1
+  },
   INVALID_VERSION: {
     number: 6,
     period: 'hours',
