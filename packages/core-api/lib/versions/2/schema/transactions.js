@@ -14,7 +14,7 @@ exports.index = {
     ...{
       orderBy: Joi.string(),
       id: Joi.string().hex().length(64),
-      blockId: Joi.string(),
+      blockId: Joi.string().regex(/^[0-9]+$/, 'numbers'),
       type: Joi.number().integer().min(0),
       version: Joi.number().integer().positive(),
       senderPublicKey: Joi.string().hex().length(66),
@@ -43,7 +43,7 @@ exports.store = {
  */
 exports.show = {
   params: {
-    id: Joi.string()
+    id: Joi.string().hex().length(64)
   }
 }
 
@@ -59,7 +59,7 @@ exports.unconfirmed = {
  */
 exports.showUnconfirmed = {
   params: {
-    id: Joi.string()
+    id: Joi.string().hex().length(64)
   }
 }
 
@@ -71,7 +71,7 @@ exports.search = {
   payload: {
     orderBy: Joi.string(),
     id: Joi.string().hex().length(64),
-    blockId: Joi.string(),
+    blockId: Joi.string().regex(/^[0-9]+$/, 'numbers'),
     type: Joi.number().integer().min(0),
     version: Joi.number().integer().positive(),
     senderPublicKey: Joi.string().hex().length(66),
