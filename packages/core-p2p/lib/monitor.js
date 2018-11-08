@@ -84,6 +84,10 @@ class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
+    if (!this.config.discover) {
+      return
+    }
+
     if (this.guard.isSuspended(peer) || this.guard.isMyself(peer) || process.env.ARK_ENV === 'test') {
       return
     }
