@@ -27,7 +27,7 @@ module.exports = {
   rateLimit: {
     enabled: true,
     pathLimit: false,
-    userLimit: 800,
+    userLimit: 1000,
     ipWhitelist: ['127.0.0.1', '::ffff:127.0.0.1']
   }
 }

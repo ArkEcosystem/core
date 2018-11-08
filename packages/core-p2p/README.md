@@ -35,7 +35,14 @@ module.exports = {
   whitelist: [
     '127.0.0.1',
     '::ffff:127.0.0.1'
-  ]
+  ],
+  // @see https://github.com/wraithgar/hapi-rate-limit
+  rateLimit: {
+    enabled: true,
+    pathLimit: false,
+    userLimit: 1000,
+    ipWhitelist: ['127.0.0.1', '::ffff:127.0.0.1']
+  }
 }
 ```
 
