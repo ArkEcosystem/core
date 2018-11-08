@@ -44,7 +44,9 @@ class Monitor {
 
     this.__filterPeers()
 
-    await this.updateNetworkStatus(config.networkStart)
+    this.config.skipDiscovery
+      ? logger.warn('Skipped peer discovery because the relay is in skip-discovery mode.')
+      : await this.updateNetworkStatus(config.networkStart)
 
     return this
   }
@@ -56,7 +58,7 @@ class Monitor {
    */
   async updateNetworkStatus (networkStart) {
     if (networkStart) {
-      logger.warn('Skipped peer discovery because the relay is in genesis start mode.')
+      logger.warn('Skipped peer discovery because the relay is in genesis-start mode.')
       return
     }
 

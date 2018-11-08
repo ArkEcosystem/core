@@ -12,7 +12,8 @@ module.exports = async options => {
     options: {
       '@arkecosystem/core-p2p': {
         networkStart: options.networkStart,
-        disableDiscovery: options.disableDiscovery
+        disableDiscovery: options.disableDiscovery,
+        skipDiscovery: options.skipDiscovery
       },
       '@arkecosystem/core-blockchain': {
         networkStart: options.networkStart

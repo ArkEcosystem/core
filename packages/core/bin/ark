@@ -18,6 +18,7 @@ app
   .option('-p, --password <password>', 'forger password')
   .option('--network-start', 'force genesis network start', false)
   .option('--disable-discovery', 'disable any peer discovery')
+  .option('--skip-discovery', 'skip the initial peer discovery')
   .action(async (options) => require('../lib/start-relay-and-forger')(options))
 
 app
@@ -30,6 +31,7 @@ app
   .option('-r, --remote <remote>', 'remote peer for config')
   .option('--network-start', 'force genesis network start', false)
   .option('--disable-discovery', 'disable any peer discovery')
+  .option('--skip-discovery', 'skip the initial peer discovery')
   .action(async (options) => require('../lib/start-relay')(options))
 
 app
