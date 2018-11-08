@@ -1,4 +1,5 @@
 {
+  "discover": true,
   "minimumVersion": ">=1.3.3",
   "minimumNetworkReach": 5,
   "globalTimeout": 5000,

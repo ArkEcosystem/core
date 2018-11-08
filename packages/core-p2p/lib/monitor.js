@@ -58,7 +58,7 @@ class Monitor {
   async updateNetworkStatus () {
     try {
       // TODO: for tests that involve peers we need to sync them
-      if (process.env.ARK_ENV !== 'test') {
+      if (process.env.ARK_ENV !== 'test' && config.peers.discover) {
         await this.discoverPeers()
         await this.cleanPeers()
       }
@@ -84,6 +84,11 @@ class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
+    if (!config.peers.discover) {
+      logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`)
+      return
+    }
+
     if (this.guard.isSuspended(peer) || this.guard.isMyself(peer) || process.env.ARK_ENV === 'test') {
       return
     }

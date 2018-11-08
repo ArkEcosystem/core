@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Reject forgers as peers
 - Recovery after a fork
 - Enabled rate-limiting
+- Enable/Disable peer discovery
 
 ### Changed
 - Network state calculation (new internal/networkState) taking PBFT into account
