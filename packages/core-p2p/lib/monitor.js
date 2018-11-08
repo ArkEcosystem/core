@@ -232,7 +232,7 @@ class Monitor {
    * Get a list of all suspended peers.
    * @return {void}
    */
-  async getSuspendedPeers () {
+  getSuspendedPeers () {
     return this.guard.all()
   }
 
