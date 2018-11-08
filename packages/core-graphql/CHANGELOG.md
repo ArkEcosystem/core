@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Increased test coverage
 
+### Fixed
+- Ensure order parameters are treated as lower-case
+- Sorting and limit of records
+
 ### Changed
 - Migrated to Apollo `2.0.0`
 - Dropped node.js 9 as minimum requirement in favour of node.js 10

@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Minimum peer version
 - Peer whitelisting & blacklisting
 - Common block checks
+- Peer banning after forks
+- Reject forgers as peers
+- Recovery after a fork
+- Enabled rate-limiting
 
 ### Changed
 - Network state calculation (new internal/networkState) taking PBFT into account
@@ -40,6 +44,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Handle CORS requests to the P2P API
 - Return the last block if no height is provided to a method
 - Race condition that would result in duplicate transactions in the transaction pool
+- Accept v1 peers
+- Avoid errors when banning peers before the state storage is not ready yet
 
 ## 0.1.1 - 2018-06-14
 

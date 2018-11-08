@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Public Key Identity
 - WIF Identity
 
+### Fixed
+- Comparison of upper/lower-case public keys
+- Validate the vendor field length
+
 ## 0.2.3 - 2018-10-26
 
 ### Added

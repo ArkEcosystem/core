@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Cast rounds to integers
 - Only commit data when `saveBlockCommit` is called
 - Various bad method calls for expected query results
+- Sorting of votes during SPV
 
 ## 0.1.0 - 2018-09-11
 
