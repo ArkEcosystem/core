@@ -7,7 +7,11 @@ const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-module.exports = async (config) => {
+module.exports = async config => {
+  if (config.explorerMode) {
+    config.rateLimit.enabled = false
+  }
+
   const server = await createServer({
     host: config.host,
     port: config.port,
