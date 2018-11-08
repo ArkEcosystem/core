@@ -63,7 +63,12 @@ blockchainMachine.actionMap = blockchain => {
 
         state.noBlockCounter = 0
 
-        event = 'NETWORKHALTED'
+        const result = blockchain.p2p.updatePeersOnMissingBlocks()
+        if (result === 'rollback') {
+          event = 'FORK'
+        } else {
+          event = 'NETWORKHALTED'
+        }
       }
 
       if (blockchain.isSynced(state.lastDownloadedBlock)) {

@@ -34,7 +34,7 @@ exports.index = {
  */
 exports.store = {
   payload: {
-    transactions: Joi.array().max(container.resolveOptions('transactionPool').maxTransactionsPerRequest).items(Joi.object())
+    transactions: Joi.array().max(container.resolveOptions('transactionPool').maxTransactionsPerRequest).items(Joi.object({ vendorField: Joi.string().empty('').max(64, 'utf8') }).options({ allowUnknown: true }))
   }
 }
 

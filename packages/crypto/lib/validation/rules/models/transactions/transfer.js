@@ -15,7 +15,7 @@ module.exports = (transaction) => {
     signature: engine.joi.string().alphanum().required(),
     signatures: engine.joi.array(),
     secondSignature: engine.joi.string().alphanum(),
-    vendorField: engine.joi.string().max(64),
+    vendorField: engine.joi.string().max(64, 'utf8'),
     confirmations: engine.joi.number().integer().min(0)
   }), {
     allowUnknown: true
