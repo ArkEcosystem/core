@@ -71,7 +71,7 @@ module.exports = class RemoteLoader {
   __configureDatabase (network) {
     const command = spawnSync('createdb', [`ark_${network.name}`])
 
-    if (command.stderr) {
+    if (command.stderr.length > 0) {
       console.error(command.stderr.toString())
       process.exit(1)
     }
