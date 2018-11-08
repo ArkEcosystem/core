@@ -58,7 +58,7 @@ class Monitor {
   async updateNetworkStatus () {
     try {
       // TODO: for tests that involve peers we need to sync them
-      if (process.env.ARK_ENV !== 'test') {
+      if (process.env.ARK_ENV !== 'test' && this.config.discover) {
         await this.discoverPeers()
         await this.cleanPeers()
       }
