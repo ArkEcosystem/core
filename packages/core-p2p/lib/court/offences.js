@@ -59,6 +59,12 @@ module.exports = {
     reason: 'Blockchain not ready',
     weight: 0
   },
+  TOO_MANY_REQUESTS: {
+    number: 60,
+    period: 'seconds',
+    reason: 'Rate limit exceeded',
+    weight: 0
+  },
   UNKNOWN: {
     number: 30,
     period: 'minutes',
