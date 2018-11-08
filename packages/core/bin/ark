@@ -19,7 +19,6 @@ app
   .option('--network-start', 'force genesis network start', false)
   .option('--disable-discovery', 'disable any peer discovery')
   .option('--skip-discovery', 'skip the initial peer discovery')
-  .option('--explorer-mode', 'run the relay in explorer-mode')
   .action(async (options) => require('../lib/start-relay-and-forger')(options))
 
 app
@@ -33,7 +32,6 @@ app
   .option('--network-start', 'force genesis network start', false)
   .option('--disable-discovery', 'disable any peer discovery')
   .option('--skip-discovery', 'skip the initial peer discovery')
-  .option('--explorer-mode', 'run the relay in explorer-mode')
   .action(async (options) => require('../lib/start-relay')(options))
 
 app

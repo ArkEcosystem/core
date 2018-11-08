@@ -18,9 +18,6 @@ module.exports = async options => {
       },
       '@arkecosystem/core-blockchain': {
         networkStart: options.networkStart
-      },
-      '@arkecosystem/core-api': {
-        explorerMode: options.explorerMode
       }
     }
   })

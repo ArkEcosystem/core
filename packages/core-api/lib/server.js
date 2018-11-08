@@ -8,7 +8,7 @@ const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-
  * @return {Hapi.Server}
  */
 module.exports = async config => {
-  if (config.explorerMode) {
+  if (config.explorer) {
     config.rateLimit.enabled = false
   }
 
