@@ -50,4 +50,10 @@ describe('Logger Interface', () => {
       expect(logger.stopTracker).toBeFunction()
     })
   })
+
+  describe('suppressConsoleOutput', () => {
+    it('should be a function', () => {
+      expect(logger.suppressConsoleOutput).toBeFunction()
+    })
+  })
 })

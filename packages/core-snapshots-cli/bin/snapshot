@@ -2,6 +2,7 @@
 
 const app = require('commander')
 const util = require('../lib/utils')
+const container = require('@arkecosystem/core-container')
 
 app.version(require('../package.json').version)
 
@@ -67,4 +68,5 @@ app
     process.exit(0)
   })
 
+container.silentShutdown = true
 app.parse(process.argv)
