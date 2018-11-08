@@ -92,7 +92,7 @@ module.exports = class TransactionBuilder {
    * @return {TransactionBuilder}
    */
   vendorField (vendorField) {
-    if (vendorField && vendorField.length <= 64) {
+    if (vendorField && Buffer.from(vendorField).length <= 64) {
       this.data.vendorField = vendorField
     }
 

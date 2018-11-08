@@ -14,6 +14,12 @@ module.exports = class Container {
   constructor () {
     this.container = createContainer()
 
+    /**
+     * May be used by CLI programs to suppress the shutdown
+     * messages.
+     */
+    this.silentShutdown = false
+
     this.__registerExitHandler()
   }
 
@@ -160,6 +166,7 @@ module.exports = class Container {
       this.shuttingDown = true
 
       const logger = this.resolvePlugin('logger')
+      logger.suppressConsoleOutput(this.silentShutdown)
       logger.info('Ark Core is trying to gracefully shut down to avoid data corruption :pizza:')
 
       try {
