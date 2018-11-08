@@ -2,6 +2,7 @@
 
 const PluginRegistrar = require('./registrars/plugin')
 const Environment = require('./environment')
+const RemoteLoader = require('./remote-loader')
 const { createContainer } = require('awilix')
 const delay = require('delay')
 
@@ -29,6 +30,11 @@ module.exports = class Container {
    * @return {void}
    */
   async setUp (variables, options = {}) {
+    if (variables.remote) {
+      const remoteLoader = new RemoteLoader(variables)
+      await remoteLoader.setUp()
+    }
+
     this.env = new Environment(variables)
     this.env.setUp()
 

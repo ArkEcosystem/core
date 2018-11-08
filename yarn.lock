@@ -4172,7 +4172,7 @@ eslint-plugin-es@^1.3.1:
     eslint-utils "^1.3.0"
     regexpp "^2.0.0"
 
-eslint-plugin-import@^2.12.0, eslint-plugin-import@~2.14.0:
+eslint-plugin-import@^2.14.0, eslint-plugin-import@~2.14.0:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.14.0.tgz#6b17626d2e3e6ad52cfce8807a845d15e22111a8"
   integrity sha512-FpuRtniD/AY6sXByma2Wr0TXvXJ4nA/2/04VPlfpmUDPOpOY264x+ILiwnrk/k4RINgDAyFZByxqPUbSQ5YE7g==
@@ -6499,6 +6499,13 @@ jest-message-util@^23.4.0:
     slash "^1.0.0"
     stack-utils "^1.0.1"
 
+jest-mock-process@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/jest-mock-process/-/jest-mock-process-1.1.0.tgz#0a6f2751bbbd1acc4aa5a3d2fdf707b5d68931a2"
+  integrity sha512-9B15X9DoAmig5t3bGugOjtJnNHVGSYKALKN7G7/BB5BqRB35F8vKH10ns7ELlZ0XtVv1YfG6e0Yj+g7Qd6JILw==
+  dependencies:
+    jest "^23.4.2"
+
 jest-mock@^23.2.0:
   version "23.2.0"
   resolved "https://registry.yarnpkg.com/jest-mock/-/jest-mock-23.2.0.tgz#ad1c60f29e8719d47c26e1138098b6d18b261134"
@@ -6633,7 +6640,7 @@ jest-worker@^23.2.0:
   dependencies:
     merge-stream "^1.0.1"
 
-jest@^23.3.0:
+jest@^23.3.0, jest@^23.4.2:
   version "23.6.0"
   resolved "https://registry.yarnpkg.com/jest/-/jest-23.6.0.tgz#ad5835e923ebf6e19e7a1d7529a432edfee7813d"
   integrity sha512-lWzcd+HSiqeuxyhG+EnZds6iO3Y3ZEnMrfZq/OTGvF/C+Z4fPMCdhWTGSAiO2Oym9rbEXfwddHhh6jqrTF3+Lw==

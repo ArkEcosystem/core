@@ -19,18 +19,23 @@
   "dependencies": {
     "@arkecosystem/crypto": "^0.2.3",
     "awilix": "^4.0.0",
+    "axios": "^0.18.0",
+    "delay": "^4.1.0",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
     "fs-extra": "^7.0.0",
     "hoek": "^5.0.4",
     "lodash": "^4.17.11",
-    "semver": "^5.6.0",
-    "delay": "^4.1.0"
+    "semver": "^5.6.0"
+  },
+  "devDependencies": {
+    "axios-mock-adapter": "^1.15.0",
+    "jest-mock-process": "^1.1.0"
   },
   "publishConfig": {
     "access": "public"
   },
   "engines": {
-    "node" : ">=10.x"
+    "node": ">=10.x"
   }
 }

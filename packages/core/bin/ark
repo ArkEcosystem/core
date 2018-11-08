@@ -26,6 +26,7 @@ app
   .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-t, --token <token>', 'token name', 'ark')
   .option('-n, --network <network>', 'token network')
+  .option('-r, --remote <remote>', 'remote peer for config')
   .action(async (options) => require('../lib/start-relay')(options))
 
 app
