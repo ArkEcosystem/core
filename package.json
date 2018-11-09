@@ -50,7 +50,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && node .circleci/generateConfig.js && git add .circleci/config.yml"
+      "pre-commit": "lint-staged && ./pre-commit.sh"
     }
   },
   "lint-staged": {
