@@ -61,10 +61,12 @@ jobs:
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-snapshots-cli/node_modules
+            - ./packages/core-std/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transaction-pool-mem/node_modules
+            - ./packages/core-transaction-pool-redis/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules

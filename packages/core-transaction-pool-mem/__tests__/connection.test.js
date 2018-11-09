@@ -360,28 +360,51 @@ describe('Connection', () => {
       expect(connection.getTransactionsForForging).toBeFunction()
     })
 
-    it('should return an array of transactions', async () => {
+    it('should skip not-appliable transactions', async () => {
       connection.addTransaction(mockData.dummy1)
       connection.addTransaction(mockData.dummy2)
-      connection.addTransaction(mockData.dummy3)
+      // This should be skipped due to checkApplyToBlockchain() due to insufficient funds
+      const highFeeTransaction = new Transaction(mockData.dummy3)
+      highFeeTransaction.fee = bignumify(1e9 * ARKTOSHI)
+      highFeeTransaction.senderPublicKey = '000000000000000000000000000000000000000420000000000000000000000000'
+      connection.addTransaction(highFeeTransaction)
       connection.addTransaction(mockData.dummy4)
       connection.addTransaction(mockData.dummy5)
       connection.addTransaction(mockData.dummy6)
 
-      let transactions = await connection.getTransactionsForForging(6)
-      expect(transactions).toBeArray()
-      expect(transactions.length).toBe(6)
+      expect(connection.getPoolSize()).toBe(6)
 
-      transactions = await connection.getTransactionsForForging(4)
+      let transactions = await connection.getTransactionsForForging(3)
       expect(transactions).toBeArray()
-      expect(transactions.length).toBe(4)
+      expect(transactions.length).toBe(3)
+
       transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
 
       expect(transactions[0]).toBeObject()
       expect(transactions[0].id).toBe(mockData.dummy1.id)
       expect(transactions[1].id).toBe(mockData.dummy2.id)
-      expect(transactions[2].id).toBe(mockData.dummy3.id)
-      expect(transactions[3].id).toBe(mockData.dummy4.id)
+      // Here we get dummy5 instead of dummy4 because the pool has changed in between
+      // getTransactionsForForging()'s retries, inside that function:
+      // - we request 3 transactions, starting from index 0
+      // - pool=dummy1,dummy2,highFeeTransaction,dummy4,dummy5,dummy6
+      // - it fetches dummy1,dummy2,highFeeTransaction
+      // - dummy1 is ok and is added to the result set
+      // - dummy2 is ok and is added to the result set
+      // - highFeeTransaction is not ok and is not added to the result set, also
+      //   checkApplyToBlockchain() removes it from the pool
+      // - pool=dummy1,dummy2,dummy4,dummy5,dummy6
+      // - the for-loop ends, we observe that we have only 2 transactions in the
+      //   result set instead of 3
+      // - we repeat the for-loop with start=3,size=1, this fetches dummy5
+      expect(transactions[2].id).toBe(mockData.dummy5.id)
+
+      transactions = await connection.getTransactionsForForging(10)
+      expect(transactions).toBeArray()
+      expect(transactions.length).toBe(5)
+
+      transactions = await connection.getTransactionsForForging(6)
+      expect(transactions).toBeArray()
+      expect(transactions.length).toBe(5)
     })
 
     it('should not accept transaction with amount > wallet balance', async () => {
