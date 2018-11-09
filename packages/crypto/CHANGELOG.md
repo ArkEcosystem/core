@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Comparison of upper/lower-case public keys
 - Validate the vendor field length
+- Use network version in transaction builder when signing with mixin
 
 ## 0.2.3 - 2018-10-26
 
