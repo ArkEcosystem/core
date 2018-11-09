@@ -50,7 +50,7 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postBlock (block) {
-    return this.__post(`${this.url}/peer/blocks`, { block }, {
+    return this.__post('/peer/blocks', { block }, {
       headers: this.headers,
       timeout: 5000
     })
@@ -62,7 +62,7 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postTransactions (transactions) {
-    return this.__post(`${this.url}/peer/transactions`, {
+    return this.__post('/peer/transactions', {
       transactions,
       isBroadCasted: true
     }, {
@@ -192,7 +192,7 @@ module.exports = class Peer {
     } catch (error) {
       this.delay = -1
 
-      logger.debug(error.message)
+      logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`)
 
       if (error.response) {
         this.__parseHeaders(error.response)
@@ -209,13 +209,13 @@ module.exports = class Peer {
    */
   async __post (endpoint, body, headers) {
     try {
-      const response = await axios.post(endpoint, body, headers)
+      const response = await axios.post(`${this.url}${endpoint}`, body, headers)
 
       this.__parseHeaders(response)
 
       return response.data
     } catch (error) {
-      logger.debug(error.message)
+      logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`)
 
       if (error.response) {
         this.__parseHeaders(error.response)
