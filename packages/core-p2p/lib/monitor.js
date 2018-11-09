@@ -542,11 +542,18 @@ class Monitor {
       }
 
       logger.info(`Detected peers at the same height ${peersMostCommonHeight[0].state.height} with different block ids: ${JSON.stringify(Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`), null, 4)}`)
-      const quota = chosenPeers.length / flatten(commonIdGroups).length
-      if (quota < 0.66) { // NOTE: if quota is extremely low this will not work out
-        logger.info(`Common id quota of '${quota}' is too low. Going to rollback. :repeat:`)
-        state = 'rollback'
 
+      const badLastBlock = chosenPeers[0].state.height === lastBlock.data.height && chosenPeers[0].state.header.id !== lastBlock.data.id
+      const quota = chosenPeers.length / flatten(commonIdGroups).length
+      if (badLastBlock && quota >= 0.66) { // Rollback if last block is bad and quota high
+        logger.info(`Last block id ${lastBlock.data.id} is bad. Going to rollback. :repeat:`)
+        state = 'rollback'
+      } else if (quota < 0.66) { // or quota too low TODO: find better number
+        logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`)
+        state = 'rollback'
+      }
+
+      if (state === 'rollback') {
         // Ban all rest peers
         const peersToBan = flatten(restGroups)
         peersToBan.forEach(peer => {
@@ -556,7 +563,7 @@ class Monitor {
 
         logger.debug(`Banned ${peersToBan.length} peers at height '${peersMostCommonHeight[0].state.height}' which do not have common id '${chosenPeers[0].state.header.id}'.`)
       } else {
-        logger.info(`...but got enough common id quota: ${quota} :sparkles:`)
+        logger.info(`But got enough common id quota: ${quota} :sparkles:`)
       }
     } else {
       logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id '${peersMostCommonHeight[0].state.header.id}'. :pray:`)
