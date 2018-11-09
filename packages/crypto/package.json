@@ -30,7 +30,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "bignumber.js": "^7.2.1",
+    "bignumber.js": "^8.0.1",
     "bip32": "^1.0.2",
     "bip38": "^2.0.2",
     "bip39": "^2.5.0",
@@ -38,7 +38,7 @@
     "bytebuffer": "^5.0.1",
     "create-hash": "^1.2.0",
     "deepmerge": "^2.2.1",
-    "joi": "^14.0.1",
+    "joi": "^14.0.4",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "node-forge": "^0.7.6",
