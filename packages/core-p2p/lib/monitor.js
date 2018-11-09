@@ -507,7 +507,9 @@ class Monitor {
    */
   async updatePeersOnMissingBlocks () {
     // First ping all peers to get updated heights and remove unresponsive ones.
-    await this.cleanPeers(true, false)
+    if (!this.__isColdStartActive()) {
+      await this.cleanPeers(true, false)
+    }
 
     const peersGroupedByHeight = groupBy(this.getPeers(), 'state.height')
     const commonHeightGroups = Object.values(peersGroupedByHeight).sort((a, b) => b.length - a.length)
