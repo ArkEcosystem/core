@@ -128,6 +128,8 @@ module.exports = class TransactionGuard {
     transactions.forEach(transaction => {
       if (!dynamicFeeMatch(transactions)) {
         this.broadcast.push(transaction)
+        // TODO: currently no id is returned to the sender so he doesnt know what is with this id?
+        // we can adjust this in v2.1
         return
       }
 
