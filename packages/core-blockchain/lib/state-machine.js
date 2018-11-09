@@ -58,21 +58,30 @@ blockchainMachine.actionMap = blockchain => {
       }
 
       // tried to download but no luck after 5 tries (looks like network missing blocks)
-      if (state.noBlockCounter > 5) {
+      if (state.noBlockCounter > 5) { // TODO: make this dynamic in 2.1
         logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:')
 
         state.noBlockCounter = 0
 
-        const result = blockchain.p2p.updatePeersOnMissingBlocks()
-        if (result === 'rollback') {
-          event = 'FORK'
+        if (state.p2pUpdateCounter + 1 > 3) {
+          const result = blockchain.p2p.updatePeersOnMissingBlocks()
+          if (result === 'rollback') {
+            event = 'FORK'
+          } else {
+            event = 'NETWORKHALTED'
+          }
+
+          state.p2pUpdateCounter = 0
         } else {
+          state.p2pUpdateCounter++
           event = 'NETWORKHALTED'
         }
       }
 
       if (blockchain.isSynced(state.lastDownloadedBlock)) {
         state.noBlockCounter = 0
+        state.p2pUpdateCounter = 0
+
         event = 'SYNCED'
       }
 
@@ -296,6 +305,7 @@ blockchainMachine.actionMap = blockchain => {
 
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
           state.noBlockCounter = 0
+          state.p2pUpdateCounter = 0
           state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
 
           blockchain.processQueue.push(blocks)

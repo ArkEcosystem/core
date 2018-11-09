@@ -37,6 +37,7 @@ class StateStorage {
     this.rebuild = true
     this.fastRebuild = false
     this.noBlockCounter = 0
+    this.p2pUpdateCounter = 0
     this.networkStart = false
 
     this.clear()
