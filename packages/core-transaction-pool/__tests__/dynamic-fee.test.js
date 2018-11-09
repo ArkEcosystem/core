@@ -36,16 +36,8 @@ describe('Dynamic Fee Matcher with dynamic fees disabled', () => {
     expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2)).toBeFalse()
   })
 
-  it('should decline dynamic transaction with fee too high', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeOverTheTop)).toBeFalse()
-  })
-
   it('should decline dynamic transaction with fee 0', () => {
     expect(dynamicFeeMatch(mockData.dynamicFeeZero)).toBeFalse()
-  })
-
-  it('should decline dynamic transaction with fee <0', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeNegative)).toBeFalse()
   })
 })
 
@@ -66,12 +58,10 @@ describe('Dynamic Fee Matcher with changed minimum accepted fee', () => {
     expect(dynamicFeeMatch(mockData.dummy1)).toBeTrue()
   })
 
-  it('should decline dynamic transactions with fee below delegate minimum', () => {
+  it('should decline dynamic transactions with fee below minimum', () => {
     expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1)).toBeFalse()
     expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2)).toBeFalse()
-    expect(dynamicFeeMatch(mockData.dynamicFeeOverTheTop)).toBeFalse()
     expect(dynamicFeeMatch(mockData.dynamicFeeZero)).toBeFalse()
-    expect(dynamicFeeMatch(mockData.dynamicFeeNegative)).toBeFalse()
   })
 })
 
@@ -101,15 +91,7 @@ describe('Dynamic Fee Matcher with dynamic fees enabled', () => {
     expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2)).toBeFalse()
   })
 
-  it('should decline dynamic transaction with fee too high', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeOverTheTop)).toBeFalse()
-  })
-
   it('should decline dynamic transaction with fee 0', () => {
     expect(dynamicFeeMatch(mockData.dynamicFeeZero)).toBeFalse()
-  })
-
-  it('should decline dynamic transaction with fee <0', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeNegative)).toBeFalse()
   })
 })
