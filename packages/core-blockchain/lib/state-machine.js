@@ -65,6 +65,8 @@ blockchainMachine.actionMap = blockchain => {
         event = 'NETWORKHALTED'
 
         if (state.p2pUpdateCounter + 1 > 3) {
+          logger.info('Network keeps missing blocks. :umbrella:')
+
           const result = await blockchain.p2p.updatePeersOnMissingBlocks()
           if (result === 'rollback') {
             event = 'FORK'
