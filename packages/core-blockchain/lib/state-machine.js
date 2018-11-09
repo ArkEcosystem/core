@@ -48,7 +48,7 @@ blockchainMachine.actionMap = blockchain => {
       return blockchain.dispatch(blockchain.isRebuildSynced() ? 'SYNCED' : 'NOTSYNCED')
     },
 
-    checkLastDownloadedBlockSynced () {
+    async checkLastDownloadedBlockSynced () {
       let event = 'NOTSYNCED'
       logger.debug(`Queued blocks for rebuildQueue: ${blockchain.rebuildQueue.length()}`)
       logger.debug(`Queued blocks for processQueue: ${blockchain.processQueue.length()}`)
@@ -62,19 +62,17 @@ blockchainMachine.actionMap = blockchain => {
         logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:')
 
         state.noBlockCounter = 0
+        event = 'NETWORKHALTED'
 
         if (state.p2pUpdateCounter + 1 > 3) {
-          const result = blockchain.p2p.updatePeersOnMissingBlocks()
+          const result = await blockchain.p2p.updatePeersOnMissingBlocks()
           if (result === 'rollback') {
             event = 'FORK'
-          } else {
-            event = 'NETWORKHALTED'
           }
 
           state.p2pUpdateCounter = 0
         } else {
           state.p2pUpdateCounter++
-          event = 'NETWORKHALTED'
         }
       }
 
