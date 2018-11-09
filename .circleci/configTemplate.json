@@ -1,0 +1,111 @@
+{
+	"version": 2,
+	"jobs": {
+		"test-node10": {
+			"working_directory": "~/ark-core",
+			"docker": [
+				{
+					"image": "circleci/node:10-browsers"
+				},
+				{
+					"image": "postgres:alpine",
+					"environment": {
+						"POSTGRES_PASSWORD": "password",
+						"POSTGRES_DB": "ark_development",
+						"POSTGRES_USER": "ark"
+					}
+				}
+			],
+			"parallelism": 1,
+			"steps": [
+				"checkout",
+				{
+					"run": {
+						"name": "Apt update",
+						"command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+					}
+				},
+				{
+					"run": {
+						"name": "Install xsel",
+						"command": "sudo apt-get install -q xsel"
+					}
+				},
+				{
+					"run": {
+						"name": "Install yarn",
+						"command": "curl -o- -L https://yarnpkg.com/install.sh | bash && export PATH=\"$HOME/.yarn/bin:$PATH\" && yarn config set cache-folder $HOME/.cache/yarn"
+					}
+				},
+				{
+					"run": {
+						"name": "Generate cache key",
+						"command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+					}
+				},
+				{
+					"restore_cache": {
+						"key": "core-node10-{{ checksum \"checksum.txt\" }}-1"
+					}
+				},
+				{
+					"run": {
+						"name": "Install packages",
+						"command": "yarn"
+					}
+				},
+				{
+					"save_cache": {
+						"key": "core-node10-{{ checksum \"checksum.txt\" }}-1",
+						"paths": []
+					}
+				},
+				{
+					"run": {
+						"name": "Create .ark/database directory",
+						"command": "mkdir -p $HOME/.ark/database"
+					}
+				},
+				{
+					"run": {
+						"name": "Test",
+						"command": "TESTFILES=$(circleci tests glob \"packages/**/*.test.js\")\n./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest ${TESTFILES} --detectOpenHandles --runInBand --forceExit --ci --coverage | tee test_output.txt\n"
+					}
+				},
+				{
+					"run": {
+						"name": "Last 1000 lines of test output",
+						"when": "on_fail",
+						"command": "tail -n 1000 test_output.txt"
+					}
+				},
+				{
+					"run": {
+						"name": "Codecov",
+						"command": "./node_modules/.bin/codecov"
+					}
+				},
+				{
+					"run": {
+						"name": "Lint",
+						"command": "yarn lint"
+					}
+				},
+				{
+					"run": {
+						"name": "Depcheck",
+						"command": "yarn depcheck"
+					}
+				}
+			]
+		}
+	},
+  "workflows": {
+		"version": 2,
+		"test_depcheck_lint": {
+			"jobs": [
+				"test-node10"
+			]
+		}
+	}
+}
