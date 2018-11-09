@@ -566,7 +566,9 @@ class Monitor {
         logger.info(`But got enough common id quota: ${quota} :sparkles:`)
       }
     } else {
-      logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id '${peersMostCommonHeight[0].state.header.id}'. :pray:`)
+      // Under certain circumstances the headers can be missing (i.e. seed peers when starting up)
+      const commonHeader = peersMostCommonHeight[0].state.header
+      logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id` + (commonHeader ? ` '${commonHeader.id}'` : '') + '. :pray:')
     }
 
     return state
