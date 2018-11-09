@@ -20,24 +20,25 @@ module.exports = (transaction) => {
   }
 
   if (feeConstants.dynamic) {
-    const calculatedFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
-
-    if (transactionFee < config.delegates.dynamicFees.minAcceptableFee) {
-      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transactionFee}" which is below the minimum accepted fee of "${config.delegates.dynamicFees.minAcceptableFee}" by this delegate.`)
+    const minFeeFixed = config.delegates.dynamicFees.minAcceptableFee
+    if (transactionFee < minFeeFixed) {
+      logger.debug(
+        `Fee declined - Received transaction "${transaction.id}" with a fee of ` +
+        `"${transactionFee}" which is below the minimum accepted fixed fee of "${minFeeFixed}".`)
       return false
     }
 
-    if (calculatedFee > transactionFee) {
-      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transactionFee}" which is below the calculated fee of "${calculatedFee}".`)
+    const minFeeCalculated = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
+    if (transactionFee < minFeeCalculated) {
+      logger.debug(
+        `Fee declined - Received transaction "${transaction.id}" with a fee of ` +
+        `"${transactionFee}" which is below the calculated minimum fee of "${minFeeCalculated}".`)
       return false
     }
 
-    if (transactionFee > staticFee) {
-      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transactionFee}" which is higher than the static fee of "${feeManager.get(transaction.type)}".`)
-      return false
-    }
-
-    logger.debug(`Transaction "${transaction.id}" accepted with fee of "${transactionFee}". The calculated fee is "${calculatedFee}".`)
+    logger.debug(
+      `Transaction "${transaction.id}" accepted with fee of "${transactionFee}". ` +
+      `The calculated minimum fee is "${minFeeCalculated}".`)
   }
   return true
 }
