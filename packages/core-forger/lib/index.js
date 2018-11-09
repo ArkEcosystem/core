@@ -23,7 +23,7 @@ exports.plugin = {
     delete process.env.ARK_FORGER_PASSWORD
     delete options.password
 
-    container.resolvePlugin('logger').info(`ForgerManager started with ${forgers.length} forgers`)
+    container.resolvePlugin('logger').info(`Forger Manager started with ${forgers.length} forgers`)
 
     forgerManager.startForging()
 
