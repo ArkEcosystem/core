@@ -83,8 +83,8 @@ class Guard {
       return
     }
 
-    // Peers who caused a fork stay banned for the entire duration.
-    if (peer.offences.some(offence => offence.reason === 'Fork')) {
+    // Don't unsuspend critical offenders before the ban is expired.
+    if (peer.offences.some(offence => offence.critical)) {
       if (moment().isBefore(this.suspensions[peer.ip].until)) {
         return
       }
@@ -96,7 +96,7 @@ class Guard {
   }
 
   /**
-   * Reset suspended peers except peers who caused a fork.
+   * Reset suspended peers
    * @return {void}
    */
   async resetSuspendedPeers () {
