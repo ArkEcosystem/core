@@ -159,22 +159,33 @@ class TransactionPool extends TransactionPoolInterface {
   async getTransactionsForForging (blockSize) {
     this.__purgeExpired()
 
-    const transactions = []
+    const transactions = new Set()
 
-    for (const id of await this.getTransactionIdsForForging(0, blockSize)) {
-      const transaction = this.mem.getTransactionById(id)
+    let fetchStart = 0
+    let fetchSize = blockSize
 
-      if (transaction &&
-          this.checkApplyToBlockchain(transaction)) {
-        transactions.push(transaction.serialized)
+    while (true) {
+      for (const id of await this.getTransactionIdsForForging(fetchStart, fetchSize)) {
+        const transaction = this.mem.getTransactionById(id)
+
+        if (transaction && this.checkApplyToBlockchain(transaction)) {
+          transactions.add(transaction.serialized)
+        }
       }
+
+      if (transactions.size === blockSize || fetchStart + fetchSize >= this.mem.getSize()) {
+        break
+      }
+
+      fetchStart += fetchSize
+      fetchSize = blockSize - transactions.size
     }
 
-    return transactions
+    return Array.from(transactions)
   }
 
   /**
-   * Get all transactions within the specified range (ordered by fee).
+   * Get all transactions within the specified range [start, start + size), ordered by fee.
    * @param  {Number} start
    * @param  {Number} size
    * @return {(Array|void)} array of serialized transaction hex strings
@@ -184,7 +195,7 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions within the specified range, removes already forged ones.
+   * Get all transactions within the specified range [start, start + size).
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array} array of transactions IDs in the specified range
@@ -207,7 +218,7 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get data from all transactions within the specified range.
+   * Get data from all transactions within the specified range [start, start + size).
    * Transactions are ordered by fee (highest fee first) or by
    * insertion time, if fees equal (earliest transaction first).
    * @param  {Number} start
