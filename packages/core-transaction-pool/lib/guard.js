@@ -4,6 +4,7 @@ const { configManager, models: { Transaction }, constants: { TRANSACTION_TYPES }
 const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 const database = container.resolvePlugin('database')
 const _ = require('lodash')
+const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionGuard {
   /**
@@ -31,6 +32,8 @@ module.exports = class TransactionGuard {
     this.__determineValidTransactions()
 
     this.__determineExcessTransactions()
+
+    this.__determineFeeMatchingTransactions()
   }
 
   /**
@@ -194,7 +197,7 @@ module.exports = class TransactionGuard {
       case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
       default:
         this.__pushError(transaction,
-          `Invalidating transaction of unsupported type ` +
+          'Invalidating transaction of unsupported type ' +
           `'${TRANSACTION_TYPES.toString(transaction.type)}'`)
         return
       }
@@ -234,6 +237,20 @@ module.exports = class TransactionGuard {
         }
       }
     }
+  }
+
+  /**
+   * Filtering out not matching dynamic fee transactions
+   * Should be done as last step in the guard process to prevent spaming of the network with broadcasting
+   */
+  __determineFeeMatchingTransactions () {
+    this.accept = this.accept.filter(transaction => {
+      if (!dynamicFeeMatch(transaction)) {
+        this.__pushError(transaction, 'Peer rejected the transaction because of not meeting the minimum accepted fee. It is still broadcasted to other peers.')
+        return false
+      }
+      return true
+    })
   }
 
   /**

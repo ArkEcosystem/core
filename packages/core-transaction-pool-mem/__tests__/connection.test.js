@@ -363,19 +363,14 @@ describe('Connection', () => {
     it('should return an array of transactions', async () => {
       connection.addTransaction(mockData.dummy1)
       connection.addTransaction(mockData.dummy2)
-
-      // This should be dropped due to checkDynamicFeeMatch()
-      const lowFeeTransaction = new Transaction(mockData.dummy3)
-      lowFeeTransaction.fee = bignumify(1) // 1 ARKTOSHI
-
-      connection.addTransaction(lowFeeTransaction)
+      connection.addTransaction(mockData.dummy3)
       connection.addTransaction(mockData.dummy4)
       connection.addTransaction(mockData.dummy5)
       connection.addTransaction(mockData.dummy6)
 
       let transactions = await connection.getTransactionsForForging(6)
       expect(transactions).toBeArray()
-      expect(transactions.length).toBe(5)
+      expect(transactions.length).toBe(6)
 
       transactions = await connection.getTransactionsForForging(4)
       expect(transactions).toBeArray()
@@ -385,8 +380,8 @@ describe('Connection', () => {
       expect(transactions[0]).toBeObject()
       expect(transactions[0].id).toBe(mockData.dummy1.id)
       expect(transactions[1].id).toBe(mockData.dummy2.id)
-      expect(transactions[2].id).toBe(mockData.dummy4.id)
-      expect(transactions[3].id).toBe(mockData.dummy5.id)
+      expect(transactions[2].id).toBe(mockData.dummy3.id)
+      expect(transactions[3].id).toBe(mockData.dummy4.id)
     })
 
     it('should not accept transaction with amount > wallet balance', async () => {
