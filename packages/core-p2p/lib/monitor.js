@@ -502,10 +502,15 @@ class Monitor {
    *  - Pick most common id from peers with most common height and calculate quota,
    *    depending on which the node rolls back or waits.
    *
-   * NOTE: Only called when the network is missing blocks.
+   * NOTE: Only called when the network is consecutively missing blocks `p2pUpdateCounter` times.
    * @return {String}
    */
-  updatePeersOnMissingBlocks () {
+  async updatePeersOnMissingBlocks () {
+    // First ping all peers to get updated heights and remove unresponsive ones.
+    if (!this.__isColdStartActive()) {
+      await this.cleanPeers(true, false)
+    }
+
     const peersGroupedByHeight = groupBy(this.getPeers(), 'state.height')
     const commonHeightGroups = Object.values(peersGroupedByHeight).sort((a, b) => b.length - a.length)
     const peersMostCommonHeight = commonHeightGroups[0]
@@ -566,7 +571,9 @@ class Monitor {
         logger.info(`But got enough common id quota: ${quota} :sparkles:`)
       }
     } else {
-      logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id '${peersMostCommonHeight[0].state.header.id}'. :pray:`)
+      // Under certain circumstances the headers can be missing (i.e. seed peers when starting up)
+      const commonHeader = peersMostCommonHeight[0].state.header
+      logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id` + (commonHeader ? ` '${commonHeader.id}'` : '') + '. :pray:')
     }
 
     return state
