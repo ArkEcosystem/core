@@ -161,15 +161,10 @@ class TransactionPool extends TransactionPoolInterface {
 
     const transactions = []
 
-    for (const id of await this.getTransactionIdsForForging(0, this.mem.getSize())) {
-      if (transactions.length === blockSize) {
-        break
-      }
-
+    for (const id of await this.getTransactionIdsForForging(0, blockSize)) {
       const transaction = this.mem.getTransactionById(id)
 
       if (transaction &&
-          this.checkDynamicFeeMatch(transaction) &&
           this.checkApplyToBlockchain(transaction)) {
         transactions.push(transaction.serialized)
       }
