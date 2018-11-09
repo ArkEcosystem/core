@@ -32,6 +32,8 @@ module.exports = class TransactionGuard {
     this.__determineValidTransactions()
 
     this.__determineExcessTransactions()
+
+    this.__determineFeeMatchingTransactions()
   }
 
   /**
@@ -126,14 +128,8 @@ module.exports = class TransactionGuard {
     this.transactions = []
 
     transactions.forEach(transaction => {
-      if (!dynamicFeeMatch(transactions)) {
-        this.broadcast.push(transaction)
-        // TODO: currently no id is returned to the sender so he doesnt know what is with this id?
-        // we can adjust this in v2.1
-        return
-      }
-
       const exists = this.pool.transactionExists(transaction.id)
+
       if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         try {
           const trx = new Transaction(transaction)
@@ -242,6 +238,14 @@ module.exports = class TransactionGuard {
         }
       }
     }
+  }
+
+  /**
+   * Filtering out not matching dynamc fee transactions
+   * Should be done as last step in the guard process to prevent spaming of the network with broadcasting
+   */
+  __determineFeeMatchingTransactions () {
+    this.accept = this.accept.filter(transaction => dynamicFeeMatch(transaction))
   }
 
   /**
