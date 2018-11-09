@@ -26,7 +26,6 @@ class Monitor {
    */
   constructor () {
     this.peers = {}
-    this._peersByHeight = new Map() // NOTE: not used yet
     this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
   }
 
@@ -133,7 +132,6 @@ class Monitor {
       await newPeer.ping(1500)
 
       this.peers[peer.ip] = newPeer
-      this.__addPeerToHeight(newPeer)
 
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
@@ -151,27 +149,6 @@ class Monitor {
    */
   removePeer (peer) {
     delete this.peers[peer.ip]
-    this.__removePeerFromHeight(peer)
-  }
-
-  /**
-   * Update peer height.
-   * @param {Peer} peer
-   */
-  updatePeerHeight (peer, previousHeight) {
-    if (peer.state.height !== previousHeight) {
-      // Remove peer from previous height
-      if (this._peersByHeight.has(previousHeight)) {
-        const index = this._peersByHeight.get(previousHeight).findIndex(p => p.ip === peer.ip)
-        this._peersByHeight.get(previousHeight).splice(index, 1)
-        if (this._peersByHeight.get(previousHeight).length === 0) {
-          this._peersByHeight.delete(previousHeight)
-        }
-      }
-
-      // Add peer to new height
-      this.__addPeerToHeight(peer)
-    }
   }
 
   /**
@@ -335,8 +312,6 @@ class Monitor {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
-
-      this.__buildPeersByHeight()
 
       return this.peers
     } catch (error) {
@@ -521,11 +496,18 @@ class Monitor {
    *  3) Mixed height, same common id
    *  4) Mixed height, mixed common id
    *
+   * Scenario 1: Do nothing.
+   * Scenario 2-4:
+   *  - If own height is ahead of majority do nothing for now.
+   *  - Pick most common id from peers with most common height and calculate quota,
+   *    depending on which the node rolls back or waits.
+   *
    * NOTE: Only called when the network is missing blocks.
    * @return {String}
    */
   updatePeersOnMissingBlocks () {
-    const commonHeightGroups = Array.from(this._peersByHeight.values()).sort((a, b) => b.length - a.length)
+    const peersGroupedByHeight = groupBy(this.getPeers(), 'state.height')
+    const commonHeightGroups = Object.values(peersGroupedByHeight).sort((a, b) => b.length - a.length)
     const peersMostCommonHeight = commonHeightGroups[0]
     const groupedByCommonId = groupBy(peersMostCommonHeight, 'state.header.id')
     const commonIdGroupCount = Object.keys(groupedByCommonId).length
@@ -536,46 +518,55 @@ class Monitor {
       return state
     }
 
+    const lastBlock = container.resolve('state').getLastBlock()
+
     // Do nothing if majority of peers are lagging behind
     if (commonHeightGroups.length > 1) {
-      const lastBlockHeight = container.resolve('state').getLastBlock().data.height
-      if (lastBlockHeight > peersMostCommonHeight[0].state.height) {
-        logger.info(`${peersMostCommonHeight.length} peers are at height ${peersMostCommonHeight[0].state.height}, but last block is at height ${lastBlockHeight}.`)
+      if (lastBlock.data.height > peersMostCommonHeight[0].state.height) {
+        logger.info(`${peersMostCommonHeight.length} peers are at height ${peersMostCommonHeight[0].state.height} and lagging behind last height ${lastBlock.data.height}. :zzz:`)
         return state
       }
     }
 
-    if (Object.keys(groupedByCommonId).length > 1) {
-      logger.info(`Detected peers at the same height ${peersMostCommonHeight[0].state.height} with different block ids: ${JSON.stringify(Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`), null, 4)}`)
-    } else {
-      logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id '${peersMostCommonHeight[0].state.header.id}'. :white_check_mark:`)
-      return state
-    }
-
-    if (commonHeightGroups.length === 1 && commonIdGroupCount > 1) {
-      // Peers are sitting on the same height, but there might not be enough
-      // quorum to move on, because of different last blocks.
-      state = 'rollback'
-    }
-
-    // Sort common id by length DESC
+    // Sort common id groups by length DESC
     const commonIdGroups = Object.values(groupedByCommonId).sort((a, b) => b.length - a.length)
-    const chosenPeers = commonIdGroups[0]
-    const remainingGroups = commonIdGroups.slice(1)
 
-    if (remainingGroups.some(group => group.length === chosenPeers.length)) {
-      logger.warning('Peers are evenly split at same height with different block ids. :zap:')
-    }
+    // Peers are sitting on the same height, but there might not be enough
+    // quorum to move on, because of different last blocks.
+    if (commonIdGroupCount > 1) {
+      const chosenPeers = commonIdGroups[0]
+      const restGroups = commonIdGroups.slice(1)
 
-    // Ban all other common id peers from chosen height
-    const peersToBan = flatten(remainingGroups)
-    if (peersToBan.length > 0) {
-      peersToBan.forEach(peer => {
-        peer.commonId = false
-        this.suspendPeer(peer.ip)
-      })
+      if (restGroups.some(group => group.length === chosenPeers.length)) {
+        logger.warning('Peers are evenly split at same height with different block ids. :zap:')
+      }
 
-      logger.debug(`Banned ${peersToBan.length} peers at height '${peersMostCommonHeight[0].state.height}' which do not have common id '${chosenPeers[0].state.header.id}'.`)
+      logger.info(`Detected peers at the same height ${peersMostCommonHeight[0].state.height} with different block ids: ${JSON.stringify(Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`), null, 4)}`)
+
+      const badLastBlock = chosenPeers[0].state.height === lastBlock.data.height && chosenPeers[0].state.header.id !== lastBlock.data.id
+      const quota = chosenPeers.length / flatten(commonIdGroups).length
+      if (badLastBlock && quota >= 0.66) { // Rollback if last block is bad and quota high
+        logger.info(`Last block id ${lastBlock.data.id} is bad. Going to rollback. :repeat:`)
+        state = 'rollback'
+      } else if (quota < 0.66) { // or quota too low TODO: find better number
+        logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`)
+        state = 'rollback'
+      }
+
+      if (state === 'rollback') {
+        // Ban all rest peers
+        const peersToBan = flatten(restGroups)
+        peersToBan.forEach(peer => {
+          peer.commonId = false
+          this.suspendPeer(peer.ip)
+        })
+
+        logger.debug(`Banned ${peersToBan.length} peers at height '${peersMostCommonHeight[0].state.height}' which do not have common id '${chosenPeers[0].state.header.id}'.`)
+      } else {
+        logger.info(`But got enough common id quota: ${quota} :sparkles:`)
+      }
+    } else {
+      logger.info(`All peers at most common height ${peersMostCommonHeight[0].state.height} share the same block id '${peersMostCommonHeight[0].state.header.id}'. :pray:`)
     }
 
     return state
@@ -601,49 +592,6 @@ class Monitor {
 
     for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-    }
-
-    this.__buildPeersByHeight()
-  }
-
-  /**
-   * Group peers by height.
-   * @return {void}
-   */
-  __buildPeersByHeight () {
-    this._peersByHeight.clear()
-    for (const peer of this.getPeers()) {
-      this.__addPeerToHeight(peer)
-    }
-  }
-
-  /**
-   * Set peer by height.
-   * @param {Peer} peer
-   */
-  __addPeerToHeight (peer) {
-    if (!this._peersByHeight.has(peer.state.height)) {
-      this._peersByHeight.set(peer.state.height, [])
-    }
-
-    this._peersByHeight.get(peer.state.height).push(peer)
-  }
-
-  /**
-   * Remove peer from height.
-   * @param {Peer} peer
-   */
-  __removePeerFromHeight (peer) {
-    const peers = this._peersByHeight.get(peer.state.height)
-    if (peers) {
-      const index = peers.findIndex(p => p.ip === peer.ip)
-      if (index !== -1) {
-        peers.splice(index, 1)
-      }
-
-      if (peers.length === 0) {
-        this._peersByHeight.delete(peer.state.height)
-      }
     }
   }
 

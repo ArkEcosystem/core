@@ -31,6 +31,7 @@
     "husky": "^1.0.0-rc.2",
     "jest": "^23.3.0",
     "jest-extended": "^0.11.0",
+    "js-yaml": "^3.12.0",
     "lerna": "^3.4.3",
     "lint-staged": "^7.1.2",
     "regenerator-runtime": "^0.12.1",
@@ -49,7 +50,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && ./pre-commit.sh"
     }
   },
   "lint-staged": {

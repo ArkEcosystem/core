@@ -9,7 +9,7 @@ const config = container.resolvePlugin('config')
 const { slots } = require('@arkecosystem/crypto')
 const { Delegate, Transaction } = require('@arkecosystem/crypto').models
 
-const isEmpty = require('lodash/isEmpty')
+const { isEmpty, uniq } = require('lodash')
 
 const Client = require('./client')
 
@@ -36,6 +36,7 @@ module.exports = class ForgerManager {
       return
     }
 
+    this.secrets = uniq(this.secrets.map(secret => secret.trim()))
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, password))
 
     if (bip38) {

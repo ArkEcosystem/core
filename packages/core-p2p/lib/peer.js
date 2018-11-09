@@ -232,10 +232,7 @@ module.exports = class Peer {
     ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key] || this[key]))
 
     if (response.headers.height) {
-      const previousHeight = this.state.height
       this.state.height = +response.headers.height
-      // Work around circular dependency
-      require('./monitor').updatePeerHeight(this, previousHeight)
     }
 
     this.status = response.status
