@@ -9,13 +9,15 @@ module.exports = {
     number: 5,
     period: 'minutes',
     reason: 'No Common Blocks',
-    weight: 1
+    weight: 1,
+    critical: true
   },
   NO_COMMON_ID: {
     number: 5,
     period: 'minutes',
     reason: 'No Common Id',
-    weight: 1
+    weight: 1,
+    critical: true
   },
   INVALID_VERSION: {
     number: 6,
@@ -81,6 +83,7 @@ module.exports = {
     number: 1,
     period: 'day',
     reason: 'Fork',
-    weight: 150
+    weight: 150,
+    critical: true
   }
 }
