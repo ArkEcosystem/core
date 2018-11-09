@@ -120,7 +120,6 @@ module.exports = class TransactionGuard {
    * Transforms and filters incomming transactions.
    * It skips duplicates and not valid crypto transactions
    * It skips blocked senders
-   * It skips not matching fees, but still adds them to broadcast mode
    * @param  {Array} transactions
    * @return {void}
    */
@@ -241,11 +240,17 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Filtering out not matching dynamc fee transactions
+   * Filtering out not matching dynamic fee transactions
    * Should be done as last step in the guard process to prevent spaming of the network with broadcasting
    */
   __determineFeeMatchingTransactions () {
-    this.accept = this.accept.filter(transaction => dynamicFeeMatch(transaction))
+    this.accept = this.accept.filter(transaction => {
+      if (!dynamicFeeMatch(transaction)) {
+        this.__pushError(transaction, 'Peer rejected the transaction because of not meeting the minimum accepted fee. It is still broadcasted to other peers.')
+        return false
+      }
+      return true
+    })
   }
 
   /**
