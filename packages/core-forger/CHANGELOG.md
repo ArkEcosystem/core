@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Properly exit if no delegates are configured
+- Avoid duplicate secrets
 
 ## 0.1.1 - 2018-06-14
 
