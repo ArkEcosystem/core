@@ -1,6 +1,7 @@
 'use strict'
 
 require('@arkecosystem/core-test-utils/lib/matchers')
+const blockchainHelper = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -8,6 +9,7 @@ let genesisBlock
 
 beforeAll(async () => {
   await app.setUp()
+  await blockchainHelper.resetBlockchain()
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -26,11 +28,16 @@ describe('API 2.0 - Blocks', () => {
     ])('using the "%s" header', (header, request) => {
       it('should GET all the blocks', async () => {
         const response = await utils[request]('GET', 'blocks')
+
         expect(response).toBeSuccessfulResponse()
         expect(response).toBePaginated()
         expect(response.data.data).toBeArray()
+
         const block = response.data.data[0]
-        utils.expectBlock(block)
+        utils.expectBlock(block, {
+          id: genesisBlock.id,
+          transactions: genesisBlock.numberOfTransactions
+        })
       })
     })
   })
@@ -42,9 +49,11 @@ describe('API 2.0 - Blocks', () => {
     ])('using the "%s" header', (header, request) => {
       it('should GET all the blocks in descending order', async () => {
         const response = await utils[request]('GET', 'blocks?orderBy=height:')
+
         expect(response).toBeSuccessfulResponse()
         expect(response).toBePaginated()
         expect(response.data.data).toBeArray()
+
         const block = response.data.data[0]
         utils.expectBlock(block)
       })
@@ -63,8 +72,10 @@ describe('API 2.0 - Blocks', () => {
         expect(response.data.data).toBeObject()
 
         const block = response.data.data
-        utils.expectBlock(block)
-        expect(block.id).toBe(genesisBlock.id)
+        utils.expectBlock(block, {
+          id: genesisBlock.id,
+          transactions: genesisBlock.numberOfTransactions
+        })
       })
     })
   })
