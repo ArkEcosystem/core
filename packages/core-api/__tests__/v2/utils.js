@@ -96,6 +96,8 @@ class Helpers {
     expect(block).toHaveProperty('forged')
     expect(block.forged.reward).toBeNumber()
     expect(block.forged.fee).toBeNumber()
+    expect(block.forged.total).toBeNumber()
+    expect(block.forged.amount).toBeNumber()
     expect(block).toHaveProperty('payload')
     expect(block.payload.length).toBeNumber()
     expect(block.payload.hash).toBeString()

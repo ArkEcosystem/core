@@ -22,7 +22,8 @@ module.exports = model => {
     forged: {
       reward: +model.reward.toFixed(),
       fee: +model.totalFee.toFixed(),
-      total: +bignumify(model.totalAmount).toFixed()
+      total: +model.reward.plus(model.totalFee).toFixed(),
+      amount: +bignumify(model.totalAmount).toFixed()
     },
     payload: {
       hash: model.payloadHash,
