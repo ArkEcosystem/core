@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Handle numbers as `BigNumber` instances
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
 - Adjusted timeouts & lifetimes
+- No longer add transactions that do not meet the fee requirements to the pool (BTC/ETH behaviour)
+- No longer decline transactions that exceed the static fees
 
 ### Fixed
 - Handling duplicates also on incomming payload level (before entering and checking with pool)
