@@ -51,7 +51,7 @@ module.exports = class ForgerManager {
       return `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`
     })
 
-    logger.debug(`Loaded ${delegates.length} delegate${delegates.length ? 's' : ''}: ${delegates.join(', ')}`)
+    logger.debug(`Loaded ${delegates.length} delegate${(delegates.length > 1) ? 's' : ''}: ${delegates.join(', ')}`)
 
     return this.delegates
   }
