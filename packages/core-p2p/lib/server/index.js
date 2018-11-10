@@ -43,7 +43,7 @@ module.exports = async (p2p, config) => {
         '/peer/blocks',
         '/peer/transactions',
         '/internal/round',
-        '/internal/block',
+        '/internal/blocks',
         '/internal/forgingTransactions',
         '/internal/networkState',
         '/internal/syncCheck',

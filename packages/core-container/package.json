@@ -23,8 +23,8 @@
     "delay": "^4.1.0",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
-    "fs-extra": "^7.0.0",
-    "hoek": "^5.0.4",
+    "fs-extra": "^7.0.1",
+    "hoek": "^6.0.2",
     "lodash": "^4.17.11",
     "semver": "^5.6.0"
   },

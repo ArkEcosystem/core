@@ -37,6 +37,7 @@ class StateStorage {
     this.rebuild = true
     this.fastRebuild = false
     this.noBlockCounter = 0
+    this.p2pUpdateCounter = 0
     this.networkStart = false
 
     this.clear()
@@ -82,7 +83,7 @@ class StateStorage {
    * @returns {Array}
    */
   getLastBlocks () {
-    return _lastBlocks.reverse().toArray()
+    return _lastBlocks.reverse().valueSeq().toArray()
   }
 
   /**
@@ -90,7 +91,7 @@ class StateStorage {
    * @returns {Array}
    */
   getLastBlocksData () {
-    return _mapToBlockData(_lastBlocks.reverse()).toArray()
+    return _mapToBlockData(_lastBlocks.reverse()).valueSeq().toArray()
   }
 
   /**
@@ -98,7 +99,7 @@ class StateStorage {
    * @returns {Array}
    */
   getLastBlockIds () {
-    return _lastBlocks.reverse().map(b => b.data.id).toArray()
+    return _lastBlocks.reverse().map(b => b.data.id).valueSeq().toArray()
   }
 
   /**
@@ -108,7 +109,7 @@ class StateStorage {
    */
   getLastBlocksByHeight (start, end) {
     end = end || start
-    return _mapToBlockData(_lastBlocks.filter(block => block.data.height >= start && block.data.height <= end)).toArray()
+    return _mapToBlockData(_lastBlocks.filter(block => block.data.height >= start && block.data.height <= end)).valueSeq().toArray()
   }
 
   /**

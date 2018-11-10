@@ -58,36 +58,10 @@ exports.dynamicFeeLowDummy2 = new Transaction({
   id: 'f7c7f073735d6900b4d12c70f75d7d1ad5ba41715d2254f50bf057580e05f7ec'
 })
 
-exports.dynamicFeeOverTheTop = new Transaction({
-  type: 0,
-  amount: 200000000,
-  fee: 50000000000,
-  recipientId: 'AMPNLByignv9jLbA4A2E1DuhPr1YGFW3z8',
-  timestamp: 45948058,
-  asset: {},
-  vendorField: 'TID: 0',
-  senderPublicKey: '03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357',
-  signature: '304402204734394ed01931a379539ca310c942b35be8c86b7e3d519a687f41e511c70f4102200f7cae2c32ce7fe2f92fc1c711e63860fd933abd05b01a4a47a2ee51e9d5c418',
-  id: 'c367602ee4914f259e7397c677266e72bfdd4438f5829babddd8d851045e7b0b'
-})
-
 exports.dynamicFeeZero = new Transaction({
   type: 0,
   amount: 200000000,
   fee: 0,
-  recipientId: 'AVnRZSvrAeeSJZN3oSBxEF6mvvVpuKUXL5',
-  timestamp: 45948315,
-  asset: {},
-  vendorField: 'TID: 0',
-  senderPublicKey: '03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357',
-  signature: '304402206119b9bfd045b0faa89436e4e487ff3e33aac310cea93f6e2870067ef42cc7e402204ccfc4756432901723fb70d98863adcf26f6e9ea963ba6f4063a886f44b82cb7',
-  id: '9966cc7fa7c646ab5771335809acb4a98c0c13c9045fa7976a1065f3a77c1721'
-})
-
-exports.dynamicFeeNegative = new Transaction({
-  type: 0,
-  amount: 200000000,
-  fee: -150,
   recipientId: 'AVnRZSvrAeeSJZN3oSBxEF6mvvVpuKUXL5',
   timestamp: 45948315,
   asset: {},

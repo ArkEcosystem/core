@@ -4,6 +4,7 @@ const { configManager, models: { Transaction }, constants: { TRANSACTION_TYPES }
 const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 const database = container.resolvePlugin('database')
 const _ = require('lodash')
+const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionGuard {
   /**
@@ -31,6 +32,8 @@ module.exports = class TransactionGuard {
     this.__determineValidTransactions()
 
     this.__determineExcessTransactions()
+
+    this.__determineFeeMatchingTransactions()
   }
 
   /**
@@ -41,9 +44,7 @@ module.exports = class TransactionGuard {
    */
   invalidate (transactions, reason) {
     transactions = Array.isArray(transactions) ? transactions : [transactions]
-    transactions.forEach(tx => {
-      this.__pushError(tx, reason)
-    })
+    transactions.forEach(tx => this.__pushError(tx, 'ERR_INVALID', reason))
   }
 
   /**
@@ -133,10 +134,10 @@ module.exports = class TransactionGuard {
           if (trx.verified) {
             this.transactions.push(trx)
           } else {
-            this.__pushError(transaction, 'Transaction didn\'t pass the verification process.')
+            this.__pushError(transaction, 'ERR_BAD_DATA', 'Transaction didn\'t pass the verification process.')
           }
         } catch (error) {
-          this.__pushError(transaction, error.message)
+          this.__pushError(transaction, 'ERR_UNKNOWN', error.message)
         }
       }
     })
@@ -152,7 +153,7 @@ module.exports = class TransactionGuard {
 
     this.transactions = this.transactions.filter(transaction => {
       if (forgedIdsSet.has(transaction.id)) {
-        this.__pushError(transaction, 'Already forged.')
+        this.__pushError(transaction, 'ERR_FORGED', 'Already forged.')
         return false
       }
 
@@ -173,7 +174,7 @@ module.exports = class TransactionGuard {
       switch (transaction.type) {
       case TRANSACTION_TYPES.TRANSFER:
         if (!isRecipientOnActiveNetwork(transaction)) {
-          this.__pushError(transaction, `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
+          this.__pushError(transaction, 'ERR_INVALID_RECIPIENT', `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
           return
         }
         break
@@ -182,6 +183,7 @@ module.exports = class TransactionGuard {
       case TRANSACTION_TYPES.VOTE:
         if (this.pool.senderHasTransactionsOfType(transaction.senderPublicKey, transaction.type)) {
           this.__pushError(transaction,
+            'ERR_PENDING',
             `Sender ${transaction.senderPublicKey} already has a transaction of type ` +
             `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`)
           return
@@ -194,7 +196,8 @@ module.exports = class TransactionGuard {
       case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
       default:
         this.__pushError(transaction,
-          `Invalidating transaction of unsupported type ` +
+          'ERR_UNSUPPORTED',
+          'Invalidating transaction of unsupported type ' +
           `'${TRANSACTION_TYPES.toString(transaction.type)}'`)
         return
       }
@@ -202,7 +205,7 @@ module.exports = class TransactionGuard {
       try {
         this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
-        this.__pushError(transaction, error.toString())
+        this.__pushError(transaction, 'ERR_UNKNOWN', error.toString())
         return
       }
 
@@ -227,13 +230,25 @@ module.exports = class TransactionGuard {
          */
         const exists = this.pool.transactionExists(transaction.id)
 
-        if (exists) {
-          this.__pushError(transaction, 'Already exists in pool.')
-        } else {
-          this.accept.push(transaction)
-        }
+        exists
+          ? this.__pushError(transaction, 'ERR_DUPLICATE', 'Already exists in pool.')
+          : this.accept.push(transaction)
       }
     }
+  }
+
+  /**
+   * Filtering out not matching dynamic fee transactions
+   * Should be done as last step in the guard process to prevent spaming of the network with broadcasting
+   */
+  __determineFeeMatchingTransactions () {
+    this.accept = this.accept.filter(transaction => {
+      if (!dynamicFeeMatch(transaction)) {
+        this.__pushError(transaction, 'ERR_LOW_FEE', 'Peer rejected the transaction because of not meeting the minimum accepted fee. It is still broadcasted to other peers.')
+        return false
+      }
+      return true
+    })
   }
 
   /**
@@ -241,15 +256,16 @@ module.exports = class TransactionGuard {
    * array of errors. There may be multiple errors associated with a transaction in
    * which case __pushError is called multiple times.
    * @param {Transaction} transaction
-   * @param {String} error
+   * @param {String} type
+   * @param {String} message
    * @return {void}
    */
-  __pushError (transaction, error) {
+  __pushError (transaction, type, message) {
     if (!this.errors.hasOwnProperty(transaction.id)) {
       this.errors[transaction.id] = []
     }
 
-    this.errors[transaction.id].push(error)
+    this.errors[transaction.id].push({ type, message })
 
     // XXX O(this.invalid.some.length), can be O(1)
     if (!this.invalid.some(tx => tx.id === transaction.id)) {

@@ -21,7 +21,7 @@
     "@arkecosystem/crypto": "^0.2.3",
     "axios": "^0.18.0",
     "directory-tree": "^2.1.0",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "ow": "^0.8.0"
   },
   "publishConfig": {
