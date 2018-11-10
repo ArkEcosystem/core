@@ -87,22 +87,26 @@ class Helpers {
     expect(transaction.confirmations).toBeNumber()
   }
 
-  expectBlock (block) {
+  expectBlock (block, expected) {
     expect(block).toBeObject()
-    expect(block).toHaveProperty('id')
-    expect(block).toHaveProperty('version')
-    expect(block).toHaveProperty('height')
-    expect(block).toHaveProperty('previous')
+    expect(block.id).toBeString()
+    expect(block.version).toBeNumber()
+    expect(block.height).toBeNumber()
+    expect(block).toHaveProperty('previous') // `null` or String
     expect(block).toHaveProperty('forged')
-    expect(block.forged).toHaveProperty('reward')
-    expect(block.forged).toHaveProperty('fee')
+    expect(block.forged.reward).toBeNumber()
+    expect(block.forged.fee).toBeNumber()
     expect(block).toHaveProperty('payload')
-    expect(block.payload).toHaveProperty('length')
-    expect(block.payload).toHaveProperty('hash')
+    expect(block.payload.length).toBeNumber()
+    expect(block.payload.hash).toBeString()
     expect(block).toHaveProperty('generator')
-    expect(block.generator).toHaveProperty('publicKey')
-    expect(block).toHaveProperty('signature')
-    expect(block).toHaveProperty('transactions')
+    expect(block.generator.publicKey).toBeString()
+    expect(block.signature).toBeString()
+    expect(block.transactions).toBeNumber()
+
+    Object.keys(expected || {}).forEach(attr => {
+      expect(block[attr]).toEqual(expected[attr])
+    })
   }
 
   expectDelegate (delegate, expected) {
