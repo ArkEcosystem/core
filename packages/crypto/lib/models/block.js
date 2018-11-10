@@ -250,11 +250,6 @@ module.exports = class Block {
       //   }
       // }
 
-      // FIX: Enable this later as it currently fails for some initial blocks on devnet.
-      // if (block.payloadLength > constants.block.maxPayload) {
-      //   result.errors.push('Payload length is too high')
-      // }
-
       let size = 0
       let payloadHash = createHash('sha256')
 
