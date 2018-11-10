@@ -396,7 +396,7 @@ module.exports = class Blockchain {
 
     if (block.data.height > lastBlock.data.height + 1) {
       logger.debug(`Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`)
-      this.lastDownloadedBlock = lastBlock
+      this.state.lastDownloadedBlock = lastBlock
     } else if (block.data.height < lastBlock.data.height) {
       logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`)
     } else if (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id) {
