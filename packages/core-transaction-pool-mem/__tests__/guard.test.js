@@ -53,7 +53,7 @@ describe('Transaction Guard', () => {
 
       expect(guard.errors[transactions[1].id]).toEqual([{
         message: `Error: [PoolWalletManager] Can't apply transaction ${transactions[1].id}`,
-        type: "ERR_UNKNOWN"
+        type: 'ERR_UNKNOWN'
       }])
     })
 
@@ -92,7 +92,7 @@ describe('Transaction Guard', () => {
 
       expect(guard.errors[allTransactions[txNumber - 1].id]).toEqual([{
         message: `Error: [PoolWalletManager] Can't apply transaction ${allTransactions[txNumber - 1].id}`,
-        type: "ERR_UNKNOWN"
+        type: 'ERR_UNKNOWN'
       }])
     })
   })
