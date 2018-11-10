@@ -248,7 +248,7 @@ describe('Transaction Guard', () => {
       expect(guard.errors['1']).toHaveLength(2)
       expect(guard.errors['1']).toEqual([
         { message: 'Invalid 1.', type: 'ERR_INVALID' },
-        { message: 'Invalid 2.', type: 'ERR_INVALID' },
+        { message: 'Invalid 2.', type: 'ERR_INVALID' }
       ])
       expect(guard.invalid).toHaveLength(1)
       expect(guard.invalid).toEqual([ { id: 1 } ])
