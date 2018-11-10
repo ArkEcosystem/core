@@ -134,7 +134,7 @@ module.exports = class TransactionGuard {
           if (trx.verified) {
             this.transactions.push(trx)
           } else {
-            this.__pushError(transaction, 'ERR_INVALID', 'Transaction didn\'t pass the verification process.')
+            this.__pushError(transaction, 'ERR_BAD_DATA', 'Transaction didn\'t pass the verification process.')
           }
         } catch (error) {
           this.__pushError(transaction, 'ERR_UNKNOWN', error.message)
