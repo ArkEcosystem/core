@@ -40,7 +40,7 @@ describe('Transaction Guard', () => {
       expect(guard.invalid).toEqual([ { id: 1 }, { id: 2 } ])
       expect(guard.errors).toBeObject()
       expect(Object.keys(guard.errors)).toHaveLength(2)
-      expect(guard.errors['1']).toEqual(['Invalid.'])
+      expect(guard.errors['1']).toEqual([{ message: 'Invalid.', type: 'ERR_INVALID' }])
     })
   })
 
@@ -136,7 +136,7 @@ describe('Transaction Guard', () => {
           invalid: [4],
           broadcast: [5]
         },
-        errors: { '4': ['Invalid.'] }
+        errors: { '4': [{ message: 'Invalid.', type: 'ERR_INVALID' }] }
       })
     })
   })
@@ -227,12 +227,12 @@ describe('Transaction Guard', () => {
     it('should have error for transaction', () => {
       expect(guard.errors).toBeEmpty()
 
-      guard.__pushError({ id: 1 }, 'Invalid.')
+      guard.__pushError({ id: 1 }, 'ERR_INVALID', 'Invalid.')
 
       expect(guard.errors).toBeObject()
       expect(guard.errors['1']).toBeArray()
       expect(guard.errors['1']).toHaveLength(1)
-      expect(guard.errors['1']).toEqual(['Invalid.'])
+      expect(guard.errors['1']).toEqual([{ message: 'Invalid.', type: 'ERR_INVALID' }])
       expect(guard.invalid).toHaveLength(1)
       expect(guard.invalid).toEqual([ { id: 1 } ])
     })
@@ -240,13 +240,16 @@ describe('Transaction Guard', () => {
     it('should have multiple errors for transaction', () => {
       expect(guard.errors).toBeEmpty()
 
-      guard.__pushError({ id: 1 }, 'Invalid 1.')
-      guard.__pushError({ id: 1 }, 'Invalid 2.')
+      guard.__pushError({ id: 1 }, 'ERR_INVALID', 'Invalid 1.')
+      guard.__pushError({ id: 1 }, 'ERR_INVALID', 'Invalid 2.')
 
       expect(guard.errors).toBeObject()
       expect(guard.errors['1']).toBeArray()
       expect(guard.errors['1']).toHaveLength(2)
-      expect(guard.errors['1']).toEqual(['Invalid 1.', 'Invalid 2.'])
+      expect(guard.errors['1']).toEqual([
+        { message: 'Invalid 1.', type: 'ERR_INVALID' },
+        { message: 'Invalid 2.', type: 'ERR_INVALID' }
+      ])
       expect(guard.invalid).toHaveLength(1)
       expect(guard.invalid).toEqual([ { id: 1 } ])
     })
