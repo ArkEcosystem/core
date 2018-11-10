@@ -44,7 +44,7 @@ module.exports = class TransactionGuard {
    */
   invalidate (transactions, reason) {
     transactions = Array.isArray(transactions) ? transactions : [transactions]
-    transactions.forEach(tx => this.__pushError(tx, reason))
+    transactions.forEach(tx => this.__pushError(tx, 'ERR_INVALID', reason))
   }
 
   /**
