@@ -26,7 +26,7 @@
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
-    "lint": "eslint -c ../../.eslintrc --ignore-pattern dist ./ --fix",
+    "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
   },
   "dependencies": {
