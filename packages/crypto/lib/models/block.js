@@ -250,10 +250,6 @@ module.exports = class Block {
       //   }
       // }
 
-      if (block.payloadLength > constants.maxPayload) {
-        result.errors.push('Payload length is too high')
-      }
-
       let size = 0
       let payloadHash = createHash('sha256')
 
