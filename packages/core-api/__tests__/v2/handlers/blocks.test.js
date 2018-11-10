@@ -21,7 +21,7 @@ afterAll(async () => {
 })
 
 describe('API 2.0 - Blocks', () => {
-  fdescribe('GET /blocks', () => {
+  describe('GET /blocks', () => {
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader']
