@@ -14,10 +14,6 @@ module.exports = model => {
   model.reward = bignumify(model.reward)
   model.totalFee = bignumify(model.totalFee)
 
-  const totalAmount = model.totalAmount
-    ? +bignumify(model.totalAmount).toFixed()
-    : +model.reward.plus(model.totalFee).toFixed()
-
   return {
     id: model.id,
     version: +model.version,
@@ -26,7 +22,7 @@ module.exports = model => {
     forged: {
       reward: +model.reward.toFixed(),
       fee: +model.totalFee.toFixed(),
-      total: totalAmount
+      total: +bignumify(model.totalAmount).toFixed()
     },
     payload: {
       hash: model.payloadHash,
