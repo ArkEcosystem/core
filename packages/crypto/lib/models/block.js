@@ -7,7 +7,7 @@ const configManager = require('../managers/config')
 const { crypto, slots } = require('../crypto')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
-const toBytesHex = (data) => {
+const toBytesHex = data => {
   const temp = data ? new Bignum(data).toString(16) : ''
   return '0'.repeat(16 - temp.length) + temp
 }
@@ -45,7 +45,7 @@ module.exports = class Block {
    * @constructor
    * @param {Object} data - The data of the block
    */
-  constructor (data) {
+  constructor(data) {
     if (typeof data === 'string') {
       data = Block.deserialize(data)
     }
@@ -124,7 +124,7 @@ module.exports = class Block {
    * @return {Block}
    * @static
    */
-  static create (data, keys) {
+  static create(data, keys) {
     data.generatorPublicKey = keys.publicKey
 
     const payloadHash = Block.serialize(data, false)
@@ -140,7 +140,7 @@ module.exports = class Block {
    * Return block as string.
    * @return {String}
    */
-  toString () {
+  toString() {
     return `${this.data.id}, height: ${this.data.height}, ${this.data.numberOfTransactions} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
   }
 
@@ -150,7 +150,7 @@ module.exports = class Block {
    * @return {String}
    * @static
    */
-  static getIdHex (data) {
+  static getIdHex(data) {
     const hash = createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
 
@@ -166,7 +166,7 @@ module.exports = class Block {
    * @return {String}
    * @static
    */
-  static getIdFromSerialized (serializedBuffer) {
+  static getIdFromSerialized(serializedBuffer) {
     const hash = createHash('sha256').update(serializedBuffer).digest()
     const temp = Buffer.alloc(8)
 
@@ -176,7 +176,7 @@ module.exports = class Block {
     return new Bignum(temp.toString('hex'), 16).toFixed()
   }
 
-  static getId (data) {
+  static getId(data) {
     const idHex = Block.getIdHex(data)
     return new Bignum(idHex, 16).toFixed()
   }
@@ -185,7 +185,7 @@ module.exports = class Block {
    * Get header from block.
    * @return {Object} The block data, without the transactions
    */
-  getHeader () {
+  getHeader() {
     const header = Object.assign({}, this.data)
     delete header.transactions
     return header
@@ -195,7 +195,7 @@ module.exports = class Block {
    * Verify signature associated with this block.
    * @return {Boolean}
    */
-  verifySignature () {
+  verifySignature() {
     const bytes = Block.serialize(this.data, false)
     const hash = createHash('sha256').update(bytes).digest()
 
@@ -206,11 +206,11 @@ module.exports = class Block {
    * Verify this block.
    * @return {Object}
    */
-  verify () {
+  verify() {
     const block = this.data
     const result = {
       verified: false,
-      errors: []
+      errors: [],
     }
 
     try {
@@ -228,7 +228,7 @@ module.exports = class Block {
         result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
       }
 
-      let valid = this.verifySignature(block)
+      const valid = this.verifySignature(block)
 
       if (!valid) {
         result.errors.push('Failed to verify block signature')
@@ -251,7 +251,7 @@ module.exports = class Block {
       // }
 
       let size = 0
-      let payloadHash = createHash('sha256')
+      const payloadHash = createHash('sha256')
 
       if (this.headerOnly) {
         if (this.transactionIds.length !== block.numberOfTransactions) {
@@ -263,12 +263,12 @@ module.exports = class Block {
         }
 
         // Checking if transactions of the block adds up to block values.
-        let appliedTransactions = {}
+        const appliedTransactions = {}
         this.transactionIds.forEach(id => {
           const bytes = Buffer.from(id, 'hex')
 
           if (appliedTransactions[id]) {
-            result.errors.push('Encountered duplicate transaction: ' + id)
+            result.errors.push(`Encountered duplicate transaction: ${id}`)
           }
 
           appliedTransactions[id] = id
@@ -280,7 +280,7 @@ module.exports = class Block {
         const invalidTransactions = this.transactions.filter(tx => !tx.verified)
         if (invalidTransactions.length > 0) {
           result.errors.push('One or more transactions are not verified:')
-          invalidTransactions.forEach(tx => result.errors.push('=> ' + tx.serialized))
+          invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`))
         }
 
         if (this.transactions.length !== block.numberOfTransactions) {
@@ -292,14 +292,14 @@ module.exports = class Block {
         }
 
         // Checking if transactions of the block adds up to block values.
-        let appliedTransactions = {}
+        const appliedTransactions = {}
         let totalAmount = Bignum.ZERO
         let totalFee = Bignum.ZERO
         this.transactions.forEach(transaction => {
           const bytes = Buffer.from(transaction.data.id, 'hex')
 
           if (appliedTransactions[transaction.data.id]) {
-            result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
+            result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`)
           }
 
           appliedTransactions[transaction.data.id] = transaction.data
@@ -343,7 +343,7 @@ module.exports = class Block {
    * @return {Object}
    * @static
    */
-  static deserialize (hexString, headerOnly = false) {
+  static deserialize(hexString, headerOnly = false) {
     const block = {}
     const buf = ByteBuffer.fromHex(hexString, true)
     block.version = buf.readUInt32(0)
@@ -359,7 +359,7 @@ module.exports = class Block {
     block.payloadHash = hexString.substring(104, 104 + 64)
     block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
 
-    const length = parseInt('0x' + hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4), 16) + 2
+    const length = parseInt(`0x${hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4)}`, 16) + 2
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
 
     if (headerOnly) return block
@@ -392,7 +392,7 @@ module.exports = class Block {
    * @return {Buffer}
    * @static
    */
-  static serializeFull (block) {
+  static serializeFull(block) {
     const serializedBlock = Block.serialize(block, true);
     const transactions = block.transactions
 
@@ -417,7 +417,7 @@ module.exports = class Block {
    * @return {Buffer}
    * @static
    */
-  static serialize (block, includeSignature = true) {
+  static serialize(block, includeSignature = true) {
     block.previousBlockHex = toBytesHex(block.previousBlock)
 
     const bb = new ByteBuffer(256, true)
@@ -441,7 +441,7 @@ module.exports = class Block {
     return bb.toBuffer()
   }
 
-  static getBytesV1 (block, includeSignature) {
+  static getBytesV1(block, includeSignature) {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
     }
@@ -508,16 +508,16 @@ module.exports = class Block {
     return b
   }
 
-  toJson () {
+  toJson() {
     // Convert Bignums
-    let blockData = cloneDeepWith(this.data, (value, key) => {
+    const blockData = cloneDeepWith(this.data, (value, key) => {
       if (['reward', 'totalAmount', 'totalFee'].indexOf(key) !== -1) {
         return +value.toFixed()
       }
     })
 
     return Object.assign(blockData, {
-      transactions: this.transactions.map(transaction => transaction.toJson())
+      transactions: this.transactions.map(transaction => transaction.toJson()),
     })
   }
 }

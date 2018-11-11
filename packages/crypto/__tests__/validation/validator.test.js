@@ -1,4 +1,4 @@
-'use strict'
+
 
 const Joi = require('joi')
 
@@ -22,7 +22,7 @@ describe('Validator', () => {
 
     it('should be true', () => {
       validator.results = {
-        passes: true
+        passes: true,
       }
 
       expect(validator.passes()).toBeTrue()
@@ -30,7 +30,7 @@ describe('Validator', () => {
 
     it('should be false', () => {
       validator.results = {
-        passes: false
+        passes: false,
       }
 
       expect(validator.passes()).toBeFalse()
@@ -44,7 +44,7 @@ describe('Validator', () => {
 
     it('should be true', () => {
       validator.results = {
-        fails: true
+        fails: true,
       }
 
       expect(validator.fails()).toBeTrue()
@@ -52,7 +52,7 @@ describe('Validator', () => {
 
     it('should be false', () => {
       validator.results = {
-        fails: false
+        fails: false,
       }
 
       expect(validator.fails()).toBeFalse()
@@ -67,8 +67,8 @@ describe('Validator', () => {
     it('should be true', () => {
       validator.results = {
         data: {
-          key: 'value'
-        }
+          key: 'value',
+        },
       }
 
       expect(validator.validated()).toHaveProperty('key', 'value')
@@ -77,8 +77,8 @@ describe('Validator', () => {
     it('should be false', () => {
       validator.results = {
         data: {
-          invalidKey: 'value'
-        }
+          invalidKey: 'value',
+        },
       }
 
       expect(validator.validated()).not.toHaveProperty('key', 'value')
@@ -123,25 +123,21 @@ describe('Validator', () => {
     })
 
     it('should be true', () => {
-      validator.__validateWithFunction('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN', value => {
-        return {
+      validator.__validateWithFunction('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN', value => ({
           data: value,
           passes: value.length === 34,
-          fails: value.length !== 34
-        }
-      })
+          fails: value.length !== 34,
+        }))
 
       expect(validator.passes()).toBeTrue()
     })
 
     it('should be false', () => {
-      validator.__validateWithFunction('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_', value => {
-        return {
+      validator.__validateWithFunction('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_', value => ({
           data: value,
           passes: value.length === 34,
-          fails: value.length !== 34
-        }
-      })
+          fails: value.length !== 34,
+        }))
 
       expect(validator.passes()).toBeFalse()
     })
@@ -155,7 +151,7 @@ describe('Validator', () => {
     it('should be true', () => {
       validator.__validateWithJoi(
         'DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN',
-        Joi.string().alphanum().length(34).required()
+        Joi.string().alphanum().length(34).required(),
       )
 
       expect(validator.passes()).toBeTrue()
@@ -164,7 +160,7 @@ describe('Validator', () => {
     it('should be false', () => {
       validator.__validateWithJoi(
         '_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_',
-        Joi.string().alphanum().length(34).required()
+        Joi.string().alphanum().length(34).required(),
       )
 
       expect(validator.passes()).toBeFalse()
@@ -178,7 +174,7 @@ describe('Validator', () => {
 
     it('should be empty', () => {
       validator.results = {
-        key: 'value'
+        key: 'value',
       }
 
       expect(validator.results).not.toBeNull()

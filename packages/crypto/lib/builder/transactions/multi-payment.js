@@ -7,7 +7,7 @@ class MultiPaymentBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.MULTI_PAYMENT
@@ -22,7 +22,7 @@ class MultiPaymentBuilder extends TransactionBuilder {
    * @param {Number} amount
    * @return {MultiPaymentBuilder}
    */
-  addPayment (address, amount) {
+  addPayment(address, amount) {
     const paymentsCount = Object.keys(this.data.payments).length / 2
 
     if (paymentsCount >= 2258) {
@@ -40,7 +40,7 @@ class MultiPaymentBuilder extends TransactionBuilder {
    * Overrides the inherited method to return the additional required by this.
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.senderPublicKey = this.data.senderPublicKey
     struct.vendorFieldHex = this.data.vendorFieldHex

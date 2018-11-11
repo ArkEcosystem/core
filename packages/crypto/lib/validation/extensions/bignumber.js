@@ -1,6 +1,6 @@
 const Bignum = require('../../utils/bignum')
 
-module.exports = (joi) => ({
+module.exports = joi => ({
   name: 'bignumber',
-  base: joi.object().type(Bignum)
+  base: joi.object().type(Bignum),
 })

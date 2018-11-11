@@ -7,7 +7,7 @@ class TimelockTransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.TIMELOCK_TRANSFER
@@ -25,7 +25,7 @@ class TimelockTransferBuilder extends TransactionBuilder {
    * @param  {Number} timelockType
    * @return {TimelockTransferBuilder}
    */
-  timelock (timelock, timelockType) {
+  timelock(timelock, timelockType) {
     this.data.timelock = timelock
     this.data.timelockType = timelockType
     return this
@@ -35,7 +35,7 @@ class TimelockTransferBuilder extends TransactionBuilder {
    * Overrides the inherited method to return the additional required by this
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId

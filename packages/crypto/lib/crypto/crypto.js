@@ -16,7 +16,7 @@ class Crypto {
    * @param  {Transaction} transaction
    * @return {Number}
    */
-  getFee (transaction) {
+  getFee(transaction) {
     return feeManager.get(transaction.type)
   }
 
@@ -27,7 +27,7 @@ class Crypto {
    * @param  {Boolean} skipSecondSignature
    * @return {String}
    */
-  getBytes (transaction, skipSignature, skipSecondSignature) {
+  getBytes(transaction, skipSignature, skipSecondSignature) {
     if (transaction.version && transaction.version !== 1) {
       throw new Error('not supported yet')
     }
@@ -38,8 +38,8 @@ class Crypto {
     switch (transaction.type) {
     case 1: { // Signature
       const { signature } = transaction.asset
-      let bb = new ByteBuffer(33, true)
-      let publicKeyBuffer = Buffer.from(signature.publicKey, 'hex');
+      const bb = new ByteBuffer(33, true)
+      const publicKeyBuffer = Buffer.from(signature.publicKey, 'hex');
 
       for (let i = 0; i < publicKeyBuffer.length; i++) {
         bb.writeByte(publicKeyBuffer[i]);
@@ -67,8 +67,8 @@ class Crypto {
     }
 
     case 4: { // Multi-Signature
-      let keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'utf8')
-      let bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
+      const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'utf8')
+      const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
 
       bb.writeByte(transaction.asset.multisignature.min)
       bb.writeByte(transaction.asset.multisignature.lifetime)
@@ -85,11 +85,11 @@ class Crypto {
     }
     }
 
-    let bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true)
+    const bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true)
     bb.writeByte(transaction.type)
     bb.writeInt(transaction.timestamp)
 
-    let senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
+    const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
     for (let i = 0; i < senderPublicKeyBuffer.length; i++) {
       bb.writeByte(senderPublicKeyBuffer[i])
     }
@@ -99,7 +99,7 @@ class Crypto {
     const isBrokenTransaction = Object.values(transactionIdFixTable).includes(transaction.id)
     const correctType = transaction.type !== 1 && transaction.type !== 4
     if (transaction.recipientId && (isBrokenTransaction || correctType)) {
-      let recipient = bs58check.decode(transaction.recipientId)
+      const recipient = bs58check.decode(transaction.recipientId)
       for (let i = 0; i < recipient.length; i++) {
         bb.writeByte(recipient[i])
       }
@@ -110,8 +110,8 @@ class Crypto {
     }
 
     if (transaction.vendorFieldHex) {
-      let vf = Buffer.from(transaction.vendorFieldHex, 'hex');
-      let fillstart = vf.length
+      const vf = Buffer.from(transaction.vendorFieldHex, 'hex');
+      const fillstart = vf.length
       for (let i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
@@ -119,8 +119,8 @@ class Crypto {
         bb.writeByte(0)
       }
     } else if (transaction.vendorField) {
-      let vf = Buffer.from(transaction.vendorField);
-      let fillstart = vf.length
+      const vf = Buffer.from(transaction.vendorField);
+      const fillstart = vf.length
       for (let i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
@@ -143,22 +143,22 @@ class Crypto {
     }
 
     if (!skipSignature && transaction.signature) {
-      let signatureBuffer = Buffer.from(transaction.signature, 'hex')
+      const signatureBuffer = Buffer.from(transaction.signature, 'hex')
       for (let i = 0; i < signatureBuffer.length; i++) {
         bb.writeByte(signatureBuffer[i])
       }
     }
 
     if (!skipSecondSignature && transaction.signSignature) {
-      let signSignatureBuffer = Buffer.from(transaction.signSignature, 'hex')
+      const signSignatureBuffer = Buffer.from(transaction.signSignature, 'hex')
       for (let i = 0; i < signSignatureBuffer.length; i++) {
         bb.writeByte(signSignatureBuffer[i])
       }
     }
 
     bb.flip()
-    let arrayBuffer = new Uint8Array(bb.toArrayBuffer())
-    let buffer = []
+    const arrayBuffer = new Uint8Array(bb.toArrayBuffer())
+    const buffer = []
 
     for (let i = 0; i < arrayBuffer.length; i++) {
       buffer[i] = arrayBuffer[i]
@@ -172,7 +172,7 @@ class Crypto {
    * @param  {Transaction} transaction
    * @return {String}
    */
-  getId (transaction) {
+  getId(transaction) {
     if (transaction.version && transaction.version !== 1) {
       throw new Error('not supported yet')
     }
@@ -188,7 +188,7 @@ class Crypto {
    * @param  {Transaction} transaction
    * @return {Buffer}
    */
-  getHash (transaction, skipSignature, skipSecondSignature) {
+  getHash(transaction, skipSignature, skipSecondSignature) {
     if (transaction.version && transaction.version !== 1) {
       throw new Error('not supported yet')
     }
@@ -205,7 +205,7 @@ class Crypto {
    * @param  {Object}      keys
    * @return {Object}
    */
-  sign (transaction, keys) {
+  sign(transaction, keys) {
     let hash
     if (!transaction.version || transaction.version === 1) {
       hash = this.getHash(transaction, true, true)
@@ -228,7 +228,7 @@ class Crypto {
    * @param  {Object}      keys
    * @return {Object}
    */
-  secondSign (transaction, keys) {
+  secondSign(transaction, keys) {
     const hash = this.getHash(transaction, false, true)
     const signature = this.signHash(hash, keys)
 
@@ -245,7 +245,7 @@ class Crypto {
    * @param  {Object} keys
    * @return {String}
    */
-  signHash (hash, keys) {
+  signHash(hash, keys) {
     const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, 'hex'))
     return secp256k1.signatureExport(signature).toString('hex')
   }
@@ -255,7 +255,7 @@ class Crypto {
    * @param  {Transaction}        transaction
    * @return {Boolean}
    */
-  verify (transaction) {
+  verify(transaction) {
     if (transaction.version && transaction.version !== 1) {
       // TODO: enable AIP11 when ready here
       return false
@@ -275,7 +275,7 @@ class Crypto {
    * @param  {String}             publicKey
    * @return {Boolean}
    */
-  verifySecondSignature (transaction, publicKey) {
+  verifySecondSignature(transaction, publicKey) {
     let hash
     let secondSignature
     if (transaction.version && transaction.version !== 1) {
@@ -300,7 +300,7 @@ class Crypto {
    * @param  {(Buffer|String)} publicKey
    * @return {Boolean}
    */
-  verifyHash (hash, signature, publicKey) {
+  verifyHash(hash, signature, publicKey) {
     signature = signature instanceof Buffer ? signature : Buffer.from(signature, 'hex')
     publicKey = publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, 'hex')
     return secp256k1.verify(hash, secp256k1.signatureImport(signature), publicKey)
@@ -312,7 +312,7 @@ class Crypto {
    * @param  {boolean} compressed
    * @return {Object}
    */
-  getKeys (secret, compressed = true) {
+  getKeys(secret, compressed = true) {
     const privateKey = utils.sha256(Buffer.from(secret, 'utf8'))
     return this.getKeysByPrivateKey(privateKey, compressed)
   }
@@ -323,14 +323,14 @@ class Crypto {
    * @param  {boolean} compressed
    * @return {Object}
    */
-  getKeysByPrivateKey (privateKey, compressed = true) {
+  getKeysByPrivateKey(privateKey, compressed = true) {
     privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, 'hex')
 
     const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
     const keyPair = {
       publicKey: publicKey.toString('hex'),
       privateKey: privateKey.toString('hex'),
-      compressed
+      compressed,
     }
 
     return keyPair
@@ -342,7 +342,7 @@ class Crypto {
    * @param  {Object} network
    * @return {Object}
    */
-  getKeysFromWIF (wifKey, network) {
+  getKeysFromWIF(wifKey, network) {
     const decoded = wif.decode(wifKey)
     const version = decoded.version
 
@@ -360,7 +360,7 @@ class Crypto {
     const keyPair = {
       publicKey: publicKey.toString('hex'),
       privateKey: privateKey.toString('hex'),
-      compressed: decoded.compressed
+      compressed: decoded.compressed,
     }
 
     return keyPair
@@ -372,7 +372,7 @@ class Crypto {
    * @param {(Object|undefined)} network
    * @returns {String}
    */
-  keysToWIF (keys, network) {
+  keysToWIF(keys, network) {
     if (!network) {
       network = configManager.all()
     }
@@ -386,8 +386,8 @@ class Crypto {
    * @param  {(Number|undefined)} networkVersion
    * @return {String}
    */
-  getAddress (publicKey, networkVersion) {
-    var pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
+  getAddress(publicKey, networkVersion) {
+    const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
     if (!pubKeyRegex.test(publicKey)) {
       throw new Error(`publicKey '${publicKey}' is invalid`)
     }
@@ -411,13 +411,13 @@ class Crypto {
    * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
-  validateAddress (address, networkVersion) {
+  validateAddress(address, networkVersion) {
     if (!networkVersion) {
       networkVersion = configManager.get('pubKeyHash')
     }
 
     try {
-      var decode = bs58check.decode(address)
+      const decode = bs58check.decode(address)
       return decode[0] === networkVersion
     } catch (e) {
       return false
@@ -430,7 +430,7 @@ class Crypto {
    * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
-  validatePublicKey (address, networkVersion) {
+  validatePublicKey(address, networkVersion) {
     if (!networkVersion) {
       networkVersion = configManager.get('pubKeyHash')
     }

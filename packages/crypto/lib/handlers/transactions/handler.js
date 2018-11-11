@@ -9,7 +9,7 @@ module.exports = class Handler {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  canApply (wallet, transaction) {
+  canApply(wallet, transaction) {
     if (transactionValidator.validate(transaction).fails) {
       return false
     }
@@ -36,7 +36,7 @@ module.exports = class Handler {
    * @param {Transaction} transaction
    * @return {void}
    */
-  applyTransactionToSender (wallet, transaction) {
+  applyTransactionToSender(wallet, transaction) {
     if (transaction.senderPublicKey.toLowerCase() === wallet.publicKey.toLowerCase() || crypto.getAddress(transaction.senderPublicKey) === wallet.address) {
       wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee)
 
@@ -52,7 +52,7 @@ module.exports = class Handler {
    * @param {Transaction} transaction
    * @return {void}
    */
-  revertTransactionForSender (wallet, transaction) {
+  revertTransactionForSender(wallet, transaction) {
     if (transaction.senderPublicKey.toLowerCase() === wallet.publicKey.toLowerCase() || crypto.getAddress(transaction.senderPublicKey) === wallet.address) {
       wallet.balance = wallet.balance.plus(transaction.amount).plus(transaction.fee)
 
@@ -68,7 +68,7 @@ module.exports = class Handler {
    * @param {Transaction} transaction
    * @return {void}
    */
-  applyTransactionToRecipient (wallet, transaction) {
+  applyTransactionToRecipient(wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
       wallet.balance = wallet.balance.plus(transaction.amount)
       wallet.dirty = true
@@ -81,7 +81,7 @@ module.exports = class Handler {
    * @param {Transaction} transaction
    * @return {void}
    */
-  revertTransactionForRecipient (wallet, transaction) {
+  revertTransactionForRecipient(wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
       wallet.balance = wallet.balance.minus(transaction.amount)
       wallet.dirty = true

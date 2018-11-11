@@ -1,3 +1,3 @@
 module.exports = {
-  ark: require('./ark')
+  ark: require('./ark'),
 }

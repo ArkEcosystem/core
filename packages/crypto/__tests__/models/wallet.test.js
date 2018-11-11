@@ -31,7 +31,7 @@ describe('Models - Wallet', () => {
       multisignature: null,
       dirty: false,
       producedBlocks: 0,
-      missedBlocks: 0
+      missedBlocks: 0,
     }
 
     xit('should be ok for a multi-transaction', () => {
@@ -57,7 +57,7 @@ describe('Models - Wallet', () => {
         id: 1,
         generatorPublicKey: testWallet.publicKey,
         reward: new Bignum(1000000000),
-        totalFee: new Bignum(1000000000)
+        totalFee: new Bignum(1000000000),
       }
     })
 

@@ -41,7 +41,7 @@ module.exports = () => {
           senderPublicKey: '035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c',
           timestamp,
           type: 0,
-          version: 0x03
+          version: 0x03,
         }
       })
 
@@ -65,7 +65,7 @@ module.exports = () => {
 
         const transaction = builder.build({
           amount: 33,
-          fee: 1000
+          fee: 1000,
         })
 
         expect(transaction).toBeInstanceOf(Transaction)
@@ -109,7 +109,7 @@ module.exports = () => {
 
   describe('sign', () => {
     it('signs this transaction with the keys of the passphrase', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
       crypto.getKeys = jest.fn(() => keys)
       crypto.sign = jest.fn()
       const signingObject = builder.__getSigningObject()
@@ -121,7 +121,7 @@ module.exports = () => {
     })
 
     it('establishes the public key of the sender', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
       crypto.getKeys = jest.fn(() => keys)
       crypto.sign = jest.fn()
       builder.sign('my real pass')
@@ -131,7 +131,7 @@ module.exports = () => {
 
   describe('signWithWif', () => {
     it('signs this transaction with keys from a wif', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
       crypto.getKeysFromWIF = jest.fn(() => keys)
       crypto.sign = jest.fn()
       const signingObject = builder.__getSigningObject()
@@ -144,7 +144,7 @@ module.exports = () => {
     })
 
     it('establishes the public key of the sender', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
       crypto.getKeysFromWIF = jest.fn(() => keys)
       crypto.sign = jest.fn()
       builder.signWithWif('my real pass')

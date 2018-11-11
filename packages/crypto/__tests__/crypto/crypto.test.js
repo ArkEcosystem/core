@@ -39,7 +39,7 @@ describe('crypto.js', () => {
         asset: {},
         senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
         signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a', // eslint-disable-line max-len
-        id: '13987348420913138422'
+        id: '13987348420913138422',
       }
 
       bytes = crypto.getBytes(transaction)
@@ -78,7 +78,7 @@ describe('crypto.js', () => {
         senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
         signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a', // eslint-disable-line max-len
         signSignature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a', // eslint-disable-line max-len
-        id: '13987348420913138422'
+        id: '13987348420913138422',
       }
 
       bytes = crypto.getBytes(transaction)
@@ -103,7 +103,7 @@ describe('crypto.js', () => {
         timestamp: 141738,
         asset: {},
         senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
-        signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a' // eslint-disable-line max-len
+        signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a', // eslint-disable-line max-len
       }
 
       const result = crypto.getHash(transaction)
@@ -127,7 +127,7 @@ describe('crypto.js', () => {
         timestamp: 141738,
         asset: {},
         senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
-        signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a' // eslint-disable-line max-len
+        signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a', // eslint-disable-line max-len
       }
 
       const id = crypto.getId(transaction) // old id
@@ -162,7 +162,7 @@ describe('crypto.js', () => {
         recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
         timestamp: 141738,
         asset: {},
-        senderPublicKey: keys.publicKey
+        senderPublicKey: keys.publicKey,
       }
       const signature = crypto.sign(transaction, keys)
       expect(signature.toString('hex')).toBe('3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe')

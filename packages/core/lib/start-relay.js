@@ -1,4 +1,4 @@
-'use strict'
+
 
 const container = require('@arkecosystem/core-container')
 
@@ -14,11 +14,11 @@ module.exports = async options => {
       '@arkecosystem/core-p2p': {
         networkStart: options.networkStart,
         disableDiscovery: options.disableDiscovery,
-        skipDiscovery: options.skipDiscovery
+        skipDiscovery: options.skipDiscovery,
       },
       '@arkecosystem/core-blockchain': {
-        networkStart: options.networkStart
-      }
-    }
+        networkStart: options.networkStart,
+      },
+    },
   })
 }

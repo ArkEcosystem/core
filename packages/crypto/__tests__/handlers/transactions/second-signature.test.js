@@ -9,7 +9,7 @@ beforeEach(() => {
     address: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
     balance: new Bignum('6453530000000'),
     publicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
-    secondPublicKey: '03791c7d0229966ee41af0e5362f3bb2534ef8c706d7151fec70aead607227fce1'
+    secondPublicKey: '03791c7d0229966ee41af0e5362f3bb2534ef8c706d7151fec70aead607227fce1',
   }
 
   transaction = {
@@ -27,7 +27,7 @@ beforeEach(() => {
     signSignature: '3044022023791a170f5b44b9b11f7ca91af02519f241deb4b33e2bcda858df631e20e6d702200ced02b468543db5212ef9a53623fc87227125be4447c29c759c79100dc66544', // eslint-disable-line max-len
     secondSignature: '3044022023791a170f5b44b9b11f7ca91af02519f241deb4b33e2bcda858df631e20e6d702200ced02b468543db5212ef9a53623fc87227125be4447c29c759c79100dc66544', // eslint-disable-line max-len
     asset: {},
-    confirmations: 19620
+    confirmations: 19620,
   }
 })
 
@@ -59,7 +59,7 @@ describe('SecondSignatureHandler', () => {
 
     it('should be ok', () => {
       transaction.asset.signature = {
-        publicKey: 'dummy'
+        publicKey: 'dummy',
       }
 
       handler.apply(wallet, transaction)

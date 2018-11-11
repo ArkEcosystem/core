@@ -1,9 +1,9 @@
 const bip38 = require('bip38')
-const Bignum = require('../utils/bignum')
 const wif = require('wif')
 const { createHash } = require('crypto')
 const otplib = require('otplib')
 const forge = require('node-forge')
+const Bignum = require('../utils/bignum')
 
 const Block = require('./block')
 const crypto = require('../crypto/crypto')
@@ -30,7 +30,7 @@ module.exports = class Delegate {
    * @param  {Number} network
    * @param  {String} password
    */
-  constructor (passphrase, network, password) {
+  constructor(passphrase, network, password) {
     this.network = network
     this.keySize = 32 // AES-256
     this.iterations = 5000
@@ -63,7 +63,7 @@ module.exports = class Delegate {
    * @return {String}
    * @static
    */
-  static encryptPassphrase (passphrase, network, password) {
+  static encryptPassphrase(passphrase, network, password) {
     const keys = crypto.getKeys(passphrase)
     const decoded = wif.decode(crypto.keysToWIF(keys, network))
 
@@ -78,7 +78,7 @@ module.exports = class Delegate {
    * @return {Object}
    * @static
    */
-  static decryptPassphrase (passphrase, network, password) {
+  static decryptPassphrase(passphrase, network, password) {
     const decryptedWif = bip38.decrypt(passphrase, password)
     const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
     return crypto.getKeysFromWIF(wifKey, network)
@@ -87,7 +87,7 @@ module.exports = class Delegate {
   /**
    * Encrypt keys with one time password - used to store encrypted in memory.
    */
-  encryptKeysWithOtp () {
+  encryptKeysWithOtp() {
     this.otp = otplib.authenticator.generate(this.otpSecret)
     const wifKey = crypto.keysToWIF(this.keys, this.network)
     this.encryptedKeys = this.__encryptData(wifKey, this.otp)
@@ -97,8 +97,8 @@ module.exports = class Delegate {
   /**
    * Decrypt keys with one time password.
    */
-  decryptKeysWithOtp () {
-    let wifKey = this.__decryptData(this.encryptedKeys, this.otp)
+  decryptKeysWithOtp() {
+    const wifKey = this.__decryptData(this.encryptedKeys, this.otp)
     this.keys = crypto.getKeysFromWIF(wifKey, this.network)
     this.otp = null
     this.encryptedKeys = null
@@ -110,12 +110,12 @@ module.exports = class Delegate {
    * @param  {Object} options
    * @return {(Block|undefined)}
    */
-  forge (transactions, options) {
+  forge(transactions, options) {
     if (!options.version && (this.encryptedKeys || !this.bip38)) {
       const transactionData = {
         amount: Bignum.ZERO,
         fee: Bignum.ZERO,
-        sha256: createHash('sha256')
+        sha256: createHash('sha256'),
       }
 
       const sortedTransactions = sortTransactions(transactions)
@@ -138,14 +138,14 @@ module.exports = class Delegate {
         reward: options.reward,
         payloadLength: 32 * sortedTransactions.length,
         payloadHash: transactionData.sha256.digest().toString('hex'),
-        transactions: sortedTransactions
+        transactions: sortedTransactions,
       }
 
       if (this.bip38) {
         this.decryptKeysWithOtp()
       }
 
-      let block = Block.create(data, this.keys)
+      const block = Block.create(data, this.keys)
 
       if (this.bip38) {
         this.encryptKeysWithOtp()
@@ -161,9 +161,9 @@ module.exports = class Delegate {
    * @param  {String} password
    * @return {String}
    */
-  __encryptData (content, password) {
-    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
-    let cipher = forge.cipher.createCipher('AES-CBC', derivedKey)
+  __encryptData(content, password) {
+    const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
+    const cipher = forge.cipher.createCipher('AES-CBC', derivedKey)
     cipher.start({ iv: forge.util.decode64(this.otp) })
     cipher.update(forge.util.createBuffer(content))
     cipher.finish()
@@ -177,9 +177,9 @@ module.exports = class Delegate {
    * @param  {String} password
    * @return {String}
    */
-  __decryptData (cipherText, password) {
-    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
-    let decipher = forge.cipher.createDecipher('AES-CBC', derivedKey)
+  __decryptData(cipherText, password) {
+    const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
+    const decipher = forge.cipher.createDecipher('AES-CBC', derivedKey)
     decipher.start({ iv: forge.util.decode64(this.otp) })
     decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)))
     decipher.finish()

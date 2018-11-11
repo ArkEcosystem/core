@@ -1,4 +1,4 @@
-'use strict'
+
 
 const rule = require('../../../../../lib/validation/rules/models/transactions/delegate-registration')
 const { constants, transactionBuilder } = require('../../../../../lib')

@@ -85,7 +85,7 @@ describe('HDWallet', () => {
       const keys = {
         publicKey: '',
         privateKey: 'b6f84081b674cf1f765ac182aaabd94d944c367d214263d1f7f3102d1cec98d5',
-        compressed: true
+        compressed: true,
       }
 
       const chainCode = Buffer.from('2bbe729fab21bf8bca70763caf7fe85752726a363b494dea7a65e51e2d423d7b', 'hex')

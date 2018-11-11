@@ -22,7 +22,7 @@ exports.TRANSACTION_TYPES = Object.freeze({
   TIMELOCK_TRANSFER: 6,
   MULTI_PAYMENT: 7,
   DELEGATE_RESIGNATION: 8,
-  toString (type) {
+  toString(type) {
     switch (type) {
     case this.TRANSFER:
       return 'transfer'
@@ -43,7 +43,7 @@ exports.TRANSACTION_TYPES = Object.freeze({
     case this.DELEGATE_RESIGNATION:
       return 'delegate resignation'
     }
-  }
+  },
 })
 
 /**
@@ -54,6 +54,6 @@ exports.CONFIGURATIONS = Object.freeze({
   ARK: {
     MAINNET: configMainnet,
     DEVNET: configDevnet,
-    TESTNET: configTestnet
-  }
+    TESTNET: configTestnet,
+  },
 })

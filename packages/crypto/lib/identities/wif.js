@@ -3,7 +3,7 @@ const configManager = require('../managers/config')
 const Keys = require('./keys')
 
 module.exports = class WIF {
-  static fromPassphrase (passphrase, network) {
+  static fromPassphrase(passphrase, network) {
     const keys = Keys.fromPassphrase(passphrase)
 
     if (!network) {

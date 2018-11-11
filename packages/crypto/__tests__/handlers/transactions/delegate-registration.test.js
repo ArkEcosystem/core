@@ -22,9 +22,9 @@ beforeEach(() => {
     asset: {
       delegate: {
         username: 'dummy',
-        publicKey: 'a'.repeat(66)
-      }
-    }
+        publicKey: 'a'.repeat(66),
+      },
+    },
   }
 })
 

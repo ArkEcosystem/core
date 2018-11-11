@@ -2,13 +2,13 @@ const Joi = require('joi')
 const extensions = require('./extensions')
 
 class Engine {
-  constructor () {
+  constructor() {
     this.joi = Joi.extend(extensions)
   }
 
-  validate (attributes, rules, options) {
+  validate(attributes, rules, options) {
     return this.joi.validate(attributes, rules, Object.assign({
-      convert: true
+      convert: true,
     }, options))
   }
 }

@@ -1,7 +1,7 @@
 const { TRANSACTION_TYPES } = require('../../../../constants')
 const engine = require('../../../engine')
 
-module.exports = (transaction) => {
+module.exports = transaction => {
   let maxMinValue = 16
   let signaturesLength = 2
   if (transaction.asset && transaction.asset.multisignature && Array.isArray(transaction.asset.multisignature.keysgroup)) {
@@ -23,22 +23,26 @@ module.exports = (transaction) => {
     secondSignature: engine.joi.string().alphanum(),
     asset: engine.joi.object({
       multisignature: engine.joi.object({
-        min: engine.joi.number().integer().positive().max(Math.min(maxMinValue, 16)).required(),
+        min: engine.joi.number().integer().positive().max(Math.min(maxMinValue, 16))
+.required(),
         keysgroup: engine.joi.array().unique().min(2).items(
-          engine.joi.string().not(`+${transaction.senderPublicKey}`).length(67).regex(/^\+/).required()
-        ).required(),
-        lifetime: engine.joi.number().integer().min(1).max(72).required()
-      }).required()
+          engine.joi.string().not(`+${transaction.senderPublicKey}`).length(67).regex(/^\+/)
+.required(),
+        )
+.required(),
+        lifetime: engine.joi.number().integer().min(1).max(72)
+.required(),
+      }).required(),
     }).required(),
-    confirmations: engine.joi.number().integer().min(0)
+    confirmations: engine.joi.number().integer().min(0),
   }), {
-    allowUnknown: true
+    allowUnknown: true,
   })
 
   return {
     data: value,
     errors: error ? error.details : null,
     passes: !error,
-    fails: error
+    fails: error,
   }
 }

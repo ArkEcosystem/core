@@ -6,7 +6,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  ripemd160 (buffer) {
+  ripemd160(buffer) {
     return createHash('rmd160').update(buffer).digest()
   }
 
@@ -15,7 +15,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  sha1 (buffer) {
+  sha1(buffer) {
     return createHash('sha1').update(buffer).digest()
   }
 
@@ -24,7 +24,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  sha256 (buffer) {
+  sha256(buffer) {
     return createHash('sha256').update(buffer).digest()
   }
 
@@ -33,7 +33,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  hash160 (buffer) {
+  hash160(buffer) {
     return this.ripemd160(this.sha256(buffer))
   }
 
@@ -42,7 +42,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  hash256 (buffer) {
+  hash256(buffer) {
     return this.sha256(this.sha256(buffer))
   }
 }

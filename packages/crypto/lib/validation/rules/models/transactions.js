@@ -1,4 +1,4 @@
-'use strict'
+
 
 exports.transfer = require('./transactions/transfer')
 exports.signature = require('./transactions/signature')

@@ -7,7 +7,7 @@ class DelegateRegistrationHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  canApply (wallet, transaction) {
+  canApply(wallet, transaction) {
     if (!super.canApply(wallet, transaction)) {
       return false
     }
@@ -23,7 +23,7 @@ class DelegateRegistrationHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  apply (wallet, transaction) {
+  apply(wallet, transaction) {
     wallet.username = transaction.asset.delegate.username
   }
 
@@ -33,7 +33,7 @@ class DelegateRegistrationHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  revert (wallet, transaction) {
+  revert(wallet, transaction) {
     wallet.username = null
   }
 }

@@ -4,7 +4,7 @@ class DynamicFeeManager {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.offsets = {}
   }
 
@@ -14,7 +14,7 @@ class DynamicFeeManager {
   * @param {Transaction} Transaction for which we calculate dynamic fee
   * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
   */
-  calculateFee (feeMultiplier, transaction) {
+  calculateFee(feeMultiplier, transaction) {
     if (feeMultiplier <= 0) {
       feeMultiplier = 1
     }
@@ -30,7 +30,7 @@ class DynamicFeeManager {
    * @param  {Number} type
    * @return {Number}
    */
-  get (type) {
+  get(type) {
     return this.offsets[type]
   }
 
@@ -39,7 +39,7 @@ class DynamicFeeManager {
    * @param {Number} type
    * @param {Number} value
    */
-  set (type, value) {
+  set(type, value) {
     if (!this.__validType(type)) {
       throw new Error('Invalid transaction type.')
     }
@@ -52,7 +52,7 @@ class DynamicFeeManager {
    * @param  {Number} type
    * @return {Boolean}
    */
-  __validType (type) {
+  __validType(type) {
     return Object.values(TRANSACTION_TYPES).indexOf(type) > -1
   }
 }

@@ -14,13 +14,13 @@ module.exports = class Message {
    * @param  {String} passphrase
    * @return {Object}
    */
-  static sign (message, passphrase) {
+  static sign(message, passphrase) {
     const keys = arkCrypto.getKeys(passphrase)
 
     return {
       publicKey: keys.publicKey,
       signature: arkCrypto.signHash(createHash(message), keys),
-      message
+      message,
     }
   }
 
@@ -31,7 +31,7 @@ module.exports = class Message {
    * @param  {Object} network
    * @return {Object}
    */
-  static signWithWif (message, wif, network) {
+  static signWithWif(message, wif, network) {
     if (!network) {
       network = configManager.all()
     }
@@ -41,7 +41,7 @@ module.exports = class Message {
     return {
       publicKey: keys.publicKey,
       signature: arkCrypto.signHash(createHash(message), keys),
-      message
+      message,
     }
   }
 
@@ -52,7 +52,7 @@ module.exports = class Message {
    * @param  {String} options.signature
    * @return {Boolean}
    */
-  static verify ({ message, publicKey, signature }) {
+  static verify({ message, publicKey, signature }) {
     return arkCrypto.verifyHash(createHash(message), signature, publicKey)
   }
 }

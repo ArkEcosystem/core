@@ -1,7 +1,7 @@
 const { TRANSACTION_TYPES } = require('../../../../constants')
 const engine = require('../../../engine')
 
-module.exports = (transaction) => {
+module.exports = transaction => {
   const { error, value } = engine.validate(transaction, engine.joi.object({
     id: engine.joi.string().alphanum().required(),
     blockid: engine.joi.number().unsafe(),
@@ -17,18 +17,18 @@ module.exports = (transaction) => {
     secondSignature: engine.joi.string().alphanum(),
     asset: engine.joi.object({
       votes: engine.joi.array().items(
-        engine.joi.string().length(67).regex(/^(\+|-)[a-zA-Z0-9]+$/)
-      ).length(1).required()
+        engine.joi.string().length(67).regex(/^(\+|-)[a-zA-Z0-9]+$/),
+      ).length(1).required(),
     }).required(),
-    confirmations: engine.joi.number().integer().min(0)
+    confirmations: engine.joi.number().integer().min(0),
   }), {
-    allowUnknown: true
+    allowUnknown: true,
   })
 
   return {
     data: value,
     errors: error ? error.details : null,
     passes: !error,
-    fails: error
+    fails: error,
   }
 }

@@ -30,7 +30,7 @@ module.exports = class Wallet {
    * @constructor
    * @param  {String} address
    */
-  constructor (address) {
+  constructor(address) {
     this.address = address
     this.publicKey = null
     this.secondPublicKey = null
@@ -53,7 +53,7 @@ module.exports = class Wallet {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  canApply (transaction) {
+  canApply(transaction) {
     return transactionHandler.canApply(this, transaction)
   }
 
@@ -62,7 +62,7 @@ module.exports = class Wallet {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  apply (transaction) {
+  apply(transaction) {
     return transactionHandler.apply(this, transaction)
   }
 
@@ -71,7 +71,7 @@ module.exports = class Wallet {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  revert (transaction) {
+  revert(transaction) {
     return transactionHandler.revert(this, transaction)
   }
 
@@ -79,7 +79,7 @@ module.exports = class Wallet {
    * Associate this wallet as the sender of a transaction.
    * @param {Transaction} transaction
    */
-  applyTransactionToSender (transaction) {
+  applyTransactionToSender(transaction) {
     return transactionHandler.applyTransactionToSender(this, transaction)
   }
 
@@ -87,7 +87,7 @@ module.exports = class Wallet {
    * Remove this wallet as the sender of a transaction.
    * @param {Transaction} transaction
    */
-  revertTransactionForSender (transaction) {
+  revertTransactionForSender(transaction) {
     return transactionHandler.revertTransactionForSender(this, transaction)
   }
 
@@ -95,7 +95,7 @@ module.exports = class Wallet {
    * Add transaction balance to this wallet.
    * @param {Transaction} transaction
    */
-  applyTransactionToRecipient (transaction) {
+  applyTransactionToRecipient(transaction) {
     return transactionHandler.applyTransactionToRecipient(this, transaction)
   }
 
@@ -103,7 +103,7 @@ module.exports = class Wallet {
    * Remove transaction balance from this wallet.
    * @param {Transaction} transaction
    */
-  revertTransactionForRecipient (transaction) {
+  revertTransactionForRecipient(transaction) {
     return transactionHandler.revertTransactionForRecipient(this, transaction)
   }
 
@@ -112,7 +112,7 @@ module.exports = class Wallet {
    * @param {Block} block
    * @returns {Boolean}
    */
-  applyBlock (block) {
+  applyBlock(block) {
     this.dirty = true
 
     if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
@@ -133,7 +133,7 @@ module.exports = class Wallet {
    * Remove block data from this wallet.
    * @param {Block} block
    */
-  revertBlock (block) {
+  revertBlock(block) {
     this.dirty = true
 
     if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
@@ -160,7 +160,7 @@ module.exports = class Wallet {
    * @param  {String}      publicKey
    * @return {Boolean}
    */
-  verify (transaction, signature, publicKey) {
+  verify(transaction, signature, publicKey) {
     const hash = crypto.getHash(transaction, true, true)
     return crypto.verifyHash(hash, signature, publicKey)
   }
@@ -171,15 +171,13 @@ module.exports = class Wallet {
    * @param  {MultiSignature} multisignature
    * @return {Boolean}
    */
-  verifySignatures (transaction, multisignature) {
+  verifySignatures(transaction, multisignature) {
     if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
       return false
     }
 
-    const keysgroup = multisignature.keysgroup.map(publicKey => {
-      return publicKey.startsWith('+') ? publicKey.slice(1) : publicKey
-    })
-    let signatures = Object.values(transaction.signatures)
+    const keysgroup = multisignature.keysgroup.map(publicKey => publicKey.startsWith('+') ? publicKey.slice(1) : publicKey)
+    const signatures = Object.values(transaction.signatures)
 
     let valid = 0
     for (const publicKey of keysgroup) {
@@ -201,26 +199,26 @@ module.exports = class Wallet {
    * @param  {Transaction} transaction
    * @return {[type]}
    */
-  auditApply (transaction) {
+  auditApply(transaction) {
     const audit = []
 
-    audit.push({ 'Network': configManager.config })
+    audit.push({ Network: configManager.config })
 
     if (this.multisignature) {
-      audit.push({ 'Mutisignature': this.verifySignatures(transaction, this.multisignature) })
+      audit.push({ Mutisignature: this.verifySignatures(transaction, this.multisignature) })
     } else {
       audit.push({ 'Remaining amount': +(this.balance.minus(transaction.amount).minus(transaction.fee)).toFixed() })
       audit.push({ 'Signature validation': crypto.verify(transaction) })
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       if (this.secondPublicKey) {
         audit.push({
-          'Second Signature Verification': crypto.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
+          'Second Signature Verification': crypto.verifySecondSignature(transaction, this.secondPublicKey, configManager.config), // eslint-disable-line max-len
         })
       }
     }
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      audit.push({ 'Transfer': true })
+      audit.push({ Transfer: true })
     }
 
     if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
@@ -247,11 +245,11 @@ module.exports = class Wallet {
     }
 
     if (transaction.type === TRANSACTION_TYPES.IPFS) {
-      audit.push({ 'IPFS': true })
+      audit.push({ IPFS: true })
     }
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      audit.push({ 'Timelock': true })
+      audit.push({ Timelock: true })
     }
 
     if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
@@ -278,7 +276,7 @@ module.exports = class Wallet {
    * Get formatted wallet address and balance as string.
    * @return {String}
    */
-  toString () {
+  toString() {
     return `${this.address} (${formatArktoshi(this.balance)})`
   }
 
@@ -289,7 +287,7 @@ module.exports = class Wallet {
    * @param  {String} publicKey
    * @return {Boolean}
    */
-  __verifyTransactionSignatures (transaction, signatures, publicKey) {
+  __verifyTransactionSignatures(transaction, signatures, publicKey) {
     for (let i = 0; i < signatures.length; i++) {
       const signature = signatures[i]
       if (this.verify(transaction, signature, publicKey)) {

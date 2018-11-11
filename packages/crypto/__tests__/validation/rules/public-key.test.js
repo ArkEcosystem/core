@@ -1,4 +1,4 @@
-'use strict'
+
 
 const rule = require('../../../lib/validation/rules/public-key')
 

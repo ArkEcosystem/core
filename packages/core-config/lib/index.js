@@ -1,4 +1,4 @@
-'use strict'
+
 
 const { client } = require('@arkecosystem/crypto')
 const loader = require('./loader')
@@ -10,11 +10,11 @@ const loader = require('./loader')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'config',
-  async register (container, options) {
+  async register(container, options) {
     const config = await loader.setUp(options)
 
     client.setConfig(config.network)
 
     return config
-  }
+  },
 }

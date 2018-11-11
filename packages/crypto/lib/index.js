@@ -7,7 +7,7 @@ module.exports = {
     Block: require('./models/block'),
     Delegate: require('./models/delegate'),
     Transaction: require('./models/transaction'),
-    Wallet: require('./models/wallet')
+    Wallet: require('./models/wallet'),
   },
 
   // Identities...
@@ -16,7 +16,7 @@ module.exports = {
     keys: require('./identities/keys'),
     privateKey: require('./identities/private-key'),
     publicKey: require('./identities/public-key'),
-    wif: require('./identities/wif')
+    wif: require('./identities/wif'),
   },
 
   // Builder...
@@ -38,5 +38,5 @@ module.exports = {
   ...require('./utils'),
 
   // Validations
-  ...require('./validation')
+  ...require('./validation'),
 }

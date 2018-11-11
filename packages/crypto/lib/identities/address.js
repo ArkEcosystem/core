@@ -4,11 +4,11 @@ const utils = require('../crypto/utils')
 const PublicKey = require('./public-key')
 
 module.exports = class Address {
-  static fromPassphrase (passphrase, networkVersion) {
+  static fromPassphrase(passphrase, networkVersion) {
     return Address.fromPublicKey(PublicKey.fromPassphrase(passphrase), networkVersion)
   }
 
-  static fromPublicKey (publicKey, networkVersion) {
+  static fromPublicKey(publicKey, networkVersion) {
     const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
     if (!pubKeyRegex.test(publicKey)) {
       throw new Error(`publicKey '${publicKey}' is invalid`)
@@ -27,11 +27,11 @@ module.exports = class Address {
     return bs58check.encode(payload)
   }
 
-  static fromPrivateKey (privateKey, networkVersion) {
+  static fromPrivateKey(privateKey, networkVersion) {
     return Address.fromPublicKey(privateKey.publicKey, networkVersion)
   }
 
-  static validate (address, networkVersion) {
+  static validate(address, networkVersion) {
     if (!networkVersion) {
       networkVersion = configManager.get('pubKeyHash')
     }
