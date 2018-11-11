@@ -8,7 +8,7 @@
 .*/packages/**/lib
 
 [libs]
-flow-typed
+./node_modules/flow-typed
 
 [options]
 all=true
