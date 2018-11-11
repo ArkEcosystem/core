@@ -31,6 +31,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
     "express": "^4.16.4",
     "flow-bin": "^0.86.0",
     "flow-coverage-report": "^0.6.0",

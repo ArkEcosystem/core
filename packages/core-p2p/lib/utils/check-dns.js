@@ -18,7 +18,7 @@ module.exports = async hosts => {
     }
   }
 
-  Promise.reject(
+  return Promise.reject(
     new Error(
       "Please check your network connectivity, couldn't connect to any host.",
     ),
