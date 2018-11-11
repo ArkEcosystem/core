@@ -1,8 +1,6 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
-const app = require('../__support__/setup')
 const { crypto } = require('@arkecosystem/crypto')
+const app = require('../__support__/setup')
 
 let genesisBlock
 let genesisTransaction
@@ -39,8 +37,18 @@ describe('Transaction Repository', () => {
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
         expect(transaction).toContainKeys([
-          'id', 'version', 'sequence', 'timestamp', 'type', 'amount', 'fee', 'serialized',
-          'blockId', 'senderPublicKey', 'vendorFieldHex', 'block'
+          'id',
+          'version',
+          'sequence',
+          'timestamp',
+          'type',
+          'amount',
+          'fee',
+          'serialized',
+          'blockId',
+          'senderPublicKey',
+          'vendorFieldHex',
+          'block',
         ])
       })
 
@@ -68,7 +76,10 @@ describe('Transaction Repository', () => {
     })
 
     it('should search transactions by the specified `senderPublicKey`', async () => {
-      await expectSearch({ senderPublicKey: genesisTransaction.senderPublicKey }, 51)
+      await expectSearch(
+        { senderPublicKey: genesisTransaction.senderPublicKey },
+        51,
+      )
     })
 
     it('should search transactions by the specified `senderId`', async () => {
@@ -81,39 +92,54 @@ describe('Transaction Repository', () => {
     })
 
     it('should search transactions by the specified `timestamp`', async () => {
-      await expectSearch({
-        timestamp: {
-          from: genesisTransaction.timestamp,
-          to: genesisTransaction.timestamp
-        }
-      }, 153)
+      await expectSearch(
+        {
+          timestamp: {
+            from: genesisTransaction.timestamp,
+            to: genesisTransaction.timestamp,
+          },
+        },
+        153,
+      )
     })
 
     it('should search transactions by the specified `amount`', async () => {
-      await expectSearch({
-        amount: {
-          from: genesisTransaction.amount,
-          to: genesisTransaction.amount
-        }
-      }, 50)
+      await expectSearch(
+        {
+          amount: {
+            from: genesisTransaction.amount,
+            to: genesisTransaction.amount,
+          },
+        },
+        50,
+      )
     })
 
     it('should search transactions by the specified `fee`', async () => {
-      await expectSearch({
-        fee: {
-          from: genesisTransaction.fee,
-          to: genesisTransaction.fee
-        }
-      }, 153)
+      await expectSearch(
+        {
+          fee: {
+            from: genesisTransaction.fee,
+            to: genesisTransaction.fee,
+          },
+        },
+        153,
+      )
     })
 
     it('should search transactions by the specified `vendorFieldHex`', async () => {
-      await expectSearch({ vendorFieldHex: genesisTransaction.vendorFieldHex }, 153)
+      await expectSearch(
+        { vendorFieldHex: genesisTransaction.vendorFieldHex },
+        153,
+      )
     })
 
     describe('when there are more than 1 condition', () => {
       it('should search transactions that includes all of them (AND)', async () => {
-        await expectSearch({ recipientId: genesisTransaction.recipientId, type: 3 }, 1)
+        await expectSearch(
+          { recipientId: genesisTransaction.recipientId, type: 3 },
+          1,
+        )
       })
     })
 

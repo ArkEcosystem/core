@@ -1,12 +1,11 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
 const delegate = {
   username: 'genesis_9',
-  publicKey: '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
+  publicKey:
+    '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647',
 }
 
 beforeAll(async () => {
@@ -30,7 +29,9 @@ describe('API 1.0 - Delegates', () => {
 
   describe('GET /delegates/get', () => {
     it('should be ok using a username', async () => {
-      const response = await utils.request('GET', 'delegates/get', { username: delegate.username })
+      const response = await utils.request('GET', 'delegates/get', {
+        username: delegate.username,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data).toBeObject()
@@ -38,7 +39,9 @@ describe('API 1.0 - Delegates', () => {
     })
 
     it('should be ok using a publicKey', async () => {
-      const response = await utils.request('GET', 'delegates/get', { publicKey: delegate.publicKey })
+      const response = await utils.request('GET', 'delegates/get', {
+        publicKey: delegate.publicKey,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data).toBeObject()
@@ -59,7 +62,9 @@ describe('API 1.0 - Delegates', () => {
 
   describe('GET /delegates/search', () => {
     it('should be ok searching a username', async () => {
-      const response = await utils.request('GET', 'delegates/search', { q: delegate.username })
+      const response = await utils.request('GET', 'delegates/search', {
+        q: delegate.username,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data).toBeObject()
@@ -67,13 +72,14 @@ describe('API 1.0 - Delegates', () => {
     })
 
     // TODO when the DelegatesRepository#search method admits more parameters
-    xit('should not search using other parameters (V2)', () => {
-    })
+    it.skip('should not search using other parameters (V2)', () => {})
   })
 
   describe('GET /delegates/voters', () => {
     it('should be ok', async () => {
-      const response = await utils.request('GET', 'delegates/voters', { publicKey: delegate.publicKey })
+      const response = await utils.request('GET', 'delegates/voters', {
+        publicKey: delegate.publicKey,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data).toBeObject()
@@ -94,9 +100,13 @@ describe('API 1.0 - Delegates', () => {
 
   describe.skip('GET /delegates/forging/getForgedByAccount', () => {
     it('should be ok', async () => {
-      const response = await utils.request('GET', 'delegates/forging/getForgedByAccount', {
-        generatorPublicKey: delegate.publicKey
-      })
+      const response = await utils.request(
+        'GET',
+        'delegates/forging/getForgedByAccount',
+        {
+          generatorPublicKey: delegate.publicKey,
+        },
+      )
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data).toBeObject()

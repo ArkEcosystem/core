@@ -5,7 +5,7 @@ module.exports = class QueueInterface {
    * @param  {String} event
    * @return {void}
    */
-  constructor (blockchain, event) {
+  constructor(blockchain, event) {
     this.blockchain = blockchain
     this.event = event
   }
@@ -14,7 +14,7 @@ module.exports = class QueueInterface {
    * Drain the queue.
    * @return {void}
    */
-  drain () {
+  drain() {
     this.queue.drain = () => this.blockchain.dispatch(this.event)
   }
 
@@ -22,7 +22,7 @@ module.exports = class QueueInterface {
    * Pause the queue.
    * @return {void}
    */
-  pause () {
+  pause() {
     return this.queue.pause()
   }
 
@@ -30,7 +30,7 @@ module.exports = class QueueInterface {
    * Flush the queue.
    * @return {void}
    */
-  clear () {
+  clear() {
     return this.queue.remove(() => true)
   }
 
@@ -38,7 +38,7 @@ module.exports = class QueueInterface {
    * Resume the queue.
    * @return {void}
    */
-  resume () {
+  resume() {
     return this.queue.resume()
   }
 
@@ -46,7 +46,7 @@ module.exports = class QueueInterface {
    * Remove the item from the queue.
    * @return {void}
    */
-  remove (item) {
+  remove(item) {
     return this.queue.remove(item)
   }
 
@@ -55,7 +55,7 @@ module.exports = class QueueInterface {
    * @param {Function} callback
    * @return {void}
    */
-  push (callback) {
+  push(callback) {
     return this.queue.push(callback)
   }
 
@@ -63,11 +63,11 @@ module.exports = class QueueInterface {
    * Get the length of the queue.
    * @return {void}
    */
-  length () {
+  length() {
     return this.queue.length()
   }
 
-  destroy () {
+  destroy() {
     return this.queue.kill()
   }
 }

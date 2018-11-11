@@ -15,15 +15,19 @@ describe('Models - Wallet', () => {
       const wallet = new Wallet(address)
       const balance = parseInt((Math.random() * 1000).toFixed(8))
       wallet.balance = new Bignum(balance * ARKTOSHI)
-      expect(wallet.toString()).toBe(`${address} (${balance} ${configManager.config.client.symbol})`)
+      expect(wallet.toString()).toBe(
+        `${address} (${balance} ${configManager.config.client.symbol})`,
+      )
     })
   })
 
   describe('apply transaction', () => {
     const testWallet = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
     const data = {
-      publicKey: '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece',
-      secondPublicKey: '020d3c837d0a47ee7de1082cd48885003c5e92964e58bb34af3b58c6e42208ae03',
+      publicKey:
+        '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece',
+      secondPublicKey:
+        '020d3c837d0a47ee7de1082cd48885003c5e92964e58bb34af3b58c6e42208ae03',
       balance: new Bignum(109390000000),
       vote: null,
       username: null,
@@ -31,10 +35,10 @@ describe('Models - Wallet', () => {
       multisignature: null,
       dirty: false,
       producedBlocks: 0,
-      missedBlocks: 0
+      missedBlocks: 0,
     }
 
-    xit('should be ok for a multi-transaction', () => {
+    it.skip('should be ok for a multi-transaction', () => {
       Object.keys(data).forEach(k => (testWallet[k] = data[k]))
       expect(testWallet.canApply(multiTx)).toBeTrue()
     })
@@ -57,7 +61,7 @@ describe('Models - Wallet', () => {
         id: 1,
         generatorPublicKey: testWallet.publicKey,
         reward: new Bignum(1000000000),
-        totalFee: new Bignum(1000000000)
+        totalFee: new Bignum(1000000000),
       }
     })
 
@@ -78,7 +82,9 @@ describe('Models - Wallet', () => {
       block.totalFee += ''
       block.reward += ''
       testWallet.applyBlock(block)
-      expect(testWallet.balance).toBe(originalBlock.reward + originalBlock.totalFee)
+      expect(testWallet.balance).toBe(
+        originalBlock.reward + originalBlock.totalFee,
+      )
       expect(testWallet.producedBlocks).toBe(1)
       expect(testWallet.forgedFees).toBe(originalBlock.totalFee)
       expect(testWallet.forgedRewards).toBe(originalBlock.totalFee)

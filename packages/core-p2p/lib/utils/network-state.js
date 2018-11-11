@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const config = container.resolvePlugin('config')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -12,13 +11,18 @@ const { slots } = require('@arkecosystem/crypto')
  * @returns {Object} JSON response for the forger to assess if allowed to forge or not
  */
 module.exports = (monitor, lastBlock) => {
-  const createStateObject = (quorum, minimumNetworkReach, coldStart, overHeightBlockHeader) => ({
+  const createStateObject = (
+    quorum,
+    minimumNetworkReach,
+    coldStart,
+    overHeightBlockHeader,
+  ) => ({
     quorum,
     nodeHeight: lastBlock.data.height,
     lastBlockId: lastBlock.data.id,
     overHeightBlockHeader,
     minimumNetworkReach,
-    coldStart
+    coldStart,
   })
 
   const peers = monitor.getPeers()
@@ -44,17 +48,22 @@ module.exports = (monitor, lastBlock) => {
 
   for (const peer of peers) {
     if (peer.state.height === lastBlock.data.height) {
-      if (peer.state.header.id === lastBlock.data.id && peer.state.currentSlot === currentSlot && peer.state.forgingAllowed) {
-        quorum = quorum + 1
+      if (
+        peer.state.header.id === lastBlock.data.id
+        && peer.state.currentSlot === currentSlot
+        && peer.state.forgingAllowed
+      ) {
+        quorum += 1
       } else {
-        noQuorum = noQuorum + 1
+        noQuorum += 1
       }
     } else if (peer.state.height > lastBlock.data.height) {
-      noQuorum = noQuorum + 1
-      overHeightQuorum = overHeightQuorum + 1
+      noQuorum += 1
+      overHeightQuorum += 1
       overHeightBlockHeader = peer.state.header
-    } else if (lastBlock.data.height - peer.state.height < 3) { // suppose the max network elasticity accross 3 blocks
-      noQuorum = noQuorum + 1
+    } else if (lastBlock.data.height - peer.state.height < 3) {
+      // suppose the max network elasticity accross 3 blocks
+      noQuorum += 1
     }
   }
 

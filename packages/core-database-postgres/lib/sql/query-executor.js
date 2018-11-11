@@ -4,7 +4,7 @@ module.exports = class QueryExecutor {
    * @param  {[type]} connection
    * @return {QueryBuilder}
    */
-  constructor (connection) {
+  constructor(connection) {
     this.connection = connection
   }
 
@@ -14,7 +14,7 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async none (query, parameters) {
+  async none(query, parameters) {
     return this.__executeQueryFile(query, parameters, 'none')
   }
 
@@ -24,7 +24,7 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async one (query, parameters) {
+  async one(query, parameters) {
     return this.__executeQueryFile(query, parameters, 'one')
   }
 
@@ -34,7 +34,7 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async oneOrNone (query, parameters) {
+  async oneOrNone(query, parameters) {
     return this.__executeQueryFile(query, parameters, 'oneOrNone')
   }
 
@@ -44,7 +44,7 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async many (query, parameters) {
+  async many(query, parameters) {
     return this.__executeQueryFile(query, parameters, 'many')
   }
 
@@ -54,7 +54,7 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async manyOrNone (query, parameters) {
+  async manyOrNone(query, parameters) {
     return this.__executeQueryFile(query, parameters, 'manyOrNone')
   }
 
@@ -64,7 +64,7 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async any (query, parameters) {
+  async any(query, parameters) {
     return this.__executeQueryFile(query, parameters, 'any')
   }
 
@@ -75,7 +75,7 @@ module.exports = class QueryExecutor {
    * @param  {String} method
    * @return {QueryBuilder}
    */
-  async __executeQueryFile (query, parameters, method) {
+  async __executeQueryFile(query, parameters, method) {
     return this.connection.db[method](query, parameters)
   }
 }

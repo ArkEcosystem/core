@@ -1,8 +1,7 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 
 let { Bignum } = require('@arkecosystem/crypto')
+
 Bignum = Bignum.clone({ DECIMAL_PLACES: 2 })
 
 /**
@@ -19,10 +18,15 @@ exports.calculateApproval = (delegate, height) => {
   }
 
   const constants = config.getConstants(height)
-  const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus((height - constants.height) * constants.reward)
+  const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus(
+    (height - constants.height) * constants.reward,
+  )
   const voteBalance = new Bignum(delegate.voteBalance)
 
-  return +voteBalance.times(100).dividedBy(totalSupply).toFixed(2)
+  return +voteBalance
+    .times(100)
+    .dividedBy(totalSupply)
+    .toFixed(2)
 }
 
 /**
@@ -38,5 +42,8 @@ exports.calculateProductivity = delegate => {
     return +(0).toFixed(2)
   }
 
-  return +(100 - (missedBlocks / ((producedBlocks + missedBlocks) / 100))).toFixed(2)
+  return +(
+    100
+    - missedBlocks / ((producedBlocks + missedBlocks) / 100)
+  ).toFixed(2)
 }

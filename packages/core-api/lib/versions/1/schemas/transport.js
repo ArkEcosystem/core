@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * The AJV schema for the transport endpoints.
  * @type {Object}
@@ -10,63 +8,63 @@ module.exports = {
     properties: {
       ip: {
         type: 'string',
-        format: 'ip'
+        format: 'ip',
       },
       port: {
         type: 'integer',
         minimum: 1,
-        maximum: 65535
+        maximum: 65535,
       },
       os: {
         type: 'string',
-        maxLength: 64
+        maxLength: 64,
       },
       nethash: {
         type: 'string',
-        maxLength: 64
+        maxLength: 64,
       },
       version: {
         type: 'string',
-        maxLength: 11
-      }
+        maxLength: 11,
+      },
     },
-    required: ['ip', 'port', 'nethash', 'version']
+    required: ['ip', 'port', 'nethash', 'version'],
   },
   commonBlocks: {
     type: 'object',
     properties: {
       ids: {
         type: 'string',
-        format: 'csv'
-      }
+        format: 'csv',
+      },
     },
-    required: ['ids']
+    required: ['ids'],
   },
   transactionsFromIds: {
     type: 'object',
     properties: {
       ids: {
         type: 'string',
-        format: 'csv'
-      }
+        format: 'csv',
+      },
     },
-    required: ['ids']
+    required: ['ids'],
   },
   blocks: {
     type: 'object',
     properties: {
       lastBlockHeight: {
-        type: 'integer'
-      }
-    }
+        type: 'integer',
+      },
+    },
   },
   block: {
     type: 'object',
     properties: {
       id: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+    },
   },
   signatures: {
     type: 'object',
@@ -75,22 +73,22 @@ module.exports = {
         type: 'object',
         properties: {
           transaction: {
-            type: 'string'
+            type: 'string',
           },
           signature: {
             type: 'string',
-            format: 'signature'
-          }
+            format: 'signature',
+          },
         },
-        required: ['transaction', 'signature']
-      }
+        required: ['transaction', 'signature'],
+      },
     },
-    required: ['signature']
+    required: ['signature'],
   },
   transactions: {
     id: 'nodeManager.transactions',
     type: 'array',
     uniqueItems: true,
-    required: ['transactions']
-  }
-};
+    required: ['transactions'],
+  },
+}

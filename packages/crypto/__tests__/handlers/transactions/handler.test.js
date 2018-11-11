@@ -12,7 +12,8 @@ beforeEach(() => {
   wallet = {
     address: 'DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh',
     balance: new Bignum(4527654310),
-    publicKey: '034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126'
+    publicKey:
+      '034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126',
   }
 
   transaction = {
@@ -25,9 +26,11 @@ beforeEach(() => {
     fee: new Bignum(10000000),
     senderId: 'DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh',
     recipientId: 'DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh',
-    senderPublicKey: '034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126',
-    signature: '304402205881204c6e515965098099b0e20a7bf104cd1bad6cfe8efd1641729fcbfdbf1502203cfa3bd9efb2ad250e2709aaf719ac0db04cb85d27a96bc8149aeaab224de82b', // eslint-disable-line max-len
-    asset: {}
+    senderPublicKey:
+      '034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126',
+    signature:
+      '304402205881204c6e515965098099b0e20a7bf104cd1bad6cfe8efd1641729fcbfdbf1502203cfa3bd9efb2ad250e2709aaf719ac0db04cb85d27a96bc8149aeaab224de82b', // eslint-disable-line max-len
+    asset: {},
   }
 })
 
@@ -72,7 +75,11 @@ describe('Handler', () => {
 
       handler.applyTransactionToSender(wallet, transaction)
 
-      expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount).minus(transaction.fee))
+      expect(wallet.balance).toEqual(
+        new Bignum(initialBalance)
+          .minus(transaction.amount)
+          .minus(transaction.fee),
+      )
     })
 
     it('should not be ok', () => {
@@ -98,7 +105,11 @@ describe('Handler', () => {
 
       handler.applyTransactionToSender(wallet, transaction)
 
-      expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount).minus(transaction.fee))
+      expect(wallet.balance).toEqual(
+        new Bignum(initialBalance)
+          .minus(transaction.amount)
+          .minus(transaction.fee),
+      )
     })
   })
 
@@ -115,7 +126,11 @@ describe('Handler', () => {
 
       handler.revertTransactionForSender(wallet, transaction)
 
-      expect(wallet.balance).toEqual(new Bignum(initialBalance).plus(transaction.amount).plus(transaction.fee))
+      expect(wallet.balance).toEqual(
+        new Bignum(initialBalance)
+          .plus(transaction.amount)
+          .plus(transaction.fee),
+      )
     })
 
     it('should not be ok', () => {
@@ -141,7 +156,11 @@ describe('Handler', () => {
 
       handler.revertTransactionForSender(wallet, transaction)
 
-      expect(wallet.balance).toEqual(new Bignum(initialBalance).plus(transaction.amount).plus(transaction.fee))
+      expect(wallet.balance).toEqual(
+        new Bignum(initialBalance)
+          .plus(transaction.amount)
+          .plus(transaction.fee),
+      )
     })
   })
 
@@ -156,7 +175,9 @@ describe('Handler', () => {
 
       handler.applyTransactionToRecipient(wallet, transaction)
 
-      expect(wallet.balance).toEqual(new Bignum(initialBalance).plus(transaction.amount))
+      expect(wallet.balance).toEqual(
+        new Bignum(initialBalance).plus(transaction.amount),
+      )
     })
 
     it('should not be ok', () => {
@@ -182,7 +203,9 @@ describe('Handler', () => {
 
       handler.revertTransactionForRecipient(wallet, transaction)
 
-      expect(wallet.balance).toEqual(new Bignum(initialBalance - transaction.amount))
+      expect(wallet.balance).toEqual(
+        new Bignum(initialBalance - transaction.amount),
+      )
     })
 
     it('should not be ok', () => {

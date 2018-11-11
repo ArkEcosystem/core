@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
+
 - Support for next forger calculations
 - Relay support for wake-up from forger (to sync before forging)
 - Additional tests implemented
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Enable/Disable peer discovery
 
 ### Changed
+
 - Network state calculation (new internal/networkState) taking PBFT into account
 - Peer optimisations (blacklisting, whitelisting, coldstart) options for peers and forger
 - Overall reduced the complexity of how the P2P API is structured
@@ -35,9 +37,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Removed
+
 - Remove threading for block downloads
 
 ### Fixed
+
 - Handle "no common block" banning
 - Various cases of bad error handling
 - Various inconsistencies between the v1 P2P API and current implementation
@@ -51,4 +55,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 0.1.1 - 2018-06-14
 
 ### Added
+
 - initial release

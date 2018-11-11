@@ -1,5 +1,3 @@
-'use strict'
-
 const Joi = require('joi')
 
 /**
@@ -8,6 +6,6 @@ const Joi = require('joi')
 exports.emitEvent = {
   payload: {
     event: Joi.string(),
-    body: Joi.any()
-  }
+    body: Joi.any(),
+  },
 }

@@ -1,11 +1,9 @@
-'use strict'
-
 class TransactionPoolManager {
   /**
    * Create a new transaction pool manager instance.
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.connections = {}
   }
 
@@ -14,7 +12,7 @@ class TransactionPoolManager {
    * @param  {String} name
    * @return {TransactionPoolInterface}
    */
-  connection (name = 'default') {
+  connection(name = 'default') {
     return this.connections[name]
   }
 
@@ -24,7 +22,7 @@ class TransactionPoolManager {
    * @param  {String} name
    * @return {void}
    */
-  async makeConnection (connection, name = 'default') {
+  async makeConnection(connection, name = 'default') {
     this.connections[name] = await connection.make()
   }
 }

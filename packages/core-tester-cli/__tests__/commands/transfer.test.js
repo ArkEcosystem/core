@@ -1,18 +1,21 @@
-'use strict'
-
-const TransferCommand = require('../../lib/commands/transfer')
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
+const TransferCommand = require('../../lib/commands/transfer')
+
 const mockAxios = new MockAdapter(axios)
 
 const defaultOpts = {
   skipTesting: true,
-  skipValidation: true
+  skipValidation: true,
 }
 beforeEach(() => {
   // Just passthru. We'll test the Command class logic in its own test file more thoroughly
-  mockAxios.onGet('http://localhost:4003/api/v2/node/configuration').reply(200, { data: { constants: {} } })
-  mockAxios.onGet('http://localhost:4000/config').reply(200, { data: { network: {} } })
+  mockAxios
+    .onGet('http://localhost:4003/api/v2/node/configuration')
+    .reply(200, { data: { constants: {} } })
+  mockAxios
+    .onGet('http://localhost:4000/config')
+    .reply(200, { data: { network: {} } })
   jest.spyOn(axios, 'get')
   jest.spyOn(axios, 'post')
 })
@@ -38,10 +41,12 @@ describe('Commands - Transfer', async () => {
       transferFee: expectedFee,
       number: 1,
       smartBridge: 'foo bar',
-      recipient: expectedRecipientId
+      recipient: expectedRecipientId,
     }
     const command = await TransferCommand.init(opts)
-    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    mockAxios
+      .onPost('http://localhost:4003/api/v2/transactions')
+      .reply(200, { data: {} })
     let expectedTransactions = []
     jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
       expectedTransactions = transactions
@@ -49,14 +54,15 @@ describe('Commands - Transfer', async () => {
 
     await command.run()
 
-    expect(expectedTransactions).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        vendorField: 'foo bar',
-        amount: TransferCommand.__arkToArktoshi(expectedTransactionAmount),
-        fee: TransferCommand.__arkToArktoshi(expectedFee),
-        recipientId: expectedRecipientId
-      })
-    ])
+    expect(expectedTransactions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          vendorField: 'foo bar',
+          amount: TransferCommand.__arkToArktoshi(expectedTransactionAmount),
+          fee: TransferCommand.__arkToArktoshi(expectedFee),
+          recipientId: expectedRecipientId,
+        }),
+      ]),
     )
   })
 
@@ -66,10 +72,12 @@ describe('Commands - Transfer', async () => {
       ...defaultOpts,
       amount: TransferCommand.__arkToArktoshi(2),
       transferFee: TransferCommand.__arkToArktoshi(0.1),
-      number: expectedTxCount
+      number: expectedTxCount,
     }
     const command = await TransferCommand.init(opts)
-    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    mockAxios
+      .onPost('http://localhost:4003/api/v2/transactions')
+      .reply(200, { data: {} })
     let expectedTransactions = []
     jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
       expectedTransactions = transactions
@@ -93,10 +101,12 @@ describe('Commands - Transfer', async () => {
       amount: TransferCommand.__arkToArktoshi(2),
       transferFee: TransferCommand.__arkToArktoshi(0.1),
       number: expectedTxCount,
-      recipient: expectedRecipientId
+      recipient: expectedRecipientId,
     }
     const command = await TransferCommand.init(opts)
-    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    mockAxios
+      .onPost('http://localhost:4003/api/v2/transactions')
+      .reply(200, { data: {} })
     let expectedTransactions = []
     jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
       expectedTransactions = transactions
@@ -118,10 +128,12 @@ describe('Commands - Transfer', async () => {
       amount: expectedTransactionAmount,
       transferFee: expectedFee,
       number: 1,
-      secondPassphrase: 'she sells sea shells down by the sea shore'
+      secondPassphrase: 'she sells sea shells down by the sea shore',
     }
     const command = await TransferCommand.init(opts)
-    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    mockAxios
+      .onPost('http://localhost:4003/api/v2/transactions')
+      .reply(200, { data: {} })
     let expectedTransactions = []
     jest.spyOn(axios, 'post').mockImplementation((uri, { transactions }) => {
       expectedTransactions = transactions

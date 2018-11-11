@@ -4,7 +4,7 @@ module.exports = class Repository {
    * @param  {Object} db
    * @param  {Object} pgp
    */
-  constructor (db, pgp) {
+  constructor(db, pgp) {
     this.db = db
     this.pgp = pgp
     this.model = this.getModel()
@@ -14,15 +14,17 @@ module.exports = class Repository {
    * Estimate the number of records in the table.
    * @return {Promise}
    */
-  async estimate () {
-    return this.db.one(`SELECT count_estimate('SELECT * FROM ${this.model.getTable()})`)
+  async estimate() {
+    return this.db.one(
+      `SELECT count_estimate('SELECT * FROM ${this.model.getTable()})`,
+    )
   }
 
   /**
    * Run a truncate statement on the table.
    * @return {Promise}
    */
-  async truncate () {
+  async truncate() {
     return this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`)
   }
 
@@ -31,7 +33,7 @@ module.exports = class Repository {
    * @param  {Array|Object} item
    * @return {Promise}
    */
-  async create (item) {
+  async create(item) {
     return this.db.none(this.__insertQuery(item))
   }
 
@@ -40,7 +42,7 @@ module.exports = class Repository {
    * @param  {Array|Object} item
    * @return {Promise}
    */
-  async update (item) {
+  async update(item) {
     return this.db.none(this.__updateQuery(item))
   }
 
@@ -48,7 +50,7 @@ module.exports = class Repository {
    * Get the model related to this repository.
    * @return {Object}
    */
-  getModel () {
+  getModel() {
     throw new Error('Method [getModel] not implemented!')
   }
 
@@ -57,7 +59,7 @@ module.exports = class Repository {
    * @param  {Array|Object} data
    * @return {String}
    */
-  __insertQuery (data) {
+  __insertQuery(data) {
     return this.pgp.helpers.insert(data, this.model.getColumnSet())
   }
 
@@ -66,7 +68,7 @@ module.exports = class Repository {
    * @param  {Array|Object} data
    * @return {String}
    */
-  __updateQuery (data) {
+  __updateQuery(data) {
     return this.pgp.helpers.update(data, this.model.getColumnSet())
   }
 }

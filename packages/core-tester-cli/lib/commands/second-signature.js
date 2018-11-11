@@ -1,5 +1,3 @@
-'use strict'
-
 const { client } = require('@arkecosystem/crypto')
 const { logger } = require('../utils')
 const Command = require('./command')
@@ -10,14 +8,14 @@ module.exports = class DelegateRegistrationCommand extends Command {
    * Run second-signature command.
    * @return {void}
    */
-  async run () {
+  async run() {
     const wallets = this.generateWallets()
 
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
       amount: this.options.amount || 5,
-      skipTesting: true
+      skipTesting: true,
     })
 
     logger.info(`Sending ${this.options.number} second signature transactions`)
@@ -25,7 +23,9 @@ module.exports = class DelegateRegistrationCommand extends Command {
     const transactions = []
     wallets.forEach((wallet, i) => {
       wallet.secondPassphrase = this.config.secondPassphrase || wallet.passphrase
-      const transaction = client.getBuilder().secondSignature()
+      const transaction = client
+        .getBuilder()
+        .secondSignature()
         .fee(Command.parseFee(this.options.signatureFee))
         .signatureAsset(wallet.secondPassphrase)
         .network(this.config.network.version)
@@ -36,7 +36,11 @@ module.exports = class DelegateRegistrationCommand extends Command {
       wallet.secondPublicKey = transaction.asset.signature.publicKey
       transactions.push(transaction)
 
-      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)})`)
+      logger.info(
+        `${i} ==> ${transaction.id}, ${
+          wallet.address
+        } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+      )
     })
 
     if (this.options.copy) {
@@ -45,7 +49,11 @@ module.exports = class DelegateRegistrationCommand extends Command {
     }
 
     try {
-      await this.sendTransactions(transactions, 'second-signature', !this.options.skipValidation)
+      await this.sendTransactions(
+        transactions,
+        'second-signature',
+        !this.options.skipValidation,
+      )
 
       if (this.options.skipValidation) {
         return
@@ -54,12 +62,19 @@ module.exports = class DelegateRegistrationCommand extends Command {
       for (const walletObject of wallets) {
         const wallet = await this.getWallet(walletObject.address)
 
-        if (wallet.secondPublicKey !== walletObject.secondPublicKey || wallet.publicKey !== walletObject.publicKey) {
+        if (
+          wallet.secondPublicKey !== walletObject.secondPublicKey
+          || wallet.publicKey !== walletObject.publicKey
+        ) {
           logger.error(`Invalid second signature for ${walletObject.address}.`)
         }
       }
     } catch (error) {
-      logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
+      logger.error(
+        `There was a problem sending transactions: ${
+          error.response ? error.response.data.message : error
+        }`,
+      )
     }
   }
 }

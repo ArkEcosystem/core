@@ -1,26 +1,24 @@
-'use strict'
-
 /**
  * Turns a "config" object into readable object.
  * @param  {Object} model
  * @return {Object}
  */
-module.exports = (config) => {
+module.exports = config => {
   const allowed = [
     '@arkecosystem/core-api',
     '@arkecosystem/core-graphql',
     '@arkecosystem/core-json-rpc',
-    '@arkecosystem/core-webhooks'
+    '@arkecosystem/core-webhooks',
   ]
 
-  let result = {}
+  const result = {}
 
   for (const [name, options] of Object.entries(config.plugins)) {
     if (allowed.includes(name)) {
       if (options.server) {
         result[name] = {
           enabled: !!options.server.enabled,
-          port: +options.server.port
+          port: +options.server.port,
         }
 
         continue
@@ -28,7 +26,7 @@ module.exports = (config) => {
 
       result[name] = {
         enabled: !!options.enabled,
-        port: +options.port
+        port: +options.port,
       }
     }
   }

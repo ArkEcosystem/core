@@ -1,9 +1,8 @@
-'use strict'
-
 const Boom = require('boom')
 const requestIp = require('request-ip')
 
 const container = require('@arkecosystem/core-container')
+
 const logger = container.resolvePlugin('logger')
 
 const { Block } = require('@arkecosystem/crypto').models
@@ -20,11 +19,11 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    let height = parseInt(request.query.height)
+    const height = parseInt(request.query.height)
     let data = []
 
     if (Number.isNaN(height)) {
@@ -33,13 +32,17 @@ exports.index = {
       data = await database.getBlocks(parseInt(height) + 1, 400)
     }
 
-    logger.info(`${requestIp.getClientIp(request)} has downloaded ${data.length} blocks from height ${request.query.height}`)
+    logger.info(
+      `${requestIp.getClientIp(request)} has downloaded ${
+        data.length
+      } blocks from height ${request.query.height}`,
+    )
 
     return { data }
   },
   options: {
-    validate: schema.index
-  }
+    validate: schema.index,
+  },
 }
 
 /**
@@ -51,7 +54,7 @@ exports.store = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
     if (blockchain.pingBlock(request.payload.block)) {
@@ -62,7 +65,10 @@ exports.store = {
     const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
     // Are we ready to get it?
-    if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== request.payload.block.height) {
+    if (
+      lastDownloadedBlock
+      && lastDownloadedBlock.data.height + 1 !== request.payload.block.height
+    ) {
       return h.response(null).code(202)
     }
 
@@ -97,7 +103,9 @@ exports.store = {
 
       // NOTE: reorder them correctly
       block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
-      logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
+      logger.debug(
+        `Found missing transactions: ${block.transactions.map(tx => tx.id)}`,
+      )
 
       if (block.transactions.length !== block.numberOfTransactions) {
         return Boom.badRequest()
@@ -111,8 +119,8 @@ exports.store = {
     return h.response(null).code(201)
   },
   options: {
-    validate: schema.store
-  }
+    validate: schema.store,
+  },
 }
 
 /**
@@ -124,22 +132,25 @@ exports.common = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    const ids = request.query.blocks.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
+    const ids = request.query.blocks
+      .split(',')
+      .slice(0, 9)
+      .filter(id => id.match(/^\d+$/))
 
     const commonBlocks = await database.getCommonBlocks(ids)
 
     return {
       data: {
         common: commonBlocks.length ? commonBlocks[0] : null,
-        lastBlockHeight: blockchain.getLastBlock().data.height
-      }
+        lastBlockHeight: blockchain.getLastBlock().data.height,
+      },
     }
   },
   options: {
-    validate: schema.common
-  }
+    validate: schema.common,
+  },
 }

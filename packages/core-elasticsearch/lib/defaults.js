@@ -1,14 +1,12 @@
-'use strict'
-
 module.exports = {
   server: {
     host: '0.0.0.0',
     port: 4007,
-    whitelist: ['*']
+    whitelist: ['*'],
   },
   client: {
     host: 'localhost:9200',
-    log: 'info'
+    log: 'info',
   },
-  chunkSize: 50000
+  chunkSize: 50000,
 }

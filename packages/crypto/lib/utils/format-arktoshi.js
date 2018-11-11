@@ -6,8 +6,10 @@ const configManager = require('../managers/config')
  * @param  {Number|String|Bignum} amount
  * @return {String}
  */
-module.exports = (amount) => {
-  let localeString = (+amount / ARKTOSHI).toLocaleString('en', { minimumFractionDigits: 8 })
+module.exports = amount => {
+  let localeString = (+amount / ARKTOSHI).toLocaleString('en', {
+    minimumFractionDigits: 8,
+  })
 
   if (localeString.includes('.')) {
     while (localeString.slice(-1) === '0') {

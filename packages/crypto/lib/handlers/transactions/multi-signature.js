@@ -7,7 +7,7 @@ class MultiSignatureHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  canApply (wallet, transaction) {
+  canApply(wallet, transaction) {
     if (!super.canApply(wallet, transaction)) {
       return false
     }
@@ -26,7 +26,10 @@ class MultiSignatureHandler extends Handler {
       return false
     }
 
-    return wallet.verifySignatures(transaction, transaction.asset.multisignature)
+    return wallet.verifySignatures(
+      transaction,
+      transaction.asset.multisignature,
+    )
   }
 
   /**
@@ -35,7 +38,7 @@ class MultiSignatureHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  apply (wallet, transaction) {
+  apply(wallet, transaction) {
     wallet.multisignature = transaction.asset.multisignature
   }
 
@@ -45,7 +48,7 @@ class MultiSignatureHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  revert (wallet, transaction) {
+  revert(wallet, transaction) {
     wallet.multisignature = null
   }
 }

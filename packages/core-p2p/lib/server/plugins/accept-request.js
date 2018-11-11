@@ -1,5 +1,3 @@
-'use strict'
-
 const Boom = require('boom')
 const requestIp = require('request-ip')
 const isWhitelisted = require('../../utils/is-whitelist')
@@ -16,14 +14,17 @@ const register = async (server, options) => {
 
   server.ext({
     type: 'onRequest',
-    async method (request, h) {
+    async method(request, h) {
       const remoteAddress = requestIp.getClientIp(request)
 
       if (request.path.startsWith('/config')) {
         return h.continue
       }
 
-      if (request.headers['x-auth'] === 'forger' || request.path.startsWith('/remote')) {
+      if (
+        request.headers['x-auth'] === 'forger'
+        || request.path.startsWith('/remote')
+      ) {
         return isWhitelisted(options.whitelist, remoteAddress)
           ? h.continue
           : Boom.forbidden()
@@ -51,7 +52,7 @@ const register = async (server, options) => {
       }
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -62,5 +63,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'accept-request',
   version: '0.1.0',
-  register
+  register,
 }

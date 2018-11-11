@@ -1,5 +1,3 @@
-'use strict'
-
 const rule = require('../../../lib/validation/rules/address')
 
 describe('Address Rule', () => {

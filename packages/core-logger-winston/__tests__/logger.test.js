@@ -1,5 +1,3 @@
-'use strict'
-
 const capcon = require('capture-console')
 const WinstonDriver = require('../lib/driver')
 
@@ -8,14 +6,16 @@ let message
 
 beforeAll(() => {
   const driver = new WinstonDriver({
-    transports: [{
-      constructor: 'Console'
-    }]
+    transports: [
+      {
+        constructor: 'Console',
+      },
+    ],
   })
 
   logger = driver.make()
 
-  capcon.startCapture(process.stdout, (stdout) => (message += stdout))
+  capcon.startCapture(process.stdout, stdout => (message += stdout))
 })
 
 describe('Logger', () => {

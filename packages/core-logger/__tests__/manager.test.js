@@ -1,9 +1,7 @@
-'use strict'
-
 const loggerManager = require('../lib/manager')
 
 class FakeDriver {
-  make () {
+  make() {
     return this
   }
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
@@ -21,7 +19,9 @@ afterAll(async () => {
 describe('API 1.0 - Blocks', () => {
   describe('GET /blocks/get?id', () => {
     it('should return blocks based on id', async () => {
-      const response = await utils.request('GET', 'blocks/get', { id: genesisBlock.id })
+      const response = await utils.request('GET', 'blocks/get', {
+        id: genesisBlock.id,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data.block).toBeObject()
@@ -30,7 +30,9 @@ describe('API 1.0 - Blocks', () => {
     })
 
     it('should return block not found', async () => {
-      const response = await utils.request('GET', 'blocks/get', { id: '18777we16674628308671' })
+      const response = await utils.request('GET', 'blocks/get', {
+        id: '18777we16674628308671',
+      })
       utils.expectError(response)
 
       expect(response.data.error).toContain('not found')
@@ -66,7 +68,7 @@ describe('API 1.0 - Blocks', () => {
         'secondsignature',
         'delegate',
         'vote',
-        'multisignature'
+        'multisignature',
       ])
     })
   })

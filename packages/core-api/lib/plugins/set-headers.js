@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * The register method used by hapi.js.
  * @param  {Hapi.Server} server
@@ -9,7 +7,7 @@
 const register = async (server, options) => {
   server.ext({
     type: 'onPreResponse',
-    async method (request, h) {
+    async method(request, h) {
       const response = request.response
       if (response.isBoom && response.data) {
         // Deleting the property beforehand makes it appear last in the
@@ -19,7 +17,7 @@ const register = async (server, options) => {
       }
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -30,5 +28,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'set-headers',
   version: '0.1.0',
-  register
+  register,
 }

@@ -16,7 +16,10 @@ describe('IPFS Transaction', () => {
 
   it('should have its specific properties', () => {
     expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.IPFS)
-    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.IPFS))
+    expect(builder).toHaveProperty(
+      'data.fee',
+      feeManager.get(TRANSACTION_TYPES.IPFS),
+    )
     expect(builder).toHaveProperty('data.amount', 0)
     expect(builder).toHaveProperty('data.vendorFieldHex', null)
     expect(builder).toHaveProperty('data.senderPublicKey', null)
@@ -37,7 +40,7 @@ describe('IPFS Transaction', () => {
   describe('vendorField', () => {
     // TODO This is test is OK, but the Subject Under Test might be wrong,
     // so it is better to not assume that this is the desired behaviour
-    xit('should generate and set the vendorFieldHex', () => {
+    it.skip('should generate and set the vendorFieldHex', () => {
       const data = 'hash'
       const hex = Buffer.from(data, 0).toString('hex')
       const paddedHex = hex.padStart(128, '0')

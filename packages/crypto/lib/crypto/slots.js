@@ -5,7 +5,7 @@ class Slots {
   /**
    * Create a new Slot instance.
    */
-  constructor () {
+  constructor() {
     this.resetHeight()
   }
 
@@ -13,7 +13,7 @@ class Slots {
    * Get the height we are currently at.
    * @return {Number}
    */
-  getHeight () {
+  getHeight() {
     return this.height
   }
 
@@ -22,7 +22,7 @@ class Slots {
    * @param  {Number} height
    * @return {void}
    */
-  setHeight (height) {
+  setHeight(height) {
     this.height = height
   }
 
@@ -30,7 +30,7 @@ class Slots {
    * Reset the height to the initial value.
    * @return {void}
    */
-  resetHeight () {
+  resetHeight() {
     this.height = 1
   }
 
@@ -39,7 +39,7 @@ class Slots {
    * @param  {Number} time
    * @return {Number}
    */
-  getEpochTime (time) {
+  getEpochTime(time) {
     if (time === undefined) {
       time = moment().valueOf()
     }
@@ -53,7 +53,7 @@ class Slots {
    * Get beginning epoch time.
    * @return {Moment}
    */
-  beginEpochTime () {
+  beginEpochTime() {
     return moment(this.getConstant('epoch')).utc()
   }
 
@@ -62,7 +62,7 @@ class Slots {
    * @param  {Number} time
    * @return {Number}
    */
-  getTime (time) {
+  getTime(time) {
     return this.getEpochTime(time)
   }
 
@@ -71,7 +71,7 @@ class Slots {
    * @param  {Number} epochTime
    * @return {Number}
    */
-  getRealTime (epochTime) {
+  getRealTime(epochTime) {
     if (epochTime === undefined) {
       epochTime = this.getTime()
     }
@@ -86,7 +86,7 @@ class Slots {
    * @param  {Number} epochTime
    * @return {Number}
    */
-  getSlotNumber (epochTime) {
+  getSlotNumber(epochTime) {
     if (epochTime === undefined) {
       epochTime = this.getTime()
     }
@@ -99,7 +99,7 @@ class Slots {
    * @param  {Number} slot
    * @return {Number}
    */
-  getSlotTime (slot) {
+  getSlotTime(slot) {
     return slot * this.getConstant('blocktime')
   }
 
@@ -107,7 +107,7 @@ class Slots {
    * Get the next slot number.
    * @return {Number}
    */
-  getNextSlot () {
+  getNextSlot() {
     return this.getSlotNumber() + 1
   }
 
@@ -116,7 +116,7 @@ class Slots {
    * @param  {Number} nextSlot
    * @return {Number}
    */
-  getLastSlot (nextSlot) {
+  getLastSlot(nextSlot) {
     return nextSlot + this.getConstant('activeDelegates')
   }
 
@@ -125,7 +125,7 @@ class Slots {
    * @param  {String} key
    * @return {*}
    */
-  getConstant (key) {
+  getConstant(key) {
     return configManager.getConstants(this.height)[key]
   }
 
@@ -134,12 +134,18 @@ class Slots {
    * @param  {Number} epochTime
    * @return {Boolean}
    */
-  isForgingAllowed (epochTime) {
+  isForgingAllowed(epochTime) {
     if (epochTime === undefined) {
       epochTime = this.getTime()
     }
 
-    return Math.floor(epochTime / this.getConstant('blocktime')) === Math.floor((epochTime + this.getConstant('blocktime') / 2) / this.getConstant('blocktime')) // eslint-disable-line max-len
+    return (
+      Math.floor(epochTime / this.getConstant('blocktime'))
+      === Math.floor(
+        (epochTime + this.getConstant('blocktime') / 2)
+          / this.getConstant('blocktime'),
+      )
+    ) // eslint-disable-line max-len
   }
 }
 

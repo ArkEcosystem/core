@@ -1,5 +1,3 @@
-'use strict'
-
 module.exports = {
   resetBlockchain: async () => {
     // Resets everything so that it can be used in beforeAll to start clean a test suite
@@ -16,5 +14,5 @@ module.exports = {
 
     const transactionPool = container.resolvePlugin('transactionPool')
     transactionPool.flush()
-  }
+  },
 }

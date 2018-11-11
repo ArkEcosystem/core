@@ -1,6 +1,6 @@
-'use strict'
-
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
+const database = require('@arkecosystem/core-container').resolvePlugin(
+  'database',
+)
 const { formatTimestamp, bignumify } = require('@arkecosystem/core-utils')
 
 /**
@@ -9,7 +9,9 @@ const { formatTimestamp, bignumify } = require('@arkecosystem/core-utils')
  * @return {Object}
  */
 module.exports = model => {
-  const generator = database.walletManager.findByPublicKey(model.generatorPublicKey)
+  const generator = database.walletManager.findByPublicKey(
+    model.generatorPublicKey,
+  )
 
   model.reward = bignumify(model.reward)
   model.totalFee = bignumify(model.totalFee)
@@ -23,20 +25,20 @@ module.exports = model => {
       reward: +model.reward.toFixed(),
       fee: +model.totalFee.toFixed(),
       total: +model.reward.plus(model.totalFee).toFixed(),
-      amount: +bignumify(model.totalAmount).toFixed()
+      amount: +bignumify(model.totalAmount).toFixed(),
     },
     payload: {
       hash: model.payloadHash,
-      length: model.payloadLength
+      length: model.payloadLength,
     },
     generator: {
       username: generator.username,
       address: generator.address,
-      publicKey: generator.publicKey
+      publicKey: generator.publicKey,
     },
     signature: model.blockSignature,
     confirmations: model.confirmations,
     transactions: model.numberOfTransactions,
-    timestamp: formatTimestamp(model.timestamp)
+    timestamp: formatTimestamp(model.timestamp),
   }
 }

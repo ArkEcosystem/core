@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const config = container.resolvePlugin('config')
 
 /**
@@ -15,14 +14,14 @@ const register = async (server, options) => {
     version: container.resolveOptions('blockchain').version,
     port: container.resolveOptions('p2p').port,
     os: require('os').platform(),
-    height: null
+    height: null,
   }
 
   const requiredHeaders = ['nethash', 'version', 'port', 'os', 'height']
 
   server.ext({
     type: 'onPreResponse',
-    async method (request, h) {
+    async method(request, h) {
       const blockchain = container.resolvePlugin('blockchain')
       if (blockchain) {
         const lastBlock = blockchain.getLastBlock()
@@ -40,13 +39,15 @@ const register = async (server, options) => {
           response.output.payload.error = response.data
         }
 
-        requiredHeaders.forEach((key) => (response.output.headers[key] = headers[key]))
+        requiredHeaders.forEach(
+          key => (response.output.headers[key] = headers[key]),
+        )
       } else {
-        requiredHeaders.forEach((key) => response.header(key, headers[key]))
+        requiredHeaders.forEach(key => response.header(key, headers[key]))
       }
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -57,5 +58,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'set-headers',
   version: '0.1.0',
-  register
+  register,
 }

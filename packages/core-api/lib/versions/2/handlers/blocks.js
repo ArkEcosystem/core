@@ -1,12 +1,10 @@
-'use strict'
-
 const Boom = require('boom')
 const utils = require('../utils')
 const schema = require('../schema/blocks')
 
 const {
   blocks: blocksRepository,
-  transactions: transactionsRepository
+  transactions: transactionsRepository,
 } = require('../../../repositories')
 
 /**
@@ -18,14 +16,17 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const blocks = await blocksRepository.findAll({ ...request.query, ...utils.paginate(request) })
+  async handler(request, h) {
+    const blocks = await blocksRepository.findAll({
+      ...request.query,
+      ...utils.paginate(request),
+    })
 
     return utils.toPagination(request, blocks, 'block')
   },
   options: {
-    validate: schema.index
-  }
+    validate: schema.index,
+  },
 }
 
 /**
@@ -37,7 +38,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const block = await blocksRepository.findById(request.params.id)
 
     if (!block) {
@@ -47,8 +48,8 @@ exports.show = {
     return utils.respondWithResource(request, block, 'block')
   },
   options: {
-    validate: schema.show
-  }
+    validate: schema.show,
+  },
 }
 
 /**
@@ -60,7 +61,7 @@ exports.transactions = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const block = await blocksRepository.findById(request.params.id)
 
     if (!block) {
@@ -68,14 +69,15 @@ exports.transactions = {
     }
 
     const transactions = await transactionsRepository.findAllByBlock(block.id, {
-      ...request.query, ...utils.paginate(request)
+      ...request.query,
+      ...utils.paginate(request),
     })
 
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.transactions
-  }
+    validate: schema.transactions,
+  },
 }
 
 /**
@@ -87,16 +89,16 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const blocks = await blocksRepository.search({
       ...request.payload,
       ...request.query,
-      ...utils.paginate(request)
+      ...utils.paginate(request),
     })
 
     return utils.toPagination(request, blocks, 'block')
   },
   options: {
-    validate: schema.search
-  }
+    validate: schema.search,
+  },
 }

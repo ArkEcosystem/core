@@ -1,23 +1,23 @@
 const Keyv = require('keyv')
 
 class Database {
-  init (options) {
+  init(options) {
     this.database = new Keyv(options)
   }
 
-  async get (id) {
+  async get(id) {
     return this.database.get(id)
   }
 
-  async set (id, value) {
+  async set(id, value) {
     return this.database.set(id, value)
   }
 
-  async delete (id) {
+  async delete(id) {
     return this.database.delete(id)
   }
 
-  async clear () {
+  async clear() {
     return this.database.clear()
   }
 }

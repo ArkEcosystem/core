@@ -3,5 +3,5 @@ module.exports = {
   hdwallet: require('./hdwallet'),
   Message: require('./message'),
   slots: require('./slots'),
-  utils: require('./utils')
+  utils: require('./utils'),
 }

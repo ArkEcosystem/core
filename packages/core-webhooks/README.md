@@ -18,7 +18,7 @@ module.exports = {
   database: {
     dialect: 'sqlite',
     storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
-    logging: process.env.ARK_DB_LOGGING
+    logging: process.env.ARK_DB_LOGGING,
   },
   server: {
     enabled: process.env.ARK_WEBHOOKS_API_ENABLED,
@@ -27,11 +27,9 @@ module.exports = {
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
     pagination: {
       limit: 100,
-      include: [
-        '/api/webhooks'
-      ]
-    }
-  }
+      include: ['/api/webhooks'],
+    },
+  },
 }
 ```
 

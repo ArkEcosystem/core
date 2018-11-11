@@ -7,14 +7,14 @@ class VoteHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  canApply (wallet, transaction) {
+  canApply(wallet, transaction) {
     if (!super.canApply(wallet, transaction)) {
       return false
     }
 
     const vote = transaction.asset.votes[0]
 
-    if (vote.startsWith('-') && (wallet.vote === vote.slice(1))) {
+    if (vote.startsWith('-') && wallet.vote === vote.slice(1)) {
       return true
     }
 
@@ -31,7 +31,7 @@ class VoteHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  apply (wallet, transaction) {
+  apply(wallet, transaction) {
     const vote = transaction.asset.votes[0]
 
     if (vote.startsWith('+')) {
@@ -49,7 +49,7 @@ class VoteHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  revert (wallet, transaction) {
+  revert(wallet, transaction) {
     const vote = transaction.asset.votes[0]
 
     if (vote.startsWith('+')) {

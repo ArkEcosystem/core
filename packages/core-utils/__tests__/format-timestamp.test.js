@@ -1,16 +1,12 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const formatTimestamp = require('../lib/format-timestamp')
 
 container.resolvePlugin = jest.fn(plugin => {
   if (plugin === 'config') {
     return {
-      getConstants: () => {
-        return {
-          epoch: '2017-03-21T13:00:00.000Z'
-        }
-      }
+      getConstants: () => ({
+        epoch: '2017-03-21T13:00:00.000Z',
+      }),
     }
   }
 })

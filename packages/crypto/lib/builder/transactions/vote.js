@@ -7,7 +7,7 @@ class VoteBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.VOTE
@@ -23,7 +23,7 @@ class VoteBuilder extends TransactionBuilder {
    * @param  {Array} votes
    * @return {VoteBuilder}
    */
-  votesAsset (votes) {
+  votesAsset(votes) {
     this.data.asset.votes = votes
     return this
   }
@@ -32,7 +32,7 @@ class VoteBuilder extends TransactionBuilder {
    * Overrides the inherited method to return the additional required by this
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId

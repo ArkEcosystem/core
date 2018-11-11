@@ -16,7 +16,9 @@ describe('Vote Transaction', () => {
   describe('verify', () => {
     it('should be valid with a signature', () => {
       const actual = builder
-        .votesAsset(['+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af'])
+        .votesAsset([
+          '+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+        ])
         .sign('dummy passphrase')
 
       expect(actual.build().verify()).toBeTrue()
@@ -24,7 +26,9 @@ describe('Vote Transaction', () => {
 
     it('should be valid with a second signature', () => {
       const actual = builder
-        .votesAsset(['+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af'])
+        .votesAsset([
+          '+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+        ])
         .sign('dummy passphrase')
         .secondSign('dummy passphrase')
 
@@ -36,7 +40,10 @@ describe('Vote Transaction', () => {
 
   it('should have its specific properties', () => {
     expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.VOTE)
-    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.VOTE))
+    expect(builder).toHaveProperty(
+      'data.fee',
+      feeManager.get(TRANSACTION_TYPES.VOTE),
+    )
     expect(builder).toHaveProperty('data.amount', 0)
     expect(builder).toHaveProperty('data.recipientId', null)
     expect(builder).toHaveProperty('data.senderPublicKey', null)
@@ -56,11 +63,16 @@ describe('Vote Transaction', () => {
     it('establishes the recipient id', () => {
       const pass = 'dummy pass'
 
-      crypto.getKeys = jest.fn(() => ({ publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }))
+      crypto.getKeys = jest.fn(() => ({
+        publicKey:
+          '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+      }))
       crypto.sign = jest.fn()
 
       builder.sign(pass)
-      expect(builder.data.recipientId).toBe('D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F')
+      expect(builder.data.recipientId).toBe(
+        'D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F',
+      )
     })
   })
 })

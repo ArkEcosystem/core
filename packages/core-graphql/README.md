@@ -18,7 +18,7 @@ module.exports = {
   host: process.env.ARK_GRAPHQL_HOST || '0.0.0.0',
   port: process.env.ARK_GRAPHQL_PORT || 4005,
   path: '/graphql',
-  graphiql: true
+  graphiql: true,
 }
 ```
 
@@ -29,12 +29,13 @@ You can play with the data using the [GraphQL Playground](https://github.com/pri
 #### Query Examples
 
 > Get first blocks
+
 ```gql
 {
-  blocks(orderBy: {field: "height", direction: ASC}) {
-    id,
-    payloadHash,
-    height,
+  blocks(orderBy: { field: "height", direction: ASC }) {
+    id
+    payloadHash
+    height
     numberOfTransactions
   }
 }
@@ -45,11 +46,11 @@ You can play with the data using the [GraphQL Playground](https://github.com/pri
 ```gql
 {
   block(id: "13114381566690093367") {
-    timestamp,
-    generatorPublicKey,
+    timestamp
+    generatorPublicKey
     transactions {
-      id,
-      type,
+      id
+      type
       amount
     }
   }
@@ -61,11 +62,11 @@ You can play with the data using the [GraphQL Playground](https://github.com/pri
 ```gql
 {
   block(id: "13114381566690093367") {
-    generatorPublicKey,
+    generatorPublicKey
     transactions {
-      id,
+      id
       recipient {
-        address,
+        address
         balance
       }
     }

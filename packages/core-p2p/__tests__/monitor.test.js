@@ -1,7 +1,6 @@
-'use strict'
-
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
+
 const axiosMock = new MockAdapter(axios)
 
 const app = require('./__support__/setup')
@@ -26,11 +25,13 @@ afterAll(async () => {
 beforeEach(async () => {
   monitor.config = defaults
 
-  const initialPeersMock = {};
-  ['0.0.0.0', '0.0.0.1', '0.0.0.2', '0.0.0.3', '0.0.0.4'].forEach(ip => {
+  const initialPeersMock = {}
+  ;['0.0.0.0', '0.0.0.1', '0.0.0.2', '0.0.0.3', '0.0.0.4'].forEach(ip => {
     const initialPeer = new Peer(ip, 4000)
-    initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, { ban: 0 })
-  });
+    initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, {
+      ban: 0,
+    })
+  })
   monitor.peers = initialPeersMock
 
   peerMock = new Peer('0.0.0.99', 4000) // this peer is just here to be picked up by tests below (not added to initial peers)
@@ -70,7 +71,9 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers])
+      axiosMock
+        .onGet(`${peerMock.url}/peer/status`)
+        .reply(() => [200, { success: true }, peerMock.headers])
       process.env.ARK_ENV = false
 
       await monitor.acceptNewPeer(peerMock)
@@ -114,7 +117,9 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      axiosMock.onGet(/.*\/peer\/blocks\/common/).reply(() => [200, { success: true, common: true }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/blocks\/common/)
+        .reply(() => [200, { success: true, common: true }, peerMock.headers])
       const peer = await monitor.getRandomDownloadBlocksPeer()
 
       expect(peer).toBeObject()
@@ -129,8 +134,16 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true }, peerMock.headers])
-      axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [ peerMock.toBroadcastInfo() ] }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/list/)
+        .reply(() => [
+          200,
+          { peers: [peerMock.toBroadcastInfo()] },
+          peerMock.headers,
+        ])
 
       const peers = await monitor.discoverPeers()
 
@@ -152,8 +165,12 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers])
-      axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true, height: 2 }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/list/)
+        .reply(() => [200, { peers: [] }, peerMock.headers])
       await monitor.discoverPeers()
 
       const height = await monitor.getNetworkHeight()
@@ -169,8 +186,12 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers])
-      axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true, height: 2 }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/list/)
+        .reply(() => [200, { peers: [] }, peerMock.headers])
 
       await monitor.discoverPeers()
       const pbftForgingStatus = monitor.getPBFTForgingStatus()
@@ -186,9 +207,19 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      axiosMock.onGet(/.*\/peer\/blocks\/common/).reply(() => [200, { success: true, common: true }, peerMock.headers])
-      axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers])
-      axiosMock.onGet(/.*\/peer\/blocks/).reply(() => [200, { blocks: [ { id: 1 }, { id: 2 } ] }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/blocks\/common/)
+        .reply(() => [200, { success: true, common: true }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true, height: 2 }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/blocks/)
+        .reply(() => [
+          200,
+          { blocks: [{ id: 1 }, { id: 2 }] },
+          peerMock.headers,
+        ])
 
       const blocks = await monitor.downloadBlocks(1)
 

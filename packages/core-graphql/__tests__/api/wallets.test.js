@@ -59,9 +59,9 @@ describe('GraphQL API { wallets }', () => {
       const data = response.data.data
       expect(data).toBeObject()
       expect(data.wallets.length).toBe(5)
-      expect(data.wallets.sort((a, b) => {
-        return parseInt(a) <= parseInt(b) ? -1 : 0
-      })).toEqual(data.wallets)
+      expect(
+        data.wallets.sort((a, b) => (parseInt(a) <= parseInt(b) ? -1 : 0)),
+      ).toEqual(data.wallets)
     })
   })
 

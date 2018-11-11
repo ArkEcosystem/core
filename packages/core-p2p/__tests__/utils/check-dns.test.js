@@ -1,5 +1,3 @@
-'use strict'
-
 const app = require('../__support__/setup')
 
 let checker

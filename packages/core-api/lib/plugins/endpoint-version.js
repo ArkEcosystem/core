@@ -1,6 +1,5 @@
-'use strict'
-
 const Boom = require('boom')
+
 const versionRegex = /^\/api\/v([0-9])\//
 
 /**
@@ -12,18 +11,20 @@ const versionRegex = /^\/api\/v([0-9])\//
 const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
-    async method (request, h) {
+    async method(request, h) {
       const match = versionRegex.exec(request.path)
       if (match && match.length === 2) {
         const apiVersion = parseInt(match[1])
         if (options.validVersions.includes(apiVersion)) {
           request.pre.apiVersion = apiVersion
         } else {
-          return Boom.badRequest('Invalid api-version! Valid values: ' + options.validVersions.join());
+          return Boom.badRequest(
+            `Invalid api-version! Valid values: ${options.validVersions.join()}`,
+          )
         }
       }
       return h.continue
-    }
+    },
   })
 }
 
@@ -34,5 +35,5 @@ const register = async (server, options) => {
 module.exports = {
   name: 'endpoint-version',
   version: '0.1.0',
-  register
+  register,
 }

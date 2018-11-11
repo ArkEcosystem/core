@@ -5,25 +5,25 @@ const configManager = require('../managers/config')
 const utils = require('../crypto/utils')
 
 module.exports = class Keys {
-  static fromPassphrase (passphrase, compressed = true) {
+  static fromPassphrase(passphrase, compressed = true) {
     const privateKey = utils.sha256(Buffer.from(passphrase, 'utf8'))
     return Keys.fromPrivateKey(privateKey, compressed)
   }
 
-  static fromPrivateKey (privateKey, compressed = true) {
+  static fromPrivateKey(privateKey, compressed = true) {
     privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, 'hex')
 
     const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
     const keyPair = {
       publicKey: publicKey.toString('hex'),
       privateKey: privateKey.toString('hex'),
-      compressed
+      compressed,
     }
 
     return keyPair
   }
 
-  static fromWIF (wifKey, network) {
+  static fromWIF(wifKey, network) {
     const decoded = wif.decode(wifKey)
     const version = decoded.version
 
@@ -41,7 +41,7 @@ module.exports = class Keys {
     const keyPair = {
       publicKey: publicKey.toString('hex'),
       privateKey: privateKey.toString('hex'),
-      compressed: decoded.compressed
+      compressed: decoded.compressed,
     }
 
     return keyPair

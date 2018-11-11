@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const database = container.resolvePlugin('database')
 
 const buildFilterQuery = require('./utils/filter-query')
@@ -12,7 +11,7 @@ class BlocksRepository extends Repository {
    * @param  {Object}  parameters
    * @return {Object}
    */
-  async findAll (parameters = {}) {
+  async findAll(parameters = {}) {
     const selectQuery = this.query.select().from(this.query)
     const countQuery = this._makeEstimateQuery()
 
@@ -37,7 +36,7 @@ class BlocksRepository extends Repository {
     return this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit || 100,
       offset: parameters.offset || 0,
-      orderBy: this.__orderBy(parameters)
+      orderBy: this.__orderBy(parameters),
     })
   }
 
@@ -47,7 +46,7 @@ class BlocksRepository extends Repository {
    * @param  {Object} paginator
    * @return {Object}
    */
-  async findAllByGenerator (generatorPublicKey, paginator) {
+  async findAllByGenerator(generatorPublicKey, paginator) {
     return this.findAll({ ...{ generatorPublicKey }, ...paginator })
   }
 
@@ -56,7 +55,7 @@ class BlocksRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  async findById (id) {
+  async findById(id) {
     const query = this.query
       .select()
       .from(this.query)
@@ -71,7 +70,7 @@ class BlocksRepository extends Repository {
    * @param  {String} generatorPublicKey
    * @return {Object}
    */
-  async findLastByPublicKey (generatorPublicKey) {
+  async findLastByPublicKey(generatorPublicKey) {
     const query = this.query
       .select(this.query.id, this.query.timestamp)
       .from(this.query)
@@ -86,14 +85,29 @@ class BlocksRepository extends Repository {
    * @param  {Object} parameters
    * @return {Object}
    */
-  async search (parameters) {
+  async search(parameters) {
     const selectQuery = this.query.select().from(this.query)
     const countQuery = this._makeEstimateQuery()
 
     const applyConditions = queries => {
       const conditions = buildFilterQuery(this._formatConditions(parameters), {
-        exact: ['id', 'version', 'previous_block', 'payload_hash', 'generator_public_key', 'block_signature'],
-        between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
+        exact: [
+          'id',
+          'version',
+          'previous_block',
+          'payload_hash',
+          'generator_public_key',
+          'block_signature',
+        ],
+        between: [
+          'timestamp',
+          'height',
+          'number_of_transactions',
+          'total_amount',
+          'total_fee',
+          'reward',
+          'payload_length',
+        ],
       })
 
       if (conditions.length) {
@@ -103,7 +117,9 @@ class BlocksRepository extends Repository {
           item.where(this.query[first.column][first.method](first.value))
 
           for (const condition of conditions) {
-            item.and(this.query[condition.column][condition.method](condition.value))
+            item.and(
+              this.query[condition.column][condition.method](condition.value),
+            )
           }
         }
       }
@@ -114,15 +130,15 @@ class BlocksRepository extends Repository {
     return this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
-      orderBy: this.__orderBy(parameters)
+      orderBy: this.__orderBy(parameters),
     })
   }
 
-  getModel () {
+  getModel() {
     return database.models.block
   }
 
-  __orderBy (parameters) {
+  __orderBy(parameters) {
     return parameters.orderBy
       ? parameters.orderBy.split(':').map(p => p.toLowerCase())
       : ['height', 'desc']

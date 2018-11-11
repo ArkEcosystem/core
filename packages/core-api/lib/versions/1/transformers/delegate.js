@@ -1,5 +1,3 @@
-'use strict'
-
 const { delegateCalculator } = require('@arkecosystem/core-utils')
 
 /**
@@ -7,17 +5,15 @@ const { delegateCalculator } = require('@arkecosystem/core-utils')
  * @param  {Object} delegate
  * @return {Object}
  */
-module.exports = (delegate) => {
-  return {
-    username: delegate.username,
-    address: delegate.address,
-    publicKey: delegate.publicKey,
-    vote: delegate.voteBalance + '',
-    producedblocks: delegate.producedBlocks,
-    missedblocks: delegate.missedBlocks,
-    forged: delegate.forged,
-    rate: delegate.rate,
-    approval: delegateCalculator.calculateApproval(delegate),
-    productivity: delegateCalculator.calculateProductivity(delegate)
-  }
-}
+module.exports = delegate => ({
+  username: delegate.username,
+  address: delegate.address,
+  publicKey: delegate.publicKey,
+  vote: `${delegate.voteBalance}`,
+  producedblocks: delegate.producedBlocks,
+  missedblocks: delegate.missedBlocks,
+  forged: delegate.forged,
+  rate: delegate.rate,
+  approval: delegateCalculator.calculateApproval(delegate),
+  productivity: delegateCalculator.calculateProductivity(delegate),
+})

@@ -1,6 +1,7 @@
-'use strict'
-
-const { Bignum, constants: { ARKTOSHI, TRANSACTION_TYPES } } = require('@arkecosystem/crypto')
+const {
+  Bignum,
+  constants: { ARKTOSHI, TRANSACTION_TYPES },
+} = require('@arkecosystem/crypto')
 const createTransfer = require('../../../lib/generators/transactions/transfer')
 
 describe('Transfer transaction', () => {
@@ -15,7 +16,7 @@ describe('Transfer transaction', () => {
     undefined,
     undefined,
     amount,
-    quantity
+    quantity,
   )
 
   it('should return an array', () => {
@@ -24,7 +25,9 @@ describe('Transfer transaction', () => {
 
   it('should return an array of 4 transfer objects', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({ type: TRANSACTION_TYPES.TRANSFER })
+      expect(transactions[i]).toMatchObject({
+        type: TRANSACTION_TYPES.TRANSFER,
+      })
     }
   })
 

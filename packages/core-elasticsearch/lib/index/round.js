@@ -1,7 +1,6 @@
-'use strict'
-
 const { first, last } = require('lodash')
 const container = require('@arkecosystem/core-container')
+
 const emitter = container.resolvePlugin('event-emitter')
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
@@ -14,7 +13,7 @@ class RoundIndex extends Index {
    * Index rounds using the specified chunk size.
    * @return {void}
    */
-  async index () {
+  async index() {
     const { count } = await this.__count()
 
     const queries = Math.ceil(count / this.chunkSize)
@@ -37,13 +36,17 @@ class RoundIndex extends Index {
       }
 
       const roundIds = rows.map(row => row.round)
-      logger.info(`[Elasticsearch] Indexing rounds from ${first(roundIds)} to ${last(roundIds)} :card_index_dividers:`)
+      logger.info(
+        `[Elasticsearch] Indexing rounds from ${first(roundIds)} to ${last(
+          roundIds,
+        )} :card_index_dividers:`,
+      )
 
       try {
         await client.bulk(this._buildBulkUpsert(rows))
 
         storage.update('history', {
-          lastRound: last(roundIds)
+          lastRound: last(roundIds),
         })
       } catch (error) {
         logger.error(`[Elasticsearch] ${error.message} :exclamation:`)
@@ -55,7 +58,7 @@ class RoundIndex extends Index {
    * Register listeners for "round.*" events.
    * @return {void}
    */
-  listen () {
+  listen() {
     emitter.on('round.created', data => this.index())
   }
 
@@ -63,7 +66,7 @@ class RoundIndex extends Index {
    * Get the document index.
    * @return {String}
    */
-  getIndex () {
+  getIndex() {
     return 'rounds'
   }
 
@@ -71,7 +74,7 @@ class RoundIndex extends Index {
    * Get the document type.
    * @return {String}
    */
-  getType () {
+  getType() {
     return 'round'
   }
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const PostgresConnection = require('./connection')
 
 /**
@@ -11,7 +9,7 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'database',
   extends: '@arkecosystem/core-database',
-  async register (container, options) {
+  async register(container, options) {
     container.resolvePlugin('logger').info('Establishing Database Connection')
 
     const postgres = new PostgresConnection(options)
@@ -21,11 +19,11 @@ exports.plugin = {
 
     return databaseManager.connection()
   },
-  async deregister (container, options) {
+  async deregister(container, options) {
     container.resolvePlugin('logger').info('Closing Database Connection')
 
     return container.resolvePlugin('database').disconnect()
-  }
+  },
 }
 
 /**

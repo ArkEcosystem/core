@@ -1,5 +1,3 @@
-'use strict'
-
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
@@ -12,7 +10,9 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
+  genesisBlock = new Block(
+    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+  )
   genesisTransaction = new Transaction(genesisBlock.transactions[0])
 })
 
@@ -48,7 +48,7 @@ describe('API - Internal', () => {
   describe('POST /blocks', () => {
     it('should be ok', async () => {
       const response = await utils.POST('internal/blocks', {
-        block: genesisBlock.toJson()
+        block: genesisBlock.toJson(),
       })
 
       expect(response.status).toBe(204)
@@ -57,7 +57,7 @@ describe('API - Internal', () => {
     it('should return 403 without x-auth', async () => {
       delete utils.headers['x-auth']
       const response = await utils.POST('internal/blocks', {
-        block: genesisBlock.toJson()
+        block: genesisBlock.toJson(),
       })
 
       expect(response.status).toBe(403)
@@ -67,7 +67,7 @@ describe('API - Internal', () => {
   describe.skip('POST /transactions/verify', () => {
     it('should be ok', async () => {
       const response = await utils.POST('internal/transactions/verify', {
-        transaction: genesisTransaction
+        transaction: genesisTransaction,
       })
 
       expect(response.status).toBe(200)
@@ -80,7 +80,7 @@ describe('API - Internal', () => {
     it('should return 403 without x-auth', async () => {
       delete utils.headers['x-auth']
       const response = await utils.POST('internal/transactions/verify', {
-        transaction: genesisTransaction
+        transaction: genesisTransaction,
       })
 
       expect(response.status).toBe(403)

@@ -1,5 +1,3 @@
-'use strict'
-
 const fs = require('fs-extra')
 const _ = require('lodash')
 
@@ -8,7 +6,7 @@ class Storage {
    * Create a new storage instance.
    * @return {void}
    */
-  constructor () {
+  constructor() {
     this.base = `${process.env.ARK_PATH_DATA}/plugins/core-elasticsearch`
   }
 
@@ -17,8 +15,10 @@ class Storage {
    * @param  {String} file
    * @return {Object}
    */
-  read (file) {
-    return this.exists(file) ? JSON.parse(fs.readFileSync(`${this.base}/${file}.json`)) : {}
+  read(file) {
+    return this.exists(file)
+      ? JSON.parse(fs.readFileSync(`${this.base}/${file}.json`))
+      : {}
   }
 
   /**
@@ -27,7 +27,7 @@ class Storage {
    * @param  {Object} data
    * @return {void}
    */
-  write (file, data) {
+  write(file, data) {
     fs.ensureFileSync(`${this.base}/${file}.json`)
 
     fs.writeFileSync(`${this.base}/${file}.json`, JSON.stringify(data, null, 2))
@@ -39,7 +39,7 @@ class Storage {
    * @param  {Object} data
    * @return {void}
    */
-  update (file, data) {
+  update(file, data) {
     fs.ensureFileSync(`${this.base}/${file}.json`)
 
     data = Object.assign(this.read(file), data)
@@ -53,15 +53,22 @@ class Storage {
    * @param  {Object} data
    * @return {void}
    */
-  ensure (file) {
+  ensure(file) {
     if (!this.exists(file)) {
       fs.ensureFileSync(`${this.base}/${file}.json`)
 
-      fs.writeFileSync(`${this.base}/${file}.json`, JSON.stringify({
-        lastRound: 0,
-        lastBlock: 0,
-        lastTransaction: 0
-      }, null, 2))
+      fs.writeFileSync(
+        `${this.base}/${file}.json`,
+        JSON.stringify(
+          {
+            lastRound: 0,
+            lastBlock: 0,
+            lastTransaction: 0,
+          },
+          null,
+          2,
+        ),
+      )
     }
   }
 
@@ -70,7 +77,7 @@ class Storage {
    * @param  {String} file
    * @return {Boolean}
    */
-  exists (file) {
+  exists(file) {
     return fs.existsSync(`${this.base}/${file}.json`)
   }
 
@@ -81,7 +88,7 @@ class Storage {
    * @param  {*} key
    * @return {*}
    */
-  get (file, key, defaultValue = null) {
+  get(file, key, defaultValue = null) {
     return _.get(this.read(file), key, defaultValue)
   }
 }

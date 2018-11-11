@@ -1,7 +1,6 @@
-'use strict'
-
 const { first, last } = require('lodash')
 const container = require('@arkecosystem/core-container')
+
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
 const { Transaction } = require('@arkecosystem/crypto').models
@@ -14,7 +13,7 @@ class TransactionIndex extends Index {
    * Index transactions using the specified chunk size.
    * @return {void}
    */
-  async index () {
+  async index() {
     const { count } = await this.__count()
 
     const queries = Math.ceil(count / this.chunkSize)
@@ -25,7 +24,9 @@ class TransactionIndex extends Index {
       const query = modelQuery
         .select(modelQuery.block_id, modelQuery.serialized)
         .from(modelQuery)
-        .where(modelQuery.timestamp.gte(storage.get('history', 'lastTransaction')))
+        .where(
+          modelQuery.timestamp.gte(storage.get('history', 'lastTransaction')),
+        )
         .order(modelQuery.timestamp.asc)
         .limit(this.chunkSize)
         .offset(this.chunkSize * i)
@@ -44,13 +45,17 @@ class TransactionIndex extends Index {
       })
 
       const blockIds = rows.map(row => row.blockId)
-      logger.info(`[Elasticsearch] Indexing transactions from block ${first(blockIds)} to ${last(blockIds)} :card_index_dividers:`)
+      logger.info(
+        `[Elasticsearch] Indexing transactions from block ${first(
+          blockIds,
+        )} to ${last(blockIds)} :card_index_dividers:`,
+      )
 
       try {
         await client.bulk(this._buildBulkUpsert(rows))
 
         storage.update('history', {
-          lastTransaction: last(rows.map(row => row.timestamp))
+          lastTransaction: last(rows.map(row => row.timestamp)),
         })
       } catch (error) {
         logger.error(`[Elasticsearch] ${error.message} :exclamation:`)
@@ -62,7 +67,7 @@ class TransactionIndex extends Index {
    * Register listeners for "transaction.*" events.
    * @return {void}
    */
-  listen () {
+  listen() {
     this._registerCreateListener('transaction.applied')
     this._registerCreateListener('transaction.forged')
 
@@ -74,7 +79,7 @@ class TransactionIndex extends Index {
    * Get the document index.
    * @return {String}
    */
-  getIndex () {
+  getIndex() {
     return 'transactions'
   }
 
@@ -82,7 +87,7 @@ class TransactionIndex extends Index {
    * Get the document type.
    * @return {String}
    */
-  getType () {
+  getType() {
     return 'transaction'
   }
 }

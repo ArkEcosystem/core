@@ -1,9 +1,6 @@
-'use strict'
-
+const msgpack = require('msgpack-lite')
 const { blocks } = require('../../../fixtures/blocks')
 const { transactions } = require('../../../fixtures/transactions')
-
-const msgpack = require('msgpack-lite')
 const codec = require('../../../../lib/transport/codec').get('lite')
 
 beforeAll(async () => {
@@ -62,7 +59,9 @@ describe('Lite codec testing', () => {
     const transferTransactions = transactions.filter(trx => trx.type === 0)
     for (let i = 0; i < 100; i++) {
       for (const transaction of transferTransactions) {
-        const encoded = msgpack.encode(transaction, { codec: codec.transactions })
+        const encoded = msgpack.encode(transaction, {
+          codec: codec.transactions,
+        })
         const decoded = msgpack.decode(encoded, { codec: codec.transactions })
 
         expect(decoded).toEqual(transaction)

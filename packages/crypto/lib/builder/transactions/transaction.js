@@ -6,12 +6,12 @@ module.exports = class TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.data = {
       id: null,
       timestamp: slots.getTime(),
       version: 0x01,
-      network: configManager.get('pubKeyHash')
+      network: configManager.get('pubKeyHash'),
     }
   }
 
@@ -19,8 +19,8 @@ module.exports = class TransactionBuilder {
    * Build a new Transaction instance.
    * @return {Transaction}
    */
-  build (data) {
-    return new Transaction({ ...(this.data), ...data })
+  build(data) {
+    return new Transaction({ ...this.data, ...data })
   }
 
   /**
@@ -28,7 +28,7 @@ module.exports = class TransactionBuilder {
    * @param {Number} version
    * @return {TransactionBuilder}
    */
-  version (version) {
+  version(version) {
     this.data.version = version
     return this
   }
@@ -38,7 +38,7 @@ module.exports = class TransactionBuilder {
    * @param {Number} network
    * @return {TransactionBuilder}
    */
-  network (network) {
+  network(network) {
     this.data.network = network
     return this
   }
@@ -48,8 +48,8 @@ module.exports = class TransactionBuilder {
    * @param {Number} fee
    * @return {TransactionBuilder}
    */
-  fee (fee) {
-    if (fee != null) {
+  fee(fee) {
+    if (fee !== null) {
       this.data.fee = fee
     }
 
@@ -61,7 +61,7 @@ module.exports = class TransactionBuilder {
    * @param  {Number} amount
    * @return {TransactionBuilder}
    */
-  amount (amount) {
+  amount(amount) {
     this.data.amount = amount
     return this
   }
@@ -71,7 +71,7 @@ module.exports = class TransactionBuilder {
    * @param  {String} recipientId
    * @return {TransactionBuilder}
    */
-  recipientId (recipientId) {
+  recipientId(recipientId) {
     this.data.recipientId = recipientId
     return this
   }
@@ -81,7 +81,7 @@ module.exports = class TransactionBuilder {
    * @param  {String} publicKey
    * @return {TransactionBuilder}
    */
-  senderPublicKey (publicKey) {
+  senderPublicKey(publicKey) {
     this.data.senderPublicKey = publicKey
     return this
   }
@@ -91,7 +91,7 @@ module.exports = class TransactionBuilder {
    * @param  {String} vendorField
    * @return {TransactionBuilder}
    */
-  vendorField (vendorField) {
+  vendorField(vendorField) {
     if (vendorField && Buffer.from(vendorField).length <= 64) {
       this.data.vendorField = vendorField
     }
@@ -103,7 +103,7 @@ module.exports = class TransactionBuilder {
    * Verify the transaction.
    * @return {Boolean}
    */
-  verify () {
+  verify() {
     return crypto.verify(this.data)
   }
 
@@ -112,7 +112,7 @@ module.exports = class TransactionBuilder {
    * TODO @deprecated when a Transaction model is returned
    * @return {Buffer}
    */
-  serialize () {
+  serialize() {
     return this.model.serialize(this.getStruct())
   }
 
@@ -121,7 +121,7 @@ module.exports = class TransactionBuilder {
    * @param  {String} passphrase
    * @return {TransactionBuilder}
    */
-  sign (passphrase) {
+  sign(passphrase) {
     const keys = crypto.getKeys(passphrase)
     this.data.senderPublicKey = keys.publicKey
     this.data.signature = crypto.sign(this.__getSigningObject(), keys)
@@ -135,9 +135,9 @@ module.exports = class TransactionBuilder {
    * @param  {String} networkWif - value associated with network
    * @return {TransactionBuilder}
    */
-  signWithWif (wif, networkWif) {
+  signWithWif(wif, networkWif) {
     const keys = crypto.getKeysFromWIF(wif, {
-      wif: networkWif || configManager.get('wif')
+      wif: networkWif || configManager.get('wif'),
     })
     this.data.senderPublicKey = keys.publicKey
     this.data.signature = crypto.sign(this.__getSigningObject(), keys)
@@ -150,11 +150,14 @@ module.exports = class TransactionBuilder {
    * @param  {String} secondPassphrase
    * @return {TransactionBuilder}
    */
-  secondSign (secondPassphrase) {
+  secondSign(secondPassphrase) {
     if (secondPassphrase) {
       const keys = crypto.getKeys(secondPassphrase)
       // TODO sign or second?
-      this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+      this.data.signSignature = crypto.secondSign(
+        this.__getSigningObject(),
+        keys,
+      )
     }
 
     return this
@@ -166,13 +169,16 @@ module.exports = class TransactionBuilder {
    * @param  {String} networkWif - value associated with network
    * @return {TransactionBuilder}
    */
-  secondSignWithWif (wif, networkWif) {
+  secondSignWithWif(wif, networkWif) {
     if (wif) {
       const keys = crypto.getKeysFromWIF(wif, {
-        wif: networkWif || configManager.get('wif')
+        wif: networkWif || configManager.get('wif'),
       })
       // TODO sign or second?
-      this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+      this.data.signSignature = crypto.secondSign(
+        this.__getSigningObject(),
+        keys,
+      )
     }
 
     return this
@@ -183,7 +189,7 @@ module.exports = class TransactionBuilder {
    * @param {String} passphrase
    * @return {TransactionBuilder}
    */
-  multiSignatureSign (passphrase) {
+  multiSignatureSign(passphrase) {
     const keys = crypto.getKeys(passphrase)
     if (!this.data.signatures) {
       this.data.signatures = []
@@ -197,7 +203,7 @@ module.exports = class TransactionBuilder {
    * Get structure of transaction
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     // TODO
     // if (!this.data.senderPublicKey || !this.data.signature) {
     //   throw new Error('The transaction is not signed yet')
@@ -211,7 +217,7 @@ module.exports = class TransactionBuilder {
 
       type: this.data.type,
       fee: this.data.fee,
-      senderPublicKey: this.data.senderPublicKey
+      senderPublicKey: this.data.senderPublicKey,
     }
 
     if (Array.isArray(this.data.signatures)) {
@@ -225,7 +231,7 @@ module.exports = class TransactionBuilder {
    * Get a valid object used to sign a transaction.
    * @return {Object}
    */
-  __getSigningObject () {
+  __getSigningObject() {
     const { data } = this
 
     Object.keys(data).forEach(key => {

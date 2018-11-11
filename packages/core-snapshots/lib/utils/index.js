@@ -1,5 +1,3 @@
-'use strict'
-
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 
@@ -8,35 +6,44 @@ exports.getPath = (table, folder, codec) => {
   return this.getFilePath(filename, folder)
 }
 
-exports.writeMetaFile = (snapshotInfo) => {
-  const path = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${snapshotInfo.folder}/meta.json`
+exports.writeMetaFile = snapshotInfo => {
+  const path = `${process.env.ARK_PATH_DATA}/snapshots/${
+    process.env.ARK_NETWORK_NAME
+  }/${snapshotInfo.folder}/meta.json`
   fs.writeFileSync(path, JSON.stringify(snapshotInfo, 'utf8'))
 }
 
-exports.getFilePath = (filename, folder) => {
-  return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${filename}`
-}
+exports.getFilePath = (filename, folder) => `${process.env.ARK_PATH_DATA}/snapshots/${
+  process.env.ARK_NETWORK_NAME
+}/${folder}/${filename}`
 
 exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   const logger = container.resolvePlugin('logger')
-  logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`)
+  logger.info(
+    `Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`,
+  )
 
   const paths = {
     source: {
       blocks: this.getPath('blocks', sourceFolder, codec),
-      transactions: this.getPath('transactions', sourceFolder, codec)
+      transactions: this.getPath('transactions', sourceFolder, codec),
     },
     dest: {
       blocks: this.getPath('blocks', destFolder, codec),
-      transactions: this.getPath('transactions', destFolder, codec)
-    }
+      transactions: this.getPath('transactions', destFolder, codec),
+    },
   }
 
   fs.ensureFileSync(paths.dest.blocks)
   fs.ensureFileSync(paths.dest.transactions)
 
-  if (!fs.existsSync(paths.source.blocks) || !fs.existsSync(paths.source.transactions)) {
-    container.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`)
+  if (
+    !fs.existsSync(paths.source.blocks)
+    || !fs.existsSync(paths.source.transactions)
+  ) {
+    container.forceExit(
+      `Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`,
+    )
   }
 
   fs.copyFileSync(paths.source.blocks, paths.dest.blocks)
@@ -61,7 +68,7 @@ exports.calcStartHeight = (table, currentHeight, sourceFolder) => {
   return currentHeight
 }
 
-exports.getSnapshotInfo = (folder) => {
+exports.getSnapshotInfo = folder => {
   const snapshotInfo = this.readMetaJSON(folder)
   return {
     startHeight: +snapshotInfo.blocks.startHeight,
@@ -69,11 +76,11 @@ exports.getSnapshotInfo = (folder) => {
     folder: snapshotInfo.folder,
     blocks: snapshotInfo.blocks,
     transactions: snapshotInfo.transactions,
-    skipCompression: snapshotInfo.skipCompression
+    skipCompression: snapshotInfo.skipCompression,
   }
 }
 
-exports.readMetaJSON = (folder) => {
+exports.readMetaJSON = folder => {
   const metaFileInfo = this.getFilePath('meta.json', folder)
   if (!fs.existsSync(metaFileInfo)) {
     container.forceExit('Meta file meta.json not found. Exiting :bomb:')
@@ -83,11 +90,11 @@ exports.readMetaJSON = (folder) => {
 }
 
 exports.setSnapshotInfo = (options, lastBlock) => {
-  let meta = {
-    startHeight: (options.start !== -1) ? options.start : 1,
-    endHeight: (options.end !== -1) ? options.end : lastBlock.height,
+  const meta = {
+    startHeight: options.start !== -1 ? options.start : 1,
+    endHeight: options.end !== -1 ? options.end : lastBlock.height,
     codec: options.codec,
-    skipCompression: options.skipCompression || false
+    skipCompression: options.skipCompression || false,
   }
   meta.folder = `${meta.startHeight}-${meta.endHeight}`
 

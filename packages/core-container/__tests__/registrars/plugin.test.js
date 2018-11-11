@@ -1,5 +1,3 @@
-'use strict'
-
 const path = require('path')
 const Container = require('../../lib/container')
 const PluginRegistrar = require('../../lib/registrars/plugin')
@@ -19,7 +17,7 @@ describe('Plugin Registrar', () => {
   })
 
   it('should load the plugins and their options', () => {
-    ;['a', 'b', 'c'].forEach(char => {
+    ['a', 'b', 'c'].forEach(char => {
       const pluginName = `./plugin-${char}`
       expect(instance.plugins[pluginName]).toBeObject()
     })
@@ -40,8 +38,7 @@ describe('Plugin Registrar', () => {
       expect(instance.container.has('stub-plugin-a')).toBeTrue()
     })
 
-    xit('should register plugins with @ paths', () => {
-    })
+    it.skip('should register plugins with @ paths', () => {})
   })
 
   describe('setUp', () => {
@@ -51,7 +48,6 @@ describe('Plugin Registrar', () => {
 
     it('should register each plugin', async () => {
       await instance.setUp()
-
       ;['a', 'b', 'c'].forEach(char => {
         expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
       })
@@ -64,7 +60,6 @@ describe('Plugin Registrar', () => {
         await instance.setUp()
 
         expect(instance.container.has('stub-plugin-a')).toBeTrue()
-
         ;['b', 'c'].forEach(char => {
           expect(instance.container.has(`stub-plugin-${char}`)).toBeFalse()
         })
@@ -77,33 +72,29 @@ describe('Plugin Registrar', () => {
 
     beforeEach(async () => {
       await instance.setUp()
-
       ;['a', 'b', 'c'].forEach(char => {
         expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
       })
-
       ;['a', 'b', 'c'].forEach(char => {
-        plugins[char] = (require(`${stubPluginPath}/plugin-${char}`))
+        plugins[char] = require(`${stubPluginPath}/plugin-${char}`)
       })
     })
 
     it('should deregister plugins supporting deregister', async () => {
-      ;['a', 'b'].forEach(char => {
+      ['a', 'b'].forEach(char => {
         plugins[char].plugin.deregister = jest.fn()
       })
 
       await instance.tearDown()
-
       ;['a', 'b'].forEach(char => {
         expect(plugins[char].plugin.deregister).toHaveBeenCalled()
       })
 
-      expect(plugins['c'].deregister).not.toBeDefined()
+      expect(plugins.c.deregister).not.toBeDefined()
     })
 
     it('should deregister all the plugins in inverse order', async () => {
       const spy = jest.fn()
-
       ;['a', 'b'].forEach(char => {
         plugins[char].plugin.deregister = () => spy(char)
       })

@@ -20,7 +20,10 @@ module.exports = () => {
       expect(builder).toHaveProperty('data.id', null)
       expect(builder).toHaveProperty('data.timestamp')
       expect(builder).toHaveProperty('data.version', 0x01)
-      expect(builder).toHaveProperty('data.network', configManager.get('pubKeyHash'))
+      expect(builder).toHaveProperty(
+        'data.network',
+        configManager.get('pubKeyHash'),
+      )
 
       expect(builder).toHaveProperty('data.type')
       expect(builder).toHaveProperty('data.fee')
@@ -38,10 +41,11 @@ module.exports = () => {
           amount: 0,
           fee: 0,
           recipientId: 'DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42',
-          senderPublicKey: '035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c',
+          senderPublicKey:
+            '035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c',
           timestamp,
           type: 0,
-          version: 0x03
+          version: 0x03,
         }
       })
 
@@ -53,8 +57,12 @@ module.exports = () => {
         expect(transaction).toBeInstanceOf(Transaction)
         expect(transaction.amount).toEqual(Bignum.ZERO)
         expect(transaction.fee).toEqual(Bignum.ZERO)
-        expect(transaction.recipientId).toBe('DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42')
-        expect(transaction.senderPublicKey).toBe('035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c')
+        expect(transaction.recipientId).toBe(
+          'DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42',
+        )
+        expect(transaction.senderPublicKey).toBe(
+          '035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c',
+        )
         expect(transaction.timestamp).toBe(timestamp)
         expect(transaction.type).toBe(0)
         expect(transaction.version).toBe(0x03)
@@ -65,14 +73,18 @@ module.exports = () => {
 
         const transaction = builder.build({
           amount: 33,
-          fee: 1000
+          fee: 1000,
         })
 
         expect(transaction).toBeInstanceOf(Transaction)
         expect(transaction.amount).toEqual(new Bignum(33))
         expect(transaction.fee).toEqual(new Bignum(1000))
-        expect(transaction.recipientId).toBe('DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42')
-        expect(transaction.senderPublicKey).toBe('035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c')
+        expect(transaction.recipientId).toBe(
+          'DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42',
+        )
+        expect(transaction.senderPublicKey).toBe(
+          '035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c',
+        )
         expect(transaction.timestamp).toBe(timestamp)
         expect(transaction.version).toBe(0x03)
       })
@@ -109,7 +121,10 @@ module.exports = () => {
 
   describe('sign', () => {
     it('signs this transaction with the keys of the passphrase', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = {
+        publicKey:
+          '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+      }
       crypto.getKeys = jest.fn(() => keys)
       crypto.sign = jest.fn()
       const signingObject = builder.__getSigningObject()
@@ -121,7 +136,10 @@ module.exports = () => {
     })
 
     it('establishes the public key of the sender', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = {
+        publicKey:
+          '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+      }
       crypto.getKeys = jest.fn(() => keys)
       crypto.sign = jest.fn()
       builder.sign('my real pass')
@@ -131,20 +149,27 @@ module.exports = () => {
 
   describe('signWithWif', () => {
     it('signs this transaction with keys from a wif', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = {
+        publicKey:
+          '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+      }
       crypto.getKeysFromWIF = jest.fn(() => keys)
       crypto.sign = jest.fn()
       const signingObject = builder.__getSigningObject()
 
-      builder.network(23)
-        .signWithWif('dummy pass')
+      builder.network(23).signWithWif('dummy pass')
 
-      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('dummy pass', { wif: 170 })
+      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('dummy pass', {
+        wif: 170,
+      })
       expect(crypto.sign).toHaveBeenCalledWith(signingObject, keys)
     })
 
     it('establishes the public key of the sender', () => {
-      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      const keys = {
+        publicKey:
+          '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+      }
       crypto.getKeysFromWIF = jest.fn(() => keys)
       crypto.sign = jest.fn()
       builder.signWithWif('my real pass')
@@ -179,10 +204,12 @@ module.exports = () => {
       crypto.secondSign = jest.fn()
       const signingObject = builder.__getSigningObject()
 
-      builder.network(23)
-        .secondSignWithWif('my very real second pass')
+      builder.network(23).secondSignWithWif('my very real second pass')
 
-      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith('my very real second pass', { wif: 170 })
+      expect(crypto.getKeysFromWIF).toHaveBeenCalledWith(
+        'my very real second pass',
+        { wif: 170 },
+      )
       expect(crypto.secondSign).toHaveBeenCalledWith(signingObject, keys)
     })
   })

@@ -1,5 +1,3 @@
-'use strict'
-
 const { Bignum } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
@@ -11,7 +9,7 @@ beforeEach(() => {
   delegate = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
   Object.entries({
     producedBlocks: 0,
-    missedBlocks: 0
+    missedBlocks: 0,
   }).forEach((key, value) => (delegate[key] = value))
 })
 
@@ -27,15 +25,13 @@ describe('Delegate Calculator', () => {
       container.resolvePlugin = jest.fn(plugin => {
         if (plugin === 'config') {
           return {
-            getConstants: () => {
-              return {
-                height: 1,
-                reward: 2 * 1e8
-              }
-            },
+            getConstants: () => ({
+              height: 1,
+              reward: 2 * 1e8,
+            }),
             genesisBlock: {
-              totalAmount: 1000000 * 1e8
-            }
+              totalAmount: 1000000 * 1e8,
+            },
           }
         }
       })
@@ -49,15 +45,13 @@ describe('Delegate Calculator', () => {
       container.resolvePlugin = jest.fn(plugin => {
         if (plugin === 'config') {
           return {
-            getConstants: () => {
-              return {
-                height: 1,
-                reward: 2 * 1e8
-              }
-            },
+            getConstants: () => ({
+              height: 1,
+              reward: 2 * 1e8,
+            }),
             genesisBlock: {
-              totalAmount: 1000000 * 1e8
-            }
+              totalAmount: 1000000 * 1e8,
+            },
           }
         }
       })
@@ -82,7 +76,7 @@ describe('Delegate Calculator', () => {
       delegate.missedBlocks = 0
       delegate.producedBlocks = 0
 
-      expect(delegateCalculator.calculateProductivity(delegate)).toBe(0.00)
+      expect(delegateCalculator.calculateProductivity(delegate)).toBe(0.0)
     })
   })
 })

@@ -1,5 +1,3 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
@@ -9,10 +7,7 @@ exports.setUp = async () => {
   process.env.ARK_GRAPHQL_ENABLED = true
 
   await containerHelper.setUp({
-    exclude: [
-      '@arkecosystem/core-api',
-      '@arkecosystem/core-forger'
-    ]
+    exclude: ['@arkecosystem/core-api', '@arkecosystem/core-forger'],
   })
 
   return container

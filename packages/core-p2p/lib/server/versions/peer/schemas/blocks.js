@@ -1,5 +1,3 @@
-'use strict'
-
 const Joi = require('joi')
 
 /**
@@ -7,8 +5,10 @@ const Joi = require('joi')
  */
 exports.index = {
   query: {
-    height: Joi.number().integer().optional()
-  }
+    height: Joi.number()
+      .integer()
+      .optional(),
+  },
 }
 
 /**
@@ -16,8 +16,8 @@ exports.index = {
  */
 exports.store = {
   payload: {
-    block: Joi.object()
-  }
+    block: Joi.object(),
+  },
 }
 
 /**
@@ -25,6 +25,6 @@ exports.store = {
  */
 exports.common = {
   query: {
-    blocks: Joi.string()
-  }
+    blocks: Joi.string(),
+  },
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const createDelegate = require('../../../lib/generators/transactions/delegate')
 const { TRANSACTION_TYPES } = require('../../../../crypto/lib/constants')
 
@@ -9,11 +7,7 @@ describe('Delegate transaction', () => {
   })
 
   const quantity = 4
-  const transactions = createDelegate(
-    undefined,
-    undefined,
-    quantity
-  )
+  const transactions = createDelegate(undefined, undefined, quantity)
 
   it('should return an array', () => {
     expect(transactions).toBeArrayOfSize(quantity)
@@ -21,7 +15,9 @@ describe('Delegate transaction', () => {
 
   it('should return an array of 4 delegate objects', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({ type: TRANSACTION_TYPES.DELEGATE_REGISTRATION })
+      expect(transactions[i]).toMatchObject({
+        type: TRANSACTION_TYPES.DELEGATE_REGISTRATION,
+      })
     }
   })
 })

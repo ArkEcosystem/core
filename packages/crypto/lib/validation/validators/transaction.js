@@ -1,7 +1,7 @@
 const { TRANSACTION_TYPES } = require('../../constants')
 
 class TransactionValidator {
-  constructor () {
+  constructor() {
     this.rules = {
       [TRANSACTION_TYPES.TRANSFER]: require('../rules/models/transactions/transfer'),
       [TRANSACTION_TYPES.SECOND_SIGNATURE]: require('../rules/models/transactions/second-signature'),
@@ -11,11 +11,11 @@ class TransactionValidator {
       [TRANSACTION_TYPES.IPFS]: require('../rules/models/transactions/ipfs'),
       [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require('../rules/models/transactions/timelock-transfer'),
       [TRANSACTION_TYPES.MULTI_PAYMENT]: require('../rules/models/transactions/multi-payment'),
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('../rules/models/transactions/delegate-resignation')
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('../rules/models/transactions/delegate-resignation'),
     }
   }
 
-  validate (transaction) {
+  validate(transaction) {
     return this.rules[transaction.type](transaction)
   }
 }

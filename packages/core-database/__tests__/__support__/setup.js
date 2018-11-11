@@ -1,5 +1,3 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
@@ -12,8 +10,8 @@ exports.setUp = async () => {
     exit: '@arkecosystem/core-blockchain',
     exclude: [
       '@arkecosystem/core-p2p',
-      '@arkecosystem/core-transaction-pool-mem'
-    ]
+      '@arkecosystem/core-transaction-pool-mem',
+    ],
   })
 }
 

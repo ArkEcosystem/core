@@ -1,5 +1,3 @@
-'use strict'
-
 module.exports = {
   createServer: require('./server/create'),
   monitorServer: require('./server/monitor'),
@@ -7,5 +5,5 @@ module.exports = {
   plugins: {
     corsHeaders: require('./plugins/cors-headers'),
     whitelist: require('./plugins/whitelist'),
-  }
+  },
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const Joi = require('joi')
 const client = require('../services/client')
 
@@ -12,14 +10,14 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const query = await client.search(request.payload)
 
     return {
       meta: {
-        count: query.hits.total
+        count: query.hits.total,
       },
-      data: query.hits.hits.map(result => result._source)
+      data: query.hits.hits.map(result => result._source),
     }
   },
   options: {
@@ -63,8 +61,8 @@ exports.index = {
         preFilterShardSize: Joi.number(),
         index: Joi.any(),
         type: Joi.any(),
-        body: Joi.object()
-      }
-    }
-  }
+        body: Joi.object(),
+      },
+    },
+  },
 }

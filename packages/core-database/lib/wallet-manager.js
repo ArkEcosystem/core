@@ -1,10 +1,9 @@
-'use strict'
-
 const { crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
+
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 
@@ -13,7 +12,7 @@ module.exports = class WalletManager {
    * Create a new wallet manager instance.
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.networkId = config ? config.network.pubKeyHash : 0x17
     this.reset()
   }
@@ -22,7 +21,7 @@ module.exports = class WalletManager {
    * Reset the wallets index.
    * @return {void}
    */
-  reset () {
+  reset() {
     this.byAddress = {}
     this.byPublicKey = {}
     this.byUsername = {}
@@ -32,7 +31,7 @@ module.exports = class WalletManager {
    * Get all wallets by address.
    * @return {Array}
    */
-  all () {
+  all() {
     return Object.values(this.byAddress)
   }
 
@@ -40,7 +39,7 @@ module.exports = class WalletManager {
    * Get all wallets by publicKey.
    * @return {Array}
    */
-  allByPublicKey () {
+  allByPublicKey() {
     return Object.values(this.byPublicKey)
   }
 
@@ -48,7 +47,7 @@ module.exports = class WalletManager {
    * Get all wallets by username.
    * @return {Array}
    */
-  allByUsername () {
+  allByUsername() {
     return Object.values(this.byUsername)
   }
 
@@ -57,7 +56,7 @@ module.exports = class WalletManager {
    * @param  {String} address
    * @return {Wallet}
    */
-  findByAddress (address) {
+  findByAddress(address) {
     if (!this.byAddress[address]) {
       this.byAddress[address] = new Wallet(address)
     }
@@ -70,7 +69,7 @@ module.exports = class WalletManager {
    * @param  {String} publicKey
    * @return {Wallet}
    */
-  findByPublicKey (publicKey) {
+  findByPublicKey(publicKey) {
     if (!this.byPublicKey[publicKey]) {
       const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
 
@@ -87,7 +86,7 @@ module.exports = class WalletManager {
    * @param  {String} username
    * @return {Wallet}
    */
-  findByUsername (username) {
+  findByUsername(username) {
     return this.byUsername[username]
   }
 
@@ -97,7 +96,7 @@ module.exports = class WalletManager {
    * @param {Wallet} wallet
    * @param {void}
    */
-  setByAddress (address, wallet) {
+  setByAddress(address, wallet) {
     this.byAddress[address] = wallet
   }
 
@@ -107,7 +106,7 @@ module.exports = class WalletManager {
    * @param {Wallet} wallet
    * @param {void}
    */
-  setByPublicKey (publicKey, wallet) {
+  setByPublicKey(publicKey, wallet) {
     this.byPublicKey[publicKey] = wallet
   }
 
@@ -117,7 +116,7 @@ module.exports = class WalletManager {
    * @param {Wallet} wallet
    * @param {void}
    */
-  setByUsername (username, wallet) {
+  setByUsername(username, wallet) {
     this.byUsername[username] = wallet
   }
 
@@ -126,7 +125,7 @@ module.exports = class WalletManager {
    * @param {String} address
    * @param {void}
    */
-  forgetByAddress (address) {
+  forgetByAddress(address) {
     delete this.byAddress[address]
   }
 
@@ -135,7 +134,7 @@ module.exports = class WalletManager {
    * @param {String} publicKey
    * @param {void}
    */
-  forgetByPublicKey (publicKey) {
+  forgetByPublicKey(publicKey) {
     delete this.byPublicKey[publicKey]
   }
 
@@ -144,7 +143,7 @@ module.exports = class WalletManager {
    * @param {String} username
    * @param {void}
    */
-  forgetByUsername (username) {
+  forgetByUsername(username) {
     delete this.byUsername[username]
   }
 
@@ -153,7 +152,7 @@ module.exports = class WalletManager {
    * @param  {Array} wallets
    * @return {void}
    */
-  index (wallets) {
+  index(wallets) {
     for (const wallet of wallets) {
       this.reindex(wallet)
     }
@@ -164,7 +163,7 @@ module.exports = class WalletManager {
    * @param  {Wallet} wallet
    * @return {void}
    */
-  reindex (wallet) {
+  reindex(wallet) {
     if (wallet.address) {
       this.byAddress[wallet.address] = wallet
     }
@@ -178,7 +177,7 @@ module.exports = class WalletManager {
     }
   }
 
-  clear () {
+  clear() {
     Object.values(this.byAddress).map(wallet => (wallet.dirty = false))
   }
 
@@ -187,7 +186,7 @@ module.exports = class WalletManager {
    * @param  {Number} maxDelegates
    * @return {Array}
    */
-  loadActiveDelegateList (maxDelegates, height) {
+  loadActiveDelegateList(maxDelegates, height) {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
@@ -196,42 +195,59 @@ module.exports = class WalletManager {
     let delegates = this.allByUsername()
 
     if (delegates.length < maxDelegates) {
-      throw new Error(`Expected to find ${maxDelegates} delegates but only found ${delegates.length}. This indicates an issue with the genesis block & delegates.`)
+      throw new Error(
+        `Expected to find ${maxDelegates} delegates but only found ${
+          delegates.length
+        }. This indicates an issue with the genesis block & delegates.`,
+      )
     }
 
     const equalVotesMap = new Map()
 
-    delegates = delegates.sort((a, b) => {
-      const diff = b.voteBalance.comparedTo(a.voteBalance)
+    delegates = delegates
+      .sort((a, b) => {
+        const diff = b.voteBalance.comparedTo(a.voteBalance)
 
-      if (diff === 0) {
-        if (!equalVotesMap.has(a.voteBalance.toFixed())) {
-          equalVotesMap.set(a.voteBalance.toFixed(), new Set())
+        if (diff === 0) {
+          if (!equalVotesMap.has(a.voteBalance.toFixed())) {
+            equalVotesMap.set(a.voteBalance.toFixed(), new Set())
+          }
+
+          const set = equalVotesMap.get(a.voteBalance.toFixed())
+          set.add(a)
+          set.add(b)
+
+          if (a.publicKey === b.publicKey) {
+            throw new Error(
+              `The balance and public key of both delegates are identical! Delegate "${
+                a.username
+              }" appears twice in the list.`,
+            )
+          }
+
+          return a.publicKey.localeCompare(b.publicKey, 'en')
         }
 
-        const set = equalVotesMap.get(a.voteBalance.toFixed())
-        set.add(a)
-        set.add(b)
-
-        if (a.publicKey === b.publicKey) {
-          throw new Error(`The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`)
-        }
-
-        return a.publicKey.localeCompare(b.publicKey, 'en')
-      }
-
-      return diff
-    }).map((delegate, i) => {
-      const rate = i + 1
-      this.byUsername[delegate.username].rate = rate
-      return { ...{ round }, ...delegate, rate }
-    }).slice(0, maxDelegates)
+        return diff
+      })
+      .map((delegate, i) => {
+        const rate = i + 1
+        this.byUsername[delegate.username].rate = rate
+        return { ...{ round }, ...delegate, rate }
+      })
+      .slice(0, maxDelegates)
 
     for (const [voteBalance, set] of equalVotesMap.entries()) {
       const values = Array.from(set.values())
       if (delegates.includes(values[0])) {
         const mapped = values.map(v => `${v.username} (${v.publicKey})`)
-        logger.warn(`Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatArktoshi(voteBalance)}`)
+        logger.warn(
+          `Delegates ${JSON.stringify(
+            mapped,
+            null,
+            4,
+          )} have a matching vote balance of ${formatArktoshi(voteBalance)}`,
+        )
       }
     }
 
@@ -245,7 +261,7 @@ module.exports = class WalletManager {
    * NOTE: Only called during SPV.
    * @return {void}
    */
-  buildVoteBalances () {
+  buildVoteBalances() {
     Object.values(this.byPublicKey).forEach(voter => {
       if (voter.vote) {
         const delegate = this.byPublicKey[voter.vote]
@@ -258,7 +274,7 @@ module.exports = class WalletManager {
    * Remove non-delegate wallets that have zero (0) balance from memory.
    * @return {void}
    */
-  purgeEmptyNonDelegates () {
+  purgeEmptyNonDelegates() {
     Object.values(this.byPublicKey).forEach(wallet => {
       if (this.__canBePurged(wallet)) {
         delete this.byPublicKey[wallet.publicKey]
@@ -272,7 +288,7 @@ module.exports = class WalletManager {
    * @param  {Block} block
    * @return {void}
    */
-  applyBlock (block) {
+  applyBlock(block) {
     const generatorPublicKey = block.data.generatorPublicKey
 
     let delegate = this.byPublicKey[block.data.generatorPublicKey]
@@ -292,7 +308,9 @@ module.exports = class WalletManager {
           logger.info('This look like a bug, please report :bug:')
         }
 
-        throw new Error(`Could not find delegate with publicKey ${generatorPublicKey}`)
+        throw new Error(
+          `Could not find delegate with publicKey ${generatorPublicKey}`,
+        )
       }
     }
 
@@ -314,9 +332,10 @@ module.exports = class WalletManager {
         const votedDelegate = this.byPublicKey[delegate.vote]
         votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase)
       }
-
     } catch (error) {
-      logger.error('Failed to apply all transactions in block - reverting previous transactions')
+      logger.error(
+        'Failed to apply all transactions in block - reverting previous transactions',
+      )
       // Revert the applied transactions from last to first
       for (let i = appliedTransactions.length - 1; i >= 0; i--) {
         this.revertTransaction(appliedTransactions[i])
@@ -334,11 +353,15 @@ module.exports = class WalletManager {
    * @param  {Block} block
    * @return {void}
    */
-  async revertBlock (block) {
-    let delegate = this.byPublicKey[block.data.generatorPublicKey]
+  async revertBlock(block) {
+    const delegate = this.byPublicKey[block.data.generatorPublicKey]
 
     if (!delegate) {
-      container.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`)
+      container.forceExit(
+        `Failed to lookup generator '${
+          block.data.generatorPublicKey
+        }' of block '${block.data.id}'. :skull:`,
+      )
     }
 
     const revertedTransactions = []
@@ -361,7 +384,6 @@ module.exports = class WalletManager {
         const votedDelegate = this.byPublicKey[delegate.vote]
         votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease)
       }
-
     } catch (error) {
       logger.error(error.stack)
 
@@ -378,34 +400,58 @@ module.exports = class WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  applyTransaction (transaction) { /* eslint padded-blocks: "off" */
+  applyTransaction(transaction) {
+    /* eslint padded-blocks: "off" */
     const { data } = transaction
-    const { type, asset, recipientId, senderPublicKey } = data
+    const {
+      type, asset, recipientId, senderPublicKey,
+    } = data
 
     const sender = this.findByPublicKey(senderPublicKey)
     const recipient = this.findByAddress(recipientId)
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.byUsername[asset.delegate.username.toLowerCase()]) {
+    if (
+      type === TRANSACTION_TYPES.DELEGATE_REGISTRATION
+      && this.byUsername[asset.delegate.username.toLowerCase()]
+    ) {
+      logger.error(
+        `Can't apply transaction ${data.id}: delegate name already taken.`,
+        JSON.stringify(data),
+      )
+      throw new Error(
+        `Can't apply transaction ${data.id}: delegate name already taken.`,
+      )
 
-      logger.error(`Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`)
-
-    // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
-    } else if (type === TRANSACTION_TYPES.VOTE && !this.__isDelegate(asset.votes[0].slice(1))) {
-
-      logger.error(`Can't apply vote transaction: delegate ${asset.votes[0]} does not exist.`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`)
-
+      // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
+    } else if (
+      type === TRANSACTION_TYPES.VOTE
+      && !this.__isDelegate(asset.votes[0].slice(1))
+    ) {
+      logger.error(
+        `Can't apply vote transaction: delegate ${
+          asset.votes[0]
+        } does not exist.`,
+        JSON.stringify(data),
+      )
+      throw new Error(
+        `Can't apply transaction ${data.id}: delegate ${
+          asset.votes[0]
+        } does not exist.`,
+      )
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = ''
     } else if (this.__isException(data)) {
-
-      logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
-
+      logger.warn(
+        'Transaction forcibly applied because it has been added as an exception:',
+        data,
+      )
     } else if (!sender.canApply(data)) {
-
-      logger.error(`Can't apply transaction for ${sender.address}: ` + JSON.stringify(data))
-      logger.debug('Audit: ' + JSON.stringify(sender.auditApply(data), null, 2))
+      logger.error(
+        `Can't apply transaction for ${sender.address}: ${JSON.stringify(
+          data,
+        )}`,
+      )
+      logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`)
       throw new Error(`Can't apply transaction ${data.id}`)
     }
 
@@ -440,10 +486,9 @@ module.exports = class WalletManager {
    * @param  {Boolean} revert
    * @return {Transaction}
    */
-  _updateVoteBalances (sender, recipient, transaction, revert = false) {
+  _updateVoteBalances(sender, recipient, transaction, revert = false) {
     // TODO: multipayment?
     if (transaction.type !== TRANSACTION_TYPES.VOTE) {
-
       // Update vote balance of the sender's delegate
       if (sender.vote) {
         const delegate = this.findByPublicKey(sender.vote)
@@ -460,7 +505,6 @@ module.exports = class WalletManager {
           ? delegate.voteBalance.minus(transaction.amount)
           : delegate.voteBalance.plus(transaction.amount)
       }
-
     } else {
       const vote = transaction.asset.votes[0]
       const delegate = this.findByPublicKey(vote.substr(1))
@@ -473,7 +517,6 @@ module.exports = class WalletManager {
           ? delegate.voteBalance.plus(sender.balance.plus(transaction.fee))
           : delegate.voteBalance.minus(sender.balance.plus(transaction.fee))
     }
-
   }
 
   /**
@@ -481,7 +524,7 @@ module.exports = class WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  revertTransaction (transaction) {
+  revertTransaction(transaction) {
     const { type, data } = transaction
     const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.byAddress[data.recipientId]
@@ -507,7 +550,7 @@ module.exports = class WalletManager {
    * Checks if a given publicKey is a registered delegate
    * @param {String} publicKey
    */
-  __isDelegate (publicKey) {
+  __isDelegate(publicKey) {
     const delegateWallet = this.byPublicKey[publicKey]
 
     if (delegateWallet && delegateWallet.username) {
@@ -522,8 +565,13 @@ module.exports = class WalletManager {
    * @param  {Object} wallet
    * @return {Boolean}
    */
-  __canBePurged (wallet) {
-    return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+  __canBePurged(wallet) {
+    return (
+      wallet.balance.isZero()
+      && !wallet.secondPublicKey
+      && !wallet.multisignature
+      && !wallet.username
+    )
   }
 
   /**
@@ -531,7 +579,7 @@ module.exports = class WalletManager {
    * @param  {Object} transaction
    * @return {Boolean}
    */
-  __isException (transaction) {
+  __isException(transaction) {
     if (!config) {
       return false
     }

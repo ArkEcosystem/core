@@ -1,11 +1,10 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const config = container.resolvePlugin('config')
 const transform = require('../transformers/plugins')
 
 exports.config = {
-  async handler (request, h) {
+  async handler(request, h) {
     return {
       data: {
         version: container.resolveOptions('blockchain').version,
@@ -15,48 +14,48 @@ exports.config = {
           explorer: config.network.client.explorer,
           token: {
             name: config.network.client.token,
-            symbol: config.network.client.symbol
-          }
+            symbol: config.network.client.symbol,
+          },
         },
-        plugins: transform(config)
-      }
+        plugins: transform(config),
+      },
     }
   },
   config: {
-    cors: true
-  }
+    cors: true,
+  },
 }
 
 exports.network = {
-  handler (request, h) {
+  handler(request, h) {
     return {
-      data: require(`${process.env.ARK_PATH_CONFIG}/network.json`)
+      data: require(`${process.env.ARK_PATH_CONFIG}/network.json`),
     }
-  }
+  },
 }
 
 exports.genesisBlock = {
-  handler (request, h) {
+  handler(request, h) {
     return {
-      data: require(`${process.env.ARK_PATH_CONFIG}/genesisBlock.json`)
+      data: require(`${process.env.ARK_PATH_CONFIG}/genesisBlock.json`),
     }
-  }
+  },
 }
 
 exports.peers = {
-  handler (request, h) {
+  handler(request, h) {
     return {
-      data: require(`${process.env.ARK_PATH_CONFIG}/peers.json`)
+      data: require(`${process.env.ARK_PATH_CONFIG}/peers.json`),
     }
-  }
+  },
 }
 
 exports.delegates = {
-  handler (request, h) {
-    let data = require(`${process.env.ARK_PATH_CONFIG}/delegates.json`)
+  handler(request, h) {
+    const data = require(`${process.env.ARK_PATH_CONFIG}/delegates.json`)
     data.secrets = []
     delete data.bip38
 
     return { data }
-  }
+  },
 }

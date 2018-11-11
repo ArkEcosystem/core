@@ -1,5 +1,3 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const { slots } = require('@arkecosystem/crypto')
 
@@ -12,16 +10,16 @@ exports.height = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
       data: {
         id: lastBlock.data.id,
-        height: lastBlock.data.height
-      }
+        height: lastBlock.data.height,
+      },
     }
-  }
+  },
 }
 
 /**
@@ -33,7 +31,7 @@ exports.status = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
@@ -41,8 +39,8 @@ exports.status = {
         height: lastBlock.data.height,
         forgingAllowed: slots.isForgingAllowed(),
         currentSlot: slots.getSlotNumber(),
-        header: lastBlock.getHeader()
-      }
+        header: lastBlock.getHeader(),
+      },
     }
-  }
+  },
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const logManager = require('./manager')
 
 /**
@@ -9,9 +7,9 @@ const logManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'logManager',
-  async register (container, options) {
+  async register() {
     return logManager
-  }
+  },
 }
 
 /**

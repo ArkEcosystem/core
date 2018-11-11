@@ -1,10 +1,8 @@
-'use strict'
+const pick = require('lodash/pick')
+const msgpack = require('msgpack-lite')
 
 const { blocks } = require('../../../fixtures/blocks')
 const { transactions } = require('../../../fixtures/transactions')
-const pick = require('lodash/pick')
-
-const msgpack = require('msgpack-lite')
 const codec = require('../../../../lib/transport/codec').get('ark')
 
 beforeAll(async () => {
@@ -47,11 +45,25 @@ describe('Ark codec testing', () => {
 
   test('Encode/Decode transfer transactions', () => {
     console.time('transactions ark transfer')
-    const properties = ['id', 'version', 'block_id', 'sequence', 'sender_public_key', 'recipient_id', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized']
+    const properties = [
+      'id',
+      'version',
+      'block_id',
+      'sequence',
+      'sender_public_key',
+      'recipient_id',
+      'type',
+      'vendor_field_hex',
+      'amount',
+      'fee',
+      'serialized',
+    ]
     const transferTransactions = transactions.filter(trx => trx.type === 0)
     for (let i = 0; i < 100; i++) {
       for (const transaction of transferTransactions) {
-        const encoded = msgpack.encode(transaction, { codec: codec.transactions })
+        const encoded = msgpack.encode(transaction, {
+          codec: codec.transactions,
+        })
         const decoded = msgpack.decode(encoded, { codec: codec.transactions })
 
         const source = pick(transaction, properties)
@@ -64,7 +76,18 @@ describe('Ark codec testing', () => {
 
   test('Encode/Decode transactions other than transfer', () => {
     console.time('transactions')
-    const properties = ['id', 'version', 'block_id', 'sequence', 'sender_public_key', 'type', 'vendor_field_hex', 'amount', 'fee', 'serialized']
+    const properties = [
+      'id',
+      'version',
+      'block_id',
+      'sequence',
+      'sender_public_key',
+      'type',
+      'vendor_field_hex',
+      'amount',
+      'fee',
+      'serialized',
+    ]
 
     const otherTransactions = transactions.filter(trx => trx.type > 0)
     for (const transaction of otherTransactions) {

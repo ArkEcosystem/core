@@ -1,18 +1,21 @@
-'use strict'
-
-const VoteCommand = require('../../lib/commands/vote')
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
+const VoteCommand = require('../../lib/commands/vote')
+
 const mockAxios = new MockAdapter(axios)
 
 const defaultOpts = {
   skipTesting: true,
-  skipValidation: true
+  skipValidation: true,
 }
 beforeEach(() => {
   // Just passthru. We'll test the Command class logic in its own test file more thoroughly
-  mockAxios.onGet('http://localhost:4003/api/v2/node/configuration').reply(200, { data: { constants: {} } })
-  mockAxios.onGet('http://localhost:4000/config').reply(200, { data: { network: {} } })
+  mockAxios
+    .onGet('http://localhost:4003/api/v2/node/configuration')
+    .reply(200, { data: { constants: {} } })
+  mockAxios
+    .onGet('http://localhost:4000/config')
+    .reply(200, { data: { network: {} } })
   jest.spyOn(axios, 'get')
   jest.spyOn(axios, 'post')
 })
@@ -34,26 +37,31 @@ describe('Commands - Vote', () => {
       ...defaultOpts,
       number: 1,
       voteFee: 1,
-      delegate: expectedDelegate
+      delegate: expectedDelegate,
     }
     const command = await VoteCommand.init(opts)
     mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates.*/).reply(200)
-    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
+    mockAxios
+      .onPost('http://localhost:4003/api/v2/transactions')
+      .reply(200, { data: {} })
 
     await command.run()
 
-    expect(axios.post).toHaveBeenNthCalledWith(2, 'http://localhost:4003/api/v2/transactions',
+    expect(axios.post).toHaveBeenNthCalledWith(
+      2,
+      'http://localhost:4003/api/v2/transactions',
       {
         transactions: [
           expect.objectContaining({
             fee: VoteCommand.__arkToArktoshi(opts.voteFee),
             asset: {
-              votes: [`+${expectedDelegate}`]
-            }
-          })
-        ]
+              votes: [`+${expectedDelegate}`],
+            },
+          }),
+        ],
       },
-      expect.any(Object))
+      expect.any(Object),
+    )
   })
 
   it('should vote random delegate if non specified', async () => {
@@ -62,31 +70,37 @@ describe('Commands - Vote', () => {
       ...defaultOpts,
       number: 1,
       voteFee: 1,
-      delegate: null
+      delegate: null,
     }
     const command = await VoteCommand.init(opts)
-    mockAxios.onPost('http://localhost:4003/api/v2/transactions').reply(200, { data: {} })
-    mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates\/.*/).reply(200) // call to delegates/{publicKey}/voters
+    mockAxios
+      .onPost('http://localhost:4003/api/v2/transactions')
+      .reply(200, { data: {} })
+    mockAxios
+      .onGet(/http:\/\/localhost:4003\/api\/v2\/delegates\/.*/)
+      .reply(200) // call to delegates/{publicKey}/voters
     // call to /delegates
-    mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200,
-      {
-        meta: { pageCount: 1 },
-        data: [{ publicKey: expectedDelegate }]
-      })
+    mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200, {
+      meta: { pageCount: 1 },
+      data: [{ publicKey: expectedDelegate }],
+    })
 
     await command.run()
 
-    expect(axios.post).toHaveBeenNthCalledWith(2, 'http://localhost:4003/api/v2/transactions',
+    expect(axios.post).toHaveBeenNthCalledWith(
+      2,
+      'http://localhost:4003/api/v2/transactions',
       {
         transactions: [
           expect.objectContaining({
             fee: VoteCommand.__arkToArktoshi(opts.voteFee),
             asset: {
-              votes: [`+${expectedDelegate}`]
-            }
-          })
-        ]
+              votes: [`+${expectedDelegate}`],
+            },
+          }),
+        ],
       },
-      expect.any(Object))
+      expect.any(Object),
+    )
   })
 })

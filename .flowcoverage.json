@@ -1,10 +1,6 @@
 {
   "concurrentFiles": 1,
-  "globExcludePatterns": [
-    "node_modules/**",
-    "flow-typed/**",
-    "__tests__/**"
-  ],
+  "globExcludePatterns": ["node_modules/**", "flow-typed/**", "__tests__/**"],
   "globIncludePatterns": ["lib/**/*.js"],
   "threshold": 100,
   "reportTypes": ["text", "html"]

@@ -1,11 +1,11 @@
-'use strict'
-
 const EventEmitter = require('eventemitter3')
 const emitter = require('../lib/emitter')
 
 let lastEmit
 beforeAll(() => {
-  emitter.on('fake', (data) => (lastEmit = data))
+  emitter.on('fake', data => {
+    lastEmit = data
+  })
 })
 
 describe('Event Manager', () => {

@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * Return some rows by an offset and a limit.
  * @param  {Array} rows

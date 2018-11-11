@@ -1,5 +1,3 @@
-'use strict'
-
 const Joi = require('joi')
 
 /**
@@ -7,6 +5,6 @@ const Joi = require('joi')
  */
 exports.store = {
   payload: {
-    block: Joi.object()
-  }
+    block: Joi.object(),
+  },
 }

@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const config = container.resolvePlugin('config')
 const blockchain = container.resolvePlugin('blockchain')
 
@@ -14,7 +13,7 @@ const { bignumify, formatTimestamp } = require('@arkecosystem/core-utils')
  * @param  {Object} model
  * @return {Object}
  */
-module.exports = (model) => {
+module.exports = model => {
   const data = new Transaction(model.serialized.toString('hex'))
   const lastBlock = blockchain.getLastBlock()
 
@@ -32,6 +31,6 @@ module.exports = (model) => {
     vendorField: data.vendorField,
     asset: data.asset,
     confirmations: model.block ? lastBlock.data.height - model.block.height : 0,
-    timestamp: formatTimestamp(data.timestamp)
+    timestamp: formatTimestamp(data.timestamp),
   }
 }

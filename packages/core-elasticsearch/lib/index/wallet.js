@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const emitter = container.resolvePlugin('event-emitter')
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
@@ -12,7 +11,7 @@ class WalletIndex extends Index {
    * Index wallets using the specified chunk size.
    * @return {void}
    */
-  async index () {
+  async index() {
     const { count } = await this.__count()
 
     const queries = Math.ceil(count / this.chunkSize)
@@ -32,7 +31,9 @@ class WalletIndex extends Index {
         continue
       }
 
-      logger.info(`[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`)
+      logger.info(
+        `[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`,
+      )
 
       try {
         rows.forEach(row => (row.id = row.address))
@@ -48,7 +49,7 @@ class WalletIndex extends Index {
    * Register listeners for "wallet.*" events.
    * @return {void}
    */
-  listen () {
+  listen() {
     emitter.on('wallets:updated', data => this.index())
   }
 
@@ -56,7 +57,7 @@ class WalletIndex extends Index {
    * Get the document index.
    * @return {String}
    */
-  getIndex () {
+  getIndex() {
     return 'wallets'
   }
 
@@ -64,7 +65,7 @@ class WalletIndex extends Index {
    * Get the document type.
    * @return {String}
    */
-  getType () {
+  getType() {
     return 'wallet'
   }
 }

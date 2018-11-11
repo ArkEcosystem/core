@@ -4,7 +4,7 @@ class Validator {
   /**
    * Create a new validator instance.
    */
-  constructor () {
+  constructor() {
     this.rules = require('./rules')
     this.engine = engine
   }
@@ -13,9 +13,9 @@ class Validator {
    * Run the validator's rules against its data.
    * @param  {*} attributes
    * @param  {Object} rules
-   * @return {void}
+   * @return {void|Boolean}
    */
-  async validate (attributes, rules) {
+  async validate(attributes, rules) {
     this.__reset()
 
     if (rules instanceof String) {
@@ -29,13 +29,15 @@ class Validator {
     if (rules instanceof Object) {
       return this.__validateWithJoi(attributes, rules)
     }
+
+    return false
   }
 
   /**
    * Determine if the data passes the validation rules.
    * @return {Boolean}
    */
-  passes () {
+  passes() {
     return this.results.passes
   }
 
@@ -43,7 +45,7 @@ class Validator {
    * Determine if the data fails the validation rules.
    * @return {Boolean}
    */
-  fails () {
+  fails() {
     return this.results.fails
   }
 
@@ -51,7 +53,7 @@ class Validator {
    * Get the validated data.
    * @return {*}
    */
-  validated () {
+  validated() {
     return this.results.data
   }
 
@@ -59,7 +61,7 @@ class Validator {
    * Get the validation errors.
    * @return {Array}
    */
-  errors () {
+  errors() {
     return this.results.errors
   }
 
@@ -67,7 +69,7 @@ class Validator {
    * Add a new rule to the validator.
    * @return {void}
    */
-  extend (name, implementation) {
+  extend(name, implementation) {
     this.rules[name] = implementation
   }
 
@@ -77,7 +79,7 @@ class Validator {
    * @param  {String} rule
    * @return {void}
    */
-  __validateWithRule (attributes, rules) {
+  __validateWithRule(attributes, rules) {
     const validate = this.rules[rules]
 
     if (!rules) {
@@ -93,7 +95,7 @@ class Validator {
    * @param  {String} rule
    * @return {void}
    */
-  __validateWithFunction (attributes, validate) {
+  __validateWithFunction(attributes, validate) {
     this.results = validate(attributes)
   }
 
@@ -103,21 +105,21 @@ class Validator {
    * @param  {String} rule
    * @return {void}
    */
-  __validateWithJoi (attributes, rules) {
+  __validateWithJoi(attributes, rules) {
     const { error, value } = this.engine.validate(attributes, rules)
 
     this.results = {
       data: value,
       errors: error ? error.details : null,
       passes: !error,
-      fails: error
+      fails: error,
     }
   }
 
   /**
    * Reset any previous results.
    */
-  __reset () {
+  __reset() {
     this.results = null
   }
 }

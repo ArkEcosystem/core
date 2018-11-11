@@ -1,5 +1,3 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const requestIp = require('request-ip')
 const schema = require('../schemas/blocks')
@@ -21,6 +19,6 @@ exports.store = {
     return h.response(null).code(204)
   },
   options: {
-    validate: schema.store
-  }
+    validate: schema.store,
+  },
 }

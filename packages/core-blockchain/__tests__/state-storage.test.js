@@ -1,5 +1,3 @@
-'use strict'
-
 const { Block } = require('@arkecosystem/crypto').models
 const blocks1to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
 const blocks101to155 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.101-155')
@@ -7,7 +5,9 @@ const blocks101to155 = require('@arkecosystem/core-test-utils/fixtures/testnet/b
 const state = require('../lib/state-storage')
 const app = require('./__support__/setup')
 
-const blocks = blocks1to100.concat(blocks101to155).map(block => new Block(block))
+const blocks = blocks1to100
+  .concat(blocks101to155)
+  .map(block => new Block(block))
 
 beforeAll(async () => {
   await app.setUp()
@@ -54,7 +54,8 @@ describe('State Storage', () => {
     })
 
     it('should not exceed the max last blocks', () => {
-      for (let i = 0; i < 100; i++) { // 100 is default
+      for (let i = 0; i < 100; i++) {
+        // 100 is default
         state.setLastBlock(blocks[i])
       }
 
@@ -71,7 +72,8 @@ describe('State Storage', () => {
     })
 
     it('should remove last blocks when going to lower height', () => {
-      for (let i = 0; i < 100; i++) { // 100 is default
+      for (let i = 0; i < 100; i++) {
+        // 100 is default
         state.setLastBlock(blocks[i])
       }
 

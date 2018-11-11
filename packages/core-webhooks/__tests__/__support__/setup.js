@@ -1,5 +1,3 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
@@ -12,8 +10,8 @@ exports.setUp = async () => {
     exclude: [
       '@arkecosystem/core-api',
       '@arkecosystem/core-graphql',
-      '@arkecosystem/core-forger'
-    ]
+      '@arkecosystem/core-forger',
+    ],
   })
 
   await require('../../lib/manager').setUp({})
@@ -25,10 +23,8 @@ exports.setUp = async () => {
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
     pagination: {
       limit: 100,
-      include: [
-        '/api/webhooks'
-      ]
-    }
+      include: ['/api/webhooks'],
+    },
   })
 }
 

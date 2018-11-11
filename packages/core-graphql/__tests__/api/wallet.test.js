@@ -17,7 +17,9 @@ afterAll(() => {
 describe('GraphQL API { wallet }', () => {
   describe('GraphQL queries for Wallet', () => {
     it('should get a wallet by address', async () => {
-      const query = `{ wallet(address:"${genesisBlock.transactions[0].senderId}") { address } }`
+      const query = `{ wallet(address:"${
+        genesisBlock.transactions[0].senderId
+      }") { address } }`
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()

@@ -10,12 +10,14 @@
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "format": "prettier --write \"./*.{js,json,md}\" \"./packages/**/*.{js,json,md}\"",
     "flow:coverage": "lerna run flow:coverage",
     "flow:check": "lerna run flow:check",
     "flow:deps": "lerna run flow:deps",
     "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {
+    "@arkecosystem/eslint-config-base": "https://github.com/ArkEcosystem/eslint-config-base",
     "@babel/core": "^7.1.5",
     "@babel/preset-env": "^7.1.5",
     "axios": "^0.18.0",
@@ -26,11 +28,11 @@
     "depcheck": "^0.6.11",
     "docdash": "^1.0.0",
     "eslint": "^5.9.0",
-    "eslint-config-standard": "^12.0.0",
+    "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^22.0.0",
     "eslint-plugin-node": "^8.0.0",
     "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
     "express": "^4.16.4",
     "flow-bin": "^0.86.0",
     "flow-coverage-report": "^0.6.0",
@@ -42,11 +44,11 @@
     "lerna": "^3.4.3",
     "lint-staged": "^8.0.4",
     "npm-check-updates": "^2.14.2",
+    "prettier": "^1.15.2",
     "regenerator-runtime": "^0.12.1",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
     "snyk": "^1.108.2",
-    "standard": "^12.0.1",
     "uuid": "^3.3.2",
     "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2",
@@ -61,10 +63,5 @@
     "hooks": {
       "pre-commit": "lint-staged && ./scripts/pre-commit.sh"
     }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix"
-    ]
   }
 }

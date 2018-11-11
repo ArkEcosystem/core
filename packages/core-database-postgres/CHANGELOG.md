@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
+
 - Database rollback
 
 ### Changed
+
 - Build delegate list in-memory to reduce database load
 - Perform vote balance calculations in-memory to reduce database load
 - Handle numbers as `BigNumber` instances
@@ -20,9 +22,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Removed
+
 - All `redis` integrations and dependencies
 
 ### Fixed
+
 - Wrong documentation
 - Bad method calls for `sync/async` methods
 - Cast rounds to integers
@@ -33,4 +37,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 0.1.0 - 2018-09-11
 
 ### Added
+
 - initial release

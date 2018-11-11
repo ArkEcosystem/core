@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
+
 - Delete pool wallet if no ballance or no transactions in pool
 - Additional tests implemented
 - Pool wallet manager implementation to guard the pool
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Handle dynamic fees
 
 ### Changed
+
 - Splitting guard methods into more smaller units
 - GetForgingTransactions moved to Transaction Pool
 - Broadcasting only valid transactions further (verified, and wallet manager applied)
@@ -28,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - No longer decline transactions that exceed the static fees
 
 ### Fixed
+
 - Handling duplicates also on incomming payload level (before entering and checking with pool)
 - Fix on applychained block - to use correct wallet and update from blockchain wallet only if necesary
 - Call getTransactionIdsForForging() properly
@@ -38,4 +41,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 0.1.1 - 2018-06-14
 
 ### Added
+
 - initial release

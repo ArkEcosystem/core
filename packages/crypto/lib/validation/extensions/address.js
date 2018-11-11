@@ -1,4 +1,7 @@
-module.exports = (joi) => ({
+module.exports = joi => ({
   name: 'arkAddress',
-  base: joi.string().alphanum().length(34)
+  base: joi
+    .string()
+    .alphanum()
+    .length(34),
 })

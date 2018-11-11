@@ -1,5 +1,3 @@
-'use strict'
-
 const WinstonDriver = require('./driver')
 
 /**
@@ -11,12 +9,12 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'logger',
   extends: '@arkecosystem/core-logger',
-  async register (container, options) {
+  async register(container, options) {
     const logManager = container.resolvePlugin('logManager')
     await logManager.makeDriver(new WinstonDriver(options))
 
     return logManager.driver()
-  }
+  },
 }
 
 /**

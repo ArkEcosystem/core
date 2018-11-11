@@ -7,7 +7,7 @@ module.exports = class WalletsRepository extends Repository {
    * Get all of the wallets from the database.
    * @return {Promise}
    */
-  async all () {
+  async all() {
     return this.db.manyOrNone(sql.all)
   }
 
@@ -16,7 +16,7 @@ module.exports = class WalletsRepository extends Repository {
    * @param  {String} address
    * @return {Promise}
    */
-  async findByAddress (address) {
+  async findByAddress(address) {
     return this.db.oneOrNone(sql.findByAddress, { address })
   }
 
@@ -24,7 +24,7 @@ module.exports = class WalletsRepository extends Repository {
    * Get the count of wallets that have a negative balance.
    * @return {Promise}
    */
-  async findNegativeBalances () {
+  async findNegativeBalances() {
     return this.db.oneOrNone(sql.findNegativeBalances)
   }
 
@@ -32,7 +32,7 @@ module.exports = class WalletsRepository extends Repository {
    * Get the count of wallets that have a negative vote balance.
    * @return {Promise}
    */
-  async findNegativeVoteBalances () {
+  async findNegativeVoteBalances() {
     return this.db.oneOrNone(sql.findNegativeVoteBalances)
   }
 
@@ -41,10 +41,13 @@ module.exports = class WalletsRepository extends Repository {
    * @param  {Object} wallet
    * @return {Promise}
    */
-  async updateOrCreate (wallet) {
-    const query = this.__insertQuery(wallet) +
-      ' ON CONFLICT(address) DO UPDATE SET ' +
-      this.pgp.helpers.sets(wallet, this.model.getColumnSet())
+  async updateOrCreate(wallet) {
+    const query = `${this.__insertQuery(
+      wallet,
+    )} ON CONFLICT(address) DO UPDATE SET ${this.pgp.helpers.sets(
+      wallet,
+      this.model.getColumnSet(),
+    )}`
 
     return this.db.none(query)
   }
@@ -53,7 +56,7 @@ module.exports = class WalletsRepository extends Repository {
    * Get the model related to this repository.
    * @return {Object}
    */
-  getModel () {
+  getModel() {
     return new Wallet(this.pgp)
   }
 }

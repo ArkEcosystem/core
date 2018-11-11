@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const emitter = container.resolvePlugin('event-emitter')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
@@ -13,11 +12,13 @@ module.exports = class Index {
    * @param  {Number} chunkSize
    * @return {void}
    */
-  setUp (chunkSize) {
+  setUp(chunkSize) {
     logger.info(`[Elasticsearch] Initialising ${this.getType()} index :scroll:`)
     this.chunkSize = chunkSize
 
-    logger.info(`[Elasticsearch] Initialising ${this.getType()} listener :radio:`)
+    logger.info(
+      `[Elasticsearch] Initialising ${this.getType()} listener :radio:`,
+    )
     this.listen()
 
     logger.info(`[Elasticsearch] Indexing ${this.getIndex()} :bookmark:`)
@@ -29,7 +30,7 @@ module.exports = class Index {
    * @param  {String} event
    * @return {void}
    */
-  _registerCreateListener (event) {
+  _registerCreateListener(event) {
     emitter.on(event, async doc => {
       try {
         const exists = await this._exists(doc)
@@ -48,7 +49,7 @@ module.exports = class Index {
    * @param  {String} event
    * @return {void}
    */
-  _registerDeleteListener (event) {
+  _registerDeleteListener(event) {
     emitter.on(event, async doc => {
       try {
         const exists = await this._exists(doc)
@@ -67,7 +68,7 @@ module.exports = class Index {
    * @param  {String} doc
    * @return {Promise}
    */
-  _exists (doc) {
+  _exists(doc) {
     return client.exists(this._getReadQuery(doc))
   }
 
@@ -76,7 +77,7 @@ module.exports = class Index {
    * @param  {String} doc
    * @return {Promise}
    */
-  _create (doc) {
+  _create(doc) {
     logger.info(`[Elasticsearch] Creating ${this.getType()} with ID ${doc.id}`)
 
     if (this.getType() === 'block') {
@@ -93,7 +94,7 @@ module.exports = class Index {
    * @param  {String} doc
    * @return {Promise}
    */
-  _delete (doc) {
+  _delete(doc) {
     logger.info(`[Elasticsearch] Deleting ${this.getType()} with ID ${doc.id}`)
 
     return client.delete(this._getReadQuery(doc))
@@ -104,12 +105,12 @@ module.exports = class Index {
    * @param  {String} doc
    * @return {Object}
    */
-  _getWriteQuery (doc) {
+  _getWriteQuery(doc) {
     return {
       index: this.getIndex(),
       type: this.getType(),
       id: doc.id,
-      body: doc
+      body: doc,
     }
   }
 
@@ -118,11 +119,11 @@ module.exports = class Index {
    * @param  {String} doc
    * @return {Object}
    */
-  _getReadQuery (doc) {
+  _getReadQuery(doc) {
     return {
       index: this.getIndex(),
       type: this.getType(),
-      id: doc.id
+      id: doc.id,
     }
   }
 
@@ -131,19 +132,19 @@ module.exports = class Index {
    * @param  {String} doc
    * @return {Object}
    */
-  _getUpsertQuery (doc) {
+  _getUpsertQuery(doc) {
     return {
       action: {
         update: {
           _index: this.getIndex(),
           _type: this.getType(),
-          _id: doc.id
-        }
+          _id: doc.id,
+        },
       },
       document: {
         doc,
-        doc_as_upsert: true
-      }
+        doc_as_upsert: true,
+      },
     }
   }
 
@@ -152,7 +153,7 @@ module.exports = class Index {
    * @param  {Array} items
    * @return {Object}
    */
-  _buildBulkUpsert (items) {
+  _buildBulkUpsert(items) {
     const actions = []
 
     items.forEach(item => {
@@ -164,16 +165,14 @@ module.exports = class Index {
     return actions
   }
 
-  __createQuery () {
+  __createQuery() {
     return database.models[this.getType()].query()
   }
 
-  __count () {
+  __count() {
     const modelQuery = this.__createQuery()
 
-    const query = modelQuery
-      .select(modelQuery.count('count'))
-      .from(modelQuery)
+    const query = modelQuery.select(modelQuery.count('count')).from(modelQuery)
 
     return database.query.one(query.toQuery())
   }

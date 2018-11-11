@@ -1,5 +1,3 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
@@ -13,8 +11,8 @@ exports.setUp = async () => {
       '@arkecosystem/core-api',
       '@arkecosystem/core-webhooks',
       '@arkecosystem/core-graphql',
-      '@arkecosystem/core-forger'
-    ]
+      '@arkecosystem/core-forger',
+    ],
   })
 }
 

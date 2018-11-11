@@ -17,9 +17,9 @@ describe('Fee Manager', () => {
       type: TRANSACTION_TYPES.MULTI_SIGNATURE,
       asset: {
         multisignature: {
-          keysgroup: [1, 2, 3]
-        }
-      }
+          keysgroup: [1, 2, 3],
+        },
+      },
     }
 
     feeManager.set(TRANSACTION_TYPES.MULTI_SIGNATURE, 1)

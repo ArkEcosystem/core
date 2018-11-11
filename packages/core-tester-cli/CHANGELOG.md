@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
+
 - Option for `smartBridge` values
 - Default values for ports
 - Multi Signature support
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Flood option
 
 ### Changed
+
 - Moved from modules to classes to reduce duplication
 - Use the v2 API for any API calls
 - Handle duplicate transaction IDs
@@ -22,10 +24,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Use human-readable values as input for amounts and fees
 
 ### Fixed
+
 - Undefined passphrases for the `overridingPassphrase` option in transfers
 - Display of human-readable numbers
 
 ## 0.1.1 - 2018-06-14
 
 ### Added
+
 - initial release

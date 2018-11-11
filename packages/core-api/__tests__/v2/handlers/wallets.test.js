@@ -1,5 +1,3 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
@@ -21,7 +19,7 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all the wallets', async () => {
         const response = await utils[request]('GET', 'wallets')
@@ -36,7 +34,7 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/top', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all the top wallets', async () => {
         const response = await utils[request]('GET', 'wallets/top')
@@ -51,7 +49,7 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET a wallet by the given identifier', async () => {
         const response = await utils[request]('GET', `wallets/${address}`)
@@ -67,7 +65,7 @@ describe('API 2.0 - Wallets', () => {
     describe('when requesting an unknown address', () => {
       describe.each([
         ['API-Version', 'request'],
-        ['Accept', 'requestWithAcceptHeader']
+        ['Accept', 'requestWithAcceptHeader'],
       ])('using the %s header', (header, request) => {
         it('should return ResourceNotFound error', async () => {
           try {
@@ -83,10 +81,13 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/transactions', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all the transactions for the given wallet by id', async () => {
-        const response = await utils[request]('GET', `wallets/${address}/transactions`)
+        const response = await utils[request](
+          'GET',
+          `wallets/${address}/transactions`,
+        )
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
@@ -98,10 +99,13 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/transactions/sent', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all the send transactions for the given wallet by id', async () => {
-        const response = await utils[request]('GET', `wallets/${address}/transactions/sent`)
+        const response = await utils[request](
+          'GET',
+          `wallets/${address}/transactions/sent`,
+        )
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
@@ -115,10 +119,13 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/transactions/received', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all the received transactions for the given wallet by id', async () => {
-        const response = await utils[request]('GET', `wallets/${address}/transactions/received`)
+        const response = await utils[request](
+          'GET',
+          `wallets/${address}/transactions/received`,
+        )
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
@@ -130,7 +137,7 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/votes', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all the votes for the given wallet by id', async () => {
         const response = await utils[request]('GET', `wallets/${address}/votes`)
@@ -145,10 +152,12 @@ describe('API 2.0 - Wallets', () => {
   describe('POST /wallets/search', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should POST a search for wallets with the exact specified address', async () => {
-        const response = await utils[request]('POST', 'wallets/search', { address })
+        const response = await utils[request]('POST', 'wallets/search', {
+          address,
+        })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
@@ -162,10 +171,13 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should POST a search for wallets with the exact specified publicKey', async () => {
-        const response = await utils[request]('POST', 'wallets/search', { address, publicKey })
+        const response = await utils[request]('POST', 'wallets/search', {
+          address,
+          publicKey,
+        })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
@@ -214,10 +226,13 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should POST a search for wallets with the exact specified username', async () => {
-        const response = await utils[request]('POST', 'wallets/search', { address, username })
+        const response = await utils[request]('POST', 'wallets/search', {
+          address,
+          username,
+        })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
@@ -231,15 +246,15 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should POST a search for wallets with the exact specified balance', async () => {
         const response = await utils[request]('POST', 'wallets/search', {
           address,
           balance: {
             from: balance,
-            to: balance
-          }
+            to: balance,
+          },
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
@@ -255,15 +270,15 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should POST a search for wallets with the specified balance range', async () => {
         const response = await utils[request]('POST', 'wallets/search', {
           address,
           balance: {
             from: balance,
-            to: balance
-          }
+            to: balance,
+          },
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
@@ -279,15 +294,15 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it.skip('should POST a search for wallets with the exact specified voteBalance', async () => {
         const response = await utils[request]('POST', 'wallets/search', {
           address,
           voteBalance: {
             from: 0,
-            to: 0
-          }
+            to: 0,
+          },
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
@@ -302,15 +317,15 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it.skip('should POST a search for wallets with the specified voteBalance range', async () => {
         const response = await utils[request]('POST', 'wallets/search', {
           address,
           voteBalance: {
             from: 0,
-            to: 0
-          }
+            to: 0,
+          },
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
@@ -325,10 +340,13 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should POST a search for wallets with the wrong specified username', async () => {
-        const response = await utils[request]('POST', 'wallets/search', { address, username: 'dummy' })
+        const response = await utils[request]('POST', 'wallets/search', {
+          address,
+          username: 'dummy',
+        })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
 
@@ -338,11 +356,12 @@ describe('API 2.0 - Wallets', () => {
 
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should POST a search for wallets with the specific criteria', async () => {
         const response = await utils[request]('POST', 'wallets/search', {
-          publicKey, username
+          publicKey,
+          username,
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()

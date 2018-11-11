@@ -1,5 +1,3 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
@@ -35,7 +33,9 @@ describe('API 1.0 - Wallets', () => {
 
   describe('GET api/accounts/getBalance?address', () => {
     it('should return balance', async () => {
-      const response = await utils.request('GET', 'accounts/getBalance', { address })
+      const response = await utils.request('GET', 'accounts/getBalance', {
+        address,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data.balance).toBeString()
@@ -45,7 +45,9 @@ describe('API 1.0 - Wallets', () => {
 
   describe('GET /accounts/getPublicKey?address', () => {
     it('should return public key for address', async () => {
-      const response = await utils.request('GET', 'accounts/getPublicKey', { address })
+      const response = await utils.request('GET', 'accounts/getPublicKey', {
+        address,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data.publicKey).toBeString()
@@ -63,7 +65,9 @@ describe('API 1.0 - Wallets', () => {
 
   describe('GET /accounts/delegates?address', () => {
     it('should return delegate info the address has voted for', async () => {
-      const response = await utils.request('GET', 'accounts/delegates', { address })
+      const response = await utils.request('GET', 'accounts/delegates', {
+        address,
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data.delegates).toBeArray()

@@ -1,11 +1,9 @@
-'use strict'
-
 /**
  * Turns a "wallet" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */
-module.exports = (model) => {
+module.exports = model => {
   const hasSecondSignature = !!model.secondPublicKey
 
   return {
@@ -19,6 +17,6 @@ module.exports = (model) => {
     multisignatures: [],
     u_multisignatures: [],
     unconfirmedSignature: hasSecondSignature ? 1 : 0,
-    secondSignature: hasSecondSignature ? 1 : 0
+    secondSignature: hasSecondSignature ? 1 : 0,
   }
 }

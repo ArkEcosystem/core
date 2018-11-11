@@ -1,15 +1,13 @@
-'use strict'
-
+const orderBy = require('lodash/orderBy')
 const filterRows = require('./utils/filter-rows')
 const limitRows = require('./utils/limit-rows')
-const orderBy = require('lodash/orderBy')
 
 module.exports = class WalletsRepository {
   /**
    * Create a new wallet repository instance.
    * @param  {ConnectionInterface} connection
    */
-  constructor (connection) {
+  constructor(connection) {
     this.connection = connection
   }
 
@@ -17,7 +15,7 @@ module.exports = class WalletsRepository {
    * Get all local wallets.
    * @return {Array}
    */
-  all () {
+  all() {
     return this.connection.walletManager.all()
   }
 
@@ -26,16 +24,16 @@ module.exports = class WalletsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAll (params = {}) {
+  findAll(params = {}) {
     const wallets = this.all()
 
-    let [iteratee, order] = params.orderBy
+    const [iteratee, order] = params.orderBy
       ? params.orderBy.split(':')
       : ['rate', 'asc']
 
     return {
       rows: limitRows(orderBy(wallets, iteratee, order), params),
-      count: wallets.length
+      count: wallets.length,
     }
   }
 
@@ -45,14 +43,12 @@ module.exports = class WalletsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByVote (publicKey, params = {}) {
-    const wallets = this
-      .all()
-      .filter(wallet => wallet.vote === publicKey)
+  findAllByVote(publicKey, params = {}) {
+    const wallets = this.all().filter(wallet => wallet.vote === publicKey)
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length
+      count: wallets.length,
     }
   }
 
@@ -61,15 +57,19 @@ module.exports = class WalletsRepository {
    * @param  {Number} id
    * @return {Object}
    */
-  findById (id) {
-    return this.all().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
+  findById(id) {
+    return this.all().find(
+      wallet => wallet.address === id
+        || wallet.publicKey === id
+        || wallet.username === id,
+    )
   }
 
   /**
    * Count all wallets.
    * @return {Number}
    */
-  count () {
+  count() {
     return this.all().length
   }
 
@@ -78,13 +78,14 @@ module.exports = class WalletsRepository {
    * @param  {Object}  params
    * @return {Object}
    */
-  top (params = {}) {
-    const wallets = Object.values(this.all())
-      .sort((a, b) => +(b.balance.minus(a.balance)).toFixed())
+  top(params = {}) {
+    const wallets = Object.values(this.all()).sort(
+      (a, b) => +b.balance.minus(a.balance).toFixed(),
+    )
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length
+      count: wallets.length,
     }
   }
 
@@ -107,15 +108,15 @@ module.exports = class WalletsRepository {
    * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
    * @return {Object}
    */
-  search (params) {
+  search(params) {
     const wallets = filterRows(this.all(), params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
-      between: ['balance', 'voteBalance']
+      between: ['balance', 'voteBalance'],
     })
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length
+      count: wallets.length,
     }
   }
 }

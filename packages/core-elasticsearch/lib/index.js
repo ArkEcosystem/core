@@ -1,5 +1,3 @@
-'use strict'
-
 const blockIndex = require('./index/block')
 const transactionIndex = require('./index/transaction')
 const walletIndex = require('./index/wallet')
@@ -15,7 +13,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'arkx:elastic',
-  async register (container, options) {
+  async register(container, options) {
     const logger = container.resolvePlugin('logger')
 
     logger.info('[Elasticsearch] Initialising History :hourglass:')
@@ -31,9 +29,11 @@ exports.plugin = {
 
     return require('./server')(options.server)
   },
-  async deregister (container, options) {
-    container.resolvePlugin('logger').info('[Elasticsearch] Stopping API :warning:')
+  async deregister(container, options) {
+    container
+      .resolvePlugin('logger')
+      .info('[Elasticsearch] Stopping API :warning:')
 
     return container.resolvePlugin('arkx:elastic').stop()
-  }
+  },
 }

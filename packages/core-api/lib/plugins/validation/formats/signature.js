@@ -1,19 +1,17 @@
-'use strict'
-
 /**
  * Register the "signature" validation rule.
  * @param  {AJV} ajv
  * @return {void}
  */
-module.exports = (ajv) => {
+module.exports = ajv => {
   ajv.addFormat('signature', {
     type: 'string',
-    validate: (value) => {
+    validate: value => {
       try {
         return Buffer.from(value, 'hex').length < 73
       } catch (e) {
         return false
       }
-    }
+    },
   })
 }

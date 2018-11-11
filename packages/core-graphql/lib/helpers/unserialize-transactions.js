@@ -1,12 +1,10 @@
-'use strict';
-
 const { Transaction } = require('@arkecosystem/crypto').models
 
 /**
  * Deserialize multiple transactions
  */
-module.exports = async (data) => {
-  const deserialize = (buffer) => {
+module.exports = async data => {
+  const deserialize = buffer => {
     const serialized = Buffer.from(buffer).toString('hex')
     return Transaction.deserialize(serialized)
   }
@@ -17,7 +15,6 @@ module.exports = async (data) => {
 
       return total
     }, [])
-  } else {
-    return deserialize(data)
   }
+  return deserialize(data)
 }

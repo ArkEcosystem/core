@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const blockchain = container.resolvePlugin('blockchain')
 const config = container.resolvePlugin('config')
 const utils = require('../utils')
@@ -15,7 +14,7 @@ exports.status = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const lastBlock = blockchain.getLastBlock()
     const networkHeight = await blockchain.p2p.getNetworkHeight()
 
@@ -23,10 +22,10 @@ exports.status = {
       data: {
         synced: blockchain.isSynced(),
         now: lastBlock ? lastBlock.data.height : 0,
-        blocksCount: networkHeight - lastBlock.data.height || 0
-      }
+        blocksCount: networkHeight - lastBlock.data.height || 0,
+      },
     }
-  }
+  },
 }
 
 /**
@@ -38,7 +37,7 @@ exports.syncing = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const lastBlock = blockchain.getLastBlock()
     const networkHeight = await blockchain.p2p.getNetworkHeight()
 
@@ -47,10 +46,10 @@ exports.syncing = {
         syncing: !blockchain.isSynced(),
         blocks: networkHeight - lastBlock.data.height || 0,
         height: lastBlock.data.height,
-        id: lastBlock.data.id
-      }
+        id: lastBlock.data.id,
+      },
     }
-  }
+  },
 }
 
 /**
@@ -62,7 +61,7 @@ exports.configuration = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const feeStatisticsData = await transactions.getFeeStatistics()
 
     return {
@@ -74,8 +73,12 @@ exports.configuration = {
         version: config.network.pubKeyHash,
         ports: utils.toResource(request, config, 'ports'),
         constants: config.getConstants(blockchain.getLastBlock().data.height),
-        feeStatistics: utils.toCollection(request, feeStatisticsData, 'fee-statistics')
-      }
+        feeStatistics: utils.toCollection(
+          request,
+          feeStatisticsData,
+          'fee-statistics',
+        ),
+      },
     }
-  }
+  },
 }

@@ -6,7 +6,7 @@ module.exports = class Round extends Model {
    * The table associated with the model.
    * @return {String}
    */
-  getTable () {
+  getTable() {
     return 'rounds'
   }
 
@@ -14,18 +14,20 @@ module.exports = class Round extends Model {
    * The read-only structure with query-formatting columns.
    * @return {Object}
    */
-  getColumnSet () {
-    return this.createColumnSet([{
-      name: 'public_key',
-      prop: 'publicKey'
-    }, {
-      name: 'balance',
-      prop: 'voteBalance',
-      init: col => {
-        return +bignumify(col.value).toFixed()
-      }
-    }, {
-      name: 'round'
-    }])
+  getColumnSet() {
+    return this.createColumnSet([
+      {
+        name: 'public_key',
+        prop: 'publicKey',
+      },
+      {
+        name: 'balance',
+        prop: 'voteBalance',
+        init: col => +bignumify(col.value).toFixed(),
+      },
+      {
+        name: 'round',
+      },
+    ])
   }
 }

@@ -3,7 +3,7 @@ const dns = require('dns')
 const shuffle = require('lodash/shuffle')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
-module.exports = async (hosts) => {
+module.exports = async hosts => {
   hosts = shuffle(hosts)
 
   const lookupService = util.promisify(dns.lookupService)
@@ -18,5 +18,9 @@ module.exports = async (hosts) => {
     }
   }
 
-  Promise.reject(new Error('Please check your network connectivity, couldn\'t connect to any host.'))
+  return Promise.reject(
+    new Error(
+      "Please check your network connectivity, couldn't connect to any host.",
+    ),
+  )
 }

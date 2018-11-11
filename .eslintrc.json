@@ -4,17 +4,46 @@
     "node": true,
     "jest": true
   },
-  "extends": [
-    "standard"
-  ],
-  "parserOptions": {
-    "sourceType": "module"
-  },
+  "extends": ["@arkecosystem/eslint-config-base"],
   "rules": {
+    // TODO: fix later as they require a lot of changes
+    "array-callback-return": "off",
+    "camelcase": "off",
+    "class-methods-use-this": "off",
+    "consistent-return": "off",
+    "default-case": "off",
+    "func-names": "off",
+    "global-require": "off",
+    "guard-for-in": "off",
+    "import/no-dynamic-require": "off",
+    "jest/no-disabled-tests": "off",
+    "jest/no-identical-title": "off",
+    "jest/valid-describe": "off",
+    "jest/valid-expect": "off",
+    "max-len": "off",
+    "no-await-in-loop": "off",
+    "no-bitwise": "off",
+    "no-case-declarations": "off",
     "no-console": "off",
-    "indent": ["error", 2],
-    "linebreak-style": 0,
-    "quotes": ["error", "single"],
-    "semi": ["off", "always"]
+    "no-constant-condition": "off",
+    "no-continue": "off",
+    "no-empty": "off",
+    "no-nested-ternary": "off",
+    "no-param-reassign": "off",
+    "no-plusplus": "off",
+    "no-prototype-builtins": "off",
+    "no-restricted-globals": "off",
+    "no-restricted-properties": "off",
+    "no-restricted-syntax": "off",
+    "no-return-assign": "off",
+    "no-shadow": "off",
+    "no-underscore-dangle": "off",
+    "no-unused-expressions": "off",
+    "no-unused-vars": "off",
+    "no-use-before-define": "off",
+    "no-useless-concat": "off",
+    "prefer-destructuring": "off",
+    "radix": "off",
+    "semi-style": "off"
   }
 }

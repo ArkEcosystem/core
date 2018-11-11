@@ -1,14 +1,13 @@
-'use strict'
-
 const { slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
+
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
 const emitter = container.resolvePlugin('event-emitter')
-const stateMachine = require('./state-machine')
-const Queue = require('./queue')
 const delay = require('delay')
 const { Block } = require('@arkecosystem/crypto').models
+const stateMachine = require('./state-machine')
+const Queue = require('./queue')
 
 module.exports = class Blockchain {
   /**
@@ -16,12 +15,14 @@ module.exports = class Blockchain {
    * @param  {Boolean} networkStart
    * @return {void}
    */
-  constructor (networkStart) {
+  constructor(networkStart) {
     // flag to force a network start
     this.state.networkStart = !!networkStart
 
     if (this.state.networkStart) {
-      logger.warn('Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:')
+      logger.warn(
+        'Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:',
+      )
       logger.info('Starting Ark Core for a new world, welcome aboard :rocket:')
     }
 
@@ -35,11 +36,17 @@ module.exports = class Blockchain {
    * @param  {String} event
    * @return {void}
    */
-  dispatch (event) {
+  dispatch(event) {
     const nextState = stateMachine.transition(this.state.blockchain, event)
 
     if (nextState.actions.length > 0) {
-      logger.debug(`event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
+      logger.debug(
+        `event '${event}': ${JSON.stringify(
+          this.state.blockchain.value,
+        )} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(
+          nextState.actions,
+        )}`,
+      )
     }
 
     this.state.blockchain = nextState
@@ -61,7 +68,7 @@ module.exports = class Blockchain {
    * Start the blockchain and wait for it to be ready.
    * @return {void}
    */
-  async start (skipStartedCheck = false) {
+  async start(skipStartedCheck = false) {
     logger.info('Starting Blockchain Manager :chains:')
 
     this.dispatch('START')
@@ -82,7 +89,7 @@ module.exports = class Blockchain {
     return true
   }
 
-  async stop () {
+  async stop() {
     logger.info('Stopping Blockchain Manager :chains:')
 
     this.isStopped = true
@@ -92,7 +99,7 @@ module.exports = class Blockchain {
     this.queue.destroy()
   }
 
-  checkNetwork () {
+  checkNetwork() {
     throw new Error('Method [checkNetwork] not implemented!')
   }
 
@@ -100,7 +107,7 @@ module.exports = class Blockchain {
    * Update network status.
    * @return {void}
    */
-  async updateNetworkStatus () {
+  async updateNetworkStatus() {
     return this.p2p.updateNetworkStatus()
   }
 
@@ -109,7 +116,7 @@ module.exports = class Blockchain {
    * @param  {Number} nblocks
    * @return {void}
    */
-  rebuild (nblocks) {
+  rebuild(nblocks) {
     throw new Error('Method [rebuild] not implemented!')
   }
 
@@ -117,7 +124,7 @@ module.exports = class Blockchain {
    * Reset the state of the blockchain.
    * @return {void}
    */
-  resetState () {
+  resetState() {
     this.queue.pause()
     this.queue.clear()
 
@@ -129,7 +136,7 @@ module.exports = class Blockchain {
    * @param  {Array}   transactions
    * @return {void}
    */
-  async postTransactions (transactions) {
+  async postTransactions(transactions) {
     logger.info(`Received ${transactions.length} new transactions :moneybag:`)
 
     await this.transactionPool.addTransactions(transactions)
@@ -140,15 +147,21 @@ module.exports = class Blockchain {
    * @param  {Block} block
    * @return {void}
    */
-  queueBlock (block) {
-    logger.info(`Received new block at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions from ${block.ip}`)
+  queueBlock(block) {
+    logger.info(
+      `Received new block at height ${block.height.toLocaleString()} with ${
+        block.numberOfTransactions
+      } transactions from ${block.ip}`,
+    )
 
     if (this.state.started) {
       this.processQueue.push(block)
 
       this.state.lastDownloadedBlock = new Block(block)
     } else {
-      logger.info('Block disregarded because blockchain is not ready :exclamation:')
+      logger.info(
+        'Block disregarded because blockchain is not ready :exclamation:',
+      )
     }
   }
 
@@ -156,7 +169,7 @@ module.exports = class Blockchain {
    * Rollback all blocks up to the previous round.
    * @return {void}
    */
-  async rollbackCurrentRound () {
+  async rollbackCurrentRound() {
     const height = this.state.getLastBlock().data.height
     const maxDelegates = config.getConstants(height).activeDelegates
     const previousRound = Math.floor((height - 1) / maxDelegates)
@@ -166,7 +179,10 @@ module.exports = class Blockchain {
     }
 
     const newHeight = previousRound * maxDelegates
-    const blocksToRemove = await this.database.getBlocks(newHeight, height - newHeight - 1)
+    const blocksToRemove = await this.database.getBlocks(
+      newHeight,
+      height - newHeight - 1,
+    )
     const deleteLastBlock = async () => {
       const lastBlock = this.state.getLastBlock()
       await this.database.enqueueDeleteBlock(lastBlock)
@@ -177,15 +193,24 @@ module.exports = class Blockchain {
       this.state.lastDownloadedBlock = newLastBlock
     }
 
-    logger.info(`Removing ${height - newHeight} blocks to reset current round :warning:`)
+    logger.info(
+      `Removing ${height - newHeight} blocks to reset current round :warning:`,
+    )
 
     let count = 0
     const max = this.state.getLastBlock().data.height - newHeight
 
     while (this.state.getLastBlock().data.height >= newHeight + 1) {
       const removalBlockId = this.state.getLastBlock().data.id
-      const removalBlockHeight = this.state.getLastBlock().data.height.toLocaleString()
-      logger.printTracker('Removing block', count++, max, `ID: ${removalBlockId}, Height: ${removalBlockHeight}`)
+      const removalBlockHeight = this.state
+        .getLastBlock()
+        .data.height.toLocaleString()
+      logger.printTracker(
+        'Removing block',
+        count++,
+        max,
+        `ID: ${removalBlockId}, Height: ${removalBlockHeight}`,
+      )
 
       await deleteLastBlock()
     }
@@ -203,8 +228,11 @@ module.exports = class Blockchain {
    * @param  {Number} nblocks
    * @return {void}
    */
-  async removeBlocks (nblocks) {
-    const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks - 1)
+  async removeBlocks(nblocks) {
+    const blocksToRemove = await this.database.getBlocks(
+      this.state.getLastBlock().data.height - nblocks,
+      nblocks - 1,
+    )
 
     const revertLastBlock = async () => {
       const lastBlock = this.state.getLastBlock()
@@ -223,12 +251,16 @@ module.exports = class Blockchain {
       this.state.lastDownloadedBlock = newLastBlock
     }
 
-    const __removeBlocks = async (nblocks) => {
+    const __removeBlocks = async nblocks => {
       if (nblocks < 1) {
         return
       }
 
-      logger.info(`Undoing block ${this.state.getLastBlock().data.height.toLocaleString()}`)
+      logger.info(
+        `Undoing block ${this.state
+          .getLastBlock()
+          .data.height.toLocaleString()}`,
+      )
 
       await revertLastBlock()
       await __removeBlocks(nblocks - 1)
@@ -240,7 +272,9 @@ module.exports = class Blockchain {
     }
 
     const resetHeight = lastBlock.data.height - nblocks
-    logger.info(`Removing ${nblocks} blocks. Reset to height ${resetHeight.toLocaleString()}`)
+    logger.info(
+      `Removing ${nblocks} blocks. Reset to height ${resetHeight.toLocaleString()}`,
+    )
 
     this.queue.pause()
     this.queue.clear()
@@ -261,10 +295,14 @@ module.exports = class Blockchain {
    * @param  {Number} count
    * @return {void}
    */
-  async removeTopBlocks (count) {
+  async removeTopBlocks(count) {
     const blocks = await this.database.getTopBlocks(count)
 
-    logger.info(`Removing ${blocks.length} blocks from height ${blocks[0].height.toLocaleString()}`)
+    logger.info(
+      `Removing ${
+        blocks.length
+      } blocks from height ${blocks[0].height.toLocaleString()}`,
+    )
 
     for (let block of blocks) {
       block = new Block(block)
@@ -283,7 +321,7 @@ module.exports = class Blockchain {
    * @param  {Function} callback
    * @return {Object}
    */
-  async rebuildBlock (block, callback) {
+  async rebuildBlock(block, callback) {
     const lastBlock = this.state.getLastBlock()
 
     if (block.verification.verified) {
@@ -299,22 +337,30 @@ module.exports = class Blockchain {
         this.state.setLastBlock(block)
 
         return callback()
-      } else if (block.data.height > lastBlock.data.height + 1) {
+      }
+      if (block.data.height > lastBlock.data.height + 1) {
         this.state.lastDownloadedBlock = lastBlock
-        return callback()
-      } else if (block.data.height < lastBlock.data.height || (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id)) {
-        this.state.lastDownloadedBlock = lastBlock
-        return callback()
-      } else {
-        this.state.lastDownloadedBlock = lastBlock
-        logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`)
         return callback()
       }
-    } else {
-      logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`)
-      logger.warn(block.verification)
+      if (
+        block.data.height < lastBlock.data.height
+        || (block.data.height === lastBlock.data.height
+          && block.data.id === lastBlock.data.id)
+      ) {
+        this.state.lastDownloadedBlock = lastBlock
+        return callback()
+      }
+      this.state.lastDownloadedBlock = lastBlock
+      logger.info(
+        `Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`,
+      )
       return callback()
     }
+    logger.warn(
+      `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
+    )
+    logger.warn(block.verification)
+    return callback()
   }
 
   /**
@@ -324,9 +370,11 @@ module.exports = class Blockchain {
    * @param  {Function} callback
    * @return {(Function|void)}
    */
-  async processBlock (block, callback) {
+  async processBlock(block, callback) {
     if (!block.verification.verified) {
-      logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`)
+      logger.warn(
+        `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
+      )
       return callback()
     }
 
@@ -351,7 +399,9 @@ module.exports = class Blockchain {
         this.p2p.broadcastBlock(block)
       }
     } catch (error) {
-      logger.warn(`Can't broadcast properly block ${JSON.stringify(block.data.heigt)}`)
+      logger.warn(
+        `Can't broadcast properly block ${JSON.stringify(block.data.heigt)}`,
+      )
       logger.debug(error.stack)
     }
 
@@ -364,12 +414,15 @@ module.exports = class Blockchain {
    * @param  {Object} state
    * @return {void}
    */
-  async acceptChainedBlock (block) {
+  async acceptChainedBlock(block) {
     await this.database.applyBlock(block)
     await this.database.saveBlock(block)
 
     // Check if we recovered from a fork
-    if (this.state.forked && this.state.forkedBlock.height === block.data.height) {
+    if (
+      this.state.forked
+      && this.state.forkedBlock.height === block.data.height
+    ) {
       logger.info('Successfully recovered from fork :star2:')
       this.state.forked = false
       this.state.forkedBlock = null
@@ -391,23 +444,36 @@ module.exports = class Blockchain {
    * @param  {Object} state
    * @return {void}
    */
-  async manageUnchainedBlock (block) {
+  async manageUnchainedBlock(block) {
     const lastBlock = this.state.getLastBlock()
 
     if (block.data.height > lastBlock.data.height + 1) {
-      logger.debug(`Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`)
+      logger.debug(
+        `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
+      )
       this.state.lastDownloadedBlock = lastBlock
     } else if (block.data.height < lastBlock.data.height) {
-      logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`)
-    } else if (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id) {
-      logger.debug(`Block ${block.data.height.toLocaleString()} just received :chains:`)
+      logger.debug(
+        `Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`,
+      )
+    } else if (
+      block.data.height === lastBlock.data.height
+      && block.data.id === lastBlock.data.id
+    ) {
+      logger.debug(
+        `Block ${block.data.height.toLocaleString()} just received :chains:`,
+      )
     } else {
       const isValid = await this.database.validateForkedBlock(block)
 
       if (isValid) {
         this.dispatch('FORK')
       } else {
-        logger.info(`Forked block disregarded because it is not allowed to forge. Caused by delegate: ${block.data.generatorPublicKey} :bangbang:`)
+        logger.info(
+          `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
+            block.data.generatorPublicKey
+          } :bangbang:`,
+        )
       }
     }
   }
@@ -418,7 +484,7 @@ module.exports = class Blockchain {
    * @param  {Boolean} forForging
    * @return {Object}
    */
-  async getUnconfirmedTransactions (blockSize, forForging = false) {
+  async getUnconfirmedTransactions(blockSize, forForging = false) {
     const transactions = forForging
       ? await this.transactionPool.getTransactionsForForging(blockSize)
       : this.transactionPool.getTransactions(0, blockSize)
@@ -426,7 +492,7 @@ module.exports = class Blockchain {
     return {
       transactions,
       poolSize: this.transactionPool.getPoolSize(),
-      count: transactions ? transactions.length : -1
+      count: transactions ? transactions.length : -1,
     }
   }
 
@@ -435,14 +501,17 @@ module.exports = class Blockchain {
    * @param  {Block} [block=getLastBlock()]  block
    * @return {Boolean}
    */
-  isSynced (block) {
+  isSynced(block) {
     if (!this.p2p.hasPeers()) {
       return true
     }
 
     block = block || this.state.getLastBlock()
 
-    return slots.getTime() - block.data.timestamp < 3 * config.getConstants(block.data.height).blocktime
+    return (
+      slots.getTime() - block.data.timestamp
+      < 3 * config.getConstants(block.data.height).blocktime
+    )
   }
 
   /**
@@ -450,7 +519,7 @@ module.exports = class Blockchain {
    * @param  {Block}  block
    * @return {Boolean}
    */
-  isRebuildSynced (block) {
+  isRebuildSynced(block) {
     if (!this.p2p.hasPeers()) {
       return true
     }
@@ -469,7 +538,7 @@ module.exports = class Blockchain {
    * Get the last block of the blockchain.
    * @return {Object}
    */
-  getLastBlock () {
+  getLastBlock() {
     return this.state.getLastBlock()
   }
 
@@ -477,7 +546,7 @@ module.exports = class Blockchain {
    * Get the last downloaded block of the blockchain.
    * @return {Object}
    */
-  getLastDownloadedBlock () {
+  getLastDownloadedBlock() {
     return this.state.lastDownloadedBlock
   }
 
@@ -485,7 +554,7 @@ module.exports = class Blockchain {
    * Get the block ping.
    * @return {Object}
    */
-  getBlockPing () {
+  getBlockPing() {
     return this.state.blockPing
   }
 
@@ -493,7 +562,7 @@ module.exports = class Blockchain {
    * Ping a block.
    * @return {Object}
    */
-  pingBlock (incomingBlock) {
+  pingBlock(incomingBlock) {
     return this.state.pingBlock(incomingBlock)
   }
 
@@ -501,7 +570,7 @@ module.exports = class Blockchain {
    * Push ping block.
    * @return {Object}
    */
-  pushPingBlock (block) {
+  pushPingBlock(block) {
     this.state.pushPingBlock(block)
   }
 
@@ -509,7 +578,7 @@ module.exports = class Blockchain {
    * Get the list of events that are available.
    * @return {Array}
    */
-  getEvents () {
+  getEvents() {
     return [
       'block.applied',
       'block.forged',
@@ -528,7 +597,7 @@ module.exports = class Blockchain {
       'transaction.forged',
       'transaction.reverted',
       'wallet.saved',
-      'wallet.created.cold'
+      'wallet.created.cold',
     ]
   }
 
@@ -536,7 +605,7 @@ module.exports = class Blockchain {
    * Get the state of the blockchain.
    * @return {StateStorage}
    */
-  get state () {
+  get state() {
     return stateMachine.state
   }
 
@@ -544,7 +613,7 @@ module.exports = class Blockchain {
    * Get the network (p2p) interface.
    * @return {P2PInterface}
    */
-  get p2p () {
+  get p2p() {
     return container.resolvePlugin('p2p')
   }
 
@@ -552,7 +621,7 @@ module.exports = class Blockchain {
    * Get the transaction handler.
    * @return {TransactionPool}
    */
-  get transactionPool () {
+  get transactionPool() {
     return container.resolvePlugin('transactionPool')
   }
 
@@ -560,7 +629,7 @@ module.exports = class Blockchain {
    * Get the database connection.
    * @return {ConnectionInterface}
    */
-  get database () {
+  get database() {
     return container.resolvePlugin('database')
   }
 
@@ -570,7 +639,7 @@ module.exports = class Blockchain {
    * @param  {Block}  nextBlock
    * @return {Boolean}
    */
-  __isChained (previousBlock, nextBlock) {
+  __isChained(previousBlock, nextBlock) {
     const followsPrevious = nextBlock.data.previousBlock === previousBlock.data.id
     const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp
     const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1
@@ -582,10 +651,10 @@ module.exports = class Blockchain {
    * Register the block queue.
    * @return {void}
    */
-  __registerQueue () {
+  __registerQueue() {
     this.queue = new Queue(this, {
       process: 'PROCESSFINISHED',
-      rebuild: 'REBUILDFINISHED'
+      rebuild: 'REBUILDFINISHED',
     })
 
     this.processQueue = this.queue.process

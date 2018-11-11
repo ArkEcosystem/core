@@ -8,14 +8,22 @@ class MultiPaymentHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  canApply (wallet, transaction) {
+  canApply(wallet, transaction) {
     if (!super.canApply(wallet, transaction)) {
       return false
     }
 
-    const amount = transaction.asset.payments.reduce((total, payment) => (total.plus(payment.amount)), Bignum.ZERO)
+    const amount = transaction.asset.payments.reduce(
+      (total, payment) => total.plus(payment.amount),
+      Bignum.ZERO,
+    )
 
-    return +(wallet.balance.minus(amount).minus(transaction.fee)).toFixed() >= 0
+    return (
+      +wallet.balance
+        .minus(amount)
+        .minus(transaction.fee)
+        .toFixed() >= 0
+    )
   }
 
   /**
@@ -24,7 +32,7 @@ class MultiPaymentHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  apply (wallet, transaction) {
+  apply(wallet, transaction) {
     //
   }
 
@@ -34,7 +42,7 @@ class MultiPaymentHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  revert (wallet, transaction) {
+  revert(wallet, transaction) {
     //
   }
 }

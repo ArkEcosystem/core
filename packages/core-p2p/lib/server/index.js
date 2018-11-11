@@ -1,5 +1,3 @@
-'use strict'
-
 const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
 
 /**
@@ -10,27 +8,27 @@ const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
 module.exports = async (p2p, config) => {
   const server = await createServer({
     host: config.host,
-    port: config.port
+    port: config.port,
   })
 
   await server.register({
     plugin: require('hapi-rate-limit'),
-    options: config.rateLimit
+    options: config.rateLimit,
   })
 
   await server.register({
-    plugin: require('./plugins/validate-headers')
+    plugin: require('./plugins/validate-headers'),
   })
 
   await server.register({
     plugin: require('./plugins/accept-request'),
     options: {
-      whitelist: config.whitelist
-    }
+      whitelist: config.whitelist,
+    },
   })
 
   await server.register({
-    plugin: require('./plugins/set-headers')
+    plugin: require('./plugins/set-headers'),
   })
 
   await server.register({
@@ -48,9 +46,9 @@ module.exports = async (p2p, config) => {
         '/internal/networkState',
         '/internal/syncCheck',
         '/internal/usernames',
-        '/remote/blockchain/{event}'
-      ]
-    }
+        '/remote/blockchain/{event}',
+      ],
+    },
   })
 
   // await server.register({
@@ -64,7 +62,7 @@ module.exports = async (p2p, config) => {
 
   await server.register({
     plugin: require('./versions/config'),
-    routes: { prefix: '/config' }
+    routes: { prefix: '/config' },
   })
 
   // ARK_V2 process variable enables V2-specific behavior
@@ -73,24 +71,24 @@ module.exports = async (p2p, config) => {
   if (process.env.ARK_V2) {
     await server.register({
       plugin: require('./versions/peer'),
-      routes: { prefix: '/peer' }
+      routes: { prefix: '/peer' },
     })
   } else {
     await server.register({
       plugin: require('./versions/1'),
-      routes: { prefix: '/peer' }
+      routes: { prefix: '/peer' },
     })
   }
 
   await server.register({
     plugin: require('./versions/internal'),
-    routes: { prefix: '/internal' }
+    routes: { prefix: '/internal' },
   })
 
   if (config.remoteInterface) {
     await server.register({
       plugin: require('./versions/remote'),
-      routes: { prefix: '/remote' }
+      routes: { prefix: '/remote' },
     })
   }
 

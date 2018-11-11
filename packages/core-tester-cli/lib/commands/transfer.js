@@ -1,5 +1,3 @@
-'use strict'
-
 const { Bignum, client, crypto } = require('@arkecosystem/crypto')
 const delay = require('delay')
 const unique = require('lodash/uniq')
@@ -12,10 +10,13 @@ module.exports = class TransferCommand extends Command {
    * @param  {Object} options
    * @return {void}
    */
-  async run (options) {
+  async run(options) {
     this.options = { ...this.options, ...options }
 
-    const primaryAddress = crypto.getAddress(crypto.getKeys(this.config.passphrase).publicKey, this.config.network.version)
+    const primaryAddress = crypto.getAddress(
+      crypto.getKeys(this.config.passphrase).publicKey,
+      this.config.network.version,
+    )
 
     let wallets = this.options.wallets
     if (wallets === undefined) {
@@ -27,15 +28,24 @@ module.exports = class TransferCommand extends Command {
     const walletBalance = await this.getWalletBalance(primaryAddress)
 
     if (!this.options.skipValidation) {
-      logger.info(`Sender starting balance: ${Command.__arktoshiToArk(walletBalance)}`)
+      logger.info(
+        `Sender starting balance: ${Command.__arktoshiToArk(walletBalance)}`,
+      )
     }
 
     let totalDeductions = Bignum.ZERO
-    let transactionAmount = Command.__arkToArktoshi(this.options.amount || 2)
+    const transactionAmount = Command.__arkToArktoshi(this.options.amount || 2)
 
-    const transactions = this.generateTransactions(transactionAmount, wallets, null, true)
+    const transactions = this.generateTransactions(
+      transactionAmount,
+      wallets,
+      null,
+      true,
+    )
     for (const transaction of transactions) {
-      totalDeductions = totalDeductions.plus(transactionAmount).plus(transaction.fee)
+      totalDeductions = totalDeductions
+        .plus(transactionAmount)
+        .plus(transaction.fee)
     }
 
     if (this.options.copy) {
@@ -43,9 +53,15 @@ module.exports = class TransferCommand extends Command {
       return
     }
 
-    const expectedSenderBalance = (new Bignum(walletBalance)).minus(totalDeductions)
+    const expectedSenderBalance = new Bignum(walletBalance).minus(
+      totalDeductions,
+    )
     if (!this.options.skipValidation) {
-      logger.info(`Sender expected ending balance: ${Command.__arktoshiToArk(expectedSenderBalance)}`)
+      logger.info(
+        `Sender expected ending balance: ${Command.__arktoshiToArk(
+          expectedSenderBalance,
+        )}`,
+      )
     }
 
     const runOptions = {
@@ -54,19 +70,29 @@ module.exports = class TransferCommand extends Command {
       wallets,
       transactionAmount,
       expectedSenderBalance,
-      skipValidation: this.options.skipValidation
+      skipValidation: this.options.skipValidation,
     }
 
     try {
       if (!this.options.floodAttempts) {
         const successfulTest = await this.__performRun(runOptions, 1)
-        if (successfulTest && !this.options.skipSecondRun && !this.options.skipValidation && !this.options.skipTesting) {
+        if (
+          successfulTest
+          && !this.options.skipSecondRun
+          && !this.options.skipValidation
+          && !this.options.skipTesting
+        ) {
           await this.__performRun(runOptions, 2, false, true)
         }
       } else {
         const attempts = this.options.floodAttempts
         for (let i = attempts; i > 0; i--) {
-          await this.__performRun(runOptions, attempts - i + 1, i !== 1, i !== attempts)
+          await this.__performRun(
+            runOptions,
+            attempts - i + 1,
+            i !== 1,
+            i !== attempts,
+          )
         }
       }
     } catch (error) {
@@ -92,13 +118,14 @@ module.exports = class TransferCommand extends Command {
    * @param  {Boolean} [log=true]
    * @return {Object[]}
    */
-  generateTransactions (
+  generateTransactions(
     transactionAmount,
     wallets,
     approvalWallets = [],
     overridePassphrase = false,
     vendorField,
-    log = true) {
+    log = true,
+  ) {
     vendorField = vendorField || this.options.smartBridge
     const transactions = []
     wallets.forEach((wallet, i) => {
@@ -109,11 +136,15 @@ module.exports = class TransferCommand extends Command {
         .recipientId(this.options.recipient || wallet.address)
         .network(this.config.network.version)
         .amount(transactionAmount)
-        .vendorField(vendorField === undefined ? `Transaction ${i + 1}` : vendorField)
+        .vendorField(
+          vendorField === undefined ? `Transaction ${i + 1}` : vendorField,
+        )
         .sign(overridePassphrase ? this.config.passphrase : wallet.passphrase)
 
       if (wallet.secondPassphrase || this.config.secondPassphrase) {
-        builder.secondSign(wallet.secondPassphrase || this.config.secondPassphrase)
+        builder.secondSign(
+          wallet.secondPassphrase || this.config.secondPassphrase,
+        )
       }
 
       if (approvalWallets) {
@@ -126,7 +157,11 @@ module.exports = class TransferCommand extends Command {
       transactions.push(transaction)
 
       if (log) {
-        logger.info(`${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${Command.__arktoshiToArk(transaction.fee)})`)
+        logger.info(
+          `${i} ==> ${transaction.id}, ${
+            transaction.recipientId
+          } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+        )
       }
     })
 
@@ -141,7 +176,12 @@ module.exports = class TransferCommand extends Command {
    * @param  {Boolean} [isSubsequentRun=false]
    * @return {Boolean}
    */
-  async __performRun (runOptions, runNumber = 1, skipWait = false, isSubsequentRun = false) {
+  async __performRun(
+    runOptions,
+    runNumber = 1,
+    skipWait = false,
+    isSubsequentRun = false,
+  ) {
     if (skipWait) {
       runOptions.skipValidation = true
       this.__sendTransactionsWithResults(runOptions, isSubsequentRun)
@@ -150,7 +190,9 @@ module.exports = class TransferCommand extends Command {
     }
 
     if (await this.__sendTransactionsWithResults(runOptions, isSubsequentRun)) {
-      logger.info(`All transactions have been received and forged for run ${runNumber}!`)
+      logger.info(
+        `All transactions have been received and forged for run ${runNumber}!`,
+      )
 
       return true
     }
@@ -166,7 +208,7 @@ module.exports = class TransferCommand extends Command {
    * @param  {Boolean} isSubsequentRun
    * @return {Boolean}
    */
-  async __sendTransactionsWithResults (runOptions, isSubsequentRun) {
+  async __sendTransactionsWithResults(runOptions, isSubsequentRun) {
     let successfulTest = true
 
     let postResponse
@@ -194,7 +236,11 @@ module.exports = class TransferCommand extends Command {
     if (!isSubsequentRun) {
       for (const transaction of runOptions.transactions) {
         if (!postResponse.accept.includes(transaction.id)) {
-          logger.error(`Transaction '${transaction.id}' didn't get approved on the network`)
+          logger.error(
+            `Transaction '${
+              transaction.id
+            }' didn't get approved on the network`,
+          )
 
           successfulTest = false
         }
@@ -209,29 +255,46 @@ module.exports = class TransferCommand extends Command {
       const dataLength = postResponse[key].length
       const uniqueLength = unique(postResponse[key]).length
       if (dataLength !== uniqueLength) {
-        logger.error(`Response data for '${key}' has ${dataLength - uniqueLength} duplicate transaction ids`)
+        logger.error(
+          `Response data for '${key}' has ${dataLength
+            - uniqueLength} duplicate transaction ids`,
+        )
         successfulTest = false
       }
     }
 
-    const delaySeconds = await this.getTransactionDelaySeconds(runOptions.transactions)
-    logger.info(`Waiting ${delaySeconds} seconds to apply transfer transactions`)
+    const delaySeconds = await this.getTransactionDelaySeconds(
+      runOptions.transactions,
+    )
+    logger.info(
+      `Waiting ${delaySeconds} seconds to apply transfer transactions`,
+    )
     await delay(delaySeconds * 1000)
 
     for (const transaction of runOptions.transactions) {
       const transactionResponse = await this.getTransaction(transaction.id)
       if (transactionResponse && transactionResponse.id !== transaction.id) {
-        logger.error(`Transaction '${transaction.id}' didn't get applied on the network`)
+        logger.error(
+          `Transaction '${transaction.id}' didn't get applied on the network`,
+        )
 
         successfulTest = false
       }
     }
 
     if (runOptions.primaryAddress && runOptions.expectedSenderBalance) {
-      const walletBalance = await this.getWalletBalance(runOptions.primaryAddress)
+      const walletBalance = await this.getWalletBalance(
+        runOptions.primaryAddress,
+      )
       if (!walletBalance.isEqualTo(runOptions.expectedSenderBalance)) {
         successfulTest = false
-        logger.error(`Sender balance incorrect: '${Command.__arktoshiToArk(walletBalance)}' but should be '${Command.__arktoshiToArk(runOptions.expectedSenderBalance)}'`)
+        logger.error(
+          `Sender balance incorrect: '${Command.__arktoshiToArk(
+            walletBalance,
+          )}' but should be '${Command.__arktoshiToArk(
+            runOptions.expectedSenderBalance,
+          )}'`,
+        )
       }
     }
 
@@ -239,7 +302,13 @@ module.exports = class TransferCommand extends Command {
       const balance = await this.getWalletBalance(wallet.address)
       if (!balance.isEqualTo(runOptions.transactionAmount)) {
         successfulTest = false
-        logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${Command.__arktoshiToArk(runOptions.transactionAmount)}' but is '${Command.__arktoshiToArk(balance)}'`)
+        logger.error(
+          `Incorrect destination balance for ${
+            wallet.address
+          }. Should be '${Command.__arktoshiToArk(
+            runOptions.transactionAmount,
+          )}' but is '${Command.__arktoshiToArk(balance)}'`,
+        )
       }
     }
 
@@ -251,10 +320,16 @@ module.exports = class TransferCommand extends Command {
    * @param  {Object[]} wallets
    * @return {void}
    */
-  async __testVendorField (wallets) {
+  async __testVendorField(wallets) {
     logger.info('Testing VendorField value is set correctly')
 
-    const transactions = this.generateTransactions(Command.__arkToArktoshi(2), wallets, null, null, 'Testing VendorField')
+    const transactions = this.generateTransactions(
+      Command.__arkToArktoshi(2),
+      wallets,
+      null,
+      null,
+      'Testing VendorField',
+    )
 
     try {
       await this.sendTransactions(transactions)
@@ -262,10 +337,16 @@ module.exports = class TransferCommand extends Command {
       for (const transaction of transactions) {
         const tx = await this.getTransaction(transaction.id)
         if (!tx) {
-          logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+          logger.error(
+            `Transaction '${transaction.id}' should be on the blockchain`,
+          )
         }
         if (tx.vendorField !== 'Testing VendorField') {
-          logger.error(`Transaction '${transaction.id}' does not have correct vendorField value`)
+          logger.error(
+            `Transaction '${
+              transaction.id
+            }' does not have correct vendorField value`,
+          )
         }
       }
     } catch (error) {
@@ -278,10 +359,16 @@ module.exports = class TransferCommand extends Command {
    * @param  {Object[]} wallets
    * @return {void}
    */
-  async __testEmptyVendorField (wallets) {
+  async __testEmptyVendorField(wallets) {
     logger.info('Testing empty VendorField value')
 
-    const transactions = this.generateTransactions(Command.__arkToArktoshi(2), wallets, null, null, null)
+    const transactions = this.generateTransactions(
+      Command.__arkToArktoshi(2),
+      wallets,
+      null,
+      null,
+      null,
+    )
 
     try {
       await this.sendTransactions(transactions)
@@ -289,10 +376,16 @@ module.exports = class TransferCommand extends Command {
       for (const transaction of transactions) {
         const tx = await this.getTransaction(transaction.id)
         if (!tx) {
-          logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+          logger.error(
+            `Transaction '${transaction.id}' should be on the blockchain`,
+          )
         }
         if (tx.vendorField) {
-          logger.error(`Transaction '${transaction.id}' should not have vendorField value '${tx.vendorField}'`)
+          logger.error(
+            `Transaction '${
+              transaction.id
+            }' should not have vendorField value '${tx.vendorField}'`,
+          )
         }
       }
     } catch (error) {

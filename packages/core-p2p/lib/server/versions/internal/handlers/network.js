@@ -1,5 +1,3 @@
-'use strict'
-
 const monitor = require('../../../../monitor')
 
 /**
@@ -11,9 +9,9 @@ exports.state = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     return {
-      data: await monitor.getNetworkState()
+      data: await monitor.getNetworkState(),
     }
-  }
+  },
 }

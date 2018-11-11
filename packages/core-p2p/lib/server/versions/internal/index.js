@@ -1,5 +1,3 @@
-'use strict'
-
 const blockchain = require('./handlers/blockchain')
 const blocks = require('./handlers/blocks')
 const network = require('./handlers/network')
@@ -27,7 +25,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/transactions/forging', ...transactions.forging },
 
     { method: 'GET', path: '/utils/usernames', ...utils.usernames },
-    { method: 'POST', path: '/utils/events', ...utils.emitEvent }
+    { method: 'POST', path: '/utils/events', ...utils.emitEvent },
   ])
 }
 
@@ -38,5 +36,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'Ark P2P API - Internal',
   version: '0.1.0',
-  register
+  register,
 }

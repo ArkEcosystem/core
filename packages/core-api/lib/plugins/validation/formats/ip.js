@@ -1,5 +1,3 @@
-'use strict'
-
 const ip = require('ip')
 
 /**
@@ -7,11 +5,9 @@ const ip = require('ip')
  * @param  {AJV} ajv
  * @return {void}
  */
-module.exports = (ajv) => {
+module.exports = ajv => {
   ajv.addFormat('ip', {
     type: 'string',
-    validate: (value) => {
-      return ip.isV4Format(value) || ip.isV6Format(value)
-    }
+    validate: value => ip.isV4Format(value) || ip.isV6Format(value),
   })
 }

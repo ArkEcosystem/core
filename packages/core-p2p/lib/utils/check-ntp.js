@@ -12,21 +12,22 @@ module.exports = (hosts, timeout = 1000) => {
   hosts = shuffle(hosts)
 
   return new Promise(async (resolve, reject) => {
-    for (let i = hosts.length - 1; i >= 0; i--) {
+    for (const host of hosts) {
       try {
-        const time = await Sntp.time({ host: hosts[i], timeout })
+        const time = await Sntp.time({ host, timeout })
 
-        // @see https://github.com/hueniverse/sntp/issues/26
-        if (time.errno) {
-          logger.error(`Host ${hosts[i]} responsed with: ${time.message}`)
-        } else {
-          return resolve({ time, host: hosts[i] })
-        }
+        return time.errno
+          ? logger.error(`Host ${host} responsed with: ${time.message}`)
+          : resolve({ time, host })
       } catch (err) {
-        logger.error(`Host ${hosts[i]} responsed with: ${err.message}`)
+        logger.error(`Host ${host} responsed with: ${err.message}`)
       }
     }
 
-    reject(new Error('Please check your NTP connectivity, couldn\'t connect to any host.'))
+    reject(
+      new Error(
+        "Please check your NTP connectivity, couldn't connect to any host.",
+      ),
+    )
   })
 }

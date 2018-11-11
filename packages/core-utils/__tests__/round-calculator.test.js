@@ -1,16 +1,12 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const roundCalculator = require('../lib/round-calculator')
 
 container.resolvePlugin = jest.fn(plugin => {
   if (plugin === 'config') {
     return {
-      getConstants: () => {
-        return {
-          activeDelegates: 51
-        }
-      }
+      getConstants: () => ({
+        activeDelegates: 51,
+      }),
     }
   }
 })

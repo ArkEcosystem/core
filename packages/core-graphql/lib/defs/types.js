@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Actual types which are relevant to queries issued to our GraphQL endpoint.
  * The basic ones are Block, Wallet and Transaction. They each have specific

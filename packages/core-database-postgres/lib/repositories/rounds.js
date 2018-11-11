@@ -8,7 +8,7 @@ module.exports = class RoundsRepository extends Repository {
    * @param  {Number} round
    * @return {Promise}
    */
-  async findById (round) {
+  async findById(round) {
     return this.db.manyOrNone(sql.find, { round })
   }
 
@@ -17,7 +17,7 @@ module.exports = class RoundsRepository extends Repository {
    * @param  {Number} round
    * @return {Promise}
    */
-  async delete (round) {
+  async delete(round) {
     return this.db.none(sql.delete, { round })
   }
 
@@ -25,7 +25,7 @@ module.exports = class RoundsRepository extends Repository {
    * Get the model related to this repository.
    * @return {Object}
    */
-  getModel () {
+  getModel() {
     return new Round(this.pgp)
   }
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const ForgerManager = require('./manager')
 
 /**
@@ -10,12 +8,17 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'forger',
-  async register (container, options) {
+  async register(container, options) {
     const forgerManager = new ForgerManager(options)
-    const forgers = await forgerManager.loadDelegates(options.bip38, options.password)
+    const forgers = await forgerManager.loadDelegates(
+      options.bip38,
+      options.password,
+    )
 
     if (!forgers) {
-      container.resolvePlugin('logger').info('Forger is disabled :grey_exclamation:')
+      container
+        .resolvePlugin('logger')
+        .info('Forger is disabled :grey_exclamation:')
       return
     }
 
@@ -23,13 +26,15 @@ exports.plugin = {
     delete process.env.ARK_FORGER_PASSWORD
     delete options.password
 
-    container.resolvePlugin('logger').info(`Forger Manager started with ${forgers.length} forgers`)
+    container
+      .resolvePlugin('logger')
+      .info(`Forger Manager started with ${forgers.length} forgers`)
 
     forgerManager.startForging()
 
     return forgerManager
   },
-  async deregister (container, options) {
+  async deregister(container, options) {
     const forger = container.resolvePlugin('forger')
 
     if (forger) {
@@ -37,5 +42,5 @@ exports.plugin = {
 
       return forger.stop()
     }
-  }
+  },
 }

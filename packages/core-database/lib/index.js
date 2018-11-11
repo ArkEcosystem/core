@@ -1,5 +1,3 @@
-'use strict'
-
 const databaseManager = require('./manager')
 
 /**
@@ -10,11 +8,11 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'databaseManager',
-  async register (container, options) {
+  async register(container, options) {
     container.resolvePlugin('logger').info('Starting Database Manager')
 
     return databaseManager
-  }
+  },
 }
 
 /**

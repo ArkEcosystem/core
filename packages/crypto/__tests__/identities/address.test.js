@@ -29,7 +29,9 @@ describe('Identities - Address', () => {
     })
 
     it('should be OK', () => {
-      expect(testSubject.fromPrivateKey(Keys.fromPassphrase(passphrase))).toBe(data.address)
+      expect(testSubject.fromPrivateKey(Keys.fromPassphrase(passphrase))).toBe(
+        data.address,
+      )
     })
   })
 

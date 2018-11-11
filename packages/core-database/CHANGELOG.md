@@ -8,12 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
+
 - Database rollback
 - Block exceptions
 - Common blocks
 - More graceful handling of shutdown
 
 ### Changed
+
 - Build delegate list in-memory to reduce database load
 - Perform vote balance calculations in-memory to reduce database load
 - Handle numbers as `BigNumber` instances
@@ -24,6 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Fixed
+
 - Wrong documentation
 - Bad method calls for `sync/async` methods
 - Only commit data when `saveBlockCommit` is called
@@ -37,4 +40,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 0.1.1 - 2018-06-14
 
 ### Added
+
 - initial release

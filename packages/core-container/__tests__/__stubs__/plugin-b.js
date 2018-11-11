@@ -1,16 +1,14 @@
-'use strict'
-
 exports.plugin = {
   pkg: {
     name: 'stub/plugin-b',
-    version: '1.0.0'
+    version: '1.0.0',
   },
   alias: 'stub-plugin-b',
-  register (container, options) {
+  register(container, options) {
     return {
       container,
-      options
+      options,
     }
   },
-  deregister () {}
+  deregister() {},
 }

@@ -7,7 +7,7 @@ class TransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.TRANSFER
@@ -22,7 +22,7 @@ class TransferBuilder extends TransactionBuilder {
    * Overrides the inherited method to return the additional required by this
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId

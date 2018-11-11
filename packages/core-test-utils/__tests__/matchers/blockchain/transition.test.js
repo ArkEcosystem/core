@@ -9,28 +9,28 @@ describe('.toTransition', () => {
       a: {
         on: {
           START: 'b',
-          SUB: 'c'
-        }
+          SUB: 'c',
+        },
       },
       b: {
         on: {
-          END: 'a'
-        }
+          END: 'a',
+        },
       },
       c: {
         on: {
-          END: 'a'
+          END: 'a',
         },
         initial: 'c-1',
         states: {
           'c-1': {
             on: {
-              BACK: 'b'
-            }
-          }
-        }
-      }
-    }
+              BACK: 'b',
+            },
+          },
+        },
+      },
+    },
   })
 
   test('passes when the state machine transitions from one state to other on an event', () => {

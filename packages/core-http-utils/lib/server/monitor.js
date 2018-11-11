@@ -1,5 +1,3 @@
-'use strict'
-
 module.exports = async server => server.register({
   plugin: require('good'),
   options: {
@@ -8,13 +6,13 @@ module.exports = async server => server.register({
         {
           module: 'good-squeeze',
           name: 'Squeeze',
-          args: [{ log: '*', response: '*', request: '*' }]
+          args: [{ log: '*', response: '*', request: '*' }],
         },
         {
-          module: 'good-console'
+          module: 'good-console',
         },
-        'stdout'
-      ]
-    }
-  }
+        'stdout',
+      ],
+    },
+  },
 })

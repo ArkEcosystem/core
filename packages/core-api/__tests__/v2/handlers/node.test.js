@@ -1,5 +1,3 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
@@ -16,7 +14,7 @@ describe('API 2.0 - Loader', () => {
   describe('GET /node/status', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET the node status', async () => {
         const response = await utils[request]('GET', 'node/status')
@@ -33,7 +31,7 @@ describe('API 2.0 - Loader', () => {
   describe('GET /node/syncing', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET the node syncing status', async () => {
         const response = await utils[request]('GET', 'node/syncing')
@@ -51,7 +49,7 @@ describe('API 2.0 - Loader', () => {
   describe('GET /node/configuration', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET the node configuration', async () => {
         const response = await utils[request]('GET', 'node/configuration')
