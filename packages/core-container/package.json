@@ -17,14 +17,14 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.3",
+    "@arkecosystem/crypto": "^0.2.4",
     "awilix": "^4.0.0",
     "axios": "^0.18.0",
     "delay": "^4.1.0",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
     "fs-extra": "^7.0.1",
-    "hoek": "^6.0.2",
+    "hoek": "^6.0.3",
     "lodash": "^4.17.11",
     "semver": "^5.6.0"
   },

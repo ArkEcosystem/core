@@ -27,7 +27,7 @@
     "cross-env": "^5.2.0",
     "depcheck": "^0.6.11",
     "docdash": "^1.0.0",
-    "eslint": "^5.8.0",
+    "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^8.0.0",
@@ -43,6 +43,7 @@
     "lerna": "^3.4.3",
     "lint-staged": "^8.0.4",
     "prettier": "^1.15.2",
+    "npm-check-updates": "^2.14.2",
     "regenerator-runtime": "^0.12.1",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
@@ -59,7 +60,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && ./pre-commit.sh"
+      "pre-commit": "lint-staged && ./scripts/pre-commit.sh"
     }
   },
   "lint-staged": {

@@ -61,7 +61,7 @@
     "@arkecosystem/core-p2p": "^0.1.1",
     "@arkecosystem/core-transaction-pool-mem": "^0.1.1",
     "@arkecosystem/core-webhooks": "^0.1.1",
-    "@arkecosystem/crypto": "^0.2.3",
+    "@arkecosystem/crypto": "^0.2.4",
     "bip38": "^2.0.2",
     "commander": "^2.19.0",
     "fs": "^0.0.1-security",
