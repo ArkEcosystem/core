@@ -1,5 +1,3 @@
-'use strict'
-
 const handler = require('./handler')
 
 /**
@@ -9,11 +7,13 @@ const handler = require('./handler')
  * @return {void}
  */
 const register = async (server, options) => {
-  server.route([{
-    method: 'POST',
-    path: '/',
-    ...handler.index
-  }])
+  server.route([
+    {
+      method: 'POST',
+      path: '/',
+      ...handler.index,
+    },
+  ])
 }
 
 /**
@@ -23,5 +23,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'routes',
   version: '0.1.0',
-  register
+  register,
 }

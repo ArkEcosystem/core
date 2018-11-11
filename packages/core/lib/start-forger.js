@@ -1,5 +1,3 @@
-
-
 const container = require('@arkecosystem/core-container')
 
 /**

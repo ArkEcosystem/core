@@ -104,7 +104,10 @@ class ConfigManager {
       height = 1
     }
 
-    while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
+    while (
+      this.constant.index < this.constants.length - 1
+      && height >= this.constants[this.constant.index + 1].height
+    ) {
       this.constant.index++
       this.constant.data = this.constants[this.constant.index]
     }
@@ -130,7 +133,10 @@ class ConfigManager {
     let lastmerged = 0
 
     while (lastmerged < this.constants.length - 1) {
-      this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1])
+      this.constants[lastmerged + 1] = deepmerge(
+        this.constants[lastmerged],
+        this.constants[lastmerged + 1],
+      )
       lastmerged++
     }
   }
@@ -139,9 +145,10 @@ class ConfigManager {
    * Build fees from config constants.
    */
   buildFees() {
-    Object
-      .keys(TRANSACTION_TYPES)
-      .forEach(type => feeManager.set(TRANSACTION_TYPES[type], this.getConstant('fees')[_.camelCase(type)]))
+    Object.keys(TRANSACTION_TYPES).forEach(type => feeManager.set(
+      TRANSACTION_TYPES[type],
+      this.getConstant('fees')[_.camelCase(type)],
+    ))
   }
 
   /**
@@ -149,9 +156,10 @@ class ConfigManager {
    */
   buildDynamicOffsets() {
     if (this.getConstant('dynamicOffsets')) {
-      Object
-        .keys(TRANSACTION_TYPES)
-        .forEach(type => dynamicFeeManager.set(TRANSACTION_TYPES[type], this.getConstant('dynamicOffsets')[_.camelCase(type)]))
+      Object.keys(TRANSACTION_TYPES).forEach(type => dynamicFeeManager.set(
+        TRANSACTION_TYPES[type],
+        this.getConstant('dynamicOffsets')[_.camelCase(type)],
+      ))
     }
   }
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const elasticsearch = require('elasticsearch')
 
 class Client {
@@ -7,7 +5,7 @@ class Client {
    * Create a new client instance.
    * @param {Object} options
    */
-  async setUp (options) {
+  async setUp(options) {
     this.client = new elasticsearch.Client(options)
   }
 
@@ -15,7 +13,7 @@ class Client {
    * Get the elasticsearch client.
    * @return {elasticsearch.Client}
    */
-  async getClient () {
+  async getClient() {
     return this.client
   }
 
@@ -24,7 +22,7 @@ class Client {
    * @param  {Object} body
    * @return {Promise}
    */
-  async bulk (body) {
+  async bulk(body) {
     return this.client.bulk({ body })
   }
 
@@ -33,7 +31,7 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async count (params) {
+  async count(params) {
     return this.client.count(params)
   }
 
@@ -42,7 +40,7 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async search (params) {
+  async search(params) {
     return this.client.search(params)
   }
 
@@ -51,7 +49,7 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async create (params) {
+  async create(params) {
     return this.client.create(params)
   }
 
@@ -60,7 +58,7 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async update (params) {
+  async update(params) {
     return this.client.update(params)
   }
 
@@ -69,7 +67,7 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async delete (params) {
+  async delete(params) {
     return this.client.delete(params)
   }
 
@@ -78,7 +76,7 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async exists (params) {
+  async exists(params) {
     return this.client.exists(params)
   }
 }

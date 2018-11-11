@@ -1,16 +1,12 @@
+const axios = require('axios')
+const MockAdapter = require('axios-mock-adapter')
 const request = require('./__support__/request')
 
 const app = require('./__support__/setup')
 
-const axios = require('axios')
-const MockAdapter = require('axios-mock-adapter')
 const axiosMock = new MockAdapter(axios)
 
-jest.mock('is-reachable', () => {
-  return jest.fn(async (peer) => {
-    return true
-  })
-})
+jest.mock('is-reachable', () => jest.fn(async peer => true))
 
 let peerMock
 
@@ -41,7 +37,9 @@ afterEach(async () => {
 describe('Blocks', () => {
   describe('POST blocks.latest', () => {
     it('should get the latest block', async () => {
-      axiosMock.onGet(/.*\/api\/blocks/).reply(() => [200, { data: [ { id: '123' } ] }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/api\/blocks/)
+        .reply(() => [200, { data: [{ id: '123' }] }, peerMock.headers])
 
       const response = await request('blocks.latest')
 
@@ -51,10 +49,12 @@ describe('Blocks', () => {
 
   describe('POST blocks.info', () => {
     it('should get the block information', async () => {
-      axiosMock.onGet(/.*\/api\/blocks\/123/).reply(() => [200, { data: { id: '123' } }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/api\/blocks\/123/)
+        .reply(() => [200, { data: { id: '123' } }, peerMock.headers])
 
       const response = await request('blocks.info', {
-        id: '123'
+        id: '123',
       })
 
       expect(response.data.result.id).toBe('123')
@@ -70,10 +70,16 @@ describe('Blocks', () => {
 
   describe('POST blocks.transactions', () => {
     it('should get the block transactions', async () => {
-      axiosMock.onGet(/.*\/api\/blocks\/123\/transactions/).reply(() => [200, { meta: { totalCount: 1 }, data: [ { id: '123' }, { id: '123' } ] }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/api\/blocks\/123\/transactions/)
+        .reply(() => [
+          200,
+          { meta: { totalCount: 1 }, data: [{ id: '123' }, { id: '123' }] },
+          peerMock.headers,
+        ])
 
       const response = await request('blocks.transactions', {
-        id: '123'
+        id: '123',
       })
 
       expect(response.data.result.data).toHaveLength(2)

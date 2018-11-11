@@ -4,11 +4,11 @@ const network = require('../../services/network')
 
 module.exports = {
   name: 'wallets.transactions',
-  async method (params) {
+  async method(params) {
     const response = await network.sendRequest('transactions', {
       offset: params.offset,
       orderBy: 'timestamp:desc',
-      ownerId: params.address
+      ownerId: params.address,
     })
 
     if (!response) {
@@ -17,11 +17,13 @@ module.exports = {
 
     return {
       count: response.meta.totalCount,
-      data: response.data
+      data: response.data,
     }
   },
   schema: {
-    address: Joi.string().length(34).required(),
-    offset: Joi.number().default(0)
-  }
+    address: Joi.string()
+      .length(34)
+      .required(),
+    offset: Joi.number().default(0),
+  },
 }

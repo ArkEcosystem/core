@@ -9,7 +9,7 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} options
    * @return {void}
    */
-  constructor (network, options) {
+  constructor(network, options) {
     this.network = network
     this.prefixHash = network.pubKeyHash
     this.totalPremine = options.totalPremine
@@ -20,24 +20,28 @@ module.exports = class GenesisBlockBuilder {
    * Generate a Genesis Block.
    * @return {Object}
    */
-  generate () {
+  generate() {
     const genesisWallet = this.__createWallet()
     const premineWallet = this.__createWallet()
     const delegates = this.__buildDelegates()
     const transactions = [
       ...this.__buildDelegateTransactions(delegates),
-      this.__createTransferTransaction(premineWallet, genesisWallet, this.totalPremine)
+      this.__createTransferTransaction(
+        premineWallet,
+        genesisWallet,
+        this.totalPremine,
+      ),
     ]
     const genesisBlock = this.__createGenesisBlock({
       keys: genesisWallet.keys,
       transactions,
-      timestamp: 0
+      timestamp: 0,
     })
 
     return {
       genesisWallet,
       genesisBlock,
-      delegatePassphrases: delegates.map(wallet => wallet.passphrase)
+      delegatePassphrases: delegates.map(wallet => wallet.passphrase),
     }
   }
 
@@ -45,14 +49,14 @@ module.exports = class GenesisBlockBuilder {
    * Generate a new random wallet.
    * @return {Object}
    */
-  __createWallet () {
+  __createWallet() {
     const passphrase = bip39.generateMnemonic()
     const keys = crypto.getKeys(passphrase)
 
     return {
       address: crypto.getAddress(keys.publicKey, this.prefixHash),
       passphrase,
-      keys
+      keys,
     }
   }
 
@@ -61,7 +65,7 @@ module.exports = class GenesisBlockBuilder {
    * @param  {String} username
    * @return {Object}
    */
-  __createDelegateWallet (username) {
+  __createDelegateWallet(username) {
     const wallet = this.__createWallet()
     wallet.username = username
 
@@ -72,7 +76,7 @@ module.exports = class GenesisBlockBuilder {
    * Generate a collection of delegate wallets.
    * @return {Object[]}
    */
-  __buildDelegates () {
+  __buildDelegates() {
     const wallets = []
     for (let i = 0; i < this.activeDelegates; i++) {
       wallets.push(this.__createDelegateWallet(`genesis_${i + 1}`))
@@ -86,7 +90,7 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object[]} wallets
    * @return {Object[]}
    */
-  __buildDelegateTransactions (wallets) {
+  __buildDelegateTransactions(wallets) {
     return wallets.map(wallet => this.__createDelegateTransaction(wallet))
   }
 
@@ -97,7 +101,7 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Number} amount
    * @return {Object}
    */
-  __createTransferTransaction (senderWallet, receiverWallet, amount) {
+  __createTransferTransaction(senderWallet, receiverWallet, amount) {
     const { data } = client
       .getBuilder()
       .transfer()
@@ -114,7 +118,7 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} wallet
    * @return {Object}
    */
-  __createDelegateTransaction (wallet) {
+  __createDelegateTransaction(wallet) {
     const { data } = client
       .getBuilder()
       .delegateRegistration()
@@ -130,11 +134,11 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} wallet
    * @return {Object}
    */
-  __formatGenesisTransaction (transaction, wallet) {
+  __formatGenesisTransaction(transaction, wallet) {
     Object.assign(transaction, {
       fee: 0,
       timestamp: 0,
-      senderId: wallet.address
+      senderId: wallet.address,
     })
     transaction.signature = crypto.sign(transaction, wallet.keys)
     transaction.id = crypto.getId(transaction)
@@ -147,7 +151,7 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} data
    * @return {Object}
    */
-  __createGenesisBlock (data) {
+  __createGenesisBlock(data) {
     const transactions = data.transactions.sort((a, b) => {
       if (a.type === b.type) {
         return a.amount - b.amount
@@ -159,7 +163,7 @@ module.exports = class GenesisBlockBuilder {
     let payloadLength = 0
     let totalFee = 0
     let totalAmount = 0
-    let payloadHash = createHash('sha256')
+    const payloadHash = createHash('sha256')
 
     transactions.forEach(transaction => {
       const bytes = crypto.getBytes(transaction)
@@ -171,8 +175,8 @@ module.exports = class GenesisBlockBuilder {
 
     const block = {
       version: 0,
-      totalAmount: totalAmount,
-      totalFee: totalFee,
+      totalAmount,
+      totalFee,
       reward: 0,
       payloadHash: payloadHash.digest().toString('hex'),
       timestamp: data.timestamp,
@@ -181,7 +185,7 @@ module.exports = class GenesisBlockBuilder {
       previousBlock: null,
       generatorPublicKey: data.keys.publicKey.toString('hex'),
       transactions,
-      height: 1
+      height: 1,
     }
 
     block.id = this.__getBlockId(block)
@@ -200,9 +204,9 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} block
    * @return {String}
    */
-  __getBlockId (block) {
-    let hash = this.__getHash(block)
-    let blockBuffer = Buffer.alloc(8)
+  __getBlockId(block) {
+    const hash = this.__getHash(block)
+    const blockBuffer = Buffer.alloc(8)
     for (let i = 0; i < 8; i++) {
       blockBuffer[i] = hash[7 - i]
     }
@@ -216,8 +220,8 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object]} keys
    * @return {String}
    */
-  __signBlock (block, keys) {
-    var hash = this.__getHash(block)
+  __signBlock(block, keys) {
+    const hash = this.__getHash(block)
     return crypto.signHash(hash, keys)
   }
 
@@ -226,8 +230,10 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} block
    * @return {String}
    */
-  __getHash (block) {
-    return createHash('sha256').update(this.__getBytes(block)).digest()
+  __getHash(block) {
+    return createHash('sha256')
+      .update(this.__getBytes(block))
+      .digest()
   }
 
   /**
@@ -235,17 +241,20 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} block
    * @return {(Buffer|undefined)}
    */
-  __getBytes (block) {
+  __getBytes(block) {
     const size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 32 + 64
 
     try {
-      var byteBuffer = new ByteBuffer(size, true)
+      const byteBuffer = new ByteBuffer(size, true)
       byteBuffer.writeInt(block.version)
       byteBuffer.writeInt(block.timestamp)
       byteBuffer.writeInt(block.height)
 
       if (block.previousBlock) {
-        var previousBlock = Buffer.from(new Bignum(block.previousBlock).toString(16), 'hex')
+        const previousBlock = Buffer.from(
+          new Bignum(block.previousBlock).toString(16),
+          'hex',
+        )
 
         for (let i = 0; i < 8; i++) {
           byteBuffer.writeByte(previousBlock[i])
@@ -263,18 +272,21 @@ module.exports = class GenesisBlockBuilder {
 
       byteBuffer.writeInt(block.payloadLength)
 
-      var payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
+      const payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (let i = 0; i < payloadHashBuffer.length; i++) {
         byteBuffer.writeByte(payloadHashBuffer[i])
       }
 
-      var generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
+      const generatorPublicKeyBuffer = Buffer.from(
+        block.generatorPublicKey,
+        'hex',
+      )
       for (let i = 0; i < generatorPublicKeyBuffer.length; i++) {
         byteBuffer.writeByte(generatorPublicKeyBuffer[i])
       }
 
       if (block.blockSignature) {
-        var blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
+        const blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
         for (let i = 0; i < blockSignatureBuffer.length; i++) {
           byteBuffer.writeByte(blockSignatureBuffer[i])
         }

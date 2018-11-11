@@ -1,5 +1,3 @@
-
-
 const Joi = require('joi')
 
 let validator
@@ -105,13 +103,19 @@ describe('Validator', () => {
     })
 
     it('should be true', () => {
-      validator.__validateWithRule('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN', 'address')
+      validator.__validateWithRule(
+        'DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN',
+        'address',
+      )
 
       expect(validator.passes()).toBeTrue()
     })
 
     it('should be false', () => {
-      validator.__validateWithRule('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_', 'address')
+      validator.__validateWithRule(
+        '_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_',
+        'address',
+      )
 
       expect(validator.passes()).toBeFalse()
     })
@@ -123,21 +127,27 @@ describe('Validator', () => {
     })
 
     it('should be true', () => {
-      validator.__validateWithFunction('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN', value => ({
+      validator.__validateWithFunction(
+        'DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN',
+        value => ({
           data: value,
           passes: value.length === 34,
           fails: value.length !== 34,
-        }))
+        }),
+      )
 
       expect(validator.passes()).toBeTrue()
     })
 
     it('should be false', () => {
-      validator.__validateWithFunction('_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_', value => ({
+      validator.__validateWithFunction(
+        '_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_',
+        value => ({
           data: value,
           passes: value.length === 34,
           fails: value.length !== 34,
-        }))
+        }),
+      )
 
       expect(validator.passes()).toBeFalse()
     })
@@ -151,7 +161,10 @@ describe('Validator', () => {
     it('should be true', () => {
       validator.__validateWithJoi(
         'DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN',
-        Joi.string().alphanum().length(34).required(),
+        Joi.string()
+          .alphanum()
+          .length(34)
+          .required(),
       )
 
       expect(validator.passes()).toBeTrue()
@@ -160,7 +173,10 @@ describe('Validator', () => {
     it('should be false', () => {
       validator.__validateWithJoi(
         '_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_',
-        Joi.string().alphanum().length(34).required(),
+        Joi.string()
+          .alphanum()
+          .length(34)
+          .required(),
       )
 
       expect(validator.passes()).toBeFalse()

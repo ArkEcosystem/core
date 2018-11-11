@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
 const blockchain = container.resolvePlugin('blockchain')
@@ -17,15 +16,16 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const { rows } = await database.wallets.findAll({
-      ...request.query, ...utils.paginate(request)
+      ...request.query,
+      ...utils.paginate(request),
     })
 
     return utils.respondWith({
-      accounts: utils.toCollection(request, rows, 'account')
+      accounts: utils.toCollection(request, rows, 'account'),
     })
-  }
+  },
 }
 
 /**
@@ -37,7 +37,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
@@ -45,16 +45,16 @@ exports.show = {
     }
 
     return utils.respondWith({
-      account: utils.toResource(request, account, 'account')
+      account: utils.toResource(request, account, 'account'),
     })
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getAccount
-      }
-    }
-  }
+        querySchema: schema.getAccount,
+      },
+    },
+  },
 }
 
 /**
@@ -66,7 +66,7 @@ exports.balance = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
@@ -75,16 +75,16 @@ exports.balance = {
 
     return utils.respondWith({
       balance: account ? `${account.balance}` : '0',
-      unconfirmedBalance: account ? `${account.balance}` : '0'
+      unconfirmedBalance: account ? `${account.balance}` : '0',
     })
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getBalance
-      }
-    }
-  }
+        querySchema: schema.getBalance,
+      },
+    },
+  },
 }
 
 /**
@@ -96,7 +96,7 @@ exports.publicKey = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
@@ -108,10 +108,10 @@ exports.publicKey = {
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getPublicKey
-      }
-    }
-  }
+        querySchema: schema.getPublicKey,
+      },
+    },
+  },
 }
 
 /**
@@ -123,11 +123,12 @@ exports.fee = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock().data.height).fees.delegateRegistration
+      fee: config.getConstants(blockchain.getLastBlock().data.height).fees
+        .delegateRegistration,
     })
-  }
+  },
 }
 
 /**
@@ -139,30 +140,33 @@ exports.delegates = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    let account = await database.wallets.findById(request.query.address)
+  async handler(request, h) {
+    const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
       return utils.respondWith('Address not found.', true)
     }
 
     if (!account.vote) {
-      return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
+      return utils.respondWith(
+        `Address ${request.query.address} hasn't voted yet.`,
+        true,
+      )
     }
 
     const delegate = await database.delegates.findById(account.vote)
 
     return utils.respondWith({
-      delegates: [utils.toResource(request, delegate, 'delegate')]
+      delegates: [utils.toResource(request, delegate, 'delegate')],
     })
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getDelegates
-      }
-    }
-  }
+        querySchema: schema.getDelegates,
+      },
+    },
+  },
 }
 
 /**
@@ -174,13 +178,13 @@ exports.top = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     let accounts = database.wallets.top(utils.paginate(request))
 
     accounts = accounts.rows.map(account => ({
       address: account.address,
-      balance: account.balance + '',
-      publicKey: account.publicKey
+      balance: `${account.balance}`,
+      publicKey: account.publicKey,
     }))
 
     return utils.respondWith({ accounts })
@@ -188,10 +192,10 @@ exports.top = {
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.top
-      }
-    }
-  }
+        querySchema: schema.top,
+      },
+    },
+  },
 }
 
 /**
@@ -203,9 +207,9 @@ exports.count = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const { count } = await database.wallets.findAll()
 
     return utils.respondWith({ count })
-  }
+  },
 }

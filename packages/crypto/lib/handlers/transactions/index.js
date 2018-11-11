@@ -45,7 +45,10 @@ class TransactionHandler {
    * @return {void}
    */
   applyTransactionToSender(wallet, transaction) {
-    return this.handlers[transaction.type].applyTransactionToSender(wallet, transaction)
+    return this.handlers[transaction.type].applyTransactionToSender(
+      wallet,
+      transaction,
+    )
   }
 
   /**
@@ -55,7 +58,10 @@ class TransactionHandler {
    * @return {void}
    */
   applyTransactionToRecipient(wallet, transaction) {
-    return this.handlers[transaction.type].applyTransactionToRecipient(wallet, transaction)
+    return this.handlers[transaction.type].applyTransactionToRecipient(
+      wallet,
+      transaction,
+    )
   }
 
   /**
@@ -75,7 +81,10 @@ class TransactionHandler {
    * @return {void}
    */
   revertTransactionForSender(wallet, transaction) {
-    return this.handlers[transaction.type].revertTransactionForSender(wallet, transaction)
+    return this.handlers[transaction.type].revertTransactionForSender(
+      wallet,
+      transaction,
+    )
   }
 
   /**
@@ -85,7 +94,10 @@ class TransactionHandler {
    * @return {void}
    */
   revertTransactionForRecipient(wallet, transaction) {
-    return this.handlers[transaction.type].revertTransactionForRecipient(wallet, transaction)
+    return this.handlers[transaction.type].revertTransactionForRecipient(
+      wallet,
+      transaction,
+    )
   }
 }
 

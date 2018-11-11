@@ -9,11 +9,11 @@ class DynamicFeeManager {
   }
 
   /** Calculates delegate minimum fee for forging of a transaction.
-  * @param {Number} Minimum fee price per byte in ARKTOSHI as set by forger/delegate
-  *                 in delegate.json setting feeMultiplier
-  * @param {Transaction} Transaction for which we calculate dynamic fee
-  * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
-  */
+   * @param {Number} Minimum fee price per byte in ARKTOSHI as set by forger/delegate
+   *                 in delegate.json setting feeMultiplier
+   * @param {Transaction} Transaction for which we calculate dynamic fee
+   * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
+   */
   calculateFee(feeMultiplier, transaction) {
     if (feeMultiplier <= 0) {
       feeMultiplier = 1

@@ -1,10 +1,12 @@
-'use strict'
-
 const Boom = require('boom')
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
+const database = require('@arkecosystem/core-container').resolvePlugin(
+  'database',
+)
 const utils = require('../utils')
 const schema = require('../schema/wallets')
-const { transactions: transactionsRepository } = require('../../../repositories')
+const {
+  transactions: transactionsRepository,
+} = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -15,14 +17,17 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const wallets = await database.wallets.findAll({ ...request.query, ...utils.paginate(request) })
+  async handler(request, h) {
+    const wallets = await database.wallets.findAll({
+      ...request.query,
+      ...utils.paginate(request),
+    })
 
     return utils.toPagination(request, wallets, 'wallet')
   },
   options: {
-    validate: schema.index
-  }
+    validate: schema.index,
+  },
 }
 
 /**
@@ -34,11 +39,11 @@ exports.top = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const wallets = await database.wallets.top(utils.paginate(request))
 
     return utils.toPagination(request, wallets, 'wallet')
-  }
+  },
   // TODO: create top schema
 }
 
@@ -51,7 +56,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
@@ -61,8 +66,8 @@ exports.show = {
     return utils.respondWithResource(request, wallet, 'wallet')
   },
   options: {
-    validate: schema.show
-  }
+    validate: schema.show,
+  },
 }
 
 /**
@@ -74,25 +79,23 @@ exports.transactions = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
       return Boom.notFound('Wallet not found')
     }
 
-    const transactions = await transactionsRepository.findAllByWallet(
-      wallet, {
-        ...request.params,
-        ...utils.paginate(request)
-      }
-    )
+    const transactions = await transactionsRepository.findAllByWallet(wallet, {
+      ...request.params,
+      ...utils.paginate(request),
+    })
 
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.transactions
-  }
+    validate: schema.transactions,
+  },
 }
 
 /**
@@ -104,7 +107,7 @@ exports.transactionsSent = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
@@ -115,17 +118,18 @@ exports.transactionsSent = {
     delete request.params.id
 
     const transactions = await transactionsRepository.findAllBySender(
-      wallet.publicKey, {
+      wallet.publicKey,
+      {
         ...request.params,
-        ...utils.paginate(request)
-      }
+        ...utils.paginate(request),
+      },
     )
 
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.transactionsSent
-  }
+    validate: schema.transactionsSent,
+  },
 }
 
 /**
@@ -137,7 +141,7 @@ exports.transactionsReceived = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
@@ -148,17 +152,18 @@ exports.transactionsReceived = {
     delete request.params.id
 
     const transactions = await transactionsRepository.findAllByRecipient(
-      wallet.address, {
+      wallet.address,
+      {
         ...request.params,
-        ...utils.paginate(request)
-      }
+        ...utils.paginate(request),
+      },
     )
 
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.transactionsReceived
-  }
+    validate: schema.transactionsReceived,
+  },
 }
 
 /**
@@ -170,7 +175,7 @@ exports.votes = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
@@ -181,17 +186,18 @@ exports.votes = {
     delete request.params.id
 
     const transactions = await transactionsRepository.allVotesBySender(
-      wallet.publicKey, {
+      wallet.publicKey,
+      {
         ...request.params,
-        ...utils.paginate(request)
-      }
+        ...utils.paginate(request),
+      },
     )
 
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.votes
-  }
+    validate: schema.votes,
+  },
 }
 
 /**
@@ -203,16 +209,16 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const wallets = await database.wallets.search({
       ...request.payload,
       ...request.query,
-      ...utils.paginate(request)
+      ...utils.paginate(request),
     })
 
     return utils.toPagination(request, wallets, 'wallet')
   },
   options: {
-    validate: schema.search
-  }
+    validate: schema.search,
+  },
 }

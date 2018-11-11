@@ -2,6 +2,7 @@ const QueryFile = require('pg-promise').QueryFile
 const path = require('path')
 
 const container = require('@arkecosystem/core-container')
+
 const logger = container.resolvePlugin('logger')
 
 module.exports = {
@@ -11,8 +12,8 @@ module.exports = {
     const options = {
       minify: true,
       params: {
-        schema: 'public'
-      }
+        schema: 'public',
+      },
     }
 
     const query = new QueryFile(fullPath, options)
@@ -24,7 +25,5 @@ module.exports = {
     return query
   },
 
-  rawQuery: (pgp, queryFile, parameters) => {
-    return pgp.as.format(queryFile, parameters)
-  }
+  rawQuery: (pgp, queryFile, parameters) => pgp.as.format(queryFile, parameters),
 }

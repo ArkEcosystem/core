@@ -1,5 +1,3 @@
-
-
 class LogManager {
   /**
    * Create a new log manager instance.

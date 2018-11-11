@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-module.exports = (config) => {
+module.exports = config => {
   const headers = {}
   if (config && config.network) {
     headers.nethash = config.network.nethash
@@ -10,14 +10,18 @@ module.exports = (config) => {
 
   return {
     get: async (endpoint, isP2P) => {
-      const baseUrl = `${config.baseUrl}:${isP2P ? config.p2pPort : config.apiPort}`
+      const baseUrl = `${config.baseUrl}:${
+        isP2P ? config.p2pPort : config.apiPort
+      }`
 
       return (await axios.get(baseUrl + endpoint, { headers })).data
     },
     post: async (endpoint, data, isP2P) => {
-      const baseUrl = `${config.baseUrl}:${isP2P ? config.p2pPort : config.apiPort}`
+      const baseUrl = `${config.baseUrl}:${
+        isP2P ? config.p2pPort : config.apiPort
+      }`
 
       return (await axios.post(baseUrl + endpoint, data, { headers })).data
-    }
+    },
   }
 }

@@ -1,11 +1,10 @@
-'use strict'
-
-const RemoteLoader = require('../lib/remote-loader')
 const fs = require('fs-extra')
 const mockProcess = require('jest-mock-process')
 
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
+const RemoteLoader = require('../lib/remote-loader')
+
 const axiosMock = new MockAdapter(axios)
 
 let testSubject
@@ -13,7 +12,7 @@ beforeEach(() => {
   testSubject = new RemoteLoader({
     remote: '127.0.0.1:4002',
     config: './config',
-    data: './data'
+    data: './data',
   })
 })
 
@@ -38,7 +37,9 @@ describe('Remote Loader', () => {
     it('should not be OK', async () => {
       const mockExit = mockProcess.mockProcessExit()
 
-      axiosMock.onGet('http://127.0.0.1:4002/config/network').reply(() => [404, {}])
+      axiosMock
+        .onGet('http://127.0.0.1:4002/config/network')
+        .reply(() => [404, {}])
 
       await testSubject.__configureNetwork()
 
@@ -46,9 +47,12 @@ describe('Remote Loader', () => {
     })
 
     it('should be OK', async () => {
-      axiosMock.onGet('http://127.0.0.1:4002/config/network').reply(() => [200, {
-        data: require('../../crypto/lib/networks/ark/devnet.json')
-      }])
+      axiosMock.onGet('http://127.0.0.1:4002/config/network').reply(() => [
+        200,
+        {
+          data: require('../../crypto/lib/networks/ark/devnet.json'),
+        },
+      ])
 
       await testSubject.__configureNetwork()
 
@@ -62,15 +66,22 @@ describe('Remote Loader', () => {
     })
 
     it('should not be OK', async () => {
-      axiosMock.onGet('http://127.0.0.1:4002/config/genesis-block').reply(() => [404, {}])
+      axiosMock
+        .onGet('http://127.0.0.1:4002/config/genesis-block')
+        .reply(() => [404, {}])
 
       await expect(testSubject.__configureGenesisBlock()).rejects.toThrowError()
     })
 
     it('should be OK', async () => {
-      axiosMock.onGet('http://127.0.0.1:4002/config/genesis-block').reply(() => [200, {
-        data: require('../../core/lib/config/devnet/genesisBlock.json')
-      }])
+      axiosMock
+        .onGet('http://127.0.0.1:4002/config/genesis-block')
+        .reply(() => [
+          200,
+          {
+            data: require('../../core/lib/config/devnet/genesisBlock.json'),
+          },
+        ])
 
       await testSubject.__configureGenesisBlock()
 
@@ -86,7 +97,9 @@ describe('Remote Loader', () => {
     it('should not be OK', async () => {
       const mockExit = mockProcess.mockProcessExit()
 
-      axiosMock.onGet('http://127.0.0.1:4002/config/peers').reply(() => [404, {}])
+      axiosMock
+        .onGet('http://127.0.0.1:4002/config/peers')
+        .reply(() => [404, {}])
 
       await testSubject.__configurePeers()
 
@@ -94,9 +107,12 @@ describe('Remote Loader', () => {
     })
 
     it('should be OK', async () => {
-      axiosMock.onGet('http://127.0.0.1:4002/config/peers').reply(() => [200, {
-        data: require('../../core/lib/config/devnet/peers.json')
-      }])
+      axiosMock.onGet('http://127.0.0.1:4002/config/peers').reply(() => [
+        200,
+        {
+          data: require('../../core/lib/config/devnet/peers.json'),
+        },
+      ])
 
       await testSubject.__configurePeers()
 
@@ -112,7 +128,9 @@ describe('Remote Loader', () => {
     it('should not be OK', async () => {
       const mockExit = mockProcess.mockProcessExit()
 
-      axiosMock.onGet('http://127.0.0.1:4002/config/delegates').reply(() => [404, {}])
+      axiosMock
+        .onGet('http://127.0.0.1:4002/config/delegates')
+        .reply(() => [404, {}])
 
       await testSubject.__configureDelegates()
 
@@ -120,9 +138,12 @@ describe('Remote Loader', () => {
     })
 
     it('should be OK', async () => {
-      axiosMock.onGet('http://127.0.0.1:4002/config/delegates').reply(() => [200, {
-        data: require('../../core/lib/config/devnet/delegates.json')
-      }])
+      axiosMock.onGet('http://127.0.0.1:4002/config/delegates').reply(() => [
+        200,
+        {
+          data: require('../../core/lib/config/devnet/delegates.json'),
+        },
+      ])
 
       await testSubject.__configureDelegates()
 

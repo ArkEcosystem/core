@@ -17,7 +17,9 @@ afterAll(() => {
 describe('GraphQL API { transaction }', () => {
   describe('GraphQL queries for Transaction', () => {
     it('should get a transaction by its id', async () => {
-      const query = `{ transaction(id:"${genesisBlock.transactions[0].id}") { id } }`
+      const query = `{ transaction(id:"${
+        genesisBlock.transactions[0].id
+      }") { id } }`
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()

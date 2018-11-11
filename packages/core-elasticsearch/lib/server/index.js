@@ -1,31 +1,33 @@
-'use strict'
-
-const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-utils')
+const {
+  createServer,
+  mountServer,
+  plugins,
+} = require('@arkecosystem/core-http-utils')
 
 /**
  * Creates a new hapi.js server.
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-module.exports = async (config) => {
+module.exports = async config => {
   const server = await createServer({
     host: config.host,
     port: config.port,
     routes: {
       validate: {
-        async failAction (request, h, err) {
+        async failAction(request, h, err) {
           throw err
-        }
-      }
-    }
+        },
+      },
+    },
   })
 
   await server.register({
     plugin: plugins.whitelist,
     options: {
       whitelist: config.whitelist,
-      name: 'Elasticsearch API'
-    }
+      name: 'Elasticsearch API',
+    },
   })
 
   await server.register(require('./routes'))

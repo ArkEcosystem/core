@@ -1,5 +1,3 @@
-'use strict'
-
 const Boom = require('boom')
 const container = require('@arkecosystem/core-container')
 
@@ -12,7 +10,7 @@ const container = require('@arkecosystem/core-container')
 const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
-    async method (request, h) {
+    async method(request, h) {
       if (!options.routes.includes(request.path)) {
         return h.continue
       }
@@ -22,7 +20,7 @@ const register = async (server, options) => {
       }
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -33,5 +31,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'blockchain-ready',
   version: '0.1.0',
-  register
+  register,
 }

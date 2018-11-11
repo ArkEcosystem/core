@@ -1,5 +1,3 @@
-'use strict'
-
 const moment = require('moment')
 const container = require('@arkecosystem/core-container')
 
@@ -10,11 +8,13 @@ const container = require('@arkecosystem/core-container')
  */
 module.exports = epochStamp => {
   const constants = container.resolvePlugin('config').getConstants(1)
-  const timestamp = moment(constants.epoch).utc().add(epochStamp, 'seconds')
+  const timestamp = moment(constants.epoch)
+    .utc()
+    .add(epochStamp, 'seconds')
 
   return {
     epoch: epochStamp,
     unix: timestamp.unix(),
-    human: timestamp.format()
+    human: timestamp.format(),
   }
 }

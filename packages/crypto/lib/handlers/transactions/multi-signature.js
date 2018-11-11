@@ -26,7 +26,10 @@ class MultiSignatureHandler extends Handler {
       return false
     }
 
-    return wallet.verifySignatures(transaction, transaction.asset.multisignature)
+    return wallet.verifySignatures(
+      transaction,
+      transaction.asset.multisignature,
+    )
   }
 
   /**

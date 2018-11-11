@@ -1,15 +1,13 @@
-'use strict'
-
-const app = require('./__support__/setup')
 const { bignumify } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
-const defaultConfig = require('../lib/defaults')
 const delay = require('delay')
 const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
-const mockData = require('./__fixtures__/transactions')
 const randomSeed = require('random-seed')
+const mockData = require('./__fixtures__/transactions')
+const defaultConfig = require('../lib/defaults')
+const app = require('./__support__/setup')
 
 const ARKTOSHI = crypto.constants.ARKTOSHI
 const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
@@ -271,7 +269,10 @@ describe('Connection', () => {
     it('should be allowed to exceed if whitelisted', () => {
       connection.flush()
       connection.options.maxTransactionsPerSender = 5
-      connection.options.allowedSenders = ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357', 'ghjk']
+      connection.options.allowedSenders = [
+        '03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357',
+        'ghjk',
+      ]
       connection.addTransaction(mockData.dummy3)
       connection.addTransaction(mockData.dummy4)
       connection.addTransaction(mockData.dummy5)
@@ -311,7 +312,7 @@ describe('Connection', () => {
     })
 
     it('should return transactions within the specified range', () => {
-      const transactions = [ mockData.dummy1, mockData.dummy2 ]
+      const transactions = [mockData.dummy1, mockData.dummy2]
 
       connection.addTransactions(transactions)
 
@@ -320,7 +321,8 @@ describe('Connection', () => {
       }
 
       for (const i of [0, 1]) {
-        const retrieved = connection.getTransactions(i, 1)
+        const retrieved = connection
+          .getTransactions(i, 1)
           .map(serializedTx => Transaction.fromBytes(serializedTx))
 
         expect(retrieved.length).toBe(1)
@@ -343,7 +345,7 @@ describe('Connection', () => {
       connection.addTransaction(mockData.dummy5)
       connection.addTransaction(mockData.dummy6)
 
-      let transactionIds = await connection.getTransactionIdsForForging(0, 6)
+      const transactionIds = await connection.getTransactionIdsForForging(0, 6)
 
       expect(transactionIds).toBeArray()
       expect(transactionIds[0]).toBe(mockData.dummy1.id)
@@ -412,18 +414,30 @@ describe('Connection', () => {
         // Invalid, not enough funds, will also cause the transaction below to be
         // purged as it is from the same sender.
         generateTransfer(
-          'testnet', delegatesSecrets[0], mockData.dummy1.recipientId,
-          333300000000000 /* more than any genesis wallet */, 1)[0],
+          'testnet',
+          delegatesSecrets[0],
+          mockData.dummy1.recipientId,
+          333300000000000 /* more than any genesis wallet */,
+          1,
+        )[0],
         // This alone is a valid transaction, but will get purged because of the
         // first transaction we add which is invalid (not enough funds) and from
         // the same sender.
         generateTransfer(
-          'testnet', delegatesSecrets[0], mockData.dummy1.recipientId,
-          1, 1)[0],
+          'testnet',
+          delegatesSecrets[0],
+          mockData.dummy1.recipientId,
+          1,
+          1,
+        )[0],
         // Valid, only this transaction will classify for forging.
         generateTransfer(
-          'testnet', delegatesSecrets[1], mockData.dummy1.recipientId,
-          1, 1)[0]
+          'testnet',
+          delegatesSecrets[1],
+          mockData.dummy1.recipientId,
+          1,
+          1,
+        )[0],
       ]
 
       connection.addTransactions(transactions)
@@ -456,8 +470,12 @@ describe('Connection', () => {
     it('should be false for non-existent sender', () => {
       connection.addTransaction(mockData.dummy1)
 
-      expect(connection.senderHasTransactionsOfType(
-        'nonexistent', TRANSACTION_TYPES.VOTE)).toBeFalse()
+      expect(
+        connection.senderHasTransactionsOfType(
+          'nonexistent',
+          TRANSACTION_TYPES.VOTE,
+        ),
+      ).toBeFalse()
     })
 
     it('should be false for existent sender with no votes', () => {
@@ -465,8 +483,12 @@ describe('Connection', () => {
 
       connection.addTransaction(tx)
 
-      expect(connection.senderHasTransactionsOfType(
-        tx.senderPublicKey, TRANSACTION_TYPES.VOTE)).toBeFalse()
+      expect(
+        connection.senderHasTransactionsOfType(
+          tx.senderPublicKey,
+          TRANSACTION_TYPES.VOTE,
+        ),
+      ).toBeFalse()
     })
 
     it('should be true for existent sender with votes', () => {
@@ -481,8 +503,12 @@ describe('Connection', () => {
 
       connection.addTransaction(mockData.dummy2)
 
-      expect(connection.senderHasTransactionsOfType(
-        tx.senderPublicKey, TRANSACTION_TYPES.VOTE)).toBeTrue()
+      expect(
+        connection.senderHasTransactionsOfType(
+          tx.senderPublicKey,
+          TRANSACTION_TYPES.VOTE,
+        ),
+      ).toBeTrue()
     })
   })
 
@@ -494,7 +520,7 @@ describe('Connection', () => {
     it('should decline already present transactions', () => {
       connection.addTransaction(mockData.dummy1)
 
-      const r = connection.checkEligibility([ mockData.dummy1, mockData.dummy2 ])
+      const r = connection.checkEligibility([mockData.dummy1, mockData.dummy2])
 
       expect(r.eligible).toBeArray()
       expect(r.notEligible).toBeArray()
@@ -512,7 +538,7 @@ describe('Connection', () => {
     it('save and restore transactions', () => {
       expect(connection.getPoolSize()).toBe(0)
 
-      const transactions = [ mockData.dummy1, mockData.dummy2 ]
+      const transactions = [mockData.dummy1, mockData.dummy2]
 
       connection.addTransactions(transactions)
 
@@ -524,13 +550,9 @@ describe('Connection', () => {
 
       expect(connection.getPoolSize()).toBe(2)
 
-      transactions.forEach(
-        t => expect(
-          connection.getTransaction(t.id).serialized.toLowerCase()
-        ).toBe(
-          t.serialized.toLowerCase()
-        )
-      )
+      transactions.forEach(t => expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(
+        t.serialized.toLowerCase(),
+      ))
 
       connection.flush()
     })
@@ -546,7 +568,7 @@ describe('Connection', () => {
 
       expect(forgedTransaction instanceof Transaction).toBeTrue()
 
-      const transactions = [ mockData.dummy1, forgedTransaction, mockData.dummy2 ]
+      const transactions = [mockData.dummy1, forgedTransaction, mockData.dummy2]
 
       connection.addTransactions(transactions)
 
@@ -560,13 +582,9 @@ describe('Connection', () => {
 
       transactions.splice(1, 1)
 
-      transactions.forEach(
-        t => expect(
-          connection.getTransaction(t.id).serialized.toLowerCase()
-        ).toBe(
-          t.serialized.toLowerCase()
-        )
-      )
+      transactions.forEach(t => expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(
+        t.serialized.toLowerCase(),
+      ))
 
       connection.flush()
     })
@@ -574,7 +592,7 @@ describe('Connection', () => {
 
   describe('stress', () => {
     const fakeTransactionId = function (i) {
-      return 'id' + String(i) + 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      return `id${String(i)}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
     }
 
     it('multiple additions and retrievals', () => {
@@ -583,7 +601,7 @@ describe('Connection', () => {
       const testSize = connection.options.syncInterval * 2
 
       for (let i = 0; i < testSize; i++) {
-        let transaction = new Transaction(mockData.dummy1)
+        const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
         connection.addTransaction(transaction)
 
@@ -603,7 +621,7 @@ describe('Connection', () => {
       }
 
       for (let i = 0; i < testSize; i++) {
-        let transaction = new Transaction(mockData.dummy1)
+        const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
         connection.removeTransaction(transaction)
       }
@@ -611,12 +629,12 @@ describe('Connection', () => {
 
     it('delete + add after sync', () => {
       for (let i = 0; i < connection.options.syncInterval; i++) {
-        let transaction = new Transaction(mockData.dummy1)
+        const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
         connection.addTransaction(transaction)
       }
 
-      let transaction = new Transaction(mockData.dummy1)
+      const transaction = new Transaction(mockData.dummy1)
       transaction.id = fakeTransactionId(0)
       connection.removeTransaction(transaction)
       connection.addTransaction(transaction)
@@ -633,8 +651,12 @@ describe('Connection', () => {
       for (let i = 0; i < nAdd; i++) {
         const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
-        transaction.fee = bignumify(rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI))
-        transaction.serialized = Transaction.serialize(transaction).toString('hex')
+        transaction.fee = bignumify(
+          rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI),
+        )
+        transaction.serialized = Transaction.serialize(transaction).toString(
+          'hex',
+        )
         allTransactions.push(transaction)
       }
 
@@ -654,8 +676,7 @@ describe('Connection', () => {
       const topTransactionsSerialized = connection.getTransactions(0, nGet)
       // console.timeEnd(`time to get first ${nGet}`)
 
-      const topFeesReceived = topTransactionsSerialized
-        .map(e => (new Transaction(e)).fee.toString())
+      const topFeesReceived = topTransactionsSerialized.map(e => new Transaction(e).fee.toString())
 
       expect(topFeesReceived).toEqual(topFeesExpected)
     })

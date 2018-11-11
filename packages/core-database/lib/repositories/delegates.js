@@ -1,15 +1,13 @@
-'use strict'
-
 const { delegateCalculator } = require('@arkecosystem/core-utils')
-const limitRows = require('./utils/limit-rows')
 const orderBy = require('lodash/orderBy')
+const limitRows = require('./utils/limit-rows')
 
 module.exports = class DelegatesRepository {
   /**
    * Create a new delegate repository instance.
    * @param  {ConnectionInterface} connection
    */
-  constructor (connection) {
+  constructor(connection) {
     this.connection = connection
   }
 
@@ -17,8 +15,10 @@ module.exports = class DelegatesRepository {
    * Get all local delegates.
    * @return {Array}
    */
-  getLocalDelegates () {
-    return this.connection.walletManager.all().filter(wallet => !!wallet.username)
+  getLocalDelegates() {
+    return this.connection.walletManager
+      .all()
+      .filter(wallet => !!wallet.username)
   }
 
   /**
@@ -26,16 +26,14 @@ module.exports = class DelegatesRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAll (params = {}) {
+  findAll(params = {}) {
     const rows = this.getLocalDelegates()
 
-    const order = params.orderBy
-      ? params.orderBy.split(':')
-      : ['rate', 'asc']
+    const order = params.orderBy ? params.orderBy.split(':') : ['rate', 'asc']
 
     return {
       rows: limitRows(orderBy(rows, order), params),
-      count: rows.length
+      count: rows.length,
     }
   }
 
@@ -44,7 +42,7 @@ module.exports = class DelegatesRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  paginate (params) {
+  paginate(params) {
     return this.findAll(params)
   }
 
@@ -55,21 +53,21 @@ module.exports = class DelegatesRepository {
    * @param  {String} [params.username] - Search by username
    * @return {Object}
    */
-  search (params) {
-    let delegates = this.getLocalDelegates().filter(delegate => {
-      return delegate.username.indexOf(params.username) > -1
-    })
+  search(params) {
+    let delegates = this.getLocalDelegates().filter(
+      delegate => delegate.username.indexOf(params.username) > -1,
+    )
 
     if (params.orderBy) {
       const orderByField = params.orderBy.split(':')[0]
       const orderByDirection = params.orderBy.split(':')[1] || 'desc'
 
       delegates = delegates.sort((a, b) => {
-        if (orderByDirection === 'desc' && (a[orderByField] < b[orderByField])) {
+        if (orderByDirection === 'desc' && a[orderByField] < b[orderByField]) {
           return -1
         }
 
-        if (orderByDirection === 'asc' && (a[orderByField] > b[orderByField])) {
+        if (orderByDirection === 'asc' && a[orderByField] > b[orderByField]) {
           return 1
         }
 
@@ -79,7 +77,7 @@ module.exports = class DelegatesRepository {
 
     return {
       rows: limitRows(delegates, params),
-      count: delegates.length
+      count: delegates.length,
     }
   }
 
@@ -88,8 +86,10 @@ module.exports = class DelegatesRepository {
    * @param  {String} id
    * @return {Object}
    */
-  findById (id) {
-    return this.getLocalDelegates().find(a => (a.address === id || a.publicKey === id || a.username === id))
+  findById(id) {
+    return this.getLocalDelegates().find(
+      a => a.address === id || a.publicKey === id || a.username === id,
+    )
   }
 
   /**
@@ -97,7 +97,7 @@ module.exports = class DelegatesRepository {
    * @param  {Number} height
    * @return {Array}
    */
-  getActiveAtHeight (height) {
+  getActiveAtHeight(height) {
     const delegates = this.connection.getActiveDelegates(height)
 
     return delegates.map(delegate => {
@@ -106,7 +106,7 @@ module.exports = class DelegatesRepository {
       return {
         username: wallet.username,
         approval: delegateCalculator.calculateApproval(delegate, height),
-        productivity: delegateCalculator.calculateProductivity(wallet)
+        productivity: delegateCalculator.calculateProductivity(wallet),
       }
     })
   }

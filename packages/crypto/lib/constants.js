@@ -24,24 +24,24 @@ exports.TRANSACTION_TYPES = Object.freeze({
   DELEGATE_RESIGNATION: 8,
   toString(type) {
     switch (type) {
-    case this.TRANSFER:
-      return 'transfer'
-    case this.SECOND_SIGNATURE:
-      return 'second signature'
-    case this.DELEGATE_REGISTRATION:
-      return 'delegate registration'
-    case this.VOTE:
-      return 'vote'
-    case this.MULTI_SIGNATURE:
-      return 'multi signature'
-    case this.IPFS:
-      return 'ipfs'
-    case this.TIMELOCK_TRANSFER:
-      return 'timelock transfer'
-    case this.MULTI_PAYMENT:
-      return 'multi payment'
-    case this.DELEGATE_RESIGNATION:
-      return 'delegate resignation'
+      case this.TRANSFER:
+        return 'transfer'
+      case this.SECOND_SIGNATURE:
+        return 'second signature'
+      case this.DELEGATE_REGISTRATION:
+        return 'delegate registration'
+      case this.VOTE:
+        return 'vote'
+      case this.MULTI_SIGNATURE:
+        return 'multi signature'
+      case this.IPFS:
+        return 'ipfs'
+      case this.TIMELOCK_TRANSFER:
+        return 'timelock transfer'
+      case this.MULTI_PAYMENT:
+        return 'multi payment'
+      case this.DELEGATE_RESIGNATION:
+        return 'delegate resignation'
     }
   },
 })

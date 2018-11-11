@@ -20,7 +20,7 @@ module.exports = class TransactionBuilder {
    * @return {Transaction}
    */
   build(data) {
-    return new Transaction({ ...(this.data), ...data })
+    return new Transaction({ ...this.data, ...data })
   }
 
   /**
@@ -49,7 +49,7 @@ module.exports = class TransactionBuilder {
    * @return {TransactionBuilder}
    */
   fee(fee) {
-    if (fee != null) {
+    if (fee !== null) {
       this.data.fee = fee
     }
 
@@ -154,7 +154,10 @@ module.exports = class TransactionBuilder {
     if (secondPassphrase) {
       const keys = crypto.getKeys(secondPassphrase)
       // TODO sign or second?
-      this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+      this.data.signSignature = crypto.secondSign(
+        this.__getSigningObject(),
+        keys,
+      )
     }
 
     return this
@@ -172,7 +175,10 @@ module.exports = class TransactionBuilder {
         wif: networkWif || configManager.get('wif'),
       })
       // TODO sign or second?
-      this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+      this.data.signSignature = crypto.secondSign(
+        this.__getSigningObject(),
+        keys,
+      )
     }
 
     return this

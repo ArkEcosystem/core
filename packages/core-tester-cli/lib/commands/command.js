@@ -1,5 +1,3 @@
-'use strict'
-
 const { Bignum, crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { bignumify } = require('@arkecosystem/core-utils')
 const bip39 = require('bip39')
@@ -16,7 +14,7 @@ module.exports = class Command {
    * @param  {Object} options
    * @return {*}
    */
-  static async init (options) {
+  static async init(options) {
     const command = new this()
     command.options = options
     command.__applyConfig()
@@ -31,7 +29,7 @@ module.exports = class Command {
    * @param  {Object} options Used to pass options to TransferCommand
    * @throws Method [run] not implemented!
    */
-  run (options) {
+  run(options) {
     throw new Error('Method [run] not implemented!')
   }
 
@@ -40,7 +38,7 @@ module.exports = class Command {
    * @param  {Object[]} transactions
    * @return {void}
    */
-  copyToClipboard (transactions) {
+  copyToClipboard(transactions) {
     for (const transaction of transactions) {
       transaction.serialized = transaction.serialized.toString('hex')
     }
@@ -54,24 +52,33 @@ module.exports = class Command {
    * @param  {Number} [quantity]
    * @return {Object[]}
    */
-  generateWallets (quantity) {
+  generateWallets(quantity) {
     if (!quantity) {
       quantity = this.options.number
     }
 
-    let wallets = []
+    const wallets = []
     for (let i = 0; i < quantity; i++) {
       const passphrase = bip39.generateMnemonic()
       const keys = crypto.getKeys(passphrase)
-      const address = crypto.getAddress(keys.publicKey, this.config.network.version)
+      const address = crypto.getAddress(
+        keys.publicKey,
+        this.config.network.version,
+      )
 
       wallets.push({ address, keys, passphrase })
     }
 
     const testWalletsPath = path.resolve(__dirname, '../../test-wallets')
-    fs.appendFileSync(testWalletsPath, `${new Date().toLocaleDateString()} ${'-'.repeat(70)}\n`)
+    fs.appendFileSync(
+      testWalletsPath,
+      `${new Date().toLocaleDateString()} ${'-'.repeat(70)}\n`,
+    )
     for (const wallet of wallets) {
-      fs.appendFileSync(testWalletsPath, `${wallet.address}: ${wallet.passphrase}\n`)
+      fs.appendFileSync(
+        testWalletsPath,
+        `${wallet.address}: ${wallet.passphrase}\n`,
+      )
     }
 
     return wallets
@@ -82,13 +89,15 @@ module.exports = class Command {
    * @return {Object[]}
    * @throws 'Could not get delegates'
    */
-  async getDelegates () {
+  async getDelegates() {
     try {
       const delegates = await paginate(this.config, '/api/v2/delegates')
 
       return delegates
     } catch (error) {
-      const message = error.response ? error.response.data.message : error.message
+      const message = error.response
+        ? error.response.data.message
+        : error.message
       throw new Error(`Could not get delegates: ${message}`)
     }
   }
@@ -98,10 +107,15 @@ module.exports = class Command {
    * @param  {Object[]} transactions
    * @return {Number}
    */
-  async getTransactionDelaySeconds (transactions) {
-    const waitPerBlock = (Math.round(this.config.constants.blocktime / 10) * 20)
+  async getTransactionDelaySeconds(transactions) {
+    const waitPerBlock = Math.round(this.config.constants.blocktime / 10) * 20
 
-    return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions)
+    return (
+      waitPerBlock
+      * Math.ceil(
+        transactions.length / this.config.constants.block.maxTransactions,
+      )
+    )
   }
 
   /**
@@ -109,9 +123,11 @@ module.exports = class Command {
    * @param  {String} id
    * @return {(Object|null)}
    */
-  async getTransaction (id) {
+  async getTransaction(id) {
     try {
-      const response = (await request(this.config).get(`/api/v2/transactions/${id}`))
+      const response = await request(this.config).get(
+        `/api/v2/transactions/${id}`,
+      )
 
       if (response.data) {
         return response.data
@@ -128,11 +144,13 @@ module.exports = class Command {
    * @param  {String} publicKey
    * @return {Object[]}
    */
-  async getVoters (publicKey) {
+  async getVoters(publicKey) {
     try {
       return paginate(this.config, `/api/v2/delegates/${publicKey}/voters`)
     } catch (error) {
-      const message = error.response ? error.response.data.message : error.message
+      const message = error.response
+        ? error.response.data.message
+        : error.message
       throw new Error(`Could not get voters for '${publicKey}': ${message}`)
     }
   }
@@ -142,7 +160,7 @@ module.exports = class Command {
    * @param  {String} address
    * @return {Bignum}
    */
-  async getWalletBalance (address) {
+  async getWalletBalance(address) {
     try {
       return bignumify((await this.getWallet(address)).balance)
     } catch (error) {
@@ -157,9 +175,11 @@ module.exports = class Command {
    * @param  {String} address
    * @return {Object}
    */
-  async getWallet (address) {
+  async getWallet(address) {
     try {
-      const response = (await request(this.config).get(`/api/v2/wallets/${address}`))
+      const response = await request(this.config).get(
+        `/api/v2/wallets/${address}`,
+      )
 
       if (response.data) {
         return response.data
@@ -167,7 +187,9 @@ module.exports = class Command {
 
       return null
     } catch (error) {
-      const message = error.response ? error.response.data.message : error.message
+      const message = error.response
+        ? error.response.data.message
+        : error.message
       throw new Error(`Could not get wallet for '${address}': ${message}`)
     }
   }
@@ -177,14 +199,22 @@ module.exports = class Command {
    * @param  {(String|Number)} fee
    * @return {Bignum}
    */
-  static parseFee (fee) {
+  static parseFee(fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => +bignumify(f).times(1e8).toFixed())
+      const feeRange = fee.split('-').map(
+        f => +bignumify(f)
+          .times(1e8)
+          .toFixed(),
+      )
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }
 
-      return bignumify(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
+      return bignumify(
+        Math.floor(
+          Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0],
+        ),
+      )
     }
 
     return bignumify(fee).times(1e8)
@@ -197,12 +227,14 @@ module.exports = class Command {
    * @param  {Boolean} [wait=true]
    * @return {Object}
    */
-  async sendTransactions (transactions, transactionType, wait = true) {
+  async sendTransactions(transactions, transactionType, wait = true) {
     const response = await this.postTransactions(transactions)
 
     if (wait) {
       const delaySeconds = await this.getTransactionDelaySeconds(transactions)
-      transactionType = (transactionType ? `${transactionType} ` : '') + 'transactions'
+      transactionType = `${
+        transactionType ? `${transactionType} ` : ''
+      }transactions`
       logger.info(`Waiting ${delaySeconds} seconds to apply ${transactionType}`)
       await delay(delaySeconds * 1000)
     }
@@ -215,12 +247,16 @@ module.exports = class Command {
    * @param  {Object[]} transactions
    * @return {Object}
    */
-  async postTransactions (transactions) {
+  async postTransactions(transactions) {
     try {
-      const response = (await request(this.config).post('/api/v2/transactions', { transactions }))
+      const response = await request(this.config).post('/api/v2/transactions', {
+        transactions,
+      })
       return response.data
     } catch (error) {
-      const message = error.response ? error.response.data.message : error.message
+      const message = error.response
+        ? error.response.data.message
+        : error.message
       throw new Error(`Could not post transactions: ${message}`)
     }
   }
@@ -229,7 +265,7 @@ module.exports = class Command {
    * Apply options to config.
    * @return {void}
    */
-  __applyConfig () {
+  __applyConfig() {
     this.config = { ...config }
     if (this.options.baseUrl) {
       this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, '')
@@ -256,9 +292,11 @@ module.exports = class Command {
    * Load constants from API and apply to config.
    * @return {void}
    */
-  async __loadConstants () {
+  async __loadConstants() {
     try {
-      this.config.constants = (await request(this.config).get('/api/v2/node/configuration')).data.constants
+      this.config.constants = (await request(this.config).get(
+        '/api/v2/node/configuration',
+      )).data.constants
     } catch (error) {
       logger.error('Failed to get constants: ', error.message)
       process.exit(1)
@@ -269,9 +307,12 @@ module.exports = class Command {
    * Load network from API and apply to config.
    * @return {void}
    */
-  async __loadNetworkConfig () {
+  async __loadNetworkConfig() {
     try {
-      this.config.network = (await request(this.config).get('/config', true)).data.network
+      this.config.network = (await request(this.config).get(
+        '/config',
+        true,
+      )).data.network
     } catch (error) {
       logger.error('Failed to get network config: ', error.message)
       process.exit(1)
@@ -283,7 +324,7 @@ module.exports = class Command {
    * @param  {Number} ark
    * @return {Bignum}
    */
-  static __arkToArktoshi (ark) {
+  static __arkToArktoshi(ark) {
     return bignumify(ark * 1e8)
   }
 
@@ -292,7 +333,7 @@ module.exports = class Command {
    * @param  {Bignum} arktoshi
    * @return {String}
    */
-  static __arktoshiToArk (arktoshi) {
+  static __arktoshiToArk(arktoshi) {
     return formatArktoshi(arktoshi)
   }
 
@@ -301,7 +342,7 @@ module.exports = class Command {
    * @param  {Error} error
    * @return {void}
    */
-  __problemSendingTransactions (error) {
+  __problemSendingTransactions(error) {
     const message = error.response ? error.response.data.message : error.message
     logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)

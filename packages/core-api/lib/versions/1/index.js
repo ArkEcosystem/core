@@ -1,5 +1,3 @@
-'use strict'
-
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const loader = require('./handlers/loader')
@@ -48,8 +46,16 @@ const register = async (server, options) => {
     { method: 'GET', path: '/delegates/search', ...delegates.search },
     { method: 'GET', path: '/delegates/voters', ...delegates.voters },
     { method: 'GET', path: '/delegates/fee', ...delegates.fee },
-    { method: 'GET', path: '/delegates/forging/getForgedByAccount', ...delegates.forged },
-    { method: 'GET', path: '/delegates/getNextForgers', ...delegates.nextForgers },
+    {
+      method: 'GET',
+      path: '/delegates/forging/getForgedByAccount',
+      ...delegates.forged,
+    },
+    {
+      method: 'GET',
+      path: '/delegates/getNextForgers',
+      ...delegates.nextForgers,
+    },
 
     { method: 'GET', path: '/loader/status', ...loader.status },
     { method: 'GET', path: '/loader/status/sync', ...loader.syncing },
@@ -65,8 +71,16 @@ const register = async (server, options) => {
     { method: 'GET', path: '/transactions', ...transactions.index },
     { method: 'GET', path: '/transactions/get', ...transactions.show },
     { method: 'GET', path: '/transactions/get/', ...transactions.show }, // v1 inconsistency
-    { method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed },
-    { method: 'GET', path: '/transactions/unconfirmed/get', ...transactions.showUnconfirmed }
+    {
+      method: 'GET',
+      path: '/transactions/unconfirmed',
+      ...transactions.unconfirmed,
+    },
+    {
+      method: 'GET',
+      path: '/transactions/unconfirmed/get',
+      ...transactions.showUnconfirmed,
+    },
   ])
 }
 
@@ -77,5 +91,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'Ark Public API - v1',
   version: '0.1.0',
-  register
+  register,
 }

@@ -6,7 +6,7 @@ const database = require('../../services/database')
 
 module.exports = {
   name: 'transactions.broadcast',
-  async method (params) {
+  async method(params) {
     const transaction = await database.get(params.id)
 
     if (!transaction) {
@@ -22,6 +22,6 @@ module.exports = {
     return transaction
   },
   schema: {
-    id: Joi.string().length(64)
-  }
+    id: Joi.string().length(64),
+  },
 }

@@ -1,4 +1,7 @@
-const { crypto, models: { Transaction } } = require('@arkecosystem/crypto')
+const {
+  crypto,
+  models: { Transaction },
+} = require('@arkecosystem/crypto')
 const handleOutput = require('../utils/handle-output')
 
 module.exports = opts => {

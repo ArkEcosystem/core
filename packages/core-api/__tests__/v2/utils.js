@@ -1,11 +1,13 @@
-'use strict'
-
 const axios = require('axios')
-const { client, transactionBuilder, NetworkManager } = require('@arkecosystem/crypto')
+const {
+  client,
+  transactionBuilder,
+  NetworkManager,
+} = require('@arkecosystem/crypto')
 const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
 
 class Helpers {
-  async request (method, path, params = {}) {
+  async request(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
     const headers = { 'API-Version': 2 }
 
@@ -14,37 +16,37 @@ class Helpers {
     return apiHelpers.request(server, method, url, headers, params)
   }
 
-  async requestWithAcceptHeader (method, path, params = {}) {
+  async requestWithAcceptHeader(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
-    const headers = { 'Accept': 'application/vnd.ark.core-api.v2+json' }
+    const headers = { Accept: 'application/vnd.ark.core-api.v2+json' }
 
     const server = require('@arkecosystem/core-container').resolvePlugin('api')
 
     return apiHelpers.request(server, method, url, headers, params)
   }
 
-  expectJson (response) {
+  expectJson(response) {
     expect(response.data).toBeObject()
   }
 
-  expectStatus (response, code) {
+  expectStatus(response, code) {
     expect(response.status).toBe(code)
   }
 
-  assertVersion (response, version) {
+  assertVersion(response, version) {
     expect(response.headers).toBeObject()
     expect(response.headers).toHaveProperty('api-version', version)
   }
 
-  expectResource (response) {
+  expectResource(response) {
     expect(response.data.data).toBeObject()
   }
 
-  expectCollection (response) {
+  expectCollection(response) {
     expect(Array.isArray(response.data.data)).toBe(true)
   }
 
-  expectPaginator (response, firstPage = true) {
+  expectPaginator(response, firstPage = true) {
     expect(response.data.meta).toBeObject()
     expect(response.data.meta).toHaveProperty('count')
     expect(response.data.meta).toHaveProperty('pageCount')
@@ -56,13 +58,13 @@ class Helpers {
     expect(response.data.meta).toHaveProperty('last')
   }
 
-  expectSuccessful (response, statusCode = 200) {
+  expectSuccessful(response, statusCode = 200) {
     this.expectStatus(response, statusCode)
     this.expectJson(response)
     this.assertVersion(response, 2)
   }
 
-  expectError (response, statusCode = 404) {
+  expectError(response, statusCode = 404) {
     this.expectStatus(response, statusCode)
     this.expectJson(response)
     expect(response.data.statusCode).toBeNumber()
@@ -70,7 +72,7 @@ class Helpers {
     expect(response.data.message).toBeString()
   }
 
-  expectTransaction (transaction) {
+  expectTransaction(transaction) {
     expect(transaction).toBeObject()
     expect(transaction).toHaveProperty('id')
     expect(transaction).toHaveProperty('blockId')
@@ -87,7 +89,7 @@ class Helpers {
     expect(transaction.confirmations).toBeNumber()
   }
 
-  expectBlock (block, expected) {
+  expectBlock(block, expected) {
     expect(block).toBeObject()
     expect(block.id).toBeString()
     expect(block.version).toBeNumber()
@@ -111,7 +113,7 @@ class Helpers {
     })
   }
 
-  expectDelegate (delegate, expected) {
+  expectDelegate(delegate, expected) {
     expect(delegate).toBeObject()
     expect(delegate.username).toBeString()
     expect(delegate.address).toBeString()
@@ -133,7 +135,7 @@ class Helpers {
     })
   }
 
-  expectWallet (wallet) {
+  expectWallet(wallet) {
     expect(wallet).toBeObject()
     expect(wallet).toHaveProperty('address')
     expect(wallet).toHaveProperty('publicKey')
@@ -141,19 +143,21 @@ class Helpers {
     expect(wallet).toHaveProperty('isDelegate')
   }
 
-  async createTransaction () {
+  async createTransaction() {
     client.setConfig(NetworkManager.findByName('testnet'))
 
-    let transaction = transactionBuilder
+    const transaction = transactionBuilder
       .transfer()
       .amount(1 * 1e8)
       .recipientId('AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1')
       .vendorField('test')
-      .sign('prison tobacco acquire stone dignity palace note decade they current lesson robot')
+      .sign(
+        'prison tobacco acquire stone dignity palace note decade they current lesson robot',
+      )
       .getStruct()
 
     await axios.post('http://127.0.0.1:4003/api/v2/transactions', {
-      transactions: [transaction]
+      transactions: [transaction],
     })
 
     return transaction

@@ -5,11 +5,14 @@ const PublicKey = require('./public-key')
 
 module.exports = class Address {
   static fromPassphrase(passphrase, networkVersion) {
-    return Address.fromPublicKey(PublicKey.fromPassphrase(passphrase), networkVersion)
+    return Address.fromPublicKey(
+      PublicKey.fromPassphrase(passphrase),
+      networkVersion,
+    )
   }
 
   static fromPublicKey(publicKey, networkVersion) {
-    const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
+    const pubKeyRegex = /^[0-9A-Fa-f]{66}$/
     if (!pubKeyRegex.test(publicKey)) {
       throw new Error(`publicKey '${publicKey}' is invalid`)
     }

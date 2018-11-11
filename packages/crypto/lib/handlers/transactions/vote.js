@@ -14,7 +14,7 @@ class VoteHandler extends Handler {
 
     const vote = transaction.asset.votes[0]
 
-    if (vote.startsWith('-') && (wallet.vote === vote.slice(1))) {
+    if (vote.startsWith('-') && wallet.vote === vote.slice(1)) {
       return true
     }
 

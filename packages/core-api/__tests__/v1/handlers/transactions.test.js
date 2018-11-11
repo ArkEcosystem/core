@@ -1,5 +1,3 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
 
 const app = require('../../__support__/setup')
@@ -33,7 +31,7 @@ describe('API 1.0 - Transactions', () => {
         recipientId: address2,
         limit: 10,
         offset: 0,
-        orderBy: 'amount:asc'
+        orderBy: 'amount:asc',
       }
 
       const response = await utils.request('GET', 'transactions', data)
@@ -50,7 +48,7 @@ describe('API 1.0 - Transactions', () => {
     it('should reply with transactions that have any of the values (OR)', async () => {
       const data = {
         senderId: address1,
-        recipientId: address2
+        recipientId: address2,
       }
 
       const response = await utils.request('GET', 'transactions', data)
@@ -109,7 +107,9 @@ describe('API 1.0 - Transactions', () => {
     })
 
     it('should be ok ordered by ascending timestamp', async () => {
-      const response = await utils.request('GET', 'transactions', { orderBy: 'timestamp:asc' })
+      const response = await utils.request('GET', 'transactions', {
+        orderBy: 'timestamp:asc',
+      })
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transactions).toBeArray()
@@ -119,7 +119,7 @@ describe('API 1.0 - Transactions', () => {
         expect(transaction).toBeApiTransaction()
       })
 
-      let flag = 0;
+      let flag = 0
       for (let i = 0; i < response.data.transactions.length; i++) {
         if (response.data.transactions[i + 1]) {
           // await response.data.transactions[i].toHaveProperty('timestamp').which.is.at.most(response.data.transactions[i + 1].timestamp)
@@ -146,7 +146,9 @@ describe('API 1.0 - Transactions', () => {
     })
 
     it('should fail using offset == "one"', async () => {
-      const response = await utils.request('GET', 'transactions', { offset: 'one' })
+      const response = await utils.request('GET', 'transactions', {
+        offset: 'one',
+      })
       utils.expectError(response)
 
       expect(response.data.error).toBeString()
@@ -159,7 +161,7 @@ describe('API 1.0 - Transactions', () => {
         recipientId: 'invalid',
         limit: 'invalid',
         offset: 'invalid',
-        orderBy: 'invalid'
+        orderBy: 'invalid',
       })
       utils.expectError(response)
 
@@ -173,7 +175,7 @@ describe('API 1.0 - Transactions', () => {
         recipientId: address1,
         limit: 'invalid',
         offset: 'invalid',
-        orderBy: 'invalid'
+        orderBy: 'invalid',
       })
       utils.expectError(response)
 
@@ -184,22 +186,44 @@ describe('API 1.0 - Transactions', () => {
   describe('GET /transactions/get?id=', () => {
     it('should be ok using valid id', async () => {
       const transactionInCheck = transactionList[0]
-      const response = await utils.request('GET', 'transactions/get', { id: transactionInCheck.id })
+      const response = await utils.request('GET', 'transactions/get', {
+        id: transactionInCheck.id,
+      })
 
       expect(response).toBeSuccessfulResponse()
 
       expect(response.data.transaction).toBeApiTransaction()
 
-      expect(response.data.transaction).toHaveProperty('id', transactionInCheck.id)
-      expect(response.data.transaction).toHaveProperty('amount', transactionInCheck.amount)
-      expect(response.data.transaction).toHaveProperty('fee', transactionInCheck.fee)
-      expect(response.data.transaction).toHaveProperty('recipientId', transactionInCheck.recipientId)
-      expect(response.data.transaction).toHaveProperty('senderId', transactionInCheck.senderId)
-      expect(response.data.transaction).toHaveProperty('type', transactionInCheck.type)
+      expect(response.data.transaction).toHaveProperty(
+        'id',
+        transactionInCheck.id,
+      )
+      expect(response.data.transaction).toHaveProperty(
+        'amount',
+        transactionInCheck.amount,
+      )
+      expect(response.data.transaction).toHaveProperty(
+        'fee',
+        transactionInCheck.fee,
+      )
+      expect(response.data.transaction).toHaveProperty(
+        'recipientId',
+        transactionInCheck.recipientId,
+      )
+      expect(response.data.transaction).toHaveProperty(
+        'senderId',
+        transactionInCheck.senderId,
+      )
+      expect(response.data.transaction).toHaveProperty(
+        'type',
+        transactionInCheck.type,
+      )
     })
 
     it('should fail using invalid id', async () => {
-      const response = await utils.request('GET', 'transactions/get', { id: 'invalid' })
+      const response = await utils.request('GET', 'transactions/get', {
+        id: 'invalid',
+      })
 
       utils.expectError(response)
 
@@ -211,20 +235,45 @@ describe('API 1.0 - Transactions', () => {
     it('should be ok using valid id', async () => {
       const transaction = await utils.createTransaction()
 
-      const response = await utils.request('GET', 'transactions/unconfirmed/get', { id: transaction.id })
+      const response = await utils.request(
+        'GET',
+        'transactions/unconfirmed/get',
+        { id: transaction.id },
+      )
       expect(response).toBeSuccessfulResponse()
 
-      if (response.data.success && response.data.transaction != null) {
+      if (response.data.success && response.data.transaction !== null) {
         expect(response.data.transaction).toBeObject()
         expect(response.data.transaction).toHaveProperty('id', transaction.id)
-        expect(response.data.transaction).toHaveProperty('type', transaction.type)
-        expect(response.data.transaction).toHaveProperty('amount', transaction.amount)
+        expect(response.data.transaction).toHaveProperty(
+          'type',
+          transaction.type,
+        )
+        expect(response.data.transaction).toHaveProperty(
+          'amount',
+          transaction.amount,
+        )
         expect(response.data.transaction).toHaveProperty('fee', transaction.fee)
-        expect(response.data.transaction).toHaveProperty('recipientId', transaction.recipientId)
-        expect(response.data.transaction).toHaveProperty('senderPublicKey', transaction.senderPublicKey)
-        expect(response.data.transaction).toHaveProperty('signature', transaction.signature)
-        expect(response.data.transaction).toHaveProperty('timestamp', transaction.timestamp)
-        expect(response.data.transaction).toHaveProperty('vendorField', transaction.vendorField)
+        expect(response.data.transaction).toHaveProperty(
+          'recipientId',
+          transaction.recipientId,
+        )
+        expect(response.data.transaction).toHaveProperty(
+          'senderPublicKey',
+          transaction.senderPublicKey,
+        )
+        expect(response.data.transaction).toHaveProperty(
+          'signature',
+          transaction.signature,
+        )
+        expect(response.data.transaction).toHaveProperty(
+          'timestamp',
+          transaction.timestamp,
+        )
+        expect(response.data.transaction).toHaveProperty(
+          'vendorField',
+          transaction.vendorField,
+        )
       } else {
         expect(response.data.error).toBeString()
       }

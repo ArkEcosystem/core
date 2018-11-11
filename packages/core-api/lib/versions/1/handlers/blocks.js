@@ -1,7 +1,6 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 const { bignumify } = require('@arkecosystem/core-utils')
+
 const config = container.resolvePlugin('config')
 const blockchain = container.resolvePlugin('blockchain')
 
@@ -18,9 +17,10 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const { count, rows } = await repository.findAll({
-      ...request.query, ...utils.paginate(request)
+      ...request.query,
+      ...utils.paginate(request),
     })
 
     if (!rows) {
@@ -29,16 +29,16 @@ exports.index = {
 
     return utils.respondWith({
       blocks: utils.toCollection(request, rows, 'block'),
-      count
+      count,
     })
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getBlocks
-      }
-    }
-  }
+        querySchema: schema.getBlocks,
+      },
+    },
+  },
 }
 
 /**
@@ -50,22 +50,27 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const block = await repository.findById(request.query.id)
 
     if (!block) {
-      return utils.respondWith(`Block with id ${request.query.id} not found`, true)
+      return utils.respondWith(
+        `Block with id ${request.query.id} not found`,
+        true,
+      )
     }
 
-    return utils.respondWith({ block: utils.toResource(request, block, 'block') })
+    return utils.respondWith({
+      block: utils.toResource(request, block, 'block'),
+    })
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getBlock
-      }
-    }
-  }
+        querySchema: schema.getBlock,
+      },
+    },
+  },
 }
 
 /**
@@ -77,11 +82,11 @@ exports.epoch = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     return utils.respondWith({
-      epoch: config.getConstants(blockchain.getLastBlock().data.height).epoch
+      epoch: config.getConstants(blockchain.getLastBlock().data.height).epoch,
     })
-  }
+  },
 }
 
 /**
@@ -93,11 +98,11 @@ exports.height = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     const block = blockchain.getLastBlock()
 
     return utils.respondWith({ height: block.data.height, id: block.data.id })
-  }
+  },
 }
 
 /**
@@ -109,9 +114,9 @@ exports.nethash = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     return utils.respondWith({ nethash: config.network.nethash })
-  }
+  },
 }
 
 /**
@@ -123,11 +128,12 @@ exports.fee = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock().data.height).fees.transfer
+      fee: config.getConstants(blockchain.getLastBlock().data.height).fees
+        .transfer,
     })
-  }
+  },
 }
 
 /**
@@ -139,7 +145,7 @@ exports.fees = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     const fees = config.getConstants(blockchain.getLastBlock().data.height).fees
 
     return utils.respondWith({
@@ -148,10 +154,10 @@ exports.fees = {
         vote: fees.vote,
         secondsignature: fees.secondSignature,
         delegate: fees.delegateRegistration,
-        multisignature: fees.multiSignature
-      }
+        multisignature: fees.multiSignature,
+      },
     })
-  }
+  },
 }
 
 /**
@@ -163,11 +169,11 @@ exports.milestone = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     return utils.respondWith({
-      milestone: ~~(blockchain.getLastBlock().data.height / 3000000)
+      milestone: ~~(blockchain.getLastBlock().data.height / 3000000),
     })
-  }
+  },
 }
 
 /**
@@ -179,11 +185,11 @@ exports.reward = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     return utils.respondWith({
-      reward: config.getConstants(blockchain.getLastBlock().data.height).reward
+      reward: config.getConstants(blockchain.getLastBlock().data.height).reward,
     })
-  }
+  },
 }
 
 /**
@@ -195,15 +201,19 @@ exports.supply = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     const lastBlock = blockchain.getLastBlock()
     const constants = config.getConstants(lastBlock.data.height)
-    const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height)
+    const rewards = bignumify(constants.reward).times(
+      lastBlock.data.height - constants.height,
+    )
 
     return utils.respondWith({
-      supply: +bignumify(config.genesisBlock.totalAmount).plus(rewards).toFixed()
+      supply: +bignumify(config.genesisBlock.totalAmount)
+        .plus(rewards)
+        .toFixed(),
     })
-  }
+  },
 }
 
 /**
@@ -215,10 +225,12 @@ exports.status = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     const lastBlock = blockchain.getLastBlock()
     const constants = config.getConstants(lastBlock.data.height)
-    const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height)
+    const rewards = bignumify(constants.reward).times(
+      lastBlock.data.height - constants.height,
+    )
 
     return utils.respondWith({
       epoch: constants.epoch,
@@ -227,7 +239,9 @@ exports.status = {
       milestone: ~~(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
-      supply: +bignumify(config.genesisBlock.totalAmount).plus(rewards).toFixed()
+      supply: +bignumify(config.genesisBlock.totalAmount)
+        .plus(rewards)
+        .toFixed(),
     })
-  }
+  },
 }

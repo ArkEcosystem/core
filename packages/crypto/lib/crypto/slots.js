@@ -139,7 +139,13 @@ class Slots {
       epochTime = this.getTime()
     }
 
-    return Math.floor(epochTime / this.getConstant('blocktime')) === Math.floor((epochTime + this.getConstant('blocktime') / 2) / this.getConstant('blocktime')) // eslint-disable-line max-len
+    return (
+      Math.floor(epochTime / this.getConstant('blocktime'))
+      === Math.floor(
+        (epochTime + this.getConstant('blocktime') / 2)
+          / this.getConstant('blocktime'),
+      )
+    ) // eslint-disable-line max-len
   }
 }
 

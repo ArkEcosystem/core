@@ -1,5 +1,3 @@
-'use strict'
-
 const Joi = require('joi')
 const pagination = require('./pagination')
 
@@ -11,17 +9,33 @@ exports.index = {
     ...pagination,
     ...{
       orderBy: Joi.string(),
-      address: Joi.string().alphanum().length(34),
-      publicKey: Joi.string().hex().length(66),
-      secondPublicKey: Joi.string().hex().length(66),
-      vote: Joi.string().hex().length(66),
+      address: Joi.string()
+        .alphanum()
+        .length(34),
+      publicKey: Joi.string()
+        .hex()
+        .length(66),
+      secondPublicKey: Joi.string()
+        .hex()
+        .length(66),
+      vote: Joi.string()
+        .hex()
+        .length(66),
       username: Joi.string(),
-      balance: Joi.number().integer().min(0),
-      voteBalance: Joi.number().integer().min(0),
-      producedBlocks: Joi.number().integer().min(0),
-      missedBlocks: Joi.number().integer().min(0)
-    }
-  }
+      balance: Joi.number()
+        .integer()
+        .min(0),
+      voteBalance: Joi.number()
+        .integer()
+        .min(0),
+      producedBlocks: Joi.number()
+        .integer()
+        .min(0),
+      missedBlocks: Joi.number()
+        .integer()
+        .min(0),
+    },
+  },
 }
 
 /**
@@ -29,8 +43,8 @@ exports.index = {
  */
 exports.show = {
   params: {
-    id: Joi.string()
-  }
+    id: Joi.string(),
+  },
 }
 
 /**
@@ -39,8 +53,8 @@ exports.show = {
 exports.search = {
   query: pagination,
   payload: {
-    username: Joi.string()
-  }
+    username: Joi.string(),
+  },
 }
 
 /**
@@ -48,27 +62,45 @@ exports.search = {
  */
 exports.blocks = {
   params: {
-    id: Joi.string()
+    id: Joi.string(),
   },
   query: {
     ...pagination,
     ...{
       orderBy: Joi.string(),
       id: Joi.string().regex(/^[0-9]+$/, 'numbers'),
-      version: Joi.number().integer().min(0),
-      timestamp: Joi.number().integer().min(0),
+      version: Joi.number()
+        .integer()
+        .min(0),
+      timestamp: Joi.number()
+        .integer()
+        .min(0),
       previousBlock: Joi.string().regex(/^[0-9]+$/, 'numbers'),
-      height: Joi.number().integer().positive(),
-      numberOfTransactions: Joi.number().integer().min(0),
-      totalAmount: Joi.number().integer().min(0),
-      totalFee: Joi.number().integer().min(0),
-      reward: Joi.number().integer().min(0),
-      payloadLength: Joi.number().integer().min(0),
+      height: Joi.number()
+        .integer()
+        .positive(),
+      numberOfTransactions: Joi.number()
+        .integer()
+        .min(0),
+      totalAmount: Joi.number()
+        .integer()
+        .min(0),
+      totalFee: Joi.number()
+        .integer()
+        .min(0),
+      reward: Joi.number()
+        .integer()
+        .min(0),
+      payloadLength: Joi.number()
+        .integer()
+        .min(0),
       payloadHash: Joi.string().hex(),
-      generatorPublicKey: Joi.string().hex().length(66),
-      blockSignature: Joi.string().hex()
-    }
-  }
+      generatorPublicKey: Joi.string()
+        .hex()
+        .length(66),
+      blockSignature: Joi.string().hex(),
+    },
+  },
 }
 
 /**
@@ -76,23 +108,39 @@ exports.blocks = {
  */
 exports.voters = {
   params: {
-    id: Joi.string()
+    id: Joi.string(),
   },
   query: {
     ...pagination,
     ...{
       orderBy: Joi.string(),
-      address: Joi.string().alphanum().length(34),
-      publicKey: Joi.string().hex().length(66),
-      secondPublicKey: Joi.string().hex().length(66),
-      vote: Joi.string().hex().length(66),
+      address: Joi.string()
+        .alphanum()
+        .length(34),
+      publicKey: Joi.string()
+        .hex()
+        .length(66),
+      secondPublicKey: Joi.string()
+        .hex()
+        .length(66),
+      vote: Joi.string()
+        .hex()
+        .length(66),
       username: Joi.string(),
-      balance: Joi.number().integer().min(0),
-      voteBalance: Joi.number().integer().min(0),
-      producedBlocks: Joi.number().integer().min(0),
-      missedBlocks: Joi.number().integer().min(0)
-    }
-  }
+      balance: Joi.number()
+        .integer()
+        .min(0),
+      voteBalance: Joi.number()
+        .integer()
+        .min(0),
+      producedBlocks: Joi.number()
+        .integer()
+        .min(0),
+      missedBlocks: Joi.number()
+        .integer()
+        .min(0),
+    },
+  },
 }
 
 /**
@@ -100,6 +148,6 @@ exports.voters = {
  */
 exports.voterBalances = {
   params: {
-    id: Joi.string()
-  }
+    id: Joi.string(),
+  },
 }

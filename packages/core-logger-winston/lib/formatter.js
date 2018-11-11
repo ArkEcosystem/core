@@ -1,11 +1,11 @@
-'use strict'
-
 const { format } = require('winston')
 const chalk = require('chalk')
 const moment = require('moment')
 const emoji = require('node-emoji')
 
-const { colorize, combine, timestamp, printf } = format
+const {
+  colorize, combine, timestamp, printf,
+} = format
 
 module.exports = (colorOutput = true) => combine(
   colorize(),
@@ -18,21 +18,21 @@ module.exports = (colorOutput = true) => combine(
 
     if (colorOutput) {
       level = {
-        'error': chalk.bold.red(level),
-        'warn': chalk.bold.yellow(level),
-        'info': chalk.bold.blue(level),
-        'verbose': chalk.bold.cyan(level),
-        'debug': chalk.bold.white(level),
-        'silly': chalk.bold.magenta(level)
+        error: chalk.bold.red(level),
+        warn: chalk.bold.yellow(level),
+        info: chalk.bold.blue(level),
+        verbose: chalk.bold.cyan(level),
+        debug: chalk.bold.white(level),
+        silly: chalk.bold.magenta(level),
       }[infoLevel]
 
       message = {
-        'error': chalk.bold.bgRed(message),
-        'warn': chalk.bold.black.bgYellow(message),
-        'info': message,
-        'verbose': chalk.bold.cyan(message),
-        'debug': chalk.black.bgWhite(message),
-        'silly': chalk.bold.black.bgWhite(message)
+        error: chalk.bold.bgRed(message),
+        warn: chalk.bold.black.bgYellow(message),
+        info: message,
+        verbose: chalk.bold.cyan(message),
+        debug: chalk.black.bgWhite(message),
+        silly: chalk.bold.black.bgWhite(message),
       }[infoLevel]
     }
 
@@ -42,5 +42,5 @@ module.exports = (colorOutput = true) => combine(
     const lineSpacer = ' '.repeat(Math.abs(dateAndLevel.length - 50) + 1)
 
     return `[${timestamp}][${level}]${lineSpacer}: ${message}`
-  })
+  }),
 )

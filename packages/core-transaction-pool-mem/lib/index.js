@@ -1,5 +1,3 @@
-'use strict'
-
 const Connection = require('./connection')
 
 /**
@@ -11,17 +9,21 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'transactionPool',
   extends: '@arkecosystem/core-transaction-pool',
-  async register (container, options) {
+  async register(container, options) {
     container.resolvePlugin('logger').info('Connecting to transaction pool')
 
-    const transactionPoolManager = container.resolvePlugin('transactionPoolManager')
+    const transactionPoolManager = container.resolvePlugin(
+      'transactionPoolManager',
+    )
     await transactionPoolManager.makeConnection(new Connection(options))
 
     return transactionPoolManager.connection()
   },
-  async deregister (container, options) {
-    container.resolvePlugin('logger').info('Disconnecting from transaction pool')
+  async deregister(container, options) {
+    container
+      .resolvePlugin('logger')
+      .info('Disconnecting from transaction pool')
 
     return container.resolvePlugin('transactionPool').disconnect()
-  }
+  },
 }

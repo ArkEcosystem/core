@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const logger = container.resolvePlugin('logger')
 
 module.exports = async (name, server) => {

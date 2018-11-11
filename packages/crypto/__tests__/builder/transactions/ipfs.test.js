@@ -16,7 +16,10 @@ describe('IPFS Transaction', () => {
 
   it('should have its specific properties', () => {
     expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.IPFS)
-    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.IPFS))
+    expect(builder).toHaveProperty(
+      'data.fee',
+      feeManager.get(TRANSACTION_TYPES.IPFS),
+    )
     expect(builder).toHaveProperty('data.amount', 0)
     expect(builder).toHaveProperty('data.vendorFieldHex', null)
     expect(builder).toHaveProperty('data.senderPublicKey', null)

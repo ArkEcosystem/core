@@ -1,10 +1,8 @@
-'use strict'
-
 const { isEqual, sortBy } = require('lodash')
 
 const toBeValidPeer = (actual, expected) => ({
   message: () => `Expected ${JSON.stringify(actual)} to be a valid peer`,
-  pass: isValidPeer(actual)
+  pass: isValidPeer(actual),
 })
 
 const toBeValidArrayOfPeers = (actual, expected) => {
@@ -23,7 +21,7 @@ const toBeValidArrayOfPeers = (actual, expected) => {
   return { message, pass: true }
 }
 
-function isValidPeer (peer) {
+function isValidPeer(peer) {
   const allowedKeys = sortBy(['ip', 'port'])
   const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key))
 
@@ -32,5 +30,5 @@ function isValidPeer (peer) {
 
 expect.extend({
   toBeValidPeer,
-  toBeValidArrayOfPeers
+  toBeValidArrayOfPeers,
 })

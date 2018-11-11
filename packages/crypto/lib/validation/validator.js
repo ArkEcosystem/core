@@ -13,7 +13,7 @@ class Validator {
    * Run the validator's rules against its data.
    * @param  {*} attributes
    * @param  {Object} rules
-   * @return {void}
+   * @return {void|Boolean}
    */
   async validate(attributes, rules) {
     this.__reset()
@@ -29,6 +29,8 @@ class Validator {
     if (rules instanceof Object) {
       return this.__validateWithJoi(attributes, rules)
     }
+
+    return false
   }
 
   /**

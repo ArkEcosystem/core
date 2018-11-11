@@ -1,5 +1,3 @@
-
-
 const LoggerInterface = require('../lib/interface')
 
 const logger = new LoggerInterface()

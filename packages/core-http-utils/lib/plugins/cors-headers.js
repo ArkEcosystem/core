@@ -1,5 +1,3 @@
-'use strict'
-
 // Based on https://github.com/gr2m/hapi-cors-headers which was never updated to support hapi.js 17
 
 const register = async (server, options) => {
@@ -10,7 +8,9 @@ const register = async (server, options) => {
         return h.continue
       }
 
-      const response = request.response.isBoom ? request.response.output : request.response
+      const response = request.response.isBoom
+        ? request.response.output
+        : request.response
       response.headers['access-control-allow-origin'] = request.headers.origin
       response.headers['access-control-allow-credentials'] = 'true'
 
@@ -31,12 +31,12 @@ const register = async (server, options) => {
       }
 
       return h.continue
-    }
+    },
   })
 }
 
 exports.plugin = {
   name: 'cors-headers',
   version: '0.1.0',
-  register
+  register,
 }

@@ -1,38 +1,44 @@
-'use strict'
-
-const app = require('../__support__/setup')
-const { Bignum, crypto, constants: { ARKTOSHI } } = require('@arkecosystem/crypto')
+const {
+  Bignum,
+  crypto,
+  constants: { ARKTOSHI },
+} = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
 const { delegateCalculator } = require('@arkecosystem/core-utils')
+const app = require('../__support__/setup')
 
 let genesisBlock
 let repository
 let walletManager
 
-beforeAll(async (done) => {
+beforeAll(async done => {
   await app.setUp()
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
+  genesisBlock = new Block(
+    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+  )
 
   done()
 })
 
-afterAll(async (done) => {
+afterAll(async done => {
   await app.tearDown()
 
   done()
 })
 
-beforeEach(async (done) => {
+beforeEach(async done => {
   walletManager = new (require('../../lib/wallet-manager'))()
-  repository = new (require('../../lib/repositories/delegates'))({ walletManager })
+  repository = new (require('../../lib/repositories/delegates'))({
+    walletManager,
+  })
 
   done()
 })
 
-function generateWallets () {
+function generateWallets() {
   return genesisBlock.transactions.map(transaction => {
     const address = crypto.getAddress(transaction.senderPublicKey)
 
@@ -43,7 +49,7 @@ function generateWallets () {
       vote: `vote-${address}`,
       username: `username-${address}`,
       balance: new Bignum(100),
-      voteBalance: new Bignum(200)
+      voteBalance: new Bignum(200),
     }
   })
 }
@@ -57,7 +63,7 @@ describe('Delegate Repository', () => {
     const delegates = [
       { username: 'delegate-0' },
       { username: 'delegate-1' },
-      { username: 'delegate-2' }
+      { username: 'delegate-2' },
     ]
     const wallets = [
       delegates[0],
@@ -65,7 +71,7 @@ describe('Delegate Repository', () => {
       delegates[1],
       { username: '' },
       delegates[2],
-      {}
+      {},
     ]
 
     it('should be a function', () => {
@@ -75,7 +81,9 @@ describe('Delegate Repository', () => {
     it('should return the local wallets of the connection that are delegates', () => {
       repository.connection.walletManager.all = jest.fn(() => wallets)
 
-      expect(repository.getLocalDelegates()).toEqual(expect.arrayContaining(delegates))
+      expect(repository.getLocalDelegates()).toEqual(
+        expect.arrayContaining(delegates),
+      )
       expect(repository.connection.walletManager.all).toHaveBeenCalled()
     })
   })
@@ -191,7 +199,9 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.search({ username: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' })
+      const { count, rows } = repository.search({
+        username: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
+      })
 
       expect(count).toBe(1)
       expect(rows).toHaveLength(1)
@@ -209,7 +219,9 @@ describe('Delegate Repository', () => {
 
     describe('when no results', () => {
       it('should be ok', () => {
-        const { count, rows } = repository.search({ username: 'unknown-dummy-username' })
+        const { count, rows } = repository.search({
+          username: 'unknown-dummy-username',
+        })
 
         expect(count).toBe(0)
         expect(rows).toHaveLength(0)
@@ -220,7 +232,11 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.search({ username: 'username', offset: 10, limit: 10 })
+      const { count, rows } = repository.search({
+        username: 'username',
+        offset: 10,
+        limit: 10,
+      })
       expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
@@ -229,7 +245,10 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.search({ username: 'username', limit: 10 })
+      const { count, rows } = repository.search({
+        username: 'username',
+        limit: 10,
+      })
       expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
@@ -238,7 +257,11 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.search({ username: 'username', offset: 0, limit: 12 })
+      const { count, rows } = repository.search({
+        username: 'username',
+        offset: 0,
+        limit: 12,
+      })
       expect(count).toBe(52)
       expect(rows).toHaveLength(12)
     })
@@ -247,14 +270,17 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.search({ username: 'username', offset: 10 })
+      const { count, rows } = repository.search({
+        username: 'username',
+        offset: 10,
+      })
       expect(count).toBe(52)
       expect(rows).toHaveLength(42)
     })
   })
 
   describe('findById', () => {
-    const expectWallet = (key) => {
+    const expectWallet = key => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
@@ -296,13 +322,13 @@ describe('Delegate Repository', () => {
         publicKey: 'test',
         voteBalance: new Bignum(10000 * ARKTOSHI),
         producedBlocks: 1000,
-        missedBlocks: 500
+        missedBlocks: 500,
       }
       const height = 1
 
       repository.connection.getActiveDelegates = jest.fn(() => [delegate])
       repository.connection.wallets = {
-        findById: jest.fn(() => delegate)
+        findById: jest.fn(() => delegate),
       }
 
       const results = repository.getActiveAtHeight(height)
@@ -311,8 +337,12 @@ describe('Delegate Repository', () => {
       expect(results[0].username).toBeString()
       expect(results[0].approval).toBeNumber()
       expect(results[0].productivity).toBeNumber()
-      expect(results[0].approval).toBe(delegateCalculator.calculateApproval(delegate, height))
-      expect(results[0].productivity).toBe(delegateCalculator.calculateProductivity(delegate))
+      expect(results[0].approval).toBe(
+        delegateCalculator.calculateApproval(delegate, height),
+      )
+      expect(results[0].productivity).toBe(
+        delegateCalculator.calculateProductivity(delegate),
+      )
     })
   })
 })

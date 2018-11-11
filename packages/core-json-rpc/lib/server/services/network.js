@@ -3,12 +3,13 @@ const { configManager } = require('@arkecosystem/crypto')
 const isReachable = require('is-reachable')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
+
 const logger = container.resolvePlugin('logger')
 const p2p = container.resolvePlugin('p2p')
 const config = container.resolvePlugin('config')
 
 class Network {
-  constructor () {
+  constructor() {
     this.network = config.network
 
     this.__loadRemotePeers()
@@ -17,15 +18,15 @@ class Network {
 
     this.client = axios.create({
       headers: { Accept: 'application/vnd.ark.core-api.v2+json' },
-      timeout: 3000
+      timeout: 3000,
     })
   }
 
-  setServer () {
+  setServer() {
     this.server = this.__getRandomPeer()
   }
 
-  async sendRequest (url, params = {}) {
+  async sendRequest(url, params = {}) {
     if (!this.server) {
       this.setServer()
     }
@@ -44,13 +45,16 @@ class Network {
     }
   }
 
-  async broadcast (transaction) {
-    return this.client.post(`http://${this.server.ip}:${this.server.port}/api/transactions`, {
-      transactions: [transaction]
-    })
+  async broadcast(transaction) {
+    return this.client.post(
+      `http://${this.server.ip}:${this.server.port}/api/transactions`,
+      {
+        transactions: [transaction],
+      },
+    )
   }
 
-  async connect () {
+  async connect() {
     if (this.server) {
       // logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
       return
@@ -60,12 +64,14 @@ class Network {
 
     try {
       const peerPort = container.resolveOptions('p2p').port
-      const response = await axios.get(`http://${this.server.ip}:${peerPort}/config`)
+      const response = await axios.get(
+        `http://${this.server.ip}:${peerPort}/config`,
+      )
 
       const plugin = response.data.data.plugins['@arkecosystem/core-api']
 
       if (!plugin.enabled) {
-        const index = this.peers.findIndex(peer => (peer.ip === this.server.ip))
+        const index = this.peers.findIndex(peer => peer.ip === this.server.ip)
         this.peers.splice(index, 1)
 
         if (!this.peers.length) {
@@ -81,13 +87,13 @@ class Network {
     }
   }
 
-  __getRandomPeer () {
+  __getRandomPeer() {
     this.__loadRemotePeers()
 
     return sample(this.peers)
   }
 
-  __loadRemotePeers () {
+  __loadRemotePeers() {
     this.peers = this.network.name === 'testnet'
       ? [{ ip: '127.0.0.1', port: container.resolveOptions('api').port }]
       : p2p.getPeers()
@@ -98,7 +104,7 @@ class Network {
     }
   }
 
-  async __selectResponsivePeer (peer) {
+  async __selectResponsivePeer(peer) {
     const reachable = await isReachable(`${peer.ip}:${peer.port}`)
 
     if (!reachable) {

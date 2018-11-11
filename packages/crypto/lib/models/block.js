@@ -53,11 +53,16 @@ module.exports = class Block {
     if (!data.transactions) {
       data.transactions = []
     }
-    if (data.numberOfTransactions > 0 && data.transactions.length === data.numberOfTransactions) {
+    if (
+      data.numberOfTransactions > 0
+      && data.transactions.length === data.numberOfTransactions
+    ) {
       delete data.transactionIds
     }
 
-    this.headerOnly = data.numberOfTransactions > 0 && data.transactionIds && data.transactionIds.length === data.numberOfTransactions
+    this.headerOnly = data.numberOfTransactions > 0
+      && data.transactionIds
+      && data.transactionIds.length === data.numberOfTransactions
     if (this.headerOnly) {
       this.serialized = Block.serialize(data).toString('hex')
     } else {
@@ -104,7 +109,11 @@ module.exports = class Block {
 
     // order of transactions messed up in mainnet V1
     // TODO: move this to network constants exception using block ids
-    if (this.transactions && this.data.numberOfTransactions === 2 && (this.data.height === 3084276 || this.data.height === 34420)) {
+    if (
+      this.transactions
+      && this.data.numberOfTransactions === 2
+      && (this.data.height === 3084276 || this.data.height === 34420)
+    ) {
       const temp = this.transactions[0]
       this.transactions[0] = this.transactions[1]
       this.transactions[1] = temp
@@ -128,7 +137,9 @@ module.exports = class Block {
     data.generatorPublicKey = keys.publicKey
 
     const payloadHash = Block.serialize(data, false)
-    const hash = createHash('sha256').update(payloadHash).digest()
+    const hash = createHash('sha256')
+      .update(payloadHash)
+      .digest()
 
     data.blockSignature = crypto.signHash(hash, keys)
     data.id = Block.getId(data)
@@ -141,7 +152,11 @@ module.exports = class Block {
    * @return {String}
    */
   toString() {
-    return `${this.data.id}, height: ${this.data.height}, ${this.data.numberOfTransactions} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
+    return `${this.data.id}, height: ${this.data.height}, ${
+      this.data.numberOfTransactions
+    } transactions, verified: ${this.verification.verified}, errors:${
+      this.verification.errors
+    }` // eslint-disable-line max-len
   }
 
   /*
@@ -151,7 +166,9 @@ module.exports = class Block {
    * @static
    */
   static getIdHex(data) {
-    const hash = createHash('sha256').update(Block.serialize(data, true)).digest()
+    const hash = createHash('sha256')
+      .update(Block.serialize(data, true))
+      .digest()
     const temp = Buffer.alloc(8)
 
     for (let i = 0; i < 8; i++) {
@@ -167,7 +184,9 @@ module.exports = class Block {
    * @static
    */
   static getIdFromSerialized(serializedBuffer) {
-    const hash = createHash('sha256').update(serializedBuffer).digest()
+    const hash = createHash('sha256')
+      .update(serializedBuffer)
+      .digest()
     const temp = Buffer.alloc(8)
 
     for (let i = 0; i < 8; i++) {
@@ -197,9 +216,15 @@ module.exports = class Block {
    */
   verifySignature() {
     const bytes = Block.serialize(this.data, false)
-    const hash = createHash('sha256').update(bytes).digest()
+    const hash = createHash('sha256')
+      .update(bytes)
+      .digest()
 
-    return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey)
+    return crypto.verifyHash(
+      hash,
+      this.data.blockSignature,
+      this.data.generatorPublicKey,
+    )
   }
 
   /**
@@ -225,7 +250,14 @@ module.exports = class Block {
       }
 
       if (!block.reward.isEqualTo(constants.reward)) {
-        result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
+        result.errors.push(
+          [
+            'Invalid block reward:',
+            block.reward,
+            'expected:',
+            constants.reward,
+          ].join(' '),
+        )
       }
 
       const valid = this.verifySignature(block)
@@ -299,7 +331,9 @@ module.exports = class Block {
           const bytes = Buffer.from(transaction.data.id, 'hex')
 
           if (appliedTransactions[transaction.data.id]) {
-            result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`)
+            result.errors.push(
+              `Encountered duplicate transaction: ${transaction.data.id}`,
+            )
           }
 
           appliedTransactions[transaction.data.id] = transaction.data
@@ -324,7 +358,10 @@ module.exports = class Block {
         result.errors.push('Payload is too large')
       }
 
-      if (!this.genesis && payloadHash.digest().toString('hex') !== block.payloadHash) {
+      if (
+        !this.genesis
+        && payloadHash.digest().toString('hex') !== block.payloadHash
+      ) {
         result.errors.push('Invalid payload hash')
       }
     } catch (error) {
@@ -359,8 +396,17 @@ module.exports = class Block {
     block.payloadHash = hexString.substring(104, 104 + 64)
     block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
 
-    const length = parseInt(`0x${hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4)}`, 16) + 2
-    block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
+    const length = parseInt(
+      `0x${hexString.substring(
+        104 + 64 + 33 * 2 + 2,
+        104 + 64 + 33 * 2 + 4,
+      )}`,
+      16,
+    ) + 2
+    block.blockSignature = hexString.substring(
+      104 + 64 + 33 * 2,
+      104 + 64 + 33 * 2 + length * 2,
+    )
 
     if (headerOnly) return block
 
@@ -375,9 +421,13 @@ module.exports = class Block {
     transactionOffset += block.numberOfTransactions * 4 // Position right after LN
 
     for (let i = 0; i < block.numberOfTransactions; i++) {
-      const transactionLength = buf.readUint32(lengthOffset + (i * 4))
+      const transactionLength = buf.readUint32(lengthOffset + i * 4)
 
-      const transaction = Transaction.deserialize(buf.slice(transactionOffset, transactionOffset + transactionLength).toString('hex'))
+      const transaction = Transaction.deserialize(
+        buf
+          .slice(transactionOffset, transactionOffset + transactionLength)
+          .toString('hex'),
+      )
       block.transactions.push(transaction)
 
       transactionOffset += transactionLength
@@ -393,16 +443,19 @@ module.exports = class Block {
    * @static
    */
   static serializeFull(block) {
-    const serializedBlock = Block.serialize(block, true);
+    const serializedBlock = Block.serialize(block, true)
     const transactions = block.transactions
 
-    const buf = new ByteBuffer(serializedBlock.length + transactions.length * 4, true)
+    const buf = new ByteBuffer(
+      serializedBlock.length + transactions.length * 4,
+      true,
+    )
       .append(serializedBlock)
       .skip(transactions.length * 4)
 
     for (let i = 0; i < transactions.length; i++) {
       const serialized = Transaction.serialize(transactions[i])
-      buf.writeUint32(serialized.length, serializedBlock.length + (i * 4))
+      buf.writeUint32(serialized.length, serializedBlock.length + i * 4)
       buf.append(serialized)
     }
 
@@ -426,9 +479,9 @@ module.exports = class Block {
     bb.writeUInt32(block.height)
     bb.append(block.previousBlockHex, 'hex')
     bb.writeUInt32(block.numberOfTransactions)
-    bb.writeUInt64(+(new Bignum(block.totalAmount)).toFixed())
-    bb.writeUInt64(+(new Bignum(block.totalFee)).toFixed())
-    bb.writeUInt64(+(new Bignum(block.reward)).toFixed())
+    bb.writeUInt64(+new Bignum(block.totalAmount).toFixed())
+    bb.writeUInt64(+new Bignum(block.totalFee).toFixed())
+    bb.writeUInt64(+new Bignum(block.reward).toFixed())
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
@@ -465,7 +518,10 @@ module.exports = class Block {
       let i
 
       if (block.previousBlock) {
-        const pb = Buffer.from(new Bignum(block.previousBlock).toString(16), 'hex')
+        const pb = Buffer.from(
+          new Bignum(block.previousBlock).toString(16),
+          'hex',
+        )
 
         for (i = 0; i < 8; i++) {
           bb.writeByte(pb[i])
@@ -488,7 +544,10 @@ module.exports = class Block {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      const generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
+      const generatorPublicKeyBuffer = Buffer.from(
+        block.generatorPublicKey,
+        'hex',
+      )
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }

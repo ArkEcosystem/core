@@ -1,5 +1,3 @@
-'use strict'
-
 const { isEqual, get } = require('lodash')
 
 const toExecuteOnEntry = (machine, transition) => {
@@ -18,11 +16,13 @@ const toExecuteOnEntry = (machine, transition) => {
   return {
     // FIXME isNot is necessary to write the right message
     // @see https://facebook.github.io/jest/docs/en/expect.html#expectextendmatchers
-    message: () => `Expected machine to ${this.isNot ? 'not ' : ''} call actions ${actions} on state "${transition.state}"`,
-    pass: isEqual(state.onEntry.map(action => action.type), transition.actions)
+    message: () => `Expected machine to ${
+      this.isNot ? 'not ' : ''
+    } call actions ${actions} on state "${transition.state}"`,
+    pass: isEqual(state.onEntry.map(action => action.type), transition.actions),
   }
 }
 
 expect.extend({
-  toExecuteOnEntry
+  toExecuteOnEntry,
 })

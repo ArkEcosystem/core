@@ -29,7 +29,11 @@ class HDWallet {
       throw new TypeError('BIP32 only allows compressed keys.')
     }
 
-    return bip32.fromPrivateKey(Buffer.from(keys.privateKey, 'hex'), chainCode, configManager.config)
+    return bip32.fromPrivateKey(
+      Buffer.from(keys.privateKey, 'hex'),
+      chainCode,
+      configManager.config,
+    )
   }
 
   /**
@@ -52,7 +56,7 @@ class HDWallet {
    * @returns {bip32}
    */
   deriveSlip44(root, hardened = true) {
-    return root.derivePath(`m/44'/${this.slip44}${hardened ? '\'' : ''}`)
+    return root.derivePath(`m/44'/${this.slip44}${hardened ? "'" : ''}`)
   }
 
   /**
@@ -61,7 +65,9 @@ class HDWallet {
    * @returns {bip32}
    */
   deriveNetwork(root) {
-    return this.deriveSlip44(root).deriveHardened(configManager.config.aip20 || 1)
+    return this.deriveSlip44(root).deriveHardened(
+      configManager.config.aip20 || 1,
+    )
   }
 }
 

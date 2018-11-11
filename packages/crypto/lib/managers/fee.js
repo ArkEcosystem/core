@@ -37,7 +37,10 @@ class FeeManager {
    */
   getForTransaction(transaction) {
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      return this.fees[transaction.type] * (transaction.asset.multisignature.keysgroup.length + 1)
+      return (
+        this.fees[transaction.type]
+        * (transaction.asset.multisignature.keysgroup.length + 1)
+      )
     }
 
     return this.fees[transaction.type]

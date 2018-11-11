@@ -11,7 +11,11 @@ module.exports = {
       dailyRotate: {
         options: {
           level: process.env.ARK_LOG_LEVEL || 'debug',
-          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
+          filename:
+            process.env.ARK_LOG_FILE
+            || `${process.env.ARK_PATH_DATA}/logs/core/${
+              process.env.ARK_NETWORK_NAME
+            }/%DATE%.log`,
         },
       },
     },
@@ -20,15 +24,19 @@ module.exports = {
     connection: {
       host: process.env.ARK_DB_HOST || 'localhost',
       port: process.env.ARK_DB_PORT || 5432,
-      database: process.env.ARK_DB_DATABASE || `ark_${process.env.ARK_NETWORK_NAME}`,
+      database:
+        process.env.ARK_DB_DATABASE || `ark_${process.env.ARK_NETWORK_NAME}`,
       user: process.env.ARK_DB_USERNAME || 'ark',
       password: process.env.ARK_DB_PASSWORD || 'password',
     },
   },
   '@arkecosystem/core-transaction-pool-mem': {
     enabled: true,
-    storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`,
-    maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
+    storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${
+      process.env.ARK_NETWORK_NAME
+    }.sqlite`,
+    maxTransactionsPerSender:
+      process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     whitelist: [],
     allowedSenders: [],
     maxTransactionsPerRequest: 40,
@@ -52,7 +60,9 @@ module.exports = {
     enabled: process.env.ARK_WEBHOOKS_ENABLED,
     database: {
       dialect: 'sqlite',
-      storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}/webhooks.sqlite`,
+      storage: `${process.env.ARK_PATH_DATA}/database/${
+        process.env.ARK_NETWORK_NAME
+      }/webhooks.sqlite`,
       logging: process.env.ARK_DB_LOGGING,
     },
     server: {
@@ -79,7 +89,9 @@ module.exports = {
     allowRemote: false,
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
     database: {
-      uri: process.env.ARK_JSON_RPC_DATABASE || `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
+      uri:
+        process.env.ARK_JSON_RPC_DATABASE
+        || `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
       options: {},
     },
   },

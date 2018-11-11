@@ -1,5 +1,3 @@
-'use strict'
-
 const vote = require('../../lib/commands/second-signature')
 
 describe('Commands - Second signature', () => {

@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 
@@ -15,7 +14,7 @@ class Guard {
   /**
    * Create a new guard instance.
    */
-  constructor () {
+  constructor() {
     this.suspensions = {}
   }
 
@@ -23,7 +22,7 @@ class Guard {
    * Initialise a new guard.
    * @param {Monitor} monitor
    */
-  init (monitor) {
+  init(monitor) {
     this.monitor = monitor
 
     return this
@@ -33,7 +32,7 @@ class Guard {
    * Get a list of all suspended peers.
    * @return {Object}
    */
-  all () {
+  all() {
     return this.suspensions
   }
 
@@ -41,7 +40,7 @@ class Guard {
    * Get the suspended peer for the give IP.
    * @return {Object}
    */
-  get (ip) {
+  get(ip) {
     return this.suspensions[ip]
   }
 
@@ -49,7 +48,7 @@ class Guard {
    * Suspends a peer unless whitelisted.
    * @param {Peer} peer
    */
-  suspend (peer) {
+  suspend(peer) {
     if (config.peers.whiteList && config.peers.whiteList.includes(peer.ip)) {
       return
     }
@@ -67,7 +66,7 @@ class Guard {
     this.suspensions[peer.ip] = {
       peer,
       until: offence.until,
-      reason: offence.reason
+      reason: offence.reason,
     }
 
     this.monitor.removePeer(peer)
@@ -78,7 +77,7 @@ class Guard {
    * @param {Peer} peer
    * @return {void}
    */
-  async unsuspend (peer) {
+  async unsuspend(peer) {
     if (!this.suspensions[peer.ip]) {
       return
     }
@@ -99,9 +98,11 @@ class Guard {
    * Reset suspended peers
    * @return {void}
    */
-  async resetSuspendedPeers () {
+  async resetSuspendedPeers() {
     logger.info('Clearing suspended peers.')
-    await Promise.all(Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)))
+    await Promise.all(
+      Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)),
+    )
   }
 
   /**
@@ -109,16 +110,21 @@ class Guard {
    * @param  {Peer} peer
    * @return {Boolean}
    */
-  isSuspended (peer) {
+  isSuspended(peer) {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
       const untilDiff = moment.duration(suspendedPeer.until.diff(moment.now()))
 
-      logger.debug(`${peer.ip} still suspended for ${untilDiff.humanize()} because of "${suspendedPeer.reason}".`)
+      logger.debug(
+        `${peer.ip} still suspended for ${untilDiff.humanize()} because of "${
+          suspendedPeer.reason
+        }".`,
+      )
 
       return true
-    } else if (suspendedPeer) {
+    }
+    if (suspendedPeer) {
       delete this.suspensions[peer.ip]
     }
 
@@ -130,7 +136,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isWhitelisted (peer) {
+  isWhitelisted(peer) {
     return config.peers.whiteList.includes(peer.ip)
   }
 
@@ -139,7 +145,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isBlacklisted (peer) {
+  isBlacklisted(peer) {
     return config.peers.blackList.includes(peer.ip)
   }
 
@@ -148,7 +154,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isValidVersion (peer) {
+  isValidVersion(peer) {
     return semver.satisfies(peer.version, config.peers.minimumVersion)
   }
 
@@ -157,7 +163,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isValidNetwork (peer) {
+  isValidNetwork(peer) {
     return peer.nethash === config.network.nethash
   }
 
@@ -166,7 +172,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isValidPort (peer) {
+  isValidPort(peer) {
     return peer.port === container.resolveOptions('p2p').port
   }
 
@@ -175,7 +181,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isMyself (peer) {
+  isMyself(peer) {
     return isMyself(peer.ip)
   }
 
@@ -184,7 +190,7 @@ class Guard {
    * @param  {Object}  peer
    * @return {Boolean}
    */
-  isRepeatOffender (peer) {
+  isRepeatOffender(peer) {
     return sumBy(peer.offences, 'weight') >= 150
   }
 
@@ -193,7 +199,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {moment}
    */
-  __determineOffence (peer) {
+  __determineOffence(peer) {
     if (this.isBlacklisted(peer)) {
       return this.__determinePunishment(peer, offences.BLACKLISTED)
     }
@@ -205,7 +211,9 @@ class Guard {
         return this.__determinePunishment(peer, offences.FORK)
       }
     } catch (error) {
-      logger.warn(`The state storage is not ready, skipped fork check for ${peer.ip}.`)
+      logger.warn(
+        `The state storage is not ready, skipped fork check for ${peer.ip}.`,
+      )
     }
 
     if (peer.commonBlocks === false) {
@@ -252,7 +260,9 @@ class Guard {
 
     // NOTE: Suspending this peer only means that we no longer
     // will download blocks from him but he can still download blocks from us.
-    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
+    const heightDifference = Math.abs(
+      this.monitor.getNetworkHeight() - peer.state.height,
+    )
 
     if (heightDifference >= 153) {
       return this.__determinePunishment(peer, offences.INVALID_HEIGHT)
@@ -267,20 +277,26 @@ class Guard {
    * @param  {Object} offence
    * @return {Object}
    */
-  __determinePunishment (peer, offence) {
+  __determinePunishment(peer, offence) {
     if (this.isRepeatOffender(peer)) {
       offence = offences.REPEAT_OFFENDER
     }
 
-    const until = moment().utc().add(offence.number, offence.period)
+    const until = moment()
+      .utc()
+      .add(offence.number, offence.period)
     const untilDiff = moment.duration(until.diff(moment.now()))
 
-    logger.debug(`Suspended ${peer.ip} for ${untilDiff.humanize()} because of "${offence.reason}"`)
+    logger.debug(
+      `Suspended ${peer.ip} for ${untilDiff.humanize()} because of "${
+        offence.reason
+      }"`,
+    )
 
     return {
       until,
       reason: offence.reason,
-      weight: offence.weight
+      weight: offence.weight,
     }
   }
 }

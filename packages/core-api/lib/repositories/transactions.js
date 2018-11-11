@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const database = container.resolvePlugin('database')
 
 const moment = require('moment')
@@ -15,7 +14,7 @@ class TransactionsRepository extends Repository {
    * @param  {Object}  params
    * @return {Object}
    */
-  async findAll (parameters = {}) {
+  async findAll(parameters = {}) {
     const selectQuery = this.query.select().from(this.query)
     const countQuery = this._makeEstimateQuery()
 
@@ -59,7 +58,7 @@ class TransactionsRepository extends Repository {
     const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
-      orderBy: this.__orderBy(parameters)
+      orderBy: this.__orderBy(parameters),
     })
 
     results.rows = await this.__mapBlocksToTransactions(results.rows)
@@ -72,14 +71,16 @@ class TransactionsRepository extends Repository {
    * @param  {Object}  params
    * @return {Object}
    */
-  async findAllLegacy (parameters = {}) {
+  async findAllLegacy(parameters = {}) {
     const selectQuery = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
     const countQuery = this._makeEstimateQuery()
 
     if (parameters.senderId) {
-      parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
+      parameters.senderPublicKey = this.__publicKeyFromSenderId(
+        parameters.senderId,
+      )
     }
 
     const applyConditions = queries => {
@@ -103,7 +104,7 @@ class TransactionsRepository extends Repository {
     const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
-      orderBy: this.__orderBy(parameters)
+      orderBy: this.__orderBy(parameters),
     })
 
     results.rows = await this.__mapBlocksToTransactions(results.rows)
@@ -117,7 +118,7 @@ class TransactionsRepository extends Repository {
    * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByWallet (wallet, parameters = {}) {
+  async findAllByWallet(wallet, parameters = {}) {
     const selectQuery = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
@@ -136,7 +137,7 @@ class TransactionsRepository extends Repository {
     const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
-      orderBy: this.__orderBy(parameters)
+      orderBy: this.__orderBy(parameters),
     })
 
     results.rows = await this.__mapBlocksToTransactions(results.rows)
@@ -150,7 +151,7 @@ class TransactionsRepository extends Repository {
    * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllBySender (senderPublicKey, parameters = {}) {
+  async findAllBySender(senderPublicKey, parameters = {}) {
     return this.findAll({ ...{ senderPublicKey }, ...parameters })
   }
 
@@ -160,7 +161,7 @@ class TransactionsRepository extends Repository {
    * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByRecipient (recipientId, parameters = {}) {
+  async findAllByRecipient(recipientId, parameters = {}) {
     return this.findAll({ ...{ recipientId }, ...parameters })
   }
 
@@ -171,8 +172,11 @@ class TransactionsRepository extends Repository {
    * @param  {Object} parameters
    * @return {Object}
    */
-  async allVotesBySender (senderPublicKey, parameters = {}) {
-    return this.findAll({ ...{ senderPublicKey, type: TRANSACTION_TYPES.VOTE }, ...parameters })
+  async allVotesBySender(senderPublicKey, parameters = {}) {
+    return this.findAll({
+      ...{ senderPublicKey, type: TRANSACTION_TYPES.VOTE },
+      ...parameters,
+    })
   }
 
   /**
@@ -181,7 +185,7 @@ class TransactionsRepository extends Repository {
    * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByBlock (blockId, parameters = {}) {
+  async findAllByBlock(blockId, parameters = {}) {
     return this.findAll({ ...{ blockId }, ...parameters })
   }
 
@@ -191,7 +195,7 @@ class TransactionsRepository extends Repository {
    * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByType (type, parameters = {}) {
+  async findAllByType(type, parameters = {}) {
     return this.findAll({ ...{ type }, ...parameters })
   }
 
@@ -200,7 +204,7 @@ class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  async findById (id) {
+  async findById(id) {
     const query = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
@@ -217,7 +221,7 @@ class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  async findByTypeAndId (type, id) {
+  async findByTypeAndId(type, id) {
     const query = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
@@ -233,7 +237,7 @@ class TransactionsRepository extends Repository {
    * @param  {Array} ids
    * @return {Object}
    */
-  async findByIds (ids) {
+  async findByIds(ids) {
     const query = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
@@ -246,7 +250,7 @@ class TransactionsRepository extends Repository {
    * Get all transactions that have a vendor field.
    * @return {Object}
    */
-  async findWithVendorField () {
+  async findWithVendorField() {
     const query = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
@@ -261,17 +265,19 @@ class TransactionsRepository extends Repository {
    * Calculates min, max and average fee statistics based on transactions table
    * @return {Object}
    */
-  async getFeeStatistics () {
+  async getFeeStatistics() {
     const query = this.query
       .select(
         this.query.type,
         this.query.fee.min('minFee'),
         this.query.fee.max('maxFee'),
         this.query.fee.avg('avgFee'),
-        this.query.timestamp.max('timestamp')
+        this.query.timestamp.max('timestamp'),
       )
       .from(this.query)
-      .where(this.query.timestamp.gte(slots.getTime(moment().subtract(30, 'days'))))
+      .where(
+        this.query.timestamp.gte(slots.getTime(moment().subtract(30, 'days'))),
+      )
       .group(this.query.type)
       .order('"timestamp" DESC')
 
@@ -284,7 +290,7 @@ class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  async search (parameters) {
+  async search(parameters) {
     const selectQuery = this.query.select().from(this.query)
     const countQuery = this._makeEstimateQuery()
 
@@ -298,9 +304,16 @@ class TransactionsRepository extends Repository {
 
     const applyConditions = queries => {
       const conditions = buildFilterQuery(this._formatConditions(parameters), {
-        exact: ['id', 'block_id', 'type', 'version', 'sender_public_key', 'recipient_id'],
+        exact: [
+          'id',
+          'block_id',
+          'type',
+          'version',
+          'sender_public_key',
+          'recipient_id',
+        ],
         between: ['timestamp', 'amount', 'fee'],
-        wildcard: ['vendor_field_hex']
+        wildcard: ['vendor_field_hex'],
       })
 
       if (conditions.length) {
@@ -310,7 +323,9 @@ class TransactionsRepository extends Repository {
           item.where(this.query[first.column][first.method](first.value))
 
           for (const condition of conditions) {
-            item.and(this.query[condition.column][condition.method](condition.value))
+            item.and(
+              this.query[condition.column][condition.method](condition.value),
+            )
           }
         }
       }
@@ -321,7 +336,7 @@ class TransactionsRepository extends Repository {
     const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit || 100,
       offset: parameters.offset || 0,
-      orderBy: this.__orderBy(parameters)
+      orderBy: this.__orderBy(parameters),
     })
 
     results.rows = await this.__mapBlocksToTransactions(results.rows)
@@ -329,7 +344,7 @@ class TransactionsRepository extends Repository {
     return results
   }
 
-  getModel () {
+  getModel() {
     return database.models.transaction
   }
 
@@ -338,7 +353,7 @@ class TransactionsRepository extends Repository {
    * @param  {Array|Object} data
    * @return {Object}
    */
-  async __mapBlocksToTransactions (data) {
+  async __mapBlocksToTransactions(data) {
     const blockQuery = database.models.block.query()
 
     // Array...
@@ -354,7 +369,7 @@ class TransactionsRepository extends Repository {
         } else {
           missingFromCache.push({
             index: i,
-            blockId: data[i].blockId
+            blockId: data[i].blockId,
           })
         }
       }
@@ -370,7 +385,7 @@ class TransactionsRepository extends Repository {
         const blocks = await this._findMany(query)
 
         for (const missing of missingFromCache) {
-          const block = blocks.find(block => (block.id === missing.blockId))
+          const block = blocks.find(block => block.id === missing.blockId)
           if (block) {
             data[missing.index].block = block
             this.__setBlockCache(block)
@@ -407,10 +422,10 @@ class TransactionsRepository extends Repository {
    * @param  {String} blockId
    * @return {Object|null}
    */
-  __getBlockCache (blockId) {
+  __getBlockCache(blockId) {
     const height = this.cache.get(`heights:${blockId}`)
 
-    return height ? ({ height, id: blockId }) : null
+    return height ? { height, id: blockId } : null
   }
 
   /**
@@ -419,7 +434,7 @@ class TransactionsRepository extends Repository {
    * @param  {String} block.id
    * @param  {Number} block.height
    */
-  __setBlockCache ({ id, height }) {
+  __setBlockCache({ id, height }) {
     this.cache.set(`heights:${id}`, height)
   }
 
@@ -428,11 +443,11 @@ class TransactionsRepository extends Repository {
    * @param {String} senderId
    * @return {String}
    */
-  __publicKeyFromSenderId (senderId) {
+  __publicKeyFromSenderId(senderId) {
     return database.walletManager.findByAddress(senderId).publicKey
   }
 
-  __orderBy (parameters) {
+  __orderBy(parameters) {
     return parameters.orderBy
       ? parameters.orderBy.split(':').map(p => p.toLowerCase())
       : ['timestamp', 'desc']

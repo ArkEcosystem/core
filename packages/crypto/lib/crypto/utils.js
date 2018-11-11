@@ -7,7 +7,9 @@ class Utils {
    * @return {Buffer}
    */
   ripemd160(buffer) {
-    return createHash('rmd160').update(buffer).digest()
+    return createHash('rmd160')
+      .update(buffer)
+      .digest()
   }
 
   /**
@@ -16,7 +18,9 @@ class Utils {
    * @return {Buffer}
    */
   sha1(buffer) {
-    return createHash('sha1').update(buffer).digest()
+    return createHash('sha1')
+      .update(buffer)
+      .digest()
   }
 
   /**
@@ -25,7 +29,9 @@ class Utils {
    * @return {Buffer}
    */
   sha256(buffer) {
-    return createHash('sha256').update(buffer).digest()
+    return createHash('sha256')
+      .update(buffer)
+      .digest()
   }
 
   /**

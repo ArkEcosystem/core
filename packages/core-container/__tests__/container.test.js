@@ -1,5 +1,3 @@
-'use strict'
-
 const path = require('path')
 const { asValue } = require('awilix')
 
@@ -7,14 +5,17 @@ let container
 beforeEach(async () => {
   container = require('../lib')
 
-  await container.setUp({
-    data: 'fake-path',
-    config: path.resolve(__dirname, '../../core/lib/config/testnet'),
-    token: 'ark',
-    network: 'testnet'
-  }, {
-    skipPlugins: true
-  })
+  await container.setUp(
+    {
+      data: 'fake-path',
+      config: path.resolve(__dirname, '../../core/lib/config/testnet'),
+      token: 'ark',
+      network: 'testnet',
+    },
+    {
+      skipPlugins: true,
+    },
+  )
 })
 
 describe('Container', () => {
@@ -25,7 +26,7 @@ describe('Container', () => {
   it('should add a new registration', () => {
     container.register('fake', asValue('value'))
 
-    expect(container.container.registrations['fake']).toBeTruthy()
+    expect(container.container.registrations.fake).toBeTruthy()
   })
 
   it('should resolve a registration', () => {

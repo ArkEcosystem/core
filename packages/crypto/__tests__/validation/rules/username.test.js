@@ -1,5 +1,3 @@
-
-
 const rule = require('../../../lib/validation/rules/username')
 
 describe('Username Rule', () => {

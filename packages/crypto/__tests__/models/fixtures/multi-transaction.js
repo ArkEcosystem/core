@@ -3,7 +3,8 @@ module.exports = {
   network: 30,
   type: 4,
   timestamp: 25921690,
-  senderPublicKey: '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece',
+  senderPublicKey:
+    '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece',
   fee: 9000000000,
   vendorFieldHex: '776c386c777473386a65',
   asset: {

@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
@@ -16,9 +15,10 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const { count, rows } = await repository.findAllLegacy({
-      ...request.query, ...utils.paginate(request)
+      ...request.query,
+      ...utils.paginate(request),
     })
 
     if (!rows) {
@@ -27,16 +27,16 @@ exports.index = {
 
     return utils.respondWith({
       transactions: utils.toCollection(request, rows, 'transaction'),
-      count
+      count,
     })
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getTransactions
-      }
-    }
-  }
+        querySchema: schema.getTransactions,
+      },
+    },
+  },
 }
 
 /**
@@ -48,7 +48,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const result = await repository.findById(request.query.id)
 
     if (!result) {
@@ -56,16 +56,16 @@ exports.show = {
     }
 
     return utils.respondWith({
-      transaction: utils.toResource(request, result, 'transaction')
+      transaction: utils.toResource(request, result, 'transaction'),
     })
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getTransaction
-      }
-    }
-  }
+        querySchema: schema.getTransaction,
+      },
+    },
+  },
 }
 
 /**
@@ -77,16 +77,21 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     const pagination = utils.paginate(request)
 
-    let transactions = transactionPool.getTransactions(pagination.offset, pagination.limit)
-    transactions = transactions.map(transaction => ({ serialized: transaction }))
+    let transactions = transactionPool.getTransactions(
+      pagination.offset,
+      pagination.limit,
+    )
+    transactions = transactions.map(transaction => ({
+      serialized: transaction,
+    }))
 
     return utils.respondWith({
-      transactions: utils.toCollection(request, transactions, 'transaction')
+      transactions: utils.toCollection(request, transactions, 'transaction'),
     })
-  }
+  },
 }
 
 /**
@@ -98,17 +103,21 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
-    let transaction = transactionPool.getTransaction(request.query.id)
+  handler(request, h) {
+    const transaction = transactionPool.getTransaction(request.query.id)
 
     if (!transaction) {
       return utils.respondWith('Transaction not found', true)
     }
 
     return utils.respondWith({
-      transaction: utils.toResource(request, {
-        serialized: transaction.serialized
-      }, 'transaction')
+      transaction: utils.toResource(
+        request,
+        {
+          serialized: transaction.serialized,
+        },
+        'transaction',
+      ),
     })
-  }
+  },
 }

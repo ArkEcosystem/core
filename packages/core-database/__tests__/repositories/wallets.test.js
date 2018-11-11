@@ -1,53 +1,57 @@
-'use strict'
-
 const _ = require('lodash')
-const app = require('../__support__/setup')
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
+const app = require('../__support__/setup')
 
 let genesisBlock
 let genesisSenders
 let repository
 let walletManager
 
-beforeAll(async (done) => {
+beforeAll(async done => {
   await app.setUp()
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
-  genesisSenders = _.uniq(_.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)))
+  genesisBlock = new Block(
+    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+  )
+  genesisSenders = _.uniq(
+    _.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)),
+  )
 
   done()
 })
 
-afterAll(async (done) => {
+afterAll(async done => {
   await app.tearDown()
 
   done()
 })
 
-beforeEach(async (done) => {
+beforeEach(async done => {
   walletManager = new (require('../../lib/wallet-manager'))()
-  repository = new (require('../../lib/repositories/wallets'))({ walletManager })
+  repository = new (require('../../lib/repositories/wallets'))({
+    walletManager,
+  })
 
   done()
 })
 
-function generateWallets () {
-  return genesisSenders.map(senderPublicKey => ({
-    address: crypto.getAddress(senderPublicKey)
-  }))
-}
-
-function generateVotes () {
+function generateWallets() {
   return genesisSenders.map(senderPublicKey => ({
     address: crypto.getAddress(senderPublicKey),
-    vote: genesisBlock.transactions[0].senderPublicKey
   }))
 }
 
-function generateFullWallets () {
+function generateVotes() {
+  return genesisSenders.map(senderPublicKey => ({
+    address: crypto.getAddress(senderPublicKey),
+    vote: genesisBlock.transactions[0].senderPublicKey,
+  }))
+}
+
+function generateFullWallets() {
   return genesisSenders.map(senderPublicKey => {
     const address = crypto.getAddress(senderPublicKey)
 
@@ -58,7 +62,7 @@ function generateFullWallets () {
       vote: `vote-${address}`,
       username: `username-${address}`,
       balance: 100,
-      voteBalance: 200
+      voteBalance: 200,
     }
   })
 }
@@ -155,7 +159,10 @@ describe('Wallet Repository', () => {
     })
 
     it('should be ok with params', () => {
-      const { count, rows } = repository.findAllByVote(vote, { offset: 10, limit: 10 })
+      const { count, rows } = repository.findAllByVote(vote, {
+        offset: 10,
+        limit: 10,
+      })
       expect(count).toBe(17)
       expect(rows).toHaveLength(7)
     })
@@ -167,7 +174,10 @@ describe('Wallet Repository', () => {
     })
 
     it('should be ok with params (offset = 0)', () => {
-      const { count, rows } = repository.findAllByVote(vote, { offset: 0, limit: 1 })
+      const { count, rows } = repository.findAllByVote(vote, {
+        offset: 0,
+        limit: 1,
+      })
       expect(count).toBe(17)
       expect(rows).toHaveLength(1)
     })
@@ -180,7 +190,7 @@ describe('Wallet Repository', () => {
   })
 
   describe('findById', async () => {
-    const expectWallet = (key) => {
+    const expectWallet = key => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
@@ -355,12 +365,16 @@ describe('Wallet Repository', () => {
       })
       walletManager.index(wallets)
 
-      expectSearch({
-        balance: {
-          from: 53,
-          to: 99
-        }
-      }, 36, 36)
+      expectSearch(
+        {
+          balance: {
+            from: 53,
+            to: 99,
+          },
+        },
+        36,
+        36,
+      )
     })
 
     it('should search wallets by the specified closed interval (included) of voteBalance', () => {
@@ -374,12 +388,16 @@ describe('Wallet Repository', () => {
       })
       walletManager.index(wallets)
 
-      expectSearch({
-        voteBalance: {
-          from: 11,
-          to: 18
-        }
-      }, 29, 29)
+      expectSearch(
+        {
+          voteBalance: {
+            from: 11,
+            to: 18,
+          },
+        },
+        29,
+        29,
+      )
     })
   })
 })

@@ -1,6 +1,8 @@
-'use strict'
-
-const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-utils')
+const {
+  createServer,
+  mountServer,
+  plugins,
+} = require('@arkecosystem/core-http-utils')
 
 /**
  * Create a new hapi.js server.
@@ -13,14 +15,14 @@ module.exports = async config => {
     port: config.port,
     routes: {
       cors: {
-        additionalHeaders: ['api-version']
+        additionalHeaders: ['api-version'],
       },
       validate: {
-        async failAction (request, h, err) {
+        async failAction(request, h, err) {
           throw err
-        }
-      }
-    }
+        },
+      },
+    },
   })
 
   await server.register({ plugin: plugins.corsHeaders })
@@ -29,22 +31,22 @@ module.exports = async config => {
     plugin: plugins.whitelist,
     options: {
       whitelist: config.whitelist,
-      name: 'Public API'
-    }
+      name: 'Public API',
+    },
   })
 
   await server.register({
-    plugin: require('./plugins/set-headers')
+    plugin: require('./plugins/set-headers'),
   })
 
   await server.register({
     plugin: require('hapi-api-version'),
-    options: config.versions
+    options: config.versions,
   })
 
   await server.register({
     plugin: require('./plugins/endpoint-version'),
-    options: { validVersions: config.versions.validVersions }
+    options: { validVersions: config.versions.validVersions },
   })
 
   await server.register({ plugin: require('./plugins/caster') })
@@ -53,28 +55,28 @@ module.exports = async config => {
 
   await server.register({
     plugin: require('hapi-rate-limit'),
-    options: config.rateLimit
+    options: config.rateLimit,
   })
 
   await server.register({
     plugin: require('hapi-pagination'),
     options: {
       meta: {
-        baseUri: ''
+        baseUri: '',
       },
       query: {
         limit: {
-          default: config.pagination.limit
-        }
+          default: config.pagination.limit,
+        },
       },
       results: {
-        name: 'data'
+        name: 'data',
       },
       routes: {
         include: config.pagination.include,
-        exclude: ['*']
-      }
-    }
+        exclude: ['*'],
+      },
+    },
   })
 
   for (const plugin of config.plugins) {

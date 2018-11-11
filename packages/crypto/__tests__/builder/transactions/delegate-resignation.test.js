@@ -15,7 +15,13 @@ describe('Delegate Resignation Transaction', () => {
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.DELEGATE_RESIGNATION)
-    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION))
+    expect(builder).toHaveProperty(
+      'data.type',
+      TRANSACTION_TYPES.DELEGATE_RESIGNATION,
+    )
+    expect(builder).toHaveProperty(
+      'data.fee',
+      feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION),
+    )
   })
 })

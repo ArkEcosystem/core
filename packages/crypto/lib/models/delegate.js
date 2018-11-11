@@ -39,7 +39,10 @@ module.exports = class Delegate {
       try {
         this.keys = Delegate.decryptPassphrase(passphrase, network, password)
         this.publicKey = this.keys.publicKey
-        this.address = crypto.getAddress(this.keys.publicKey, network.pubKeyHash)
+        this.address = crypto.getAddress(
+          this.keys.publicKey,
+          network.pubKeyHash,
+        )
         this.otpSecret = otplib.authenticator.generateSecret()
         this.bip38 = true
         this.encryptKeysWithOtp()
@@ -80,7 +83,11 @@ module.exports = class Delegate {
    */
   static decryptPassphrase(passphrase, network, password) {
     const decryptedWif = bip38.decrypt(passphrase, password)
-    const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
+    const wifKey = wif.encode(
+      network.wif,
+      decryptedWif.privateKey,
+      decryptedWif.compressed,
+    )
     return crypto.getKeysFromWIF(wifKey, network)
   }
 
@@ -153,6 +160,8 @@ module.exports = class Delegate {
 
       return block
     }
+
+    return false
   }
 
   /**
@@ -162,7 +171,12 @@ module.exports = class Delegate {
    * @return {String}
    */
   __encryptData(content, password) {
-    const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
+    const derivedKey = forge.pkcs5.pbkdf2(
+      password,
+      this.otpSecret,
+      this.iterations,
+      this.keySize,
+    )
     const cipher = forge.cipher.createCipher('AES-CBC', derivedKey)
     cipher.start({ iv: forge.util.decode64(this.otp) })
     cipher.update(forge.util.createBuffer(content))
@@ -178,7 +192,12 @@ module.exports = class Delegate {
    * @return {String}
    */
   __decryptData(cipherText, password) {
-    const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
+    const derivedKey = forge.pkcs5.pbkdf2(
+      password,
+      this.otpSecret,
+      this.iterations,
+      this.keySize,
+    )
     const decipher = forge.cipher.createDecipher('AES-CBC', derivedKey)
     decipher.start({ iv: forge.util.decode64(this.otp) })
     decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)))

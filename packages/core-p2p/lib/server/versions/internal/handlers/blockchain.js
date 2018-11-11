@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const logger = container.resolvePlugin('logger')
 
 /**
@@ -12,11 +11,11 @@ exports.sync = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
 
     container.resolvePlugin('blockchain').dispatch('WAKEUP')
 
     return h.response(null).code(204)
-  }
+  },
 }

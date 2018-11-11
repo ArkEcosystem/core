@@ -1,5 +1,3 @@
-
-
 module.exports = {
   Bignum: require('./bignum'),
   formatArktoshi: require('./format-arktoshi'),

@@ -7,7 +7,7 @@ module.exports = async (method, params) => {
     jsonrpc: '2.0',
     id,
     method,
-    params
+    params,
   })
 
   await expect(response.status).toBe(200)

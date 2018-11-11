@@ -19,16 +19,16 @@ module.exports = {
   port: process.env.ARK_API_PORT || 4003,
   versions: {
     default: 1,
-    valid: [1, 2]
+    valid: [1, 2],
   },
   cache: {
     enabled: false,
-    options: {}
+    options: {},
   },
   rateLimit: {
     enabled: false,
     limit: 300,
-    expires: 60000
+    expires: 60000,
   },
   pagination: {
     limit: 100,
@@ -51,13 +51,10 @@ module.exports = {
       '/api/v2/wallets/{id}/transactions/received',
       '/api/v2/wallets/{id}/transactions/sent',
       '/api/v2/wallets/{id}/votes',
-      '/api/v2/wallets/search'
-    ]
+      '/api/v2/wallets/search',
+    ],
   },
-  whitelist: [
-    '127.0.0.1',
-    '::ffff:127.0.0.1'
-  ]
+  whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
 }
 ```
 

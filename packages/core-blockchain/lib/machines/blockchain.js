@@ -10,8 +10,8 @@ module.exports = Machine({
     uninitialised: {
       on: {
         START: 'init',
-        STOP: 'stopped'
-      }
+        STOP: 'stopped',
+      },
     },
     init: {
       onEntry: ['init'],
@@ -21,59 +21,59 @@ module.exports = Machine({
         STARTED: 'syncWithNetwork',
         ROLLBACK: 'rollback',
         FAILURE: 'exit',
-        STOP: 'stopped'
-      }
+        STOP: 'stopped',
+      },
     },
     rebuild: {
       on: {
         REBUILDCOMPLETE: 'syncWithNetwork',
         FORK: 'fork',
         TEST: 'syncWithNetwork',
-        STOP: 'stopped'
+        STOP: 'stopped',
       },
-      ...rebuildFromNetwork
+      ...rebuildFromNetwork,
     },
     syncWithNetwork: {
       on: {
         TEST: 'idle',
         SYNCFINISHED: 'idle',
         FORK: 'fork',
-        STOP: 'stopped'
+        STOP: 'stopped',
       },
-      ...syncWithNetwork
+      ...syncWithNetwork,
     },
     idle: {
       onEntry: ['checkLater', 'blockchainReady'],
       on: {
         WAKEUP: 'syncWithNetwork',
         NEWBLOCK: 'processingBlock',
-        STOP: 'stopped'
-      }
+        STOP: 'stopped',
+      },
     },
     processingBlock: {
       onEntry: ['processBlock'],
       on: {
         SUCCESS: 'idle',
         FAILURE: 'fork',
-        STOP: 'stopped'
-      }
+        STOP: 'stopped',
+      },
     },
     fork: {
       onEntry: ['startForkRecovery'],
       on: {
         SUCCESS: 'syncWithNetwork',
         FAILURE: 'exit',
-        STOP: 'stopped'
+        STOP: 'stopped',
       },
-      ...fork
+      ...fork,
     },
     rollback: {
       onEntry: ['rollbackDatabase'],
       on: {
         SUCCESS: 'init',
         FAILURE: 'exit',
-        STOP: 'stopped'
-      }
+        STOP: 'stopped',
+      },
     },
     /**
      * This state should be used for stopping the blockchain on purpose, not as
@@ -81,10 +81,10 @@ module.exports = Machine({
      * be a better option
      */
     stopped: {
-      onEntry: ['stopped']
+      onEntry: ['stopped'],
     },
     exit: {
-      onEntry: ['exitApp']
-    }
-  }
+      onEntry: ['exitApp'],
+    },
+  },
 })

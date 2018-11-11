@@ -87,7 +87,9 @@ class ConfigLoader {
     const basePath = path.resolve(process.env.ARK_PATH_CONFIG)
 
     if (!fs.existsSync(basePath)) {
-      throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
+      throw new Error(
+        "An invalid configuration was provided or is inaccessible due to it's security settings.",
+      )
       process.exit(1) // eslint-disable-line no-unreachable
     }
 
@@ -95,11 +97,13 @@ class ConfigLoader {
 
     const configTree = {}
 
-    dirTree(basePath, { extensions: /\.(js|json)$/ }).children.forEach(entry => {
-      if (entry.type === 'file') {
-        configTree[formatName(entry)] = entry.path
-      }
-    })
+    dirTree(basePath, { extensions: /\.(js|json)$/ }).children.forEach(
+      entry => {
+        if (entry.type === 'file') {
+          configTree[formatName(entry)] = entry.path
+        }
+      },
+    )
 
     return configTree
   }

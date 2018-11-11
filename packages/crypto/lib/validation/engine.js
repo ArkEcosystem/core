@@ -7,9 +7,16 @@ class Engine {
   }
 
   validate(attributes, rules, options) {
-    return this.joi.validate(attributes, rules, Object.assign({
-      convert: true,
-    }, options))
+    return this.joi.validate(
+      attributes,
+      rules,
+      Object.assign(
+        {
+          convert: true,
+        },
+        options,
+      ),
+    )
   }
 }
 

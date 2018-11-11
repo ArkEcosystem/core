@@ -8,7 +8,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {String} id
    * @return {Promise}
    */
-  async findById (id) {
+  async findById(id) {
     return this.db.one(sql.findById, { id })
   }
 
@@ -17,7 +17,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Array} ids
    * @return {Promise}
    */
-  async findManyById (ids) {
+  async findManyById(ids) {
     return this.db.manyOrNone(sql.findManyById, { ids })
   }
 
@@ -26,7 +26,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {String} id
    * @return {Promise}
    */
-  async findByBlock (id) {
+  async findByBlock(id) {
     return this.db.manyOrNone(sql.findByBlock, { id })
   }
 
@@ -35,7 +35,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Promise}
    */
-  async latestByBlock (id) {
+  async latestByBlock(id) {
     return this.db.manyOrNone(sql.latestByBlock, { id })
   }
 
@@ -44,7 +44,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Array} ids
    * @return {Promise}
    */
-  async latestByBlocks (ids) {
+  async latestByBlocks(ids) {
     return this.db.manyOrNone(sql.latestByBlocks, { ids })
   }
 
@@ -53,7 +53,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Array} ids
    * @return {Promise}
    */
-  async forged (ids) {
+  async forged(ids) {
     return this.db.manyOrNone(sql.forged, { ids })
   }
 
@@ -61,7 +61,7 @@ module.exports = class TransactionsRepository extends Repository {
    * Get statistics about all transactions from the database.
    * @return {Promise}
    */
-  async statistics () {
+  async statistics() {
     return this.db.one(sql.statistics)
   }
 
@@ -70,7 +70,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Promise}
    */
-  async deleteByBlock (id) {
+  async deleteByBlock(id) {
     return this.db.none(sql.deleteByBlock, { id })
   }
 
@@ -78,7 +78,7 @@ module.exports = class TransactionsRepository extends Repository {
    * Get the model related to this repository.
    * @return {Object}
    */
-  getModel () {
+  getModel() {
     return new Transaction(this.pgp)
   }
 }

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Template for the inputs of our schema's types.
  * Scalars are the possible base values for query parameters.

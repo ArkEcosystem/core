@@ -1,11 +1,10 @@
-'use strict'
-
 const Boom = require('boom')
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 
 const container = require('@arkecosystem/core-container')
+
 const blockchain = container.resolvePlugin('blockchain')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -24,14 +23,17 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const transactions = await repository.findAll({ ...request.query, ...utils.paginate(request) })
+  async handler(request, h) {
+    const transactions = await repository.findAll({
+      ...request.query,
+      ...utils.paginate(request),
+    })
 
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.index
-  }
+    validate: schema.index,
+  },
 }
 
 /**
@@ -43,13 +45,14 @@ exports.store = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     if (!transactionPool.options.enabled) {
       return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
-    const { eligible, notEligible } =
-      transactionPool.checkEligibility(request.payload.transactions)
+    const { eligible, notEligible } = transactionPool.checkEligibility(
+      request.payload.transactions,
+    )
 
     const guard = new TransactionGuard(transactionPool)
 
@@ -77,10 +80,10 @@ exports.store = {
     validate: schema.store,
     plugins: {
       pagination: {
-        enabled: false
-      }
-    }
-  }
+        enabled: false,
+      },
+    },
+  },
 }
 
 /**
@@ -92,7 +95,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const transaction = await repository.findById(request.params.id)
 
     if (!transaction) {
@@ -102,8 +105,8 @@ exports.show = {
     return utils.respondWithResource(request, transaction, 'transaction')
   },
   options: {
-    validate: schema.show
-  }
+    validate: schema.show,
+  },
 }
 
 /**
@@ -115,24 +118,33 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     if (!transactionPool.options.enabled) {
       return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
     const pagination = utils.paginate(request)
 
-    let transactions = transactionPool.getTransactions(pagination.offset, pagination.limit)
-    transactions = transactions.map(transaction => ({ serialized: transaction }))
+    let transactions = transactionPool.getTransactions(
+      pagination.offset,
+      pagination.limit,
+    )
+    transactions = transactions.map(transaction => ({
+      serialized: transaction,
+    }))
 
-    return utils.toPagination(request, {
-      count: transactionPool.getPoolSize(),
-      rows: transactions
-    }, 'transaction')
+    return utils.toPagination(
+      request,
+      {
+        count: transactionPool.getPoolSize(),
+        rows: transactions,
+      },
+      'transaction',
+    )
   },
   options: {
-    validate: schema.unconfirmed
-  }
+    validate: schema.unconfirmed,
+  },
 }
 
 /**
@@ -144,7 +156,7 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  handler(request, h) {
     if (!transactionPool.options.enabled) {
       return Boom.serverUnavailable('Transaction pool is disabled.')
     }
@@ -160,8 +172,8 @@ exports.showUnconfirmed = {
     return utils.respondWithResource(request, transaction, 'transaction')
   },
   options: {
-    validate: schema.showUnconfirmed
-  }
+    validate: schema.showUnconfirmed,
+  },
 }
 
 /**
@@ -173,18 +185,18 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     const transactions = await repository.search({
       ...request.query,
       ...request.payload,
-      ...utils.paginate(request)
+      ...utils.paginate(request),
     })
 
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.search
-  }
+    validate: schema.search,
+  },
 }
 
 /**
@@ -196,11 +208,11 @@ exports.types = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     return {
-      data: TRANSACTION_TYPES
+      data: TRANSACTION_TYPES,
     }
-  }
+  },
 }
 
 /**
@@ -212,9 +224,9 @@ exports.fees = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     return {
-      data: config.getConstants(blockchain.getLastBlock().data.height).fees
+      data: config.getConstants(blockchain.getLastBlock().data.height).fees,
     }
-  }
+  },
 }

@@ -1,5 +1,3 @@
-
-
 const EventEmitter = require('eventemitter3')
 const emitter = require('../lib/emitter')
 

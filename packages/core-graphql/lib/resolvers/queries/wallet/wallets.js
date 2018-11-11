@@ -1,6 +1,6 @@
-'use strict';
-
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
+const database = require('@arkecosystem/core-container').resolvePlugin(
+  'database',
+)
 const { formatOrderBy } = require('../../../helpers')
 
 /**
@@ -12,7 +12,10 @@ module.exports = async (_, args) => {
 
   const order = formatOrderBy(orderBy, 'height:desc')
   const result = filter && filter.vote
-    ? await database.wallets.findAllByVote(filter.vote, { orderBy: order, ...params })
+    ? await database.wallets.findAllByVote(filter.vote, {
+      orderBy: order,
+      ...params,
+    })
     : await database.wallets.findAll({ orderBy: order, ...params })
 
   return result ? result.rows : []

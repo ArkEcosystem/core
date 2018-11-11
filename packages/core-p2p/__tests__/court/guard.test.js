@@ -1,7 +1,6 @@
-'use strict'
-
-const app = require('../__support__/setup')
 const moment = require('moment')
+const app = require('../__support__/setup')
+
 const ARK_ENV = process.env.ARK_ENV
 
 const defaults = require('../../lib/defaults')
@@ -91,19 +90,16 @@ describe('Guard', () => {
   })
 
   describe('__determineOffence', () => {
-    const convertToMinutes = actual => {
-      return Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
-    }
+    const convertToMinutes = actual => Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
 
-    const convertToSeconds = actual => {
-      return Math.ceil(moment.duration(actual.diff(moment.now())).asSeconds())
-    }
+    const convertToSeconds = actual => Math.ceil(moment.duration(actual.diff(moment.now())).asSeconds())
 
     const dummy = {
-      nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
+      nethash:
+        'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
       version: '2.0.0',
       status: 200,
-      state: {}
+      state: {},
     }
 
     it('should be a function', () => {
@@ -112,11 +108,12 @@ describe('Guard', () => {
 
     it('should return a 1 day suspension for "Blacklisted"', () => {
       const config = container.resolvePlugin('config')
-      config.peers.blackList = [ 'dummy-ip-addr' ]
+      config.peers.blackList = ['dummy-ip-addr']
 
       const { until, reason } = guard.__determineOffence({
-        nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
-        ip: 'dummy-ip-addr'
+        nethash:
+          'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
+        ip: 'dummy-ip-addr',
       })
 
       expect(convertToMinutes(until)).toBe(720)
@@ -127,8 +124,8 @@ describe('Guard', () => {
       const { until, reason } = guard.__determineOffence({
         ...dummy,
         ...{
-          commonBlocks: false
-        }
+          commonBlocks: false,
+        },
       })
 
       expect(convertToMinutes(until)).toBe(5)
@@ -137,10 +134,11 @@ describe('Guard', () => {
 
     it('should return a 6 hours suspension for "Invalid Version"', () => {
       const { until, reason } = guard.__determineOffence({
-        nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
+        nethash:
+          'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
         version: '1.0.0',
         status: 200,
-        delay: 1000
+        delay: 1000,
       })
 
       expect(convertToMinutes(until)).toBe(360)
@@ -153,8 +151,8 @@ describe('Guard', () => {
       const { until, reason } = guard.__determineOffence({
         ...dummy,
         state: {
-          height: 1
-        }
+          height: 1,
+        },
       })
 
       expect(convertToMinutes(until)).toBe(10)
@@ -164,7 +162,7 @@ describe('Guard', () => {
     it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
       const { until, reason } = guard.__determineOffence({
         ...dummy,
-        ...{ status: 201 }
+        ...{ status: 201 },
       })
 
       expect(convertToMinutes(until)).toBe(5)
@@ -174,7 +172,7 @@ describe('Guard', () => {
     it('should return a 2 minutes suspension for "Timeout"', () => {
       const { until, reason } = guard.__determineOffence({
         ...dummy,
-        ...{ delay: -1 }
+        ...{ delay: -1 },
       })
 
       expect(convertToMinutes(until)).toBe(2)
@@ -184,7 +182,7 @@ describe('Guard', () => {
     it('should return a 1 minutes suspension for "High Latency"', () => {
       const { until, reason } = guard.__determineOffence({
         ...dummy,
-        ...{ delay: 3000 }
+        ...{ delay: 3000 },
       })
 
       expect(convertToMinutes(until)).toBe(1)
@@ -194,7 +192,7 @@ describe('Guard', () => {
     it('should return a 30 seconds suspension for "Blockchain not ready"', () => {
       const { until, reason } = guard.__determineOffence({
         ...dummy,
-        ...{ status: 503 }
+        ...{ status: 503 },
       })
 
       expect(convertToSeconds(until)).toBe(30)
@@ -204,7 +202,7 @@ describe('Guard', () => {
     it('should return a 60 seconds suspension for "Rate limit exceeded"', () => {
       const { until, reason } = guard.__determineOffence({
         ...dummy,
-        ...{ status: 429 }
+        ...{ status: 429 },
       })
 
       expect(convertToSeconds(until)).toBe(60)

@@ -16,7 +16,10 @@ describe('Multi Payment Transaction', () => {
 
   it('should have its specific properties', () => {
     expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.MULTI_PAYMENT)
-    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT))
+    expect(builder).toHaveProperty(
+      'data.fee',
+      feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT),
+    )
     expect(builder).toHaveProperty('data.payments', {})
     expect(builder).toHaveProperty('data.vendorFieldHex', null)
   })

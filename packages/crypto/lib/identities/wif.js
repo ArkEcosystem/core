@@ -10,6 +10,10 @@ module.exports = class WIF {
       network = configManager.all()
     }
 
-    return wif.encode(network.wif, Buffer.from(keys.privateKey, 'hex'), keys.compressed)
+    return wif.encode(
+      network.wif,
+      Buffer.from(keys.privateKey, 'hex'),
+      keys.compressed,
+    )
   }
 }

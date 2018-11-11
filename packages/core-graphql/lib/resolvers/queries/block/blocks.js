@@ -1,5 +1,3 @@
-'use strict';
-
 const { formatOrderBy } = require('../../../helpers')
 const { blocks: repository } = require('../../../repositories')
 

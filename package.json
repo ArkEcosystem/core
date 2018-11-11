@@ -9,9 +9,11 @@
     "prepare": "lerna run prepare",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles"
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "format": "prettier --write \"./*.{js,json,md}\" \"./packages/**/*.{js,json,md}\""
   },
   "devDependencies": {
+    "@arkecosystem/eslint-config-base": "https://github.com/ArkEcosystem/eslint-config-base",
     "@babel/core": "^7.1.5",
     "@babel/preset-env": "^7.1.5",
     "axios": "^0.18.0",
@@ -33,6 +35,7 @@
     "js-yaml": "^3.12.0",
     "lerna": "^3.4.3",
     "lint-staged": "^8.0.4",
+    "prettier": "^1.15.2",
     "regenerator-runtime": "^0.12.1",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",

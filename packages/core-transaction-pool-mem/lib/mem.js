@@ -1,5 +1,3 @@
-'use strict'
-
 const assert = require('assert')
 const { slots } = require('@arkecosystem/crypto')
 
@@ -7,7 +5,7 @@ class Mem {
   /**
    * Create the in-memory transaction pool structures.
    */
-  constructor () {
+  constructor() {
     /**
      * A monotonically increasing number, assigned to each new transaction and
      * then incremented.
@@ -66,7 +64,7 @@ class Mem {
      */
     this.dirty = {
       added: new Set(),
-      removed: new Set()
+      removed: new Set(),
     }
   }
 
@@ -79,7 +77,7 @@ class Mem {
    *                                                not need to schedule the transaction
    *                                                that is being added for saving to disk
    */
-  add (memPoolTransaction, maxTransactionAge, thisIsDBLoad = false) {
+  add(memPoolTransaction, maxTransactionAge, thisIsDBLoad = false) {
     const transaction = memPoolTransaction.transaction
 
     assert.strictEqual(this.byId[transaction.id], undefined)
@@ -115,7 +113,7 @@ class Mem {
 
       // XXX worst case: O(n * log(n))
       this.sortedByExpiration.sort(
-        (a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge)
+        (a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge),
       )
     }
 
@@ -136,7 +134,7 @@ class Mem {
    * @param {String} id              id of the transaction to remove
    * @param {String} senderPublicKey public key of the sender, could be undefined
    */
-  remove (id, senderPublicKey) {
+  remove(id, senderPublicKey) {
     if (this.byId[id] === undefined) {
       // Not found, not in pool
       return
@@ -180,7 +178,7 @@ class Mem {
    * Get the number of transactions.
    * @return Number
    */
-  getSize () {
+  getSize() {
     return this.all.length
   }
 
@@ -189,7 +187,7 @@ class Mem {
    * @param {String} senderPublicKey public key of the sender
    * @return {Set of MemPoolTransaction} all transactions for the given sender, could be empty Set
    */
-  getBySender (senderPublicKey) {
+  getBySender(senderPublicKey) {
     const memPoolTransactions = this.bySender[senderPublicKey]
     if (memPoolTransactions !== undefined) {
       return memPoolTransactions
@@ -202,7 +200,7 @@ class Mem {
    * @param {String} id transaction id
    * @return {Transaction|undefined}
    */
-  getTransactionById (id) {
+  getTransactionById(id) {
     if (this.byId[id] === undefined) {
       return undefined
     }
@@ -215,9 +213,9 @@ class Mem {
    * insertion time, if fees equal (earliest transaction first).
    * @return {Array of MemPoolTransaction} transactions
    */
-  getTransactionsOrderedByFee () {
+  getTransactionsOrderedByFee() {
     if (!this.allIsSorted) {
-      this.all.sort(function (a, b) {
+      this.all.sort((a, b) => {
         if (a.transaction.fee.isGreaterThan(b.transaction.fee)) {
           return -1
         }
@@ -237,7 +235,7 @@ class Mem {
    * @param {String} id transaction id
    * @return {Boolean} true if exists
    */
-  transactionExists (id) {
+  transactionExists(id) {
     return this.byId[id] !== undefined
   }
 
@@ -246,10 +244,10 @@ class Mem {
    * @param {Number} maxTransactionAge maximum age of a transaction in seconds
    * @return {Array of Transaction} expired transactions
    */
-  getExpired (maxTransactionAge) {
+  getExpired(maxTransactionAge) {
     const now = slots.getTime()
 
-    let transactions = []
+    const transactions = []
 
     for (const memPoolTransaction of this.sortedByExpiration) {
       if (memPoolTransaction.expireAt(maxTransactionAge) <= now) {
@@ -265,7 +263,7 @@ class Mem {
   /**
    * Remove all transactions.
    */
-  flush () {
+  flush() {
     this.all = []
     this.allIsSorted = true
     this.byId = {}
@@ -280,7 +278,7 @@ class Mem {
    * removals have not been applied to the persistent storage).
    * @return {Number} number of dirty transactions
    */
-  getNumberOfDirty () {
+  getNumberOfDirty() {
     return this.dirty.added.size + this.dirty.removed.size
   }
 
@@ -290,8 +288,8 @@ class Mem {
    * call to this method (or to the flush() method).
    * @return {Array of MemPoolTransaction}
    */
-  getDirtyAddedAndForget () {
-    let added = []
+  getDirtyAddedAndForget() {
+    const added = []
     this.dirty.added.forEach(id => added.push(this.byId[id]))
     this.dirty.added.clear()
     return added
@@ -303,7 +301,7 @@ class Mem {
    * call to this method (or to the flush() method).
    * @return {Array of String} transaction ids
    */
-  getDirtyRemovedAndForget () {
+  getDirtyRemovedAndForget() {
     const removed = Array.from(this.dirty.removed)
     this.dirty.removed.clear()
     return removed

@@ -1,5 +1,3 @@
-'use strict'
-
 const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
 const server = require('./schema')
 
@@ -8,15 +6,15 @@ const server = require('./schema')
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-module.exports = async (config) => {
+module.exports = async config => {
   const app = await createServer({
     host: config.host,
-    port: config.port
+    port: config.port,
   })
 
   await server.applyMiddleware({
     app,
-    path: config.path
+    path: config.path,
   })
 
   await server.installSubscriptionHandlers(app.listener)

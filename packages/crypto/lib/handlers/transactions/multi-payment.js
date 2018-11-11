@@ -13,9 +13,17 @@ class MultiPaymentHandler extends Handler {
       return false
     }
 
-    const amount = transaction.asset.payments.reduce((total, payment) => (total.plus(payment.amount)), Bignum.ZERO)
+    const amount = transaction.asset.payments.reduce(
+      (total, payment) => total.plus(payment.amount),
+      Bignum.ZERO,
+    )
 
-    return +(wallet.balance.minus(amount).minus(transaction.fee)).toFixed() >= 0
+    return (
+      +wallet.balance
+        .minus(amount)
+        .minus(transaction.fee)
+        .toFixed() >= 0
+    )
   }
 
   /**

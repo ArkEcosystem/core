@@ -1,5 +1,3 @@
-
-
 const loggerManager = require('../lib/manager')
 
 class FakeDriver {

@@ -1,8 +1,6 @@
-'use strict'
-
 const { client } = require('@arkecosystem/crypto')
-const { logger } = require('../utils')
 const superheroes = require('superheroes')
+const { logger } = require('../utils')
 const Command = require('./command')
 const Transfer = require('./transfer')
 
@@ -11,19 +9,21 @@ module.exports = class DelegateRegistrationCommand extends Command {
    * Run delegate-registration command.
    * @return {void}
    */
-  async run () {
+  async run() {
     const wallets = this.generateWallets()
 
     const transfer = await Transfer.init(this.options)
     await transfer.run({
       wallets,
       amount: this.options.amount || 25,
-      skipTesting: true
+      skipTesting: true,
     })
 
     const delegates = await this.getDelegates()
 
-    logger.info(`Sending ${this.options.number} delegate registration transactions`)
+    logger.info(
+      `Sending ${this.options.number} delegate registration transactions`,
+    )
     if (!this.options.skipValidation) {
       logger.info(`Starting delegate count: ${delegates.length}`)
     }
@@ -39,7 +39,9 @@ module.exports = class DelegateRegistrationCommand extends Command {
       wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
       usedDelegateNames.push(wallet.username)
 
-      const transaction = client.getBuilder().delegateRegistration()
+      const transaction = client
+        .getBuilder()
+        .delegateRegistration()
         .fee(Command.parseFee(this.options.delegateFee))
         .usernameAsset(wallet.username)
         .network(this.config.network.version)
@@ -49,7 +51,13 @@ module.exports = class DelegateRegistrationCommand extends Command {
 
       transactions.push(transaction)
 
-      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)}, username: ${wallet.username})`)
+      logger.info(
+        `${i} ==> ${transaction.id}, ${
+          wallet.address
+        } (fee: ${Command.__arktoshiToArk(transaction.fee)}, username: ${
+          wallet.username
+        })`,
+      )
     })
 
     if (this.options.copy) {
@@ -63,20 +71,34 @@ module.exports = class DelegateRegistrationCommand extends Command {
     }
 
     try {
-      await this.sendTransactions(transactions, 'delegate', !this.options.skipValidation)
+      await this.sendTransactions(
+        transactions,
+        'delegate',
+        !this.options.skipValidation,
+      )
 
       if (this.options.skipValidation) {
         return
       }
 
       const delegates = await this.getDelegates()
-      logger.info(`All transactions have been sent! Total delegates: ${delegates.length}`)
+      logger.info(
+        `All transactions have been sent! Total delegates: ${delegates.length}`,
+      )
 
       if (delegates.length !== expectedDelegates) {
-        logger.error(`Delegate count incorrect. '${delegates.length}' but should be '${expectedDelegates}'`)
+        logger.error(
+          `Delegate count incorrect. '${
+            delegates.length
+          }' but should be '${expectedDelegates}'`,
+        )
       }
     } catch (error) {
-      logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
+      logger.error(
+        `There was a problem sending transactions: ${
+          error.response ? error.response.data.message : error
+        }`,
+      )
     }
   }
 }

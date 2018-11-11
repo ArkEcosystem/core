@@ -8,7 +8,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {Number} id
    * @return {Promise}
    */
-  async findById (id) {
+  async findById(id) {
     return this.db.one(sql.findById, { id })
   }
 
@@ -16,7 +16,7 @@ module.exports = class BlocksRepository extends Repository {
    * Count the number of records in the database.
    * @return {Promise}
    */
-  async count () {
+  async count() {
     return this.db.one(sql.count)
   }
 
@@ -25,7 +25,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {Array} ids
    * @return {Promise}
    */
-  async common (ids) {
+  async common(ids) {
     return this.db.manyOrNone(sql.common, { ids })
   }
 
@@ -35,7 +35,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {Number} end
    * @return {Promise}
    */
-  async headers (start, end) {
+  async headers(start, end) {
     return this.db.many(sql.headers, { start, end })
   }
 
@@ -45,7 +45,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {Number} end
    * @return {Promise}
    */
-  async heightRange (start, end) {
+  async heightRange(start, end) {
     return this.db.manyOrNone(sql.heightRange, { start, end })
   }
 
@@ -53,7 +53,7 @@ module.exports = class BlocksRepository extends Repository {
    * Get the last created block from the database.
    * @return {Promise}
    */
-  async latest () {
+  async latest() {
     return this.db.oneOrNone(sql.latest)
   }
 
@@ -61,7 +61,7 @@ module.exports = class BlocksRepository extends Repository {
    * Get the 10 most recently created blocks from the database.
    * @return {Promise}
    */
-  async recent () {
+  async recent() {
     return this.db.many(sql.recent)
   }
 
@@ -69,7 +69,7 @@ module.exports = class BlocksRepository extends Repository {
    * Get statistics about all blocks from the database.
    * @return {Promise}
    */
-  async statistics () {
+  async statistics() {
     return this.db.one(sql.statistics)
   }
 
@@ -77,7 +77,7 @@ module.exports = class BlocksRepository extends Repository {
    * Get top count blocks
    * @return {Promise}
    */
-  async top (count) {
+  async top(count) {
     return this.db.many(sql.top, { top: count })
   }
 
@@ -86,7 +86,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {Number} id
    * @return {Promise}
    */
-  async delete (id) {
+  async delete(id) {
     return this.db.none(sql.delete, { id })
   }
 
@@ -94,7 +94,7 @@ module.exports = class BlocksRepository extends Repository {
    * Get the model related to this repository.
    * @return {Object}
    */
-  getModel () {
+  getModel() {
     return new Block(this.pgp)
   }
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const _ = require('lodash')
 const envfile = require('envfile')
 const expandHomeDir = require('expand-home-dir')
@@ -12,9 +10,7 @@ const path = require('path')
  * @param  {Number} max
  * @return {Number}
  */
-exports.getRandomNumber = (min, max) => {
-  return Math.floor(Math.random() * (max - min) + min)
-}
+exports.getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min)
 
 exports.logger = require('./logger')
 
@@ -25,7 +21,7 @@ exports.logger = require('./logger')
  * @return {Object}
  */
 exports.updateConfig = (file, values, configPath, forceOverwrite) => {
-  configPath = (configPath || `${process.env.ARK_PATH_CONFIG}/deployer`)
+  configPath = configPath || `${process.env.ARK_PATH_CONFIG}/deployer`
   configPath = path.resolve(configPath, file)
   let config
   if (fs.existsSync(configPath) && !forceOverwrite) {
@@ -34,7 +30,7 @@ exports.updateConfig = (file, values, configPath, forceOverwrite) => {
     config = {}
   }
 
-  for (let key in values) {
+  for (const key in values) {
     _.set(config, key, values[key])
   }
 

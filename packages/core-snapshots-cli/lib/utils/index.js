@@ -1,8 +1,6 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
 
-exports.setUpLite = async (options) => {
+exports.setUpLite = async options => {
   process.env.ARK_SKIP_BLOCKCHAIN = true
   await container.setUp(options, {
     include: [
@@ -10,8 +8,8 @@ exports.setUpLite = async (options) => {
       '@arkecosystem/core-logger',
       '@arkecosystem/core-logger-winston',
       '@arkecosystem/core-event-emitter',
-      '@arkecosystem/core-snapshots'
-    ]
+      '@arkecosystem/core-snapshots',
+    ],
   })
 
   return container

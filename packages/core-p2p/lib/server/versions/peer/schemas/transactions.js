@@ -1,5 +1,3 @@
-'use strict'
-
 const Joi = require('joi')
 const container = require('@arkecosystem/core-container')
 
@@ -8,8 +6,12 @@ const container = require('@arkecosystem/core-container')
  */
 exports.store = {
   payload: {
-    transactions: Joi.array().max(container.resolveOptions('transactionPool').maxTransactionsPerRequest).items(Joi.object())
-  }
+    transactions: Joi.array()
+      .max(
+        container.resolveOptions('transactionPool').maxTransactionsPerRequest,
+      )
+      .items(Joi.object()),
+  },
 }
 
 /**
@@ -17,6 +19,6 @@ exports.store = {
  */
 exports.search = {
   payload: {
-    transactions: Joi.array().items(Joi.string())
-  }
+    transactions: Joi.array().items(Joi.string()),
+  },
 }

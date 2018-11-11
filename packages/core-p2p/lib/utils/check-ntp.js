@@ -27,6 +27,10 @@ module.exports = (hosts, timeout = 1000) => {
       }
     }
 
-    reject(new Error('Please check your NTP connectivity, couldn\'t connect to any host.'))
+    reject(
+      new Error(
+        "Please check your NTP connectivity, couldn't connect to any host.",
+      ),
+    )
   })
 }

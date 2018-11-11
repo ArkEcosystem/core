@@ -1,33 +1,32 @@
-'use strict'
 const msgpack = require('msgpack-lite')
 const columns = require('../../../db/utils/column-set')
 
 module.exports = {
-  blockEncode: (block) => {
+  blockEncode: block => {
     const values = Object.values(block)
     return msgpack.encode(values)
   },
 
-  blockDecode: (bufferData) => {
+  blockDecode: bufferData => {
     const values = msgpack.decode(bufferData)
-    let block = {}
+    const block = {}
     columns.blocks.forEach((column, i) => {
       block[column] = values[i]
     })
     return block
   },
 
-  transactionEncode: (transactionRecord) => {
+  transactionEncode: transactionRecord => {
     const values = Object.values(transactionRecord)
     return msgpack.encode(values)
   },
 
-  transactionDecode: (bufferData) => {
+  transactionDecode: bufferData => {
     const values = msgpack.decode(bufferData)
-    let transaction = {}
+    const transaction = {}
     columns.transactions.forEach((column, i) => {
       transaction[column] = values[i]
     })
     return transaction
-  }
+  },
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 const blockchain = require('./handlers/blockchain')
 
 /**
@@ -10,7 +8,7 @@ const blockchain = require('./handlers/blockchain')
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/blockchain/{event}', ...blockchain.emitEvent }
+    { method: 'GET', path: '/blockchain/{event}', ...blockchain.emitEvent },
   ])
 }
 
@@ -21,5 +19,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'Ark P2P - Remote API',
   version: '0.1.0',
-  register
+  register,
 }

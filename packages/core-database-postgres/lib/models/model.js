@@ -5,7 +5,7 @@ module.exports = class Model {
    * Create a new model instance.
    * @param {Object} pgp
    */
-  constructor (pgp) {
+  constructor(pgp) {
     this.pgp = pgp
   }
 
@@ -13,13 +13,13 @@ module.exports = class Model {
    * Return the model & table definition.
    * @return {Object}
    */
-  query () {
+  query() {
     return sql.define({
       name: this.getTable(),
       columns: this.getColumnSet().columns.map(column => ({
         name: column.name,
-        prop: column.prop || column.name
-      }))
+        prop: column.prop || column.name,
+      })),
     })
   }
 
@@ -27,10 +27,10 @@ module.exports = class Model {
    * Convert the "camelCase" keys to "snake_case".
    * @return {Object}
    */
-  transform (model) {
+  transform(model) {
     const mappings = Object.entries(this.getMappings())
 
-    let transformed = {}
+    const transformed = {}
 
     for (const [original, mapping] of mappings) {
       transformed[mapping] = model[original]
@@ -44,12 +44,12 @@ module.exports = class Model {
    * @param  {Array} v
    * @return {ColumnSet}
    */
-  createColumnSet (columns) {
+  createColumnSet(columns) {
     return new this.pgp.helpers.ColumnSet(columns, {
       table: {
         table: this.getTable(),
-        schema: 'public'
-      }
+        schema: 'public',
+      },
     })
   }
 }

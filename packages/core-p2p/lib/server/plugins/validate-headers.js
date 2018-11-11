@@ -1,5 +1,3 @@
-'use strict'
-
 const ip = require('ip')
 const AJV = require('ajv')
 
@@ -14,14 +12,12 @@ const register = async (server, options) => {
 
   ajv.addFormat('ip', {
     type: 'string',
-    validate: (value) => {
-      return ip.isV4Format(value) || ip.isV6Format(value)
-    }
+    validate: value => ip.isV4Format(value) || ip.isV6Format(value),
   })
 
   server.ext({
     type: 'onRequest',
-    async method (request, h) {
+    async method(request, h) {
       if (request.path.startsWith('/config')) {
         return h.continue
       }
@@ -30,43 +26,50 @@ const register = async (server, options) => {
         request.headers.port = +request.headers.port
       }
 
-      const errors = ajv.validate({
-        type: 'object',
-        properties: {
-          ip: {
-            type: 'string',
-            format: 'ip'
+      const errors = ajv.validate(
+        {
+          type: 'object',
+          properties: {
+            ip: {
+              type: 'string',
+              format: 'ip',
+            },
+            port: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 65535,
+            },
+            os: {
+              type: 'string',
+              maxLength: 64,
+            },
+            nethash: {
+              type: 'string',
+              maxLength: 64,
+            },
+            version: {
+              type: 'string',
+              maxLength: 11,
+            },
           },
-          port: {
-            type: 'integer',
-            minimum: 1,
-            maximum: 65535
-          },
-          os: {
-            type: 'string',
-            maxLength: 64
-          },
-          nethash: {
-            type: 'string',
-            maxLength: 64
-          },
-          version: {
-            type: 'string',
-            maxLength: 11
-          }
+          required: ['version', 'nethash', 'port'],
         },
-        required: ['version', 'nethash', 'port']
-      }, request.headers) ? null : ajv.errors
+        request.headers,
+      )
+        ? null
+        : ajv.errors
 
       if (errors) {
-        return h.response({
-          error: errors[0].message,
-          success: false
-        }).takeover()
+        return h
+          .response({
+            error: errors[0].message,
+            success: false,
+          })
+          .takeover()
       }
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -77,5 +80,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'validate-headers',
   version: '0.1.0',
-  register
+  register,
 }

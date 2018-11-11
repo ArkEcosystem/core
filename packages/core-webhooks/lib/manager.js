@@ -1,9 +1,9 @@
-'use strict'
-
 const axios = require('axios')
 const container = require('@arkecosystem/core-container')
+
 const logger = container.resolvePlugin('logger')
 const database = require('./database')
+
 const emitter = container.resolvePlugin('event-emitter')
 
 class WebhookManager {
@@ -12,7 +12,7 @@ class WebhookManager {
    * @param  {Object} config
    * @return {void}
    */
-  async setUp (config) {
+  async setUp(config) {
     this.config = config
 
     for (const event of container.resolvePlugin('blockchain').getEvents()) {
@@ -21,17 +21,27 @@ class WebhookManager {
 
         for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
           try {
-            const response = await axios.post(webhook.target, {
-              timestamp: +new Date(),
-              data: payload,
-              event: webhook.event
-            }, {
-              headers: {
-                Authorization: webhook.token
-              }
-            })
+            const response = await axios.post(
+              webhook.target,
+              {
+                timestamp: +new Date(),
+                data: payload,
+                event: webhook.event,
+              },
+              {
+                headers: {
+                  Authorization: webhook.token,
+                },
+              },
+            )
 
-            logger.debug(`Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${response.status}].`)
+            logger.debug(
+              `Webhooks Job ${webhook.id} completed! Event [${
+                webhook.event
+              }] has been transmitted to [${
+                webhook.target
+              }] with a status of [${response.status}].`,
+            )
           } catch (error) {
             logger.error(`Webhooks Job ${webhook.id} failed: ${error.message}`)
           }
@@ -46,7 +56,7 @@ class WebhookManager {
    * @param  {Object} payload
    * @return {Array}
    */
-  getMatchingWebhooks (webhooks, payload) {
+  getMatchingWebhooks(webhooks, payload) {
     const matches = []
 
     for (const webhook of webhooks) {

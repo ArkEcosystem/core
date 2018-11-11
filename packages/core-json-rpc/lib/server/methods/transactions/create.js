@@ -4,7 +4,7 @@ const database = require('../../services/database')
 
 module.exports = {
   name: 'transactions.create',
-  async method (params) {
+  async method(params) {
     const transaction = transactionBuilder
       .transfer()
       .recipientId(params.recipientId)
@@ -19,6 +19,6 @@ module.exports = {
   schema: {
     amount: Joi.number().required(),
     recipientId: Joi.string().required(),
-    passphrase: Joi.string().required()
-  }
+    passphrase: Joi.string().required(),
+  },
 }

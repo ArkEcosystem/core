@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * Create a "where" object for a sql query.
  * @param  {Object} parameters
@@ -7,42 +5,48 @@
  * @return {Object}
  */
 module.exports = (parameters, filters) => {
-  let where = []
+  const where = []
 
   if (filters.hasOwnProperty('exact')) {
-    for (const elem of filters['exact']) {
+    for (const elem of filters.exact) {
       if (typeof parameters[elem] !== 'undefined') {
         where.push({
           column: elem,
           method: 'equals',
-          value: parameters[elem]
+          value: parameters[elem],
         })
       }
     }
   }
 
   if (filters.hasOwnProperty('between')) {
-    for (const elem of filters['between']) {
+    for (const elem of filters.between) {
       if (!parameters[elem]) {
         continue
       }
 
-      if (!parameters[elem].hasOwnProperty('from') && !parameters[elem].hasOwnProperty('to')) {
+      if (
+        !parameters[elem].hasOwnProperty('from')
+        && !parameters[elem].hasOwnProperty('to')
+      ) {
         where.push({
           column: elem,
           method: 'equals',
-          value: parameters[elem]
+          value: parameters[elem],
         })
       }
 
-      if (parameters[elem].hasOwnProperty('from') || parameters[elem].hasOwnProperty('to')) {
+      if (
+        parameters[elem].hasOwnProperty('from')
+        || parameters[elem].hasOwnProperty('to')
+      ) {
         where[elem] = {}
 
         if (parameters[elem].hasOwnProperty('from')) {
           where.push({
             column: elem,
             method: 'gte',
-            value: parameters[elem].from
+            value: parameters[elem].from,
           })
         }
 
@@ -50,7 +54,7 @@ module.exports = (parameters, filters) => {
           where.push({
             column: elem,
             method: 'lte',
-            value: parameters[elem].to
+            value: parameters[elem].to,
           })
         }
       }
@@ -58,12 +62,12 @@ module.exports = (parameters, filters) => {
   }
 
   if (filters.hasOwnProperty('wildcard')) {
-    for (const elem of filters['wildcard']) {
+    for (const elem of filters.wildcard) {
       if (parameters[elem]) {
         where.push({
           column: elem,
           method: 'like',
-          value: `%${parameters[elem]}%`
+          value: `%${parameters[elem]}%`,
         })
       }
     }

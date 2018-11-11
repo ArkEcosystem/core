@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * @type {Object}
  */
@@ -8,100 +6,100 @@ module.exports = {
     type: 'object',
     properties: {
       success: {
-        type: 'boolean'
+        type: 'boolean',
       },
       height: {
         type: 'integer',
-        minimum: 0
+        minimum: 0,
       },
       currentSlot: {
         type: 'integer',
-        minimum: 0
+        minimum: 0,
       },
       forgingAllowed: {
-        type: 'boolean'
+        type: 'boolean',
       },
       header: {
-        type: 'object'
-      }
+        type: 'object',
+      },
     },
-    required: ['success', 'height', 'header', 'currentSlot', 'forgingAllowed']
+    required: ['success', 'height', 'header', 'currentSlot', 'forgingAllowed'],
   },
   getHeight: {
     type: 'object',
     properties: {
       success: {
-        type: 'boolean'
+        type: 'boolean',
       },
       height: {
         type: 'integer',
-        minimum: 0
+        minimum: 0,
       },
       header: {
-        type: 'object'
-      }
+        type: 'object',
+      },
     },
-    required: ['success', 'height', 'header']
+    required: ['success', 'height', 'header'],
   },
   postTransactions: {
-    type: 'object'
+    type: 'object',
   },
   getTransactions: {
     type: 'object',
     properties: {
       success: {
-        type: 'boolean'
+        type: 'boolean',
       },
       transactions: {
         type: 'array',
-        uniqueItems: true
-      }
+        uniqueItems: true,
+      },
     },
-    required: ['transactions']
+    required: ['transactions'],
   },
   getTransactionsFromIds: {
-    type: 'object'
+    type: 'object',
   },
   getBlocks: {
     type: 'object',
     properties: {
       success: {
-        type: 'boolean'
+        type: 'boolean',
       },
       blocks: {
-        type: 'array'
-      }
+        type: 'array',
+      },
     },
-    required: ['blocks']
+    required: ['blocks'],
   },
   postBlock: {
     type: 'object',
     properties: {
       success: {
-        type: 'boolean'
+        type: 'boolean',
       },
       blockId: {
-        type: 'string'
-      }
+        type: 'string',
+      },
     },
-    required: ['success', 'blockId']
+    required: ['success', 'blockId'],
   },
   getBlock: {
-    type: 'object'
+    type: 'object',
   },
   getCommonBlocks: {
-    type: 'object'
+    type: 'object',
   },
   getPeers: {
     type: 'object',
     properties: {
       success: {
-        type: 'boolean'
+        type: 'boolean',
       },
       peers: {
-        type: 'array'
-      }
+        type: 'array',
+      },
     },
-    required: ['peers']
-  }
+    required: ['peers'],
+  },
 }

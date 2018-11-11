@@ -52,10 +52,12 @@ const moduleConfig = {
       deepmerge$: 'deepmerge/dist/cjs.js',
     },
   },
-  externals: [nodeExternals({
-    modulesFromFile: true,
-    modulesDir: resolve('node_modules'),
-  })],
+  externals: [
+    nodeExternals({
+      modulesFromFile: true,
+      modulesDir: resolve('node_modules'),
+    }),
+  ],
   entry: resolve(pkg.main),
   output: {
     ...format(pkg.module),
@@ -66,4 +68,4 @@ const moduleConfig = {
   },
 }
 
-module.exports = [browserConfig, moduleConfig].map(({ babel, ...entry }) => merge(base(babel), entry));
+module.exports = [browserConfig, moduleConfig].map(({ babel, ...entry }) => merge(base(babel), entry))

@@ -4,31 +4,42 @@
     "node": true,
     "jest": true
   },
-  "extends": ["airbnb-base"],
-  "parserOptions": {
-    "sourceType": "module"
-  },
+  "extends": ["@arkecosystem/eslint-config-base"],
   "rules": {
-    // Our preferences
-    "arrow-parens": ["error", "as-needed"],
-    "camelcase": ["error", { "properties": "always" }],
-    "eqeqeq": ["error", "always"],
-    "new-cap": ["error", { "newIsCap": true, "capIsNewExceptionPattern": "should[.(]" }],
-    "no-console": ["error", { "allow": ["error", "info", "warn"] }],
-    "no-tabs": "off",
-    "semi": ["off", "always"],
+    // TODO: fix later as they require a lot of changes
+    "array-callback-return": "off",
+    "camelcase": "off",
+    "class-methods-use-this": "off",
+    "consistent-return": "off",
+    "default-case": "off",
+    "func-names": "off",
     "global-require": "off",
+    "guard-for-in": "off",
+    "import/no-dynamic-require": "off",
+    "max-len": "off",
+    "no-await-in-loop": "off",
+    "no-bitwise": "off",
+    "no-case-declarations": "off",
+    "no-console": "off",
+    "no-constant-condition": "off",
+    "no-continue": "off",
+    "no-empty": "off",
+    "no-nested-ternary": "off",
+    "no-param-reassign": "off",
+    "no-plusplus": "off",
+    "no-prototype-builtins": "off",
+    "no-restricted-globals": "off",
+    "no-restricted-properties": "off",
+    "no-restricted-syntax": "off",
+    "no-return-assign": "off",
+    "no-shadow": "off",
     "no-underscore-dangle": "off",
-
-    // Plugin rules
-    "import/order": "error",
-
-    // Prettier conflicts
-    "curly": "off",
-    "function-paren-newline": "off",
-    "indent": "off",
-    "no-confusing-arrow": "off",
-    "no-mixed-operators": "off",
-    "object-curly-newline": "off"
+    "no-unused-expressions": "off",
+    "no-unused-vars": "off",
+    "no-use-before-define": "off",
+    "no-useless-concat": "off",
+    "prefer-destructuring": "off",
+    "radix": "off",
+    "semi-style": "off"
   }
 }

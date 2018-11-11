@@ -1,5 +1,3 @@
-'use strict';
-
 const { ApolloServer } = require('apollo-server-hapi')
 const resolvers = require('./resolvers')
 const typeDefs = require('./defs')
@@ -9,5 +7,5 @@ const typeDefs = require('./defs')
  */
 module.exports = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
 })

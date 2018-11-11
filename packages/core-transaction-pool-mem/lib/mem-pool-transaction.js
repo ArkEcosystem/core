@@ -1,5 +1,3 @@
-'use strict'
-
 const assert = require('assert')
 const crypto = require('@arkecosystem/crypto')
 
@@ -21,7 +19,7 @@ module.exports = class MemPoolTransaction {
    *                                  then it is assigned later using the
    *                                  setter method below
    */
-  constructor (transaction, sequence) {
+  constructor(transaction, sequence) {
     assert(transaction instanceof Transaction)
     this._transaction = transaction
 
@@ -31,15 +29,15 @@ module.exports = class MemPoolTransaction {
     }
   }
 
-  get transaction () {
+  get transaction() {
     return this._transaction
   }
 
-  get sequence () {
+  get sequence() {
     return this._sequence
   }
 
-  set sequence (seq) {
+  set sequence(seq) {
     assert.strictEqual(this._sequence, undefined)
     this._sequence = seq
   }
@@ -50,7 +48,7 @@ module.exports = class MemPoolTransaction {
    * @param {Number} maxTransactionAge maximum age (in seconds) of a transaction
    * @return {Number} expiration time or null if the transaction does not expire
    */
-  expireAt (maxTransactionAge) {
+  expireAt(maxTransactionAge) {
     const t = this._transaction
 
     if (t.expiration > 0) {

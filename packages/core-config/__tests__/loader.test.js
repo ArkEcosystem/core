@@ -1,5 +1,3 @@
-
-
 const path = require('path')
 const configLoader = require('../lib/loader')
 

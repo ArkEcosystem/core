@@ -17,14 +17,16 @@ afterAll(() => {
 describe('GraphQL API { blocks }', () => {
   describe('GraphQL queries for Blocks - filter by generatorPublicKey', () => {
     it('should get blocks by generatorPublicKey', async () => {
-      const query = `{ blocks(filter: { generatorPublicKey: "${genesisBlock.generatorPublicKey}" }) { id } }`
+      const query = `{ blocks(filter: { generatorPublicKey: "${
+        genesisBlock.generatorPublicKey
+      }" }) { id } }`
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
 
       const data = response.data.data
       expect(data).toBeObject()
-      expect(data.blocks).toEqual([ { id: genesisBlock.id } ])
+      expect(data.blocks).toEqual([{ id: genesisBlock.id }])
     })
   })
 
@@ -37,7 +39,9 @@ describe('GraphQL API { blocks }', () => {
 
       const data = response.data.data
       expect(data).toBeObject()
-      expect(data.blocks[0].generator.address).toEqual('AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins')
+      expect(data.blocks[0].generator.address).toEqual(
+        'AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins',
+      )
     })
   })
 

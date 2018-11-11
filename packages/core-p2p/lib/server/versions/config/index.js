@@ -1,5 +1,3 @@
-'use strict'
-
 const handlers = require('./handlers')
 /**
  * Register v1 routes.
@@ -13,7 +11,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/network', ...handlers.network },
     { method: 'GET', path: '/genesis-block', ...handlers.genesisBlock },
     { method: 'GET', path: '/peers', ...handlers.peers },
-    { method: 'GET', path: '/delegates', ...handlers.delegates }
+    { method: 'GET', path: '/delegates', ...handlers.delegates },
   ])
 }
 
@@ -24,5 +22,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'Ark P2P - Config API',
   version: '0.1.0',
-  register
+  register,
 }

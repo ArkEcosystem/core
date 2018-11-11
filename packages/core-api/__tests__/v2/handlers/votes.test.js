@@ -1,5 +1,3 @@
-'use strict'
-
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
@@ -18,7 +16,7 @@ describe('API 2.0 - Votes', () => {
   describe('GET /votes', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all the votes', async () => {
         const response = await utils[request]('GET', 'votes')
@@ -35,7 +33,7 @@ describe('API 2.0 - Votes', () => {
   describe('GET /votes/:id', () => {
     describe.each([
       ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader']
+      ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET a vote by the given identifier', async () => {
         const response = await utils[request]('GET', `votes/${voteId}`)

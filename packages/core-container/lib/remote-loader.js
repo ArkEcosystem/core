@@ -1,14 +1,14 @@
-'use strict'
-
 const axios = require('axios')
 const expandHomeDir = require('expand-home-dir')
 const fs = require('fs-extra')
 const path = require('path')
-const { models: { Block } } = require('@arkecosystem/crypto')
+const {
+  models: { Block },
+} = require('@arkecosystem/crypto')
 const { spawnSync } = require('child_process')
 
 module.exports = class RemoteLoader {
-  constructor (variables) {
+  constructor(variables) {
     this.remote = variables.remote
     this.config = expandHomeDir(variables.config)
     this.data = expandHomeDir(variables.data)
@@ -16,7 +16,7 @@ module.exports = class RemoteLoader {
     fs.ensureDirSync(this.config)
   }
 
-  async setUp () {
+  async setUp() {
     const network = await this.__configureNetwork()
 
     await this.__configureGenesisBlock()
@@ -30,7 +30,7 @@ module.exports = class RemoteLoader {
     this.__configureDatabase(network)
   }
 
-  async __configureNetwork () {
+  async __configureNetwork() {
     const network = await this.__getConfig('network')
 
     this.__writeConfig('network', network)
@@ -38,37 +38,42 @@ module.exports = class RemoteLoader {
     return network
   }
 
-  async __configureGenesisBlock () {
+  async __configureGenesisBlock() {
     const genesisBlock = await this.__getConfig('genesis-block')
     const genesisBlockModel = new Block(genesisBlock)
 
     if (!genesisBlockModel.verification.verified) {
-      console.error('Failed to verify the genesis block. Try another remote host.')
+      console.error(
+        'Failed to verify the genesis block. Try another remote host.',
+      )
       process.exit(1)
     }
 
     this.__writeConfig('genesisBlock', genesisBlock)
   }
 
-  async __configurePeers () {
+  async __configurePeers() {
     const peers = await this.__getConfig('peers')
 
     this.__writeConfig('peers', peers)
   }
 
-  async __configureDelegates () {
+  async __configureDelegates() {
     const delegates = await this.__getConfig('delegates')
 
     this.__writeConfig('delegates', delegates)
   }
 
-  __configurePlugins (network) {
-    const plugins = path.resolve(__dirname, `../../core/lib/config/${network.name}/plugins.js`)
+  __configurePlugins(network) {
+    const plugins = path.resolve(
+      __dirname,
+      `../../core/lib/config/${network.name}/plugins.js`,
+    )
 
     fs.copySync(plugins, `${this.config}/plugins.js`)
   }
 
-  __configureDatabase (network) {
+  __configureDatabase(network) {
     const command = spawnSync('createdb', [`ark_${network.name}`])
 
     if (command.stderr.length > 0) {
@@ -79,7 +84,7 @@ module.exports = class RemoteLoader {
     console.log(command.stdout.toString())
   }
 
-  async __getConfig (type) {
+  async __getConfig(type) {
     try {
       const { data } = await axios.get(`http://${this.remote}/config/${type}`)
 
@@ -92,11 +97,14 @@ module.exports = class RemoteLoader {
     }
   }
 
-  __writeConfig (file, data) {
-    fs.writeFileSync(`${this.config}/${file}.json`, JSON.stringify(data, null, 4))
+  __writeConfig(file, data) {
+    fs.writeFileSync(
+      `${this.config}/${file}.json`,
+      JSON.stringify(data, null, 4),
+    )
   }
 
-  __exists (file) {
+  __exists(file) {
     return fs.existsSync(`${this.config}/${file}.json`)
   }
 }

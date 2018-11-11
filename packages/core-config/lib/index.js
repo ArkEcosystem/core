@@ -1,5 +1,3 @@
-
-
 const { client } = require('@arkecosystem/crypto')
 const loader = require('./loader')
 

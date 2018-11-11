@@ -1,5 +1,3 @@
-'use strict'
-
 const app = require('../__support__/setup')
 const utils = require('./utils')
 
@@ -15,18 +13,21 @@ const postData = {
   event: 'block.forged',
   target: 'https://httpbin.org/post',
   enabled: true,
-  conditions: [{
-    key: 'generatorPublicKey',
-    condition: 'eq',
-    value: 'test-generator'
-  }, {
-    key: 'fee',
-    condition: 'gte',
-    value: '123'
-  }]
+  conditions: [
+    {
+      key: 'generatorPublicKey',
+      condition: 'eq',
+      value: 'test-generator',
+    },
+    {
+      key: 'fee',
+      condition: 'gte',
+      value: '123',
+    },
+  ],
 }
 
-function createWebhook (data = null) {
+function createWebhook(data = null) {
   return utils.request('POST', 'webhooks', data || postData)
 }
 
@@ -51,14 +52,16 @@ describe('API 2.0 - Webhooks', () => {
         event: 'block.forged',
         target: 'https://httpbin.org/post',
         enabled: true,
-        conditions: [{
-          key: 'fee',
-          condition: 'between',
-          value: {
-            min: 1,
-            max: 2
-          }
-        }]
+        conditions: [
+          {
+            key: 'fee',
+            condition: 'between',
+            value: {
+              min: 1,
+              max: 2,
+            },
+          },
+        ],
       })
       utils.expectSuccessful(response, 201)
       utils.expectResource(response)
@@ -69,12 +72,17 @@ describe('API 2.0 - Webhooks', () => {
     it('should GET a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const response = await utils.request('GET', `webhooks/${webhook.data.data.id}`)
+      const response = await utils.request(
+        'GET',
+        `webhooks/${webhook.data.data.id}`,
+      )
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
       const { data } = response.data
-      const webhookData = Object.assign(webhook.data.data, { token: data.token.substring(0, 32) })
+      const webhookData = Object.assign(webhook.data.data, {
+        token: data.token.substring(0, 32),
+      })
       expect(data).toEqual(webhookData)
     })
   })
@@ -83,7 +91,11 @@ describe('API 2.0 - Webhooks', () => {
     it('should PUT a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const response = await utils.request('PUT', `webhooks/${webhook.data.data.id}`, postData)
+      const response = await utils.request(
+        'PUT',
+        `webhooks/${webhook.data.data.id}`,
+        postData,
+      )
       utils.expectStatus(response, 204)
     })
   })
@@ -92,7 +104,10 @@ describe('API 2.0 - Webhooks', () => {
     it('should DELETE a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const response = await utils.request('DELETE', `webhooks/${webhook.data.data.id}`)
+      const response = await utils.request(
+        'DELETE',
+        `webhooks/${webhook.data.data.id}`,
+      )
       utils.expectStatus(response, 204)
     })
   })

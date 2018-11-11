@@ -1,6 +1,5 @@
-'use strict'
-
 const container = require('@arkecosystem/core-container')
+
 const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
 /**
@@ -13,21 +12,21 @@ module.exports = {
     properties: {
       publicKey: {
         type: 'string',
-        format: 'publicKey'
-      }
+        format: 'publicKey',
+      },
     },
-    required: ['publicKey']
+    required: ['publicKey'],
   },
   getDelegate: {
     type: 'object',
     properties: {
       publicKey: {
-        type: 'string'
+        type: 'string',
       },
       username: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+    },
   },
   search: {
     type: 'object',
@@ -35,53 +34,55 @@ module.exports = {
       q: {
         type: 'string',
         minLength: 1,
-        maxLength: 20
+        maxLength: 20,
       },
       limit: {
         type: 'integer',
         minimum: 1,
-        maximum: 100
-      }
+        maximum: 100,
+      },
     },
-    required: ['q']
+    required: ['q'],
   },
   getVoters: {
     type: 'object',
     properties: {
       publicKey: {
         type: 'string',
-        format: 'publicKey'
-      }
+        format: 'publicKey',
+      },
     },
-    required: ['publicKey']
+    required: ['publicKey'],
   },
   getDelegates: {
     type: 'object',
     properties: {
       orderBy: {
-        type: 'string'
+        type: 'string',
       },
       limit: {
         type: 'integer',
         minimum: 1,
         maximum: lastBlock
-          ? container.resolvePlugin('config').getConstants(lastBlock.data.height).activeDelegates
-          : 51
+          ? container
+            .resolvePlugin('config')
+            .getConstants(lastBlock.data.height).activeDelegates
+          : 51,
       },
       offset: {
         type: 'integer',
-        minimum: 0
-      }
-    }
+        minimum: 0,
+      },
+    },
   },
   getForgedByAccount: {
     type: 'object',
     properties: {
       generatorPublicKey: {
         type: 'string',
-        format: 'publicKey'
-      }
+        format: 'publicKey',
+      },
     },
-    required: ['generatorPublicKey']
-  }
+    required: ['generatorPublicKey'],
+  },
 }

@@ -1,9 +1,11 @@
-'use strict'
-
-const { createServer, mountServer, plugins } = require('@arkecosystem/core-http-utils')
+const {
+  createServer,
+  mountServer,
+  plugins,
+} = require('@arkecosystem/core-http-utils')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
-function registerMethods (server, group) {
+function registerMethods(server, group) {
   Object.values(require(`./methods/${group}`)).forEach(method => {
     server.app.schemas[method.name] = method.schema
 
@@ -18,14 +20,16 @@ function registerMethods (server, group) {
  * @param  {Object} options
  * @return {Hapi.Server}
  */
-module.exports = async (options) => {
+module.exports = async options => {
   if (options.allowRemote) {
-    logger.warn('JSON-RPC server allows remote connections, this is a potential security risk :warning:')
+    logger.warn(
+      'JSON-RPC server allows remote connections, this is a potential security risk :warning:',
+    )
   }
 
   const server = await createServer({
     host: options.host,
-    port: options.port
+    port: options.port,
   })
 
   server.app.schemas = {}
@@ -35,8 +39,8 @@ module.exports = async (options) => {
       plugin: plugins.whitelist,
       options: {
         whitelist: options.whitelist,
-        name: 'JSON-RPC'
-      }
+        name: 'JSON-RPC',
+      },
     })
   }
 

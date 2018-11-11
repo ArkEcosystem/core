@@ -25,7 +25,9 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
    * @return {SecondSignatureBuilder}
    */
   signatureAsset(secondPassphrase) {
-    this.data.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey
+    this.data.asset.signature.publicKey = crypto.getKeys(
+      secondPassphrase,
+    ).publicKey
     return this
   }
 

@@ -5,7 +5,7 @@ module.exports = async (config, endpoint, limit) => {
   let page = 1
   let maxPages = null
   while (maxPages === null || page <= maxPages) {
-    let response = (await request(config).get(`${endpoint}?page=${page}`))
+    const response = await request(config).get(`${endpoint}?page=${page}`)
     if (response) {
       page++
       maxPages = response.meta.pageCount

@@ -1,17 +1,15 @@
-'use strict'
-
+const { createContainer } = require('awilix')
+const delay = require('delay')
 const PluginRegistrar = require('./registrars/plugin')
 const Environment = require('./environment')
 const RemoteLoader = require('./remote-loader')
-const { createContainer } = require('awilix')
-const delay = require('delay')
 
 module.exports = class Container {
   /**
    * Create a new container instance.
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.container = createContainer()
 
     /**
@@ -29,7 +27,7 @@ module.exports = class Container {
    * @param  {Object} options
    * @return {void}
    */
-  async setUp (variables, options = {}) {
+  async setUp(variables, options = {}) {
     if (variables.remote) {
       const remoteLoader = new RemoteLoader(variables)
       await remoteLoader.setUp()
@@ -51,7 +49,7 @@ module.exports = class Container {
    * Tear down the container.
    * @return {Promise}
    */
-  async tearDown () {
+  async tearDown() {
     return this.plugins.tearDown()
   }
 
@@ -61,7 +59,7 @@ module.exports = class Container {
    * @return {Object}
    * @throws {Error}
    */
-  register (name, resolver) {
+  register(name, resolver) {
     try {
       return this.container.register(name, resolver)
     } catch (err) {
@@ -75,7 +73,7 @@ module.exports = class Container {
    * @return {Object}
    * @throws {Error}
    */
-  resolve (key) {
+  resolve(key) {
     try {
       return this.container.resolve(key)
     } catch (err) {
@@ -89,7 +87,7 @@ module.exports = class Container {
    * @return {Object}
    * @throws {Error}
    */
-  resolvePlugin (key) {
+  resolvePlugin(key) {
     try {
       return this.container.resolve(key).plugin
     } catch (err) {
@@ -103,7 +101,7 @@ module.exports = class Container {
    * @return {Object}
    * @throws {Error}
    */
-  resolveOptions (key) {
+  resolveOptions(key) {
     return this.plugins.resolveOptions(key)
   }
 
@@ -112,7 +110,7 @@ module.exports = class Container {
    * @param  {String}  key
    * @return {Boolean}
    */
-  has (key) {
+  has(key) {
     try {
       this.container.resolve(key)
 
@@ -128,7 +126,7 @@ module.exports = class Container {
    * @param  {Error} error
    * @return {void}
    */
-  forceExit (message, error = null) {
+  forceExit(message, error = null) {
     this.exit(1, message, error)
   }
 
@@ -139,7 +137,7 @@ module.exports = class Container {
    * @param  {Error} error
    * @return {void}
    */
-  exit (exitCode, message, error = null) {
+  exit(exitCode, message, error = null) {
     this.shuttingDown = true
 
     const logger = this.resolvePlugin('logger')
@@ -157,7 +155,7 @@ module.exports = class Container {
    * Handle any exit signals.
    * @return {void}
    */
-  __registerExitHandler () {
+  __registerExitHandler() {
     const handleExit = async () => {
       if (this.shuttingDown) {
         return
@@ -167,7 +165,9 @@ module.exports = class Container {
 
       const logger = this.resolvePlugin('logger')
       logger.suppressConsoleOutput(this.silentShutdown)
-      logger.info('Ark Core is trying to gracefully shut down to avoid data corruption :pizza:')
+      logger.info(
+        'Ark Core is trying to gracefully shut down to avoid data corruption :pizza:',
+      )
 
       try {
         const database = this.resolvePlugin('database')
@@ -193,6 +193,6 @@ module.exports = class Container {
     }
 
     // Handle exit events
-    ['SIGINT', 'exit'].forEach(eventType => process.on(eventType, handleExit))
+    ;['SIGINT', 'exit'].forEach(eventType => process.on(eventType, handleExit))
   }
 }

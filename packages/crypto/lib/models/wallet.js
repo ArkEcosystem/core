@@ -115,7 +115,10 @@ module.exports = class Wallet {
   applyBlock(block) {
     this.dirty = true
 
-    if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
+    if (
+      block.generatorPublicKey === this.publicKey
+      || crypto.getAddress(block.generatorPublicKey) === this.address
+    ) {
       this.balance = this.balance.plus(block.reward).plus(block.totalFee)
 
       // update stats
@@ -136,7 +139,10 @@ module.exports = class Wallet {
   revertBlock(block) {
     this.dirty = true
 
-    if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
+    if (
+      block.generatorPublicKey === this.publicKey
+      || crypto.getAddress(block.generatorPublicKey) === this.address
+    ) {
       this.balance = this.balance.minus(block.reward).minus(block.totalFee)
 
       // update stats
@@ -172,16 +178,23 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verifySignatures(transaction, multisignature) {
-    if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
+    if (
+      !transaction.signatures
+      || transaction.signatures.length < multisignature.min
+    ) {
       return false
     }
 
-    const keysgroup = multisignature.keysgroup.map(publicKey => publicKey.startsWith('+') ? publicKey.slice(1) : publicKey)
+    const keysgroup = multisignature.keysgroup.map(publicKey => (publicKey.startsWith('+') ? publicKey.slice(1) : publicKey))
     const signatures = Object.values(transaction.signatures)
 
     let valid = 0
     for (const publicKey of keysgroup) {
-      const signature = this.__verifyTransactionSignatures(transaction, signatures, publicKey)
+      const signature = this.__verifyTransactionSignatures(
+        transaction,
+        signatures,
+        publicKey,
+      )
       if (signature) {
         signatures.splice(signatures.indexOf(signature), 1)
         valid++
@@ -205,14 +218,25 @@ module.exports = class Wallet {
     audit.push({ Network: configManager.config })
 
     if (this.multisignature) {
-      audit.push({ Mutisignature: this.verifySignatures(transaction, this.multisignature) })
+      audit.push({
+        Mutisignature: this.verifySignatures(transaction, this.multisignature),
+      })
     } else {
-      audit.push({ 'Remaining amount': +(this.balance.minus(transaction.amount).minus(transaction.fee)).toFixed() })
+      audit.push({
+        'Remaining amount': +this.balance
+          .minus(transaction.amount)
+          .minus(transaction.fee)
+          .toFixed(),
+      })
       audit.push({ 'Signature validation': crypto.verify(transaction) })
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       if (this.secondPublicKey) {
         audit.push({
-          'Second Signature Verification': crypto.verifySecondSignature(transaction, this.secondPublicKey, configManager.config), // eslint-disable-line max-len
+          'Second Signature Verification': crypto.verifySecondSignature(
+            transaction,
+            this.secondPublicKey,
+            configManager.config,
+          ), // eslint-disable-line max-len
         })
       }
     }
@@ -239,9 +263,20 @@ module.exports = class Wallet {
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       const keysgroup = transaction.asset.multisignature.keysgroup
       audit.push({ 'Multisignature not yet registered': !this.multisignature })
-      audit.push({ 'Multisignature enough keys': keysgroup.length >= transaction.asset.multisignature.min })
-      audit.push({ 'Multisignature all keys signed': keysgroup.length === transaction.signatures.length })
-      audit.push({ 'Multisignature verification': this.verifySignatures(transaction, transaction.asset.multisignature) })
+      audit.push({
+        'Multisignature enough keys':
+          keysgroup.length >= transaction.asset.multisignature.min,
+      })
+      audit.push({
+        'Multisignature all keys signed':
+          keysgroup.length === transaction.signatures.length,
+      })
+      audit.push({
+        'Multisignature verification': this.verifySignatures(
+          transaction,
+          transaction.asset.multisignature,
+        ),
+      })
     }
 
     if (transaction.type === TRANSACTION_TYPES.IPFS) {
@@ -253,7 +288,10 @@ module.exports = class Wallet {
     }
 
     if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
-      const amount = transaction.asset.payments.reduce((a, p) => (a.plus(p.amount)), Bignum.ZERO)
+      const amount = transaction.asset.payments.reduce(
+        (a, p) => a.plus(p.amount),
+        Bignum.ZERO,
+      )
       audit.push({ 'Multipayment remaining amount': amount })
     }
 

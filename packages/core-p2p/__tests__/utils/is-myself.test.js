@@ -1,7 +1,5 @@
-'use strict'
-
-const isMyself = require('../../lib/utils/is-myself')
 const os = require('os')
+const isMyself = require('../../lib/utils/is-myself')
 
 describe('isMyself', () => {
   it('should be a function', () => {
@@ -16,7 +14,7 @@ describe('isMyself', () => {
 
   it('should be ok for LAN addresses', () => {
     const interfaces = os.networkInterfaces()
-    let addresses = []
+    const addresses = []
 
     // getting local addresses
     Object.keys(interfaces).forEach(ifname => {

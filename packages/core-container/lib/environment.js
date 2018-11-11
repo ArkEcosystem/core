@@ -1,5 +1,3 @@
-'use strict'
-
 const fs = require('fs-extra')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
@@ -11,14 +9,14 @@ module.exports = class Environment {
    * @param  {Object} variables
    * @return {void}
    */
-  constructor (variables) {
+  constructor(variables) {
     this.variables = variables
   }
 
   /**
    * Set up the environment variables.
    */
-  setUp () {
+  setUp() {
     this.__exportPaths()
     this.__exportNetwork()
     this.__exportVariables()
@@ -28,12 +26,14 @@ module.exports = class Environment {
    * Export all path variables for the core environment.
    * @return {void}
    */
-  __exportPaths () {
+  __exportPaths() {
     const allowedKeys = ['config', 'data']
 
-    for (let [key, value] of Object.entries(this.variables)) {
+    for (const [key, value] of Object.entries(this.variables)) {
       if (allowedKeys.includes(key)) {
-        process.env[`ARK_PATH_${key.toUpperCase()}`] = path.resolve(expandHomeDir(value))
+        process.env[`ARK_PATH_${key.toUpperCase()}`] = path.resolve(
+          expandHomeDir(value),
+        )
       }
     }
   }
@@ -42,21 +42,28 @@ module.exports = class Environment {
    * Export all network variables for the core environment.
    * @return {void}
    */
-  __exportNetwork () {
+  __exportNetwork() {
     let config
 
     if (this.variables.token && this.variables.network) {
-      config = NetworkManager.findByName(this.variables.network, this.variables.token)
+      config = NetworkManager.findByName(
+        this.variables.network,
+        this.variables.token,
+      )
     } else {
       try {
-        const networkPath = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network.json`))
+        const networkPath = path.resolve(
+          expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network.json`),
+        )
 
         config = require(networkPath)
       } catch (error) {}
     }
 
     if (!config) {
-      throw new Error('An invalid network configuration was provided or is inaccessible due to it\'s security settings.')
+      throw new Error(
+        "An invalid network configuration was provided or is inaccessible due to it's security settings.",
+      )
       process.exit(1) // eslint-disable-line no-unreachable
     }
 
@@ -68,7 +75,7 @@ module.exports = class Environment {
    * Export all additional variables for the core environment.
    * @return {void}
    */
-  __exportVariables () {
+  __exportVariables() {
     // Don't pollute the test environment, which is more in line with how
     // travis runs the tests.
     if (process.env.NODE_ENV === 'test') {
