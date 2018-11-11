@@ -19,7 +19,7 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-database-postgres": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.3",
+    "@arkecosystem/crypto": "^0.2.4",
     "JSONStream": "^1.3.5",
     "bluebird": "^3.5.3",
     "commander": "^2.19.0",

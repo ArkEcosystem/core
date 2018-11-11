@@ -23,7 +23,7 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-http-utils": "^0.1.0",
     "@arkecosystem/core-transaction-pool": "^0.1.1",
-    "@arkecosystem/crypto": "^0.2.3",
+    "@arkecosystem/crypto": "^0.2.4",
     "ajv": "^6.5.5",
     "axios": "^0.18.0",
     "boom": "^7.2.2",

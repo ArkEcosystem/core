@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.2.3",
+    "@arkecosystem/crypto": "^0.2.4",
     "bip39": "^2.5.0",
     "lodash": "^4.17.11",
     "superheroes": "^2.0.0",
