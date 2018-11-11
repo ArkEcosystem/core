@@ -12,7 +12,8 @@
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
     "flow:coverage": "flow-coverage-report --config .flowcoverage.json",
     "flow:check": "flow check ./packages/**/lib",
-    "flow:deps": "flow-typed install"
+    "flow:deps": "flow-typed install",
+    "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {
     "@babel/core": "^7.1.5",
@@ -43,6 +44,7 @@
     "regenerator-runtime": "^0.12.1",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
+    "snyk": "^1.108.2",
     "standard": "^12.0.1",
     "uuid": "^3.3.2",
     "webpack": "^4.25.1",
