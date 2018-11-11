@@ -58,3 +58,7 @@ packages/**/dist/
 
 # Databases
 *.sqlite
+
+# Flow
+flow-typed
+flow-coverage

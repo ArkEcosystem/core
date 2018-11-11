@@ -10,7 +10,11 @@
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "format": "prettier --write \"./*.{js,json,md}\" \"./packages/**/*.{js,json,md}\""
+    "format": "prettier --write \"./*.{js,json,md}\" \"./packages/**/*.{js,json,md}\"",
+    "flow:coverage": "flow-coverage-report --config .flowcoverage.json",
+    "flow:check": "flow check ./packages/**/lib",
+    "flow:deps": "flow-typed install",
+    "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {
     "@arkecosystem/eslint-config-base": "https://github.com/ArkEcosystem/eslint-config-base",
@@ -29,6 +33,9 @@
     "eslint-plugin-node": "^8.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "express": "^4.16.4",
+    "flow-bin": "^0.86.0",
+    "flow-coverage-report": "^0.6.0",
+    "flow-typed": "^2.5.1",
     "husky": "^1.1.3",
     "jest": "^23.6.0",
     "jest-extended": "^0.11.0",
@@ -39,6 +46,7 @@
     "regenerator-runtime": "^0.12.1",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
+    "snyk": "^1.108.2",
     "uuid": "^3.3.2",
     "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2",
