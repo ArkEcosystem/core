@@ -13,13 +13,19 @@
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+    "flow:coverage": "flow-coverage-report --config ../../.flowcoverage.json",
+    "flow:check": "flow check ./lib",
+    "flow:deps": "flow-typed install",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=flow-bin"
   },
   "publishConfig": {
     "access": "public"
   },
   "engines": {
-    "node" : ">=10.x"
+    "node": ">=10.x"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.86.0"
   }
 }

@@ -10,9 +10,9 @@
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "flow:coverage": "flow-coverage-report --config .flowcoverage.json",
-    "flow:check": "flow check ./packages/**/lib",
-    "flow:deps": "flow-typed install",
+    "flow:coverage": "lerna run flow:coverage",
+    "flow:check": "lerna run flow:check",
+    "flow:deps": "lerna run flow:deps",
     "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {

@@ -3,10 +3,9 @@
   "globExcludePatterns": [
     "node_modules/**",
     "flow-typed/**",
-    "packages/**/node_modules/**",
-    "packages/**/__tests__/**"
+    "__tests__/**"
   ],
-  "globIncludePatterns": ["packages/**/lib/**/*.js"],
+  "globIncludePatterns": ["lib/**/*.js"],
   "threshold": 100,
   "reportTypes": ["text", "html"]
 }
