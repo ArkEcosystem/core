@@ -49,7 +49,7 @@
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores commander,bip38,fs,wif,@arkecosystem/core-api,@arkecosystem/core-blockchain,@arkecosystem/core-config,@arkecosystem/core-database,@arkecosystem/core-database-postgres,@arkecosystem/core-forger,@arkecosystem/core-graphql,@arkecosystem/core-json-rpc,@arkecosystem/core-logger,@arkecosystem/core-logger-winston,@arkecosystem/core-p2p,@arkecosystem/core-transaction-pool,@arkecosystem/core-transaction-pool-mem,@arkecosystem/core-webhooks,@arkecosystem/crypto"
+    "depcheck": "depcheck ./ --ignores=flow-bin,commander,bip38,fs,wif,@arkecosystem/core-api,@arkecosystem/core-blockchain,@arkecosystem/core-config,@arkecosystem/core-database,@arkecosystem/core-database-postgres,@arkecosystem/core-forger,@arkecosystem/core-graphql,@arkecosystem/core-json-rpc,@arkecosystem/core-logger,@arkecosystem/core-logger-winston,@arkecosystem/core-p2p,@arkecosystem/core-transaction-pool,@arkecosystem/core-transaction-pool-mem,@arkecosystem/core-webhooks,@arkecosystem/crypto"
   },
   "dependencies": {
     "@arkecosystem/core-api": "^0.1.1",

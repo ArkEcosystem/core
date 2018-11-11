@@ -18,7 +18,7 @@
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores @keyv/sqlite"
+    "depcheck": "depcheck ./ --ignores=flow-bin,@keyv/sqlite"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",

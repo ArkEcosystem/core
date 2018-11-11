@@ -17,7 +17,7 @@
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=commander"
+    "depcheck": "depcheck ./ --ignores=flow-bin"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -25,7 +25,6 @@
     "@arkecosystem/crypto": "^0.2.4",
     "JSONStream": "^1.3.5",
     "bluebird": "^3.5.3",
-    "commander": "^2.19.0",
     "create-hash": "^1.2.0",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",

@@ -18,7 +18,7 @@
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=flow-bin"
   },
   "dependencies": {
     "@arkecosystem/crypto": "^0.2.4",

@@ -20,7 +20,7 @@
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=flow-bin"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",

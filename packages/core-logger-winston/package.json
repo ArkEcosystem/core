@@ -18,7 +18,7 @@
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=winston-daily-rotate-file"
+    "depcheck": "depcheck ./ --ignores=flow-bin,winston-daily-rotate-file"
   },
   "dependencies": {
     "@arkecosystem/core-logger": "^0.1.1",
