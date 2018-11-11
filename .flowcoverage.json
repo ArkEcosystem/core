@@ -1,0 +1,12 @@
+{
+  "concurrentFiles": 1,
+  "globExcludePatterns": [
+    "node_modules/**",
+    "flow-typed/**",
+    "packages/**/node_modules/**",
+    "packages/**/__tests__/**"
+  ],
+  "globIncludePatterns": ["packages/**/lib/**/*.js"],
+  "threshold": 100,
+  "reportTypes": ["text", "html"]
+}

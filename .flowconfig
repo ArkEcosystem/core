@@ -1,0 +1,14 @@
+[ignore]
+.*/.circleci/.*
+.*/__tests__/.*
+.*/flow-coverage/.*
+.*/node_modules/.*
+
+[include]
+.*/packages/**/lib
+
+[libs]
+flow-typed
+
+[options]
+all=true
