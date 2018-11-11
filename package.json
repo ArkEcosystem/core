@@ -9,7 +9,8 @@
     "prepare": "lerna run prepare",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles"
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {
     "@babel/core": "^7.1.5",
@@ -37,6 +38,7 @@
     "regenerator-runtime": "^0.12.1",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
+    "snyk": "^1.108.2",
     "standard": "^12.0.1",
     "uuid": "^3.3.2",
     "webpack": "^4.25.1",
