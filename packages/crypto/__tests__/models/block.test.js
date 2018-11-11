@@ -24,8 +24,8 @@ describe('Models - Block', () => {
   }
 
   describe('constructor', () => {
-    xit('stores the data', () => {})
-    xit('verifies the block', () => {})
+    it.skip('stores the data', () => {})
+    it.skip('verifies the block', () => {})
   })
 
   describe('getHeader', () => {

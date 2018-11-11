@@ -370,7 +370,7 @@ describe('crypto.js', () => {
         'z'.repeat(66),
       ]
       for (const invalidKey of invalidKeys) {
-        expect(() => crypto.getAddress(invalidKey)).toThrowError(
+        expect(() => crypto.getAddress(invalidKey)).toThrow(
           new Error(`publicKey '${invalidKey}' is invalid`),
         )
       }

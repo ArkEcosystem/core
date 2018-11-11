@@ -38,7 +38,7 @@ describe('Plugin Registrar', () => {
       expect(instance.container.has('stub-plugin-a')).toBeTrue()
     })
 
-    xit('should register plugins with @ paths', () => {})
+    it.skip('should register plugins with @ paths', () => {})
   })
 
   describe('setUp', () => {

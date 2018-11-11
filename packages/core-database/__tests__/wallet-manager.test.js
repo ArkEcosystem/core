@@ -166,7 +166,7 @@ describe('Wallet Manager', () => {
       })
     })
 
-    xdescribe('the delegate of the block is not indexed', () => {
+    describe.skip('the delegate of the block is not indexed', () => {
       describe('not genesis block', () => {
         it('throw an Error', () => {})
       })
@@ -248,7 +248,7 @@ describe('Wallet Manager', () => {
         try {
           expect(async () => {
             await walletManager.applyTransaction(transaction)
-          }).toThrowError(/apply transaction/)
+          }).toThrow(/apply transaction/)
 
           expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {
@@ -303,7 +303,7 @@ describe('Wallet Manager', () => {
         try {
           expect(async () => {
             await walletManager.applyTransaction(transaction)
-          }).toThrowError(/apply transaction/)
+          }).toThrow(/apply transaction/)
 
           expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {

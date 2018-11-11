@@ -72,7 +72,7 @@ describe('API 1.0 - Delegates', () => {
     })
 
     // TODO when the DelegatesRepository#search method admits more parameters
-    xit('should not search using other parameters (V2)', () => {})
+    it.skip('should not search using other parameters (V2)', () => {})
   })
 
   describe('GET /delegates/voters', () => {

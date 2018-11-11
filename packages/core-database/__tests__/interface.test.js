@@ -123,7 +123,7 @@ describe('Connection Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      expect(connectionInterface.enqueueSaveBlock).toThrowError(
+      expect(connectionInterface.enqueueSaveBlock).toThrow(
         'Method [enqueueSaveBlock] not implemented!',
       )
     })
@@ -135,7 +135,7 @@ describe('Connection Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      expect(connectionInterface.enqueueDeleteBlock).toThrowError(
+      expect(connectionInterface.enqueueDeleteBlock).toThrow(
         'Method [enqueueDeleteBlock] not implemented!',
       )
     })
@@ -147,7 +147,7 @@ describe('Connection Interface', () => {
     })
 
     it('should throw an exception', async () => {
-      expect(connectionInterface.enqueueDeleteRound).toThrowError(
+      expect(connectionInterface.enqueueDeleteRound).toThrow(
         'Method [enqueueDeleteRound] not implemented!',
       )
     })
@@ -224,7 +224,7 @@ describe('Connection Interface', () => {
       ).rejects.toThrowError('Method [getRecentBlockIds] not implemented!')
     })
 
-    xit('should return an array', async () => {
+    it.skip('should return an array', async () => {
       connectionInterface.recentBlockIds = ['10']
       const blockIds = await connectionInterface.getRecentBlockIds()
 

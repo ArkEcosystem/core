@@ -92,7 +92,7 @@ describe('Blockchain', () => {
     })
 
     it('should throw an exception', () => {
-      expect(() => blockchain.checkNetwork()).toThrowError(
+      expect(() => blockchain.checkNetwork()).toThrow(
         'Method [checkNetwork] not implemented!',
       )
     })
@@ -110,7 +110,7 @@ describe('Blockchain', () => {
     })
 
     it('should throw an exception', () => {
-      expect(() => blockchain.rebuild()).toThrowError(
+      expect(() => blockchain.rebuild()).toThrow(
         'Method [rebuild] not implemented!',
       )
     })
@@ -278,12 +278,12 @@ describe('Blockchain', () => {
       await blockchain.removeBlocks(2) // remove 2 blocks so that we can have _lastBlock_ as an unchained block
       await blockchain.manageUnchainedBlock(lastBlock)
 
-      expect(mockLoggerDebug).toBeCalled()
+      expect(mockLoggerDebug).toHaveBeenCalled()
 
       const debugMessage = `Blockchain not ready to accept new block at height ${
         lastBlock.data.height
       }. Last block: ${lastBlock.data.height - 2} :warning:`
-      expect(mockLoggerDebug).lastCalledWith(debugMessage)
+      expect(mockLoggerDebug).toHaveBeenLastCalledWith(debugMessage)
 
       expect(blockchain.getLastBlock().data.height).toBe(
         lastBlock.data.height - 2,
@@ -333,7 +333,7 @@ describe('Blockchain', () => {
       })
     })
 
-    xdescribe('without a block param', () => {
+    describe.skip('without a block param', () => {
       it('should use the last block', () => {
         blockchain.getLastBlock = jest.fn(() => ({
           timestamp: slots.getTime() - genesisBlock.timestamp,
@@ -363,7 +363,7 @@ describe('Blockchain', () => {
       })
     })
 
-    xdescribe('without a block param', () => {
+    describe.skip('without a block param', () => {
       it('should use the last block', () => {
         blockchain.getLastBlock = jest.fn(() => ({
           timestamp: slots.getTime() - genesisBlock.timestamp,

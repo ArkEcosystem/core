@@ -119,7 +119,7 @@ describe('Peer', () => {
           .onGet(`${peerMock.url}/peer/blocks`)
           .reply(500, { data: {} }, peerMock.headers)
 
-        expect(await errorCapturer(peerMock.downloadBlocks(1))).toThrowError(
+        expect(await errorCapturer(peerMock.downloadBlocks(1))).toThrow(
           /request.*500/i,
         )
       })

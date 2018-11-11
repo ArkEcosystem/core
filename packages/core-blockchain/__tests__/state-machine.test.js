@@ -62,7 +62,7 @@ describe('State Machine', () => {
         expect(actionMap.checkLater).toBeFunction()
       })
 
-      xit('should dispatch the event "WAKEUP" after a delay', async () => {
+      it.skip('should dispatch the event "WAKEUP" after a delay', async () => {
         await expect(() => actionMap.checkLater()).toDispatch(
           blockchain,
           'WAKEUP',
@@ -122,7 +122,7 @@ describe('State Machine', () => {
         expect(actionMap.downloadFinished).toBeFunction()
       })
 
-      xdescribe('if the network has started', () => {
+      describe.skip('if the network has started', () => {
         it('should dispatch the event "SYNCFINISHED"', () => {
           stateMachine.state.networkStart = true
           expect(() => actionMap.downloadFinished()).toDispatch([

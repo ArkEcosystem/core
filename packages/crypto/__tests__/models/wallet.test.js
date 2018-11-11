@@ -38,7 +38,7 @@ describe('Models - Wallet', () => {
       missedBlocks: 0,
     }
 
-    xit('should be ok for a multi-transaction', () => {
+    it.skip('should be ok for a multi-transaction', () => {
       Object.keys(data).forEach(k => (testWallet[k] = data[k]))
       expect(testWallet.canApply(multiTx)).toBeTrue()
     })

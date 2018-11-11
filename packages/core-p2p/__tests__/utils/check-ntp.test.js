@@ -31,14 +31,14 @@ describe('Check NTP', () => {
     expect(response.time.t).toBeNumber()
   })
 
-  xit('should try to connect to hosts randomly', () => {})
+  it.skip('should try to connect to hosts randomly', () => {})
 
   describe('when a host is not avaible', () => {
-    xit('logs the error', () => {})
+    it.skip('logs the error', () => {})
   })
 
   describe('when a host times out', () => {
-    xit('logs the error', () => {})
+    it.skip('logs the error', () => {})
   })
 
   describe('when none of the host could be reached', () => {
