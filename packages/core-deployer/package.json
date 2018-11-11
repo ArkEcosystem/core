@@ -22,7 +22,7 @@
     "depcheck": "depcheck ./ --ignores=commander,pino-pretty"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.3",
+    "@arkecosystem/crypto": "^0.2.4",
     "bip39": "^2.5.0",
     "bytebuffer": "^5.0.1",
     "commander": "^2.19.0",

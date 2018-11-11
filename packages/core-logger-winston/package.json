@@ -24,7 +24,7 @@
     "moment": "^2.22.2",
     "node-emoji": "^1.8.1",
     "winston": "^3.1.0",
-    "winston-daily-rotate-file": "^3.5.0"
+    "winston-daily-rotate-file": "^3.5.1"
   },
   "devDependencies": {
     "capture-console": "^1.0.1"
