@@ -133,7 +133,11 @@ module.exports = class TransactionGuard {
     transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id)
 
-      if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey, transaction.id)) {
+      if (exists) {
+        this.__pushError(transaction, 'ERR_DUPLICATE', `Duplicate transaction ${transaction.id}`)
+      } else if (this.pool.isSenderBlocked(transaction)) {
+        this.__pushError(transaction, 'ERR_SENDER_BLOCKED', `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`)
+      } else {
         try {
           const trx = new Transaction(transaction)
 
