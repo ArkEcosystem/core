@@ -304,7 +304,7 @@ blockchainMachine.actionMap = blockchain => ({
     } else {
       logger.info(
         `Downloaded ${blocks.length} new ${
-          pluralize('block', blocks_length)
+          pluralize('block', blocks.length)
         } accounting for a total of ${
           pluralize('transaction', blocks.reduce(
             (sum, b) => sum + b.numberOfTransactions,
