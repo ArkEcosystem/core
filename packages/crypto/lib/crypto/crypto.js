@@ -1,3 +1,5 @@
+/* eslint default-case: "off" */
+
 const bs58check = require('bs58check')
 const crypto = require('crypto')
 const ByteBuffer = require('bytebuffer')
@@ -91,10 +93,6 @@ class Crypto {
         assetBytes = bb.toBuffer()
         assetSize = assetBytes.length
         break
-      }
-
-      default: {
-        console.warn('Unknown transaction type for v1')
       }
     }
 
