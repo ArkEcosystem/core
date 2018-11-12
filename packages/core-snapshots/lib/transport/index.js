@@ -11,6 +11,7 @@ const emitter = container.resolvePlugin('event-emitter')
 const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
 const codecs = require('./codec')
+const pluralize = require('pluralize')
 
 module.exports = {
   exportTable: async (table, options) => {
@@ -174,9 +175,9 @@ module.exports = {
     try {
       const data = await database.db.stream(qs, s => s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream))
       logger.info(
-        `Transactions(n=${
-          data.processed
-        }) from rollbacked blocks where safely exported to file ${snapFileName}`,
+        `${
+          pluralize('transaction', data.processed, true)
+        } from rollbacked blocks safely exported to file ${snapFileName}`,
       )
       return data
     } catch (error) {
