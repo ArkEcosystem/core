@@ -479,6 +479,22 @@ module.exports = class Blockchain {
   }
 
   /**
+   * Called by forger to wake up and sync with the network.
+   * It clears the checkLaterTimeout if set.
+   * @param  {Number}  blockSize
+   * @param  {Boolean} forForging
+   * @return {Object}
+   */
+  forceWakeup() {
+    if (this.state.checkLaterTimeout) {
+      clearTimeout(this.state.checkLaterTimeout)
+      this.state.checkLaterTimeout = null
+    }
+
+    this.dispatch('WAKEUP')
+  }
+
+  /**
    * Get unconfirmed transactions for the specified block size.
    * @param  {Number}  blockSize
    * @param  {Boolean} forForging
