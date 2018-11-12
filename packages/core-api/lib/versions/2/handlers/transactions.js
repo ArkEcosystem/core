@@ -1,4 +1,5 @@
 const Boom = require('boom')
+const pluralize = require('pluralize')
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
@@ -63,7 +64,9 @@ exports.store = {
     await guard.validate(eligible)
 
     if (guard.hasAny('accept')) {
-      logger.info(`Received ${guard.accept.length} new transactions`)
+      logger.info(`Received ${guard.accept.length} new ${
+        pluralize('transaction', guard.accept.length)
+      }`)
 
       transactionPool.addTransactions(guard.accept)
     }
