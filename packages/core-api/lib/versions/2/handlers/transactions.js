@@ -230,7 +230,7 @@ exports.fees = {
    */
   async handler(request, h) {
     return {
-      data: config.getConstants(blockchain.getLastBlock().data.height).fees,
+      data: config.getConstants(blockchain.getLastBlock().data.height).fees.staticFees,
     }
   },
 }

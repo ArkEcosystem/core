@@ -27,7 +27,7 @@ class ConfigManager {
 
     this.buildConstants()
     this.buildFees()
-    this.buildDynamicOffsets()
+    this.buildAddonBytes()
   }
 
   /**
@@ -147,18 +147,18 @@ class ConfigManager {
   buildFees() {
     Object.keys(TRANSACTION_TYPES).forEach(type => feeManager.set(
       TRANSACTION_TYPES[type],
-      this.getConstant('fees')[_.camelCase(type)],
+      this.getConstant('fees').staticFees[_.camelCase(type)],
     ))
   }
 
   /**
-   * Build dynamic offsets from config constants.
+   * Build addon bytes from config constants.
    */
-  buildDynamicOffsets() {
-    if (this.getConstant('dynamicOffsets')) {
+  buildAddonBytes() {
+    if (this.getConstant('fees').dynamicFees.addonBytes) {
       Object.keys(TRANSACTION_TYPES).forEach(type => dynamicFeeManager.set(
         TRANSACTION_TYPES[type],
-        this.getConstant('dynamicOffsets')[_.camelCase(type)],
+        this.getConstant('fees').dynamicFees.addonBytes[_.camelCase(type)],
       ))
     }
   }

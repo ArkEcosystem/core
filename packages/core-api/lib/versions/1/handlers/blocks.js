@@ -131,7 +131,7 @@ exports.fee = {
   handler(request, h) {
     return utils.respondWith({
       fee: config.getConstants(blockchain.getLastBlock().data.height).fees
-        .transfer,
+        .staticFees.transfer,
     })
   },
 }
@@ -146,7 +146,7 @@ exports.fees = {
    * @return {Hapi.Response}
    */
   handler(request, h) {
-    const fees = config.getConstants(blockchain.getLastBlock().data.height).fees
+    const fees = config.getConstants(blockchain.getLastBlock().data.height).fees.staticFees
 
     return utils.respondWith({
       fees: {
@@ -235,7 +235,7 @@ exports.status = {
     return utils.respondWith({
       epoch: constants.epoch,
       height: lastBlock.data.height,
-      fee: constants.fees.transfer,
+      fee: constants.fees.staticFees.transfer,
       milestone: Math.floor(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,

@@ -167,7 +167,7 @@ exports.fee = {
   handler(request, h) {
     return utils.respondWith({
       fee: config.getConstants(blockchain.getLastBlock().data.height).fees
-        .delegateRegistration,
+        .staticFees.delegateRegistration,
     })
   },
 }
