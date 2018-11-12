@@ -9,6 +9,7 @@ const { Block } = require('@arkecosystem/crypto').models
 const { roundCalculator } = require('@arkecosystem/core-utils')
 
 const delay = require('delay')
+const pluralize = require('pluralize')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
 const state = require('./state-storage')
@@ -302,13 +303,16 @@ blockchainMachine.actionMap = blockchain => ({
       blockchain.dispatch('NOBLOCK')
     } else {
       logger.info(
-        `Downloaded ${
-          blocks.length
-        } new blocks accounting for a total of ${blocks.reduce(
-          (sum, b) => sum + b.numberOfTransactions,
-          0,
-        )} transactions`,
+        `Downloaded ${blocks.length} new ${
+          pluralize('block', blocks_length)
+        } accounting for a total of ${
+          pluralize('transaction', blocks.reduce(
+            (sum, b) => sum + b.numberOfTransactions,
+            0,
+          ), true)
+        }`,
       )
+
       if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
         state.lastDownloadedBlock = { data: blocks.slice(-1)[0] }
         blockchain.rebuildQueue.push(blocks)
@@ -341,12 +345,14 @@ blockchainMachine.actionMap = blockchain => ({
       blockchain.dispatch('NOBLOCK')
     } else {
       logger.info(
-        `Downloaded ${
-          blocks.length
-        } new blocks accounting for a total of ${blocks.reduce(
-          (sum, b) => sum + b.numberOfTransactions,
-          0,
-        )} transactions`,
+        `Downloaded ${blocks.length} new ${
+          pluralize('block', blocks.length)
+        } accounting for a total of ${
+          pluralize('transaction', blocks.reduce(
+            (sum, b) => sum + b.numberOfTransactions,
+            0,
+          ), true)
+        }`,
       )
 
       if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
@@ -391,7 +397,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     await blockchain.removeBlocks(random)
 
-    logger.info(`Removed ${random} blocks :wastebasket:`)
+    logger.info(`Removed ${pluralize('block', random, true)} :wastebasket:`)
 
     await blockchain.p2p.refreshPeersAfterFork()
 
