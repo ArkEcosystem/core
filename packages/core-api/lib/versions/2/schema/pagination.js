@@ -6,7 +6,7 @@ module.exports = {
     .positive(),
   offset: Joi.number()
     .integer()
-    .positive(),
+    .min(0),
   limit: Joi.number()
     .integer()
     .min(1)
