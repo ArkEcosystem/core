@@ -93,6 +93,7 @@ module.exports = class Blockchain {
     logger.info('Stopping Blockchain Manager :chains:')
 
     this.isStopped = true
+    this.state.clearCheckLater()
 
     this.dispatch('STOP')
 
