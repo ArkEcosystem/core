@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: "warn" */
+
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
 
@@ -18,111 +20,6 @@ let peerMock
 const blocks1to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
 const blocks101to155 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.101-155')
 const app = require('./__support__/setup')
-
-async function __resetToHeight1() {
-  const lastBlock = await blockchain.database.getLastBlock()
-  if (lastBlock) {
-    // Make sure the wallet manager has been fed or else revertRound
-    // cannot determine the previous delegates. This is only necessary, because
-    // the database is not dropped after the unit tests are done.
-    await blockchain.database.buildWallets(lastBlock.data.height)
-
-    // Index the genesis wallet or else revert block at height 1 fails
-    const generator = crypto.getAddress(genesisBlock.data.generatorPublicKey)
-    const genesis = new Wallet(generator)
-    genesis.publicKey = genesisBlock.data.generatorPublicKey
-    genesis.username = 'genesis'
-    blockchain.database.walletManager.reindex(genesis)
-
-    blockchain.state.clear()
-
-    blockchain.state.setLastBlock(lastBlock)
-    await blockchain.removeBlocks(lastBlock.data.height - 1)
-  }
-}
-
-async function __start() {
-  process.env.ARK_SKIP_BLOCKCHAIN = false
-  process.env.ARK_ENV = false
-
-  const plugin = require('../lib').plugin
-
-  blockchain = await plugin.register(container, {
-    networkStart: false,
-  })
-
-  await container.register(
-    'blockchain',
-    asValue({
-      name: 'blockchain',
-      version: '0.1.0',
-      plugin: blockchain,
-      options: {},
-    }),
-  )
-
-  const p2p = container.resolvePlugin('p2p')
-  await p2p.acceptNewPeer(peerMock)
-
-  await __resetToHeight1()
-
-  await blockchain.start(true)
-  while (
-    !blockchain.getLastBlock() ||
-    blockchain.getLastBlock().data.height < 155
-  ) {
-    await delay(1000)
-  }
-}
-
-function __mockPeer() {
-  // Mocking a peer which will send blocks until height 155
-  const Peer = require('@arkecosystem/core-p2p/lib/peer')
-  peerMock = new Peer('0.0.0.99', 4002)
-  Object.assign(peerMock, peerMock.headers, { status: 200 })
-
-  axiosMock
-    .onGet(/.*\/peer\/blocks\/common.*/)
-    .reply(() => [
-      200,
-      { status: 200, success: true, common: true },
-      peerMock.headers,
-    ])
-  axiosMock.onGet(/.*\/peer\/blocks/).reply(config => {
-    let blocks = []
-
-    if (config.params.lastBlockHeight === 1) {
-      blocks = blocks1to100
-    } else if (config.params.lastBlockHeight === 100) {
-      blocks = blocks101to155
-    }
-
-    return [200, { status: 200, success: true, blocks }, peerMock.headers]
-  })
-  axiosMock
-    .onGet(/.*\/peer\/status/)
-    .reply(() => [
-      200,
-      { status: 200, success: true, height: 155 },
-      peerMock.headers,
-    ])
-  axiosMock.onGet(/.*\/peer\/list/).reply(() => [
-    200,
-    {
-      success: true,
-      peers: [
-        {
-          status: 200,
-          ip: peerMock.ip,
-          port: 4002,
-          height: 155,
-          delay: 8,
-        },
-      ],
-    },
-    peerMock.headers,
-  ])
-}
 
 beforeAll(async () => {
   container = await app.setUp()
@@ -553,3 +450,108 @@ describe('Blockchain', () => {
     })
   })
 })
+
+async function __start() {
+  process.env.ARK_SKIP_BLOCKCHAIN = false
+  process.env.ARK_ENV = false
+
+  const plugin = require('../lib').plugin
+
+  blockchain = await plugin.register(container, {
+    networkStart: false,
+  })
+
+  await container.register(
+    'blockchain',
+    asValue({
+      name: 'blockchain',
+      version: '0.1.0',
+      plugin: blockchain,
+      options: {},
+    }),
+  )
+
+  const p2p = container.resolvePlugin('p2p')
+  await p2p.acceptNewPeer(peerMock)
+
+  await __resetToHeight1()
+
+  await blockchain.start(true)
+  while (
+    !blockchain.getLastBlock() ||
+    blockchain.getLastBlock().data.height < 155
+  ) {
+    await delay(1000)
+  }
+}
+
+async function __resetToHeight1() {
+  const lastBlock = await blockchain.database.getLastBlock()
+  if (lastBlock) {
+    // Make sure the wallet manager has been fed or else revertRound
+    // cannot determine the previous delegates. This is only necessary, because
+    // the database is not dropped after the unit tests are done.
+    await blockchain.database.buildWallets(lastBlock.data.height)
+
+    // Index the genesis wallet or else revert block at height 1 fails
+    const generator = crypto.getAddress(genesisBlock.data.generatorPublicKey)
+    const genesis = new Wallet(generator)
+    genesis.publicKey = genesisBlock.data.generatorPublicKey
+    genesis.username = 'genesis'
+    blockchain.database.walletManager.reindex(genesis)
+
+    blockchain.state.clear()
+
+    blockchain.state.setLastBlock(lastBlock)
+    await blockchain.removeBlocks(lastBlock.data.height - 1)
+  }
+}
+
+function __mockPeer() {
+  // Mocking a peer which will send blocks until height 155
+  const Peer = require('@arkecosystem/core-p2p/lib/peer')
+  peerMock = new Peer('0.0.0.99', 4002)
+  Object.assign(peerMock, peerMock.headers, { status: 200 })
+
+  axiosMock
+    .onGet(/.*\/peer\/blocks\/common.*/)
+    .reply(() => [
+      200,
+      { status: 200, success: true, common: true },
+      peerMock.headers,
+    ])
+  axiosMock.onGet(/.*\/peer\/blocks/).reply(config => {
+    let blocks = []
+
+    if (config.params.lastBlockHeight === 1) {
+      blocks = blocks1to100
+    } else if (config.params.lastBlockHeight === 100) {
+      blocks = blocks101to155
+    }
+
+    return [200, { status: 200, success: true, blocks }, peerMock.headers]
+  })
+  axiosMock
+    .onGet(/.*\/peer\/status/)
+    .reply(() => [
+      200,
+      { status: 200, success: true, height: 155 },
+      peerMock.headers,
+    ])
+  axiosMock.onGet(/.*\/peer\/list/).reply(() => [
+    200,
+    {
+      success: true,
+      peers: [
+        {
+          status: 200,
+          ip: peerMock.ip,
+          port: 4002,
+          height: 155,
+          delay: 8,
+        },
+      ],
+    },
+    peerMock.headers,
+  ])
+}
