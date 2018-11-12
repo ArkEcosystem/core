@@ -87,6 +87,7 @@ exports.transactions = {
     }
 
     const transactions = await transactionsRepository.findAllByWallet(wallet, {
+      ...request.query,
       ...request.params,
       ...utils.paginate(request),
     })
@@ -120,6 +121,7 @@ exports.transactionsSent = {
     const transactions = await transactionsRepository.findAllBySender(
       wallet.publicKey,
       {
+        ...request.query,
         ...request.params,
         ...utils.paginate(request),
       },
@@ -154,6 +156,7 @@ exports.transactionsReceived = {
     const transactions = await transactionsRepository.findAllByRecipient(
       wallet.address,
       {
+        ...request.query,
         ...request.params,
         ...utils.paginate(request),
       },
