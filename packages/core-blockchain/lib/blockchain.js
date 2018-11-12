@@ -155,8 +155,9 @@ module.exports = class Blockchain {
     )
 
     if (this.state.started && this.state.blockchain.value === 'idle' && !this.state.forked) {
-      this.processQueue.push(block)
+      this.dispatch('NEWBLOCK')
 
+      this.processQueue.push(block)
       this.state.lastDownloadedBlock = new Block(block)
     } else {
       logger.info(
@@ -488,11 +489,7 @@ module.exports = class Blockchain {
    * @return {Object}
    */
   forceWakeup() {
-    if (this.state.checkLaterTimeout) {
-      clearTimeout(this.state.checkLaterTimeout)
-      this.state.checkLaterTimeout = null
-    }
-
+    this.state.clearCheckLater()
     this.dispatch('WAKEUP')
   }
 
