@@ -46,15 +46,14 @@ module.exports = Machine({
       onEntry: ['checkLater', 'blockchainReady'],
       on: {
         WAKEUP: 'syncWithNetwork',
-        NEWBLOCK: 'processingBlock',
+        NEWBLOCK: 'newBlock',
         STOP: 'stopped',
       },
     },
-    processingBlock: {
-      onEntry: ['processBlock'],
+    newBlock: {
       on: {
-        SUCCESS: 'idle',
-        FAILURE: 'fork',
+        PROCESSFINISHED: 'idle',
+        FORK: 'fork',
         STOP: 'stopped',
       },
     },

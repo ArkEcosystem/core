@@ -93,6 +93,7 @@ module.exports = class Blockchain {
     logger.info('Stopping Blockchain Manager :chains:')
 
     this.isStopped = true
+    this.state.clearCheckLater()
 
     this.dispatch('STOP')
 
@@ -154,13 +155,16 @@ module.exports = class Blockchain {
       } transactions from ${block.ip}`,
     )
 
-    if (this.state.started) {
-      this.processQueue.push(block)
+    if (this.state.started && this.state.blockchain.value === 'idle' && !this.state.forked) {
+      this.dispatch('NEWBLOCK')
 
+      this.processQueue.push(block)
       this.state.lastDownloadedBlock = new Block(block)
     } else {
       logger.info(
-        'Block disregarded because blockchain is not ready :exclamation:',
+        `Block disregarded because blockchain is ${
+          this.state.forked ? 'forked' : 'not ready'
+        } :exclamation:`,
       )
     }
   }
@@ -486,11 +490,7 @@ module.exports = class Blockchain {
    * @return {Object}
    */
   forceWakeup() {
-    if (this.state.checkLaterTimeout) {
-      clearTimeout(this.state.checkLaterTimeout)
-      this.state.checkLaterTimeout = null
-    }
-
+    this.state.clearCheckLater()
     this.dispatch('WAKEUP')
   }
 

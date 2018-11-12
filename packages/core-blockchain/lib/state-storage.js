@@ -50,6 +50,17 @@ class StateStorage {
   }
 
   /**
+   * Clear check later timeout.
+   * @returns {void}
+   */
+  clearCheckLater() {
+    if (this.checkLaterTimeout) {
+      clearTimeout(this.checkLaterTimeout)
+      this.checkLaterTimeout = null
+    }
+  }
+
+  /**
    * Get the last block.
    * @returns {Block|null}
    */
