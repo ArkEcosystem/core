@@ -33,6 +33,7 @@ class StateStorage {
     this.forkedBlock = null
     this.rebuild = true
     this.fastRebuild = false
+    this.checkLaterTimeout = null
     this.noBlockCounter = 0
     this.p2pUpdateCounter = 0
     this.networkStart = false
