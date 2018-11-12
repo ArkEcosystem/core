@@ -154,13 +154,15 @@ module.exports = class Blockchain {
       } transactions from ${block.ip}`,
     )
 
-    if (this.state.started) {
+    if (this.state.started && !this.state.forked) {
       this.processQueue.push(block)
 
       this.state.lastDownloadedBlock = new Block(block)
     } else {
       logger.info(
-        'Block disregarded because blockchain is not ready :exclamation:',
+        `Block disregarded because blockchain is ${
+          this.state.forked ? 'forked' : 'not ready'
+        } :exclamation:`,
       )
     }
   }
