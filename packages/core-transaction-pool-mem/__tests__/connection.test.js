@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const { bignumify } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')

@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 require('@arkecosystem/core-test-utils/lib/matchers')
 
 const app = require('../../__support__/setup')

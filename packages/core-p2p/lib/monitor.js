@@ -717,7 +717,8 @@ class Monitor {
   }
 
   /**
-   * Determines if coldstart is still active. We need this for the network to start, so we dont forge, while
+   * Determines if coldstart is still active.
+   * We need this for the network to start, so we dont forge, while
    * not all peers are up, or the network is not active
    */
   __isColdStartActive() {

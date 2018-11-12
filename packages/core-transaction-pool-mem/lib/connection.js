@@ -103,7 +103,8 @@ class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Add many transactions to the pool.
-   * @param {Array}   transactions, already transformed and verified by transaction guard - must have serialized field
+   * @param {Array}   transactions, already transformed and verified
+   * by transaction guard - must have serialized field
    */
   addTransactions(transactions) {
     transactions.forEach(t => this.addTransaction(t))

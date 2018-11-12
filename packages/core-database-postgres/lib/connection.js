@@ -1,4 +1,5 @@
 /* eslint no-use-before-define: "warn" */
+/* eslint max-len: "off" */
 
 const pgPromise = require('pg-promise')
 const crypto = require('crypto')

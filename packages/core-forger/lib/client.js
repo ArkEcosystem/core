@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const axios = require('axios')
 const sample = require('lodash/sample')
 const delay = require('delay')

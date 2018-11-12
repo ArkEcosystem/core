@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const {
   transformResource,
   transformCollection,
@@ -19,7 +21,8 @@ const paginate = request => ({
  * @param  {Boolean} error
  * @return {Object}
  */
-const respondWith = (data, error = false) => (error ? { error: data, success: false } : { ...data, success: true })
+const respondWith = (data, error = false) =>
+  error ? { error: data, success: false } : { ...data, success: true }
 
 /**
  * Transform the given data into a resource.
@@ -28,7 +31,8 @@ const respondWith = (data, error = false) => (error ? { error: data, success: fa
  * @param  {String} transformer
  * @return {Object}
  */
-const toResource = (request, data, transformer) => transformResource(request, data, transformer)
+const toResource = (request, data, transformer) =>
+  transformResource(request, data, transformer)
 
 /**
  * Transform the given data into a collection.

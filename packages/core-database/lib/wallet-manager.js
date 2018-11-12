@@ -422,7 +422,8 @@ module.exports = class WalletManager {
         `Can't apply transaction ${data.id}: delegate name already taken.`,
       )
 
-      // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
+      // NOTE: We use the vote public key, because vote transactions
+      // have the same sender and recipient
     } else if (
       type === TRANSACTION_TYPES.VOTE &&
       !this.__isDelegate(asset.votes[0].slice(1))

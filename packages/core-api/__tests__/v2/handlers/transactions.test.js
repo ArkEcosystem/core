@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 require('@arkecosystem/core-test-utils/lib/matchers')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')

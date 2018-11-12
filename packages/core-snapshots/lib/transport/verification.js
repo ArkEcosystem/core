@@ -23,7 +23,8 @@ module.exports = {
       if (!prevData) {
         return true
       }
-      // genesis payload different as block.serialize stores block.previous_block with 00000 instead of null
+      // genesis payload different as block.serialize stores
+      // block.previous_block with 00000 instead of null
       // it fails on height 2 - chain check
       // hardcoding for now
       // TODO: check to improve ser/deser for genesis, add mainnet

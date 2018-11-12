@@ -119,7 +119,9 @@ module.exports = class ForgerManager {
       const delegate = this.__isDelegateActivated(round.currentForger.publicKey)
 
       if (!delegate) {
-        // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
+        // logger.debug(`Current forging delegate ${
+        //  round.currentForger.publicKey
+        // } is not configured on this node.`)
 
         if (this.__isDelegateActivated(round.nextForger.publicKey)) {
           const username = this.usernames[round.nextForger.publicKey]

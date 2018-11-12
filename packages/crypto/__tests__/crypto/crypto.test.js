@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const crypto = require('../../lib/crypto/crypto')
 const configManager = require('../../lib/managers/config')
 const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../../lib/constants')

@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const _ = require('lodash')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')

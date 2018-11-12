@@ -172,7 +172,6 @@ describe('Client', () => {
     })
     it('should emit events', async () => {
       jest.spyOn(axios, 'post')
-      // const action = mockAxios.onPost(`${host}/internal/utils/events`), body => body.event === 'foo' && body.data === 'bar').reply(200)
       mockAxios.onPost(`${host}/internal/utils/events`).reply(c => {
         expect(JSON.parse(c.data)).toMatchObject({ event: 'foo', body: 'bar' })
         return [200]

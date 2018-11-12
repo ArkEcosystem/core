@@ -232,7 +232,8 @@ module.exports = class SPV {
       wallet.producedBlocks = +block.totalProduced
     })
 
-    // NOTE: This is highly NOT reliable, however the number of missed blocks is NOT used for the consensus
+    // NOTE: This is highly NOT reliable, however the number of missed blocks
+    // is NOT used for the consensus
     const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks)
     delegates.forEach((delegate, i) => {
       const wallet = this.walletManager.findByPublicKey(delegate.publicKey)

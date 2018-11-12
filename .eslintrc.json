@@ -15,7 +15,6 @@
     "import/no-dynamic-require": "off",
     "jest/no-disabled-tests": "off",
     "jest/valid-expect": "off",
-    "max-len": "off",
     "no-await-in-loop": "off",
     "no-bitwise": "off",
     "no-console": [

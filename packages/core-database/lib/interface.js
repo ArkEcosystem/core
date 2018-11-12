@@ -109,7 +109,8 @@ module.exports = class ConnectionInterface {
   /**
    * Queue a query to save the given block.
    * NOTE: Must call commitQueuedQueries() to save to database.
-   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) by calling commit
+   * NOTE: to use when rebuilding to decrease the number of database transactions,
+   * and commit blocks (save only every 1000s for instance) by calling commit
    * @param  {Block} block
    * @return {void}
    * @throws Error
@@ -192,7 +193,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * Get top count blocks ordered by height DESC.
-   * NOTE: Only used when trying to restore database integrity. The returned blocks may be unchained.
+   * NOTE: Only used when trying to restore database integrity.
+   * The returned blocks may be unchained.
    * @param  {Number} count
    * @return {void}
    * @throws Error

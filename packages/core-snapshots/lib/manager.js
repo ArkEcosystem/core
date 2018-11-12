@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const pick = require('lodash/pick')
 const container = require('@arkecosystem/core-container')
 

@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const { slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 

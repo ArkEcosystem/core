@@ -223,7 +223,8 @@ exports.postBlock = {
         // let missingIds = []
         let transactions = []
         // if (transactionPool) {
-        //   transactions = block.transactionIds.map(async id => await transactionPool.getTransaction(id) || id)
+        //   transactions = block.transactionIds
+        //    .map(async id => await transactionPool.getTransaction(id) || id)
         //   missingIds = transactions.filter(tx => !tx.id)
         // } else {
         //   missingIds = block.transactionIds.slice(0)
@@ -241,8 +242,9 @@ exports.postBlock = {
 
         transactions = await peer.getTransactionsFromIds(block.transactionIds)
         // issue on v1, using /api/ instead of /peer/
-        if (transactions.length < block.transactionIds.length)
+        if (transactions.length < block.transactionIds.length) {
           transactions = await peer.getTransactionsFromBlock(block.id)
+        }
 
         // reorder them correctly
         block.transactions = block.transactionIds.map(id =>

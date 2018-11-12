@@ -20,8 +20,8 @@ module.exports = class PoolWalletManager extends WalletManager {
   }
 
   /**
-   * Get a wallet by the given address. If wallet is not found it is copied from blockchain wallet manager
-   * Method overrides base class method from WalletManager.
+   * Get a wallet by the given address. If wallet is not found it is copied from blockchain
+   * wallet manager. Method overrides base class method from WalletManager.
    * WARNING: call only upon guard apply, as if wallet not found it gets it from blockchain.
    * For existing key checks use function exists(key)
    * @param  {String} address
@@ -63,16 +63,15 @@ module.exports = class PoolWalletManager extends WalletManager {
   }
 
   /**
-   * Apply the given transaction to a wallet. A combination of pool wallet and blockchain wallet manager is used.
+   * Apply the given transaction to a wallet. A combination of pool wallet
+   * and blockchain wallet manager is used.
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
   applyPoolTransaction(transaction) {
     /* eslint padded-blocks: "off" */
     const { data } = transaction
-    const {
-      type, asset, recipientId, senderPublicKey,
-    } = data
+    const { type, asset, recipientId, senderPublicKey } = data
 
     const sender = this.findByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.findByAddress(recipientId) : null
@@ -84,8 +83,8 @@ module.exports = class PoolWalletManager extends WalletManager {
     }
 
     if (
-      type === TRANSACTION_TYPES.DELEGATE_REGISTRATION
-      && database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
+      type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
+      database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
     ) {
       logger.error(
         `[PoolWalletManager] Can't apply transaction ${
@@ -99,10 +98,11 @@ module.exports = class PoolWalletManager extends WalletManager {
         }: delegate name already taken.`,
       )
 
-      // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
+      // NOTE: We use the vote public key, because vote transactions
+      // have the same sender and recipient.
     } else if (
-      type === TRANSACTION_TYPES.VOTE
-      && !database.walletManager.__isDelegate(asset.votes[0].slice(1))
+      type === TRANSACTION_TYPES.VOTE &&
+      !database.walletManager.__isDelegate(asset.votes[0].slice(1))
     ) {
       logger.error(
         `[PoolWalletManager] Can't apply vote transaction: delegate ${
