@@ -150,7 +150,7 @@ module.exports = class TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {Boolean}
    */
-  isSenderBlocked(senderPublicKey, transactionId) {
+  isSenderBlocked(senderPublicKey) {
     if (!this.blockedByPublicKey[senderPublicKey]) {
       return false
     }
@@ -160,7 +160,6 @@ module.exports = class TransactionPoolInterface {
       return false
     }
 
-    logger.debug(`Transaction ${transactionId} rejected. Sender ${senderPublicKey} is blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`)
     return true
   }
 
