@@ -1,7 +1,7 @@
 const { Bignum, client, crypto } = require('@arkecosystem/crypto')
 const delay = require('delay')
-const unique = require('lodash/uniq')
 const pluralize = require('pluralize')
+const unique = require('lodash/uniq')
 const { logger } = require('../utils')
 const Command = require('./command')
 

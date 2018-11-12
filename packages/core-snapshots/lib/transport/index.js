@@ -2,6 +2,7 @@ const fs = require('fs-extra')
 const QueryStream = require('pg-query-stream')
 const JSONStream = require('JSONStream')
 const msgpack = require('msgpack-lite')
+const pluralize = require('pluralize')
 const zlib = require('zlib')
 
 const container = require('@arkecosystem/core-container')
@@ -11,7 +12,6 @@ const emitter = container.resolvePlugin('event-emitter')
 const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
 const codecs = require('./codec')
-const pluralize = require('pluralize')
 
 module.exports = {
   exportTable: async (table, options) => {

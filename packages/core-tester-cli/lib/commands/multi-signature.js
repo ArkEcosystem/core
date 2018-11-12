@@ -1,6 +1,6 @@
 const { client } = require('@arkecosystem/crypto')
-const take = require('lodash/take')
 const pluralize = require('pluralize')
+const take = require('lodash/take')
 const { logger } = require('../utils')
 const Command = require('./command')
 const Transfer = require('./transfer')

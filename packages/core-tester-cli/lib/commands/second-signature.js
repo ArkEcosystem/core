@@ -1,7 +1,7 @@
 const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 const { logger } = require('../utils')
 const Command = require('./command')
-const pluralize = require('pluralize')
 const Transfer = require('./transfer')
 
 module.exports = class DelegateRegistrationCommand extends Command {

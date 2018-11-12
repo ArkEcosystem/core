@@ -1,8 +1,8 @@
 const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 const sample = require('lodash/sample')
 const { logger } = require('../utils')
 const Command = require('./command')
-const pluralize = require('pluralize')
 const Transfer = require('./transfer')
 
 module.exports = class VoteCommand extends Command {
