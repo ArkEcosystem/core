@@ -1,3 +1,5 @@
+const fs = require('fs')
+const https = require('https')
 const {
   createServer,
   mountServer,
@@ -10,7 +12,7 @@ const {
  * @return {Hapi.Server}
  */
 module.exports = async config => {
-  const server = await createServer({
+  const options = {
     host: config.host,
     port: config.port,
     routes: {
@@ -23,7 +25,16 @@ module.exports = async config => {
         },
       },
     },
-  })
+  }
+
+  if (config.ssl.enabled) {
+    options.tls = {
+      key: fs.readFileSync(config.ssl.key),
+      cert: fs.readFileSync(config.ssl.cert),
+    }
+  }
+
+  const server = await createServer(options)
 
   await server.register({ plugin: plugins.corsHeaders })
 
