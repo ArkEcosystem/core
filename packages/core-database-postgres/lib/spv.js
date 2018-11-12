@@ -83,10 +83,10 @@ module.exports = class SPV {
       wallet
         ? (wallet.balance = new Bignum(transaction.amount))
         : logger.warn(
-          `Lost cold wallet: ${transaction.recipientId} ${
-            transaction.amount
-          }`,
-        )
+            `Lost cold wallet: ${transaction.recipientId} ${
+              transaction.amount
+            }`,
+          )
     }
   }
 
@@ -284,9 +284,9 @@ module.exports = class SPV {
         )
 
         if (
-          !inMemoryWallet.balance.isEqualTo(dbWallet.balance)
-          || !inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance)
-          || dbWallet.username !== inMemoryWallet.username
+          !inMemoryWallet.balance.isEqualTo(dbWallet.balance) ||
+          !inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance) ||
+          dbWallet.username !== inMemoryWallet.username
         ) {
           detectedInconsistency = true
           break

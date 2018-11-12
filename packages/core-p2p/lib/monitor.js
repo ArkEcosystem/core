@@ -83,20 +83,18 @@ class Monitor {
         Object.keys(this.peers).length < config.peers.list.length - 1 &&
         realEnvironment
       ) {
-        config.peers.list.forEach(
-          peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)),
-          this,
-        )
+        config.peers.list.forEach(peer => {
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+        }, this)
 
         return this.updateNetworkStatus()
       }
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
 
-      config.peers.list.forEach(
-        peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)),
-        this,
-      )
+      config.peers.list.forEach(peer => {
+        this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+      }, this)
 
       return this.updateNetworkStatus()
     }
@@ -470,7 +468,9 @@ class Monitor {
       )
 
       const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
-      blocks.forEach(block => (block.ip = randomPeer.ip))
+      blocks.forEach(block => {
+        block.ip = randomPeer.ip
+      })
 
       return blocks
     } catch (error) {

@@ -22,8 +22,8 @@ const register = async (server, options) => {
       }
 
       if (
-        request.headers['x-auth'] === 'forger'
-        || request.path.startsWith('/remote')
+        request.headers['x-auth'] === 'forger' ||
+        request.path.startsWith('/remote')
       ) {
         return isWhitelisted(options.whitelist, remoteAddress)
           ? h.continue
@@ -42,7 +42,9 @@ const register = async (server, options) => {
       if (request.path.startsWith('/peer')) {
         const peer = { ip: remoteAddress }
 
-        requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
+        requiredHeaders.forEach(key => {
+          peer[key] = request.headers[key]
+        })
 
         try {
           await monitor.acceptNewPeer(peer)

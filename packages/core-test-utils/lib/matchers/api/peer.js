@@ -1,12 +1,20 @@
 const { isEqual, sortBy } = require('lodash')
 
+function isValidPeer(peer) {
+  const allowedKeys = sortBy(['ip', 'port'])
+  const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key))
+
+  return isEqual(sortBy(actualKeys), allowedKeys)
+}
+
 const toBeValidPeer = (actual, expected) => ({
   message: () => `Expected ${JSON.stringify(actual)} to be a valid peer`,
   pass: isValidPeer(actual),
 })
 
 const toBeValidArrayOfPeers = (actual, expected) => {
-  const message = () => `Expected ${JSON.stringify(actual)} to be a valid array of peers`
+  const message = () =>
+    `Expected ${JSON.stringify(actual)} to be a valid array of peers`
 
   if (!Array.isArray(actual)) {
     return { message, pass: false }
@@ -19,13 +27,6 @@ const toBeValidArrayOfPeers = (actual, expected) => {
   })
 
   return { message, pass: true }
-}
-
-function isValidPeer(peer) {
-  const allowedKeys = sortBy(['ip', 'port'])
-  const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key))
-
-  return isEqual(sortBy(actualKeys), allowedKeys)
 }
 
 expect.extend({

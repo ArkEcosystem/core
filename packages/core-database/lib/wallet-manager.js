@@ -178,7 +178,9 @@ module.exports = class WalletManager {
   }
 
   clear() {
-    Object.values(this.byAddress).map(wallet => (wallet.dirty = false))
+    Object.values(this.byAddress).forEach(wallet => {
+      wallet.dirty = false
+    })
   }
 
   /**

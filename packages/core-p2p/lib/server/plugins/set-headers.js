@@ -39,9 +39,9 @@ const register = async (server, options) => {
           response.output.payload.error = response.data
         }
 
-        requiredHeaders.forEach(
-          key => (response.output.headers[key] = headers[key]),
-        )
+        requiredHeaders.forEach(key => {
+          response.output.headers[key] = headers[key]
+        })
       } else {
         requiredHeaders.forEach(key => response.header(key, headers[key]))
       }
