@@ -154,7 +154,7 @@ module.exports = class Blockchain {
       } transactions from ${block.ip}`,
     )
 
-    if (this.state.started && !this.state.forked) {
+    if (this.state.started && this.state.blockchain.value === 'idle' && !this.state.forked) {
       this.processQueue.push(block)
 
       this.state.lastDownloadedBlock = new Block(block)
