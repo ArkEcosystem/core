@@ -90,7 +90,7 @@ describe('Multi Signature Transaction', () => {
       const pass = 'dummy pass'
       const signature = `${pass} signature`
 
-      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      crypto.getKeys = jest.fn(value => ({ publicKey: `${value} public key` }))
       crypto.sign = jest.fn(() => signature)
 
       builder.multiSignatureSign(pass)

@@ -1,3 +1,5 @@
+/* eslint no-empty: "off" */
+
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
 
@@ -91,38 +93,35 @@ describe('Peer', () => {
 
   describe('downloadBlocks', () => {
     // https://github.com/facebook/jest/issues/3601
-    const errorCapturer = fn => fn
-      .then(res => () => res)
-      .catch(err => () => {
-        throw err
-      })
+    const errorCapturer = fn =>
+      fn
+        .then(res => () => res)
+        .catch(err => () => {
+          throw err
+        })
 
     it('should be a function', () => {
       expect(peerMock.downloadBlocks).toBeFunction()
     })
 
-    describe('when the request reply with the blocks', () => {
-      it('should return the blocks', async () => {
-        const blocks = [{}]
-        axiosMock
-          .onGet(`${peerMock.url}/peer/blocks`)
-          .reply(200, { blocks }, peerMock.headers)
-        const result = await peerMock.downloadBlocks(1)
+    it('should return the blocks with status 200', async () => {
+      const blocks = [{}]
+      axiosMock
+        .onGet(`${peerMock.url}/peer/blocks`)
+        .reply(200, { blocks }, peerMock.headers)
+      const result = await peerMock.downloadBlocks(1)
 
-        expect(result).toEqual(blocks)
-      })
+      expect(result).toEqual(blocks)
     })
 
-    describe('when the request reply with the blocks', () => {
-      it('should return the blocks', async () => {
-        axiosMock
-          .onGet(`${peerMock.url}/peer/blocks`)
-          .reply(500, { data: {} }, peerMock.headers)
+    it('should not return the blocks with status 500', async () => {
+      axiosMock
+        .onGet(`${peerMock.url}/peer/blocks`)
+        .reply(500, { data: {} }, peerMock.headers)
 
-        expect(await errorCapturer(peerMock.downloadBlocks(1))).toThrow(
-          /request.*500/i,
-        )
-      })
+      expect(await errorCapturer(peerMock.downloadBlocks(1))).toThrow(
+        /request.*500/i,
+      )
     })
   })
 

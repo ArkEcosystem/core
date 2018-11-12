@@ -92,6 +92,10 @@ class Crypto {
         assetSize = assetBytes.length
         break
       }
+
+      default: {
+        throw new Error('Invalid transaction type')
+      }
     }
 
     const bb = new ByteBuffer(
@@ -332,8 +336,10 @@ class Crypto {
    * @return {Boolean}
    */
   verifyHash(hash, signature, publicKey) {
-    signature = signature instanceof Buffer ? signature : Buffer.from(signature, 'hex')
-    publicKey = publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, 'hex')
+    signature =
+      signature instanceof Buffer ? signature : Buffer.from(signature, 'hex')
+    publicKey =
+      publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, 'hex')
     return secp256k1.verify(
       hash,
       secp256k1.signatureImport(signature),
@@ -359,7 +365,8 @@ class Crypto {
    * @return {Object}
    */
   getKeysByPrivateKey(privateKey, compressed = true) {
-    privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, 'hex')
+    privateKey =
+      privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, 'hex')
 
     const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
     const keyPair = {

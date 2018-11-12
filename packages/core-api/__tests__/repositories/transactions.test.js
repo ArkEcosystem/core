@@ -24,7 +24,7 @@ beforeEach(async () => {
 })
 
 describe('Transaction Repository', () => {
-  describe('search', async () => {
+  describe('search', () => {
     const expectSearch = async (params, expected) => {
       // await connection.saveBlock(genesisBlock)
 

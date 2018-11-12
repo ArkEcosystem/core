@@ -31,8 +31,8 @@ module.exports = class ForgerManager {
    */
   async loadDelegates(bip38, password) {
     if (
-      !bip38
-      && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))
+      !bip38 &&
+      (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))
     ) {
       logger.warn(
         'No delegate found! Please check your "delegates.json" file and try again.',
@@ -54,7 +54,8 @@ module.exports = class ForgerManager {
     await this.__loadUsernames(2000)
 
     const delegates = this.delegates.map(
-      delegate => `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`,
+      delegate =>
+        `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`,
     )
 
     logger.debug(
@@ -102,8 +103,9 @@ module.exports = class ForgerManager {
       await this.__loadUsernames()
 
       round = await this.client.getRound()
-      const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000
-        - 2000
+      const delayTime =
+        parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 -
+        2000
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
@@ -211,7 +213,9 @@ module.exports = class ForgerManager {
     await this.client.broadcast(block.toJson())
 
     this.client.emitEvent('block.forged', block.data)
-    transactions.forEach(transaction => this.client.emitEvent('transaction.forged', transaction.data))
+    transactions.forEach(transaction =>
+      this.client.emitEvent('transaction.forged', transaction.data),
+    )
   }
 
   /**
@@ -221,7 +225,9 @@ module.exports = class ForgerManager {
     const response = await this.client.getTransactions()
 
     const transactions = response.transactions
-      ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
+      ? response.transactions.map(serializedTx =>
+          Transaction.fromBytes(serializedTx),
+        )
       : []
 
     if (isEmpty(response)) {
@@ -258,7 +264,7 @@ module.exports = class ForgerManager {
    * @param {Booolean} isAllowedToForge
    */
   __analyseNetworkState(networkState, currentForger) {
-    const badState = (networkState, message) => {
+    const badState = message => {
       logger.info(message)
       logger.debug(`Network State: ${JSON.stringify(networkState, null, 4)}`)
 
@@ -267,27 +273,22 @@ module.exports = class ForgerManager {
 
     if (networkState.coldStart) {
       return badState(
-        networkState,
         'Not allowed to forge during the cold start period. Check peers.json for coldStart setting.',
       )
     }
 
     if (!networkState.minimumNetworkReach) {
-      return badState(
-        networkState,
-        'Network reach is not sufficient to get quorum.',
-      )
+      return badState('Network reach is not sufficient to get quorum.')
     }
 
     if (
-      networkState.overHeightBlockHeader
-      && networkState.overHeightBlockHeader.generatorPublicKey
-        === currentForger.publicKey
+      networkState.overHeightBlockHeader &&
+      networkState.overHeightBlockHeader.generatorPublicKey ===
+        currentForger.publicKey
     ) {
       const usernames = this.usernames[currentForger.publicKey]
 
       return badState(
-        networkState,
         `Possible double forging for delegate: ${usernames} (${
           currentForger.publicKey
         }).`,
@@ -295,10 +296,7 @@ module.exports = class ForgerManager {
     }
 
     if (networkState.quorum < 0.66) {
-      return badState(
-        networkState,
-        'Fork 6 - Not enough quorum to forge next block.',
-      )
+      return badState('Fork 6 - Not enough quorum to forge next block.')
     }
 
     return true

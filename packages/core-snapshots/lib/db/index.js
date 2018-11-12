@@ -118,6 +118,8 @@ class Database {
         return this.blocksColumnSet
       case 'transactions':
         return this.transactionsColumnSet
+      default:
+        throw new Error('Invalid table name')
     }
   }
 

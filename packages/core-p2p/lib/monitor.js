@@ -30,10 +30,10 @@ class Monitor {
 
   /**
    * Method to run on startup.
-   * @param {Object} config
+   * @param {Object} options
    */
-  async start(config) {
-    this.config = config
+  async start(options) {
+    this.config = options
 
     await this.__checkDNSConnectivity(config.dns)
     await this.__checkNTPConnectivity(config.ntp)
@@ -44,8 +44,8 @@ class Monitor {
 
     this.config.skipDiscovery
       ? logger.warn(
-        'Skipped peer discovery because the relay is in skip-discovery mode.',
-      )
+          'Skipped peer discovery because the relay is in skip-discovery mode.',
+        )
       : await this.updateNetworkStatus(config.networkStart)
 
     return this
@@ -80,8 +80,8 @@ class Monitor {
       }
 
       if (
-        Object.keys(this.peers).length < config.peers.list.length - 1
-        && realEnvironment
+        Object.keys(this.peers).length < config.peers.list.length - 1 &&
+        realEnvironment
       ) {
         config.peers.list.forEach(
           peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)),
@@ -116,9 +116,9 @@ class Monitor {
     }
 
     if (
-      this.guard.isSuspended(peer)
-      || this.guard.isMyself(peer)
-      || process.env.ARK_ENV === 'test'
+      this.guard.isSuspended(peer) ||
+      this.guard.isMyself(peer) ||
+      process.env.ARK_ENV === 'test'
     ) {
       return
     }
@@ -222,8 +222,8 @@ class Monitor {
     if (tracker) {
       logger.stopTracker('Peers Discovery', max, max)
       logger.info(
-        `${max
-          - unresponsivePeers} of ${max} peers on the network are responsive`,
+        `${max -
+          unresponsivePeers} of ${max} peers on the network are responsive`,
       )
       logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
       logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
@@ -347,9 +347,9 @@ class Monitor {
 
       list.forEach(peer => {
         if (
-          Peer.isOk(peer)
-          && !this.getPeer(peer.ip)
-          && !this.guard.isMyself(peer)
+          Peer.isOk(peer) &&
+          !this.getPeer(peer.ip) &&
+          !this.guard.isMyself(peer)
         ) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
@@ -441,7 +441,9 @@ class Monitor {
     const recentBlockIds = await this.__getRecentBlockIds()
 
     await Promise.all(
-      this.getPeers().map(peer => this.peerHasCommonBlocks(peer, recentBlockIds)),
+      this.getPeers().map(peer =>
+        this.peerHasCommonBlocks(peer, recentBlockIds),
+      ),
     )
   }
 
@@ -541,7 +543,9 @@ class Monitor {
     )
 
     const transactionsV1 = []
-    transactions.forEach(transaction => transactionsV1.push(transaction.toJson()))
+    transactions.forEach(transaction =>
+      transactionsV1.push(transaction.toJson()),
+    )
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
   }
@@ -629,8 +633,9 @@ class Monitor {
         )}`,
       )
 
-      const badLastBlock = chosenPeers[0].state.height === lastBlock.data.height
-        && chosenPeers[0].state.header.id !== lastBlock.data.id
+      const badLastBlock =
+        chosenPeers[0].state.height === lastBlock.data.height &&
+        chosenPeers[0].state.header.id !== lastBlock.data.id
       const quota = chosenPeers.length / flatten(commonIdGroups).length
       if (badLastBlock && quota >= 0.66) {
         // Rollback if last block is bad and quota high

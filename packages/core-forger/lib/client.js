@@ -134,7 +134,9 @@ module.exports = class Client {
       '192.168.*',
     ]
 
-    const host = this.hosts.find(host => allowedHosts.some(allowedHost => host.includes(allowedHost)))
+    const host = this.hosts.find(item =>
+      allowedHosts.some(allowedHost => item.includes(allowedHost)),
+    )
 
     if (!host) {
       return logger.error('Was unable to find any local hosts.')

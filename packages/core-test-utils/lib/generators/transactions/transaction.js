@@ -59,6 +59,8 @@ module.exports = (
         const publicKey = crypto.getKeys(passphrase).publicKey
         builder = builder.vote().votesAsset([`+${publicKey}`])
         break
+      default:
+        throw new Error('Invalid transaction type')
     }
 
     builder = builder.sign(passphrase)

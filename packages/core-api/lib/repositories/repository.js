@@ -59,7 +59,7 @@ module.exports = class Repository {
       .filter(arg => this.columns.includes(arg))
       .reduce((items, item) => {
         const column = columns.find(
-          column => column.name === item || column.prop === item,
+          value => value.name === item || value.prop === item,
         )
 
         column ? (items[column.name] = parameters[item]) : delete items[item]

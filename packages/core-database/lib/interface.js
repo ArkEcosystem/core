@@ -14,10 +14,10 @@ const WalletManager = require('./wallet-manager')
 module.exports = class ConnectionInterface {
   /**
    * @constructor
-   * @param {Object} config
+   * @param {Object} options
    */
-  constructor(config) {
-    this.config = config
+  constructor(options) {
+    this.config = options
     this.connection = null
     this.blocksInCurrentRound = null
     this.stateStarted = false
@@ -246,7 +246,8 @@ module.exports = class ConnectionInterface {
     try {
       delegates.forEach(delegate => {
         const producedBlocks = this.blocksInCurrentRound.filter(
-          blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey,
+          blockGenerator =>
+            blockGenerator.data.generatorPublicKey === delegate.publicKey,
         )
         const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
 
@@ -283,10 +284,10 @@ module.exports = class ConnectionInterface {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
       if (
-        !this.forgingDelegates
-        || this.forgingDelegates.length === 0
-        || (this.forgingDelegates.length
-          && this.forgingDelegates[0].round !== round)
+        !this.forgingDelegates ||
+        this.forgingDelegates.length === 0 ||
+        (this.forgingDelegates.length &&
+          this.forgingDelegates[0].round !== round)
       ) {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 

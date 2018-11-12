@@ -57,7 +57,9 @@ module.exports = class Environment {
         )
 
         config = require(networkPath)
-      } catch (error) {}
+      } catch (error) {
+        config = false
+      }
     }
 
     if (!config) {

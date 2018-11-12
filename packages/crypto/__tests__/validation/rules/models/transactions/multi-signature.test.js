@@ -1,8 +1,11 @@
+/* eslint no-empty: "off" */
+
 const rule = require('../../../../../lib/validation/rules/models/transactions/multi-signature')
 const { crypto, constants, transactionBuilder } = require('../../../../../lib')
 
 const passphrase = 'passphrase 1'
-const publicKey = '+03e8021105a6c202097e97e6c6d650942d913099bf6c9f14a6815df1023dde3b87'
+const publicKey =
+  '+03e8021105a6c202097e97e6c6d650942d913099bf6c9f14a6815df1023dde3b87'
 const passphrases = [passphrase, 'passphrase 2', 'passphrase 3']
 const keysGroup = [
   publicKey,
@@ -10,8 +13,8 @@ const keysGroup = [
   '+03de72ef9d3ebf1b374f1214f5b8dde823690ab2aa32b4b8b3226cc568aaed1562',
 ]
 
-const signTransaction = (transaction, passphrases) => {
-  passphrases.map(passphrase => transaction.multiSignatureSign(passphrase))
+const signTransaction = (transaction, values) => {
+  values.map(value => transaction.multiSignatureSign(value))
 }
 
 let transaction
@@ -108,15 +111,15 @@ describe('Multi Signature Transaction Rule', () => {
   })
 
   it('should be invalid due to too many public keys', () => {
-    const passphrases = []
+    const values = []
     multiSignatureAsset.keysgroup = []
     for (let i = 0; i < 20; i++) {
-      const passphrase = `passphrase ${i}`
-      passphrases.push(passphrase)
-      multiSignatureAsset.keysgroup.push(crypto.getKeys(passphrase).publicKey)
+      const value = `passphrase ${i}`
+      values.push(value)
+      multiSignatureAsset.keysgroup.push(crypto.getKeys(value).publicKey)
     }
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
-    signTransaction(transaction, passphrases)
+    signTransaction(transaction, values)
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
@@ -145,16 +148,14 @@ describe('Multi Signature Transaction Rule', () => {
   })
 
   it('should be invalid due to no "+" for publicKeys', () => {
-    multiSignatureAsset.keysgroup = keysGroup.map(publicKey => publicKey.slice(1))
+    multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1))
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to having "-" for publicKeys', () => {
-    multiSignatureAsset.keysgroup = keysGroup.map(
-      publicKey => `-${publicKey.slice(1)}`,
-    )
+    multiSignatureAsset.keysgroup = keysGroup.map(value => `-${value.slice(1)}`)
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(rule(transaction.getStruct()).errors).not.toBeNull()

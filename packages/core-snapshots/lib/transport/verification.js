@@ -8,7 +8,7 @@ const logger = container.resolvePlugin('logger')
 
 module.exports = {
   verifyData: (context, data, prevData, signatureVerification) => {
-    const verifyTransaction = (data, signatureVerification) => {
+    const verifyTransaction = () => {
       if (!signatureVerification) {
         return true
       }
@@ -19,7 +19,7 @@ module.exports = {
       return transaction.verified
     }
 
-    const isBlockChained = (data, prevData) => {
+    const isBlockChained = () => {
       if (!prevData) {
         return true
       }
@@ -28,20 +28,20 @@ module.exports = {
       // hardcoding for now
       // TODO: check to improve ser/deser for genesis, add mainnet
       if (
-        data.height === 2
-        && data.previous_block === '13114381566690093367'
-        && prevData.id === '12760288562212273414'
+        data.height === 2 &&
+        data.previous_block === '13114381566690093367' &&
+        prevData.id === '12760288562212273414'
       ) {
         return true
       }
       return (
-        data.height - prevData.height === 1
-        && data.previous_block === prevData.id
+        data.height - prevData.height === 1 &&
+        data.previous_block === prevData.id
       )
     }
 
-    const verifyBlock = (data, prevData, signatureVerification) => {
-      if (!isBlockChained(data, prevData)) {
+    const verifyBlock = () => {
+      if (!isBlockChained(data)) {
         logger.error(
           `Blocks are not chained. Current block: ${JSON.stringify(
             data,
@@ -73,9 +73,9 @@ module.exports = {
 
     switch (context) {
       case 'blocks':
-        return verifyBlock(data, prevData, signatureVerification)
+        return verifyBlock()
       case 'transactions':
-        return verifyTransaction(data, signatureVerification)
+        return verifyTransaction()
       default:
         return false
     }

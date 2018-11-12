@@ -7,11 +7,12 @@ module.exports = async config => {
       host: config.host,
       port: config.port,
     },
-    server => server.views({
-      engines: { html: Handlebars },
-      relativeTo: __dirname,
-      path: 'templates',
-    }),
+    instance =>
+      instance.views({
+        engines: { html: Handlebars },
+        relativeTo: __dirname,
+        path: 'templates',
+      }),
   )
 
   server.route({

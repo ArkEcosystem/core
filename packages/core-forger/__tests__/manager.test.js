@@ -39,7 +39,7 @@ describe('Forger Manager', () => {
       const delegates = await forgeManager.loadDelegates()
 
       expect(delegates).toBeArray()
-      delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
+      delegates.forEach(value => expect(value).toBeInstanceOf(Delegate))
       expect(forgeManager.client.getUsernames).toHaveBeenCalled()
     })
   })
@@ -153,13 +153,13 @@ describe('Forger Manager', () => {
         },
       ]
 
-      const delegate = await forgeManager.__isDelegateActivated(
+      const forger = await forgeManager.__isDelegateActivated(
         '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
       )
 
-      expect(delegate).toBeObject()
-      expect(delegate.username).toBe('arkxdev')
-      expect(delegate.publicKey).toBe(
+      expect(forger).toBeObject()
+      expect(forger.username).toBe('arkxdev')
+      expect(forger.publicKey).toBe(
         '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
       )
     })

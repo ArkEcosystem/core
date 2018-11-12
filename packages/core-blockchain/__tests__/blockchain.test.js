@@ -148,7 +148,6 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', async () => {
-      const { Block } = require('@arkecosystem/crypto').models
       const block = new Block(blocks101to155[54])
 
       await blockchain.queueBlock(blocks101to155[54])
@@ -477,8 +476,8 @@ async function __start() {
 
   await blockchain.start(true)
   while (
-    !blockchain.getLastBlock()
-    || blockchain.getLastBlock().data.height < 155
+    !blockchain.getLastBlock() ||
+    blockchain.getLastBlock().data.height < 155
   ) {
     await delay(1000)
   }
@@ -520,11 +519,13 @@ function __mockPeer() {
       peerMock.headers,
     ])
   axiosMock.onGet(/.*\/peer\/blocks/).reply(config => {
-    const blocks = config.params.lastBlockHeight === 1
-      ? blocks1to100
-      : config.params.lastBlockHeight === 100
-        ? blocks101to155
-        : []
+    let blocks = []
+
+    if (config.params.lastBlockHeight === 1) {
+      blocks = blocks1to100
+    } else if (config.params.lastBlockHeight === 100) {
+      blocks = blocks101to155
+    }
 
     return [200, { status: 200, success: true, blocks }, peerMock.headers]
   })
@@ -541,7 +542,11 @@ function __mockPeer() {
       success: true,
       peers: [
         {
-          status: 200, ip: peerMock.ip, port: 4002, height: 155, delay: 8,
+          status: 200,
+          ip: peerMock.ip,
+          port: 4002,
+          height: 155,
+          delay: 8,
         },
       ],
     },
