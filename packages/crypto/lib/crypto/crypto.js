@@ -94,7 +94,7 @@ class Crypto {
       }
 
       default: {
-        throw new Error('Invalid transaction type')
+        console.warn('Unknown transaction type for v1')
       }
     }
 
