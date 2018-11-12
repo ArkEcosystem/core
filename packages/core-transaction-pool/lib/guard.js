@@ -133,7 +133,7 @@ module.exports = class TransactionGuard {
     transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id)
 
-      if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
+      if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey, transaction.id)) {
         try {
           const trx = new Transaction(transaction)
 
