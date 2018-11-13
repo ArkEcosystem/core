@@ -36,8 +36,8 @@ class Monitor {
   async start(options) {
     this.config = options
 
-    await this.__checkDNSConnectivity(config.dns)
-    await this.__checkNTPConnectivity(config.ntp)
+    await this.__checkDNSConnectivity(options.dns)
+    await this.__checkNTPConnectivity(options.ntp)
 
     this.guard = guard.init(this)
 
@@ -47,7 +47,7 @@ class Monitor {
       ? logger.warn(
           'Skipped peer discovery because the relay is in skip-discovery mode.',
         )
-      : await this.updateNetworkStatus(config.networkStart)
+      : await this.updateNetworkStatus(options.networkStart)
 
     return this
   }
@@ -538,11 +538,11 @@ class Monitor {
   async broadcastTransactions(transactions) {
     const peers = this.getPeers()
     logger.debug(
-      `Broadcasting ${
-        pluralize('transaction', transactions.length, true)
-      } to ${
-        pluralize('peer', peers.length, true)
-      }`,
+      `Broadcasting ${pluralize(
+        'transaction',
+        transactions.length,
+        true,
+      )} to ${pluralize('peer', peers.length, true)}`,
     )
 
     const transactionsV1 = []
@@ -599,7 +599,11 @@ class Monitor {
     if (commonHeightGroups.length > 1) {
       if (lastBlock.data.height > peersMostCommonHeight[0].state.height) {
         logger.info(
-          `${pluralize('peer', peersMostCommonHeight.length, true)} are at height ${
+          `${pluralize(
+            'peer',
+            peersMostCommonHeight.length,
+            true,
+          )} are at height ${
             peersMostCommonHeight[0].state.height
           } and lagging behind last height ${lastBlock.data.height}. :zzz:`,
         )
