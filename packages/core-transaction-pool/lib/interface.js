@@ -121,9 +121,8 @@ module.exports = class TransactionPoolInterface {
   /**
    * Add many transaction to the pool. Method called from blockchain, upon receiving payload.
    * @param {Array}   transactions
-   * @param {Boolean} isBroadcast
    */
-  addTransactions(transactions, isBroadcast) {
+  addTransactions(transactions) {
     throw new Error('Method [addTransactions] not implemented!')
   }
 
