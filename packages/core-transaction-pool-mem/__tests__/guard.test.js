@@ -30,10 +30,12 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await transactionPool.flush()
+  guard.__reset()
 })
 
 afterEach(async () => {
   await transactionPool.flush()
+  guard.__reset()
 })
 
 describe('Transaction Guard', () => {
@@ -151,5 +153,55 @@ describe('Transaction Guard', () => {
         ])
       },
     )
+
+    it('should call pingTransaction', async () => {
+      const amount = 10000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        1,
+        true,
+      )
+
+      const pingTransaction = transactionPool.pingTransaction
+      transactionPool.pingTransaction = jest.fn()
+
+      await guard.validate(transactions)
+      transactionPool.addTransactions(guard.accept)
+      expect(guard.broadcast).toHaveLength(1)
+
+      guard.__reset()
+      await guard.validate(transactions)
+
+      expect(guard.broadcast).toBeEmpty()
+      expect(transactionPool.pingTransaction).toHaveBeenCalled()
+      expect(transactionPool.pingTransaction).toHaveBeenCalledTimes(1)
+
+      transactionPool.pingTransaction = pingTransaction
+      for (let i = 0; i < 10; i++) {
+        await guard.validate(transactions)
+      }
+      expect(transactionPool.getTransactionPing(transactions[0].id)).toEqual(10)
+    })
+
+    it('should not call pingTransaction', async () => {
+      const amount = 10000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        1,
+        true,
+      )
+
+      transactionPool.pingTransaction = jest.fn()
+
+      await guard.validate(transactions)
+
+      expect(transactionPool.pingTransaction).not.toHaveBeenCalled()
+    })
   })
 })

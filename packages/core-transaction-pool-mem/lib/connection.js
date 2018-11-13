@@ -317,8 +317,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {Number}
    */
   getTransactionPing(transactionId) {
-    assert(this.transactionExists(transactionId))
-    return this.mem.getTransactionById(transactionId).pingCount
+    return this.mem.getTransactionPing(transactionId)
   }
 
   /**

@@ -266,9 +266,24 @@ class Mem {
    * @return {void}
    */
   pingTransaction(transactionId) {
-    const transaction = this.getTransactionById(transactionId)
-    assert(transaction)
-    transaction.ping()
+    const memTransaction = this.byId[transactionId]
+    assert(memTransaction)
+    memTransaction.ping()
+
+    if (!this.dirty.added.has(transactionId)) {
+      this.dirty.added.add(transactionId)
+    }
+  }
+
+  /**
+   * Get transaction ping.
+   * @param {String} transactionId
+   * @return {Number}
+   */
+  getTransactionPing(transactionId) {
+    const memTransaction = this.byId[transactionId]
+    assert(memTransaction)
+    return memTransaction.pingCount
   }
 
   /**
