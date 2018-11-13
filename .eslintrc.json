@@ -15,7 +15,6 @@
     "import/no-dynamic-require": "off",
     "jest/no-disabled-tests": "off",
     "jest/valid-expect": "off",
-    "no-await-in-loop": "off",
     "no-bitwise": "off",
     "no-console": [
       "error",
@@ -25,7 +24,6 @@
     "no-continue": "off",
     "no-param-reassign": "off",
     "no-plusplus": "off",
-    "no-prototype-builtins": "off",
     "no-unused-expressions": "off",
     "no-restricted-globals": "off",
     "no-restricted-properties": "off",

@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const request = require('./request')
 
 module.exports = async (config, endpoint, limit) => {

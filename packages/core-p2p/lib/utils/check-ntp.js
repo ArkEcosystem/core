@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const Sntp = require('sntp')
 const shuffle = require('lodash/shuffle')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')

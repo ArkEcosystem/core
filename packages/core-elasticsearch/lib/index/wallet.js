@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const container = require('@arkecosystem/core-container')
 
 const emitter = container.resolvePlugin('event-emitter')

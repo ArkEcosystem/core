@@ -139,13 +139,15 @@ module.exports = class TransactionGuard {
         this.__pushError(
           transaction,
           'ERR_DUPLICATE',
-          `Duplicate transaction ${transaction.id}`
+          `Duplicate transaction ${transaction.id}`,
         )
       } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         this.__pushError(
           transaction,
           'ERR_SENDER_BLOCKED',
-          `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked.`
+          `Transaction ${transaction.id} rejected. Sender ${
+            transaction.senderPublicKey
+          } is blocked.`,
         )
       } else {
         try {
@@ -308,7 +310,7 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   __pushError(transaction, type, message) {
-    if (!this.errors.hasOwnProperty(transaction.id)) {
+    if (!this.errors[transaction.id]) {
       this.errors[transaction.id] = []
     }
 

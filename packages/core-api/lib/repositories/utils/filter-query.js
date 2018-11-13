@@ -7,7 +7,7 @@
 module.exports = (parameters, filters) => {
   const where = []
 
-  if (filters.hasOwnProperty('exact')) {
+  if (filters.exact) {
     for (const elem of filters.exact) {
       if (typeof parameters[elem] !== 'undefined') {
         where.push({
@@ -19,16 +19,13 @@ module.exports = (parameters, filters) => {
     }
   }
 
-  if (filters.hasOwnProperty('between')) {
+  if (filters.between) {
     for (const elem of filters.between) {
       if (!parameters[elem]) {
         continue
       }
 
-      if (
-        !parameters[elem].hasOwnProperty('from')
-        && !parameters[elem].hasOwnProperty('to')
-      ) {
+      if (!parameters[elem].from && !parameters[elem].to) {
         where.push({
           column: elem,
           method: 'equals',
@@ -36,13 +33,10 @@ module.exports = (parameters, filters) => {
         })
       }
 
-      if (
-        parameters[elem].hasOwnProperty('from')
-        || parameters[elem].hasOwnProperty('to')
-      ) {
+      if (parameters[elem].from || parameters[elem].to) {
         where[elem] = {}
 
-        if (parameters[elem].hasOwnProperty('from')) {
+        if (parameters[elem].from) {
           where.push({
             column: elem,
             method: 'gte',
@@ -50,7 +44,7 @@ module.exports = (parameters, filters) => {
           })
         }
 
-        if (parameters[elem].hasOwnProperty('to')) {
+        if (parameters[elem].to) {
           where.push({
             column: elem,
             method: 'lte',
@@ -61,7 +55,7 @@ module.exports = (parameters, filters) => {
     }
   }
 
-  if (filters.hasOwnProperty('wildcard')) {
+  if (filters.wildcard) {
     for (const elem of filters.wildcard) {
       if (parameters[elem]) {
         where.push({

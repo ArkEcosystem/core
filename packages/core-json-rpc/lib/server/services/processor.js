@@ -1,4 +1,5 @@
 /* eslint no-shadow: "off" */
+/* eslint no-await-in-loop: "off" */
 
 const Joi = require('joi')
 const get = require('lodash/get')

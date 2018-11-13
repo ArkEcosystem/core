@@ -382,9 +382,11 @@ exports.getBlocks = {
       }
 
       logger.info(
-        `${requestIp.getClientIp(request)} has downloaded ${
-          pluralize('block', blocks.length, true)
-        } from height ${request.query.lastBlockHeight}`,
+        `${requestIp.getClientIp(request)} has downloaded ${pluralize(
+          'block',
+          blocks.length,
+          true,
+        )} from height ${request.query.lastBlockHeight}`,
       )
 
       return { success: true, blocks: blocks || [] }

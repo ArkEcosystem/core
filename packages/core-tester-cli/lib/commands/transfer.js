@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const { Bignum, client, crypto } = require('@arkecosystem/crypto')
 const delay = require('delay')
 const pluralize = require('pluralize')
@@ -24,9 +26,13 @@ module.exports = class TransferCommand extends Command {
       wallets = this.generateWallets()
     }
 
-    logger.info(`Sending ${wallets.length} transfer ${
-      pluralize('transaction', wallets.length, true)
-    }`)
+    logger.info(
+      `Sending ${wallets.length} transfer ${pluralize(
+        'transaction',
+        wallets.length,
+        true,
+      )}`,
+    )
 
     const walletBalance = await this.getWalletBalance(primaryAddress)
 
@@ -80,10 +86,10 @@ module.exports = class TransferCommand extends Command {
       if (!this.options.floodAttempts) {
         const successfulTest = await this.__performRun(runOptions, 1)
         if (
-          successfulTest
-          && !this.options.skipSecondRun
-          && !this.options.skipValidation
-          && !this.options.skipTesting
+          successfulTest &&
+          !this.options.skipSecondRun &&
+          !this.options.skipValidation &&
+          !this.options.skipTesting
         ) {
           await this.__performRun(runOptions, 2, false, true)
         }
@@ -259,8 +265,8 @@ module.exports = class TransferCommand extends Command {
       const uniqueLength = unique(postResponse[key]).length
       if (dataLength !== uniqueLength) {
         logger.error(
-          `Response data for '${key}' has ${dataLength
-            - uniqueLength} duplicate transaction ids`,
+          `Response data for '${key}' has ${dataLength -
+            uniqueLength} duplicate transaction ids`,
         )
         successfulTest = false
       }
