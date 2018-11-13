@@ -7,6 +7,8 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 
+const pluralize = require('pluralize')
+
 module.exports = class WalletManager {
   /**
    * Create a new wallet manager instance.
@@ -251,7 +253,9 @@ module.exports = class WalletManager {
       }
     }
 
-    logger.debug(`Loaded ${delegates.length} active delegates`)
+    logger.debug(`Loaded ${delegates.length} active ${
+      pluralize('delegate', delegates.length)
+    }`)
 
     return delegates
   }

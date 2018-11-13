@@ -35,6 +35,7 @@
     "lodash": "^4.17.11",
     "pino": "^5.8.1",
     "pino-pretty": "^2.2.3",
+    "pluralize": "^7.0.0",
     "superheroes": "^2.0.0"
   },
   "devDependencies": {

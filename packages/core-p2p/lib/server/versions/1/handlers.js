@@ -1,9 +1,9 @@
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
-const { Block } = require('@arkecosystem/crypto').models
-const requestIp = require('request-ip')
 const { slots, crypto } = require('@arkecosystem/crypto')
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Block, Transaction } = require('@arkecosystem/crypto').models
+const requestIp = require('request-ip')
+const pluralize = require('pluralize')
 
 const transactionPool = container.resolvePlugin('transactionPool')
 const logger = container.resolvePlugin('logger')
@@ -327,7 +327,7 @@ exports.postTransactions = {
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
       logger.info(
-        `Accepted ${guard.accept.length} transactions from ${
+        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
           request.payload.transactions.length
         } received`,
       )
@@ -378,8 +378,8 @@ exports.getBlocks = {
 
       logger.info(
         `${requestIp.getClientIp(request)} has downloaded ${
-          blocks.length
-        } blocks from height ${request.query.lastBlockHeight}`,
+          pluralize('block', blocks.length, true)
+        } from height ${request.query.lastBlockHeight}`,
       )
 
       return { success: true, blocks: blocks || [] }
