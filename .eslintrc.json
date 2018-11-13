@@ -21,8 +21,6 @@
     "global-require": "off",
     "guard-for-in": "off",
     "import/no-dynamic-require": "off",
-    "jest/no-disabled-tests": "off",
-    "jest/valid-expect": "off",
     "no-unused-expressions": "off",
     "no-underscore-dangle": "off",
     "no-unused-vars": "off",

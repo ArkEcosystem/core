@@ -358,7 +358,7 @@ describe('crypto.js', () => {
           crypto.getAddress(validKey)
         }
       } catch (error) {
-        expect().fail(
+        throw new Error(
           'Should not have failed to call getAddress with a valid publicKey',
         )
       }
