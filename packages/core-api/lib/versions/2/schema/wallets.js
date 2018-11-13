@@ -52,7 +52,10 @@ exports.transactions = {
   params: {
     id: Joi.string(),
   },
-  query: pagination,
+  query: {
+    ...pagination,
+    orderBy: Joi.string(),
+  },
 }
 
 /**
@@ -62,7 +65,10 @@ exports.transactionsSent = {
   params: {
     id: Joi.string(),
   },
-  query: pagination,
+  query: {
+    ...pagination,
+    orderBy: Joi.string(),
+  },
 }
 
 /**
@@ -72,7 +78,10 @@ exports.transactionsReceived = {
   params: {
     id: Joi.string(),
   },
-  query: pagination,
+  query: {
+    ...pagination,
+    orderBy: Joi.string(),
+  },
 }
 
 /**

@@ -36,6 +36,7 @@ class StateStorage {
     this.forkedBlock = null
     this.rebuild = true
     this.fastRebuild = false
+    this.checkLaterTimeout = null
     this.noBlockCounter = 0
     this.p2pUpdateCounter = 0
     this.networkStart = false
@@ -49,6 +50,17 @@ class StateStorage {
    */
   clear() {
     _lastBlocks = _lastBlocks.clear()
+  }
+
+  /**
+   * Clear check later timeout.
+   * @returns {void}
+   */
+  clearCheckLater() {
+    if (this.checkLaterTimeout) {
+      clearTimeout(this.checkLaterTimeout)
+      this.checkLaterTimeout = null
+    }
   }
 
   /**

@@ -9,6 +9,7 @@ const { slots } = require('@arkecosystem/crypto')
 const { Delegate, Transaction } = require('@arkecosystem/crypto').models
 
 const { isEmpty, uniq } = require('lodash')
+const pluralize = require('pluralize')
 
 const Client = require('./client')
 
@@ -59,9 +60,7 @@ module.exports = class ForgerManager {
     )
 
     logger.debug(
-      `Loaded ${delegates.length} delegate${
-        delegates.length > 1 ? 's' : ''
-      }: ${delegates.join(', ')}`,
+      `Loaded ${pluralize('delegate', delegates.length, true)}: ${delegates.join(', ')}`,
     )
 
     return this.delegates
@@ -170,7 +169,7 @@ module.exports = class ForgerManager {
 
       if (!isEmpty(round)) {
         logger.info(
-          `Round: ${round.current.toLocaleString()}, Height: ${round.lastBlock.height.toLocaleString()}`,
+          `Round: ${round.current.toLocaleString()}, height: ${round.lastBlock.height.toLocaleString()}`,
         )
       }
 
@@ -239,8 +238,8 @@ module.exports = class ForgerManager {
     } else {
       logger.debug(
         `Received ${
-          transactions.length
-        } transactions from the pool containing ${
+          pluralize('transaction', transactions.length, true)
+        } from the pool containing ${
           response.poolSize
         } :money_with_wings:`,
       )

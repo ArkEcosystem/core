@@ -5,6 +5,7 @@ const clipboardy = require('clipboardy')
 const delay = require('delay')
 const fs = require('fs')
 const path = require('path')
+const pluralize = require('pluralize')
 const config = require('../config')
 const { logger, paginate, request } = require('../utils')
 
@@ -44,7 +45,7 @@ module.exports = class Command {
     }
 
     clipboardy.writeSync(JSON.stringify(transactions))
-    logger.info(`Copied ${transactions.length} transactions`)
+    logger.info(`Copied ${pluralize('transaction', transactions.length, true)}`)
   }
 
   /**

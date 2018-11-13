@@ -4,6 +4,7 @@ const fs = require('fs-extra')
 const QueryStream = require('pg-query-stream')
 const JSONStream = require('JSONStream')
 const msgpack = require('msgpack-lite')
+const pluralize = require('pluralize')
 const zlib = require('zlib')
 
 const container = require('@arkecosystem/core-container')
@@ -178,9 +179,9 @@ module.exports = {
         s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream),
       )
       logger.info(
-        `Transactions(n=${
-          data.processed
-        }) from rollbacked blocks where safely exported to file ${snapFileName}`,
+        `${
+          pluralize('transaction', data.processed, true)
+        } from rollbacked blocks safely exported to file ${snapFileName}`,
       )
       return data
     } catch (error) {
