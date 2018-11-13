@@ -294,6 +294,7 @@ module.exports = class TransactionGuard {
           'ERR_LOW_FEE',
           'Peer rejected the transaction because of not meeting the minimum accepted fee. It is still broadcasted to other peers.',
         )
+        this.pool.walletManager.revertTransaction(transaction)
         return false
       }
       return true
