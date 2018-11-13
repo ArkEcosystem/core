@@ -15,7 +15,9 @@ beforeAll(() => {
 
   logger = driver.make()
 
-  capcon.startCapture(process.stdout, stdout => (message += stdout))
+  capcon.startCapture(process.stdout, stdout => {
+    message += stdout
+  })
 })
 
 describe('Logger', () => {

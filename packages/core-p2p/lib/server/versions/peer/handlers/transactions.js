@@ -114,13 +114,11 @@ exports.search = {
       return transaction
     })
 
-    const data = transactionIds.map(
-      (transaction, i) => (transactionIds[i] = transactions.find(
-        tx2 => tx2.id === transactionIds[i],
-      )),
-    )
+    transactionIds.forEach((transaction, i) => {
+      transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])
+    })
 
-    return { data }
+    return { data: transactionIds }
   },
   options: {
     validate: schema.search,

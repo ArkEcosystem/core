@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 require('@arkecosystem/core-test-utils/lib/matchers')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
@@ -228,13 +230,11 @@ describe('API 2.0 - Transactions', () => {
         const data = response.data.data
         expect(data).toBeArray()
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -254,13 +254,11 @@ describe('API 2.0 - Transactions', () => {
         const data = response.data.data
         expect(data).toBeArray()
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -308,13 +306,11 @@ describe('API 2.0 - Transactions', () => {
           utils.expectTransaction(transaction)
         })
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -342,13 +338,11 @@ describe('API 2.0 - Transactions', () => {
           utils.expectTransaction(transaction)
         })
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -376,15 +370,11 @@ describe('API 2.0 - Transactions', () => {
           utils.expectTransaction(transaction)
         })
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) {
-            return true
-          }
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -412,13 +402,11 @@ describe('API 2.0 - Transactions', () => {
           utils.expectTransaction(transaction)
         })
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -446,13 +434,11 @@ describe('API 2.0 - Transactions', () => {
           utils.expectTransaction(transaction)
         })
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -480,13 +466,11 @@ describe('API 2.0 - Transactions', () => {
           utils.expectTransaction(transaction)
         })
 
-        const genesisTransactions = {}
+        const transactions = {}
         genesisBlock.transactions.forEach(transaction => {
-          genesisTransactions[transaction.id] = true
+          transactions[transaction.id] = true
         })
-        const failed = data.some(transaction => {
-          if (!genesisTransactions[transaction.id]) return true
-        })
+        const failed = data.some(transaction => !transactions[transaction.id])
 
         expect(!failed).toBeTrue()
       })
@@ -498,11 +482,13 @@ describe('API 2.0 - Transactions', () => {
       ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it.skip('should POST a search for transactions with the exact specified vendorFieldHex', async () => {
-        const transactionId = '0000faa27b422f7648b1a2f634f15c7e5c8e96b84929624fda44abf716bdf784'
-        const vendorFieldHex = '64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f'
+        const id =
+          '0000faa27b422f7648b1a2f634f15c7e5c8e96b84929624fda44abf716bdf784'
+        const vendorFieldHex =
+          '64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f'
 
         const response = await utils[request]('POST', 'transactions/search', {
-          id: transactionId,
+          id,
           vendorFieldHex,
         })
         expect(response).toBeSuccessfulResponse()
@@ -555,12 +541,11 @@ describe('API 2.0 - Transactions', () => {
 
   describe('POST /transactions', () => {
     it('should POST 2 transactions double spending and get only 1 accepted and broadcasted', async () => {
-      const amount = 245098000000000 - 5098000000000 // a bit less than the delegates' balance
       const transactions = generateTransfers(
         'testnet',
         delegates[0].secret,
         delegates[1].address,
-        amount,
+        245098000000000 - 5098000000000, // a bit less than the delegates' balance
         2,
         true,
       )
@@ -591,7 +576,8 @@ describe('API 2.0 - Transactions', () => {
         const sender = delegates[txNumber] // use txNumber so that we use a different delegate for each test case
         const receivers = generateWallets('testnet', 2)
         const amountPlusFee = Math.floor(sender.balance / txNumber)
-        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee
 
         const transactions = generateTransfers(
           'testnet',
@@ -639,7 +625,8 @@ describe('API 2.0 - Transactions', () => {
         const sender = delegates[txNumber + 1] // use txNumber + 1 so that we don't use the same delegates as the above test
         const receivers = generateWallets('testnet', 2)
         const amountPlusFee = Math.floor(sender.balance / txNumber)
-        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee + 1
 
         const transactions = generateTransfers(
           'testnet',

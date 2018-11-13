@@ -42,6 +42,8 @@ exports.TRANSACTION_TYPES = Object.freeze({
         return 'multi payment'
       case this.DELEGATE_RESIGNATION:
         return 'delegate resignation'
+      default:
+        throw new Error('Invalid transaction type')
     }
   },
 })

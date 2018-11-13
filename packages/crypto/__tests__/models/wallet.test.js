@@ -39,7 +39,9 @@ describe('Models - Wallet', () => {
     }
 
     it.skip('should be ok for a multi-transaction', () => {
-      Object.keys(data).forEach(k => (testWallet[k] = data[k]))
+      Object.keys(data).forEach(k => {
+        testWallet[k] = data[k]
+      })
       expect(testWallet.canApply(multiTx)).toBeTrue()
     })
   })
@@ -50,7 +52,8 @@ describe('Models - Wallet', () => {
 
     beforeEach(() => {
       testWallet = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
-      testWallet.publicKey = '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece'
+      testWallet.publicKey =
+        '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece'
       testWallet.balance = Bignum.ZERO
       testWallet.producedBlocks = 0
       testWallet.forgedFees = Bignum.ZERO

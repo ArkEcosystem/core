@@ -184,7 +184,8 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Processes recently accepted block by the blockchain.
-   * It removes block transaction from the pool and adjusts pool wallets for non existing transactions
+   * It removes block transaction from the pool and adjusts
+   * pool wallets for non existing transactions.
    *
    * @param  {Object} block
    * @return {void}
@@ -200,8 +201,8 @@ module.exports = class TransactionPoolInterface {
           : false
         // if wallet in pool we try to apply transaction
         if (
-          senderWallet
-          || this.walletManager.exists(transaction.recipientId)
+          senderWallet ||
+          this.walletManager.exists(transaction.recipientId)
         ) {
           try {
             this.walletManager.applyPoolTransaction(transaction)
@@ -230,7 +231,8 @@ module.exports = class TransactionPoolInterface {
   /**
    * Rebuild pool manager wallets
    * Removes all the wallets from pool manager and applies transaction from pool - if any
-   * It waits for the node to sync, and then check the transactions in pool and validates them and apply to the pool manager
+   * It waits for the node to sync, and then check the transactions in pool
+   * and validates them and apply to the pool manager.
    * @return {void}
    */
   async buildWallets() {

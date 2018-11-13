@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const _ = require('lodash')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
@@ -222,8 +224,8 @@ module.exports = class TransactionGuard {
               'ERR_PENDING',
               `Sender ${
                 transaction.senderPublicKey
-              } already has a transaction of type `
-                + `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`,
+              } already has a transaction of type ` +
+                `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`,
             )
             return
           }
@@ -237,8 +239,8 @@ module.exports = class TransactionGuard {
           this.__pushError(
             transaction,
             'ERR_UNSUPPORTED',
-            'Invalidating transaction of unsupported type '
-              + `'${TRANSACTION_TYPES.toString(transaction.type)}'`,
+            'Invalidating transaction of unsupported type ' +
+              `'${TRANSACTION_TYPES.toString(transaction.type)}'`,
           )
           return
       }
@@ -259,9 +261,7 @@ module.exports = class TransactionGuard {
    */
   __determineExcessTransactions() {
     for (const transaction of this.broadcast) {
-      const hasExceeded = this.pool.hasExceededMaxTransactions(transaction)
-
-      if (hasExceeded) {
+      if (this.pool.hasExceededMaxTransactions(transaction)) {
         this.excess.push(transaction)
       } else {
         /**
@@ -269,14 +269,12 @@ module.exports = class TransactionGuard {
          * because the state of the transaction pool could have changed since then
          * if concurrent requests are occurring via API.
          */
-        const exists = this.pool.transactionExists(transaction.id)
-
-        exists
+        this.pool.transactionExists(transaction.id)
           ? this.__pushError(
-            transaction,
-            'ERR_DUPLICATE',
-            'Already exists in pool.',
-          )
+              transaction,
+              'ERR_DUPLICATE',
+              'Already exists in pool.',
+            )
           : this.accept.push(transaction)
       }
     }

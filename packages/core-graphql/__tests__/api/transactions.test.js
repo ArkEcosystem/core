@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 require('@arkecosystem/core-test-utils/lib/matchers')
@@ -29,7 +31,8 @@ describe('GraphQL API { transactions }', () => {
 
   describe('GraphQL queries for Transactions - orderBy', () => {
     it('should get 100 transactionsin ascending order of their id', async () => {
-      const query = '{ transactions(orderBy: { field: "id", direction: ASC }) { id } }'
+      const query =
+        '{ transactions(orderBy: { field: "id", direction: ASC }) { id } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
@@ -113,7 +116,8 @@ describe('GraphQL API { transactions }', () => {
 
   describe('GraphQL queries for Transactions - filter by recipientId', () => {
     it('should get transactions for given recipientId', async () => {
-      const query = '{ transactions(filter: { recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri" }) { id } }'
+      const query =
+        '{ transactions(filter: { recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri" }) { id } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
@@ -142,7 +146,8 @@ describe('GraphQL API { transactions }', () => {
 
   describe('GraphQL queries for Transactions - using orderBy, limit', () => {
     it('should get 5 transactions in order of ASCending address', async () => {
-      const query = '{ transactions(orderBy: { field: "id", direction: ASC }, limit: 5 ) { id } }'
+      const query =
+        '{ transactions(orderBy: { field: "id", direction: ASC }, limit: 5 ) { id } }'
       const response = await utils.request(query)
       expect(response).toBeSuccessfulResponse()
 

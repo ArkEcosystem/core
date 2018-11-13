@@ -36,7 +36,9 @@ class WalletIndex extends Index {
       )
 
       try {
-        rows.forEach(row => (row.id = row.address))
+        rows.forEach(row => {
+          row.id = row.address
+        })
 
         await client.bulk(this._buildBulkUpsert(rows))
       } catch (error) {

@@ -6,7 +6,7 @@ module.exports = (opts, data) => {
   }
 
   if (opts.log) {
-    return console.log(data)
+    return console.info(data)
   }
 
   return data

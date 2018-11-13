@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const os = require('os')
 
 /**
@@ -8,5 +10,7 @@ const os = require('os')
 module.exports = ipAddress => {
   const interfaces = os.networkInterfaces()
 
-  return Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ipAddress))
+  return Object.keys(interfaces).some(ifname =>
+    interfaces[ifname].some(iface => iface.address === ipAddress),
+  )
 }

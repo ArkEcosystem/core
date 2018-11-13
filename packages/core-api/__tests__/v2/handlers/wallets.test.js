@@ -1,10 +1,13 @@
+/* eslint max-len: "off" */
+
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
 const username = 'genesis_9'
 const address = 'AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo'
-const publicKey = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
+const publicKey =
+  '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
 const balance = 245098000000000
 
 beforeAll(async () => {

@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
@@ -260,8 +262,8 @@ module.exports = class Blockchain {
       this.state.lastDownloadedBlock = newLastBlock
     }
 
-    const __removeBlocks = async nblocks => {
-      if (nblocks < 1) {
+    const __removeBlocks = async numberOfBlocks => {
+      if (numberOfBlocks < 1) {
         return
       }
 
@@ -272,7 +274,7 @@ module.exports = class Blockchain {
       )
 
       await revertLastBlock()
-      await __removeBlocks(nblocks - 1)
+      await __removeBlocks(numberOfBlocks - 1)
     }
 
     const lastBlock = this.state.getLastBlock()
@@ -354,9 +356,9 @@ module.exports = class Blockchain {
         return callback()
       }
       if (
-        block.data.height < lastBlock.data.height
-        || (block.data.height === lastBlock.data.height
-          && block.data.id === lastBlock.data.id)
+        block.data.height < lastBlock.data.height ||
+        (block.data.height === lastBlock.data.height &&
+          block.data.id === lastBlock.data.id)
       ) {
         this.state.lastDownloadedBlock = lastBlock
         return callback()
@@ -431,8 +433,8 @@ module.exports = class Blockchain {
 
     // Check if we recovered from a fork
     if (
-      this.state.forked
-      && this.state.forkedBlock.height === block.data.height
+      this.state.forked &&
+      this.state.forkedBlock.height === block.data.height
     ) {
       logger.info('Successfully recovered from fork :star2:')
       this.state.forked = false
@@ -468,8 +470,8 @@ module.exports = class Blockchain {
         `Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`,
       )
     } else if (
-      block.data.height === lastBlock.data.height
-      && block.data.id === lastBlock.data.id
+      block.data.height === lastBlock.data.height &&
+      block.data.id === lastBlock.data.id
     ) {
       logger.debug(
         `Block ${block.data.height.toLocaleString()} just received :chains:`,
@@ -532,8 +534,8 @@ module.exports = class Blockchain {
     block = block || this.state.getLastBlock()
 
     return (
-      slots.getTime() - block.data.timestamp
-      < 3 * config.getConstants(block.data.height).blocktime
+      slots.getTime() - block.data.timestamp <
+      3 * config.getConstants(block.data.height).blocktime
     )
   }
 
@@ -663,7 +665,8 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   __isChained(previousBlock, nextBlock) {
-    const followsPrevious = nextBlock.data.previousBlock === previousBlock.data.id
+    const followsPrevious =
+      nextBlock.data.previousBlock === previousBlock.data.id
     const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp
     const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1
 

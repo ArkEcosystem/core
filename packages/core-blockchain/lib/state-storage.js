@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const container = require('@arkecosystem/core-container')
 
 const logger = container.resolvePlugin('logger')
@@ -10,7 +12,8 @@ const blockchainMachine = require('./machines/blockchain')
 let _lastBlocks = immutable.OrderedMap()
 
 // Map Block instances to block data.
-const _mapToBlockData = blocks => blocks.map(block => ({ ...block.data, transactions: block.transactions }))
+const _mapToBlockData = blocks =>
+  blocks.map(block => ({ ...block.data, transactions: block.transactions }))
 
 /**
  * Represents an in-memory storage for state machine data.
@@ -75,8 +78,8 @@ class StateStorage {
   setLastBlock(block) {
     // Only keep blocks which are below the new block height (i.e. rollback)
     if (
-      _lastBlocks.last()
-      && _lastBlocks.last().data.height !== block.data.height - 1
+      _lastBlocks.last() &&
+      _lastBlocks.last().data.height !== block.data.height - 1
     ) {
       assert(block.data.height - 1 <= _lastBlocks.last().data.height)
       _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height)
@@ -86,8 +89,8 @@ class StateStorage {
 
     // Delete oldest block if size exceeds the maximum
     if (
-      _lastBlocks.size
-      > container.resolveOptions('blockchain').state.maxLastBlocks
+      _lastBlocks.size >
+      container.resolveOptions('blockchain').state.maxLastBlocks
     ) {
       _lastBlocks = _lastBlocks.delete(_lastBlocks.first().data.height)
     }
@@ -159,8 +162,8 @@ class StateStorage {
     if (!this.blockPing) return false
 
     if (
-      this.blockPing.block.height === incomingBlock.height
-      && this.blockPing.block.id === incomingBlock.id
+      this.blockPing.block.height === incomingBlock.height &&
+      this.blockPing.block.id === incomingBlock.id
     ) {
       this.blockPing.count++
       this.blockPing.last = new Date().getTime()

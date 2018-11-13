@@ -123,7 +123,8 @@ module.exports = class Peer {
         })}`,
       )
 
-      this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000
+      this.ban =
+        new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000
 
       throw error
     }
@@ -255,9 +256,9 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders(response) {
-    ['nethash', 'os', 'version'].forEach(
-      key => (this[key] = response.headers[key] || this[key]),
-    )
+    ;['nethash', 'os', 'version'].forEach(key => {
+      this[key] = response.headers[key] || this[key]
+    })
 
     if (response.headers.height) {
       this.state.height = +response.headers.height

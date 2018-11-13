@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const blockchainHelper = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
@@ -203,7 +205,8 @@ describe('API P2P - Version 2', () => {
         const sender = delegates[txNumber] // use txNumber so that we use a different delegate for each test case
         const receivers = generateWallets('testnet', 2)
         const amountPlusFee = Math.floor(sender.balance / txNumber)
-        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee
 
         const transactions = generateTransfers(
           'testnet',
@@ -240,7 +243,8 @@ describe('API P2P - Version 2', () => {
         const sender = delegates[txNumber + 1] // use txNumber + 1 so that we don't use the same delegates as the above test
         const receivers = generateWallets('testnet', 2)
         const amountPlusFee = Math.floor(sender.balance / txNumber)
-        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee + 1
 
         const transactions = generateTransfers(
           'testnet',

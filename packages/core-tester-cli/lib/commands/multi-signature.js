@@ -148,8 +148,8 @@ module.exports = class MultiSignatureCommand extends Command {
       }
 
       if (approvalWallets) {
-        for (let i = approvalWallets.length - 1; i >= 0; i--) {
-          builder.multiSignatureSign(approvalWallets[i].passphrase)
+        for (let j = approvalWallets.length - 1; j >= 0; j--) {
+          builder.multiSignatureSign(approvalWallets[j].passphrase)
         }
       }
 

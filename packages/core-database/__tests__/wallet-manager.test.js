@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
 const { Bignum, crypto, transactionBuilder } = require('@arkecosystem/crypto')
 const {

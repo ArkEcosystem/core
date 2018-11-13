@@ -83,10 +83,10 @@ module.exports = class SPV {
       wallet
         ? (wallet.balance = new Bignum(transaction.amount))
         : logger.warn(
-          `Lost cold wallet: ${transaction.recipientId} ${
-            transaction.amount
-          }`,
-        )
+            `Lost cold wallet: ${transaction.recipientId} ${
+              transaction.amount
+            }`,
+          )
     }
   }
 
@@ -232,7 +232,8 @@ module.exports = class SPV {
       wallet.producedBlocks = +block.totalProduced
     })
 
-    // NOTE: This is highly NOT reliable, however the number of missed blocks is NOT used for the consensus
+    // NOTE: This is highly NOT reliable, however the number of missed blocks
+    // is NOT used for the consensus
     const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks)
     delegates.forEach((delegate, i) => {
       const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
@@ -284,9 +285,9 @@ module.exports = class SPV {
         )
 
         if (
-          !inMemoryWallet.balance.isEqualTo(dbWallet.balance)
-          || !inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance)
-          || dbWallet.username !== inMemoryWallet.username
+          !inMemoryWallet.balance.isEqualTo(dbWallet.balance) ||
+          !inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance) ||
+          dbWallet.username !== inMemoryWallet.username
         ) {
           detectedInconsistency = true
           break
