@@ -8,7 +8,6 @@ const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
 const { roundCalculator } = require('@arkecosystem/core-utils')
 
-const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
 const state = require('./state-storage')
@@ -31,10 +30,12 @@ blockchainMachine.actionMap = blockchain => ({
     }
   },
 
-  async checkLater() {
-    if (!blockchain.isStopped) {
-      await delay(60000)
-      return blockchain.dispatch('WAKEUP')
+  checkLater() {
+    if (!blockchain.isStopped && !state.checkLaterTimeout) {
+      state.checkLaterTimeout = setTimeout(() => {
+        state.checkLaterTimeout = null
+        return blockchain.dispatch('WAKEUP')
+      }, 60000)
     }
   },
 
