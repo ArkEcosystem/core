@@ -19,7 +19,6 @@
       "error",
       { "allow": ["error", "info", "warn", "time", "timeEnd"] }
     ],
-    "no-case-declarations": "off",
     "no-continue": "off",
     "no-param-reassign": "off",
     "no-plusplus": "off",

@@ -10,7 +10,8 @@ const createRandomTx = type => {
   let transaction
 
   switch (type) {
-    case 0: // transfer
+    case 0: {
+      // transfer
       transaction = builder
         .transfer()
         .recipientId('AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX')
@@ -20,24 +21,30 @@ const createRandomTx = type => {
         .secondSign(Math.random().toString(36))
         .build()
       break
+    }
 
-    case 1: // second signature
+    case 1: {
+      // second signature
       transaction = builder
         .secondSignature()
         .signatureAsset(Math.random().toString(36))
         .sign(Math.random().toString(36))
         .build()
       break
+    }
 
-    case 2: // delegate registration
+    case 2: {
+      // delegate registration
       transaction = builder
         .delegateRegistration()
         .usernameAsset('dummy-delegate')
         .sign(Math.random().toString(36))
         .build()
       break
+    }
 
-    case 3: // vote registration
+    case 3: {
+      // vote registration
       transaction = builder
         .vote()
         .votesAsset([
@@ -46,8 +53,10 @@ const createRandomTx = type => {
         .sign(Math.random().toString(36))
         .build()
       break
+    }
 
-    case 4: // multisignature registration
+    case 4: {
+      // multisignature registration
       const passphrases = [1, 2, 3].map(() => Math.random().toString(36))
       const publicKeys = passphrases.map(
         passphrase => `+${crypto.getKeys(passphrase).publicKey}`,
@@ -71,9 +80,10 @@ const createRandomTx = type => {
 
       transaction = transactionBuilder.build()
       break
-
-    default:
+    }
+    default: {
       throw new Error('Invalid transaction type')
+    }
   }
 
   return transaction
