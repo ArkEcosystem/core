@@ -22,6 +22,7 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "boom": "^7.2.2",
+    "expand-home-dir": "^0.0.3",
     "good": "^8.1.1",
     "good-console": "^7.1.0",
     "good-squeeze": "^5.1.0",

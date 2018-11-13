@@ -14,10 +14,10 @@ const WalletManager = require('./wallet-manager')
 module.exports = class ConnectionInterface {
   /**
    * @constructor
-   * @param {Object} config
+   * @param {Object} options
    */
-  constructor(config) {
-    this.config = config
+  constructor(options) {
+    this.config = options
     this.connection = null
     this.blocksInCurrentRound = null
     this.stateStarted = false
@@ -109,7 +109,8 @@ module.exports = class ConnectionInterface {
   /**
    * Queue a query to save the given block.
    * NOTE: Must call commitQueuedQueries() to save to database.
-   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) by calling commit
+   * NOTE: to use when rebuilding to decrease the number of database transactions,
+   * and commit blocks (save only every 1000s for instance) by calling commit
    * @param  {Block} block
    * @return {void}
    * @throws Error
@@ -192,7 +193,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * Get top count blocks ordered by height DESC.
-   * NOTE: Only used when trying to restore database integrity. The returned blocks may be unchained.
+   * NOTE: Only used when trying to restore database integrity.
+   * The returned blocks may be unchained.
    * @param  {Number} count
    * @return {void}
    * @throws Error
@@ -246,7 +248,8 @@ module.exports = class ConnectionInterface {
     try {
       delegates.forEach(delegate => {
         const producedBlocks = this.blocksInCurrentRound.filter(
-          blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey,
+          blockGenerator =>
+            blockGenerator.data.generatorPublicKey === delegate.publicKey,
         )
         const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
 
@@ -283,10 +286,10 @@ module.exports = class ConnectionInterface {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
       if (
-        !this.forgingDelegates
-        || this.forgingDelegates.length === 0
-        || (this.forgingDelegates.length
-          && this.forgingDelegates[0].round !== round)
+        !this.forgingDelegates ||
+        this.forgingDelegates.length === 0 ||
+        (this.forgingDelegates.length &&
+          this.forgingDelegates[0].round !== round)
       ) {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 

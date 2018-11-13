@@ -1,3 +1,5 @@
+/* eslint no-shadow: "off" */
+
 const Joi = require('joi')
 const get = require('lodash/get')
 const network = require('./network')
@@ -50,10 +52,10 @@ class Processor {
 
       return result.isBoom
         ? this.__createErrorResponse(
-          id,
-          result.output.statusCode,
-          result.output.payload,
-        )
+            id,
+            result.output.statusCode,
+            result.output.payload,
+          )
         : this.__createSuccessResponse(id, result)
     } catch (error) {
       return this.__createErrorResponse(id, -32603, error)

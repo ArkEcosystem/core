@@ -70,6 +70,10 @@ const createRandomTx = type => {
       }
 
       transaction = transactionBuilder.build()
+      break
+
+    default:
+      throw new Error('Invalid transaction type')
   }
 
   return transaction
@@ -80,9 +84,9 @@ describe('Models - Transaction', () => {
 
   describe('static fromBytes', () => {
     it('should verify all transactions', () => {
-      [0, 1, 2, 3, 4]
+      ;[0, 1, 2, 3, 4]
         .map(type => createRandomTx(type))
-        .map(transaction => {
+        .forEach(transaction => {
           const ser = Transaction.serialize(transaction.data).toString('hex')
           const newTransaction = Transaction.fromBytes(ser)
           expect(newTransaction.data).toEqual(transaction.data)
@@ -103,9 +107,9 @@ describe('Models - Transaction', () => {
 
   describe('static deserialize', () => {
     it('should match transaction id', () => {
-      [0, 1, 2, 3, 4]
+      ;[0, 1, 2, 3, 4]
         .map(type => createRandomTx(type))
-        .map(transaction => {
+        .forEach(transaction => {
           const originalId = transaction.data.id
           const newTransaction = new Transaction(transaction.data)
           expect(newTransaction.id).toEqual(originalId)
@@ -212,16 +216,18 @@ describe('Models - Transaction', () => {
         },
       },
     ]
-    txs.forEach(tx => it(`txid: ${tx.id}`, () => {
-      const newtx = new Transaction(tx)
-      expect(newtx.id).toEqual(tx.id)
-    }))
+    txs.forEach(tx =>
+      it(`txid: ${tx.id}`, () => {
+        const newtx = new Transaction(tx)
+        expect(newtx.id).toEqual(tx.id)
+      }),
+    )
   })
 
   describe('static serialize', () => {})
 
   it('Signatures are verified', () => {
-    [0, 1, 2, 3, 4]
+    ;[0, 1, 2, 3, 4]
       .map(type => createRandomTx(type))
       .forEach(transaction => expect(crypto.verify(transaction)).toBeTrue())
   })

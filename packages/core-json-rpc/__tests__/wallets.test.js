@@ -38,7 +38,11 @@ beforeEach(async () => {
       success: true,
       peers: [
         {
-          status: 'OK', ip: peerMock.ip, port: 4002, height: 5, delay: 8,
+          status: 'OK',
+          ip: peerMock.ip,
+          port: 4002,
+          height: 5,
+          delay: 8,
         },
       ],
     },
@@ -148,7 +152,7 @@ describe('Wallets', () => {
       .randomBytes(32)
       .toString('hex')
 
-    describe('create', async () => {
+    describe('create', () => {
       it('should create a new wallet', async () => {
         const response = await request('wallets.bip38.create', {
           bip38: 'this is a top secret passphrase',
@@ -163,7 +167,7 @@ describe('Wallets', () => {
       })
     })
 
-    describe('info', async () => {
+    describe('info', () => {
       it('should find the wallet for the given userId', async () => {
         const response = await request('wallets.bip38.info', { userId })
 

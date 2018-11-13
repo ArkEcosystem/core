@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const path = require('path')
 const merge = require('webpack-merge')
 const nodeExternals = require('webpack-node-externals')
@@ -68,4 +70,6 @@ const moduleConfig = {
   },
 }
 
-module.exports = [browserConfig, moduleConfig].map(({ babel, ...entry }) => merge(base(babel), entry))
+module.exports = [browserConfig, moduleConfig].map(({ babel, ...entry }) =>
+  merge(base(babel), entry),
+)

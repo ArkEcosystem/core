@@ -1,4 +1,6 @@
 const Boom = require('boom')
+const pluralize = require('pluralize')
+
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { crypto } = require('@arkecosystem/crypto')
@@ -57,7 +59,7 @@ exports.store = {
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
       logger.info(
-        `Accepted ${guard.accept.length} transactions from ${
+        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
           request.payload.transactions.length
         } received`,
       )
@@ -112,13 +114,11 @@ exports.search = {
       return transaction
     })
 
-    const data = transactionIds.map(
-      (transaction, i) => (transactionIds[i] = transactions.find(
-        tx2 => tx2.id === transactionIds[i],
-      )),
-    )
+    transactionIds.forEach((transaction, i) => {
+      transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])
+    })
 
-    return { data }
+    return { data: transactionIds }
   },
   options: {
     validate: schema.search,

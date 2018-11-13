@@ -26,7 +26,7 @@ afterEach(() => {
 
 afterAll(() => mockAxios.restore())
 
-describe('Commands - Transfer', async () => {
+describe('Commands - Transfer', () => {
   it('should be a function', () => {
     expect(TransferCommand).toBeFunction()
   })

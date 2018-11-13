@@ -10,7 +10,9 @@ beforeEach(() => {
   Object.entries({
     producedBlocks: 0,
     missedBlocks: 0,
-  }).forEach((key, value) => (delegate[key] = value))
+  }).forEach((key, value) => {
+    delegate[key] = value
+  })
 })
 
 describe('Delegate Calculator', () => {

@@ -1,3 +1,5 @@
+/* eslint no-constant-condition: "off" */
+
 const {
   TransactionPoolInterface,
 } = require('@arkecosystem/core-transaction-pool')
@@ -84,8 +86,8 @@ class TransactionPool extends TransactionPoolInterface {
   addTransaction(transaction) {
     if (this.transactionExists(transaction.id)) {
       logger.debug(
-        'Transaction pool: ignoring attempt to add a transaction that is already '
-          + `in the pool, id: ${transaction.id}`,
+        'Transaction pool: ignoring attempt to add a transaction that is already ' +
+          `in the pool, id: ${transaction.id}`,
       )
 
       return
@@ -101,7 +103,8 @@ class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Add many transactions to the pool.
-   * @param {Array}   transactions, already transformed and verified by transaction guard - must have serialized field
+   * @param {Array}   transactions, already transformed and verified
+   * by transaction guard - must have serialized field
    */
   addTransactions(transactions) {
     transactions.forEach(t => this.addTransaction(t))
@@ -140,7 +143,7 @@ class TransactionPool extends TransactionPoolInterface {
       logger.debug(
         `Transaction pool: allowing sender public key: ${
           transaction.senderPublicKey
-        } ` + '(listed in options.allowedSenders), thus skipping throttling.',
+        } (listed in options.allowedSenders), thus skipping throttling.`,
       )
       return false
     }
@@ -187,8 +190,8 @@ class TransactionPool extends TransactionPoolInterface {
       }
 
       if (
-        transactions.size === blockSize
-        || fetchStart + fetchSize >= this.mem.getSize()
+        transactions.size === blockSize ||
+        fetchStart + fetchSize >= this.mem.getSize()
       ) {
         break
       }

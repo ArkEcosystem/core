@@ -1,9 +1,9 @@
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
-const { Block } = require('@arkecosystem/crypto').models
-const requestIp = require('request-ip')
 const { slots, crypto } = require('@arkecosystem/crypto')
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Block, Transaction } = require('@arkecosystem/crypto').models
+const requestIp = require('request-ip')
+const pluralize = require('pluralize')
 
 const transactionPool = container.resolvePlugin('transactionPool')
 const logger = container.resolvePlugin('logger')
@@ -128,13 +128,13 @@ exports.getTransactionsFromIds = {
         return transaction
       })
 
-      const returnTrx = transactionIds.map(
-        (transaction, i) => (transactionIds[i] = transactions.find(
+      transactionIds.forEach((transaction, i) => {
+        transactionIds[i] = transactions.find(
           tx2 => tx2.id === transactionIds[i],
-        )),
-      )
+        )
+      })
 
-      return { success: true, transactions: returnTrx }
+      return { success: true, transactions: transactionIds }
     } catch (error) {
       return h
         .response({ success: false, message: error.message })
@@ -205,8 +205,8 @@ exports.postBlock = {
 
       // Are we ready to get it?
       if (
-        lastDownloadedBlock
-        && lastDownloadedBlock.data.height + 1 !== block.height
+        lastDownloadedBlock &&
+        lastDownloadedBlock.data.height + 1 !== block.height
       ) {
         return { success: true }
       }
@@ -223,7 +223,8 @@ exports.postBlock = {
         // let missingIds = []
         let transactions = []
         // if (transactionPool) {
-        //   transactions = block.transactionIds.map(async id => await transactionPool.getTransaction(id) || id)
+        //   transactions = block.transactionIds
+        //    .map(async id => await transactionPool.getTransaction(id) || id)
         //   missingIds = transactions.filter(tx => !tx.id)
         // } else {
         //   missingIds = block.transactionIds.slice(0)
@@ -241,10 +242,14 @@ exports.postBlock = {
 
         transactions = await peer.getTransactionsFromIds(block.transactionIds)
         // issue on v1, using /api/ instead of /peer/
-        if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
+        if (transactions.length < block.transactionIds.length) {
+          transactions = await peer.getTransactionsFromBlock(block.id)
+        }
 
         // reorder them correctly
-        block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
+        block.transactions = block.transactionIds.map(id =>
+          transactions.find(tx => tx.id === id),
+        )
         logger.debug(
           `Found missing transactions: ${block.transactions.map(tx => tx.id)}`,
         )
@@ -292,8 +297,8 @@ exports.postTransactions = {
     }
 
     if (
-      request.payload.transactions.length
-      > transactionPool.options.maxTransactionsPerRequest
+      request.payload.transactions.length >
+      transactionPool.options.maxTransactionsPerRequest
     ) {
       return h
         .response({
@@ -327,7 +332,7 @@ exports.postTransactions = {
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
       logger.info(
-        `Accepted ${guard.accept.length} transactions from ${
+        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
           request.payload.transactions.length
         } received`,
       )
@@ -378,8 +383,8 @@ exports.getBlocks = {
 
       logger.info(
         `${requestIp.getClientIp(request)} has downloaded ${
-          blocks.length
-        } blocks from height ${request.query.lastBlockHeight}`,
+          pluralize('block', blocks.length, true)
+        } from height ${request.query.lastBlockHeight}`,
       )
 
       return { success: true, blocks: blocks || [] }

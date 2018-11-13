@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const pick = require('lodash/pick')
 const container = require('@arkecosystem/core-container')
 
@@ -117,8 +119,8 @@ module.exports = class SnapshotManager {
 
     const newLastBlock = await this.database.rollbackChain(rollBackHeight)
     logger.info(
-      `Rolling back chain to last finished round ${newLastBlock.height
-        / maxDelegates} with last block height ${newLastBlock.height}`,
+      `Rolling back chain to last finished round ${newLastBlock.height /
+        maxDelegates} with last block height ${newLastBlock.height}`,
     )
 
     this.database.close()
@@ -170,8 +172,8 @@ module.exports = class SnapshotManager {
       params.meta = utils.getSnapshotInfo(options.blocks)
     }
     if (options.trace) {
-      console.log(params.meta)
-      console.log(params.queries)
+      console.info(params.meta)
+      console.info(params.queries)
     }
     params.database = this.database
     return params

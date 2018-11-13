@@ -2,6 +2,7 @@ const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
 const { flatten, groupBy } = require('lodash')
+const pluralize = require('pluralize')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -30,13 +31,13 @@ class Monitor {
 
   /**
    * Method to run on startup.
-   * @param {Object} config
+   * @param {Object} options
    */
-  async start(config) {
-    this.config = config
+  async start(options) {
+    this.config = options
 
-    await this.__checkDNSConnectivity(config.dns)
-    await this.__checkNTPConnectivity(config.ntp)
+    await this.__checkDNSConnectivity(options.dns)
+    await this.__checkNTPConnectivity(options.ntp)
 
     this.guard = guard.init(this)
 
@@ -44,9 +45,9 @@ class Monitor {
 
     this.config.skipDiscovery
       ? logger.warn(
-        'Skipped peer discovery because the relay is in skip-discovery mode.',
-      )
-      : await this.updateNetworkStatus(config.networkStart)
+          'Skipped peer discovery because the relay is in skip-discovery mode.',
+        )
+      : await this.updateNetworkStatus(options.networkStart)
 
     return this
   }
@@ -80,23 +81,21 @@ class Monitor {
       }
 
       if (
-        Object.keys(this.peers).length < config.peers.list.length - 1
-        && realEnvironment
+        Object.keys(this.peers).length < config.peers.list.length - 1 &&
+        realEnvironment
       ) {
-        config.peers.list.forEach(
-          peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)),
-          this,
-        )
+        config.peers.list.forEach(peer => {
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+        }, this)
 
         return this.updateNetworkStatus()
       }
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
 
-      config.peers.list.forEach(
-        peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)),
-        this,
-      )
+      config.peers.list.forEach(peer => {
+        this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+      }, this)
 
       return this.updateNetworkStatus()
     }
@@ -116,9 +115,9 @@ class Monitor {
     }
 
     if (
-      this.guard.isSuspended(peer)
-      || this.guard.isMyself(peer)
-      || process.env.ARK_ENV === 'test'
+      this.guard.isSuspended(peer) ||
+      this.guard.isMyself(peer) ||
+      process.env.ARK_ENV === 'test'
     ) {
       return
     }
@@ -222,8 +221,8 @@ class Monitor {
     if (tracker) {
       logger.stopTracker('Peers Discovery', max, max)
       logger.info(
-        `${max
-          - unresponsivePeers} of ${max} peers on the network are responsive`,
+        `${max -
+          unresponsivePeers} of ${max} peers on the network are responsive`,
       )
       logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
       logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
@@ -347,9 +346,9 @@ class Monitor {
 
       list.forEach(peer => {
         if (
-          Peer.isOk(peer)
-          && !this.getPeer(peer.ip)
-          && !this.guard.isMyself(peer)
+          Peer.isOk(peer) &&
+          !this.getPeer(peer.ip) &&
+          !this.guard.isMyself(peer)
         ) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
@@ -441,7 +440,9 @@ class Monitor {
     const recentBlockIds = await this.__getRecentBlockIds()
 
     await Promise.all(
-      this.getPeers().map(peer => this.peerHasCommonBlocks(peer, recentBlockIds)),
+      this.getPeers().map(peer =>
+        this.peerHasCommonBlocks(peer, recentBlockIds),
+      ),
     )
   }
 
@@ -468,7 +469,9 @@ class Monitor {
       )
 
       const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
-      blocks.forEach(block => (block.ip = randomPeer.ip))
+      blocks.forEach(block => {
+        block.ip = randomPeer.ip
+      })
 
       return blocks
     } catch (error) {
@@ -535,13 +538,17 @@ class Monitor {
   async broadcastTransactions(transactions) {
     const peers = this.getPeers()
     logger.debug(
-      `Broadcasting ${transactions.length} transactions to ${
-        peers.length
-      } peers`,
+      `Broadcasting ${pluralize(
+        'transaction',
+        transactions.length,
+        true,
+      )} to ${pluralize('peer', peers.length, true)}`,
     )
 
     const transactionsV1 = []
-    transactions.forEach(transaction => transactionsV1.push(transaction.toJson()))
+    transactions.forEach(transaction =>
+      transactionsV1.push(transaction.toJson()),
+    )
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
   }
@@ -592,7 +599,11 @@ class Monitor {
     if (commonHeightGroups.length > 1) {
       if (lastBlock.data.height > peersMostCommonHeight[0].state.height) {
         logger.info(
-          `${peersMostCommonHeight.length} peers are at height ${
+          `${pluralize(
+            'peer',
+            peersMostCommonHeight.length,
+            true,
+          )} are at height ${
             peersMostCommonHeight[0].state.height
           } and lagging behind last height ${lastBlock.data.height}. :zzz:`,
         )
@@ -629,8 +640,9 @@ class Monitor {
         )}`,
       )
 
-      const badLastBlock = chosenPeers[0].state.height === lastBlock.data.height
-        && chosenPeers[0].state.header.id !== lastBlock.data.id
+      const badLastBlock =
+        chosenPeers[0].state.height === lastBlock.data.height &&
+        chosenPeers[0].state.header.id !== lastBlock.data.id
       const quota = chosenPeers.length / flatten(commonIdGroups).length
       if (badLastBlock && quota >= 0.66) {
         // Rollback if last block is bad and quota high
@@ -657,7 +669,7 @@ class Monitor {
         })
 
         logger.debug(
-          `Banned ${peersToBan.length} peers at height '${
+          `Banned ${pluralize('peer', peersToBan.length, true)} at height '${
             peersMostCommonHeight[0].state.height
           }' which do not have common id '${chosenPeers[0].state.header.id}'.`,
         )
@@ -712,7 +724,8 @@ class Monitor {
   }
 
   /**
-   * Determines if coldstart is still active. We need this for the network to start, so we dont forge, while
+   * Determines if coldstart is still active.
+   * We need this for the network to start, so we dont forge, while
    * not all peers are up, or the network is not active
    */
   __isColdStartActive() {

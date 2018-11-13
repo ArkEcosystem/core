@@ -57,7 +57,9 @@ module.exports = class Environment {
         )
 
         config = require(networkPath)
-      } catch (error) {}
+      } catch (error) {
+        config = false
+      }
     }
 
     if (!config) {
@@ -87,7 +89,9 @@ module.exports = class Environment {
     if (fs.existsSync(envPath)) {
       const env = require('envfile').parseFileSync(envPath)
 
-      Object.keys(env).forEach(key => (process.env[key] = env[key]))
+      Object.keys(env).forEach(key => {
+        process.env[key] = env[key]
+      })
     }
   }
 }

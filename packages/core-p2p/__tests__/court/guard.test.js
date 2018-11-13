@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const moment = require('moment')
 const app = require('../__support__/setup')
 
@@ -27,7 +29,8 @@ beforeEach(async () => {
   guard.monitor.config = defaults
   guard.monitor.peers = {}
 
-  peerMock = new Peer('0.0.0.99', 4002) // this peer is here to be ready for future use in tests (not added to initial peers)
+  // this peer is here to be ready for future use in tests (not added to initial peers)
+  peerMock = new Peer('0.0.0.99', 4002)
   Object.assign(peerMock, peerMock.headers)
 })
 
@@ -90,9 +93,11 @@ describe('Guard', () => {
   })
 
   describe('__determineOffence', () => {
-    const convertToMinutes = actual => Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
+    const convertToMinutes = actual =>
+      Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
 
-    const convertToSeconds = actual => Math.ceil(moment.duration(actual.diff(moment.now())).asSeconds())
+    const convertToSeconds = actual =>
+      Math.ceil(moment.duration(actual.diff(moment.now())).asSeconds())
 
     const dummy = {
       nethash:

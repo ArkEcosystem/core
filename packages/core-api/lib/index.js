@@ -19,9 +19,13 @@ exports.plugin = {
   },
   async deregister(container, options) {
     if (options.enabled) {
-      container.resolvePlugin('logger').info('Stopping Public API')
+      const servers = Object.entries(container.resolvePlugin('api'))
 
-      return container.resolvePlugin('api').stop()
+      for (const [type, server] of servers) {
+        container.resolvePlugin('logger').info(`Stopping Public ${type} API`)
+
+        return server.stop()
+      }
     }
   },
 }

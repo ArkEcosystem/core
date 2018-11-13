@@ -1,4 +1,5 @@
 const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 const superheroes = require('superheroes')
 const { logger } = require('../utils')
 const Command = require('./command')
@@ -21,9 +22,10 @@ module.exports = class DelegateRegistrationCommand extends Command {
 
     const delegates = await this.getDelegates()
 
-    logger.info(
-      `Sending ${this.options.number} delegate registration transactions`,
-    )
+    logger.info(`Sending ${this.options.number} delegate registration ${
+      pluralize('transaction', this.options.number, true)
+    }`)
+
     if (!this.options.skipValidation) {
       logger.info(`Starting delegate count: ${delegates.length}`)
     }
@@ -81,15 +83,17 @@ module.exports = class DelegateRegistrationCommand extends Command {
         return
       }
 
-      const delegates = await this.getDelegates()
+      const targetDelegates = await this.getDelegates()
       logger.info(
-        `All transactions have been sent! Total delegates: ${delegates.length}`,
+        `All transactions have been sent! Total delegates: ${
+          targetDelegates.length
+        }`,
       )
 
-      if (delegates.length !== expectedDelegates) {
+      if (targetDelegates.length !== expectedDelegates) {
         logger.error(
           `Delegate count incorrect. '${
-            delegates.length
+            targetDelegates.length
           }' but should be '${expectedDelegates}'`,
         )
       }

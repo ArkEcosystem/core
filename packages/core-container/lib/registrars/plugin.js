@@ -27,12 +27,12 @@ module.exports = class PluginRegistrars {
   resolveOptions(name) {
     if (!this.resolvedPlugins.length) {
       this.resolvedPlugins = Object.keys(this.plugins).map(
-        plugin => require(plugin).plugin,
+        item => require(item).plugin,
       )
     }
 
     const plugin = Object.values(this.resolvedPlugins).find(
-      plugin => plugin.alias === name || plugin.pkg.name === name,
+      item => item.alias === name || item.pkg.name === name,
     )
 
     return this.__applyToDefaults(
@@ -51,8 +51,8 @@ module.exports = class PluginRegistrars {
       await this.register(name, options)
 
       if (
-        (this.options.exit && this.options.exit === name)
-        || this.container.shuttingDown
+        (this.options.exit && this.options.exit === name) ||
+        this.container.shuttingDown
       ) {
         break
       }
@@ -123,7 +123,10 @@ module.exports = class PluginRegistrars {
     this.container.register(
       alias || name,
       asValue({
-        name, version, plugin, options,
+        name,
+        version,
+        plugin,
+        options,
       }),
     )
 
@@ -172,7 +175,7 @@ module.exports = class PluginRegistrars {
       try {
         item = require(plugin)
       } catch (error) {
-        console.log(error)
+        console.error(error)
       }
 
       if (!item.plugin) {

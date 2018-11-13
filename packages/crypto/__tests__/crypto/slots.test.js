@@ -62,7 +62,7 @@ describe('Slots', () => {
       expect(slots.beginEpochTime().format()).toBe('2017-03-21T13:00:00Z')
     })
 
-    it('return epoch datetime', () => {
+    it('return epoch unix', () => {
       expect(slots.beginEpochTime().unix()).toBe(1490101200)
     })
   })

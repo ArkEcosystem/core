@@ -18,6 +18,8 @@ module.exports = class Container {
      */
     this.silentShutdown = false
 
+    this.exitEvents = ['SIGINT', 'exit']
+
     this.__registerExitHandler()
   }
 
@@ -184,7 +186,7 @@ module.exports = class Container {
           await database.saveWallets(false)
         }
       } catch (error) {
-        console.log(error.stack)
+        console.error(error.stack)
       }
 
       await this.plugins.tearDown()
@@ -193,6 +195,6 @@ module.exports = class Container {
     }
 
     // Handle exit events
-    ;['SIGINT', 'exit'].forEach(eventType => process.on(eventType, handleExit))
+    this.exitEvents.forEach(eventType => process.on(eventType, handleExit))
   }
 }

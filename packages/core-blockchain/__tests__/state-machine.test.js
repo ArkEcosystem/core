@@ -160,12 +160,6 @@ describe('State Machine', () => {
       it('should be a function', () => {
         expect(actionMap.downloadPaused).toBeFunction()
       })
-    })
-
-    describe('downloadPaused', () => {
-      it('should be a function', () => {
-        expect(actionMap.downloadPaused).toBeFunction()
-      })
 
       it('should dispatch the event "SYNCFINISHED"', () => {
         expect(() => actionMap.syncingComplete()).toDispatch(

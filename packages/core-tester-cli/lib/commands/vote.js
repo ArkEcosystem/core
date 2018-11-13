@@ -1,4 +1,5 @@
 const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 const sample = require('lodash/sample')
 const { logger } = require('../utils')
 const Command = require('./command')
@@ -30,7 +31,9 @@ module.exports = class VoteCommand extends Command {
     }
 
     const voters = await this.getVoters(delegate)
-    logger.info(`Sending ${this.options.number} vote transactions`)
+    logger.info(`Sending ${this.options.number} vote ${
+      pluralize('transaction', this.options.number, true)
+    }`)
 
     const transactions = []
     wallets.forEach((wallet, i) => {

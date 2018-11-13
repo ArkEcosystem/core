@@ -81,7 +81,7 @@ module.exports = class RemoteLoader {
       process.exit(1)
     }
 
-    console.log(command.stdout.toString())
+    console.info(command.stdout.toString())
   }
 
   async __getConfig(type) {

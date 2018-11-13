@@ -189,7 +189,7 @@ describe('Wallet Repository', () => {
     })
   })
 
-  describe('findById', async () => {
+  describe('findById', () => {
     const expectWallet = key => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
@@ -299,7 +299,7 @@ describe('Wallet Repository', () => {
     })
   })
 
-  describe('search', async () => {
+  describe('search', () => {
     const expectSearch = (params, rows = 1, count = 1) => {
       const wallets = repository.search(params)
       expect(wallets).toBeObject()

@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 require('@arkecosystem/core-test-utils/lib/matchers')
@@ -27,7 +29,8 @@ describe('GraphQL API { wallets }', () => {
 
   describe('GraphQL queries for Wallets - filter by vote', () => {
     it('should get all wallets with specific vote', async () => {
-      const query = '{ wallets(filter: { vote: "036f612457adc81041662e664ca4ae64f844b412065f2b7d2f9f7d305e59c908cd" }) { address } }'
+      const query =
+        '{ wallets(filter: { vote: "036f612457adc81041662e664ca4ae64f844b412065f2b7d2f9f7d305e59c908cd" }) { address } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
@@ -38,7 +41,8 @@ describe('GraphQL API { wallets }', () => {
     })
 
     it('should get no wallet with unknown vote', async () => {
-      const query = '{ wallets(filter: { vote: "unknownPublicKey" }) { address } }'
+      const query =
+        '{ wallets(filter: { vote: "unknownPublicKey" }) { address } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()
@@ -51,7 +55,8 @@ describe('GraphQL API { wallets }', () => {
 
   describe('GraphQL queries for Wallets - using orderBy, limit', () => {
     it('should get 5 wallets in order of ASCending address', async () => {
-      const query = '{ wallets(orderBy: { field: "address", direction: ASC }, limit: 5 ) { address } }'
+      const query =
+        '{ wallets(orderBy: { field: "address", direction: ASC }, limit: 5 ) { address } }'
       const response = await utils.request(query)
 
       expect(response).toBeSuccessfulResponse()

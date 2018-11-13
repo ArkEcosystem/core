@@ -1,4 +1,5 @@
 const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 const take = require('lodash/take')
 const { logger } = require('../utils')
 const Command = require('./command')
@@ -147,8 +148,8 @@ module.exports = class MultiSignatureCommand extends Command {
       }
 
       if (approvalWallets) {
-        for (let i = approvalWallets.length - 1; i >= 0; i--) {
-          builder.multiSignatureSign(approvalWallets[i].passphrase)
+        for (let j = approvalWallets.length - 1; j >= 0; j--) {
+          builder.multiSignatureSign(approvalWallets[j].passphrase)
         }
       }
 
@@ -214,8 +215,8 @@ module.exports = class MultiSignatureCommand extends Command {
   ) {
     logger.info(
       `Sending transactions with ${min} (min) of ${
-        approvalWallets.length
-      } signatures`,
+        pluralize('signature', approvalWallets.length, true)
+      }`
     )
 
     const transactions = transfer.generateTransactions(
@@ -256,8 +257,8 @@ module.exports = class MultiSignatureCommand extends Command {
     const max = min - 1
     logger.info(
       `Sending transactions with ${max} (below min) of ${
-        approvalWallets.length
-      } signatures`,
+        pluralize('signature', approvalWallets.length, true)
+      }`
     )
 
     const transactions = transfer.generateTransactions(

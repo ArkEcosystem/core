@@ -1,7 +1,10 @@
+/* eslint max-len: "off" */
+
 const fs = require('fs-extra')
 const QueryStream = require('pg-query-stream')
 const JSONStream = require('JSONStream')
 const msgpack = require('msgpack-lite')
+const pluralize = require('pluralize')
 const zlib = require('zlib')
 
 const container = require('@arkecosystem/core-container')
@@ -88,9 +91,9 @@ module.exports = {
     const readStream = options.meta.skipCompression
       ? fs.createReadStream(sourceFile).pipe(decodeStream)
       : fs
-        .createReadStream(sourceFile)
-        .pipe(gunzip)
-        .pipe(decodeStream)
+          .createReadStream(sourceFile)
+          .pipe(gunzip)
+          .pipe(decodeStream)
 
     let values = []
     let prevData = null
@@ -141,9 +144,9 @@ module.exports = {
     const readStream = options.meta.skipCompression
       ? fs.createReadStream(sourceFile).pipe(decodeStream)
       : fs
-        .createReadStream(sourceFile)
-        .pipe(gunzip)
-        .pipe(decodeStream)
+          .createReadStream(sourceFile)
+          .pipe(gunzip)
+          .pipe(decodeStream)
 
     logger.info(`Starting to verify snapshot file ${sourceFile}`)
     let prevData = null
@@ -172,11 +175,13 @@ module.exports = {
     const qs = new QueryStream(query)
 
     try {
-      const data = await database.db.stream(qs, s => s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream))
+      const data = await database.db.stream(qs, s =>
+        s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream),
+      )
       logger.info(
-        `Transactions(n=${
-          data.processed
-        }) from rollbacked blocks where safely exported to file ${snapFileName}`,
+        `${
+          pluralize('transaction', data.processed, true)
+        } from rollbacked blocks safely exported to file ${snapFileName}`,
       )
       return data
     } catch (error) {

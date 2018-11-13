@@ -1,6 +1,10 @@
+/* eslint no-use-before-define: "warn" */
+/* eslint max-len: "off" */
+
 const pgPromise = require('pg-promise')
 const crypto = require('crypto')
 const chunk = require('lodash/chunk')
+const pluralize = require('pluralize')
 const fs = require('fs')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
@@ -191,9 +195,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
     if (
-      this.forgingDelegates
-      && this.forgingDelegates.length
-      && this.forgingDelegates[0].round === round
+      this.forgingDelegates &&
+      this.forgingDelegates.length &&
+      this.forgingDelegates[0].round === round
     ) {
       return this.forgingDelegates
     }
@@ -327,14 +331,18 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       // so it is safe to perform the costly UPSERT non-blocking during round change only:
       // 'await saveWallets(false)' -> 'saveWallets(false)'
       try {
-        const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallet))
+        const queries = wallets.map(wallet =>
+          this.db.wallets.updateOrCreate(wallet),
+        )
         await this.db.tx(t => t.batch(queries))
       } catch (error) {
         logger.error(error.stack)
       }
     }
 
-    logger.info(`${wallets.length} modified wallets committed to database`)
+    logger.info(`${wallets.length} modified ${
+      pluralize('wallet', wallets.length)
+    } committed to database`)
 
     emitter.emit('wallet.saved', wallets.length)
 
@@ -478,7 +486,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     const transactions = await this.db.transactions.findByBlock(block.id)
 
-    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
+    block.transactions = transactions.map(({ serialized }) =>
+      Transaction.deserialize(serialized.toString('hex')),
+    )
 
     return new Block(block)
   }
@@ -496,7 +506,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     const transactions = await this.db.transactions.latestByBlock(block.id)
 
-    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
+    block.transactions = transactions.map(({ serialized }) =>
+      Transaction.deserialize(serialized.toString('hex')),
+    )
 
     return new Block(block)
   }
@@ -701,7 +713,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
               return
             }
 
-            coldWallet[key] = key !== 'voteBalance' ? wallet[key] : new Bignum(wallet[key])
+            coldWallet[key] =
+              key !== 'voteBalance' ? wallet[key] : new Bignum(wallet[key])
           })
         }
       } catch (err) {

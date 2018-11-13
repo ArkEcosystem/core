@@ -152,9 +152,9 @@ exports.voterBalances = {
       .filter(wallet => wallet.vote === delegate.publicKey)
 
     const voters = {}
-    orderBy(wallets, ['balance'], ['desc']).forEach(
-      wallet => (voters[wallet.address] = +wallet.balance.toFixed()),
-    )
+    orderBy(wallets, ['balance'], ['desc']).forEach(wallet => {
+      voters[wallet.address] = +wallet.balance.toFixed()
+    })
 
     return { data: voters }
   },

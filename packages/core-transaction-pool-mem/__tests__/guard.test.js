@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
@@ -72,10 +74,12 @@ describe('Transaction Guard', () => {
       async txNumber => {
         guard.__reset()
 
-        const sender = delegates[txNumber] // use txNumber so that we use a different delegate for each test case
+        // use txNumber so that we use a different delegate for each test case
+        const sender = delegates[txNumber]
         const receivers = generateWallets('testnet', 2)
         const amountPlusFee = Math.floor(sender.balance / txNumber)
-        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee
 
         const transactions = generateTransfers(
           'testnet',
@@ -93,7 +97,8 @@ describe('Transaction Guard', () => {
           1,
           true,
         )
-        // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
+        // we change the receiver in lastTransaction to prevent having 2 exact
+        // same transactions with same id (if not, could be same as transactions[0])
 
         await guard.validate(transactions.concat(lastTransaction))
 
@@ -106,10 +111,12 @@ describe('Transaction Guard', () => {
       async txNumber => {
         guard.__reset()
 
-        const sender = delegates[txNumber + 1] // use txNumber + 1 so that we don't use the same delegates as the above test
+        // use txNumber + 1 so that we don't use the same delegates as the above test
+        const sender = delegates[txNumber + 1]
         const receivers = generateWallets('testnet', 2)
         const amountPlusFee = Math.floor(sender.balance / txNumber)
-        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee + 1
 
         const transactions = generateTransfers(
           'testnet',
@@ -127,7 +134,8 @@ describe('Transaction Guard', () => {
           1,
           true,
         )
-        // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
+        // we change the receiver in lastTransaction to prevent having 2
+        // exact same transactions with same id (if not, could be same as transactions[0])
 
         const allTransactions = transactions.concat(lastTransaction)
 

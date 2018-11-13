@@ -1,4 +1,5 @@
 const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 const { logger } = require('../utils')
 const Command = require('./command')
 const Transfer = require('./transfer')
@@ -18,7 +19,9 @@ module.exports = class DelegateRegistrationCommand extends Command {
       skipTesting: true,
     })
 
-    logger.info(`Sending ${this.options.number} second signature transactions`)
+    logger.info(`Sending ${this.options.number} second signature ${
+      pluralize('transaction', this.options.number, true)
+    }`)
 
     const transactions = []
     wallets.forEach((wallet, i) => {

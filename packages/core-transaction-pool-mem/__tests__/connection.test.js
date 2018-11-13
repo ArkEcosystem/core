@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const { bignumify } = require('@arkecosystem/core-utils')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
@@ -135,7 +137,8 @@ describe('Connection', () => {
       transactions[transactions.length - 1].expiration = expiration
 
       transactions.push(new Transaction(mockData.dummy1))
-      transactions[transactions.length - 1].type = TRANSACTION_TYPES.TIMELOCK_TRANSFER
+      transactions[transactions.length - 1].type =
+        TRANSACTION_TYPES.TIMELOCK_TRANSFER
 
       transactions.push(new Transaction(mockData.dummyExp2))
       transactions[transactions.length - 1].expiration = expiration
@@ -368,7 +371,8 @@ describe('Connection', () => {
       // This should be skipped due to checkApplyToBlockchain() due to insufficient funds
       const highFeeTransaction = new Transaction(mockData.dummy3)
       highFeeTransaction.fee = bignumify(1e9 * ARKTOSHI)
-      highFeeTransaction.senderPublicKey = '000000000000000000000000000000000000000420000000000000000000000000'
+      highFeeTransaction.senderPublicKey =
+        '000000000000000000000000000000000000000420000000000000000000000000'
       connection.addTransaction(highFeeTransaction)
       connection.addTransaction(mockData.dummy4)
       connection.addTransaction(mockData.dummy5)
@@ -380,7 +384,9 @@ describe('Connection', () => {
       expect(transactions).toBeArray()
       expect(transactions.length).toBe(3)
 
-      transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
+      transactions = transactions.map(serializedTx =>
+        Transaction.fromBytes(serializedTx),
+      )
 
       expect(transactions[0]).toBeObject()
       expect(transactions[0].id).toBe(mockData.dummy1.id)
@@ -497,7 +503,8 @@ describe('Connection', () => {
       connection.addTransaction(tx)
 
       const voteTx = new Transaction(tx)
-      voteTx.id = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+      voteTx.id =
+        '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
       voteTx.type = TRANSACTION_TYPES.VOTE
       connection.addTransaction(voteTx)
 
@@ -550,9 +557,11 @@ describe('Connection', () => {
 
       expect(connection.getPoolSize()).toBe(2)
 
-      transactions.forEach(t => expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(
-        t.serialized.toLowerCase(),
-      ))
+      transactions.forEach(t =>
+        expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(
+          t.serialized.toLowerCase(),
+        ),
+      )
 
       connection.flush()
     })
@@ -582,18 +591,19 @@ describe('Connection', () => {
 
       transactions.splice(1, 1)
 
-      transactions.forEach(t => expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(
-        t.serialized.toLowerCase(),
-      ))
+      transactions.forEach(t =>
+        expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(
+          t.serialized.toLowerCase(),
+        ),
+      )
 
       connection.flush()
     })
   })
 
   describe('stress', () => {
-    const fakeTransactionId = function (i) {
-      return `id${String(i)}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
-    }
+    const fakeTransactionId = i =>
+      `id${String(i)}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
 
     it('multiple additions and retrievals', () => {
       // Abstract number which decides how many iterations are run by the test.
@@ -676,7 +686,9 @@ describe('Connection', () => {
       const topTransactionsSerialized = connection.getTransactions(0, nGet)
       // console.timeEnd(`time to get first ${nGet}`)
 
-      const topFeesReceived = topTransactionsSerialized.map(e => new Transaction(e).fee.toString())
+      const topFeesReceived = topTransactionsSerialized.map(e =>
+        new Transaction(e).fee.toString(),
+      )
 
       expect(topFeesReceived).toEqual(topFeesExpected)
     })

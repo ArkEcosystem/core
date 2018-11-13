@@ -385,7 +385,7 @@ class TransactionsRepository extends Repository {
         const blocks = await this._findMany(query)
 
         for (const missing of missingFromCache) {
-          const block = blocks.find(block => block.id === missing.blockId)
+          const block = blocks.find(item => item.id === missing.blockId)
           if (block) {
             data[missing.index].block = block
             this.__setBlockCache(block)
