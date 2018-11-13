@@ -1,7 +1,7 @@
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
-const { flatten, groupBy } = require('lodash')
+const { flatten, groupBy, sample } = require('lodash')
 const pluralize = require('pluralize')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -305,7 +305,7 @@ class Monitor {
       return false
     })
 
-    const randomPeer = peers[peers.length * Math.random() < 0]
+    const randomPeer = sample(peers)
     if (!randomPeer) {
       failedAttempts++
 
