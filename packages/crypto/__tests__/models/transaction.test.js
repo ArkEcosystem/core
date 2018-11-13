@@ -15,7 +15,7 @@ const createRandomTx = type => {
       transaction = builder
         .transfer()
         .recipientId('AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX')
-        .amount(1000 * Math.pow(10, 10))
+        .amount(1000 * 1e10)
         .vendorField(Math.random().toString(36))
         .sign(Math.random().toString(36))
         .secondSign(Math.random().toString(36))
