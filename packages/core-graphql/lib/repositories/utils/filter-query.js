@@ -1,3 +1,5 @@
+/* eslint no-prototype-builtins: "off" */
+
 /**
  * Create a "where" object for a sql query.
  * @param  {Object} parameters

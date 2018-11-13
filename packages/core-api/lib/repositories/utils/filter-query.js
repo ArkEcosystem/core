@@ -1,3 +1,5 @@
+/* eslint no-prototype-builtins: "off" */
+
 /**
  * Create a "where" object for a sql query.
  * @param  {Object} parameters
@@ -7,7 +9,7 @@
 module.exports = (parameters, filters) => {
   const where = []
 
-  if (filters.exact) {
+  if (filters.hasOwnProperty('exact')) {
     for (const elem of filters.exact) {
       if (typeof parameters[elem] !== 'undefined') {
         where.push({
@@ -19,13 +21,16 @@ module.exports = (parameters, filters) => {
     }
   }
 
-  if (filters.between) {
+  if (filters.hasOwnProperty('between')) {
     for (const elem of filters.between) {
       if (!parameters[elem]) {
         continue
       }
 
-      if (!parameters[elem].from && !parameters[elem].to) {
+      if (
+        !parameters[elem].hasOwnProperty('from') &&
+        !parameters[elem].hasOwnProperty('to')
+      ) {
         where.push({
           column: elem,
           method: 'equals',
@@ -33,10 +38,13 @@ module.exports = (parameters, filters) => {
         })
       }
 
-      if (parameters[elem].from || parameters[elem].to) {
+      if (
+        parameters[elem].hasOwnProperty('from') ||
+        parameters[elem].hasOwnProperty('to')
+      ) {
         where[elem] = {}
 
-        if (parameters[elem].from) {
+        if (parameters[elem].hasOwnProperty('from')) {
           where.push({
             column: elem,
             method: 'gte',
@@ -44,7 +52,7 @@ module.exports = (parameters, filters) => {
           })
         }
 
-        if (parameters[elem].to) {
+        if (parameters[elem].hasOwnProperty('to')) {
           where.push({
             column: elem,
             method: 'lte',
@@ -55,7 +63,7 @@ module.exports = (parameters, filters) => {
     }
   }
 
-  if (filters.wildcard) {
+  if (filters.hasOwnProperty('wildcard')) {
     for (const elem of filters.wildcard) {
       if (parameters[elem]) {
         where.push({

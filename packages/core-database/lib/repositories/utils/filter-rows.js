@@ -1,3 +1,5 @@
+/* eslint no-prototype-builtins: "off" */
+
 /**
  * Filter an Array of Objects based on the given parameters.
  * @param  {Array} rows
@@ -7,7 +9,7 @@
  */
 module.exports = (rows, params, filters) =>
   rows.filter(item => {
-    if (filters.exact) {
+    if (filters.hasOwnProperty('exact')) {
       for (const elem of filters.exact) {
         if (params[elem] && item[elem] !== params[elem]) {
           return false
@@ -15,29 +17,32 @@ module.exports = (rows, params, filters) =>
       }
     }
 
-    if (filters.between) {
+    if (filters.hasOwnProperty('between')) {
       for (const elem of filters.between) {
         if (!params[elem]) {
           continue
         }
 
         if (
-          !params[elem].from &&
-          !params[elem].to &&
+          !params[elem].hasOwnProperty('from') &&
+          !params[elem].hasOwnProperty('to') &&
           item[elem] !== params[elem]
         ) {
           return false
         }
 
-        if (params[elem].from || params[elem].to) {
+        if (
+          params[elem].hasOwnProperty('from') ||
+          params[elem].hasOwnProperty('to')
+        ) {
           let isMoreThan = true
           let isLessThan = true
 
-          if (params[elem].from) {
+          if (params[elem].hasOwnProperty('from')) {
             isMoreThan = item[elem] >= params[elem].from
           }
 
-          if (params[elem].to) {
+          if (params[elem].hasOwnProperty('to')) {
             isLessThan = item[elem] <= params[elem].to
           }
 
@@ -48,7 +53,7 @@ module.exports = (rows, params, filters) =>
 
     // NOTE: it was used to filter by `votes`, but that field was rejected and
     // replaced by `vote`. This filter is kept here just in case
-    if (filters.any) {
+    if (filters.hasOwnProperty('any')) {
       for (const elem of filters.any) {
         if (params[elem] && item[elem]) {
           if (Array.isArray(params[elem])) {
