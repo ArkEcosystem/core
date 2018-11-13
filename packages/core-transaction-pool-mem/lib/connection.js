@@ -303,6 +303,25 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Ping transaction.
+   * @param  {String} transactionId
+   * @return {void}
+   */
+  pingTransaction(transactionId) {
+    this.mem.pingTransaction(transactionId)
+  }
+
+  /**
+   * Get transaction ping.
+   * @param  {String} transactionId
+   * @return {Number}
+   */
+  getTransactionPing(transactionId) {
+    assert(this.transactionExists(transactionId))
+    return this.mem.getTransactionById(transactionId).pingCount
+  }
+
+  /**
    * Check whether a given sender has any transactions of the specified type
    * in the pool.
    * @param {String} senderPublicKey public key of the sender

@@ -261,6 +261,17 @@ class Mem {
   }
 
   /**
+   * Ping a transaction.
+   * @param {String} transactionId
+   * @return {void}
+   */
+  pingTransaction(transactionId) {
+    const transaction = this.getTransactionById(transactionId)
+    assert(transaction)
+    transaction.ping()
+  }
+
+  /**
    * Remove all transactions.
    */
   flush() {
