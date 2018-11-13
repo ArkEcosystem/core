@@ -2,6 +2,7 @@ const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
 const { flatten, groupBy } = require('lodash')
+const pluralize = require('pluralize')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -535,9 +536,11 @@ class Monitor {
   async broadcastTransactions(transactions) {
     const peers = this.getPeers()
     logger.debug(
-      `Broadcasting ${transactions.length} transactions to ${
-        peers.length
-      } peers`,
+      `Broadcasting ${
+        pluralize('transaction', transactions.length, true)
+      } to ${
+        pluralize('peer', peers.length, true)
+      }`,
     )
 
     const transactionsV1 = []
@@ -592,7 +595,7 @@ class Monitor {
     if (commonHeightGroups.length > 1) {
       if (lastBlock.data.height > peersMostCommonHeight[0].state.height) {
         logger.info(
-          `${peersMostCommonHeight.length} peers are at height ${
+          `${pluralize('peer', peersMostCommonHeight.length, true)} are at height ${
             peersMostCommonHeight[0].state.height
           } and lagging behind last height ${lastBlock.data.height}. :zzz:`,
         )
@@ -657,7 +660,7 @@ class Monitor {
         })
 
         logger.debug(
-          `Banned ${peersToBan.length} peers at height '${
+          `Banned ${pluralize('peer', peersToBan.length, true)} at height '${
             peersMostCommonHeight[0].state.height
           }' which do not have common id '${chosenPeers[0].state.header.id}'.`,
         )

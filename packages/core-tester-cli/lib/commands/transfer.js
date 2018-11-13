@@ -1,5 +1,6 @@
 const { Bignum, client, crypto } = require('@arkecosystem/crypto')
 const delay = require('delay')
+const pluralize = require('pluralize')
 const unique = require('lodash/uniq')
 const { logger } = require('../utils')
 const Command = require('./command')
@@ -23,7 +24,9 @@ module.exports = class TransferCommand extends Command {
       wallets = this.generateWallets()
     }
 
-    logger.info(`Sending ${wallets.length} transfer transactions`)
+    logger.info(`Sending ${wallets.length} transfer ${
+      pluralize('transaction', wallets.length, true)
+    }`)
 
     const walletBalance = await this.getWalletBalance(primaryAddress)
 

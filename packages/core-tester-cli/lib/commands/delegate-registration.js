@@ -1,4 +1,5 @@
 const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 const superheroes = require('superheroes')
 const { logger } = require('../utils')
 const Command = require('./command')
@@ -21,9 +22,10 @@ module.exports = class DelegateRegistrationCommand extends Command {
 
     const delegates = await this.getDelegates()
 
-    logger.info(
-      `Sending ${this.options.number} delegate registration transactions`,
-    )
+    logger.info(`Sending ${this.options.number} delegate registration ${
+      pluralize('transaction', this.options.number, true)
+    }`)
+
     if (!this.options.skipValidation) {
       logger.info(`Starting delegate count: ${delegates.length}`)
     }

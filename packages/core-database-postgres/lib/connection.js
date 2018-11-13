@@ -1,6 +1,7 @@
 const pgPromise = require('pg-promise')
 const crypto = require('crypto')
 const chunk = require('lodash/chunk')
+const pluralize = require('pluralize')
 const fs = require('fs')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
@@ -334,7 +335,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       }
     }
 
-    logger.info(`${wallets.length} modified wallets committed to database`)
+    logger.info(`${wallets.length} modified ${
+      pluralize('wallet', wallets.length)
+    } committed to database`)
 
     emitter.emit('wallet.saved', wallets.length)
 
