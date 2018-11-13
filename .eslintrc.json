@@ -7,7 +7,6 @@
   "extends": ["@arkecosystem/eslint-config-base"],
   "rules": {
     // TODO: fix later as they require a lot of changes
-    "camelcase": "off",
     "class-methods-use-this": "off",
     "consistent-return": "off",
     "global-require": "off",

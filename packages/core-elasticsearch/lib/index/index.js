@@ -1,3 +1,5 @@
+/* eslint camelcase: "off" */
+
 const container = require('@arkecosystem/core-container')
 
 const emitter = container.resolvePlugin('event-emitter')
