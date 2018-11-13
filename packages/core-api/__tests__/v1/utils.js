@@ -13,7 +13,7 @@ class Helpers {
 
     const server = require('@arkecosystem/core-container').resolvePlugin('api')
 
-    return apiHelpers.request(server.HTTP, method, url, headers, params)
+    return apiHelpers.request(server.http, method, url, headers, params)
   }
 
   expectJson(response) {

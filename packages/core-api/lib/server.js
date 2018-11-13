@@ -26,10 +26,10 @@ module.exports = async config => {
     },
   }
 
-  const servers = { HTTP: await createServer(options) }
+  const servers = { http: await createServer(options) }
 
   if (config.ssl.enabled) {
-    servers.HTTPS = await createSecureServer(options, null, config.ssl)
+    servers.https = await createSecureServer(options, null, config.ssl)
   }
 
   for (const [type, server] of Object.entries(servers)) {
