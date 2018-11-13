@@ -27,6 +27,7 @@
     "bluebird": "^3.5.3",
     "lodash": "^4.17.11",
     "pg-promise": "^8.5.2",
+    "pluralize": "^7.0.0",
     "sql": "^0.78.0"
   },
   "publishConfig": {

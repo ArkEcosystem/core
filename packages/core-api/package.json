@@ -35,7 +35,8 @@
     "ip": "^1.1.5",
     "joi": "^14.0.4",
     "lodash": "^4.17.11",
-    "moment": "^2.22.2"
+    "moment": "^2.22.2",
+    "pluralize": "^7.0.0"
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1",
