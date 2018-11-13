@@ -139,13 +139,15 @@ module.exports = class TransactionGuard {
         this.__pushError(
           transaction,
           'ERR_DUPLICATE',
-          `Duplicate transaction ${transaction.id}`
+          `Duplicate transaction ${transaction.id}`,
         )
       } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         this.__pushError(
           transaction,
           'ERR_SENDER_BLOCKED',
-          `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked.`
+          `Transaction ${transaction.id} rejected. Sender ${
+            transaction.senderPublicKey
+          } is blocked.`,
         )
       } else {
         try {
@@ -292,6 +294,7 @@ module.exports = class TransactionGuard {
           'ERR_LOW_FEE',
           'Peer rejected the transaction because of not meeting the minimum accepted fee. It is still broadcasted to other peers.',
         )
+        this.pool.walletManager.revertTransaction(transaction)
         return false
       }
       return true
