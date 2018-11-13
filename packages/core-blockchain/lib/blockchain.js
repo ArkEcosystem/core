@@ -253,8 +253,8 @@ module.exports = class Blockchain {
       this.state.lastDownloadedBlock = newLastBlock
     }
 
-    const __removeBlocks = async () => {
-      if (nblocks < 1) {
+    const __removeBlocks = async numberOfBlocks => {
+      if (numberOfBlocks < 1) {
         return
       }
 
@@ -265,7 +265,7 @@ module.exports = class Blockchain {
       )
 
       await revertLastBlock()
-      await __removeBlocks(nblocks - 1)
+      await __removeBlocks(numberOfBlocks - 1)
     }
 
     const lastBlock = this.state.getLastBlock()
