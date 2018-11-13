@@ -21,7 +21,7 @@ function isBoolean(value) {
  * @return {Boolean}
  */
 function isNumber(value) {
-  return !Number.isNaN(value)
+  return !isNaN(value)
 }
 
 /**

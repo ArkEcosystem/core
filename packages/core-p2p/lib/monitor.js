@@ -1,3 +1,5 @@
+/* eslint no-restricted-globals: "off" */
+
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
@@ -406,7 +408,7 @@ class Monitor {
 
     const pbft = allowedToForge / syncedPeers
 
-    return Number.isNaN(pbft) ? 0 : pbft
+    return isNaN(pbft) ? 0 : pbft
   }
 
   async getNetworkState() {
