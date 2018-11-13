@@ -406,7 +406,7 @@ class Monitor {
 
     const pbft = allowedToForge / syncedPeers
 
-    return isNaN(pbft) ? 0 : pbft
+    return Number.isNaN(pbft) ? 0 : pbft
   }
 
   async getNetworkState() {

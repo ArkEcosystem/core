@@ -8,9 +8,9 @@ module.exports = ajv => {
     type: 'string',
     validate: value => {
       if (
-        isNaN(value)
-        || parseInt(value) !== value
-        || isNaN(parseInt(value, 10))
+        Number.isNaN(value) ||
+        parseInt(value) !== value ||
+        Number.isNaN(parseInt(value, 10))
       ) {
         return false
       }

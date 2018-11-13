@@ -22,7 +22,6 @@
     "no-param-reassign": "off",
     "no-plusplus": "off",
     "no-unused-expressions": "off",
-    "no-restricted-globals": "off",
     "no-restricted-properties": "off",
     "no-restricted-syntax": "off",
     "no-underscore-dangle": "off",
