@@ -305,7 +305,7 @@ class Monitor {
       return false
     })
 
-    const randomPeer = peers[(peers.length * Math.random()) << 0]
+    const randomPeer = peers[peers.length * Math.random() < 0]
     if (!randomPeer) {
       failedAttempts++
 
@@ -373,12 +373,12 @@ class Monitor {
    * @return {Number}
    */
   getNetworkHeight() {
-    const median = this.getPeers()
+    const medians = this.getPeers()
       .filter(peer => peer.state.height)
       .map(peer => peer.state.height)
       .sort()
 
-    return median[~~(median.length / 2)]
+    return medians[Math.floor(medians.length / 2)]
   }
 
   /**

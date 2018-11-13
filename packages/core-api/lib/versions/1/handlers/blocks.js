@@ -171,7 +171,7 @@ exports.milestone = {
    */
   handler(request, h) {
     return utils.respondWith({
-      milestone: ~~(blockchain.getLastBlock().data.height / 3000000),
+      milestone: Math.floor(blockchain.getLastBlock().data.height / 3000000),
     })
   },
 }
@@ -236,7 +236,7 @@ exports.status = {
       epoch: constants.epoch,
       height: lastBlock.data.height,
       fee: constants.fees.transfer,
-      milestone: ~~(lastBlock.data.height / 3000000),
+      milestone: Math.floor(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
       supply: +bignumify(config.genesisBlock.totalAmount)

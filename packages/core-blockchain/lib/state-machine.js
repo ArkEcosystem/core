@@ -394,7 +394,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     await blockchain.database.commitQueuedQueries()
 
-    let random = ~~(4 / Math.random())
+    let random = Math.floor(4 / Math.random())
 
     if (random > 102) {
       random = 102

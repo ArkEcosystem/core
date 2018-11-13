@@ -58,7 +58,7 @@ module.exports = class Transaction {
       this.verified = false
     }
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
-    [
+    ;[
       'id',
       'sequence',
       'version',
@@ -112,8 +112,8 @@ module.exports = class Transaction {
     }
 
     if (
-      deserialized.type === TRANSACTION_TYPES.SECOND_SIGNATURE
-      || deserialized.type === TRANSACTION_TYPES.MULTI_SIGNATURE
+      deserialized.type === TRANSACTION_TYPES.SECOND_SIGNATURE ||
+      deserialized.type === TRANSACTION_TYPES.MULTI_SIGNATURE
     ) {
       deserialized.recipientId = crypto.getAddress(
         deserialized.senderPublicKey,
@@ -293,7 +293,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      const votelength = buf.readInt8(assetOffset / 2) & 0xff
+      const votelength = buf.readInt8(assetOffset / 2) && 0xff
       transaction.asset = { votes: [] }
 
       let vote
@@ -324,7 +324,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      const usernamelength = buf.readInt8(assetOffset / 2) & 0xff
+      const usernamelength = buf.readInt8(assetOffset / 2) && 0xff
 
       transaction.asset = {
         delegate: {
@@ -343,10 +343,12 @@ module.exports = class Transaction {
 
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       transaction.asset = { multisignature: { keysgroup: [] } }
-      transaction.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff
+      transaction.asset.multisignature.min =
+        buf.readInt8(assetOffset / 2) && 0xff
 
-      const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
-      transaction.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff
+      const num = buf.readInt8(assetOffset / 2 + 1) && 0xff
+      transaction.asset.multisignature.lifetime =
+        buf.readInt8(assetOffset / 2 + 2) && 0xff
 
       for (let index = 0; index < num; index++) {
         const key = hexString.slice(
@@ -365,7 +367,7 @@ module.exports = class Transaction {
     if (transaction.type === TRANSACTION_TYPES.IPFS) {
       transaction.asset = {}
 
-      const l = buf.readInt8(assetOffset / 2) & 0xff
+      const l = buf.readInt8(assetOffset / 2) && 0xff
       transaction.asset.dag = hexString.substring(
         assetOffset + 2,
         assetOffset + 2 + l * 2,
@@ -379,7 +381,7 @@ module.exports = class Transaction {
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2))
-      transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff
+      transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) && 0xff
       transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
       transaction.recipientId = bs58check.encode(
         buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21),
@@ -395,7 +397,7 @@ module.exports = class Transaction {
     if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       transaction.asset = { payments: [] }
 
-      const total = buf.readInt8(assetOffset / 2) & 0xff
+      const total = buf.readInt8(assetOffset / 2) && 0xff
       let offset = assetOffset / 2 + 1
 
       for (let j = 0; j < total; j++) {
@@ -436,7 +438,8 @@ module.exports = class Transaction {
     if (transaction.signature.length === 0) {
       delete transaction.signature
     } else {
-      const length1 = parseInt(`0x${transaction.signature.substring(2, 4)}`, 16) + 2
+      const length1 =
+        parseInt(`0x${transaction.signature.substring(2, 4)}`, 16) + 2
       transaction.signature = hexString.substring(
         startOffset,
         startOffset + length1 * 2,
@@ -452,7 +455,8 @@ module.exports = class Transaction {
         // start of multisign
         delete transaction.secondSignature
       } else {
-        const length2 = parseInt(`0x${transaction.secondSignature.substring(2, 4)}`, 16) + 2
+        const length2 =
+          parseInt(`0x${transaction.secondSignature.substring(2, 4)}`, 16) + 2
         transaction.secondSignature = transaction.secondSignature.substring(
           0,
           length2 * 2,
