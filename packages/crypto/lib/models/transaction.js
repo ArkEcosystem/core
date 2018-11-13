@@ -1,3 +1,5 @@
+/* eslint no-bitwise: "off" */
+
 const bs58check = require('bs58check')
 const { cloneDeepWith } = require('lodash')
 const ByteBuffer = require('bytebuffer')
@@ -293,7 +295,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      const votelength = buf.readInt8(assetOffset / 2) && 0xff
+      const votelength = buf.readInt8(assetOffset / 2) & 0xff
       transaction.asset = { votes: [] }
 
       let vote
@@ -324,7 +326,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      const usernamelength = buf.readInt8(assetOffset / 2) && 0xff
+      const usernamelength = buf.readInt8(assetOffset / 2) & 0xff
 
       transaction.asset = {
         delegate: {
@@ -344,11 +346,11 @@ module.exports = class Transaction {
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       transaction.asset = { multisignature: { keysgroup: [] } }
       transaction.asset.multisignature.min =
-        buf.readInt8(assetOffset / 2) && 0xff
+        buf.readInt8(assetOffset / 2) & 0xff
 
-      const num = buf.readInt8(assetOffset / 2 + 1) && 0xff
+      const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
       transaction.asset.multisignature.lifetime =
-        buf.readInt8(assetOffset / 2 + 2) && 0xff
+        buf.readInt8(assetOffset / 2 + 2) & 0xff
 
       for (let index = 0; index < num; index++) {
         const key = hexString.slice(
@@ -367,7 +369,7 @@ module.exports = class Transaction {
     if (transaction.type === TRANSACTION_TYPES.IPFS) {
       transaction.asset = {}
 
-      const l = buf.readInt8(assetOffset / 2) && 0xff
+      const l = buf.readInt8(assetOffset / 2) & 0xff
       transaction.asset.dag = hexString.substring(
         assetOffset + 2,
         assetOffset + 2 + l * 2,
@@ -381,7 +383,7 @@ module.exports = class Transaction {
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2))
-      transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) && 0xff
+      transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff
       transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
       transaction.recipientId = bs58check.encode(
         buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21),
@@ -397,7 +399,7 @@ module.exports = class Transaction {
     if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       transaction.asset = { payments: [] }
 
-      const total = buf.readInt8(assetOffset / 2) && 0xff
+      const total = buf.readInt8(assetOffset / 2) & 0xff
       let offset = assetOffset / 2 + 1
 
       for (let j = 0; j < total; j++) {
