@@ -1,7 +1,9 @@
+/* eslint guard-for-in: "off" */
+
 module.exports = (pgp, data) => {
   const tmp = data[0]
 
-  tmp.forEach(prop => {
+  for (const prop in tmp) {
     const camel = pgp.utils.camelize(prop)
 
     if (!(camel in tmp)) {
@@ -11,5 +13,5 @@ module.exports = (pgp, data) => {
         delete d[prop]
       }
     }
-  })
+  }
 }
