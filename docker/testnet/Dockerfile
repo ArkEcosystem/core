@@ -1,4 +1,4 @@
-FROM node:9
+FROM node:10
 
 WORKDIR /ark-core
 
@@ -13,5 +13,5 @@ RUN apt-get update && \
     vim && \
     rm -rf /var/lib/apt/lists/*
 
-EXPOSE 4000 4003 
+EXPOSE 4000 4003
 
