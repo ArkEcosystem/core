@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const container = require('@arkecosystem/core-container')
 
 const database = container.resolvePlugin('database')
