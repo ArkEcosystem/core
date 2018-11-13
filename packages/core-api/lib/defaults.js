@@ -7,6 +7,8 @@ module.exports = {
   // @see https://hapijs.com/api#-serveroptionstls
   ssl: {
     enabled: process.env.ARK_API_SSL,
+    host: process.env.ARK_API_SSL_HOST,
+    port: process.env.ARK_API_SSL_PORT,
     key: process.env.ARK_API_SSL_KEY,
     cert: process.env.ARK_API_SSL_CERT,
   },
