@@ -8,6 +8,8 @@
   "rules": {
     "class-methods-use-this": "off",
     "complexity": "off",
+    "global-require": "off",
+    "import/no-dynamic-require": "off",
     "no-restricted-syntax": "off",
     "no-console": [
       "error",
@@ -18,9 +20,6 @@
     "no-param-reassign": "off",
     // TODO: fix later as they require a lot of changes
     "consistent-return": "off",
-    "global-require": "off",
-    "guard-for-in": "off",
-    "import/no-dynamic-require": "off",
     "no-unused-expressions": "off",
     "no-underscore-dangle": "off",
     "no-unused-vars": "off",

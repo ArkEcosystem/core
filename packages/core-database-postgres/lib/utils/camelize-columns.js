@@ -1,7 +1,7 @@
 module.exports = (pgp, data) => {
   const tmp = data[0]
 
-  for (const prop in tmp) {
+  tmp.forEach(prop => {
     const camel = pgp.utils.camelize(prop)
 
     if (!(camel in tmp)) {
@@ -11,5 +11,5 @@ module.exports = (pgp, data) => {
         delete d[prop]
       }
     }
-  }
+  })
 }
