@@ -1,3 +1,5 @@
+/* eslint max-len: "off" */
+
 const os = require('os')
 
 /**
