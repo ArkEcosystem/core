@@ -4,16 +4,20 @@ module.exports = {
   enabled: false,
   host: process.env.ARK_API_HOST || '0.0.0.0',
   port: process.env.ARK_API_PORT || 4003,
+  // @see https://hapijs.com/api#-serveroptionstls
+  ssl: {
+    enabled: process.env.ARK_API_SSL,
+    host: process.env.ARK_API_SSL_HOST || '0.0.0.0',
+    port: process.env.ARK_API_SSL_PORT || 8443,
+    key: process.env.ARK_API_SSL_KEY,
+    cert: process.env.ARK_API_SSL_CERT,
+  },
   // @see https://github.com/p-meier/hapi-api-version
   versions: {
     validVersions: [1, 2],
     defaultVersion: 1,
     basePath: '/api/',
     vendorName: 'ark.core-api',
-  },
-  cache: {
-    enabled: false,
-    options: {},
   },
   // @see https://github.com/wraithgar/hapi-rate-limit
   rateLimit: {
