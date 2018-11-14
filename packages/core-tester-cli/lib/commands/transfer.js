@@ -109,7 +109,7 @@ module.exports = class TransferCommand extends Command {
       logger.error(`There was a problem sending transactions: ${message}`)
     }
 
-    if (this.options.skipTesting) {
+    if (this.options.skipValidation) {
       return
     }
 
