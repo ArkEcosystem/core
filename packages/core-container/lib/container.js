@@ -11,16 +11,13 @@ module.exports = class Container {
    */
   constructor() {
     this.container = createContainer()
+    this.exitEvents = ['SIGINT', 'exit']
 
     /**
      * May be used by CLI programs to suppress the shutdown
      * messages.
      */
     this.silentShutdown = false
-
-    this.exitEvents = ['SIGINT', 'exit']
-
-    this.__registerExitHandler()
   }
 
   /**
@@ -30,6 +27,8 @@ module.exports = class Container {
    * @return {void}
    */
   async setUp(variables, options = {}) {
+    this.__registerExitHandler()
+
     if (variables.remote) {
       const remoteLoader = new RemoteLoader(variables)
       await remoteLoader.setUp()
