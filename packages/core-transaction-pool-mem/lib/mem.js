@@ -287,6 +287,16 @@ class Mem {
   }
 
   /**
+   * Get rebroadcast transactions
+   * @return {Array}
+   */
+  getRebroadcastTransactions() {
+    return this.all
+      .map(memTransaction => memTransaction.transaction)
+      .filter(transaction => this.getTransactionPing(transaction.id) === 0)
+  }
+
+  /**
    * Remove all transactions.
    */
   flush() {

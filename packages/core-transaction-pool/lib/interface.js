@@ -163,6 +163,14 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
+   * Get rebroadcast transactions.
+   * @return {Array}
+   */
+  getRebroadcastTransactions() {
+    throw new Error('Method [getRebroadcastTransactions] not implemented!')
+  }
+
+  /**
    * Check if transaction sender is blocked
    * @param  {String} senderPublicKey
    * @return {Boolean}
