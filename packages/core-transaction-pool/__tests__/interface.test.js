@@ -226,10 +226,4 @@ describe('Transaction Pool Interface', () => {
       expect(poolInterface.checkApplyToBlockchain).toBeFunction()
     })
   })
-
-  describe('checkDynamicFeeMatch', () => {
-    it('should be a function', () => {
-      expect(poolInterface.checkDynamicFeeMatch).toBeFunction()
-    })
-  })
 })

@@ -1,63 +1,57 @@
 const container = require('@arkecosystem/core-container')
 const { feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
 
-const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
-
 /**
- * Determine if transaction matches the accepted fee by delegate or max fee set by sender
+ * Determine if a transaction's fee meets the minimum requirements for broadcasting
+ * and for entering the transaction pool.
  * @param {Transaction} Transaction - transaction to check
- * @return {Boolean} matches T/F
+ * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
 module.exports = transaction => {
-  const transactionFee = +transaction.fee.toFixed()
-  const staticFee = feeManager.getForTransaction(transaction)
+  const config = container.resolvePlugin('config')
+  const logger = container.resolvePlugin('logger')
+
+  const fee = +transaction.fee.toFixed()
+  const id = transaction.id
+
   const blockchain = container.resolvePlugin('blockchain')
-  const feeConstants = config.getConstants(
-    blockchain.getLastBlock().data.height,
-  ).fees
+  const fees = config.getConstants(blockchain.getLastBlock().data.height).fees
 
-  if (!feeConstants.dynamic && transactionFee !== staticFee) {
-    logger.debug(
-      `Received transaction fee '${transactionFee}' for '${
-        transaction.id
-      }' does not match static fee of '${staticFee}'`,
-    )
-    return false
-  }
+  let broadcast
+  let enterPool
 
-  if (feeConstants.dynamic) {
-    const minFeeFixed = config.delegates.dynamicFees.minAcceptableFee
-    if (transactionFee < minFeeFixed) {
-      logger.debug(
-        `Fee declined - Received transaction "${
-          transaction.id
-        }" with a fee of `
-          + `"${transactionFee}" which is below the minimum accepted fixed fee of "${minFeeFixed}".`,
-      )
-      return false
+  if (fees.dynamic) {
+    const minWhatever1 = dynamicFeeManager.calculateFee(fees.dynamicFees.minWhatever1, transaction)
+    if (fee >= minWhatever1) {
+      broadcast = true
+      logger.debug(`Transaction ${id} eligible for broadcast (fee=${fee} >= min=${minWhatever1})`)
+    } else {
+      broadcast = false
+      logger.debug(`Transaction ${id} not eligible for broadcast (fee=${fee} < min=${minWhatever1})`)
     }
 
-    const minFeeCalculated = dynamicFeeManager.calculateFee(
-      config.delegates.dynamicFees.feeMultiplier,
-      transaction,
-    )
-    if (transactionFee < minFeeCalculated) {
-      logger.debug(
-        `Fee declined - Received transaction "${
-          transaction.id
-        }" with a fee of `
-          + `"${transactionFee}" which is below the calculated minimum fee of "${minFeeCalculated}".`,
-      )
-      return false
+    const minWhatever2 = dynamicFeeManager.calculateFee(fees.dynamicFees.minWhatever2, transaction)
+    if (fee >= minWhatever2) {
+      enterPool = true
+      logger.debug(`Transaction ${id} eligible to enter pool (fee=${fee} >= min=${minWhatever2})`)
+    } else {
+      enterPool = false
+      logger.debug(`Transaction ${id} not eligible to enter pool (fee=${fee} < min=${minWhatever2})`)
     }
+  } else {
+    // Static fees
+    const staticFee = feeManager.getForTransaction(transaction)
 
-    logger.debug(
-      `Transaction "${
-        transaction.id
-      }" accepted with fee of "${transactionFee}". `
-        + `The calculated minimum fee is "${minFeeCalculated}".`,
-    )
+    if (fee === staticFee) {
+      broadcast = true
+      enterPool = true
+      logger.debug(`Transaction ${id} eligible for broadcast and to enter pool (fee=${fee} = static=${staticFee})`)
+    } else {
+      broadcast = false
+      enterPool = false
+      logger.debug(`Transaction ${id} not eligible for broadcast and not eligible to enter pool (fee=${fee} != static=${staticFee})`)
+    }
   }
-  return true
+
+  return { broadcast: broadcast, enterPool: enterPool }
 }

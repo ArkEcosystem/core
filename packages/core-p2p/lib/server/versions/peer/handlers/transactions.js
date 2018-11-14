@@ -37,43 +37,27 @@ exports.store = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { eligible, notEligible } = transactionPool.checkEligibility(
-      request.payload.transactions,
-    )
-
     const guard = new TransactionGuard(transactionPool)
 
-    for (const ne of notEligible) {
-      guard.invalidate(ne.transaction, ne.reason)
+    const result = await guard.validate(request.payload.transactions)
+
+    if (result.invalid.length > 0) {
+      return Boom.notAcceptable('Transactions list could not be accepted.', guard.errors)
     }
 
-    await guard.validate(eligible)
+    const accept = result.accept
+    if (accept.length > 0) {
+      logger.info(`Received ${accept.length} new ${pluralize('transaction', accept.length)}`)
 
-    if (guard.hasAny('invalid')) {
-      return Boom.notAcceptable(
-        'Transactions list could not be accepted.',
-        guard.errors,
-      )
+      transactionPool.addTransactions(accept)
     }
 
-    // TODO: Review throttling of v1
-    if (guard.hasAny('accept')) {
-      logger.info(
-        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
-          request.payload.transactions.length
-        } received`,
-      )
-      logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
+    const broadcast = result.broadcast
+    if (broadcast.length > 0) {
+      container.resolvePlugin('p2p').broadcastTransactions(broadcast)
     }
 
-    if (guard.hasAny('broadcast')) {
-      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
-    }
-
-    return {
-      data: guard.getIds('accept'),
-    }
+    return { data: result.accept.map(t => t.id) }
   },
   config: {
     cors: {
