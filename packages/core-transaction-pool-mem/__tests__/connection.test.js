@@ -8,7 +8,6 @@ const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const randomSeed = require('random-seed')
 const mockData = require('./__fixtures__/transactions')
-const defaultConfig = require('../lib/defaults')
 const app = require('./__support__/setup')
 
 const ARKTOSHI = crypto.constants.ARKTOSHI
@@ -16,13 +15,14 @@ const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
 const Transaction = crypto.models.Transaction
 const slots = crypto.slots
 
+let defaultConfig
 let database
-
 let connection
 
 beforeAll(async () => {
   await app.setUp()
 
+  defaultConfig = require('../lib/defaults')
   database = container.resolvePlugin('database')
 
   const Connection = require('../lib/connection.js')
