@@ -1,3 +1,5 @@
+/* eslint no-restricted-globals: "off" */
+
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { slots, crypto } = require('@arkecosystem/crypto')
@@ -375,16 +377,18 @@ exports.getBlocks = {
       const blockchain = container.resolvePlugin('blockchain')
       const reqBlockHeight = parseInt(request.query.lastBlockHeight)
       let blocks = []
-      if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
+      if (!request.query.lastBlockHeight || isNaN(reqBlockHeight)) {
         blocks.push(blockchain.getLastBlock())
       } else {
         blocks = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
       }
 
       logger.info(
-        `${requestIp.getClientIp(request)} has downloaded ${
-          pluralize('block', blocks.length, true)
-        } from height ${request.query.lastBlockHeight}`,
+        `${requestIp.getClientIp(request)} has downloaded ${pluralize(
+          'block',
+          blocks.length,
+          true,
+        )} from height ${request.query.lastBlockHeight}`,
       )
 
       return { success: true, blocks: blocks || [] }

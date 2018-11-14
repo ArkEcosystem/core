@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const container = require('@arkecosystem/core-container')
 
 const config = container.resolvePlugin('config')
@@ -395,7 +397,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     await blockchain.database.commitQueuedQueries()
 
-    let random = ~~(4 / Math.random())
+    let random = Math.floor(4 / Math.random())
 
     if (random > 102) {
       random = 102

@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const promise = require('bluebird')
 const { migrations } = require('@arkecosystem/core-database-postgres')
 const container = require('@arkecosystem/core-container')

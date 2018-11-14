@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const axios = require('axios')
 const container = require('@arkecosystem/core-container')
 

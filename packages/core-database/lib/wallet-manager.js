@@ -255,9 +255,12 @@ module.exports = class WalletManager {
       }
     }
 
-    logger.debug(`Loaded ${delegates.length} active ${
-      pluralize('delegate', delegates.length)
-    }`)
+    logger.debug(
+      `Loaded ${delegates.length} active ${pluralize(
+        'delegate',
+        delegates.length,
+      )}`,
+    )
 
     return delegates
   }

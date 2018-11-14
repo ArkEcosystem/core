@@ -29,8 +29,9 @@ module.exports = async (blockCount, count) => {
   tracker.blocksPerMillisecond = tracker.blocksSession / diffSinceStart
 
   // The time left to download the missing blocks in milliseconds
-  tracker.remainingInMilliseconds = (tracker.networkHeight - tracker.blocksDownloaded)
-    / tracker.blocksPerMillisecond
+  tracker.remainingInMilliseconds =
+    (tracker.networkHeight - tracker.blocksDownloaded) /
+    tracker.blocksPerMillisecond
   tracker.remainingInMilliseconds = Math.abs(
     Math.trunc(tracker.remainingInMilliseconds),
   )
@@ -38,7 +39,10 @@ module.exports = async (blockCount, count) => {
   // The percentage of total blocks that has been downloaded
   tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight
 
-  if (tracker.percent < 100 && isFinite(tracker.remainingInMilliseconds)) {
+  if (
+    tracker.percent < 100 &&
+    Number.isFinite(tracker.remainingInMilliseconds)
+  ) {
     const blocksDownloaded = tracker.blocksDownloaded.toLocaleString()
     const networkHeight = tracker.networkHeight.toLocaleString()
     const timeLeft = prettyMs(tracker.remainingInMilliseconds, {

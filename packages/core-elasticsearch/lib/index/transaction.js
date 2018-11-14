@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const { first, last } = require('lodash')
 const container = require('@arkecosystem/core-container')
 

@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const axios = require('axios')
 const dirTree = require('directory-tree')
 const fs = require('fs-extra')
@@ -120,9 +122,7 @@ class ConfigLoader {
 
     const output = require(configFile)
 
-    for (let i = this.peers.sources.length - 1; i >= 0; i--) {
-      const source = this.peers.sources[i]
-
+    for (const source of this.peers.sources) {
       // Local File...
       if (source.startsWith('/')) {
         output.list = require(source)

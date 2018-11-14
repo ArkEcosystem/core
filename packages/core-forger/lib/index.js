@@ -1,5 +1,5 @@
-const ForgerManager = require('./manager')
 const pluralize = require('pluralize')
+const ForgerManager = require('./manager')
 
 /**
  * The struct used by the plugin container.
@@ -29,7 +29,13 @@ exports.plugin = {
 
     container
       .resolvePlugin('logger')
-      .info(`Forger Manager started with ${pluralize('forger', forgers.length, true)}`)
+      .info(
+        `Forger Manager started with ${pluralize(
+          'forger',
+          forgers.length,
+          true,
+        )}`,
+      )
 
     forgerManager.startForging()
 

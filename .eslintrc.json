@@ -4,37 +4,26 @@
     "node": true,
     "jest": true
   },
-  "extends": ["@arkecosystem/eslint-config-base"],
+  "extends": ["@arkecosystem/eslint-config-base", "prettier"],
   "rules": {
-    // TODO: fix later as they require a lot of changes
-    "camelcase": "off",
     "class-methods-use-this": "off",
-    "consistent-return": "off",
+    "complexity": "off",
     "global-require": "off",
-    "guard-for-in": "off",
     "import/no-dynamic-require": "off",
-    "jest/no-disabled-tests": "off",
-    "jest/valid-expect": "off",
-    "no-await-in-loop": "off",
-    "no-bitwise": "off",
+    "no-restricted-syntax": "off",
     "no-console": [
       "error",
       { "allow": ["error", "info", "warn", "time", "timeEnd"] }
     ],
-    "no-case-declarations": "off",
+    "no-plusplus": "off",
     "no-continue": "off",
     "no-param-reassign": "off",
-    "no-plusplus": "off",
-    "no-prototype-builtins": "off",
+    // TODO: fix later as they require a lot of changes
+    "consistent-return": "off",
     "no-unused-expressions": "off",
-    "no-restricted-globals": "off",
-    "no-restricted-properties": "off",
-    "no-restricted-syntax": "off",
     "no-underscore-dangle": "off",
     "no-unused-vars": "off",
     "prefer-destructuring": "off",
-    "radix": "off",
-    "semi-style": "off",
-    "complexity": "off"
+    "radix": "off"
   }
 }

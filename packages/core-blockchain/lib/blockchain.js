@@ -1,4 +1,5 @@
 /* eslint max-len: "off" */
+/* eslint no-await-in-loop: "off" */
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models

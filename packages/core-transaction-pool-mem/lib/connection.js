@@ -1,4 +1,5 @@
 /* eslint no-constant-condition: "off" */
+/* eslint no-await-in-loop: "off" */
 
 const {
   TransactionPoolInterface,

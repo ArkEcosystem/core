@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const { Bignum, client, crypto } = require('@arkecosystem/crypto')
 const delay = require('delay')
 const pluralize = require('pluralize')

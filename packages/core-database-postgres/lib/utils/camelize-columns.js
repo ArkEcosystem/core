@@ -1,3 +1,5 @@
+/* eslint guard-for-in: "off" */
+
 module.exports = (pgp, data) => {
   const tmp = data[0]
 

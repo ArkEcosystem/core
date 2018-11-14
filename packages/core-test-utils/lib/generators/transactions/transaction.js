@@ -38,29 +38,34 @@ module.exports = (
   for (let i = 0; i < quantity; i++) {
     let builder = client.getBuilder()
     switch (type) {
-      case TRANSFER:
+      case TRANSFER: {
         builder = builder
           .transfer()
           .recipientId(address)
           .amount(amount)
           .vendorField(`Test Transaction ${i + 1}`)
         break
-      case SECOND_SIGNATURE:
+      }
+      case SECOND_SIGNATURE: {
         builder = builder.secondSignature().signatureAsset(passphrase)
         break
-      case DELEGATE_REGISTRATION:
+      }
+      case DELEGATE_REGISTRATION: {
         const username = superheroes
           .random()
           .toLowerCase()
           .replace(/[^a-z0-9]/g, '_')
         builder = builder.delegateRegistration().usernameAsset(username)
         break
-      case VOTE:
+      }
+      case VOTE: {
         const publicKey = crypto.getKeys(passphrase).publicKey
         builder = builder.vote().votesAsset([`+${publicKey}`])
         break
-      default:
+      }
+      default: {
         throw new Error('Invalid transaction type')
+      }
     }
 
     builder = builder.sign(passphrase)

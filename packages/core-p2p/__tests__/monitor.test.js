@@ -238,12 +238,6 @@ describe('Monitor', () => {
     it('should be a function', () => {
       expect(monitor.broadcastTransactions).toBeFunction()
     })
-
-    it('should be ok', () => {
-      expect(monitor.broadcastTransactions).toBeFunction()
-
-      expect(monitor.toJson)
-    })
   })
 
   describe('__checkDNSConnectivity', () => {

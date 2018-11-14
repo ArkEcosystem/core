@@ -1,3 +1,5 @@
+/* eslint no-restricted-globals: "off" */
+
 /**
  * Register the "parsedInt" validation rule.
  * @param  {AJV} ajv
@@ -8,9 +10,9 @@ module.exports = ajv => {
     type: 'string',
     validate: value => {
       if (
-        isNaN(value)
-        || parseInt(value) !== value
-        || isNaN(parseInt(value, 10))
+        isNaN(value) ||
+        parseInt(value) !== value ||
+        isNaN(parseInt(value, 10))
       ) {
         return false
       }

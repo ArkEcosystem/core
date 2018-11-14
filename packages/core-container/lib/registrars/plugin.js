@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const path = require('path')
 const fs = require('fs')
 const semver = require('semver')
@@ -130,7 +132,7 @@ module.exports = class PluginRegistrars {
       }),
     )
 
-    if (item.plugin.hasOwnProperty('deregister')) {
+    if (item.plugin.deregister) {
       this.deregister.push({ plugin: item.plugin, options })
     }
   }
@@ -148,7 +150,7 @@ module.exports = class PluginRegistrars {
       options = Hoek.applyToDefaults(defaults, options)
     }
 
-    if (this.options.options && this.options.options.hasOwnProperty(name)) {
+    if (this.options.options && this.options.options[name]) {
       options = Hoek.applyToDefaults(options, this.options.options[name])
     }
 

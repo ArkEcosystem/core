@@ -10,7 +10,8 @@ const path = require('path')
  * @param  {Number} max
  * @return {Number}
  */
-exports.getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min)
+exports.getRandomNumber = (min, max) =>
+  Math.floor(Math.random() * (max - min) + min)
 
 exports.logger = require('./logger')
 
@@ -30,9 +31,7 @@ exports.updateConfig = (file, values, configPath, forceOverwrite) => {
     config = {}
   }
 
-  for (const key in values) {
-    _.set(config, key, values[key])
-  }
+  values.forEach(key => _.set(config, key, values[key]))
 
   fs.ensureFileSync(configPath)
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))

@@ -17,7 +17,7 @@ describe('Plugin Registrar', () => {
   })
 
   it('should load the plugins and their options', () => {
-    ['a', 'b', 'c'].forEach(char => {
+    ;['a', 'b', 'c'].forEach(char => {
       const pluginName = `./plugin-${char}`
       expect(instance.plugins[pluginName]).toBeObject()
     })
@@ -81,7 +81,7 @@ describe('Plugin Registrar', () => {
     })
 
     it('should deregister plugins supporting deregister', async () => {
-      ['a', 'b'].forEach(char => {
+      ;['a', 'b'].forEach(char => {
         plugins[char].plugin.deregister = jest.fn()
       })
 
