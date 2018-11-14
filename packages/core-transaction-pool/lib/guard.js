@@ -142,6 +142,8 @@ module.exports = class TransactionGuard {
       const exists = this.pool.transactionExists(transaction.id)
 
       if (exists) {
+        this.pool.pingTransaction(transaction.id)
+
         this.__pushError(
           transaction,
           'ERR_DUPLICATE',
@@ -171,8 +173,6 @@ module.exports = class TransactionGuard {
         } catch (error) {
           this.__pushError(transaction, 'ERR_UNKNOWN', error.message)
         }
-      } else if (exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
-        this.pool.pingTransaction(transaction.id)
       }
     })
   }

@@ -24,6 +24,7 @@ class Storage {
       CREATE TABLE IF NOT EXISTS ${this.table} (
         "sequence" INTEGER PRIMARY KEY,
         "id" VARCHAR(64) UNIQUE,
+        "ping_count" INTEGER DEFAULT 0,
         "serialized" BLOB NOT NULL
       );
     `)
@@ -47,18 +48,21 @@ class Storage {
     }
 
     const insertStatement = this.db.prepare(
-      `INSERT INTO ${this.table} `
-        + '(sequence, id, serialized) VALUES '
-        + '(:sequence, :id, :serialized);',
+      `INSERT INTO ${this.table} ` +
+        '(sequence, id, serialized, ping_count) VALUES ' +
+        '(:sequence, :id, :serialized, :pingCount);',
     )
 
     this.db.prepare('BEGIN;').run()
 
-    data.forEach(d => insertStatement.run({
-      sequence: d.sequence,
-      id: d.transaction.id,
-      serialized: Buffer.from(d.transaction.serialized, 'hex'),
-    }))
+    data.forEach(d =>
+      insertStatement.run({
+        sequence: d.sequence,
+        id: d.transaction.id,
+        serialized: Buffer.from(d.transaction.serialized, 'hex'),
+        pingCount: d.pingCount,
+      }),
+    )
 
     this.db.prepare('COMMIT;').run()
   }
@@ -90,13 +94,18 @@ class Storage {
   loadAll() {
     const rows = this.db
       .prepare(
-        `SELECT sequence, lower(HEX(serialized)) AS serialized FROM ${
+        `SELECT sequence, lower(HEX(serialized)) AS serialized, ping_count AS pingCount FROM ${
           this.table
         };`,
       )
       .all()
     return rows.map(
-      r => new MemPoolTransaction(new Transaction(r.serialized), r.sequence),
+      r =>
+        new MemPoolTransaction(
+          new Transaction(r.serialized),
+          r.sequence,
+          r.pingCount,
+        ),
     )
   }
 
