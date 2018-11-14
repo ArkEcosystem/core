@@ -29,6 +29,14 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
+   * Disconnect from transaction pool.
+   * @return {void}
+   */
+  disconnect() {
+    throw new Error('Method [disconnect] not implemented!')
+  }
+
+  /**
    * Get the number of transactions in the pool.
    * @return {Number}
    */

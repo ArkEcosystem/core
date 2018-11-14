@@ -20,7 +20,6 @@ const register = async (server, options) => {
     { method: 'GET', path: '/blocks/common', ...handlers.getCommonBlocks },
     { method: 'GET', path: '/status', ...handlers.getStatus },
     { method: 'POST', path: '/blocks', ...handlers.postBlock },
-    { method: 'POST', path: '/transactions', ...handlers.postTransactions },
   ])
 }
 
