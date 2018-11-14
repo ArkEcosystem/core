@@ -1,3 +1,4 @@
+/* eslint no-await-in-loop: "off" */
 /* eslint no-use-before-define: "warn" */
 /* eslint max-len: "off" */
 
@@ -340,9 +341,12 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       }
     }
 
-    logger.info(`${wallets.length} modified ${
-      pluralize('wallet', wallets.length)
-    } committed to database`)
+    logger.info(
+      `${wallets.length} modified ${pluralize(
+        'wallet',
+        wallets.length,
+      )} committed to database`,
+    )
 
     emitter.emit('wallet.saved', wallets.length)
 

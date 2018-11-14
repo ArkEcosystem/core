@@ -311,7 +311,7 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   __pushError(transaction, type, message) {
-    if (!this.errors.hasOwnProperty(transaction.id)) {
+    if (!this.errors[transaction.id]) {
       this.errors[transaction.id] = []
     }
 

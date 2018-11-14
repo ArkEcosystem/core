@@ -44,8 +44,6 @@ describe('API 1.0 - Peers', () => {
     it('should fail using limit > 100', async () => {
       const response = await utils.request('GET', 'peers', { limit: 101 })
       utils.expectError(response)
-
-      expect(response.data.error)
     })
 
     it('should fail using invalid parameters', async () => {

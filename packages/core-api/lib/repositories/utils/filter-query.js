@@ -1,3 +1,5 @@
+/* eslint no-prototype-builtins: "off" */
+
 /**
  * Create a "where" object for a sql query.
  * @param  {Object} parameters
@@ -26,8 +28,8 @@ module.exports = (parameters, filters) => {
       }
 
       if (
-        !parameters[elem].hasOwnProperty('from')
-        && !parameters[elem].hasOwnProperty('to')
+        !parameters[elem].hasOwnProperty('from') &&
+        !parameters[elem].hasOwnProperty('to')
       ) {
         where.push({
           column: elem,
@@ -37,8 +39,8 @@ module.exports = (parameters, filters) => {
       }
 
       if (
-        parameters[elem].hasOwnProperty('from')
-        || parameters[elem].hasOwnProperty('to')
+        parameters[elem].hasOwnProperty('from') ||
+        parameters[elem].hasOwnProperty('to')
       ) {
         where[elem] = {}
 

@@ -1,6 +1,6 @@
 const clipboardy = require('clipboardy')
-const logger = require('./logger')
 const pluralize = require('pluralize')
+const logger = require('./logger')
 
 module.exports = transactions => {
   clipboardy.writeSync(JSON.stringify(transactions))

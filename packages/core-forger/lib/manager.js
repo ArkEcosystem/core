@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const delay = require('delay')
 
 const container = require('@arkecosystem/core-container')
@@ -60,7 +62,11 @@ module.exports = class ForgerManager {
     )
 
     logger.debug(
-      `Loaded ${pluralize('delegate', delegates.length, true)}: ${delegates.join(', ')}`,
+      `Loaded ${pluralize(
+        'delegate',
+        delegates.length,
+        true,
+      )}: ${delegates.join(', ')}`,
     )
 
     return this.delegates
@@ -237,11 +243,11 @@ module.exports = class ForgerManager {
       )
     } else {
       logger.debug(
-        `Received ${
-          pluralize('transaction', transactions.length, true)
-        } from the pool containing ${
-          response.poolSize
-        } :money_with_wings:`,
+        `Received ${pluralize(
+          'transaction',
+          transactions.length,
+          true,
+        )} from the pool containing ${response.poolSize} :money_with_wings:`,
       )
     }
 

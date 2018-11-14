@@ -179,9 +179,11 @@ module.exports = {
         s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream),
       )
       logger.info(
-        `${
-          pluralize('transaction', data.processed, true)
-        } from rollbacked blocks safely exported to file ${snapFileName}`,
+        `${pluralize(
+          'transaction',
+          data.processed,
+          true,
+        )} from rollbacked blocks safely exported to file ${snapFileName}`,
       )
       return data
     } catch (error) {

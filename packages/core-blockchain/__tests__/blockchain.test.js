@@ -1,5 +1,6 @@
 /* eslint no-use-before-define: "warn" */
 /* eslint max-len: "off" */
+/* eslint no-await-in-loop: "off" */
 
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')

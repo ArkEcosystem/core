@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const container = require('@arkecosystem/core-container')
 
 const config = container.resolvePlugin('config')
@@ -60,8 +62,8 @@ blockchainMachine.actionMap = blockchain => ({
     )
 
     if (
-      blockchain.rebuildQueue.length() > 10000
-      || blockchain.processQueue.length() > 10000
+      blockchain.rebuildQueue.length() > 10000 ||
+      blockchain.processQueue.length() > 10000
     ) {
       event = 'PAUSED'
     }
@@ -221,11 +223,13 @@ blockchainMachine.actionMap = blockchain => ({
         return blockchain.dispatch('STARTED')
       }
 
-      state.rebuild = slots.getTime() - block.data.timestamp
-        > (constants.activeDelegates + 1) * constants.blocktime
+      state.rebuild =
+        slots.getTime() - block.data.timestamp >
+        (constants.activeDelegates + 1) * constants.blocktime
       // no fast rebuild if in last week
-      state.fastRebuild = slots.getTime() - block.data.timestamp > 3600 * 24 * 7
-        && !!container.resolveOptions('blockchain').fastRebuild
+      state.fastRebuild =
+        slots.getTime() - block.data.timestamp > 3600 * 24 * 7 &&
+        !!container.resolveOptions('blockchain').fastRebuild
 
       if (process.env.NODE_ENV === 'test') {
         logger.verbose(
@@ -304,14 +308,14 @@ blockchainMachine.actionMap = blockchain => ({
       blockchain.dispatch('NOBLOCK')
     } else {
       logger.info(
-        `Downloaded ${blocks.length} new ${
-          pluralize('block', blocks.length)
-        } accounting for a total of ${
-          pluralize('transaction', blocks.reduce(
-            (sum, b) => sum + b.numberOfTransactions,
-            0,
-          ), true)
-        }`,
+        `Downloaded ${blocks.length} new ${pluralize(
+          'block',
+          blocks.length,
+        )} accounting for a total of ${pluralize(
+          'transaction',
+          blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0),
+          true,
+        )}`,
       )
 
       if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
@@ -346,14 +350,14 @@ blockchainMachine.actionMap = blockchain => ({
       blockchain.dispatch('NOBLOCK')
     } else {
       logger.info(
-        `Downloaded ${blocks.length} new ${
-          pluralize('block', blocks.length)
-        } accounting for a total of ${
-          pluralize('transaction', blocks.reduce(
-            (sum, b) => sum + b.numberOfTransactions,
-            0,
-          ), true)
-        }`,
+        `Downloaded ${blocks.length} new ${pluralize(
+          'block',
+          blocks.length,
+        )} accounting for a total of ${pluralize(
+          'transaction',
+          blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0),
+          true,
+        )}`,
       )
 
       if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
@@ -390,7 +394,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     await blockchain.database.commitQueuedQueries()
 
-    let random = ~~(4 / Math.random())
+    let random = Math.floor(4 / Math.random())
 
     if (random > 102) {
       random = 102

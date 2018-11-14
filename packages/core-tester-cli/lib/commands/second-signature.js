@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const { client } = require('@arkecosystem/crypto')
 const pluralize = require('pluralize')
 const { logger } = require('../utils')
@@ -19,13 +21,18 @@ module.exports = class DelegateRegistrationCommand extends Command {
       skipTesting: true,
     })
 
-    logger.info(`Sending ${this.options.number} second signature ${
-      pluralize('transaction', this.options.number, true)
-    }`)
+    logger.info(
+      `Sending ${this.options.number} second signature ${pluralize(
+        'transaction',
+        this.options.number,
+        true,
+      )}`,
+    )
 
     const transactions = []
     wallets.forEach((wallet, i) => {
-      wallet.secondPassphrase = this.config.secondPassphrase || wallet.passphrase
+      wallet.secondPassphrase =
+        this.config.secondPassphrase || wallet.passphrase
       const transaction = client
         .getBuilder()
         .secondSignature()
@@ -66,8 +73,8 @@ module.exports = class DelegateRegistrationCommand extends Command {
         const wallet = await this.getWallet(walletObject.address)
 
         if (
-          wallet.secondPublicKey !== walletObject.secondPublicKey
-          || wallet.publicKey !== walletObject.publicKey
+          wallet.secondPublicKey !== walletObject.secondPublicKey ||
+          wallet.publicKey !== walletObject.publicKey
         ) {
           logger.error(`Invalid second signature for ${walletObject.address}.`)
         }

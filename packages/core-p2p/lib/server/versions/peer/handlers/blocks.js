@@ -1,3 +1,5 @@
+/* eslint no-restricted-globals: "off" */
+
 const Boom = require('boom')
 const requestIp = require('request-ip')
 
@@ -26,7 +28,7 @@ exports.index = {
     const height = parseInt(request.query.height)
     let data = []
 
-    if (Number.isNaN(height)) {
+    if (isNaN(height)) {
       data.push(blockchain.getLastBlock())
     } else {
       data = await database.getBlocks(parseInt(height) + 1, 400)
@@ -66,8 +68,8 @@ exports.store = {
 
     // Are we ready to get it?
     if (
-      lastDownloadedBlock
-      && lastDownloadedBlock.data.height + 1 !== request.payload.block.height
+      lastDownloadedBlock &&
+      lastDownloadedBlock.data.height + 1 !== request.payload.block.height
     ) {
       return h.response(null).code(202)
     }
@@ -102,7 +104,9 @@ exports.store = {
       }
 
       // NOTE: reorder them correctly
-      block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
+      block.transactions = block.transactionIds.map(id =>
+        transactions.find(tx => tx.id === id),
+      )
       logger.debug(
         `Found missing transactions: ${block.transactions.map(tx => tx.id)}`,
       )

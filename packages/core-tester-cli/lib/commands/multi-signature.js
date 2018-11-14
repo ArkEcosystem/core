@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const { client } = require('@arkecosystem/crypto')
 const pluralize = require('pluralize')
 const take = require('lodash/take')
@@ -214,9 +216,11 @@ module.exports = class MultiSignatureCommand extends Command {
     min = 2,
   ) {
     logger.info(
-      `Sending transactions with ${min} (min) of ${
-        pluralize('signature', approvalWallets.length, true)
-      }`
+      `Sending transactions with ${min} (min) of ${pluralize(
+        'signature',
+        approvalWallets.length,
+        true,
+      )}`,
     )
 
     const transactions = transfer.generateTransactions(
@@ -256,9 +260,11 @@ module.exports = class MultiSignatureCommand extends Command {
   ) {
     const max = min - 1
     logger.info(
-      `Sending transactions with ${max} (below min) of ${
-        pluralize('signature', approvalWallets.length, true)
-      }`
+      `Sending transactions with ${max} (below min) of ${pluralize(
+        'signature',
+        approvalWallets.length,
+        true,
+      )}`,
     )
 
     const transactions = transfer.generateTransactions(

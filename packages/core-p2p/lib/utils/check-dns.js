@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const util = require('util')
 const dns = require('dns')
 const shuffle = require('lodash/shuffle')

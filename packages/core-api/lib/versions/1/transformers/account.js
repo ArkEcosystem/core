@@ -1,3 +1,5 @@
+/* eslint camelcase: "off" */
+
 /**
  * Turns a "wallet" object into a generic object.
  * @param  {Object} model
