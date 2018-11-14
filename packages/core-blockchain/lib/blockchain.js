@@ -93,14 +93,16 @@ module.exports = class Blockchain {
   }
 
   async stop() {
-    logger.info('Stopping Blockchain Manager :chains:')
+    if (!this.isStopped) {
+      logger.info('Stopping Blockchain Manager :chains:')
 
-    this.isStopped = true
-    this.state.clearCheckLater()
+      this.isStopped = true
+      this.state.clearCheckLater()
 
-    this.dispatch('STOP')
+      this.dispatch('STOP')
 
-    this.queue.destroy()
+      this.queue.destroy()
+    }
   }
 
   checkNetwork() {
@@ -141,9 +143,12 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async postTransactions(transactions) {
-    logger.info(`Received ${transactions.length} new ${
-      pluralize('transaction', transactions.length)
-    } :moneybag:`)
+    logger.info(
+      `Received ${transactions.length} new ${pluralize(
+        'transaction',
+        transactions.length,
+      )} :moneybag:`,
+    )
 
     await this.transactionPool.addTransactions(transactions)
   }
@@ -155,12 +160,18 @@ module.exports = class Blockchain {
    */
   queueBlock(block) {
     logger.info(
-      `Received new block at height ${block.height.toLocaleString()} with ${
-        pluralize('transaction', block.numberOfTransactions, true)
-      } from ${block.ip}`,
+      `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
+        'transaction',
+        block.numberOfTransactions,
+        true,
+      )} from ${block.ip}`,
     )
 
-    if (this.state.started && this.state.blockchain.value === 'idle' && !this.state.forked) {
+    if (
+      this.state.started &&
+      this.state.blockchain.value === 'idle' &&
+      !this.state.forked
+    ) {
       this.dispatch('NEWBLOCK')
 
       this.processQueue.push(block)
@@ -203,9 +214,11 @@ module.exports = class Blockchain {
     }
 
     logger.info(
-      `Removing ${
-        pluralize('block', height - newHeight, true)
-      } to reset current round :warning:`,
+      `Removing ${pluralize(
+        'block',
+        height - newHeight,
+        true,
+      )} to reset current round :warning:`,
     )
 
     let count = 0
@@ -284,9 +297,11 @@ module.exports = class Blockchain {
 
     const resetHeight = lastBlock.data.height - nblocks
     logger.info(
-      `Removing ${
-        pluralize('block', nblocks, true)
-      }. Reset to height ${resetHeight.toLocaleString()}`,
+      `Removing ${pluralize(
+        'block',
+        nblocks,
+        true,
+      )}. Reset to height ${resetHeight.toLocaleString()}`,
     )
 
     this.queue.pause()
@@ -312,9 +327,11 @@ module.exports = class Blockchain {
     const blocks = await this.database.getTopBlocks(count)
 
     logger.info(
-      `Removing ${
-        pluralize('block', blocks.length, true)
-      } from height ${blocks[0].height.toLocaleString()}`,
+      `Removing ${pluralize(
+        'block',
+        blocks.length,
+        true,
+      )} from height ${blocks[0].height.toLocaleString()}`,
     )
 
     for (let block of blocks) {
