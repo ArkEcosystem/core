@@ -4,16 +4,18 @@ const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const app = require('./__support__/setup')
-const defaultConfig = require('../lib/defaults')
 
 const transferFee = 10000000
 
+let defaultConfig
 let TransactionGuard
 let transactionPool
 let guard
 
 beforeAll(async () => {
   await app.setUp()
+
+  defaultConfig = require('../lib/defaults')
 
   TransactionGuard = require('@arkecosystem/core-transaction-pool/lib/guard')
 
