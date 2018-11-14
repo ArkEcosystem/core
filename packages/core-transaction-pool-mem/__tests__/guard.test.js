@@ -1,4 +1,5 @@
 /* eslint max-len: "off" */
+/* eslint no-await-in-loop: "off" */
 
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
