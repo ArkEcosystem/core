@@ -382,7 +382,7 @@ module.exports = class ConnectionInterface {
    */
   async validateDelegate(block) {
     if (this.__isException(block.data)) {
-      return true
+      return
     }
 
     const delegates = await this.getActiveDelegates(block.data.height)
@@ -418,17 +418,22 @@ module.exports = class ConnectionInterface {
         }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
       )
     }
-
-    return true
   }
 
   /**
    * Validate a forked block.
    * @param  {Block} block
-   * @return {void}
+   * @return {Boolean}
    */
   async validateForkedBlock(block) {
-    await this.validateDelegate(block)
+    try {
+      await this.validateDelegate(block)
+    } catch (error) {
+      logger.debug(error.stack)
+      return false
+    }
+
+    return true
   }
 
   /**
