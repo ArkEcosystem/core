@@ -69,7 +69,7 @@ exports.store = {
       await transactionPool.addTransactions([...guard.accept, ...guard.excess])
     }
 
-    if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
+    if (guard.hasAny('broadcast')) {
       await container
         .resolvePlugin('p2p')
         .broadcastTransactions(guard.broadcast)

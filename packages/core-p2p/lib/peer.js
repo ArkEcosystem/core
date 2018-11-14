@@ -69,7 +69,6 @@ module.exports = class Peer {
       '/peer/transactions',
       {
         transactions,
-        isBroadCasted: true,
       },
       {
         headers: this.headers,

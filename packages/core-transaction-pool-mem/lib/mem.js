@@ -261,6 +261,42 @@ class Mem {
   }
 
   /**
+   * Ping a transaction.
+   * @param {String} transactionId
+   * @return {void}
+   */
+  pingTransaction(transactionId) {
+    const memTransaction = this.byId[transactionId]
+    assert(memTransaction)
+    memTransaction.ping()
+
+    if (!this.dirty.added.has(transactionId)) {
+      this.dirty.added.add(transactionId)
+    }
+  }
+
+  /**
+   * Get transaction ping.
+   * @param {String} transactionId
+   * @return {Number}
+   */
+  getTransactionPing(transactionId) {
+    const memTransaction = this.byId[transactionId]
+    assert(memTransaction)
+    return memTransaction.pingCount
+  }
+
+  /**
+   * Get rebroadcast transactions
+   * @return {Array}
+   */
+  getRebroadcastTransactions() {
+    return this.all
+      .map(memTransaction => memTransaction.transaction)
+      .filter(transaction => this.getTransactionPing(transaction.id) === 0)
+  }
+
+  /**
    * Remove all transactions.
    */
   flush() {

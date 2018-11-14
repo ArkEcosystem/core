@@ -94,14 +94,16 @@ module.exports = class Blockchain {
   }
 
   async stop() {
-    logger.info('Stopping Blockchain Manager :chains:')
+    if (!this.isStopped) {
+      logger.info('Stopping Blockchain Manager :chains:')
 
-    this.isStopped = true
-    this.state.clearCheckLater()
+      this.isStopped = true
+      this.state.clearCheckLater()
 
-    this.dispatch('STOP')
+      this.dispatch('STOP')
 
-    this.queue.destroy()
+      this.queue.destroy()
+    }
   }
 
   checkNetwork() {

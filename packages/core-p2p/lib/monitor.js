@@ -556,6 +556,26 @@ class Monitor {
   }
 
   /**
+   * Rebroadcast transactions which have not successfully been broadcasted yet.
+   * @return {void}
+   */
+  rebroadcastTransactions() {
+    const transactions = container
+      .resolvePlugin('transactionPool')
+      .getRebroadcastTransactions()
+    if (transactions.length > 0) {
+      logger.info(
+        `Rebroadcasting ${pluralize(
+          'transaction',
+          transactions.length,
+          true,
+        )}.`,
+      )
+      this.broadcastTransactions(transactions)
+    }
+  }
+
+  /**
    * Update all peers based on height and last block id.
    *
    * Grouping peers by height and then by common id results in one of the following

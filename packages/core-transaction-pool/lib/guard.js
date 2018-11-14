@@ -52,7 +52,13 @@ module.exports = class TransactionGuard {
    */
   invalidate(transactions, reason) {
     transactions = Array.isArray(transactions) ? transactions : [transactions]
-    transactions.forEach(tx => this.__pushError(tx, 'ERR_INVALID', reason))
+    transactions.forEach(tx => {
+      if (reason === 'Already in pool') {
+        this.pool.pingTransaction(tx.id)
+      }
+
+      this.__pushError(tx, 'ERR_INVALID', reason)
+    })
   }
 
   /**
@@ -123,7 +129,7 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Transforms and filters incomming transactions.
+   * Transforms and filters incoming transactions.
    * It skips duplicates and not valid crypto transactions
    * It skips blocked senders
    * @param  {Array} transactions
@@ -136,6 +142,8 @@ module.exports = class TransactionGuard {
       const exists = this.pool.transactionExists(transaction.id)
 
       if (exists) {
+        this.pool.pingTransaction(transaction.id)
+
         this.__pushError(
           transaction,
           'ERR_DUPLICATE',

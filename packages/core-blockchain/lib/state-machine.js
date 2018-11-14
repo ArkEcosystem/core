@@ -288,6 +288,9 @@ blockchainMachine.actionMap = blockchain => ({
       await blockchain.database.applyRound(block.data.height)
       await blockchain.transactionPool.buildWallets()
 
+      // Rebroadcast transactions which have not successfully been broadcasted yet
+      blockchain.p2p.rebroadcastTransactions()
+
       return blockchain.dispatch('STARTED')
     } catch (error) {
       logger.error(error.stack)
