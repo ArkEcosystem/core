@@ -431,7 +431,7 @@ module.exports = class Blockchain {
       }
     } catch (error) {
       logger.warn(
-        `Can't properly broadcast block ${block.data.height}`,
+        `Can't properly broadcast block ${block.data.height.toLocaleString()}`,
       )
       logger.debug(error.stack)
     }
