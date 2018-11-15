@@ -92,6 +92,7 @@ module.exports = class PoolWalletManager extends WalletManager {
         }: delegate name already taken.`,
         JSON.stringify(data),
       )
+
       throw new Error(
         `[PoolWalletManager] Can't apply transaction ${
           data.id
@@ -110,6 +111,7 @@ module.exports = class PoolWalletManager extends WalletManager {
         } does not exist.`,
         JSON.stringify(data),
       )
+
       throw new Error(
         `[PoolWalletManager] Can't apply transaction ${data.id}: delegate ${
           asset.votes[0]
@@ -133,6 +135,7 @@ module.exports = class PoolWalletManager extends WalletManager {
           2,
         )}`,
       )
+
       throw new Error(`[PoolWalletManager] Can't apply transaction ${data.id}`)
     }
 
