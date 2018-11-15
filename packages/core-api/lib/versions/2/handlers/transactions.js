@@ -71,7 +71,7 @@ exports.store = {
         )}`,
       )
 
-      transactionPool.addTransactions(guard.accept)
+      await guard.addToTransactionPool('accept')
     }
 
     if (guard.hasAny('broadcast')) {
