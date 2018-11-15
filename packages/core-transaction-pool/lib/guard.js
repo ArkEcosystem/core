@@ -273,19 +273,25 @@ module.exports = class TransactionGuard {
     for (const transaction of this.broadcast) {
       if (this.pool.hasExceededMaxTransactions(transaction)) {
         this.excess.push(transaction)
+        this.pool.walletManager.revertTransaction(transaction)
       } else {
         /**
          * We need to check this again after checking it in "__transformAndFilterTransactions"
          * because the state of the transaction pool could have changed since then
          * if concurrent requests are occurring via API.
          */
-        this.pool.transactionExists(transaction.id)
-          ? this.__pushError(
-              transaction,
-              'ERR_DUPLICATE',
-              'Already exists in pool.',
-            )
-          : this.accept.push(transaction)
+        if (this.pool.transactionExists(transaction.id)) {
+          this.__pushError(
+            transaction,
+            'ERR_DUPLICATE',
+            'Already exists in pool.',
+          )
+          this.pool.walletManager.revertTransaction(transaction)
+
+          continue
+        }
+
+        this.accept.push(transaction)
       }
     }
   }
