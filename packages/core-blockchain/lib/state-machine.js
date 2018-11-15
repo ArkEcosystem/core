@@ -279,7 +279,7 @@ blockchainMachine.actionMap = blockchain => ({
         const { round } = roundCalculator.calculateRound(block.data.height + 1)
 
         logger.info(
-          `New round ${round} detected. Cleaning calculated data before restarting!`,
+          `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
         )
 
         await blockchain.database.deleteRound(round)
@@ -407,6 +407,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     logger.info(`Removed ${pluralize('block', random, true)} :wastebasket:`)
 
+    await blockchain.transactionPool.buildWallets()
     await blockchain.p2p.refreshPeersAfterFork()
 
     blockchain.dispatch('SUCCESS')

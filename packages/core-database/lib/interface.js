@@ -291,7 +291,7 @@ module.exports = class ConnectionInterface {
         (this.forgingDelegates.length &&
           this.forgingDelegates[0].round !== round)
       ) {
-        logger.info(`Starting Round ${round} :dove_of_peace:`)
+        logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`)
 
         try {
           this.updateDelegateStats(height, this.forgingDelegates)
@@ -313,7 +313,7 @@ module.exports = class ConnectionInterface {
         }
       } else {
         logger.warn(
-          `Round ${round} has already been applied. This should happen only if you are a forger. :warning:`,
+          `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
         )
       }
     }
@@ -330,7 +330,7 @@ module.exports = class ConnectionInterface {
     )
 
     if (nextRound === round + 1 && height >= maxDelegates) {
-      logger.info(`Back to previous round: ${round} :back:`)
+      logger.info(`Back to previous round: ${round.toLocaleString()} :back:`)
 
       const delegates = await this.__calcPreviousActiveDelegates(round)
       this.forgingDelegates = await this.getActiveDelegates(height, delegates)
@@ -382,7 +382,7 @@ module.exports = class ConnectionInterface {
    */
   async validateDelegate(block) {
     if (this.__isException(block.data)) {
-      return true
+      return
     }
 
     const delegates = await this.getActiveDelegates(block.data.height)
@@ -418,17 +418,22 @@ module.exports = class ConnectionInterface {
         }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
       )
     }
-
-    return true
   }
 
   /**
    * Validate a forked block.
    * @param  {Block} block
-   * @return {void}
+   * @return {Boolean}
    */
   async validateForkedBlock(block) {
-    await this.validateDelegate(block)
+    try {
+      await this.validateDelegate(block)
+    } catch (error) {
+      logger.debug(error.stack)
+      return false
+    }
+
+    return true
   }
 
   /**
@@ -484,15 +489,7 @@ module.exports = class ConnectionInterface {
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
 
-    if (this.blocksInCurrentRound) {
-      this.blocksInCurrentRound.pop()
-      // COMMENTED OUT: needs to be sure is properly synced
-      // if (b.data.id !== block.data.id) {
-      //   logger.debug(`block to revert: ${JSON.stringify(b.data)}`)
-      //   logger.debug(`reverted block: ${JSON.stringify(block.data)}`)
-      //   throw new Error('Reverted wrong block. Restart is needed 💣')
-      // }
-    }
+    assert(this.blocksInCurrentRound.pop().data.id === block.data.id)
 
     emitter.emit('block.reverted', block.data)
   }
@@ -545,8 +542,7 @@ module.exports = class ConnectionInterface {
     const maxDelegates = config.getConstants(height).activeDelegates
     height = round * maxDelegates + 1
 
-    const blocks = await this.getBlocks(height - maxDelegates, maxDelegates)
-
+    const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1)
     return blocks.map(b => new Block(b))
   }
 

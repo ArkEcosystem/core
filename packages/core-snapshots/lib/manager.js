@@ -62,13 +62,13 @@ module.exports = class SnapshotManager {
     logger.info(
       `Import from folder ${
         params.meta.folder
-      } completed. Last block in database: ${lastBlock.height} :+1:`,
+      } completed. Last block in database: ${lastBlock.height.toLocaleString()} :+1:`,
     )
     if (!params.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(
         `Rolling back chain to last finished round with last block height ${
-          newLastBlock.height
+          newLastBlock.height.toLocaleString()
         }`,
       )
     }
@@ -99,8 +99,10 @@ module.exports = class SnapshotManager {
     const rollBackHeight = height === -1 ? lastBlock.height : height
     if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
       container.forceExit(
-        `Specified rollback block height: ${rollBackHeight} is not valid. Current database height: ${
-          lastBlock.height
+        `Specified rollback block height: ${
+          rollBackHeight.toLocaleString()
+        } is not valid. Current database height: ${
+          lastBlock.height.toLocaleString()
         }. Exiting.`,
       )
     }
@@ -119,8 +121,9 @@ module.exports = class SnapshotManager {
 
     const newLastBlock = await this.database.rollbackChain(rollBackHeight)
     logger.info(
-      `Rolling back chain to last finished round ${newLastBlock.height /
-        maxDelegates} with last block height ${newLastBlock.height}`,
+      `Rolling back chain to last finished round ${
+        (newLastBlock.height / maxDelegates).toLocaleString()
+      } with last block height ${newLastBlock.height.toLocaleString()}`,
     )
 
     this.database.close()

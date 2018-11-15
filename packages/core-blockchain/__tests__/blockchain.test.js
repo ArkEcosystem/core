@@ -54,9 +54,11 @@ afterAll(async () => {
   await app.tearDown()
 })
 
-afterEach(() => {
+afterEach(async () => {
   // Restore original logger.debug function
   logger.debug = loggerDebugBackup
+
+  await __resetBlocksInCurrentRound()
 })
 
 describe('Blockchain', () => {
@@ -284,8 +286,8 @@ describe('Blockchain', () => {
       expect(mockLoggerDebug).toHaveBeenCalled()
 
       const debugMessage = `Blockchain not ready to accept new block at height ${
-        lastBlock.data.height
-      }. Last block: ${lastBlock.data.height - 2} :warning:`
+        lastBlock.data.height.toLocaleString()
+      }. Last block: ${(lastBlock.data.height - 2).toLocaleString()} :warning:`
       expect(mockLoggerDebug).toHaveBeenLastCalledWith(debugMessage)
 
       expect(blockchain.getLastBlock().data.height).toBe(
@@ -487,6 +489,10 @@ async function __start() {
   }
 }
 
+async function __resetBlocksInCurrentRound() {
+  blockchain.database.blocksInCurrentRound = await blockchain.database.__getBlocksForRound()
+}
+
 async function __resetToHeight1() {
   const lastBlock = await blockchain.database.getLastBlock()
   if (lastBlock) {
@@ -505,6 +511,7 @@ async function __resetToHeight1() {
     blockchain.state.clear()
 
     blockchain.state.setLastBlock(lastBlock)
+    await __resetBlocksInCurrentRound(lastBlock)
     await blockchain.removeBlocks(lastBlock.data.height - 1)
   }
 }

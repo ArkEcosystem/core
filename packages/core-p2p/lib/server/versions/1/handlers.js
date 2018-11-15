@@ -344,9 +344,7 @@ exports.postTransactions = {
     }
 
     if (guard.hasAny('broadcast')) {
-      await container
-        .resolvePlugin('p2p')
-        .broadcastTransactions(guard.broadcast)
+      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
     }
 
     return {
@@ -387,7 +385,7 @@ exports.getBlocks = {
           'block',
           blocks.length,
           true,
-        )} from height ${request.query.lastBlockHeight}`,
+        )} from height ${request.query.lastBlockHeight.toLocaleString()}`,
       )
 
       return { success: true, blocks: blocks || [] }
