@@ -344,9 +344,7 @@ exports.postTransactions = {
     }
 
     if (guard.hasAny('broadcast')) {
-      await container
-        .resolvePlugin('p2p')
-        .broadcastTransactions(guard.broadcast)
+      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
     }
 
     return {
