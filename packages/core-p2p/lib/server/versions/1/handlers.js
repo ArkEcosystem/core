@@ -340,14 +340,11 @@ exports.postTransactions = {
       )
 
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-
-      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
+      await guard.addToTransactionPool('accept', 'excess')
     }
 
     if (guard.hasAny('broadcast')) {
-      await container
-        .resolvePlugin('p2p')
-        .broadcastTransactions(guard.broadcast)
+      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
     }
 
     return {

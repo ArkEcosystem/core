@@ -48,6 +48,7 @@ module.exports = class TransactionPoolInterface {
   /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
+   * @return {Boolean}
    */
   addTransaction(transaction) {
     throw new Error('Method [addTransaction] not implemented!')
@@ -121,6 +122,7 @@ module.exports = class TransactionPoolInterface {
   /**
    * Add many transaction to the pool. Method called from blockchain, upon receiving payload.
    * @param {Array}   transactions
+   * @return {Array}
    */
   addTransactions(transactions) {
     throw new Error('Method [addTransactions] not implemented!')
