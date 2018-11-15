@@ -431,7 +431,7 @@ module.exports = class Blockchain {
       }
     } catch (error) {
       logger.warn(
-        `Can't properly broadcast block ${block.data.height}`,
+        `Can't properly broadcast block ${block.data.height.toLocaleString()}`,
       )
       logger.debug(error.stack)
     }
@@ -480,7 +480,11 @@ module.exports = class Blockchain {
 
     if (block.data.height > lastBlock.data.height + 1) {
       logger.debug(
-        `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
+        `Blockchain not ready to accept new block at height ${
+          block.data.height.toLocaleString()
+        }. Last block: ${
+          lastBlock.data.height.toLocaleString()
+        } :warning:`,
       )
       this.state.lastDownloadedBlock = lastBlock
     } else if (block.data.height < lastBlock.data.height) {

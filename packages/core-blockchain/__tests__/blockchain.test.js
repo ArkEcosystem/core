@@ -286,8 +286,8 @@ describe('Blockchain', () => {
       expect(mockLoggerDebug).toHaveBeenCalled()
 
       const debugMessage = `Blockchain not ready to accept new block at height ${
-        lastBlock.data.height
-      }. Last block: ${lastBlock.data.height - 2} :warning:`
+        lastBlock.data.height.toLocaleString()
+      }. Last block: ${(lastBlock.data.height - 2).toLocaleString()} :warning:`
       expect(mockLoggerDebug).toHaveBeenLastCalledWith(debugMessage)
 
       expect(blockchain.getLastBlock().data.height).toBe(

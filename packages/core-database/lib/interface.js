@@ -291,7 +291,7 @@ module.exports = class ConnectionInterface {
         (this.forgingDelegates.length &&
           this.forgingDelegates[0].round !== round)
       ) {
-        logger.info(`Starting Round ${round} :dove_of_peace:`)
+        logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`)
 
         try {
           this.updateDelegateStats(height, this.forgingDelegates)
@@ -313,7 +313,7 @@ module.exports = class ConnectionInterface {
         }
       } else {
         logger.warn(
-          `Round ${round} has already been applied. This should happen only if you are a forger. :warning:`,
+          `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
         )
       }
     }
@@ -330,7 +330,7 @@ module.exports = class ConnectionInterface {
     )
 
     if (nextRound === round + 1 && height >= maxDelegates) {
-      logger.info(`Back to previous round: ${round} :back:`)
+      logger.info(`Back to previous round: ${round.toLocaleString()} :back:`)
 
       const delegates = await this.__calcPreviousActiveDelegates(round)
       this.forgingDelegates = await this.getActiveDelegates(height, delegates)

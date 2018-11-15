@@ -385,7 +385,7 @@ exports.getBlocks = {
           'block',
           blocks.length,
           true,
-        )} from height ${request.query.lastBlockHeight}`,
+        )} from height ${request.query.lastBlockHeight.toLocaleString()}`,
       )
 
       return { success: true, blocks: blocks || [] }
