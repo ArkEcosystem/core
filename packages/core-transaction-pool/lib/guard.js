@@ -129,6 +129,21 @@ module.exports = class TransactionGuard {
   }
 
   /**
+   * Add the specified types to the transaction pool. If a transaction is
+   * already in the pool it is excluded from the broadcast.
+   * TODO: only add 'accept' to the pool with 2.1
+   * @param  {Array}  transactions
+   * @return {void}
+   */
+  async addToTransactionPool(...types) {
+    const transactions = _.flatten(types.map(type => this[type]))
+    const added = await this.pool.addTransactions(transactions)
+    this.broadcast = this.broadcast.filter(transaction =>
+      added.includes(transaction),
+    )
+  }
+
+  /**
    * Transforms and filters incoming transactions.
    * It skips duplicates and not valid crypto transactions
    * It skips blocked senders

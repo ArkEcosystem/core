@@ -64,11 +64,14 @@ exports.store = {
     await guard.validate(eligible)
 
     if (guard.hasAny('accept')) {
-      logger.info(`Received ${guard.accept.length} new ${
-        pluralize('transaction', guard.accept.length)
-      }`)
+      logger.info(
+        `Received ${guard.accept.length} new ${pluralize(
+          'transaction',
+          guard.accept.length,
+        )}`,
+      )
 
-      transactionPool.addTransactions(guard.accept)
+      await guard.addToTransactionPool('accept')
     }
 
     if (guard.hasAny('broadcast')) {
