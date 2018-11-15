@@ -279,7 +279,7 @@ blockchainMachine.actionMap = blockchain => ({
         const { round } = roundCalculator.calculateRound(block.data.height + 1)
 
         logger.info(
-          `New round ${round} detected. Cleaning calculated data before restarting!`,
+          `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
         )
 
         await blockchain.database.deleteRound(round)
