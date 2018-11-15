@@ -96,7 +96,7 @@ yarn import:devnet --blocks 0-331985 --truncate --signature-verify
 
 > Please not that this will increase the import time drastically.
 
-By default behaviour when snapshot is imported, the block heigth is set to last finished round (blocks are deleted at the end). If you have more snaphshot files following each other, then you can disable this with the `--skip-revert-round` flag. If this flag is present, block height will not be reverted at the end of import to last completed round.
+By default behaviour when snapshot is imported, the block height is set to last finished round (blocks are deleted at the end). If you have more snaphshot files following each other, then you can disable this with the `--skip-revert-round` flag. If this flag is present, block height will not be reverted at the end of import to last completed round.
 
 ### Verify existing snapshot
 
