@@ -407,6 +407,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     logger.info(`Removed ${pluralize('block', random, true)} :wastebasket:`)
 
+    await blockchain.transactionPool.buildWallets()
     await blockchain.p2p.refreshPeersAfterFork()
 
     blockchain.dispatch('SUCCESS')
