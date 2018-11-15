@@ -1,7 +1,10 @@
 const engine = require('../engine')
 
-module.exports = (attributes) => {
-  const { error, value } = engine.validate(attributes, engine.joi.phantomUsername())
+module.exports = attributes => {
+  const { error, value } = engine.validate(
+    attributes,
+    engine.joi.phantomUsername(),
+  )
 
   return {
     data: value,

@@ -1,3 +1,3 @@
 module.exports = {
-  phantom: require('./phantom')
+  phantom: require('./phantom'),
 }
