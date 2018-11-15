@@ -241,7 +241,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async saveRound(delegates) {
-    logger.info(`Saving round ${delegates[0].round}`)
+    logger.info(`Saving round ${delegates[0].round.toLocaleString()}`)
 
     await this.db.rounds.create(delegates)
 
