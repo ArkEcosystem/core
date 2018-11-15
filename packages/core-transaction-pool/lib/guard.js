@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
-
-const _ = require('lodash')
+const flatten = require('lodash/flatten')
+const uniqBy = require('lodash/uniqBy')
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 
@@ -33,7 +33,7 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   async validate(transactions) {
-    this.__transformAndFilterTransactions(_.uniqBy(transactions, 'id'))
+    this.__transformAndFilterTransactions(uniqBy(transactions, 'id'))
 
     await this.__removeForgedTransactions()
 
@@ -136,7 +136,7 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   async addToTransactionPool(...types) {
-    const transactions = _.flatten(types.map(type => this[type]))
+    const transactions = flatten(types.map(type => this[type]))
     const added = await this.pool.addTransactions(transactions)
     this.broadcast = this.broadcast.filter(transaction =>
       added.includes(transaction),
