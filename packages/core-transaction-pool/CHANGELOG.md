@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Limit votes to 1 per wallet in pool via guard
 - Return error feedback from the guard
 - Handle dynamic fees
+- Better transaction ping
+- Broadcasting on launch of relay
 
 ### Changed
 
@@ -37,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Properly log the transaction audit
 - Properly determine valid transactions based on their type
 - Handle unexpected errors in the guard
+- Revert transactions with non-matching dynamic fees
 
 ## 0.1.1 - 2018-06-14
 

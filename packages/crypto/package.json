@@ -41,7 +41,7 @@
     "bytebuffer": "^5.0.1",
     "create-hash": "^1.2.0",
     "deepmerge": "^2.2.1",
-    "joi": "^14.0.4",
+    "joi": "^14.0.6",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "node-forge": "^0.7.6",

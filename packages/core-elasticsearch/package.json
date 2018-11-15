@@ -25,7 +25,7 @@
     "@arkecosystem/crypto": "^0.2.4",
     "elasticsearch": "^15.2.0",
     "fs-extra": "^7.0.1",
-    "joi": "^14.0.4",
+    "joi": "^14.0.6",
     "lodash": "^4.17.11"
   },
   "publishConfig": {
