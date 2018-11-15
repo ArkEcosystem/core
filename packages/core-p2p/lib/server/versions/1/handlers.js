@@ -372,12 +372,14 @@ exports.getBlocks = {
     try {
       const database = container.resolvePlugin('database')
       const blockchain = container.resolvePlugin('blockchain')
-      const reqBlockHeight = parseInt(request.query.lastBlockHeight)
+
+      const reqBlockHeight = parseInt(request.query.lastBlockHeight) + 1
       let blocks = []
+
       if (!request.query.lastBlockHeight || isNaN(reqBlockHeight)) {
         blocks.push(blockchain.getLastBlock())
       } else {
-        blocks = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
+        blocks = await database.getBlocks(reqBlockHeight, 400)
       }
 
       logger.info(
@@ -385,7 +387,9 @@ exports.getBlocks = {
           'block',
           blocks.length,
           true,
-        )} from height ${request.query.lastBlockHeight.toLocaleString()}`,
+        )} from height ${(
+          !isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].data.height
+        ).toLocaleString()}`,
       )
 
       return { success: true, blocks: blocks || [] }

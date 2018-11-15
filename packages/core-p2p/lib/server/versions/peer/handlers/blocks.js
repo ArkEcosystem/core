@@ -26,19 +26,21 @@ exports.index = {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    const height = parseInt(request.query.height)
+    const height = parseInt(request.query.height) + 1
     let data = []
 
     if (isNaN(height)) {
       data.push(blockchain.getLastBlock())
     } else {
-      data = await database.getBlocks(parseInt(height) + 1, 400)
+      data = await database.getBlocks(height, 400)
     }
 
     logger.info(
       `${requestIp.getClientIp(request)} has downloaded ${
         pluralize('block', data.length, true)
-      } from height ${request.query.height}`,
+      } from height ${(
+        !isNaN(height) ? height : data[0].data.height
+      ).toLocaleString()}`,
     )
 
     return { data }
