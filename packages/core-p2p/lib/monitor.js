@@ -526,8 +526,8 @@ class Monitor {
 
     logger.info(
       `Broadcasting block ${block.data.height.toLocaleString()} to ${
-        peers.length
-      } peers`,
+        pluralize('peer', peers.length, true)
+      }`,
     )
 
     await Promise.all(peers.map(peer => peer.postBlock(block.toJson())))
@@ -626,8 +626,10 @@ class Monitor {
             peersMostCommonHeight.length,
             true,
           )} are at height ${
-            peersMostCommonHeight[0].state.height
-          } and lagging behind last height ${lastBlock.data.height}. :zzz:`,
+            peersMostCommonHeight[0].state.height.toLocaleString()
+          } and lagging behind last height ${
+            lastBlock.data.height.toLocaleString()
+          }. :zzz:`,
         )
         return state
       }
@@ -652,7 +654,7 @@ class Monitor {
 
       logger.info(
         `Detected peers at the same height ${
-          peersMostCommonHeight[0].state.height
+          peersMostCommonHeight[0].state.height.toLocaleString()
         } with different block ids: ${JSON.stringify(
           Object.keys(groupedByCommonId).map(
             k => `${k}: ${groupedByCommonId[k].length}`,
@@ -692,7 +694,7 @@ class Monitor {
 
         logger.debug(
           `Banned ${pluralize('peer', peersToBan.length, true)} at height '${
-            peersMostCommonHeight[0].state.height
+            peersMostCommonHeight[0].state.height.toLocaleString()
           }' which do not have common id '${chosenPeers[0].state.header.id}'.`,
         )
       } else {
@@ -703,7 +705,7 @@ class Monitor {
       const commonHeader = peersMostCommonHeight[0].state.header
       logger.info(
         `All peers at most common height ${
-          peersMostCommonHeight[0].state.height
+          peersMostCommonHeight[0].state.height.toLocaleString()
         } share the same block id${
           commonHeader ? ` '${commonHeader.id}'` : ''
         }. :pray:`,

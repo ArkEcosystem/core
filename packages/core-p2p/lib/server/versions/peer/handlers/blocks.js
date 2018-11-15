@@ -1,6 +1,7 @@
 /* eslint no-restricted-globals: "off" */
 
 const Boom = require('boom')
+const pluralize = require('pluralize')
 const requestIp = require('request-ip')
 
 const container = require('@arkecosystem/core-container')
@@ -36,8 +37,8 @@ exports.index = {
 
     logger.info(
       `${requestIp.getClientIp(request)} has downloaded ${
-        data.length
-      } blocks from height ${request.query.height}`,
+        pluralize('block', data.length, true)
+      } from height ${request.query.height}`,
     )
 
     return { data }
