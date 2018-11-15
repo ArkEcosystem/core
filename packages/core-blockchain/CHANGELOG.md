@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Properly stop blockchain if manually started
 - Various state issues with the last downloaded blocks
 - Various state issues with the wallet manager
+- Properly handle forks while idle
 
 ## 0.1.1 - 2018-06-14
 

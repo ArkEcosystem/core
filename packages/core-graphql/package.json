@@ -23,7 +23,7 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-http-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.4",
-    "apollo-server-hapi": "^2.2.0",
+    "apollo-server-hapi": "^2.2.2",
     "graphql-tools-types": "^1.1.26",
     "moment": "^2.22.2"
   },

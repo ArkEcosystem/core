@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `ownerId` property for transaction searches
 - Blockchains endpoint to provide information like supply
 - Allow registration of additional plugins
+- Run HTTP & HTTPS server at the same time
 
 ### Fixed
 
@@ -53,6 +54,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Various validation schemas
 - Added missing `orderBy` property for block transaction sorting
 - Crashes caused by bad sorting handling
+- Properly return the total forged and total amount of transactions that was forged
+- Allow an offset of 0 as default
+- Sorting of transactions & wallets
 
 ## 0.1.1 - 2018-06-14
 

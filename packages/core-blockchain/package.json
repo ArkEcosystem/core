@@ -29,7 +29,7 @@
     "awilix": "^4.0.0",
     "delay": "^4.1.0",
     "pretty-ms": "^4.0.0",
-    "xstate": "^4.0.1",
+    "xstate": "^4.1.1",
     "immutable": "^4.0.0-rc.12",
     "pluralize": "^7.0.0"
   },
