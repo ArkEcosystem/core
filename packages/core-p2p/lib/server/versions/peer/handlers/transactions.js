@@ -63,9 +63,7 @@ exports.store = {
           request.payload.transactions.length
         } received`,
       )
-
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-
       await transactionPool.addTransactions([...guard.accept, ...guard.excess])
     }
 
