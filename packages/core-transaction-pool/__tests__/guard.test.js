@@ -2,10 +2,12 @@ const { slots, crypto } = require('@arkecosystem/crypto')
 const bip39 = require('bip39')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const generateVote = require('@arkecosystem/core-test-utils/lib/generators/transactions/vote')
+const generateSignature = require('@arkecosystem/core-test-utils/lib/generators/transactions/signature')
+const generateDelegateReg = require('@arkecosystem/core-test-utils/lib/generators/transactions/delegate')
 const app = require('./__support__/setup')
 
 let container
-let poolWalletManager
 let guard
 let poolInterface
 
@@ -50,7 +52,7 @@ describe('Transaction Guard', () => {
 
       const amount1 = 123 * 10 ** 8
       const fee = 10
-      const transfer = generateTransfer(
+      const transfers = generateTransfer(
         'testnet',
         delegate0.secret,
         newAddress,
@@ -58,9 +60,9 @@ describe('Transaction Guard', () => {
         1,
         false,
         fee,
-      )[0]
+      )
 
-      await guard.validate([transfer])
+      await guard.validate(transfers)
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance)
       expect(+newWallet.balance).toBe(0)
@@ -98,10 +100,107 @@ describe('Transaction Guard', () => {
       await guard.validate(transfers)
       expect(guard.errors).toEqual({})
 
-      expect(
-        +poolInterface.walletManager.findByPublicKey(delegate1.publicKey)
-          .balance,
-      ).toBe(+delegate1.balance - amount1 - fee)
+      expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee)
+      expect(+newWallet.balance).toBe(amount1)
+    })
+
+    it('should update the balance of the sender & recipient with multiple transactions type', async () => {
+      guard.pool.transactionExists = jest.fn(() => false)
+      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
+      guard.pool.senderHasTransactionsOfType = jest.fn(() => false)
+      guard.__reset()
+
+      const delegate2 = delegates[2]
+      const newWalletPassphrase = bip39.generateMnemonic()
+      const { publicKey } = crypto.getKeys(newWalletPassphrase)
+      const newAddress = crypto.getAddress(publicKey)
+
+      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+        delegate2.publicKey,
+      )
+      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
+
+      expect(+delegateWallet.balance).toBe(+delegate2.balance)
+      expect(+newWallet.balance).toBe(0)
+
+      const amount1 = +delegateWallet.balance / 2
+      const fee = 0.1 * 10 ** 8
+      const voteFee = 10 ** 8
+      const delegateRegFee = 25 * 10 ** 8
+      const signatureFee = 5 * 10 ** 8
+      const transfers = generateTransfer(
+        'testnet',
+        delegate2.secret,
+        newAddress,
+        amount1,
+        1,
+        false,
+        fee,
+      )
+      const votes = generateVote(
+        'testnet',
+        newWalletPassphrase,
+        delegate2.publicKey,
+        1,
+      )
+      const delegateRegs = generateDelegateReg(
+        'testnet',
+        newWalletPassphrase,
+        1,
+      )
+      const signatures = generateSignature('testnet', newWalletPassphrase, 1)
+
+      await guard.validate([
+        transfers[0],
+        votes[0],
+        delegateRegs[0],
+        signatures[0],
+      ])
+      expect(guard.errors).toEqual({})
+
+      expect(+delegateWallet.balance).toBe(+delegate2.balance - amount1 - fee)
+      expect(+newWallet.balance).toBe(
+        amount1 - voteFee - delegateRegFee - signatureFee,
+      )
+    })
+
+    it('should not accept transaction in excess', async () => {
+      guard.pool.transactionExists = jest.fn(() => false)
+      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
+      guard.pool.senderHasTransactionsOfType = jest.fn(() => false)
+      guard.__reset()
+
+      const delegate3 = delegates[3]
+      const newWalletPassphrase = bip39.generateMnemonic()
+      const { publicKey } = crypto.getKeys(newWalletPassphrase)
+      const newAddress = crypto.getAddress(publicKey)
+
+      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+        delegate3.publicKey,
+      )
+      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
+
+      expect(+delegateWallet.balance).toBe(+delegate3.balance)
+      expect(+newWallet.balance).toBe(0)
+
+      const signatureFee = 5 * 10 ** 8
+      const fee = 0.1 * 10 ** 8
+      const amount1 = +delegateWallet.balance - signatureFee
+      const transfers = generateTransfer(
+        'testnet',
+        delegate3.secret,
+        newAddress,
+        amount1,
+        1,
+        false,
+        fee,
+      )
+      const signatures = generateSignature('testnet', delegateWallet.secret, 1)
+
+      await guard.validate([transfers[0], signatures[0]])
+      expect(guard.errors).not.toEqual({})
+
+      expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
     })
   })

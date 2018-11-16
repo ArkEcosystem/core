@@ -12,7 +12,7 @@ module.exports = (
   network,
   type,
   passphrase,
-  address,
+  addressOrPublicKey,
   amount = 2,
   quantity = 10,
   getStruct = false,
@@ -33,7 +33,9 @@ module.exports = (
   }
 
   client.getConfigManager().setFromPreset('ark', network)
-  address = address || crypto.getAddress(crypto.getKeys(passphrase).publicKey)
+  addressOrPublicKey =
+    addressOrPublicKey ||
+    crypto.getAddress(crypto.getKeys(passphrase).publicKey)
 
   const transactions = []
   for (let i = 0; i < quantity; i++) {
@@ -42,7 +44,7 @@ module.exports = (
       case TRANSFER: {
         builder = builder
           .transfer()
-          .recipientId(address)
+          .recipientId(addressOrPublicKey)
           .amount(amount)
           .vendorField(`Test Transaction ${i + 1}`)
         break
@@ -61,7 +63,10 @@ module.exports = (
       }
       case VOTE: {
         const publicKey = crypto.getKeys(passphrase).publicKey
-        builder = builder.vote().votesAsset([`+${publicKey}`])
+        if (!addressOrPublicKey) {
+          addressOrPublicKey = publicKey
+        }
+        builder = builder.vote().votesAsset([`+${addressOrPublicKey}`])
         break
       }
       default: {
