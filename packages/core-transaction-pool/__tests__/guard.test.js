@@ -1,10 +1,16 @@
-const { slots } = require('@arkecosystem/crypto')
+const { slots, crypto } = require('@arkecosystem/crypto')
+const bip39 = require('bip39')
+const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
+const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const app = require('./__support__/setup')
 
+let container
+let poolWalletManager
 let guard
 
 beforeAll(async () => {
-  await app.setUp()
+  container = await app.setUp()
+  poolWalletManager = new (require('../lib/pool-wallet-manager'))()
 })
 
 afterAll(async () => {
@@ -24,6 +30,72 @@ describe('Transaction Guard', () => {
   describe('validate', () => {
     it('should be a function', () => {
       expect(guard.validate).toBeFunction()
+    })
+
+    it('should not apply the tx to the balance of the sender & recipient with dyn fee < min fee', async () => {
+      guard.pool.transactionExists = jest.fn(() => false)
+      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
+
+      const delegate0 = delegates[0]
+      const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
+      const newAddress = crypto.getAddress(publicKey)
+
+      const delegateWallet = poolWalletManager.findByAddress(delegate0.address)
+      const newWallet = poolWalletManager.findByAddress(newAddress)
+
+      expect(+delegateWallet.balance).toBe(+delegate0.balance)
+      expect(+newWallet.balance).toBe(0)
+
+      const amount1 = 123 * 10 ** 8
+      const fee = 10
+      const transfer = generateTransfer(
+        'testnet',
+        delegate0.secret,
+        newAddress,
+        amount1,
+        1,
+        false,
+        fee,
+      )[0]
+
+      await guard.validate([transfer])
+
+      expect(+delegateWallet.balance).toBe(+delegate0.balance)
+      expect(+newWallet.balance).toBe(0)
+    })
+
+    it('should update the balance of the sender & recipient with dyn fee > min fee', async () => {
+      guard.pool.transactionExists = jest.fn(() => false)
+      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
+      guard.__reset()
+
+      const delegate1 = delegates[1]
+      const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
+      const newAddress = crypto.getAddress(publicKey)
+
+      const delegateWallet = poolWalletManager.findByAddress(delegate1.address)
+      const newWallet = poolWalletManager.findByAddress(newAddress)
+
+      expect(+delegateWallet.balance).toBe(+delegate1.balance)
+      expect(+newWallet.balance).toBe(0)
+
+      const amount1 = +delegateWallet.balance / 2
+      const fee = 0.1 * 10 ** 8
+      const transfers = generateTransfer(
+        'testnet',
+        delegate1.secret,
+        newAddress,
+        amount1,
+        1,
+        false,
+        fee,
+      )
+
+      await guard.validate(transfers)
+      expect(guard.errors).toEqual({})
+
+      expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee)
+      expect(+newWallet.balance).toBe(amount1)
     })
   })
 
