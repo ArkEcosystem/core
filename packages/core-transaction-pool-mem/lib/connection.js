@@ -83,6 +83,9 @@ class TransactionPool extends TransactionPoolInterface {
   /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
+   * @return {Object} if the `error` property of the object is set then the transaction
+   * was not added to the pool and the `error` property is a string describing the
+   * reason. If the `error` property is not set, then the transaction was added to the pool.
    */
   addTransaction(transaction) {
     if (this.transactionExists(transaction.id)) {
@@ -91,7 +94,27 @@ class TransactionPool extends TransactionPoolInterface {
           `in the pool, id: ${transaction.id}`,
       )
 
-      return
+      return { error: 'Already in pool' }
+    }
+
+    const poolSize = this.mem.getSize()
+
+    if (this.options.maxTransactionsInPool <= poolSize) {
+      // The pool can't accommodate more transactions. Either decline the newcomer or remove
+      // an existing transaction from the pool in order to free up space.
+      const all = this.mem.getTransactionsOrderedByFee()
+      const lowest = all[all.length - 1].transaction
+
+      if (lowest.fee.isLessThan(transaction.fee)) {
+        this.mem.remove(lowest.id, lowest.senderPublicKey)
+      } else {
+        return {
+          error:
+            `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
+            `${transaction.fee.toFixed()} is not higher than the lowest fee already in pool ` +
+            `${lowest.fee.toFixed()}`
+        }
+      }
     }
 
     this.mem.add(
@@ -100,15 +123,36 @@ class TransactionPool extends TransactionPoolInterface {
     )
 
     this.__syncToPersistentStorageIfNecessary()
+
+    return {}
   }
 
   /**
    * Add many transactions to the pool.
    * @param {Array}   transactions, already transformed and verified
    * by transaction guard - must have serialized field
+   * @return {Object} like
+   * {
+   *   added: [ ... successfully added transactions ... ],
+   *   notAdded: [ { transaction: Transaction, reason: String }, ... ]
+   * }
    */
   addTransactions(transactions) {
-    transactions.forEach(t => this.addTransaction(t))
+    const added = []
+    const notAdded = []
+
+    for (const t of transactions) {
+
+      const result = this.addTransaction(t)
+
+      if (result.error) {
+        notAdded.push({ transaction: t, reason: result.error })
+      } else {
+        added.push(t)
+      }
+    }
+
+    return { added: added, notAdded: notAdded }
   }
 
   /**

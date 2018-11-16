@@ -55,16 +55,26 @@ exports.store = {
 
     const result = await guard.validate(request.payload.transactions)
 
-    const accept = result.accept
-    if (accept.length > 0) {
-      logger.info(`Received ${accept.length} new ${pluralize('transaction', accept.length)}`)
+    if (result.accept.length > 0) {
+      const addResult = transactionPool.addTransactions(result.accept)
 
-      transactionPool.addTransactions(accept)
+      result.accept = addResult.added
+
+      for (const notAdded of addResult.notAdded) {
+        result.invalid.push(notAdded.transaction)
+        const id = notAdded.transaction.id
+        if (result.errors[id] === undefined) {
+          result.errors[id] = []
+        }
+        result.errors[id].push({ type: 'ERR_FULL_POOL', message: notAdded.reason })
+      }
+
+      const len = result.accept.length
+      logger.info(`Accepted ${len} new ${pluralize('transaction', len)}`)
     }
 
-    const broadcast = result.broadcast
-    if (broadcast.length > 0) {
-      container.resolvePlugin('p2p').broadcastTransactions(broadcast)
+    if (result.broadcast.length > 0) {
+      container.resolvePlugin('p2p').broadcastTransactions(result.broadcast)
     }
 
     return {
