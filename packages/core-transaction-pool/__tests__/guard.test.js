@@ -3,6 +3,7 @@ const app = require('./__support__/setup')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
+const slots = require('@arkecosystem/crypto').slots
 
 let guard
 let transactionPool
@@ -195,6 +196,63 @@ describe('Transaction Guard', () => {
   describe('__transformAndFilterTransactions', () => {
     it('should be a function', () => {
       expect(guard.__transformAndFilterTransactions).toBeFunction()
+    })
+
+    it('should reject duplicate transactions', () => {
+      guard.pool.transactionExists = jest.fn(() => true)
+      guard.pool.pingTransaction = jest.fn(() => true)
+
+      const tx = { id: '1' }
+      guard.__transformAndFilterTransactions([ tx ])
+
+      expect(guard.errors[tx.id]).toEqual([
+        {
+          message: 'Duplicate transaction ' + tx.id,
+          type: 'ERR_DUPLICATE',
+        },
+      ])
+    })
+
+    it('should reject blocked senders', () => {
+      guard.pool.transactionExists = jest.fn(() => false)
+      const isSenderBlocked = guard.pool.isSenderBlocked
+      guard.pool.isSenderBlocked = jest.fn(() => true)
+
+      const tx = { id: '1', senderPublicKey: 'affe' }
+      guard.__transformAndFilterTransactions([ tx ])
+
+      expect(guard.errors[tx.id]).toEqual([
+        {
+          message: `Transaction ${tx.id} rejected. Sender ${tx.senderPublicKey} is blocked.`,
+          type: 'ERR_SENDER_BLOCKED',
+        },
+      ])
+
+      guard.pool.isSenderBlocked = isSenderBlocked
+    })
+
+    it('should reject transactions from the future', () => {
+      const now = 47157042 // seconds since genesis block
+      guard.pool.transactionExists = jest.fn(() => false)
+      const getTime = slots.getTime
+      slots.getTime = jest.fn(() => now)
+
+      const secondsInFuture = 3601
+      const tx = {
+        id: '1',
+        senderPublicKey: 'affe',
+        timestamp: slots.getTime() + secondsInFuture,
+      }
+      guard.__transformAndFilterTransactions([ tx ])
+
+      expect(guard.errors[tx.id]).toEqual([
+        {
+          message: `Transaction ${tx.id} is ${secondsInFuture} seconds in the future`,
+          type: 'ERR_FROM_FUTURE',
+        },
+      ])
+
+      slots.getTime = getTime
     })
   })
 

@@ -5,8 +5,9 @@ const crypto = require('@arkecosystem/crypto')
 
 const {
   configManager,
-  models: { Transaction },
   constants: { TRANSACTION_TYPES },
+  models: { Transaction },
+  slots,
 } = crypto
 const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 
@@ -79,6 +80,7 @@ module.exports = class TransactionGuard {
    * - transactions already in the pool
    * - not valid crypto transactions
    * - transactions from blocked senders
+   * - transactions from the future
    * @param  {Array} transactions
    * @return {Array}
    */
@@ -87,6 +89,7 @@ module.exports = class TransactionGuard {
 
     transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id)
+      const now = slots.getTime()
 
       if (exists) {
         this.pool.pingTransaction(transaction.id)
@@ -99,6 +102,13 @@ module.exports = class TransactionGuard {
           `Transaction ${transaction.id} rejected. Sender ${
             transaction.senderPublicKey
           } is blocked.`,
+        )
+      } else if (transaction.timestamp > now + 3600) {
+        const secondsInFuture = transaction.timestamp - now
+        this.__pushError(
+          transaction,
+          'ERR_FROM_FUTURE',
+          `Transaction ${transaction.id} is ${secondsInFuture} seconds in the future`,
         )
       } else {
         try {
