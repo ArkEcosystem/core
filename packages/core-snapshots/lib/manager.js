@@ -43,9 +43,9 @@ module.exports = class SnapshotManager {
       codec: options.codec,
       skipCompression: params.meta.skipCompression,
     }
-
-    utils.writeMetaFile(metaInfo)
+    
     this.database.close()
+    utils.writeMetaFile(metaInfo)
   }
 
   async importData(options) {
