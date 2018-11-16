@@ -6,6 +6,11 @@ module.exports = async (options, callback) => {
 
   await server.register([require('vision'), require('inert'), require('lout')])
 
+  await server.register({
+    plugin: require('hapi-trailing-slash'),
+    options: { method: 'remove' },
+  })
+
   if (callback) {
     await callback(server)
   }

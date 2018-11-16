@@ -27,6 +27,7 @@
     "good-console": "^7.1.0",
     "good-squeeze": "^5.1.0",
     "hapi": "^17.7.0",
+    "hapi-trailing-slash": "^3.0.1",
     "inert": "^5.1.2",
     "lout": "^11.1.0",
     "micromatch": "^3.1.10",

@@ -5963,6 +5963,14 @@ hapi-rate-limit@^2.1.3:
     boom "^7.2.0"
     hoek "^5.0.4"
 
+hapi-trailing-slash@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/hapi-trailing-slash/-/hapi-trailing-slash-3.0.1.tgz#e3b07a6aedbdb5a6a2351b3e3b179f3dbf29b2ab"
+  integrity sha512-EA+IVYyNKr/CO/pHlWEB9SRtzYOBXXjFb9l8vrJ0vS4hNcmYsajEk7FJk4R+HzmqR1wkJLW/gTAsOffSm9hPuw==
+  dependencies:
+    useragent "^2.2.1"
+    wreck "^14.0.2"
+
 hapi@^17.1.1, hapi@^17.7.0:
   version "17.7.0"
   resolved "https://registry.yarnpkg.com/hapi/-/hapi-17.7.0.tgz#7d335e161fcfef5cc7f2a0aa090ccf9169f9382a"
@@ -12380,7 +12388,7 @@ tiny-secp256k1@^1.0.0:
     elliptic "^6.4.0"
     nan "^2.10.0"
 
-tmp@0.0.33, tmp@^0.0.33:
+tmp@0.0.33, tmp@0.0.x, tmp@^0.0.33:
   version "0.0.33"
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.0.33.tgz#6d34335889768d21b2bcda0aa277ced3b1bfadf9"
   integrity sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==
@@ -12843,6 +12851,14 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
+useragent@^2.2.1:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/useragent/-/useragent-2.3.0.tgz#217f943ad540cb2128658ab23fc960f6a88c9972"
+  integrity sha512-4AoH4pxuSvHCjqLO04sU6U/uE65BYza8l/KKBS0b0hnUPWi+cQ2BpeTEwejCSx9SPV5/U03nniDTrWx5NrmKdw==
+  dependencies:
+    lru-cache "4.1.x"
+    tmp "0.0.x"
+
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
@@ -13260,7 +13276,7 @@ wrappy@1, wrappy@~1.0.2:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-wreck@14.x.x:
+wreck@14.x.x, wreck@^14.0.2:
   version "14.1.3"
   resolved "https://registry.yarnpkg.com/wreck/-/wreck-14.1.3.tgz#d4db8258b38a568c363ef7d23034c4db598a9213"
   integrity sha512-hb/BUtjX3ObbwO3slCOLCenQ4EP8e+n8j6FmTne3VhEFp5XV1faSJojiyxVSvw34vgdeTG5baLTl4NmjwokLlw==
