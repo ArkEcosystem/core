@@ -1,6 +1,4 @@
 const engine = require('../engine')
-
-const { TRANSACTION_TYPES } = require('../../constants')
 const transactionExtensions = require('../extensions/transactions')
 
 class TransactionValidator {
