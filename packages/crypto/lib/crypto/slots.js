@@ -139,10 +139,9 @@ class Slots {
       epochTime = this.getTime()
     }
 
-    return (
-      epochTime % this.getConstant('blocktime') <
-      this.getConstant('blocktime') / 2
-    )
+    const blockTime = this.getConstant('blocktime')
+
+    return epochTime % blockTime < blockTime / 2
   }
 }
 
