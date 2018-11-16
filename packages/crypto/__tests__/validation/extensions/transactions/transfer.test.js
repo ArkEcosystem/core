@@ -1,5 +1,8 @@
-const rule = require('../../../../../lib/validation/rules/models/transactions/transfer')
-const { constants, transactionBuilder } = require('../../../../../lib')
+const Joi = require('joi').extend(
+  require('../../../../lib/validation/extensions'),
+)
+
+const { constants, transactionBuilder } = require('../../../../lib')
 
 const address = 'APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi'
 const fee = 1 * constants.ARKTOSHI
@@ -10,17 +13,15 @@ beforeEach(() => {
   transaction = transactionBuilder.transfer()
 })
 
-describe('Transfer Transaction Rule', () => {
-  it('should be a function', () => {
-    expect(rule).toBeFunction()
-  })
-
+describe('Transfer Transaction', () => {
   it('should be valid', () => {
     transaction
       .recipientId(address)
       .amount(amount)
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).toBeNull()
   })
 
   it('should be valid with correct data', () => {
@@ -30,7 +31,9 @@ describe('Transfer Transaction Rule', () => {
       .fee(fee)
       .vendorField('Ahoy')
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).toBeNull()
   })
 
   it('should be valid with up to 64 bytes in vendor field', () => {
@@ -40,7 +43,9 @@ describe('Transfer Transaction Rule', () => {
       .fee(fee)
       .vendorField('a'.repeat(64))
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).toBeNull()
 
     transaction
       .recipientId(address)
@@ -48,7 +53,9 @@ describe('Transfer Transaction Rule', () => {
       .fee(fee)
       .vendorField('⊁'.repeat(21))
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).toBeNull()
   })
 
   it('should be invalid with more than 64 bytes in vendor field', () => {
@@ -58,7 +65,9 @@ describe('Transfer Transaction Rule', () => {
       .fee(fee)
       .vendorField('a'.repeat(65))
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).not.toBeNull()
 
     transaction
       .recipientId(address)
@@ -66,11 +75,13 @@ describe('Transfer Transaction Rule', () => {
       .fee(fee)
       .vendorField('⊁'.repeat(22))
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).not.toBeNull()
   })
 
   it('should be invalid due to no transaction as object', () => {
-    expect(rule('test').errors).not.toBeNull()
+    expect(Joi.validate('test', Joi.arkTransfer()).error).not.toBeNull()
   })
 
   it('should be invalid due to no address', () => {
@@ -78,7 +89,9 @@ describe('Transfer Transaction Rule', () => {
       .recipientId(null)
       .amount(amount)
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).not.toBeNull()
   })
 
   it('should be invalid due to invalid address', () => {
@@ -88,7 +101,7 @@ describe('Transfer Transaction Rule', () => {
       .sign('passphrase')
     const struct = transaction.getStruct()
     struct.recipientId = 'woop'
-    expect(rule(struct).errors).not.toBeNull()
+    expect(Joi.validate(struct, Joi.arkTransfer()).error).not.toBeNull()
   })
 
   it('should be invalid due to zero amount', () => {
@@ -96,7 +109,9 @@ describe('Transfer Transaction Rule', () => {
       .recipientId(address)
       .amount(0)
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).not.toBeNull()
   })
 
   it('should be invalid due to zero fee', () => {
@@ -105,12 +120,16 @@ describe('Transfer Transaction Rule', () => {
       .amount(0)
       .fee(0)
       .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).not.toBeNull()
   })
 
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.delegateRegistration()
     transaction.usernameAsset('delegate_name').sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).not.toBeNull()
   })
 })
