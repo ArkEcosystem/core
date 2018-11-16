@@ -1,3 +1,4 @@
+const { slots } = require('@arkecosystem/crypto')
 const app = require('./__support__/setup')
 
 let guard
@@ -198,6 +199,58 @@ describe('Transaction Guard', () => {
   describe('__transformAndFilterTransactions', () => {
     it('should be a function', () => {
       expect(guard.__transformAndFilterTransactions).toBeFunction()
+    })
+
+    it('should reject duplicate transactions', () => {
+      guard.pool.transactionExists = jest.fn(() => true)
+      guard.pool.pingTransaction = jest.fn(() => true)
+
+      const tx = { id: 1 }
+      guard.__transformAndFilterTransactions([tx])
+
+      expect(guard.errors['1']).toEqual([
+        {
+          message: 'Duplicate transaction 1',
+          type: 'ERR_DUPLICATE',
+        },
+      ])
+    })
+
+    it('should reject blocked senders', () => {
+      guard.pool.transactionExists = jest.fn(() => false)
+      guard.pool.isSenderBlocked = jest.fn(() => true)
+
+      const tx = { id: 1, senderPublicKey: 'affe' }
+      guard.__transformAndFilterTransactions([tx])
+
+      expect(guard.errors['1']).toEqual([
+        {
+          message: 'Transaction 1 rejected. Sender affe is blocked.',
+          type: 'ERR_SENDER_BLOCKED',
+        },
+      ])
+    })
+
+    it('should reject transactions from the future', () => {
+      guard.pool.transactionExists = jest.fn(() => false)
+      const getTime = slots.getTime
+      slots.getTime = jest.fn(() => 47157042)
+
+      const tx = {
+        id: 1,
+        senderPublicKey: 'affe',
+        timestamp: slots.getTime() + 1,
+      }
+      guard.__transformAndFilterTransactions([tx])
+
+      expect(guard.errors['1']).toEqual([
+        {
+          message: 'Transaction 1 is from the future (47157043 > 47157042)',
+          type: 'ERR_FROM_FUTURE',
+        },
+      ])
+
+      slots.getTime = getTime
     })
   })
 

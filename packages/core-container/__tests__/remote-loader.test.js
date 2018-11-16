@@ -6,12 +6,18 @@ const MockAdapter = require('axios-mock-adapter')
 const RemoteLoader = require('../lib/remote-loader')
 
 const axiosMock = new MockAdapter(axios)
+const configDir = './__test-remote-config__'
 
 let testSubject
+
+afterAll(() => {
+  fs.removeSync(configDir)
+})
+
 beforeEach(() => {
   testSubject = new RemoteLoader({
     remote: '127.0.0.1:4002',
-    config: './config',
+    config: configDir,
     data: './data',
   })
 })
@@ -56,7 +62,7 @@ describe('Remote Loader', () => {
 
       await testSubject.__configureNetwork()
 
-      expect(fs.existsSync('./config/network.json')).toBeTrue()
+      expect(fs.existsSync(`${configDir}/network.json`)).toBeTrue()
     })
   })
 
@@ -85,7 +91,7 @@ describe('Remote Loader', () => {
 
       await testSubject.__configureGenesisBlock()
 
-      expect(fs.existsSync('./config/genesisBlock.json')).toBeTrue()
+      expect(fs.existsSync(`${configDir}/genesisBlock.json`)).toBeTrue()
     })
   })
 
@@ -116,7 +122,7 @@ describe('Remote Loader', () => {
 
       await testSubject.__configurePeers()
 
-      expect(fs.existsSync('./config/peers.json')).toBeTrue()
+      expect(fs.existsSync(`${configDir}/peers.json`)).toBeTrue()
     })
   })
 
@@ -147,7 +153,7 @@ describe('Remote Loader', () => {
 
       await testSubject.__configureDelegates()
 
-      expect(fs.existsSync('./config/delegates.json')).toBeTrue()
+      expect(fs.existsSync(`${configDir}/delegates.json`)).toBeTrue()
     })
   })
 
@@ -159,7 +165,7 @@ describe('Remote Loader', () => {
     it('should be OK', async () => {
       await testSubject.__configurePlugins({ name: 'devnet' })
 
-      expect(fs.existsSync('./config/plugins.js')).toBeTrue()
+      expect(fs.existsSync(`${configDir}/plugins.js`)).toBeTrue()
     })
   })
 })

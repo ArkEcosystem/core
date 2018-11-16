@@ -8,6 +8,7 @@ const {
   configManager,
   models: { Transaction },
   constants: { TRANSACTION_TYPES },
+  slots,
 } = crypto
 const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 
@@ -145,8 +146,11 @@ module.exports = class TransactionGuard {
 
   /**
    * Transforms and filters incoming transactions.
-   * It skips duplicates and not valid crypto transactions
-   * It skips blocked senders
+   * Skipped are:
+   * - duplicates
+   * - invalid crypto transactions
+   * - blocked senders
+   * - transactions from the future
    * @param  {Array} transactions
    * @return {void}
    */
@@ -171,6 +175,14 @@ module.exports = class TransactionGuard {
           `Transaction ${transaction.id} rejected. Sender ${
             transaction.senderPublicKey
           } is blocked.`,
+        )
+      } else if (transaction.timestamp > slots.getTime()) {
+        this.__pushError(
+          transaction,
+          'ERR_FROM_FUTURE',
+          `Transaction ${transaction.id} is from the future (${
+            transaction.timestamp
+          } > ${slots.getTime()})`,
         )
       } else {
         try {

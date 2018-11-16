@@ -102,7 +102,7 @@ module.exports = class Peer {
       const response = await axios.get(`${this.url}/peer/blocks`, {
         params: { lastBlockHeight: fromBlockHeight },
         headers: this.headers,
-        timeout: 60000,
+        timeout: 10000,
       })
 
       this.__parseHeaders(response)
