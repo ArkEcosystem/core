@@ -5,11 +5,10 @@ const transactionExtensions = require('../extensions/transactions')
 
 class TransactionValidator {
   constructor() {
-    transactionExtensions.forEach(extension => {})
-    this.rules = {
-      [TRANSACTION_TYPES.TRANSFER]: engine.joi.arkTransfer(),
-      [TRANSACTION_TYPES.SECOND_SIGNATURE]: engine.joi.arkTransfer(),
-    }
+    this.rules = Object.keys(transactionExtensions).reduce((rules, type) => {
+      rules[type] = transactionExtensions[type](engine.joi).base
+      return rules
+    }, {})
   }
 
   validate(transaction) {
