@@ -1,9 +1,11 @@
+/* eslint import/no-extraneous-dependencies: "off" */
+/* eslint no-await-in-loop: "off" */
 const Guard = require('@arkecosystem/core-transaction-pool/lib/guard')
-const app = require('./__support__/setup')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const slots = require('@arkecosystem/crypto').slots
+const app = require('./__support__/setup')
 
 let guard
 let transactionPool
@@ -62,8 +64,6 @@ describe('Transaction Guard', () => {
     it.each([3, 5, 8])(
       'should validate emptying wallet with %i transactions',
       async txNumber => {
-        //guard = new Guard(transactionPool)
-
         // use txNumber so that we use a different delegate for each test case
         const sender = delegates[txNumber]
         const receivers = generateWallets('testnet', 2)
@@ -99,8 +99,6 @@ describe('Transaction Guard', () => {
     it.each([3, 5, 8])(
       'should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much',
       async txNumber => {
-        //guard = new Guard(transactionPool)
-
         // use txNumber + 1 so that we don't use the same delegates as the above test
         const sender = delegates[txNumber + 1]
         const receivers = generateWallets('testnet', 2)
@@ -203,11 +201,11 @@ describe('Transaction Guard', () => {
       guard.pool.pingTransaction = jest.fn(() => true)
 
       const tx = { id: '1' }
-      guard.__transformAndFilterTransactions([ tx ])
+      guard.__transformAndFilterTransactions([tx])
 
       expect(guard.errors[tx.id]).toEqual([
         {
-          message: 'Duplicate transaction ' + tx.id,
+          message: `Duplicate transaction ${tx.id}`,
           type: 'ERR_DUPLICATE',
         },
       ])
@@ -219,7 +217,7 @@ describe('Transaction Guard', () => {
       guard.pool.isSenderBlocked = jest.fn(() => true)
 
       const tx = { id: '1', senderPublicKey: 'affe' }
-      guard.__transformAndFilterTransactions([ tx ])
+      guard.__transformAndFilterTransactions([tx])
 
       expect(guard.errors[tx.id]).toEqual([
         {
@@ -243,7 +241,7 @@ describe('Transaction Guard', () => {
         senderPublicKey: 'affe',
         timestamp: slots.getTime() + secondsInFuture,
       }
-      guard.__transformAndFilterTransactions([ tx ])
+      guard.__transformAndFilterTransactions([tx])
 
       expect(guard.errors[tx.id]).toEqual([
         {

@@ -112,7 +112,7 @@ class TransactionPool extends TransactionPoolInterface {
           error:
             `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
             `${transaction.fee.toFixed()} is not higher than the lowest fee already in pool ` +
-            `${lowest.fee.toFixed()}`
+            `${lowest.fee.toFixed()}`,
         }
       }
     }
@@ -142,7 +142,6 @@ class TransactionPool extends TransactionPoolInterface {
     const notAdded = []
 
     for (const t of transactions) {
-
       const result = this.addTransaction(t)
 
       if (result.error) {
@@ -152,7 +151,7 @@ class TransactionPool extends TransactionPoolInterface {
       }
     }
 
-    return { added: added, notAdded: notAdded }
+    return { added, notAdded }
   }
 
   /**

@@ -54,23 +54,23 @@ module.exports = class TransactionGuard {
     transactions = await this.__removeForgedTransactions(transactions)
 
     // Remove transactions with invalid recipient, insufficient funds, already vote.
-    let valid = this.__determineValidTransactions(transactions)
+    const valid = this.__determineValidTransactions(transactions)
 
     // Split excess transactions.
-    let { accept, excess } = this.__determineExcessTransactions(valid)
+    const { accept, excess } = this.__determineExcessTransactions(valid)
 
     // Remove transactions with too low fee to enter the pool.
-    accept = this.__determineFeeMatchingTransactions(accept)
+    const acceptWithoutLowFees = this.__determineFeeMatchingTransactions(accept)
 
     // Remove transactions with too low fee for broadcast.
-    let broadcast = this.__removeTooLowFeesToBroadcast(valid)
+    const broadcast = this.__removeTooLowFeesToBroadcast(valid)
 
     return {
-      accept: accept,
-      broadcast: broadcast,
-      excess: excess,
+      accept: acceptWithoutLowFees,
+      broadcast,
+      excess,
       invalid: Array.from(this.invalid.values()),
-      errors: Object.keys(this.errors).length > 0 ? this.errors : null
+      errors: Object.keys(this.errors).length > 0 ? this.errors : null,
     }
   }
 
@@ -85,7 +85,7 @@ module.exports = class TransactionGuard {
    * @return {Array}
    */
   __transformAndFilterTransactions(transactions) {
-    let result = []
+    const result = []
 
     transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id)
@@ -162,7 +162,7 @@ module.exports = class TransactionGuard {
    *   only allow one transaction at a time in the pool (e.g. vote)
    */
   __determineValidTransactions(transactions) {
-    let result = []
+    const result = []
 
     transactions.forEach(transaction => {
       switch (transaction.type) {
@@ -181,7 +181,12 @@ module.exports = class TransactionGuard {
         case TRANSACTION_TYPES.SECOND_SIGNATURE:
         case TRANSACTION_TYPES.DELEGATE_REGISTRATION:
         case TRANSACTION_TYPES.VOTE:
-          if (this.pool.senderHasTransactionsOfType(transaction.senderPublicKey, transaction.type)) {
+          if (
+            this.pool.senderHasTransactionsOfType(
+              transaction.senderPublicKey,
+              transaction.type,
+            )
+          ) {
             this.__pushError(
               transaction,
               'ERR_PENDING',
@@ -225,8 +230,8 @@ module.exports = class TransactionGuard {
    * Determine exccess transactions, that exceed sender's quota.
    */
   __determineExcessTransactions(transactions) {
-    let accept = []
-    let excess = []
+    const accept = []
+    const excess = []
     for (const t of transactions) {
       if (this.pool.hasExceededMaxTransactions(t)) {
         excess.push(t)
@@ -235,7 +240,7 @@ module.exports = class TransactionGuard {
         accept.push(t)
       }
     }
-    return { accept: accept, excess: excess }
+    return { accept, excess }
   }
 
   /**
@@ -248,7 +253,7 @@ module.exports = class TransactionGuard {
       }
 
       this.__pushError(t, 'ERR_LOW_FEE', 'Too low fee to be accepted in the pool')
-      this.pool.walletManager.revertTransaction(transaction)
+      this.pool.walletManager.revertTransaction(t)
       return false
     })
   }

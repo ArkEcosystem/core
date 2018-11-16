@@ -21,22 +21,36 @@ module.exports = transaction => {
   let enterPool
 
   if (fees.dynamic) {
-    const minWhatever1 = dynamicFeeManager.calculateFee(fees.dynamicFees.minWhatever1, transaction)
+    const minWhatever1 = dynamicFeeManager.calculateFee(
+      fees.dynamicFees.minWhatever1,
+      transaction,
+    )
     if (fee >= minWhatever1) {
       broadcast = true
-      logger.debug(`Transaction ${id} eligible for broadcast (fee=${fee} >= min=${minWhatever1})`)
+      logger.debug(
+        `Transaction ${id} eligible for broadcast (fee=${fee} >= min=${minWhatever1})`,
+      )
     } else {
       broadcast = false
-      logger.debug(`Transaction ${id} not eligible for broadcast (fee=${fee} < min=${minWhatever1})`)
+      logger.debug(
+        `Transaction ${id} not eligible for broadcast (fee=${fee} < min=${minWhatever1})`,
+      )
     }
 
-    const minWhatever2 = dynamicFeeManager.calculateFee(fees.dynamicFees.minWhatever2, transaction)
+    const minWhatever2 = dynamicFeeManager.calculateFee(
+      fees.dynamicFees.minWhatever2,
+      transaction,
+    )
     if (fee >= minWhatever2) {
       enterPool = true
-      logger.debug(`Transaction ${id} eligible to enter pool (fee=${fee} >= min=${minWhatever2})`)
+      logger.debug(
+        `Transaction ${id} eligible to enter pool (fee=${fee} >= min=${minWhatever2})`,
+      )
     } else {
       enterPool = false
-      logger.debug(`Transaction ${id} not eligible to enter pool (fee=${fee} < min=${minWhatever2})`)
+      logger.debug(
+        `Transaction ${id} not eligible to enter pool (fee=${fee} < min=${minWhatever2})`,
+      )
     }
   } else {
     // Static fees
@@ -45,13 +59,17 @@ module.exports = transaction => {
     if (fee === staticFee) {
       broadcast = true
       enterPool = true
-      logger.debug(`Transaction ${id} eligible for broadcast and to enter pool (fee=${fee} = static=${staticFee})`)
+      logger.debug(
+        `Transaction ${id} eligible for broadcast and to enter pool (fee=${fee} = static=${staticFee})`,
+      )
     } else {
       broadcast = false
       enterPool = false
-      logger.debug(`Transaction ${id} not eligible for broadcast and not eligible to enter pool (fee=${fee} != static=${staticFee})`)
+      logger.debug(
+        `Transaction ${id} not eligible for broadcast and not eligible to enter pool (fee=${fee} != static=${staticFee})`,
+      )
     }
   }
 
-  return { broadcast: broadcast, enterPool: enterPool }
+  return { broadcast, enterPool }
 }
