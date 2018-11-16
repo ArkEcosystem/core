@@ -8,6 +8,7 @@ exports.index = {
   query: {
     ...pagination,
     ...{
+      ip: Joi.string().ip(),
       os: Joi.string(),
       status: Joi.string(),
       port: Joi.number().port(),
