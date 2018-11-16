@@ -195,10 +195,20 @@ describe('Transaction Guard', () => {
         false,
         fee,
       )
-      const signatures = generateSignature('testnet', delegateWallet.secret, 1)
+      const signatures = generateSignature('testnet', delegate3.secret, 1)
 
       await guard.validate([transfers[0], signatures[0]])
-      expect(guard.errors).not.toEqual({})
+
+      const errorExpected = {}
+      errorExpected[signatures[0].id] = [
+        {
+          message: `Error: [PoolWalletManager] Can't apply transaction ${
+            signatures[0].id
+          }`,
+          type: 'ERR_UNKNOWN',
+        },
+      ]
+      expect(guard.errors).toEqual(errorExpected)
 
       expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
