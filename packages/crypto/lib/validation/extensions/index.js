@@ -4,5 +4,5 @@ module.exports = [
   require('./public-key'),
   require('./username'),
 
-  //  ...require('./transactions')
+  ...require('./transactions'),
 ]

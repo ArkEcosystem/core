@@ -1,11 +1,11 @@
-module.exports = {
-  transfer: require('./transfer'),
-  secondSignature: require('./second-signature'),
-  delegateRegistration: require('./delegate-registration'),
-  vote: require('./vote'),
-  multiSignature: require('./multi-signature'),
-  ipfs: require('./ipfs'),
-  timelockTransfer: require('./timelock-transfer'),
-  multiPayment: require('./multi-payment'),
-  delegateResignation: require('./delegate-resignation'),
-}
+module.exports = [
+  require('./transfer'),
+  require('./second-signature'),
+  require('./delegate-registration'),
+  require('./vote'),
+  require('./multi-signature'),
+  require('./ipfs'),
+  require('./timelock-transfer'),
+  require('./multi-payment'),
+  require('./delegate-resignation'),
+]

@@ -21,11 +21,15 @@ module.exports = joi =>
         .required(),
     ),
     fee: joi.alternatives().try(
-      joi.bignumber(),
+      joi.bignumber().required(),
       joi
         .number()
         .integer()
-        .positive()
+        .min(0)
+        .required(),
+      joi
+        .string()
+        .regex(/[0-9]+/)
         .required(),
     ),
     senderId: joi.arkAddress(), // TODO: remove in 2.1
