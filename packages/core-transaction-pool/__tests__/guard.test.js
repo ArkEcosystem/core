@@ -7,10 +7,10 @@ const app = require('./__support__/setup')
 let container
 let poolWalletManager
 let guard
+let poolInterface
 
 beforeAll(async () => {
   container = await app.setUp()
-  poolWalletManager = new (require('../lib/pool-wallet-manager'))()
 })
 
 afterAll(async () => {
@@ -18,7 +18,7 @@ afterAll(async () => {
 })
 
 beforeEach(() => {
-  const poolInterface = new (require('../lib/interface'))({})
+  poolInterface = new (require('../lib/interface'))({})
   guard = new (require('../lib/guard'))(poolInterface)
 })
 
@@ -40,8 +40,10 @@ describe('Transaction Guard', () => {
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
 
-      const delegateWallet = poolWalletManager.findByAddress(delegate0.address)
-      const newWallet = poolWalletManager.findByAddress(newAddress)
+      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+        delegate0.publicKey,
+      )
+      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance)
       expect(+newWallet.balance).toBe(0)
@@ -73,8 +75,10 @@ describe('Transaction Guard', () => {
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
 
-      const delegateWallet = poolWalletManager.findByAddress(delegate1.address)
-      const newWallet = poolWalletManager.findByAddress(newAddress)
+      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+        delegate1.publicKey,
+      )
+      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
 
       expect(+delegateWallet.balance).toBe(+delegate1.balance)
       expect(+newWallet.balance).toBe(0)
@@ -94,7 +98,10 @@ describe('Transaction Guard', () => {
       await guard.validate(transfers)
       expect(guard.errors).toEqual({})
 
-      expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee)
+      expect(
+        +poolInterface.walletManager.findByPublicKey(delegate1.publicKey)
+          .balance,
+      ).toBe(+delegate1.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
     })
   })
