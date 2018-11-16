@@ -1,6 +1,7 @@
 /* eslint no-restricted-globals: "off" */
 
 const container = require('@arkecosystem/core-container')
+const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 const requestIp = require('request-ip')
@@ -275,6 +276,92 @@ exports.postBlock = {
 /**
  * @type {Object}
  */
+exports.postTransactions = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler(request, h) {
+    let error
+    if (!request.payload || !request.payload.transactions) {
+      error = 'No transactions received'
+    } else if (!transactionPool) {
+      error = 'Transaction pool not available'
+    }
+
+    if (error) {
+      return {
+        success: false,
+        message: error,
+        error,
+      }
+    }
+
+    if (
+      request.payload.transactions.length >
+      transactionPool.options.maxTransactionsPerRequest
+    ) {
+      return h
+        .response({
+          success: false,
+          error:
+            'Number of transactions is exceeding max payload size per single request.',
+        })
+        .code(500)
+    }
+
+    const { eligible, notEligible } = transactionPool.checkEligibility(
+      request.payload.transactions,
+    )
+
+    const guard = new TransactionGuard(transactionPool)
+
+    for (const ne of notEligible) {
+      guard.invalidate(ne.transaction, ne.reason)
+    }
+
+    await guard.validate(eligible)
+
+    if (guard.hasAny('invalid')) {
+      return {
+        success: false,
+        message: 'Transactions list is not conform',
+        error: 'Transactions list is not conform',
+      }
+    }
+
+    // TODO: Review throttling of v1
+    if (guard.hasAny('accept')) {
+      logger.info(
+        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
+          request.payload.transactions.length
+        } received`,
+      )
+
+      logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
+      await guard.addToTransactionPool('accept', 'excess')
+    }
+
+    if (guard.hasAny('broadcast')) {
+      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
+    }
+
+    return {
+      success: true,
+      transactionIds: guard.getIds('accept'),
+    }
+  },
+  config: {
+    cors: {
+      additionalHeaders: ['nethash', 'port', 'version'],
+    },
+  },
+}
+
+/**
+ * @type {Object}
+ */
 exports.getBlocks = {
   /**
    * @param  {Hapi.Request} request
@@ -300,8 +387,9 @@ exports.getBlocks = {
           'block',
           blocks.length,
           true,
-        )} from height ${(
-          !isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].data.height
+        )} from height ${(!isNaN(reqBlockHeight)
+          ? reqBlockHeight
+          : blocks[0].data.height
         ).toLocaleString()}`,
       )
 
