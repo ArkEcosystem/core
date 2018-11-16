@@ -1,22 +1,46 @@
+const engine = require('../engine')
 const { TRANSACTION_TYPES } = require('../../constants')
+const transactionExtensions = require('../extensions/transactions')
 
 class TransactionValidator {
   constructor() {
     this.rules = {
-      [TRANSACTION_TYPES.TRANSFER]: require('../rules/models/transactions/transfer'),
-      [TRANSACTION_TYPES.SECOND_SIGNATURE]: require('../rules/models/transactions/second-signature'),
-      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: require('../rules/models/transactions/delegate-registration'),
-      [TRANSACTION_TYPES.VOTE]: require('../rules/models/transactions/vote'),
-      [TRANSACTION_TYPES.MULTI_SIGNATURE]: require('../rules/models/transactions/multi-signature'),
-      [TRANSACTION_TYPES.IPFS]: require('../rules/models/transactions/ipfs'),
-      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require('../rules/models/transactions/timelock-transfer'),
-      [TRANSACTION_TYPES.MULTI_PAYMENT]: require('../rules/models/transactions/multi-payment'),
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('../rules/models/transactions/delegate-resignation'),
+      [TRANSACTION_TYPES.TRANSFER]: transactionExtensions.transfer(engine.joi),
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: transactionExtensions.secondSignature(
+        engine.joi,
+      ),
+      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: transactionExtensions.delegateRegistration(
+        engine.joi,
+      ),
+      [TRANSACTION_TYPES.VOTE]: transactionExtensions.vote(engine.joi),
+      [TRANSACTION_TYPES.MULTI_SIGNATURE]: transactionExtensions.multiSignature(
+        engine.joi,
+      ),
+      [TRANSACTION_TYPES.IPFS]: transactionExtensions.ipfs(engine.joi),
+      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: transactionExtensions.timelockTransfer(
+        engine.joi,
+      ),
+      [TRANSACTION_TYPES.MULTI_PAYMENT]: transactionExtensions.multiPayment(
+        engine.joi,
+      ),
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: transactionExtensions.delegateResignation(
+        engine.joi,
+      ),
     }
   }
 
   validate(transaction) {
-    return this.rules[transaction.type](transaction)
+    const { value, error } = engine.validate(
+      transaction,
+      this.rules[transaction.type],
+      { allowUnknown: true },
+    )
+    return {
+      data: value,
+      errors: error ? error.details : null,
+      passes: !error,
+      fails: error,
+    }
   }
 }
 
