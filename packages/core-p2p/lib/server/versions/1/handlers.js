@@ -340,7 +340,8 @@ exports.postTransactions = {
       )
 
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-      await guard.addToTransactionPool('accept', 'excess')
+
+      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
     }
 
     if (guard.hasAny('broadcast')) {

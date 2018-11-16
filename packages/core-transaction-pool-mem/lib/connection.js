@@ -83,7 +83,6 @@ class TransactionPool extends TransactionPoolInterface {
   /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
-   * @return {Boolean}
    */
   addTransaction(transaction) {
     if (this.transactionExists(transaction.id)) {
@@ -92,7 +91,7 @@ class TransactionPool extends TransactionPoolInterface {
           `in the pool, id: ${transaction.id}`,
       )
 
-      return false
+      return
     }
 
     this.mem.add(
@@ -101,17 +100,15 @@ class TransactionPool extends TransactionPoolInterface {
     )
 
     this.__syncToPersistentStorageIfNecessary()
-    return true
   }
 
   /**
    * Add many transactions to the pool.
    * @param {Array}   transactions, already transformed and verified
    * by transaction guard - must have serialized field
-   * @return {Array}  successfully added transactions
    */
   addTransactions(transactions) {
-    return transactions.filter(transaction => this.addTransaction(transaction))
+    transactions.forEach(t => this.addTransaction(t))
   }
 
   /**
