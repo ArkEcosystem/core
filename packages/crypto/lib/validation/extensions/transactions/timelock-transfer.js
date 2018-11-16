@@ -4,8 +4,14 @@ const transaction = require('./base')
 module.exports = joi => ({
   name: 'arkTimelockTransfer',
   base: transaction(joi).append({
-    type: joi.number().valid(TRANSACTION_TYPES.MULTI_PAYMENT),
-    amount: joi.alternatives().try(joi.bignumber(), joi.number().valid(0)),
+    type: joi
+      .number()
+      .only(TRANSACTION_TYPES.MULTI_PAYMENT)
+      .required(),
+    amount: joi
+      .alternatives()
+      .try(joi.bignumber(), joi.number().valid(0))
+      .optional(),
     asset: joi.object().required(),
     recipientId: joi.empty(),
   }),

@@ -4,7 +4,10 @@ const transaction = require('./base')
 module.exports = joi => ({
   name: 'arkSecondSignature',
   base: transaction(joi).append({
-    type: joi.number().valid(TRANSACTION_TYPES.SECOND_SIGNATURE),
+    type: joi
+      .number()
+      .only(TRANSACTION_TYPES.SECOND_SIGNATURE)
+      .required(),
     amount: joi.alternatives().try(joi.bignumber(), joi.number().valid(0)),
     asset: joi
       .object({

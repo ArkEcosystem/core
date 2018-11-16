@@ -4,14 +4,20 @@ const transaction = require('./base')
 module.exports = joi => ({
   name: 'arkDelegateRegistration',
   base: transaction(joi).append({
-    type: joi.number().valid(TRANSACTION_TYPES.DELEGATE_REGISTRATION),
-    amount: joi.alternatives().try(
-      joi.bignumber(),
-      joi
-        .number()
-        .valid(0)
-        .required(),
-    ),
+    type: joi
+      .number()
+      .only(TRANSACTION_TYPES.DELEGATE_REGISTRATION)
+      .required(),
+    amount: joi
+      .alternatives()
+      .try(
+        joi.bignumber(),
+        joi
+          .number()
+          .valid(0)
+          .required(),
+      )
+      .optional(),
     asset: joi
       .object({
         delegate: joi

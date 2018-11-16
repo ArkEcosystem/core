@@ -4,8 +4,14 @@ const transaction = require('./base')
 module.exports = joi => ({
   name: 'arkMultiSignature',
   base: transaction(joi).append({
-    type: joi.number().valid(TRANSACTION_TYPES.MULTI_SIGNATURE),
-    amount: joi.alternatives().try(joi.bignumber(), joi.number().valid(0)),
+    type: joi
+      .number()
+      .only(TRANSACTION_TYPES.MULTI_SIGNATURE)
+      .required(),
+    amount: joi
+      .alternatives()
+      .try(joi.bignumber(), joi.number().valid(0))
+      .optional(),
     recipientId: joi.empty(),
     signatures: joi
       .array()
