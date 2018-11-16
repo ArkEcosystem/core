@@ -35,7 +35,9 @@ module.exports = async config => {
   }
 
   for (const [type, server] of Object.entries(servers)) {
-    await server.register({ plugin: plugins.corsHeaders })
+    await server.register({
+      plugin: plugins.corsHeaders
+    })
 
     await server.register({
       plugin: plugins.whitelist,
@@ -55,13 +57,22 @@ module.exports = async config => {
     })
 
     await server.register({
+      plugin: require('hapi-trailing-slash'),
+      options: { method: 'remove' },
+    })
+
+    await server.register({
       plugin: require('./plugins/endpoint-version'),
       options: { validVersions: config.versions.validVersions },
     })
 
-    await server.register({ plugin: require('./plugins/caster') })
+    await server.register({
+      plugin: require('./plugins/caster')
+    })
 
-    await server.register({ plugin: require('./plugins/validation') })
+    await server.register({
+      plugin: require('./plugins/validation')
+    })
 
     await server.register({
       plugin: require('hapi-rate-limit'),
