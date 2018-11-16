@@ -16,6 +16,7 @@ module.exports = (
   amount = 2,
   quantity = 10,
   getStruct = false,
+  fee,
 ) => {
   network = network || 'testnet'
   type = type || TRANSFER
@@ -68,6 +69,9 @@ module.exports = (
       }
     }
 
+    if (fee) {
+      builder = builder.fee(fee)
+    }
     builder = builder.sign(passphrase)
     const transaction = getStruct ? builder.getStruct() : builder.build()
 
