@@ -112,8 +112,8 @@ module.exports = class Command {
     const waitPerBlock = Math.round(this.config.constants.blocktime / 10) * 20
 
     return (
-      waitPerBlock
-      * Math.ceil(
+      waitPerBlock *
+      Math.ceil(
         transactions.length / this.config.constants.block.maxTransactions,
       )
     )
@@ -201,11 +201,12 @@ module.exports = class Command {
    * @return {Bignum}
    */
   static parseFee(fee) {
-    if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
+    if (typeof fee === 'string' && fee.indexOf('-') > 0) {
       const feeRange = fee.split('-').map(
-        f => +bignumify(f)
-          .times(1e8)
-          .toFixed(),
+        f =>
+          +bignumify(f)
+            .times(1e8)
+            .toFixed(),
       )
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
