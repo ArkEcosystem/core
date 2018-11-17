@@ -62,3 +62,7 @@ packages/**/dist/
 # Flow
 flow-typed
 flow-coverage
+
+
+# Intellij/Webstorm settings
+.idea

@@ -24,6 +24,7 @@
     "no-underscore-dangle": "off",
     "no-unused-vars": "off",
     "prefer-destructuring": "off",
-    "radix": "off"
+    "radix": "off",
+    "max-len": ["warn", { "code": 160 }]
   }
 }
