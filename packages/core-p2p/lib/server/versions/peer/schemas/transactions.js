@@ -6,19 +6,12 @@ const Joi = require('@arkecosystem/crypto').validator.engine.joi
  */
 exports.store = {
   payload: {
-    transactions: Joi.array()
+    transactions: Joi.arkTransactions()
+      .min(1)
       .max(
         container.resolveOptions('transactionPool').maxTransactionsPerRequest,
       )
-      .items(
-        Joi.alternatives().try(
-          Joi.arkTransfer(),
-          Joi.arkSecondSignature(),
-          Joi.arkDelegateRegistration(),
-          Joi.arkVote(),
-          Joi.arkMultiSignature(),
-        ),
-      ),
+      .options({ stripUnknown: true }),
   },
 }
 

@@ -1,5 +1,5 @@
 const engine = require('../engine')
-const transactionExtensions = require('../extensions/transactions')
+const transactionExtensions = require('../extensions/transactions/index')
 
 class TransactionValidator {
   constructor() {
