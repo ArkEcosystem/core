@@ -51,22 +51,13 @@ describe('Vote Transaction', () => {
 
   it('should be invalid due to non-zero amount', () => {
     transaction
-      .votesAsset(votes)
+      .votesAsset([vote])
       .amount(10 * constants.ARKTOSHI)
       .sign('passphrase')
 
     expect(
       Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
     ).not.toBeNull()
-  })
-
-  it('should be invalid due to zero fee', () => {
-    transaction
-      .votesAsset(votes)
-      .fee(0)
-      .sign('passphrase')
-
-    expect(Joi.validate(transaction.getStruct(), Joi.arkVote())).not.toBeNull()
   })
 
   it('should be invalid due to no votes', () => {
