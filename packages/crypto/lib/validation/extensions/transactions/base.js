@@ -31,7 +31,7 @@ module.exports = joi =>
       joi
         .number()
         .integer()
-        .positive()
+        .min(0)
         .required(),
       joi
         .string()
