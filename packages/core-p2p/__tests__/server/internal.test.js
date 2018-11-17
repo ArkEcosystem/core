@@ -47,8 +47,13 @@ describe('API - Internal', () => {
 
   describe('POST /blocks', () => {
     it('should be ok', async () => {
+      // Necessary to make Joi validate the genesis block
+      const block = genesisBlock.toJson()
+      block.previousBlock = '0'
+      block.totalAmount = block.totalAmount.toString()
+
       const response = await utils.POST('internal/blocks', {
-        block: genesisBlock.toJson(),
+        block,
       })
 
       expect(response.status).toBe(204)
