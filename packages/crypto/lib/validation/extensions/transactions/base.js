@@ -41,6 +41,7 @@ module.exports = joi =>
       .required(),
     signatures: joi.array(),
     secondSignature: joi.string().alphanum(),
+    signSignature: joi.string().alphanum(), // TODO: remove in 2.1
     confirmations: joi // TODO: remove in 2.1
       .number()
       .integer()
