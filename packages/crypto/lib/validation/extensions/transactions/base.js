@@ -25,7 +25,7 @@ module.exports = joi =>
       joi
         .number()
         .integer()
-        .min(0)
+        .positive()
         .required(),
       joi
         .string()

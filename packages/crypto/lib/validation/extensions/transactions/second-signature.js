@@ -9,6 +9,7 @@ module.exports = joi => ({
       .only(TRANSACTION_TYPES.SECOND_SIGNATURE)
       .required(),
     amount: joi.alternatives().try(joi.bignumber(), joi.number().valid(0)),
+    secondSignature: joi.string().only(''),
     asset: joi
       .object({
         signature: joi
