@@ -1,3 +1,4 @@
+const clipboardy = require('clipboardy')
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
 const Command = require('../../lib/commands/command')
@@ -36,6 +37,40 @@ describe('Command Base', () => {
         ['passphrase', 'test_passphrase'],
         ['secondPassphrase', 'test_secondPassphrase'],
       ])
+    })
+  })
+  
+  describe('Copy to Clipboard', () => {
+    it('should be a function', () => {
+      expect(command.copyToClipboard).toBeFunction()
+    })
+
+    it('should contain the copied content', () => {
+      command.copyToClipboard([
+        {
+          key: 'value',
+          serialized: '00',
+        },
+      ])
+
+      expect(JSON.parse(clipboardy.readSync())).toEqual([
+        {
+          key: 'value',
+          serialized: '00',
+        },
+      ])
+    })
+  })
+  
+  describe('Run', () => {
+    it('should be a function', () => {
+      expect(command.run).toBeFunction()
+    })
+    it('throw expception', () => {
+      expect(command.run).toThrowWithMessage(
+        Error,
+        'Method [run] not implemented!',
+      )
     })
   })
 })
