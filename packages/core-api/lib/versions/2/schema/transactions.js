@@ -1,5 +1,5 @@
-const Joi = require('joi')
 const container = require('@arkecosystem/core-container')
+const Joi = require('@arkecosystem/crypto').validator.engine.joi
 const pagination = require('./pagination')
 
 /**
@@ -56,12 +56,15 @@ exports.store = {
         container.resolveOptions('transactionPool').maxTransactionsPerRequest,
       )
       .items(
-        Joi.object({
-          vendorField: Joi.string()
-            .empty('')
-            .max(64, 'utf8'),
-        }).options({ allowUnknown: true }),
-      ),
+        Joi.alternatives().try(
+          Joi.arkTransfer(),
+          Joi.arkSecondSignature(),
+          Joi.arkDelegateRegistration(),
+          Joi.arkVote(),
+          Joi.arkMultiSignature(),
+        ),
+      )
+      .options({ stripUnknown: true }),
   },
 }
 

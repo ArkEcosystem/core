@@ -1,5 +1,5 @@
-const Joi = require('joi')
 const container = require('@arkecosystem/core-container')
+const Joi = require('@arkecosystem/crypto').validator.engine.joi
 
 /**
  * @type {Object}
@@ -10,7 +10,15 @@ exports.store = {
       .max(
         container.resolveOptions('transactionPool').maxTransactionsPerRequest,
       )
-      .items(Joi.object()),
+      .items(
+        Joi.alternatives().try(
+          Joi.arkTransfer(),
+          Joi.arkSecondSignature(),
+          Joi.arkDelegateRegistration(),
+          Joi.arkVote(),
+          Joi.arkMultiSignature(),
+        ),
+      ),
   },
 }
 

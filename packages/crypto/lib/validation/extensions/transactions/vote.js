@@ -6,7 +6,7 @@ module.exports = joi => ({
   base: transaction(joi).append({
     type: joi
       .number()
-      .valid(TRANSACTION_TYPES.VOTE)
+      .only(TRANSACTION_TYPES.VOTE)
       .required(),
     amount: joi
       .alternatives()

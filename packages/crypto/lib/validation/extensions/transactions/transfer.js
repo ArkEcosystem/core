@@ -8,13 +8,18 @@ module.exports = joi => ({
       .number()
       .only(TRANSACTION_TYPES.TRANSFER)
       .required(),
+    expiration: joi
+      .number()
+      .integer()
+      .min(0),
     vendorField: joi
       .string()
       .max(64, 'utf8')
-      .optional(), // TODO: remove in 2.1 for vendorFieldHex
-    asset: joi
-      .object()
-      .empty()
+      .optional(), // TODO: remove in 2.1
+    vendorFieldHex: joi
+      .string()
+      .max(64, 'hex')
       .optional(),
+    asset: joi.object().empty(),
   }),
 })

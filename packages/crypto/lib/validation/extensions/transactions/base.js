@@ -7,6 +7,12 @@ module.exports = joi =>
       .alphanum()
       .required(),
     blockid: joi.number().unsafe(), // TODO: remove in 2.1
+    version: joi
+      .number()
+      .integer()
+      .min(1)
+      .max(2)
+      .optional(),
     timestamp: joi
       .number()
       .integer()
