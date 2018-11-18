@@ -114,6 +114,17 @@ describe('Transfer Transaction', () => {
     ).not.toBeNull()
   })
 
+  it('should be invalid due to zero fee', () => {
+    transaction
+      .recipientId(address)
+      .amount(0)
+      .fee(0)
+      .sign('passphrase')
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error,
+    ).not.toBeNull()
+  })
+
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.delegateRegistration()
     transaction.usernameAsset('delegate_name').sign('passphrase')

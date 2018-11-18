@@ -73,6 +73,17 @@ describe('Multi Signature Transaction', () => {
     ).not.toBeNull()
   })
 
+  it('should be invalid due to zero fee', () => {
+    transaction
+      .multiSignatureAsset(multiSignatureAsset)
+      .fee(0)
+      .sign('passphrase')
+    signTransaction(transaction, passphrases)
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+    ).not.toBeNull()
+  })
+
   it('should be invalid due to min too low', () => {
     multiSignatureAsset.min = 0
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')

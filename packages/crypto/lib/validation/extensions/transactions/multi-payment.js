@@ -8,10 +8,6 @@ module.exports = joi => ({
       .number()
       .only(TRANSACTION_TYPES.MULTI_PAYMENT)
       .required(),
-    amount: joi
-      .alternatives()
-      .try(joi.bignumber(), joi.number().valid(0))
-      .optional(),
     asset: joi.object().required(),
     recipientId: joi.empty(),
   }),

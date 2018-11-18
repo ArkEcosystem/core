@@ -18,26 +18,26 @@ module.exports = joi =>
       .integer()
       .min(0)
       .required(),
-    amount: joi.alternatives().try(
-      joi.bignumber(),
-      joi
-        .number()
-        .integer()
-        .positive()
-        .required(),
-    ),
-    fee: joi.alternatives().try(
-      joi.bignumber().required(),
-      joi
-        .number()
-        .integer()
-        .min(0)
-        .required(),
-      joi
-        .string()
-        .regex(/[0-9]+/)
-        .required(),
-    ),
+    amount: joi
+      .alternatives()
+      .try(
+        joi.bignumber(),
+        joi
+          .number()
+          .integer()
+          .positive(),
+      )
+      .required(),
+    fee: joi
+      .alternatives()
+      .try(
+        joi.bignumber().min(1),
+        joi
+          .number()
+          .integer()
+          .positive(),
+      )
+      .required(),
     senderId: joi.arkAddress(), // TODO: remove in 2.1
     recipientId: joi.arkAddress().required(),
     senderPublicKey: joi.arkPublicKey().required(),

@@ -43,6 +43,16 @@ describe('Second Signature Transaction', () => {
     ).not.toBeNull()
   })
 
+  it('should be invalid due to zero fee', () => {
+    transaction
+      .signatureAsset('second passphrase')
+      .fee(0)
+      .sign('passphrase')
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error,
+    ).not.toBeNull()
+  })
+
   it('should be invalid due to second signature', () => {
     transaction
       .signatureAsset('second passphrase')

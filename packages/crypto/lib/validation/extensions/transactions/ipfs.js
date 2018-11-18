@@ -10,7 +10,7 @@ module.exports = joi => ({
       .required(),
     amount: joi
       .alternatives()
-      .try(joi.bignumber(), joi.number().valid(0))
+      .try(joi.bignumber().only(0), joi.number().valid(0))
       .optional(),
     asset: joi.object().required(),
     recipientId: joi.empty(),

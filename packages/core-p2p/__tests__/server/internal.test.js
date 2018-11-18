@@ -1,4 +1,5 @@
 const { Block, Transaction } = require('@arkecosystem/crypto').models
+const blockFixture = require('../../../core-debugger-cli/__tests__/__fixtures__/block.json')
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 
@@ -47,15 +48,10 @@ describe('API - Internal', () => {
 
   describe('POST /blocks', () => {
     it('should be ok', async () => {
-      // Necessary to make Joi validate the genesis block
-      const block = genesisBlock.toJson()
-      block.previousBlock = '0'
-      block.totalAmount = block.totalAmount.toString()
-
+      const block = new Block(blockFixture.data)
       const response = await utils.POST('internal/blocks', {
-        block,
+        block: block.toJson(),
       })
-
       expect(response.status).toBe(204)
     })
 

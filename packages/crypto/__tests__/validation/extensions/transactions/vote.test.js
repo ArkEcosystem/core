@@ -60,6 +60,17 @@ describe('Vote Transaction', () => {
     ).not.toBeNull()
   })
 
+  it('should be invalid due to zero fee', () => {
+    transaction
+      .votesAsset(votes)
+      .fee(0)
+      .sign('passphrase')
+
+    expect(
+      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+    ).not.toBeNull()
+  })
+
   it('should be invalid due to no votes', () => {
     transaction.votesAsset([]).sign('passphrase')
 

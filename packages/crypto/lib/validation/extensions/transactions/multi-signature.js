@@ -8,7 +8,10 @@ module.exports = joi => ({
       .number()
       .only(TRANSACTION_TYPES.MULTI_SIGNATURE)
       .required(),
-    amount: joi.alternatives().try(joi.bignumber(), joi.number().valid(0)),
+    amount: joi
+      .alternatives()
+      .try(joi.bignumber().only(0), joi.number().only(0))
+      .optional(),
     recipientId: joi.empty(),
     signatures: joi
       .array()
