@@ -48,6 +48,7 @@
     "flow:coverage": "flow-coverage-report --config ../../.flowcoverage.json",
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
+    "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./ --ignores=flow-bin,commander,bip38,fs,wif,@arkecosystem/core-api,@arkecosystem/core-blockchain,@arkecosystem/core-config,@arkecosystem/core-database,@arkecosystem/core-database-postgres,@arkecosystem/core-forger,@arkecosystem/core-graphql,@arkecosystem/core-json-rpc,@arkecosystem/core-logger,@arkecosystem/core-logger-winston,@arkecosystem/core-p2p,@arkecosystem/core-transaction-pool,@arkecosystem/core-transaction-pool-mem,@arkecosystem/core-webhooks,@arkecosystem/crypto"
   },
