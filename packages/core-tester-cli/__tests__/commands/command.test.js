@@ -6,8 +6,6 @@ const logger = require('../../lib/utils/logger')
 
 const mockAxios = new MockAdapter(axios)
 
-const mockAxios = new MockAdapter(axios)
-
 let command
 beforeEach(() => {
   command = new Command()
