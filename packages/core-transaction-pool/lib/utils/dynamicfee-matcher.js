@@ -1,5 +1,5 @@
 const container = require('@arkecosystem/core-container')
-const { feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
+const { feeManager, dynamicFeeManager, formatArktoshi } = require('@arkecosystem/crypto')
 
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -19,9 +19,13 @@ module.exports = transaction => {
 
   if (!feeConstants.dynamic && transactionFee !== staticFee) {
     logger.debug(
-      `Received transaction fee '${transactionFee}' for '${
+      `Fee declined - Received transaction (${
         transaction.id
-      }' does not match static fee of '${staticFee}'`,
+      }) with a fee of ${
+        formatArktoshi(transactionFee)
+      } does not match static fee of ${
+        formatArktoshi(staticFee)
+      }`,
     )
     return false
   }
@@ -30,10 +34,13 @@ module.exports = transaction => {
     const minFeeFixed = config.delegates.dynamicFees.minAcceptableFee
     if (transactionFee < minFeeFixed) {
       logger.debug(
-        `Fee declined - Received transaction "${
+        `Fee declined - Received transaction (${
           transaction.id
-        }" with a fee of `
-          + `"${transactionFee}" which is below the minimum accepted fixed fee of "${minFeeFixed}".`,
+        }) with a fee of ${
+          formatArktoshi(transactionFee)
+        } which is below the minimum accepted fixed fee of ${
+          formatArktoshi(minFeeFixed)
+        }`,
       )
       return false
     }
@@ -42,21 +49,30 @@ module.exports = transaction => {
       config.delegates.dynamicFees.feeMultiplier,
       transaction,
     )
+
     if (transactionFee < minFeeCalculated) {
       logger.debug(
-        `Fee declined - Received transaction "${
+        `Fee declined - Received transaction (${
           transaction.id
-        }" with a fee of `
-          + `"${transactionFee}" which is below the calculated minimum fee of "${minFeeCalculated}".`,
+        }) with a fee of ${
+          formatArktoshi(transactionFee)
+        } which is below the calculated minimum fee of ${
+          formatArktoshi(minFeeCalculated)
+        }`,
       )
       return false
     }
 
     logger.debug(
-      `Transaction "${
+      `Fee accepted - Received transaction (${
         transaction.id
-      }" accepted with fee of "${transactionFee}". `
-        + `The calculated minimum fee is "${minFeeCalculated}".`,
+      }) with a fee of ${
+        formatArktoshi(transactionFee)
+      } which is ${
+        transactionFee > minFeeCalculated ? 'higher than' : 'equal to'
+      } the calculated minimum fee of ${
+        formatArktoshi(minFeeCalculated)
+      }`,
     )
   }
   return true
