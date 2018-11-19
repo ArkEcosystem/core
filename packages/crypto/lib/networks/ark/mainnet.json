@@ -28,26 +28,32 @@
       "epoch": "2017-03-21T13:00:00.000Z",
       "fees": {
         "dynamic": false,
-        "transfer": 10000000,
-        "secondSignature": 500000000,
-        "delegateRegistration": 2500000000,
-        "vote": 100000000,
-        "multiSignature": 500000000,
-        "ipfs": 0,
-        "timelockTransfer": 0,
-        "multiPayment": 0,
-        "delegateResignation": 0
-      },
-      "dynamicOffsets": {
-        "transfer": 100,
-        "secondSignature": 250,
-        "delegateRegistration": 500,
-        "vote": 100,
-        "multiSignature": 500,
-        "ipfs": 250,
-        "timelockTransfer": 500,
-        "multiPayment": 500,
-        "delegateResignation": 500
+        "dynamicFees": {
+          "minFeePool": 1000,
+          "minFeeBroadcast": 1000,
+          "addonBytes": {
+            "transfer": 100,
+            "secondSignature": 250,
+            "delegateRegistration": 500,
+            "vote": 100,
+            "multiSignature": 500,
+            "ipfs": 250,
+            "timelockTransfer": 500,
+            "multiPayment": 500,
+            "delegateResignation": 500
+          }
+        },
+        "staticFees": {
+          "transfer": 10000000,
+          "secondSignature": 500000000,
+          "delegateRegistration": 2500000000,
+          "vote": 100000000,
+          "multiSignature": 500000000,
+          "ipfs": 0,
+          "timelockTransfer": 0,
+          "multiPayment": 0,
+          "delegateResignation": 0
+        }
       }
     },
     {

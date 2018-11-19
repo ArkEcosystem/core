@@ -1,18 +1,16 @@
 /* eslint max-len: "off" */
-const flatten = require('lodash/flatten')
-const uniqBy = require('lodash/uniqBy')
+
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 
 const {
   configManager,
-  models: { Transaction },
   constants: { TRANSACTION_TYPES },
+  models: { Transaction },
   slots,
 } = crypto
 const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 
-const database = container.resolvePlugin('database')
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionGuard {
@@ -24,150 +22,79 @@ module.exports = class TransactionGuard {
   constructor(pool) {
     this.pool = pool
 
-    this.__reset()
+    this.transactions = []
+    this.accept = []
+    this.excess = []
+    this.invalid = new Map()
+    this.broadcast = []
+    this.errors = {}
   }
 
   /**
    * Validate the specified transactions.
-   * ORDER of called functions is important
    * @param  {Array} transactions
-   * @return {void}
+   * @return {
+   *   accept: array of transactions that qualify for entering the pool
+   *   broadcast: array of transactions that qualify for broadcasting
+   *   excess: array of transactions that exceed sender's quota in the pool
+   *   invalid: array of invalid transactions
+   *   errors: Object with
+   *     keys=transaction id (for each element in invalid[]),
+   *     value=[ { type, message }, ... ]
+   * }
    */
-  async validate(transactions) {
-    this.__transformAndFilterTransactions(uniqBy(transactions, 'id'))
+  async validate(transactionsJson) {
+    // Remove entries with the same `id`.
+    transactionsJson = Array.from((new Map(transactionsJson.map(t => [ t.id, t ]))).values())
 
-    await this.__removeForgedTransactions()
+    // Convert from plain Object (JSON) to Transaction,
+    // remove crypto invalid, already in pool, from blocked sender.
+    let transactions = this.__transformAndFilterTransactions(transactionsJson)
 
-    this.__determineValidTransactions()
+    transactions = await this.__removeForgedTransactions(transactions)
 
-    this.__determineExcessTransactions()
+    // Remove transactions with invalid recipient, insufficient funds, already vote.
+    const valid = this.__determineValidTransactions(transactions)
 
-    this.__determineFeeMatchingTransactions()
-  }
+    // Split excess transactions.
+    const { accept, excess } = this.__determineExcessTransactions(valid)
 
-  /**
-   * Invalidate the specified transactions with the given reason.
-   * @param  {Object|Array} transactions
-   * @param  {String} reason
-   * @return {void}
-   */
-  invalidate(transactions, reason) {
-    transactions = Array.isArray(transactions) ? transactions : [transactions]
-    transactions.forEach(tx => {
-      if (reason === 'Already in pool') {
-        this.pool.pingTransaction(tx.id)
-      }
+    // Remove transactions with too low fee to enter the pool.
+    const acceptWithoutLowFees = this.__determineFeeMatchingTransactions(accept)
 
-      this.__pushError(tx, 'ERR_INVALID', reason)
-    })
-  }
-
-  /**
-   * Get a list of transaction ids.
-   * @param  {String} type
-   * @return {Object}
-   */
-  getIds(type = null) {
-    if (type) {
-      return this[type].map(transaction => transaction.id)
-    }
+    // Remove transactions with too low fee for broadcast.
+    const broadcast = this.__removeTooLowFeesToBroadcast(valid)
 
     return {
-      transactions: this.transactions.map(transaction => transaction.id),
-      accept: this.accept.map(transaction => transaction.id),
-      excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id),
-      broadcast: this.broadcast.map(transaction => transaction.id),
+      accept: acceptWithoutLowFees,
+      broadcast,
+      excess,
+      invalid: Array.from(this.invalid.values()),
+      errors: Object.keys(this.errors).length > 0 ? this.errors : null,
     }
-  }
-
-  /**
-   * Get a list of transaction objects.
-   * @param  {String} type
-   * @return {Object}
-   */
-  getTransactions(type = null) {
-    if (type) {
-      return this[type]
-    }
-
-    return {
-      transactions: this.transactions,
-      accept: this.accept,
-      excess: this.excess,
-      invalid: this.invalid,
-      broadcast: this.broadcast,
-    }
-  }
-
-  /**
-   * Check if there are N transactions of the specified type.
-   * @param  {String}  type
-   * @param  {Number}  count
-   * @return {Boolean}
-   */
-  has(type, count) {
-    return this[type].length === count
-  }
-
-  /**
-   * Check if there are at least N transactions of the specified type.
-   * @param  {String}  type
-   * @param  {Number}  count
-   * @return {Boolean}
-   */
-  hasAtLeast(type, count) {
-    return this[type].length >= count
-  }
-
-  /**
-   * Check if there are any transactions of the specified type.
-   * @param  {String}  type
-   * @return {Boolean}
-   */
-  hasAny(type) {
-    return !!this[type].length
-  }
-
-  /**
-   * Add the specified types to the transaction pool. If a transaction is
-   * already in the pool it is excluded from the broadcast.
-   * TODO: only add 'accept' to the pool with 2.1
-   * @param  {Array}  transactions
-   * @return {void}
-   */
-  async addToTransactionPool(...types) {
-    const transactions = flatten(types.map(type => this[type]))
-    const added = await this.pool.addTransactions(transactions)
-    this.broadcast = this.broadcast.filter(transaction =>
-      added.includes(transaction),
-    )
   }
 
   /**
    * Transforms and filters incoming transactions.
-   * Skipped are:
-   * - duplicates
-   * - invalid crypto transactions
-   * - blocked senders
+   * It skips:
+   * - transactions already in the pool
+   * - not valid crypto transactions
+   * - transactions from blocked senders
    * - transactions from the future
    * @param  {Array} transactions
-   * @return {void}
+   * @return {Array}
    */
   __transformAndFilterTransactions(transactions) {
-    this.transactions = []
+    const result = []
 
     transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id)
+      const now = slots.getTime()
 
       if (exists) {
         this.pool.pingTransaction(transaction.id)
 
-        this.__pushError(
-          transaction,
-          'ERR_DUPLICATE',
-          `Duplicate transaction ${transaction.id}`,
-        )
+        this.__pushError(transaction, 'ERR_DUPLICATE', `Duplicate transaction ${transaction.id}`)
       } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         this.__pushError(
           transaction,
@@ -176,20 +103,19 @@ module.exports = class TransactionGuard {
             transaction.senderPublicKey
           } is blocked.`,
         )
-      } else if (transaction.timestamp > slots.getTime()) {
+      } else if (transaction.timestamp > now + 3600) {
+        const secondsInFuture = transaction.timestamp - now
         this.__pushError(
           transaction,
           'ERR_FROM_FUTURE',
-          `Transaction ${transaction.id} is from the future (${
-            transaction.timestamp
-          } > ${slots.getTime()})`,
+          `Transaction ${transaction.id} is ${secondsInFuture} seconds in the future`,
         )
       } else {
         try {
           const trx = new Transaction(transaction)
 
           if (trx.verified) {
-            this.transactions.push(trx)
+            result.push(trx)
           } else {
             this.__pushError(
               transaction,
@@ -202,19 +128,23 @@ module.exports = class TransactionGuard {
         }
       }
     })
+
+    return result
   }
 
   /**
-   * Skipping already forged transactions
-   * @return {void}
+   * Remove already forged transactions.
+   * @return {Array}
    */
-  async __removeForgedTransactions() {
-    const transactionIds = this.transactions.map(transaction => transaction.id)
+  async __removeForgedTransactions(transactions) {
+    const database = container.resolvePlugin('database')
+
+    const transactionIds = transactions.map(transaction => transaction.id)
     const forgedIdsSet = new Set(
       await database.getForgedTransactionsIds(transactionIds),
     )
 
-    this.transactions = this.transactions.filter(transaction => {
+    return transactions.filter(transaction => {
       if (forgedIdsSet.has(transaction.id)) {
         this.__pushError(transaction, 'ERR_FORGED', 'Already forged.')
         return false
@@ -230,10 +160,11 @@ module.exports = class TransactionGuard {
    * - if sender has enough funds
    * - if sender already has another transaction of the same type, for types that
    *   only allow one transaction at a time in the pool (e.g. vote)
-   * Transaction that can be broadcasted are confirmed here
    */
-  __determineValidTransactions() {
-    this.transactions.forEach(transaction => {
+  __determineValidTransactions(transactions) {
+    const result = []
+
+    transactions.forEach(transaction => {
       switch (transaction.type) {
         case TRANSACTION_TYPES.TRANSFER:
           if (!isRecipientOnActiveNetwork(transaction)) {
@@ -289,56 +220,55 @@ module.exports = class TransactionGuard {
         return
       }
 
-      this.broadcast.push(transaction)
+      result.push(transaction)
+    })
+
+    return result
+  }
+
+  /**
+   * Determine exccess transactions, that exceed sender's quota.
+   */
+  __determineExcessTransactions(transactions) {
+    const accept = []
+    const excess = []
+    for (const t of transactions) {
+      if (this.pool.hasExceededMaxTransactions(t)) {
+        excess.push(t)
+        this.pool.walletManager.revertTransaction(t)
+      } else {
+        accept.push(t)
+      }
+    }
+    return { accept, excess }
+  }
+
+  /**
+   * Remove transactions with too low fees to enter the pool.
+   */
+  __determineFeeMatchingTransactions(transactions) {
+    return transactions.filter(t => {
+      if (dynamicFeeMatch(t).enterPool) {
+        return true
+      }
+
+      this.__pushError(t, 'ERR_LOW_FEE', 'Too low fee to be accepted in the pool')
+      this.pool.walletManager.revertTransaction(t)
+      return false
     })
   }
 
   /**
-   * Determine exccess transactions
+   * Remove transactions that have too low fee for broadcasting.
    */
-  __determineExcessTransactions() {
-    for (const transaction of this.broadcast) {
-      if (this.pool.hasExceededMaxTransactions(transaction)) {
-        this.excess.push(transaction)
-        this.pool.walletManager.revertTransaction(transaction)
-      } else {
-        /**
-         * We need to check this again after checking it in "__transformAndFilterTransactions"
-         * because the state of the transaction pool could have changed since then
-         * if concurrent requests are occurring via API.
-         */
-        if (this.pool.transactionExists(transaction.id)) {
-          this.__pushError(
-            transaction,
-            'ERR_DUPLICATE',
-            'Already exists in pool.',
-          )
-          this.pool.walletManager.revertTransaction(transaction)
-
-          continue
-        }
-
-        this.accept.push(transaction)
+  __removeTooLowFeesToBroadcast(transactions) {
+    return transactions.filter(t => {
+      if (dynamicFeeMatch(t).broadcast) {
+        return true
       }
-    }
-  }
 
-  /**
-   * Filtering out not matching dynamic fee transactions
-   * Should be done as last step in the guard process to prevent spaming of the network with broadcasting
-   */
-  __determineFeeMatchingTransactions() {
-    this.accept = this.accept.filter(transaction => {
-      if (!dynamicFeeMatch(transaction)) {
-        this.__pushError(
-          transaction,
-          'ERR_LOW_FEE',
-          'Peer rejected the transaction because of not meeting the minimum accepted fee. It is still broadcasted to other peers.',
-        )
-        this.pool.walletManager.revertTransaction(transaction)
-        return false
-      }
-      return true
+      this.__pushError(t, 'ERR_LOW_FEE', 'Too low fee for broadcast')
+      return false
     })
   }
 
@@ -358,36 +288,6 @@ module.exports = class TransactionGuard {
 
     this.errors[transaction.id].push({ type, message })
 
-    // XXX O(this.invalid.some.length), can be O(1)
-    if (!this.invalid.some(tx => tx.id === transaction.id)) {
-      this.invalid.push(transaction)
-    }
-  }
-
-  /**
-   * Get a json object.
-   * @return {Object}
-   */
-  toJson() {
-    const data = this.getIds()
-    delete data.transactions
-
-    return {
-      data,
-      errors: Object.keys(this.errors).length > 0 ? this.errors : null,
-    }
-  }
-
-  /**
-   * Reset all indices.
-   * @return {void}
-   */
-  __reset() {
-    this.transactions = []
-    this.accept = []
-    this.excess = []
-    this.invalid = []
-    this.broadcast = []
-    this.errors = {}
+    this.invalid.set(transaction.id, transaction)
   }
 }
