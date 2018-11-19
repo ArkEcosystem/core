@@ -21,35 +21,29 @@ module.exports = transaction => {
   let enterPool
 
   if (fees.dynamic) {
-    const minFeePool = dynamicFeeManager.calculateFee(
-      fees.dynamicFees.minFeePool,
-      transaction,
-    )
-    if (fee >= minFeePool) {
-      broadcast = true
-      logger.debug(
-        `Transaction ${id} eligible for broadcast (fee=${fee} >= min=${minFeePool})`,
-      )
-    } else {
-      broadcast = false
-      logger.debug(
-        `Transaction ${id} not eligible for broadcast (fee=${fee} < min=${minFeePool})`,
-      )
-    }
-
     const minFeeBroadcast = dynamicFeeManager.calculateFee(
       fees.dynamicFees.minFeeBroadcast,
       transaction,
     )
     if (fee >= minFeeBroadcast) {
-      enterPool = true
+      broadcast = true
+    } else {
+      broadcast = false
       logger.debug(
-        `Transaction ${id} eligible to enter pool (fee=${fee} >= min=${minFeeBroadcast})`,
+        `Transaction ${id} not eligible for broadcast (fee=${fee} < min=${minFeeBroadcast})`,
       )
+    }
+
+    const minFeePool = dynamicFeeManager.calculateFee(
+      fees.dynamicFees.minFeePool,
+      transaction,
+    )
+    if (fee >= minFeePool) {
+      enterPool = true
     } else {
       enterPool = false
       logger.debug(
-        `Transaction ${id} not eligible to enter pool (fee=${fee} < min=${minFeeBroadcast})`,
+        `Transaction ${id} not eligible to enter pool (fee=${fee} < min=${minFeePool})`,
       )
     }
   } else {
