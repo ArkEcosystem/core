@@ -101,7 +101,9 @@ class Guard {
   async resetSuspendedPeers() {
     logger.info('Clearing suspended peers.')
     await Promise.all(
-      Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)),
+      Object.values(this.suspensions).map(suspension =>
+        this.unsuspend(suspension.peer),
+      ),
     )
   }
 
@@ -155,7 +157,7 @@ class Guard {
    * @return {Boolean}
    */
   isValidVersion(peer) {
-    return semver.satisfies(peer.version, config.peers.minimumVersion)
+    return semver.satisfies(peer.headers.version, config.peers.minimumVersion)
   }
 
   /**
@@ -164,7 +166,7 @@ class Guard {
    * @return {Boolean}
    */
   isValidNetwork(peer) {
-    return peer.nethash === config.network.nethash
+    return peer.headers.nethash === config.network.nethash
   }
 
   /**
@@ -238,7 +240,7 @@ class Guard {
       return this.__determinePunishment(peer, offences.TOO_MANY_REQUESTS)
     }
 
-    if (peer.status !== 200) {
+    if (peer.status && peer.status !== 200) {
       return this.__determinePunishment(peer, offences.INVALID_STATUS)
     }
 
