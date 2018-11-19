@@ -191,10 +191,8 @@ describe('API P2P - Version 2', () => {
       expect(response.result.error).toBeObject()
       expect(response.result.error[transactions[1].id]).toEqual([
         {
-          message: `Error: [PoolWalletManager] Can't apply transaction ${
-            transactions[1].id
-          }`,
-          type: 'ERR_UNKNOWN',
+          message: `Error: Can't apply transaction ${transactions[1].id}`,
+          type: 'ERR_APPLY',
         },
       ])
     })
@@ -276,10 +274,8 @@ describe('API P2P - Version 2', () => {
         expect(response.result.error).toBeObject()
         expect(response.result.error[lastTransaction[0].id]).toEqual([
           {
-            message: `Error: [PoolWalletManager] Can't apply transaction ${
-              lastTransaction[0].id
-            }`,
-            type: 'ERR_UNKNOWN',
+            message: `Error: Can't apply transaction ${lastTransaction[0].id}`,
+            type: 'ERR_APPLY',
           },
         ])
       },
