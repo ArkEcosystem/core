@@ -40,14 +40,16 @@ describe('DelegateRegistrationHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be ok', () => {
-      expect(handler.canApply(wallet, transaction)).toBeTrue()
+    it('should be true', () => {
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should not be ok', () => {
+    it('should be false if wallet already registered a username', () => {
       wallet.username = 'dummy'
+      const errors = []
 
-      expect(handler.canApply(wallet, transaction)).toBeFalse()
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Wallet already has a registered username')
     })
   })
 
@@ -56,7 +58,7 @@ describe('DelegateRegistrationHandler', () => {
       expect(handler.apply).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should set username', () => {
       handler.apply(wallet, transaction)
 
       expect(wallet.username).toBe('dummy')
@@ -68,7 +70,7 @@ describe('DelegateRegistrationHandler', () => {
       expect(handler.revert).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should unset username', () => {
       handler.revert(wallet, transaction)
 
       expect(wallet.username).toBeNull()

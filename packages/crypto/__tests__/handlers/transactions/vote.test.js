@@ -10,8 +10,6 @@ beforeEach(() => {
     balance: new Bignum('6453530000000'),
     publicKey:
       '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
-    secondPublicKey:
-      '03791c7d0229966ee41af0e5362f3bb2534ef8c706d7151fec70aead607227fce1',
     vote: null,
   }
 
@@ -47,6 +45,34 @@ describe('VoteHandler', () => {
     it('should be a function', () => {
       expect(handler.canApply).toBeFunction()
     })
+    it('should be false if wallet has already voted', () => {
+      wallet.vote =
+        '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      const errors = []
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Wallet has already voted')
+    })
+    it('should be false if tx vote-choice does not match wallet vote-choice', () => {
+      wallet.vote =
+        'a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      transaction.asset.votes[0] =
+        '-0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      const errors = []
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain(
+        'Wallet vote-choice does not match transaction vote-choice',
+      )
+    })
+    it('should be false if unvoting a non-voted wallet', () => {
+      transaction.asset.votes[0] =
+        '-0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      const errors = []
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Wallet has not voted yet')
+    })
   })
 
   describe('apply', () => {
@@ -63,7 +89,8 @@ describe('VoteHandler', () => {
     })
 
     it('should not be ok', () => {
-      wallet.vote = '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      wallet.vote =
+        '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
 
       expect(wallet.vote).not.toBeNull()
 
@@ -79,7 +106,8 @@ describe('VoteHandler', () => {
     })
 
     it('should be ok', () => {
-      wallet.vote = '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      wallet.vote =
+        '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
 
       expect(wallet.vote).not.toBeNull()
 

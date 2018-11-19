@@ -416,6 +416,7 @@ module.exports = class WalletManager {
 
     const sender = this.findByPublicKey(senderPublicKey)
     const recipient = this.findByAddress(recipientId)
+    const errors = []
 
     if (
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
@@ -453,11 +454,11 @@ module.exports = class WalletManager {
         'Transaction forcibly applied because it has been added as an exception:',
         data,
       )
-    } else if (!sender.canApply(data)) {
+    } else if (!sender.canApply(data, errors)) {
       logger.error(
-        `Can't apply transaction for ${sender.address}: ${JSON.stringify(
-          data,
-        )}`,
+        `Can't apply transaction id:${data.id} from sender:${
+          sender.address
+        } due to ${JSON.stringify(errors)}`,
       )
       logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`)
       throw new Error(`Can't apply transaction ${data.id}`)

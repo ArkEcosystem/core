@@ -6,10 +6,11 @@ class MultiPaymentHandler extends Handler {
    * Check if the transaction can be applied to the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
+   * @param {Array} errors
    * @return {Boolean}
    */
-  canApply(wallet, transaction) {
-    if (!super.canApply(wallet, transaction)) {
+  canApply(wallet, transaction, errors) {
+    if (!super.canApply(wallet, transaction, errors)) {
       return false
     }
 
@@ -18,12 +19,15 @@ class MultiPaymentHandler extends Handler {
       Bignum.ZERO,
     )
 
-    return (
+    const canApply =
       +wallet.balance
         .minus(amount)
         .minus(transaction.fee)
         .toFixed() >= 0
-    )
+    if (!canApply) {
+      errors.push('Insufficient balance in the wallet')
+    }
+    return canApply
   }
 
   /**

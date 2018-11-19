@@ -295,17 +295,19 @@ module.exports = class TransactionPoolInterface {
   }
 
   checkApplyToBlockchain(transaction) {
-    if (
-      !database.walletManager
-        .findByPublicKey(transaction.senderPublicKey)
-        .canApply(transaction)
-    ) {
+    const errors = []
+    const wallet = database.walletManager.findByPublicKey(
+      transaction.senderPublicKey,
+    )
+    if (!wallet.canApply(transaction, errors)) {
       this.removeTransaction(transaction)
 
       logger.debug(
-        `CanApply transaction test failed from transaction pool for transaction ${
+        `CanApply transaction test failed from transaction pool for transaction id:${
           transaction.id
-        }. Possible double spending attack :bomb:`,
+        } due to ${JSON.stringify(
+          errors,
+        )}. Possible double spending attack :bomb:`,
       )
 
       this.purgeByPublicKey(transaction.senderPublicKey)

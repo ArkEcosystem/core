@@ -51,10 +51,11 @@ module.exports = class Wallet {
   /**
    * Check if can apply a transaction to the wallet.
    * @param  {Transaction} transaction
+   * @param {Array} errors
    * @return {Boolean}
    */
-  canApply(transaction) {
-    return transactionHandler.canApply(this, transaction)
+  canApply(transaction, errors) {
+    return transactionHandler.canApply(this, transaction, errors)
   }
 
   /**
@@ -116,8 +117,8 @@ module.exports = class Wallet {
     this.dirty = true
 
     if (
-      block.generatorPublicKey === this.publicKey
-      || crypto.getAddress(block.generatorPublicKey) === this.address
+      block.generatorPublicKey === this.publicKey ||
+      crypto.getAddress(block.generatorPublicKey) === this.address
     ) {
       this.balance = this.balance.plus(block.reward).plus(block.totalFee)
 
@@ -140,8 +141,8 @@ module.exports = class Wallet {
     this.dirty = true
 
     if (
-      block.generatorPublicKey === this.publicKey
-      || crypto.getAddress(block.generatorPublicKey) === this.address
+      block.generatorPublicKey === this.publicKey ||
+      crypto.getAddress(block.generatorPublicKey) === this.address
     ) {
       this.balance = this.balance.minus(block.reward).minus(block.totalFee)
 
@@ -179,13 +180,13 @@ module.exports = class Wallet {
    */
   verifySignatures(transaction, multisignature) {
     if (
-      !transaction.signatures
-      || transaction.signatures.length < multisignature.min
+      !transaction.signatures ||
+      transaction.signatures.length < multisignature.min
     ) {
       return false
     }
 
-    const keysgroup = multisignature.keysgroup.map(publicKey => (publicKey.startsWith('+') ? publicKey.slice(1) : publicKey))
+    const keysgroup = multisignature.keysgroup.map(publicKey => publicKey.startsWith('+') ? publicKey.slice(1) : publicKey)
     const signatures = Object.values(transaction.signatures)
 
     let valid = 0
