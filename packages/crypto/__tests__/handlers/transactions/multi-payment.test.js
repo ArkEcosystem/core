@@ -55,7 +55,7 @@ describe('MultiPaymentHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       const amount = transaction.asset.payments.reduce(
         (a, p) => a.plus(p.amount),
         Bignum.ZERO,
@@ -64,7 +64,7 @@ describe('MultiPaymentHandler', () => {
       expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should be falsy if wallet has insufficient balance', () => {
+    it('should be false if wallet has insufficient balance', () => {
       const amount = transaction.asset.payments.reduce(
         (a, p) => a.plus(p.amount),
         Bignum.ZERO,

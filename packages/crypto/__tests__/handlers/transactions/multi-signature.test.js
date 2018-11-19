@@ -105,13 +105,13 @@ describe('MultiSignatureHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       delete wallet.multisignature
 
       expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should be falsy if failure to verify signatures', () => {
+    it('should be false if failure to verify signatures', () => {
       wallet.multisignature = multisignatureTest
       const errors = []
 
@@ -119,7 +119,7 @@ describe('MultiSignatureHandler', () => {
       expect(errors).toContain('Failed to verify multi-signatures')
     })
 
-    it('should be falsy if keyCount is less than minimum', () => {
+    it('should be false if keyCount is less than minimum', () => {
       wallet.multisignature = multisignatureTest
       wallet.multisignature.min = 20
       const errors = []

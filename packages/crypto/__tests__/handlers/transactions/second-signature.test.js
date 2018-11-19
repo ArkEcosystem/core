@@ -47,13 +47,13 @@ describe('SecondSignatureHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       wallet.secondPublicKey = null
 
       expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should be falsy if wallet already has a second signature', () => {
+    it('should be false if wallet already has a second signature', () => {
       const errors = []
 
       expect(handler.canApply(wallet, transaction, errors)).toBeFalse()

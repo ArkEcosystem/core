@@ -45,7 +45,7 @@ describe('VoteHandler', () => {
     it('should be a function', () => {
       expect(handler.canApply).toBeFunction()
     })
-    it('should be falsy if wallet has already voted', () => {
+    it('should be false if wallet has already voted', () => {
       wallet.vote =
         '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
       const errors = []
@@ -53,7 +53,7 @@ describe('VoteHandler', () => {
       expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
       expect(errors).toContain('Wallet has already voted')
     })
-    it('should be falsy if tx vote-choice does not match wallet vote-choice', () => {
+    it('should be false if tx vote-choice does not match wallet vote-choice', () => {
       wallet.vote =
         'a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
       transaction.asset.votes[0] =
@@ -65,7 +65,7 @@ describe('VoteHandler', () => {
         'Wallet vote-choice does not match transaction vote-choice',
       )
     })
-    it('should be falsy if unvoting a non-voted wallet', () => {
+    it('should be false if unvoting a non-voted wallet', () => {
       transaction.asset.votes[0] =
         '-0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
       const errors = []

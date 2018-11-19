@@ -18,13 +18,13 @@ describe('DelegateResignationHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be truth', () => {
       wallet.username = 'dummy'
 
       expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should be falsy if wallet has no registered username', () => {
+    it('should be false if wallet has no registered username', () => {
       wallet.username = null
       const errors = []
 

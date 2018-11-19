@@ -40,11 +40,11 @@ describe('DelegateRegistrationHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be truthy', () => {
+    it('should be true', () => {
       expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should be falsy if wallet already registered a username', () => {
+    it('should be false if wallet already registered a username', () => {
       wallet.username = 'dummy'
       const errors = []
 
