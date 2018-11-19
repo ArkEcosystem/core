@@ -7,6 +7,10 @@ const {
   TRANSACTION_TYPES,
 } = require('@arkecosystem/crypto').constants
 
+const genTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const genDelegateReg = require('@arkecosystem/core-test-utils/lib/generators/transactions/delegate')
+const gen2ndSignature = require('@arkecosystem/core-test-utils/lib/generators/transactions/signature')
+const genvote = require('@arkecosystem/core-test-utils/lib/generators/transactions/vote')
 const block3 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')[1]
 const app = require('./__support__/setup')
 
@@ -196,125 +200,90 @@ describe('Wallet Manager', () => {
 
     describe('when the recipient is a cold wallet', () => {})
 
-    describe('when the transaction is a transfer', () => {
-      const amount = new Bignum(96579)
+    const transfer = genTransfer(
+      'testnet',
+      Math.random().toString(36),
+      walletData2.address,
+      96579,
+      1,
+    )[0]
+    const delegateReg = genDelegateReg(
+      'testnet',
+      Math.random().toString(36),
+      1,
+    )[0]
+    const secondSign = gen2ndSignature(
+      'testnet',
+      Math.random().toString(36),
+      1,
+    )[0]
+    const vote = genvote(
+      'testnet',
+      Math.random().toString(36),
+      walletData2.publicKey,
+      1,
+    )[0]
+    describe.each`
+      type          | transaction    | amount               | balanceSuccess               | balanceFail
+      ${'transfer'} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(1 * ARKTOSHI)}  | ${Bignum.ONE}
+      ${'delegate'} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * ARKTOSHI)} | ${Bignum.ONE}
+      ${'2nd sign'} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * ARKTOSHI)} | ${Bignum.ONE}
+      ${'vote'}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * ARKTOSHI)}  | ${Bignum.ONE}
+    `(
+      'when the transaction is a $type',
+      ({ type, transaction, amount, balanceSuccess, balanceFail }) => {
+        let sender
+        let recipient
 
-      let sender
-      let recipient
-      let transaction
+        beforeEach(() => {
+          sender = new Wallet(walletData1.address)
+          recipient = new Wallet(walletData2.address)
+          recipient.publicKey = walletData2.publicKey
 
-      beforeEach(() => {
-        sender = new Wallet(walletData1.address)
-        recipient = new Wallet(walletData2.address)
-        recipient.publicKey = walletData2.publicKey
+          sender.publicKey = transaction.senderPublicKey
 
-        // NOTE: the order is important: we sign a transaction with a random pass
-        // to override the sender public key with a fake one
+          walletManager.reindex(sender)
+          walletManager.reindex(recipient)
 
-        transaction = transactionBuilder
-          .transfer()
-          .vendorField('dummy A transfer to dummy B')
-          .sign(Math.random().toString(36))
-          .recipientId(recipient.address)
-          .amount(amount)
-          .build()
+          walletManager.__isDelegate = jest.fn(() => true) // for vote transaction
+        })
 
-        sender.publicKey = transaction.senderPublicKey
+        it('should apply the transaction to the sender & recipient', async () => {
+          sender.balance = balanceSuccess
 
-        walletManager.reindex(sender)
-        walletManager.reindex(recipient)
-      })
-
-      it('should apply the transaction to the sender & recipient', async () => {
-        const balance = new Bignum(100000000)
-        sender.balance = balance
-
-        expect(+sender.balance.toFixed()).toBe(100000000)
-        expect(+recipient.balance.toFixed()).toBe(0)
-
-        await walletManager.applyTransaction(transaction)
-
-        expect(sender.balance).toEqual(
-          balance.minus(amount).minus(transaction.fee),
-        )
-        expect(recipient.balance).toEqual(amount)
-      })
-
-      it('should fail if the transaction cannot be applied', async () => {
-        const balance = Bignum.ONE
-        sender.balance = balance
-
-        expect(+sender.balance.toFixed()).toBe(1)
-        expect(+recipient.balance.toFixed()).toBe(0)
-
-        try {
-          expect(async () => {
-            await walletManager.applyTransaction(transaction)
-          }).toThrow(/apply transaction/)
-
-          expect(null).toBe('this should fail if no error is thrown')
-        } catch (error) {
-          expect(+sender.balance.toFixed()).toBe(1)
+          expect(+sender.balance.toFixed()).toBe(+balanceSuccess)
           expect(+recipient.balance.toFixed()).toBe(0)
-        }
-      })
-    })
 
-    describe('when the transaction is a delegate registration', () => {
-      const username = 'delegate_1'
+          await walletManager.applyTransaction(transaction)
 
-      let sender
-      let transaction
+          expect(sender.balance).toEqual(
+            balanceSuccess.minus(amount).minus(transaction.fee),
+          )
 
-      beforeEach(() => {
-        sender = new Wallet(walletData1.address)
+          if (type === 'transfer') {
+            expect(recipient.balance).toEqual(amount)
+          }
+        })
 
-        // NOTE: the order is important: we sign a transaction with a random pass
-        // to override the sender public key with a fake one
+        it('should fail if the transaction cannot be applied', async () => {
+          sender.balance = balanceFail
 
-        transaction = transactionBuilder
-          .delegateRegistration()
-          .usernameAsset(username)
-          .sign(Math.random().toString(36))
-          .build()
+          expect(+sender.balance.toFixed()).toBe(+balanceFail)
+          expect(+recipient.balance.toFixed()).toBe(0)
 
-        sender.publicKey = transaction.senderPublicKey
+          try {
+            expect(async () => {
+              await walletManager.applyTransaction(transaction)
+            }).toThrow(/apply transaction/)
 
-        walletManager.reindex(sender)
-      })
-
-      it('should apply the transaction to the sender', async () => {
-        const balance = new Bignum(30 * ARKTOSHI)
-        sender.balance = balance
-
-        expect(+sender.balance.toFixed()).toBe(30 * ARKTOSHI)
-
-        await walletManager.applyTransaction(transaction)
-
-        expect(sender.balance).toEqual(balance.minus(transaction.fee))
-        expect(sender.username).toBe(username)
-        expect(walletManager.findByUsername(username)).toBe(sender)
-      })
-
-      it('should fail if the transaction cannot be applied', async () => {
-        const balance = Bignum.ONE
-        sender.balance = balance
-
-        expect(sender.balance).toBe(balance)
-
-        try {
-          expect(async () => {
-            await walletManager.applyTransaction(transaction)
-          }).toThrow(/apply transaction/)
-
-          expect(null).toBe('this should fail if no error is thrown')
-        } catch (error) {
-          expect(sender.balance).toEqual(balance)
-        }
-      })
-    })
-
-    describe('when the transaction is not a transfer', () => {})
+            expect(null).toBe('this should fail if no error is thrown')
+          } catch (error) {
+            expect(+sender.balance.toFixed()).toBe(+balanceFail)
+            expect(+recipient.balance.toFixed()).toBe(0)
+          }
+        })
+      },
+    )
   })
 
   describe('revertTransaction', () => {
