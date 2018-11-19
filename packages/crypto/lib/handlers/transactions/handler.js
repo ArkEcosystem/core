@@ -1,43 +1,59 @@
+const assert = require('assert')
 const { crypto } = require('../../crypto')
 const { transactionValidator } = require('../../validation')
-const configManager = require('../../managers/config')
 
 module.exports = class Handler {
   /**
    * Check if the transaction can be applied to the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
+   * @param {Array} errors
    * @return {Boolean}
    */
-  canApply(wallet, transaction) {
-    if (transactionValidator.validate(transaction).fails) {
+  canApply(wallet, transaction, errors) {
+    const validationResult = transactionValidator.validate(transaction)
+    assert.ok(errors instanceof Array)
+    if (validationResult.fails) {
+      errors.push(validationResult.fails.message)
       return false
     }
 
-    let applicable = true
-
     if (wallet.multisignature) {
-      applicable = wallet.verifySignatures(transaction, wallet.multisignature)
+      if (!wallet.verifySignatures(transaction, wallet.multisignature)) {
+        errors.push('Failed to verify multi-signatures')
+        return false
+      }
     } else {
       const balance = +wallet.balance
         .minus(transaction.amount)
         .minus(transaction.fee)
         .toFixed()
-      const enoughBalance = balance >= 0
-      applicable = transaction.senderPublicKey.toLowerCase()
-          === wallet.publicKey.toLowerCase() && enoughBalance
+      if (balance < 0) {
+        errors.push('Insufficient balance in the wallet')
+        return false
+      }
+      if (
+        !(
+          transaction.senderPublicKey.toLowerCase() ===
+          wallet.publicKey.toLowerCase()
+        )
+      ) {
+        errors.push(
+          'wallet "publicKey" does not match transaction "senderPublicKey"',
+        )
+        return false
+      }
 
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
-      applicable = applicable
-        && (!wallet.secondPublicKey
-          || crypto.verifySecondSignature(
-            transaction,
-            wallet.secondPublicKey,
-            configManager.config,
-          )) // eslint-disable-line max-len
+      if (
+        wallet.secondPublicKey &&
+        !crypto.verifySecondSignature(transaction, wallet.secondPublicKey)
+      ) {
+        errors.push('Failed to verify second-signature')
+        return false
+      }
     }
-
-    return applicable
+    return true
   }
 
   /**
@@ -48,9 +64,9 @@ module.exports = class Handler {
    */
   applyTransactionToSender(wallet, transaction) {
     if (
-      transaction.senderPublicKey.toLowerCase()
-        === wallet.publicKey.toLowerCase()
-      || crypto.getAddress(transaction.senderPublicKey) === wallet.address
+      transaction.senderPublicKey.toLowerCase() ===
+        wallet.publicKey.toLowerCase() ||
+      crypto.getAddress(transaction.senderPublicKey) === wallet.address
     ) {
       wallet.balance = wallet.balance
         .minus(transaction.amount)
@@ -70,9 +86,9 @@ module.exports = class Handler {
    */
   revertTransactionForSender(wallet, transaction) {
     if (
-      transaction.senderPublicKey.toLowerCase()
-        === wallet.publicKey.toLowerCase()
-      || crypto.getAddress(transaction.senderPublicKey) === wallet.address
+      transaction.senderPublicKey.toLowerCase() ===
+        wallet.publicKey.toLowerCase() ||
+      crypto.getAddress(transaction.senderPublicKey) === wallet.address
     ) {
       wallet.balance = wallet.balance
         .plus(transaction.amount)

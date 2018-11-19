@@ -18,14 +18,14 @@ describe('TimelockTransferHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be ok', () => {
-      expect(handler.canApply(wallet, transaction)).toBeTrue()
+    it('should be truthy', () => {
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should not be ok', () => {
+    it('should be falsy', () => {
       transaction.senderPublicKey = 'a'.repeat(66)
 
-      expect(handler.canApply(wallet, transaction)).toBeFalse()
+      expect(handler.canApply(wallet, transaction, [])).toBeFalse()
     })
   })
 

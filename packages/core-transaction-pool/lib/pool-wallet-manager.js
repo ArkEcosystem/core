@@ -72,6 +72,7 @@ module.exports = class PoolWalletManager extends WalletManager {
     /* eslint padded-blocks: "off" */
     const { data } = transaction
     const { type, asset, recipientId, senderPublicKey } = data
+    const errors = []
 
     const sender = this.findByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.findByAddress(recipientId) : null
@@ -122,11 +123,11 @@ module.exports = class PoolWalletManager extends WalletManager {
         'Transaction forcibly applied because it has been added as an exception:',
         data,
       )
-    } else if (!sender.canApply(data)) {
+    } else if (!sender.canApply(data, errors)) {
       logger.error(
-        `[PoolWalletManager] Can't apply transaction for ${
-          sender.address
-        }: ${JSON.stringify(data)}`,
+        `[PoolWalletManager] Can't apply transaction id:${
+          data.id
+        } from sender:${sender.address} due to ${JSON.stringify(errors)}`,
       )
       logger.debug(
         `[PoolWalletManager] Audit: ${JSON.stringify(
