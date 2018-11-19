@@ -53,18 +53,23 @@ class Storage {
         '(:sequence, :id, :serialized, :pingCount);',
     )
 
-    this.db.prepare('BEGIN;').run()
+    try {
+      this.db.prepare('BEGIN;').run()
 
-    data.forEach(d =>
-      insertStatement.run({
-        sequence: d.sequence,
-        id: d.transaction.id,
-        serialized: Buffer.from(d.transaction.serialized, 'hex'),
-        pingCount: d.pingCount,
-      }),
-    )
+      data.forEach(d =>
+        insertStatement.run({
+          sequence: d.sequence,
+          id: d.transaction.id,
+          serialized: Buffer.from(d.transaction.serialized, 'hex'),
+          pingCount: d.pingCount,
+        }),
+      )
 
-    this.db.prepare('COMMIT;').run()
+      this.db.prepare('COMMIT;').run()
+    } catch (e) {
+      this.db.prepare('ROLLBACK;').run()
+      throw e
+    }
   }
 
   /**

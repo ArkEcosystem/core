@@ -14,6 +14,8 @@ class Mem {
      */
     this.sequence = 0
 
+    this.bySequence = {}
+
     /**
      * An array of MemPoolTransaction sorted by fee (the transaction with the
      * highest fee is first). If the fee is equal, they are sorted by insertion
@@ -91,7 +93,18 @@ class Mem {
       // Sequence should only be set during DB load (when sequences come
       // from the database). In other scenarios sequence is not set and we
       // set it here.
+      assert.strictEqual(typeof memPoolTransaction.sequence, 'undefined')
       memPoolTransaction.sequence = this.sequence++
+    }
+
+    if (this.bySequence[memPoolTransaction.sequence] === undefined) {
+      this.bySequence[memPoolTransaction.sequence] = memPoolTransaction
+    } else {
+      throw new Error(
+        `Trying to add a new transaction to the pool but another one with the same sequence ` +
+        `already exists. New transaction id: ${memPoolTransaction.transaction.id}, existent ` +
+        `transaction id: ${this.bySequence[memPoolTransaction.sequence].transaction.id}, ` +
+        `sequence: ${memPoolTransaction.sequence}`)
     }
 
     this.all.push(memPoolTransaction)
@@ -163,6 +176,8 @@ class Mem {
     assert.notStrictEqual(i, -1)
     this.all.splice(i, 1)
     this.allIsSorted = false
+
+    delete this.bySequence[memPoolTransaction.sequence]
 
     if (this.dirty.added.has(id)) {
       // This transaction has been added and deleted without data being synced
@@ -300,6 +315,7 @@ class Mem {
    * Remove all transactions.
    */
   flush() {
+    this.bySequence = {}
     this.all = []
     this.allIsSorted = true
     this.byId = {}
