@@ -335,6 +335,9 @@ exports.postTransactions = {
         result.invalid.push(notAdded.transaction)
         const id = notAdded.transaction.id
 
+        if (result.errors === null) {
+          result.errors = {}
+        }
         if (result.errors[id] === undefined) {
           result.errors[id] = []
         }
