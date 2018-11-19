@@ -90,6 +90,7 @@ class Guard {
     }
 
     delete this.suspensions[peer.ip]
+    delete peer.nextSuspensionReminder
 
     await this.monitor.acceptNewPeer(peer)
   }
@@ -118,14 +119,21 @@ class Guard {
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
       const untilDiff = moment.duration(suspendedPeer.until.diff(moment.now()))
 
-      logger.debug(
-        `${peer.ip} still suspended for ${untilDiff.humanize()} because of "${
-          suspendedPeer.reason
-        }".`,
-      )
+      const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder
+      if (!nextSuspensionReminder || moment().isAfter(nextSuspensionReminder)) {
+        logger.debug(
+          `${peer.ip} still suspended for ${untilDiff.humanize()} because of "${
+            suspendedPeer.reason
+          }".`,
+        )
+        suspendedPeer.nextSuspensionReminder = moment()
+          .utc()
+          .add(5, 'm')
+      }
 
       return true
     }
+
     if (suspendedPeer) {
       delete this.suspensions[peer.ip]
     }
