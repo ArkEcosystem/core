@@ -9,7 +9,9 @@ module.exports = transaction => {
         .string()
         .alphanum()
         .required(),
-      blockid: engine.joi.number().unsafe(),
+      blockid: engine.joi
+        .alternatives()
+        .try(engine.joi.arkBlockId(), engine.joi.number().unsafe()),
       type: engine.joi.number().valid(TRANSACTION_TYPES.TIMELOCK_TRANSFER),
       timestamp: engine.joi
         .number()
