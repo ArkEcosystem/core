@@ -12,7 +12,7 @@ module.exports = joi => ({
       .alternatives()
       .try(joi.bignumber().only(0), joi.number().only(0))
       .optional(),
-    recipientId: joi.arkAddress().optional(),
+    recipientId: joi.arkAddress().allow(null).optional(),
     asset: joi
       .object({
         votes: joi
