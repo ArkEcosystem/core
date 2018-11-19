@@ -4,34 +4,15 @@ const WalletModel = require('../../../lib/models/wallet')
 
 let wallet
 let transaction
-
-const multisignatureTest = {
-  min: 15,
-  lifetime: 72,
-  keysgroup: [
-    '034a7aca6841cfbdc688f09d55345f21c7ffbd1844693fa68d607fc94f729cbbea',
-    '02fd6743ddfdc7c5bac24145e449c2e4f2d569b5297dd7bf088c3bc219f582a2f0',
-    '02f9c51812f4be127b9f1f21cb4e146eca6aecc85739a243db0f1064981deda216',
-    '0214d60ca95cd87a097ed6e6e42281acb68ae1815c8f494b8ff18d24dc9e072171',
-    '02a14634e04e80b05acd56bc361af98498d76fbf5233f8d62773ceaa07172ddaa6',
-    '021a9ba0e72f02b8fa7bad386582ec1d6c05b7664c892bf2a86035a85350f37203',
-    '02e3ba373c6c352316b748e75358ead36504b0ef5139d215fb6a83a330c4eb60d5',
-    '0309039bfa18d6fd790edb79438783b27fbcab06040a2fdaa66fb81ad53ca8db5f',
-    '0393d12aff5962fa9065487959719a81c5d991e7c48a823039acd9254c2b673841',
-    '03d3265264f06fe1dd752798403a73e537eb461fc729c83a84b579e8434adfe7c4',
-    '02acfa496a6c12cb9acc3219993b17c62d19f4b570996c12a37d6e89eaa9716859',
-    '03136f2101f1767b0d63d9545410bcaf3a941b2b6f06851093f3c679e0d31ca1cd',
-    '02e6ec3941be86177bf0b998589c07da1b73e990466fdaee347c972c10f61b3797',
-    '037dcd05d921a9f2ddd11960fec2ea9904fc55cad030549a6c5f5a41b2e35e56d2',
-    '03206f7ae26f14cffb62b8c28b5e632952cdeb84b7c74ac0c2198b08bd84ee4f23',
-  ],
-}
+let multisignatureTest
 
 beforeEach(() => {
   wallet = new WalletModel('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
   wallet.balance = new Bignum(100390000000)
-  wallet.publicKey = '026f717e50bf3dbb9d8593996df5435ba22217410fc7a132f3d2c942a01a00a202'
-  wallet.secondPublicKey = '0380728436880a0a11eadf608c4d4e7f793719e044ee5151074a5f2d5d43cb9066'
+  wallet.publicKey =
+    '026f717e50bf3dbb9d8593996df5435ba22217410fc7a132f3d2c942a01a00a202'
+  wallet.secondPublicKey =
+    '0380728436880a0a11eadf608c4d4e7f793719e044ee5151074a5f2d5d43cb9066'
   wallet.multisignature = multisignatureTest
 
   transaction = {
@@ -90,6 +71,28 @@ beforeEach(() => {
     },
     confirmations: 1091040,
   }
+
+  multisignatureTest = {
+    min: 15,
+    lifetime: 72,
+    keysgroup: [
+      '034a7aca6841cfbdc688f09d55345f21c7ffbd1844693fa68d607fc94f729cbbea',
+      '02fd6743ddfdc7c5bac24145e449c2e4f2d569b5297dd7bf088c3bc219f582a2f0',
+      '02f9c51812f4be127b9f1f21cb4e146eca6aecc85739a243db0f1064981deda216',
+      '0214d60ca95cd87a097ed6e6e42281acb68ae1815c8f494b8ff18d24dc9e072171',
+      '02a14634e04e80b05acd56bc361af98498d76fbf5233f8d62773ceaa07172ddaa6',
+      '021a9ba0e72f02b8fa7bad386582ec1d6c05b7664c892bf2a86035a85350f37203',
+      '02e3ba373c6c352316b748e75358ead36504b0ef5139d215fb6a83a330c4eb60d5',
+      '0309039bfa18d6fd790edb79438783b27fbcab06040a2fdaa66fb81ad53ca8db5f',
+      '0393d12aff5962fa9065487959719a81c5d991e7c48a823039acd9254c2b673841',
+      '03d3265264f06fe1dd752798403a73e537eb461fc729c83a84b579e8434adfe7c4',
+      '02acfa496a6c12cb9acc3219993b17c62d19f4b570996c12a37d6e89eaa9716859',
+      '03136f2101f1767b0d63d9545410bcaf3a941b2b6f06851093f3c679e0d31ca1cd',
+      '02e6ec3941be86177bf0b998589c07da1b73e990466fdaee347c972c10f61b3797',
+      '037dcd05d921a9f2ddd11960fec2ea9904fc55cad030549a6c5f5a41b2e35e56d2',
+      '03206f7ae26f14cffb62b8c28b5e632952cdeb84b7c74ac0c2198b08bd84ee4f23',
+    ],
+  }
 })
 
 describe('MultiSignatureHandler', () => {
@@ -102,16 +105,27 @@ describe('MultiSignatureHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should be true', () => {
       delete wallet.multisignature
 
-      expect(handler.canApply(wallet, transaction)).toBeTrue()
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should not be ok', () => {
+    it('should be false if failure to verify signatures', () => {
       wallet.multisignature = multisignatureTest
+      const errors = []
 
-      expect(handler.canApply(wallet, transaction)).toBeFalse()
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Failed to verify multi-signatures')
+    })
+
+    it('should be false if keyCount is less than minimum', () => {
+      wallet.multisignature = multisignatureTest
+      wallet.multisignature.min = 20
+      const errors = []
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Failed to verify multi-signatures')
     })
   })
 

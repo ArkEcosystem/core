@@ -1,22 +1,26 @@
-const { TRANSACTION_TYPES } = require('../../constants')
+const engine = require('../engine')
+const transactionExtensions = require('../extensions/transactions/index')
 
 class TransactionValidator {
   constructor() {
-    this.rules = {
-      [TRANSACTION_TYPES.TRANSFER]: require('../rules/models/transactions/transfer'),
-      [TRANSACTION_TYPES.SECOND_SIGNATURE]: require('../rules/models/transactions/second-signature'),
-      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: require('../rules/models/transactions/delegate-registration'),
-      [TRANSACTION_TYPES.VOTE]: require('../rules/models/transactions/vote'),
-      [TRANSACTION_TYPES.MULTI_SIGNATURE]: require('../rules/models/transactions/multi-signature'),
-      [TRANSACTION_TYPES.IPFS]: require('../rules/models/transactions/ipfs'),
-      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require('../rules/models/transactions/timelock-transfer'),
-      [TRANSACTION_TYPES.MULTI_PAYMENT]: require('../rules/models/transactions/multi-payment'),
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('../rules/models/transactions/delegate-resignation'),
-    }
+    this.rules = Object.keys(transactionExtensions).reduce((rules, type) => {
+      rules[type] = transactionExtensions[type](engine.joi).base
+      return rules
+    }, {})
   }
 
   validate(transaction) {
-    return this.rules[transaction.type](transaction)
+    const { value, error } = engine.validate(
+      transaction,
+      this.rules[transaction.type],
+      { allowUnknown: true },
+    )
+    return {
+      data: value,
+      errors: error ? error.details : null,
+      passes: !error,
+      fails: error,
+    }
   }
 }
 

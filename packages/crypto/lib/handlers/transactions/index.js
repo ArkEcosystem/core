@@ -22,10 +22,11 @@ class TransactionHandler {
    * [canApply description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
+   * @param {Array} errors
    * @return {Boolean}
    */
-  canApply(wallet, transaction) {
-    return this.handlers[transaction.type].canApply(wallet, transaction)
+  canApply(wallet, transaction, errors) {
+    return this.handlers[transaction.type].canApply(wallet, transaction, errors)
   }
 
   /**

@@ -1,4 +1,4 @@
-const { transactionValidator } = require('../../../lib/validation')
+const { transactionValidator } = require('../../lib/validation')
 
 describe('Validators - Transaction', () => {
   it('should be instantiated', () => {

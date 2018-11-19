@@ -5,16 +5,22 @@ class DelegateRegistrationHandler extends Handler {
    * Check if the transaction can be applied to the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
+   * @param {Array} errors
    * @return {Boolean}
    */
-  canApply(wallet, transaction) {
-    if (!super.canApply(wallet, transaction)) {
+  canApply(wallet, transaction, errors) {
+    if (!super.canApply(wallet, transaction, errors)) {
       return false
     }
 
     const username = transaction.asset.delegate.username
-
-    return !wallet.username && username && username === username.toLowerCase()
+    // TODO: Checking whether the username is a lowercase version of itself seems silly. Why can't we mutate it to lowercase
+    const canApply =
+      !wallet.username && username && username === username.toLowerCase()
+    if (!canApply) {
+      errors.push('Wallet already has a registered username')
+    }
+    return canApply
   }
 
   /**

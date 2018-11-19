@@ -42,7 +42,7 @@ describe('Models - Wallet', () => {
       Object.keys(data).forEach(k => {
         testWallet[k] = data[k]
       })
-      expect(testWallet.canApply(multiTx)).toBeTrue()
+      expect(testWallet.canApply(multiTx, [])).toBeTrue()
     })
   })
 
