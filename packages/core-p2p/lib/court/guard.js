@@ -165,7 +165,8 @@ class Guard {
    * @return {Boolean}
    */
   isValidVersion(peer) {
-    return semver.satisfies(peer.headers.version, config.peers.minimumVersion)
+    const version = peer.version || (peer.headers && peer.headers.version)
+    return semver.satisfies(version, config.peers.minimumVersion)
   }
 
   /**
@@ -174,7 +175,8 @@ class Guard {
    * @return {Boolean}
    */
   isValidNetwork(peer) {
-    return peer.headers.nethash === config.network.nethash
+    const nethash = peer.nethash || (peer.headers && peer.headers.nethash)
+    return nethash === config.network.nethash
   }
 
   /**
