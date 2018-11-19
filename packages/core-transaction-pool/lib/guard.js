@@ -113,7 +113,7 @@ module.exports = class TransactionGuard {
             const trx = new Transaction(transaction)
 
             if (trx.verified) {
-              result.access.push(trx)
+              result.accept.push(trx)
 
               if (dynamicFee.broadcast) {
                 result.broadcast.push(trx)
@@ -166,6 +166,7 @@ module.exports = class TransactionGuard {
           transaction.id
         } is ${secondsInFuture} seconds in the future`,
       )
+      return false
     }
 
     switch (transaction.type) {
