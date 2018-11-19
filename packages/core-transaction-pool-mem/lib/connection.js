@@ -83,9 +83,9 @@ class TransactionPool extends TransactionPoolInterface {
   /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
-   * @return {Object} if the `error` property of the object is set then the transaction
-   * was not added to the pool and the `error` property is a string describing the
-   * reason. If the `error` property is not set, then the transaction was added to the pool.
+   * @return {Object} The success property indicates wether the transaction was successfully added
+   * and applied to the pool or not. In case it was not successful, the type and message
+   * property yield information about the error.
    */
   addTransaction(transaction) {
     if (this.transactionExists(transaction.id)) {
@@ -94,7 +94,11 @@ class TransactionPool extends TransactionPoolInterface {
           `in the pool, id: ${transaction.id}`,
       )
 
-      return { error: 'Already in pool' }
+      return this.__createError(
+        transaction,
+        'ERR_ALREADY_IN_POOL',
+        'Already in pool',
+      )
     }
 
     const poolSize = this.mem.getSize()
@@ -108,12 +112,13 @@ class TransactionPool extends TransactionPoolInterface {
       if (lowest.fee.isLessThan(transaction.fee)) {
         this.mem.remove(lowest.id, lowest.senderPublicKey)
       } else {
-        return {
-          error:
-            `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
+        return this.__createError(
+          transaction,
+          'ERR_POOL_FULL',
+          `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
             `${transaction.fee.toFixed()} is not higher than the lowest fee already in pool ` +
             `${lowest.fee.toFixed()}`,
-        }
+        )
       }
     }
 
@@ -122,9 +127,18 @@ class TransactionPool extends TransactionPoolInterface {
       this.options.maxTransactionAge,
     )
 
-    this.__syncToPersistentStorageIfNecessary()
+    // Apply transaction to pool wallet manager.
+    try {
+      this.walletManager.applyTransaction(transaction)
+    } catch (error) {
+      // Remove tx again from the pool
+      this.mem.remove(transaction.id)
 
-    return {}
+      return this.__createError(transaction, 'ERR_APPLY', error.toString())
+    }
+
+    this.__syncToPersistentStorageIfNecessary()
+    return { success: true }
   }
 
   /**
@@ -134,7 +148,7 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {Object} like
    * {
    *   added: [ ... successfully added transactions ... ],
-   *   notAdded: [ { transaction: Transaction, reason: String }, ... ]
+   *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
    * }
    */
   addTransactions(transactions) {
@@ -144,10 +158,10 @@ class TransactionPool extends TransactionPoolInterface {
     for (const t of transactions) {
       const result = this.addTransaction(t)
 
-      if (result.error) {
-        notAdded.push({ transaction: t, reason: result.error })
-      } else {
+      if (result.success) {
         added.push(t)
+      } else {
+        notAdded.push(result)
       }
     }
 
@@ -430,6 +444,22 @@ class TransactionPool extends TransactionPoolInterface {
 
     const removed = this.mem.getDirtyRemovedAndForget()
     this.storage.bulkRemoveById(removed)
+  }
+
+  /**
+   * Create an error object which the TransactionGuard understands.
+   * @param {Transaction} transaction
+   * @param {String} type
+   * @param {String} message
+   * @return {Object}
+   */
+  __createError(transaction, type, message) {
+    return {
+      transaction,
+      type,
+      message,
+      success: false,
+    }
   }
 }
 

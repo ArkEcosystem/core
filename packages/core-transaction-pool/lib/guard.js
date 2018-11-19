@@ -31,7 +31,7 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Validate the specified transactions.
+   * Validate the specified transactions and accepted transactions to the pool.
    * @param  {Array} transactions
    * @return Object {
    *   accept: array of transactions that qualify for entering the pool
@@ -55,12 +55,12 @@ module.exports = class TransactionGuard {
     // Remove already forged tx... Not optimal here
     result.accept = await this.__removeForgedTransactions(result.accept)
 
-    // Remove transactions with too low fee for broadcast.
-    const broadcast = this.__removeTooLowFeesToBroadcast(result.accept)
+    // Add transactions to the pool
+    this.__addTransactionsToPool(result)
 
     return {
       accept: result.accept,
-      broadcast,
+      broadcast: result.broadcast,
       excess: result.excess,
       invalid: Array.from(this.invalid.values()),
       errors: Object.keys(this.errors).length > 0 ? this.errors : null,
@@ -239,6 +239,28 @@ module.exports = class TransactionGuard {
 
       return true
     })
+  }
+
+  /**
+   * Add accepted transactions to the pool and return rejected ones.
+   * @param {Object} result object containing the transactions
+   */
+  __addTransactionsToPool(result) {
+    // Add transactions to the transaction pool
+    const { added, notAdded } = this.pool.addTransactions(result.accept)
+
+    // Filter not accepted tx
+    result.accept = result.accept.filter(accepted => added.includes(accepted))
+
+    // Only broadcast accepted transactions
+    result.broadcast = result.broadcast.filter(broadcast =>
+      result.accept.includes(broadcast),
+    )
+
+    // Add errors
+    notAdded.forEach(error =>
+      this.__pushError(error.transaction, error.type, error.message),
+    )
   }
 
   /**
