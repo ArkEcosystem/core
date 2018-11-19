@@ -20,6 +20,9 @@ module.exports = {
     enabled: true,
     pathLimit: false,
     userLimit: 1000,
+    userCache: {
+      expiresIn: 60000,
+    },
     ipWhitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
   },
 }

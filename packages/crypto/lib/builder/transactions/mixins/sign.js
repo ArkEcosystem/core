@@ -1,4 +1,5 @@
 const { crypto } = require('../../../crypto')
+const configManager = require('../../../managers/config')
 
 module.exports = {
   mixin(Base) {
@@ -17,6 +18,25 @@ module.exports = {
           pubKeyHash,
         )
         super.sign(passphrase)
+        return this
+      }
+
+      /**
+       * Overrides the inherited `signWithWif` method to set the sender as the recipient too
+       * @param  {String} wif
+       * @param  {String} networkWif - value associated with network
+       * @return {TransactionBuilder}
+       */
+      signWithWif(wif, networkWif) {
+        const pubKeyHash = this.data.network
+          ? this.data.network.pubKeyHash
+          : null
+        const keys = crypto.getKeysFromWIF(wif, {
+          wif: networkWif || configManager.get('wif'),
+        })
+        this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash)
+        super.signWithWif(wif, networkWif)
+
         return this
       }
     }
