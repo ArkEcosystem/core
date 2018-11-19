@@ -75,4 +75,21 @@ describe('Vote Transaction', () => {
       )
     })
   })
+
+  describe('signWithWif', () => {
+    it('establishes the recipient id', () => {
+      const pass = 'dummy pass'
+
+      crypto.getKeysFromWIF = jest.fn(() => ({
+        publicKey:
+          '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af',
+      }))
+      crypto.signWithWif = jest.fn()
+
+      builder.signWithWif(pass)
+      expect(builder.data.recipientId).toBe(
+        'D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F',
+      )
+    })
+  })
 })
