@@ -107,39 +107,38 @@ module.exports = class TransactionGuard {
       } else if (this.pool.hasExceededMaxTransactions(transaction)) {
         result.excess.push(transaction)
       } else if (this.__validateTransaction(transaction)) {
-        const dynamicFee = dynamicFeeMatch(transaction)
-        if (dynamicFee.enterPool) {
-          try {
-            const trx = new Transaction(transaction)
-
-            if (trx.verified) {
+        try {
+          const trx = new Transaction(transaction)
+          if (trx.verified) {
+            const dynamicFee = dynamicFeeMatch(trx)
+            if (dynamicFee.enterPool) {
               result.accept.push(trx)
-
-              if (dynamicFee.broadcast) {
-                result.broadcast.push(trx)
-              } else {
-                this.__pushError(
-                  transaction,
-                  'ERR_LOW_FEE',
-                  'Too low fee for broadcast',
-                )
-              }
             } else {
               this.__pushError(
                 transaction,
-                'ERR_BAD_DATA',
-                "Transaction didn't pass the verification process.",
+                'ERR_LOW_FEE',
+                'Too low fee to be accepted in the pool',
               )
             }
-          } catch (error) {
-            this.__pushError(transaction, 'ERR_UNKNOWN', error.message)
+
+            if (dynamicFee.broadcast) {
+              result.broadcast.push(trx)
+            } else {
+              this.__pushError(
+                transaction,
+                'ERR_LOW_FEE',
+                'Too low fee for broadcast',
+              )
+            }
+          } else {
+            this.__pushError(
+              transaction,
+              'ERR_BAD_DATA',
+              "Transaction didn't pass the verification process.",
+            )
           }
-        } else {
-          this.__pushError(
-            transaction,
-            'ERR_LOW_FEE',
-            'Too low fee to be accepted in the pool',
-          )
+        } catch (error) {
+          this.__pushError(transaction, 'ERR_UNKNOWN', error.message)
         }
       }
     })
