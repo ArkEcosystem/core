@@ -183,35 +183,73 @@ describe('Transaction Guard', () => {
       expect(+delegateWallet.balance).toBe(+delegate3.balance)
       expect(+newWallet.balance).toBe(0)
 
-      const signatureFee = 5 * 10 ** 8
+      // first, transfer coins to new wallet so that we can test from it then
+      const amount1 = 1000 * 10 ** 8
       const fee = 0.1 * 10 ** 8
-      const amount1 = +delegateWallet.balance - signatureFee
-      const transfers = generateTransfer(
+      const transfers1 = generateTransfer(
         'testnet',
         delegate3.secret,
         newAddress,
         amount1,
         1,
-        false,
-        fee,
       )
-      const signatures = generateSignature('testnet', delegate3.secret, 1)
-
-      await guard.validate([transfers[0], signatures[0]])
-
-      const errorExpected = {}
-      errorExpected[signatures[0].id] = [
-        {
-          message: `Error: [PoolWalletManager] Can't apply transaction ${
-            signatures[0].id
-          }`,
-          type: 'ERR_UNKNOWN',
-        },
-      ]
-      expect(guard.errors).toEqual(errorExpected)
+      await guard.validate(transfers1)
 
       expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
+
+      // transfer almost everything from new wallet so that we don't have enough for any other transaction
+      const amount2 = 999 * 10 ** 8
+      const transfers2 = generateTransfer(
+        'testnet',
+        newWalletPassphrase,
+        delegate3.address,
+        amount2,
+        1,
+      )
+      await guard.validate(transfers2)
+
+      expect(+newWallet.balance).toBe(amount1 - amount2 - fee)
+
+      // now try to validate any other transaction - should not be accepted because in excess
+      const transferAmount = 0.5 * 10 ** 8
+      const transferDynFee = 0.5 * 10 ** 8
+      const allTransactions = [
+        generateTransfer(
+          'testnet',
+          newWalletPassphrase,
+          delegate3.address,
+          transferAmount,
+          1,
+          false,
+          transferDynFee,
+        ),
+        generateSignature('testnet', newWalletPassphrase, 1),
+        generateVote('testnet', newWalletPassphrase, delegate3.publicKey, 1),
+        generateDelegateReg('testnet', newWalletPassphrase, 1),
+      ]
+
+      for (const transaction of allTransactions) {
+        await guard.validate(transaction) // eslint-disable-line no-await-in-loop
+
+        const errorExpected = {}
+        errorExpected[transaction[0].id] = [
+          {
+            message: `Error: [PoolWalletManager] Can't apply transaction ${
+              transaction[0].id
+            }`,
+            type: 'ERR_UNKNOWN',
+          },
+        ]
+        expect(guard.errors).toEqual(errorExpected)
+
+        expect(+delegateWallet.balance).toBe(
+          +delegate3.balance - amount1 - fee + amount2,
+        )
+        expect(+newWallet.balance).toBe(amount1 - amount2 - fee)
+
+        guard.__reset()
+      }
     })
   })
 
