@@ -124,11 +124,10 @@ module.exports = class PoolWalletManager extends WalletManager {
         data,
       )
     } else if (!sender.canApply(data, errors)) {
-      logger.error(
-        `[PoolWalletManager] Can't apply transaction id:${
-          data.id
-        } from sender:${sender.address} due to ${JSON.stringify(errors)}`,
-      )
+      const message = `[PoolWalletManager] Can't apply transaction id:${
+        data.id
+      } from sender:${sender.address} due to ${JSON.stringify(errors)}`
+      logger.error(message)
       logger.debug(
         `[PoolWalletManager] Audit: ${JSON.stringify(
           sender.auditApply(data),
@@ -137,7 +136,7 @@ module.exports = class PoolWalletManager extends WalletManager {
         )}`,
       )
 
-      throw new Error(`[PoolWalletManager] Can't apply transaction ${data.id}`)
+      throw new Error(message)
     }
 
     sender.applyTransactionToSender(data)
