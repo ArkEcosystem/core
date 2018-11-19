@@ -438,9 +438,7 @@ describe('Connection', () => {
           333300000000000 /* more than any genesis wallet */,
           1,
         )[0],
-        // This alone is a valid transaction, but will get purged because of the
-        // first transaction we add which is invalid (not enough funds) and from
-        // the same sender.
+        // This alone is a valid transaction
         generateTransfer(
           'testnet',
           delegatesSecrets[0],
@@ -460,7 +458,7 @@ describe('Connection', () => {
 
       connection.addTransactions(transactions)
 
-      expect((await connection.getTransactionsForForging(10)).length).toEqual(1)
+      expect((await connection.getTransactionsForForging(10)).length).toEqual(2)
     })
   })
 
