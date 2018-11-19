@@ -11,6 +11,7 @@
     "flow:coverage": "flow-coverage-report --config ../../.flowcoverage.json",
     "flow:check": "flow check ./lib",
     "flow:deps": "flow-typed install",
+    "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./ --ignores=flow-bin"
   },

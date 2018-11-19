@@ -108,12 +108,12 @@ module.exports = class Command {
    * @param  {Object[]} transactions
    * @return {Number}
    */
-  async getTransactionDelaySeconds(transactions) {
+  getTransactionDelaySeconds(transactions) {
     const waitPerBlock = Math.round(this.config.constants.blocktime / 10) * 20
 
     return (
-      waitPerBlock
-      * Math.ceil(
+      waitPerBlock *
+      Math.ceil(
         transactions.length / this.config.constants.block.maxTransactions,
       )
     )
@@ -203,9 +203,10 @@ module.exports = class Command {
   static parseFee(fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
       const feeRange = fee.split('-').map(
-        f => +bignumify(f)
-          .times(1e8)
-          .toFixed(),
+        f =>
+          +bignumify(f)
+            .times(1e8)
+            .toFixed(),
       )
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
@@ -232,7 +233,7 @@ module.exports = class Command {
     const response = await this.postTransactions(transactions)
 
     if (wait) {
-      const delaySeconds = await this.getTransactionDelaySeconds(transactions)
+      const delaySeconds = this.getTransactionDelaySeconds(transactions)
       transactionType = `${
         transactionType ? `${transactionType} ` : ''
       }transactions`

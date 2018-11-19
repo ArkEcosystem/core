@@ -55,23 +55,25 @@ describe('MultiPaymentHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should be true', () => {
       const amount = transaction.asset.payments.reduce(
         (a, p) => a.plus(p.amount),
         Bignum.ZERO,
       )
 
-      expect(handler.canApply(wallet, transaction)).toBeTrue()
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should not be ok', () => {
+    it('should be false if wallet has insufficient balance', () => {
       const amount = transaction.asset.payments.reduce(
         (a, p) => a.plus(p.amount),
         Bignum.ZERO,
       )
       wallet.balance = Bignum.ZERO
+      const errors = []
 
-      expect(handler.canApply(wallet, transaction)).toBeFalse()
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Insufficient balance in the wallet')
     })
   })
 

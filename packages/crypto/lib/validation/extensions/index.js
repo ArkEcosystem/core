@@ -3,4 +3,8 @@ module.exports = [
   require('./bignumber'),
   require('./public-key'),
   require('./username'),
+
+  ...require('./transactions/index'), // individual transactions
+  require('./transactions'),
+  require('./block'),
 ]

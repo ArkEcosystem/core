@@ -44,21 +44,28 @@ describe('Handler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be truthy', () => {
-      expect(handler.canApply(wallet, transaction)).toBeTrue()
+    it('should be true', () => {
+      const errors = []
+      expect(handler.canApply(wallet, transaction, errors)).toBeTrue()
+      expect(errors).toHaveLength(0)
     })
 
-    it('should be falsy', () => {
+    it('should be false if wallet publicKey does not match tx senderPublicKey', () => {
       transaction.senderPublicKey = 'a'.repeat(66)
+      const errors = []
+      const result = handler.canApply(wallet, transaction, errors)
 
-      expect(handler.canApply(wallet, transaction)).toBeFalse()
+      expect(result).toBeFalse()
+      expect(errors).toContain(
+        'wallet "publicKey" does not match transaction "senderPublicKey"',
+      )
     })
 
-    it('should be truthy even with case mismatch', () => {
+    it('should be true even with publicKey case mismatch', () => {
       transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase()
       wallet.publicKey = wallet.publicKey.toLowerCase()
 
-      expect(handler.canApply(wallet, transaction)).toBeTrue()
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
   })
 

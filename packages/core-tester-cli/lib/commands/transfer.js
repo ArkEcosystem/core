@@ -272,7 +272,7 @@ module.exports = class TransferCommand extends Command {
       }
     }
 
-    const delaySeconds = await this.getTransactionDelaySeconds(
+    const delaySeconds = this.getTransactionDelaySeconds(
       runOptions.transactions,
     )
     logger.info(
