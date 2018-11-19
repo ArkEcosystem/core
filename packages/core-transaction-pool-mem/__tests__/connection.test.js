@@ -34,7 +34,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await connection.disconnect()
+  connection.disconnect()
   await app.tearDown()
 })
 
@@ -516,28 +516,6 @@ describe('Connection', () => {
           TRANSACTION_TYPES.VOTE,
         ),
       ).toBeTrue()
-    })
-  })
-
-  describe('checkEligibility', () => {
-    it('should be a function', () => {
-      expect(connection.checkEligibility).toBeFunction()
-    })
-
-    it('should decline already present transactions', () => {
-      connection.addTransaction(mockData.dummy1)
-
-      const r = connection.checkEligibility([mockData.dummy1, mockData.dummy2])
-
-      expect(r.eligible).toBeArray()
-      expect(r.notEligible).toBeArray()
-
-      expect(r.eligible.length).toBe(1)
-      expect(r.eligible[0].id).toBe(mockData.dummy2.id)
-
-      expect(r.notEligible.length).toBe(1)
-      expect(r.notEligible[0].transaction.id).toBe(mockData.dummy1.id)
-      expect(r.notEligible[0].reason).toBeString()
     })
   })
 

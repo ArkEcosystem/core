@@ -37,44 +37,43 @@ exports.store = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { eligible, notEligible } = transactionPool.checkEligibility(
-      request.payload.transactions,
-    )
-
     const guard = new TransactionGuard(transactionPool)
 
-    for (const ne of notEligible) {
-      guard.invalidate(ne.transaction, ne.reason)
+    const result = await guard.validate(request.payload.transactions)
+
+    if (result.invalid.length > 0) {
+      return Boom.notAcceptable('Transactions list could not be accepted.', guard.errors)
     }
 
-    await guard.validate(eligible)
+    // key=id, val=transaction, used to remove entries with sub-linear complexity
+    const broadcast = new Map(result.broadcast.map(t => [ t.id, t ]))
 
-    if (guard.hasAny('invalid')) {
-      return Boom.notAcceptable(
-        'Transactions list could not be accepted.',
-        guard.errors,
-      )
+    if (result.accept.length > 0) {
+      const addResult = transactionPool.addTransactions(result.accept)
+
+      result.accept = addResult.added
+
+      for (const notAdded of addResult.notAdded) {
+        result.invalid.push(notAdded.transaction)
+        const id = notAdded.transaction.id
+
+        if (result.errors[id] === undefined) {
+          result.errors[id] = []
+        }
+        result.errors[id].push({ type: 'ERR_FULL_POOL', message: notAdded.reason })
+
+        broadcast.delete(id)
+      }
+
+      const len = result.accept.length
+      logger.info(`Accepted ${len} new ${pluralize('transaction', len)}`)
     }
 
-    // TODO: Review throttling of v1
-    if (guard.hasAny('accept')) {
-      logger.info(
-        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
-          request.payload.transactions.length
-        } received`,
-      )
-
-      logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-      await guard.addToTransactionPool('accept', 'excess')
+    if (broadcast.size > 0) {
+      container.resolvePlugin('p2p').broadcastTransactions(Array.from(broadcast.values()))
     }
 
-    if (guard.hasAny('broadcast')) {
-      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
-    }
-
-    return {
-      data: guard.getIds('accept'),
-    }
+    return { data: result.accept.map(t => t.id) }
   },
   config: {
     cors: {

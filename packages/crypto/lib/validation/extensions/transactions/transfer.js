@@ -15,6 +15,7 @@ module.exports = joi => ({
     vendorField: joi
       .string()
       .max(64, 'utf8')
+      .allow('', null)
       .optional(), // TODO: remove in 2.1
     vendorFieldHex: joi
       .string()

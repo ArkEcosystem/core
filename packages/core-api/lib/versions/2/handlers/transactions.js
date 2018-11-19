@@ -51,34 +51,47 @@ exports.store = {
       return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
-    const { eligible, notEligible } = transactionPool.checkEligibility(
-      request.payload.transactions,
-    )
-
     const guard = new TransactionGuard(transactionPool)
 
-    for (const ne of notEligible) {
-      guard.invalidate(ne.transaction, ne.reason)
+    const result = await guard.validate(request.payload.transactions)
+
+    // key=id, val=transaction, used to remove entries with sub-linear complexity
+    const broadcast = new Map(result.broadcast.map(t => [ t.id, t ]))
+
+    if (result.accept.length > 0) {
+      const addResult = transactionPool.addTransactions(result.accept)
+
+      result.accept = addResult.added
+
+      for (const notAdded of addResult.notAdded) {
+        result.invalid.push(notAdded.transaction)
+        const id = notAdded.transaction.id
+
+        if (result.errors[id] === undefined) {
+          result.errors[id] = []
+        }
+        result.errors[id].push({ type: 'ERR_FULL_POOL', message: notAdded.reason })
+
+        broadcast.delete(id)
+      }
+
+      const len = result.accept.length
+      logger.info(`Accepted ${len} new ${pluralize('transaction', len)}`)
     }
 
-    await guard.validate(eligible)
-
-    if (guard.hasAny('accept')) {
-      logger.info(
-        `Received ${guard.accept.length} new ${pluralize(
-          'transaction',
-          guard.accept.length,
-        )}`,
-      )
-
-      await guard.addToTransactionPool('accept')
+    if (broadcast.size > 0) {
+      container.resolvePlugin('p2p').broadcastTransactions(Array.from(broadcast.values()))
     }
 
-    if (guard.hasAny('broadcast')) {
-      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
+    return {
+      data: {
+        accept: result.accept.map(t => t.id),
+        broadcast: Array.from(broadcast.keys()),
+        excess: result.excess.map(t => t.id),
+        invalid: result.invalid.map(t => t.id)
+      },
+      errors: result.errors
     }
-
-    return guard.toJson()
   },
   options: {
     validate: schema.store,
@@ -230,7 +243,7 @@ exports.fees = {
    */
   async handler(request, h) {
     return {
-      data: config.getConstants(blockchain.getLastBlock().data.height).fees,
+      data: config.getConstants(blockchain.getLastBlock().data.height).fees.staticFees,
     }
   },
 }

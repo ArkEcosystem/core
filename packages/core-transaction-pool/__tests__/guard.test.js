@@ -1,10 +1,20 @@
-const { slots } = require('@arkecosystem/crypto')
+/* eslint import/no-extraneous-dependencies: "off" */
+/* eslint no-await-in-loop: "off" */
+const Guard = require('@arkecosystem/core-transaction-pool/lib/guard')
+const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
+const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
+const slots = require('@arkecosystem/crypto').slots
 const app = require('./__support__/setup')
 
 let guard
+let transactionPool
 
 beforeAll(async () => {
   await app.setUp()
+
+  transactionPool = require('@arkecosystem/core-container').resolvePlugin('transactionPool')
+  transactionPool.make()
 })
 
 afterAll(async () => {
@@ -12,8 +22,8 @@ afterAll(async () => {
 })
 
 beforeEach(() => {
-  const poolInterface = new (require('../lib/interface'))({})
-  guard = new (require('../lib/guard'))(poolInterface)
+  transactionPool.flush()
+  guard = new Guard(transactionPool)
 })
 
 describe('Transaction Guard', () => {
@@ -22,177 +32,162 @@ describe('Transaction Guard', () => {
   })
 
   describe('validate', () => {
+    const transferFee = 10000000
+
     it('should be a function', () => {
       expect(guard.validate).toBeFunction()
     })
-  })
 
-  describe('invalidate', () => {
-    it('should be a function', () => {
-      expect(guard.invalidate).toBeFunction()
-    })
+    it('should not validate 2 double spending transactions', async () => {
+      const amount = 245098000000000 - 5098000000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        2,
+        true,
+      )
 
-    it('should invalidate transactions', () => {
-      guard.invalidate([{ id: 1 }, { id: 2 }], 'Invalid.')
+      const result = await guard.validate(transactions)
 
-      expect(guard.invalid).toHaveLength(2)
-      expect(guard.invalid).toEqual([{ id: 1 }, { id: 2 }])
-      expect(guard.errors).toBeObject()
-      expect(Object.keys(guard.errors)).toHaveLength(2)
-      expect(guard.errors['1']).toEqual([
-        { message: 'Invalid.', type: 'ERR_INVALID' },
+      expect(result.errors[transactions[1].id]).toEqual([
+        {
+          message: `Error: [PoolWalletManager] Can't apply transaction ${
+            transactions[1].id
+          }`,
+          type: 'ERR_UNKNOWN',
+        },
       ])
     })
-  })
 
-  describe('getIds', () => {
-    it('should be a function', () => {
-      expect(guard.getIds).toBeFunction()
+    it.each([3, 5, 8])(
+      'should validate emptying wallet with %i transactions',
+      async txNumber => {
+        // use txNumber so that we use a different delegate for each test case
+        const sender = delegates[txNumber]
+        const receivers = generateWallets('testnet', 2)
+        const amountPlusFee = Math.floor(sender.balance / txNumber)
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee
+
+        const transactions = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[0].address,
+          amountPlusFee - transferFee,
+          txNumber - 1,
+          true,
+        )
+        const lastTransaction = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[1].address,
+          lastAmountPlusFee - transferFee,
+          1,
+          true,
+        )
+        // we change the receiver in lastTransaction to prevent having 2 exact
+        // same transactions with same id (if not, could be same as transactions[0])
+
+        const result = await guard.validate(transactions.concat(lastTransaction))
+
+        expect(result.errors).toEqual(null)
+      },
+    )
+
+    it.each([3, 5, 8])(
+      'should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much',
+      async txNumber => {
+        // use txNumber + 1 so that we don't use the same delegates as the above test
+        const sender = delegates[txNumber + 1]
+        const receivers = generateWallets('testnet', 2)
+        const amountPlusFee = Math.floor(sender.balance / txNumber)
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee + 1
+
+        const transactions = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[0].address,
+          amountPlusFee - transferFee,
+          txNumber - 1,
+          true,
+        )
+        const lastTransaction = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[1].address,
+          lastAmountPlusFee - transferFee,
+          1,
+          true,
+        )
+        // we change the receiver in lastTransaction to prevent having 2
+        // exact same transactions with same id (if not, could be same as transactions[0])
+
+        const allTransactions = transactions.concat(lastTransaction)
+
+        const result = await guard.validate(allTransactions)
+
+        expect(result.errors[allTransactions[txNumber - 1].id]).toEqual([
+          {
+            message: `Error: [PoolWalletManager] Can't apply transaction ${
+              allTransactions[txNumber - 1].id
+            }`,
+            type: 'ERR_UNKNOWN',
+          },
+        ])
+      },
+    )
+
+    it('should call pingTransaction', async () => {
+      const amount = 10000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        1,
+        true,
+      )
+
+      const pingTransaction = transactionPool.pingTransaction
+      transactionPool.pingTransaction = jest.fn()
+
+      let result = await guard.validate(transactions)
+      transactionPool.addTransactions(result.accept)
+      expect(result.broadcast).toHaveLength(1)
+
+      guard = new Guard(transactionPool)
+      result = await guard.validate(transactions)
+
+      expect(result.broadcast).toBeEmpty()
+      expect(transactionPool.pingTransaction).toHaveBeenCalled()
+      expect(transactionPool.pingTransaction).toHaveBeenCalledTimes(1)
+
+      transactionPool.pingTransaction = pingTransaction
+      for (let i = 0; i < 10; i++) {
+        await guard.validate(transactions)
+      }
+      expect(transactionPool.getTransactionPing(transactions[0].id)).toEqual(10)
     })
 
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalid = [{ id: 4 }]
-      guard.broadcast = [{ id: 5 }]
+    it('should not call pingTransaction', async () => {
+      const amount = 10000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        1,
+        true,
+      )
 
-      expect(guard.getIds()).toEqual({
-        transactions: [1],
-        accept: [2],
-        excess: [3],
-        invalid: [4],
-        broadcast: [5],
-      })
-    })
+      transactionPool.pingTransaction = jest.fn()
 
-    it('should be ok using a type', () => {
-      guard.excess = [{ id: 3 }]
+      await guard.validate(transactions)
 
-      expect(guard.getIds('excess')).toEqual([3])
-    })
-  })
-
-  describe('getTransactions', () => {
-    it('should be a function', () => {
-      expect(guard.getTransactions).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalid = [{ id: 4 }]
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.getTransactions()).toEqual({
-        transactions: [{ id: 1 }],
-        accept: [{ id: 2 }],
-        excess: [{ id: 3 }],
-        invalid: [{ id: 4 }],
-        broadcast: [{ id: 5 }],
-      })
-    })
-
-    it('should be ok using a type', () => {
-      guard.excess = [{ id: 3 }]
-
-      expect(guard.getTransactions('excess')).toEqual([{ id: 3 }])
-    })
-  })
-
-  describe('toJson', () => {
-    it('should be a function', () => {
-      expect(guard.toJson).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.toJson()).toEqual({
-        data: {
-          accept: [2],
-          excess: [3],
-          invalid: [],
-          broadcast: [5],
-        },
-        errors: null,
-      })
-    })
-
-    it('should be ok with error', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalidate({ id: 4 }, 'Invalid.')
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.toJson()).toEqual({
-        data: {
-          accept: [2],
-          excess: [3],
-          invalid: [4],
-          broadcast: [5],
-        },
-        errors: { 4: [{ message: 'Invalid.', type: 'ERR_INVALID' }] },
-      })
-    })
-  })
-
-  describe('has', () => {
-    it('should be a function', () => {
-      expect(guard.has).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.excess = [{ id: 1 }, { id: 2 }]
-
-      expect(guard.has('excess', 2)).toBeTrue()
-    })
-
-    it('should not be ok', () => {
-      guard.excess = [{ id: 1 }, { id: 2 }]
-
-      expect(guard.has('excess', 1)).toBeFalse()
-    })
-  })
-
-  describe('hasAtLeast', () => {
-    it('should be a function', () => {
-      expect(guard.hasAtLeast).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.excess = [{ id: 1 }, { id: 2 }]
-
-      expect(guard.hasAtLeast('excess', 2)).toBeTrue()
-    })
-
-    it('should not be ok', () => {
-      guard.excess = [{ id: 1 }]
-
-      expect(guard.hasAtLeast('excess', 2)).toBeFalse()
-    })
-  })
-
-  describe('hasAny', () => {
-    it('should be a function', () => {
-      expect(guard.hasAny).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.excess = [{ id: 1 }]
-
-      expect(guard.hasAny('excess')).toBeTrue()
-    })
-
-    it('should not be ok', () => {
-      guard.excess = []
-
-      expect(guard.hasAny('excess')).toBeFalse()
+      expect(transactionPool.pingTransaction).not.toHaveBeenCalled()
     })
   })
 
@@ -205,12 +200,12 @@ describe('Transaction Guard', () => {
       guard.pool.transactionExists = jest.fn(() => true)
       guard.pool.pingTransaction = jest.fn(() => true)
 
-      const tx = { id: 1 }
+      const tx = { id: '1' }
       guard.__transformAndFilterTransactions([tx])
 
-      expect(guard.errors['1']).toEqual([
+      expect(guard.errors[tx.id]).toEqual([
         {
-          message: 'Duplicate transaction 1',
+          message: `Duplicate transaction ${tx.id}`,
           type: 'ERR_DUPLICATE',
         },
       ])
@@ -218,34 +213,39 @@ describe('Transaction Guard', () => {
 
     it('should reject blocked senders', () => {
       guard.pool.transactionExists = jest.fn(() => false)
+      const isSenderBlocked = guard.pool.isSenderBlocked
       guard.pool.isSenderBlocked = jest.fn(() => true)
 
-      const tx = { id: 1, senderPublicKey: 'affe' }
+      const tx = { id: '1', senderPublicKey: 'affe' }
       guard.__transformAndFilterTransactions([tx])
 
-      expect(guard.errors['1']).toEqual([
+      expect(guard.errors[tx.id]).toEqual([
         {
-          message: 'Transaction 1 rejected. Sender affe is blocked.',
+          message: `Transaction ${tx.id} rejected. Sender ${tx.senderPublicKey} is blocked.`,
           type: 'ERR_SENDER_BLOCKED',
         },
       ])
+
+      guard.pool.isSenderBlocked = isSenderBlocked
     })
 
     it('should reject transactions from the future', () => {
+      const now = 47157042 // seconds since genesis block
       guard.pool.transactionExists = jest.fn(() => false)
       const getTime = slots.getTime
-      slots.getTime = jest.fn(() => 47157042)
+      slots.getTime = jest.fn(() => now)
 
+      const secondsInFuture = 3601
       const tx = {
-        id: 1,
+        id: '1',
         senderPublicKey: 'affe',
-        timestamp: slots.getTime() + 1,
+        timestamp: slots.getTime() + secondsInFuture,
       }
       guard.__transformAndFilterTransactions([tx])
 
-      expect(guard.errors['1']).toEqual([
+      expect(guard.errors[tx.id]).toEqual([
         {
-          message: 'Transaction 1 is from the future (47157043 > 47157042)',
+          message: `Transaction ${tx.id} is ${secondsInFuture} seconds in the future`,
           type: 'ERR_FROM_FUTURE',
         },
       ])
@@ -288,8 +288,9 @@ describe('Transaction Guard', () => {
       expect(guard.errors['1']).toEqual([
         { message: 'Invalid.', type: 'ERR_INVALID' },
       ])
-      expect(guard.invalid).toHaveLength(1)
-      expect(guard.invalid).toEqual([{ id: 1 }])
+
+      expect(guard.invalid.size).toEqual(1)
+      expect(guard.invalid.entries().next().value[1]).toEqual({ id: 1 })
     })
 
     it('should have multiple errors for transaction', () => {
@@ -305,36 +306,9 @@ describe('Transaction Guard', () => {
         { message: 'Invalid 1.', type: 'ERR_INVALID' },
         { message: 'Invalid 2.', type: 'ERR_INVALID' },
       ])
-      expect(guard.invalid).toHaveLength(1)
-      expect(guard.invalid).toEqual([{ id: 1 }])
-    })
-  })
 
-  describe('__reset', () => {
-    it('should be a function', () => {
-      expect(guard.__reset).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalid = [{ id: 4 }]
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.transactions).not.toBeEmpty()
-      expect(guard.accept).not.toBeEmpty()
-      expect(guard.excess).not.toBeEmpty()
-      expect(guard.invalid).not.toBeEmpty()
-      expect(guard.broadcast).not.toBeEmpty()
-
-      guard.__reset()
-
-      expect(guard.transactions).toBeEmpty()
-      expect(guard.accept).toBeEmpty()
-      expect(guard.excess).toBeEmpty()
-      expect(guard.invalid).toBeEmpty()
-      expect(guard.broadcast).toBeEmpty()
+      expect(guard.invalid.size).toEqual(1)
+      expect(guard.invalid.entries().next().value[1]).toEqual({ id: 1 })
     })
   })
 })

@@ -20,14 +20,13 @@
     "flow:deps": "flow-typed install",
     "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=flow-bin"
+    "depcheck": "depcheck ./ --ignores=flow-bin,@arkecosystem/core-transaction-pool"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-database": "^0.1.1",
     "@arkecosystem/crypto": "^0.2.4",
     "bs58check": "^2.1.2",
-    "lodash": "^4.17.11",
     "moment": "^2.22.2"
   },
   "devDependencies": {

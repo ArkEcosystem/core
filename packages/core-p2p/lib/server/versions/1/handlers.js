@@ -311,19 +311,11 @@ exports.postTransactions = {
         .code(500)
     }
 
-    const { eligible, notEligible } = transactionPool.checkEligibility(
-      request.payload.transactions,
-    )
-
     const guard = new TransactionGuard(transactionPool)
 
-    for (const ne of notEligible) {
-      guard.invalidate(ne.transaction, ne.reason)
-    }
+    const result = await guard.validate(request.payload.transactions)
 
-    await guard.validate(eligible)
-
-    if (guard.hasAny('invalid')) {
+    if (result.invalid.length > 0) {
       return {
         success: false,
         message: 'Transactions list is not conform',
@@ -331,25 +323,37 @@ exports.postTransactions = {
       }
     }
 
-    // TODO: Review throttling of v1
-    if (guard.hasAny('accept')) {
-      logger.info(
-        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
-          request.payload.transactions.length
-        } received`,
-      )
+    // key=id, val=transaction, used to remove entries with sub-linear complexity
+    const broadcast = new Map(result.broadcast.map(t => [ t.id, t ]))
 
-      logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-      await guard.addToTransactionPool('accept', 'excess')
+    if (result.accept.length > 0) {
+      const addResult = transactionPool.addTransactions(result.accept)
+
+      result.accept = addResult.added
+
+      for (const notAdded of addResult.notAdded) {
+        result.invalid.push(notAdded.transaction)
+        const id = notAdded.transaction.id
+
+        if (result.errors[id] === undefined) {
+          result.errors[id] = []
+        }
+        result.errors[id].push({ type: 'ERR_FULL_POOL', message: notAdded.reason })
+
+        broadcast.delete(id)
+      }
+
+      const len = result.accept.length
+      logger.info(`Accepted ${len} new ${pluralize('transaction', len)}`)
     }
 
-    if (guard.hasAny('broadcast')) {
-      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
+    if (broadcast.size > 0) {
+      container.resolvePlugin('p2p').broadcastTransactions(Array.from(broadcast.values()))
     }
 
     return {
       success: true,
-      transactionIds: guard.getIds('accept'),
+      transactionIds: result.accept.map(t => t.id),
     }
   },
   config: {
@@ -387,8 +391,9 @@ exports.getBlocks = {
           'block',
           blocks.length,
           true,
-        )} from height ${(
-          !isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].data.height
+        )} from height ${(!isNaN(reqBlockHeight)
+          ? reqBlockHeight
+          : blocks[0].data.height
         ).toLocaleString()}`,
       )
 

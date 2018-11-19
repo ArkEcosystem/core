@@ -35,7 +35,7 @@ describe('Configuration', () => {
   })
 
   it('should build fees', () => {
-    const fees = network.constants[0].fees
+    const fees = network.constants[0].fees.staticFees
 
     expect(feeManager.get(TRANSACTION_TYPES.TRANSFER)).toEqual(fees.transfer)
     expect(feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)).toEqual(
@@ -61,35 +61,35 @@ describe('Configuration', () => {
   })
 
   it('should build dynamic fee offsets', () => {
-    const dynamicOffsets = network.constants[0].dynamicOffsets
+    const addonBytes = network.constants[0].fees.dynamicFees.addonBytes
 
     expect(dynamicFeeManager.get(TRANSACTION_TYPES.TRANSFER)).toEqual(
-      dynamicOffsets.transfer,
+      addonBytes.transfer,
     )
     expect(dynamicFeeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)).toEqual(
-      dynamicOffsets.secondSignature,
+      addonBytes.secondSignature,
     )
     expect(
       dynamicFeeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION),
-    ).toEqual(dynamicOffsets.delegateRegistration)
+    ).toEqual(addonBytes.delegateRegistration)
     expect(dynamicFeeManager.get(TRANSACTION_TYPES.VOTE)).toEqual(
-      dynamicOffsets.vote,
+      addonBytes.vote,
     )
     expect(dynamicFeeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)).toEqual(
-      dynamicOffsets.multiSignature,
+      addonBytes.multiSignature,
     )
     expect(dynamicFeeManager.get(TRANSACTION_TYPES.IPFS)).toEqual(
-      dynamicOffsets.ipfs,
+      addonBytes.ipfs,
     )
     expect(dynamicFeeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)).toEqual(
-      dynamicOffsets.timelockTransfer,
+      addonBytes.timelockTransfer,
     )
     expect(dynamicFeeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)).toEqual(
-      dynamicOffsets.multiPayment,
+      addonBytes.multiPayment,
     )
     expect(
       dynamicFeeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION),
-    ).toEqual(dynamicOffsets.delegateResignation)
+    ).toEqual(addonBytes.delegateResignation)
   })
 
   it('should get constants for height', () => {
