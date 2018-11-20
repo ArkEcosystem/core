@@ -43,12 +43,16 @@ describe('static fees', () => {
   })
 
   it('should not broadcast transactions with a fee other than the static fee', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).broadcast).toBeFalse()
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).broadcast,
+    ).toBeFalse()
     expect(dynamicFeeMatch(mockData.dynamicFeeZero).broadcast).toBeFalse()
   })
 
   it('should not allow transactions with a fee other than the static fee to enter the pool', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).enterPool).toBeFalse()
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).enterPool,
+    ).toBeFalse()
     expect(dynamicFeeMatch(mockData.dynamicFeeZero).enterPool).toBeFalse()
   })
 })
@@ -68,13 +72,17 @@ describe('dynamic fees', () => {
   it('should broadcast transactions with high enough fee', () => {
     expect(dynamicFeeMatch(mockData.dummy1).broadcast).toBeTrue()
     expect(dynamicFeeMatch(mockData.dummy2).broadcast).toBeTrue()
-    expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).broadcast).toBeTrue()
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).broadcast,
+    ).toBeTrue()
   })
 
   it('should accept transactions with high enough fee to enter the pool', () => {
     expect(dynamicFeeMatch(mockData.dummy1).enterPool).toBeTrue()
     expect(dynamicFeeMatch(mockData.dummy2).enterPool).toBeTrue()
-    expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).enterPool).toBeTrue()
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).enterPool,
+    ).toBeTrue()
   })
 
   it('should not broadcast transactions with too low fee', () => {

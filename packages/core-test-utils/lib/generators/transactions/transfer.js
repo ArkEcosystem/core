@@ -8,12 +8,15 @@ module.exports = (
   amount = 2,
   quantity = 10,
   getStruct = false,
-) => generateTransactions(
-  network,
-  TRANSACTION_TYPES.TRANSFER,
-  passphrase,
-  address,
-  amount,
-  quantity,
-  getStruct,
-)
+  fee,
+) =>
+  generateTransactions(
+    network,
+    TRANSACTION_TYPES.TRANSFER,
+    passphrase,
+    address,
+    amount,
+    quantity,
+    getStruct,
+    fee,
+  )

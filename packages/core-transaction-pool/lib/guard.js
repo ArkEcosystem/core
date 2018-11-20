@@ -44,6 +44,8 @@ module.exports = class TransactionGuard {
    * }
    */
   async validate(transactionsJson) {
+    this.pool.loggedAllowedSenders = []
+
     // Add transaction id to the state storage. Also removes duplicates.
     this.transactions = transactionsJson.filter(tx => {
       if (container.resolve('state').addTransactionId(tx.id)) {

@@ -12,10 +12,11 @@ module.exports = (
   network,
   type,
   passphrase,
-  address,
+  addressOrPublicKey,
   amount = 2,
   quantity = 10,
   getStruct = false,
+  fee,
 ) => {
   network = network || 'testnet'
   type = type || TRANSFER
@@ -32,16 +33,20 @@ module.exports = (
   }
 
   client.getConfigManager().setFromPreset('ark', network)
-  address = address || crypto.getAddress(crypto.getKeys(passphrase).publicKey)
 
   const transactions = []
   for (let i = 0; i < quantity; i++) {
     let builder = client.getBuilder()
     switch (type) {
       case TRANSFER: {
+        if (!addressOrPublicKey) {
+          addressOrPublicKey = crypto.getAddress(
+            crypto.getKeys(passphrase).publicKey,
+          )
+        }
         builder = builder
           .transfer()
-          .recipientId(address)
+          .recipientId(addressOrPublicKey)
           .amount(amount)
           .vendorField(`Test Transaction ${i + 1}`)
         break
@@ -59,8 +64,10 @@ module.exports = (
         break
       }
       case VOTE: {
-        const publicKey = crypto.getKeys(passphrase).publicKey
-        builder = builder.vote().votesAsset([`+${publicKey}`])
+        if (!addressOrPublicKey) {
+          addressOrPublicKey = crypto.getKeys(passphrase).publicKey
+        }
+        builder = builder.vote().votesAsset([`+${addressOrPublicKey}`])
         break
       }
       default: {
@@ -68,6 +75,9 @@ module.exports = (
       }
     }
 
+    if (fee) {
+      builder = builder.fee(fee)
+    }
     builder = builder.sign(passphrase)
     const transaction = getStruct ? builder.getStruct() : builder.build()
 
