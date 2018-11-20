@@ -27,6 +27,9 @@ module.exports = transaction => {
     )
     if (fee >= minFeeBroadcast) {
       broadcast = true
+      logger.debug(
+        `Transaction ${id} eligible for broadcast (fee=${fee} >= min=${minFeeBroadcast})`,
+      )
     } else {
       broadcast = false
       logger.debug(
@@ -40,6 +43,9 @@ module.exports = transaction => {
     )
     if (fee >= minFeePool) {
       enterPool = true
+      logger.debug(
+        `Transaction ${id} eligible to enter pool (fee=${fee} >= min=${minFeePool})`,
+      )
     } else {
       enterPool = false
       logger.debug(
