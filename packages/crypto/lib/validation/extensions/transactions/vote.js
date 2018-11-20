@@ -26,6 +26,9 @@ module.exports = joi => ({
           .required(),
       })
       .required(),
-    recipientId: joi.arkAddress().allow(null).optional(),
+    recipientId: joi
+      .arkAddress()
+      .allow(null)
+      .optional(),
   }),
 })

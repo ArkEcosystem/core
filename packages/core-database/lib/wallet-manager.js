@@ -418,6 +418,7 @@ module.exports = class WalletManager {
     const recipient = this.findByAddress(recipientId)
     const errors = []
 
+    // specific verifications / adjustments depending on transaction type
     if (
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
       this.byUsername[asset.delegate.username.toLowerCase()]
@@ -449,7 +450,10 @@ module.exports = class WalletManager {
       )
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = ''
-    } else if (this.__isException(data)) {
+    }
+
+    // handle exceptions / verify that we can apply the transaction to the sender
+    if (this.__isException(data)) {
       logger.warn(
         'Transaction forcibly applied because it has been added as an exception:',
         data,

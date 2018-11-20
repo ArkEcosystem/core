@@ -31,7 +31,8 @@
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1",
-    "flow-bin": "^0.86.0"
+    "flow-bin": "^0.86.0",
+    "bip39": "^2.5.0"
   },
   "publishConfig": {
     "access": "public"

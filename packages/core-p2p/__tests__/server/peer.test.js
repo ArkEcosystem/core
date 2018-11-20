@@ -191,7 +191,11 @@ describe('API P2P - Version 2', () => {
       expect(response.result.error).toBeObject()
       expect(response.result.error[transactions[1].id]).toEqual([
         {
-          message: `Error: Can't apply transaction ${transactions[1].id}`,
+          message: `Error: [PoolWalletManager] Can't apply transaction id:${
+            transactions[1].id
+          } from sender:${
+            delegates[0].address
+          } due to ["Insufficient balance in the wallet"]`,
           type: 'ERR_APPLY',
         },
       ])
@@ -274,7 +278,11 @@ describe('API P2P - Version 2', () => {
         expect(response.result.error).toBeObject()
         expect(response.result.error[lastTransaction[0].id]).toEqual([
           {
-            message: `Error: Can't apply transaction ${lastTransaction[0].id}`,
+            message: `Error: [PoolWalletManager] Can't apply transaction id:${
+              lastTransaction[0].id
+            } from sender:${
+              sender.address
+            } due to ["Insufficient balance in the wallet"]`,
             type: 'ERR_APPLY',
           },
         ])

@@ -7,7 +7,7 @@ describe('Vote transaction', () => {
   })
 
   const quantity = 4
-  const transactions = createVote(undefined, undefined, quantity)
+  const transactions = createVote(undefined, undefined, undefined, quantity)
 
   it('should return an array', () => {
     expect(transactions).toBeArrayOfSize(quantity)
