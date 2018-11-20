@@ -3,8 +3,6 @@
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 
-const logger = container.resolvePlugin('logger')
-
 const {
   configManager,
   constants: { TRANSACTION_TYPES },
@@ -300,6 +298,8 @@ module.exports = class TransactionGuard {
       )
       .join(' ')
 
-    logger.info(`Received ${this.transactions.length} transactions (${stats}).`)
+    container
+      .resolvePlugin('logger')
+      .info(`Received ${this.transactions.length} transactions (${stats}).`)
   }
 }
