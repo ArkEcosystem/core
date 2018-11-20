@@ -9,7 +9,8 @@ module.exports = {
   // fee in the pool. In this case the transaction with the lowest fee is removed
   // from the pool in order to accommodate the new one.
   maxTransactionsInPool: process.env.ARK_MAX_TRANSACTIONS_IN_POOL || 100000,
-  maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
+  maxTransactionsPerSender:
+    process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
   whitelist: [],
   allowedSenders: [],
   maxTransactionsPerRequest: 40,

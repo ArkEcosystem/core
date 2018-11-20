@@ -146,7 +146,8 @@ exports.fees = {
    * @return {Hapi.Response}
    */
   handler(request, h) {
-    const fees = config.getConstants(blockchain.getLastBlock().data.height).fees.staticFees
+    const fees = config.getConstants(blockchain.getLastBlock().data.height).fees
+      .staticFees
 
     return utils.respondWith({
       fees: {
