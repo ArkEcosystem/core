@@ -90,6 +90,7 @@ class Guard {
     }
 
     delete this.suspensions[peer.ip]
+    delete peer.nextSuspensionReminder
 
     await this.monitor.acceptNewPeer(peer)
   }
@@ -101,7 +102,9 @@ class Guard {
   async resetSuspendedPeers() {
     logger.info('Clearing suspended peers.')
     await Promise.all(
-      Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)),
+      Object.values(this.suspensions).map(suspension =>
+        this.unsuspend(suspension.peer),
+      ),
     )
   }
 
@@ -116,14 +119,21 @@ class Guard {
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
       const untilDiff = moment.duration(suspendedPeer.until.diff(moment.now()))
 
-      logger.debug(
-        `${peer.ip} still suspended for ${untilDiff.humanize()} because of "${
-          suspendedPeer.reason
-        }".`,
-      )
+      const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder
+      if (!nextSuspensionReminder || moment().isAfter(nextSuspensionReminder)) {
+        logger.debug(
+          `${peer.ip} still suspended for ${untilDiff.humanize()} because of "${
+            suspendedPeer.reason
+          }".`,
+        )
+        suspendedPeer.nextSuspensionReminder = moment()
+          .utc()
+          .add(5, 'm')
+      }
 
       return true
     }
+
     if (suspendedPeer) {
       delete this.suspensions[peer.ip]
     }
@@ -155,7 +165,8 @@ class Guard {
    * @return {Boolean}
    */
   isValidVersion(peer) {
-    return semver.satisfies(peer.version, config.peers.minimumVersion)
+    const version = peer.version || (peer.headers && peer.headers.version)
+    return semver.satisfies(version, config.peers.minimumVersion)
   }
 
   /**
@@ -164,7 +175,8 @@ class Guard {
    * @return {Boolean}
    */
   isValidNetwork(peer) {
-    return peer.nethash === config.network.nethash
+    const nethash = peer.nethash || (peer.headers && peer.headers.nethash)
+    return nethash === config.network.nethash
   }
 
   /**
@@ -238,7 +250,7 @@ class Guard {
       return this.__determinePunishment(peer, offences.TOO_MANY_REQUESTS)
     }
 
-    if (peer.status !== 200) {
+    if (peer.status && peer.status !== 200) {
       return this.__determinePunishment(peer, offences.INVALID_STATUS)
     }
 
