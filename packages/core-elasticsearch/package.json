@@ -23,10 +23,10 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-http-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.4",
+    "@arkecosystem/crypto": "^0.2.5",
     "elasticsearch": "^15.2.0",
     "fs-extra": "^7.0.1",
-    "joi": "^14.0.6",
+    "joi": "^14.1.0",
     "lodash": "^4.17.11"
   },
   "publishConfig": {

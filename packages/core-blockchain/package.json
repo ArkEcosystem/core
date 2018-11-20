@@ -25,12 +25,12 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.4",
+    "@arkecosystem/crypto": "^0.2.5",
     "async": "^2.6.1",
     "awilix": "^4.0.0",
     "delay": "^4.1.0",
     "pretty-ms": "^4.0.0",
-    "xstate": "^4.1.1",
+    "xstate": "^4.1.2",
     "immutable": "^4.0.0-rc.12",
     "pluralize": "^7.0.0"
   },
