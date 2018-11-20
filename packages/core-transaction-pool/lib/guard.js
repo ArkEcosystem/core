@@ -3,6 +3,8 @@
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 
+const logger = container.resolvePlugin('logger')
+
 const {
   configManager,
   constants: { TRANSACTION_TYPES },
@@ -45,18 +47,20 @@ module.exports = class TransactionGuard {
    */
   async validate(transactionsJson) {
     // Remove entries with the same `id`.
-    transactionsJson = Array.from(
+    this.transactions = Array.from(
       new Map(transactionsJson.map(t => [t.id, t])).values(),
     )
 
     // Filter transactions and create Transaction instances from accepted ones
-    const result = this.__filterAndTransformTransactions(transactionsJson)
+    const result = this.__filterAndTransformTransactions(this.transactions)
 
     // Remove already forged tx... Not optimal here
     result.accept = await this.__removeForgedTransactions(result.accept)
 
     // Add transactions to the pool
     this.__addTransactionsToPool(result)
+
+    this.__printStats()
 
     return {
       accept: result.accept,
@@ -149,6 +153,7 @@ module.exports = class TransactionGuard {
   /**
    * Determines valid transactions by checking rules, according to:
    * - transaction timestamp
+   * - wallet balance
    * - transaction type specifics:
    *    - if recipient is on the same network
    *    - if sender already has another transaction of the same type, for types that
@@ -248,8 +253,9 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Add accepted transactions to the pool and return rejected ones.
+   * Add accepted transactions to the pool and filter rejected ones.
    * @param {Object} result object containing the transactions
+   * @return void
    */
   __addTransactionsToPool(result) {
     // Add transactions to the transaction pool
@@ -286,5 +292,18 @@ module.exports = class TransactionGuard {
     this.errors[transaction.id].push({ type, message })
 
     this.invalid.set(transaction.id, transaction)
+  }
+
+  /**
+   * Print compact transaction stats.
+   * @return {void}
+   */
+  __printStats() {
+    const properties = ['accept', 'broadcast', 'excess', 'invalid']
+    const stats = properties
+      .map(prop => `${prop}: ${this[prop].size || this[prop].length}`)
+      .join(' ')
+
+    logger.info(`Received ${this.transactions.length} transactions (${stats}).`)
   }
 }

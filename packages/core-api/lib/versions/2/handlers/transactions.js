@@ -55,11 +55,6 @@ exports.store = {
 
     const result = await guard.validate(request.payload.transactions)
 
-    if (result.accept.length > 0) {
-      const len = result.accept.length
-      logger.info(`Accepted ${len} new ${pluralize('transaction', len)}`)
-    }
-
     if (result.broadcast.length > 0) {
       container.resolvePlugin('p2p').broadcastTransactions(result.broadcast)
     }

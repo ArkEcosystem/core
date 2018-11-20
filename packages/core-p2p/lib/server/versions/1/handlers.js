@@ -323,15 +323,6 @@ exports.postTransactions = {
       }
     }
 
-    if (result.accept.length > 0) {
-      logger.info(
-        `Accepted ${result.accept.length} new ${pluralize(
-          'transaction',
-          result.accept.length,
-        )}`,
-      )
-    }
-
     if (result.broadcast.length > 0) {
       container.resolvePlugin('p2p').broadcastTransactions(result.broadcast)
     }
