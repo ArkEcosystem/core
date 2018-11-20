@@ -21,6 +21,9 @@ exports.plugin = {
   async deregister(container, options) {
     container.resolvePlugin('logger').info('Stopping P2P Interface')
 
-    return container.resolvePlugin('p2p').server.stop()
+    const p2p = container.resolvePlugin('p2p')
+    p2p.dumpPeers()
+
+    return p2p.server.stop()
   },
 }
