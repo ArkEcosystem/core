@@ -27,6 +27,7 @@ module.exports = {
     userCache: {
       expiresIn: 60000,
     },
+    ipWhitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
   },
   // @see https://github.com/fknop/hapi-pagination
   pagination: {

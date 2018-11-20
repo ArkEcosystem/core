@@ -27,7 +27,7 @@
     "boom": "^7.2.2",
     "fs-extra": "^7.0.1",
     "hapi-pagination": "^2.0.1",
-    "joi": "^14.0.6",
+    "joi": "^14.1.0",
     "sequelize": "^4.41.2",
     "sqlite3": "^4.0.4",
     "umzug": "^2.1.0"
