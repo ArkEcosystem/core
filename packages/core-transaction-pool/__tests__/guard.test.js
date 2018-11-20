@@ -28,8 +28,6 @@ afterAll(async () => {
 })
 
 beforeEach(() => {
-  /* poolInterface = new (require('../lib/interface'))({})
-  guard = new (require('../lib/guard'))(poolInterface) */
   transactionPool.flush()
   guard = new Guard(transactionPool)
 })
@@ -45,9 +43,6 @@ describe('Transaction Guard', () => {
     })
 
     it('should not apply the tx to the balance of the sender & recipient with dyn fee < min fee', async () => {
-      guard.pool.transactionExists = jest.fn(() => false)
-      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
-
       const delegate0 = delegates[0]
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
@@ -79,9 +74,6 @@ describe('Transaction Guard', () => {
     })
 
     it('should update the balance of the sender & recipient with dyn fee > min fee', async () => {
-      guard.pool.transactionExists = jest.fn(() => false)
-      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
-
       const delegate1 = delegates[1]
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
@@ -114,10 +106,6 @@ describe('Transaction Guard', () => {
     })
 
     it('should update the balance of the sender & recipient with multiple transactions type', async () => {
-      guard.pool.transactionExists = jest.fn(() => false)
-      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
-      guard.pool.senderHasTransactionsOfType = jest.fn(() => false)
-
       const delegate2 = delegates[2]
       const newWalletPassphrase = bip39.generateMnemonic()
       const { publicKey } = crypto.getKeys(newWalletPassphrase)
@@ -159,14 +147,17 @@ describe('Transaction Guard', () => {
       )
       const signatures = generateSignature('testnet', newWalletPassphrase, 1)
 
-      await guard.validate([
-        transfers[0],
-        votes[0],
-        delegateRegs[0],
-        signatures[0],
-      ])
+      // first validate the 1st transfer so that new wallet is updated with the amount
+      await guard.validate(transfers)
       expect(guard.errors).toEqual({})
+      expect(+newWallet.balance).toBe(amount1)
 
+      // reset guard, if not the 1st transaction will still be in this.accept and mess up
+      guard = new Guard(transactionPool)
+
+      await guard.validate([votes[0], delegateRegs[0], signatures[0]])
+
+      expect(guard.errors).toEqual({})
       expect(+delegateWallet.balance).toBe(+delegate2.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(
         amount1 - voteFee - delegateRegFee - signatureFee,
@@ -174,10 +165,6 @@ describe('Transaction Guard', () => {
     })
 
     it('should not accept transaction in excess', async () => {
-      guard.pool.transactionExists = jest.fn(() => false)
-      guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
-      guard.pool.senderHasTransactionsOfType = jest.fn(() => false)
-
       const delegate3 = delegates[3]
       const newWalletPassphrase = bip39.generateMnemonic()
       const { publicKey } = crypto.getKeys(newWalletPassphrase)
@@ -242,10 +229,8 @@ describe('Transaction Guard', () => {
 
         const errorExpected = [
           {
-            message: `Error: [PoolWalletManager] Can't apply transaction ${
-              transaction[0].id
-            }`,
-            type: 'ERR_UNKNOWN',
+            message: '["Insufficient balance in the wallet"]',
+            type: 'ERR_APPLY',
           },
         ]
         expect(guard.errors[transaction[0].id]).toEqual(errorExpected)
@@ -272,7 +257,11 @@ describe('Transaction Guard', () => {
 
       expect(result.errors[transactions[1].id]).toEqual([
         {
-          message: `Error: Can't apply transaction ${transactions[1].id}`,
+          message: `Error: [PoolWalletManager] Can't apply transaction id:${
+            transactions[1].id
+          } from sender:${
+            delegates[0].address
+          } due to ["Insufficient balance in the wallet"]`,
           type: 'ERR_APPLY',
         },
       ])
@@ -283,10 +272,13 @@ describe('Transaction Guard', () => {
       async txNumber => {
         // use txNumber so that we use a different delegate for each test case
         const sender = delegates[txNumber]
+        const senderWallet = transactionPool.walletManager.findByPublicKey(
+          sender.publicKey,
+        )
         const receivers = generateWallets('testnet', 2)
-        const amountPlusFee = Math.floor(sender.balance / txNumber)
+        const amountPlusFee = Math.floor(senderWallet.balance / txNumber)
         const lastAmountPlusFee =
-          sender.balance - (txNumber - 1) * amountPlusFee
+          senderWallet.balance - (txNumber - 1) * amountPlusFee
         const transferFee = 10000000
 
         const transactions = generateTransfers(
@@ -350,11 +342,14 @@ describe('Transaction Guard', () => {
 
         const result = await guard.validate(allTransactions)
 
-        expect(result.errors[allTransactions[txNumber - 1].id]).toEqual([
+        expect(Object.keys(result.errors).length).toBe(1)
+        expect(result.errors[lastTransaction[0].id]).toEqual([
           {
-            message: `Error: Can't apply transaction ${
-              allTransactions[txNumber - 1].id
-            }`,
+            message: `Error: [PoolWalletManager] Can't apply transaction id:${
+              lastTransaction[0].id
+            } from sender:${
+              sender.address
+            } due to ["Insufficient balance in the wallet"]`,
             type: 'ERR_APPLY',
           },
         ])
