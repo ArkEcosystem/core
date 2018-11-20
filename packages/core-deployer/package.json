@@ -26,14 +26,14 @@
     "depcheck": "depcheck ./ --ignores=flow-bin,commander,pino-pretty"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.4",
+    "@arkecosystem/crypto": "^0.2.5",
     "bip39": "^2.5.0",
     "bytebuffer": "^5.0.1",
     "commander": "^2.19.0",
     "envfile": "^2.3.0",
     "expand-home-dir": "0.0.3",
     "fs-extra": "^7.0.1",
-    "joi": "^14.0.6",
+    "joi": "^14.1.0",
     "lodash": "^4.17.11",
     "pino": "^5.8.1",
     "pino-pretty": "^2.2.3"
