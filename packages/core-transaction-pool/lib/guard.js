@@ -52,20 +52,20 @@ module.exports = class TransactionGuard {
     )
 
     // Filter transactions and create Transaction instances from accepted ones
-    const result = this.__filterAndTransformTransactions(this.transactions)
+    this.__filterAndTransformTransactions(this.transactions)
 
     // Remove already forged tx... Not optimal here
-    result.accept = await this.__removeForgedTransactions(result.accept)
+    await this.__removeForgedTransactions()
 
     // Add transactions to the pool
-    this.__addTransactionsToPool(result)
+    this.__addTransactionsToPool()
 
     this.__printStats()
 
     return {
-      accept: result.accept,
-      broadcast: result.broadcast,
-      excess: result.excess,
+      accept: this.accept,
+      broadcast: this.broadcast,
+      excess: this.excess,
       invalid: Array.from(this.invalid.values()),
       errors: Object.keys(this.errors).length > 0 ? this.errors : null,
     }
@@ -81,15 +81,9 @@ module.exports = class TransactionGuard {
    * - transactions based on type specific restrictions
    * - not valid crypto transactions
    * @param  {Array} transactions
-   * @return {Array}
+   * @return {void}
    */
   __filterAndTransformTransactions(transactions) {
-    const result = {
-      accept: [],
-      broadcast: [],
-      excess: [],
-    }
-
     transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id)
 
@@ -109,14 +103,14 @@ module.exports = class TransactionGuard {
           } is blocked.`,
         )
       } else if (this.pool.hasExceededMaxTransactions(transaction)) {
-        result.excess.push(transaction)
+        this.excess.push(transaction)
       } else if (this.__validateTransaction(transaction)) {
         try {
           const trx = new Transaction(transaction)
           if (trx.verified) {
             const dynamicFee = dynamicFeeMatch(trx)
             if (dynamicFee.enterPool) {
-              result.accept.push(trx)
+              this.accept.push(trx)
             } else {
               this.__pushError(
                 transaction,
@@ -126,7 +120,7 @@ module.exports = class TransactionGuard {
             }
 
             if (dynamicFee.broadcast) {
-              result.broadcast.push(trx)
+              this.broadcast.push(trx)
             } else {
               this.__pushError(
                 transaction,
@@ -146,8 +140,6 @@ module.exports = class TransactionGuard {
         }
       }
     })
-
-    return result
   }
 
   /**
@@ -232,17 +224,17 @@ module.exports = class TransactionGuard {
 
   /**
    * Remove already forged transactions.
-   * @return {Array}
+   * @return {void}
    */
-  async __removeForgedTransactions(transactions) {
+  async __removeForgedTransactions() {
     const database = container.resolvePlugin('database')
 
-    const transactionIds = transactions.map(transaction => transaction.id)
+    const transactionIds = this.accept.map(transaction => transaction.id)
     const forgedIdsSet = new Set(
       await database.getForgedTransactionsIds(transactionIds),
     )
 
-    return transactions.filter(transaction => {
+    this.accept = this.accept.filter(transaction => {
       if (forgedIdsSet.has(transaction.id)) {
         this.__pushError(transaction, 'ERR_FORGED', 'Already forged.')
         return false
@@ -254,19 +246,18 @@ module.exports = class TransactionGuard {
 
   /**
    * Add accepted transactions to the pool and filter rejected ones.
-   * @param {Object} result object containing the transactions
-   * @return void
+   * @return {void}
    */
-  __addTransactionsToPool(result) {
+  __addTransactionsToPool() {
     // Add transactions to the transaction pool
-    const { added, notAdded } = this.pool.addTransactions(result.accept)
+    const { added, notAdded } = this.pool.addTransactions(this.accept)
 
     // Filter not accepted tx
-    result.accept = result.accept.filter(accepted => added.includes(accepted))
+    this.accept = this.accept.filter(accepted => added.includes(accepted))
 
     // Only broadcast accepted transactions
-    result.broadcast = result.broadcast.filter(broadcast =>
-      result.accept.includes(broadcast),
+    this.broadcast = this.broadcast.filter(broadcast =>
+      this.accept.includes(broadcast),
     )
 
     // Add errors
@@ -301,7 +292,12 @@ module.exports = class TransactionGuard {
   __printStats() {
     const properties = ['accept', 'broadcast', 'excess', 'invalid']
     const stats = properties
-      .map(prop => `${prop}: ${this[prop].size || this[prop].length}`)
+      .map(
+        prop =>
+          `${prop}: ${
+            this[prop] instanceof Array ? this[prop].length : this[prop].size
+          }`,
+      )
       .join(' ')
 
     logger.info(`Received ${this.transactions.length} transactions (${stats}).`)
