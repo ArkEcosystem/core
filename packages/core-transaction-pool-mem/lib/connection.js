@@ -197,13 +197,16 @@ class TransactionPool extends TransactionPoolInterface {
   hasExceededMaxTransactions(transaction) {
     this.__purgeExpired()
 
-    if (this.options.allowedSenders.includes(transaction.senderPublicKey) && !this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
-      logger.debug(
-        `Transaction pool: allowing sender public key: ${
-          transaction.senderPublicKey
-        } (listed in options.allowedSenders), thus skipping throttling.`,
-      )
-      this.loggedAllowedSenders.push(transaction.senderPublicKey)
+    if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
+      if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
+        logger.debug(
+          `Transaction pool: allowing sender public key: ${
+            transaction.senderPublicKey
+          } (listed in options.allowedSenders), thus skipping throttling.`,
+        )
+        this.loggedAllowedSenders.push(transaction.senderPublicKey)
+      }
+
       return false
     }
 
