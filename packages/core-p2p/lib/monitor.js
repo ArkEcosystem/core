@@ -719,14 +719,14 @@ class Monitor {
    * @return {void}
    */
   __filterPeers() {
-    if (!config.peers.list && !config.peers.backup) {
+    if (!config.peers.list) {
       container.forceExit('No seed peers defined in peers.json :interrobang:')
     }
 
-    let peers = config.peers.list
+    const peers = config.peers.list
 
-    if (config.peers.backup) {
-      peers = { ...peers, ...config.peers.backup }
+    if (config.peers_backup) {
+      peers.list = { ...peers.list, ...config.peers_backup }
     }
 
     const filteredPeers = Object.values(peers).filter(
@@ -792,16 +792,19 @@ class Monitor {
    * @return {void}
    */
   dumpPeers() {
-    const peers = config.peers
-    peers.backup = Object.values(this.peers).map(peer => ({
+    const peers = Object.values(this.peers).map(peer => ({
       ip: peer.ip,
       port: peer.port,
     }))
 
-    fs.writeFileSync(
-      `${process.env.ARK_PATH_CONFIG}/peers.json`,
-      JSON.stringify(peers, null, 2),
-    )
+    try {
+      fs.writeFileSync(
+        `${process.env.ARK_PATH_CONFIG}/peers_backup.json`,
+        JSON.stringify(peers, null, 2),
+      )
+    } catch (err) {
+      logger.error(`Failed to dump the peer list because of "${err.message}"`)
+    }
   }
 }
 
