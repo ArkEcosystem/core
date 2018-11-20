@@ -4,7 +4,7 @@ const prettyMs = require('pretty-ms')
 const fs = require('fs')
 const moment = require('moment')
 const delay = require('delay')
-const { flatten, groupBy, sample } = require('lodash')
+const { flatten, groupBy, sample, shuffle, take } = require('lodash')
 const pluralize = require('pluralize')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -537,11 +537,13 @@ class Monitor {
   }
 
   /**
-   * Placeholder method to broadcast transactions to peers.
+   * Broadcast transactions to a fixed number of random peers.
    * @param {Transaction[]} transactions
    */
   async broadcastTransactions(transactions) {
-    const peers = this.getPeers()
+    const maxPeersBroadcast = container.resolveOptions('p2p').maxPeersBroadcast
+    const peers = take(shuffle(this.getPeers()), maxPeersBroadcast)
+
     logger.debug(
       `Broadcasting ${pluralize(
         'transaction',
@@ -550,12 +552,8 @@ class Monitor {
       )} to ${pluralize('peer', peers.length, true)}`,
     )
 
-    const transactionsV1 = []
-    transactions.forEach(transaction =>
-      transactionsV1.push(transaction.toJson()),
-    )
-
-    return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
+    transactions = transactions.map(tx => tx.toJson())
+    return Promise.all(peers.map(peer => peer.postTransactions(transactions)))
   }
 
   /**

@@ -25,4 +25,5 @@ module.exports = {
     },
     ipWhitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
   },
+  maxPeersBroadcast: 20,
 }
