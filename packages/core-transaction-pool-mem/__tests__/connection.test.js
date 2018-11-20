@@ -533,7 +533,7 @@ describe('Connection', () => {
     it('save and restore transactions', () => {
       expect(connection.getPoolSize()).toBe(0)
 
-      const transactions = [mockData.dummy1, mockData.dummy2]
+      const transactions = [mockData.dummy1, mockData.dummy4]
 
       connection.addTransactions(transactions)
 
@@ -566,9 +566,14 @@ describe('Connection', () => {
       // Workaround: Add tx to exceptions so it gets applied, because the fee is 0.
       config.network.exceptions.transactions = [forgedTransaction.id]
 
+      // For some reason all genesis transactions fail signature verification, so
+      // they are not loaded from the local storage and this fails otherwise.
+      const original = database.getForgedTransactionsId
+      database.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id])
+
       expect(forgedTransaction instanceof Transaction).toBeTrue()
 
-      const transactions = [mockData.dummy1, forgedTransaction, mockData.dummy2]
+      const transactions = [mockData.dummy1, forgedTransaction, mockData.dummy4]
 
       connection.addTransactions(transactions)
 
@@ -589,6 +594,8 @@ describe('Connection', () => {
       )
 
       connection.flush()
+
+      database.getForgedTransactionsIds = original
     })
   })
 
