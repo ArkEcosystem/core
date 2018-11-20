@@ -30,8 +30,8 @@ class TransactionPool extends TransactionPoolInterface {
    */
   async make() {
     this.mem = new Mem()
-
     this.storage = new Storage(this.options.storage)
+    this.loggedAllowedSender = []
 
     const all = this.storage.loadAll()
     all.forEach(t => this.mem.add(t, this.options.maxTransactionAge, true))
@@ -197,12 +197,13 @@ class TransactionPool extends TransactionPoolInterface {
   hasExceededMaxTransactions(transaction) {
     this.__purgeExpired()
 
-    if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
+    if (this.options.allowedSenders.includes(transaction.senderPublicKey) && !this.loggedAllowedSender.includes(transaction.senderPublicKey)) {
       logger.debug(
         `Transaction pool: allowing sender public key: ${
           transaction.senderPublicKey
         } (listed in options.allowedSenders), thus skipping throttling.`,
       )
+      this.loggedAllowedSender.push(transaction.senderPublicKey)
       return false
     }
 
