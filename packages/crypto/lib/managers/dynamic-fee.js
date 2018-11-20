@@ -8,21 +8,23 @@ class DynamicFeeManager {
     this.offsets = {}
   }
 
-  /** Calculates delegate minimum fee for forging of a transaction.
-   * @param {Number} Minimum fee price per byte in ARKTOSHI as set by forger/delegate
-   *                 in delegate.json setting feeMultiplier
-   * @param {Transaction} Transaction for which we calculate dynamic fee
+  /**
+   * Calculate minimum fee of a transaction for entering the pool.
+   * @param {Number} Minimum fee ARKTOSHI/byte
+   * @param {Transaction} Transaction for which we calculate the fee
    * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
    */
-  calculateFee(feeMultiplier, transaction) {
-    if (feeMultiplier <= 0) {
-      feeMultiplier = 1
+  calculateFee(arktoshiPerByte, transaction) {
+    if (arktoshiPerByte <= 0) {
+      arktoshiPerByte = 1
     }
 
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2
 
-    return (this.get(transaction.type) + transactionSizeInBytes) * feeMultiplier
+    return (
+      (this.get(transaction.type) + transactionSizeInBytes) * arktoshiPerByte
+    )
   }
 
   /**

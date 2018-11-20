@@ -83,7 +83,9 @@ class TransactionPool extends TransactionPoolInterface {
   /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
-   * @return {Boolean}
+   * @return {Object} The success property indicates wether the transaction was successfully added
+   * and applied to the pool or not. In case it was not successful, the type and message
+   * property yield information about the error.
    */
   addTransaction(transaction) {
     if (this.transactionExists(transaction.id)) {
@@ -92,7 +94,32 @@ class TransactionPool extends TransactionPoolInterface {
           `in the pool, id: ${transaction.id}`,
       )
 
-      return false
+      return this.__createError(
+        transaction,
+        'ERR_ALREADY_IN_POOL',
+        'Already in pool',
+      )
+    }
+
+    const poolSize = this.mem.getSize()
+
+    if (this.options.maxTransactionsInPool <= poolSize) {
+      // The pool can't accommodate more transactions. Either decline the newcomer or remove
+      // an existing transaction from the pool in order to free up space.
+      const all = this.mem.getTransactionsOrderedByFee()
+      const lowest = all[all.length - 1].transaction
+
+      if (lowest.fee.isLessThan(transaction.fee)) {
+        this.mem.remove(lowest.id, lowest.senderPublicKey)
+      } else {
+        return this.__createError(
+          transaction,
+          'ERR_POOL_FULL',
+          `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
+            `${transaction.fee.toFixed()} is not higher than the lowest fee already in pool ` +
+            `${lowest.fee.toFixed()}`,
+        )
+      }
     }
 
     this.mem.add(
@@ -100,18 +127,45 @@ class TransactionPool extends TransactionPoolInterface {
       this.options.maxTransactionAge,
     )
 
+    // Apply transaction to pool wallet manager.
+    try {
+      this.walletManager.applyTransaction(transaction)
+    } catch (error) {
+      // Remove tx again from the pool
+      this.mem.remove(transaction.id)
+
+      return this.__createError(transaction, 'ERR_APPLY', error.toString())
+    }
+
     this.__syncToPersistentStorageIfNecessary()
-    return true
+    return { success: true }
   }
 
   /**
    * Add many transactions to the pool.
    * @param {Array}   transactions, already transformed and verified
    * by transaction guard - must have serialized field
-   * @return {Array}  successfully added transactions
+   * @return {Object} like
+   * {
+   *   added: [ ... successfully added transactions ... ],
+   *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
+   * }
    */
   addTransactions(transactions) {
-    return transactions.filter(transaction => this.addTransaction(transaction))
+    const added = []
+    const notAdded = []
+
+    for (const t of transactions) {
+      const result = this.addTransaction(t)
+
+      if (result.success) {
+        added.push(t)
+      } else {
+        notAdded.push(result)
+      }
+    }
+
+    return { added, notAdded }
   }
 
   /**
@@ -353,37 +407,6 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Check each of a set of transactions for eligibility to enter the pool.
-   * This method is quick and is used to drop transactions early at the entrance
-   * for which we can quickly assess that will not be allowed to enter the pool.
-   *
-   * So we can avoid the costy validation process only to discover later that a
-   * transaction is not allowed to enter the pool.
-   *
-   * @param {Array} transactions An array of Transaction objects to be checked.
-   * @return { eligible, notEligible } where:
-   * - eligible is an array of Transaction objects, a subset of the input array
-   * - notEligible is an array of objects { transaction, reason } where:
-   *   - transaction is a Transaction object, from the input
-   *   - reason is a String describing why the transaction is not eligible
-   */
-  checkEligibility(transactions) {
-    this.__purgeExpired()
-
-    const ret = { eligible: [], notEligible: [] }
-
-    for (const t of transactions) {
-      if (this.mem.transactionExists(t.id)) {
-        ret.notEligible.push({ transaction: t, reason: 'Already in pool' })
-      } else {
-        ret.eligible.push(t)
-      }
-    }
-
-    return ret
-  }
-
-  /**
    * Remove all transactions from the pool that have expired.
    * @return {void}
    */
@@ -421,6 +444,22 @@ class TransactionPool extends TransactionPoolInterface {
 
     const removed = this.mem.getDirtyRemovedAndForget()
     this.storage.bulkRemoveById(removed)
+  }
+
+  /**
+   * Create an error object which the TransactionGuard understands.
+   * @param {Transaction} transaction
+   * @param {String} type
+   * @param {String} message
+   * @return {Object}
+   */
+  __createError(transaction, type, message) {
+    return {
+      transaction,
+      type,
+      message,
+      success: false,
+    }
   }
 }
 

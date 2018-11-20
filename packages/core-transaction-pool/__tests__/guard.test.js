@@ -1,18 +1,26 @@
+/* eslint import/no-extraneous-dependencies: "off" */
+/* eslint no-await-in-loop: "off" */
+const Guard = require('@arkecosystem/core-transaction-pool/lib/guard')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const bip39 = require('bip39')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
-const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateVote = require('@arkecosystem/core-test-utils/lib/generators/transactions/vote')
 const generateSignature = require('@arkecosystem/core-test-utils/lib/generators/transactions/signature')
 const generateDelegateReg = require('@arkecosystem/core-test-utils/lib/generators/transactions/delegate')
+const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const app = require('./__support__/setup')
 
 let container
 let guard
+let transactionPool
 let poolInterface
 
 beforeAll(async () => {
   container = await app.setUp()
+
+  transactionPool = container.resolvePlugin('transactionPool')
+  transactionPool.make()
 })
 
 afterAll(async () => {
@@ -20,8 +28,10 @@ afterAll(async () => {
 })
 
 beforeEach(() => {
-  poolInterface = new (require('../lib/interface'))({})
-  guard = new (require('../lib/guard'))(poolInterface)
+  /* poolInterface = new (require('../lib/interface'))({})
+  guard = new (require('../lib/guard'))(poolInterface) */
+  transactionPool.flush()
+  guard = new Guard(transactionPool)
 })
 
 describe('Transaction Guard', () => {
@@ -42,17 +52,17 @@ describe('Transaction Guard', () => {
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
 
-      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(
         delegate0.publicKey,
       )
-      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey)
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance)
       expect(+newWallet.balance).toBe(0)
 
       const amount1 = 123 * 10 ** 8
       const fee = 10
-      const transfers = generateTransfer(
+      const transfers = generateTransfers(
         'testnet',
         delegate0.secret,
         newAddress,
@@ -71,23 +81,22 @@ describe('Transaction Guard', () => {
     it('should update the balance of the sender & recipient with dyn fee > min fee', async () => {
       guard.pool.transactionExists = jest.fn(() => false)
       guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
-      guard.__reset()
 
       const delegate1 = delegates[1]
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
 
-      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(
         delegate1.publicKey,
       )
-      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey)
 
       expect(+delegateWallet.balance).toBe(+delegate1.balance)
       expect(+newWallet.balance).toBe(0)
 
       const amount1 = +delegateWallet.balance / 2
       const fee = 0.1 * 10 ** 8
-      const transfers = generateTransfer(
+      const transfers = generateTransfers(
         'testnet',
         delegate1.secret,
         newAddress,
@@ -108,27 +117,27 @@ describe('Transaction Guard', () => {
       guard.pool.transactionExists = jest.fn(() => false)
       guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
       guard.pool.senderHasTransactionsOfType = jest.fn(() => false)
-      guard.__reset()
 
       const delegate2 = delegates[2]
       const newWalletPassphrase = bip39.generateMnemonic()
       const { publicKey } = crypto.getKeys(newWalletPassphrase)
       const newAddress = crypto.getAddress(publicKey)
 
-      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(
         delegate2.publicKey,
       )
-      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey)
 
       expect(+delegateWallet.balance).toBe(+delegate2.balance)
       expect(+newWallet.balance).toBe(0)
+      expect(guard.errors).toEqual({})
 
       const amount1 = +delegateWallet.balance / 2
       const fee = 0.1 * 10 ** 8
       const voteFee = 10 ** 8
       const delegateRegFee = 25 * 10 ** 8
       const signatureFee = 5 * 10 ** 8
-      const transfers = generateTransfer(
+      const transfers = generateTransfers(
         'testnet',
         delegate2.secret,
         newAddress,
@@ -168,17 +177,16 @@ describe('Transaction Guard', () => {
       guard.pool.transactionExists = jest.fn(() => false)
       guard.pool.hasExceededMaxTransactions = jest.fn(() => false)
       guard.pool.senderHasTransactionsOfType = jest.fn(() => false)
-      guard.__reset()
 
       const delegate3 = delegates[3]
       const newWalletPassphrase = bip39.generateMnemonic()
       const { publicKey } = crypto.getKeys(newWalletPassphrase)
       const newAddress = crypto.getAddress(publicKey)
 
-      const delegateWallet = poolInterface.walletManager.findByPublicKey(
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(
         delegate3.publicKey,
       )
-      const newWallet = poolInterface.walletManager.findByPublicKey(publicKey)
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey)
 
       expect(+delegateWallet.balance).toBe(+delegate3.balance)
       expect(+newWallet.balance).toBe(0)
@@ -186,7 +194,7 @@ describe('Transaction Guard', () => {
       // first, transfer coins to new wallet so that we can test from it then
       const amount1 = 1000 * 10 ** 8
       const fee = 0.1 * 10 ** 8
-      const transfers1 = generateTransfer(
+      const transfers1 = generateTransfers(
         'testnet',
         delegate3.secret,
         newAddress,
@@ -200,7 +208,7 @@ describe('Transaction Guard', () => {
 
       // transfer almost everything from new wallet so that we don't have enough for any other transaction
       const amount2 = 999 * 10 ** 8
-      const transfers2 = generateTransfer(
+      const transfers2 = generateTransfers(
         'testnet',
         newWalletPassphrase,
         delegate3.address,
@@ -215,7 +223,7 @@ describe('Transaction Guard', () => {
       const transferAmount = 0.5 * 10 ** 8
       const transferDynFee = 0.5 * 10 ** 8
       const allTransactions = [
-        generateTransfer(
+        generateTransfers(
           'testnet',
           newWalletPassphrase,
           delegate3.address,
@@ -232,8 +240,7 @@ describe('Transaction Guard', () => {
       for (const transaction of allTransactions) {
         await guard.validate(transaction) // eslint-disable-line no-await-in-loop
 
-        const errorExpected = {}
-        errorExpected[transaction[0].id] = [
+        const errorExpected = [
           {
             message: `Error: [PoolWalletManager] Can't apply transaction ${
               transaction[0].id
@@ -241,202 +248,185 @@ describe('Transaction Guard', () => {
             type: 'ERR_UNKNOWN',
           },
         ]
-        expect(guard.errors).toEqual(errorExpected)
+        expect(guard.errors[transaction[0].id]).toEqual(errorExpected)
 
         expect(+delegateWallet.balance).toBe(
           +delegate3.balance - amount1 - fee + amount2,
         )
         expect(+newWallet.balance).toBe(amount1 - amount2 - fee)
-
-        guard.__reset()
       }
     })
-  })
 
-  describe('invalidate', () => {
-    it('should be a function', () => {
-      expect(guard.invalidate).toBeFunction()
-    })
+    it('should not validate 2 double spending transactions', async () => {
+      const amount = 245098000000000 - 5098000000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        2,
+        true,
+      )
 
-    it('should invalidate transactions', () => {
-      guard.invalidate([{ id: 1 }, { id: 2 }], 'Invalid.')
+      const result = await guard.validate(transactions)
 
-      expect(guard.invalid).toHaveLength(2)
-      expect(guard.invalid).toEqual([{ id: 1 }, { id: 2 }])
-      expect(guard.errors).toBeObject()
-      expect(Object.keys(guard.errors)).toHaveLength(2)
-      expect(guard.errors['1']).toEqual([
-        { message: 'Invalid.', type: 'ERR_INVALID' },
+      expect(result.errors[transactions[1].id]).toEqual([
+        {
+          message: `Error: Can't apply transaction ${transactions[1].id}`,
+          type: 'ERR_APPLY',
+        },
       ])
     })
-  })
 
-  describe('getIds', () => {
-    it('should be a function', () => {
-      expect(guard.getIds).toBeFunction()
+    it.each([3, 5, 8])(
+      'should validate emptying wallet with %i transactions',
+      async txNumber => {
+        // use txNumber so that we use a different delegate for each test case
+        const sender = delegates[txNumber]
+        const receivers = generateWallets('testnet', 2)
+        const amountPlusFee = Math.floor(sender.balance / txNumber)
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee
+        const transferFee = 10000000
+
+        const transactions = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[0].address,
+          amountPlusFee - transferFee,
+          txNumber - 1,
+          true,
+        )
+        const lastTransaction = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[1].address,
+          lastAmountPlusFee - transferFee,
+          1,
+          true,
+        )
+        // we change the receiver in lastTransaction to prevent having 2 exact
+        // same transactions with same id (if not, could be same as transactions[0])
+
+        const result = await guard.validate(
+          transactions.concat(lastTransaction),
+        )
+
+        expect(result.errors).toEqual(null)
+      },
+    )
+
+    it.each([3, 5, 8])(
+      'should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much',
+      async txNumber => {
+        // use txNumber + 1 so that we don't use the same delegates as the above test
+        const sender = delegates[txNumber + 1]
+        const receivers = generateWallets('testnet', 2)
+        const amountPlusFee = Math.floor(sender.balance / txNumber)
+        const lastAmountPlusFee =
+          sender.balance - (txNumber - 1) * amountPlusFee + 1
+        const transferFee = 10000000
+
+        const transactions = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[0].address,
+          amountPlusFee - transferFee,
+          txNumber - 1,
+          true,
+        )
+        const lastTransaction = generateTransfers(
+          'testnet',
+          sender.secret,
+          receivers[1].address,
+          lastAmountPlusFee - transferFee,
+          1,
+          true,
+        )
+        // we change the receiver in lastTransaction to prevent having 2
+        // exact same transactions with same id (if not, could be same as transactions[0])
+
+        const allTransactions = transactions.concat(lastTransaction)
+
+        const result = await guard.validate(allTransactions)
+
+        expect(result.errors[allTransactions[txNumber - 1].id]).toEqual([
+          {
+            message: `Error: Can't apply transaction ${
+              allTransactions[txNumber - 1].id
+            }`,
+            type: 'ERR_APPLY',
+          },
+        ])
+      },
+    )
+
+    it('should call pingTransaction', async () => {
+      const amount = 10000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        1,
+        true,
+      )
+
+      const pingTransaction = transactionPool.pingTransaction
+      transactionPool.pingTransaction = jest.fn()
+
+      let result = await guard.validate(transactions)
+      transactionPool.addTransactions(result.accept)
+      expect(result.broadcast).toHaveLength(1)
+
+      guard = new Guard(transactionPool)
+      result = await guard.validate(transactions)
+
+      expect(result.broadcast).toBeEmpty()
+      expect(transactionPool.pingTransaction).toHaveBeenCalled()
+      expect(transactionPool.pingTransaction).toHaveBeenCalledTimes(1)
+
+      transactionPool.pingTransaction = pingTransaction
+      for (let i = 0; i < 10; i++) {
+        await guard.validate(transactions)
+      }
+      expect(transactionPool.getTransactionPing(transactions[0].id)).toEqual(10)
     })
 
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalid = [{ id: 4 }]
-      guard.broadcast = [{ id: 5 }]
+    it('should not call pingTransaction', async () => {
+      const amount = 10000000 // a bit less than the delegates' balance
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        amount,
+        1,
+        true,
+      )
 
-      expect(guard.getIds()).toEqual({
-        transactions: [1],
-        accept: [2],
-        excess: [3],
-        invalid: [4],
-        broadcast: [5],
-      })
-    })
+      transactionPool.pingTransaction = jest.fn()
 
-    it('should be ok using a type', () => {
-      guard.excess = [{ id: 3 }]
+      await guard.validate(transactions)
 
-      expect(guard.getIds('excess')).toEqual([3])
-    })
-  })
-
-  describe('getTransactions', () => {
-    it('should be a function', () => {
-      expect(guard.getTransactions).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalid = [{ id: 4 }]
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.getTransactions()).toEqual({
-        transactions: [{ id: 1 }],
-        accept: [{ id: 2 }],
-        excess: [{ id: 3 }],
-        invalid: [{ id: 4 }],
-        broadcast: [{ id: 5 }],
-      })
-    })
-
-    it('should be ok using a type', () => {
-      guard.excess = [{ id: 3 }]
-
-      expect(guard.getTransactions('excess')).toEqual([{ id: 3 }])
-    })
-  })
-
-  describe('toJson', () => {
-    it('should be a function', () => {
-      expect(guard.toJson).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.toJson()).toEqual({
-        data: {
-          accept: [2],
-          excess: [3],
-          invalid: [],
-          broadcast: [5],
-        },
-        errors: null,
-      })
-    })
-
-    it('should be ok with error', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalidate({ id: 4 }, 'Invalid.')
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.toJson()).toEqual({
-        data: {
-          accept: [2],
-          excess: [3],
-          invalid: [4],
-          broadcast: [5],
-        },
-        errors: { 4: [{ message: 'Invalid.', type: 'ERR_INVALID' }] },
-      })
-    })
-  })
-
-  describe('has', () => {
-    it('should be a function', () => {
-      expect(guard.has).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.excess = [{ id: 1 }, { id: 2 }]
-
-      expect(guard.has('excess', 2)).toBeTrue()
-    })
-
-    it('should not be ok', () => {
-      guard.excess = [{ id: 1 }, { id: 2 }]
-
-      expect(guard.has('excess', 1)).toBeFalse()
-    })
-  })
-
-  describe('hasAtLeast', () => {
-    it('should be a function', () => {
-      expect(guard.hasAtLeast).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.excess = [{ id: 1 }, { id: 2 }]
-
-      expect(guard.hasAtLeast('excess', 2)).toBeTrue()
-    })
-
-    it('should not be ok', () => {
-      guard.excess = [{ id: 1 }]
-
-      expect(guard.hasAtLeast('excess', 2)).toBeFalse()
-    })
-  })
-
-  describe('hasAny', () => {
-    it('should be a function', () => {
-      expect(guard.hasAny).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.excess = [{ id: 1 }]
-
-      expect(guard.hasAny('excess')).toBeTrue()
-    })
-
-    it('should not be ok', () => {
-      guard.excess = []
-
-      expect(guard.hasAny('excess')).toBeFalse()
+      expect(transactionPool.pingTransaction).not.toHaveBeenCalled()
     })
   })
 
-  describe('__transformAndFilterTransactions', () => {
+  describe('__filterAndTransformTransactions', () => {
     it('should be a function', () => {
-      expect(guard.__transformAndFilterTransactions).toBeFunction()
+      expect(guard.__filterAndTransformTransactions).toBeFunction()
     })
 
     it('should reject duplicate transactions', () => {
       guard.pool.transactionExists = jest.fn(() => true)
       guard.pool.pingTransaction = jest.fn(() => true)
 
-      const tx = { id: 1 }
-      guard.__transformAndFilterTransactions([tx])
+      const tx = { id: '1' }
+      guard.__filterAndTransformTransactions([tx])
 
-      expect(guard.errors['1']).toEqual([
+      expect(guard.errors[tx.id]).toEqual([
         {
-          message: 'Duplicate transaction 1',
+          message: `Duplicate transaction ${tx.id}`,
           type: 'ERR_DUPLICATE',
         },
       ])
@@ -444,34 +434,43 @@ describe('Transaction Guard', () => {
 
     it('should reject blocked senders', () => {
       guard.pool.transactionExists = jest.fn(() => false)
+      const isSenderBlocked = guard.pool.isSenderBlocked
       guard.pool.isSenderBlocked = jest.fn(() => true)
 
-      const tx = { id: 1, senderPublicKey: 'affe' }
-      guard.__transformAndFilterTransactions([tx])
+      const tx = { id: '1', senderPublicKey: 'affe' }
+      guard.__filterAndTransformTransactions([tx])
 
-      expect(guard.errors['1']).toEqual([
+      expect(guard.errors[tx.id]).toEqual([
         {
-          message: 'Transaction 1 rejected. Sender affe is blocked.',
+          message: `Transaction ${tx.id} rejected. Sender ${
+            tx.senderPublicKey
+          } is blocked.`,
           type: 'ERR_SENDER_BLOCKED',
         },
       ])
+
+      guard.pool.isSenderBlocked = isSenderBlocked
     })
 
     it('should reject transactions from the future', () => {
+      const now = 47157042 // seconds since genesis block
       guard.pool.transactionExists = jest.fn(() => false)
       const getTime = slots.getTime
-      slots.getTime = jest.fn(() => 47157042)
+      slots.getTime = jest.fn(() => now)
 
+      const secondsInFuture = 3601
       const tx = {
-        id: 1,
+        id: '1',
         senderPublicKey: 'affe',
-        timestamp: slots.getTime() + 1,
+        timestamp: slots.getTime() + secondsInFuture,
       }
-      guard.__transformAndFilterTransactions([tx])
+      guard.__filterAndTransformTransactions([tx])
 
-      expect(guard.errors['1']).toEqual([
+      expect(guard.errors[tx.id]).toEqual([
         {
-          message: 'Transaction 1 is from the future (47157043 > 47157042)',
+          message: `Transaction ${
+            tx.id
+          } is ${secondsInFuture} seconds in the future`,
           type: 'ERR_FROM_FUTURE',
         },
       ])
@@ -480,21 +479,15 @@ describe('Transaction Guard', () => {
     })
   })
 
-  describe('__determineValidTransactions', () => {
+  describe('__validateTransaction', () => {
     it('should be a function', () => {
-      expect(guard.__determineValidTransactions).toBeFunction()
+      expect(guard.__validateTransaction).toBeFunction()
     })
   })
 
-  describe('__determineExcessTransactions', () => {
+  describe('__addTransactionsToPool', () => {
     it('should be a function', () => {
-      expect(guard.__determineExcessTransactions).toBeFunction()
-    })
-  })
-
-  describe('__determineFeeMatchingTransactions', () => {
-    it('should be a function', () => {
-      expect(guard.__determineFeeMatchingTransactions).toBeFunction()
+      expect(guard.__addTransactionsToPool).toBeFunction()
     })
   })
 
@@ -514,8 +507,9 @@ describe('Transaction Guard', () => {
       expect(guard.errors['1']).toEqual([
         { message: 'Invalid.', type: 'ERR_INVALID' },
       ])
-      expect(guard.invalid).toHaveLength(1)
-      expect(guard.invalid).toEqual([{ id: 1 }])
+
+      expect(guard.invalid.size).toEqual(1)
+      expect(guard.invalid.entries().next().value[1]).toEqual({ id: 1 })
     })
 
     it('should have multiple errors for transaction', () => {
@@ -531,36 +525,9 @@ describe('Transaction Guard', () => {
         { message: 'Invalid 1.', type: 'ERR_INVALID' },
         { message: 'Invalid 2.', type: 'ERR_INVALID' },
       ])
-      expect(guard.invalid).toHaveLength(1)
-      expect(guard.invalid).toEqual([{ id: 1 }])
-    })
-  })
 
-  describe('__reset', () => {
-    it('should be a function', () => {
-      expect(guard.__reset).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.transactions = [{ id: 1 }]
-      guard.accept = [{ id: 2 }]
-      guard.excess = [{ id: 3 }]
-      guard.invalid = [{ id: 4 }]
-      guard.broadcast = [{ id: 5 }]
-
-      expect(guard.transactions).not.toBeEmpty()
-      expect(guard.accept).not.toBeEmpty()
-      expect(guard.excess).not.toBeEmpty()
-      expect(guard.invalid).not.toBeEmpty()
-      expect(guard.broadcast).not.toBeEmpty()
-
-      guard.__reset()
-
-      expect(guard.transactions).toBeEmpty()
-      expect(guard.accept).toBeEmpty()
-      expect(guard.excess).toBeEmpty()
-      expect(guard.invalid).toBeEmpty()
-      expect(guard.broadcast).toBeEmpty()
+      expect(guard.invalid.size).toEqual(1)
+      expect(guard.invalid.entries().next().value[1]).toEqual({ id: 1 })
     })
   })
 })

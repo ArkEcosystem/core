@@ -29,6 +29,14 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
+   * Disconnect from transaction pool.
+   * @return {void}
+   */
+  disconnect() {
+    throw new Error('Method [disconnect] not implemented!')
+  }
+
+  /**
    * Get the number of transactions in the pool.
    * @return {Number}
    */
@@ -48,7 +56,6 @@ module.exports = class TransactionPoolInterface {
   /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
-   * @return {Boolean}
    */
   addTransaction(transaction) {
     throw new Error('Method [addTransaction] not implemented!')
@@ -122,7 +129,6 @@ module.exports = class TransactionPoolInterface {
   /**
    * Add many transaction to the pool. Method called from blockchain, upon receiving payload.
    * @param {Array}   transactions
-   * @return {Array}
    */
   addTransactions(transactions) {
     throw new Error('Method [addTransactions] not implemented!')
@@ -319,10 +325,6 @@ module.exports = class TransactionPoolInterface {
     return true
   }
 
-  checkDynamicFeeMatch(transaction) {
-    return dynamicFeeMatch(transaction)
-  }
-
   /**
    * Check whether a given sender has any transactions of the specified type
    * in the pool.
@@ -333,24 +335,5 @@ module.exports = class TransactionPoolInterface {
    */
   senderHasTransactionsOfType(senderPublicKey, transactionType) {
     throw new Error('Method [senderHasTransactionsOfType] not implemented!')
-  }
-
-  /**
-   * Check each of a set of transactions for eligibility to enter the pool.
-   * This method is quick and is used to drop transactions early at the entrance
-   * for which we can quickly assess that will not be allowed to enter the pool.
-   *
-   * So we can avoid the costy validation process only to discover later that a
-   * transaction is not allowed to enter the pool.
-   *
-   * @param {Array} transactions An array of Transaction objects to be checked.
-   * @return { eligible, notEligible } where:
-   * - eligible is an array of Transaction objects, a subset of the input array
-   * - notEligible is an array of objects { transaction, reason } where:
-   *   - transaction is a Transaction object, from the input
-   *   - reason is a String describing why the transaction is not eligible
-   */
-  checkEligibility(transactions) {
-    throw new Error('Method [checkEligibility] not implemented!')
   }
 }

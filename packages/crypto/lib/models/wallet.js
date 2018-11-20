@@ -186,7 +186,9 @@ module.exports = class Wallet {
       return false
     }
 
-    const keysgroup = multisignature.keysgroup.map(publicKey => publicKey.startsWith('+') ? publicKey.slice(1) : publicKey)
+    const keysgroup = multisignature.keysgroup.map(publicKey =>
+      publicKey.startsWith('+') ? publicKey.slice(1) : publicKey,
+    )
     const signatures = Object.values(transaction.signatures)
 
     let valid = 0
@@ -215,8 +217,6 @@ module.exports = class Wallet {
    */
   auditApply(transaction) {
     const audit = []
-
-    audit.push({ Network: configManager.config })
 
     if (this.multisignature) {
       audit.push({

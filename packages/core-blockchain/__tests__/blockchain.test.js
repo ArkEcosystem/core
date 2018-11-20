@@ -13,6 +13,7 @@ const { crypto, slots } = require('@arkecosystem/crypto')
 const { Block, Wallet } = require('@arkecosystem/crypto').models
 
 let genesisBlock
+let configManager
 let container
 let blockchain
 let logger
@@ -39,12 +40,22 @@ beforeAll(async () => {
     require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
   )
 
+  configManager = container.resolvePlugin('config')
+
+  // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
+  // and otherwise don't pass validation.
+  configManager.network.exceptions.transactions = genesisBlock.transactions.map(
+    tx => tx.id,
+  )
+
   // Manually register the blockchain and start it
   await __start()
 })
 
 afterAll(async () => {
   axiosMock.reset()
+
+  delete configManager.network.exceptions.transactions
 
   await __resetToHeight1()
 
@@ -134,14 +145,18 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', async () => {
+      const transactionsWithoutType2 = genesisBlock.transactions.filter(
+        tx => tx.type !== 2,
+      )
+
       await blockchain.transactionPool.flush()
-      await blockchain.postTransactions(genesisBlock.transactions, false)
+      await blockchain.postTransactions(transactionsWithoutType2, false)
       const transactions = blockchain.transactionPool.getTransactions(0, 200)
 
-      expect(transactions.length).toBe(genesisBlock.transactions.length)
+      expect(transactions.length).toBe(transactionsWithoutType2.length)
 
       expect(transactions).toEqual(
-        genesisBlock.transactions.map(transaction => transaction.serialized),
+        transactionsWithoutType2.map(transaction => transaction.serialized),
       )
 
       await blockchain.transactionPool.flush()
@@ -285,9 +300,9 @@ describe('Blockchain', () => {
 
       expect(mockLoggerDebug).toHaveBeenCalled()
 
-      const debugMessage = `Blockchain not ready to accept new block at height ${
-        lastBlock.data.height.toLocaleString()
-      }. Last block: ${(lastBlock.data.height - 2).toLocaleString()} :warning:`
+      const debugMessage = `Blockchain not ready to accept new block at height ${lastBlock.data.height.toLocaleString()}. Last block: ${(
+        lastBlock.data.height - 2
+      ).toLocaleString()} :warning:`
       expect(mockLoggerDebug).toHaveBeenLastCalledWith(debugMessage)
 
       expect(blockchain.getLastBlock().data.height).toBe(
@@ -302,18 +317,22 @@ describe('Blockchain', () => {
     })
 
     it('should get unconfirmed transactions', async () => {
+      const transactionsWithoutType2 = genesisBlock.transactions.filter(
+        tx => tx.type !== 2,
+      )
+
       await blockchain.transactionPool.flush()
-      await blockchain.postTransactions(genesisBlock.transactions, false)
+      await blockchain.postTransactions(transactionsWithoutType2, false)
       const unconfirmedTransactions = await blockchain.getUnconfirmedTransactions(
         200,
       )
 
       expect(unconfirmedTransactions.transactions.length).toBe(
-        genesisBlock.transactions.length,
+        transactionsWithoutType2.length,
       )
 
       expect(unconfirmedTransactions.transactions).toEqual(
-        genesisBlock.transactions.map(transaction => transaction.serialized),
+        transactionsWithoutType2.map(transaction => transaction.serialized),
       )
 
       await blockchain.transactionPool.flush()

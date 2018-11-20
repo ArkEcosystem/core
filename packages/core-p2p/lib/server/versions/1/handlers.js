@@ -311,19 +311,11 @@ exports.postTransactions = {
         .code(500)
     }
 
-    const { eligible, notEligible } = transactionPool.checkEligibility(
-      request.payload.transactions,
-    )
-
     const guard = new TransactionGuard(transactionPool)
 
-    for (const ne of notEligible) {
-      guard.invalidate(ne.transaction, ne.reason)
-    }
+    const result = await guard.validate(request.payload.transactions)
 
-    await guard.validate(eligible)
-
-    if (guard.hasAny('invalid')) {
+    if (result.invalid.length > 0) {
       return {
         success: false,
         message: 'Transactions list is not conform',
@@ -331,25 +323,13 @@ exports.postTransactions = {
       }
     }
 
-    // TODO: Review throttling of v1
-    if (guard.hasAny('accept')) {
-      logger.info(
-        `Accepted ${pluralize('transaction', guard.accept.length, true)} from ${
-          request.payload.transactions.length
-        } received`,
-      )
-
-      logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-      await guard.addToTransactionPool('accept', 'excess')
-    }
-
-    if (guard.hasAny('broadcast')) {
-      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
+    if (result.broadcast.length > 0) {
+      container.resolvePlugin('p2p').broadcastTransactions(result.broadcast)
     }
 
     return {
       success: true,
-      transactionIds: guard.getIds('accept'),
+      transactionIds: result.accept.map(t => t.id),
     }
   },
   config: {
@@ -387,8 +367,9 @@ exports.getBlocks = {
           'block',
           blocks.length,
           true,
-        )} from height ${(
-          !isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].data.height
+        )} from height ${(!isNaN(reqBlockHeight)
+          ? reqBlockHeight
+          : blocks[0].data.height
         ).toLocaleString()}`,
       )
 

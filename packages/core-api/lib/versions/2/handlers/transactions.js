@@ -51,34 +51,23 @@ exports.store = {
       return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
-    const { eligible, notEligible } = transactionPool.checkEligibility(
-      request.payload.transactions,
-    )
-
     const guard = new TransactionGuard(transactionPool)
 
-    for (const ne of notEligible) {
-      guard.invalidate(ne.transaction, ne.reason)
+    const result = await guard.validate(request.payload.transactions)
+
+    if (result.broadcast.length > 0) {
+      container.resolvePlugin('p2p').broadcastTransactions(result.broadcast)
     }
 
-    await guard.validate(eligible)
-
-    if (guard.hasAny('accept')) {
-      logger.info(
-        `Received ${guard.accept.length} new ${pluralize(
-          'transaction',
-          guard.accept.length,
-        )}`,
-      )
-
-      await guard.addToTransactionPool('accept')
+    return {
+      data: {
+        accept: result.accept.map(t => t.id),
+        broadcast: result.broadcast.map(t => t.id),
+        excess: result.excess.map(t => t.id),
+        invalid: result.invalid.map(t => t.id),
+      },
+      errors: result.errors,
     }
-
-    if (guard.hasAny('broadcast')) {
-      container.resolvePlugin('p2p').broadcastTransactions(guard.broadcast)
-    }
-
-    return guard.toJson()
   },
   options: {
     validate: schema.store,
@@ -230,7 +219,8 @@ exports.fees = {
    */
   async handler(request, h) {
     return {
-      data: config.getConstants(blockchain.getLastBlock().data.height).fees,
+      data: config.getConstants(blockchain.getLastBlock().data.height).fees
+        .staticFees,
     }
   },
 }

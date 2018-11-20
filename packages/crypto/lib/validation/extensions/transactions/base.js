@@ -6,7 +6,11 @@ module.exports = joi =>
       .string()
       .alphanum()
       .required(),
-    blockid: joi.number().unsafe(), // TODO: remove in 2.1
+    blockid: joi.alternatives().try(
+      // TODO: remove in 2.1
+      joi.arkBlockId(),
+      joi.number().unsafe(),
+    ),
     version: joi
       .number()
       .integer()

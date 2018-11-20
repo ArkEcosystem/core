@@ -1,10 +1,7 @@
 module.exports = joi => ({
   name: 'arkBlock',
   base: joi.object().keys({
-    id: joi
-      .string()
-      .regex(/^[0-9]+$/, 'numbers')
-      .required(),
+    id: joi.arkBlockId().required(),
     idHex: joi.string().hex(),
     version: joi
       .number()
@@ -15,10 +12,7 @@ module.exports = joi => ({
       .integer()
       .min(0)
       .required(),
-    previousBlock: joi
-      .string()
-      .regex(/^[0-9]+$/, 'numbers')
-      .required(),
+    previousBlock: joi.arkBlockId().required(),
     previousBlockHex: joi.string().hex(),
     height: joi
       .number()

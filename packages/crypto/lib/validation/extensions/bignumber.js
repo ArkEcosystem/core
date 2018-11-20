@@ -3,6 +3,10 @@ const Bignum = require('../../utils/bignum')
 module.exports = joi => ({
   name: 'bignumber',
   base: joi.object().type(Bignum),
+  language: {
+    min: 'is lower than minimum',
+    only: 'is different from allowed value',
+  },
   rules: [
     {
       name: 'min',

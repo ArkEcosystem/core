@@ -16,78 +16,82 @@ afterAll(async () => {
   await app.tearDown()
 })
 
-describe('Dynamic Fee Matcher with dynamic fees disabled', () => {
+describe('static fees', () => {
+  beforeAll(() => {
+    blockchain = container.resolvePlugin('blockchain')
+    blockchain.getLastBlock = jest.fn(plugin => ({
+      data: {
+        height: 20,
+      },
+    }))
+    const h = blockchain.getLastBlock().data.height
+    container.resolvePlugin('config').getConstants(h).fees.dynamic = false
+  })
+
   it('should be a function', () => {
     expect(dynamicFeeMatch).toBeFunction()
   })
 
-  it('should accept regular transactions', () => {
-    expect(dynamicFeeMatch(mockData.dummy1)).toBeTrue()
-    expect(dynamicFeeMatch(mockData.dummy2)).toBeTrue()
+  it('should accept transactions matching the static fee for broadcast', () => {
+    expect(dynamicFeeMatch(mockData.dummy1).broadcast).toBeTrue()
+    expect(dynamicFeeMatch(mockData.dummy2).broadcast).toBeTrue()
   })
 
-  it('should decline dynamic transaction', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1)).toBeFalse()
+  it('should accept transactions matching the static fee to enter pool', () => {
+    expect(dynamicFeeMatch(mockData.dummy1).enterPool).toBeTrue()
+    expect(dynamicFeeMatch(mockData.dummy2).enterPool).toBeTrue()
   })
 
-  it('should decline dynamic transaction fee too low', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2)).toBeFalse()
+  it('should not broadcast transactions with a fee other than the static fee', () => {
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).broadcast,
+    ).toBeFalse()
+    expect(dynamicFeeMatch(mockData.dynamicFeeZero).broadcast).toBeFalse()
   })
 
-  it('should decline dynamic transaction with fee 0', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeZero)).toBeFalse()
+  it('should not allow transactions with a fee other than the static fee to enter the pool', () => {
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).enterPool,
+    ).toBeFalse()
+    expect(dynamicFeeMatch(mockData.dynamicFeeZero).enterPool).toBeFalse()
   })
 })
 
-describe('Dynamic Fee Matcher with changed minimum accepted fee', () => {
-  beforeAll(async () => {
-    container.resolvePlugin(
-      'config',
-    ).delegates.dynamicFees.minAcceptableFee = 500000
+describe('dynamic fees', () => {
+  beforeAll(() => {
     blockchain = container.resolvePlugin('blockchain')
     blockchain.getLastBlock = jest.fn(plugin => ({
       data: {
         height: 20,
       },
     }))
+    const h = blockchain.getLastBlock().data.height
+    container.resolvePlugin('config').getConstants(h).fees.dynamic = true
   })
 
-  it('should accept regular transaction with normal fee', () => {
-    expect(dynamicFeeMatch(mockData.dummy1)).toBeTrue()
+  it('should broadcast transactions with high enough fee', () => {
+    expect(dynamicFeeMatch(mockData.dummy1).broadcast).toBeTrue()
+    expect(dynamicFeeMatch(mockData.dummy2).broadcast).toBeTrue()
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).broadcast,
+    ).toBeTrue()
   })
 
-  it('should decline dynamic transactions with fee below minimum', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1)).toBeFalse()
-    expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2)).toBeFalse()
-    expect(dynamicFeeMatch(mockData.dynamicFeeZero)).toBeFalse()
-  })
-})
-
-describe('Dynamic Fee Matcher with dynamic fees enabled', () => {
-  beforeAll(async () => {
-    container.resolvePlugin('config').delegates.dynamicFees.minAcceptableFee = 1
-    blockchain = container.resolvePlugin('blockchain')
-    blockchain.getLastBlock = jest.fn(plugin => ({
-      data: {
-        height: 20,
-      },
-    }))
+  it('should accept transactions with high enough fee to enter the pool', () => {
+    expect(dynamicFeeMatch(mockData.dummy1).enterPool).toBeTrue()
+    expect(dynamicFeeMatch(mockData.dummy2).enterPool).toBeTrue()
+    expect(
+      dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).enterPool,
+    ).toBeTrue()
   })
 
-  it('should accept regular transactions', () => {
-    expect(dynamicFeeMatch(mockData.dummy1)).toBeTrue()
-    expect(dynamicFeeMatch(mockData.dummy2)).toBeTrue()
+  it('should not broadcast transactions with too low fee', () => {
+    expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2).broadcast).toBeFalse()
+    expect(dynamicFeeMatch(mockData.dynamicFeeZero).broadcast).toBeFalse()
   })
 
-  it('should accept dynamic transaction', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeNormalDummy1)).toBeTrue()
-  })
-
-  it('should decline dynamic transaction fee too low', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2)).toBeFalse()
-  })
-
-  it('should decline dynamic transaction with fee 0', () => {
-    expect(dynamicFeeMatch(mockData.dynamicFeeZero)).toBeFalse()
+  it('should not allow transactions with too low fee to enter the pool', () => {
+    expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2).enterPool).toBeFalse()
+    expect(dynamicFeeMatch(mockData.dynamicFeeZero).enterPool).toBeFalse()
   })
 })
