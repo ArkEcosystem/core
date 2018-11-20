@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.4",
+    "@arkecosystem/crypto": "^0.2.5",
     "axios": "^0.18.0",
     "bip39": "^2.5.0",
     "clipboardy": "^1.2.3",

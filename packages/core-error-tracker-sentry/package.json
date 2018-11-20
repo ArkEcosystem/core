@@ -16,7 +16,7 @@
     "depcheck": "depcheck ./ --ignores=flow-bin"
   },
   "dependencies": {
-    "@sentry/node": "^4.3.0"
+    "@sentry/node": "^4.3.2"
   },
   "publishConfig": {
     "access": "public"

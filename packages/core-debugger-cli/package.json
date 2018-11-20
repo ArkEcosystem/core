@@ -25,7 +25,7 @@
     "depcheck": "depcheck ./ --ignores=flow-bin,commander"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.4",
+    "@arkecosystem/crypto": "^0.2.5",
     "clipboardy": "^1.2.3",
     "commander": "^2.19.0"
   },

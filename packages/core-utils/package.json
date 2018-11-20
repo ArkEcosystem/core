@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.2.4",
+    "@arkecosystem/crypto": "^0.2.5",
     "cli-table3": "^0.5.1",
     "moment": "^2.22.2"
   },

@@ -21,7 +21,7 @@
     "depcheck": "depcheck ./ --ignores=flow-bin"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.4",
+    "@arkecosystem/crypto": "^0.2.5",
     "awilix": "^4.0.0",
     "axios": "^0.18.0",
     "delay": "^4.1.0",
