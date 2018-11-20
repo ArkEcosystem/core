@@ -31,9 +31,9 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Validate the specified transactions.
+   * Validate the specified transactions and accepted transactions to the pool.
    * @param  {Array} transactions
-   * @return {
+   * @return Object {
    *   accept: array of transactions that qualify for entering the pool
    *   broadcast: array of transactions that qualify for broadcasting
    *   excess: array of transactions that exceed sender's quota in the pool
@@ -45,30 +45,25 @@ module.exports = class TransactionGuard {
    */
   async validate(transactionsJson) {
     // Remove entries with the same `id`.
-    transactionsJson = Array.from((new Map(transactionsJson.map(t => [ t.id, t ]))).values())
+    this.transactions = Array.from(
+      new Map(transactionsJson.map(t => [t.id, t])).values(),
+    )
 
-    // Convert from plain Object (JSON) to Transaction,
-    // remove crypto invalid, already in pool, from blocked sender.
-    let transactions = this.__transformAndFilterTransactions(transactionsJson)
+    // Filter transactions and create Transaction instances from accepted ones
+    this.__filterAndTransformTransactions(this.transactions)
 
-    transactions = await this.__removeForgedTransactions(transactions)
+    // Remove already forged tx... Not optimal here
+    await this.__removeForgedTransactions()
 
-    // Remove transactions with invalid recipient, insufficient funds, already vote.
-    const valid = this.__determineValidTransactions(transactions)
+    // Add transactions to the pool
+    this.__addTransactionsToPool()
 
-    // Split excess transactions.
-    const { accept, excess } = this.__determineExcessTransactions(valid)
-
-    // Remove transactions with too low fee to enter the pool.
-    const acceptWithoutLowFees = this.__determineFeeMatchingTransactions(accept)
-
-    // Remove transactions with too low fee for broadcast.
-    const broadcast = this.__removeTooLowFeesToBroadcast(valid)
+    this.__printStats()
 
     return {
-      accept: acceptWithoutLowFees,
-      broadcast,
-      excess,
+      accept: this.accept,
+      broadcast: this.broadcast,
+      excess: this.excess,
       invalid: Array.from(this.invalid.values()),
       errors: Object.keys(this.errors).length > 0 ? this.errors : null,
     }
@@ -78,23 +73,25 @@ module.exports = class TransactionGuard {
    * Transforms and filters incoming transactions.
    * It skips:
    * - transactions already in the pool
-   * - not valid crypto transactions
    * - transactions from blocked senders
    * - transactions from the future
+   * - dynamic fee mismatch
+   * - transactions based on type specific restrictions
+   * - not valid crypto transactions
    * @param  {Array} transactions
-   * @return {Array}
+   * @return {void}
    */
-  __transformAndFilterTransactions(transactions) {
-    const result = []
-
+  __filterAndTransformTransactions(transactions) {
     transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id)
-      const now = slots.getTime()
 
       if (exists) {
         this.pool.pingTransaction(transaction.id)
-
-        this.__pushError(transaction, 'ERR_DUPLICATE', `Duplicate transaction ${transaction.id}`)
+        this.__pushError(
+          transaction,
+          'ERR_DUPLICATE',
+          `Duplicate transaction ${transaction.id}`,
+        )
       } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         this.__pushError(
           transaction,
@@ -103,19 +100,32 @@ module.exports = class TransactionGuard {
             transaction.senderPublicKey
           } is blocked.`,
         )
-      } else if (transaction.timestamp > now + 3600) {
-        const secondsInFuture = transaction.timestamp - now
-        this.__pushError(
-          transaction,
-          'ERR_FROM_FUTURE',
-          `Transaction ${transaction.id} is ${secondsInFuture} seconds in the future`,
-        )
-      } else {
+      } else if (this.pool.hasExceededMaxTransactions(transaction)) {
+        this.excess.push(transaction)
+      } else if (this.__validateTransaction(transaction)) {
         try {
           const trx = new Transaction(transaction)
-
           if (trx.verified) {
-            result.push(trx)
+            const dynamicFee = dynamicFeeMatch(trx)
+            if (dynamicFee.enterPool) {
+              this.accept.push(trx)
+            } else {
+              this.__pushError(
+                transaction,
+                'ERR_LOW_FEE',
+                'Too low fee to be accepted in the pool',
+              )
+            }
+
+            if (dynamicFee.broadcast) {
+              this.broadcast.push(trx)
+            } else {
+              this.__pushError(
+                transaction,
+                'ERR_LOW_FEE',
+                'Too low fee for broadcast',
+              )
+            }
           } else {
             this.__pushError(
               transaction,
@@ -128,23 +138,101 @@ module.exports = class TransactionGuard {
         }
       }
     })
+  }
 
-    return result
+  /**
+   * Determines valid transactions by checking rules, according to:
+   * - transaction timestamp
+   * - wallet balance
+   * - transaction type specifics:
+   *    - if recipient is on the same network
+   *    - if sender already has another transaction of the same type, for types that
+   *    - only allow one transaction at a time in the pool (e.g. vote)
+   */
+  __validateTransaction(transaction) {
+    const now = slots.getTime()
+    if (transaction.timestamp > now + 3600) {
+      const secondsInFuture = transaction.timestamp - now
+      this.__pushError(
+        transaction,
+        'ERR_FROM_FUTURE',
+        `Transaction ${
+          transaction.id
+        } is ${secondsInFuture} seconds in the future`,
+      )
+      return false
+    }
+
+    const errors = []
+    if (!this.pool.walletManager.canApply(transaction, errors)) {
+      this.__pushError(transaction, 'ERR_APPLY', JSON.stringify(errors))
+      return false
+    }
+
+    switch (transaction.type) {
+      case TRANSACTION_TYPES.TRANSFER:
+        if (!isRecipientOnActiveNetwork(transaction)) {
+          this.__pushError(
+            transaction,
+            'ERR_INVALID_RECIPIENT',
+            `Recipient ${
+              transaction.recipientId
+            } is not on the same network: ${configManager.get('pubKeyHash')}`,
+          )
+          return false
+        }
+        break
+      case TRANSACTION_TYPES.SECOND_SIGNATURE:
+      case TRANSACTION_TYPES.DELEGATE_REGISTRATION:
+      case TRANSACTION_TYPES.VOTE:
+        if (
+          this.pool.senderHasTransactionsOfType(
+            transaction.senderPublicKey,
+            transaction.type,
+          )
+        ) {
+          this.__pushError(
+            transaction,
+            'ERR_PENDING',
+            `Sender ${
+              transaction.senderPublicKey
+            } already has a transaction of type ` +
+              `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`,
+          )
+          return false
+        }
+        break
+      case TRANSACTION_TYPES.MULTI_SIGNATURE:
+      case TRANSACTION_TYPES.IPFS:
+      case TRANSACTION_TYPES.TIMELOCK_TRANSFER:
+      case TRANSACTION_TYPES.MULTI_PAYMENT:
+      case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
+      default:
+        this.__pushError(
+          transaction,
+          'ERR_UNSUPPORTED',
+          'Invalidating transaction of unsupported type ' +
+            `'${TRANSACTION_TYPES.toString(transaction.type)}'`,
+        )
+        return false
+    }
+
+    return true
   }
 
   /**
    * Remove already forged transactions.
-   * @return {Array}
+   * @return {void}
    */
-  async __removeForgedTransactions(transactions) {
+  async __removeForgedTransactions() {
     const database = container.resolvePlugin('database')
 
-    const transactionIds = transactions.map(transaction => transaction.id)
+    const transactionIds = this.accept.map(transaction => transaction.id)
     const forgedIdsSet = new Set(
       await database.getForgedTransactionsIds(transactionIds),
     )
 
-    return transactions.filter(transaction => {
+    this.accept = this.accept.filter(transaction => {
       if (forgedIdsSet.has(transaction.id)) {
         this.__pushError(transaction, 'ERR_FORGED', 'Already forged.')
         return false
@@ -155,121 +243,25 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Determines valid transactions by checking rules, according to:
-   * - if recipient is on the same network
-   * - if sender has enough funds
-   * - if sender already has another transaction of the same type, for types that
-   *   only allow one transaction at a time in the pool (e.g. vote)
+   * Add accepted transactions to the pool and filter rejected ones.
+   * @return {void}
    */
-  __determineValidTransactions(transactions) {
-    const result = []
+  __addTransactionsToPool() {
+    // Add transactions to the transaction pool
+    const { added, notAdded } = this.pool.addTransactions(this.accept)
 
-    transactions.forEach(transaction => {
-      switch (transaction.type) {
-        case TRANSACTION_TYPES.TRANSFER:
-          if (!isRecipientOnActiveNetwork(transaction)) {
-            this.__pushError(
-              transaction,
-              'ERR_INVALID_RECIPIENT',
-              `Recipient ${
-                transaction.recipientId
-              } is not on the same network: ${configManager.get('pubKeyHash')}`,
-            )
-            return
-          }
-          break
-        case TRANSACTION_TYPES.SECOND_SIGNATURE:
-        case TRANSACTION_TYPES.DELEGATE_REGISTRATION:
-        case TRANSACTION_TYPES.VOTE:
-          if (
-            this.pool.senderHasTransactionsOfType(
-              transaction.senderPublicKey,
-              transaction.type,
-            )
-          ) {
-            this.__pushError(
-              transaction,
-              'ERR_PENDING',
-              `Sender ${
-                transaction.senderPublicKey
-              } already has a transaction of type ` +
-                `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`,
-            )
-            return
-          }
-          break
-        case TRANSACTION_TYPES.MULTI_SIGNATURE:
-        case TRANSACTION_TYPES.IPFS:
-        case TRANSACTION_TYPES.TIMELOCK_TRANSFER:
-        case TRANSACTION_TYPES.MULTI_PAYMENT:
-        case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
-        default:
-          this.__pushError(
-            transaction,
-            'ERR_UNSUPPORTED',
-            'Invalidating transaction of unsupported type ' +
-              `'${TRANSACTION_TYPES.toString(transaction.type)}'`,
-          )
-          return
-      }
+    // Filter not accepted tx
+    this.accept = this.accept.filter(accepted => added.includes(accepted))
 
-      try {
-        this.pool.walletManager.applyPoolTransaction(transaction)
-      } catch (error) {
-        this.__pushError(transaction, 'ERR_UNKNOWN', error.toString())
-        return
-      }
+    // Only broadcast accepted transactions
+    this.broadcast = this.broadcast.filter(broadcast =>
+      this.accept.includes(broadcast),
+    )
 
-      result.push(transaction)
-    })
-
-    return result
-  }
-
-  /**
-   * Determine exccess transactions, that exceed sender's quota.
-   */
-  __determineExcessTransactions(transactions) {
-    const accept = []
-    const excess = []
-    for (const t of transactions) {
-      if (this.pool.hasExceededMaxTransactions(t)) {
-        excess.push(t)
-        this.pool.walletManager.revertTransaction(t)
-      } else {
-        accept.push(t)
-      }
-    }
-    return { accept, excess }
-  }
-
-  /**
-   * Remove transactions with too low fees to enter the pool.
-   */
-  __determineFeeMatchingTransactions(transactions) {
-    return transactions.filter(t => {
-      if (dynamicFeeMatch(t).enterPool) {
-        return true
-      }
-
-      this.__pushError(t, 'ERR_LOW_FEE', 'Too low fee to be accepted in the pool')
-      this.pool.walletManager.revertTransaction(t)
-      return false
-    })
-  }
-
-  /**
-   * Remove transactions that have too low fee for broadcasting.
-   */
-  __removeTooLowFeesToBroadcast(transactions) {
-    return transactions.filter(t => {
-      if (dynamicFeeMatch(t).broadcast) {
-        return true
-      }
-
-      this.__pushError(t, 'ERR_LOW_FEE', 'Too low fee for broadcast')
-      return false
-    })
+    // Add errors
+    notAdded.forEach(error =>
+      this.__pushError(error.transaction, error.type, error.message),
+    )
   }
 
   /**
@@ -289,5 +281,25 @@ module.exports = class TransactionGuard {
     this.errors[transaction.id].push({ type, message })
 
     this.invalid.set(transaction.id, transaction)
+  }
+
+  /**
+   * Print compact transaction stats.
+   * @return {void}
+   */
+  __printStats() {
+    const properties = ['accept', 'broadcast', 'excess', 'invalid']
+    const stats = properties
+      .map(
+        prop =>
+          `${prop}: ${
+            this[prop] instanceof Array ? this[prop].length : this[prop].size
+          }`,
+      )
+      .join(' ')
+
+    container
+      .resolvePlugin('logger')
+      .info(`Received ${this.transactions.length} transactions (${stats}).`)
   }
 }

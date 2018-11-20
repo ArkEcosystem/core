@@ -99,14 +99,11 @@ class Storage {
         };`,
       )
       .all()
-    return rows.map(
-      r =>
-        new MemPoolTransaction(
-          new Transaction(r.serialized),
-          r.sequence,
-          r.pingCount,
-        ),
-    )
+
+    return rows
+      .map(r => ({ tx: new Transaction(r.serialized), ...r }))
+      .filter(r => r.tx.verified)
+      .map(r => new MemPoolTransaction(r.tx, r.sequence, r.pingCount))
   }
 
   /**

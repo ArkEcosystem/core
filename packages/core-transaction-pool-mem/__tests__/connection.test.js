@@ -15,6 +15,7 @@ const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
 const Transaction = crypto.models.Transaction
 const slots = crypto.slots
 
+let config
 let defaultConfig
 let database
 let connection
@@ -22,6 +23,7 @@ let connection
 beforeAll(async () => {
   await app.setUp()
 
+  config = container.resolvePlugin('config')
   defaultConfig = require('../lib/defaults')
   database = container.resolvePlugin('database')
 
@@ -140,12 +142,22 @@ describe('Connection', () => {
       transactions[transactions.length - 1].type =
         TRANSACTION_TYPES.TIMELOCK_TRANSFER
 
-      transactions.push(new Transaction(mockData.dummyExp2))
-      transactions[transactions.length - 1].expiration = expiration
+      // Workaround: Increase balance of sender wallet to succeed
+      const insufficientBalanceTx = new Transaction(mockData.dummyExp2)
+      transactions.push(insufficientBalanceTx)
+      insufficientBalanceTx.expiration = expiration
+
+      const wallet = connection.walletManager.findByPublicKey(
+        insufficientBalanceTx.senderPublicKey,
+      )
+
+      wallet.balance = wallet.balance.plus(insufficientBalanceTx.amount * 2)
 
       transactions.push(mockData.dummy2)
 
-      connection.addTransactions(transactions)
+      const { added, notAdded } = connection.addTransactions(transactions)
+      expect(added).toHaveLength(4)
+      expect(notAdded).toBeEmpty()
 
       expect(connection.getPoolSize()).toBe(4)
       await delay((expireAfterSeconds + 1) * 1000)
@@ -426,9 +438,7 @@ describe('Connection', () => {
           333300000000000 /* more than any genesis wallet */,
           1,
         )[0],
-        // This alone is a valid transaction, but will get purged because of the
-        // first transaction we add which is invalid (not enough funds) and from
-        // the same sender.
+        // This alone is a valid transaction
         generateTransfer(
           'testnet',
           delegatesSecrets[0],
@@ -448,7 +458,7 @@ describe('Connection', () => {
 
       connection.addTransactions(transactions)
 
-      expect((await connection.getTransactionsForForging(10)).length).toEqual(1)
+      expect((await connection.getTransactionsForForging(10)).length).toEqual(2)
     })
   })
 
@@ -523,7 +533,7 @@ describe('Connection', () => {
     it('save and restore transactions', () => {
       expect(connection.getPoolSize()).toBe(0)
 
-      const transactions = [mockData.dummy1, mockData.dummy2]
+      const transactions = [mockData.dummy1, mockData.dummy4]
 
       connection.addTransactions(transactions)
 
@@ -553,9 +563,17 @@ describe('Connection', () => {
       // documented in packages/crypto/lib/models/block.js
       const forgedTransaction = block.transactions[0]
 
+      // Workaround: Add tx to exceptions so it gets applied, because the fee is 0.
+      config.network.exceptions.transactions = [forgedTransaction.id]
+
+      // For some reason all genesis transactions fail signature verification, so
+      // they are not loaded from the local storage and this fails otherwise.
+      const original = database.getForgedTransactionsId
+      database.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id])
+
       expect(forgedTransaction instanceof Transaction).toBeTrue()
 
-      const transactions = [mockData.dummy1, forgedTransaction, mockData.dummy2]
+      const transactions = [mockData.dummy1, forgedTransaction, mockData.dummy4]
 
       connection.addTransactions(transactions)
 
@@ -576,6 +594,8 @@ describe('Connection', () => {
       )
 
       connection.flush()
+
+      database.getForgedTransactionsIds = original
     })
   })
 
