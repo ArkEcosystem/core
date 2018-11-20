@@ -1,6 +1,7 @@
 /* eslint no-restricted-globals: "off" */
 
 const prettyMs = require('pretty-ms')
+const fs = require('fs')
 const moment = require('moment')
 const delay = require('delay')
 const { flatten, groupBy, sample } = require('lodash')
@@ -525,9 +526,11 @@ class Monitor {
     }
 
     logger.info(
-      `Broadcasting block ${block.data.height.toLocaleString()} to ${
-        pluralize('peer', peers.length, true)
-      }`,
+      `Broadcasting block ${block.data.height.toLocaleString()} to ${pluralize(
+        'peer',
+        peers.length,
+        true,
+      )}`,
     )
 
     await Promise.all(peers.map(peer => peer.postBlock(block.toJson())))
@@ -625,11 +628,7 @@ class Monitor {
             'peer',
             peersMostCommonHeight.length,
             true,
-          )} are at height ${
-            peersMostCommonHeight[0].state.height.toLocaleString()
-          } and lagging behind last height ${
-            lastBlock.data.height.toLocaleString()
-          }. :zzz:`,
+          )} are at height ${peersMostCommonHeight[0].state.height.toLocaleString()} and lagging behind last height ${lastBlock.data.height.toLocaleString()}. :zzz:`,
         )
         return state
       }
@@ -653,9 +652,7 @@ class Monitor {
       }
 
       logger.info(
-        `Detected peers at the same height ${
-          peersMostCommonHeight[0].state.height.toLocaleString()
-        } with different block ids: ${JSON.stringify(
+        `Detected peers at the same height ${peersMostCommonHeight[0].state.height.toLocaleString()} with different block ids: ${JSON.stringify(
           Object.keys(groupedByCommonId).map(
             k => `${k}: ${groupedByCommonId[k].length}`,
           ),
@@ -693,9 +690,13 @@ class Monitor {
         })
 
         logger.debug(
-          `Banned ${pluralize('peer', peersToBan.length, true)} at height '${
-            peersMostCommonHeight[0].state.height.toLocaleString()
-          }' which do not have common id '${chosenPeers[0].state.header.id}'.`,
+          `Banned ${pluralize(
+            'peer',
+            peersToBan.length,
+            true,
+          )} at height '${peersMostCommonHeight[0].state.height.toLocaleString()}' which do not have common id '${
+            chosenPeers[0].state.header.id
+          }'.`,
         )
       } else {
         logger.info(`But got enough common id quota: ${quota} :sparkles:`)
@@ -704,9 +705,7 @@ class Monitor {
       // Under certain circumstances the headers can be missing (i.e. seed peers when starting up)
       const commonHeader = peersMostCommonHeight[0].state.header
       logger.info(
-        `All peers at most common height ${
-          peersMostCommonHeight[0].state.height.toLocaleString()
-        } share the same block id${
+        `All peers at most common height ${peersMostCommonHeight[0].state.height.toLocaleString()} share the same block id${
           commonHeader ? ` '${commonHeader.id}'` : ''
         }. :pray:`,
       )
@@ -720,19 +719,19 @@ class Monitor {
    * @return {void}
    */
   __filterPeers() {
-    if (!config.peers.list) {
+    if (!config.peers.list && !config.peers.backup) {
       container.forceExit('No seed peers defined in peers.json :interrobang:')
     }
 
-    const filteredPeers = config.peers.list.filter(
+    let peers = config.peers.list
+
+    if (config.peers.backup) {
+      peers = { ...peers, ...config.peers.backup }
+    }
+
+    const filteredPeers = Object.values(peers).filter(
       peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer),
     )
-
-    // if (!filteredPeers.length) {
-    //   logger.error('No external peers found in peers.json :interrobang:')
-
-    //   process.exit(1)
-    // }
 
     for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
@@ -786,6 +785,23 @@ class Monitor {
     } catch (error) {
       logger.error(error.message)
     }
+  }
+
+  /**
+   * Dump the list of active peers.
+   * @return {void}
+   */
+  dumpPeers() {
+    const peers = config.peers
+    peers.backup = Object.values(this.peers).map(peer => ({
+      ip: peer.ip,
+      port: peer.port,
+    }))
+
+    fs.writeFileSync(
+      `${process.env.ARK_PATH_CONFIG}/peers.json`,
+      JSON.stringify(peers, null, 2),
+    )
   }
 }
 
