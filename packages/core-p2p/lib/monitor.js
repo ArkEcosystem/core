@@ -723,10 +723,10 @@ class Monitor {
       container.forceExit('No seed peers defined in peers.json :interrobang:')
     }
 
-    const peers = config.peers.list
+    let peers = config.peers.list
 
     if (config.peers_backup) {
-      peers.list = { ...peers.list, ...config.peers_backup }
+      peers = { ...peers, ...config.peers_backup }
     }
 
     const filteredPeers = Object.values(peers).filter(
