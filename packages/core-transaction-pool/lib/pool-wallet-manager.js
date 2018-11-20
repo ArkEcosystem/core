@@ -161,4 +161,15 @@ module.exports = class PoolWalletManager extends WalletManager {
       delegateWallet.applyBlock(block.data)
     }
   }
+
+  /**
+   * Checks if the transaction can be applied.
+   * @param  {Object|Transaction} transaction
+   * @param  {Array} errors The errors are written into the array.
+   * @return {Boolean}
+   */
+  canApply(transaction, errors) {
+    const sender = this.findByPublicKey(transaction.senderPublicKey)
+    return sender.canApply(transaction, errors)
+  }
 }

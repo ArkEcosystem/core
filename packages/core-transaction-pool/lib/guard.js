@@ -168,6 +168,12 @@ module.exports = class TransactionGuard {
       return false
     }
 
+    const errors = []
+    if (!this.pool.walletManager.canApply(transaction, errors)) {
+      this.__pushError(transaction, 'ERR_APPLY', JSON.stringify(errors))
+      return false
+    }
+
     switch (transaction.type) {
       case TRANSACTION_TYPES.TRANSFER:
         if (!isRecipientOnActiveNetwork(transaction)) {
