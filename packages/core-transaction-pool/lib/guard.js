@@ -44,21 +44,35 @@ module.exports = class TransactionGuard {
    * }
    */
   async validate(transactionsJson) {
-    // Remove entries with the same `id`.
-    this.transactions = Array.from(
-      new Map(transactionsJson.map(t => [t.id, t])).values(),
-    )
+    // Add transaction id to the state storage. Also removes duplicates.
+    this.transactions = transactionsJson.filter(tx => {
+      if (container.resolve('state').addTransactionId(tx.id)) {
+        return true
+      }
 
-    // Filter transactions and create Transaction instances from accepted ones
-    this.__filterAndTransformTransactions(this.transactions)
+      if (this.pool.transactionExists(tx.id)) {
+        this.pool.pingTransaction(tx.id)
+      }
 
-    // Remove already forged tx... Not optimal here
-    await this.__removeForgedTransactions()
+      if (!this.errors[tx.id]) {
+        this.__pushError(tx, 'ERR_DUPLICATE', 'Already in cache.')
+      }
 
-    // Add transactions to the pool
-    this.__addTransactionsToPool()
+      return false
+    })
 
-    this.__printStats()
+    if (this.transactions.length > 0) {
+      // Filter transactions and create Transaction instances from accepted ones
+      this.__filterAndTransformTransactions(this.transactions)
+
+      // Remove already forged tx... Not optimal here
+      await this.__removeForgedTransactions()
+
+      // Add transactions to the pool
+      this.__addTransactionsToPool()
+
+      this.__printStats()
+    }
 
     return {
       accept: this.accept,

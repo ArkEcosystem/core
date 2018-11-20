@@ -8,8 +8,12 @@ const assert = require('assert')
 const blockchainMachine = require('./machines/blockchain')
 
 // Stores the last n blocks in ascending height. The amount of last blocks
-// can be configured by the option `state.maxLastBlocks`.
+// can be configured with the option `state.maxLastBlocks`.
 let _lastBlocks = immutable.OrderedMap()
+
+// Stores the last n incoming transaction ids. The amount of transaction ids
+// can be configred with the option `state.maxLastTransactionIds`.
+let _lastTransactionIds = immutable.OrderedSet()
 
 // Map Block instances to block data.
 const _mapToBlockData = blocks =>
@@ -50,6 +54,7 @@ class StateStorage {
    */
   clear() {
     _lastBlocks = _lastBlocks.clear()
+    _lastTransactionIds = _lastTransactionIds.clear()
   }
 
   /**
@@ -151,6 +156,36 @@ class StateStorage {
    */
   getCommonBlocks(ids) {
     return this.getLastBlocksData().filter(block => ids.includes(block.id))
+  }
+
+  /**
+   * Add a transaction id to the cache.
+   * @param {String} transactionId
+   * @returns {Boolean}
+   */
+  addTransactionId(transactionId) {
+    if (_lastTransactionIds.contains(transactionId)) {
+      return false
+    }
+
+    _lastTransactionIds = _lastTransactionIds.add(transactionId)
+
+    // Cap the Set of last transaction ids to maxLastTransactionIds
+    const maxLastTransactionIds = container.resolveOptions('blockchain').state
+      .maxLastTransactionIds
+    if (_lastTransactionIds.size > maxLastTransactionIds) {
+      _lastTransactionIds = _lastTransactionIds.takeLast(maxLastTransactionIds)
+    }
+
+    return true
+  }
+
+  /**
+   * Get cached transaction ids.
+   * @returns {Array}
+   */
+  getCachedTransactionIds() {
+    return _lastTransactionIds.toArray()
   }
 
   /**
