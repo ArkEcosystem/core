@@ -34,9 +34,9 @@ module.exports = class TransactionGuard {
    * Validate the specified transactions and accepted transactions to the pool.
    * @param  {Array} transactions
    * @return Object {
-   *   accept: Map of transactions that qualify for entering the pool
-   *   broadcast: Map of transactions that qualify for broadcasting
-   *   invalid: Map of invalid transaction ids
+   *   accept: array of transaction ids that qualify for entering the pool
+   *   broadcast: array of of transaction ids that qualify for broadcasting
+   *   invalid: array of invalid transaction ids
    *   excess: array of transaction ids that exceed sender's quota in the pool
    *   errors: Object with
    *     keys=transaction id (for each element in invalid[]),
@@ -73,12 +73,19 @@ module.exports = class TransactionGuard {
     }
 
     return {
-      accept: this.accept,
-      broadcast: this.broadcast,
-      invalid: this.invalid,
+      accept: Array.from(this.accept.keys()),
+      broadcast: Array.from(this.broadcast.keys()),
+      invalid: Array.from(this.invalid.keys()),
       excess: this.excess,
       errors: Object.keys(this.errors).length > 0 ? this.errors : null,
     }
+  }
+
+  /**
+   * Get broadcast transactions.
+   */
+  getBroadcastTransactions() {
+    return Array.from(this.broadcast.values())
   }
 
   /**
@@ -256,7 +263,9 @@ module.exports = class TransactionGuard {
    */
   __addTransactionsToPool() {
     // Add transactions to the transaction pool
-    const { added, notAdded } = this.pool.addTransactions(this.accept)
+    const { added, notAdded } = this.pool.addTransactions(
+      Array.from(this.accept.values()),
+    )
 
     // Exclude transactions which were refused from the pool
     notAdded.forEach(item => {

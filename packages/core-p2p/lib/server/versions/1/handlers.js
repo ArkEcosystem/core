@@ -330,12 +330,14 @@ exports.postTransactions = {
     }
 
     if (result.broadcast.length > 0) {
-      container.resolvePlugin('p2p').broadcastTransactions(result.broadcast)
+      container
+        .resolvePlugin('p2p')
+        .broadcastTransactions(result.getBroadcastTransactions())
     }
 
     return {
       success: true,
-      transactionIds: result.accept.map(t => t.id),
+      transactionIds: result.accept,
     }
   },
   config: {

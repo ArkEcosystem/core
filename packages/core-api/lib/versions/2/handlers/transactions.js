@@ -56,15 +56,17 @@ exports.store = {
     const result = await guard.validate(request.payload.transactions)
 
     if (result.broadcast.length > 0) {
-      container.resolvePlugin('p2p').broadcastTransactions(result.broadcast)
+      container
+        .resolvePlugin('p2p')
+        .broadcastTransactions(guard.getBroadcastTransactions())
     }
 
     return {
       data: {
-        accept: result.accept.map(t => t.id),
-        broadcast: result.broadcast.map(t => t.id),
-        excess: result.excess.map(t => t.id),
-        invalid: result.invalid.map(t => t.id),
+        accept: result.accept,
+        broadcast: result.broadcast,
+        excess: result.excess,
+        invalid: result.invalid,
       },
       errors: result.errors,
     }
