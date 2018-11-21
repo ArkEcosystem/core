@@ -232,6 +232,10 @@ module.exports = class TransactionPoolInterface {
       }
     }
 
+    container
+      .resolve('state')
+      .removeCachedTransactionIds(block.transactions.map(tx => tx.id))
+
     this.walletManager.applyPoolBlock(block)
   }
 
