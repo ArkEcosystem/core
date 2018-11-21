@@ -332,7 +332,7 @@ exports.postTransactions = {
     if (result.broadcast.length > 0) {
       container
         .resolvePlugin('p2p')
-        .broadcastTransactions(result.getBroadcastTransactions())
+        .broadcastTransactions(guard.getBroadcastTransactions())
     }
 
     return {
