@@ -549,7 +549,7 @@ module.exports = class Blockchain {
       return true
     }
 
-    block = block || this.state.getLastBlock()
+    block = block || this.getLastBlock()
 
     return (
       slots.getTime() - block.data.timestamp <
@@ -567,7 +567,7 @@ module.exports = class Blockchain {
       return true
     }
 
-    block = block || this.state.getLastBlock()
+    block = block || this.getLastBlock()
 
     const remaining = slots.getTime() - block.data.timestamp
     logger.info(`Remaining block timestamp ${remaining} :hourglass:`)
