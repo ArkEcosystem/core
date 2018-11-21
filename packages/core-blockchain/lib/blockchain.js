@@ -480,11 +480,7 @@ module.exports = class Blockchain {
 
     if (block.data.height > lastBlock.data.height + 1) {
       logger.debug(
-        `Blockchain not ready to accept new block at height ${
-          block.data.height.toLocaleString()
-        }. Last block: ${
-          lastBlock.data.height.toLocaleString()
-        } :warning:`,
+        `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
       )
       this.state.lastDownloadedBlock = lastBlock
     } else if (block.data.height < lastBlock.data.height) {
@@ -587,6 +583,14 @@ module.exports = class Blockchain {
    */
   getLastBlock() {
     return this.state.getLastBlock()
+  }
+
+  /**
+   * Get the last height of the blockchain.
+   * @return {Object}
+   */
+  getLastHeight() {
+    return this.state.getLastBlock().data.height
   }
 
   /**
