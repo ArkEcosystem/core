@@ -24,7 +24,6 @@ class Storage {
       CREATE TABLE IF NOT EXISTS ${this.table} (
         "sequence" INTEGER PRIMARY KEY,
         "id" VARCHAR(64) UNIQUE,
-        "ping_count" INTEGER DEFAULT 0,
         "serialized" BLOB NOT NULL
       );
     `)
