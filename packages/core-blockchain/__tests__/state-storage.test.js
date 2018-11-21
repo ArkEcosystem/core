@@ -204,6 +204,42 @@ describe('State Storage', () => {
     })
   })
 
+  describe('addTransactionId', () => {
+    it('should be a function', () => {
+      expect(state.addTransactionId).toBeFunction()
+    })
+
+    it('should add transaction id', () => {
+      expect(state.addTransactionId('1')).toBeTrue()
+      expect(state.getCachedTransactionIds()).toHaveLength(1)
+    })
+
+    it('should not add duplicate transaction ids', () => {
+      expect(state.addTransactionId('1')).toBeTrue()
+      expect(state.addTransactionId('1')).toBeFalse()
+      expect(state.getCachedTransactionIds()).toHaveLength(1)
+    })
+
+    it('should not add more than 1000 unique transaction ids', () => {
+      for (let i = 0; i < 1000; i++) {
+        expect(state.addTransactionId(i.toString())).toBeTrue()
+      }
+
+      expect(state.getCachedTransactionIds()).toHaveLength(1000)
+      expect(state.getCachedTransactionIds()[0]).toEqual('0')
+
+      expect(state.addTransactionId('1000')).toBeTrue()
+      expect(state.getCachedTransactionIds()).toHaveLength(1000)
+      expect(state.getCachedTransactionIds()[0]).toEqual('1')
+    })
+  })
+
+  describe('getCachedTransactionIds', () => {
+    it('should be a function', () => {
+      expect(state.getCachedTransactionIds).toBeFunction()
+    })
+  })
+
   describe('pingBlock', () => {
     it('should be a function', () => {
       expect(state.pingBlock).toBeFunction()

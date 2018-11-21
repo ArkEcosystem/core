@@ -22,7 +22,9 @@ class DynamicFeeManager {
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2
 
-    return (this.get(transaction.type) + transactionSizeInBytes) * arktoshiPerByte
+    return (
+      (this.get(transaction.type) + transactionSizeInBytes) * arktoshiPerByte
+    )
   }
 
   /**

@@ -30,8 +30,8 @@ class TransactionPool extends TransactionPoolInterface {
    */
   async make() {
     this.mem = new Mem()
-
     this.storage = new Storage(this.options.storage)
+    this.loggedAllowedSenders = []
 
     const all = this.storage.loadAll()
     all.forEach(t => this.mem.add(t, this.options.maxTransactionAge, true))
@@ -129,7 +129,7 @@ class TransactionPool extends TransactionPoolInterface {
 
     // Apply transaction to pool wallet manager.
     try {
-      this.walletManager.applyTransaction(transaction)
+      this.walletManager.applyPoolTransaction(transaction)
     } catch (error) {
       // Remove tx again from the pool
       this.mem.remove(transaction.id)
@@ -198,11 +198,15 @@ class TransactionPool extends TransactionPoolInterface {
     this.__purgeExpired()
 
     if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
-      logger.debug(
-        `Transaction pool: allowing sender public key: ${
-          transaction.senderPublicKey
-        } (listed in options.allowedSenders), thus skipping throttling.`,
-      )
+      if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
+        logger.debug(
+          `Transaction pool: allowing sender public key: ${
+            transaction.senderPublicKey
+          } (listed in options.allowedSenders), thus skipping throttling.`,
+        )
+        this.loggedAllowedSenders.push(transaction.senderPublicKey)
+      }
+
       return false
     }
 
