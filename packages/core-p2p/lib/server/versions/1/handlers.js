@@ -8,6 +8,7 @@ const requestIp = require('request-ip')
 const pluralize = require('pluralize')
 
 const transactionPool = container.resolvePlugin('transactionPool')
+const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 
 const monitor = require('../../../monitor')
@@ -112,10 +113,15 @@ exports.getTransactionsFromIds = {
    */
   async handler(request, h) {
     try {
+      const blockchain = container.resolvePlugin('blockchain')
+      const maxTransactions = config.getConstants(blockchain.getLastHeight())
+        .block.maxTransactions
+
       const transactionIds = request.query.ids
         .split(',')
-        .slice(0, 100)
+        .slice(0, maxTransactions)
         .filter(id => id.match('[0-9a-fA-F]{32}'))
+
       const rows = await container
         .resolvePlugin('database')
         .getTransactionsFromIds(transactionIds)
