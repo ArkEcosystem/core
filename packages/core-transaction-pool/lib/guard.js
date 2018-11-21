@@ -248,6 +248,8 @@ module.exports = class TransactionGuard {
       await database.getForgedTransactionsIds(transactionIds),
     )
 
+    container.resolve('state').removeCachedTransactionIds(forgedIdsSet)
+
     this.accept = this.accept.filter(transaction => {
       if (forgedIdsSet.has(transaction.id)) {
         this.__pushError(transaction, 'ERR_FORGED', 'Already forged.')
