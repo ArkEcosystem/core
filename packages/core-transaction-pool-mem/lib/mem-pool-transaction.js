@@ -9,7 +9,6 @@ const Transaction = crypto.models.Transaction
  * A normal transaction
  * + a sequence number used to order by insertion time
  * + a get-expiration-time method used to remove old transactions from the pool
- * + a ping count to determine wether it will get rebroadcasted or not.
  */
 module.exports = class MemPoolTransaction {
   /**
@@ -19,10 +18,8 @@ module.exports = class MemPoolTransaction {
    *                                  if this is undefined at creation time,
    *                                  then it is assigned later using the
    *                                  setter method below
-   * @param {Number}      pingCount   number of times the transaction has
-   *                                  been received, used for rebroadcasting.
    */
-  constructor(transaction, sequence, pingCount) {
+  constructor(transaction, sequence) {
     assert(transaction instanceof Transaction)
     this._transaction = transaction
 
@@ -30,8 +27,6 @@ module.exports = class MemPoolTransaction {
       assert(Number.isInteger(sequence))
       this._sequence = sequence
     }
-
-    this._pingCount = pingCount || 0
   }
 
   get transaction() {
@@ -45,17 +40,6 @@ module.exports = class MemPoolTransaction {
   set sequence(seq) {
     assert.strictEqual(this._sequence, undefined)
     this._sequence = seq
-  }
-
-  get pingCount() {
-    return this._pingCount
-  }
-
-  /**
-   * Increase the ping count.
-   */
-  ping() {
-    this._pingCount++
   }
 
   /**

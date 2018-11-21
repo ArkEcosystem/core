@@ -153,32 +153,6 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Ping transaction.
-   * @param  {String} transactionId
-   * @return {Number}
-   */
-  pingTransaction(transactionId) {
-    throw new Error('Method [pingTransaction] not implemented!')
-  }
-
-  /**
-   * Get transaction ping.
-   * @param  {String} transactionId
-   * @return {Number}
-   */
-  getTransactionPing(transactionId) {
-    throw new Error('Method [getTransactionPing] not implemented!')
-  }
-
-  /**
-   * Get rebroadcast transactions.
-   * @return {Array}
-   */
-  getRebroadcastTransactions() {
-    throw new Error('Method [getRebroadcastTransactions] not implemented!')
-  }
-
-  /**
    * Check if transaction sender is blocked
    * @param  {String} senderPublicKey
    * @return {Boolean}

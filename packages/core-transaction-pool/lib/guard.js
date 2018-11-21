@@ -52,10 +52,6 @@ module.exports = class TransactionGuard {
         return true
       }
 
-      if (this.pool.transactionExists(tx.id)) {
-        this.pool.pingTransaction(tx.id)
-      }
-
       if (!this.errors[tx.id]) {
         this.__pushError(tx, 'ERR_DUPLICATE', 'Already in cache.')
       }
@@ -102,7 +98,6 @@ module.exports = class TransactionGuard {
       const exists = this.pool.transactionExists(transaction.id)
 
       if (exists) {
-        this.pool.pingTransaction(transaction.id)
         this.__pushError(
           transaction,
           'ERR_DUPLICATE',
