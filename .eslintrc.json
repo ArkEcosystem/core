@@ -18,6 +18,7 @@
     "no-plusplus": "off",
     "no-continue": "off",
     "no-param-reassign": "off",
+    "max-len": ["warn", 120],
     // TODO: fix later as they require a lot of changes
     "consistent-return": "off",
     "no-unused-expressions": "off",
