@@ -23,10 +23,10 @@ module.exports = class TransactionGuard {
     this.pool = pool
 
     this.transactions = []
-    this.accept = []
     this.excess = []
+    this.accept = new Map()
+    this.broadcast = new Map()
     this.invalid = new Map()
-    this.broadcast = []
     this.errors = {}
   }
 
@@ -34,10 +34,10 @@ module.exports = class TransactionGuard {
    * Validate the specified transactions and accepted transactions to the pool.
    * @param  {Array} transactions
    * @return Object {
-   *   accept: array of transactions that qualify for entering the pool
-   *   broadcast: array of transactions that qualify for broadcasting
-   *   excess: array of transactions that exceed sender's quota in the pool
-   *   invalid: array of invalid transactions
+   *   accept: array of transaction ids that qualify for entering the pool
+   *   broadcast: array of of transaction ids that qualify for broadcasting
+   *   invalid: array of invalid transaction ids
+   *   excess: array of transaction ids that exceed sender's quota in the pool
    *   errors: Object with
    *     keys=transaction id (for each element in invalid[]),
    *     value=[ { type, message }, ... ]
@@ -50,10 +50,6 @@ module.exports = class TransactionGuard {
     this.transactions = transactionsJson.filter(tx => {
       if (container.resolve('state').addTransactionId(tx.id)) {
         return true
-      }
-
-      if (this.pool.transactionExists(tx.id)) {
-        this.pool.pingTransaction(tx.id)
       }
 
       if (!this.errors[tx.id]) {
@@ -77,12 +73,19 @@ module.exports = class TransactionGuard {
     }
 
     return {
-      accept: this.accept,
-      broadcast: this.broadcast,
+      accept: Array.from(this.accept.keys()),
+      broadcast: Array.from(this.broadcast.keys()),
+      invalid: Array.from(this.invalid.keys()),
       excess: this.excess,
-      invalid: Array.from(this.invalid.values()),
       errors: Object.keys(this.errors).length > 0 ? this.errors : null,
     }
+  }
+
+  /**
+   * Get broadcast transactions.
+   */
+  getBroadcastTransactions() {
+    return Array.from(this.broadcast.values())
   }
 
   /**
@@ -102,7 +105,6 @@ module.exports = class TransactionGuard {
       const exists = this.pool.transactionExists(transaction.id)
 
       if (exists) {
-        this.pool.pingTransaction(transaction.id)
         this.__pushError(
           transaction,
           'ERR_DUPLICATE',
@@ -117,14 +119,14 @@ module.exports = class TransactionGuard {
           } is blocked.`,
         )
       } else if (this.pool.hasExceededMaxTransactions(transaction)) {
-        this.excess.push(transaction)
+        this.excess.push(transaction.id)
       } else if (this.__validateTransaction(transaction)) {
         try {
           const trx = new Transaction(transaction)
           if (trx.verified) {
             const dynamicFee = dynamicFeeMatch(trx)
             if (dynamicFee.enterPool) {
-              this.accept.push(trx)
+              this.accept.set(trx.id, trx)
             } else {
               this.__pushError(
                 transaction,
@@ -134,7 +136,7 @@ module.exports = class TransactionGuard {
             }
 
             if (dynamicFee.broadcast) {
-              this.broadcast.push(trx)
+              this.broadcast.set(trx.id, trx)
             } else {
               this.__pushError(
                 transaction,
@@ -243,18 +245,15 @@ module.exports = class TransactionGuard {
   async __removeForgedTransactions() {
     const database = container.resolvePlugin('database')
 
-    const transactionIds = this.accept.map(transaction => transaction.id)
     const forgedIdsSet = new Set(
-      await database.getForgedTransactionsIds(transactionIds),
+      await database.getForgedTransactionsIds(Array.from(this.accept.keys())),
     )
 
-    this.accept = this.accept.filter(transaction => {
-      if (forgedIdsSet.has(transaction.id)) {
-        this.__pushError(transaction, 'ERR_FORGED', 'Already forged.')
-        return false
-      }
+    container.resolve('state').removeCachedTransactionIds(forgedIdsSet)
 
-      return true
+    forgedIdsSet.forEach(id => {
+      this.__pushError(this.accept.get(id), 'ERR_FORGED', 'Already forged.')
+      this.accept.delete(id)
     })
   }
 
@@ -264,20 +263,17 @@ module.exports = class TransactionGuard {
    */
   __addTransactionsToPool() {
     // Add transactions to the transaction pool
-    const { added, notAdded } = this.pool.addTransactions(this.accept)
-
-    // Filter not accepted tx
-    this.accept = this.accept.filter(accepted => added.includes(accepted))
-
-    // Only broadcast accepted transactions
-    this.broadcast = this.broadcast.filter(broadcast =>
-      this.accept.includes(broadcast),
+    const { added, notAdded } = this.pool.addTransactions(
+      Array.from(this.accept.values()),
     )
 
-    // Add errors
-    notAdded.forEach(error =>
-      this.__pushError(error.transaction, error.type, error.message),
-    )
+    // Exclude transactions which were refused from the pool
+    notAdded.forEach(item => {
+      this.accept.delete(item.transaction.id)
+      this.broadcast.delete(item.transaction.id)
+
+      this.__pushError(item.transaction, item.type, item.message)
+    })
   }
 
   /**

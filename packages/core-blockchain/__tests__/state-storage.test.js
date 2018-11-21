@@ -220,17 +220,35 @@ describe('State Storage', () => {
       expect(state.getCachedTransactionIds()).toHaveLength(1)
     })
 
-    it('should not add more than 1000 unique transaction ids', () => {
-      for (let i = 0; i < 1000; i++) {
+    it('should not add more than 10000 unique transaction ids', () => {
+      for (let i = 0; i < 10000; i++) {
         expect(state.addTransactionId(i.toString())).toBeTrue()
       }
 
-      expect(state.getCachedTransactionIds()).toHaveLength(1000)
+      expect(state.getCachedTransactionIds()).toHaveLength(10000)
       expect(state.getCachedTransactionIds()[0]).toEqual('0')
 
-      expect(state.addTransactionId('1000')).toBeTrue()
-      expect(state.getCachedTransactionIds()).toHaveLength(1000)
+      expect(state.addTransactionId('10000')).toBeTrue()
+      expect(state.getCachedTransactionIds()).toHaveLength(10000)
       expect(state.getCachedTransactionIds()[0]).toEqual('1')
+    })
+  })
+
+  describe('removeCachedTransactionIds', () => {
+    it('should be a function', () => {
+      expect(state.removeCachedTransactionIds).toBeFunction()
+    })
+
+    it('should remove cached transaction ids', () => {
+      const ids = []
+      for (let i = 0; i < 10; i++) {
+        ids.push(i.toString())
+        expect(state.addTransactionId(i.toString())).toBeTrue()
+      }
+
+      expect(state.getCachedTransactionIds()).toHaveLength(10)
+      state.removeCachedTransactionIds(ids)
+      expect(state.getCachedTransactionIds()).toHaveLength(0)
     })
   })
 
