@@ -266,18 +266,19 @@ module.exports = class TransactionGuard {
     // Add transactions to the transaction pool
     const { added, notAdded } = this.pool.addTransactions(this.accept)
 
-    // Filter not accepted tx
-    this.accept = this.accept.filter(accepted => added.includes(accepted))
+    const removeTransaction = (tx, transactions) => {
+      const index = transactions.indexOf(tx)
+      if (index !== -1) {
+        transactions.splice(index, 1)
+      }
+    }
 
-    // Only broadcast accepted transactions
-    this.broadcast = this.broadcast.filter(broadcast =>
-      this.accept.includes(broadcast),
-    )
-
-    // Add errors
-    notAdded.forEach(error =>
-      this.__pushError(error.transaction, error.type, error.message),
-    )
+    // Exclude transactions which were refused from the pool
+    notAdded.forEach(item => {
+      removeTransaction(item.transaction, this.accept)
+      removeTransaction(item.transaction, this.broadcast)
+      this.__pushError(item.transaction, item.type, item.message)
+    })
   }
 
   /**
