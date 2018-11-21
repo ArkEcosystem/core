@@ -65,20 +65,10 @@ module.exports = async (p2p, config) => {
     routes: { prefix: '/config' },
   })
 
-  // ARK_V2 process variable enables V2-specific behavior
-  // Here defining which version is behind /peer endpoint
-
-  if (process.env.ARK_V2) {
-    await server.register({
-      plugin: require('./versions/peer'),
-      routes: { prefix: '/peer' },
-    })
-  } else {
-    await server.register({
-      plugin: require('./versions/1'),
-      routes: { prefix: '/peer' },
-    })
-  }
+  await server.register({
+    plugin: require('./versions/1'),
+    routes: { prefix: '/peer' },
+  })
 
   await server.register({
     plugin: require('./versions/internal'),
