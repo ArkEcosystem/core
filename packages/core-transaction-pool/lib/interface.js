@@ -232,6 +232,10 @@ module.exports = class TransactionPoolInterface {
       }
     }
 
+    container
+      .resolve('state')
+      .removeCachedTransactionIds(block.transactions.map(tx => tx.id))
+
     this.walletManager.applyPoolBlock(block)
   }
 
@@ -244,12 +248,14 @@ module.exports = class TransactionPoolInterface {
    */
   async buildWallets() {
     this.walletManager.reset()
-    const poolTransactions = await this.getTransactionIdsForForging(
+    const poolTransactionIds = await this.getTransactionIdsForForging(
       0,
       this.getPoolSize(),
     )
 
-    poolTransactions.forEach(transactionId => {
+    container.resolve('state').removeCachedTransactionIds(poolTransactionIds)
+
+    poolTransactionIds.forEach(transactionId => {
       const transaction = this.getTransaction(transactionId)
 
       if (!transaction) {
