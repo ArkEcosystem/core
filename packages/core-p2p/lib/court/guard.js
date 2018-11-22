@@ -120,12 +120,10 @@ class Guard {
       const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder
 
       if (!nextSuspensionReminder || dayjs().isAfter(nextSuspensionReminder)) {
-        const untilDiff = suspendedPeer.until.diff(dayjs())
-
         logger.debug(
           `${
             peer.ip
-          } still suspended until ${untilDiff.toString()} because of "${
+          } still suspended until ${suspendedPeer.until.toString()} because of "${
             suspendedPeer.reason
           }".`,
         )
@@ -297,10 +295,9 @@ class Guard {
     }
 
     const until = dayjs().add(offence.number, offence.period)
-    const untilDiff = until.diff(dayjs())
 
     logger.debug(
-      `Suspended ${peer.ip} until ${untilDiff.toString()} because of "${
+      `Suspended ${peer.ip} until ${until.toString()} because of "${
         offence.reason
       }"`,
     )
