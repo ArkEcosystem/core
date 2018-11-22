@@ -1,4 +1,6 @@
 require('@arkecosystem/core-test-utils/lib/matchers')
+const { Block } = require('@arkecosystem/crypto').models
+const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -9,8 +11,11 @@ const delegate = {
     '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647',
 }
 
+let container
+
 beforeAll(async () => {
   await app.setUp()
+  container = require('@arkecosystem/core-container')
 })
 
 afterAll(async () => {
@@ -102,19 +107,26 @@ describe('API 2.0 - Delegates', () => {
     })
   })
 
-  describe.skip('GET /delegates/:id/blocks', () => {
+  describe('GET /delegates/:id/blocks', () => {
     describe.each([
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
       it('should GET all blocks for a delegate by the given identifier', async () => {
+        // save a new block so that we can make the request with generatorPublicKey
+        const block2 = new Block(blocks2to100[0])
+        const database = container.resolvePlugin('database')
+        await database.saveBlock(block2)
+
         const response = await utils[request](
           'GET',
-          `delegates/${delegate.publicKey}/blocks`,
+          `delegates/${blocks2to100[0].generatorPublicKey}/blocks`,
         )
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
         utils.expectBlock(response.data.data[0])
+
+        await database.deleteBlock(block2) // reset to genesis block
       })
     })
   })
