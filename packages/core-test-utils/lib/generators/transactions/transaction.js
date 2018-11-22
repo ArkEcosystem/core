@@ -66,6 +66,7 @@ module.exports = (
           .random()
           .toLowerCase()
           .replace(/[^a-z0-9]/g, '_')
+          .substring(0, 20)
         builder = builder.delegateRegistration().usernameAsset(username)
         break
       }
