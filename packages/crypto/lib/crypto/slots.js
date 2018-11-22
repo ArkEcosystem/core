@@ -54,7 +54,7 @@ class Slots {
    * @return {Moment}
    */
   beginEpochTime() {
-    return dayjs(this.getConstant('epoch')).utc()
+    return dayjs(this.getConstant('epoch'))
   }
 
   /**

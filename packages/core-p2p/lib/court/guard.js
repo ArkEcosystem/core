@@ -126,9 +126,8 @@ class Guard {
             suspendedPeer.reason
           }".`,
         )
-        suspendedPeer.nextSuspensionReminder = dayjs()
-          .utc()
-          .add(5, 'm')
+        // TODO: add .utc() support
+        suspendedPeer.nextSuspensionReminder = dayjs().add(5, 'm')
       }
 
       return true
@@ -294,9 +293,8 @@ class Guard {
       offence = offences.REPEAT_OFFENDER
     }
 
-    const until = dayjs()
-      .utc()
-      .add(offence.number, offence.period)
+    // TODO: add .utc() support
+    const until = dayjs().add(offence.number, offence.period)
     const untilDiff = dayjs.duration(until.diff(dayjs.now()))
 
     logger.debug(
