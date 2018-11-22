@@ -1,7 +1,7 @@
 /* eslint no-bitwise: "off" */
 
 const bs58check = require('bs58check')
-const { cloneDeepWith } = require('lodash')
+const cloneDeepWith = require('lodash/cloneDeepWith')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
 const { Bignum } = require('../utils')

@@ -1,4 +1,5 @@
-const { isEqual, sortBy } = require('lodash')
+const isEqual = require('lodash/isEqual')
+const sortBy = require('lodash/sortBy')
 
 function isValidPeer(peer) {
   const allowedKeys = sortBy(['ip', 'port'])

@@ -1,7 +1,7 @@
 const clipboardy = require('clipboardy')
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
-const _ = require('lodash')
+const fill = require('lodash/fill')
 const Command = require('../../lib/commands/command')
 const logger = require('../../lib/utils/logger')
 
@@ -134,18 +134,12 @@ describe('Command Base', () => {
       }
 
       // 1 Block
-      expect(command.getTransactionDelaySeconds(_.fill(Array(5), true))).toBe(
-        20,
-      )
-      expect(command.getTransactionDelaySeconds(_.fill(Array(10), true))).toBe(
-        20,
-      )
+      expect(command.getTransactionDelaySeconds(fill(Array(5), true))).toBe(20)
+      expect(command.getTransactionDelaySeconds(fill(Array(10), true))).toBe(20)
       // 2 Block
-      expect(command.getTransactionDelaySeconds(_.fill(Array(15), true))).toBe(
-        40,
-      )
+      expect(command.getTransactionDelaySeconds(fill(Array(15), true))).toBe(40)
       // 10 Block
-      expect(command.getTransactionDelaySeconds(_.fill(Array(100), true))).toBe(
+      expect(command.getTransactionDelaySeconds(fill(Array(100), true))).toBe(
         200,
       )
     })

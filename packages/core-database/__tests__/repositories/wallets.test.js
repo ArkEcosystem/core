@@ -1,4 +1,5 @@
-const _ = require('lodash')
+const uniq = require('lodash/uniq')
+const compact = require('lodash/compact')
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
 const app = require('../__support__/setup')
@@ -16,8 +17,8 @@ beforeAll(async done => {
   genesisBlock = new Block(
     require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
   )
-  genesisSenders = _.uniq(
-    _.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)),
+  genesisSenders = uniq(
+    compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)),
   )
 
   done()

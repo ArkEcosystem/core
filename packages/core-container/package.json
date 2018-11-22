@@ -14,7 +14,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/crypto": "^0.2.5",
@@ -25,7 +25,7 @@
     "expand-home-dir": "^0.0.3",
     "fs-extra": "^7.0.1",
     "hoek": "^6.0.3",
-    "lodash": "^4.17.11",
+    "lodash.isstring": "^4.0.1",
     "semver": "^5.6.0"
   },
   "devDependencies": {

@@ -16,13 +16,15 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.5",
-    "lodash": "^4.17.11",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.compact": "^3.0.1",
+    "lodash.uniq": "^4.5.0",
     "pluralize": "^7.0.0"
   },
   "devDependencies": {

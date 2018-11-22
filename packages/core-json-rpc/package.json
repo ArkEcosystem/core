@@ -15,7 +15,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=@keyv/sqlite"
+    "depcheck": "depcheck ./ --ignores=@keyv/sqlite,lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -29,7 +29,7 @@
     "is-reachable": "^2.4.0",
     "joi": "^14.1.0",
     "keyv": "^3.1.0",
-    "lodash": "^4.17.11",
+    "lodash.get": "^4.4.2",
     "uuid": "^3.3.2",
     "wif": "^2.0.6"
   },

@@ -14,7 +14,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -24,7 +24,7 @@
     "bluebird": "^3.5.3",
     "create-hash": "^1.2.0",
     "fs-extra": "^7.0.1",
-    "lodash": "^4.17.11",
+    "lodash.pick": "^4.4.0",
     "msgpack-lite": "^0.1.26",
     "pg-promise": "^8.5.2",
     "pg-query-stream": "^1.1.2",
