@@ -123,7 +123,9 @@ class Guard {
         const untilDiff = suspendedPeer.until.diff(dayjs())
 
         logger.debug(
-          `${peer.ip} still suspended for ${untilDiff.toString()} because of "${
+          `${
+            peer.ip
+          } still suspended until ${untilDiff.toString()} because of "${
             suspendedPeer.reason
           }".`,
         )
