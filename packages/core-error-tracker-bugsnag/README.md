@@ -4,26 +4,9 @@
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-error-tracker-bugsnag
-```
-
-## Configuration
-
-> Check https://docs.bugsnag.com/platforms/nodejs/other/configuration-options/ for more options and details.
-
-```js
-module.exports = {
-  apiKey: process.env.ARK_ERROR_TRACKER_BUGSNAG_API_KEY,
-  configuration: {
-    metaData: {
-      network: process.env.ARK_NETWORK_NAME,
-    },
-  },
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-error-tracker-bugsnag.html).
 
 ## Security
 
