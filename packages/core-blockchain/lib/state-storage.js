@@ -107,19 +107,17 @@ class StateStorage {
    */
   getLastBlocks() {
     return _lastBlocks
-      .reverse()
       .valueSeq()
+      .reverse()
       .toArray()
   }
 
   /**
    * Get the last blocks data.
-   * @returns {Array}
+   * @returns {Seq}
    */
   getLastBlocksData() {
-    return _mapToBlockData(_lastBlocks.reverse())
-      .valueSeq()
-      .toArray()
+    return _mapToBlockData(_lastBlocks.valueSeq())
   }
 
   /**
@@ -128,9 +126,9 @@ class StateStorage {
    */
   getLastBlockIds() {
     return _lastBlocks
+      .valueSeq()
       .reverse()
       .map(b => b.data.id)
-      .valueSeq()
       .toArray()
   }
 
@@ -141,13 +139,12 @@ class StateStorage {
    */
   getLastBlocksByHeight(start, end) {
     end = end || start
-    return _mapToBlockData(
-      _lastBlocks.filter(
-        block => block.data.height >= start && block.data.height <= end,
-      ),
-    )
+
+    const blocks = _lastBlocks
       .valueSeq()
-      .toArray()
+      .filter(block => block.data.height >= start && block.data.height <= end)
+
+    return _mapToBlockData(blocks).toArray()
   }
 
   /**
@@ -155,7 +152,9 @@ class StateStorage {
    * @returns {Array}
    */
   getCommonBlocks(ids) {
-    return this.getLastBlocksData().filter(block => ids.includes(block.id))
+    return this.getLastBlocksData()
+      .filter(block => ids.includes(block.id))
+      .toArray()
   }
 
   /**
