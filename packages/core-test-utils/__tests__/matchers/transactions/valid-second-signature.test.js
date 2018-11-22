@@ -1,7 +1,7 @@
 const { NetworkManager } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
-const genTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
-const genWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
+const genTransfer = require('../../../lib/generators/transactions/transfer')
+const genWallets = require('../../../lib/generators/wallets')
 
 require('../../../lib/matchers/transactions/valid-second-signature')
 
