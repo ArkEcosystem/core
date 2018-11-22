@@ -117,7 +117,7 @@ class StateStorage {
    * @returns {Seq}
    */
   getLastBlocksData() {
-    return _mapToBlockData(_lastBlocks.valueSeq())
+    return _mapToBlockData(_lastBlocks.valueSeq().reverse())
   }
 
   /**
