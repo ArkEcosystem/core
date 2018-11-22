@@ -23,9 +23,10 @@
   resolved "https://registry.yarnpkg.com/@apollographql/graphql-playground-html/-/graphql-playground-html-1.6.4.tgz#8945edf73df846d50e027bb3b813d018a1c5925f"
   integrity sha512-gwvaQO6/Hv4DEwhDLmmu2tzCU9oPjC5Xl9Kk8Yd0IxyKhYLlLalmkMMjsZLzU5H3fGaalLD96OYfxHL0ClVUDQ==
 
-"@arkecosystem/eslint-config-base@https://github.com/ArkEcosystem/eslint-config-base":
+"@arkecosystem/eslint-config-base@^0.1.0":
   version "0.1.0"
-  resolved "https://github.com/ArkEcosystem/eslint-config-base#023371c89e7da529d2b89aa0a7f4c6c931831812"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/eslint-config-base/-/eslint-config-base-0.1.0.tgz#c4e39d1051598b1ecc7f7ce4ca54f577deecaf0c"
+  integrity sha512-5Fx2xy+gOkwW92ahUACAjv7cHHKtxPS5Sz6Ef5ejbglrkXl/7Wzh+OKDJ1yXS1lkjI0CQr6ooWiSh7nRp4HHqw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.0.0-beta.35":
   version "7.0.0"
