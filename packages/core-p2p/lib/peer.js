@@ -1,4 +1,5 @@
 const axios = require('axios')
+const chunk = require('lodash/chunk')
 const util = require('util')
 const container = require('@arkecosystem/core-container')
 
@@ -65,16 +66,27 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postTransactions(transactions) {
-    return this.__post(
-      '/peer/transactions',
-      {
-        transactions,
-      },
-      {
-        headers: this.headers,
-        timeout: 8000,
-      },
-    )
+    const broadcast = async items =>
+      this.__post(
+        '/peer/transactions',
+        {
+          transactions: items,
+        },
+        {
+          headers: this.headers,
+          timeout: 8000,
+        },
+      )
+
+    try {
+      await broadcast(transactions)
+    } catch (err) {
+      if (err.response && err.response.status === 413) {
+        const items = chunk(transactions, err.response.data.error.allowed)
+
+        await Promise.all(items.map(item => broadcast(item)))
+      }
+    }
   }
 
   async getTransactionsFromIds(ids) {
