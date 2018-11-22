@@ -1,5 +1,5 @@
 const fs = require('fs-extra')
-const _ = require('lodash')
+const loget = require('lodash/get')
 
 class Storage {
   /**
@@ -89,7 +89,7 @@ class Storage {
    * @return {*}
    */
   get(file, key, defaultValue = null) {
-    return _.get(this.read(file), key, defaultValue)
+    return loget(this.read(file), key, defaultValue)
   }
 }
 

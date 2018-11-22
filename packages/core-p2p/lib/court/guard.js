@@ -5,7 +5,8 @@ const logger = container.resolvePlugin('logger')
 
 const moment = require('moment')
 const semver = require('semver')
-const { head, sumBy } = require('lodash')
+const head = require('lodash/head')
+const sumBy = require('lodash/sumBy')
 
 const isMyself = require('../utils/is-myself')
 const offences = require('./offences')

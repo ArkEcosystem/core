@@ -1,4 +1,5 @@
-const { isEqual, sortBy } = require('lodash')
+const isEqual = require('lodash/isEqual')
+const sortBy = require('lodash/sortBy')
 
 function isValidBlock(block) {
   const allowedKeys = sortBy([

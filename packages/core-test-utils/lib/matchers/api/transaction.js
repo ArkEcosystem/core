@@ -1,4 +1,5 @@
-const { isEqual, sortBy } = require('lodash')
+const isEqual = require('lodash/isEqual')
+const sortBy = require('lodash/sortBy')
 
 const toBeApiTransaction = (actual, expected) => {
   // TODO based on type
@@ -15,10 +16,13 @@ const toBeApiTransaction = (actual, expected) => {
     'asset',
     'confirmations',
   ])
-  const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key))
+  const actualKeys = Object.keys(actual).filter(key =>
+    allowedKeys.includes(key),
+  )
 
   return {
-    message: () => `Expected ${JSON.stringify(actual)} to be a valid transaction`,
+    message: () =>
+      `Expected ${JSON.stringify(actual)} to be a valid transaction`,
     pass: isEqual(sortBy(actualKeys), allowedKeys),
   }
 }

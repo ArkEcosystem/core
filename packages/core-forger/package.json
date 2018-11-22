@@ -27,7 +27,9 @@
     "@arkecosystem/crypto": "^0.2.5",
     "axios": "^0.18.0",
     "delay": "^4.1.0",
-    "lodash": "^4.17.11",
+    "lodash.isempty": "^4.4.0",
+    "lodash.sample": "^4.2.1",
+    "lodash.uniq": "^4.5.0",
     "pluralize": "^7.0.0"
   },
   "devDependencies": {

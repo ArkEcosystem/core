@@ -43,7 +43,7 @@
     "create-hash": "^1.2.0",
     "deepmerge": "^2.2.1",
     "joi": "^14.1.0",
-    "lodash": "^4.17.11",
+    "lodash.camelcase": "^4.3.0",
     "moment": "^2.22.2",
     "node-forge": "^0.7.6",
     "otplib": "^10.0.1",
