@@ -734,7 +734,7 @@ class Monitor {
    * not all peers are up, or the network is not active
    */
   __isColdStartActive() {
-    return this.startForgers.isAfter(dayjs())
+    return dayjs().isAfter(this.startForgers)
   }
 
   /**
