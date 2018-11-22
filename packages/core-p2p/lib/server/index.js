@@ -1,4 +1,8 @@
-const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
+const {
+  createServer,
+  mountServer,
+  plugins,
+} = require('@arkecosystem/core-http-utils')
 
 /**
  * Create a new hapi.js server.
@@ -50,6 +54,11 @@ module.exports = async (p2p, config) => {
         '/remote/blockchain/{event}',
       ],
     },
+  })
+
+  await server.register({
+    plugin: plugins.transactionPayload,
+    options: { paths: ['/peer/transactions'] },
   })
 
   // await server.register({

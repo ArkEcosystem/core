@@ -4,6 +4,7 @@ require('@arkecosystem/core-test-utils/lib/matchers')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
+const { transactionBuilder } = require('@arkecosystem/crypto')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -540,6 +541,42 @@ describe('API 2.0 - Transactions', () => {
   })
 
   describe('POST /transactions', () => {
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader'],
+    ])('using the %s header', (header, request) => {
+      const transactions = []
+
+      for (let i = 0; i < 40; i++) {
+        transactions.push(
+          transactionBuilder
+            .transfer()
+            .recipientId('AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri')
+            .amount(10 * 1e8)
+            .sign('passphrase')
+            .getStruct(),
+        )
+      }
+
+      it('should POST all the transactions', async () => {
+        const response = await utils[request]('POST', 'transactions', {
+          transactions,
+        })
+        expect(response).toBeSuccessfulResponse()
+      })
+
+      it('should not POST all the transactions', async () => {
+        const response = await utils[request]('POST', 'transactions', {
+          transactions: transactions.concat(transactions),
+        })
+
+        expect(response.data.statusCode).toBe(413)
+        expect(response.data.message).toBe(
+          'Received 80 transactions. Only 40 are allowed per request.',
+        )
+      })
+    })
+
     it('should POST 2 transactions double spending and get only 1 accepted and broadcasted', async () => {
       const transactions = generateTransfers(
         'testnet',
