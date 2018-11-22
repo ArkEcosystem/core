@@ -11,11 +11,6 @@ module.exports = {
       dailyRotate: {
         options: {
           level: process.env.ARK_LOG_LEVEL || 'debug',
-          filename:
-            process.env.ARK_LOG_FILE ||
-            `${process.env.ARK_PATH_DATA}/logs/core/${
-              process.env.ARK_NETWORK_NAME
-            }.1/%DATE%.log`,
         },
       },
     },
