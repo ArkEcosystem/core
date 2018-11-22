@@ -35,7 +35,6 @@
     "lodash": "^4.17.11",
     "lodash.orderby": "^4.6.0",
     "lodash.snakecase": "^4.1.1",
-    "moment": "^2.22.2",
     "pluralize": "^7.0.0"
   },
   "devDependencies": {
