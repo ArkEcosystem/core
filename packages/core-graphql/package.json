@@ -21,7 +21,7 @@
     "@arkecosystem/core-http-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.5",
     "apollo-server-hapi": "^2.2.2",
-    "dayjs": "^1.7.7",
+    "dayjs-ext": "^2.2.0",
     "graphql-tools-types": "^1.1.26"
   },
   "devDependencies": {
