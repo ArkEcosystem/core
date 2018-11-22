@@ -1,27 +1,12 @@
-# Ark Core - Blockchain Management
+# Ark Core - Blockchain
 
 <p align="center">
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-blockchain
-```
-
-## Configuration
-
-```js
-module.exports = {
-  version: '2.0.0',
-  fastRebuild: false,
-  databaseRollback: {
-    maxBlockRewind: 10000,
-    steps: 1000,
-  },
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-blockchain.html).
 
 ## Security
 

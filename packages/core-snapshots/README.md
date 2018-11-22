@@ -1,13 +1,12 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Snapshots
 
-# Purpose of this plugin
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
-The purpose of this plugin is to provide local snapshot functionality, so in case of issues the blockchain can be rebuild locally from own exported data.
+## Documentation
 
-Snapshot files will be generated in your configured folder. By default this folder will be in `~.ark/snapshots/NETWORK_NAME/FOLDER_NAME`.
-Fodler names are following this pattern: `startHeight-endHeight`.
-
-It can be also used from the `cli`. Please check the `core-snapshosts-cli` documentation, [where more information is available](https://github.com/ArkEcosystem/core/blob/develop/packages/core-snapshots-cli/README.md).
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-snapshots.html).
 
 ## Security
 

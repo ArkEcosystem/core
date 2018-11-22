@@ -4,43 +4,9 @@
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-logger-winston
-```
-
-## Configuration
-
-```js
-module.exports = {
-  transports: {
-    console: {
-      constructor: 'Console',
-      options: {
-        level: process.env.ARK_LOG_LEVEL || 'debug',
-        format: require('./formatter'),
-      },
-    },
-    dailyRotate: {
-      package: 'winston-daily-rotate-file',
-      constructor: 'DailyRotateFile',
-      options: {
-        level: process.env.ARK_LOG_LEVEL || 'debug',
-        filename:
-          process.env.ARK_LOG_FILE ||
-          `${process.env.ARK_PATH_DATA}/logs/core/${
-            process.env.ARK_NETWORK_NAME
-          }/%DATE%.log`,
-        datePattern: 'YYYY-MM-DD',
-        zippedArchive: true,
-        maxSize: '100m',
-        maxFiles: '10',
-      },
-    },
-  },
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-logger-winston.html).
 
 ## Security
 
