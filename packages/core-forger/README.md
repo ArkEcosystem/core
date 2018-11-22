@@ -1,22 +1,12 @@
-# Ark Core - Forger Manager
+# Ark Core - Forger
 
 <p align="center">
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-forger
-```
-
-## Configuration
-
-```js
-module.exports = {
-  hosts: [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4002}`],
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-forger.html).
 
 ## Security
 

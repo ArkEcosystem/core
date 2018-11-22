@@ -40,6 +40,18 @@ module.exports = async config => {
     })
 
     await server.register({
+      plugin: plugins.transactionPayload,
+      options: {
+        routes: [
+          {
+            method: 'POST',
+            path: '/api/v2/transactions',
+          },
+        ],
+      },
+    })
+
+    await server.register({
       plugin: plugins.whitelist,
       options: {
         whitelist: config.whitelist,

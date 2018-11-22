@@ -59,9 +59,5 @@ packages/**/dist/
 # Databases
 *.sqlite
 
-# Flow
-flow-typed
-flow-coverage
-
 # Random
 peers_backup.json
