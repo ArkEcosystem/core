@@ -5,6 +5,7 @@ module.exports = {
   mountServer: require('./server/mount'),
   plugins: {
     corsHeaders: require('./plugins/cors-headers'),
+    transactionPayload: require('./plugins/transaction-payload'),
     whitelist: require('./plugins/whitelist'),
   },
 }

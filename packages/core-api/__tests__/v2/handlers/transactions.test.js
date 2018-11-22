@@ -540,6 +540,38 @@ describe('API 2.0 - Transactions', () => {
   })
 
   describe('POST /transactions', () => {
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader'],
+    ])('using the %s header', (header, request) => {
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        1,
+        40,
+        true,
+      )
+
+      it('should POST all the transactions', async () => {
+        const response = await utils[request]('POST', 'transactions', {
+          transactions,
+        })
+        expect(response).toBeSuccessfulResponse()
+      })
+
+      it('should not POST all the transactions', async () => {
+        const response = await utils[request]('POST', 'transactions', {
+          transactions: transactions.concat(transactions),
+        })
+
+        expect(response.data.statusCode).toBe(413)
+        expect(response.data.message).toBe(
+          'Received 80 transactions. Only 40 are allowed per request.',
+        )
+      })
+    })
+
     it('should POST 2 transactions double spending and get only 1 accepted and broadcasted', async () => {
       const transactions = generateTransfers(
         'testnet',
