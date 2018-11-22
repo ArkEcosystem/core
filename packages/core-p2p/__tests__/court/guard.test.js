@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
 
-const dayjs = require('dayjs')
+const dayjs = require('dayjs-ext')
 const app = require('../__support__/setup')
 
 const ARK_ENV = process.env.ARK_ENV

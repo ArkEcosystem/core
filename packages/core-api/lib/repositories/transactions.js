@@ -2,7 +2,7 @@ const container = require('@arkecosystem/core-container')
 
 const database = container.resolvePlugin('database')
 
-const dayjs = require('dayjs')
+const dayjs = require('dayjs-ext')
 const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')

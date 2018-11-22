@@ -26,7 +26,7 @@
     "ajv": "^6.5.5",
     "boom": "^7.2.2",
     "bs58check": "^2.1.2",
-    "dayjs": "^1.7.7",
+    "dayjs-ext": "^2.2.0",
     "hapi-api-version": "^2.1.0",
     "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
     "hapi-rate-limit": "^2.1.3",
