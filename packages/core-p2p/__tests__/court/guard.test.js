@@ -94,10 +94,10 @@ describe('Guard', () => {
 
   describe('__determineOffence', () => {
     const convertToMinutes = actual =>
-      Math.ceil(dayjs.duration(actual.diff(dayjs.now())).asMinutes())
+      Math.ceil(dayjs.duration(actual.diff(dayjs())).asMinutes())
 
     const convertToSeconds = actual =>
-      Math.ceil(dayjs.duration(actual.diff(dayjs.now())).asSeconds())
+      Math.ceil(dayjs.duration(actual.diff(dayjs())).asSeconds())
 
     const dummy = {
       nethash:
