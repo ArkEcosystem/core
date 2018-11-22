@@ -124,9 +124,9 @@ class Guard {
         const untilDiff = suspendedPeer.until.diff(dayjs())
 
         logger.debug(
-          `${peer.ip} still suspended for ${prettyMs(untilDiff)} because of "${
-            suspendedPeer.reason
-          }".`,
+          `${peer.ip} still suspended for ${prettyMs(untilDiff, {
+            verbose: true,
+          })} because of "${suspendedPeer.reason}".`,
         )
 
         suspendedPeer.nextSuspensionReminder = dayjs().add(5, 'm')
@@ -299,9 +299,9 @@ class Guard {
     const untilDiff = until.diff(dayjs())
 
     logger.debug(
-      `Suspended ${peer.ip} for ${prettyMs(untilDiff)} because of "${
-        offence.reason
-      }"`,
+      `Suspended ${peer.ip} for ${prettyMs(untilDiff, {
+        verbose: true,
+      })} because of "${offence.reason}"`,
     )
 
     return {
