@@ -154,6 +154,8 @@ workflows:
     jobs:
       - init
       - test-node10:
-          requires: init
+          requires:
+            - init
       - test-node10-2:
-          requires: init
+          requires:
+            - init
