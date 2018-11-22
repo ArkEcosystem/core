@@ -8,12 +8,8 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "flow:coverage": "flow-coverage-report --config ../../.flowcoverage.json",
-    "flow:check": "flow check ./lib",
-    "flow:deps": "flow-typed install",
-    "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=flow-bin"
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "bugsnag": "^2.4.3"
@@ -23,8 +19,5 @@
   },
   "engines": {
     "node": ">=10.x"
-  },
-  "devDependencies": {
-    "flow-bin": "^0.86.0"
   }
 }
