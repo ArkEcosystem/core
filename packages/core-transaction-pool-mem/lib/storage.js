@@ -52,17 +52,23 @@ class Storage {
         '(:sequence, :id, :serialized);',
     )
 
-    this.db.prepare('BEGIN;').run()
+    try {
+      this.db.prepare('BEGIN;').run()
 
-    data.forEach(d =>
-      insertStatement.run({
-        sequence: d.sequence,
-        id: d.transaction.id,
-        serialized: Buffer.from(d.transaction.serialized, 'hex'),
-      }),
-    )
+      data.forEach(d =>
+        insertStatement.run({
+          sequence: d.sequence,
+          id: d.transaction.id,
+          serialized: Buffer.from(d.transaction.serialized, 'hex'),
+        }),
+      )
 
-    this.db.prepare('COMMIT;').run()
+      this.db.prepare('COMMIT;').run()
+    } finally {
+      if (this.db.inTransaction) {
+        this.db.prepare('ROLLBACK;').run()
+      }
+    }
   }
 
   /**
