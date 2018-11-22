@@ -11,9 +11,6 @@
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
     "format": "prettier --write \"./*.{js,json,md}\" \"./packages/**/*.{js,json,md}\"",
-    "flow:coverage": "lerna run flow:coverage",
-    "flow:check": "lerna run flow:check",
-    "flow:deps": "lerna run flow:deps",
     "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {
@@ -35,9 +32,6 @@
     "eslint-plugin-node": "^8.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "express": "^4.16.4",
-    "flow-bin": "^0.86.0",
-    "flow-coverage-report": "^0.6.0",
-    "flow-typed": "^2.5.1",
     "husky": "^1.1.4",
     "jest": "^23.6.0",
     "jest-extended": "^0.11.0",
