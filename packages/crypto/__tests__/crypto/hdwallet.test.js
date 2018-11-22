@@ -3,7 +3,8 @@ const { crypto, hdwallet } = require('../../lib/crypto')
 const configManager = require('../../lib/managers/config')
 const network = require('../../lib/networks/phantom/mainnet.json')
 
-const mnemonic = 'sorry hawk one science reject employ museum ride into post machine attack bar seminar myself unhappy faculty differ grain fish chest bird muffin mesh'
+const mnemonic =
+  'sorry hawk one science reject employ museum ride into post machine attack bar seminar myself unhappy faculty differ grain fish chest bird muffin mesh'
 
 beforeEach(() => configManager.setConfig(network))
 

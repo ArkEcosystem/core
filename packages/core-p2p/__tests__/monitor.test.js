@@ -4,11 +4,6 @@ const MockAdapter = require('axios-mock-adapter')
 const axiosMock = new MockAdapter(axios)
 
 const app = require('./__support__/setup')
-<<<<<<< HEAD
-=======
-const moment = require('moment')
-const PHANTOM_ENV = process.env.PHANTOM_ENV
->>>>>>> renaming
 
 const defaults = require('../lib/defaults')
 
@@ -84,14 +79,11 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-<<<<<<< HEAD
       axiosMock
         .onGet(`${peerMock.url}/peer/status`)
         .reply(() => [200, { success: true }, peerMock.headers])
+
       process.env.PHANTOM_ENV = false
-=======
-      process.env.PHANTOM_ENV = false
->>>>>>> renaming
 
       await monitor.acceptNewPeer(peerMock)
 
@@ -260,9 +252,7 @@ describe('Monitor', () => {
 
   describe('__checkDNSConnectivity', () => {
     it('should be a function', () => {
-<<<<<<< HEAD
       expect(monitor.__checkDNSConnectivity).toBeFunction()
-=======
       expect(monitor.__isSuspended).toBeFunction()
     })
 
@@ -287,7 +277,7 @@ describe('Monitor', () => {
       process.env.PHANTOM_ENV = PHANTOM_ENV
 
       expect(monitor.__isSuspended(peer)).toBe(false)
->>>>>>> renaming
+      expect(monitor.__checkDNSConnectivity).toBeFunction()
     })
   })
 

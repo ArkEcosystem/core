@@ -40,7 +40,7 @@ describe('GraphQL API { blocks }', () => {
       const data = response.data.data
       expect(data).toBeObject()
       expect(data.blocks[0].generator.address).toEqual(
-        'AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins',
+        'Ac9dCo9dFgAkkBdEBsoRAN4Mm6xMsgYdZx',
       )
     })
   })

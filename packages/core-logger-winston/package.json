@@ -1,13 +1,7 @@
 {
-<<<<<<< HEAD
   "name": "@phantomchain/core-logger-winston",
   "description": "Winston Logger for PHANTOM Core",
   "version": "0.2.0",
-=======
-  "name": "@phantomcore/core-logger-winston",
-  "description": "Winston Logger for PHANTOM Core",
-  "version": "0.1.1",
->>>>>>> renaming
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -15,7 +9,6 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-<<<<<<< HEAD
     "test": "cross-env PHANTOM_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env PHANTOM_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
     "test:debug": "cross-env PHANTOM_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
@@ -25,19 +18,6 @@
   },
   "dependencies": {
     "@phantomchain/core-logger": "~0.2",
-=======
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
-    "test": "PHANTOM_ENV=test jest --forceExit",
-    "test:coverage": "PHANTOM_ENV=test jest --coverage --forceExit",
-    "test:debug": "PHANTOM_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
-    "test:watch": "PHANTOM_ENV=test jest --runInBand --watch",
-    "test:watch:all": "PHANTOM_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=winston-daily-rotate-file"
-  },
-  "dependencies": {
-    "@phantomcore/core-logger": "^0.1.1",
->>>>>>> renaming
     "chalk": "^2.4.1",
     "colors": "^1.3.2",
     "dayjs-ext": "^2.2.0",

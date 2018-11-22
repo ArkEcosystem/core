@@ -49,9 +49,9 @@ module.exports = (monitor, lastBlock) => {
   for (const peer of peers) {
     if (peer.state.height === lastBlock.data.height) {
       if (
-        peer.state.header.id === lastBlock.data.id
-        && peer.state.currentSlot === currentSlot
-        && peer.state.forgingAllowed
+        peer.state.header.id === lastBlock.data.id &&
+        peer.state.currentSlot === currentSlot &&
+        peer.state.forgingAllowed
       ) {
         quorum += 1
       } else {

@@ -119,7 +119,7 @@ jobs:
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
-            - ./packages/client/node_modules
+            - ./packages/.DS_Store/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -127,7 +127,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-database-sequelize/node_modules
             - ./packages/core-debugger-cli/node_modules
             - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules

@@ -59,44 +59,44 @@ describe('Wallets', () => {
   describe('POST wallets.info', () => {
     it('should get information about the given wallet', async () => {
       axiosMock
-        .onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/)
+        .onGet(/.*\/api\/wallets\/APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn/)
         .reply(() => [
           200,
-          { data: { address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv' } },
+          { data: { address: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' } },
           peerMock.headers,
         ])
 
       const response = await request('wallets.info', {
-        address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        address: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       })
 
       expect(response.data.result.address).toBe(
-        'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       )
     })
 
     it('should fail to get information about the given wallet', async () => {
       axiosMock
-        .onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/)
+        .onGet(/.*\/api\/wallets\/APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn/)
         .reply(() => [
           404,
           {
             error: {
               code: 404,
               message:
-                'Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.',
+                'Wallet APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn could not be found.',
             },
           },
           peerMock.headers,
         ])
 
       const response = await request('wallets.info', {
-        address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        address: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       })
 
       expect(response.data.error.code).toBe(404)
       expect(response.data.error.message).toBe(
-        'Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.',
+        'Wallet APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn could not be found.',
       )
     })
   })
@@ -112,7 +112,7 @@ describe('Wallets', () => {
         ])
 
       const response = await request('wallets.transactions', {
-        address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        address: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       })
 
       expect(response.data.result.count).toBe(2)
@@ -121,12 +121,12 @@ describe('Wallets', () => {
 
     it('should fail to get transactions for the given wallet', async () => {
       const response = await request('wallets.transactions', {
-        address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        address: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       })
 
       expect(response.data.error.code).toBe(404)
       expect(response.data.error.message).toBe(
-        'Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.',
+        'Wallet APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn could not be found.',
       )
     })
   })

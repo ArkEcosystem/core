@@ -130,11 +130,11 @@ describe('Transactions', () => {
         bip38: 'this is a top secret passphrase',
         userId,
         amount: 1000000000,
-        recipientId: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        recipientId: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       })
 
       expect(response.data.result.recipientId).toBe(
-        'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       )
       expect(crypto.verify(response.data.result)).toBeTrue()
     })
@@ -144,7 +144,7 @@ describe('Transactions', () => {
         bip38: 'this is a top secret passphrase',
         userId: '123456789',
         amount: 1000000000,
-        recipientId: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
+        recipientId: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn',
       })
 
       expect(response.data.error.code).toBe(404)

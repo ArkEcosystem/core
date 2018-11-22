@@ -26,6 +26,7 @@ const app = require('./__support__/setup')
 
 beforeAll(async () => {
   container = await app.setUp()
+  console.log('=====> Blockchain setup:  ', container)
 
   // Backup logger.debug function as we are going to mock it in the test suite
   logger = container.resolvePlugin('logger')

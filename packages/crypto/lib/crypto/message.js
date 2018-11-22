@@ -2,10 +2,11 @@ const crypto = require('crypto')
 const phantomCrypto = require('./crypto')
 const configManager = require('../managers/config')
 
-const createHash = message => crypto
-  .createHash('sha256')
-  .update(Buffer.from(message, 'utf-8'))
-  .digest()
+const createHash = message =>
+  crypto
+    .createHash('sha256')
+    .update(Buffer.from(message, 'utf-8'))
+    .digest()
 
 module.exports = class Message {
   /**

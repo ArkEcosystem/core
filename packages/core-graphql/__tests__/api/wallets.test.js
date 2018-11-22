@@ -23,7 +23,7 @@ describe('GraphQL API { wallets }', () => {
       const data = response.data.data
       expect(data).toBeObject()
       expect(data.wallets.length).toBe(53)
-      // TODO why 53 ? From genesis block I can count 52, but there is an additional "AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins" wallet. What did I miss ?
+      // TODO why 53 ? From genesis block I can count 52, but there is an additional "Ac9dCo9dFgAkkBdEBsoRAN4Mm6xMsgYdZx" wallet. What did I miss ?
     })
   })
 

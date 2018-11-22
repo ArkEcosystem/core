@@ -12,27 +12,29 @@ const host = `http://127.0.0.1:${process.env.PHANTOM_P2P_PORT || 4000}`
 let Client
 let client
 
-beforeAll(async () => {
-  await app.setUp()
-})
-
-afterAll(async () => {
-  await app.tearDown()
-  mockAxios.restore()
-})
-
-beforeEach(() => {
-  Client = require('../lib/client')
-  client = new Client(host)
-
-  mockAxios.onGet(`${host}/peer/status`).reply(200)
-})
-
-afterEach(() => {
-  mockAxios.reset()
-})
-
 describe('Client', () => {
+  beforeAll(async () => {
+    console.log('=====> Env Setup...')
+    await app.setUp()
+  })
+
+  afterAll(async () => {
+    await app.tearDown()
+    mockAxios.restore()
+  })
+
+  beforeEach(() => {
+    console.log('=====> Client Setup...')
+    Client = require('../lib/client')
+    client = new Client(host)
+
+    mockAxios.onGet(`${host}/peer/status`).reply(200)
+  })
+
+  afterEach(() => {
+    mockAxios.reset()
+  })
+
   it('should be an object', () => {
     expect(client).toBeObject()
   })
