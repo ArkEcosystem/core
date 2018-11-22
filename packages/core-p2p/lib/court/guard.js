@@ -3,7 +3,7 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 
-const moment = require('moment')
+const dayjs = require('dayjs')
 const semver = require('semver')
 const { head, sumBy } = require('lodash')
 
@@ -54,7 +54,7 @@ class Guard {
     }
 
     if (peer.offences.length > 0) {
-      if (moment().isAfter(head(peer.offences).until)) {
+      if (dayjs().isAfter(head(peer.offences).until)) {
         peer.offences = []
       }
     }
@@ -84,7 +84,7 @@ class Guard {
 
     // Don't unsuspend critical offenders before the ban is expired.
     if (peer.offences.some(offence => offence.critical)) {
-      if (moment().isBefore(this.suspensions[peer.ip].until)) {
+      if (dayjs().isBefore(this.suspensions[peer.ip].until)) {
         return
       }
     }
@@ -116,17 +116,17 @@ class Guard {
   isSuspended(peer) {
     const suspendedPeer = this.get(peer.ip)
 
-    if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
-      const untilDiff = moment.duration(suspendedPeer.until.diff(moment.now()))
+    if (suspendedPeer && dayjs().isBefore(suspendedPeer.until)) {
+      const untilDiff = dayjs.duration(suspendedPeer.until.diff(dayjs.now()))
 
       const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder
-      if (!nextSuspensionReminder || moment().isAfter(nextSuspensionReminder)) {
+      if (!nextSuspensionReminder || dayjs().isAfter(nextSuspensionReminder)) {
         logger.debug(
           `${peer.ip} still suspended for ${untilDiff.humanize()} because of "${
             suspendedPeer.reason
           }".`,
         )
-        suspendedPeer.nextSuspensionReminder = moment()
+        suspendedPeer.nextSuspensionReminder = dayjs()
           .utc()
           .add(5, 'm')
       }
@@ -209,7 +209,7 @@ class Guard {
   /**
    * Decide for how long the peer should be banned.
    * @param  {Peer}  peer
-   * @return {moment}
+   * @return {dayjs}
    */
   __determineOffence(peer) {
     if (this.isBlacklisted(peer)) {
@@ -294,10 +294,10 @@ class Guard {
       offence = offences.REPEAT_OFFENDER
     }
 
-    const until = moment()
+    const until = dayjs()
       .utc()
       .add(offence.number, offence.period)
-    const untilDiff = moment.duration(until.diff(moment.now()))
+    const untilDiff = dayjs.duration(until.diff(dayjs.now()))
 
     logger.debug(
       `Suspended ${peer.ip} for ${untilDiff.humanize()} because of "${

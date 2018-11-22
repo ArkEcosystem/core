@@ -2,7 +2,7 @@
 
 const prettyMs = require('pretty-ms')
 const fs = require('fs')
-const moment = require('moment')
+const dayjs = require('dayjs')
 const delay = require('delay')
 const { flatten, groupBy, sample, shuffle, take } = require('lodash')
 const pluralize = require('pluralize')
@@ -29,7 +29,7 @@ class Monitor {
    */
   constructor() {
     this.peers = {}
-    this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
+    this.startForgers = dayjs().add(config.peers.coldStart || 30, 'seconds')
   }
 
   /**
@@ -730,7 +730,7 @@ class Monitor {
    * not all peers are up, or the network is not active
    */
   __isColdStartActive() {
-    return this.startForgers > moment()
+    return this.startForgers > dayjs()
   }
 
   /**
