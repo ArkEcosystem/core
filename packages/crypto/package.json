@@ -26,12 +26,8 @@
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
-    "flow:coverage": "flow-coverage-report --config ../../.flowcoverage.json",
-    "flow:check": "flow check ./lib",
-    "flow:deps": "flow-typed install",
-    "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=flow-bin"
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "bignumber.js": "^8.0.1",
@@ -56,8 +52,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "flow-bin": "^0.86.0"
   }
 }
