@@ -53,13 +53,6 @@ module.exports = {
   },
   '@arkecosystem/core-webhooks': {
     enabled: process.env.ARK_WEBHOOKS_ENABLED,
-    database: {
-      dialect: 'sqlite',
-      storage: `${process.env.ARK_PATH_DATA}/database/${
-        process.env.ARK_NETWORK_NAME
-      }.2/webhooks.sqlite`,
-      logging: process.env.ARK_DB_LOGGING,
-    },
     server: {
       enabled: process.env.ARK_WEBHOOKS_API_ENABLED,
       host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
@@ -81,12 +74,6 @@ module.exports = {
     port: process.env.ARK_JSON_RPC_PORT || 8080,
     allowRemote: false,
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
-    database: {
-      uri:
-        process.env.ARK_JSON_RPC_DATABASE ||
-        `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
-      options: {},
-    },
   },
   '@arkecosystem/core-snapshots': {},
 }
