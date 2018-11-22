@@ -514,7 +514,7 @@ module.exports = class ConnectionInterface {
 
     const dbTransaction = await this.getTransaction(transaction.data.id)
 
-    return sender.canApply(transaction.data) && !dbTransaction
+    return sender.canApply(transaction.data, []) && !dbTransaction
   }
 
   /**
