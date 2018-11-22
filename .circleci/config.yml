@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  test-node10:
+  init:
     working_directory: ~/ark-core
     docker:
       - image: 'circleci/node:10-browsers'
@@ -73,13 +73,67 @@ jobs:
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
+  test-node10:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:10-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    parallelism: 2
+    steps:
+      - checkout
       - run:
           name: Test
           command: >
-            TESTFILES=$(circleci tests glob "packages/**/*.test.js")
-
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ${TESTFILES} --detectOpenHandles --runInBand --forceExit --ci
+            ./packages/core ./packages/core-api ./packages/core-blockchain
+            ./packages/core-config ./packages/core-container
+            ./packages/core-database ./packages/core-database-postgres
+            ./packages/core-debugger-cli ./packages/core-deployer
+            ./packages/core-elasticsearch ./packages/core-error-tracker-bugsnag
+            ./packages/core-error-tracker-sentry ./packages/core-event-emitter
+            ./packages/core-forger ./packages/core-graphql --detectOpenHandles
+            --runInBand --forceExit --ci --coverage | tee test_output.txt
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Depcheck
+          command: yarn depcheck
+  test-node10-2:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:10-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    parallelism: 2
+    steps:
+      - checkout
+      - run:
+          name: Test
+          command: >
+            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
+            ./packages/core-http-utils ./packages/core-json-rpc
+            ./packages/core-logger ./packages/core-logger-winston
+            ./packages/core-p2p ./packages/core-snapshots
+            ./packages/core-snapshots-cli ./packages/core-test-utils
+            ./packages/core-tester-cli ./packages/core-transaction-pool
+            ./packages/core-transaction-pool-mem ./packages/core-utils
+            ./packages/core-vote-report ./packages/core-webhooks
+            ./packages/crypto --detectOpenHandles --runInBand --forceExit --ci
             --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
@@ -98,4 +152,8 @@ workflows:
   version: 2
   test_depcheck_lint:
     jobs:
-      - test-node10
+      - init
+      - test-node10:
+          requires: init
+      - test-node10-2:
+          requires: init
