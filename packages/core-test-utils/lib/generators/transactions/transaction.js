@@ -32,6 +32,12 @@ module.exports = (
     throw new Error('Invalid transaction type')
   }
 
+  let secondPassphrase
+  if (Array.isArray(passphrase)) {
+    secondPassphrase = passphrase[1]
+    passphrase = passphrase[0]
+  }
+
   client.getConfigManager().setFromPreset('ark', network)
 
   const transactions = []
@@ -78,7 +84,12 @@ module.exports = (
     if (fee) {
       builder = builder.fee(fee)
     }
+
     builder = builder.sign(passphrase)
+
+    if (secondPassphrase) {
+      builder = builder.secondSign(secondPassphrase)
+    }
     const transaction = getStruct ? builder.getStruct() : builder.build()
 
     transactions.push(transaction)

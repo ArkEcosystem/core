@@ -78,23 +78,6 @@ describe('Models - Wallet', () => {
       expect(testWallet.dirty).toBeTrue()
     })
 
-    // Doesn't make sense anymore?
-    it.skip('should apply correct block with string values', () => {
-      const originalBlock = Object.assign({}, block)
-      block.reward += ''
-      block.totalFee += ''
-      block.reward += ''
-      testWallet.applyBlock(block)
-      expect(testWallet.balance).toBe(
-        originalBlock.reward + originalBlock.totalFee,
-      )
-      expect(testWallet.producedBlocks).toBe(1)
-      expect(testWallet.forgedFees).toBe(originalBlock.totalFee)
-      expect(testWallet.forgedRewards).toBe(originalBlock.totalFee)
-      expect(testWallet.lastBlock).toBeObject(originalBlock)
-      expect(testWallet.dirty).toBeTrue()
-    })
-
     it('should not apply incorrect block', () => {
       block.generatorPublicKey = 'a'.repeat(66)
       const originalWallet = Object.assign({}, testWallet)
