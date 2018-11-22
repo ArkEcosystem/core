@@ -1,11 +1,12 @@
 const container = require('@arkecosystem/core-container')
+const dayjs = require('dayjs')
+const head = require('lodash/head')
+const prettyMs = require('pretty-ms')
+const semver = require('semver')
+const sumBy = require('lodash/sumBy')
 
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
-
-const dayjs = require('dayjs')
-const semver = require('semver')
-const { head, sumBy } = require('lodash')
 
 const isMyself = require('../utils/is-myself')
 const offences = require('./offences')
@@ -120,10 +121,10 @@ class Guard {
       const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder
 
       if (!nextSuspensionReminder || dayjs().isAfter(nextSuspensionReminder)) {
+        const untilDiff = suspendedPeer.until.diff(dayjs())
+
         logger.debug(
-          `${
-            peer.ip
-          } still suspended until ${suspendedPeer.until.toString()} because of "${
+          `${peer.ip} still suspended for ${prettyMs(untilDiff)} because of "${
             suspendedPeer.reason
           }".`,
         )
@@ -295,9 +296,10 @@ class Guard {
     }
 
     const until = dayjs().add(offence.number, offence.period)
+    const untilDiff = until.diff(dayjs())
 
     logger.debug(
-      `Suspended ${peer.ip} until ${until.toString()} because of "${
+      `Suspended ${peer.ip} for ${prettyMs(untilDiff)} because of "${
         offence.reason
       }"`,
     )
