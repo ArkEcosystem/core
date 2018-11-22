@@ -2,7 +2,7 @@ const container = require('@arkecosystem/core-container')
 
 const logger = container.resolvePlugin('logger')
 
-const moment = require('moment')
+const dayjs = require('dayjs')
 const PoolWalletManager = require('./pool-wallet-manager')
 
 const database = container.resolvePlugin('database')
@@ -162,7 +162,7 @@ module.exports = class TransactionPoolInterface {
       return false
     }
 
-    if (this.blockedByPublicKey[senderPublicKey] < moment()) {
+    if (this.blockedByPublicKey[senderPublicKey] < dayjs()) {
       delete this.blockedByPublicKey[senderPublicKey]
       return false
     }
@@ -176,7 +176,7 @@ module.exports = class TransactionPoolInterface {
    * @return {Time} blockReleaseTime
    */
   blockSender(senderPublicKey) {
-    const blockReleaseTime = moment().add(1, 'hours')
+    const blockReleaseTime = dayjs().add(1, 'hours')
 
     this.blockedByPublicKey[senderPublicKey] = blockReleaseTime
 
