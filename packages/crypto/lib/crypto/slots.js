@@ -1,4 +1,4 @@
-const moment = require('moment')
+const dayjs = require('dayjs-ext')
 const configManager = require('../managers/config')
 
 class Slots {
@@ -41,7 +41,7 @@ class Slots {
    */
   getEpochTime(time) {
     if (time === undefined) {
-      time = moment().valueOf()
+      time = dayjs().valueOf()
     }
 
     const start = this.beginEpochTime().valueOf()
@@ -54,7 +54,7 @@ class Slots {
    * @return {Moment}
    */
   beginEpochTime() {
-    return moment(this.getConstant('epoch')).utc()
+    return dayjs(this.getConstant('epoch')).utc()
   }
 
   /**

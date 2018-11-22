@@ -1,4 +1,4 @@
-const moment = require('moment')
+const dayjs = require('dayjs')
 const container = require('@arkecosystem/core-container')
 
 /**
@@ -8,9 +8,7 @@ const container = require('@arkecosystem/core-container')
  */
 module.exports = epochStamp => {
   const constants = container.resolvePlugin('config').getConstants(1)
-  const timestamp = moment(constants.epoch)
-    .utc()
-    .add(epochStamp, 'seconds')
+  const timestamp = dayjs(constants.epoch).add(epochStamp, 'seconds')
 
   return {
     epoch: epochStamp,

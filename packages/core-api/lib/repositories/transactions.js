@@ -2,7 +2,7 @@ const container = require('@arkecosystem/core-container')
 
 const database = container.resolvePlugin('database')
 
-const moment = require('moment')
+const dayjs = require('dayjs')
 const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
@@ -276,7 +276,7 @@ class TransactionsRepository extends Repository {
       )
       .from(this.query)
       .where(
-        this.query.timestamp.gte(slots.getTime(moment().subtract(30, 'days'))),
+        this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, 'days'))),
       )
       .group(this.query.type)
       .order('"timestamp" DESC')

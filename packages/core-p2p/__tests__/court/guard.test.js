@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
 
-const moment = require('moment')
+const dayjs = require('dayjs')
 const app = require('../__support__/setup')
 
 const ARK_ENV = process.env.ARK_ENV
@@ -55,7 +55,7 @@ describe('Guard', () => {
     it('should return false because passed', async () => {
       process.env.ARK_ENV = false
       await guard.monitor.acceptNewPeer(peerMock)
-      guard.suspensions[peerMock.ip].until = moment().subtract(1, 'minutes')
+      guard.suspensions[peerMock.ip].until = dayjs().subtract(1, 'minutes')
       process.env.ARK_ENV = ARK_ENV
 
       expect(guard.isSuspended(peerMock)).toBe(false)
@@ -94,10 +94,7 @@ describe('Guard', () => {
 
   describe('__determineOffence', () => {
     const convertToMinutes = actual =>
-      Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
-
-    const convertToSeconds = actual =>
-      Math.ceil(moment.duration(actual.diff(moment.now())).asSeconds())
+      Math.ceil(actual.diff(dayjs()) / 1000) / 60
 
     const dummy = {
       nethash:
@@ -200,7 +197,7 @@ describe('Guard', () => {
         ...{ status: 503 },
       })
 
-      expect(convertToSeconds(until)).toBe(30)
+      expect(convertToMinutes(until)).toBe(0.5)
       expect(reason).toBe('Blockchain not ready')
     })
 
@@ -210,7 +207,7 @@ describe('Guard', () => {
         ...{ status: 429 },
       })
 
-      expect(convertToSeconds(until)).toBe(60)
+      expect(convertToMinutes(until)).toBe(1)
       expect(reason).toBe('Rate limit exceeded')
     })
 
@@ -231,7 +228,7 @@ describe('Guard', () => {
       const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER)
 
       expect(actual).toHaveProperty('until')
-      expect(actual.until).toBeInstanceOf(require('moment'))
+      expect(actual.until).toBeObject()
 
       expect(actual).toHaveProperty('reason')
       expect(actual.reason).toBeString()
