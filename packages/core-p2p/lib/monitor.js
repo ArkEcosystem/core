@@ -2,7 +2,7 @@
 
 const prettyMs = require('pretty-ms')
 const fs = require('fs')
-const moment = require('moment')
+const dayjs = require('dayjs')
 const delay = require('delay')
 const flatten = require('lodash/flatten')
 const groupBy = require('lodash/groupBy')
@@ -33,7 +33,7 @@ class Monitor {
    */
   constructor() {
     this.peers = {}
-    this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
+    this.coldStartPeriod = dayjs().add(config.peers.coldStart || 30, 'seconds')
   }
 
   /**
@@ -734,7 +734,7 @@ class Monitor {
    * not all peers are up, or the network is not active
    */
   __isColdStartActive() {
-    return this.startForgers > moment()
+    return this.coldStartPeriod.isAfter(dayjs())
   }
 
   /**

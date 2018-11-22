@@ -1,6 +1,6 @@
 const { format } = require('winston')
 const chalk = require('chalk')
-const moment = require('moment')
+const dayjs = require('dayjs')
 const emoji = require('node-emoji')
 
 const { colorize, combine, timestamp, printf } = format
@@ -35,7 +35,7 @@ module.exports = (colorOutput = true) =>
         }[infoLevel]
       }
 
-      const dateTime = moment(info.timestamp).format('YYYY-MM-DD HH:mm:ss')
+      const dateTime = dayjs(info.timestamp).format('YYYY-MM-DD HH:mm:ss')
 
       const dateTimeAndLevel = `[${dateTime}][${level}]:`
       const lineSpacer = ' '.repeat(Math.abs(dateTimeAndLevel.length - 50) + 1)
