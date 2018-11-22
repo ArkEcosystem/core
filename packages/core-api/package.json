@@ -19,7 +19,7 @@
     "flow:deps": "flow-typed install",
     "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=flow-bin"
+    "depcheck": "depcheck ./ --ignores=flow-bin,lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",

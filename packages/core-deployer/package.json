@@ -23,7 +23,7 @@
     "flow:deps": "flow-typed install",
     "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=flow-bin,commander,pino-pretty"
+    "depcheck": "depcheck ./ --ignores=flow-bin,commander,pino-pretty,lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/crypto": "^0.2.5",

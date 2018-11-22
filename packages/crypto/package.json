@@ -31,7 +31,7 @@
     "flow:deps": "flow-typed install",
     "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=flow-bin"
+    "depcheck": "depcheck ./ --ignores=flow-bin,lodash,lodash.*"
   },
   "dependencies": {
     "bignumber.js": "^8.0.1",
@@ -44,6 +44,8 @@
     "deepmerge": "^2.2.1",
     "joi": "^14.1.0",
     "lodash.camelcase": "^4.3.0",
+    "lodash.clonedeepwith": "^4.5.0",
+    "lodash.get": "^4.4.2",
     "moment": "^2.22.2",
     "node-forge": "^0.7.6",
     "otplib": "^10.0.1",
