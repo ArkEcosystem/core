@@ -4,11 +4,9 @@
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-config
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-config.html).
 
 ## Security
 
