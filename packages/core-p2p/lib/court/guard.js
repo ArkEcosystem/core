@@ -117,12 +117,13 @@ class Guard {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && dayjs().isBefore(suspendedPeer.until)) {
-      const untilDiff = dayjs.duration(suspendedPeer.until.diff(dayjs()))
-
       const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder
+
       if (!nextSuspensionReminder || dayjs().isAfter(nextSuspensionReminder)) {
+        const untilDiff = suspendedPeer.until.diff(dayjs())
+
         logger.debug(
-          `${peer.ip} still suspended for ${untilDiff.humanize()} because of "${
+          `${peer.ip} still suspended for ${untilDiff.toString()} because of "${
             suspendedPeer.reason
           }".`,
         )
@@ -295,10 +296,10 @@ class Guard {
 
     // TODO: add .utc() support
     const until = dayjs().add(offence.number, offence.period)
-    const untilDiff = dayjs.duration(until.diff(dayjs()))
+    const untilDiff = until.diff(dayjs())
 
     logger.debug(
-      `Suspended ${peer.ip} for ${untilDiff.humanize()} because of "${
+      `Suspended ${peer.ip} until ${untilDiff.toString()} because of "${
         offence.reason
       }"`,
     )

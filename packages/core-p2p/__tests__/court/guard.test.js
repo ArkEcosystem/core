@@ -94,10 +94,7 @@ describe('Guard', () => {
 
   describe('__determineOffence', () => {
     const convertToMinutes = actual =>
-      Math.ceil(dayjs.duration(actual.diff(dayjs())).asMinutes())
-
-    const convertToSeconds = actual =>
-      Math.ceil(dayjs.duration(actual.diff(dayjs())).asSeconds())
+      Math.ceil(actual.diff(dayjs()) / 1000) / 60
 
     const dummy = {
       nethash:
@@ -200,7 +197,7 @@ describe('Guard', () => {
         ...{ status: 503 },
       })
 
-      expect(convertToSeconds(until)).toBe(30)
+      expect(convertToMinutes(until)).toBe(0.5)
       expect(reason).toBe('Blockchain not ready')
     })
 
@@ -210,7 +207,7 @@ describe('Guard', () => {
         ...{ status: 429 },
       })
 
-      expect(convertToSeconds(until)).toBe(60)
+      expect(convertToMinutes(until)).toBe(1)
       expect(reason).toBe('Rate limit exceeded')
     })
 
@@ -231,7 +228,7 @@ describe('Guard', () => {
       const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER)
 
       expect(actual).toHaveProperty('until')
-      expect(actual.until).toBeInstanceOf(require('dayjs'))
+      expect(actual.until).toBeObject()
 
       expect(actual).toHaveProperty('reason')
       expect(actual.reason).toBeString()
