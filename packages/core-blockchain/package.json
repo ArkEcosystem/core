@@ -24,9 +24,9 @@
     "async": "^2.6.1",
     "awilix": "^4.0.1",
     "delay": "^4.1.0",
+    "immutable": "^4.0.0-rc.12",
     "pretty-ms": "^4.0.0",
     "xstate": "^4.2.1",
-    "immutable": "^4.0.0-rc.12",
     "pluralize": "^7.0.0"
   },
   "devDependencies": {

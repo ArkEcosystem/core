@@ -1,6 +1,6 @@
 {
   "name": "@phantomchain/core-json-rpc",
-  "description": "A JSON-RPC 2.0 Specification compliant server to interact with the Ark Blockchain.",
+  "description": "A JSON-RPC 2.0 Specification compliant server to interact with the PHANTOM Blockchain.",
   "version": "0.2.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
