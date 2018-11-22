@@ -107,19 +107,17 @@ class StateStorage {
    */
   getLastBlocks() {
     return _lastBlocks
-      .reverse()
       .valueSeq()
+      .reverse()
       .toArray()
   }
 
   /**
    * Get the last blocks data.
-   * @returns {Array}
+   * @returns {Seq}
    */
   getLastBlocksData() {
-    return _mapToBlockData(_lastBlocks.reverse())
-      .valueSeq()
-      .toArray()
+    return _mapToBlockData(_lastBlocks.valueSeq().reverse())
   }
 
   /**
@@ -128,9 +126,9 @@ class StateStorage {
    */
   getLastBlockIds() {
     return _lastBlocks
+      .valueSeq()
       .reverse()
       .map(b => b.data.id)
-      .valueSeq()
       .toArray()
   }
 
@@ -141,13 +139,12 @@ class StateStorage {
    */
   getLastBlocksByHeight(start, end) {
     end = end || start
-    return _mapToBlockData(
-      _lastBlocks.filter(
-        block => block.data.height >= start && block.data.height <= end,
-      ),
-    )
+
+    const blocks = _lastBlocks
       .valueSeq()
-      .toArray()
+      .filter(block => block.data.height >= start && block.data.height <= end)
+
+    return _mapToBlockData(blocks).toArray()
   }
 
   /**
@@ -155,31 +152,41 @@ class StateStorage {
    * @returns {Array}
    */
   getCommonBlocks(ids) {
-    return this.getLastBlocksData().filter(block => ids.includes(block.id))
+    return this.getLastBlocksData()
+      .filter(block => ids.includes(block.id))
+      .toArray()
   }
 
   /**
-   * Add a transaction id to the cache.
-   * @param {String} transactionId
-   * @returns {Boolean}
+   * Cache the ids of the given transactions.
+   * @param {Array} transactions
+   * @return Object {
+   *  added: array of added transactions,
+   *  notAdded: array of previously added transactions
+   * }
    */
-  addTransactionId(transactionId) {
-    if (_cachedTransactionIds.contains(transactionId)) {
-      return false
-    }
+  cacheTransactions(transactions) {
+    const notAdded = []
+    const added = transactions.filter(tx => {
+      if (_cachedTransactionIds.has(tx.id)) {
+        notAdded.push(tx)
+        return false
+      }
+      return true
+    })
 
-    _cachedTransactionIds = _cachedTransactionIds.add(transactionId)
+    _cachedTransactionIds = _cachedTransactionIds.withMutations(cache => {
+      added.forEach(tx => cache.add(tx.id))
+    })
 
     // Cap the Set of last transaction ids to maxLastTransactionIds
-    const maxLastTransactionIds = container.resolveOptions('blockchain').state
+    const limit = container.resolveOptions('blockchain').state
       .maxLastTransactionIds
-    if (_cachedTransactionIds.size > maxLastTransactionIds) {
-      _cachedTransactionIds = _cachedTransactionIds.takeLast(
-        maxLastTransactionIds,
-      )
+    if (_cachedTransactionIds.size > limit) {
+      _cachedTransactionIds = _cachedTransactionIds.takeLast(limit)
     }
 
-    return true
+    return { added, notAdded }
   }
 
   /**
