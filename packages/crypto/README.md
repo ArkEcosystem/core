@@ -19,13 +19,13 @@ If you want to use the CDN version:
 Import the library in node.js:
 
 ```
-import PhantomChainClient from @phantomcore/client
+import PhantomCrypto from @phantomchain/crypto
 ```
 
 Use the library:
 
 ```
-const client = new PhantomChainClient('<your host here>')
+const constants = PhantomChainCrypto.constants
 ```
 
 ## Security
