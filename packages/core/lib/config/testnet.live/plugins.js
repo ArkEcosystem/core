@@ -12,8 +12,8 @@ module.exports = {
         options: {
           level: process.env.ARK_LOG_LEVEL || 'debug',
           filename:
-            process.env.ARK_LOG_FILE
-            || `${process.env.ARK_PATH_DATA}/logs/core/${
+            process.env.ARK_LOG_FILE ||
+            `${process.env.ARK_PATH_DATA}/logs/core/${
               process.env.ARK_NETWORK_NAME
             }.live/%DATE%.log`,
         },
@@ -25,28 +25,23 @@ module.exports = {
       host: process.env.ARK_DB_HOST || 'localhost',
       port: process.env.ARK_DB_PORT || 5432,
       database:
-        process.env.ARK_DB_DATABASE
-        || `ark_${process.env.ARK_NETWORK_NAME}live`,
+        process.env.ARK_DB_DATABASE ||
+        `ark_${process.env.ARK_NETWORK_NAME}live`,
       user: process.env.ARK_DB_USERNAME || 'ark',
       password: process.env.ARK_DB_PASSWORD || 'password',
     },
   },
   '@arkecosystem/core-transaction-pool-mem': {
     enabled: true,
-    storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${
-      process.env.ARK_NETWORK_NAME
-    }.sqlite`,
     maxTransactionsPerSender:
       process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     whitelist: [],
     allowedSenders: [],
-    maxTransactionsPerRequest: 40,
-    maxTransactionAge: 2700,
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
     port: process.env.ARK_P2P_PORT || 4000,
-    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
   },
   '@arkecosystem/core-blockchain': {
     fastRebuild: false,
@@ -70,15 +65,13 @@ module.exports = {
       enabled: process.env.ARK_WEBHOOKS_API_ENABLED,
       host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
       port: process.env.ARK_WEBHOOKS_PORT || 4004,
-      whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
+      whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
     },
   },
   '@arkecosystem/core-graphql': {
     enabled: process.env.ARK_GRAPHQL_ENABLED,
     host: process.env.ARK_GRAPHQL_HOST || '0.0.0.0',
     port: process.env.ARK_GRAPHQL_PORT || 4105,
-    path: '/graphql',
-    graphiql: true,
   },
   '@arkecosystem/core-forger': {
     hosts: [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`],
@@ -91,8 +84,8 @@ module.exports = {
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
     database: {
       uri:
-        process.env.ARK_JSON_RPC_DATABASE
-        || `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
+        process.env.ARK_JSON_RPC_DATABASE ||
+        `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
       options: {},
     },
   },
