@@ -9,7 +9,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async findById(id) {
-    return this.db.one(sql.findById, { id })
+    return this.db.oneOrNone(sql.findById, { id })
   }
 
   /**

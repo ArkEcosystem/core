@@ -70,9 +70,6 @@ describe('API 1.0 - Delegates', () => {
       expect(response.data).toBeObject()
       utils.expectDelegate(response.data.delegates[0], delegate)
     })
-
-    // TODO when the DelegatesRepository#search method admits more parameters
-    it.skip('should not search using other parameters (V2)', () => {})
   })
 
   describe('GET /delegates/voters', () => {
@@ -95,24 +92,6 @@ describe('API 1.0 - Delegates', () => {
       expect(response.data).toBeObject()
       expect(response.data).toHaveProperty('fee')
       expect(response.data.fee).toBeNumber()
-    })
-  })
-
-  describe.skip('GET /delegates/forging/getForgedByAccount', () => {
-    it('should be ok', async () => {
-      const response = await utils.request(
-        'GET',
-        'delegates/forging/getForgedByAccount',
-        {
-          generatorPublicKey: delegate.publicKey,
-        },
-      )
-      expect(response).toBeSuccessfulResponse()
-
-      expect(response.data).toBeObject()
-      expect(response.data).toHaveProperty('fees')
-      expect(response.data).toHaveProperty('rewards')
-      expect(response.data).toHaveProperty('forged')
     })
   })
 })

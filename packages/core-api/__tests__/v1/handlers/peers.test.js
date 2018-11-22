@@ -79,16 +79,6 @@ describe('API 1.0 - Peers', () => {
       expect(response.data.error).toBe("should have required property 'ip'")
     })
 
-    it.skip('should be ok using known ip address and port', async () => {
-      const response = await utils.request('GET', 'peers/get', {
-        ip: peerIp,
-        port: peerPort,
-      })
-      expect(response).toBeSuccessfulResponse()
-
-      expect(response.data.peer).toBeObject()
-    })
-
     it('should fail using unknown ip address and port', async () => {
       const response = await utils.request('GET', 'peers/get', {
         ip: '99.99.99.99',
