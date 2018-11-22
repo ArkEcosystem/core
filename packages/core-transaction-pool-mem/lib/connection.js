@@ -365,32 +365,6 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Ping transaction.
-   * @param  {String} transactionId
-   * @return {void}
-   */
-  pingTransaction(transactionId) {
-    this.mem.pingTransaction(transactionId)
-  }
-
-  /**
-   * Get transaction ping.
-   * @param  {String} transactionId
-   * @return {Number}
-   */
-  getTransactionPing(transactionId) {
-    return this.mem.getTransactionPing(transactionId)
-  }
-
-  /**
-   * Get rebroadcast transactions (pingCount = 0).
-   * @return {Array}
-   */
-  getRebroadcastTransactions() {
-    return this.mem.getRebroadcastTransactions()
-  }
-
-  /**
    * Check whether a given sender has any transactions of the specified type
    * in the pool.
    * @param {String} senderPublicKey public key of the sender

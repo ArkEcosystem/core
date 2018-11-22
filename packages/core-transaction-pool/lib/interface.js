@@ -153,32 +153,6 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Ping transaction.
-   * @param  {String} transactionId
-   * @return {Number}
-   */
-  pingTransaction(transactionId) {
-    throw new Error('Method [pingTransaction] not implemented!')
-  }
-
-  /**
-   * Get transaction ping.
-   * @param  {String} transactionId
-   * @return {Number}
-   */
-  getTransactionPing(transactionId) {
-    throw new Error('Method [getTransactionPing] not implemented!')
-  }
-
-  /**
-   * Get rebroadcast transactions.
-   * @return {Array}
-   */
-  getRebroadcastTransactions() {
-    throw new Error('Method [getRebroadcastTransactions] not implemented!')
-  }
-
-  /**
    * Check if transaction sender is blocked
    * @param  {String} senderPublicKey
    * @return {Boolean}
@@ -258,6 +232,10 @@ module.exports = class TransactionPoolInterface {
       }
     }
 
+    container
+      .resolve('state')
+      .removeCachedTransactionIds(block.transactions.map(tx => tx.id))
+
     this.walletManager.applyPoolBlock(block)
   }
 
@@ -270,12 +248,14 @@ module.exports = class TransactionPoolInterface {
    */
   async buildWallets() {
     this.walletManager.reset()
-    const poolTransactions = await this.getTransactionIdsForForging(
+    const poolTransactionIds = await this.getTransactionIdsForForging(
       0,
       this.getPoolSize(),
     )
 
-    poolTransactions.forEach(transactionId => {
+    container.resolve('state').removeCachedTransactionIds(poolTransactionIds)
+
+    poolTransactionIds.forEach(transactionId => {
       const transaction = this.getTransaction(transactionId)
 
       if (!transaction) {

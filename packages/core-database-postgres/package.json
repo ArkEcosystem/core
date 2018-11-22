@@ -13,12 +13,8 @@
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "flow:coverage": "flow-coverage-report --config ../../.flowcoverage.json",
-    "flow:check": "flow check ./lib",
-    "flow:deps": "flow-typed install",
-    "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=flow-bin"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -26,7 +22,7 @@
     "@arkecosystem/core-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.5",
     "bluebird": "^3.5.3",
-    "lodash": "^4.17.11",
+    "lodash.chunk": "^4.2.0",
     "pg-promise": "^8.5.2",
     "pluralize": "^7.0.0",
     "sql": "^0.78.0"
@@ -36,8 +32,5 @@
   },
   "engines": {
     "node": ">=10.x"
-  },
-  "devDependencies": {
-    "flow-bin": "^0.86.0"
   }
 }

@@ -24,7 +24,6 @@ class Storage {
       CREATE TABLE IF NOT EXISTS ${this.table} (
         "sequence" INTEGER PRIMARY KEY,
         "id" VARCHAR(64) UNIQUE,
-        "ping_count" INTEGER DEFAULT 0,
         "serialized" BLOB NOT NULL
       );
     `)
@@ -49,8 +48,8 @@ class Storage {
 
     const insertStatement = this.db.prepare(
       `INSERT INTO ${this.table} ` +
-        '(sequence, id, serialized, ping_count) VALUES ' +
-        '(:sequence, :id, :serialized, :pingCount);',
+        '(sequence, id, serialized) VALUES ' +
+        '(:sequence, :id, :serialized);',
     )
 
     this.db.prepare('BEGIN;').run()
@@ -60,7 +59,6 @@ class Storage {
         sequence: d.sequence,
         id: d.transaction.id,
         serialized: Buffer.from(d.transaction.serialized, 'hex'),
-        pingCount: d.pingCount,
       }),
     )
 
@@ -94,7 +92,7 @@ class Storage {
   loadAll() {
     const rows = this.db
       .prepare(
-        `SELECT sequence, lower(HEX(serialized)) AS serialized, ping_count AS pingCount FROM ${
+        `SELECT sequence, lower(HEX(serialized)) AS serialized FROM ${
           this.table
         };`,
       )
@@ -103,7 +101,7 @@ class Storage {
     return rows
       .map(r => ({ tx: new Transaction(r.serialized), ...r }))
       .filter(r => r.tx.verified)
-      .map(r => new MemPoolTransaction(r.tx, r.sequence, r.pingCount))
+      .map(r => new MemPoolTransaction(r.tx, r.sequence))
   }
 
   /**

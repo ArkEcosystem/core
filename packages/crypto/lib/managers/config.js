@@ -1,4 +1,4 @@
-const _ = require('lodash')
+const camelCase = require('lodash/camelCase')
 const deepmerge = require('deepmerge')
 const feeManager = require('./fee')
 const dynamicFeeManager = require('./dynamic-fee')
@@ -148,7 +148,7 @@ class ConfigManager {
     Object.keys(TRANSACTION_TYPES).forEach(type =>
       feeManager.set(
         TRANSACTION_TYPES[type],
-        this.getConstant('fees').staticFees[_.camelCase(type)],
+        this.getConstant('fees').staticFees[camelCase(type)],
       ),
     )
   }
@@ -161,7 +161,7 @@ class ConfigManager {
       Object.keys(TRANSACTION_TYPES).forEach(type =>
         dynamicFeeManager.set(
           TRANSACTION_TYPES[type],
-          this.getConstant('fees').dynamicFees.addonBytes[_.camelCase(type)],
+          this.getConstant('fees').dynamicFees.addonBytes[camelCase(type)],
         ),
       )
     }

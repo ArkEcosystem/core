@@ -4,20 +4,9 @@
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-vote-report
-```
-
-## Configuration
-
-```js
-module.exports = {
-  host: process.env.ARK_VOTE_REPORT_HOST || '0.0.0.0',
-  port: process.env.ARK_VOTE_REPORT_PORT || 4006,
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-vote-report.html).
 
 ## Security
 

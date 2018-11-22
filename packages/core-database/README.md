@@ -1,14 +1,12 @@
-# Ark Core - Database Interface
+# Ark Core - Database - Interface
 
 <p align="center">
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-database
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-database.html).
 
 ## Security
 

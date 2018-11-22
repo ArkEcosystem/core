@@ -4,7 +4,11 @@ const prettyMs = require('pretty-ms')
 const fs = require('fs')
 const moment = require('moment')
 const delay = require('delay')
-const { flatten, groupBy, sample, shuffle, take } = require('lodash')
+const flatten = require('lodash/flatten')
+const groupBy = require('lodash/groupBy')
+const sample = require('lodash/sample')
+const shuffle = require('lodash/shuffle')
+const take = require('lodash/take')
 const pluralize = require('pluralize')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -554,26 +558,6 @@ class Monitor {
 
     transactions = transactions.map(tx => tx.toJson())
     return Promise.all(peers.map(peer => peer.postTransactions(transactions)))
-  }
-
-  /**
-   * Rebroadcast transactions which have not successfully been broadcasted yet.
-   * @return {void}
-   */
-  rebroadcastTransactions() {
-    const transactions = container
-      .resolvePlugin('transactionPool')
-      .getRebroadcastTransactions()
-    if (transactions.length > 0) {
-      logger.info(
-        `Rebroadcasting ${pluralize(
-          'transaction',
-          transactions.length,
-          true,
-        )}.`,
-      )
-      this.broadcastTransactions(transactions)
-    }
   }
 
   /**

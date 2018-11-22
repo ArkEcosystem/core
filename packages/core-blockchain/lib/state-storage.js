@@ -13,7 +13,7 @@ let _lastBlocks = immutable.OrderedMap()
 
 // Stores the last n incoming transaction ids. The amount of transaction ids
 // can be configred with the option `state.maxLastTransactionIds`.
-let _lastTransactionIds = immutable.OrderedSet()
+let _cachedTransactionIds = immutable.OrderedSet()
 
 // Map Block instances to block data.
 const _mapToBlockData = blocks =>
@@ -54,7 +54,7 @@ class StateStorage {
    */
   clear() {
     _lastBlocks = _lastBlocks.clear()
-    _lastTransactionIds = _lastTransactionIds.clear()
+    _cachedTransactionIds = _cachedTransactionIds.clear()
   }
 
   /**
@@ -164,20 +164,31 @@ class StateStorage {
    * @returns {Boolean}
    */
   addTransactionId(transactionId) {
-    if (_lastTransactionIds.contains(transactionId)) {
+    if (_cachedTransactionIds.contains(transactionId)) {
       return false
     }
 
-    _lastTransactionIds = _lastTransactionIds.add(transactionId)
+    _cachedTransactionIds = _cachedTransactionIds.add(transactionId)
 
     // Cap the Set of last transaction ids to maxLastTransactionIds
     const maxLastTransactionIds = container.resolveOptions('blockchain').state
       .maxLastTransactionIds
-    if (_lastTransactionIds.size > maxLastTransactionIds) {
-      _lastTransactionIds = _lastTransactionIds.takeLast(maxLastTransactionIds)
+    if (_cachedTransactionIds.size > maxLastTransactionIds) {
+      _cachedTransactionIds = _cachedTransactionIds.takeLast(
+        maxLastTransactionIds,
+      )
     }
 
     return true
+  }
+
+  /**
+   * Remove the given transaction ids from the cache.
+   * @param {Array} transactionIds
+   * @returns {void}
+   */
+  removeCachedTransactionIds(transactionIds) {
+    _cachedTransactionIds = _cachedTransactionIds.subtract(transactionIds)
   }
 
   /**
@@ -185,7 +196,7 @@ class StateStorage {
    * @returns {Array}
    */
   getCachedTransactionIds() {
-    return _lastTransactionIds.toArray()
+    return _cachedTransactionIds.toArray()
   }
 
   /**

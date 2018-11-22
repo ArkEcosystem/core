@@ -1,4 +1,4 @@
-const _ = require('lodash')
+const set = require('lodash/set')
 const envfile = require('envfile')
 const expandHomeDir = require('expand-home-dir')
 const fs = require('fs-extra')
@@ -31,7 +31,7 @@ exports.updateConfig = (file, values, configPath, forceOverwrite) => {
     config = {}
   }
 
-  values.forEach(key => _.set(config, key, values[key]))
+  values.forEach(key => set(config, key, values[key]))
 
   fs.ensureFileSync(configPath)
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))

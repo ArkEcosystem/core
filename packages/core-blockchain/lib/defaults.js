@@ -7,6 +7,6 @@ module.exports = {
   },
   state: {
     maxLastBlocks: 100,
-    maxLastTransactionIds: 1000,
+    maxLastTransactionIds: 10000,
   },
 }

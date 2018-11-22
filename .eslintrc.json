@@ -26,6 +26,7 @@
         "ignoreRegExpLiterals": true
       }
     ],
+    "import/no-extraneous-dependencies": "off",
     // TODO: fix later as they require a lot of changes
     "consistent-return": "off",
     "no-unused-expressions": "off",
