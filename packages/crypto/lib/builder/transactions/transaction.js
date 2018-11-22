@@ -204,10 +204,10 @@ module.exports = class TransactionBuilder {
    * @return {Object}
    */
   getStruct() {
-    // TODO
-    // if (!this.data.senderPublicKey || !this.data.signature) {
-    //   throw new Error('The transaction is not signed yet')
-    // }
+    if (!this.data.senderPublicKey || !this.data.signature) {
+      throw new Error('The transaction is not signed yet')
+    }
+
     const struct = {
       // hex: crypto.getBytes(this).toString('hex'), // v2
       id: crypto.getId(this.data).toString('hex'),

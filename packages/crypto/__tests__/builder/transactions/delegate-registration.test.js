@@ -68,13 +68,15 @@ describe('Delegate Registration Transaction', () => {
   })
 
   // FIXME problems with ark-js V1
-  describe.skip('getStruct', () => {
+  describe('getStruct', () => {
+    beforeEach(() => {
+      builder = builder.usernameAsset('homer')
+    })
     it('should fail if the transaction is not signed', () => {
       try {
         expect(() => builder.getStruct()).toThrow(/transaction.*sign/)
         expect('fail').toBe('this should fail when no error is thrown')
       } catch (_error) {
-        builder = ark.getBuilder().delegateRegistration()
         expect(() => builder.sign('example pass').getStruct()).not.toThrow()
       }
     })
@@ -87,43 +89,45 @@ describe('Delegate Registration Transaction', () => {
       // NOTE: V2
       it.skip('generates and returns the bytes as hex', () => {
         expect(builder.getStruct().hex).toBe(
-          crypto.getBytes(builder).toString('hex'),
+          crypto.getBytes(builder.data).toString('hex'),
         )
       })
       it('returns the id', () => {
-        expect(builder.getStruct().id).toBe(crypto.getId(builder))
+        expect(builder.getStruct().id).toBe(
+          crypto.getId(builder.data).toString('hex'),
+        )
       })
       it('returns the signature', () => {
-        expect(builder.getStruct().signature).toBe(builder.signature)
+        expect(builder.getStruct().signature).toBe(builder.data.signature)
       })
       it('returns the second signature', () => {
         expect(builder.getStruct().secondSignature).toBe(
-          builder.secondSignature,
+          builder.data.secondSignature,
         )
       })
       it('returns the timestamp', () => {
-        expect(builder.getStruct().timestamp).toBe(builder.timestamp)
+        expect(builder.getStruct().timestamp).toBe(builder.data.timestamp)
       })
       it('returns the transaction type', () => {
-        expect(builder.getStruct().type).toBe(builder.type)
+        expect(builder.getStruct().type).toBe(builder.data.type)
       })
       it('returns the fee', () => {
-        expect(builder.getStruct().fee).toBe(builder.fee)
+        expect(builder.getStruct().fee).toBe(builder.data.fee)
       })
       it('returns the sender public key', () => {
         expect(builder.getStruct().senderPublicKey).toBe(
-          builder.senderPublicKey,
+          builder.data.senderPublicKey,
         )
       })
 
       it('returns the amount', () => {
-        expect(builder.getStruct().amount).toBe(builder.amount)
+        expect(builder.getStruct().amount).toBe(builder.data.amount)
       })
       it('returns the recipient id', () => {
-        expect(builder.getStruct().recipientId).toBe(builder.recipientId)
+        expect(builder.getStruct().recipientId).toBe(builder.data.recipientId)
       })
       it('returns the asset', () => {
-        expect(builder.getStruct().asset).toBe(builder.asset)
+        expect(builder.getStruct().asset).toBe(builder.data.asset)
       })
     })
   })
