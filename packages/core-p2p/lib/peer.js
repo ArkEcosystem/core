@@ -86,6 +86,8 @@ module.exports = class Peer {
 
         await Promise.all(items.map(item => broadcast(item)))
       }
+
+      throw err
     }
   }
 
