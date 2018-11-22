@@ -4,24 +4,9 @@
     <img src="../../banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-error-tracker-sentry
-```
-
-## Configuration
-
-> Check https://docs.sentry.io/quickstart?platform=node to find your DSN and more information about available options.
-
-```js
-module.exports = {
-  dsn: process.env.ARK_ERROR_TRACKER_SENTRY_DSN,
-  debug: true,
-  attachStacktrace: true,
-  environment: process.env.ARK_NETWORK_NAME,
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-error-tracker-sentry.html).
 
 ## Security
 
