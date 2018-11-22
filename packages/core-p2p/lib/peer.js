@@ -85,9 +85,9 @@ module.exports = class Peer {
         const items = chunk(transactions, err.response.data.error.allowed)
 
         await Promise.all(items.map(item => broadcast(item)))
+      } else {
+        throw err
       }
-
-      throw err
     }
   }
 
