@@ -74,7 +74,9 @@ module.exports = class Peer {
       await this.__broadcastTransactions(transactions)
     } catch (err) {
       if (err.response && err.response.status === 413) {
-        const items = chunk(transactions, err.response.data.error.allowed)
+        // Enforce minimum to prevent abuse
+        const broadcastSize = Math.max(err.response.data.error.allowed, 40)
+        const items = chunk(transactions, broadcastSize)
 
         // eslint-disable-next-line promise/catch-or-return
         Promise.all(items.map(item => this.__broadcastTransactions(item)))
