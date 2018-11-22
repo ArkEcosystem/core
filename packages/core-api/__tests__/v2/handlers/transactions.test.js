@@ -4,7 +4,6 @@ require('@arkecosystem/core-test-utils/lib/matchers')
 const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
-const { transactionBuilder } = require('@arkecosystem/crypto')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
