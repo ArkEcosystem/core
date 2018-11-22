@@ -1,13 +1,17 @@
 require('@arkecosystem/core-test-utils/lib/matchers')
 const blockchainHelper = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
+const { Block } = require('@arkecosystem/crypto').models
+const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
 let genesisBlock
+let container
 
 beforeAll(async () => {
   await app.setUp()
   await blockchainHelper.resetBlockchain()
+  container = require('@arkecosystem/core-container')
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -146,10 +150,15 @@ describe('API 2.0 - Blocks', () => {
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
-      it.skip('should POST a search for blocks with the exact specified previousBlock', async () => {
+      it('should POST a search for blocks with the exact specified previousBlock', async () => {
+        // save a new block so that we can make the request with previousBlock
+        const block2 = new Block(blocks2to100[0])
+        const database = container.resolvePlugin('database')
+        await database.saveBlock(block2)
+
         const response = await utils[request]('POST', 'blocks/search', {
-          id: genesisBlock.id,
-          previousBlock: genesisBlock.previousBlock,
+          id: blocks2to100[0].id,
+          previousBlock: blocks2to100[0].previousBlock,
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
@@ -158,8 +167,10 @@ describe('API 2.0 - Blocks', () => {
 
         const block = response.data.data[0]
         utils.expectBlock(block)
-        expect(block.id).toBe(genesisBlock.id)
-        expect(block.previous).toBe(genesisBlock.previousBlock)
+        expect(block.id).toBe(blocks2to100[0].id)
+        expect(block.previous).toBe(blocks2to100[0].previousBlock)
+
+        await database.deleteBlock(block2) // reset to genesis block
       })
     })
 

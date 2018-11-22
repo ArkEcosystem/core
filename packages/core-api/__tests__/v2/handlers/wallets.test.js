@@ -279,8 +279,8 @@ describe('API 2.0 - Wallets', () => {
         const response = await utils[request]('POST', 'wallets/search', {
           address,
           balance: {
-            from: balance,
-            to: balance,
+            from: balance - 1000,
+            to: balance + 1000,
           },
         })
         expect(response).toBeSuccessfulResponse()
@@ -299,35 +299,12 @@ describe('API 2.0 - Wallets', () => {
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
-      it.skip('should POST a search for wallets with the exact specified voteBalance', async () => {
+      it('should POST a search for wallets with the exact specified voteBalance', async () => {
         const response = await utils[request]('POST', 'wallets/search', {
           address,
           voteBalance: {
-            from: 0,
-            to: 0,
-          },
-        })
-        expect(response).toBeSuccessfulResponse()
-        expect(response.data.data).toBeArray()
-
-        expect(response.data.data).toHaveLength(1)
-
-        const wallet = response.data.data[0]
-        utils.expectWallet(wallet)
-        expect(wallet.address).toBe(address)
-      })
-    })
-
-    describe.each([
-      ['API-Version', 'request'],
-      ['Accept', 'requestWithAcceptHeader'],
-    ])('using the %s header', (header, request) => {
-      it.skip('should POST a search for wallets with the specified voteBalance range', async () => {
-        const response = await utils[request]('POST', 'wallets/search', {
-          address,
-          voteBalance: {
-            from: 0,
-            to: 0,
+            from: balance,
+            to: balance,
           },
         })
         expect(response).toBeSuccessfulResponse()

@@ -61,12 +61,16 @@ describe('Peer', () => {
     })
   })
 
-  describe.skip('postBlock', () => {
+  describe('postBlock', () => {
     it('should be a function', () => {
       expect(peerMock.postBlock).toBeFunction()
     })
 
     it('should be ok', async () => {
+      axiosMock
+        .onPost(`${peerMock.url}/peer/blocks`)
+        .reply(200, { success: true }, peerMock.headers)
+
       const response = await peerMock.postBlock(genesisBlock.toJson())
 
       expect(response).toBeObject()
@@ -75,12 +79,16 @@ describe('Peer', () => {
     })
   })
 
-  describe.skip('postTransactions', () => {
+  describe('postTransactions', () => {
     it('should be a function', () => {
       expect(peerMock.postTransactions).toBeFunction()
     })
 
     it('should be ok', async () => {
+      axiosMock
+        .onPost(`${peerMock.url}/peer/transactions`)
+        .reply(200, { success: true }, peerMock.headers)
+
       const response = await peerMock.postTransactions([
         genesisTransaction.toJson(),
       ])

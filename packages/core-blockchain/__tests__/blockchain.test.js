@@ -339,6 +339,18 @@ describe('Blockchain', () => {
     })
   })
 
+  describe('getLastBlock', () => {
+    it('should be a function', () => {
+      expect(blockchain.getLastBlock).toBeFunction()
+    })
+
+    it('should be ok', () => {
+      blockchain.state.setLastBlock(genesisBlock)
+
+      expect(blockchain.getLastBlock()).toEqual(genesisBlock)
+    })
+  })
+
   describe('isSynced', () => {
     it('should be a function', () => {
       expect(blockchain.isSynced).toBeFunction()
@@ -357,14 +369,16 @@ describe('Blockchain', () => {
       })
     })
 
-    describe.skip('without a block param', () => {
+    describe('without a block param', () => {
       it('should use the last block', () => {
-        blockchain.getLastBlock = jest.fn(() => ({
-          timestamp: slots.getTime() - genesisBlock.timestamp,
-          height: genesisBlock.height,
-        }))
+        blockchain.getLastBlock = jest.fn().mockReturnValueOnce({
+          data: {
+            timestamp: slots.getTime(),
+            height: genesisBlock.height,
+          },
+        })
         expect(blockchain.isSynced()).toBeTrue()
-        expect(blockchain.getLastBlock()).toHaveBeenCalledWith(true)
+        expect(blockchain.getLastBlock).toHaveBeenCalled()
       })
     })
   })
@@ -387,27 +401,17 @@ describe('Blockchain', () => {
       })
     })
 
-    describe.skip('without a block param', () => {
+    describe('without a block param', () => {
       it('should use the last block', () => {
-        blockchain.getLastBlock = jest.fn(() => ({
-          timestamp: slots.getTime() - genesisBlock.timestamp,
-          height: genesisBlock.height,
-        }))
+        blockchain.getLastBlock = jest.fn().mockReturnValueOnce({
+          data: {
+            timestamp: slots.getTime(),
+            height: genesisBlock.height,
+          },
+        })
         expect(blockchain.isRebuildSynced()).toBeTrue()
-        expect(blockchain.getLastBlock()).toHaveBeenCalledWith(true)
+        expect(blockchain.getLastBlock).toHaveBeenCalled()
       })
-    })
-  })
-
-  describe('getLastBlock', () => {
-    it('should be a function', () => {
-      expect(blockchain.getLastBlock).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      blockchain.state.setLastBlock(genesisBlock)
-
-      expect(blockchain.getLastBlock()).toEqual(genesisBlock)
     })
   })
 
