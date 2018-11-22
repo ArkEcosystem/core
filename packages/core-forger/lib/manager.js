@@ -10,7 +10,8 @@ const config = container.resolvePlugin('config')
 const { slots } = require('@arkecosystem/crypto')
 const { Delegate, Transaction } = require('@arkecosystem/crypto').models
 
-const { isEmpty, uniq } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
+const uniq = require('lodash/uniq')
 const pluralize = require('pluralize')
 
 const Client = require('./client')

@@ -27,7 +27,7 @@
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
     "bignumber.js": "^8.0.1",
@@ -39,7 +39,9 @@
     "create-hash": "^1.2.0",
     "deepmerge": "^2.2.1",
     "joi": "^14.1.0",
-    "lodash": "^4.17.11",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.clonedeepwith": "^4.5.0",
+    "lodash.get": "^4.4.2",
     "moment": "^2.22.2",
     "node-forge": "^0.7.6",
     "otplib": "^10.0.1",

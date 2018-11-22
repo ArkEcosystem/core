@@ -14,7 +14,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -23,7 +23,9 @@
     "elasticsearch": "^15.2.0",
     "fs-extra": "^7.0.1",
     "joi": "^14.1.0",
-    "lodash": "^4.17.11"
+    "lodash.first": "^3.0.0",
+    "lodash.get": "^4.4.2",
+    "lodash.last": "^3.0.0"
   },
   "publishConfig": {
     "access": "public"

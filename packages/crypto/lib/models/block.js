@@ -1,4 +1,4 @@
-const { cloneDeepWith } = require('lodash')
+const cloneDeepWith = require('lodash/cloneDeepWith')
 const { createHash } = require('crypto')
 const pluralize = require('pluralize')
 const ByteBuffer = require('bytebuffer')
@@ -155,9 +155,13 @@ module.exports = class Block {
    * @return {String}
    */
   toString() {
-    return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${
-      pluralize('transaction', this.data.numberOfTransactions, true)
-    }, verified: ${this.verification.verified}, errors: ${
+    return `${
+      this.data.id
+    }, height: ${this.data.height.toLocaleString()}, ${pluralize(
+      'transaction',
+      this.data.numberOfTransactions,
+      true,
+    )}, verified: ${this.verification.verified}, errors: ${
       this.verification.errors
     }` // eslint-disable-line max-len
   }

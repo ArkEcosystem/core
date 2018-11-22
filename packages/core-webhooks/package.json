@@ -26,7 +26,7 @@
     "joi": "^14.1.0",
     "sequelize": "^4.41.2",
     "sqlite3": "^4.0.4",
-    "umzug": "^2.1.0"
+    "umzug": "^2.2.0"
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "^0.1.1"

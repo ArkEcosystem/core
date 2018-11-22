@@ -1,4 +1,5 @@
-const { isEqual, sortBy } = require('lodash')
+const isEqual = require('lodash/isEqual')
+const sortBy = require('lodash/sortBy')
 
 const toBeTransaction = actual => {
   // TODO based on type
@@ -10,7 +11,9 @@ const toBeTransaction = actual => {
     'timestamp',
     'signature',
   ])
-  const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key))
+  const actualKeys = Object.keys(actual).filter(key =>
+    allowedKeys.includes(key),
+  )
 
   return {
     message: () => 'Expected value to be a valid transaction',

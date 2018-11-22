@@ -1,6 +1,7 @@
 /* eslint no-await-in-loop: "off" */
 
-const { first, last } = require('lodash')
+const first = require('lodash/first')
+const last = require('lodash/last')
 const container = require('@arkecosystem/core-container')
 
 const emitter = container.resolvePlugin('event-emitter')
