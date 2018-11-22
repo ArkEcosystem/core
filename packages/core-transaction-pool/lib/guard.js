@@ -262,10 +262,10 @@ module.exports = class TransactionGuard {
     container.resolve('state').removeCachedTransactionIds(forgedIdsSet)
 
     forgedIdsSet.forEach(id => {
+      this.__pushError(this.accept.get(id), 'ERR_FORGED', 'Already forged.')
+
       this.accept.delete(id)
       this.broadcast.delete(id)
-
-      this.__pushError(this.accept.get(id), 'ERR_FORGED', 'Already forged.')
     })
   }
 

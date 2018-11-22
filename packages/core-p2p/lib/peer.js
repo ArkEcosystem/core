@@ -1,4 +1,5 @@
 const axios = require('axios')
+const chunk = require('lodash/chunk')
 const util = require('util')
 const container = require('@arkecosystem/core-container')
 
@@ -43,6 +44,10 @@ module.exports = class Peer {
     }
   }
 
+  static isOk(peer) {
+    return peer.status === 200 || peer.status === 'OK'
+  }
+
   /**
    * Perform POST request for a block.
    * @param  {Block}              block
@@ -65,16 +70,20 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postTransactions(transactions) {
-    return this.__post(
-      '/peer/transactions',
-      {
-        transactions,
-      },
-      {
-        headers: this.headers,
-        timeout: 8000,
-      },
-    )
+    try {
+      await this.__broadcastTransactions(transactions)
+    } catch (err) {
+      if (err.response && err.response.status === 413) {
+        // Enforce minimum to prevent abuse
+        const broadcastSize = Math.max(err.response.data.error.allowed, 40)
+        const items = chunk(transactions, broadcastSize)
+
+        // eslint-disable-next-line promise/catch-or-return
+        Promise.all(items.map(item => this.__broadcastTransactions(item)))
+      } else {
+        throw err
+      }
+    }
   }
 
   async getTransactionsFromIds(ids) {
@@ -268,7 +277,21 @@ module.exports = class Peer {
     return response
   }
 
-  static isOk(peer) {
-    return peer.status === 200 || peer.status === 'OK'
+  /**
+   * Perform POST request for a transactions.
+   * @param  {Transaction[]}      transactions
+   * @return {Promise}
+   */
+  async __broadcastTransactions(transactions) {
+    return this.__post(
+      '/peer/transactions',
+      {
+        transactions,
+      },
+      {
+        headers: this.headers,
+        timeout: 8000,
+      },
+    )
   }
 }

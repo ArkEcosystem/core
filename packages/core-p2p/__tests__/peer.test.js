@@ -79,7 +79,7 @@ describe('Peer', () => {
     })
   })
 
-  describe('postTransactions', () => {
+  describe.skip('postTransactions', () => {
     it('should be a function', () => {
       expect(peerMock.postTransactions).toBeFunction()
     })

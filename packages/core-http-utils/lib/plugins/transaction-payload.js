@@ -28,6 +28,10 @@ const register = async (server, options) => {
       if (transactionsCount > maxTransactionsPerRequest) {
         return Boom.entityTooLarge(
           `Received ${transactionsCount} transactions. Only ${maxTransactionsPerRequest} are allowed per request.`,
+          {
+            allowed: maxTransactionsPerRequest,
+            received: transactionsCount,
+          },
         )
       }
 
