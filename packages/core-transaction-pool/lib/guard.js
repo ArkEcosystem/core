@@ -46,18 +46,8 @@ module.exports = class TransactionGuard {
   async validate(transactionsJson) {
     this.pool.loggedAllowedSenders = []
 
-    // Add transaction id to the state storage. Also removes duplicates.
-    this.transactions = transactionsJson.filter(tx => {
-      if (container.resolve('state').addTransactionId(tx.id)) {
-        return true
-      }
-
-      if (!this.errors[tx.id]) {
-        this.__pushError(tx, 'ERR_DUPLICATE', 'Already in cache.')
-      }
-
-      return false
-    })
+    // Cache transactions
+    this.transactions = this.__cacheTransactions(transactionsJson)
 
     if (this.transactions.length > 0) {
       // Filter transactions and create Transaction instances from accepted ones
@@ -82,7 +72,27 @@ module.exports = class TransactionGuard {
   }
 
   /**
+   * Cache the given transactions and return which got added. Already cached
+   * transactions are not returned.
+   * @return {Array}
+   */
+  __cacheTransactions(transactions) {
+    const { added, notAdded } = container
+      .resolve('state')
+      .cacheTransactions(transactions)
+
+    notAdded.forEach(transaction => {
+      if (!this.errors[transaction.id]) {
+        this.__pushError(transaction, 'ERR_DUPLICATE', 'Already in cache.')
+      }
+    })
+
+    return added
+  }
+
+  /**
    * Get broadcast transactions.
+   * @return {Array}
    */
   getBroadcastTransactions() {
     return Array.from(this.broadcast.values())

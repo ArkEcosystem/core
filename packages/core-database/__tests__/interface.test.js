@@ -223,14 +223,6 @@ describe('Connection Interface', () => {
         connectionInterface.getRecentBlockIds(),
       ).rejects.toThrowError('Method [getRecentBlockIds] not implemented!')
     })
-
-    it.skip('should return an array', async () => {
-      connectionInterface.recentBlockIds = ['10']
-      const blockIds = await connectionInterface.getRecentBlockIds()
-
-      expect(blockIds).toBeArray()
-      expect(blockIds).toIncludeAllMembers(['10'])
-    })
   })
 
   describe('saveRound', () => {
@@ -305,24 +297,6 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe.skip('applyTransaction', () => {
-    it('should be a function', () => {
-      expect(connectionInterface.applyTransaction).toBeFunction()
-    })
-  })
-
-  describe.skip('revertTransaction', () => {
-    it('should be a function', () => {
-      expect(connectionInterface.revertTransaction).toBeFunction()
-    })
-  })
-
-  describe.skip('snapshot', () => {
-    it('should be a function', () => {
-      expect(connectionInterface.snapshot).toBeFunction()
-    })
-  })
-
   describe('__calcPreviousActiveDelegates', () => {
     it('should be a function', () => {
       expect(connectionInterface.__calcPreviousActiveDelegates).toBeFunction()
@@ -378,7 +352,8 @@ describe('Connection Interface', () => {
           .build()
 
         // Vote for itself
-        walletManager.byPublicKey[delegatesRound2[i].publicKey].vote = delegatesRound2[i].publicKey
+        walletManager.byPublicKey[delegatesRound2[i].publicKey].vote =
+          delegatesRound2[i].publicKey
 
         const block = Block.create(
           {

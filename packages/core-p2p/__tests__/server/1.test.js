@@ -1,9 +1,9 @@
 const { Block, Transaction } = require('@arkecosystem/crypto').models
+const genTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 
 let genesisBlock
-let genesisTransaction
 
 beforeAll(async () => {
   await app.setUp()
@@ -13,7 +13,6 @@ beforeAll(async () => {
   genesisBlock = new Block(
     require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
   )
-  genesisTransaction = new Transaction(genesisBlock.transactions[0])
 })
 
 afterAll(async () => {
@@ -37,7 +36,7 @@ describe('API - Version 1', () => {
     })
   })
 
-  describe.skip('GET /peer/blocks', () => {
+  describe('GET /peer/blocks', () => {
     it('should be ok', async () => {
       const response = await utils.GET('peer/blocks', { lastBlockHeight: 1 })
 
@@ -170,10 +169,11 @@ describe('API - Version 1', () => {
     })
   })
 
-  describe.skip('POST /peer/transactions', () => {
+  describe('POST /peer/transactions', () => {
     it('should be ok', async () => {
+      const transactions = genTransfer('testnet')
       const response = await utils.POST('peer/transactions', {
-        transactions: [genesisTransaction.toJson()],
+        transactions,
       })
 
       expect(response.status).toBe(200)
