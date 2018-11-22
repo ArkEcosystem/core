@@ -545,18 +545,14 @@ describe('API 2.0 - Transactions', () => {
       ['API-Version', 'request'],
       ['Accept', 'requestWithAcceptHeader'],
     ])('using the %s header', (header, request) => {
-      const transactions = []
-
-      for (let i = 0; i < 40; i++) {
-        transactions.push(
-          transactionBuilder
-            .transfer()
-            .recipientId('AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri')
-            .amount(10 * 1e8)
-            .sign('passphrase')
-            .getStruct(),
-        )
-      }
+      const transactions = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[1].address,
+        1,
+        40,
+        true,
+      )
 
       it('should POST all the transactions', async () => {
         const response = await utils[request]('POST', 'transactions', {

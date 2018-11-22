@@ -58,7 +58,14 @@ module.exports = async (p2p, config) => {
 
   await server.register({
     plugin: plugins.transactionPayload,
-    options: { paths: ['/peer/transactions'] },
+    options: {
+      routes: [
+        {
+          method: 'POST',
+          path: '/peer/transactions',
+        },
+      ],
+    },
   })
 
   // await server.register({

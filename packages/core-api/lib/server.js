@@ -41,7 +41,14 @@ module.exports = async config => {
 
     await server.register({
       plugin: plugins.transactionPayload,
-      options: { paths: ['/api/v2/transactions'] },
+      options: {
+        routes: [
+          {
+            method: 'POST',
+            path: '/api/v2/transactions',
+          },
+        ],
+      },
     })
 
     await server.register({

@@ -5,7 +5,13 @@ const register = async (server, options) => {
   server.ext({
     type: 'onPostAuth',
     async method(request, h) {
-      if (!options.paths.includes(request.path)) {
+      const route = options.routes.find(item => item.path === request.path)
+
+      if (!route) {
+        return h.continue
+      }
+
+      if (route.method.toLowerCase() !== request.method.toLowerCase()) {
         return h.continue
       }
 
