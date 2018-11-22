@@ -44,6 +44,10 @@ module.exports = class Peer {
     }
   }
 
+  static isOk(peer) {
+    return peer.status === 200 || peer.status === 'OK'
+  }
+
   /**
    * Perform POST request for a block.
    * @param  {Block}              block
@@ -66,25 +70,14 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postTransactions(transactions) {
-    const broadcast = async items =>
-      this.__post(
-        '/peer/transactions',
-        {
-          transactions: items,
-        },
-        {
-          headers: this.headers,
-          timeout: 8000,
-        },
-      )
-
     try {
-      await broadcast(transactions)
+      await this.__broadcastTransactions(transactions)
     } catch (err) {
       if (err.response && err.response.status === 413) {
         const items = chunk(transactions, err.response.data.error.allowed)
 
-        await Promise.all(items.map(item => broadcast(item)))
+        // eslint-disable-next-line promise/catch-or-return
+        Promise.all(items.map(item => this.__broadcastTransactions(item)))
       } else {
         throw err
       }
@@ -282,7 +275,21 @@ module.exports = class Peer {
     return response
   }
 
-  static isOk(peer) {
-    return peer.status === 200 || peer.status === 'OK'
+  /**
+   * Perform POST request for a transactions.
+   * @param  {Transaction[]}      transactions
+   * @return {Promise}
+   */
+  async __broadcastTransactions(transactions) {
+    return this.__post(
+      '/peer/transactions',
+      {
+        transactions,
+      },
+      {
+        headers: this.headers,
+        timeout: 8000,
+      },
+    )
   }
 }
