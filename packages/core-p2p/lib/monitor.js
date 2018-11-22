@@ -33,7 +33,7 @@ class Monitor {
    */
   constructor() {
     this.peers = {}
-    this.startForgers = dayjs().add(config.peers.coldStart || 30, 'seconds')
+    this.coldStartPeriod = dayjs().add(config.peers.coldStart || 30, 'seconds')
   }
 
   /**
@@ -734,7 +734,7 @@ class Monitor {
    * not all peers are up, or the network is not active
    */
   __isColdStartActive() {
-    return dayjs().isAfter(this.startForgers)
+    return this.coldStartPeriod.isAfter(dayjs())
   }
 
   /**
