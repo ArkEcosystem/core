@@ -10,17 +10,19 @@ function generateConfig() {
 }
 
 function genYaml(options) {
-  const saveCacheStep = config.jobs['init'].steps.find(
-    step => typeof step === 'object' && step.save_cache,
-  )
-  saveCacheStep.save_cache.paths = options.packages
-    .map(package => `./packages/${package}/node_modules`)
-    .concat('./node_modules')
-
   const testJobs = ['test-node10', 'test-node10-2']
   testJobs.forEach((job, index) => {
+    // save cache
+    const saveCacheStep = config.jobs[job].steps.find(
+      step => typeof step === 'object' && step.save_cache,
+    )
+    saveCacheStep.save_cache.paths = options.packages
+      .map(package => `./packages/${package}/node_modules`)
+      .concat('./node_modules')
+
+    // test split
     const testStep = config.jobs[job].steps.find(
-      step => typeof step === 'object' && step.run.name === 'Test',
+      step => typeof step === 'object' && step.run && step.run.name === 'Test',
     )
     const chunkSize = Math.ceil(options.packages.length / 2)
     testStep.run.command = testStep.run.command.replace(
