@@ -10,28 +10,35 @@ function generateConfig() {
 }
 
 function genYaml(options) {
-  const testJobs = ['test-node10']
-  testJobs.forEach((job, index) => {
-    // save cache
-    const saveCacheStep = config.jobs[job].steps.find(
-      step => typeof step === 'object' && step.save_cache,
-    )
-    saveCacheStep.save_cache.paths = options.packages
-      .map(package => `./packages/${package}/node_modules`)
-      .concat('./node_modules')
+  // save cache
+  const saveCacheStep = config.jobs['test-node10-0'].steps.find(
+    step => typeof step === 'object' && step.save_cache,
+  )
+  saveCacheStep.save_cache.paths = options.packages
+    .map(package => `./packages/${package}/node_modules`)
+    .concat('./node_modules')
 
-    // test split
-    /*const testStep = config.jobs[job].steps.find(
+  // test split
+  const jobs = [
+    config.jobs['test-node10-0'],
+    JSON.parse(JSON.stringify(config.jobs['test-node10-0'])),
+    JSON.parse(JSON.stringify(config.jobs['test-node10-0'])),
+  ]
+
+  jobs.forEach((job, index) => {
+    const testStep = job.steps.find(
       step => typeof step === 'object' && step.run && step.run.name === 'Test',
     )
-    const chunkSize = Math.ceil(options.packages.length / 2)
     testStep.run.command = testStep.run.command.replace(
       '{{TESTPATHS}}',
       options.packages
         .map(package => `./packages/${package}`)
-        .slice(index * chunkSize, (index + 1) * chunkSize)
+        .filter((pkg, indexPkg) => (index + indexPkg) % jobs.length === 0)
         .join(' '),
-    )*/
+    )
+
+    config.jobs[`test-node10-${index}`] = job
+    config.workflows.test_depcheck_lint.jobs.push(`test-node10-${index}`)
   })
 
   fs.writeFile('.circleci/config.yml', yaml.safeDump(config), 'utf8', err => {

@@ -1,7 +1,7 @@
 {
   "version": 2,
   "jobs": {
-    "test-node10": {
+    "test-node10-0": {
       "working_directory": "~/ark-core",
       "docker": [
         {
@@ -68,7 +68,7 @@
         {
           "run": {
             "name": "Test",
-            "command": "./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest --detectOpenHandles --runInBand --forceExit --ci --coverage | tee test_output.txt\n"
+            "command": "./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest {{TESTPATHS}} --detectOpenHandles --runInBand --forceExit --ci --coverage | tee test_output.txt\n"
           }
         },
         {
@@ -102,7 +102,7 @@
   "workflows": {
     "version": 2,
     "test_depcheck_lint": {
-      "jobs": ["test-node10"]
+      "jobs": []
     }
   }
 }
