@@ -1,4 +1,5 @@
 const axios = require('axios')
+
 const createServer = require('../../lib/server/create')
 const mountServer = require('../../lib/server/mount')
 const contentType = require('../../lib/plugins/content-type')
@@ -25,7 +26,7 @@ afterAll(async () => {
   await server.stop()
 })
 
-describe('Plugins - Content-Type', () => {
+describe.skip('Plugins - Content-Type', () => {
   describe('GET /', () => {
     it('should return code 200', async () => {
       const response = await axios.get('http://0.0.0.0:3000/', {
