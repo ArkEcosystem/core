@@ -85,22 +85,17 @@ class Monitor {
     }
 
     try {
-      const realEnvironment = process.env.ARK_ENV !== 'test'
-
-      if (realEnvironment) {
+      if (process.env.ARK_ENV !== 'test') {
         await this.discoverPeers()
         await this.cleanPeers()
-      }
 
-      if (
-        Object.keys(this.peers).length < config.peers.list.length - 1 &&
-        realEnvironment
-      ) {
-        config.peers.list.forEach(peer => {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-        }, this)
+        if (!this.hasMinimumPeers()) {
+          config.peers.list.forEach(peer => {
+            this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+          }, this)
 
-        return this.updateNetworkStatus()
+          return this.updateNetworkStatus()
+        }
       }
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
@@ -109,8 +104,19 @@ class Monitor {
         this.peers[peer.ip] = new Peer(peer.ip, peer.port)
       }, this)
 
+      // Wait for a moment if there was an error
+      await delay(500)
+
       return this.updateNetworkStatus()
     }
+  }
+
+  /**
+   * Returns if the minimum amount of peers are available.
+   * @return {Boolean}
+   */
+  hasMinimumPeers() {
+    return Object.keys(this.peers).length >= config.peers.list.length - 1
   }
 
   /**
