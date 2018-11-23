@@ -2,7 +2,6 @@ const cloneDeepWith = require('lodash/cloneDeepWith')
 const { createHash } = require('crypto')
 const pluralize = require('pluralize')
 const ByteBuffer = require('bytebuffer')
-const logger = require('../logger')
 const { Bignum } = require('../utils')
 const Transaction = require('./transaction')
 const configManager = require('../managers/config')
@@ -80,9 +79,6 @@ module.exports = class Block {
       this.data.id = outlookTable[this.data.id]
       this.data.idHex = toBytesHex(this.data.id)
     }
-    if (data.id !== this.data.id) {
-      logger.error(`'${this.data.id}': '${data.id}',`)
-    }
 
     if (data.height === 1) {
       this.genesis = true
@@ -121,12 +117,6 @@ module.exports = class Block {
       const temp = this.transactions[0]
       this.transactions[0] = this.transactions[1]
       this.transactions[1] = temp
-    }
-
-    if (!this.verification.verified && this.data.height !== 1) {
-      // logger.error(JSON.stringify(data, null, 2))
-      logger.error(this.serialized)
-      logger.error(this.verification)
     }
   }
 

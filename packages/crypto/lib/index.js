@@ -1,7 +1,4 @@
 module.exports = {
-  // Logger...
-  logger: require('./logger'),
-
   // Client...
   client: require('./client'),
 

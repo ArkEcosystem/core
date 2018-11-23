@@ -7,9 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-### Added
-- `Logger` to allow custom loggers
-
 ## 0.2.5 - 2018-11-19
 
 ### Fixed
