@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-logger": "^0.1.1",
+    "@arkecosystem/crypto": "^0.2.5",
     "chalk": "^2.4.1",
     "colors": "^1.3.2",
     "dayjs-ext": "^2.2.0",

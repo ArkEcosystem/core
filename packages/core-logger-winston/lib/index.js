@@ -1,3 +1,4 @@
+const { logger } = require('@arkecosystem/crypto')
 const WinstonDriver = require('./driver')
 
 /**
@@ -12,6 +13,8 @@ exports.plugin = {
   async register(container, options) {
     const logManager = container.resolvePlugin('logManager')
     await logManager.makeDriver(new WinstonDriver(options))
+
+    logger.setLogger(logManager.driver())
 
     return logManager.driver()
   },
