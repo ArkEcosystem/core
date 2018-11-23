@@ -9,7 +9,10 @@ const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
 class Helpers {
   async request(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
-    const headers = { 'API-Version': 1 }
+    const headers = {
+      'API-Version': 1,
+      'Content-Type': 'application/json',
+    }
 
     const server = require('@arkecosystem/core-container').resolvePlugin('api')
 
@@ -84,9 +87,15 @@ class Helpers {
       )
       .getStruct()
 
-    await axios.post('http://127.0.0.1:4003/api/v2/transactions', {
-      transactions: [transaction],
-    })
+    await axios.post(
+      'http://127.0.0.1:4003/api/v2/transactions',
+      {
+        transactions: [transaction],
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
 
     return transaction
   }

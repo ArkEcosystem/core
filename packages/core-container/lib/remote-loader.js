@@ -86,7 +86,9 @@ module.exports = class RemoteLoader {
 
   async __getConfig(type) {
     try {
-      const { data } = await axios.get(`http://${this.remote}/config/${type}`)
+      const { data } = await axios.get(`http://${this.remote}/config/${type}`, {
+        headers: { 'Content-Type': 'application/json' },
+      })
 
       return data.data
     } catch (error) {

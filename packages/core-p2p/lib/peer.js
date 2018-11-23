@@ -25,6 +25,7 @@ module.exports = class Peer {
       port: container.resolveOptions('p2p').port,
       nethash: config.network.nethash,
       height: null,
+      'Content-Type': 'application/json',
     }
   }
 
