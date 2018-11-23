@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 
 const {
   configManager,
@@ -324,6 +325,12 @@ module.exports = class TransactionGuard {
 
     container
       .resolvePlugin('logger')
-      .info(`Received ${this.transactions.length} transactions (${stats}).`)
+      .info(
+        `Received ${pluralize(
+          'transaction',
+          this.transactions.length,
+          true,
+        )} (${stats}).`,
+      )
   }
 }
