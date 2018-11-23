@@ -82,16 +82,8 @@ jobs:
             ./packages/core-debugger-cli ./packages/core-deployer
             ./packages/core-elasticsearch ./packages/core-error-tracker-bugsnag
             ./packages/core-error-tracker-sentry ./packages/core-event-emitter
-            ./packages/core-forger ./packages/core-graphql
-            ./packages/core-http-utils ./packages/core-json-rpc
-            ./packages/core-logger ./packages/core-logger-winston
-            ./packages/core-p2p ./packages/core-snapshots
-            ./packages/core-snapshots-cli ./packages/core-test-utils
-            ./packages/core-tester-cli ./packages/core-transaction-pool
-            ./packages/core-transaction-pool-mem ./packages/core-utils
-            ./packages/core-vote-report ./packages/core-webhooks
-            ./packages/crypto --detectOpenHandles --runInBand --forceExit --ci
-            --coverage | tee test_output.txt
+            ./packages/core-forger ./packages/core-graphql --detectOpenHandles
+            --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -181,14 +173,15 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core ./packages/core-blockchain ./packages/core-container
-            ./packages/core-database-postgres ./packages/core-deployer
-            ./packages/core-error-tracker-bugsnag ./packages/core-event-emitter
-            ./packages/core-graphql ./packages/core-json-rpc
-            ./packages/core-logger-winston ./packages/core-snapshots
-            ./packages/core-test-utils ./packages/core-transaction-pool
-            ./packages/core-utils ./packages/core-webhooks --detectOpenHandles
-            --runInBand --forceExit --ci --coverage | tee test_output.txt
+            ./packages/core-http-utils ./packages/core-json-rpc
+            ./packages/core-logger ./packages/core-logger-winston
+            ./packages/core-p2p ./packages/core-snapshots
+            ./packages/core-snapshots-cli ./packages/core-test-utils
+            ./packages/core-tester-cli ./packages/core-transaction-pool
+            ./packages/core-transaction-pool-mem ./packages/core-utils
+            ./packages/core-vote-report ./packages/core-webhooks
+            ./packages/crypto --detectOpenHandles --runInBand --forceExit --ci
+            --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail

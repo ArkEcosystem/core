@@ -29,7 +29,7 @@ function genYaml(options) {
       '{{TESTPATHS}}',
       options.packages
         .map(package => `./packages/${package}`)
-        .filter((package, packageIndex) => packageIndex % (index + 1) === 0)
+        .slice(index * chunkSize, (index + 1) * chunkSize)
         .join(' '),
     )
   })
