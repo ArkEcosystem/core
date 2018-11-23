@@ -35,7 +35,7 @@ module.exports = transaction => {
         `Transaction ${id} eligible for broadcast - fee of ${formatArktoshi(
           fee,
         )} is ${
-          fee === minFeeBroadcast ? 'equal too' : 'greater than'
+          fee === minFeeBroadcast ? 'equal to' : 'greater than'
         } minimum fee (${formatArktoshi(minFeeBroadcast)})`,
       )
     } else {
@@ -56,8 +56,8 @@ module.exports = transaction => {
       logger.debug(
         `Transaction ${id} eligible to enter pool - fee of ${formatArktoshi(
           fee,
-        )} ${
-          fee === minFeePool ? 'equal too' : 'greater than'
+        )} is ${
+          fee === minFeePool ? 'equal to' : 'greater than'
         } minimum fee (${formatArktoshi(minFeePool)})`,
       )
     } else {
