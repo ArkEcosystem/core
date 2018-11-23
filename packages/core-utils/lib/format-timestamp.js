@@ -15,6 +15,6 @@ module.exports = epochStamp => {
   return {
     epoch: epochStamp,
     unix: timestamp.unix(),
-    human: timestamp.format(),
+    human: timestamp.toISOString(),
   }
 }
