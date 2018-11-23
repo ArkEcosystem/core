@@ -424,8 +424,9 @@ module.exports = class WalletManager {
       this.byUsername[asset.delegate.username.toLowerCase()]
     ) {
       logger.error(
-        `Can't apply transaction ${data.id}: delegate name already taken.`,
-        JSON.stringify(data),
+        `Can't apply transaction ${
+          data.id
+        }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
       )
       throw new Error(
         `Can't apply transaction ${data.id}: delegate name already taken.`,
@@ -438,10 +439,9 @@ module.exports = class WalletManager {
       !this.__isDelegate(asset.votes[0].slice(1))
     ) {
       logger.error(
-        `Can't apply vote transaction: delegate ${
+        `Can't apply vote transaction ${data.id}: delegate ${
           asset.votes[0]
         } does not exist.`,
-        JSON.stringify(data),
       )
       throw new Error(
         `Can't apply transaction ${data.id}: delegate ${
@@ -455,8 +455,9 @@ module.exports = class WalletManager {
     // handle exceptions / verify that we can apply the transaction to the sender
     if (this.__isException(data)) {
       logger.warn(
-        'Transaction forcibly applied because it has been added as an exception:',
-        data,
+        `Transaction ${
+          data.id
+        } forcibly applied because it has been added as an exception.`,
       )
     } else if (!sender.canApply(data, errors)) {
       logger.error(
