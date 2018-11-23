@@ -35,7 +35,8 @@ module.exports = async config => {
   }
 
   for (const [type, server] of Object.entries(servers)) {
-    await server.register({ plugin: plugins.contentType })
+    // TODO: enable after mainnet migration
+    // await server.register({ plugin: plugins.contentType })
 
     await server.register({
       plugin: plugins.corsHeaders,

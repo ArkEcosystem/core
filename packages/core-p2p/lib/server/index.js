@@ -15,7 +15,8 @@ module.exports = async (p2p, config) => {
     port: config.port,
   })
 
-  await server.register({ plugin: plugins.contentType })
+  // TODO: enable after mainnet migration
+  // await server.register({ plugin: plugins.contentType })
 
   await server.register({
     plugin: require('hapi-rate-limit'),
