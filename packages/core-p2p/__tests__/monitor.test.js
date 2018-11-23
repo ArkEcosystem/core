@@ -45,9 +45,15 @@ describe('Monitor', () => {
     expect(monitor).toBeObject()
   })
 
-  describe.skip('updateNetworkStatus', () => {
+  describe('updateNetworkStatus', () => {
     it('should be a function', () => {
       expect(monitor.updateNetworkStatus).toBeFunction()
+    })
+  })
+
+  describe('updateNetworkStatusIfNotEnoughPeers', () => {
+    it('should be a function', () => {
+      expect(monitor.updateNetworkStatusIfNotEnoughPeers).toBeFunction()
     })
   })
 

@@ -171,6 +171,29 @@ describe('Peer', () => {
     )
   })
 
+  describe('recentlyPinged', () => {
+    it('should be a function', () => {
+      expect(peerMock.recentlyPinged).toBeFunction()
+    })
+
+    it('should be recently pinged', async () => {
+      peerMock.lastPinged = null
+
+      expect(peerMock.recentlyPinged()).toBeFalse()
+
+      axiosMock
+        .onGet(`${peerMock.url}/peer/status`)
+        .reply(() => [200, { success: true }, peerMock.headers])
+
+      const response = await peerMock.ping(5000)
+
+      expect(response).toBeObject()
+      expect(response).toHaveProperty('success')
+      expect(response.success).toBeTrue()
+      expect(peerMock.recentlyPinged()).toBeTrue()
+    })
+  })
+
   describe('getPeers', () => {
     it('should be a function', () => {
       expect(peerMock.getPeers).toBeFunction()

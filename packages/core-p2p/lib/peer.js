@@ -145,7 +145,7 @@ module.exports = class Peer {
    * Perform ping request on this peer if it has not been
    * recently pinged.
    * @param  {Number} [delay=5000]
-   * @return {void}
+   * @return {Object}
    * @throws {Error} If fail to get peer status.
    */
   async ping(delay) {
@@ -164,6 +164,7 @@ module.exports = class Peer {
 
     this.lastPinged = dayjs()
     this.state = body
+    return body
   }
 
   /**
@@ -171,7 +172,7 @@ module.exports = class Peer {
    * @return {Boolean}
    */
   recentlyPinged() {
-    return this.lastPinged && dayjs().diff(this.lastPinged, 'm') < 2
+    return !!this.lastPinged && dayjs().diff(this.lastPinged, 'm') < 2
   }
 
   /**
