@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Recovery after a fork
 - Enabled rate-limiting
 - Enable/Disable peer discovery
+- Dump the peer list on shutdown and load it on next start
 
 ### Changed
 
@@ -35,6 +36,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Overall reduced the complexity of how the P2P API is structured
 - Allow config to be retrieved without P2P headers
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
+- Exclude transactions from broadcasting if they are in the transaction pool
+- Reduced timeouts for HTTP requests
+- Allow 20/rps instead of 1000/rpm
+- Limit the number of peers a transaction is broadcasted to
+- Broadcast transactions in chunks based on `maxTransactionsPerRequest`
 
 ### Removed
 
@@ -51,6 +57,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Race condition that would result in duplicate transactions in the transaction pool
 - Accept v1 peers
 - Avoid errors when banning peers before the state storage is not ready yet
+- Grab transactions based on the transactions per block
 
 ## 0.1.1 - 2018-06-14
 

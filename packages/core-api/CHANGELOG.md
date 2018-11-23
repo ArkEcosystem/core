@@ -18,10 +18,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Blockchains endpoint to provide information like supply
 - Allow registration of additional plugins
 - Run HTTP & HTTPS server at the same time
+- Validate transaction payloads
 
 ### Fixed
 
 - Ensure order parameters are treated as lower-case and properly formatted
+- Handle trailing slashes to avoid v1 issues
 
 ### Changed
 

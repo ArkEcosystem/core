@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Handle dynamic fees
 - Better transaction ping
 - Broadcasting on launch of relay
+- Cap the number of transactions the pool can hold
 
 ### Changed
 
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Adjusted timeouts & lifetimes
 - No longer add transactions that do not meet the fee requirements to the pool (BTC/ETH behaviour)
 - No longer decline transactions that exceed the static fees
+- Simplified the broadcasting logic
 
 ### Fixed
 
@@ -40,6 +42,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Properly determine valid transactions based on their type
 - Handle unexpected errors in the guard
 - Revert transactions with non-matching dynamic fees
+- Revert excess transactions
+- Reject transactions that have a timestamp from the future
 
 ## 0.1.1 - 2018-06-14
 
