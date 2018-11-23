@@ -87,9 +87,15 @@ class Helpers {
       )
       .getStruct()
 
-    await axios.post('http://127.0.0.1:4003/api/v2/transactions', {
-      transactions: [transaction],
-    })
+    await axios.post(
+      'http://127.0.0.1:4003/api/v2/transactions',
+      {
+        transactions: [transaction],
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
 
     return transaction
   }
