@@ -1,5 +1,9 @@
 const container = require('@arkecosystem/core-container')
-const { feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
+const {
+  feeManager,
+  dynamicFeeManager,
+  formatArktoshi,
+} = require('@arkecosystem/crypto')
 
 /**
  * Determine if a transaction's fee meets the minimum requirements for broadcasting
@@ -28,12 +32,18 @@ module.exports = transaction => {
     if (fee >= minFeeBroadcast) {
       broadcast = true
       logger.debug(
-        `Transaction ${id} eligible for broadcast (fee=${fee} >= min=${minFeeBroadcast})`,
+        `Transaction ${id} eligible for broadcast - fee of ${formatArktoshi(
+          fee,
+        )} is ${
+          fee === minFeeBroadcast ? 'equal too' : 'greater than'
+        } minimum fee (${formatArktoshi(minFeeBroadcast)})`,
       )
     } else {
       broadcast = false
       logger.debug(
-        `Transaction ${id} not eligible for broadcast (fee=${fee} < min=${minFeeBroadcast})`,
+        `Transaction ${id} not eligible for broadcast - fee of ${formatArktoshi(
+          fee,
+        )} is smaller than minimum fee (${formatArktoshi(minFeeBroadcast)})`,
       )
     }
 
@@ -44,12 +54,18 @@ module.exports = transaction => {
     if (fee >= minFeePool) {
       enterPool = true
       logger.debug(
-        `Transaction ${id} eligible to enter pool (fee=${fee} >= min=${minFeePool})`,
+        `Transaction ${id} eligible to enter pool - fee of ${formatArktoshi(
+          fee,
+        )} ${
+          fee === minFeePool ? 'equal too' : 'greater than'
+        } minimum fee (${formatArktoshi(minFeePool)})`,
       )
     } else {
       enterPool = false
       logger.debug(
-        `Transaction ${id} not eligible to enter pool (fee=${fee} < min=${minFeePool})`,
+        `Transaction ${id} not eligible to enter pool - fee of ${formatArktoshi(
+          fee,
+        )} is smaller than minimum fee (${formatArktoshi(minFeePool)})`,
       )
     }
   } else {
@@ -60,13 +76,17 @@ module.exports = transaction => {
       broadcast = true
       enterPool = true
       logger.debug(
-        `Transaction ${id} eligible for broadcast and to enter pool (fee=${fee} = static=${staticFee})`,
+        `Transaction ${id} eligible for broadcast and to enter pool - fee of ${formatArktoshi(
+          fee,
+        )} is equal to static fee (${formatArktoshi(staticFee)})`,
       )
     } else {
       broadcast = false
       enterPool = false
       logger.debug(
-        `Transaction ${id} not eligible for broadcast and not eligible to enter pool (fee=${fee} != static=${staticFee})`,
+        `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${formatArktoshi(
+          fee,
+        )} does not match static fee (${formatArktoshi(staticFee)})`,
       )
     }
   }
