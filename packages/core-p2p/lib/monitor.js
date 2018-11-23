@@ -112,6 +112,18 @@ class Monitor {
   }
 
   /**
+   * Updates the network status if not enough peers are available.
+   * NOTE: This is usually only necessary for nodes without incoming requests,
+   * since the available peers are depleting over time due to suspensions.
+   * @return {void}
+   */
+  async updateNetworkStatusIfNotEnoughPeers() {
+    if (!this.hasMinimumPeers() && process.env.ARK_ENV !== 'test') {
+      await this.updateNetworkStatus()
+    }
+  }
+
+  /**
    * Returns if the minimum amount of peers are available.
    * @return {Boolean}
    */

@@ -55,11 +55,10 @@ blockchainMachine.actionMap = blockchain => ({
   async checkLastDownloadedBlockSynced() {
     let event = 'NOTSYNCED'
     logger.debug(
-      `Queued blocks for rebuildQueue: ${blockchain.rebuildQueue.length()}`,
+      `Queued blocks (rebuild: ${blockchain.rebuildQueue.length()} process: ${blockchain.processQueue.length()})`,
     )
-    logger.debug(
-      `Queued blocks for processQueue: ${blockchain.processQueue.length()}`,
-    )
+
+    await blockchain.p2p.updateNetworkStatusIfNotEnoughPeers()
 
     if (
       blockchain.rebuildQueue.length() > 10000 ||
