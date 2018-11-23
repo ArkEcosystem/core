@@ -34,6 +34,11 @@ class Monitor {
   constructor() {
     this.peers = {}
     this.coldStartPeriod = dayjs().add(config.peers.coldStart || 30, 'seconds')
+
+    // Holds temporary peers which are in the process of being accepted. Prevents that
+    // peers who are not accepted yet, but send multiple requests in a short timeframe will
+    // get processed multiple times in `acceptNewPeer`.
+    this.pendingPeers = {}
   }
 
   /**
@@ -114,7 +119,7 @@ class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer(peer) {
-    if (this.config.disableDiscovery) {
+    if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
       logger.warn(
         `Rejected ${peer.ip} because the relay is in non-discovery mode.`,
       )
@@ -124,11 +129,13 @@ class Monitor {
     if (
       this.guard.isSuspended(peer) ||
       this.guard.isMyself(peer) ||
+      this.pendingPeers[peer.ip] ||
       process.env.ARK_ENV === 'test'
     ) {
       return
     }
 
+    this.pendingPeers[peer.ip] = true
     const newPeer = new Peer(peer.ip, peer.port)
 
     if (this.guard.isBlacklisted(peer.ip)) {
@@ -177,6 +184,8 @@ class Monitor {
       )
 
       this.guard.suspend(newPeer)
+    } finally {
+      delete this.pendingPeers[peer.ip]
     }
   }
 
