@@ -1,5 +1,6 @@
 const yaml = require('js-yaml')
 const fs = require('fs')
+const path = require('path')
 
 const config = require('./configTemplate.json')
 
@@ -19,6 +20,8 @@ function genYaml(options) {
     .concat('./node_modules')
 
   // test split
+  const packagesSplit = splitPackagesByTestFiles(options.packages, 3)
+
   const jobs = [
     config.jobs['test-node10-0'],
     JSON.parse(JSON.stringify(config.jobs['test-node10-0'])),
@@ -31,10 +34,7 @@ function genYaml(options) {
     )
     testStep.run.command = testStep.run.command.replace(
       '{{TESTPATHS}}',
-      options.packages
-        .map(package => `./packages/${package}/`)
-        .filter((pkg, indexPkg) => (index + indexPkg) % jobs.length === 0)
-        .join(' '),
+      packagesSplit[index].map(package => `./packages/${package}/`).join(' '),
     )
 
     config.jobs[`test-node10-${index}`] = job
@@ -44,4 +44,44 @@ function genYaml(options) {
   fs.writeFile('.circleci/config.yml', yaml.safeDump(config), 'utf8', err => {
     if (err) console.error(err)
   })
+}
+
+function splitPackagesByTestFiles(packages, splitNumber) {
+  const packagesWithCount = packages.map(package => ({
+    package,
+    count: countFiles(`packages/${package}/__tests__`, '.test.js'),
+  }))
+  const packagesSortedByCount = packagesWithCount.sort(
+    (pkgA, pkgB) => pkgA.count > pkgB.count,
+  )
+
+  const packagesSplit = new Array(splitNumber)
+  packagesSortedByCount.forEach(
+    (pkg, index) =>
+      (packagesSplit[index % splitNumber] = [pkg.package].concat(
+        packagesSplit[index % splitNumber] || [],
+      )),
+  )
+
+  return packagesSplit
+}
+
+function countFiles(startPath, filter) {
+  let count = 0
+  if (!fs.existsSync(startPath)) {
+    return
+  }
+
+  var files = fs.readdirSync(startPath)
+  for (let i = 0; i < files.length; i++) {
+    const filename = path.join(startPath, files[i])
+    const stat = fs.lstatSync(filename)
+    if (stat.isDirectory()) {
+      count += countFiles(filename, filter)
+    } else if (filename.indexOf(filter) >= 0) {
+      count++
+    }
+  }
+
+  return count
 }
