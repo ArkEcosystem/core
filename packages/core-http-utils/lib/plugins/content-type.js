@@ -7,7 +7,7 @@ const register = async (server, options) => {
       const contentType = request.headers['content-type']
 
       if (contentType !== 'application/json') {
-        return Boom.notAcceptable()
+        return Boom.unsupportedMediaType()
       }
 
       return h.continue

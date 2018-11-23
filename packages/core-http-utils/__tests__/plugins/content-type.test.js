@@ -36,13 +36,13 @@ describe.skip('Plugins - Content-Type', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should return code 406', async () => {
+    it('should return code 415', async () => {
       try {
         await axios.get('http://0.0.0.0:3000/', {
           headers: { 'Content-Type': 'application/text' },
         })
       } catch (e) {
-        expect(e.response.status).toBe(406)
+        expect(e.response.status).toBe(415)
       }
     })
   })
