@@ -36,5 +36,8 @@
   },
   "engines": {
     "node": ">=10.x"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0"
   }
 }
