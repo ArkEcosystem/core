@@ -76,11 +76,11 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core ./packages/core-config
-            ./packages/core-database-postgres ./packages/core-elasticsearch
-            ./packages/core-event-emitter ./packages/core-http-utils
-            ./packages/core-logger-winston ./packages/core-snapshots-cli
-            ./packages/core-transaction-pool ./packages/core-vote-report
+            ./packages/core/ ./packages/core-config/
+            ./packages/core-database-postgres/ ./packages/core-elasticsearch/
+            ./packages/core-event-emitter/ ./packages/core-http-utils/
+            ./packages/core-logger-winston/ ./packages/core-snapshots-cli/
+            ./packages/core-transaction-pool/ ./packages/core-vote-report/
             --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
             test_output.txt
       - run:
@@ -172,11 +172,11 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-blockchain ./packages/core-database
-            ./packages/core-deployer ./packages/core-error-tracker-sentry
-            ./packages/core-graphql ./packages/core-logger
-            ./packages/core-snapshots ./packages/core-tester-cli
-            ./packages/core-utils ./packages/crypto --detectOpenHandles
+            ./packages/core-blockchain/ ./packages/core-database/
+            ./packages/core-deployer/ ./packages/core-error-tracker-sentry/
+            ./packages/core-graphql/ ./packages/core-logger/
+            ./packages/core-snapshots/ ./packages/core-tester-cli/
+            ./packages/core-utils/ ./packages/crypto/ --detectOpenHandles
             --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
@@ -267,12 +267,13 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-api ./packages/core-container
-            ./packages/core-debugger-cli ./packages/core-error-tracker-bugsnag
-            ./packages/core-forger ./packages/core-json-rpc ./packages/core-p2p
-            ./packages/core-test-utils ./packages/core-transaction-pool-mem
-            ./packages/core-webhooks --detectOpenHandles --runInBand --forceExit
-            --ci --coverage | tee test_output.txt
+            ./packages/core-api/ ./packages/core-container/
+            ./packages/core-debugger-cli/ ./packages/core-error-tracker-bugsnag/
+            ./packages/core-forger/ ./packages/core-json-rpc/
+            ./packages/core-p2p/ ./packages/core-test-utils/
+            ./packages/core-transaction-pool-mem/ ./packages/core-webhooks/
+            --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
+            test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail

@@ -32,7 +32,7 @@ function genYaml(options) {
     testStep.run.command = testStep.run.command.replace(
       '{{TESTPATHS}}',
       options.packages
-        .map(package => `./packages/${package}`)
+        .map(package => `./packages/${package}/`)
         .filter((pkg, indexPkg) => (index + indexPkg) % jobs.length === 0)
         .join(' '),
     )
