@@ -2,7 +2,7 @@ const container = require('@arkecosystem/core-container')
 
 const logger = container.resolvePlugin('logger')
 
-const dayjs = require('dayjs')
+const dayjs = require('dayjs-ext')
 const PoolWalletManager = require('./pool-wallet-manager')
 
 const database = container.resolvePlugin('database')

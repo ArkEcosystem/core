@@ -1,6 +1,6 @@
 const { format } = require('winston')
 const chalk = require('chalk')
-const dayjs = require('dayjs')
+const dayjs = require('dayjs-ext')
 const emoji = require('node-emoji')
 
 const { colorize, combine, timestamp, printf } = format

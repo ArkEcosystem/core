@@ -1,4 +1,4 @@
-const dayjs = require('dayjs')
+const dayjs = require('dayjs-ext')
 const app = require('./__support__/setup')
 
 let poolInterface

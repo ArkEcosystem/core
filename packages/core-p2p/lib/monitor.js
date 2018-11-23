@@ -2,7 +2,7 @@
 
 const prettyMs = require('pretty-ms')
 const fs = require('fs')
-const dayjs = require('dayjs')
+const dayjs = require('dayjs-ext')
 const delay = require('delay')
 const flatten = require('lodash/flatten')
 const groupBy = require('lodash/groupBy')
