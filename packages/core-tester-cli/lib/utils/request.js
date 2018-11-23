@@ -6,6 +6,7 @@ module.exports = config => {
     headers.nethash = config.network.nethash
     headers.version = '2.0.0'
     headers.port = config.p2pPort
+    headers['Content-Type'] = 'application/json'
   }
 
   return {

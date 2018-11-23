@@ -21,6 +21,7 @@ module.exports = class Client {
       port: container.resolveOptions('p2p').port,
       nethash: config.network.nethash,
       'x-auth': 'forger',
+      'Content-Type': 'application/json',
     }
   }
 
