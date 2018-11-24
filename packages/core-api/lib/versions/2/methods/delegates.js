@@ -103,11 +103,7 @@ module.exports = server => {
       expiresIn: 8 * 1000,
       generateTimeout: 3000,
     },
-    generateKey: request =>
-      generateCacheKey({
-        ...request.query,
-        ...utils.paginate(request),
-      }),
+    generateKey: request => generateCacheKey({ id: request.params.id }),
   })
 
   server.method('v2.delegates.search', search, {
@@ -117,6 +113,7 @@ module.exports = server => {
     },
     generateKey: request =>
       generateCacheKey({
+        ...request.payload,
         ...request.query,
         ...utils.paginate(request),
       }),
@@ -129,7 +126,7 @@ module.exports = server => {
     },
     generateKey: request =>
       generateCacheKey({
-        ...request.query,
+        ...{ id: request.params.id },
         ...utils.paginate(request),
       }),
   })
@@ -141,7 +138,7 @@ module.exports = server => {
     },
     generateKey: request =>
       generateCacheKey({
-        ...request.query,
+        ...{ id: request.params.id },
         ...utils.paginate(request),
       }),
   })
@@ -151,10 +148,6 @@ module.exports = server => {
       expiresIn: 8 * 1000,
       generateTimeout: 3000,
     },
-    generateKey: request =>
-      generateCacheKey({
-        ...request.query,
-        ...utils.paginate(request),
-      }),
+    generateKey: request => generateCacheKey({ id: request.params.id }),
   })
 }
