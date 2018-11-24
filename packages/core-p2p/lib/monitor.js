@@ -258,7 +258,9 @@ class Monitor {
         `${max -
           unresponsivePeers} of ${max} peers on the network are responsive`,
       )
-      logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
+      logger.info(
+        `Median Network Height: ${this.getNetworkHeight().toLocaleString()}`,
+      )
       logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
     }
   }
@@ -412,7 +414,7 @@ class Monitor {
       .map(peer => peer.state.height)
       .sort()
 
-    return medians[Math.floor(medians.length / 2)]
+    return medians[Math.floor(medians.length / 2)] || 0
   }
 
   /**
