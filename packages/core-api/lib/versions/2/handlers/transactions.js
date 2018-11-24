@@ -83,7 +83,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.transactions.index(request)
+    return request.server.methods.v2.transactions.show(request)
   },
   options: {
     validate: schema.show,

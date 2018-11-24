@@ -97,13 +97,13 @@ module.exports = server => {
       }),
   })
 
-  // server.method('v1.delegates.count', count, {
-  //   cache: {
-  //     expiresIn: 8 * 1000,
-  //     generateTimeout: 3000,
-  //   },
-  //   generateKey: request => generateCacheKey(),
-  // })
+  server.method('v1.delegates.count', count, {
+    cache: {
+      expiresIn: 8 * 1000,
+      generateTimeout: 3000,
+    },
+    generateKey: request => generateCacheKey({ time: +new Date() }),
+  })
 
   server.method('v1.delegates.search', search, {
     cache: {
