@@ -105,4 +105,17 @@ describe('Plugin Registrar', () => {
       expect(spy).toHaveBeenNthCalledWith(2, 'a')
     })
   })
+
+  describe('__castOptions', () => {
+    it('should cast options', async () => {
+      const options = {
+        number: '1',
+        notANumber: '0.0.0.0',
+      }
+
+      instance.__castOptions(options)
+      expect(options.number).toEqual(1)
+      expect(options.notANumber).toEqual('0.0.0.0')
+    })
+  })
 })
