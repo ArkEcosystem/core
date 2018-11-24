@@ -9,6 +9,8 @@ const wallets = require('./handlers/wallets')
 
 const registerBlockMethods = require('./methods/blocks')
 const registerTransactionMethods = require('./methods/transactions')
+const registerWalletMethods = require('./methods/wallets')
+const registerVoteMethods = require('./methods/votes')
 
 /**
  * Register the v2 routes.
@@ -19,6 +21,8 @@ const registerTransactionMethods = require('./methods/transactions')
 const register = async (server, options) => {
   registerBlockMethods(server)
   registerTransactionMethods(server)
+  registerWalletMethods(server)
+  registerVoteMethods(server)
 
   server.route([
     { method: 'GET', path: '/blockchain', ...blockchain.index },

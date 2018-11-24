@@ -1,5 +1,4 @@
 const Boom = require('boom')
-const pluralize = require('pluralize')
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')

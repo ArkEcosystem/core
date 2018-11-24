@@ -1,11 +1,4 @@
-const Boom = require('boom')
-const utils = require('../utils')
 const schema = require('../schema/blocks')
-
-const {
-  blocks: blocksRepository,
-  transactions: transactionsRepository,
-} = require('../../../repositories')
 
 /**
  * @type {Object}
