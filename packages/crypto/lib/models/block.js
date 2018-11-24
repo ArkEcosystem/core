@@ -79,9 +79,6 @@ module.exports = class Block {
       this.data.id = outlookTable[this.data.id]
       this.data.idHex = toBytesHex(this.data.id)
     }
-    if (data.id !== this.data.id) {
-      console.error(`'${this.data.id}': '${data.id}',`)
-    }
 
     if (data.height === 1) {
       this.genesis = true
@@ -120,12 +117,6 @@ module.exports = class Block {
       const temp = this.transactions[0]
       this.transactions[0] = this.transactions[1]
       this.transactions[1] = temp
-    }
-
-    if (!this.verification.verified && this.data.height !== 1) {
-      // console.error(JSON.stringify(data, null, 2))
-      console.error(this.serialized)
-      console.error(this.verification)
     }
   }
 
