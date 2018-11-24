@@ -1,3 +1,4 @@
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/delegates')
 
 /**
@@ -10,7 +11,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.delegates.index(request)
+    const data = await request.server.methods.v2.delegates.index(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -27,7 +30,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.delegates.show(request)
+    const data = await request.server.methods.v2.delegates.show(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.show,
@@ -44,7 +49,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.delegates.search(request)
+    const data = await request.server.methods.v2.delegates.search(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.search,
@@ -61,7 +68,9 @@ exports.blocks = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.delegates.blocks(request)
+    const data = await request.server.methods.v2.delegates.blocks(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.blocks,
@@ -78,7 +87,9 @@ exports.voters = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.delegates.voters(request)
+    const data = await request.server.methods.v2.delegates.voters(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.voters,
@@ -95,7 +106,11 @@ exports.voterBalances = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.delegates.voterBalances(request)
+    const data = await request.server.methods.v2.delegates.voterBalances(
+      request,
+    )
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.voterBalances,

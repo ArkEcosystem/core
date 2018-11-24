@@ -6,7 +6,6 @@ const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/blocks')
-const { blocks: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -18,7 +17,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.blocks.index(request)
+    const data = await request.server.methods.v1.blocks.index(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -39,7 +40,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.blocks.show(request)
+    const data = await request.server.methods.v1.blocks.show(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {

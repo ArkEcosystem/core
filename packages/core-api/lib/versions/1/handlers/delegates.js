@@ -18,7 +18,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.delegates.index(request)
+    const data = await request.server.methods.v1.delegates.index(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -39,7 +41,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.delegates.show(request)
+    const data = await request.server.methods.v1.delegates.show(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -60,7 +64,9 @@ exports.count = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.delegates.count(request)
+    const data = await request.server.methods.v1.delegates.count(request)
+
+    return utils.respondWithCache(data, h)
   },
 }
 
@@ -74,7 +80,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.delegates.search(request)
+    const data = await request.server.methods.v1.delegates.search(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -95,7 +103,9 @@ exports.voters = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.delegates.voters(request)
+    const data = await request.server.methods.v1.delegates.voters(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {

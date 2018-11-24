@@ -17,7 +17,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.accounts.index(request)
+    const data = await request.server.methods.v1.accounts.index(request)
+
+    return utils.respondWithCache(data, h)
   },
 }
 
@@ -31,7 +33,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.accounts.show(request)
+    const data = await request.server.methods.v1.accounts.show(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -52,7 +56,9 @@ exports.balance = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.accounts.balance(request)
+    const data = await request.server.methods.v1.accounts.balance(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -73,7 +79,9 @@ exports.publicKey = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.accounts.publicKey(request)
+    const data = await request.server.methods.v1.accounts.publicKey(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {

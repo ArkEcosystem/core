@@ -1,3 +1,4 @@
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/blocks')
 
 /**
@@ -10,7 +11,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.blocks.index(request)
+    const data = await request.server.methods.v2.blocks.index(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -27,7 +30,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.blocks.show(request)
+    const data = await request.server.methods.v2.blocks.show(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.show,
@@ -44,7 +49,9 @@ exports.transactions = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.blocks.transactions(request)
+    const data = await request.server.methods.v2.blocks.transactions(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactions,
@@ -61,7 +68,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.blocks.search(request)
+    const data = await request.server.methods.v2.blocks.search(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.search,

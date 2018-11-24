@@ -1,3 +1,4 @@
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/wallets')
 
 /**
@@ -10,7 +11,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.index(request)
+    const data = await request.server.methods.v2.wallets.index(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -27,7 +30,9 @@ exports.top = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.top(request)
+    const data = await request.server.methods.v2.wallets.top(request)
+
+    return respondWithCache(data, h)
   },
   // TODO: create top schema
 }
@@ -42,7 +47,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.show(request)
+    const data = await request.server.methods.v2.wallets.show(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.show,
@@ -59,7 +66,9 @@ exports.transactions = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.transactions(request)
+    const data = await request.server.methods.v2.wallets.transactions(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactions,
@@ -76,7 +85,11 @@ exports.transactionsSent = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.transactionsSent(request)
+    const data = await request.server.methods.v2.wallets.transactionsSent(
+      request,
+    )
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactionsSent,
@@ -93,7 +106,11 @@ exports.transactionsReceived = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.transactionsReceived(request)
+    const data = await request.server.methods.v2.wallets.transactionsReceived(
+      request,
+    )
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactionsReceived,
@@ -110,7 +127,9 @@ exports.votes = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.votes(request)
+    const data = await request.server.methods.v2.wallets.votes(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.votes,
@@ -127,7 +146,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.wallets.search(request)
+    const data = await request.server.methods.v2.wallets.search(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.search,

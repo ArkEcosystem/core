@@ -25,6 +25,19 @@ const respondWith = (data, error = false) =>
   error ? { error: data, success: false } : { ...data, success: true }
 
 /**
+ * Respond with data from cache.
+ * @param  {Object} data
+ * @param  {Hapi.Toolkit} h
+ * @return {Object}
+ */
+const respondWithCache = (data, h) => {
+  const { value, cached } = data
+  const lastModified = cached ? new Date(cached.stored) : new Date()
+
+  return h.response(value).header('Last-modified', lastModified.toUTCString())
+}
+
+/**
  * Transform the given data into a resource.
  * @param  {Hapi.Request} request
  * @param  {Object} data
@@ -49,6 +62,7 @@ const toCollection = transformCollection
 module.exports = {
   paginate,
   respondWith,
+  respondWithCache,
   toResource,
   toCollection,
 }

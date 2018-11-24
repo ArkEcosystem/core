@@ -4,7 +4,6 @@ const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
-const { transactions: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -16,7 +15,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.transactions.index(request)
+    const data = await request.server.methods.v1.transactions.index(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -37,7 +38,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v1.transactions.show(request)
+    const data = await request.server.methods.v1.transactions.show(request)
+
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {

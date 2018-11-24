@@ -22,7 +22,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.transactions.index(request)
+    const data = await request.server.methods.v2.transactions.index(request)
+
+    return utils.respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -83,7 +85,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.transactions.show(request)
+    const data = await request.server.methods.v2.transactions.show(request)
+
+    return utils.respondWithCache(data, h)
   },
   options: {
     validate: schema.show,
@@ -167,7 +171,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.transactions.search(request)
+    const data = await request.server.methods.v2.transactions.search(request)
+
+    return utils.respondWithCache(data, h)
   },
   options: {
     validate: schema.search,

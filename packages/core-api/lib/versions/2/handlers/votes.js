@@ -1,3 +1,4 @@
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/votes')
 
 /**
@@ -10,7 +11,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.votes.index(request)
+    const data = await request.server.methods.v2.votes.index(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -27,7 +30,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    return request.server.methods.v2.votes.show(request)
+    const data = await request.server.methods.v2.votes.show(request)
+
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.show,

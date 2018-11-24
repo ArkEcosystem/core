@@ -36,6 +36,7 @@ module.exports = server => {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout: 3000,
+      getDecoratedValue: true,
     },
     generateKey: request =>
       generateCacheKey({
@@ -48,6 +49,7 @@ module.exports = server => {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout: 3000,
+      getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.params.id }),
   })
