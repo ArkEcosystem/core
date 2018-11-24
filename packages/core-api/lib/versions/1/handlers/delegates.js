@@ -18,18 +18,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { count, rows } = await database.delegates.paginate({
-      ...request.query,
-      ...{
-        offset: request.query.offset || 0,
-        limit: request.query.limit || 51,
-      },
-    })
-
-    return utils.respondWith({
-      delegates: utils.toCollection(request, rows, 'delegate'),
-      totalCount: count,
-    })
+    return request.server.methods.v1.delegates.index(request)
   },
   config: {
     plugins: {
@@ -50,21 +39,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    if (!request.query.publicKey && !request.query.username) {
-      return utils.respondWith('Delegate not found', true)
-    }
-
-    const delegate = await database.delegates.findById(
-      request.query.publicKey || request.query.username,
-    )
-
-    if (!delegate) {
-      return utils.respondWith('Delegate not found', true)
-    }
-
-    return utils.respondWith({
-      delegate: utils.toResource(request, delegate, 'delegate'),
-    })
+    return request.server.methods.v1.delegates.show(request)
   },
   config: {
     plugins: {
@@ -85,9 +60,7 @@ exports.count = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { count } = await database.delegates.findAll()
-
-    return utils.respondWith({ count })
+    return request.server.methods.v1.delegates.count(request)
   },
 }
 
@@ -101,17 +74,7 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const query = {
-      username: request.query.q,
-    }
-    const { rows } = await database.delegates.search({
-      ...query,
-      ...utils.paginate(request),
-    })
-
-    return utils.respondWith({
-      delegates: utils.toCollection(request, rows, 'delegate'),
-    })
+    return request.server.methods.v1.delegates.search(request)
   },
   config: {
     plugins: {
@@ -132,19 +95,7 @@ exports.voters = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const delegate = await database.delegates.findById(request.query.publicKey)
-
-    if (!delegate) {
-      return utils.respondWith({
-        accounts: [],
-      })
-    }
-
-    const accounts = await database.wallets.findAllByVote(delegate.publicKey)
-
-    return utils.respondWith({
-      accounts: utils.toCollection(request, accounts.rows, 'voter'),
-    })
+    return request.server.methods.v1.delegates.voters(request)
   },
   config: {
     plugins: {

@@ -8,6 +8,7 @@ const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
 
 const registerBlockMethods = require('./methods/blocks')
+const registerDelegateMethods = require('./methods/delegates')
 const registerTransactionMethods = require('./methods/transactions')
 const registerWalletMethods = require('./methods/wallets')
 const registerVoteMethods = require('./methods/votes')
@@ -20,6 +21,7 @@ const registerVoteMethods = require('./methods/votes')
  */
 const register = async (server, options) => {
   registerBlockMethods(server)
+  registerDelegateMethods(server)
   registerTransactionMethods(server)
   registerWalletMethods(server)
   registerVoteMethods(server)
