@@ -359,6 +359,12 @@ class TransactionPool extends TransactionPoolInterface {
    * @return {Boolean}
    */
   transactionExists(transactionId) {
+    if (!this.mem.transactionExists(transactionId)) {
+      // If it does not exist then no need to purge expired transactions because
+      // we know it will not exist after purge too.
+      return false
+    }
+
     this.__purgeExpired()
 
     return this.mem.transactionExists(transactionId)
