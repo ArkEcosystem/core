@@ -34,6 +34,11 @@ class Monitor {
   constructor() {
     this.peers = {}
     this.coldStartPeriod = dayjs().add(config.peers.coldStart || 30, 'seconds')
+
+    // Holds temporary peers which are in the process of being accepted. Prevents that
+    // peers who are not accepted yet, but send multiple requests in a short timeframe will
+    // get processed multiple times in `acceptNewPeer`.
+    this.pendingPeers = {}
   }
 
   /**
@@ -80,22 +85,17 @@ class Monitor {
     }
 
     try {
-      const realEnvironment = process.env.ARK_ENV !== 'test'
-
-      if (realEnvironment) {
+      if (process.env.ARK_ENV !== 'test') {
         await this.discoverPeers()
         await this.cleanPeers()
-      }
 
-      if (
-        Object.keys(this.peers).length < config.peers.list.length - 1 &&
-        realEnvironment
-      ) {
-        config.peers.list.forEach(peer => {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-        }, this)
+        if (!this.hasMinimumPeers()) {
+          config.peers.list.forEach(peer => {
+            this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+          }, this)
 
-        return this.updateNetworkStatus()
+          return this.updateNetworkStatus()
+        }
       }
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
@@ -104,8 +104,31 @@ class Monitor {
         this.peers[peer.ip] = new Peer(peer.ip, peer.port)
       }, this)
 
+      // Wait for a moment if there was an error
+      await delay(500)
+
       return this.updateNetworkStatus()
     }
+  }
+
+  /**
+   * Updates the network status if not enough peers are available.
+   * NOTE: This is usually only necessary for nodes without incoming requests,
+   * since the available peers are depleting over time due to suspensions.
+   * @return {void}
+   */
+  async updateNetworkStatusIfNotEnoughPeers() {
+    if (!this.hasMinimumPeers() && process.env.ARK_ENV !== 'test') {
+      await this.updateNetworkStatus()
+    }
+  }
+
+  /**
+   * Returns if the minimum amount of peers are available.
+   * @return {Boolean}
+   */
+  hasMinimumPeers() {
+    return Object.keys(this.peers).length >= config.peers.list.length - 1
   }
 
   /**
@@ -114,7 +137,7 @@ class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer(peer) {
-    if (this.config.disableDiscovery) {
+    if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
       logger.warn(
         `Rejected ${peer.ip} because the relay is in non-discovery mode.`,
       )
@@ -124,11 +147,13 @@ class Monitor {
     if (
       this.guard.isSuspended(peer) ||
       this.guard.isMyself(peer) ||
+      this.pendingPeers[peer.ip] ||
       process.env.ARK_ENV === 'test'
     ) {
       return
     }
 
+    this.pendingPeers[peer.ip] = true
     const newPeer = new Peer(peer.ip, peer.port)
 
     if (this.guard.isBlacklisted(peer.ip)) {
@@ -177,6 +202,8 @@ class Monitor {
       )
 
       this.guard.suspend(newPeer)
+    } finally {
+      delete this.pendingPeers[peer.ip]
     }
   }
 

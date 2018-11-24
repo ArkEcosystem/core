@@ -1,6 +1,7 @@
 const axios = require('axios')
 const chunk = require('lodash/chunk')
 const util = require('util')
+const dayjs = require('dayjs-ext')
 const container = require('@arkecosystem/core-container')
 
 const logger = container.resolvePlugin('logger')
@@ -19,6 +20,7 @@ module.exports = class Peer {
     this.url = `${port % 443 === 0 ? 'https://' : 'http://'}${ip}:${port}`
     this.state = {}
     this.offences = []
+    this.lastPinged = null
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,
@@ -140,24 +142,37 @@ module.exports = class Peer {
   }
 
   /**
-   * Perform ping request on peer.
+   * Perform ping request on this peer if it has not been
+   * recently pinged.
    * @param  {Number} [delay=5000]
    * @return {Object}
    * @throws {Error} If fail to get peer status.
    */
   async ping(delay) {
+    if (this.recentlyPinged()) {
+      return
+    }
+
     const body = await this.__get(
       '/peer/status',
       delay || config.peers.globalTimeout,
     )
 
-    if (body) {
-      this.state = body
-
-      return body
+    if (!body) {
+      throw new Error(`Peer ${this.ip} is unresponsive`)
     }
 
-    throw new Error(`Peer ${this.ip} is unresponsive`)
+    this.lastPinged = dayjs()
+    this.state = body
+    return body
+  }
+
+  /**
+   * Returns true if this peer was pinged the past 2 minutes.
+   * @return {Boolean}
+   */
+  recentlyPinged() {
+    return !!this.lastPinged && dayjs().diff(this.lastPinged, 'm') < 2
   }
 
   /**
