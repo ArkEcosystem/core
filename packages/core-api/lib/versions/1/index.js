@@ -6,6 +6,9 @@ const signatures = require('./handlers/signatures')
 const transactions = require('./handlers/transactions')
 const accounts = require('./handlers/accounts')
 
+const registerBlockMethods = require('./methods/blocks')
+const registerTransactionMethods = require('./methods/transactions')
+
 /**
  * Register the v1 routes.
  * @param  {Hapi.Server} server
@@ -13,6 +16,9 @@ const accounts = require('./handlers/accounts')
  * @return {void}
  */
 const register = async (server, options) => {
+  registerBlockMethods(server)
+  registerTransactionMethods(server)
+
   server.route([
     { method: 'GET', path: '/accounts/getAllAccounts', ...accounts.index },
     { method: 'GET', path: '/accounts', ...accounts.show },

@@ -17,12 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const blocks = await blocksRepository.findAll({
-      ...request.query,
-      ...utils.paginate(request),
-    })
-
-    return utils.toPagination(request, blocks, 'block')
+    return request.server.methods.v2.blocks.index(request)
   },
   options: {
     validate: schema.index,
@@ -39,13 +34,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const block = await blocksRepository.findById(request.params.id)
-
-    if (!block) {
-      return Boom.notFound('Block not found')
-    }
-
-    return utils.respondWithResource(request, block, 'block')
+    return request.server.methods.v2.blocks.show(request)
   },
   options: {
     validate: schema.show,
@@ -62,18 +51,7 @@ exports.transactions = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const block = await blocksRepository.findById(request.params.id)
-
-    if (!block) {
-      return Boom.notFound('Block not found')
-    }
-
-    const transactions = await transactionsRepository.findAllByBlock(block.id, {
-      ...request.query,
-      ...utils.paginate(request),
-    })
-
-    return utils.toPagination(request, transactions, 'transaction')
+    return request.server.methods.v2.blocks.transactions(request)
   },
   options: {
     validate: schema.transactions,
@@ -90,13 +68,7 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const blocks = await blocksRepository.search({
-      ...request.payload,
-      ...request.query,
-      ...utils.paginate(request),
-    })
-
-    return utils.toPagination(request, blocks, 'block')
+    return request.server.methods.v2.blocks.search(request)
   },
   options: {
     validate: schema.search,

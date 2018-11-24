@@ -16,19 +16,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { count, rows } = await repository.findAllLegacy({
-      ...request.query,
-      ...utils.paginate(request),
-    })
-
-    if (!rows) {
-      return utils.respondWith('No transactions found', true)
-    }
-
-    return utils.respondWith({
-      transactions: utils.toCollection(request, rows, 'transaction'),
-      count,
-    })
+    return request.server.methods.v1.transactions.index(request)
   },
   config: {
     plugins: {
@@ -49,15 +37,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const result = await repository.findById(request.query.id)
-
-    if (!result) {
-      return utils.respondWith('No transactions found', true)
-    }
-
-    return utils.respondWith({
-      transaction: utils.toResource(request, result, 'transaction'),
-    })
+    return request.server.methods.v1.transactions.show(request)
   },
   config: {
     plugins: {

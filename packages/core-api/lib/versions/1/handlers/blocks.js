@@ -18,19 +18,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { count, rows } = await repository.findAll({
-      ...request.query,
-      ...utils.paginate(request),
-    })
-
-    if (!rows) {
-      return utils.respondWith('No blocks found', true)
-    }
-
-    return utils.respondWith({
-      blocks: utils.toCollection(request, rows, 'block'),
-      count,
-    })
+    return request.server.methods.v1.blocks.index(request)
   },
   config: {
     plugins: {
@@ -51,18 +39,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const block = await repository.findById(request.query.id)
-
-    if (!block) {
-      return utils.respondWith(
-        `Block with id ${request.query.id} not found`,
-        true,
-      )
-    }
-
-    return utils.respondWith({
-      block: utils.toResource(request, block, 'block'),
-    })
+    return request.server.methods.v1.blocks.show(request)
   },
   config: {
     plugins: {

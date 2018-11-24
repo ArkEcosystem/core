@@ -7,6 +7,9 @@ const transactions = require('./handlers/transactions')
 const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
 
+const registerBlockMethods = require('./methods/blocks')
+const registerTransactionMethods = require('./methods/transactions')
+
 /**
  * Register the v2 routes.
  * @param  {Hapi.Server} server
@@ -14,6 +17,9 @@ const wallets = require('./handlers/wallets')
  * @return {void}
  */
 const register = async (server, options) => {
+  registerBlockMethods(server)
+  registerTransactionMethods(server)
+
   server.route([
     { method: 'GET', path: '/blockchain', ...blockchain.index },
 
