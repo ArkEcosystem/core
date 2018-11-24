@@ -367,7 +367,7 @@ class TransactionPool extends TransactionPoolInterface {
 
     this.__purgeExpired()
 
-    return this.mem.transactionExists(transactionId)
+    return true
   }
 
   /**
