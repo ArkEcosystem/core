@@ -4,7 +4,6 @@ const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
-const { transactions: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -16,19 +15,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { count, rows } = await repository.findAllLegacy({
-      ...request.query,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v1.transactions.index(request)
 
-    if (!rows) {
-      return utils.respondWith('No transactions found', true)
-    }
-
-    return utils.respondWith({
-      transactions: utils.toCollection(request, rows, 'transaction'),
-      count,
-    })
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -49,15 +38,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const result = await repository.findById(request.query.id)
+    const data = await request.server.methods.v1.transactions.show(request)
 
-    if (!result) {
-      return utils.respondWith('No transactions found', true)
-    }
-
-    return utils.respondWith({
-      transaction: utils.toResource(request, result, 'transaction'),
-    })
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {

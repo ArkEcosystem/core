@@ -29,9 +29,10 @@ const paginate = request => {
  * @param  {String} transformer
  * @return {Object}
  */
-const respondWithResource = (request, data, transformer) => (data
-  ? { data: transformResource(request, data, transformer) }
-  : Boom.notFound())
+const respondWithResource = (request, data, transformer) =>
+  data
+    ? { data: transformResource(request, data, transformer) }
+    : Boom.notFound()
 
 /**
  * Respond with a collection.
@@ -45,13 +46,27 @@ const respondWithCollection = (request, data, transformer) => ({
 })
 
 /**
+ * Respond with data from cache.
+ * @param  {Object} data
+ * @param  {Hapi.Toolkit} h
+ * @return {Object}
+ */
+const respondWithCache = (data, h) => {
+  const { value, cached } = data
+  const lastModified = cached ? new Date(cached.stored) : new Date()
+
+  return h.response(value).header('Last-modified', lastModified.toUTCString())
+}
+
+/**
  * Transform the given data into a resource.
  * @param  {Hapi.Request} request
  * @param  {Object} data
  * @param  {String} transformer
  * @return {Object}
  */
-const toResource = (request, data, transformer) => transformResource(request, data, transformer)
+const toResource = (request, data, transformer) =>
+  transformResource(request, data, transformer)
 
 /**
  * Transform the given data into a collection.
@@ -60,7 +75,8 @@ const toResource = (request, data, transformer) => transformResource(request, da
  * @param  {String} transformer
  * @return {Object}
  */
-const toCollection = (request, data, transformer) => transformCollection(request, data, transformer)
+const toCollection = (request, data, transformer) =>
+  transformCollection(request, data, transformer)
 
 /**
  * Transform the given data into a pagination.
@@ -81,6 +97,7 @@ module.exports = {
   paginate,
   respondWithResource,
   respondWithCollection,
+  respondWithCache,
   toResource,
   toCollection,
   toPagination,

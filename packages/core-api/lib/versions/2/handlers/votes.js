@@ -1,10 +1,5 @@
-const Boom = require('boom')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const utils = require('../utils')
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/votes')
-const {
-  transactions: transactionsRepository,
-} = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -16,15 +11,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const transactions = await transactionsRepository.findAllByType(
-      TRANSACTION_TYPES.VOTE,
-      {
-        ...request.query,
-        ...utils.paginate(request),
-      },
-    )
+    const data = await request.server.methods.v2.votes.index(request)
 
-    return utils.toPagination(request, transactions, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -41,16 +30,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const transaction = await transactionsRepository.findByTypeAndId(
-      TRANSACTION_TYPES.VOTE,
-      request.params.id,
-    )
+    const data = await request.server.methods.v2.votes.show(request)
 
-    if (!transaction) {
-      return Boom.notFound('Vote not found')
-    }
-
-    return utils.respondWithResource(request, transaction, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.show,

@@ -1,12 +1,5 @@
-const Boom = require('boom')
-const database = require('@arkecosystem/core-container').resolvePlugin(
-  'database',
-)
-const utils = require('../utils')
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/wallets')
-const {
-  transactions: transactionsRepository,
-} = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -18,12 +11,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallets = await database.wallets.findAll({
-      ...request.query,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v2.wallets.index(request)
 
-    return utils.toPagination(request, wallets, 'wallet')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -40,9 +30,9 @@ exports.top = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallets = await database.wallets.top(utils.paginate(request))
+    const data = await request.server.methods.v2.wallets.top(request)
 
-    return utils.toPagination(request, wallets, 'wallet')
+    return respondWithCache(data, h)
   },
   // TODO: create top schema
 }
@@ -57,13 +47,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallet = await database.wallets.findById(request.params.id)
+    const data = await request.server.methods.v2.wallets.show(request)
 
-    if (!wallet) {
-      return Boom.notFound('Wallet not found')
-    }
-
-    return utils.respondWithResource(request, wallet, 'wallet')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.show,
@@ -80,19 +66,9 @@ exports.transactions = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallet = await database.wallets.findById(request.params.id)
+    const data = await request.server.methods.v2.wallets.transactions(request)
 
-    if (!wallet) {
-      return Boom.notFound('Wallet not found')
-    }
-
-    const transactions = await transactionsRepository.findAllByWallet(wallet, {
-      ...request.query,
-      ...request.params,
-      ...utils.paginate(request),
-    })
-
-    return utils.toPagination(request, transactions, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactions,
@@ -109,25 +85,11 @@ exports.transactionsSent = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallet = await database.wallets.findById(request.params.id)
-
-    if (!wallet) {
-      return Boom.notFound('Wallet not found')
-    }
-
-    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-    delete request.params.id
-
-    const transactions = await transactionsRepository.findAllBySender(
-      wallet.publicKey,
-      {
-        ...request.query,
-        ...request.params,
-        ...utils.paginate(request),
-      },
+    const data = await request.server.methods.v2.wallets.transactionsSent(
+      request,
     )
 
-    return utils.toPagination(request, transactions, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactionsSent,
@@ -144,25 +106,11 @@ exports.transactionsReceived = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallet = await database.wallets.findById(request.params.id)
-
-    if (!wallet) {
-      return Boom.notFound('Wallet not found')
-    }
-
-    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-    delete request.params.id
-
-    const transactions = await transactionsRepository.findAllByRecipient(
-      wallet.address,
-      {
-        ...request.query,
-        ...request.params,
-        ...utils.paginate(request),
-      },
+    const data = await request.server.methods.v2.wallets.transactionsReceived(
+      request,
     )
 
-    return utils.toPagination(request, transactions, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactionsReceived,
@@ -179,24 +127,9 @@ exports.votes = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallet = await database.wallets.findById(request.params.id)
+    const data = await request.server.methods.v2.wallets.votes(request)
 
-    if (!wallet) {
-      return Boom.notFound('Wallet not found')
-    }
-
-    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-    delete request.params.id
-
-    const transactions = await transactionsRepository.allVotesBySender(
-      wallet.publicKey,
-      {
-        ...request.params,
-        ...utils.paginate(request),
-      },
-    )
-
-    return utils.toPagination(request, transactions, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.votes,
@@ -213,13 +146,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const wallets = await database.wallets.search({
-      ...request.payload,
-      ...request.query,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v2.wallets.search(request)
 
-    return utils.toPagination(request, wallets, 'wallet')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.search,
