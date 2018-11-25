@@ -363,6 +363,7 @@ describe('Transaction Guard', () => {
     })
 
     it('should reject duplicate transactions', () => {
+      const transactionExists = guard.pool.transactionExists
       guard.pool.transactionExists = jest.fn(() => true)
 
       const tx = { id: '1' }
@@ -374,9 +375,12 @@ describe('Transaction Guard', () => {
           type: 'ERR_DUPLICATE',
         },
       ])
+
+      guard.pool.transactionExists = transactionExists
     })
 
     it('should reject blocked senders', () => {
+      const transactionExists = guard.pool.transactionExists
       guard.pool.transactionExists = jest.fn(() => false)
       const isSenderBlocked = guard.pool.isSenderBlocked
       guard.pool.isSenderBlocked = jest.fn(() => true)
@@ -394,10 +398,12 @@ describe('Transaction Guard', () => {
       ])
 
       guard.pool.isSenderBlocked = isSenderBlocked
+      guard.pool.transactionExists = transactionExists
     })
 
     it('should reject transactions from the future', () => {
       const now = 47157042 // seconds since genesis block
+      const transactionExists = guard.pool.transactionExists
       guard.pool.transactionExists = jest.fn(() => false)
       const getTime = slots.getTime
       slots.getTime = jest.fn(() => now)
@@ -420,6 +426,7 @@ describe('Transaction Guard', () => {
       ])
 
       slots.getTime = getTime
+      guard.pool.transactionExists = transactionExists
     })
   })
 
@@ -429,9 +436,131 @@ describe('Transaction Guard', () => {
     })
   })
 
+  describe('__removeForgedTransactions', () => {
+    it('should be a function', () => {
+      expect(guard.__removeForgedTransactions).toBeFunction()
+    })
+
+    it('should remove forged transactions', async () => {
+      const database = container.resolvePlugin('database')
+      const getForgedTransactionsIds = database.getForgedTransactionsIds
+
+      const transfers = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[0].senderPublicKey,
+        1,
+        4,
+      )
+
+      transfers.forEach(tx => {
+        guard.accept.set(tx.id, tx)
+        guard.broadcast.set(tx.id, tx)
+      })
+
+      const forgedTx = transfers[2]
+      database.getForgedTransactionsIds = jest.fn(() => [forgedTx.id])
+
+      await guard.__removeForgedTransactions()
+
+      expect(guard.accept.size).toBe(3)
+      expect(guard.broadcast.size).toBe(3)
+
+      expect(guard.errors[forgedTx.id]).toHaveLength(1)
+      expect(guard.errors[forgedTx.id][0].type).toEqual('ERR_FORGED')
+
+      database.getForgedTransactionsIds = getForgedTransactionsIds
+    })
+  })
+
   describe('__addTransactionsToPool', () => {
     it('should be a function', () => {
       expect(guard.__addTransactionsToPool).toBeFunction()
+    })
+
+    it('should add transactions to the pool', () => {
+      const transfers = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[0].senderPublicKey,
+        1,
+        4,
+      )
+
+      transfers.forEach(tx => {
+        guard.accept.set(tx.id, tx)
+        guard.broadcast.set(tx.id, tx)
+      })
+
+      expect(guard.errors).toEqual({})
+
+      guard.__addTransactionsToPool()
+
+      expect(guard.errors).toEqual({})
+      expect(guard.accept.size).toBe(4)
+      expect(guard.broadcast.size).toBe(4)
+    })
+
+    it('should raise ERR_ALREADY_IN_POOL when adding existing transactions', () => {
+      const transfers = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[0].senderPublicKey,
+        1,
+        4,
+      )
+
+      transfers.forEach(tx => {
+        guard.accept.set(tx.id, tx)
+        guard.broadcast.set(tx.id, tx)
+      })
+
+      expect(guard.errors).toEqual({})
+
+      guard.__addTransactionsToPool()
+
+      expect(guard.errors).toEqual({})
+      expect(guard.accept.size).toBe(4)
+      expect(guard.broadcast.size).toBe(4)
+
+      // Adding again invokes ERR_ALREADY_IN_POOL
+      guard.__addTransactionsToPool()
+
+      expect(guard.accept.size).toBe(0)
+      expect(guard.broadcast.size).toBe(0)
+
+      for (const transfer of transfers) {
+        expect(guard.errors[transfer.id]).toHaveLength(1)
+        expect(guard.errors[transfer.id][0].type).toEqual('ERR_ALREADY_IN_POOL')
+      }
+    })
+
+    it('should raise ERR_POOL_FULL when attempting to add transactions to a full pool', () => {
+      const poolSize = transactionPool.options.maxTransactionsInPool
+      transactionPool.options.maxTransactionsInPool = 3
+
+      const transfers = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[0].senderPublicKey,
+        1,
+        4,
+      )
+
+      transfers.forEach(tx => {
+        guard.accept.set(tx.id, tx)
+        guard.broadcast.set(tx.id, tx)
+      })
+
+      guard.__addTransactionsToPool()
+
+      expect(guard.accept.size).toBe(3)
+      expect(guard.broadcast.size).toBe(4)
+
+      expect(guard.errors[transfers[3].id]).toHaveLength(1)
+      expect(guard.errors[transfers[3].id][0].type).toEqual('ERR_POOL_FULL')
+
+      transactionPool.options.maxTransactionsInPool = poolSize
     })
   })
 
