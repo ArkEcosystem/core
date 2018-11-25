@@ -363,6 +363,7 @@ describe('Transaction Guard', () => {
     })
 
     it('should reject duplicate transactions', () => {
+      const transactionExists = guard.pool.transactionExists
       guard.pool.transactionExists = jest.fn(() => true)
 
       const tx = { id: '1' }
@@ -374,9 +375,12 @@ describe('Transaction Guard', () => {
           type: 'ERR_DUPLICATE',
         },
       ])
+
+      guard.pool.transactionExists = transactionExists
     })
 
     it('should reject blocked senders', () => {
+      const transactionExists = guard.pool.transactionExists
       guard.pool.transactionExists = jest.fn(() => false)
       const isSenderBlocked = guard.pool.isSenderBlocked
       guard.pool.isSenderBlocked = jest.fn(() => true)
@@ -394,10 +398,12 @@ describe('Transaction Guard', () => {
       ])
 
       guard.pool.isSenderBlocked = isSenderBlocked
+      guard.pool.transactionExists = transactionExists
     })
 
     it('should reject transactions from the future', () => {
       const now = 47157042 // seconds since genesis block
+      const transactionExists = guard.pool.transactionExists
       guard.pool.transactionExists = jest.fn(() => false)
       const getTime = slots.getTime
       slots.getTime = jest.fn(() => now)
@@ -420,12 +426,50 @@ describe('Transaction Guard', () => {
       ])
 
       slots.getTime = getTime
+      guard.pool.transactionExists = transactionExists
     })
   })
 
   describe('__validateTransaction', () => {
     it('should be a function', () => {
       expect(guard.__validateTransaction).toBeFunction()
+    })
+  })
+
+  describe('__removeForgedTransactions', () => {
+    it('should be a function', () => {
+      expect(guard.__removeForgedTransactions).toBeFunction()
+    })
+
+    it('should remove forged transactions', async () => {
+      const database = container.resolvePlugin('database')
+      const getForgedTransactionsIds = database.getForgedTransactionsIds
+
+      const transfers = generateTransfers(
+        'testnet',
+        delegates[0].secret,
+        delegates[0].senderPublicKey,
+        1,
+        4,
+      )
+
+      transfers.forEach(tx => {
+        guard.accept.set(tx.id, tx)
+        guard.broadcast.set(tx.id, tx)
+      })
+
+      const forgedTx = transfers[2]
+      database.getForgedTransactionsIds = jest.fn(() => [forgedTx.id])
+
+      await guard.__removeForgedTransactions()
+
+      expect(guard.accept.size).toBe(3)
+      expect(guard.broadcast.size).toBe(3)
+
+      expect(guard.errors[forgedTx.id]).toHaveLength(1)
+      expect(guard.errors[forgedTx.id][0].type).toEqual('ERR_FORGED')
+
+      database.getForgedTransactionsIds = getForgedTransactionsIds
     })
   })
 
