@@ -284,9 +284,8 @@ module.exports = class TransactionGuard {
     notAdded.forEach(item => {
       this.accept.delete(item.transaction.id)
 
-      // The transaction should still be broadcasted, if it has been
-      // rejected for any other reason.
-      if (item.type === 'ERR_ALREADY_IN_POOL') {
+      // The transaction should still be broadcasted if the pool is full
+      if (item.type !== 'ERR_POOL_FULL') {
         this.broadcast.delete(item.transaction.id)
       }
 
