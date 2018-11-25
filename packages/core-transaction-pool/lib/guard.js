@@ -256,8 +256,8 @@ module.exports = class TransactionGuard {
   async __removeForgedTransactions() {
     const database = container.resolvePlugin('database')
 
-    const forgedIdsSet = new Set(
-      await database.getForgedTransactionsIds(Array.from(this.accept.keys())),
+    const forgedIdsSet = await database.getForgedTransactionsIds(
+      new Set([...this.accept.keys(), ...this.broadcast.keys()]),
     )
 
     container.resolve('state').removeCachedTransactionIds(forgedIdsSet)
