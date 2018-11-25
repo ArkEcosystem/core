@@ -283,7 +283,12 @@ module.exports = class TransactionGuard {
     // Exclude transactions which were refused from the pool
     notAdded.forEach(item => {
       this.accept.delete(item.transaction.id)
-      this.broadcast.delete(item.transaction.id)
+
+      // The transaction should still be broadcasted, if it has been
+      // rejected for any other reason.
+      if (item.type === 'ERR_ALREADY_IN_POOL') {
+        this.broadcast.delete(item.transaction.id)
+      }
 
       this.__pushError(item.transaction, item.type, item.message)
     })
