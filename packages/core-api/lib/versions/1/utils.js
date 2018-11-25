@@ -35,7 +35,7 @@ const respondWithCache = (data, h) => {
   const lastModified = cached ? new Date(cached.stored) : new Date()
 
   return value.isBoom
-    ? value
+    ? h.response(value.output.payload).code(value.output.statusCode)
     : h.response(value).header('Last-modified', lastModified.toUTCString())
 }
 
