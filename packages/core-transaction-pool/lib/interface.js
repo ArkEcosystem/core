@@ -232,7 +232,7 @@ module.exports = class TransactionPoolInterface {
       }
     }
 
-    container
+    app
       .resolve('state')
       .removeCachedTransactionIds(block.transactions.map(tx => tx.id))
 

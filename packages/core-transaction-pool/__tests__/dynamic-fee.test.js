@@ -7,7 +7,7 @@ let container
 
 beforeAll(async () => {
   container = await app.setUp()
-  await app.resolvePlugin('blockchain').start()
+  await container.resolvePlugin('blockchain').start()
 
   dynamicFeeMatch = require('../lib/utils/dynamicfee-matcher')
 })
@@ -18,14 +18,14 @@ afterAll(async () => {
 
 describe('static fees', () => {
   beforeAll(() => {
-    blockchain = app.resolvePlugin('blockchain')
+    blockchain = container.resolvePlugin('blockchain')
     blockchain.getLastBlock = jest.fn(plugin => ({
       data: {
         height: 20,
       },
     }))
     const h = blockchain.getLastBlock().data.height
-    app.resolvePlugin('config').getConstants(h).fees.dynamic = false
+    container.resolvePlugin('config').getConstants(h).fees.dynamic = false
   })
 
   it('should be a function', () => {
@@ -59,14 +59,14 @@ describe('static fees', () => {
 
 describe('dynamic fees', () => {
   beforeAll(() => {
-    blockchain = app.resolvePlugin('blockchain')
+    blockchain = container.resolvePlugin('blockchain')
     blockchain.getLastBlock = jest.fn(plugin => ({
       data: {
         height: 20,
       },
     }))
     const h = blockchain.getLastBlock().data.height
-    app.resolvePlugin('config').getConstants(h).fees.dynamic = true
+    container.resolvePlugin('config').getConstants(h).fees.dynamic = true
   })
 
   it('should broadcast transactions with high enough fee', () => {

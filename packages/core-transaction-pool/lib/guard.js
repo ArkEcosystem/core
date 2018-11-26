@@ -78,7 +78,7 @@ module.exports = class TransactionGuard {
    * @return {Array}
    */
   __cacheTransactions(transactions) {
-    const { added, notAdded } = container
+    const { added, notAdded } = app
       .resolve('state')
       .cacheTransactions(transactions)
 
@@ -327,7 +327,7 @@ module.exports = class TransactionGuard {
       )
       .join(' ')
 
-    container
+    app
       .resolvePlugin('logger')
       .info(
         `Received ${pluralize(

@@ -4,8 +4,8 @@ const app = require('./__support__/setup')
 let poolInterface
 
 beforeAll(async () => {
-  const app = await app.setUp()
-  await app.resolvePlugin('blockchain').start()
+  const container = await app.setUp()
+  await container.resolvePlugin('blockchain').start()
 
   poolInterface = new (require('../lib/interface'))({ enabled: false })
 })

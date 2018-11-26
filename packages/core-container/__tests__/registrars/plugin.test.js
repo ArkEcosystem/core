@@ -35,7 +35,7 @@ describe('Plugin Registrar', () => {
 
       await instance.register(pluginName, { enabled: false })
 
-      expect(instance.app.has('stub-plugin-a')).toBeTrue()
+      expect(instance.container.has('stub-plugin-a')).toBeTrue()
     })
 
     it.skip('should register plugins with @ paths', () => {})
@@ -49,7 +49,7 @@ describe('Plugin Registrar', () => {
     it('should register each plugin', async () => {
       await instance.setUp()
       ;['a', 'b', 'c'].forEach(char => {
-        expect(instance.app.has(`stub-plugin-${char}`)).toBeTrue()
+        expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
       })
     })
 
@@ -59,9 +59,9 @@ describe('Plugin Registrar', () => {
 
         await instance.setUp()
 
-        expect(instance.app.has('stub-plugin-a')).toBeTrue()
+        expect(instance.container.has('stub-plugin-a')).toBeTrue()
         ;['b', 'c'].forEach(char => {
-          expect(instance.app.has(`stub-plugin-${char}`)).toBeFalse()
+          expect(instance.container.has(`stub-plugin-${char}`)).toBeFalse()
         })
       })
     })
@@ -73,7 +73,7 @@ describe('Plugin Registrar', () => {
     beforeEach(async () => {
       await instance.setUp()
       ;['a', 'b', 'c'].forEach(char => {
-        expect(instance.app.has(`stub-plugin-${char}`)).toBeTrue()
+        expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
       })
       ;['a', 'b', 'c'].forEach(char => {
         plugins[char] = require(`${stubPluginPath}/plugin-${char}`)

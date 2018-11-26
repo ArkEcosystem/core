@@ -28,7 +28,7 @@ beforeAll(async () => {
   container = await app.setUp()
 
   // Backup logger.debug function as we are going to mock it in the test suite
-  logger = app.resolvePlugin('logger')
+  logger = container.resolvePlugin('logger')
   loggerDebugBackup = logger.debug
 
   // Mock peer responses so that we can have blocks
@@ -40,7 +40,7 @@ beforeAll(async () => {
     require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
   )
 
-  configManager = app.resolvePlugin('config')
+  configManager = container.resolvePlugin('config')
 
   // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
   // and otherwise don't pass validation.
@@ -488,7 +488,7 @@ async function __start() {
     networkStart: false,
   })
 
-  await app.register(
+  await container.register(
     'blockchain',
     asValue({
       name: 'blockchain',
@@ -498,7 +498,7 @@ async function __start() {
     }),
   )
 
-  const p2p = app.resolvePlugin('p2p')
+  const p2p = container.resolvePlugin('p2p')
   await p2p.acceptNewPeer(peerMock)
 
   await __resetToHeight1()

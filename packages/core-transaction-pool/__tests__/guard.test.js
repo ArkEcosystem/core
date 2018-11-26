@@ -19,7 +19,7 @@ let poolInterface
 beforeAll(async () => {
   container = await app.setUp()
 
-  transactionPool = app.resolvePlugin('transactionPool')
+  transactionPool = container.resolvePlugin('transactionPool')
   transactionPool.make()
 })
 
@@ -442,7 +442,7 @@ describe('Transaction Guard', () => {
     })
 
     it('should remove forged transactions', async () => {
-      const database = app.resolvePlugin('database')
+      const database = container.resolvePlugin('database')
       const getForgedTransactionsIds = database.getForgedTransactionsIds
 
       const transfers = generateTransfers(

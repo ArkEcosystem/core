@@ -109,7 +109,7 @@ describe('Guard', () => {
     })
 
     it('should return a 1 day suspension for "Blacklisted"', () => {
-      const config = app.resolvePlugin('config')
+      const config = container.resolvePlugin('config')
       config.peers.blackList = ['dummy-ip-addr']
 
       const { until, reason } = guard.__determineOffence({
