@@ -1,5 +1,5 @@
 const fs = require('fs-extra')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 exports.getPath = (table, folder, codec) => {
   const filename = `${table}.${codec}`
@@ -18,7 +18,7 @@ exports.getFilePath = (filename, folder) => `${process.env.ARK_PATH_DATA}/snapsh
 }/${folder}/${filename}`
 
 exports.copySnapshot = (sourceFolder, destFolder, codec) => {
-  const logger = container.resolvePlugin('logger')
+  const logger = app.resolvePlugin('logger')
   logger.info(
     `Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`,
   )
@@ -41,7 +41,7 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
     !fs.existsSync(paths.source.blocks)
     || !fs.existsSync(paths.source.transactions)
   ) {
-    container.forceExit(
+    app.forceExit(
       `Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`,
     )
   }
@@ -83,7 +83,7 @@ exports.getSnapshotInfo = folder => {
 exports.readMetaJSON = folder => {
   const metaFileInfo = this.getFilePath('meta.json', folder)
   if (!fs.existsSync(metaFileInfo)) {
-    container.forceExit('Meta file meta.json not found. Exiting :bomb:')
+    app.forceExit('Meta file meta.json not found. Exiting :bomb:')
   }
 
   return fs.readJSONSync(metaFileInfo)

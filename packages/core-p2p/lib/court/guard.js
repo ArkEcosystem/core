@@ -1,12 +1,12 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const dayjs = require('dayjs-ext')
 const head = require('lodash/head')
 const prettyMs = require('pretty-ms')
 const semver = require('semver')
 const sumBy = require('lodash/sumBy')
 
-const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
 
 const isMyself = require('../utils/is-myself')
 const offences = require('./offences')
@@ -186,7 +186,7 @@ class Guard {
    * @return {Boolean}
    */
   isValidPort(peer) {
-    return peer.port === container.resolveOptions('p2p').port
+    return peer.port === app.resolveOptions('p2p').port
   }
 
   /**
@@ -218,7 +218,7 @@ class Guard {
     }
 
     try {
-      const state = container.resolve('state')
+      const state = app.resolve('state')
 
       if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
         return this.__determinePunishment(peer, offences.FORK)

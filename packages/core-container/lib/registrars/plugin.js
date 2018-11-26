@@ -54,7 +54,7 @@ module.exports = class PluginRegistrars {
 
       if (
         (this.options.exit && this.options.exit === name) ||
-        this.container.shuttingDown
+        this.app.shuttingDown
       ) {
         break
       }
@@ -122,7 +122,7 @@ module.exports = class PluginRegistrars {
     options = this.__applyToDefaults(name, defaults, options)
 
     plugin = await item.plugin.register(this.container, options || {})
-    this.container.register(
+    this.app.register(
       alias || name,
       asValue({
         name,

@@ -1,4 +1,4 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 /**
  * Start a relay and forger.
@@ -7,7 +7,7 @@ const container = require('@arkecosystem/core-container')
  * @return {void}
  */
 module.exports = async (options, version) => {
-  await container.setUp(version, options, {
+  await app.setUp(version, options, {
     options: {
       '@arkecosystem/core-p2p': {
         networkStart: options.networkStart,

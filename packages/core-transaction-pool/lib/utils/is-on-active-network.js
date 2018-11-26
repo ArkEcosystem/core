@@ -1,8 +1,8 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const bs58check = require('bs58check')
 const { configManager } = require('@arkecosystem/crypto')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 
 /**
  * Checks if transaction recipient is on the same network as blockchain

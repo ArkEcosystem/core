@@ -153,7 +153,7 @@ describe('API 2.0 - Blocks', () => {
       it('should POST a search for blocks with the exact specified previousBlock', async () => {
         // save a new block so that we can make the request with previousBlock
         const block2 = new Block(blocks2to100[0])
-        const database = container.resolvePlugin('database')
+        const database = app.resolvePlugin('database')
         await database.saveBlock(block2)
 
         const response = await utils[request]('POST', 'blocks/search', {

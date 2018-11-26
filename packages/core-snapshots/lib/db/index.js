@@ -2,9 +2,9 @@
 
 const promise = require('bluebird')
 const { migrations } = require('@arkecosystem/core-database-postgres')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 const queries = require('./queries')
 const { rawQuery } = require('./utils')
 const columns = require('./utils/column-set')
@@ -25,7 +25,7 @@ class Database {
     try {
       const pgp = require('pg-promise')({ promiseLib: promise })
       this.pgp = pgp
-      const options = container.resolveOptions('database').connection
+      const options = app.resolveOptions('database').connection
       options.idleTimeoutMillis = 100
       this.db = pgp(options)
       this.__createColumnSets()
@@ -34,7 +34,7 @@ class Database {
       this.isSharedConnection = false
       return this
     } catch (error) {
-      container.forceExit('Error while connecting to postgres', error)
+      app.forceExit('Error while connecting to postgres', error)
     }
   }
 
@@ -56,12 +56,12 @@ class Database {
 
       return this.getLastBlock()
     } catch (error) {
-      container.forceExit('Truncate chain error', error)
+      app.forceExit('Truncate chain error', error)
     }
   }
 
   async rollbackChain(height) {
-    const config = container.resolvePlugin('config')
+    const config = app.resolvePlugin('config')
     const maxDelegates = config.getConstants(height).activeDelegates
     const currentRound = Math.floor(height / maxDelegates)
     const lastBlockHeight = currentRound * maxDelegates
@@ -92,7 +92,7 @@ class Database {
     const endBlock = await this.getBlockByHeight(endHeight)
 
     if (!startBlock || !endBlock) {
-      container.forceExit(
+      app.forceExit(
         'Wrong input height parameters for building export queries. Blocks at height not found in db.',
       )
     }

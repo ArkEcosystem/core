@@ -22,7 +22,7 @@ module.exports = class Container {
   }
 
   /**
-   * Set up the container.
+   * Set up the app.
    * @param  {String} version
    * @param  {Object} variables
    * @param  {Object} options
@@ -51,7 +51,7 @@ module.exports = class Container {
   }
 
   /**
-   * Tear down the container.
+   * Tear down the app.
    * @return {Promise}
    */
   async tearDown() {

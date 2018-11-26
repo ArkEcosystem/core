@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 /**
  * The register method used by hapi.js.
@@ -15,7 +15,7 @@ const register = async (server, options) => {
         return h.continue
       }
 
-      if (!container.resolvePlugin('transactionPool')) {
+      if (!app.resolvePlugin('transactionPool')) {
         return Boom.serverUnavailable('Transaction Pool not ready')
       }
 

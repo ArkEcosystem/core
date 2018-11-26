@@ -7,10 +7,10 @@ const msgpack = require('msgpack-lite')
 const pluralize = require('pluralize')
 const zlib = require('zlib')
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const emitter = container.resolvePlugin('event-emitter')
+const logger = app.resolvePlugin('logger')
+const emitter = app.resolvePlugin('event-emitter')
 const utils = require('../utils')
 const { verifyData, canImportRecord } = require('./verification')
 const codecs = require('./codec')
@@ -71,7 +71,7 @@ module.exports = {
         endHeight: options.meta.endHeight,
       }
     } catch (error) {
-      container.forceExit('Error while exporting data via query stream', error)
+      app.forceExit('Error while exporting data via query stream', error)
     }
   },
 
@@ -114,7 +114,7 @@ module.exports = {
     for await (const record of readStream) {
       counter++
       if (!verifyData(table, record, prevData, options.signatureVerification)) {
-        container.forceExit(
+        app.forceExit(
           `Error verifying data. Payload ${JSON.stringify(record, null, 2)}`,
         )
       }
@@ -153,7 +153,7 @@ module.exports = {
 
     decodeStream.on('data', data => {
       if (!verifyData(table, data, prevData, options.signatureVerification)) {
-        container.forceExit(
+        app.forceExit(
           `Error verifying data. Payload ${JSON.stringify(data, null, 2)}`,
         )
       }
@@ -187,7 +187,7 @@ module.exports = {
       )
       return data
     } catch (error) {
-      container.forceExit('Error while exporting data via query stream', error)
+      app.forceExit('Error while exporting data via query stream', error)
     }
   },
 }

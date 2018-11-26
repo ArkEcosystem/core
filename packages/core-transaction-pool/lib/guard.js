@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 const pluralize = require('pluralize')
 
@@ -254,13 +254,13 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   async __removeForgedTransactions() {
-    const database = container.resolvePlugin('database')
+    const database = app.resolvePlugin('database')
 
     const forgedIdsSet = await database.getForgedTransactionsIds([
       ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
     ])
 
-    container.resolve('state').removeCachedTransactionIds(forgedIdsSet)
+    app.resolve('state').removeCachedTransactionIds(forgedIdsSet)
 
     forgedIdsSet.forEach(id => {
       this.__pushError(this.accept.get(id), 'ERR_FORGED', 'Already forged.')

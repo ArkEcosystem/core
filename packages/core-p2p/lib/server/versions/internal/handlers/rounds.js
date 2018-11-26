@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
+const config = app.resolvePlugin('config')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -14,8 +14,8 @@ exports.current = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const database = container.resolvePlugin('database')
-    const blockchain = container.resolvePlugin('blockchain')
+    const database = app.resolvePlugin('database')
+    const blockchain = app.resolvePlugin('blockchain')
 
     const lastBlock = blockchain.getLastBlock()
 

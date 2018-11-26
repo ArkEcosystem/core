@@ -6,6 +6,6 @@ exports.plugin = {
     return require('./server')(options)
   },
   async deregister(container, options) {
-    return container.resolvePlugin('vote-report').stop()
+    return app.resolvePlugin('vote-report').stop()
   },
 }

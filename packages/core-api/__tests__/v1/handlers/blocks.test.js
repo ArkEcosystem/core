@@ -80,8 +80,8 @@ describe('API 1.0 - Blocks', () => {
 
       expect(response.data.nethash).toBeString()
 
-      const container = require('@arkecosystem/core-container')
-      const config = container.resolvePlugin('config')
+      const app = require('@arkecosystem/core-container')
+      const config = app.resolvePlugin('config')
 
       expect(response.data.nethash).toBe(config.network.nethash)
     })

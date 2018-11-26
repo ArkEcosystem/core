@@ -1,4 +1,4 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 let { Bignum } = require('@arkecosystem/crypto')
 
@@ -11,10 +11,10 @@ Bignum = Bignum.clone({ DECIMAL_PLACES: 2 })
  * @return {Number} Approval, with 2 decimals
  */
 exports.calculateApproval = (delegate, height) => {
-  const config = container.resolvePlugin('config')
+  const config = app.resolvePlugin('config')
 
   if (!height) {
-    height = container.resolvePlugin('blockchain').getLastBlock().data.height
+    height = app.resolvePlugin('blockchain').getLastBlock().data.height
   }
 
   const constants = config.getConstants(height)

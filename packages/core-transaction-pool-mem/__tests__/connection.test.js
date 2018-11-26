@@ -1,7 +1,7 @@
 /* eslint max-len: "off" */
 
 const { bignumify } = require('@arkecosystem/core-utils')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 const delay = require('delay')
 const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
@@ -23,9 +23,9 @@ let connection
 beforeAll(async () => {
   await app.setUp()
 
-  config = container.resolvePlugin('config')
+  config = app.resolvePlugin('config')
   defaultConfig = require('../lib/defaults')
-  database = container.resolvePlugin('database')
+  database = app.resolvePlugin('database')
 
   const Connection = require('../lib/connection.js')
   connection = new Connection(defaultConfig)

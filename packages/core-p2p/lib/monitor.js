@@ -13,11 +13,11 @@ const pluralize = require('pluralize')
 
 const { slots } = require('@arkecosystem/crypto')
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
-const emitter = container.resolvePlugin('event-emitter')
+const config = app.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const emitter = app.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const { guard } = require('./court')
@@ -452,7 +452,7 @@ class Monitor {
 
     return networkState(
       this,
-      container.resolvePlugin('blockchain').getLastBlock(),
+      app.resolvePlugin('blockchain').getLastBlock(),
     )
   }
 
@@ -468,7 +468,7 @@ class Monitor {
     await this.guard.resetSuspendedPeers()
 
     // Ban peer who caused the fork
-    const forkedBlock = container.resolve('state').forkedBlock
+    const forkedBlock = app.resolve('state').forkedBlock
     if (forkedBlock) {
       this.suspendPeer(forkedBlock.ip)
     }
@@ -523,7 +523,7 @@ class Monitor {
    * @return {Promise}
    */
   async broadcastBlock(block) {
-    const blockchain = container.resolvePlugin('blockchain')
+    const blockchain = app.resolvePlugin('blockchain')
 
     if (!blockchain) {
       logger.info(
@@ -574,7 +574,7 @@ class Monitor {
    * @param {Transaction[]} transactions
    */
   async broadcastTransactions(transactions) {
-    const maxPeersBroadcast = container.resolveOptions('p2p').maxPeersBroadcast
+    const maxPeersBroadcast = app.resolveOptions('p2p').maxPeersBroadcast
     const peers = take(shuffle(this.getPeers()), maxPeersBroadcast)
 
     logger.debug(
@@ -629,7 +629,7 @@ class Monitor {
       return state
     }
 
-    const lastBlock = container.resolve('state').getLastBlock()
+    const lastBlock = app.resolve('state').getLastBlock()
 
     // Do nothing if majority of peers are lagging behind
     if (commonHeightGroups.length > 1) {
@@ -731,7 +731,7 @@ class Monitor {
    */
   __filterPeers() {
     if (!config.peers.list) {
-      container.forceExit('No seed peers defined in peers.json :interrobang:')
+      app.forceExit('No seed peers defined in peers.json :interrobang:')
     }
 
     let peers = config.peers.list
@@ -754,7 +754,7 @@ class Monitor {
    * @return {[]String}
    */
   async __getRecentBlockIds() {
-    return container.resolvePlugin('database').getRecentBlockIds()
+    return app.resolvePlugin('database').getRecentBlockIds()
   }
 
   /**

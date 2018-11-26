@@ -1,7 +1,7 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const formatTimestamp = require('../lib/format-timestamp')
 
-container.resolvePlugin = jest.fn(plugin => {
+app.resolvePlugin = jest.fn(plugin => {
   if (plugin === 'config') {
     return {
       getConstants: () => ({

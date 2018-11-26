@@ -2,11 +2,11 @@ const axios = require('axios')
 const { configManager } = require('@arkecosystem/crypto')
 const isReachable = require('is-reachable')
 const sample = require('lodash/sample')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const p2p = container.resolvePlugin('p2p')
-const config = container.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const p2p = app.resolvePlugin('p2p')
+const config = app.resolvePlugin('config')
 
 class Network {
   constructor() {
@@ -66,7 +66,7 @@ class Network {
     this.setServer()
 
     try {
-      const peerPort = container.resolveOptions('p2p').port
+      const peerPort = app.resolveOptions('p2p').port
       const response = await axios.get(
         `http://${this.server.ip}:${peerPort}/config`,
       )
@@ -99,7 +99,7 @@ class Network {
   __loadRemotePeers() {
     this.peers =
       this.network.name === 'testnet'
-        ? [{ ip: '127.0.0.1', port: container.resolveOptions('api').port }]
+        ? [{ ip: '127.0.0.1', port: app.resolveOptions('api').port }]
         : p2p.getPeers()
 
     if (!this.peers.length) {

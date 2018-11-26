@@ -20,7 +20,7 @@ beforeAll(async () => {
     networkStart: false,
   })
 
-  await container.register(
+  await app.register(
     'blockchain',
     asValue({
       name: 'blockchain',

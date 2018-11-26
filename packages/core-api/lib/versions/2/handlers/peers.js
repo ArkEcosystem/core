@@ -1,7 +1,7 @@
 const Boom = require('boom')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const blockchain = container.resolvePlugin('blockchain')
+const blockchain = app.resolvePlugin('blockchain')
 const utils = require('../utils')
 const schema = require('../schema/peers')
 
@@ -87,7 +87,7 @@ exports.suspended = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const peers = container.resolvePlugin('p2p').getSuspendedPeers()
+    const peers = app.resolvePlugin('p2p').getSuspendedPeers()
 
     return utils.respondWithCollection(
       request,

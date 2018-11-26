@@ -1,9 +1,9 @@
 const { crypto, slots } = require('@arkecosystem/crypto')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
-const emitter = container.resolvePlugin('event-emitter')
+const config = app.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const emitter = app.resolvePlugin('event-emitter')
 const { Block } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
@@ -524,8 +524,8 @@ module.exports = class ConnectionInterface {
    */
   async __getBlocksForRound(round) {
     let lastBlock
-    if (container.has('state')) {
-      lastBlock = container.resolve('state').getLastBlock()
+    if (app.has('state')) {
+      lastBlock = app.resolve('state').getLastBlock()
     } else {
       lastBlock = await this.getLastBlock()
     }
@@ -557,7 +557,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Register the wallet container.
+   * Register the wallet app.
    * @return {void}
    */
   async _registerWalletManager() {

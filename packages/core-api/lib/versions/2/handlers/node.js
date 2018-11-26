@@ -1,7 +1,7 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const blockchain = container.resolvePlugin('blockchain')
-const config = container.resolvePlugin('config')
+const blockchain = app.resolvePlugin('blockchain')
+const config = app.resolvePlugin('config')
 const utils = require('../utils')
 const { transactions } = require('../../../repositories')
 

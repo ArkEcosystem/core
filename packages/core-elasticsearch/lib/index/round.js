@@ -2,11 +2,11 @@
 
 const first = require('lodash/first')
 const last = require('lodash/last')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const emitter = container.resolvePlugin('event-emitter')
-const database = container.resolvePlugin('database')
-const logger = container.resolvePlugin('logger')
+const emitter = app.resolvePlugin('event-emitter')
+const database = app.resolvePlugin('database')
+const logger = app.resolvePlugin('logger')
 const Index = require('./index')
 const client = require('../services/client')
 const storage = require('../services/storage')
