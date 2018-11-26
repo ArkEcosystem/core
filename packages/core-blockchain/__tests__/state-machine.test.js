@@ -72,6 +72,8 @@ describe('State Machine', () => {
         jest.runAllTimers()
         expect(blockchain.dispatch).toHaveBeenCalled()
         expect(blockchain.dispatch).toHaveBeenCalledWith('WAKEUP')
+
+        jest.useRealTimers() // restore standard timers
       })
     })
 
