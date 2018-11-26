@@ -83,7 +83,18 @@
             "name": "Codecov",
             "command": "./node_modules/.bin/codecov"
           }
-        },
+        }
+      ]
+    },
+    "depcheck-lint": {
+      "working_directory": "~/ark-core",
+      "docker": [
+        {
+          "image": "circleci/node:10"
+        }
+      ],
+      "steps": [
+        "checkout",
         {
           "run": {
             "name": "Lint",
@@ -102,7 +113,7 @@
   "workflows": {
     "version": 2,
     "test_depcheck_lint": {
-      "jobs": []
+      "jobs": ["depcheck-lint"]
     }
   }
 }

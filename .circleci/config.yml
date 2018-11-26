@@ -90,6 +90,12 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+  depcheck-lint:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:10'
+    steps:
+      - checkout
       - run:
           name: Lint
           command: yarn lint
@@ -185,12 +191,6 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Depcheck
-          command: yarn depcheck
   test-node10-2:
     working_directory: ~/ark-core
     docker:
@@ -281,16 +281,11 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Depcheck
-          command: yarn depcheck
 workflows:
   version: 2
   test_depcheck_lint:
     jobs:
+      - depcheck-lint
       - test-node10-0
       - test-node10-1
       - test-node10-2
