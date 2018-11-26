@@ -18,11 +18,11 @@
     "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-http-utils": "^0.1.0",
-    "@arkecosystem/core-transaction-pool": "^0.1.1",
-    "@arkecosystem/core-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/core-container": "~0.1.1",
+    "@arkecosystem/core-http-utils": "~0.1.0",
+    "@arkecosystem/core-transaction-pool": "~0.1.1",
+    "@arkecosystem/core-utils": "~0.1.0",
+    "@arkecosystem/crypto": "~0.2.5",
     "ajv": "^6.5.5",
     "boom": "^7.2.2",
     "bs58check": "^2.1.2",

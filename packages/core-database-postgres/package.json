@@ -17,10 +17,10 @@
     "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-database": "^0.1.1",
-    "@arkecosystem/core-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/core-container": "~0.1.1",
+    "@arkecosystem/core-database": "~0.1.1",
+    "@arkecosystem/core-utils": "~0.1.0",
+    "@arkecosystem/crypto": "~0.2.5",
     "bluebird": "^3.5.3",
     "lodash.chunk": "^4.2.0",
     "pg-promise": "^8.5.2",
