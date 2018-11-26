@@ -691,4 +691,48 @@ describe('Connection', () => {
       expect(topFeesReceived).toEqual(topFeesExpected)
     })
   })
+
+  describe('purgeInvalidTransactionsFromBlock', () => {
+    it('should be a function', () => {
+      expect(connection.purgeInvalidTransactionsFromBlock).toBeFunction()
+    })
+
+    it('should purge transactions from sender when invalid', async () => {
+      const transfersA = generateTransfer(
+        'testnet',
+        delegatesSecrets[0],
+        mockData.dummy1.recipientId,
+        1,
+        5,
+      )
+
+      const transfersB = generateTransfer(
+        'testnet',
+        delegatesSecrets[1],
+        mockData.dummy1.recipientId,
+        1,
+        1,
+      )
+
+      const block = {
+        transactions: [...transfersA, ...transfersB],
+      }
+
+      block.transactions.forEach(tx => connection.addTransaction(tx))
+
+      expect(connection.mem.all).toHaveLength(6)
+
+      // Last tx has a unique sender
+      block.transactions[5].verified = false
+
+      connection.purgeInvalidTransactionsFromBlock(block)
+      expect(connection.mem.all).toHaveLength(5)
+
+      // The remaining tx all have the same sender
+      block.transactions[0].verified = false
+
+      connection.purgeInvalidTransactionsFromBlock(block)
+      expect(connection.mem.all).toHaveLength(0)
+    })
+  })
 })

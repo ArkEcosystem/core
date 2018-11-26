@@ -280,6 +280,11 @@ module.exports = class TransactionPoolInterface {
     this.walletManager.deleteWallet(senderPublicKey)
   }
 
+  /**
+   * Purges all transactions from senders with at least one
+   * invalid transaction.
+   * @param {Block} block
+   */
   purgeInvalidTransactionsFromBlock(block) {
     const publicKeys = new Set(
       block.transactions
