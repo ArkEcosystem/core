@@ -1,5 +1,4 @@
 const Boom = require('boom')
-const pluralize = require('pluralize')
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
@@ -8,12 +7,10 @@ const container = require('@arkecosystem/core-container')
 
 const blockchain = container.resolvePlugin('blockchain')
 const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
-const { transactions: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -25,12 +22,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const transactions = await repository.findAll({
-      ...request.query,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v2.transactions.index(request)
 
-    return utils.toPagination(request, transactions, 'transaction')
+    return utils.respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -91,13 +85,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const transaction = await repository.findById(request.params.id)
+    const data = await request.server.methods.v2.transactions.show(request)
 
-    if (!transaction) {
-      return Boom.notFound('Transaction not found')
-    }
-
-    return utils.respondWithResource(request, transaction, 'transaction')
+    return utils.respondWithCache(data, h)
   },
   options: {
     validate: schema.show,
@@ -181,13 +171,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const transactions = await repository.search({
-      ...request.query,
-      ...request.payload,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v2.transactions.search(request)
 
-    return utils.toPagination(request, transactions, 'transaction')
+    return utils.respondWithCache(data, h)
   },
   options: {
     validate: schema.search,

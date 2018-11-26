@@ -59,7 +59,6 @@ module.exports = class Transaction {
       // TODO: enable AIP11 when network ready
       this.verified = false
     }
-    // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
     ;[
       'id',
       'sequence',

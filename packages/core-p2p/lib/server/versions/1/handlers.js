@@ -4,6 +4,8 @@ const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
+const Joi = require('@arkecosystem/crypto').validator.engine.joi
+
 const requestIp = require('request-ip')
 const pluralize = require('pluralize')
 
@@ -340,9 +342,20 @@ exports.postTransactions = {
       transactionIds: result.accept,
     }
   },
-  config: {
+  options: {
     cors: {
       additionalHeaders: ['nethash', 'port', 'version'],
+    },
+    validate: {
+      payload: {
+        transactions: Joi.arkTransactions()
+          .min(1)
+          .max(
+            container.resolveOptions('transactionPool')
+              .maxTransactionsPerRequest,
+          )
+          .options({ stripUnknown: true }),
+      },
     },
   },
 }

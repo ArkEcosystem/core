@@ -47,9 +47,9 @@ module.exports = class Blockchain {
       logger.debug(
         `event '${event}': ${JSON.stringify(
           this.state.blockchain.value,
-        )} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(
-          nextState.actions,
-        )}`,
+        )} -> ${JSON.stringify(
+          nextState.value,
+        )} -> actions: [${nextState.actions.map(a => a.type).join(', ')}]`,
       )
     }
 
@@ -406,6 +406,9 @@ module.exports = class Blockchain {
       logger.warn(
         `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
       )
+
+      this.transactionPool.purgeSendersWithInvalidTransactions(block)
+
       return callback()
     }
 

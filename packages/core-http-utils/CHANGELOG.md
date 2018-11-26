@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.0 - 2018-11-28
+
 ### Added
 
 - cors-headers plugin for better CORS handling
+- transaction payload size validation plugin
 
 ### Changed
 

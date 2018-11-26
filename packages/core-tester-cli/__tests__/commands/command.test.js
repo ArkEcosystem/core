@@ -389,6 +389,7 @@ describe('Command Base', () => {
       expect(Command.__arkToArktoshi).toBeFunction()
     })
     it('should give arktoshi', () => {
+      expect(Command.__arkToArktoshi(0.00000001).toString()).toBe('1')
       expect(Command.__arkToArktoshi(0.1).toString()).toBe('10000000')
       expect(Command.__arkToArktoshi(1).toString()).toBe('100000000')
       expect(Command.__arkToArktoshi(10).toString()).toBe('1000000000')
@@ -400,6 +401,7 @@ describe('Command Base', () => {
       expect(Command.__arktoshiToArk).toBeFunction()
     })
     it('should give ark', () => {
+      expect(Command.__arktoshiToArk(1)).toBe('0.00000001 DѦ')
       expect(Command.__arktoshiToArk(10000000)).toBe('0.1 DѦ')
       expect(Command.__arktoshiToArk(100000000)).toBe('1 DѦ')
       expect(Command.__arktoshiToArk(1000000000)).toBe('10 DѦ')

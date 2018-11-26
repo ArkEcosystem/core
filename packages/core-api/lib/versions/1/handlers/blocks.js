@@ -6,7 +6,6 @@ const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/blocks')
-const { blocks: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -18,19 +17,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const { count, rows } = await repository.findAll({
-      ...request.query,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v1.blocks.index(request)
 
-    if (!rows) {
-      return utils.respondWith('No blocks found', true)
-    }
-
-    return utils.respondWith({
-      blocks: utils.toCollection(request, rows, 'block'),
-      count,
-    })
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
@@ -51,18 +40,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const block = await repository.findById(request.query.id)
+    const data = await request.server.methods.v1.blocks.show(request)
 
-    if (!block) {
-      return utils.respondWith(
-        `Block with id ${request.query.id} not found`,
-        true,
-      )
-    }
-
-    return utils.respondWith({
-      block: utils.toResource(request, block, 'block'),
-    })
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {

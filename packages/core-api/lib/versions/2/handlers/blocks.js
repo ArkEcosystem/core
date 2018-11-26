@@ -1,11 +1,5 @@
-const Boom = require('boom')
-const utils = require('../utils')
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/blocks')
-
-const {
-  blocks: blocksRepository,
-  transactions: transactionsRepository,
-} = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -17,12 +11,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const blocks = await blocksRepository.findAll({
-      ...request.query,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v2.blocks.index(request)
 
-    return utils.toPagination(request, blocks, 'block')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.index,
@@ -39,13 +30,9 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const block = await blocksRepository.findById(request.params.id)
+    const data = await request.server.methods.v2.blocks.show(request)
 
-    if (!block) {
-      return Boom.notFound('Block not found')
-    }
-
-    return utils.respondWithResource(request, block, 'block')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.show,
@@ -62,18 +49,9 @@ exports.transactions = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const block = await blocksRepository.findById(request.params.id)
+    const data = await request.server.methods.v2.blocks.transactions(request)
 
-    if (!block) {
-      return Boom.notFound('Block not found')
-    }
-
-    const transactions = await transactionsRepository.findAllByBlock(block.id, {
-      ...request.query,
-      ...utils.paginate(request),
-    })
-
-    return utils.toPagination(request, transactions, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.transactions,
@@ -90,13 +68,9 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const blocks = await blocksRepository.search({
-      ...request.payload,
-      ...request.query,
-      ...utils.paginate(request),
-    })
+    const data = await request.server.methods.v2.blocks.search(request)
 
-    return utils.toPagination(request, blocks, 'block')
+    return respondWithCache(data, h)
   },
   options: {
     validate: schema.search,

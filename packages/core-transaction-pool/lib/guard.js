@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
 
 const {
   configManager,
@@ -255,9 +256,9 @@ module.exports = class TransactionGuard {
   async __removeForgedTransactions() {
     const database = container.resolvePlugin('database')
 
-    const forgedIdsSet = new Set(
-      await database.getForgedTransactionsIds(Array.from(this.accept.keys())),
-    )
+    const forgedIdsSet = await database.getForgedTransactionsIds([
+      ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
+    ])
 
     container.resolve('state').removeCachedTransactionIds(forgedIdsSet)
 
@@ -282,7 +283,11 @@ module.exports = class TransactionGuard {
     // Exclude transactions which were refused from the pool
     notAdded.forEach(item => {
       this.accept.delete(item.transaction.id)
-      this.broadcast.delete(item.transaction.id)
+
+      // The transaction should still be broadcasted if the pool is full
+      if (item.type !== 'ERR_POOL_FULL') {
+        this.broadcast.delete(item.transaction.id)
+      }
 
       this.__pushError(item.transaction, item.type, item.message)
     })
@@ -324,6 +329,12 @@ module.exports = class TransactionGuard {
 
     container
       .resolvePlugin('logger')
-      .info(`Received ${this.transactions.length} transactions (${stats}).`)
+      .info(
+        `Received ${pluralize(
+          'transaction',
+          this.transactions.length,
+          true,
+        )} (${stats}).`,
+      )
   }
 }

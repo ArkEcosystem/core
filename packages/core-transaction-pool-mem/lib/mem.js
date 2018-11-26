@@ -56,7 +56,8 @@ class Mem {
      * - find all transactions that have expired (have an expiration date
      *   earlier than a given date) - they are at the beginning of the array.
      */
-    this.sortedByExpiration = []
+    this.byExpiration = []
+    this.byExpirationIsSorted = true
 
     /**
      * List of dirty transactions ids (that are not saved in the on-disk
@@ -109,12 +110,8 @@ class Mem {
     }
 
     if (memPoolTransaction.expireAt(maxTransactionAge) !== null) {
-      this.sortedByExpiration.push(memPoolTransaction)
-
-      // XXX worst case: O(n * log(n))
-      this.sortedByExpiration.sort(
-        (a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge),
-      )
+      this.byExpiration.push(memPoolTransaction)
+      this.byExpirationIsSorted = false
     }
 
     if (!thisIsDBLoad) {
@@ -147,9 +144,9 @@ class Mem {
     const memPoolTransaction = this.byId[id]
 
     // XXX worst case: O(n)
-    let i = this.sortedByExpiration.findIndex(e => e.transaction.id === id)
+    let i = this.byExpiration.findIndex(e => e.transaction.id === id)
     if (i !== -1) {
-      this.sortedByExpiration.splice(i, 1)
+      this.byExpiration.splice(i, 1)
     }
 
     this.bySender[senderPublicKey].delete(memPoolTransaction)
@@ -245,11 +242,18 @@ class Mem {
    * @return {Array of Transaction} expired transactions
    */
   getExpired(maxTransactionAge) {
+    if (!this.byExpirationIsSorted) {
+      this.byExpiration.sort(
+        (a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge),
+      )
+      this.byExpirationIsSorted = true
+    }
+
     const now = slots.getTime()
 
     const transactions = []
 
-    for (const memPoolTransaction of this.sortedByExpiration) {
+    for (const memPoolTransaction of this.byExpiration) {
       if (memPoolTransaction.expireAt(maxTransactionAge) <= now) {
         transactions.push(memPoolTransaction.transaction)
       } else {
@@ -268,7 +272,8 @@ class Mem {
     this.allIsSorted = true
     this.byId = {}
     this.bySender = {}
-    this.sortedByExpiration = []
+    this.byExpiration = []
+    this.byExpirationIsSorted = true
     this.dirty.added.clear()
     this.dirty.removed.clear()
   }
