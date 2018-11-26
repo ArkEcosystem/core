@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.0 - 2018-11-28
+
 ### Added
 
 - Return forged rewards and fees via v2 API
@@ -19,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Allow registration of additional plugins
 - Run HTTP & HTTPS server at the same time
 - Validate transaction payloads
+- Implement server side caching via server methods
 
 ### Fixed
 
@@ -36,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Stricter validation of parameters
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
 - Return a `type` and `message` property for transaction errors
+- Only allow JSON requests to the API
 
 ### Removed
 

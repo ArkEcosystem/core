@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.0 - 2018-11-28
+
 ### Added
 
 - Get transactions from mem pool ordered by fee
@@ -16,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Test flushing wallets
 - Reduce nondeterminism in the transactions expiration tests
 - Dropped node.js 9 as minimum requirement in favour of node.js 10
+- Lazy sort transactions to improve performance
+- Don't always purge expired transactions when checking for existence to improve performance
 
 ### Fixed
 

@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.0 - 2018-11-28
+
 ### Added
 
 - Support plugin extensions
 - More graceful handling of shutdown
 - Silent shutdown to hide output
 - Configuration through a remote peer
+
+### Fixed
+
+- Cast numerical strings to numbers
 
 ### Changed
 
