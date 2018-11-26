@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const database = container.resolvePlugin('database')
+const database = app.resolvePlugin('database')
 
 const dayjs = require('dayjs-ext')
 const { slots } = require('@arkecosystem/crypto')

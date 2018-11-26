@@ -1,11 +1,11 @@
 const sumBy = require('lodash/sumBy')
 const { configManager } = require('@arkecosystem/crypto')
 const { bignumify, delegateCalculator } = require('@arkecosystem/core-utils')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
-const blockchain = container.resolvePlugin('blockchain')
-const database = container.resolvePlugin('database')
+const config = app.resolvePlugin('config')
+const blockchain = app.resolvePlugin('blockchain')
+const database = app.resolvePlugin('database')
 
 const formatDelegates = delegates => delegates.map(delegate => {
   const voters = database.walletManager

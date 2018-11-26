@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 const register = async (server, options) => {
   server.ext({
@@ -15,7 +15,7 @@ const register = async (server, options) => {
         return h.continue
       }
 
-      const transactionPool = container.resolveOptions('transactionPool')
+      const transactionPool = app.resolveOptions('transactionPool')
 
       if (!transactionPool) {
         return h.continue

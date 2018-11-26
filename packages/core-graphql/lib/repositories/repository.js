@@ -1,8 +1,8 @@
 /* eslint max-len: "off" */
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const database = container.resolvePlugin('database')
+const database = app.resolvePlugin('database')
 
 module.exports = class Repository {
   constructor() {

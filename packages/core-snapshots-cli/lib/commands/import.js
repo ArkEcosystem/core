@@ -1,7 +1,7 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const snapshotManager = container.resolvePlugin('snapshots')
-const emitter = container.resolvePlugin('event-emitter')
+const snapshotManager = app.resolvePlugin('snapshots')
+const emitter = app.resolvePlugin('event-emitter')
 const _cliProgress = require('cli-progress')
 
 module.exports = async options => {

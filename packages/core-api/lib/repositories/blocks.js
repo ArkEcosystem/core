@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const database = container.resolvePlugin('database')
+const database = app.resolvePlugin('database')
 
 const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')

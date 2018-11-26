@@ -1,4 +1,4 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const {
   feeManager,
   dynamicFeeManager,
@@ -12,13 +12,13 @@ const {
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
 module.exports = transaction => {
-  const config = container.resolvePlugin('config')
-  const logger = container.resolvePlugin('logger')
+  const config = app.resolvePlugin('config')
+  const logger = app.resolvePlugin('logger')
 
   const fee = +transaction.fee.toFixed()
   const id = transaction.id
 
-  const blockchain = container.resolvePlugin('blockchain')
+  const blockchain = app.resolvePlugin('blockchain')
   const fees = config.getConstants(blockchain.getLastBlock().data.height).fees
 
   let broadcast
