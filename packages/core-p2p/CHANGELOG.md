@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.0 - 2018-11-28
+
 ### Added
 
 - Support for next forger calculations
@@ -41,6 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Allow 20/rps instead of 1000/rpm
 - Limit the number of peers a transaction is broadcasted to
 - Broadcast transactions in chunks based on `maxTransactionsPerRequest`
+- Improved ping behaviour by remembering ping times
 
 ### Removed
 
