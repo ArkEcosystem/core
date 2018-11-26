@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
+const lastBlock = app.resolvePlugin('blockchain').getLastBlock()
 
 /**
  * The AJV schema for the delegate endpoints.
@@ -64,7 +64,7 @@ module.exports = {
         type: 'integer',
         minimum: 1,
         maximum: lastBlock
-          ? container
+          ? app
             .resolvePlugin('config')
             .getConstants(lastBlock.data.height).activeDelegates
           : 51,

@@ -1,9 +1,9 @@
 const path = require('path')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 module.exports = {
   setUp: async options =>
-    container.setUp(
+    app.setUp(
       '2.0.0',
       {
         data: options.data || '~/.ark',

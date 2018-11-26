@@ -1,9 +1,9 @@
 /* eslint max-len: "off" */
 
 const pick = require('lodash/pick')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 const database = require('./db')
 const utils = require('./utils')
 const {
@@ -43,7 +43,7 @@ module.exports = class SnapshotManager {
       codec: options.codec,
       skipCompression: params.meta.skipCompression,
     }
-    
+
     this.database.close()
     utils.writeMetaFile(metaInfo)
   }
@@ -93,12 +93,12 @@ module.exports = class SnapshotManager {
 
   async rollbackChain(height) {
     const lastBlock = await this.database.getLastBlock()
-    const config = container.resolvePlugin('config')
+    const config = app.resolvePlugin('config')
     const maxDelegates = config.getConstants(lastBlock.height).activeDelegates
 
     const rollBackHeight = height === -1 ? lastBlock.height : height
     if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
-      container.forceExit(
+      app.forceExit(
         `Specified rollback block height: ${
           rollBackHeight.toLocaleString()
         } is not valid. Current database height: ${
@@ -153,7 +153,7 @@ module.exports = class SnapshotManager {
 
     if (exportAction) {
       if (!lastBlock) {
-        container.forceExit('Database is empty. Export not possible.')
+        app.forceExit('Database is empty. Export not possible.')
       }
       params.meta = utils.setSnapshotInfo(params, lastBlock)
       params.queries = await this.database.getExportQueries(

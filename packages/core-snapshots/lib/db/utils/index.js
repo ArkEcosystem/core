@@ -1,9 +1,9 @@
 const QueryFile = require('pg-promise').QueryFile
 const path = require('path')
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 
 module.exports = {
   loadQueryFile: (directory, file) => {

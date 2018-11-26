@@ -6,14 +6,14 @@ const {
 } = require('@arkecosystem/core-transaction-pool')
 
 const assert = require('assert')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const Mem = require('./mem')
 const MemPoolTransaction = require('./mem-pool-transaction')
 const Storage = require('./storage')
 
-const database = container.resolvePlugin('database')
-const emitter = container.resolvePlugin('event-emitter')
-const logger = container.resolvePlugin('logger')
+const database = app.resolvePlugin('database')
+const emitter = app.resolvePlugin('event-emitter')
+const logger = app.resolvePlugin('logger')
 
 /**
  * Transaction pool. It uses a hybrid storage - caching the data

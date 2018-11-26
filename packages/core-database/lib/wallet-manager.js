@@ -2,10 +2,10 @@ const { crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
 
 const pluralize = require('pluralize')
 
@@ -366,7 +366,7 @@ module.exports = class WalletManager {
     const delegate = this.byPublicKey[block.data.generatorPublicKey]
 
     if (!delegate) {
-      container.forceExit(
+      app.forceExit(
         `Failed to lookup generator '${
           block.data.generatorPublicKey
         }' of block '${block.data.id}'. :skull:`,

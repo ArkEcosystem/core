@@ -2,10 +2,10 @@
 
 const delay = require('delay')
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const config = container.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Delegate, Transaction } = require('@arkecosystem/crypto').models

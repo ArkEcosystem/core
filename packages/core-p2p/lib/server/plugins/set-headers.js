@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
+const config = app.resolvePlugin('config')
 
 /**
  * The register method used by hapi.js.
@@ -11,8 +11,8 @@ const config = container.resolvePlugin('config')
 const register = async (server, options) => {
   const headers = {
     nethash: config.network.nethash,
-    version: container.getVersion(),
-    port: container.resolveOptions('p2p').port,
+    version: app.getVersion(),
+    port: app.resolveOptions('p2p').port,
     os: require('os').platform(),
     height: null,
   }
@@ -22,7 +22,7 @@ const register = async (server, options) => {
   server.ext({
     type: 'onPreResponse',
     async method(request, h) {
-      const blockchain = container.resolvePlugin('blockchain')
+      const blockchain = app.resolvePlugin('blockchain')
       if (blockchain) {
         const lastBlock = blockchain.getLastBlock()
         if (lastBlock) {

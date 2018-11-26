@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
+const config = app.resolvePlugin('config')
 
 const { slots } = require('@arkecosystem/crypto')
 

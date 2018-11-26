@@ -1,10 +1,10 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 
-const logger = container.resolvePlugin('logger')
-const database = container.resolvePlugin('database')
-const config = container.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const database = app.resolvePlugin('database')
+const config = app.resolvePlugin('config')
 const { crypto } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 

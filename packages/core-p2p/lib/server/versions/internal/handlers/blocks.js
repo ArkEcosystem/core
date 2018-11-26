@@ -1,4 +1,4 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const requestIp = require('request-ip')
 const schema = require('../schemas/blocks')
 
@@ -14,7 +14,7 @@ exports.store = {
   handler: (request, h) => {
     request.payload.block.ip = requestIp.getClientIp(request)
 
-    container.resolvePlugin('blockchain').queueBlock(request.payload.block)
+    app.resolvePlugin('blockchain').queueBlock(request.payload.block)
 
     return h.response(null).code(204)
   },

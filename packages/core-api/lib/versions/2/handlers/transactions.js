@@ -3,11 +3,11 @@ const Boom = require('boom')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const blockchain = container.resolvePlugin('blockchain')
-const config = container.resolvePlugin('config')
-const transactionPool = container.resolvePlugin('transactionPool')
+const blockchain = app.resolvePlugin('blockchain')
+const config = app.resolvePlugin('config')
+const transactionPool = app.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
@@ -50,7 +50,7 @@ exports.store = {
     const result = await guard.validate(request.payload.transactions)
 
     if (result.broadcast.length > 0) {
-      container
+      app
         .resolvePlugin('p2p')
         .broadcastTransactions(guard.getBroadcastTransactions())
     }

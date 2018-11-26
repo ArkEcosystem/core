@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const p2p = container.resolvePlugin('p2p')
+const p2p = app.resolvePlugin('p2p')
 
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -121,7 +121,7 @@ exports.version = {
    */
   handler(request, h) {
     return utils.respondWith({
-      version: container.getVersion(),
+      version: app.getVersion(),
     })
   },
 }

@@ -1,11 +1,11 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 
 const dayjs = require('dayjs-ext')
 const PoolWalletManager = require('./pool-wallet-manager')
 
-const database = container.resolvePlugin('database')
+const database = app.resolvePlugin('database')
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionPoolInterface {
@@ -232,7 +232,7 @@ module.exports = class TransactionPoolInterface {
       }
     }
 
-    container
+    app
       .resolve('state')
       .removeCachedTransactionIds(block.transactions.map(tx => tx.id))
 
@@ -253,7 +253,7 @@ module.exports = class TransactionPoolInterface {
       this.getPoolSize(),
     )
 
-    container.resolve('state').removeCachedTransactionIds(poolTransactionIds)
+    app.resolve('state').removeCachedTransactionIds(poolTransactionIds)
 
     poolTransactionIds.forEach(transactionId => {
       const transaction = this.getTransaction(transactionId)

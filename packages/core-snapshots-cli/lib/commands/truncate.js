@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const snapshotManager = container.resolvePlugin('snapshots')
+const snapshotManager = app.resolvePlugin('snapshots')
 
 module.exports = async options => {
   await snapshotManager.truncateChain()

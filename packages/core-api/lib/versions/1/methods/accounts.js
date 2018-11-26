@@ -1,8 +1,8 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const generateCacheKey = require('../../../utils/generate-cache-key')
 const utils = require('../utils')
 
-const database = container.resolvePlugin('database')
+const database = app.resolvePlugin('database')
 
 const index = async request => {
   const { rows } = await database.wallets.findAll({

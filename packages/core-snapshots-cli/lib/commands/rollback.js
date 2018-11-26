@@ -1,7 +1,7 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const snapshotManager = container.resolvePlugin('snapshots')
+const logger = app.resolvePlugin('logger')
+const snapshotManager = app.resolvePlugin('snapshots')
 
 module.exports = async options => {
   if (options.blockHeight === -1) {

@@ -3,10 +3,10 @@
 const axios = require('axios')
 const sample = require('lodash/sample')
 const delay = require('delay')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const config = container.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
 
 module.exports = class Client {
   /**
@@ -17,8 +17,8 @@ module.exports = class Client {
     this.hosts = Array.isArray(hosts) ? hosts : [hosts]
 
     this.headers = {
-      version: container.getVersion(),
-      port: container.resolveOptions('p2p').port,
+      version: app.getVersion(),
+      port: app.resolveOptions('p2p').port,
       nethash: config.network.nethash,
       'x-auth': 'forger',
       'Content-Type': 'application/json',
