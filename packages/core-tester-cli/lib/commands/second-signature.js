@@ -25,7 +25,6 @@ module.exports = class DelegateRegistrationCommand extends Command {
       `Sending ${this.options.number} second signature ${pluralize(
         'transaction',
         this.options.number,
-        true,
       )}`,
     )
 
