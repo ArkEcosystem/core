@@ -168,7 +168,6 @@ module.exports = class Container {
    * Set the application version.
    * @param  {String} version
    * @return {void}
-   * @throws {Error}
    */
   setVersion(version) {
     if (!semver.valid(version)) {
