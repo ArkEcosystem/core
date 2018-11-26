@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-container",
   "description": "Container for Ark Core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -17,7 +17,7 @@
     "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/crypto": "~0.2",
     "awilix": "^4.0.0",
     "axios": "^0.18.0",
     "delay": "^4.1.0",

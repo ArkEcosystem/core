@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-elasticsearch",
   "description": "A powerful Elasticsearch integration for Ark Core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -17,9 +17,9 @@
     "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-http-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-http-utils": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
     "elasticsearch": "^15.2.0",
     "fs-extra": "^7.0.1",
     "joi": "^14.1.0",

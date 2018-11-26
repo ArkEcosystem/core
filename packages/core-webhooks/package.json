@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-webhooks",
   "description": "Webhooks for Ark Core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -17,8 +17,8 @@
     "depcheck": "depcheck ./ --ignores=sqlite3"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-http-utils": "^0.1.0",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-http-utils": "~0.2",
     "axios": "^0.18.0",
     "boom": "^7.2.2",
     "fs-extra": "^7.0.1",
@@ -29,7 +29,7 @@
     "umzug": "^2.2.0"
   },
   "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1"
+    "@arkecosystem/core-test-utils": "~0.2"
   },
   "publishConfig": {
     "access": "public"
