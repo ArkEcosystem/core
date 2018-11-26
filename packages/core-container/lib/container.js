@@ -167,7 +167,7 @@ module.exports = class Container {
   /**
    * Set the application version.
    * @param  {String} version
-   * @return {Object}
+   * @return {void}
    * @throws {Error}
    */
   setVersion(version) {

@@ -3,6 +3,7 @@ const container = require('@arkecosystem/core-container')
 /**
  * Start a relay.
  * @param  {Object} options
+ * @param  {String} version
  * @return {void}
  */
 module.exports = async (options, version) => {
