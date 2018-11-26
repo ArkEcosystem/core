@@ -98,7 +98,7 @@
         {
           "run": {
             "name": "Install lerna",
-            "command": "yarn install lerna"
+            "command": "yarn add lerna"
           }
         },
         {

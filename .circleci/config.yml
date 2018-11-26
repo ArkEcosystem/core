@@ -98,7 +98,7 @@ jobs:
       - checkout
       - run:
           name: Install lerna
-          command: yarn install lerna
+          command: yarn add lerna
       - run:
           name: Lint
           command: yarn lint
