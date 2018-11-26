@@ -47,6 +47,9 @@ function genYaml(options) {
 }
 
 function splitPackagesByTestFiles(packages, splitNumber) {
+  /* distribute test packages by test files count : start by most files package,
+     and distribute package by package in each _packagesSplit_ (not the most effective
+     distribution but simple and enough for now) */
   const packagesWithCount = packages.map(package => ({
     package,
     count: countFiles(`packages/${package}/__tests__`, '.test.js'),
