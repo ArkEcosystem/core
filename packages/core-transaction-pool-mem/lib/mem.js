@@ -243,7 +243,9 @@ class Mem {
    */
   getExpired(maxTransactionAge) {
     if (!this.byExpirationIsSorted) {
-      this.byExpiration.sort((a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge))
+      this.byExpiration.sort(
+        (a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge),
+      )
       this.byExpirationIsSorted = true
     }
 

@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  test-node10:
+  test-node10-0:
     working_directory: ~/ark-core
     docker:
       - image: 'circleci/node:10-browsers'
@@ -9,7 +9,6 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: ark_development
           POSTGRES_USER: ark
-    parallelism: 1
     steps:
       - checkout
       - run:
@@ -70,11 +69,14 @@ jobs:
       - run:
           name: Test
           command: >
-            TESTFILES=$(circleci tests glob "packages/**/*.test.js")
-
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ${TESTFILES} --detectOpenHandles --runInBand --forceExit --ci
-            --coverage | tee test_output.txt
+            ./packages/core-vote-report/ ./packages/core-transaction-pool/
+            ./packages/core-snapshots-cli/ ./packages/core-logger-winston/
+            ./packages/core-api/ ./packages/core-event-emitter/
+            ./packages/core-elasticsearch/ ./packages/core-database-postgres/
+            ./packages/core-config/ ./packages/core-http-utils/
+            --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
+            test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -82,14 +84,200 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+  depcheck-lint:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:10'
+    steps:
+      - checkout
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+      - run:
+          name: Install packages
+          command: yarn
       - run:
           name: Lint
           command: yarn lint
       - run:
           name: Depcheck
           command: yarn depcheck
+  test-node10-1:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:10-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: sudo apt-get install -q xsel
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+      - run:
+          name: Install packages
+          command: yarn
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-config/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-debugger-cli/node_modules
+            - ./packages/core-deployer/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-graphql/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-snapshots-cli/node_modules
+            - ./packages/core-test-utils/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transaction-pool-mem/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .ark/database directory
+          command: mkdir -p $HOME/.ark/database
+      - run:
+          name: Test
+          command: >
+            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
+            ./packages/core-webhooks/ ./packages/core-transaction-pool-mem/
+            ./packages/core-test-utils/ ./packages/core-p2p/
+            ./packages/core-json-rpc/ ./packages/core-forger/
+            ./packages/core-error-tracker-bugsnag/ ./packages/core-debugger-cli/
+            ./packages/core-container/ ./packages/core/ --detectOpenHandles
+            --runInBand --forceExit --ci --coverage | tee test_output.txt
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node10-2:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:10-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: sudo apt-get install -q xsel
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+      - run:
+          name: Install packages
+          command: yarn
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-config/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-debugger-cli/node_modules
+            - ./packages/core-deployer/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-graphql/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-snapshots-cli/node_modules
+            - ./packages/core-test-utils/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transaction-pool-mem/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .ark/database directory
+          command: mkdir -p $HOME/.ark/database
+      - run:
+          name: Test
+          command: >
+            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
+            ./packages/crypto/ ./packages/core-utils/
+            ./packages/core-tester-cli/ ./packages/core-snapshots/
+            ./packages/core-logger/ ./packages/core-graphql/
+            ./packages/core-error-tracker-sentry/ ./packages/core-deployer/
+            ./packages/core-database/ ./packages/core-blockchain/
+            --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
+            test_output.txt
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
 workflows:
   version: 2
   test_depcheck_lint:
     jobs:
-      - test-node10
+      - depcheck-lint
+      - test-node10-0
+      - test-node10-1
+      - test-node10-2
