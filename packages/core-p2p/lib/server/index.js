@@ -60,6 +60,10 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
+    plugin: plugins.corsHeaders,
+  })
+
+  await server.register({
     plugin: plugins.transactionPayload,
     options: {
       routes: [
