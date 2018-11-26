@@ -97,6 +97,12 @@
         "checkout",
         {
           "run": {
+            "name": "Install lerna",
+            "command": "yarn install lerna"
+          }
+        },
+        {
+          "run": {
             "name": "Lint",
             "command": "yarn lint"
           }
