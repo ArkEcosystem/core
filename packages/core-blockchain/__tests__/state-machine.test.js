@@ -62,7 +62,7 @@ describe('State Machine', () => {
         expect(actionMap.checkLater).toBeFunction()
       })
 
-      it.skip('should dispatch the event "WAKEUP" after a delay', async () => {
+      it('should dispatch the event "WAKEUP" after a delay', async () => {
         jest.useFakeTimers()
         blockchain.dispatch = jest.fn()
 
@@ -72,6 +72,8 @@ describe('State Machine', () => {
         jest.runAllTimers()
         expect(blockchain.dispatch).toHaveBeenCalled()
         expect(blockchain.dispatch).toHaveBeenCalledWith('WAKEUP')
+
+        jest.useRealTimers() // restore standard timers
       })
     })
 
