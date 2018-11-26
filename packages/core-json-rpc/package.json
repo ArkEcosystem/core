@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-json-rpc",
   "description": "A JSON-RPC 2.0 Specification compliant server to interact with the Ark Blockchain.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -18,9 +18,9 @@
     "depcheck": "depcheck ./ --ignores=@keyv/sqlite,lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-http-utils": "^0.1.0",
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-http-utils": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
     "@keyv/sqlite": "^2.0.0",
     "axios": "^0.18.0",
     "bip38": "^2.0.2",
@@ -34,8 +34,8 @@
     "wif": "^2.0.6"
   },
   "devDependencies": {
-    "@arkecosystem/core-p2p": "^0.1.1",
-    "@arkecosystem/core-test-utils": "^0.1.1",
+    "@arkecosystem/core-p2p": "~0.2",
+    "@arkecosystem/core-test-utils": "~0.2",
     "axios-mock-adapter": "^1.15.0"
   },
   "publishConfig": {

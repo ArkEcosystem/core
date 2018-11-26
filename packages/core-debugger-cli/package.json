@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-debugger-cli",
   "description": "Debugger CLI for Ark Core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -21,7 +21,7 @@
     "depcheck": "depcheck ./ --ignores=commander"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/crypto": "~0.2",
     "clipboardy": "^1.2.3",
     "commander": "^2.19.0"
   },

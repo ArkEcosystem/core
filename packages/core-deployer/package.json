@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-deployer",
   "description": "Deployer for Ark Core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contributors": [
     "Brian Faust <brian@ark.io>",
     "Alex Barnsley <alex@ark.io>"
@@ -22,7 +22,7 @@
     "depcheck": "depcheck ./ --ignores=commander,pino-pretty,lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/crypto": "~0.2",
     "bip39": "^2.5.0",
     "bytebuffer": "^5.0.1",
     "commander": "^2.19.0",

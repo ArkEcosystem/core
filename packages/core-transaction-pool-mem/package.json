@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-transaction-pool-mem",
   "description": "Transaction Pool - Memory implementation for Ark Core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>",
@@ -20,16 +20,16 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-transaction-pool": "^0.1.1",
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-transaction-pool": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
     "better-sqlite3": "^5.0.1",
     "delay": "^4.1.0",
     "fs-extra": "^7.0.1"
   },
   "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1",
-    "@arkecosystem/core-utils": "^0.1.0",
+    "@arkecosystem/core-test-utils": "~0.2",
+    "@arkecosystem/core-utils": "~0.2",
     "random-seed": "^0.3.0"
   },
   "publishConfig": {
