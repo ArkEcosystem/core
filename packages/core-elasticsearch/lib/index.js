@@ -12,9 +12,9 @@ const storage = require('./services/storage')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
-  alias: 'arkx:elastic',
-  async register(container, options) {
-    const logger = container.resolvePlugin('logger')
+  alias: 'elasticsearch',
+  async register(app, options) {
+    const logger = app.resolvePlugin('logger')
 
     logger.info('[Elasticsearch] Initialising History :hourglass:')
     storage.ensure('history')
@@ -29,11 +29,11 @@ exports.plugin = {
 
     return require('./server')(options.server)
   },
-  async deregister(container, options) {
-    container
+  async deregister(app, options) {
+    app
       .resolvePlugin('logger')
       .info('[Elasticsearch] Stopping API :warning:')
 
-    return container.resolvePlugin('arkx:elastic').stop()
+    return app.resolvePlugin('elasticsearch').stop()
   },
 }
