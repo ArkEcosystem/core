@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@arkecosystem/core-p2p": "^0.1.1",
-    "@arkecosystem/core-test-utils": "^0.1.1",
+    "@arkecosystem/core-test-utils": "~0.2",
     "axios-mock-adapter": "^1.15.0"
   },
   "publishConfig": {

@@ -37,7 +37,7 @@
     "lodash.snakecase": "^4.1.1"
   },
   "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1",
+    "@arkecosystem/core-test-utils": "~0.2",
     "axios": "^0.18.0"
   },
   "publishConfig": {
