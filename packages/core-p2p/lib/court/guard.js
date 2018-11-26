@@ -126,6 +126,7 @@ class Guard {
         logger.debug(
           `${peer.ip} still suspended for ${prettyMs(untilDiff, {
             verbose: true,
+            secDecimalDigits: 0,
           })} because of "${suspendedPeer.reason}".`,
         )
 
@@ -301,6 +302,7 @@ class Guard {
     logger.debug(
       `Suspended ${peer.ip} for ${prettyMs(untilDiff, {
         verbose: true,
+        secDecimalDigits: 0,
       })} because of "${offence.reason}"`,
     )
 
