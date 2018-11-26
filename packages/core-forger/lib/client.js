@@ -17,7 +17,7 @@ module.exports = class Client {
     this.hosts = Array.isArray(hosts) ? hosts : [hosts]
 
     this.headers = {
-      version: container.resolveOptions('blockchain').version,
+      version: container.getVersion(),
       port: container.resolveOptions('p2p').port,
       nethash: config.network.nethash,
       'x-auth': 'forger',

@@ -23,7 +23,7 @@ module.exports = class Peer {
     this.lastPinged = null
 
     this.headers = {
-      version: container.resolveOptions('blockchain').version,
+      version: container.getVersion(),
       port: container.resolveOptions('p2p').port,
       nethash: config.network.nethash,
       height: null,

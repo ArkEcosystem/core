@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core",
   "description": "Core of the Ark Blockchain",
-  "version": "0.2.0",
+  "version": "2.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -64,7 +64,6 @@
     "@arkecosystem/crypto": "~0.2",
     "bip38": "^2.0.2",
     "commander": "^2.19.0",
-    "fs": "^0.0.1-security",
     "wif": "^2.0.6"
   },
   "publishConfig": {

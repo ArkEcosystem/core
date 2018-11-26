@@ -6,6 +6,7 @@ beforeEach(async () => {
   container = require('../lib')
 
   await container.setUp(
+    '2.0.0',
     {
       data: 'fake-path',
       config: path.resolve(__dirname, '../../core/lib/config/testnet'),

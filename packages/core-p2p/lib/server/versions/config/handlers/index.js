@@ -7,7 +7,7 @@ exports.config = {
   async handler(request, h) {
     return {
       data: {
-        version: container.resolveOptions('blockchain').version,
+        version: container.getVersion(),
         network: {
           version: config.network.pubKeyHash,
           nethash: config.network.nethash,

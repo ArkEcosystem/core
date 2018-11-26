@@ -1,4 +1,5 @@
 const { createContainer } = require('awilix')
+const semver = require('semver')
 const delay = require('delay')
 const PluginRegistrar = require('./registrars/plugin')
 const Environment = require('./environment')
@@ -22,12 +23,15 @@ module.exports = class Container {
 
   /**
    * Set up the container.
+   * @param  {String} version
    * @param  {Object} variables
    * @param  {Object} options
    * @return {void}
    */
-  async setUp(variables, options = {}) {
+  async setUp(version, variables, options = {}) {
     this.__registerExitHandler()
+
+    this.setVersion(version)
 
     if (variables.remote) {
       const remoteLoader = new RemoteLoader(variables)
@@ -150,6 +154,29 @@ module.exports = class Container {
     }
 
     process.exit(exitCode)
+  }
+
+  /**
+   * Get the application version.
+   * @throws {String}
+   */
+  getVersion() {
+    return this.version
+  }
+
+  /**
+   * Set the application version.
+   * @param  {String} version
+   * @return {void}
+   */
+  setVersion(version) {
+    if (!semver.valid(version)) {
+      this.forceExit(
+        `The provided version ("${version}") is invalid. Please check https://semver.org/ and make sure you follow the spec.`,
+      )
+    }
+
+    this.version = version
   }
 
   /**
