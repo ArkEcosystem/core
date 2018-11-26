@@ -280,6 +280,16 @@ module.exports = class TransactionPoolInterface {
     this.walletManager.deleteWallet(senderPublicKey)
   }
 
+  purgeInvalidTransactionsFromBlock(block) {
+    const publicKeys = new Set(
+      block.transactions
+        .filter(tx => !tx.verified)
+        .map(tx => tx.senderPublicKey),
+    )
+
+    publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey))
+  }
+
   checkApplyToBlockchain(transaction) {
     const errors = []
     const wallet = database.walletManager.findByPublicKey(
