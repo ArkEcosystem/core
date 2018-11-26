@@ -295,6 +295,14 @@ module.exports = class TransactionPoolInterface {
     publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey))
   }
 
+  /**
+   * Purges all transactions from the block.
+   * @param {Block} block
+   */
+  purgeBlock(block) {
+    block.transactions.forEach(tx => this.removeTransaction(tx))
+  }
+
   checkApplyToBlockchain(transaction) {
     const errors = []
     const wallet = database.walletManager.findByPublicKey(
