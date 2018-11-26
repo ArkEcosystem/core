@@ -11,7 +11,6 @@ module.exports = {
   maxTransactionsInPool: process.env.ARK_MAX_TRANSACTIONS_IN_POOL || 100000,
   maxTransactionsPerSender:
     process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
-  whitelist: [],
   allowedSenders: [],
   maxTransactionsPerRequest:
     process.env.ARK_TRANSACTION_POOL_MAX_PER_REQUEST || 40,

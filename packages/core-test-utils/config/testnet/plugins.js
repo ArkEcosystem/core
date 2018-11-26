@@ -28,7 +28,6 @@ module.exports = {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
     maxTransactionsPerSender:
       process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
-    whitelist: [],
     allowedSenders: [],
     // 100+ years in the future to avoid our hardcoded transactions used in the
     // tests to expire immediately
