@@ -285,7 +285,7 @@ module.exports = class TransactionPoolInterface {
    * invalid transaction.
    * @param {Block} block
    */
-  purgeInvalidTransactionsFromBlock(block) {
+  purgeSendersWithInvalidTransactions(block) {
     const publicKeys = new Set(
       block.transactions
         .filter(tx => !tx.verified)

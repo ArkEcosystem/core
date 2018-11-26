@@ -407,7 +407,7 @@ module.exports = class Blockchain {
         `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
       )
 
-      this.transactionPool.purgeInvalidTransactionsFromBlock(block)
+      this.transactionPool.purgeSendersWithInvalidTransactions(block)
 
       return callback()
     }

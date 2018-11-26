@@ -692,9 +692,9 @@ describe('Connection', () => {
     })
   })
 
-  describe('purgeInvalidTransactionsFromBlock', () => {
+  describe('purgeSendersWithInvalidTransactions', () => {
     it('should be a function', () => {
-      expect(connection.purgeInvalidTransactionsFromBlock).toBeFunction()
+      expect(connection.purgeSendersWithInvalidTransactions).toBeFunction()
     })
 
     it('should purge transactions from sender when invalid', async () => {
@@ -725,13 +725,13 @@ describe('Connection', () => {
       // Last tx has a unique sender
       block.transactions[5].verified = false
 
-      connection.purgeInvalidTransactionsFromBlock(block)
+      connection.purgeSendersWithInvalidTransactions(block)
       expect(connection.mem.all).toHaveLength(5)
 
       // The remaining tx all have the same sender
       block.transactions[0].verified = false
 
-      connection.purgeInvalidTransactionsFromBlock(block)
+      connection.purgeSendersWithInvalidTransactions(block)
       expect(connection.mem.all).toHaveLength(0)
     })
   })
