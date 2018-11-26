@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@arkecosystem/core-test-utils": "~0.2",
-    "@arkecosystem/core-utils": "^0.1.0",
+    "@arkecosystem/core-utils": "~0.2",
     "random-seed": "^0.3.0"
   },
   "publishConfig": {
