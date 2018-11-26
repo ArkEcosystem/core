@@ -5,8 +5,8 @@ const container = require('@arkecosystem/core-container')
  * @param  {Object} options
  * @return {void}
  */
-module.exports = async options => {
-  await container.setUp(options, {
+module.exports = async (options, version) => {
+  await container.setUp(version, options, {
     exclude: ['@arkecosystem/core-forger'],
     options: {
       '@arkecosystem/core-p2p': {

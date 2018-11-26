@@ -11,7 +11,7 @@ const config = container.resolvePlugin('config')
 const register = async (server, options) => {
   const headers = {
     nethash: config.network.nethash,
-    version: container.resolveOptions('blockchain').version,
+    version: container.getVersion(),
     port: container.resolveOptions('p2p').port,
     os: require('os').platform(),
     height: null,
