@@ -106,9 +106,6 @@ jobs:
       - run:
           name: Install packages
           command: yarn
-      - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
-          paths: []
       - run:
           name: Lint
           command: yarn lint
