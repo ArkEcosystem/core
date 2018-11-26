@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-utils",
   "description": "Utilities for Ark Core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -17,8 +17,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
     "cli-table3": "^0.5.1",
     "dayjs-ext": "^2.2.0"
   },

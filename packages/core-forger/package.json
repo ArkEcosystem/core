@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-forger",
   "description": "Forger for Ark Core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -19,8 +19,8 @@
     "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.2.5",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
     "axios": "^0.18.0",
     "delay": "^4.1.0",
     "lodash.isempty": "^4.4.0",
@@ -29,7 +29,7 @@
     "pluralize": "^7.0.0"
   },
   "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1",
+    "@arkecosystem/core-test-utils": "~0.2",
     "axios-mock-adapter": "^1.15.0"
   },
   "publishConfig": {
