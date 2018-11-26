@@ -423,7 +423,7 @@ module.exports = class Blockchain {
       logger.error(`Refused new block ${JSON.stringify(block.data)}`)
       logger.debug(error.stack)
 
-      await this.transactionPool.purgeSendersWithInvalidTransactions(block)
+      this.transactionPool.purgeBlock(block)
 
       this.dispatch('FORK')
       return callback()
