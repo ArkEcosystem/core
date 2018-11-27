@@ -76,16 +76,7 @@ module.exports = class Peer {
     try {
       await this.__broadcastTransactions(transactions)
     } catch (err) {
-      if (err.response && err.response.status === 413) {
-        // Enforce minimum to prevent abuse
-        const broadcastSize = Math.max(err.response.data.error.allowed, 40)
-        const items = chunk(transactions, broadcastSize)
-
-        // eslint-disable-next-line promise/catch-or-return
-        Promise.all(items.map(item => this.__broadcastTransactions(item)))
-      } else {
-        throw err
-      }
+      throw err
     }
   }
 
@@ -300,15 +291,41 @@ module.exports = class Peer {
    * @return {Promise}
    */
   async __broadcastTransactions(transactions) {
-    return this.__post(
-      '/peer/transactions',
-      {
-        transactions,
-      },
-      {
-        headers: this.headers,
-        timeout: 8000,
-      },
-    )
+    let response
+
+    try {
+      response = await this.__post(
+        '/peer/transactions',
+        {
+          transactions,
+        },
+        {
+          headers: this.headers,
+          timeout: 8000,
+        },
+      )
+    } catch (err) {
+      throw new Error(err.message)
+    }
+
+    if (
+      response &&
+      response.status === 202 &&
+      !response.data.excessTransactions
+    ) {
+      return response
+    }
+
+    if (response.data.excessTransactions) {
+      // Enforce minimum to prevent abuse
+      const broadcastSize = Math.max(
+        response.data.maxTransactionsPerRequest,
+        40,
+      )
+      const items = chunk(response.data.excessTransactions, broadcastSize)
+
+      // eslint-disable-next-line promise/catch-or-return
+      return Promise.all(items.map(item => this.__broadcastTransactions(item)))
+    }
   }
 }
