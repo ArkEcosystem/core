@@ -145,11 +145,12 @@ module.exports = class Peer {
    * Perform ping request on this peer if it has not been
    * recently pinged.
    * @param  {Number} [delay=5000]
+   * @param  {Boolean} force
    * @return {Object}
    * @throws {Error} If fail to get peer status.
    */
-  async ping(delay) {
-    if (this.recentlyPinged()) {
+  async ping(delay, force = false) {
+    if (this.recentlyPinged() && !force) {
       return
     }
 
