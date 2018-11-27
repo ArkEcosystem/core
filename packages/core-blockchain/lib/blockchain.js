@@ -3,11 +3,11 @@
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const config = container.resolvePlugin('config')
-const emitter = container.resolvePlugin('event-emitter')
+const logger = app.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
+const emitter = app.resolvePlugin('event-emitter')
 const delay = require('delay')
 const pluralize = require('pluralize')
 const stateMachine = require('./state-machine')
@@ -422,6 +422,9 @@ module.exports = class Blockchain {
     } catch (error) {
       logger.error(`Refused new block ${JSON.stringify(block.data)}`)
       logger.debug(error.stack)
+
+      this.transactionPool.purgeBlock(block)
+
       this.dispatch('FORK')
       return callback()
     }
@@ -668,7 +671,7 @@ module.exports = class Blockchain {
    * @return {P2PInterface}
    */
   get p2p() {
-    return container.resolvePlugin('p2p')
+    return app.resolvePlugin('p2p')
   }
 
   /**
@@ -676,7 +679,7 @@ module.exports = class Blockchain {
    * @return {TransactionPool}
    */
   get transactionPool() {
-    return container.resolvePlugin('transactionPool')
+    return app.resolvePlugin('transactionPool')
   }
 
   /**
@@ -684,7 +687,7 @@ module.exports = class Blockchain {
    * @return {ConnectionInterface}
    */
   get database() {
-    return container.resolvePlugin('database')
+    return app.resolvePlugin('database')
   }
 
   /**

@@ -1,13 +1,13 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
+const config = app.resolvePlugin('config')
 const transform = require('../transformers/plugins')
 
 exports.config = {
   async handler(request, h) {
     return {
       data: {
-        version: container.resolveOptions('blockchain').version,
+        version: app.getVersion(),
         network: {
           version: config.network.pubKeyHash,
           nethash: config.network.nethash,

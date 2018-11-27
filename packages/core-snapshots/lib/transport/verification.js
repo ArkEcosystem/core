@@ -2,9 +2,9 @@ const { camelizeKeys } = require('xcase')
 const createHash = require('create-hash')
 const { crypto } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 
 module.exports = {
   verifyData: (context, data, prevData, signatureVerification) => {

@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
+const config = app.resolvePlugin('config')
 
 const { Transaction } = require('@arkecosystem/crypto').models
 
@@ -22,7 +22,7 @@ exports.verify = {
 
     return {
       data: {
-        valid: await container
+        valid: await app
           .resolvePlugin('database')
           .verifyTransaction(transaction),
       },
@@ -43,7 +43,7 @@ exports.forging = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
+    const blockchain = app.resolvePlugin('blockchain')
 
     const height = blockchain.getLastBlock().data.height
     const maxTransactions = config.getConstants(height).block.maxTransactions

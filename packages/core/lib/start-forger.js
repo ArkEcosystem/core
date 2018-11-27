@@ -1,12 +1,13 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 /**
  * Start a forger.
  * @param  {Object} options
+ * @param  {String} version
  * @return {void}
  */
-module.exports = async options => {
-  await container.setUp(options, {
+module.exports = async (options, version) => {
+  await app.setUp(version, options, {
     include: [
       '@arkecosystem/core-event-emitter',
       '@arkecosystem/core-config',

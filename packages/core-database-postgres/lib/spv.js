@@ -2,10 +2,10 @@ const {
   Bignum,
   models: { Transaction },
 } = require('@arkecosystem/crypto')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const config = container.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
 const queries = require('./queries')
 
 const genesisWallets = config.genesisBlock.transactions.map(tx => tx.senderId)

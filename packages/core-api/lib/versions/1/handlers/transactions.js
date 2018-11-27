@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const transactionPool = container.resolvePlugin('transactionPool')
+const transactionPool = app.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')

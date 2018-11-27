@@ -1,18 +1,18 @@
-const container = require('@arkecosystem/core-container')
-const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@arkecosystem/core-container')
+const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
   process.env.ARK_GRAPHQL_ENABLED = true
 
-  await containerHelper.setUp({
+  await appHelper.setUp({
     exclude: ['@arkecosystem/core-api', '@arkecosystem/core-forger'],
   })
 
-  return container
+  return app
 }
 
 exports.tearDown = async () => {
-  await container.tearDown()
+  await app.tearDown()
 }

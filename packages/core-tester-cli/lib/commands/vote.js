@@ -31,9 +31,12 @@ module.exports = class VoteCommand extends Command {
     }
 
     const voters = await this.getVoters(delegate)
-    logger.info(`Sending ${this.options.number} vote ${
-      pluralize('transaction', this.options.number, true)
-    }`)
+    logger.info(
+      `Sending ${this.options.number} vote ${pluralize(
+        'transaction',
+        this.options.number,
+      )}`,
+    )
 
     const transactions = []
     wallets.forEach((wallet, i) => {

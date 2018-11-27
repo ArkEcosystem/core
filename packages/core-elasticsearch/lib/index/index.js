@@ -1,10 +1,10 @@
 /* eslint camelcase: "off" */
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const emitter = container.resolvePlugin('event-emitter')
-const logger = container.resolvePlugin('logger')
-const database = container.resolvePlugin('database')
+const emitter = app.resolvePlugin('event-emitter')
+const logger = app.resolvePlugin('logger')
+const database = app.resolvePlugin('database')
 const client = require('../services/client')
 const storage = require('../services/storage')
 

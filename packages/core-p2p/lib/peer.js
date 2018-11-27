@@ -2,10 +2,10 @@ const axios = require('axios')
 const chunk = require('lodash/chunk')
 const util = require('util')
 const dayjs = require('dayjs-ext')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
-const config = container.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
 
 module.exports = class Peer {
   /**
@@ -23,8 +23,8 @@ module.exports = class Peer {
     this.lastPinged = null
 
     this.headers = {
-      version: container.resolveOptions('blockchain').version,
-      port: container.resolveOptions('p2p').port,
+      version: app.getVersion(),
+      port: app.resolveOptions('p2p').port,
       nethash: config.network.nethash,
       height: null,
       'Content-Type': 'application/json',
@@ -145,11 +145,12 @@ module.exports = class Peer {
    * Perform ping request on this peer if it has not been
    * recently pinged.
    * @param  {Number} [delay=5000]
+   * @param  {Boolean} force
    * @return {Object}
    * @throws {Error} If fail to get peer status.
    */
-  async ping(delay) {
-    if (this.recentlyPinged()) {
+  async ping(delay, force = false) {
+    if (this.recentlyPinged() && !force) {
       return
     }
 

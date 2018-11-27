@@ -1,10 +1,10 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 
-const logger = container.resolvePlugin('logger')
-const database = container.resolvePlugin('database')
-const config = container.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const database = app.resolvePlugin('database')
+const config = app.resolvePlugin('config')
 const { crypto } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
@@ -75,13 +75,6 @@ module.exports = class PoolWalletManager extends WalletManager {
     const errors = []
 
     const sender = this.findByPublicKey(senderPublicKey)
-    let recipient = recipientId ? this.findByAddress(recipientId) : null
-
-    if (!recipient && recipientId) {
-      // cold wallet
-      recipient = new Wallet(recipientId)
-      this.setByAddress(recipientId, recipient)
-    }
 
     if (
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
@@ -141,7 +134,8 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     sender.applyTransactionToSender(data)
 
-    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+    if (type === TRANSACTION_TYPES.TRANSFER) {
+      const recipient = this.findByAddress(recipientId)
       recipient.applyTransactionToRecipient(data)
     }
 

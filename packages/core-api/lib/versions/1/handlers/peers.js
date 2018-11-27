@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const p2p = container.resolvePlugin('p2p')
+const p2p = app.resolvePlugin('p2p')
 
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -45,9 +45,10 @@ exports.index = {
     if (request.query.orderBy) {
       const order = request.query.orderBy.split(':')
       if (['port', 'status', 'os', 'version'].includes(order[0])) {
-        peers = order[1].toUpperCase() === 'ASC'
-          ? peers.sort((a, b) => a[order[0]] - b[order[0]])
-          : peers.sort((a, b) => a[order[0]] + b[order[0]])
+        peers =
+          order[1].toUpperCase() === 'ASC'
+            ? peers.sort((a, b) => a[order[0]] - b[order[0]])
+            : peers.sort((a, b) => a[order[0]] + b[order[0]])
       }
     }
 
@@ -85,7 +86,8 @@ exports.show = {
     }
 
     const peer = peers.find(
-      elem => elem.ip === request.query.ip && +elem.port === +request.query.port,
+      elem =>
+        elem.ip === request.query.ip && +elem.port === +request.query.port,
     )
 
     if (!peer) {
@@ -119,7 +121,7 @@ exports.version = {
    */
   handler(request, h) {
     return utils.respondWith({
-      version: container.resolveOptions('blockchain').version,
+      version: app.getVersion(),
     })
   },
 }

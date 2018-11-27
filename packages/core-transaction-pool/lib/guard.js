@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 const pluralize = require('pluralize')
 
@@ -78,7 +78,23 @@ module.exports = class TransactionGuard {
    * @return {Array}
    */
   __cacheTransactions(transactions) {
-    const { added, notAdded } = container
+    // Edge case: B -> C, A -> B, B -> C
+    // B -> C is added to cache initially, but invalid because no funds.
+    // A -> B is valid, B gets enough funds
+    // B -> C doesn't enter pool again, because it is in cache.
+    // So we don't want to cache a tx when it cannot be applied.
+    // NOTE: will be refactored in 2.1
+    transactions = transactions.filter(transaction => {
+      const errors = []
+      if (!this.pool.walletManager.canApply(transaction, errors)) {
+        this.__pushError(transaction, 'ERR_APPLY', JSON.stringify(errors))
+        return false
+      }
+
+      return true
+    })
+
+    const { added, notAdded } = app
       .resolve('state')
       .cacheTransactions(transactions)
 
@@ -192,12 +208,6 @@ module.exports = class TransactionGuard {
       return false
     }
 
-    const errors = []
-    if (!this.pool.walletManager.canApply(transaction, errors)) {
-      this.__pushError(transaction, 'ERR_APPLY', JSON.stringify(errors))
-      return false
-    }
-
     switch (transaction.type) {
       case TRANSACTION_TYPES.TRANSFER:
         if (!isRecipientOnActiveNetwork(transaction)) {
@@ -254,13 +264,13 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   async __removeForgedTransactions() {
-    const database = container.resolvePlugin('database')
+    const database = app.resolvePlugin('database')
 
     const forgedIdsSet = await database.getForgedTransactionsIds([
       ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
     ])
 
-    container.resolve('state').removeCachedTransactionIds(forgedIdsSet)
+    app.resolve('state').removeCachedTransactionIds(forgedIdsSet)
 
     forgedIdsSet.forEach(id => {
       this.__pushError(this.accept.get(id), 'ERR_FORGED', 'Already forged.')
@@ -327,7 +337,7 @@ module.exports = class TransactionGuard {
       )
       .join(' ')
 
-    container
+    app
       .resolvePlugin('logger')
       .info(
         `Received ${pluralize(

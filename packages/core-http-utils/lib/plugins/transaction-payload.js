@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 const register = async (server, options) => {
   server.ext({
@@ -15,10 +15,17 @@ const register = async (server, options) => {
         return h.continue
       }
 
-      const transactionPool = container.resolveOptions('transactionPool')
+      const transactionPool = app.resolveOptions('transactionPool')
 
       if (!transactionPool) {
         return h.continue
+      }
+
+      // NOTE: this will only trigger if the JSON content-type header is not
+      // present. This will be avoided by the "content-type.js" plugin in the
+      // future which is currently disabled due to v1 still being on mainnet.
+      if (!request.payload.transactions) {
+        return Boom.badRequest()
       }
 
       const transactionsCount = request.payload.transactions.length

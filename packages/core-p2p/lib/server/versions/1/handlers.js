@@ -1,6 +1,6 @@
 /* eslint no-restricted-globals: "off" */
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
@@ -9,9 +9,9 @@ const Joi = require('@arkecosystem/crypto').validator.engine.joi
 const requestIp = require('request-ip')
 const pluralize = require('pluralize')
 
-const transactionPool = container.resolvePlugin('transactionPool')
-const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
+const transactionPool = app.resolvePlugin('transactionPool')
+const config = app.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
 
 const monitor = require('../../../monitor')
 
@@ -54,7 +54,7 @@ exports.getHeight = {
    * @return {Hapi.Response}
    */
   handler(request, h) {
-    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
+    const lastBlock = app.resolvePlugin('blockchain').getLastBlock()
 
     return {
       success: true,
@@ -80,7 +80,7 @@ exports.getCommonBlocks = {
       }
     }
 
-    const blockchain = container.resolvePlugin('blockchain')
+    const blockchain = app.resolvePlugin('blockchain')
 
     const ids = request.query.ids
       .split(',')
@@ -115,7 +115,7 @@ exports.getTransactionsFromIds = {
    */
   async handler(request, h) {
     try {
-      const blockchain = container.resolvePlugin('blockchain')
+      const blockchain = app.resolvePlugin('blockchain')
       const maxTransactions = config.getConstants(blockchain.getLastHeight())
         .block.maxTransactions
 
@@ -124,7 +124,7 @@ exports.getTransactionsFromIds = {
         .slice(0, maxTransactions)
         .filter(id => id.match('[0-9a-fA-F]{32}'))
 
-      const rows = await container
+      const rows = await app
         .resolvePlugin('database')
         .getTransactionsFromIds(transactionIds)
 
@@ -178,7 +178,7 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler(request, h) {
-    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
+    const lastBlock = app.resolvePlugin('blockchain').getLastBlock()
 
     return {
       success: true,
@@ -200,7 +200,7 @@ exports.postBlock = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
+    const blockchain = app.resolvePlugin('blockchain')
 
     try {
       if (!request.payload || !request.payload.block) {
@@ -332,7 +332,7 @@ exports.postTransactions = {
     }
 
     if (result.broadcast.length > 0) {
-      container
+      app
         .resolvePlugin('p2p')
         .broadcastTransactions(guard.getBroadcastTransactions())
     }
@@ -351,7 +351,7 @@ exports.postTransactions = {
         transactions: Joi.arkTransactions()
           .min(1)
           .max(
-            container.resolveOptions('transactionPool')
+            app.resolveOptions('transactionPool')
               .maxTransactionsPerRequest,
           )
           .options({ stripUnknown: true }),
@@ -371,8 +371,8 @@ exports.getBlocks = {
    */
   async handler(request, h) {
     try {
-      const database = container.resolvePlugin('database')
-      const blockchain = container.resolvePlugin('blockchain')
+      const database = app.resolvePlugin('database')
+      const blockchain = app.resolvePlugin('blockchain')
 
       const reqBlockHeight = parseInt(request.query.lastBlockHeight) + 1
       let blocks = []
