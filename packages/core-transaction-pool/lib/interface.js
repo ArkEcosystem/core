@@ -207,10 +207,7 @@ module.exports = class TransactionPoolInterface {
           ? this.walletManager.findByPublicKey(transaction.senderPublicKey)
           : false
         // if wallet in pool we try to apply transaction
-        if (
-          senderWallet ||
-          this.walletManager.exists(transaction.recipientId)
-        ) {
+        if (senderWallet) {
           try {
             this.walletManager.applyPoolTransaction(transaction)
           } catch (error) {
