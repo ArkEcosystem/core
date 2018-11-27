@@ -16,14 +16,21 @@ const formatDelegates = delegates =>
           wallet.vote === delegate.publicKey && wallet.balance > 0.1 * 1e8,
       )
 
-    const approval = delegateCalculator.calculateApproval(delegate).toString()
+    const approval = Number(
+      delegateCalculator.calculateApproval(delegate),
+    ).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+
     const rank = delegate.rate.toLocaleString(undefined, {
       minimumIntegerDigits: 2,
     })
-    const votes = delegate.voteBalance
-      .div(1e8)
-      .toFixed()
-      .toLocaleString(undefined, { maximumFractionDigits: 0 })
+
+    const votes = Number(delegate.voteBalance.div(1e8)).toLocaleString(
+      undefined,
+      { maximumFractionDigits: 0 },
+    )
     const voterCount = voters.length.toLocaleString(undefined, {
       maximumFractionDigits: 0,
     })
@@ -32,8 +39,8 @@ const formatDelegates = delegates =>
       rank,
       username: delegate.username.padEnd(25),
       approval: approval.padEnd(4),
-      votes: votes.padEnd(10),
-      voterCount: voterCount.padEnd(5),
+      votes: votes.padStart(10),
+      voterCount: voterCount.padStart(5),
     }
   })
 
@@ -72,11 +79,7 @@ module.exports = (request, h) => {
   return h
     .view('index', {
       client,
-      token: client.token.padEnd(
-        client.token.length === 4
-          ? client.token.length + 1
-          : client.token.length * 2 - 1,
-      ),
+      voteHeader: `Vote ${client.token}`.padStart(10),
       activeDelegatesCount: constants.activeDelegates,
       activeDelegates: formatDelegates(active),
       standbyDelegates: formatDelegates(standby),
@@ -90,6 +93,7 @@ module.exports = (request, h) => {
         maximumFractionDigits: 0,
       }),
       percentage: percentage.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
     })
