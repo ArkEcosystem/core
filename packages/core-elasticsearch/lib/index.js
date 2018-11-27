@@ -12,7 +12,7 @@ const storage = require('./services/storage')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
-  alias: 'arkx:elastic',
+  alias: 'elasticsearch',
   async register(container, options) {
     const logger = container.resolvePlugin('logger')
 
@@ -34,6 +34,6 @@ exports.plugin = {
       .resolvePlugin('logger')
       .info('[Elasticsearch] Stopping API :warning:')
 
-    return container.resolvePlugin('arkx:elastic').stop()
+    return container.resolvePlugin('elasticsearch').stop()
   },
 }
