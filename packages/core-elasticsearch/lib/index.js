@@ -13,7 +13,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'elasticsearch',
-  async register(app, options) {
+  async register(container, options) {
     const logger = container.resolvePlugin('logger')
 
     logger.info('[Elasticsearch] Initialising History :hourglass:')
