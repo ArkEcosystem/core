@@ -220,7 +220,7 @@ module.exports = class TransactionPoolInterface {
           this.purgeByPublicKey(senderPublicKey)
 
           // Purge recipient if not sender
-          if (senderWallet.publicKey !== recipientWallet.publicKey) {
+          if (senderPublicKey !== recipientWallet.publicKey) {
             this.purgeByPublicKey(recipientWallet.publicKey)
           }
         }
