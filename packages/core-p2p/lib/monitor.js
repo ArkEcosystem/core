@@ -218,8 +218,10 @@ class Monitor {
   /**
    * Clear peers which aren't responding.
    * @param {Boolean} fast
+   * @param {Boolean} tracker
+   * @param {Boolean} forcePing
    */
-  async cleanPeers(fast = false, tracker = true) {
+  async cleanPeers(fast = false, tracker = true, forcePing = false) {
     const keys = Object.keys(this.peers)
     let count = 0
     let unresponsivePeers = 0
@@ -231,7 +233,7 @@ class Monitor {
       keys.map(async ip => {
         const peer = this.getPeer(ip)
         try {
-          await peer.ping(pingDelay)
+          await peer.ping(pingDelay, forcePing)
 
           if (tracker) {
             logger.printTracker('Peers Discovery', ++count, max)
@@ -447,13 +449,10 @@ class Monitor {
 
   async getNetworkState() {
     if (!this.__isColdStartActive()) {
-      await this.cleanPeers(true, false)
+      await this.cleanPeers(true, false, true)
     }
 
-    return networkState(
-      this,
-      app.resolvePlugin('blockchain').getLastBlock(),
-    )
+    return networkState(this, app.resolvePlugin('blockchain').getLastBlock())
   }
 
   /**
