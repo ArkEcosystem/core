@@ -7,40 +7,45 @@ const config = app.resolvePlugin('config')
 const blockchain = app.resolvePlugin('blockchain')
 const database = app.resolvePlugin('database')
 
-const formatDelegates = delegates => delegates.map(delegate => {
-  const voters = database.walletManager
-    .allByPublicKey()
-    .filter(
-      wallet => wallet.vote === delegate.publicKey && wallet.balance > 0.1 * 1e8,
-    )
+const formatDelegates = delegates =>
+  delegates.map(delegate => {
+    const voters = database.walletManager
+      .allByPublicKey()
+      .filter(
+        wallet =>
+          wallet.vote === delegate.publicKey && wallet.balance > 0.1 * 1e8,
+      )
 
-  const approval = delegateCalculator.calculateApproval(delegate).toString()
-  const rank = delegate.rate.toLocaleString(undefined, {
-    minimumIntegerDigits: 2,
-  })
-  const votes = delegate.voteBalance
-    .div(1e8)
-    .toFixed()
-    .toLocaleString(undefined, { maximumFractionDigits: 0 })
-  const voterCount = voters.length.toLocaleString(undefined, {
-    maximumFractionDigits: 0,
-  })
+    const approval = delegateCalculator.calculateApproval(delegate).toString()
+    const rank = delegate.rate.toLocaleString(undefined, {
+      minimumIntegerDigits: 2,
+    })
+    const votes = delegate.voteBalance
+      .div(1e8)
+      .toFixed()
+      .toLocaleString(undefined, { maximumFractionDigits: 0 })
+    const voterCount = voters.length.toLocaleString(undefined, {
+      maximumFractionDigits: 0,
+    })
 
-  return {
-    rank,
-    username: delegate.username.padEnd(25),
-    approval: approval.padEnd(4),
-    votes: votes.padEnd(10),
-    voterCount: voterCount.padEnd(5),
-  }
-})
+    return {
+      rank,
+      username: delegate.username.padEnd(25),
+      approval: approval.padEnd(4),
+      votes: votes.padEnd(10),
+      voterCount: voterCount.padEnd(5),
+    }
+  })
 
 module.exports = (request, h) => {
   const lastBlock = blockchain.getLastBlock()
   const constants = config.getConstants(lastBlock.data.height)
+  const delegateRows = app.resolveOptions('vote-report').delegateRows
+
   const rewards = bignumify(constants.reward).times(
     lastBlock.data.height - constants.height,
   )
+
   const supply = +bignumify(config.genesisBlock.totalAmount)
     .plus(rewards)
     .toFixed()
@@ -53,7 +58,7 @@ module.exports = (request, h) => {
   const standby = database.walletManager
     .allByUsername()
     .sort((a, b) => a.rate - b.rate)
-    .slice(constants.activeDelegates + 1, constants.activeDelegates + 30)
+    .slice(constants.activeDelegates + 1, delegateRows)
 
   const voters = database.walletManager
     .allByPublicKey()
