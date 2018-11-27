@@ -30,7 +30,6 @@ module.exports = class TransferCommand extends Command {
       `Sending ${wallets.length} transfer ${pluralize(
         'transaction',
         wallets.length,
-        true,
       )}`,
     )
 
