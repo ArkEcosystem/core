@@ -14,7 +14,7 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'elasticsearch',
   async register(app, options) {
-    const logger = app.resolvePlugin('logger')
+    const logger = container.resolvePlugin('logger')
 
     logger.info('[Elasticsearch] Initialising History :hourglass:')
     storage.ensure('history')
@@ -29,11 +29,11 @@ exports.plugin = {
 
     return require('./server')(options.server)
   },
-  async deregister(app, options) {
-    app
+  async deregister(container, options) {
+    container
       .resolvePlugin('logger')
       .info('[Elasticsearch] Stopping API :warning:')
 
-    return app.resolvePlugin('elasticsearch').stop()
+    return container.resolvePlugin('elasticsearch').stop()
   },
 }
