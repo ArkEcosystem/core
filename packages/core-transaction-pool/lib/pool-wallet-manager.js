@@ -164,7 +164,7 @@ module.exports = class PoolWalletManager extends WalletManager {
    */
   canApply(transaction, errors) {
     // Edge case
-    if (!database.walletManager.exists(transaction.senderPublicKey)) {
+    if (!database.walletManager.byPublicKey[transaction.senderPublicKey]) {
       errors.push(
         'Cold wallet is not allowed to send until receiving transaction is confirmed.',
       )
