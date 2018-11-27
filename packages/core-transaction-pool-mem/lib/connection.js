@@ -110,6 +110,7 @@ class TransactionPool extends TransactionPoolInterface {
       const lowest = all[all.length - 1].transaction
 
       if (lowest.fee.isLessThan(transaction.fee)) {
+        this.walletManager.revertTransaction(lowest)
         this.mem.remove(lowest.id, lowest.senderPublicKey)
       } else {
         return this.__createError(

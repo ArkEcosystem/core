@@ -75,13 +75,6 @@ module.exports = class PoolWalletManager extends WalletManager {
     const errors = []
 
     const sender = this.findByPublicKey(senderPublicKey)
-    let recipient = recipientId ? this.findByAddress(recipientId) : null
-
-    if (!recipient && recipientId) {
-      // cold wallet
-      recipient = new Wallet(recipientId)
-      this.setByAddress(recipientId, recipient)
-    }
 
     if (
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
@@ -141,7 +134,8 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     sender.applyTransactionToSender(data)
 
-    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+    if (type === TRANSACTION_TYPES.TRANSFER) {
+      const recipient = this.findByAddress(recipientId)
       recipient.applyTransactionToRecipient(data)
     }
 
