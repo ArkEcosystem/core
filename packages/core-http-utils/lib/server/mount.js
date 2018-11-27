@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 
 module.exports = async (name, server) => {
   try {
@@ -10,6 +10,6 @@ module.exports = async (name, server) => {
 
     return server
   } catch (error) {
-    container.forceExit(`Could not start ${name} Server!`, error)
+    app.forceExit(`Could not start ${name} Server!`, error)
   }
 }

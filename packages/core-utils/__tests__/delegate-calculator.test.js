@@ -1,6 +1,6 @@
 const { Bignum } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 const delegateCalculator = require('../lib/delegate-calculator')
 
 let delegate
@@ -24,7 +24,7 @@ describe('Delegate Calculator', () => {
     it('should calculate correctly', () => {
       delegate.voteBalance = new Bignum(10000 * 1e8)
 
-      container.resolvePlugin = jest.fn(plugin => {
+      app.resolvePlugin = jest.fn(plugin => {
         if (plugin === 'config') {
           return {
             getConstants: () => ({
@@ -44,7 +44,7 @@ describe('Delegate Calculator', () => {
     it('should calculate correctly with 2 decimals', () => {
       delegate.voteBalance = new Bignum(16500 * 1e8)
 
-      container.resolvePlugin = jest.fn(plugin => {
+      app.resolvePlugin = jest.fn(plugin => {
         if (plugin === 'config') {
           return {
             getConstants: () => ({

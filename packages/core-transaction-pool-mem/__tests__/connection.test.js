@@ -720,19 +720,43 @@ describe('Connection', () => {
 
       block.transactions.forEach(tx => connection.addTransaction(tx))
 
-      expect(connection.mem.all).toHaveLength(6)
+      expect(connection.getPoolSize()).toBe(6)
 
       // Last tx has a unique sender
       block.transactions[5].verified = false
 
       connection.purgeSendersWithInvalidTransactions(block)
-      expect(connection.mem.all).toHaveLength(5)
+      expect(connection.getPoolSize()).toBe(5)
 
       // The remaining tx all have the same sender
       block.transactions[0].verified = false
 
       connection.purgeSendersWithInvalidTransactions(block)
-      expect(connection.mem.all).toHaveLength(0)
+      expect(connection.getPoolSize()).toBe(0)
+    })
+  })
+
+  describe('purgeBlock', () => {
+    it('should be a function', () => {
+      expect(connection.purgeBlock).toBeFunction()
+    })
+
+    it('should purge transactions from block', async () => {
+      const transactions = generateTransfer(
+        'testnet',
+        delegatesSecrets[0],
+        mockData.dummy1.recipientId,
+        1,
+        5,
+      )
+      const block = { transactions }
+
+      block.transactions.forEach(tx => connection.addTransaction(tx))
+
+      expect(connection.getPoolSize()).toBe(5)
+
+      connection.purgeBlock(block)
+      expect(connection.getPoolSize()).toBe(0)
     })
   })
 })

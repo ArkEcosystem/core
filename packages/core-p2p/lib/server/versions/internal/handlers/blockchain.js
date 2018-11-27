@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 
 /**
  * @type {Object}
@@ -14,7 +14,7 @@ exports.sync = {
   async handler(request, h) {
     logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
 
-    container.resolvePlugin('blockchain').forceWakeup()
+    app.resolvePlugin('blockchain').forceWakeup()
 
     return h.response(null).code(204)
   },

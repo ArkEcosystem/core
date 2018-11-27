@@ -1,5 +1,5 @@
 const dayjs = require('dayjs-ext')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 /**
  * Format the given epoch based timestamp into human and unix.
@@ -7,7 +7,7 @@ const container = require('@arkecosystem/core-container')
  * @return {Object}
  */
 module.exports = epochStamp => {
-  const constants = container.resolvePlugin('config').getConstants(1)
+  const constants = app.resolvePlugin('config').getConstants(1)
   const timestamp = dayjs(constants.epoch).add(epochStamp, 'seconds')
 
   return {

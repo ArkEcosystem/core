@@ -1,6 +1,6 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const emitter = container.resolvePlugin('event-emitter')
+const emitter = app.resolvePlugin('event-emitter')
 
 const schema = require('../schemas/utils')
 
@@ -14,8 +14,8 @@ exports.usernames = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-    const walletManager = container.resolvePlugin('database').walletManager
+    const blockchain = app.resolvePlugin('blockchain')
+    const walletManager = app.resolvePlugin('database').walletManager
 
     const lastBlock = blockchain.getLastBlock()
     const delegates = await blockchain.database.getActiveDelegates(

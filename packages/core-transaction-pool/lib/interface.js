@@ -1,11 +1,11 @@
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const logger = container.resolvePlugin('logger')
+const logger = app.resolvePlugin('logger')
 
 const dayjs = require('dayjs-ext')
 const PoolWalletManager = require('./pool-wallet-manager')
 
-const database = container.resolvePlugin('database')
+const database = app.resolvePlugin('database')
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionPoolInterface {
@@ -199,40 +199,35 @@ module.exports = class TransactionPoolInterface {
    */
   acceptChainedBlock(block) {
     for (const transaction of block.transactions) {
-      const exists = this.transactionExists(transaction.id)
-      if (!exists) {
-        const senderWallet = this.walletManager.exists(
-          transaction.senderPublicKey,
-        )
-          ? this.walletManager.findByPublicKey(transaction.senderPublicKey)
-          : false
-        // if wallet in pool we try to apply transaction
-        if (
-          senderWallet ||
-          this.walletManager.exists(transaction.recipientId)
-        ) {
-          try {
-            this.walletManager.applyPoolTransaction(transaction)
-          } catch (error) {
-            logger.error(`AcceptChainedBlock in pool: ${error}`)
-            this.purgeByPublicKey(transaction.senderPublicKey)
-            this.blockSender(transaction.senderPublicKey)
-          }
+      const senderWallet = this.walletManager.exists(
+        transaction.senderPublicKey,
+      )
+        ? this.walletManager.findByPublicKey(transaction.senderPublicKey)
+        : false
 
-          if (senderWallet.balance === 0) {
-            this.walletManager.deleteWallet(transaction.senderPublicKey)
-          }
+      // if wallet in pool we try to apply transaction
+      const exists = this.transactionExists(transaction.id)
+      if (senderWallet && !exists) {
+        try {
+          this.walletManager.applyPoolTransaction(transaction)
+        } catch (error) {
+          logger.error(`AcceptChainedBlock in pool: ${error}`)
+          this.purgeByPublicKey(transaction.senderPublicKey)
         }
       } else {
         this.removeTransaction(transaction)
       }
 
-      if (this.getSenderSize(transaction.senderPublicKey) === 0) {
+      if (
+        senderWallet &&
+        senderWallet.balance === 0 &&
+        this.getSenderSize(transaction.senderPublicKey) === 0
+      ) {
         this.walletManager.deleteWallet(transaction.senderPublicKey)
       }
     }
 
-    container
+    app
       .resolve('state')
       .removeCachedTransactionIds(block.transactions.map(tx => tx.id))
 
@@ -253,7 +248,7 @@ module.exports = class TransactionPoolInterface {
       this.getPoolSize(),
     )
 
-    container.resolve('state').removeCachedTransactionIds(poolTransactionIds)
+    app.resolve('state').removeCachedTransactionIds(poolTransactionIds)
 
     poolTransactionIds.forEach(transactionId => {
       const transaction = this.getTransaction(transactionId)
@@ -293,6 +288,14 @@ module.exports = class TransactionPoolInterface {
     )
 
     publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey))
+  }
+
+  /**
+   * Purges all transactions from the block.
+   * @param {Block} block
+   */
+  purgeBlock(block) {
+    block.transactions.forEach(tx => this.removeTransaction(tx))
   }
 
   checkApplyToBlockchain(transaction) {

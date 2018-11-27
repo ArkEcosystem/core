@@ -1,10 +1,10 @@
 /* eslint no-await-in-loop: "off" */
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
-const emitter = container.resolvePlugin('event-emitter')
-const logger = container.resolvePlugin('logger')
+const config = app.resolvePlugin('config')
+const emitter = app.resolvePlugin('event-emitter')
+const logger = app.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
@@ -158,7 +158,7 @@ blockchainMachine.actionMap = blockchain => ({
   },
 
   exitApp() {
-    container.forceExit(
+    app.forceExit(
       'Failed to startup blockchain. Exiting Ark Core! :rotating_light:',
     )
   },
@@ -228,7 +228,7 @@ blockchainMachine.actionMap = blockchain => ({
       // no fast rebuild if in last week
       state.fastRebuild =
         slots.getTime() - block.data.timestamp > 3600 * 24 * 7 &&
-        !!container.resolveOptions('blockchain').fastRebuild
+        !!app.resolveOptions('blockchain').fastRebuild
 
       if (process.env.NODE_ENV === 'test') {
         logger.verbose(
@@ -412,7 +412,7 @@ blockchainMachine.actionMap = blockchain => ({
   async rollbackDatabase() {
     logger.info('Trying to restore database integrity :fire_engine:')
 
-    const { maxBlockRewind, steps } = container.resolveOptions(
+    const { maxBlockRewind, steps } = app.resolveOptions(
       'blockchain',
     ).databaseRollback
     let blockchainAudit

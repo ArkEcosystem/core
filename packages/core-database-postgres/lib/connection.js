@@ -10,11 +10,11 @@ const fs = require('fs')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
-const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
-const emitter = container.resolvePlugin('event-emitter')
+const config = app.resolvePlugin('config')
+const logger = app.resolvePlugin('logger')
+const emitter = app.resolvePlugin('event-emitter')
 
 const { roundCalculator } = require('@arkecosystem/core-utils')
 
@@ -57,7 +57,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
       return this
     } catch (error) {
-      container.forceExit('Unable to connect to the database!', error)
+      app.forceExit('Unable to connect to the database!', error)
     }
   }
 
@@ -532,7 +532,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getCommonBlocks(ids) {
-    const state = container.resolve('state')
+    const state = app.resolve('state')
     let commonBlocks = state.getCommonBlocks(ids)
     if (commonBlocks.length < ids.length) {
       commonBlocks = await this.db.blocks.common(ids)
@@ -574,8 +574,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async getBlocks(offset, limit) {
     let blocks = []
 
-    if (container.has('state')) {
-      blocks = container
+    if (app.has('state')) {
+      blocks = app
         .resolve('state')
         .getLastBlocksByHeight(offset, offset + limit)
     }
@@ -636,7 +636,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {[]String}
    */
   async getRecentBlockIds() {
-    const state = container.resolve('state')
+    const state = app.resolve('state')
     let blocks = state
       .getLastBlockIds()
       .reverse()
