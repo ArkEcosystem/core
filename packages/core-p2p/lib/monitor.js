@@ -61,14 +61,6 @@ class Monitor {
         )
       : await this.updateNetworkStatus(options.networkStart)
 
-    for (const [version, peers] of Object.entries(
-      groupBy(this.peers, 'version'),
-    )) {
-      logger.info(
-        `Discovered ${peers.length} peers with ${version} as version.`,
-      )
-    }
-
     return this
   }
 
@@ -98,7 +90,9 @@ class Monitor {
         await this.cleanPeers()
 
         if (!this.hasMinimumPeers()) {
-          this.__addPeers(config.peers.list)
+          config.peers.list.forEach(peer => {
+            this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+          }, this)
 
           return this.updateNetworkStatus()
         }
@@ -106,7 +100,9 @@ class Monitor {
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
 
-      this.__addPeers(config.peers.list)
+      config.peers.list.forEach(peer => {
+        this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+      }, this)
 
       // Wait for a moment if there was an error
       await delay(500)
@@ -157,10 +153,10 @@ class Monitor {
       return
     }
 
+    this.pendingPeers[peer.ip] = true
     const newPeer = new Peer(peer.ip, peer.port)
-    newPeer.setHeaders(peer)
 
-    if (this.guard.isBlacklisted(peer)) {
+    if (this.guard.isBlacklisted(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
 
       return this.guard.suspend(newPeer)
@@ -193,8 +189,6 @@ class Monitor {
     }
 
     try {
-      this.pendingPeers[peer.ip] = true
-
       await newPeer.ping(1500)
 
       this.peers[peer.ip] = newPeer
@@ -386,15 +380,15 @@ class Monitor {
    */
   async discoverPeers() {
     try {
-      const peers = await this.getRandomPeer().getPeers()
+      const list = await this.getRandomPeer().getPeers()
 
-      peers.forEach(peer => {
+      list.forEach(peer => {
         if (
           Peer.isOk(peer) &&
           !this.getPeer(peer.ip) &&
           !this.guard.isMyself(peer)
         ) {
-          this.__addPeer(peer)
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
 
@@ -731,27 +725,6 @@ class Monitor {
   }
 
   /**
-   * Dump the list of active peers.
-   * @return {void}
-   */
-  dumpPeers() {
-    const peers = Object.values(this.peers).map(peer => ({
-      ip: peer.ip,
-      port: peer.port,
-      version: peer.version,
-    }))
-
-    try {
-      fs.writeFileSync(
-        `${process.env.ARK_PATH_CONFIG}/peers_backup.json`,
-        JSON.stringify(peers, null, 2),
-      )
-    } catch (err) {
-      logger.error(`Failed to dump the peer list because of "${err.message}"`)
-    }
-  }
-
-  /**
    * Filter the initial seed list.
    * @return {void}
    */
@@ -767,10 +740,7 @@ class Monitor {
     }
 
     const filteredPeers = Object.values(peers).filter(
-      peer =>
-        !this.guard.isMyself(peer) ||
-        !this.guard.isValidPort(peer) ||
-        !this.guard.isValidVersion(peer),
+      peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer),
     )
 
     for (const peer of filteredPeers) {
@@ -828,38 +798,22 @@ class Monitor {
   }
 
   /**
-   * Add a new peer after it passes a few checks.
-   * @param  {Peer} peer
+   * Dump the list of active peers.
    * @return {void}
    */
-  __addPeer(peer) {
-    if (this.guard.isBlacklisted(peer)) {
-      return
-    }
+  dumpPeers() {
+    const peers = Object.values(this.peers).map(peer => ({
+      ip: peer.ip,
+      port: peer.port,
+    }))
 
-    if (!this.guard.isValidVersion(peer)) {
-      return
-    }
-
-    if (!this.guard.isValidNetwork(peer)) {
-      return
-    }
-
-    if (!this.guard.isValidPort(peer)) {
-      return
-    }
-
-    this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-  }
-
-  /**
-   * Add new peers after they pass a few checks.
-   * @param  {Peer[]} peers
-   * @return {void}
-   */
-  __addPeers(peers) {
-    for (const peer of peers) {
-      this.__addPeer(peer)
+    try {
+      fs.writeFileSync(
+        `${process.env.ARK_PATH_CONFIG}/peers_backup.json`,
+        JSON.stringify(peers, null, 2),
+      )
+    } catch (err) {
+      logger.error(`Failed to dump the peer list because of "${err.message}"`)
     }
   }
 }
