@@ -159,6 +159,7 @@ class Monitor {
 
     this.pendingPeers[peer.ip] = true
     const newPeer = new Peer(peer.ip, peer.port)
+    newPeer.setHeaders(peer)
 
     if (this.guard.isBlacklisted(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
@@ -175,6 +176,7 @@ class Monitor {
         } - Received: ${peer.version}`,
       )
 
+      console.info(newPeer)
       return this.guard.suspend(newPeer)
     }
 

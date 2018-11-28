@@ -32,6 +32,17 @@ module.exports = class Peer {
   }
 
   /**
+   * Set the given headers for the peer.
+   * @param  {Object} headers
+   * @return {void}
+   */
+  setHeaders(headers) {
+    ;['nethash', 'os', 'version'].forEach(key => {
+      this[key] = headers[key]
+    })
+  }
+
+  /**
    * Get information to broadcast.
    * @return {Object}
    */
