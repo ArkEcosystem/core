@@ -90,9 +90,9 @@ class Monitor {
         await this.cleanPeers()
 
         if (!this.hasMinimumPeers()) {
-          config.peers.list.forEach(peer => {
-            this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-          }, this)
+          for (const peer of config.peers.list) {
+            this.__addPeer(peer)
+          }
 
           return this.updateNetworkStatus()
         }
@@ -388,7 +388,7 @@ class Monitor {
           !this.getPeer(peer.ip) &&
           !this.guard.isMyself(peer)
         ) {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+          this.__addPeer(peer)
         }
       })
 
@@ -795,6 +795,27 @@ class Monitor {
     } catch (error) {
       logger.error(error.message)
     }
+  }
+
+  /**
+   * Add a new peer after it passes a few checks.
+   * @param  {Peer} peer
+   * @return {void}
+   */
+  __addPeer(peer) {
+    if (this.guard.isBlacklisted(peer.ip)) {
+      return
+    }
+
+    if (!this.guard.isValidVersion(peer)) {
+      return
+    }
+
+    if (!this.guard.isValidNetwork(peer)) {
+      return
+    }
+
+    this.peers[peer.ip] = new Peer(peer.ip, peer.port)
   }
 
   /**
