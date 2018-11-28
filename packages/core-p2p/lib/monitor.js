@@ -114,7 +114,9 @@ class Monitor {
 
       logger.info('Failed to discover peers, trying again in 5 seconds.')
 
-      await delay(5000)
+      if (process.env.NODE_ENV !== 'test') {
+        await delay(5000)
+      }
 
       return this.updateNetworkStatus()
     }
