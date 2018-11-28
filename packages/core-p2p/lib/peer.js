@@ -29,6 +29,10 @@ module.exports = class Peer {
       height: null,
       'Content-Type': 'application/json',
     }
+
+    if (config.network.name !== 'mainnet') {
+      this.headers.hashid = app.getHashid()
+    }
   }
 
   /**
@@ -283,7 +287,7 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders(response) {
-    ;['nethash', 'os', 'version'].forEach(key => {
+    ;['nethash', 'os', 'version', 'hashid'].forEach(key => {
       this[key] = response.headers[key] || this[key]
     })
 

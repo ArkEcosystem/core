@@ -19,6 +19,19 @@ module.exports = class Container {
      * messages.
      */
     this.silentShutdown = false
+
+    /**
+     * The git commit hash of the repository. Used during development to
+     * easily idenfity nodes based on their commit hash and version.
+     */
+    try {
+      this.hashid = require('child_process')
+        .execSync('git rev-parse HEAD')
+        .toString()
+        .trim()
+    } catch (e) {
+      this.hashid = 'unknown'
+    }
   }
 
   /**
@@ -154,6 +167,14 @@ module.exports = class Container {
     }
 
     process.exit(exitCode)
+  }
+
+  /**
+   * Get the application git commit hash.
+   * @throws {String}
+   */
+  getHashid() {
+    return this.hashid
   }
 
   /**
