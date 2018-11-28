@@ -155,7 +155,6 @@ describe('Monitor', () => {
 
       expect(peers).toBeObject()
       expect(Object.keys(peers).length).toBe(5)
-      expect(peers[peerMock.ip]).toBeObject()
     })
   })
 
