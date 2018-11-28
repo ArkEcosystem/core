@@ -75,13 +75,6 @@ module.exports = class PoolWalletManager extends WalletManager {
     const errors = []
 
     const sender = this.findByPublicKey(senderPublicKey)
-    let recipient = recipientId ? this.findByAddress(recipientId) : null
-
-    if (!recipient && recipientId) {
-      // cold wallet
-      recipient = new Wallet(recipientId)
-      this.setByAddress(recipientId, recipient)
-    }
 
     if (
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
@@ -141,7 +134,8 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     sender.applyTransactionToSender(data)
 
-    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+    if (type === TRANSACTION_TYPES.TRANSFER) {
+      const recipient = this.findByAddress(recipientId)
       recipient.applyTransactionToRecipient(data)
     }
 
@@ -169,6 +163,14 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {Boolean}
    */
   canApply(transaction, errors) {
+    // Edge case
+    if (!database.walletManager.byPublicKey[transaction.senderPublicKey]) {
+      errors.push(
+        'Cold wallet is not allowed to send until receiving transaction is confirmed.',
+      )
+      return false
+    }
+
     const sender = this.findByPublicKey(transaction.senderPublicKey)
     return sender.canApply(transaction, errors)
   }

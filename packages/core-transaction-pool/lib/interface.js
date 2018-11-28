@@ -199,33 +199,41 @@ module.exports = class TransactionPoolInterface {
    */
   acceptChainedBlock(block) {
     for (const transaction of block.transactions) {
-      const exists = this.transactionExists(transaction.id)
-      if (!exists) {
-        const senderWallet = this.walletManager.exists(
-          transaction.senderPublicKey,
-        )
-          ? this.walletManager.findByPublicKey(transaction.senderPublicKey)
-          : false
-        // if wallet in pool we try to apply transaction
-        if (senderWallet) {
-          try {
-            this.walletManager.applyPoolTransaction(transaction)
-          } catch (error) {
-            logger.error(`AcceptChainedBlock in pool: ${error}`)
-            this.purgeByPublicKey(transaction.senderPublicKey)
-            this.blockSender(transaction.senderPublicKey)
-          }
+      const senderPublicKey = transaction.senderPublicKey
 
-          if (senderWallet.balance === 0) {
-            this.walletManager.deleteWallet(transaction.senderPublicKey)
+      const senderWallet = this.walletManager.exists(senderPublicKey)
+        ? this.walletManager.findByPublicKey(senderPublicKey)
+        : false
+
+      const recipientWallet = this.walletManager.exists(transaction.recipientId)
+        ? this.walletManager.findByAddress(transaction.recipientId)
+        : false
+
+      // If sender or recipient wallet in pool we try to apply transaction
+      const exists = this.transactionExists(transaction.id)
+      if (!exists && (senderWallet || recipientWallet)) {
+        try {
+          this.walletManager.applyPoolTransaction(transaction)
+        } catch (error) {
+          logger.error(`AcceptChainedBlock in pool: ${error}`)
+          // Purge sender
+          this.purgeByPublicKey(senderPublicKey)
+
+          // Purge recipient if not sender
+          if (senderPublicKey !== recipientWallet.publicKey) {
+            this.purgeByPublicKey(recipientWallet.publicKey)
           }
         }
       } else {
         this.removeTransaction(transaction)
       }
 
-      if (this.getSenderSize(transaction.senderPublicKey) === 0) {
-        this.walletManager.deleteWallet(transaction.senderPublicKey)
+      if (
+        senderWallet &&
+        senderWallet.balance === 0 &&
+        this.getSenderSize(senderPublicKey) === 0
+      ) {
+        this.walletManager.deleteWallet(senderPublicKey)
       }
     }
 
