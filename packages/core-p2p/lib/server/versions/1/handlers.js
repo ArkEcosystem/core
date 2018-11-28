@@ -292,8 +292,6 @@ exports.postTransactions = {
    */
   async handler(request, h) {
     let error
-    let transactionsToAdd
-    let excessTransactions
 
     if (!request.payload || !request.payload.transactions) {
       error = 'No transactions received'
@@ -309,30 +307,9 @@ exports.postTransactions = {
       }
     }
 
-    if (
-      request.payload.transactions.length >
-      transactionPool.options.maxTransactionsPerRequest
-    ) {
-      excessTransactions = request.payload.transactions
-      transactionsToAdd = excessTransactions.splice(
-        0,
-        transactionPool.options.maxTransactionsPerRequest,
-      )
-
-      // return h
-      //   .response({
-      //     success: false,
-      //     error:
-      //       'Number of transactions is exceeding max payload size per single request.',
-      //   })
-      //   .code(500)
-    }
-
     const guard = new TransactionGuard(transactionPool)
 
-    const result = await guard.validate(
-      transactionsToAdd || request.payload.transactions,
-    )
+    const result = await guard.validate(request.payload.transactions)
 
     if (result.invalid.length > 0) {
       return {
@@ -348,18 +325,10 @@ exports.postTransactions = {
         .broadcastTransactions(guard.getBroadcastTransactions())
     }
 
-    const response = {
+    return {
       success: true,
       transactionIds: result.accept,
     }
-
-    if (excessTransactions) {
-      response.excessTransactions = excessTransactions
-      response.maxTransactionsPerRequest =
-        transactionPool.options.maxTransactionsPerRequest
-    }
-
-    return response
   },
   options: {
     cors: {
@@ -369,6 +338,7 @@ exports.postTransactions = {
       payload: {
         transactions: Joi.arkTransactions()
           .min(1)
+          .max(app.resolveOptions('transactionPool').maxTransactionsPerRequest)
           .options({ stripUnknown: true }),
       },
     },

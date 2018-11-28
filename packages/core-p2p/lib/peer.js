@@ -308,24 +308,6 @@ module.exports = class Peer {
       throw new Error(err.message)
     }
 
-    if (
-      response &&
-      response.status === 200 &&
-      !response.data.excessTransactions
-    ) {
-      return response
-    }
-
-    if (response.data.excessTransactions) {
-      // Enforce minimum to prevent abuse
-      const broadcastSize = Math.max(
-        response.data.maxTransactionsPerRequest,
-        40,
-      )
-      const items = chunk(response.data.excessTransactions, broadcastSize)
-
-      // eslint-disable-next-line promise/catch-or-return
-      return Promise.all(items.map(item => this.__broadcastTransactions(item)))
-    }
+    return response
   }
 }
