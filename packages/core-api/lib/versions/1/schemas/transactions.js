@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * The AJV schema for the transaction endpoints.
  * @type {Object}
@@ -9,90 +7,90 @@ module.exports = {
     type: 'object',
     properties: {
       blockId: {
-        type: 'string'
+        type: 'string',
       },
       limit: {
         type: 'integer',
         minimum: 0,
-        maximum: 100
+        maximum: 100,
       },
       type: {
         type: 'integer',
         minimum: 0,
-        maximum: 10
+        maximum: 10,
       },
       orderBy: {
-        type: 'string'
+        type: 'string',
       },
       offset: {
         type: 'integer',
-        minimum: 0
+        minimum: 0,
       },
       senderPublicKey: {
         type: 'string',
-        format: 'publicKey'
+        format: 'publicKey',
       },
       vendorField: {
         type: 'string',
-        format: 'vendorField'
+        format: 'vendorField',
       },
       ownerPublicKey: {
         type: 'string',
-        format: 'publicKey'
+        format: 'publicKey',
       },
       ownerAddress: {
-        type: 'string'
+        type: 'string',
       },
       senderId: {
         type: 'string',
-        format: 'address'
+        format: 'address',
       },
       recipientId: {
         type: 'string',
-        format: 'address'
+        format: 'address',
       },
       amount: {
         type: 'integer',
         minimum: 0,
-        maximum: 10 ** 8
+        maximum: 10 ** 8,
       },
       fee: {
         type: 'integer',
         minimum: 0,
-        maximum: 10 ** 8
-      }
-    }
+        maximum: 10 ** 8,
+      },
+    },
   },
   getTransaction: {
     type: 'object',
     properties: {
       id: {
         type: 'string',
-        minLength: 1
-      }
+        minLength: 1,
+      },
     },
-    required: ['id']
+    required: ['id'],
   },
   getUnconfirmedTransaction: {
     type: 'object',
     properties: {
       id: {
         type: 'string',
-        minLength: 1
-      }
+        minLength: 1,
+      },
     },
-    required: ['id']
+    required: ['id'],
   },
   getUnconfirmedTransactions: {
     type: 'object',
     properties: {
       senderPublicKey: {
         type: 'string',
-        format: 'publicKey'
+        format: 'publicKey',
       },
       address: {
-        type: 'string'
-      }
-    }
-  }
+        type: 'string',
+      },
+    },
+  },
 }

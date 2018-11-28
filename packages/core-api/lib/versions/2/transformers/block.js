@@ -1,38 +1,44 @@
-'use strict'
-
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
-const formatTimestamp = require('./utils/format-timestamp')
+const database = require('@arkecosystem/core-container').resolvePlugin(
+  'database',
+)
+const { formatTimestamp, bignumify } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "block" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */
-module.exports = (model) => {
-  const generator = database.walletManager.getWalletByPublicKey(model.generatorPublicKey)
+module.exports = model => {
+  const generator = database.walletManager.findByPublicKey(
+    model.generatorPublicKey,
+  )
+
+  model.reward = bignumify(model.reward)
+  model.totalFee = bignumify(model.totalFee)
 
   return {
     id: model.id,
-    version: model.version,
-    height: model.height,
+    version: +model.version,
+    height: +model.height,
     previous: model.previousBlock,
     forged: {
-      reward: Number(model.reward),
-      fee: Number(model.totalFee),
-      total: Number(model.reward) + Number(model.totalFee)
+      reward: +model.reward.toFixed(),
+      fee: +model.totalFee.toFixed(),
+      total: +model.reward.plus(model.totalFee).toFixed(),
+      amount: +bignumify(model.totalAmount).toFixed(),
     },
     payload: {
       hash: model.payloadHash,
-      length: model.payloadLength
+      length: model.payloadLength,
     },
     generator: {
       username: generator.username,
       address: generator.address,
-      publicKey: generator.publicKey
+      publicKey: generator.publicKey,
     },
     signature: model.blockSignature,
     confirmations: model.confirmations,
     transactions: model.numberOfTransactions,
-    timestamp: formatTimestamp(model.timestamp)
+    timestamp: formatTimestamp(model.timestamp),
   }
 }

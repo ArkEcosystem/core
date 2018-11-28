@@ -1,14 +1,15 @@
-'use strict'
-
-const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockchain')
+const { bignumify } = require('@arkecosystem/core-utils')
+const blockchain = require('@arkecosystem/core-container').resolvePlugin(
+  'blockchain',
+)
 
 /**
  * Turns a "block" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */
-module.exports = (model) => {
-  const lastBlock = blockchain.state.lastBlock
+module.exports = model => {
+  const lastBlock = blockchain.getLastBlock()
 
   return {
     id: model.id,
@@ -17,14 +18,16 @@ module.exports = (model) => {
     previousBlock: model.previousBlock,
     height: model.height,
     numberOfTransactions: model.numberOfTransactions,
-    totalAmount: Number(model.totalAmount),
-    totalForged: (Number(model.reward) + Number(model.totalFee)).toString(),
-    totalFee: Number(model.totalFee),
-    reward: Number(model.reward),
+    totalAmount: +bignumify(model.totalAmount).toFixed(),
+    totalForged: +bignumify(model.reward)
+      .plus(model.totalFee)
+      .toString(),
+    totalFee: +bignumify(model.totalFee).toFixed(),
+    reward: +bignumify(model.reward).toFixed(),
     payloadLength: model.payloadLength,
     payloadHash: model.payloadHash,
     generatorPublicKey: model.generatorPublicKey,
     blockSignature: model.blockSignature,
-    confirmations: lastBlock ? lastBlock.data.height - model.height : 0
+    confirmations: lastBlock ? lastBlock.data.height - model.height : 0,
   }
 }

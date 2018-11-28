@@ -1,5 +1,3 @@
-'use strict'
-
 const path = require('path')
 const configLoader = require('../lib/loader')
 
@@ -8,7 +6,7 @@ const stubConfigPath = path.resolve(__dirname, './__stubs__')
 const stubConfig = {
   delegates: require('./__stubs__/delegates'),
   genesisBlock: require('./__stubs__/genesisBlock'),
-  network: require('./__stubs__/network')
+  network: require('./__stubs__/network'),
 }
 
 beforeEach(() => {

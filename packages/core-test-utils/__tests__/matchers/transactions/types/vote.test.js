@@ -1,8 +1,6 @@
 const { vote } = require('@arkecosystem/crypto').constants
 
-expect.extend({
-  toBeVoteType: require('../../../../lib/matchers/transactions/types/vote')
-})
+require('../../../../lib/matchers/transactions/types/vote')
 
 describe('.toBeVoteType', () => {
   test('passes when given a valid transaction', () => {

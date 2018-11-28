@@ -1,3 +1,5 @@
+/* eslint no-await-in-loop: "off" */
+
 const path = require('path')
 const fs = require('fs')
 const semver = require('semver')
@@ -12,11 +14,11 @@ module.exports = class PluginRegistrars {
    * @param  {Container} container
    * @param  {Object} options
    */
-  constructor (container, options = {}) {
+  constructor(container, options = {}) {
     this.container = container
     this.plugins = this.__loadPlugins()
     this.resolvedPlugins = []
-    this.options = options
+    this.options = this.__castOptions(options)
     this.deregister = []
   }
 
@@ -24,29 +26,36 @@ module.exports = class PluginRegistrars {
    * Set up all available plugins.
    * @return {void}
    */
-  resolveOptions (name) {
+  resolveOptions(name) {
     if (!this.resolvedPlugins.length) {
-      this.resolvedPlugins = Object
-        .keys(this.plugins)
-        .map(plugin => require(plugin).plugin)
+      this.resolvedPlugins = Object.keys(this.plugins).map(
+        item => require(item).plugin,
+      )
     }
 
-    const plugin = Object.values(this.resolvedPlugins).find(plugin => {
-      return plugin.alias === name || plugin.pkg.name === name
-    })
+    const plugin = Object.values(this.resolvedPlugins).find(
+      item => item.alias === name || item.pkg.name === name,
+    )
 
-    return this.__applyToDefaults(plugin.pkg.name, plugin.defaults, this.plugins[plugin.pkg.name])
+    return this.__applyToDefaults(
+      plugin.pkg.name,
+      plugin.defaults,
+      this.plugins[plugin.pkg.name],
+    )
   }
 
   /**
    * Set up all available plugins.
    * @return {void}
    */
-  async setUp () {
+  async setUp() {
     for (const [name, options] of Object.entries(this.plugins)) {
       await this.register(name, options)
 
-      if (this.options.exit && this.options.exit === name) {
+      if (
+        (this.options.exit && this.options.exit === name) ||
+        this.container.shuttingDown
+      ) {
         break
       }
     }
@@ -56,7 +65,7 @@ module.exports = class PluginRegistrars {
    * Deregister all plugins.
    * @return {void}
    */
-  async tearDown () {
+  async tearDown() {
     const plugins = this.deregister.reverse()
 
     for (let i = 0; i < plugins.length; i++) {
@@ -70,7 +79,7 @@ module.exports = class PluginRegistrars {
    * @param  {Object} options
    * @return {void}
    */
-  async register (name, options = {}) {
+  async register(name, options = {}) {
     if (!this.__shouldBeRegistered(name)) {
       return
     }
@@ -88,11 +97,15 @@ module.exports = class PluginRegistrars {
    * @param  {Object} options
    * @return {void}
    */
-  async __registerWithContainer (plugin, options = {}) {
+  async __registerWithContainer(plugin, options = {}) {
     const item = this.__resolve(plugin)
 
     if (!item.plugin.register) {
       return
+    }
+
+    if (item.plugin.extends) {
+      await this.__registerWithContainer(item.plugin.extends)
     }
 
     const name = item.plugin.name || item.plugin.pkg.name
@@ -101,15 +114,25 @@ module.exports = class PluginRegistrars {
     const alias = item.plugin.alias || item.plugin.pkg.alias
 
     if (!semver.valid(version)) {
-      throw new Error(`The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`)
+      throw new Error(
+        `The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`,
+      )
     }
 
     options = this.__applyToDefaults(name, defaults, options)
 
     plugin = await item.plugin.register(this.container, options || {})
-    this.container.register(alias || name, asValue({ name, version, plugin, options }))
+    this.container.register(
+      alias || name,
+      asValue({
+        name,
+        version,
+        plugin,
+        options,
+      }),
+    )
 
-    if (item.plugin.hasOwnProperty('deregister')) {
+    if (item.plugin.deregister) {
       this.deregister.push({ plugin: item.plugin, options })
     }
   }
@@ -122,14 +145,35 @@ module.exports = class PluginRegistrars {
    * @param  {Object} options
    * @return {Object}
    */
-  __applyToDefaults (name, defaults, options) {
+  __applyToDefaults(name, defaults, options) {
     if (defaults) {
       options = Hoek.applyToDefaults(defaults, options)
     }
 
-    if (this.options.options && this.options.options.hasOwnProperty(name)) {
+    if (this.options.options && this.options.options[name]) {
       options = Hoek.applyToDefaults(options, this.options.options[name])
     }
+
+    return this.__castOptions(options)
+  }
+
+  /**
+   * When the env is used to overwrite options, we get strings even if we
+   * expect a number. This is in most cases not desired and leads to side-
+   * effects. Here is assumed all numeric strings except blacklisted ones
+   * should be treated as numbers.
+   * @param {Object} options
+   * @return {Object} options
+   */
+  __castOptions(options) {
+    const blacklist = []
+    const regex = new RegExp(/^\d+$/)
+    Object.keys(options).forEach(key => {
+      const value = options[key]
+      if (isString(value) && !blacklist.includes(key) && regex.test(value)) {
+        options[key] = +value
+      }
+    })
 
     return options
   }
@@ -139,12 +183,14 @@ module.exports = class PluginRegistrars {
    * @param  {(String|Object)} plugin - plugin name or path, or object
    * @return {Object}
    */
-  __resolve (plugin) {
+  __resolve(plugin) {
     let item = {}
 
     if (isString(plugin)) {
       if (plugin.startsWith('.')) {
-        plugin = path.resolve(`${path.dirname(this.pluginsConfigPath)}/${plugin}`)
+        plugin = path.resolve(
+          `${path.dirname(this.pluginsConfigPath)}/${plugin}`,
+        )
       } else if (!plugin.startsWith('@')) {
         plugin = path.resolve(plugin)
       }
@@ -152,7 +198,7 @@ module.exports = class PluginRegistrars {
       try {
         item = require(plugin)
       } catch (error) {
-        console.log(error)
+        console.error(error)
       }
 
       if (!item.plugin) {
@@ -168,7 +214,7 @@ module.exports = class PluginRegistrars {
    * @param  {String} name
    * @return {Boolean}
    */
-  __shouldBeRegistered (name) {
+  __shouldBeRegistered(name) {
     let register = true
 
     if (this.options.include) {
@@ -186,18 +232,24 @@ module.exports = class PluginRegistrars {
    * Load plugins from any of the available files (plugins.js or plugins.json).
    * @return {[Object|void]}
    */
-  __loadPlugins () {
-    const available = ['plugins.js', 'plugins.json']
+  __loadPlugins() {
+    const files = ['plugins.js', 'plugins.json']
 
-    for (let i = 0; i < available.length; i++) {
-      const configPath = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${available[i]}`))
+    for (const file of files) {
+      const configPath = path.resolve(
+        expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${file}`),
+      )
+
       if (fs.existsSync(configPath)) {
         this.pluginsConfigPath = configPath
+
         return require(configPath)
       }
     }
 
-    throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
+    throw new Error(
+      "An invalid configuration was provided or is inaccessible due to it's security settings.",
+    )
     process.exit(1) // eslint-disable-line no-unreachable
   }
 }

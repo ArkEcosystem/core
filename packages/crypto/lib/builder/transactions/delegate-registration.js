@@ -7,7 +7,7 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION
@@ -23,7 +23,7 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * @param  {String} username
    * @return {DelegateRegistrationBuilder}
    */
-  usernameAsset (username) {
+  usernameAsset(username) {
     this.data.asset.delegate.username = username
     return this
   }
@@ -34,7 +34,7 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * @return {DelegateRegistrationBuilder}
    * TODO rename to `assetDelegate` and merge with username ?
    */
-  sign (passphrase) {
+  sign(passphrase) {
     this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey
     super.sign(passphrase)
     return this
@@ -44,7 +44,7 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * Overrides the inherited method to return the additional required by this type of transaction.
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId

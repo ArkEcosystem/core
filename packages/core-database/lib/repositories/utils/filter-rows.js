@@ -1,4 +1,4 @@
-'use strict'
+/* eslint no-prototype-builtins: "off" */
 
 /**
  * Filter an Array of Objects based on the given parameters.
@@ -7,10 +7,10 @@
  * @param  {Object} filters
  * @return {Array}
  */
-module.exports = (rows, params, filters) => {
-  return rows.filter(item => {
+module.exports = (rows, params, filters) =>
+  rows.filter(item => {
     if (filters.hasOwnProperty('exact')) {
-      for (const elem of filters['exact']) {
+      for (const elem of filters.exact) {
         if (params[elem] && item[elem] !== params[elem]) {
           return false
         }
@@ -18,16 +18,23 @@ module.exports = (rows, params, filters) => {
     }
 
     if (filters.hasOwnProperty('between')) {
-      for (const elem of filters['between']) {
+      for (const elem of filters.between) {
         if (!params[elem]) {
           continue
         }
 
-        if (!params[elem].hasOwnProperty('from') && !params[elem].hasOwnProperty('to') && item[elem] !== params[elem]) {
+        if (
+          !params[elem].hasOwnProperty('from') &&
+          !params[elem].hasOwnProperty('to') &&
+          item[elem] !== params[elem]
+        ) {
           return false
         }
 
-        if (params[elem].hasOwnProperty('from') || params[elem].hasOwnProperty('to')) {
+        if (
+          params[elem].hasOwnProperty('from') ||
+          params[elem].hasOwnProperty('to')
+        ) {
           let isMoreThan = true
           let isLessThan = true
 
@@ -47,7 +54,7 @@ module.exports = (rows, params, filters) => {
     // NOTE: it was used to filter by `votes`, but that field was rejected and
     // replaced by `vote`. This filter is kept here just in case
     if (filters.hasOwnProperty('any')) {
-      for (const elem of filters['any']) {
+      for (const elem of filters.any) {
         if (params[elem] && item[elem]) {
           if (Array.isArray(params[elem])) {
             if (item[elem].every(a => params[elem].indexOf(a) === -1)) {
@@ -62,4 +69,3 @@ module.exports = (rows, params, filters) => {
 
     return true
   })
-}

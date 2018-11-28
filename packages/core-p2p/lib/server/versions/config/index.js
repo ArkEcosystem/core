@@ -1,16 +1,17 @@
-'use strict'
-
 const handlers = require('./handlers')
-
 /**
- * Register config routes.
+ * Register v1 routes.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/', ...handlers.getConfig }
+    { method: 'GET', path: '/', ...handlers.config },
+    { method: 'GET', path: '/network', ...handlers.network },
+    { method: 'GET', path: '/genesis-block', ...handlers.genesisBlock },
+    { method: 'GET', path: '/peers', ...handlers.peers },
+    { method: 'GET', path: '/delegates', ...handlers.delegates },
   ])
 }
 
@@ -19,7 +20,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'ARK P2P API - Config',
+  name: 'Ark P2P - Config API',
   version: '0.1.0',
-  register
+  register,
 }

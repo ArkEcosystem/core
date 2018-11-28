@@ -1,5 +1,3 @@
-'use strict'
-
 const GenesisBlockBuilder = require('../../lib/builder/genesis-block')
 const network = require('../../../crypto/lib/networks/ark/testnet')
 
@@ -12,7 +10,7 @@ let delegateWallets
 beforeEach(() => {
   builder = new GenesisBlockBuilder(network, {
     totalPremine: 2100000000000000,
-    activeDelegates: 2
+    activeDelegates: 2,
   })
 
   delegateWallets = builder.__buildDelegates()
@@ -34,15 +32,19 @@ describe('Genesis Block Builder', () => {
       expect(genesis).toContainAllKeys([
         'genesisBlock',
         'genesisWallet',
-        'delegatePassphrases'
+        'delegatePassphrases',
       ])
     })
 
     it('should call the expected methods', () => {
       builder.__createWallet = jest.fn(builder.__createWallet)
       builder.__buildDelegates = jest.fn(builder.__buildDelegates)
-      builder.__buildDelegateTransactions = jest.fn(builder.__buildDelegateTransactions)
-      builder.__createTransferTransaction = jest.fn(builder.__createTransferTransaction)
+      builder.__buildDelegateTransactions = jest.fn(
+        builder.__buildDelegateTransactions,
+      )
+      builder.__createTransferTransaction = jest.fn(
+        builder.__createTransferTransaction,
+      )
       builder.__createGenesisBlock = jest.fn(builder.__createGenesisBlock)
 
       builder.generate()
@@ -67,11 +69,7 @@ describe('Genesis Block Builder', () => {
     })
 
     it('should return a wallet object', () => {
-      expect(wallet).toContainAllKeys([
-        'address',
-        'keys',
-        'passphrase'
-      ])
+      expect(wallet).toContainAllKeys(['address', 'keys', 'passphrase'])
     })
 
     it('should have a valid address', () => {
@@ -95,7 +93,7 @@ describe('Genesis Block Builder', () => {
         'address',
         'keys',
         'passphrase',
-        'username'
+        'username',
       ])
     })
 
@@ -104,7 +102,9 @@ describe('Genesis Block Builder', () => {
     })
 
     it('should have a valid username', () => {
-      expect(delegateWallet.username).toEqual(expect.stringMatching(/^[a-z0-9!@$&_.]+$/))
+      expect(delegateWallet.username).toEqual(
+        expect.stringMatching(/^[a-z0-9!@$&_.]+$/),
+      )
     })
 
     it('should call the expected methods', () => {
@@ -140,13 +140,17 @@ describe('Genesis Block Builder', () => {
     })
 
     it('should return an array of 2', () => {
-      const delegateTransactions = builder.__buildDelegateTransactions(delegateWallets)
+      const delegateTransactions = builder.__buildDelegateTransactions(
+        delegateWallets,
+      )
 
       expect(delegateTransactions).toBeArrayOfSize(2)
     })
 
     it('should call the expected methods', () => {
-      builder.__createDelegateTransaction = jest.fn(builder.__createDelegateTransaction)
+      builder.__createDelegateTransaction = jest.fn(
+        builder.__createDelegateTransaction,
+      )
 
       builder.__buildDelegateTransactions(delegateWallets)
 
@@ -160,18 +164,24 @@ describe('Genesis Block Builder', () => {
     })
 
     it('should return a transaction object', () => {
-      const transferTransaction = builder.__createTransferTransaction(delegateWallet, wallet, 10)
+      const transferTransaction = builder.__createTransferTransaction(
+        delegateWallet,
+        wallet,
+        10,
+      )
 
       expect(transferTransaction).toContainEntries([
         ['type', 0],
         ['amount', 10],
         ['fee', 0],
-        ['recipientId', wallet.address]
+        ['recipientId', wallet.address],
       ])
     })
 
     it('should call the expected methods', () => {
-      builder.__formatGenesisTransaction = jest.fn(builder.__formatGenesisTransaction)
+      builder.__formatGenesisTransaction = jest.fn(
+        builder.__formatGenesisTransaction,
+      )
 
       builder.__createTransferTransaction(delegateWallet, wallet, 10)
 
@@ -185,21 +195,31 @@ describe('Genesis Block Builder', () => {
     })
 
     it('should return a transaction object', () => {
-      const delegateTransaction = builder.__createDelegateTransaction(delegateWallet)
+      const delegateTransaction = builder.__createDelegateTransaction(
+        delegateWallet,
+      )
 
       expect(delegateTransaction).toContainEntries([
         ['type', 2],
         ['amount', 0],
         ['fee', 0],
-        ['senderId', delegateWallet.address]
+        ['senderId', delegateWallet.address],
       ])
 
-      expect(delegateTransaction.asset.delegate).toHaveProperty('username', delegateWallet.username)
-      expect(delegateTransaction.asset.delegate).toHaveProperty('publicKey', delegateWallet.keys.publicKey)
+      expect(delegateTransaction.asset.delegate).toHaveProperty(
+        'username',
+        delegateWallet.username,
+      )
+      expect(delegateTransaction.asset.delegate).toHaveProperty(
+        'publicKey',
+        delegateWallet.keys.publicKey,
+      )
     })
 
     it('should call the expected methods', () => {
-      builder.__formatGenesisTransaction = jest.fn(builder.__formatGenesisTransaction)
+      builder.__formatGenesisTransaction = jest.fn(
+        builder.__formatGenesisTransaction,
+      )
 
       builder.__createDelegateTransaction(delegateWallet)
 
@@ -216,7 +236,7 @@ describe('Genesis Block Builder', () => {
       const genesisBlock = builder.__createGenesisBlock({
         keys: wallet.keys,
         transactions: [],
-        timestamp: 0
+        timestamp: 0,
       })
 
       expect(genesisBlock).toContainAllKeys([
@@ -233,7 +253,7 @@ describe('Genesis Block Builder', () => {
         'previousBlock',
         'generatorPublicKey',
         'transactions',
-        'height'
+        'height',
       ])
     })
 
@@ -244,7 +264,7 @@ describe('Genesis Block Builder', () => {
       builder.__createGenesisBlock({
         keys: wallet.keys,
         transactions: [],
-        timestamp: 0
+        timestamp: 0,
       })
 
       expect(builder.__getBlockId).toHaveBeenCalledTimes(1)

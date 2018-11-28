@@ -1,44 +1,55 @@
-'use strict'
+/* eslint no-await-in-loop: "off" */
 
 const axios = require('axios')
-const map = require('lodash/map')
-const container = require('@arkecosystem/core-container')
-const logger = container.resolvePlugin('logger')
+const app = require('@arkecosystem/core-container')
+
+const logger = app.resolvePlugin('logger')
 const database = require('./database')
-const emitter = container.resolvePlugin('event-emitter')
+
+const emitter = app.resolvePlugin('event-emitter')
 
 class WebhookManager {
   /**
-   * Set up the webhook container.
+   * Set up the webhook app.
    * @param  {Object} config
    * @return {void}
    */
-  async setUp (config) {
+  async setUp(config) {
     this.config = config
 
-    map(this.config.events, 'name').forEach(event => {
+    for (const event of app.resolvePlugin('blockchain').getEvents()) {
       emitter.on(event, async payload => {
         const webhooks = await database.findByEvent(event)
 
         for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
           try {
-            const response = await axios.post(webhook.data.webhook.target, {
-              timestamp: +new Date(),
-              data: webhook.data.payload,
-              event: webhook.data.webhook.event
-            }, {
-              headers: {
-                Authorization: webhook.data.webhook.token
-              }
-            })
+            const response = await axios.post(
+              webhook.target,
+              {
+                timestamp: +new Date(),
+                data: payload,
+                event: webhook.event,
+              },
+              {
+                headers: {
+                  Authorization: webhook.token,
+                },
+              },
+            )
 
-            logger.debug(`Webhooks Job ${webhook.id} completed! Event [${webhook.data.webhook.event}] has been transmitted to [${webhook.data.webhook.target}] with a status of [${response.status}].`)
+            logger.debug(
+              `Webhooks Job ${webhook.id} completed! Event [${
+                webhook.event
+              }] has been transmitted to [${
+                webhook.target
+              }] with a status of [${response.status}].`,
+            )
           } catch (error) {
             logger.error(`Webhooks Job ${webhook.id} failed: ${error.message}`)
           }
         }
       })
-    })
+    }
   }
 
   /**
@@ -47,10 +58,14 @@ class WebhookManager {
    * @param  {Object} payload
    * @return {Array}
    */
-  getMatchingWebhooks (webhooks, payload) {
+  getMatchingWebhooks(webhooks, payload) {
     const matches = []
 
     for (const webhook of webhooks) {
+      if (!webhook.enabled) {
+        continue
+      }
+
       if (!webhook.conditions) {
         matches.push(webhook)
 

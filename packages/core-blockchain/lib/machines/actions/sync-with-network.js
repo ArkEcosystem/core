@@ -7,42 +7,42 @@ module.exports = {
         SYNCED: 'downloadFinished',
         NOTSYNCED: 'downloadBlocks',
         PAUSED: 'downloadPaused',
-        NETWORKHALTED: 'end'
-      }
+        NETWORKHALTED: 'end',
+      },
     },
     idle: {
       on: {
-        DOWNLOADED: 'downloadBlocks'
-      }
+        DOWNLOADED: 'downloadBlocks',
+      },
     },
     downloadBlocks: {
       onEntry: ['downloadBlocks'],
       on: {
         DOWNLOADED: 'syncing',
-        NOBLOCK: 'syncing'
-      }
+        NOBLOCK: 'syncing',
+      },
     },
     downloadFinished: {
       onEntry: ['downloadFinished'],
       on: {
-        PROCESSFINISHED: 'processFinished'
-      }
+        PROCESSFINISHED: 'processFinished',
+      },
     },
     downloadPaused: {
       onEntry: ['downloadPaused'],
       on: {
-        PROCESSFINISHED: 'processFinished'
-      }
+        PROCESSFINISHED: 'processFinished',
+      },
     },
     processFinished: {
       onEntry: ['checkLastBlockSynced'],
       on: {
         SYNCED: 'end',
-        NOTSYNCED: 'downloadBlocks'
-      }
+        NOTSYNCED: 'downloadBlocks',
+      },
     },
     end: {
-      onEntry: ['syncingComplete']
-    }
-  }
+      onEntry: ['syncingComplete'],
+    },
+  },
 }

@@ -1,7 +1,4 @@
-'use strict'
-
 const capcon = require('capture-console')
-const winston = require('winston')
 const WinstonDriver = require('../lib/driver')
 
 let logger
@@ -9,19 +6,23 @@ let message
 
 beforeAll(() => {
   const driver = new WinstonDriver({
-    transports: [{
-      constructor: 'Console'
-    }]
+    transports: [
+      {
+        constructor: 'Console',
+      },
+    ],
   })
 
   logger = driver.make()
 
-  capcon.startCapture(process.stdout, (stdout) => (message += stdout))
+  capcon.startCapture(process.stdout, stdout => {
+    message += stdout
+  })
 })
 
 describe('Logger', () => {
   it('should be an object', () => {
-    expect(logger).toBeInstanceOf(winston.Logger)
+    expect(logger).toBeObject()
   })
 
   describe('error', () => {
@@ -107,6 +108,26 @@ describe('Logger', () => {
       expect(message).toMatch(/test_title/)
       expect(message).toMatch(/=========================/)
       expect(message).toMatch(/50/)
+      message = null
+    })
+  })
+
+  describe('suppressConsoleOutput', () => {
+    it('should be a function', () => {
+      expect(logger.suppressConsoleOutput).toBeFunction()
+    })
+
+    it('should suppress console output', () => {
+      logger.suppressConsoleOutput(true)
+
+      logger.info('silent_message')
+      expect(message).toBeNull()
+
+      logger.suppressConsoleOutput(false)
+
+      logger.info('non_silent_message')
+      expect(message).toMatch(/non_silent_message/)
+
       message = null
     })
   })

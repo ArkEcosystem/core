@@ -4,7 +4,7 @@ class FeeManager {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.fees = {}
   }
 
@@ -13,7 +13,7 @@ class FeeManager {
    * @param {Number} type
    * @param {Number} value
    */
-  set (type, value) {
+  set(type, value) {
     if (!this.__validType(type)) {
       throw new Error('Invalid transaction type.')
     }
@@ -26,7 +26,7 @@ class FeeManager {
    * @param  {Number} type
    * @return {Number}
    */
-  get (type) {
+  get(type) {
     return this.fees[type]
   }
 
@@ -35,9 +35,12 @@ class FeeManager {
    * @param  {Transaction} transaction
    * @return {Number}
    */
-  getForTransaction (transaction) {
+  getForTransaction(transaction) {
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      return this.fees[transaction.type] * (transaction.asset.multisignature.keysgroup.length + 1)
+      return (
+        this.fees[transaction.type]
+        * (transaction.asset.multisignature.keysgroup.length + 1)
+      )
     }
 
     return this.fees[transaction.type]
@@ -48,7 +51,7 @@ class FeeManager {
    * @param  {Number} type
    * @return {Boolean}
    */
-  __validType (type) {
+  __validType(type) {
     return Object.values(TRANSACTION_TYPES).indexOf(type) > -1
   }
 }

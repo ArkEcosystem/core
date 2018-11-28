@@ -1,18 +1,19 @@
-'use strict'
+/* eslint max-len: "off" */
 
-const { transformResource, transformCollection } = require('../../utils/transformer')
+const {
+  transformResource,
+  transformCollection,
+} = require('../../utils/transformer')
 
 /**
  * Create a pagination object for the request.
  * @param  {Hapi.Request} request
  * @return {Object}
  */
-const paginate = request => {
-  return {
-    offset: request.query.offset || 0,
-    limit: request.query.limit || 100
-  }
-}
+const paginate = request => ({
+  offset: request.query.offset || 0,
+  limit: request.query.limit || 100,
+})
 
 /**
  * Create a hapi.js response.
@@ -20,10 +21,22 @@ const paginate = request => {
  * @param  {Boolean} error
  * @return {Object}
  */
-const respondWith = (data, error = false) => {
-  return error
-    ? { error: data, success: false }
-    : { ...data, success: true }
+const respondWith = (data, error = false) =>
+  error ? { error: data, success: false } : { ...data, success: true }
+
+/**
+ * Respond with data from cache.
+ * @param  {Object} data
+ * @param  {Hapi.Toolkit} h
+ * @return {Object}
+ */
+const respondWithCache = (data, h) => {
+  const { value, cached } = data
+  const lastModified = cached ? new Date(cached.stored) : new Date()
+
+  return value.isBoom
+    ? h.response(value.output.payload).code(value.output.statusCode)
+    : h.response(value).header('Last-modified', lastModified.toUTCString())
 }
 
 /**
@@ -33,9 +46,8 @@ const respondWith = (data, error = false) => {
  * @param  {String} transformer
  * @return {Object}
  */
-const toResource = (request, data, transformer) => {
-  return transformResource(request, data, transformer)
-}
+const toResource = (request, data, transformer) =>
+  transformResource(request, data, transformer)
 
 /**
  * Transform the given data into a collection.
@@ -52,6 +64,7 @@ const toCollection = transformCollection
 module.exports = {
   paginate,
   respondWith,
+  respondWithCache,
   toResource,
-  toCollection
+  toCollection,
 }

@@ -1,8 +1,8 @@
-'use strict'
-
-const axios = require('axios')
-
+const { Block, Transaction } = require('@arkecosystem/crypto').models
+const genTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const blockFixture = require('../../../core-debugger-cli/__tests__/__fixtures__/block.json')
 const app = require('../__support__/setup')
+const utils = require('../__support__/utils')
 
 let genesisBlock
 let genesisTransaction
@@ -12,87 +12,119 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('../__fixtures__/genesisBlock')
-  genesisTransaction = require('../__fixtures__/genesisTransaction')
+  genesisBlock = new Block(
+    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+  )
+  genesisTransaction = new Transaction(genesisBlock.transactions[0])
+})
+
+beforeEach(() => {
+  utils.headers['x-auth'] = 'forger'
 })
 
 afterAll(async () => {
+  delete utils.headers['x-auth']
   await app.tearDown()
 })
 
-const sendGET = async (endpoint, params = {}) => {
-  return axios.get(`http://127.0.0.1:4002/internal/${endpoint}`, { params })
-}
-
-const sendPOST = async (endpoint, params) => {
-  return axios.post(`http://127.0.0.1:4002/internal/${endpoint}`, params)
-}
-
 describe('API - Internal', () => {
-  describe('GET /round', () => {
+  describe('GET /rounds/current', () => {
     it('should be ok', async () => {
-      const response = await sendGET('round')
+      const response = await utils.GET('internal/rounds/current')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
+    })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.GET('internal/rounds/current')
+
+      expect(response.status).toBe(403)
     })
   })
 
-  describe('POST /block', () => {
+  describe('POST /blocks', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('block', genesisBlock.toBroadcastV1())
+      const block = new Block(blockFixture.data)
+      const response = await utils.POST('internal/blocks', {
+        block: block.toJson(),
+      })
+      expect(response.status).toBe(204)
+    })
 
-      expect(response.status).toBe(200)
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.POST('internal/blocks', {
+        block: genesisBlock.toJson(),
+      })
 
-      expect(response.data).toBeObject()
-
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.status).toBe(403)
     })
   })
 
-  describe.skip('POST /verifyTransaction', () => {
+  describe('POST /transactions/verify', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('verifyTransaction', {
-        transaction: genesisTransaction
+      const transaction = genTransfer('testnet')[0]
+      const response = await utils.POST('internal/transactions/verify', {
+        transaction: Transaction.serialize(transaction).toString('hex'),
       })
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
+    })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.POST('internal/transactions/verify', {
+        transaction: genesisTransaction,
+      })
+
+      expect(response.status).toBe(403)
     })
   })
 
-  describe('GET /forgingTransactions', () => {
+  describe('GET /transactions/forging', () => {
     it('should be ok', async () => {
-      const response = await sendGET('forgingTransactions')
+      const response = await utils.GET('internal/transactions/forging')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
+    })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.GET('internal/transactions/forging')
+
+      expect(response.status).toBe(403)
     })
   })
 
-  describe('GET /networkState', () => {
+  describe('GET /network/state', () => {
     it('should be ok', async () => {
-      const response = await sendGET('networkState')
+      const response = await utils.GET('internal/network/state')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
+    })
+
+    it('should return 403 without x-auth', async () => {
+      delete utils.headers['x-auth']
+      const response = await utils.GET('internal/network/state')
+
+      expect(response.status).toBe(403)
     })
   })
 })

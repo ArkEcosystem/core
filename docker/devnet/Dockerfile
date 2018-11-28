@@ -1,4 +1,4 @@
-FROM node:9
+FROM node:10
 
 WORKDIR /ark-core
 
@@ -14,4 +14,3 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 EXPOSE 4002 4003
-

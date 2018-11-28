@@ -7,7 +7,7 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.SECOND_SIGNATURE
@@ -24,8 +24,10 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
    * @param {String} secondPassphrase
    * @return {SecondSignatureBuilder}
    */
-  signatureAsset (secondPassphrase) {
-    this.data.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey
+  signatureAsset(secondPassphrase) {
+    this.data.asset.signature.publicKey = crypto.getKeys(
+      secondPassphrase,
+    ).publicKey
     return this
   }
 
@@ -33,7 +35,7 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
    * Overrides the inherited method to return the additional required by this.
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId

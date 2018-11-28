@@ -1,41 +1,58 @@
-'use strict'
-
 const axios = require('axios')
-const { client, transactionBuilder, NetworkManager } = require('@arkecosystem/crypto')
+const {
+  client,
+  transactionBuilder,
+  NetworkManager,
+} = require('@arkecosystem/crypto')
+const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
 
 class Helpers {
-  request (method, path, params = {}) {
+  async request(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
-    const headers = { 'API-Version': 2 }
-    const request = axios[method.toLowerCase()]
+    const headers = {
+      'API-Version': 2,
+      'Content-Type': 'application/json',
+    }
 
-    return ['GET', 'DELETE'].includes(method)
-      ? request(url, { params, headers })
-      : request(url, params, { headers })
+    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+
+    return apiHelpers.request(server.http, method, url, headers, params)
   }
 
-  expectJson (response) {
+  async requestWithAcceptHeader(method, path, params = {}) {
+    const url = `http://localhost:4003/api/${path}`
+    const headers = {
+      Accept: 'application/vnd.ark.core-api.v2+json',
+      'Content-Type': 'application/json',
+    }
+
+    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+
+    return apiHelpers.request(server.http, method, url, headers, params)
+  }
+
+  expectJson(response) {
     expect(response.data).toBeObject()
   }
 
-  expectStatus (response, code) {
+  expectStatus(response, code) {
     expect(response.status).toBe(code)
   }
 
-  assertVersion (response, version) {
+  assertVersion(response, version) {
     expect(response.headers).toBeObject()
     expect(response.headers).toHaveProperty('api-version', version)
   }
 
-  expectResource (response) {
+  expectResource(response) {
     expect(response.data.data).toBeObject()
   }
 
-  expectCollection (response) {
+  expectCollection(response) {
     expect(Array.isArray(response.data.data)).toBe(true)
   }
 
-  expectPaginator (response, firstPage = true) {
+  expectPaginator(response, firstPage = true) {
     expect(response.data.meta).toBeObject()
     expect(response.data.meta).toHaveProperty('count')
     expect(response.data.meta).toHaveProperty('pageCount')
@@ -47,13 +64,13 @@ class Helpers {
     expect(response.data.meta).toHaveProperty('last')
   }
 
-  expectSuccessful (response, statusCode = 200) {
+  expectSuccessful(response, statusCode = 200) {
     this.expectStatus(response, statusCode)
     this.expectJson(response)
-    this.assertVersion(response, '2')
+    this.assertVersion(response, 2)
   }
 
-  expectError (response, statusCode = 404) {
+  expectError(response, statusCode = 404) {
     this.expectStatus(response, statusCode)
     this.expectJson(response)
     expect(response.data.statusCode).toBeNumber()
@@ -61,7 +78,7 @@ class Helpers {
     expect(response.data.message).toBeString()
   }
 
-  expectTransaction (transaction) {
+  expectTransaction(transaction) {
     expect(transaction).toBeObject()
     expect(transaction).toHaveProperty('id')
     expect(transaction).toHaveProperty('blockId')
@@ -78,25 +95,31 @@ class Helpers {
     expect(transaction.confirmations).toBeNumber()
   }
 
-  expectBlock (block) {
+  expectBlock(block, expected) {
     expect(block).toBeObject()
-    expect(block).toHaveProperty('id')
-    expect(block).toHaveProperty('version')
-    expect(block).toHaveProperty('height')
-    expect(block).toHaveProperty('previous')
+    expect(block.id).toBeString()
+    expect(block.version).toBeNumber()
+    expect(block.height).toBeNumber()
+    expect(block).toHaveProperty('previous') // `null` or String
     expect(block).toHaveProperty('forged')
-    expect(block.forged).toHaveProperty('reward')
-    expect(block.forged).toHaveProperty('fee')
+    expect(block.forged.reward).toBeNumber()
+    expect(block.forged.fee).toBeNumber()
+    expect(block.forged.total).toBeNumber()
+    expect(block.forged.amount).toBeNumber()
     expect(block).toHaveProperty('payload')
-    expect(block.payload).toHaveProperty('length')
-    expect(block.payload).toHaveProperty('hash')
+    expect(block.payload.length).toBeNumber()
+    expect(block.payload.hash).toBeString()
     expect(block).toHaveProperty('generator')
-    expect(block.generator).toHaveProperty('publicKey')
-    expect(block).toHaveProperty('signature')
-    expect(block).toHaveProperty('transactions')
+    expect(block.generator.publicKey).toBeString()
+    expect(block.signature).toBeString()
+    expect(block.transactions).toBeNumber()
+
+    Object.keys(expected || {}).forEach(attr => {
+      expect(block[attr]).toEqual(expected[attr])
+    })
   }
 
-  expectDelegate (delegate, expected) {
+  expectDelegate(delegate, expected) {
     expect(delegate).toBeObject()
     expect(delegate.username).toBeString()
     expect(delegate.address).toBeString()
@@ -107,15 +130,18 @@ class Helpers {
     expect(delegate.blocks.missed).toBeNumber()
     expect(delegate.blocks.produced).toBeNumber()
     expect(delegate.production).toBeObject()
-    expect(delegate.production.approval).toBeString()
-    expect(delegate.production.productivity).toBeString()
+    expect(delegate.production.approval).toBeNumber()
+    expect(delegate.production.productivity).toBeNumber()
+    expect(delegate.forged.fees).toBeNumber()
+    expect(delegate.forged.rewards).toBeNumber()
+    expect(delegate.forged.total).toBeNumber()
 
     Object.keys(expected || {}).forEach(attr => {
       expect(delegate[attr]).toBe(expected[attr])
     })
   }
 
-  expectWallet (wallet) {
+  expectWallet(wallet) {
     expect(wallet).toBeObject()
     expect(wallet).toHaveProperty('address')
     expect(wallet).toHaveProperty('publicKey')
@@ -123,20 +149,28 @@ class Helpers {
     expect(wallet).toHaveProperty('isDelegate')
   }
 
-  async createTransaction () {
+  async createTransaction() {
     client.setConfig(NetworkManager.findByName('testnet'))
 
-    let transaction = transactionBuilder
+    const transaction = transactionBuilder
       .transfer()
-      .amount(1 * Math.pow(10, 8))
+      .amount(1 * 1e8)
       .recipientId('AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1')
       .vendorField('test')
-      .sign('prison tobacco acquire stone dignity palace note decade they current lesson robot')
+      .sign(
+        'prison tobacco acquire stone dignity palace note decade they current lesson robot',
+      )
       .getStruct()
 
-    await axios.post('http://127.0.0.1:4003/api/v2/transactions', {
-      transactions: [transaction]
-    })
+    await axios.post(
+      'http://127.0.0.1:4003/api/v2/transactions',
+      {
+        transactions: [transaction],
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
 
     return transaction
   }

@@ -4,4 +4,6 @@
 /.coverage/**
 /docs/**
 /tmp/**
+/fixtures/**
+/__fixtures__/**
 !.eslintrc.js

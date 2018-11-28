@@ -1,61 +1,89 @@
-'use strict'
+/* eslint no-await-in-loop: "off" */
 
-const ark = require('arkjs')
-const config = require('../config')
-const delay = require('delay')
-const utils = require('../utils')
-const logger = utils.logger
-const transferCommand = require('./transfer')
+const { client } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
+const { logger } = require('../utils')
+const Command = require('./command')
+const Transfer = require('./transfer')
 
-module.exports = async (options) => {
-  utils.applyConfigOptions(options)
+module.exports = class DelegateRegistrationCommand extends Command {
+  /**
+   * Run second-signature command.
+   * @return {void}
+   */
+  async run() {
+    const wallets = this.generateWallets()
 
-  const wallets = utils.generateWallets(options.number)
-  await transferCommand(options, wallets, 50, true)
+    const transfer = await Transfer.init(this.options)
+    await transfer.run({
+      wallets,
+      amount: this.options.amount || 5,
+      skipTesting: true,
+    })
 
-  logger.info(`Sending ${options.number} second signature transactions`)
-
-  const transactions = []
-  wallets.forEach((wallet, i) => {
-    wallet.secondPassphrase = config.secondPassphrase || wallet.passphrase
-
-    const transaction = ark.signature.createSignature(
-      wallet.passphrase,
-      wallet.secondPassphrase,
-      utils.parseFee(options.signatureFee)
+    logger.info(
+      `Sending ${this.options.number} second signature ${pluralize(
+        'transaction',
+        this.options.number,
+      )}`,
     )
 
-    wallet.publicKey = transaction.senderPublicKey
-    wallet.secondPublicKey = transaction.asset.signature.publicKey
-    transactions.push(transaction)
+    const transactions = []
+    wallets.forEach((wallet, i) => {
+      wallet.secondPassphrase =
+        this.config.secondPassphrase || wallet.passphrase
+      const transaction = client
+        .getBuilder()
+        .secondSignature()
+        .fee(Command.parseFee(this.options.signatureFee))
+        .signatureAsset(wallet.secondPassphrase)
+        .network(this.config.network.version)
+        .sign(wallet.passphrase)
+        .build()
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
-  })
+      wallet.publicKey = transaction.senderPublicKey
+      wallet.secondPublicKey = transaction.asset.signature.publicKey
+      transactions.push(transaction)
 
-  if (options.copy) {
-    utils.copyToClipboard(transactions)
-    process.exit() // eslint-disable-line no-unreachable
-  }
+      logger.info(
+        `${i} ==> ${transaction.id}, ${
+          wallet.address
+        } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+      )
+    })
 
-  try {
-    await utils.postTransactions(transactions)
-
-    if (options.skipValidation) {
+    if (this.options.copy) {
+      this.copyToClipboard(transactions)
       return
     }
 
-    const delaySeconds = await utils.getTransactionDelay(transactions)
-    logger.info(`Waiting ${delaySeconds} seconds to apply signature transactions`)
-    await delay(delaySeconds * 1000)
+    try {
+      await this.sendTransactions(
+        transactions,
+        'second-signature',
+        !this.options.skipValidation,
+      )
 
-    for (const walletObject of wallets) {
-      const wallet = await utils.getWallet(walletObject.address)
-
-      if (wallet.secondPublicKey !== walletObject.secondPublicKey || wallet.publicKey !== walletObject.publicKey) {
-        logger.error(`Invalid second signature for ${walletObject.address}.`)
+      if (this.options.skipValidation) {
+        return
       }
+
+      for (const walletObject of wallets) {
+        const wallet = await this.getWallet(walletObject.address)
+
+        if (
+          wallet.secondPublicKey !== walletObject.secondPublicKey ||
+          wallet.publicKey !== walletObject.publicKey
+        ) {
+          logger.error(`Invalid second signature for ${walletObject.address}.`)
+        }
+      }
+    } catch (error) {
+      logger.error(
+        `There was a problem sending transactions: ${
+          error.response ? error.response.data.message : error
+        }`,
+      )
     }
-  } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
 }

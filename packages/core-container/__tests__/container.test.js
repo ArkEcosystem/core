@@ -1,43 +1,45 @@
-'use strict'
-
 const path = require('path')
 const { asValue } = require('awilix')
 
-let container
+let app
 beforeEach(async () => {
-  container = require('../lib')
+  app = require('../lib')
 
-  await container.setUp({
-    data: 'fake-path',
-    config: path.resolve(__dirname, '../../core/lib/config/testnet'),
-    token: 'ark',
-    network: 'testnet'
-  }, {
-    skipPlugins: true
-  })
+  await app.setUp(
+    '2.0.0',
+    {
+      data: 'fake-path',
+      config: path.resolve(__dirname, '../../core/lib/config/testnet'),
+      token: 'ark',
+      network: 'testnet',
+    },
+    {
+      skipPlugins: true,
+    },
+  )
 })
 
 describe('Container', () => {
   it('should be an object', () => {
-    expect(container).toBeObject()
+    expect(app).toBeObject()
   })
 
   it('should add a new registration', () => {
-    container.register('fake', asValue('value'))
+    app.register('fake', asValue('value'))
 
-    expect(container.container.registrations['fake']).toBeTruthy()
+    expect(app.container.registrations.fake).toBeTruthy()
   })
 
   it('should resolve a registration', () => {
-    container.register('fake', asValue('value'))
+    app.register('fake', asValue('value'))
 
-    expect(container.resolve('fake')).toBe('value')
+    expect(app.resolve('fake')).toBe('value')
   })
 
   it('should determine if a registration exists', () => {
-    container.register('fake', asValue('value'))
+    app.register('fake', asValue('value'))
 
-    expect(container.has('fake')).toBeTruthy()
+    expect(app.has('fake')).toBeTrue()
   })
 
   it('should resolve and export paths', () => {

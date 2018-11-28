@@ -1,5 +1,3 @@
-'use strict'
-
 const monitor = require('./monitor')
 const startServer = require('./server')
 
@@ -11,7 +9,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'p2p',
-  async register (container, options) {
+  async register(container, options) {
     container.resolvePlugin('logger').info('Starting P2P Interface')
 
     monitor.server = await startServer(monitor, options)
@@ -20,9 +18,12 @@ exports.plugin = {
 
     return monitor
   },
-  async deregister (container, options) {
+  async deregister(container, options) {
     container.resolvePlugin('logger').info('Stopping P2P Interface')
 
-    return container.resolvePlugin('p2p').server.stop()
-  }
+    const p2p = container.resolvePlugin('p2p')
+    p2p.dumpPeers()
+
+    return p2p.server.stop()
+  },
 }

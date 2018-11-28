@@ -1,5 +1,3 @@
-'use strict';
-
 const block = require('./block/block')
 const blocks = require('./block/blocks')
 const transaction = require('./transaction/transaction')
@@ -16,5 +14,5 @@ module.exports = {
   transaction,
   transactions,
   wallet,
-  wallets
+  wallets,
 }

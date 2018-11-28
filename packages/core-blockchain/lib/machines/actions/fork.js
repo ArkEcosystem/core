@@ -5,22 +5,23 @@ module.exports = {
       onEntry: ['analyseFork'],
       on: {
         REBUILD: 'revertBlocks',
-        NOFORK: 'exit'
-      }
+        NOFORK: 'exit',
+      },
     },
     network: {
       onEntry: ['checkNetwork'],
+      /* these transitions are not used yet (TODO?)
       on: {
         SUCCESS: 'blockchain',
         FAILURE: 'reset'
       }
+      */
     },
-    revertBlocks: {
-    },
+    revertBlocks: {},
     exit: {
-      onEntry: ['forkRecovered']
-    }
-  }
+      onEntry: ['forkRecovered'],
+    },
+  },
 }
 
 // const fork = {

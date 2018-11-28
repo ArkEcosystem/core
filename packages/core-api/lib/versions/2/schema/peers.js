@@ -1,5 +1,3 @@
-'use strict'
-
 const Joi = require('joi')
 const pagination = require('./pagination')
 
@@ -10,13 +8,14 @@ exports.index = {
   query: {
     ...pagination,
     ...{
+      ip: Joi.string().ip(),
       os: Joi.string(),
       status: Joi.string(),
-      port: Joi.number().integer(),
+      port: Joi.number().port(),
       version: Joi.string(),
-      orderBy: Joi.string()
-    }
-  }
+      orderBy: Joi.string(),
+    },
+  },
 }
 
 /**
@@ -24,6 +23,6 @@ exports.index = {
  */
 exports.show = {
   params: {
-    ip: Joi.string().ip()
-  }
+    ip: Joi.string().ip(),
+  },
 }

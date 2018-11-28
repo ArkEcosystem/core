@@ -1,48 +1,33 @@
-'use strict'
-
-const path = require('path')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
+const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
   process.env.ARK_WEBHOOKS_ENABLED = true
 
-  await container.setUp({
-    data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
-    token: 'ark',
-    network: 'testnet'
-  }, {
+  await appHelper.setUp({
     exclude: [
-      '@arkecosystem/core-blockchain',
       '@arkecosystem/core-api',
       '@arkecosystem/core-graphql',
-      '@arkecosystem/core-forger'
-    ]
+      '@arkecosystem/core-forger',
+    ],
   })
 
-  await require('../../lib/manager').setUp({
-    redis: {
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379
-    }
-  })
+  await require('../../lib/manager').setUp({})
 
   await require('../../lib/server')({
     enabled: false,
     host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
     port: process.env.ARK_WEBHOOKS_PORT || 4004,
-    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
     pagination: {
       limit: 100,
-      include: [
-        '/api/webhooks'
-      ]
-    }
+      include: ['/api/webhooks'],
+    },
   })
 }
 
 exports.tearDown = async () => {
-  await container.tearDown()
+  await app.tearDown()
 }

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Actual types which are relevant to queries issued to our GraphQL endpoint.
  * The basic ones are Block, Wallet and Transaction. They each have specific
@@ -33,7 +31,7 @@ module.exports = `
     version: Int!
     timestamp: Int!
     senderPublicKey: String
-    recipientId: String
+    recipientId: Address
     type: Int!
     vendorField: String
     amount: Float
@@ -45,13 +43,13 @@ module.exports = `
   }
 
   type Wallet {
-    address: String
+    address: Address
     publicKey: String
     secondPublicKey: String
     vote: String
     username: String
     balance: Float
-    votebalance: Float
+    voteBalance: Float
     producedBlocks: Float
     missedBlocks: Float
     transactions(limit: Limit, offset: Offset, orderBy: OrderByInput): [Transaction]

@@ -1,6 +1,4 @@
-expect.extend({
-  toBeArkAddress: require('../../../lib/matchers/fields/address')
-})
+require('../../../lib/matchers/fields/address')
 
 describe('.toBeArkAddress', () => {
   test('passes when given a valid address', () => {

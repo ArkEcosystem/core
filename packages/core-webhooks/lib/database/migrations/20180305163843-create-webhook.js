@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * The webhooks migration.
  * @type {Object}
@@ -11,30 +9,30 @@ module.exports = {
    * @param  {Sequelize} Sequelize
    * @return {void}
    */
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('webhooks', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       event: Sequelize.STRING,
       target: Sequelize.STRING,
       conditions: Sequelize.JSON,
       token: {
         unique: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       enabled: Sequelize.BOOLEAN,
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     })
 
     queryInterface.addIndex('webhooks', ['event'])
@@ -45,7 +43,7 @@ module.exports = {
    * @param  {Sequelize} Sequelize
    * @return {void}
    */
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     return queryInterface.dropTable('webhooks')
-  }
+  },
 }

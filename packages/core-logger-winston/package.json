@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-logger-winston",
-  "description": "Winston Logger for ARK Core",
-  "version": "0.1.1",
+  "description": "Winston Logger for Ark Core",
+  "version": "0.2.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -9,28 +9,30 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./ --ignores=winston-daily-rotate-file"
   },
   "dependencies": {
-    "@arkecosystem/core-logger": "^0.1.1",
+    "@arkecosystem/core-logger": "~0.2",
     "chalk": "^2.4.1",
-    "colors": "^1.3.0",
-    "moment": "^2.22.1",
+    "colors": "^1.3.2",
+    "dayjs-ext": "^2.2.0",
     "node-emoji": "^1.8.1",
-    "winston": "^2.4.2",
-    "winston-daily-rotate-file": "^3.1.4"
+    "winston": "^3.1.0",
+    "winston-daily-rotate-file": "^3.5.1"
   },
   "devDependencies": {
     "capture-console": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=10.x"
   }
 }

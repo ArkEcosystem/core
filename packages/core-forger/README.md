@@ -1,22 +1,12 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Forger
 
-# ARK Core - Forger Manager
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-forger
-```
-
-## Configuration
-
-### Defaults
-
-```js
-module.exports = {
-  hosts: ['http://127.0.0.1:4002']
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-forger.html).
 
 ## Security
 

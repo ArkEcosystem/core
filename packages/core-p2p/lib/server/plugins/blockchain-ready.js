@@ -1,7 +1,5 @@
-'use strict'
-
 const Boom = require('boom')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
 
 /**
  * The register method used by hapi.js.
@@ -12,23 +10,17 @@ const container = require('@arkecosystem/core-container')
 const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
-    async method (request, h) {
+    async method(request, h) {
       if (!options.routes.includes(request.path)) {
         return h.continue
       }
 
-      if (!container.resolvePlugin('blockchain')) {
-        if (request.path.startsWith('/peer')) {
-          return h.response({
-            success: false
-          }).code(200).takeover()
-        }
-
+      if (!app.resolvePlugin('blockchain')) {
         return Boom.serverUnavailable('Blockchain not ready')
       }
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -37,7 +29,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-p2p-blockchain-ready',
+  name: 'blockchain-ready',
   version: '0.1.0',
-  register
+  register,
 }

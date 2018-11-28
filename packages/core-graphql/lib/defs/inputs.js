@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Template for the inputs of our schema's types.
  * Scalars are the possible base values for query parameters.
@@ -35,7 +33,7 @@ module.exports = `
     fee: Float
     blockId: String
     senderPublicKey: String
-    recipientId: Address
+    recipientId: String
     type: TransactionType
   }
 

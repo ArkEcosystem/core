@@ -1,5 +1,4 @@
-'use strict'
-
+require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -17,7 +16,7 @@ describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/getAllAccounts', () => {
     it('should return all the wallets', async () => {
       const response = await utils.request('GET', 'accounts/getAllAccounts')
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.accounts).toBeArray()
     })
@@ -26,7 +25,7 @@ describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/?address', () => {
     it('should return account information', async () => {
       const response = await utils.request('GET', 'accounts', { address })
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       utils.expectWallet(response.data.account)
     })
@@ -34,8 +33,10 @@ describe('API 1.0 - Wallets', () => {
 
   describe('GET api/accounts/getBalance?address', () => {
     it('should return balance', async () => {
-      const response = await utils.request('GET', 'accounts/getBalance', { address })
-      utils.expectSuccessful(response)
+      const response = await utils.request('GET', 'accounts/getBalance', {
+        address,
+      })
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.balance).toBeString()
       expect(response.data.unconfirmedBalance).toBeString()
@@ -44,8 +45,10 @@ describe('API 1.0 - Wallets', () => {
 
   describe('GET /accounts/getPublicKey?address', () => {
     it('should return public key for address', async () => {
-      const response = await utils.request('GET', 'accounts/getPublicKey', { address })
-      utils.expectSuccessful(response)
+      const response = await utils.request('GET', 'accounts/getPublicKey', {
+        address,
+      })
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.publicKey).toBeString()
     })
@@ -54,7 +57,7 @@ describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/delegates/fee', () => {
     it('should return delegate fee of an account', async () => {
       const response = await utils.request('GET', 'accounts/delegates/fee')
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.fee).toBeNumber()
     })
@@ -62,8 +65,10 @@ describe('API 1.0 - Wallets', () => {
 
   describe('GET /accounts/delegates?address', () => {
     it('should return delegate info the address has voted for', async () => {
-      const response = await utils.request('GET', 'accounts/delegates', { address })
-      utils.expectSuccessful(response)
+      const response = await utils.request('GET', 'accounts/delegates', {
+        address,
+      })
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.delegates).toBeArray()
       expect(response.data.delegates[0].producedblocks).toBeNumber()
@@ -73,7 +78,7 @@ describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/top', () => {
     it('should return the top wallets', async () => {
       const response = await utils.request('GET', 'accounts/top')
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.accounts).toBeArray()
     })
@@ -82,7 +87,7 @@ describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/count', () => {
     it('should return the total number of wallets', async () => {
       const response = await utils.request('GET', 'accounts/count')
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.count).toBeNumber()
     })
