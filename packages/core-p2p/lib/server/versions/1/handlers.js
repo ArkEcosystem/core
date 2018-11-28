@@ -291,19 +291,10 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    let error
-
-    if (!request.payload || !request.payload.transactions) {
-      error = 'No transactions received'
-    } else if (!transactionPool) {
-      error = 'Transaction pool not available'
-    }
-
-    if (error) {
+    if (!transactionPool) {
       return {
         success: false,
-        message: error,
-        error,
+        message: 'Transaction pool not available',
       }
     }
 
