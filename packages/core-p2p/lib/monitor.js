@@ -78,6 +78,10 @@ class Monitor {
    * @return {Promise}
    */
   async updateNetworkStatus(networkStart) {
+    if (process.env.NODE_ENV === 'test') {
+      return
+    }
+
     if (networkStart) {
       logger.warn(
         'Skipped peer discovery because the relay is in genesis-start mode.',
