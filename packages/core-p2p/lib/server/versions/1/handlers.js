@@ -359,7 +359,7 @@ exports.postTransactions = {
         transactionPool.options.maxTransactionsPerRequest
     }
 
-    return h.response(response).code(202)
+    return response
   },
   options: {
     cors: {

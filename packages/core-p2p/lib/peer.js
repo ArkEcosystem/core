@@ -310,7 +310,7 @@ module.exports = class Peer {
 
     if (
       response &&
-      response.status === 202 &&
+      response.status === 200 &&
       !response.data.excessTransactions
     ) {
       return response
