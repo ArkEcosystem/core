@@ -29,6 +29,10 @@ module.exports = class Peer {
       height: null,
       'Content-Type': 'application/json',
     }
+
+    if (config.network.name !== 'mainnet') {
+      this.headers.hashid = app.getHashid()
+    }
   }
 
   /**
