@@ -287,7 +287,7 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders(response) {
-    ;['nethash', 'os', 'version'].forEach(key => {
+    ;['nethash', 'os', 'version', 'hashid'].forEach(key => {
       this[key] = response.headers[key] || this[key]
     })
 
