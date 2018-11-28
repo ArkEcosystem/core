@@ -59,6 +59,7 @@
     "@arkecosystem/core-json-rpc": "~0.2",
     "@arkecosystem/core-logger-winston": "~0.2",
     "@arkecosystem/core-p2p": "~0.2",
+    "@arkecosystem/core-snapshots": "~0.1",
     "@arkecosystem/core-transaction-pool-mem": "~0.2",
     "@arkecosystem/core-webhooks": "~0.2",
     "@arkecosystem/crypto": "~0.2",
