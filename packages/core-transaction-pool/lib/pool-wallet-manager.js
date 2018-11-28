@@ -163,6 +163,14 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {Boolean}
    */
   canApply(transaction, errors) {
+    // Edge case
+    if (!database.walletManager.byPublicKey[transaction.senderPublicKey]) {
+      errors.push(
+        'Cold wallet is not allowed to send until receiving transaction is confirmed.',
+      )
+      return false
+    }
+
     const sender = this.findByPublicKey(transaction.senderPublicKey)
     return sender.canApply(transaction, errors)
   }
