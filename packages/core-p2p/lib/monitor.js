@@ -157,7 +157,6 @@ class Monitor {
       return
     }
 
-    this.pendingPeers[peer.ip] = true
     const newPeer = new Peer(peer.ip, peer.port)
     newPeer.setHeaders(peer)
 
@@ -194,9 +193,11 @@ class Monitor {
     }
 
     try {
-      this.peers[peer.ip] = newPeer
+      this.pendingPeers[peer.ip] = true
 
       await newPeer.ping(1500)
+
+      this.peers[peer.ip] = newPeer
 
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
