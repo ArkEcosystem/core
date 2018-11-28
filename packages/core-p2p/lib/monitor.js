@@ -137,7 +137,7 @@ class Monitor {
    * @return {Boolean}
    */
   hasMinimumPeers() {
-    return Object.keys(this.peers).length >= config.peers.list.length - 1
+    return Object.keys(this.peers).length >= config.peers.minimumNetworkReach
   }
 
   /**
