@@ -20,6 +20,7 @@ module.exports = delegatesConfig.secrets.map(secret => {
   ).amount
   return {
     secret,
+    passphrase: secret, // just an alias for delegate secret
     publicKey,
     address,
     balance,
