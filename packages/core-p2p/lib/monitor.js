@@ -737,6 +737,7 @@ class Monitor {
     const peers = Object.values(this.peers).map(peer => ({
       ip: peer.ip,
       port: peer.port,
+      version: peer.version,
     }))
 
     try {
@@ -765,7 +766,10 @@ class Monitor {
     }
 
     const filteredPeers = Object.values(peers).filter(
-      peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer),
+      peer =>
+        !this.guard.isMyself(peer) ||
+        !this.guard.isValidPort(peer) ||
+        !this.guard.isValidVersion(peer),
     )
 
     for (const peer of filteredPeers) {
