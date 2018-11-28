@@ -218,11 +218,6 @@ module.exports = class TransactionPoolInterface {
           logger.error(`AcceptChainedBlock in pool: ${error}`)
           // Purge sender
           this.purgeByPublicKey(senderPublicKey)
-
-          // Purge recipient if not sender
-          if (senderPublicKey !== recipientWallet.publicKey) {
-            this.purgeByPublicKey(recipientWallet.publicKey)
-          }
         }
       } else {
         this.removeTransaction(transaction)
