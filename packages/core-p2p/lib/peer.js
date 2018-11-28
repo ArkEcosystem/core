@@ -74,7 +74,18 @@ module.exports = class Peer {
    */
   async postTransactions(transactions) {
     try {
-      await this.__broadcastTransactions(transactions)
+      const response = await this.__post(
+        '/peer/transactions',
+        {
+          transactions,
+        },
+        {
+          headers: this.headers,
+          timeout: 8000,
+        },
+      )
+
+      return response
     } catch (err) {
       throw err
     }
@@ -281,32 +292,6 @@ module.exports = class Peer {
     }
 
     this.status = response.status
-
-    return response
-  }
-
-  /**
-   * Perform POST request for a transactions.
-   * @param  {Transaction[]}      transactions
-   * @return {Promise}
-   */
-  async __broadcastTransactions(transactions) {
-    let response
-
-    try {
-      response = await this.__post(
-        '/peer/transactions',
-        {
-          transactions,
-        },
-        {
-          headers: this.headers,
-          timeout: 8000,
-        },
-      )
-    } catch (err) {
-      throw new Error(err.message)
-    }
 
     return response
   }
