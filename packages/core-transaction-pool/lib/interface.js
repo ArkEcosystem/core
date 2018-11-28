@@ -199,20 +199,30 @@ module.exports = class TransactionPoolInterface {
    */
   acceptChainedBlock(block) {
     for (const transaction of block.transactions) {
-      const senderWallet = this.walletManager.exists(
-        transaction.senderPublicKey,
-      )
-        ? this.walletManager.findByPublicKey(transaction.senderPublicKey)
+      const senderPublicKey = transaction.senderPublicKey
+
+      const senderWallet = this.walletManager.exists(senderPublicKey)
+        ? this.walletManager.findByPublicKey(senderPublicKey)
         : false
 
-      // if wallet in pool we try to apply transaction
+      const recipientWallet = this.walletManager.exists(transaction.recipientId)
+        ? this.walletManager.findByAddress(transaction.recipientId)
+        : false
+
+      // If sender or recipient wallet in pool we try to apply transaction
       const exists = this.transactionExists(transaction.id)
-      if (senderWallet && !exists) {
+      if (!exists && (senderWallet || recipientWallet)) {
         try {
           this.walletManager.applyPoolTransaction(transaction)
         } catch (error) {
           logger.error(`AcceptChainedBlock in pool: ${error}`)
-          this.purgeByPublicKey(transaction.senderPublicKey)
+          // Purge sender
+          this.purgeByPublicKey(senderPublicKey)
+
+          // Purge recipient if not sender
+          if (senderPublicKey !== recipientWallet.publicKey) {
+            this.purgeByPublicKey(recipientWallet.publicKey)
+          }
         }
       } else {
         this.removeTransaction(transaction)
@@ -221,9 +231,9 @@ module.exports = class TransactionPoolInterface {
       if (
         senderWallet &&
         senderWallet.balance === 0 &&
-        this.getSenderSize(transaction.senderPublicKey) === 0
+        this.getSenderSize(senderPublicKey) === 0
       ) {
-        this.walletManager.deleteWallet(transaction.senderPublicKey)
+        this.walletManager.deleteWallet(senderPublicKey)
       }
     }
 

@@ -147,6 +147,20 @@ describe('Transaction Guard', () => {
       )
       const signatures = generateSignature('testnet', newWalletPassphrase, 1)
 
+      // Index wallets to not encounter cold wallet error
+      const allTransactions = [
+        ...transfers,
+        ...votes,
+        ...delegateRegs,
+        ...signatures,
+      ]
+
+      allTransactions.forEach(transaction => {
+        container
+          .resolvePlugin('database')
+          .walletManager.findByPublicKey(transaction.senderPublicKey)
+      })
+
       // first validate the 1st transfer so that new wallet is updated with the amount
       await guard.validate(transfers)
       expect(guard.errors).toEqual({})
@@ -174,6 +188,9 @@ describe('Transaction Guard', () => {
         delegate3.publicKey,
       )
       const newWallet = transactionPool.walletManager.findByPublicKey(publicKey)
+
+      // Make sure it is not considered a cold wallet
+      container.resolvePlugin('database').walletManager.reindex(newWallet)
 
       expect(+delegateWallet.balance).toBe(+delegate3.balance)
       expect(+newWallet.balance).toBe(0)
