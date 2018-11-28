@@ -24,10 +24,14 @@ module.exports = class Container {
      * The git commit hash of the repository. Used during development to
      * easily idenfity nodes based on their commit hash and version.
      */
-    this.hashid = require('child_process')
-      .execSync('git rev-parse HEAD')
-      .toString()
-      .trim()
+    try {
+      this.hashid = require('child_process')
+        .execSync('git rev-parse HEAD')
+        .toString()
+        .trim()
+    } catch (e) {
+      this.hashid = 'unknown'
+    }
   }
 
   /**
