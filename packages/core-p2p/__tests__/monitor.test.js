@@ -157,7 +157,7 @@ describe('Monitor', () => {
       const peers = await monitor.discoverPeers()
 
       expect(peers).toBeObject()
-      expect(Object.keys(peers).length).toBe(6)
+      expect(Object.keys(peers).length).toBe(6) // 5 from initial peers + 1 from peerMock
       expect(peers[peerMock.ip]).toBeObject()
     })
   })
