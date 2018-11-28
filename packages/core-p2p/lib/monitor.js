@@ -157,49 +157,46 @@ class Monitor {
       return
     }
 
+    this.pendingPeers[peer.ip] = true
     const newPeer = new Peer(peer.ip, peer.port)
+    newPeer.setHeaders(peer)
+
+    if (this.guard.isBlacklisted(peer)) {
+      logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
+
+      return this.guard.suspend(newPeer)
+    }
+
+    if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
+      logger.debug(
+        `Rejected peer ${
+          peer.ip
+        } as it doesn't meet the minimum version requirements. Expected: ${
+          config.peers.minimumVersion
+        } - Received: ${peer.version}`,
+      )
+
+      return this.guard.suspend(newPeer)
+    }
+
+    if (!this.guard.isValidNetwork(peer)) {
+      logger.debug(
+        `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${
+          config.network.nethash
+        } - Received: ${peer.nethash}`,
+      )
+
+      return this.guard.suspend(newPeer)
+    }
+
+    if (this.getPeer(peer.ip)) {
+      return
+    }
 
     try {
-      this.pendingPeers[peer.ip] = true
-      newPeer.setHeaders(peer)
-
-      if (this.guard.isBlacklisted(peer)) {
-        logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
-
-        return this.guard.suspend(newPeer)
-      }
-
-      if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-        logger.debug(
-          `Rejected peer ${
-            peer.ip
-          } as it doesn't meet the minimum version requirements. Expected: ${
-            config.peers.minimumVersion
-          } - Received: ${peer.version}`,
-        )
-
-        return this.guard.suspend(newPeer)
-      }
-
-      if (!this.guard.isValidNetwork(peer)) {
-        logger.debug(
-          `Rejected peer ${
-            peer.ip
-          } as it isn't on the same network. Expected: ${
-            config.network.nethash
-          } - Received: ${peer.nethash}`,
-        )
-
-        return this.guard.suspend(newPeer)
-      }
-
-      if (this.getPeer(peer.ip)) {
-        return
-      }
+      this.peers[peer.ip] = newPeer
 
       await newPeer.ping(1500)
-
-      this.peers[peer.ip] = newPeer
 
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
