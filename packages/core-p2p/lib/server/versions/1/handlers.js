@@ -369,7 +369,6 @@ exports.postTransactions = {
       payload: {
         transactions: Joi.arkTransactions()
           .min(1)
-          .max(app.resolveOptions('transactionPool').maxTransactionsPerRequest)
           .options({ stripUnknown: true }),
       },
     },
