@@ -61,7 +61,7 @@
       "reward": 200000000
     },
     {
-      "height": 21600,
+      "height": 6600000,
       "block": {
         "maxTransactions": 150,
         "maxPayload": 6300000
