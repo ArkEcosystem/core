@@ -90,9 +90,7 @@ class Monitor {
         await this.cleanPeers()
 
         if (!this.hasMinimumPeers()) {
-          for (const peer of config.peers.list) {
-            this.__addPeer(peer)
-          }
+          this.__addPeers(config.peers.list)
 
           return this.updateNetworkStatus()
         }
@@ -100,9 +98,7 @@ class Monitor {
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
 
-      config.peers.list.forEach(peer => {
-        this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-      }, this)
+      this.__addPeers(config.peers.list)
 
       // Wait for a moment if there was an error
       await delay(500)
@@ -725,6 +721,26 @@ class Monitor {
   }
 
   /**
+   * Dump the list of active peers.
+   * @return {void}
+   */
+  dumpPeers() {
+    const peers = Object.values(this.peers).map(peer => ({
+      ip: peer.ip,
+      port: peer.port,
+    }))
+
+    try {
+      fs.writeFileSync(
+        `${process.env.ARK_PATH_CONFIG}/peers_backup.json`,
+        JSON.stringify(peers, null, 2),
+      )
+    } catch (err) {
+      logger.error(`Failed to dump the peer list because of "${err.message}"`)
+    }
+  }
+
+  /**
    * Filter the initial seed list.
    * @return {void}
    */
@@ -819,22 +835,13 @@ class Monitor {
   }
 
   /**
-   * Dump the list of active peers.
+   * Add new peers after they pass a few checks.
+   * @param  {Peer[]} peers
    * @return {void}
    */
-  dumpPeers() {
-    const peers = Object.values(this.peers).map(peer => ({
-      ip: peer.ip,
-      port: peer.port,
-    }))
-
-    try {
-      fs.writeFileSync(
-        `${process.env.ARK_PATH_CONFIG}/peers_backup.json`,
-        JSON.stringify(peers, null, 2),
-      )
-    } catch (err) {
-      logger.error(`Failed to dump the peer list because of "${err.message}"`)
+  __addPeers(peers) {
+    for (const peer of peers) {
+      this.__addPeer(peer)
     }
   }
 }
