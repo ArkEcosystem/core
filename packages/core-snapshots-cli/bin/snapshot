@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-const app = require('commander')
 const util = require('../lib/utils')
 const app = require('@arkecosystem/core-container')
 
