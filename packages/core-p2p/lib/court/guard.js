@@ -280,7 +280,7 @@ class Guard {
     if (heightDifference >= 153) {
       return this.__determinePunishment(peer, offences.INVALID_HEIGHT)
     }
-    console.info(peer)
+
     return this.__determinePunishment(peer, offences.UNKNOWN)
   }
 
