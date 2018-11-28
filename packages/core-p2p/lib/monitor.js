@@ -65,7 +65,11 @@ class Monitor {
       groupBy(this.peers, 'version'),
     )) {
       logger.info(
-        `Discovered ${peers.length} peers with ${version} as version.`,
+        `Discovered ${pluralize(
+          'peer',
+          peers.length,
+          true,
+        )} with ${version} as version.`,
       )
     }
 
