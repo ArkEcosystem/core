@@ -42,8 +42,87 @@ describe('Transaction Guard', () => {
       expect(guard.validate).toBeFunction()
     })
 
+    it.each([false, true])(
+      'should not apply transactions for chained transfers involving cold wallets',
+      async inverseOrder => {
+        /* The logic here is we can't have a chained transfer A => B => C if B is a cold wallet.
+          A => B needs to be first confirmed (forged), then B can transfer to C
+        */
+
+        const arktoshi = 10 ** 8
+        const delegate = inverseOrder ? delegates[8] : delegates[9] // don't re-use the same delegate (need clean balance)
+        const delegateWallet = transactionPool.walletManager.findByAddress(
+          delegate.address,
+        )
+
+        const wallets = generateWallets('testnet', 2)
+        const poolWallets = wallets.map(w =>
+          transactionPool.walletManager.findByAddress(w.address),
+        )
+
+        expect(+delegateWallet.balance).toBe(+delegate.balance)
+        poolWallets.forEach(w => {
+          expect(+w.balance).toBe(0)
+        })
+
+        const transfer0 = {
+          // transfer from delegate to wallet 0
+          from: delegate,
+          to: wallets[0],
+          amount: 100 * arktoshi,
+        }
+        const transfer1 = {
+          // transfer from wallet 0 to wallet 1
+          from: wallets[0],
+          to: wallets[1],
+          amount: 55 * arktoshi,
+        }
+        const transfers = [transfer0, transfer1]
+        if (inverseOrder) {
+          transfers.reverse()
+        }
+
+        for (const t of transfers) {
+          const transfer = generateTransfers(
+            'testnet',
+            t.from.passphrase,
+            t.to.address,
+            t.amount,
+            1,
+          )[0]
+
+          await guard.validate([transfer])
+        }
+
+        // apply again transfer from 0 to 1
+        const transfer = generateTransfers(
+          'testnet',
+          transfer1.from.passphrase,
+          transfer1.to.address,
+          transfer1.amount,
+          1,
+        )[0]
+
+        await guard.validate([transfer])
+
+        const expectedError = {
+          message:
+            '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
+          type: 'ERR_APPLY',
+        }
+        expect(guard.errors[transfer.id]).toContainEqual(expectedError)
+
+        // check final balances
+        expect(+delegateWallet.balance).toBe(
+          delegate.balance - (100 + 0.1) * arktoshi,
+        )
+        expect(+poolWallets[0].balance).toBe(100 * arktoshi)
+        expect(+poolWallets[1].balance).toBe(0)
+      },
+    )
+
     it('should not apply the tx to the balance of the sender & recipient with dyn fee < min fee', async () => {
-      const delegate0 = delegates[0]
+      const delegate0 = delegates[14]
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
 
