@@ -74,18 +74,20 @@ module.exports = class Peer {
    */
   async postTransactions(transactions) {
     try {
-      await this.__broadcastTransactions(transactions)
-    } catch (err) {
-      if (err.response && err.response.status === 413) {
-        // Enforce minimum to prevent abuse
-        const broadcastSize = Math.max(err.response.data.error.allowed, 40)
-        const items = chunk(transactions, broadcastSize)
+      const response = await this.__post(
+        '/peer/transactions',
+        {
+          transactions,
+        },
+        {
+          headers: this.headers,
+          timeout: 8000,
+        },
+      )
 
-        // eslint-disable-next-line promise/catch-or-return
-        Promise.all(items.map(item => this.__broadcastTransactions(item)))
-      } else {
-        throw err
-      }
+      return response
+    } catch (err) {
+      throw err
     }
   }
 
@@ -292,23 +294,5 @@ module.exports = class Peer {
     this.status = response.status
 
     return response
-  }
-
-  /**
-   * Perform POST request for a transactions.
-   * @param  {Transaction[]}      transactions
-   * @return {Promise}
-   */
-  async __broadcastTransactions(transactions) {
-    return this.__post(
-      '/peer/transactions',
-      {
-        transactions,
-      },
-      {
-        headers: this.headers,
-        timeout: 8000,
-      },
-    )
   }
 }
