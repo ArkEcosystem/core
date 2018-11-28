@@ -19,7 +19,7 @@ module.exports = model => {
   }
 
   if (config.network.name !== 'mainnet') {
-    peer.hashid = app.getHashid()
+    peer.hashid = model.hashid
   }
 
   return peer
