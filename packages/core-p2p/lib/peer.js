@@ -50,6 +50,7 @@ module.exports = class Peer {
     return {
       ip: this.ip,
       port: +this.port,
+      nethash: this.nethash,
       version: this.version,
       os: this.os,
       status: this.status,

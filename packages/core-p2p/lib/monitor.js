@@ -385,9 +385,9 @@ class Monitor {
    */
   async discoverPeers() {
     try {
-      const list = await this.getRandomPeer().getPeers()
+      const peers = await this.getRandomPeer().getPeers()
 
-      list.forEach(peer => {
+      peers.forEach(peer => {
         if (
           Peer.isOk(peer) &&
           !this.getPeer(peer.ip) &&
