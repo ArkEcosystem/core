@@ -61,6 +61,14 @@ class Monitor {
         )
       : await this.updateNetworkStatus(options.networkStart)
 
+    for (const [version, peers] of Object.entries(
+      groupBy(this.peers, 'version'),
+    )) {
+      logger.info(
+        `Discovered ${peers.length} peers with ${version} as version.`,
+      )
+    }
+
     return this
   }
 
