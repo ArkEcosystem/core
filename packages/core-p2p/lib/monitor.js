@@ -100,6 +100,10 @@ class Monitor {
         if (!this.hasMinimumPeers()) {
           this.__addPeers(config.peers.list)
 
+          logger.info("Couldn't find enough peers, trying again in 5 seconds.")
+
+          await delay(5000)
+
           return this.updateNetworkStatus()
         }
       }
@@ -108,8 +112,9 @@ class Monitor {
 
       this.__addPeers(config.peers.list)
 
-      // Wait for a moment if there was an error
-      await delay(500)
+      logger.info('Failed to discover peers, trying again in 5 seconds.')
+
+      await delay(5000)
 
       return this.updateNetworkStatus()
     }
