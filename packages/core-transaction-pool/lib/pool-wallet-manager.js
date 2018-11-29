@@ -185,7 +185,7 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  revertTransactionForSender(transaction) {
+  revertTransaction(transaction) {
     const { type, data } = transaction
     const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.byAddress[data.recipientId]
