@@ -65,8 +65,26 @@ class Monitor {
       groupBy(this.peers, 'version'),
     )) {
       logger.info(
-        `Discovered ${peers.length} peers with ${version} as version.`,
+        `Discovered ${pluralize(
+          'peer',
+          peers.length,
+          true,
+        )} with ${version} as version.`,
       )
+    }
+
+    if (config.network.name !== 'mainnet') {
+      for (const [hashid, peers] of Object.entries(
+        groupBy(this.peers, 'hashid'),
+      )) {
+        logger.info(
+          `Discovered ${pluralize(
+            'peer',
+            peers.length,
+            true,
+          )} with ${hashid} as hashid.`,
+        )
+      }
     }
 
     return this
