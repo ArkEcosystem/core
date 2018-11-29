@@ -208,6 +208,7 @@ module.exports = class TransactionPoolInterface {
    */
   acceptChainedBlock(block) {
     for (const transaction of block.transactions) {
+      const exists = this.transactionExists(transaction.id)
       const senderPublicKey = transaction.senderPublicKey
 
       const senderWallet = this.walletManager.exists(senderPublicKey)
@@ -218,33 +219,46 @@ module.exports = class TransactionPoolInterface {
         ? this.walletManager.findByAddress(transaction.recipientId)
         : false
 
-      // If sender or recipient wallet in pool we try to apply transaction
-      const exists = this.transactionExists(transaction.id)
-
       if (recipientWallet) {
         recipientWallet.applyTransactionToRecipient(transaction)
       }
 
-      if (!exists && senderWallet) {
-        this.senderWallet.applyTransactionToSender(transaction)
-      }
+      if (exists) {
+        this.removeTransaction(transaction)
+      } else if (senderWallet) {
+        const errors = []
+        if (senderWallet.canApply(transaction, errors)) {
+          senderWallet.applyTransactionToSender(transaction)
 
-      // TODO revisit when getRecepient implemented in mem pool
-      if (
-        senderWallet &&
-        senderWallet.balance === 0 &&
-        this.getSenderSize(senderPublicKey) === 0
-      ) {
-        this.walletManager.deleteWallet(senderPublicKey)
+          if (
+            senderWallet.balance === 0 &&
+            this.getSenderSize(senderPublicKey) === 0
+          ) {
+            this.walletManager.deleteWallet(senderPublicKey)
+          }
+        } else {
+          this.purgeByPublicKey(transaction.senderPublicKey)
+          this.walletManager.deleteWallet(transaction.senderPublicKey)
+          this.blockSender(transaction.senderPublicKey)
+
+          logger.error(
+            `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
+              transaction.id
+            } due to ${JSON.stringify(
+              errors,
+            )}. Possible double spending attack :bomb:`,
+          )
+        }
       }
     }
 
-    // if delegate in poll wallet manager - apply rewards
+    // if delegate in poll wallet manager - apply rewards and fees
     if (this.walletManager.exists(block.data.generatorPublicKey)) {
       const delegateWallet = this.walletManager.findByPublicKey(
         block.data.generatorPublicKey,
       )
-      delegateWallet.applyBlock(block.data)
+      const increase = block.data.reward.plus(block.data.totalFee)
+      delegateWallet.balance = delegateWallet.balance.plus(increase)
     }
 
     app
@@ -341,6 +355,7 @@ module.exports = class TransactionPoolInterface {
       )
 
       this.purgeByPublicKey(transaction.senderPublicKey)
+      this.delegateWallet(transaction.senderPublicKey)
       this.blockSender(transaction.senderPublicKey)
 
       return false
