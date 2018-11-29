@@ -46,6 +46,9 @@ describe('applyPoolTransactionToSender', () => {
 
       poolWalletManager.applyPoolTransactionToSender(transfer)
 
+      // Simulate forged transaction
+      newWallet.applyTransactionToRecipient(transfer)
+
       expect(+delegateWallet.balance).toBe(
         +delegate0.balance - amount1 - 0.1 * 10 ** 8,
       )
@@ -77,11 +80,14 @@ describe('applyPoolTransactionToSender', () => {
 
       poolWalletManager.applyPoolTransactionToSender(transfer)
 
+      // Simulate forged transaction
+      newWallet.applyTransactionToRecipient(transfer)
+
       expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
     })
 
-    it('should apply chained transfers involving cold wallets - and update balances', async () => {
+    it('should not apply chained transfers', async () => {
       const delegate = delegates[7]
       const delegateWallet = poolWalletManager.findByPublicKey(
         delegate.publicKey,
@@ -105,34 +111,10 @@ describe('applyPoolTransactionToSender', () => {
           amount: 100 * arktoshi,
         },
         {
-          // transfer from wallet 0 to wallet 1
+          // transfer from wallet 0 to delegate
           from: wallets[0],
-          to: wallets[1],
-          amount: 55 * arktoshi,
-        },
-        {
-          // transfer from wallet 1 to wallet 2
-          from: wallets[1],
-          to: wallets[2],
-          amount: 40 * arktoshi,
-        },
-        {
-          // transfer from wallet 2 to delegate
-          from: wallets[2],
           to: delegate,
-          amount: 15 * arktoshi,
-        },
-        {
-          // transfer from delegate to wallet 1
-          from: delegate,
-          to: wallets[1],
-          amount: 33 * arktoshi,
-        },
-        {
-          // transfer from delegate to wallet 3
-          from: delegate,
-          to: wallets[3],
-          amount: 17 * arktoshi,
+          amount: 55 * arktoshi,
         },
       ]
 
@@ -145,27 +127,25 @@ describe('applyPoolTransactionToSender', () => {
           1,
         )[0]
 
-        const fromWallet = poolWalletManager.findByAddress(t.from.address)
-        const fromBalanceBefore = +fromWallet.balance
-        const toWallet = poolWalletManager.findByAddress(t.to.address)
-        const toBalanceBefore = +toWallet.balance
-
-        poolWalletManager.applyPoolTransactionToSender(transfer)
-
-        expect(+fromWallet.balance).toBe(
-          fromBalanceBefore - t.amount - 0.1 * arktoshi,
-        )
-        expect(+toWallet.balance).toBe(toBalanceBefore + t.amount)
+        try {
+          poolWalletManager.applyPoolTransactionToSender(transfer)
+          expect(t.from).toBe(delegate)
+        } catch (ex) {
+          expect(t.from).toBe(wallets[0])
+          expect(ex.message).toEqual(
+            `[PoolWalletManager] Can't apply transaction id:${
+              transfer.id
+            } from sender:${
+              t.from.address
+            } due to ["Insufficient balance in the wallet"]`,
+          )
+        }
       })
 
-      // check final balances
       expect(+delegateWallet.balance).toBe(
-        delegate.balance + (-100 + 15 - 33 - 17 - 3 * 0.1) * arktoshi,
+        delegate.balance - (100 + 0.1) * arktoshi,
       )
-      expect(+poolWallets[0].balance).toBe((100 - 55 - 0.1) * arktoshi)
-      expect(+poolWallets[1].balance).toBe((55 - 40 - 0.1 + 33) * arktoshi)
-      expect(+poolWallets[2].balance).toBe((40 - 15 - 0.1) * arktoshi)
-      expect(+poolWallets[3].balance).toBe(17 * arktoshi)
+      expect(+poolWallets[0].balance).toBe(0)
     })
   })
 })
