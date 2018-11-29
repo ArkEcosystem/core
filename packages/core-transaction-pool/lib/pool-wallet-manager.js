@@ -179,4 +179,19 @@ module.exports = class PoolWalletManager extends WalletManager {
     const sender = this.findByPublicKey(transaction.senderPublicKey)
     return sender.canApply(transaction, errors)
   }
+
+  /**
+   * Remove the given transaction from a a sender only.
+   * @param  {Transaction} transaction
+   * @return {Transaction}
+   */
+  revertTransactionForSender(transaction) {
+    const { type, data } = transaction
+    const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
+    const recipient = this.byAddress[data.recipientId]
+
+    sender.revertTransactionForSender(data)
+
+    return data
+  }
 }
