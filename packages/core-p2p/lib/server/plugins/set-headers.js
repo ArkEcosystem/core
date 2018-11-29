@@ -19,6 +19,11 @@ const register = async (server, options) => {
 
   const requiredHeaders = ['nethash', 'version', 'port', 'os', 'height']
 
+  if (config.network.name !== 'mainnet') {
+    headers.hashid = app.getHashid()
+    requiredHeaders.push('hashid')
+  }
+
   server.ext({
     type: 'onPreResponse',
     async method(request, h) {
