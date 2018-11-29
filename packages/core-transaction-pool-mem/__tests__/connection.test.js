@@ -554,6 +554,7 @@ describe('Connection', () => {
       voteTx.id =
         '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
       voteTx.type = TRANSACTION_TYPES.VOTE
+      voteTx.asset = { votes: [`+${tx.senderPublicKey}`] }
       connection.addTransaction(voteTx)
 
       connection.addTransaction(mockData.dummy2)
