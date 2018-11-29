@@ -140,14 +140,11 @@ class TransactionPool extends TransactionPoolInterface {
     )
 
     // Apply transaction to pool wallet manager.
-    try {
-      this.walletManager.applyPoolTransactionToSender(transaction)
-    } catch (error) {
-      // Remove tx again from the pool
-      this.mem.remove(transaction.id)
-
-      return this.__createError(transaction, 'ERR_APPLY', error.toString())
-    }
+    // NOTE: We assume the transaction is valid. The TransactionGuard
+    // ensures `canApply` has been called.
+    this.walletManager
+      .findByPublicKey(transaction.senderPublicKey)
+      .applyTransactionToSender(transaction)
 
     this.__syncToPersistentStorageIfNecessary()
     return { success: true }

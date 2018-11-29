@@ -63,77 +63,6 @@ module.exports = class PoolWalletManager extends WalletManager {
   }
 
   /**
-   * Apply the given transaction to a wallet. A combination of pool wallet
-   * and blockchain wallet manager is used.
-   * @param  {Transaction} transaction
-   * @return {Transaction}
-   */
-  applyPoolTransactionToSender(transaction) {
-    /* eslint padded-blocks: "off" */
-    const { data } = transaction
-    const { type, asset, recipientId, senderPublicKey } = data
-    const errors = []
-
-    const sender = this.findByPublicKey(senderPublicKey)
-
-    if (
-      type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
-      database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
-    ) {
-      logger.error(
-        `[PoolWalletManager] Can't apply transaction ${
-          data.id
-        }: delegate name already taken. Data: ${JSON.stringify(data)}`,
-      )
-
-      throw new Error(
-        `[PoolWalletManager] Can't apply transaction ${
-          data.id
-        }: delegate name already taken.`,
-      )
-
-      // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
-    } else if (
-      type === TRANSACTION_TYPES.VOTE &&
-      !database.walletManager.__isDelegate(asset.votes[0].slice(1))
-    ) {
-      logger.error(
-        `[PoolWalletManager] Can't apply vote transaction: delegate ${
-          asset.votes[0]
-        } does not exist. Data: ${JSON.stringify(data)}`,
-      )
-
-      throw new Error(
-        `[PoolWalletManager] Can't apply transaction ${data.id}: delegate ${
-          asset.votes[0]
-        } does not exist.`,
-      )
-    } else if (this.__isException(data)) {
-      logger.warn(
-        `Transaction forcibly applied because it has been added as an exception: ${data}`,
-      )
-    } else if (!sender.canApply(data, errors)) {
-      const message = `[PoolWalletManager] Can't apply transaction id:${
-        data.id
-      } from sender:${sender.address} due to ${JSON.stringify(errors)}`
-      logger.error(message)
-      logger.debug(
-        `[PoolWalletManager] Audit: ${JSON.stringify(
-          sender.auditApply(data),
-          null,
-          2,
-        )}`,
-      )
-
-      throw new Error(message)
-    }
-
-    sender.applyTransactionToSender(data)
-
-    return transaction
-  }
-
-  /**
    * Checks if the transaction can be applied.
    * @param  {Object|Transaction} transaction
    * @param  {Array} errors The errors are written into the array.
@@ -159,7 +88,54 @@ module.exports = class PoolWalletManager extends WalletManager {
     }
 
     const sender = this.findByPublicKey(transaction.senderPublicKey)
-    return sender.canApply(transaction, errors)
+    const { type, asset } = transaction
+
+    if (
+      transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
+      database.walletManager.byUsername[
+        transaction.asset.delegate.username.toLowerCase()
+      ]
+    ) {
+      logger.error(
+        `[PoolWalletManager] Can't apply transaction ${
+          transaction.id
+        }: delegate name already taken. Data: ${JSON.stringify(transaction)}`,
+      )
+
+      errors.push(
+        `Can't apply transaction ${
+          transaction.id
+        }: delegate name already taken.`,
+      )
+      // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
+    } else if (
+      type === TRANSACTION_TYPES.VOTE &&
+      !database.walletManager.__isDelegate(asset.votes[0].slice(1))
+    ) {
+      logger.error(
+        `[PoolWalletManager] Can't apply vote transaction: delegate ${
+          asset.votes[0]
+        } does not exist. Data: ${JSON.stringify(transaction)}`,
+      )
+
+      errors.push(
+        `Can't apply transaction ${transaction.id}: delegate ${
+          asset.votes[0]
+        } does not exist.`,
+      )
+    } else if (this.__isException(transaction)) {
+      logger.warn(
+        `Transaction forcibly applied because it has been added as an exception: ${transaction}`,
+      )
+    } else if (!sender.canApply(transaction, errors)) {
+      const message = `[PoolWalletManager] Can't apply transaction id:${
+        transaction.id
+      } from sender:${sender.address} due to ${JSON.stringify(errors)}`
+      logger.error(message)
+      errors.push(message)
+    }
+
+    return errors.length === 0 && sender.canApply(transaction, errors)
   }
 
   /**
