@@ -49,6 +49,14 @@ class Mem {
     this.bySender = {}
 
     /**
+     * A map of (key=recipientId, value=Set of MemPoolTransaction).
+     * Used to:
+     * - get all transactions for a given recipient
+     * - get the number of all transactions for a given recipient.
+     */
+    this.byRecipient = {}
+
+    /**
      * An array of MemPoolTransaction, sorted by expiration (earliest date
      * comes first). This array may not contain all transactions that are
      * in the pool, transactions that are without expiration are not included.
@@ -109,6 +117,15 @@ class Mem {
       this.bySender[sender].add(memPoolTransaction)
     }
 
+    const recipientId = transaction.recipientId
+    if (this.byRecipient[recipientId] === undefined) {
+      // First transaction for this recipient, create a new Set.
+      this.byRecipient[recipientId] = new Set([memPoolTransaction])
+    } else {
+      // Append to existing transaction ids for this sender.
+      this.byRecipient[recipientId].add(memPoolTransaction)
+    }
+
     if (memPoolTransaction.expireAt(maxTransactionAge) !== null) {
       this.byExpiration.push(memPoolTransaction)
       this.byExpirationIsSorted = false
@@ -154,6 +171,12 @@ class Mem {
       delete this.bySender[senderPublicKey]
     }
 
+    const recipientId = memPoolTransaction.transaction.recipientId
+    this.byRecipient[recipientId].delete(memPoolTransaction)
+    if (this.byRecipient[recipientId].size === 0) {
+      delete this.byRecipient[recipientId]
+    }
+
     delete this.byId[id]
 
     i = this.all.findIndex(e => e.transaction.id === id)
@@ -186,6 +209,19 @@ class Mem {
    */
   getBySender(senderPublicKey) {
     const memPoolTransactions = this.bySender[senderPublicKey]
+    if (memPoolTransactions !== undefined) {
+      return memPoolTransactions
+    }
+    return new Set()
+  }
+
+  /**
+   * Get all transactions for a given recipient.
+   * @param {String} recipientId address of recipient
+   * @return {Set of MemPoolTransaction} all transactions for the given recipient, could be empty Set
+   */
+  getByRecipient(recipientId) {
+    const memPoolTransactions = this.byRecipient[recipientId]
     if (memPoolTransactions !== undefined) {
       return memPoolTransactions
     }
@@ -272,6 +308,7 @@ class Mem {
     this.allIsSorted = true
     this.byId = {}
     this.bySender = {}
+    this.byRecipient = {}
     this.byExpiration = []
     this.byExpirationIsSorted = true
     this.dirty.added.clear()

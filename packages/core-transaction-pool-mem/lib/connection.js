@@ -81,6 +81,17 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Get the number of transactions in the pool for a specific recipient
+   * @param {String} recipientId
+   * @returns {Number}
+   */
+  getRecipientSize(recipientId) {
+    this.__purgeExpired()
+
+    return this.mem.getByRecipient(recipientId).size
+  }
+
+  /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
    * @return {Object} The success property indicates wether the transaction was successfully added

@@ -54,6 +54,15 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
+   * Get the number of transaction in the pool for specific recipient
+   * @param  {String} address
+   * @return {Number}
+   */
+  getRecipientSize() {
+    throw new Error('Method [getRecipientSize] not implemented!')
+  }
+
+  /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
    */
