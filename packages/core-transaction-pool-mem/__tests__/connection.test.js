@@ -377,7 +377,7 @@ describe('Connection', () => {
       expect(connection.getTransactionsForForging).toBeFunction()
     })
 
-    it('should skip not-appliable transactions', async () => {
+    it.skip('should skip not-appliable transactions', async () => {
       connection.addTransaction(mockData.dummy1)
       connection.addTransaction(mockData.dummy2)
       // This should be skipped due to checkApplyToBlockchain() due to insufficient funds
