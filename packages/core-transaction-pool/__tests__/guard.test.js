@@ -94,12 +94,6 @@ describe('Transaction Guard', () => {
           await guard.validate([transfer])
         }
 
-        // Simulate forged transaction, so that it passes.
-        // TODO: test needs to be reworked
-        poolWallets[0].applyTransactionToRecipient(
-          guard.accept.values().next().value,
-        )
-
         // apply again transfer from 0 to 1
         const transfer = generateTransfers(
           'testnet',
@@ -122,7 +116,7 @@ describe('Transaction Guard', () => {
         expect(+delegateWallet.balance).toBe(
           delegate.balance - (100 + 0.1) * arktoshi,
         )
-        expect(+poolWallets[0].balance).toBe(100 * arktoshi)
+        expect(+poolWallets[0].balance).toBe(0)
         expect(+poolWallets[1].balance).toBe(0)
       },
     )
