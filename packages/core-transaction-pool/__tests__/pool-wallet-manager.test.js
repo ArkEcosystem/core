@@ -46,6 +46,9 @@ describe('applyPoolTransactionToSender', () => {
 
       poolWalletManager.applyPoolTransactionToSender(transfer)
 
+      // Simulate forged transaction
+      newWallet.applyTransactionToRecipient(transfer)
+
       expect(+delegateWallet.balance).toBe(
         +delegate0.balance - amount1 - 0.1 * 10 ** 8,
       )
@@ -76,6 +79,9 @@ describe('applyPoolTransactionToSender', () => {
       )[0]
 
       poolWalletManager.applyPoolTransactionToSender(transfer)
+
+      // Simulate forged transaction
+      newWallet.applyTransactionToRecipient(transfer)
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
