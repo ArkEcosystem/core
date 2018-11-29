@@ -91,10 +91,8 @@ module.exports = class PoolWalletManager extends WalletManager {
     const { type, asset } = transaction
 
     if (
-      transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
-      database.walletManager.byUsername[
-        transaction.asset.delegate.username.toLowerCase()
-      ]
+      type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
+      database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
     ) {
       logger.error(
         `[PoolWalletManager] Can't apply transaction ${
@@ -128,11 +126,11 @@ module.exports = class PoolWalletManager extends WalletManager {
         `Transaction forcibly applied because it has been added as an exception: ${transaction}`,
       )
     } else if (!sender.canApply(transaction, errors)) {
-      logger.error(
-        `[PoolWalletManager] Can't apply transaction id:${
-          transaction.id
-        } from sender:${sender.address} due to ${JSON.stringify(errors)}`,
-      )
+      const message = `[PoolWalletManager] Can't apply transaction id:${
+        transaction.id
+      } from sender:${sender.address}`
+      logger.error(`${message} due to ${JSON.stringify(errors)}`)
+      errors.unshift(message)
     }
 
     return errors.length === 0 && sender.canApply(transaction, errors)

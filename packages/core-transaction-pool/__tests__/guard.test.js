@@ -344,7 +344,11 @@ describe('Transaction Guard', () => {
 
         const errorExpected = [
           {
-            message: '["Insufficient balance in the wallet"]',
+            message: `["[PoolWalletManager] Can't apply transaction id:${
+              transaction[0].id
+            } from sender:${
+              newWallet.address
+            }","Insufficient balance in the wallet"]`,
             type: 'ERR_APPLY',
           },
         ]
@@ -372,11 +376,11 @@ describe('Transaction Guard', () => {
 
       expect(result.errors[transactions[1].id]).toEqual([
         {
-          message: `Error: [PoolWalletManager] Can't apply transaction id:${
+          message: `["[PoolWalletManager] Can't apply transaction id:${
             transactions[1].id
           } from sender:${
             delegates[0].address
-          } due to ["Insufficient balance in the wallet"]`,
+          }","Insufficient balance in the wallet"]`,
           type: 'ERR_APPLY',
         },
       ])
@@ -460,11 +464,11 @@ describe('Transaction Guard', () => {
         expect(Object.keys(result.errors).length).toBe(1)
         expect(result.errors[lastTransaction[0].id]).toEqual([
           {
-            message: `Error: [PoolWalletManager] Can't apply transaction id:${
+            message: `["[PoolWalletManager] Can't apply transaction id:${
               lastTransaction[0].id
             } from sender:${
               sender.address
-            } due to ["Insufficient balance in the wallet"]`,
+            }","Insufficient balance in the wallet"]`,
             type: 'ERR_APPLY',
           },
         ])
