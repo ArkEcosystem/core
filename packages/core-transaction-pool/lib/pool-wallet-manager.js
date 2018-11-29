@@ -125,9 +125,7 @@ module.exports = class PoolWalletManager extends WalletManager {
       logger.warn(
         `Transaction forcibly applied because it has been added as an exception: ${transaction}`,
       )
-    }
-    const canBeApplied = !sender.canApply(transaction, errors)
-    if (!canBeApplied) {
+    } else if (!sender.canApply(transaction, errors)) {
       const message = `[PoolWalletManager] Can't apply transaction id:${
         transaction.id
       } from sender:${sender.address}`
@@ -135,7 +133,7 @@ module.exports = class PoolWalletManager extends WalletManager {
       errors.unshift(message)
     }
 
-    return errors.length === 0 && canBeApplied
+    return errors.length === 0
   }
 
   /**
