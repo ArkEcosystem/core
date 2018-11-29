@@ -29,6 +29,21 @@ module.exports = class Peer {
       height: null,
       'Content-Type': 'application/json',
     }
+
+    if (config.network.name !== 'mainnet') {
+      this.headers.hashid = app.getHashid()
+    }
+  }
+
+  /**
+   * Set the given headers for the peer.
+   * @param  {Object} headers
+   * @return {void}
+   */
+  setHeaders(headers) {
+    ;['nethash', 'os', 'version'].forEach(key => {
+      this[key] = headers[key]
+    })
   }
 
   /**
@@ -39,6 +54,7 @@ module.exports = class Peer {
     return {
       ip: this.ip,
       port: +this.port,
+      nethash: this.nethash,
       version: this.version,
       os: this.os,
       status: this.status,
@@ -283,7 +299,7 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders(response) {
-    ;['nethash', 'os', 'version'].forEach(key => {
+    ;['nethash', 'os', 'version', 'hashid'].forEach(key => {
       this[key] = response.headers[key] || this[key]
     })
 

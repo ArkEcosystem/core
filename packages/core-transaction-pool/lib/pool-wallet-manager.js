@@ -163,12 +163,22 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {Boolean}
    */
   canApply(transaction, errors) {
-    // Edge case
+    // Edge case if sender is unknown and has no balance.
+    // NOTE: Check is performed against the database wallet manager.
     if (!database.walletManager.byPublicKey[transaction.senderPublicKey]) {
-      errors.push(
-        'Cold wallet is not allowed to send until receiving transaction is confirmed.',
+      const senderAddress = crypto.getAddress(
+        transaction.senderPublicKey,
+        config.network.pubKeyHash,
       )
-      return false
+
+      if (
+        database.walletManager.findByAddress(senderAddress).balance.isZero()
+      ) {
+        errors.push(
+          'Cold wallet is not allowed to send until receiving transaction is confirmed.',
+        )
+        return false
+      }
     }
 
     const sender = this.findByPublicKey(transaction.senderPublicKey)
