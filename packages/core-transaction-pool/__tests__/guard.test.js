@@ -94,6 +94,12 @@ describe('Transaction Guard', () => {
           await guard.validate([transfer])
         }
 
+        // Simulate forged transaction, so that it passes.
+        // TODO: test needs to be reworked
+        poolWallets[0].applyTransactionToRecipient(
+          guard.accept.values().next().value,
+        )
+
         // apply again transfer from 0 to 1
         const transfer = generateTransfers(
           'testnet',
@@ -180,6 +186,9 @@ describe('Transaction Guard', () => {
       await guard.validate(transfers)
       expect(guard.errors).toEqual({})
 
+      // simulate forged transaction
+      newWallet.applyTransactionToRecipient(transfers[0])
+
       expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
     })
@@ -242,6 +251,10 @@ describe('Transaction Guard', () => {
 
       // first validate the 1st transfer so that new wallet is updated with the amount
       await guard.validate(transfers)
+
+      // simulate forged transaction
+      newWallet.applyTransactionToRecipient(transfers[0])
+
       expect(guard.errors).toEqual({})
       expect(+newWallet.balance).toBe(amount1)
 
@@ -286,6 +299,9 @@ describe('Transaction Guard', () => {
       )
       await guard.validate(transfers1)
 
+      // simulate forged transaction
+      newWallet.applyTransactionToRecipient(transfers1[0])
+
       expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
 
@@ -299,6 +315,9 @@ describe('Transaction Guard', () => {
         1,
       )
       await guard.validate(transfers2)
+
+      // simulate forged transaction
+      delegateWallet.applyTransactionToRecipient(transfers2[0])
 
       expect(+newWallet.balance).toBe(amount1 - amount2 - fee)
 
