@@ -140,11 +140,23 @@ class TransactionPool extends TransactionPoolInterface {
     )
 
     // Apply transaction to pool wallet manager.
-    // NOTE: We assume the transaction is valid. The TransactionGuard
-    // ensures `canApply` has been called.
-    this.walletManager
-      .findByPublicKey(transaction.senderPublicKey)
-      .applyTransactionToSender(transaction)
+    const senderWallet = this.walletManager.findByPublicKey(
+      transaction.senderPublicKey,
+    )
+
+    const errors = []
+    if (this.walletManager.canApply(transaction, errors)) {
+      senderWallet.applyTransactionToSender(transaction)
+    } else {
+      // Remove tx again from the pool
+      this.mem.remove(transaction.id)
+
+      return this.__createError(
+        transaction,
+        'ERR_APPLY',
+        JSON.stringify(errors),
+      )
+    }
 
     this.__syncToPersistentStorageIfNecessary()
     return { success: true }
