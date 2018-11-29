@@ -18,9 +18,9 @@ afterAll(async () => {
   await app.tearDown()
 })
 
-describe('applyPoolTransaction', () => {
+describe('applyPoolTransactionToSender', () => {
   it('should be a function', () => {
-    expect(poolWalletManager.applyPoolTransaction).toBeFunction()
+    expect(poolWalletManager.applyPoolTransactionToSender).toBeFunction()
   })
 
   describe('update the balance', () => {
@@ -44,7 +44,7 @@ describe('applyPoolTransaction', () => {
         1,
       )[0]
 
-      poolWalletManager.applyPoolTransaction(transfer)
+      poolWalletManager.applyPoolTransactionToSender(transfer)
 
       expect(+delegateWallet.balance).toBe(
         +delegate0.balance - amount1 - 0.1 * 10 ** 8,
@@ -75,7 +75,7 @@ describe('applyPoolTransaction', () => {
         fee,
       )[0]
 
-      poolWalletManager.applyPoolTransaction(transfer)
+      poolWalletManager.applyPoolTransactionToSender(transfer)
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee)
       expect(+newWallet.balance).toBe(amount1)
@@ -150,7 +150,7 @@ describe('applyPoolTransaction', () => {
         const toWallet = poolWalletManager.findByAddress(t.to.address)
         const toBalanceBefore = +toWallet.balance
 
-        poolWalletManager.applyPoolTransaction(transfer)
+        poolWalletManager.applyPoolTransactionToSender(transfer)
 
         expect(+fromWallet.balance).toBe(
           fromBalanceBefore - t.amount - 0.1 * arktoshi,
