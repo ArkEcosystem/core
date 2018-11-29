@@ -83,8 +83,7 @@ module.exports = class PoolWalletManager extends WalletManager {
       logger.error(
         `[PoolWalletManager] Can't apply transaction ${
           data.id
-        }: delegate name already taken.`,
-        JSON.stringify(data),
+        }: delegate name already taken. Data: ${JSON.stringify(data)}`,
       )
 
       throw new Error(
@@ -93,8 +92,7 @@ module.exports = class PoolWalletManager extends WalletManager {
         }: delegate name already taken.`,
       )
 
-      // NOTE: We use the vote public key, because vote transactions
-      // have the same sender and recipient.
+      // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
     } else if (
       type === TRANSACTION_TYPES.VOTE &&
       !database.walletManager.__isDelegate(asset.votes[0].slice(1))
@@ -102,8 +100,7 @@ module.exports = class PoolWalletManager extends WalletManager {
       logger.error(
         `[PoolWalletManager] Can't apply vote transaction: delegate ${
           asset.votes[0]
-        } does not exist.`,
-        JSON.stringify(data),
+        } does not exist. Data: ${JSON.stringify(data)}`,
       )
 
       throw new Error(
@@ -113,8 +110,7 @@ module.exports = class PoolWalletManager extends WalletManager {
       )
     } else if (this.__isException(data)) {
       logger.warn(
-        'Transaction forcibly applied because it has been added as an exception:',
-        data,
+        `Transaction forcibly applied because it has been added as an exception: ${data}`,
       )
     } else if (!sender.canApply(data, errors)) {
       const message = `[PoolWalletManager] Can't apply transaction id:${
