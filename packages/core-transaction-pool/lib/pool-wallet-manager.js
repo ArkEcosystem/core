@@ -134,11 +134,6 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     sender.applyTransactionToSender(data)
 
-    if (type === TRANSACTION_TYPES.TRANSFER) {
-      const recipient = this.findByAddress(recipientId)
-      recipient.applyTransactionToRecipient(data)
-    }
-
     return transaction
   }
 
