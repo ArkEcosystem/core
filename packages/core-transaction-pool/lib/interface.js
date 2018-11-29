@@ -284,15 +284,18 @@ module.exports = class TransactionPoolInterface {
 
     poolTransactionIds.forEach(transactionId => {
       const transaction = this.getTransaction(transactionId)
-
       if (!transaction) {
         return
       }
 
-      try {
-        this.walletManager.applyPoolTransaction(transaction)
-      } catch (error) {
-        logger.error('BuildWallets from pool:', error)
+      const senderWallet = this.walletManager.findByPublicKey(
+        transaction.senderPublicKey,
+      )
+      const errors = []
+      if (senderWallet && senderWallet.canApply(transaction, errors)) {
+        senderWallet.applyTransactionToSender(transaction)
+      } else {
+        logger.error('BuildWallets from pool:', errors)
         this.purgeByPublicKey(transaction.senderPublicKey)
       }
     })
