@@ -51,7 +51,7 @@ module.exports = class Peer {
    * @return {Object}
    */
   toBroadcastInfo() {
-    return {
+    const data = {
       ip: this.ip,
       port: +this.port,
       nethash: this.nethash,
@@ -61,6 +61,12 @@ module.exports = class Peer {
       height: this.state.height,
       delay: this.delay,
     }
+
+    if (config.network.name !== 'mainnet') {
+      data.hashid = this.hashid || 'unknown'
+    }
+
+    return data
   }
 
   static isOk(peer) {
