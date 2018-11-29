@@ -70,7 +70,7 @@ class Monitor {
             'peer',
             peers.length,
             true,
-          )} with ${version} as version.`,
+          )} with v${version}.`,
         )
       }
 
@@ -83,7 +83,7 @@ class Monitor {
               'peer',
               peers.length,
               true,
-            )} with ${hashid} as hashid.`,
+            )} on commit ${hashid}.`,
           )
         }
       }
