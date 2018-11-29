@@ -152,7 +152,7 @@ class Monitor {
    */
   async updateNetworkStatusIfNotEnoughPeers() {
     if (!this.hasMinimumPeers() && process.env.ARK_ENV !== 'test') {
-      await this.updateNetworkStatus()
+      await this.updateNetworkStatus(this.config.networkStart)
     }
   }
 
