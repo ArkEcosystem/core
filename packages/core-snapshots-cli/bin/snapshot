@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const app = require('commander')
+const cli = require('commander')
 const util = require('../lib/utils')
 const app = require('@arkecosystem/core-container')
 
-app.version(require('../package.json').version)
+cli.version(require('../package.json').version)
 
 const registerCommand = (name, description) => {
-  return app
+  return cli
     .command(name)
     .description(description)
     .option('-d, --data <data>', 'data directory', '~/.ark')
@@ -61,12 +61,12 @@ registerCommand('truncate', 'truncate blockchain database')
     require('../lib/commands/truncate')(options)
   })
 
-app
+cli
   .command('*')
   .action(env => {
-    app.help()
+    cli.help()
     process.exit(0)
   })
 
 app.silentShutdown = true
-app.parse(process.argv)
+cli.parse(process.argv)
