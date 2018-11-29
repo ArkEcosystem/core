@@ -301,10 +301,18 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Purges all transactions from the block.
+   * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
    * @param {Block} block
    */
   purgeBlock(block) {
-    block.transactions.forEach(tx => this.removeTransaction(tx))
+    block.transactions.forEach(tx => {
+      if (this.transactionExists(tx.id)) {
+        this.removeTransaction(tx)
+        this.walletManager
+          .findByPublicKey(tx.senderPublicKey)
+          .revertTransactionForSender(tx)
+      }
+    })
   }
 
   checkApplyToBlockchain(transaction) {
