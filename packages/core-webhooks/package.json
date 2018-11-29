@@ -20,10 +20,10 @@
     "@arkecosystem/core-container": "~0.2",
     "@arkecosystem/core-http-utils": "~0.2",
     "axios": "^0.18.0",
-    "boom": "^7.2.2",
+    "boom": "^7.3.0",
     "fs-extra": "^7.0.1",
     "hapi-pagination": "^2.0.1",
-    "joi": "^14.1.0",
+    "joi": "^14.3.0",
     "sequelize": "^4.41.2",
     "sqlite3": "^4.0.4",
     "umzug": "^2.2.0"
