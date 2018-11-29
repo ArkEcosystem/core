@@ -19,12 +19,8 @@ afterAll(async () => {
 })
 
 describe('applyPoolTransactionToSender', () => {
-  it('should be a function', () => {
-    expect(poolWalletManager.applyPoolTransactionToSender).toBeFunction()
-  })
-
   describe('update the balance', () => {
-    it('should update the balance of the sender & recipient', async () => {
+    it('should only update the balance of the sender', async () => {
       const delegate0 = delegates[0]
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
@@ -44,18 +40,15 @@ describe('applyPoolTransactionToSender', () => {
         1,
       )[0]
 
-      poolWalletManager.applyPoolTransactionToSender(transfer)
-
-      // Simulate forged transaction
-      newWallet.applyTransactionToRecipient(transfer)
+      delegateWallet.applyTransactionToSender(transfer)
 
       expect(+delegateWallet.balance).toBe(
         +delegate0.balance - amount1 - 0.1 * 10 ** 8,
       )
-      expect(+newWallet.balance).toBe(amount1)
+      expect(newWallet.balance.isZero()).toBeTrue()
     })
 
-    it('should update the balance of the sender & recipient with dyn fees', async () => {
+    it('should only update the balance of the sender with dyn fees', async () => {
       const delegate0 = delegates[1]
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic())
       const newAddress = crypto.getAddress(publicKey)
@@ -78,13 +71,10 @@ describe('applyPoolTransactionToSender', () => {
         fee,
       )[0]
 
-      poolWalletManager.applyPoolTransactionToSender(transfer)
-
-      // Simulate forged transaction
-      newWallet.applyTransactionToRecipient(transfer)
+      delegateWallet.applyTransactionToSender(transfer)
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee)
-      expect(+newWallet.balance).toBe(amount1)
+      expect(newWallet.balance.isZero()).toBeTrue()
     })
 
     it('should not apply chained transfers', async () => {
@@ -111,7 +101,7 @@ describe('applyPoolTransactionToSender', () => {
           amount: 100 * arktoshi,
         },
         {
-          // transfer from wallet 0 to delegate
+          // transfer from wallet 0 to delegatej
           from: wallets[0],
           to: delegate,
           amount: 55 * arktoshi,
@@ -127,25 +117,39 @@ describe('applyPoolTransactionToSender', () => {
           1,
         )[0]
 
-        try {
-          poolWalletManager.applyPoolTransactionToSender(transfer)
+        // This is normally refused because it's a cold wallet, but since we want
+        // to test if chained transfers are refused, pretent it is not a cold wallet.
+        container
+          .resolvePlugin('database')
+          .walletManager.findByPublicKey(transfer.senderPublicKey)
+
+        const errors = []
+        if (poolWalletManager.canApply(transfer, errors)) {
+          poolWalletManager
+            .findByPublicKey(transfer.senderPublicKey)
+            .applyTransactionToSender(transfer)
+
           expect(t.from).toBe(delegate)
-        } catch (ex) {
+        } else {
           expect(t.from).toBe(wallets[0])
-          expect(ex.message).toEqual(
-            `[PoolWalletManager] Can't apply transaction id:${
+          expect(JSON.stringify(errors)).toEqual(
+            `["[PoolWalletManager] Can't apply transaction id:${
               transfer.id
             } from sender:${
               t.from.address
-            } due to ["Insufficient balance in the wallet"]`,
+            }","Insufficient balance in the wallet"]`,
           )
         }
+
+        container
+          .resolvePlugin('database')
+          .walletManager.forgetByPublicKey(transfer.publicKey)
       })
 
       expect(+delegateWallet.balance).toBe(
         delegate.balance - (100 + 0.1) * arktoshi,
       )
-      expect(+poolWallets[0].balance).toBe(0)
+      expect(poolWallets[0].balance.isZero()).toBeTrue()
     })
   })
 })
