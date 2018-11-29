@@ -355,7 +355,6 @@ module.exports = class TransactionPoolInterface {
       )
 
       this.purgeByPublicKey(transaction.senderPublicKey)
-      this.delegateWallet(transaction.senderPublicKey)
       this.blockSender(transaction.senderPublicKey)
 
       return false
