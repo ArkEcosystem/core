@@ -464,40 +464,6 @@ describe('Connection', () => {
       expect(transactions).toBeArray()
       expect(transactions.length).toBe(5)
     })
-
-    it('should not accept transaction with amount > wallet balance', async () => {
-      const transactions = [
-        // Invalid, not enough funds, will also cause the transaction below to be
-        // purged as it is from the same sender.
-        generateTransfer(
-          'testnet',
-          delegatesSecrets[0],
-          mockData.dummy1.recipientId,
-          333300000000000 /* more than any genesis wallet */,
-          1,
-        )[0],
-        // This alone is a valid transaction
-        generateTransfer(
-          'testnet',
-          delegatesSecrets[0],
-          mockData.dummy1.recipientId,
-          1,
-          1,
-        )[0],
-        // Valid, only this transaction will classify for forging.
-        generateTransfer(
-          'testnet',
-          delegatesSecrets[1],
-          mockData.dummy1.recipientId,
-          1,
-          1,
-        )[0],
-      ]
-
-      connection.addTransactions(transactions)
-
-      expect((await connection.getTransactionsForForging(10)).length).toEqual(2)
-    })
   })
 
   describe('flush', () => {
