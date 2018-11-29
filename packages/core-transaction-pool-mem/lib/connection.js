@@ -130,7 +130,7 @@ class TransactionPool extends TransactionPoolInterface {
 
     // Apply transaction to pool wallet manager.
     try {
-      this.walletManager.applyPoolTransaction(transaction)
+      this.walletManager.applyPoolTransactionToSender(transaction)
     } catch (error) {
       // Remove tx again from the pool
       this.mem.remove(transaction.id)
