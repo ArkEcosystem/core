@@ -22,7 +22,7 @@
     "@arkecosystem/crypto": "~0.2",
     "elasticsearch": "^15.2.0",
     "fs-extra": "^7.0.1",
-    "joi": "^14.1.0",
+    "joi": "^14.3.0",
     "lodash.first": "^3.0.0",
     "lodash.get": "^4.4.2",
     "lodash.last": "^3.0.0"

@@ -30,8 +30,8 @@
     "commander": "^2.19.0",
     "delay": "^4.1.0",
     "lodash.fill": "^3.4.0",
-    "pino": "^5.8.1",
-    "pino-pretty": "^2.2.4",
+    "pino": "^5.9.0",
+    "pino-pretty": "^2.3.0",
     "pluralize": "^7.0.0",
     "superheroes": "^2.0.0"
   },

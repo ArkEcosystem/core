@@ -20,7 +20,7 @@
     "@arkecosystem/core-container": "~0.2",
     "@arkecosystem/core-http-utils": "~0.2",
     "@arkecosystem/crypto": "~0.2",
-    "apollo-server-hapi": "^2.2.2",
+    "apollo-server-hapi": "^2.2.4",
     "dayjs-ext": "^2.2.0",
     "graphql-tools-types": "^1.1.26"
   },

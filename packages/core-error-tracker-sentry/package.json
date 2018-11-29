@@ -12,7 +12,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@sentry/node": "^4.3.4"
+    "@sentry/node": "^4.4.0"
   },
   "publishConfig": {
     "access": "public"
