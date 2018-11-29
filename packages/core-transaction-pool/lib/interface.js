@@ -220,6 +220,7 @@ module.exports = class TransactionPoolInterface {
         this.senderWallet.applyTransactionToSender(transaction)
       }
 
+      // TODO revisit when getRecepient implemented in mem pool
       if (
         senderWallet &&
         senderWallet.balance === 0 &&
@@ -229,11 +230,17 @@ module.exports = class TransactionPoolInterface {
       }
     }
 
+    // if delegate in poll wallet manager - apply rewards
+    if (this.walletManager.exists(block.data.generatorPublicKey)) {
+      const delegateWallet = this.walletManager.findByPublicKey(
+        block.data.generatorPublicKey,
+      )
+      delegateWallet.applyBlock(block.data)
+    }
+
     app
       .resolve('state')
       .removeCachedTransactionIds(block.transactions.map(tx => tx.id))
-
-    this.walletManager.applyPoolBlock(block)
   }
 
   /**
