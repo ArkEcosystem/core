@@ -211,17 +211,13 @@ module.exports = class TransactionPoolInterface {
 
       // If sender or recipient wallet in pool we try to apply transaction
       const exists = this.transactionExists(transaction.id)
-      if (!exists && (senderWallet || recipientWallet)) {
-        try {
-          // TODO refactor - NEEDS IMPLEMENT
-          this.walletManager.applyPoolTransactionFromForgedBlock(transaction)
-        } catch (error) {
-          logger.error(`AcceptChainedBlock in pool: ${error}`)
-          // Purge sender
-          this.purgeByPublicKey(senderPublicKey)
-        }
-      } else {
-        this.removeTransaction(transaction)
+
+      if (recipientWallet) {
+        recipientWallet.applyTransactionToRecipient(transaction)
+      }
+
+      if (!exists && senderWallet) {
+        this.senderWallet.applyTransactionToSender(transaction)
       }
 
       if (
