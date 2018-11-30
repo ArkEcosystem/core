@@ -341,31 +341,6 @@ module.exports = class TransactionPoolInterface {
     })
   }
 
-  checkApplyToBlockchain(transaction) {
-    const errors = []
-    const wallet = database.walletManager.findByPublicKey(
-      transaction.senderPublicKey,
-    )
-    if (!wallet.canApply(transaction, errors)) {
-      this.removeTransaction(transaction)
-
-      logger.debug(
-        `CanApply transaction test failed from transaction pool for transaction id:${
-          transaction.id
-        } due to ${JSON.stringify(
-          errors,
-        )}. Possible double spending attack :bomb:`,
-      )
-
-      this.purgeByPublicKey(transaction.senderPublicKey)
-      this.blockSender(transaction.senderPublicKey)
-
-      return false
-    }
-
-    return true
-  }
-
   /**
    * Check whether a given sender has any transactions of the specified type
    * in the pool.

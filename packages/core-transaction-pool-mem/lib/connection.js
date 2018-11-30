@@ -266,8 +266,7 @@ class TransactionPool extends TransactionPoolInterface {
         fetchSize,
       )) {
         const transaction = this.mem.getTransactionById(id)
-
-        if (transaction && this.checkApplyToBlockchain(transaction)) {
+        if (transaction) {
           transactions.add(transaction.serialized)
         }
       }
