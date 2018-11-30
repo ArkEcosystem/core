@@ -202,7 +202,7 @@ module.exports = class ForgerManager {
     //
     // this.client.emitEvent('forger.started', delegate.publicKey)
 
-    const transactions = this.__getTransactionsForForging()
+    const transactions = await this.__getTransactionsForForging()
 
     const blockOptions = {}
     blockOptions.previousBlock = round.lastBlock
