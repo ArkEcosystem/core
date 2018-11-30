@@ -242,13 +242,13 @@ module.exports = class TransactionPoolInterface {
             )}. Possible double spending attack :bomb:`,
           )
         }
+      }
 
-        if (
-          senderWallet.balance === 0 &&
-          this.getSenderSize(senderPublicKey) === 0
-        ) {
-          this.walletManager.deleteWallet(senderPublicKey)
-        }
+      if (
+        senderWallet.balance === 0 &&
+        this.getSenderSize(senderPublicKey) === 0
+      ) {
+        this.walletManager.deleteWallet(senderPublicKey)
       }
     }
 
