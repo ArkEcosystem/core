@@ -95,44 +95,6 @@ describe('Connection', () => {
     })
   })
 
-  describe('getRecipientSize', () => {
-    it('should be a function', () => {
-      expect(connection.getRecipientSize).toBeFunction()
-    })
-
-    it('should return 0 if no transactions were added', () => {
-      expect(connection.getRecipientSize('undefined')).toBe(0)
-    })
-
-    it('should return 1 if transactions with different recipients were added', () => {
-      const recipientId = mockData.dummy1.recipientId
-
-      expect(connection.getRecipientSize(recipientId)).toBe(0)
-
-      connection.addTransaction(mockData.dummy1)
-
-      expect(connection.getRecipientSize(recipientId)).toBe(1)
-
-      connection.addTransaction(mockData.dummy2)
-
-      expect(connection.getRecipientSize(recipientId)).toBe(1)
-    })
-
-    it('should return 0 after tx got removed', () => {
-      const recipientId = mockData.dummy1.recipientId
-
-      expect(connection.getRecipientSize(recipientId)).toBe(0)
-
-      connection.addTransaction(mockData.dummy1)
-
-      expect(connection.getRecipientSize(recipientId)).toBe(1)
-
-      connection.removeTransaction(mockData.dummy1)
-
-      expect(connection.getRecipientSize(recipientId)).toBe(0)
-    })
-  })
-
   describe('addTransaction', () => {
     it('should be a function', () => {
       expect(connection.addTransaction).toBeFunction()

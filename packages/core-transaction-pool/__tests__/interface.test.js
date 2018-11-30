@@ -49,18 +49,6 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('getRecipientSize', () => {
-    it('should be a function', () => {
-      expect(poolInterface.getRecipientSize).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      expect(poolInterface.getRecipientSize).toThrow(
-        'Method [getRecipientSize] not implemented!',
-      )
-    })
-  })
-
   describe('addTransaction', () => {
     it('should be a function', () => {
       expect(poolInterface.addTransaction).toBeFunction()
