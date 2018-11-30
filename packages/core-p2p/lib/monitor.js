@@ -55,35 +55,37 @@ class Monitor {
 
     this.__filterPeers()
 
-    this.config.skipDiscovery
-      ? logger.warn(
-          'Skipped peer discovery because the relay is in skip-discovery mode.',
-        )
-      : await this.updateNetworkStatus(options.networkStart)
-
-    for (const [version, peers] of Object.entries(
-      groupBy(this.peers, 'version'),
-    )) {
-      logger.info(
-        `Discovered ${pluralize(
-          'peer',
-          peers.length,
-          true,
-        )} with ${version} as version.`,
+    if (this.config.skipDiscovery) {
+      logger.warn(
+        'Skipped peer discovery because the relay is in skip-discovery mode.',
       )
-    }
+    } else {
+      await this.updateNetworkStatus(options.networkStart)
 
-    if (config.network.name !== 'mainnet') {
-      for (const [hashid, peers] of Object.entries(
-        groupBy(this.peers, 'hashid'),
+      for (const [version, peers] of Object.entries(
+        groupBy(this.peers, 'version'),
       )) {
         logger.info(
           `Discovered ${pluralize(
             'peer',
             peers.length,
             true,
-          )} with ${hashid} as hashid.`,
+          )} with v${version}.`,
         )
+      }
+
+      if (config.network.name !== 'mainnet') {
+        for (const [hashid, peers] of Object.entries(
+          groupBy(this.peers, 'hashid'),
+        )) {
+          logger.info(
+            `Discovered ${pluralize(
+              'peer',
+              peers.length,
+              true,
+            )} on commit ${hashid}.`,
+          )
+        }
       }
     }
 
