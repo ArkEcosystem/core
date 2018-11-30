@@ -103,7 +103,7 @@ describe('Transaction Pool Interface', () => {
     })
 
     it('should throw an exception', () => {
-      expect(poolInterface.getTransactionsForForging()).rejects.toThrowError(
+      expect(poolInterface.getTransactionsForForging).toThrow(
         'Method [getTransactionsForForging] not implemented!',
       )
     })
@@ -115,7 +115,7 @@ describe('Transaction Pool Interface', () => {
     })
 
     it('should throw an exception', () => {
-      expect(poolInterface.getTransactionIdsForForging()).rejects.toThrowError(
+      expect(poolInterface.getTransactionIdsForForging).toThrow(
         'Method [getTransactionIdsForForging] not implemented!',
       )
     })
