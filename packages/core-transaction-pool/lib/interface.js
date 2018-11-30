@@ -229,13 +229,6 @@ module.exports = class TransactionPoolInterface {
         const errors = []
         if (senderWallet.canApply(transaction, errors)) {
           senderWallet.applyTransactionToSender(transaction)
-
-          if (
-            senderWallet.balance === 0 &&
-            this.getSenderSize(senderPublicKey) === 0
-          ) {
-            this.walletManager.deleteWallet(senderPublicKey)
-          }
         } else {
           this.purgeByPublicKey(transaction.senderPublicKey)
           this.walletManager.deleteWallet(transaction.senderPublicKey)
@@ -248,6 +241,13 @@ module.exports = class TransactionPoolInterface {
               errors,
             )}. Possible double spending attack :bomb:`,
           )
+        }
+
+        if (
+          senderWallet.balance === 0 &&
+          this.getSenderSize(senderPublicKey) === 0
+        ) {
+          this.walletManager.deleteWallet(senderPublicKey)
         }
       }
     }
