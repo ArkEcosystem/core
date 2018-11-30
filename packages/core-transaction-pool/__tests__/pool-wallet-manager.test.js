@@ -184,12 +184,28 @@ describe('Apply transactions and block rewards to wallets on new block', () => {
   it.each([2 * arktoshi, 0])(
     'should apply forged block reward %i to delegate wallet',
     async reward => {
-      const delegate = delegates[reward ? 2 : 3] // use different delegate to have clean initial balance
-      const generatorPublicKey = delegate.publicKey
+      const forgingDelegate = delegates[reward ? 2 : 3] // use different delegate to have clean initial balance
+      const generatorPublicKey = forgingDelegate.publicKey
 
+      const wallet = generateWallets('testnet', 1)[0]
+      const transferAmount = 1234
+      const transferDelegate = delegates[4]
+      const transfer = generateTransfer(
+        'testnet',
+        transferDelegate.passphrase,
+        wallet.address,
+        transferAmount,
+        1,
+        true,
+      )[0]
+
+      const totalFee = 0.1 * arktoshi
       const blockWithReward = Object.assign({}, blocks2to100[0], {
         reward,
         generatorPublicKey,
+        transactions: [transfer],
+        numberOfTransactions: 1,
+        totalFee,
       })
       const blockWithRewardVerified = new Block(blockWithReward)
       blockWithRewardVerified.verification.verified = true
@@ -200,7 +216,19 @@ describe('Apply transactions and block rewards to wallets on new block', () => {
         generatorPublicKey,
       )
 
-      expect(+delegateWallet.balance).toBe(+delegate.balance + reward) // balance increased by reward
+      const poolWallet = poolWalletManager.findByAddress(wallet.address)
+      expect(+poolWallet.balance).toBe(transferAmount)
+
+      const transferDelegateWallet = poolWalletManager.findByAddress(
+        transferDelegate.address,
+      )
+      expect(+transferDelegateWallet.balance).toBe(
+        +transferDelegate.balance - transferAmount - totalFee,
+      )
+
+      expect(+delegateWallet.balance).toBe(
+        +forgingDelegate.balance + reward + totalFee,
+      ) // balance increased by reward + fee
     },
   )
 })
