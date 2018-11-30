@@ -1,17 +1,21 @@
 const { crypto } = require('@arkecosystem/crypto')
+const { Block } = require('@arkecosystem/crypto').models
 const bip39 = require('bip39')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
+const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
 const app = require('./__support__/setup')
 
 const arktoshi = 10 ** 8
 let container
 let poolWalletManager
+let blockchain
 
 beforeAll(async () => {
   container = await app.setUp()
   poolWalletManager = new (require('../lib/pool-wallet-manager'))()
+  blockchain = container.resolvePlugin('blockchain')
 })
 
 afterAll(async () => {
@@ -168,4 +172,35 @@ describe('applyPoolTransaction', () => {
       expect(+poolWallets[3].balance).toBe(17 * arktoshi)
     })
   })
+})
+
+describe('Apply transactions and block rewards to wallets on new block', () => {
+  const __resetToHeight1 = async () =>
+    blockchain.removeBlocks(blockchain.getLastHeight() - 1)
+
+  beforeEach(__resetToHeight1)
+  afterEach(__resetToHeight1)
+
+  it.each([2 * arktoshi, 0])(
+    'should apply forged block reward %i to delegate wallet',
+    async reward => {
+      const delegate = delegates[reward ? 2 : 3] // use different delegate to have clean initial balance
+      const generatorPublicKey = delegate.publicKey
+
+      const blockWithReward = Object.assign({}, blocks2to100[0], {
+        reward,
+        generatorPublicKey,
+      })
+      const blockWithRewardVerified = new Block(blockWithReward)
+      blockWithRewardVerified.verification.verified = true
+
+      await blockchain.processBlock(blockWithRewardVerified, () => null)
+
+      const delegateWallet = poolWalletManager.findByPublicKey(
+        generatorPublicKey,
+      )
+
+      expect(+delegateWallet.balance).toBe(+delegate.balance + reward) // balance increased by reward
+    },
+  )
 })
