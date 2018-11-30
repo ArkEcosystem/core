@@ -169,10 +169,10 @@ describe('API 2.0 - Transactions', () => {
         expect(response.data.data).toHaveLength(100)
         expect(response.data.meta.totalCount).toBe(153)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
-        expect(transaction.blockId).toBe(blockId)
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.blockId).toBe(blockId)
+        }
       })
     })
 
