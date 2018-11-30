@@ -224,9 +224,7 @@ describe('Connection', () => {
 
       // Ensure no cold wallets
       transactions.forEach(tx =>
-        container
-          .resolvePlugin('database')
-          .walletManager.findByPublicKey(tx.senderPublicKey),
+        database.walletManager.findByPublicKey(tx.senderPublicKey),
       )
 
       const { added, notAdded } = connection.addTransactions(transactions)

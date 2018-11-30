@@ -54,7 +54,7 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Get the number of transaction in the pool for specific recipient
+   * Get the number of transactions in the pool for specific recipient
    * @param  {String} address
    * @return {Number}
    */
