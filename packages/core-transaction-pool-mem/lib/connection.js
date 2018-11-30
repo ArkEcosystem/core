@@ -261,13 +261,15 @@ class TransactionPool extends TransactionPoolInterface {
     let fetchSize = blockSize
 
     while (true) {
-      const transactionIds = await this.getTransactionIdsForForging(
+      for (const id of await this.getTransactionIdsForForging(
         fetchStart,
         fetchSize,
-      )
-      transactions.add(
-        transactionIds.map(id => this.mem.getTransactionById(id).serialized),
-      )
+      )) {
+        const transaction = this.mem.getTransactionById(id)
+        if (transaction) {
+          transactions.add(transaction.serialized)
+        }
+      }
 
       if (
         transactions.size === blockSize ||
