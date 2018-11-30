@@ -131,24 +131,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     const blockStats = await this.db.blocks.statistics()
     const transactionStats = await this.db.transactions.statistics()
-    const {
-      count: negativeBalances,
-    } = await this.db.wallets.findNegativeBalances()
-    const {
-      count: negativeVoteBalances,
-    } = await this.db.wallets.findNegativeVoteBalances()
-
-    if (+negativeBalances > 1) {
-      errors.push(
-        `Expected 1 wallet with a negative balance but found ${negativeBalances}`,
-      )
-    }
-
-    if (+negativeVoteBalances !== 0) {
-      errors.push(
-        `Expected 0 wallets with a negative vote balance but found ${negativeVoteBalances}`,
-      )
-    }
 
     // Number of stored transactions equals the sum of block.numberOfTransactions in the database
     if (blockStats.numberOfTransactions !== transactionStats.count) {

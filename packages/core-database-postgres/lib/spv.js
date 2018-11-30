@@ -280,6 +280,26 @@ module.exports = class SPV {
       detectedInconsistency = true
     } else {
       for (const dbWallet of dbWallets) {
+        if (dbWallet.balance < 0 && !this.isGenesis(dbWallet)) {
+          detectedInconsistency = true
+          logger.warn(
+            `Wallet '${dbWallet.address}' has a negative balance of '${
+              dbWallet.balance
+            }'`,
+          )
+          break
+        }
+
+        if (dbWallet.voteBalance < 0) {
+          detectedInconsistency = true
+          logger.warn(
+            `Wallet ${dbWallet.address} has a negative vote balance of '${
+              dbWallet.voteBalance
+            }'`,
+          )
+          break
+        }
+
         const inMemoryWallet = this.walletManager.findByPublicKey(
           dbWallet.publicKey,
         )
