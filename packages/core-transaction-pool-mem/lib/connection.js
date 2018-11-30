@@ -244,32 +244,9 @@ class TransactionPool extends TransactionPoolInterface {
   async getTransactionsForForging(blockSize) {
     this.__purgeExpired()
 
-    const transactions = new Set()
-
-    let fetchStart = 0
-    let fetchSize = blockSize
-
-    while (true) {
-      const transactionIds = await this.getTransactionIdsForForging(
-        fetchStart,
-        fetchSize,
-      )
-      transactionIds.forEach(id => {
-        transactions.add(this.mem.getTransactionById(id).serialized)
-      })
-
-      if (
-        transactions.size === blockSize ||
-        fetchStart + fetchSize >= this.mem.getSize()
-      ) {
-        break
-      }
-
-      fetchStart += fetchSize
-      fetchSize = blockSize - transactions.size
-    }
-
-    return Array.from(transactions)
+    return this.getTransactionIdsForForging(0, blockSize).map(
+      id => this.mem.getTransactionById(id).serialized,
+    )
   }
 
   /**
