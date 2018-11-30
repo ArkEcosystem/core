@@ -180,6 +180,7 @@ describe('Connection', () => {
         mockData.dummy6,
       ]
 
+      // Ensure no cold wallet
       database.walletManager.findByPublicKey(
         '000000000000000000000000000000000000000420000000000000000000000000',
       )
