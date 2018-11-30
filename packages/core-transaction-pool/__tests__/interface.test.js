@@ -185,20 +185,6 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('removeForgedTransactions', () => {
-    it('should be a function', () => {
-      expect(poolInterface.removeForgedTransactions).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      await expect(
-        poolInterface.removeForgedTransactions(),
-      ).rejects.toThrowError(
-        'Method [removeForgedTransactions] not implemented!',
-      )
-    })
-  })
-
   describe('isSenderBlocked', () => {
     it('should be a function', () => {
       expect(poolInterface.isSenderBlocked).toBeFunction()
