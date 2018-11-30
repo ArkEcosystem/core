@@ -110,7 +110,7 @@ class TransactionPool extends TransactionPoolInterface {
       const lowest = all[all.length - 1].transaction
 
       if (lowest.fee.isLessThan(transaction.fee)) {
-        this.walletManager.revertTransaction(lowest)
+        this.walletManager.revertTransactionForSender(lowest)
         this.mem.remove(lowest.id, lowest.senderPublicKey)
       } else {
         return this.__createError(
@@ -367,7 +367,7 @@ class TransactionPool extends TransactionPoolInterface {
     )) {
       emitter.emit('transaction.expired', transaction.data)
 
-      this.walletManager.revertTransaction(transaction)
+      this.walletManager.revertTransactionForSender(transaction)
 
       this.mem.remove(transaction.id, transaction.senderPublicKey)
 
