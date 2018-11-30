@@ -323,9 +323,7 @@ describe('Blockchain', () => {
 
       await blockchain.transactionPool.flush()
       await blockchain.postTransactions(transactionsWithoutType2, false)
-      const unconfirmedTransactions = await blockchain.getUnconfirmedTransactions(
-        200,
-      )
+      const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200)
 
       expect(unconfirmedTransactions.transactions.length).toBe(
         transactionsWithoutType2.length,
