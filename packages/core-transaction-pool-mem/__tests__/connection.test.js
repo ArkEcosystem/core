@@ -257,6 +257,12 @@ describe('Connection', () => {
     })
   })
 
+  describe('removeForgedTransactions', () => {
+    it('should be a function', () => {
+      expect(connection.removeForgedTransactions).toBeFunction()
+    })
+  })
+
   describe('removeTransactionById', () => {
     it('should be a function', () => {
       expect(connection.removeTransactionById).toBeFunction()

@@ -89,6 +89,15 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
+   * Remove forged transactions from the pool.
+   * @param  {Number} id
+   * @return {void}
+   */
+  async removeForgedTransactions() {
+    throw new Error('Method [removeForgedTransactions] not implemented!')
+  }
+
+  /**
    * Get all transactions that are ready to be forged.
    * @param  {Number} blockSize
    * @return {(Array|void)}

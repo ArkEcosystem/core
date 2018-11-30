@@ -38,16 +38,24 @@ class TransactionPool extends TransactionPoolInterface {
 
     this.__purgeExpired()
 
-    // Remove transactions that were forged while we were offline.
-    const allIds = all.map(
+    await this.removeForgedTransactions()
+
+    return this
+  }
+
+  /*
+  *Remove transactions that were forged while we were offline.
+   * @return {void}
+
+  */
+  async removeForgedTransactions() {
+    const allIds = this.mem.all.map(
       memPoolTransaction => memPoolTransaction.transaction.id,
     )
 
     const forgedIds = await database.getForgedTransactionsIds(allIds)
 
     forgedIds.forEach(id => this.removeTransactionById(id))
-
-    return this
   }
 
   /**
