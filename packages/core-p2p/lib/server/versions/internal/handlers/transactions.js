@@ -42,14 +42,14 @@ exports.forging = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler(request, h) {
+  handler(request, h) {
     const blockchain = app.resolvePlugin('blockchain')
 
     const height = blockchain.getLastBlock().data.height
     const maxTransactions = config.getConstants(height).block.maxTransactions
 
     return {
-      data: await blockchain.getUnconfirmedTransactions(maxTransactions, true),
+      data: blockchain.getUnconfirmedTransactions(maxTransactions, true),
     }
   },
 }

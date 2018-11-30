@@ -533,10 +533,10 @@ module.exports = class Blockchain {
    * @param  {Boolean} forForging
    * @return {Object}
    */
-  async getUnconfirmedTransactions(blockSize, forForging = false) {
-    const transactions = forForging
-      ? await this.transactionPool.getTransactionsForForging(blockSize)
-      : this.transactionPool.getTransactions(0, blockSize)
+  getUnconfirmedTransactions(blockSize) {
+    const transactions = this.transactionPool.getTransactionsForForging(
+      blockSize,
+    )
 
     return {
       transactions,
