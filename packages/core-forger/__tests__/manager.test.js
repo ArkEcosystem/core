@@ -113,7 +113,7 @@ describe('Forger Manager', () => {
     it('should return zero transactions if none to forge', async () => {
       forgeManager.client.getTransactions.mockReturnValue({})
 
-      const transactions = await forgeManager.__getTransactionsForForging()
+      const transactions = forgeManager.__getTransactionsForForging()
 
       expect(transactions).toHaveLength(0)
       expect(forgeManager.client.getTransactions).toHaveBeenCalled()
@@ -125,7 +125,7 @@ describe('Forger Manager', () => {
         ],
       })
 
-      const transactions = await forgeManager.__getTransactionsForForging()
+      const transactions = forgeManager.__getTransactionsForForging()
 
       expect(transactions).toHaveLength(1)
       expect(forgeManager.client.getTransactions).toHaveBeenCalled()
