@@ -231,7 +231,6 @@ module.exports = class TransactionPoolInterface {
           senderWallet.applyTransactionToSender(transaction)
         } else {
           this.purgeByPublicKey(transaction.senderPublicKey)
-          this.walletManager.deleteWallet(transaction.senderPublicKey)
           this.blockSender(transaction.senderPublicKey)
 
           logger.error(
