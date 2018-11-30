@@ -23,7 +23,7 @@ module.exports = class Round extends Model {
       {
         name: 'balance',
         prop: 'voteBalance',
-        init: col => +bignumify(col.value).toFixed(),
+        init: col => bignumify(col.value).toFixed(),
       },
       {
         name: 'round',

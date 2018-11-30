@@ -49,11 +49,11 @@ module.exports = class Transaction extends Model {
       },
       {
         name: 'amount',
-        init: col => +bignumify(col.value).toFixed(),
+        init: col => bignumify(col.value).toFixed(),
       },
       {
         name: 'fee',
-        init: col => +bignumify(col.value).toFixed(),
+        init: col => bignumify(col.value).toFixed(),
       },
       {
         name: 'serialized',

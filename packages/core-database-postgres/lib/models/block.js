@@ -40,16 +40,16 @@ module.exports = class Block extends Model {
       {
         name: 'total_amount',
         prop: 'totalAmount',
-        init: col => +bignumify(col.value).toFixed(),
+        init: col => bignumify(col.value).toFixed(),
       },
       {
         name: 'total_fee',
         prop: 'totalFee',
-        init: col => +bignumify(col.value).toFixed(),
+        init: col => bignumify(col.value).toFixed(),
       },
       {
         name: 'reward',
-        init: col => +bignumify(col.value).toFixed(),
+        init: col => bignumify(col.value).toFixed(),
       },
       {
         name: 'payload_length',

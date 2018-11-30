@@ -35,12 +35,12 @@ module.exports = class WalletModel extends Model {
       },
       {
         name: 'balance',
-        init: col => +bignumify(col.value).toFixed(),
+        init: col => bignumify(col.value).toFixed(),
       },
       {
         name: 'vote_balance',
         prop: 'voteBalance',
-        init: col => (col.value ? +bignumify(col.value).toFixed() : null),
+        init: col => (col.value ? bignumify(col.value).toFixed() : null),
       },
       {
         name: 'produced_blocks',
