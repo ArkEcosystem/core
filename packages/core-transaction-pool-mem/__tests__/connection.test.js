@@ -392,7 +392,7 @@ describe('Connection', () => {
       expect(connection.getTransactionIdsForForging).toBeFunction()
     })
 
-    it('should return an array of transactions ids', async () => {
+    it('should return an array of transactions ids', () => {
       connection.addTransaction(mockData.dummy1)
       connection.addTransaction(mockData.dummy2)
       connection.addTransaction(mockData.dummy3)
@@ -400,7 +400,7 @@ describe('Connection', () => {
       connection.addTransaction(mockData.dummy5)
       connection.addTransaction(mockData.dummy6)
 
-      const transactionIds = await connection.getTransactionIdsForForging(0, 6)
+      const transactionIds = connection.getTransactionIdsForForging(0, 6)
 
       expect(transactionIds).toBeArray()
       expect(transactionIds[0]).toBe(mockData.dummy1.id)

@@ -84,7 +84,7 @@ module.exports = class TransactionPoolInterface {
    * @param  {Number} blockSize
    * @return {(Array|void)}
    */
-  async getTransactionsForForging(blockSize) {
+  getTransactionsForForging(blockSize) {
     throw new Error('Method [getTransactionsForForging] not implemented!')
   }
 
@@ -113,7 +113,7 @@ module.exports = class TransactionPoolInterface {
    * @param  {Number} size
    * @return {Array}
    */
-  async getTransactionIdsForForging(start, size) {
+  getTransactionIdsForForging(start, size) {
     throw new Error('Method [getTransactionIdsForForging] not implemented!')
   }
 

@@ -241,12 +241,8 @@ class TransactionPool extends TransactionPoolInterface {
    * @param  {Number} blockSize
    * @return {(Array|void)}
    */
-  async getTransactionsForForging(blockSize) {
-    this.__purgeExpired()
-
-    return this.getTransactionIdsForForging(0, blockSize).map(
-      id => this.mem.getTransactionById(id).serialized,
-    )
+  getTransactionsForForging(blockSize) {
+    return this.getTransactions(0, blockSize)
   }
 
   /**
@@ -265,21 +261,8 @@ class TransactionPool extends TransactionPoolInterface {
    * @param  {Number} size
    * @return {Array} array of transactions IDs in the specified range
    */
-  async getTransactionIdsForForging(start, size) {
-    const ids = this.getTransactionsData(start, size, 'id')
-
-    /* There should be no forged transactions in the mem pool. */
-    assert.deepStrictEqual(await database.getForgedTransactionsIds(ids), [])
-
-    return ids
-
-    /*
-    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(ids))
-
-    forgedIdsSet.forEach(id => this.removeTransactionById(id))
-
-    return ids.filter(id => !forgedIdsSet.has(id))
-    */
+  getTransactionIdsForForging(start, size) {
+    return this.getTransactionsData(start, size, 'id')
   }
 
   /**
