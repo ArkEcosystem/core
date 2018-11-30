@@ -167,6 +167,7 @@ describe('Connection', () => {
       // This should be skipped due to insufficient funds
       const highFeeTransaction = new Transaction(mockData.dummy3)
       highFeeTransaction.fee = bignumify(1e9 * ARKTOSHI)
+      // changing public key as fixture transactions have the same one
       highFeeTransaction.senderPublicKey =
         '000000000000000000000000000000000000000420000000000000000000000000'
 
@@ -179,11 +180,9 @@ describe('Connection', () => {
         mockData.dummy6,
       ]
 
-      container
-        .resolvePlugin('database')
-        .walletManager.findByPublicKey(
-          '000000000000000000000000000000000000000420000000000000000000000000',
-        )
+      database.walletManager.findByPublicKey(
+        '000000000000000000000000000000000000000420000000000000000000000000',
+      )
 
       const { added, notAdded } = connection.addTransactions(transactions)
       expect(notAdded[0].message).toEqual(
