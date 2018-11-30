@@ -78,22 +78,6 @@ module.exports = class TransactionGuard {
    * @return {Array}
    */
   __cacheTransactions(transactions) {
-    // Edge case: B -> C, A -> B, B -> C
-    // B -> C is added to cache initially, but invalid because no funds.
-    // A -> B is valid, B gets enough funds
-    // B -> C doesn't enter pool again, because it is in cache.
-    // So we don't want to cache a tx when it cannot be applied.
-    // NOTE: will be refactored in 2.1
-    transactions = transactions.filter(transaction => {
-      const errors = []
-      if (!this.pool.walletManager.canApply(transaction, errors)) {
-        this.__pushError(transaction, 'ERR_APPLY', JSON.stringify(errors))
-        return false
-      }
-
-      return true
-    })
-
     const { added, notAdded } = app
       .resolve('state')
       .cacheTransactions(transactions)
@@ -205,6 +189,12 @@ module.exports = class TransactionGuard {
           transaction.id
         } is ${secondsInFuture} seconds in the future`,
       )
+      return false
+    }
+
+    const errors = []
+    if (!this.pool.walletManager.canApply(transaction, errors)) {
+      this.__pushError(transaction, 'ERR_APPLY', JSON.stringify(errors))
       return false
     }
 

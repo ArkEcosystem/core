@@ -110,7 +110,7 @@ class TransactionPool extends TransactionPoolInterface {
       const lowest = all[all.length - 1].transaction
 
       if (lowest.fee.isLessThan(transaction.fee)) {
-        this.walletManager.revertTransaction(lowest)
+        this.walletManager.revertTransactionForSender(lowest)
         this.mem.remove(lowest.id, lowest.senderPublicKey)
       } else {
         return this.__createError(
@@ -129,13 +129,22 @@ class TransactionPool extends TransactionPoolInterface {
     )
 
     // Apply transaction to pool wallet manager.
-    try {
-      this.walletManager.applyPoolTransaction(transaction)
-    } catch (error) {
+    const senderWallet = this.walletManager.findByPublicKey(
+      transaction.senderPublicKey,
+    )
+
+    const errors = []
+    if (this.walletManager.canApply(transaction, errors)) {
+      senderWallet.applyTransactionToSender(transaction)
+    } else {
       // Remove tx again from the pool
       this.mem.remove(transaction.id)
 
-      return this.__createError(transaction, 'ERR_APPLY', error.toString())
+      return this.__createError(
+        transaction,
+        'ERR_APPLY',
+        JSON.stringify(errors),
+      )
     }
 
     this.__syncToPersistentStorageIfNecessary()
@@ -232,38 +241,8 @@ class TransactionPool extends TransactionPoolInterface {
    * @param  {Number} blockSize
    * @return {(Array|void)}
    */
-  async getTransactionsForForging(blockSize) {
-    this.__purgeExpired()
-
-    const transactions = new Set()
-
-    let fetchStart = 0
-    let fetchSize = blockSize
-
-    while (true) {
-      for (const id of await this.getTransactionIdsForForging(
-        fetchStart,
-        fetchSize,
-      )) {
-        const transaction = this.mem.getTransactionById(id)
-
-        if (transaction && this.checkApplyToBlockchain(transaction)) {
-          transactions.add(transaction.serialized)
-        }
-      }
-
-      if (
-        transactions.size === blockSize ||
-        fetchStart + fetchSize >= this.mem.getSize()
-      ) {
-        break
-      }
-
-      fetchStart += fetchSize
-      fetchSize = blockSize - transactions.size
-    }
-
-    return Array.from(transactions)
+  getTransactionsForForging(blockSize) {
+    return this.getTransactions(0, blockSize)
   }
 
   /**
@@ -282,21 +261,8 @@ class TransactionPool extends TransactionPoolInterface {
    * @param  {Number} size
    * @return {Array} array of transactions IDs in the specified range
    */
-  async getTransactionIdsForForging(start, size) {
-    const ids = this.getTransactionsData(start, size, 'id')
-
-    /* There should be no forged transactions in the mem pool. */
-    assert.deepStrictEqual(await database.getForgedTransactionsIds(ids), [])
-
-    return ids
-
-    /*
-    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(ids))
-
-    forgedIdsSet.forEach(id => this.removeTransactionById(id))
-
-    return ids.filter(id => !forgedIdsSet.has(id))
-    */
+  getTransactionIdsForForging(start, size) {
+    return this.getTransactionsData(start, size, 'id')
   }
 
   /**
@@ -401,7 +367,7 @@ class TransactionPool extends TransactionPoolInterface {
     )) {
       emitter.emit('transaction.expired', transaction.data)
 
-      this.walletManager.revertTransaction(transaction)
+      this.walletManager.revertTransactionForSender(transaction)
 
       this.mem.remove(transaction.id, transaction.senderPublicKey)
 
