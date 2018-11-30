@@ -1,17 +1,21 @@
 const { crypto } = require('@arkecosystem/crypto')
+const { Block } = require('@arkecosystem/crypto').models
 const bip39 = require('bip39')
 const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
 const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
+const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
 const app = require('./__support__/setup')
 
 const arktoshi = 10 ** 8
 let container
 let poolWalletManager
+let blockchain
 
 beforeAll(async () => {
   container = await app.setUp()
   poolWalletManager = new (require('../lib/pool-wallet-manager'))()
+  blockchain = container.resolvePlugin('blockchain')
 })
 
 afterAll(async () => {
@@ -168,4 +172,63 @@ describe('applyPoolTransaction', () => {
       expect(+poolWallets[3].balance).toBe(17 * arktoshi)
     })
   })
+})
+
+describe('Apply transactions and block rewards to wallets on new block', () => {
+  const __resetToHeight1 = async () =>
+    blockchain.removeBlocks(blockchain.getLastHeight() - 1)
+
+  beforeEach(__resetToHeight1)
+  afterEach(__resetToHeight1)
+
+  it.each([2 * arktoshi, 0])(
+    'should apply forged block reward %i to delegate wallet',
+    async reward => {
+      const forgingDelegate = delegates[reward ? 2 : 3] // use different delegate to have clean initial balance
+      const generatorPublicKey = forgingDelegate.publicKey
+
+      const wallet = generateWallets('testnet', 1)[0]
+      const transferAmount = 1234
+      const transferDelegate = delegates[4]
+      const transfer = generateTransfer(
+        'testnet',
+        transferDelegate.passphrase,
+        wallet.address,
+        transferAmount,
+        1,
+        true,
+      )[0]
+
+      const totalFee = 0.1 * arktoshi
+      const blockWithReward = Object.assign({}, blocks2to100[0], {
+        reward,
+        generatorPublicKey,
+        transactions: [transfer],
+        numberOfTransactions: 1,
+        totalFee,
+      })
+      const blockWithRewardVerified = new Block(blockWithReward)
+      blockWithRewardVerified.verification.verified = true
+
+      await blockchain.processBlock(blockWithRewardVerified, () => null)
+
+      const delegateWallet = poolWalletManager.findByPublicKey(
+        generatorPublicKey,
+      )
+
+      const poolWallet = poolWalletManager.findByAddress(wallet.address)
+      expect(+poolWallet.balance).toBe(transferAmount)
+
+      const transferDelegateWallet = poolWalletManager.findByAddress(
+        transferDelegate.address,
+      )
+      expect(+transferDelegateWallet.balance).toBe(
+        +transferDelegate.balance - transferAmount - totalFee,
+      )
+
+      expect(+delegateWallet.balance).toBe(
+        +forgingDelegate.balance + reward + totalFee,
+      ) // balance increased by reward + fee
+    },
+  )
 })
