@@ -166,15 +166,15 @@ class Mem {
       this.byExpiration.splice(i, 1)
     }
 
-    this.bySender[senderPublicKey].delete(memPoolTransaction)
-    if (this.bySender[senderPublicKey].size === 0) {
-      delete this.bySender[senderPublicKey]
-    }
-
     const recipientId = memPoolTransaction.transaction.recipientId
     this.byRecipient[recipientId].delete(memPoolTransaction)
     if (this.byRecipient[recipientId].size === 0) {
       delete this.byRecipient[recipientId]
+    }
+
+    this.bySender[senderPublicKey].delete(memPoolTransaction)
+    if (this.bySender[senderPublicKey].size === 0) {
+      delete this.bySender[senderPublicKey]
     }
 
     delete this.byId[id]
