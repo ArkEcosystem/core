@@ -42,10 +42,15 @@ describe('static fees', () => {
     expect(dynamicFeeMatch(mockData.dummy2).enterPool).toBeTrue()
   })
 
-  it('should not broadcast transactions with a fee other than the static fee', () => {
+  it('should broadcast transactions with a fee other than the static fee and higher then minFeeBroadcast, but not enter the pool', () => {
     expect(
       dynamicFeeMatch(mockData.dynamicFeeNormalDummy1).broadcast,
-    ).toBeFalse()
+    ).toBeTrue()
+    expect(dynamicFeeMatch(mockData.dynamicFeeZero).broadcast).toBeFalse()
+  })
+
+  it('should NOT broadcast transactions with a fee lower then minFeeBroadcast, and NOT enter the pool', () => {
+    expect(dynamicFeeMatch(mockData.dynamicFeeLowDummy2).broadcast).toBeFalse()
     expect(dynamicFeeMatch(mockData.dynamicFeeZero).broadcast).toBeFalse()
   })
 
