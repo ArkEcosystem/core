@@ -26,7 +26,7 @@ module.exports = class Container {
      */
     try {
       this.hashid = require('child_process')
-        .execSync('git rev-parse --short HEAD')
+        .execSync('git rev-parse --short=8 HEAD')
         .toString()
         .trim()
     } catch (e) {
