@@ -26,7 +26,7 @@ module.exports = transaction => {
 
   if (fees.dynamic) {
     const minFeeBroadcast = dynamicFeeManager.calculateFee(
-      fees.dynamicFees.minFeeBroadcast,
+      fees.minFeeBroadcast,
       transaction,
     )
     if (fee >= minFeeBroadcast) {
@@ -48,7 +48,7 @@ module.exports = transaction => {
     }
 
     const minFeePool = dynamicFeeManager.calculateFee(
-      fees.dynamicFees.minFeePool,
+      fees.minFeePool,
       transaction,
     )
     if (fee >= minFeePool) {
@@ -81,10 +81,10 @@ module.exports = transaction => {
         )} is equal to static fee (${formatArktoshi(staticFee)})`,
       )
     } else {
-      broadcast = true
+      broadcast = fee >= fees.minFeeBroadcast
       enterPool = false
       logger.debug(
-        `Transaction ${id} eligible for broadcast and not eligible to enter pool - fee of ${formatArktoshi(
+        `Transaction ${id} broadcast=${broadcast} and not eligible to enter pool - fee of ${formatArktoshi(
           fee,
         )} does not match static fee (${formatArktoshi(staticFee)})`,
       )
