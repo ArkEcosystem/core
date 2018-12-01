@@ -81,10 +81,10 @@ module.exports = transaction => {
         )} is equal to static fee (${formatArktoshi(staticFee)})`,
       )
     } else {
-      broadcast = false
+      broadcast = true
       enterPool = false
       logger.debug(
-        `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${formatArktoshi(
+        `Transaction ${id} eligible for broadcast and not eligible to enter pool - fee of ${formatArktoshi(
           fee,
         )} does not match static fee (${formatArktoshi(staticFee)})`,
       )
