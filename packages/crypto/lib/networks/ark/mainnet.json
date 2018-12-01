@@ -22,15 +22,15 @@
       "blocktime": 8,
       "block": {
         "version": 0,
-        "maxTransactions": 150,
+        "maxTransactions": 50,
         "maxPayload": 2097152
       },
       "epoch": "2017-03-21T13:00:00.000Z",
       "fees": {
-        "dynamic": false,
+        "dynamic": true,
         "dynamicFees": {
-          "minFeePool": 1000,
-          "minFeeBroadcast": 1000,
+          "minFeePool": 30000,
+          "minFeeBroadcast": 30000,
           "addonBytes": {
             "transfer": 100,
             "secondSignature": 250,

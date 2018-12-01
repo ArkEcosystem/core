@@ -27,7 +27,7 @@
       },
       "epoch": "2017-03-21T13:00:00.000Z",
       "fees": {
-        "dynamic": false,
+        "dynamic": true,
         "dynamicFees": {
           "minFeePool": 1000,
           "minFeeBroadcast": 1000,
