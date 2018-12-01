@@ -48,7 +48,7 @@ module.exports = transaction => {
     }
 
     const minFeePool = dynamicFeeManager.calculateFee(
-      fees.minFeePool,
+      fees.dynamicFees.minFeePool,
       transaction,
     )
     if (fee >= minFeePool) {

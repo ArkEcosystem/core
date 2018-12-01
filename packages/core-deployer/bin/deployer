@@ -162,9 +162,9 @@ let networkConfig = {
       activeDelegates: options.activeDelegates,
       fees: {
         dynamic: false,
-        minFeePool: 1000,
         minFeeBroadcast: 1000,
         dynamicFees: {
+          minFeePool: 1000,
           addonBytes: {
             transfer: 100,
             secondSignature: 250,
