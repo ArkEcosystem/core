@@ -29,8 +29,8 @@
       "fees": {
         "dynamic": true,
         "dynamicFees": {
-          "minFeePool": 30000,
-          "minFeeBroadcast": 30000,
+          "minFeePool": 3000,
+          "minFeeBroadcast": 3000,
           "addonBytes": {
             "transfer": 100,
             "secondSignature": 250,
