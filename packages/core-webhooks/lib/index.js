@@ -1,5 +1,3 @@
-'use strict'
-
 const webhookManager = require('./manager')
 const database = require('./database')
 
@@ -11,7 +9,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'webhooks',
-  async register (container, options) {
+  async register(container, options) {
     const logger = container.resolvePlugin('logger')
 
     if (!options.enabled) {
@@ -30,11 +28,11 @@ exports.plugin = {
 
     logger.info('Webhooks API server is disabled :grey_exclamation:')
   },
-  async deregister (container, options) {
+  async deregister(container, options) {
     if (options.server.enabled) {
       container.resolvePlugin('logger').info('Stopping Webhook API')
 
       return container.resolvePlugin('webhooks').stop()
     }
-  }
+  },
 }

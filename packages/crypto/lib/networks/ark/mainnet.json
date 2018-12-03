@@ -8,51 +8,70 @@
   "pubKeyHash": 23,
   "nethash": "6e84d08bd299ed97c212c886c98a57e36545c8f5d645ca7eeae63a8bd62d8988",
   "wif": 170,
+  "aip20": 0,
   "client": {
     "token": "ARK",
     "symbol": "Ѧ",
     "explorer": "https://explorer.ark.io"
   },
-  "constants": [{
-    "height": 1,
-    "reward": 0,
-    "activeDelegates": 51,
-    "blocktime": 8,
-    "block": {
-      "version": 0,
-      "maxTransactions": 50,
-      "maxPayload": 2097152
+  "constants": [
+    {
+      "height": 1,
+      "reward": 0,
+      "activeDelegates": 51,
+      "blocktime": 8,
+      "block": {
+        "version": 0,
+        "maxTransactions": 50,
+        "maxPayload": 2097152
+      },
+      "epoch": "2017-03-21T13:00:00.000Z",
+      "fees": {
+        "dynamic": true,
+        "dynamicFees": {
+          "minFeePool": 3000,
+          "minFeeBroadcast": 3000,
+          "addonBytes": {
+            "transfer": 100,
+            "secondSignature": 250,
+            "delegateRegistration": 500,
+            "vote": 100,
+            "multiSignature": 500,
+            "ipfs": 250,
+            "timelockTransfer": 500,
+            "multiPayment": 500,
+            "delegateResignation": 500
+          }
+        },
+        "staticFees": {
+          "transfer": 10000000,
+          "secondSignature": 500000000,
+          "delegateRegistration": 2500000000,
+          "vote": 100000000,
+          "multiSignature": 500000000,
+          "ipfs": 0,
+          "timelockTransfer": 0,
+          "multiPayment": 0,
+          "delegateResignation": 0
+        }
+      }
     },
-    "epoch": "2017-03-21T13:00:00.000Z",
-    "fees": {
-      "dynamic" : false,
-      "transfer": 10000000,
-      "secondSignature": 500000000,
-      "delegateRegistration": 2500000000,
-      "vote": 100000000,
-      "multiSignature": 500000000,
-      "ipfs": 0,
-      "timelockTransfer": 0,
-      "multiPayment": 0,
-      "delegateResignation": 0
+    {
+      "height": 75600,
+      "reward": 200000000
     },
-    "dynamicOffsets": {
-      "transfer": 100,
-      "secondSignature": 250,
-      "delegateRegistration": 500,
-      "vote": 100,
-      "multiSignature": 500,
-      "ipfs": 250,
-      "timelockTransfer": 500,
-      "multiPayment": 500,
-      "delegateResignation": 500
+    {
+      "height": 6600000,
+      "block": {
+        "maxTransactions": 150,
+        "maxPayload": 6300000
+      }
     }
-  }, {
-    "height": 75600,
-    "reward": 200000000
-  }],
+  ],
   "exceptions": {
-    "608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e": true
+    "transactions": [
+      "608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e"
+    ]
   },
   "outlookTable": {
     "5139199631254983076": "1000099631254983076",
@@ -91,5 +110,8 @@
     "5059382813585250340": "1000082813585250340",
     "7091362542116598855": "1000062542116598855",
     "8225244493039935740": "1000044493039935740"
+  },
+  "transactionIdFixTable": {
+    "ca764c01dd78f93393b02f7f6c4f0c12ed8e7ca26d3098e91d6e461a238a6b33": "80d75c7b90288246199e4a97ba726bad6639595ef92ad7c2bd14fd31563241ab"
   }
 }

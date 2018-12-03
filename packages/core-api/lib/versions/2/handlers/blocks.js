@@ -1,8 +1,4 @@
-'use strict'
-
-const Boom = require('boom')
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
-const utils = require('../utils')
+const { respondWithCache } = require('../utils')
 const schema = require('../schema/blocks')
 
 /**
@@ -14,14 +10,14 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const blocks = await database.blocks.findAll(utils.paginate(request))
+  async handler(request, h) {
+    const data = await request.server.methods.v2.blocks.index(request)
 
-    return utils.toPagination(request, blocks, 'block')
+    return respondWithCache(data, h)
   },
   options: {
-    validate: schema.index
-  }
+    validate: schema.index,
+  },
 }
 
 /**
@@ -33,18 +29,14 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const block = await database.blocks.findById(request.params.id)
+  async handler(request, h) {
+    const data = await request.server.methods.v2.blocks.show(request)
 
-    if (!block) {
-      return Boom.notFound('Block not found')
-    }
-
-    return utils.respondWithResource(request, block, 'block')
+    return respondWithCache(data, h)
   },
   options: {
-    validate: schema.show
-  }
+    validate: schema.show,
+  },
 }
 
 /**
@@ -56,20 +48,14 @@ exports.transactions = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const block = await database.blocks.findById(request.params.id)
+  async handler(request, h) {
+    const data = await request.server.methods.v2.blocks.transactions(request)
 
-    if (!block) {
-      return Boom.notFound('Block not found')
-    }
-
-    const transactions = await database.transactions.findAllByBlock(block.id, utils.paginate(request))
-
-    return utils.toPagination(request, transactions, 'transaction')
+    return respondWithCache(data, h)
   },
   options: {
-    validate: schema.transactions
-  }
+    validate: schema.transactions,
+  },
 }
 
 /**
@@ -81,16 +67,12 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const blocks = await database.blocks.search({
-      ...request.payload,
-      ...request.query,
-      ...utils.paginate(request)
-    })
+  async handler(request, h) {
+    const data = await request.server.methods.v2.blocks.search(request)
 
-    return utils.toPagination(request, blocks, 'block')
+    return respondWithCache(data, h)
   },
   options: {
-    validate: schema.search
-  }
+    validate: schema.search,
+  },
 }

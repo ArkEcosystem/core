@@ -1,0 +1,36 @@
+{
+  "name": "@arkecosystem/core-elasticsearch",
+  "description": "A powerful Elasticsearch integration for Ark Core",
+  "version": "0.2.0",
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
+    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
+  },
+  "dependencies": {
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-http-utils": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
+    "elasticsearch": "^15.2.0",
+    "fs-extra": "^7.0.1",
+    "joi": "^14.3.0",
+    "lodash.first": "^3.0.0",
+    "lodash.get": "^4.4.2",
+    "lodash.last": "^3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=10.x"
+  }
+}

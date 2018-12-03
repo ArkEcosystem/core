@@ -1,5 +1,11 @@
-'use strict';
-
+/**
+ * Template for the inputs of our schema's types.
+ * Scalars are the possible base values for query parameters.
+ * OrderDirection defaults to DESC in the resolvers.
+ * Includes an enum to check TransactionTypes with supplied query parameter.
+ * Has filters to be used against the main types of queriable objects.
+ * Order query by specified field, with respect to OrderDirection.
+ */
 module.exports = `
   scalar JSON
   scalar Limit
@@ -27,7 +33,7 @@ module.exports = `
     fee: Float
     blockId: String
     senderPublicKey: String
-    recipientId: Address
+    recipientId: String
     type: TransactionType
   }
 

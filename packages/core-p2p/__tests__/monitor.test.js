@@ -1,35 +1,45 @@
-'use strict'
+const axios = require('axios')
+const MockAdapter = require('axios-mock-adapter')
+
+const axiosMock = new MockAdapter(axios)
 
 const app = require('./__support__/setup')
-const moment = require('moment')
-const ARK_ENV = process.env.ARK_ENV
 
 const defaults = require('../lib/defaults')
 
-let Manager
-let Monitor
 let monitor
-let peer
+let Peer
+let peerMock
 
 beforeAll(async () => {
   await app.setUp()
 
-  Manager = require('../lib/manager')
-  Monitor = require('../lib/monitor')
+  monitor = require('../lib/monitor')
+  Peer = require('../lib/peer')
 })
 
 afterAll(async () => {
   await app.tearDown()
 })
 
-beforeEach(() => {
-  const manager = new Manager(defaults)
-  monitor = new Monitor(manager)
-  peer = {
-    ip: '45.76.142.128',
-    port: 4002,
-    nethash: '578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23'
-  }
+beforeEach(async () => {
+  monitor.config = defaults
+
+  const initialPeersMock = {}
+  ;['0.0.0.0', '0.0.0.1', '0.0.0.2', '0.0.0.3', '0.0.0.4'].forEach(ip => {
+    const initialPeer = new Peer(ip, 4000)
+    initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, {
+      ban: 0,
+    })
+  })
+  monitor.peers = initialPeersMock
+
+  peerMock = new Peer('0.0.0.99', 4000) // this peer is just here to be picked up by tests below (not added to initial peers)
+  Object.assign(peerMock, peerMock.headers, { status: 200 })
+  peerMock.nethash =
+    'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192'
+
+  axiosMock.reset() // important: resets any existing mocking behavior
 })
 
 describe('Monitor', () => {
@@ -37,9 +47,15 @@ describe('Monitor', () => {
     expect(monitor).toBeObject()
   })
 
-  describe.skip('updateNetworkStatus', () => {
+  describe('updateNetworkStatus', () => {
     it('should be a function', () => {
       expect(monitor.updateNetworkStatus).toBeFunction()
+    })
+  })
+
+  describe('updateNetworkStatusIfNotEnoughPeers', () => {
+    it('should be a function', () => {
+      expect(monitor.updateNetworkStatusIfNotEnoughPeers).toBeFunction()
     })
   })
 
@@ -48,9 +64,7 @@ describe('Monitor', () => {
       expect(monitor.cleanPeers).toBeFunction()
     })
 
-    it('should be a function', async () => {
-      monitor.discoverPeers()
-
+    it('should be ok', async () => {
       const previousLength = Object.keys(monitor.peers).length
 
       await monitor.cleanPeers(true)
@@ -65,11 +79,14 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
+      axiosMock
+        .onGet(`${peerMock.url}/peer/status`)
+        .reply(() => [200, { success: true }, peerMock.headers])
       process.env.ARK_ENV = false
 
-      await monitor.acceptNewPeer(peer)
+      await monitor.acceptNewPeer(peerMock)
 
-      expect(monitor.peers[peer.ip]).toBeObject()
+      expect(monitor.peers[peerMock.ip]).toBeObject()
 
       process.env.ARK_ENV = 'test'
     })
@@ -81,12 +98,10 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      await monitor.discoverPeers()
-
       const peers = monitor.getPeers()
 
       expect(peers).toBeArray()
-      expect(peers.length).toBeGreaterThan(10)
+      expect(peers.length).toBe(5) // 5 from peers.json
     })
   })
 
@@ -96,11 +111,11 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      const peers = monitor.getRandomPeer()
+      const peer = monitor.getRandomPeer()
 
-      expect(peers).toBeObject()
-      expect(peers).toHaveProperty('ip')
-      expect(peers).toHaveProperty('port')
+      expect(peer).toBeObject()
+      expect(peer).toHaveProperty('ip')
+      expect(peer).toHaveProperty('port')
     })
   })
 
@@ -110,11 +125,14 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      const peers = await monitor.getRandomDownloadBlocksPeer()
+      axiosMock
+        .onGet(/.*\/peer\/blocks\/common/)
+        .reply(() => [200, { success: true, common: true }, peerMock.headers])
+      const peer = await monitor.getRandomDownloadBlocksPeer()
 
-      expect(peers).toBeObject()
-      expect(peers).toHaveProperty('ip')
-      expect(peers).toHaveProperty('port')
+      expect(peer).toBeObject()
+      expect(peer).toHaveProperty('ip')
+      expect(peer).toHaveProperty('port')
     })
   })
 
@@ -124,10 +142,28 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/list/)
+        .reply(() => [
+          200,
+          { peers: [peerMock.toBroadcastInfo()] },
+          peerMock.headers,
+        ])
+
       const peers = await monitor.discoverPeers()
 
       expect(peers).toBeObject()
-      expect(Object.keys(peers).length).toBeGreaterThan(10)
+      expect(Object.keys(peers).length).toBe(6) // 5 from initial peers + 1 from peerMock
+      expect(peers[peerMock.ip]).toBeObject()
+    })
+  })
+
+  describe('hasPeers', () => {
+    it('should be a function', () => {
+      expect(monitor.hasPeers).toBeFunction()
     })
   })
 
@@ -137,10 +173,19 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true, height: 2 }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/list/)
+        .reply(() => [200, { peers: [] }, peerMock.headers])
       await monitor.discoverPeers()
 
-      await expect(monitor.getNetworkHeight()).resolves.toBeNumber()
+      const height = await monitor.getNetworkHeight()
+      expect(height).toBe(2)
     })
+
+    // TODO test with peers with different heights (use replyOnce) and check that median is OK
   })
 
   describe('getPBFTForgingStatus', () => {
@@ -149,9 +194,18 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      await monitor.discoverPeers()
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true, height: 2 }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/list/)
+        .reply(() => [200, { peers: [] }, peerMock.headers])
 
-      await expect(monitor.getPBFTForgingStatus()).resolves.toBeNumber()
+      await monitor.discoverPeers()
+      const pbftForgingStatus = monitor.getPBFTForgingStatus()
+
+      expect(pbftForgingStatus).toBeNumber()
+      // TODO test mocking peers currentSlot & forgingAllowed
     })
   })
 
@@ -161,10 +215,24 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
+      axiosMock
+        .onGet(/.*\/peer\/blocks\/common/)
+        .reply(() => [200, { success: true, common: true }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/status/)
+        .reply(() => [200, { success: true, height: 2 }, peerMock.headers])
+      axiosMock
+        .onGet(/.*\/peer\/blocks/)
+        .reply(() => [
+          200,
+          { blocks: [{ id: 1 }, { id: 2 }] },
+          peerMock.headers,
+        ])
+
       const blocks = await monitor.downloadBlocks(1)
 
       expect(blocks).toBeArray()
-      expect(blocks.length).toBeGreaterThan(10)
+      expect(blocks.length).toBe(2)
     })
   })
 
@@ -178,44 +246,17 @@ describe('Monitor', () => {
     it('should be a function', () => {
       expect(monitor.broadcastTransactions).toBeFunction()
     })
+  })
 
-    it('should be ok', () => {
-      expect(monitor.broadcastTransactions).toBeFunction()
-
-      expect(monitor.toBroadcastV1)
+  describe('__checkDNSConnectivity', () => {
+    it('should be a function', () => {
+      expect(monitor.__checkDNSConnectivity).toBeFunction()
     })
   })
 
-  describe('__isSuspended', () => {
+  describe('__checkNTPConnectivity', () => {
     it('should be a function', () => {
-      expect(monitor.__isSuspended).toBeFunction()
-    })
-
-    it('should have timeout of 60 minutes', () => {
-      expect(monitor.manager.config.suspendMinutes).toBe(60)
-    })
-
-    it('should return true', async () => {
-      process.env.ARK_ENV = false
-      peer.ip = '1.2.3.4'
-      await monitor.acceptNewPeer(peer)
-      process.env.ARK_ENV = ARK_ENV
-
-      expect(monitor.__isSuspended(peer)).toBe(true)
-    })
-
-    it('should return false because passed', async () => {
-      process.env.ARK_ENV = false
-      peer.ip = '1.2.3.4'
-      await monitor.acceptNewPeer(peer)
-      monitor.suspendedPeers['1.2.3.4'].until = moment().subtract(1, 'minutes')
-      process.env.ARK_ENV = ARK_ENV
-
-      expect(monitor.__isSuspended(peer)).toBe(false)
-    })
-
-    it('should return false because not suspended', () => {
-      expect(monitor.__isSuspended(peer)).toBe(false)
+      expect(monitor.__checkNTPConnectivity).toBeFunction()
     })
   })
 })

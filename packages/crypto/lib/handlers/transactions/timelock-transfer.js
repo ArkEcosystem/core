@@ -5,10 +5,11 @@ class TimelockTransferHandler extends Handler {
    * Check if the transaction can be applied to the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
+   * @param {Array} errors
    * @return {Boolean}
    */
-  canApply (wallet, transaction) {
-    return super.canApply(wallet, transaction)
+  canApply(wallet, transaction, errors) {
+    return super.canApply(wallet, transaction, errors)
   }
 
   /**
@@ -17,7 +18,7 @@ class TimelockTransferHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  apply (wallet, transaction) {
+  apply(wallet, transaction) {
     //
   }
 
@@ -27,7 +28,7 @@ class TimelockTransferHandler extends Handler {
    * @param  {Transaction} transaction
    * @return {void}
    */
-  revert (wallet, transaction) {
+  revert(wallet, transaction) {
     //
   }
 }

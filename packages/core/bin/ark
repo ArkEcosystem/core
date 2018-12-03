@@ -4,8 +4,9 @@ const app = require('commander')
 const bip38 = require('bip38')
 const fs = require('fs')
 const wif = require('wif')
+const version = require('../package.json').version
 
-app.version(require('../package.json').version)
+app.version(version)
 
 app
   .command('start')
@@ -17,7 +18,9 @@ app
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-p, --password <password>', 'forger password')
   .option('--network-start', 'force genesis network start', false)
-  .action(async (options) => require('../lib/start-relay-and-forger')(options))
+  .option('--disable-discovery', 'disable any peer discovery')
+  .option('--skip-discovery', 'skip the initial peer discovery')
+  .action(async (options) => require('../lib/start-relay-and-forger')(options, version))
 
 app
   .command('relay')
@@ -26,7 +29,11 @@ app
   .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-t, --token <token>', 'token name', 'ark')
   .option('-n, --network <network>', 'token network')
-  .action(async (options) => require('../lib/start-relay')(options))
+  .option('-r, --remote <remote>', 'remote peer for config')
+  .option('--network-start', 'force genesis network start', false)
+  .option('--disable-discovery', 'disable any peer discovery')
+  .option('--skip-discovery', 'skip the initial peer discovery')
+  .action(async (options) => require('../lib/start-relay')(options, version))
 
 app
   .command('forger')
@@ -37,17 +44,7 @@ app
   .option('-n, --network <network>', 'token network')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-p, --password <password>', 'forger password')
-  .option('--network-start', 'force genesis network start', false)
-  .action(async (options) => require('../lib/start-forger')(options))
-
-app
-  .command('snapshot')
-  .description('take a snapshot of the database')
-  .option('-d, --data <data>', 'data directory', '~/.ark')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
-  .option('-t, --token <token>', 'token name', 'ark')
-  .option('-n, --network <network>', 'token network')
-  .action(async (options) => require('../lib/snapshot')(options))
+  .action(async (options) => require('../lib/start-forger')(options, version))
 
 app
   .command('forger-plain')
@@ -64,7 +61,7 @@ app
     const delegates = require(delegatesConfig)
     delegates.secrets = [options.secret]
     delete delegates.bip38
-  
+
     fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2))
   })
 
@@ -86,7 +83,7 @@ app
     configManager.setFromPreset(options.token, options.network)
 
     const keys = crypto.getKeys(options.secret)
-    const decoded = wif.decode(keys.toWIF())
+    const decoded = wif.decode(crypto.keysToWIF(keys))
 
     const delegates = require(delegatesConfig)
     delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, options.password)

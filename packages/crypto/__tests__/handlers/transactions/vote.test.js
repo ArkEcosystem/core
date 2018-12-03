@@ -1,3 +1,4 @@
+const Bignum = require('../../../lib/utils/bignum')
 const handler = require('../../../lib/handlers/transactions/vote')
 
 let wallet
@@ -6,10 +7,10 @@ let transaction
 beforeEach(() => {
   wallet = {
     address: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
-    balance: '6453530000000',
-    publicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
-    secondPublicKey: '03791c7d0229966ee41af0e5362f3bb2534ef8c706d7151fec70aead607227fce1',
-    vote: null
+    balance: new Bignum('6453530000000'),
+    publicKey:
+      '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
+    vote: null,
   }
 
   transaction = {
@@ -18,18 +19,20 @@ beforeEach(() => {
     blockid: '5273958469976113749',
     type: 3,
     timestamp: 36345270,
-    amount: 0,
-    fee: 100000000,
+    amount: Bignum.ZERO,
+    fee: new Bignum(100000000),
     senderId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
     recipientId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
-    senderPublicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
-    signature: '304402204da11f2677ea67ad3718520020eb2e2d43b5c83f947490d2b454ce3ec0f1dcba022011a00e3c3febdaf531a404d728b111812647c2f0e33df439c7cbae01dcb702ba', // eslint-disable-line max-len
+    senderPublicKey:
+      '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
+    signature:
+      '304402204da11f2677ea67ad3718520020eb2e2d43b5c83f947490d2b454ce3ec0f1dcba022011a00e3c3febdaf531a404d728b111812647c2f0e33df439c7cbae01dcb702ba', // eslint-disable-line max-len
     asset: {
       votes: [
-        '+0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
-      ]
+        '+0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
+      ],
     },
-    confirmations: 19771
+    confirmations: 19771,
   }
 })
 
@@ -41,6 +44,34 @@ describe('VoteHandler', () => {
   describe('canApply', () => {
     it('should be a function', () => {
       expect(handler.canApply).toBeFunction()
+    })
+    it('should be false if wallet has already voted', () => {
+      wallet.vote =
+        '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      const errors = []
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Wallet has already voted')
+    })
+    it('should be false if tx vote-choice does not match wallet vote-choice', () => {
+      wallet.vote =
+        'a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      transaction.asset.votes[0] =
+        '-0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      const errors = []
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain(
+        'Wallet vote-choice does not match transaction vote-choice',
+      )
+    })
+    it('should be false if unvoting a non-voted wallet', () => {
+      transaction.asset.votes[0] =
+        '-0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      const errors = []
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Wallet has not voted yet')
     })
   })
 
@@ -58,7 +89,8 @@ describe('VoteHandler', () => {
     })
 
     it('should not be ok', () => {
-      wallet.vote = '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      wallet.vote =
+        '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
 
       expect(wallet.vote).not.toBeNull()
 
@@ -74,7 +106,8 @@ describe('VoteHandler', () => {
     })
 
     it('should be ok', () => {
-      wallet.vote = '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      wallet.vote =
+        '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
 
       expect(wallet.vote).not.toBeNull()
 

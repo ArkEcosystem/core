@@ -1,6 +1,9 @@
-'use strict'
-
-const handlers = require('./handlers')
+const blockchain = require('./handlers/blockchain')
+const blocks = require('./handlers/blocks')
+const network = require('./handlers/network')
+const rounds = require('./handlers/rounds')
+const transactions = require('./handlers/transactions')
+const utils = require('./handlers/utils')
 
 /**
  * Register internal routes.
@@ -10,13 +13,19 @@ const handlers = require('./handlers')
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/round', ...handlers.getRound },
-    { method: 'POST', path: '/block', ...handlers.postInternalBlock },
-    { method: 'POST', path: '/verifyTransaction', ...handlers.postVerifyTransaction },
-    { method: 'GET', path: '/forgingTransactions', ...handlers.getTransactionsForForging },
-    { method: 'GET', path: '/networkState', ...handlers.getNetworkState },
-    { method: 'GET', path: '/syncCheck', ...handlers.checkBlockchainSynced },
-    { method: 'GET', path: '/usernames', ...handlers.getUsernames }
+    { method: 'GET', path: '/network/state', ...network.state },
+
+    { method: 'GET', path: '/blockchain/sync', ...blockchain.sync },
+
+    { method: 'POST', path: '/blocks', ...blocks.store },
+
+    { method: 'GET', path: '/rounds/current', ...rounds.current },
+
+    { method: 'POST', path: '/transactions/verify', ...transactions.verify },
+    { method: 'GET', path: '/transactions/forging', ...transactions.forging },
+
+    { method: 'GET', path: '/utils/usernames', ...utils.usernames },
+    { method: 'POST', path: '/utils/events', ...utils.emitEvent },
   ])
 }
 
@@ -25,7 +34,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'ARK P2P API - Internal',
+  name: 'Ark P2P API - Internal',
   version: '0.1.0',
-  register
+  register,
 }

@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-json-rpc",
-  "description": "A JSON-RPC 2.0 Specification compliant server to interact with the ARK blockchain.",
-  "version": "0.1.1",
+  "description": "A JSON-RPC 2.0 Specification compliant server to interact with the Ark Blockchain.",
+  "version": "0.2.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -9,33 +9,39 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=@keyv/sqlite,lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.1.1",
-    "arkjs": "https://github.com/ArkEcosystem/ark-js#master",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-http-utils": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
+    "@keyv/sqlite": "^2.0.0",
     "axios": "^0.18.0",
-    "bigi": "^1.4.2",
     "bip38": "^2.0.2",
     "bip39": "^2.5.0",
-    "hapi": "^17.5.0",
+    "boom": "^7.3.0",
     "is-reachable": "^2.4.0",
-    "joi": "^13.3.0",
-    "leveldown": "^4.0.0",
-    "levelup": "^2.0.2",
-    "lodash": "^4.17.10",
-    "micromatch": "^3.1.10",
-    "uuid": "^3.3.2"
+    "joi": "^14.3.0",
+    "keyv": "^3.1.0",
+    "lodash.get": "^4.4.2",
+    "uuid": "^3.3.2",
+    "wif": "^2.0.6"
+  },
+  "devDependencies": {
+    "@arkecosystem/core-p2p": "~0.2",
+    "@arkecosystem/core-test-utils": "~0.2",
+    "axios-mock-adapter": "^1.15.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=10.x"
   }
 }

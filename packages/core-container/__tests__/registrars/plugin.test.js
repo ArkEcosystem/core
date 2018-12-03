@@ -1,5 +1,3 @@
-'use strict'
-
 const path = require('path')
 const Container = require('../../lib/container')
 const PluginRegistrar = require('../../lib/registrars/plugin')
@@ -40,8 +38,7 @@ describe('Plugin Registrar', () => {
       expect(instance.container.has('stub-plugin-a')).toBeTrue()
     })
 
-    xit('should register plugins with @ paths', () => {
-    })
+    it.skip('should register plugins with @ paths', () => {})
   })
 
   describe('setUp', () => {
@@ -51,7 +48,6 @@ describe('Plugin Registrar', () => {
 
     it('should register each plugin', async () => {
       await instance.setUp()
-
       ;['a', 'b', 'c'].forEach(char => {
         expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
       })
@@ -64,7 +60,6 @@ describe('Plugin Registrar', () => {
         await instance.setUp()
 
         expect(instance.container.has('stub-plugin-a')).toBeTrue()
-
         ;['b', 'c'].forEach(char => {
           expect(instance.container.has(`stub-plugin-${char}`)).toBeFalse()
         })
@@ -77,13 +72,11 @@ describe('Plugin Registrar', () => {
 
     beforeEach(async () => {
       await instance.setUp()
-
       ;['a', 'b', 'c'].forEach(char => {
         expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
       })
-
       ;['a', 'b', 'c'].forEach(char => {
-        plugins[char] = (require(`${stubPluginPath}/plugin-${char}`))
+        plugins[char] = require(`${stubPluginPath}/plugin-${char}`)
       })
     })
 
@@ -93,17 +86,15 @@ describe('Plugin Registrar', () => {
       })
 
       await instance.tearDown()
-
       ;['a', 'b'].forEach(char => {
         expect(plugins[char].plugin.deregister).toHaveBeenCalled()
       })
 
-      expect(plugins['c'].deregister).not.toBeDefined()
+      expect(plugins.c.deregister).not.toBeDefined()
     })
 
     it('should deregister all the plugins in inverse order', async () => {
       const spy = jest.fn()
-
       ;['a', 'b'].forEach(char => {
         plugins[char].plugin.deregister = () => spy(char)
       })
@@ -112,6 +103,19 @@ describe('Plugin Registrar', () => {
 
       expect(spy).toHaveBeenNthCalledWith(1, 'b')
       expect(spy).toHaveBeenNthCalledWith(2, 'a')
+    })
+  })
+
+  describe('__castOptions', () => {
+    it('should cast options', async () => {
+      const options = {
+        number: '1',
+        notANumber: '0.0.0.0',
+      }
+
+      instance.__castOptions(options)
+      expect(options.number).toEqual(1)
+      expect(options.notANumber).toEqual('0.0.0.0')
     })
   })
 })

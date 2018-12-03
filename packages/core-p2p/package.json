@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-p2p",
-  "description": "P2P API for ARK Core",
-  "version": "0.1.1",
+  "description": "P2P API for Ark Core",
+  "version": "0.2.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -11,35 +11,50 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-transaction-pool": "^0.1.1",
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-http-utils": "~0.2",
+    "@arkecosystem/core-transaction-pool": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
+    "ajv": "^6.5.5",
     "axios": "^0.18.0",
-    "delay": "^3.0.0",
-    "hapi": "^17.5.0",
-    "limiter": "^1.1.3",
-    "lodash": "^4.17.10",
+    "boom": "^7.3.0",
+    "dayjs-ext": "^2.2.0",
+    "delay": "^4.1.0",
+    "hapi-rate-limit": "^2.1.4",
+    "ip": "^1.1.5",
+    "joi": "^14.3.0",
+    "lodash.chunk": "^4.2.0",
+    "lodash.flatten": "^4.4.0",
+    "lodash.groupby": "^4.6.0",
+    "lodash.head": "^4.0.1",
+    "lodash.sample": "^4.2.1",
+    "lodash.shuffle": "^4.2.0",
+    "lodash.sumby": "^4.6.0",
+    "lodash.take": "^4.1.1",
     "micromatch": "^3.1.10",
-    "moment": "^2.22.2",
-    "pretty-ms": "^3.2.0",
-    "request-ip": "^2.0.2",
-    "semver": "^5.5.0",
-    "sntp": "^3.0.1"
+    "pluralize": "^7.0.0",
+    "pretty-ms": "^4.0.0",
+    "request-ip": "^2.1.3",
+    "semver": "^5.6.0",
+    "sntp": "^3.0.2"
+  },
+  "devDependencies": {
+    "@arkecosystem/core-test-utils": "~0.2",
+    "axios-mock-adapter": "^1.15.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "axios-mock-adapter": "^1.15.0"
+  "engines": {
+    "node": ">=10.x"
   }
 }

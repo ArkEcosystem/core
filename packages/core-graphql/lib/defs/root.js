@@ -1,5 +1,9 @@
-'use strict';
-
+/**
+ * Necessary for the GraphQL engine to have a root schema and a base query.
+ * Here we have definitions for root queries, which are like endpoints in a
+ * REST API. Every root query has an associated return structure which is
+ * based on types defined in types.js.
+ */
 module.exports = `
   type Query {
     block(id: String): Block

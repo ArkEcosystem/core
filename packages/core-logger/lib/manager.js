@@ -1,11 +1,9 @@
-'use strict'
-
 class LogManager {
   /**
    * Create a new log manager instance.
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.drivers = {}
   }
 
@@ -14,7 +12,7 @@ class LogManager {
    * @param  {String} name
    * @return {LoggerInterface}
    */
-  driver (name = 'default') {
+  driver(name = 'default') {
     return this.drivers[name]
   }
 
@@ -24,7 +22,7 @@ class LogManager {
    * @param  {String} name
    * @return {void}
    */
-  async makeDriver (driver, name = 'default') {
+  async makeDriver(driver, name = 'default') {
     this.drivers[name] = await driver.make()
   }
 }

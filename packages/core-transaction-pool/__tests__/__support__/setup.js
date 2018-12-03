@@ -1,22 +1,16 @@
-'use strict';
+const app = require('@arkecosystem/core-container')
+const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
-const path = require('path')
-const container = require('@arkecosystem/core-container')
+jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  await container.setUp({
-    data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
-    token: 'ark',
-    network: 'testnet'
-  }, {
+  await appHelper.setUp({
     exit: '@arkecosystem/core-blockchain',
-    exclude: ['@arkecosystem/core-p2p']
   })
 
-  return container
+  return app
 }
 
 exports.tearDown = async () => {
-  await container.tearDown()
+  await app.tearDown()
 }

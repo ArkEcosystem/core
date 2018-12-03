@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core",
-  "description": "Core of the ARK Blockchain",
-  "version": "0.1.1",
+  "description": "Core of the Ark Blockchain",
+  "version": "2.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -46,31 +46,31 @@
     "full:testnet:2tier:1": "cross-env ARK_ENV=test ./bin/ark start --config ./lib/config/testnet.1 --network testnet --network-start",
     "full:testnet:2tier": "cross-env ARK_ENV=test ./bin/ark start --config ./lib/config/testnet.1 --network testnet --network-start && ./bin/ark start --config ./lib/config/testnet.2 --network testnet --network-start",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores commander,bip38,fs,wif,@arkecosystem/core-api,@arkecosystem/core-blockchain,@arkecosystem/core-config,@arkecosystem/core-database,@arkecosystem/core-database-sequelize,@arkecosystem/core-forger,@arkecosystem/core-graphql,@arkecosystem/core-json-rpc,@arkecosystem/core-logger,@arkecosystem/core-logger-winston,@arkecosystem/core-p2p,@arkecosystem/core-transaction-pool,@arkecosystem/core-transaction-pool-redis,@arkecosystem/core-webhooks,@arkecosystem/crypto"
+    "depcheck": "depcheck ./ --ignores=commander,bip38,fs,wif,@arkecosystem/core-api,@arkecosystem/core-blockchain,@arkecosystem/core-config,@arkecosystem/core-database,@arkecosystem/core-database-postgres,@arkecosystem/core-forger,@arkecosystem/core-graphql,@arkecosystem/core-json-rpc,@arkecosystem/core-logger,@arkecosystem/core-logger-winston,@arkecosystem/core-p2p,@arkecosystem/core-transaction-pool,@arkecosystem/core-transaction-pool-mem,@arkecosystem/core-webhooks,@arkecosystem/core-snapshots,@arkecosystem/crypto"
   },
   "dependencies": {
-    "@arkecosystem/core-api": "^0.1.1",
-    "@arkecosystem/core-blockchain": "^0.1.1",
-    "@arkecosystem/core-config": "^0.1.1",
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-database": "^0.1.1",
-    "@arkecosystem/core-database-sequelize": "^0.1.1",
-    "@arkecosystem/core-forger": "^0.1.1",
-    "@arkecosystem/core-graphql": "^0.1.1",
-    "@arkecosystem/core-json-rpc": "^0.1.1",
-    "@arkecosystem/core-logger": "^0.1.1",
-    "@arkecosystem/core-logger-winston": "^0.1.1",
-    "@arkecosystem/core-p2p": "^0.1.1",
-    "@arkecosystem/core-transaction-pool": "^0.1.1",
-    "@arkecosystem/core-transaction-pool-redis": "^0.1.1",
-    "@arkecosystem/core-webhooks": "^0.1.1",
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/core-api": "~0.2",
+    "@arkecosystem/core-blockchain": "~0.2",
+    "@arkecosystem/core-config": "~0.2",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-database-postgres": "~0.2",
+    "@arkecosystem/core-forger": "~0.2",
+    "@arkecosystem/core-graphql": "~0.2",
+    "@arkecosystem/core-json-rpc": "~0.2",
+    "@arkecosystem/core-logger-winston": "~0.2",
+    "@arkecosystem/core-p2p": "~0.2",
+    "@arkecosystem/core-snapshots": "~0.1",
+    "@arkecosystem/core-transaction-pool-mem": "~0.2",
+    "@arkecosystem/core-webhooks": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
     "bip38": "^2.0.2",
-    "commander": "^2.15.1",
-    "fs": "^0.0.1-security",
+    "commander": "^2.19.0",
     "wif": "^2.0.6"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=10.x"
   }
 }

@@ -1,15 +1,42 @@
-'use strict'
-
 const Joi = require('joi')
+const pagination = require('./pagination')
 
 /**
  * @type {Object}
  */
 exports.index = {
   query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  }
+    ...pagination,
+    ...{
+      orderBy: Joi.string(),
+      id: Joi.string()
+        .hex()
+        .length(64),
+      blockId: Joi.string().regex(/^[0-9]+$/, 'numbers'),
+      version: Joi.number()
+        .integer()
+        .positive(),
+      senderPublicKey: Joi.string()
+        .hex()
+        .length(66),
+      senderId: Joi.string()
+        .alphanum()
+        .length(34),
+      recipientId: Joi.string()
+        .alphanum()
+        .length(34),
+      timestamp: Joi.number()
+        .integer()
+        .min(0),
+      amount: Joi.number()
+        .integer()
+        .min(0),
+      fee: Joi.number()
+        .integer()
+        .min(0),
+      vendorFieldHex: Joi.string().hex(),
+    },
+  },
 }
 
 /**
@@ -18,5 +45,7 @@ exports.index = {
 exports.show = {
   params: {
     id: Joi.string()
-  }
+      .hex()
+      .length(64),
+  },
 }

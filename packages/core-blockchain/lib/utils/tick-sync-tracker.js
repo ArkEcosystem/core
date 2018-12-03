@@ -1,23 +1,20 @@
 const prettyMs = require('pretty-ms')
-const container = require('@arkecosystem/core-container')
-const logger = container.resolvePlugin('logger')
-const database = container.resolvePlugin('database')
+const app = require('@arkecosystem/core-container')
 
+const logger = app.resolvePlugin('logger')
 let tracker = null
 
-module.exports = async blockCount => {
+module.exports = async (blockCount, count) => {
   if (!tracker) {
-    const { count } = await database.blocks.count()
-
     tracker = {
       start: new Date().getTime(),
-      networkHeight: container.resolvePlugin('p2p').getMonitor().getNetworkHeight(),
+      networkHeight: app.resolvePlugin('p2p').getNetworkHeight(),
       blocksInitial: +count,
       blocksDownloaded: +count,
       blocksSession: 0,
       blocksPerMillisecond: 0,
       remainingInMilliseconds: 0,
-      percent: 0
+      percent: 0,
     }
   }
 
@@ -32,18 +29,32 @@ module.exports = async blockCount => {
   tracker.blocksPerMillisecond = tracker.blocksSession / diffSinceStart
 
   // The time left to download the missing blocks in milliseconds
-  tracker.remainingInMilliseconds = (tracker.networkHeight - tracker.blocksDownloaded) / tracker.blocksPerMillisecond
-  tracker.remainingInMilliseconds = Math.abs(Math.trunc(tracker.remainingInMilliseconds))
+  tracker.remainingInMilliseconds =
+    (tracker.networkHeight - tracker.blocksDownloaded) /
+    tracker.blocksPerMillisecond
+  tracker.remainingInMilliseconds = Math.abs(
+    Math.trunc(tracker.remainingInMilliseconds),
+  )
 
   // The percentage of total blocks that has been downloaded
   tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight
 
-  if (tracker.percent < 100 && isFinite(tracker.remainingInMilliseconds)) {
+  if (
+    tracker.percent < 100 &&
+    Number.isFinite(tracker.remainingInMilliseconds)
+  ) {
     const blocksDownloaded = tracker.blocksDownloaded.toLocaleString()
     const networkHeight = tracker.networkHeight.toLocaleString()
-    const timeLeft = prettyMs(tracker.remainingInMilliseconds, { secDecimalDigits: 0 })
+    const timeLeft = prettyMs(tracker.remainingInMilliseconds, {
+      secDecimalDigits: 0,
+    })
 
-    logger.printTracker('Fast Sync', tracker.percent, 100, `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`)
+    logger.printTracker(
+      'Fast Sync',
+      tracker.percent,
+      100,
+      `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`,
+    )
   }
 
   if (tracker.percent === 100) {

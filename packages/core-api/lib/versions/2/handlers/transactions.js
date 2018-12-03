@@ -1,15 +1,13 @@
-'use strict'
-
 const Boom = require('boom')
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 
-const container = require('@arkecosystem/core-container')
-const config = container.resolvePlugin('config')
-const database = container.resolvePlugin('database')
-const logger = container.resolvePlugin('logger')
-const transactionPool = container.resolvePlugin('transactionPool')
+const app = require('@arkecosystem/core-container')
+
+const blockchain = app.resolvePlugin('blockchain')
+const config = app.resolvePlugin('config')
+const transactionPool = app.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
@@ -23,11 +21,14 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const transactions = await database.transactions.findAll(utils.paginate(request))
+  async handler(request, h) {
+    const data = await request.server.methods.v2.transactions.index(request)
 
-    return utils.toPagination(request, transactions, 'transaction')
-  }
+    return utils.respondWithCache(data, h)
+  },
+  options: {
+    validate: schema.index,
+  },
 }
 
 /**
@@ -39,57 +40,39 @@ exports.store = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    if (!transactionPool) {
-      return {
-        data: []
-      }
+  async handler(request, h) {
+    if (!transactionPool.options.enabled) {
+      return Boom.serverUnavailable('Transaction pool is disabled.')
     }
-
-    /**
-     * Here we will make sure we memorize the transactions for future requests
-     * and decide which transactions are valid or invalid in order to prevent
-     * duplication and race conditions caused by concurrent requests.
-     */
-    const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
-    guard.invalid = invalid
-    await guard.validate(valid)
 
-    if (guard.hasAny('accept')) {
-      logger.info(`Received ${guard.accept.length} new transactions`)
+    const result = await guard.validate(request.payload.transactions)
 
-      await transactionPool.addTransactions(guard.accept)
-
-      transactionPool.memory
-        .forget(guard.getIds('accept'))
-        .forget(guard.getIds('excess'))
-    }
-
-    if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
-      await container
+    if (result.broadcast.length > 0) {
+      app
         .resolvePlugin('p2p')
-        .broadcastTransactions(guard.broadcast)
+        .broadcastTransactions(guard.getBroadcastTransactions())
     }
 
     return {
       data: {
-        accept: guard.getIds('accept'),
-        excess: guard.getIds('excess'),
-        invalid: guard.getIds('invalid'),
-        broadcast: guard.getIds('broadcast')
-      }
+        accept: result.accept,
+        broadcast: result.broadcast,
+        excess: result.excess,
+        invalid: result.invalid,
+      },
+      errors: result.errors,
     }
   },
   options: {
     validate: schema.store,
     plugins: {
       pagination: {
-        enabled: false
-      }
-    }
-  }
+        enabled: false,
+      },
+    },
+  },
 }
 
 /**
@@ -101,18 +84,14 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const transaction = await database.transactions.findById(request.params.id)
+  async handler(request, h) {
+    const data = await request.server.methods.v2.transactions.show(request)
 
-    if (!transaction) {
-      return Boom.notFound('Transaction not found')
-    }
-
-    return utils.respondWithResource(request, transaction, 'transaction')
+    return utils.respondWithCache(data, h)
   },
   options: {
-    validate: schema.show
-  }
+    validate: schema.show,
+  },
 }
 
 /**
@@ -124,21 +103,33 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    if (!container.resolve('transactionPool').options.enabled) {
-      return Boom.teapot()
+  async handler(request, h) {
+    if (!transactionPool.options.enabled) {
+      return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
     const pagination = utils.paginate(request)
 
-    let transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
-    transactions = transactions.map(transaction => ({ serialized: transaction }))
+    let transactions = transactionPool.getTransactions(
+      pagination.offset,
+      pagination.limit,
+    )
+    transactions = transactions.map(transaction => ({
+      serialized: transaction,
+    }))
 
-    return utils.toPagination(request, {
-      count: await transactionPool.getPoolSize(),
-      rows: transactions
-    }, 'transaction')
-  }
+    return utils.toPagination(
+      request,
+      {
+        count: transactionPool.getPoolSize(),
+        rows: transactions,
+      },
+      'transaction',
+    )
+  },
+  options: {
+    validate: schema.unconfirmed,
+  },
 }
 
 /**
@@ -150,21 +141,24 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    if (!container.resolve('transactionPool').options.enabled) {
-      return Boom.teapot()
+  handler(request, h) {
+    if (!transactionPool.options.enabled) {
+      return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
-    let transaction = await transactionPool.getTransaction(request.params.id)
+    let transaction = transactionPool.getTransaction(request.params.id)
 
     if (!transaction) {
       return Boom.notFound('Transaction not found')
     }
 
-    transaction = { serialized: transaction.serialized.toString('hex') }
+    transaction = { serialized: transaction.serialized }
 
     return utils.respondWithResource(request, transaction, 'transaction')
-  }
+  },
+  options: {
+    validate: schema.showUnconfirmed,
+  },
 }
 
 /**
@@ -176,18 +170,14 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const transactions = await database.transactions.search({
-      ...request.query,
-      ...request.payload,
-      ...utils.paginate(request)
-    })
+  async handler(request, h) {
+    const data = await request.server.methods.v2.transactions.search(request)
 
-    return utils.toPagination(request, transactions, 'transaction')
+    return utils.respondWithCache(data, h)
   },
   options: {
-    validate: schema.search
-  }
+    validate: schema.search,
+  },
 }
 
 /**
@@ -199,11 +189,11 @@ exports.types = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     return {
-      data: TRANSACTION_TYPES
+      data: TRANSACTION_TYPES,
     }
-  }
+  },
 }
 
 /**
@@ -215,9 +205,10 @@ exports.fees = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  async handler(request, h) {
     return {
-      data: config.getConstants().fees
+      data: config.getConstants(blockchain.getLastBlock().data.height).fees
+        .staticFees,
     }
-  }
+  },
 }

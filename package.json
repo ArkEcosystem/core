@@ -2,7 +2,6 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build:docs": "lerna run build:docs",
     "clean": "lerna clean",
     "commit": "git-cz",
     "lint": "lerna run lint",
@@ -10,39 +9,45 @@
     "prepare": "lerna run prepare",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
-		"test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles"
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "format": "prettier --write \"./*.{js,json,md}\" \"./packages/**/*.{js,json,md}\"",
+    "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.51",
-    "@babel/preset-env": "^7.0.0-beta.51",
+    "@arkecosystem/eslint-config-base": "^0.1.0",
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
     "axios": "^0.18.0",
-    "babel-loader": "^8.0.0-beta",
+    "babel-loader": "^8.0.4",
     "body-parser": "^1.18.3",
-    "codecov": "^3.0.4",
+    "codecov": "^3.1.0",
     "cross-env": "^5.2.0",
-    "depcheck": "^0.6.9",
-    "docdash": "^0.4.0",
-    "eslint": "^4.19.1",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.12.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.7.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "express": "^4.16.3",
-    "husky": "^1.0.0-rc.2",
-    "jest": "^23.3.0",
-    "jest-extended": "^0.7.2",
-    "jsdoc": "^3.5.5",
-    "lerna": "^2.11.0",
-    "lint-staged": "^7.1.2",
-    "regenerator-runtime": "^0.11.1",
+    "depcheck": "^0.6.11",
+    "docdash": "^1.0.0",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^22.1.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "express": "^4.16.4",
+    "husky": "^1.2.0",
+    "jest": "^23.6.0",
+    "jest-extended": "^0.11.0",
+    "js-yaml": "^3.12.0",
+    "lerna": "^3.5.0",
+    "lint-staged": "^8.1.0",
+    "npm-check-updates": "^2.15.0",
+    "prettier": "^1.15.2",
+    "regenerator-runtime": "^0.13.1",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
-    "standard": "^11.0.1",
-    "uuid": "^3.2.1",
-    "webpack": "^4.8.3",
-    "webpack-cli": "^2.1.3",
-    "webpack-merge": "^4.1.2",
+    "snyk": "^1.111.1",
+    "uuid": "^3.3.2",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-merge": "^4.1.4",
     "webpack-node-externals": "^1.7.2"
   },
   "workspaces": [
@@ -51,12 +56,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && ./scripts/pre-commit.sh"
     }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix"
-    ]
   }
 }

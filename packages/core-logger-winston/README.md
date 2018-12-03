@@ -1,42 +1,12 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Winston Logger
 
-# ARK Core - Winston Logger
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-logger-winston
-```
-
-## Configuration
-
-### Defaults
-
-```js
-module.exports = {
-  transports: {
-    console: {
-      constructor: 'Console',
-      options: {
-        colorize: true,
-        level: process.env.ARK_LOG_LEVEL || 'debug',
-        timestamp: () => Date.now(),
-        formatter: (info) => require('./formatter')(info)
-      }
-    },
-    dailyRotate: {
-      package: 'winston-daily-rotate-file',
-      constructor: 'DailyRotateFile',
-      options: {
-        filename: `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
-        datePattern: 'YYYY-MM-DD',
-        level: process.env.ARK_LOG_LEVEL || 'debug',
-        zippedArchive: true
-      }
-    }
-  }
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-logger-winston.html).
 
 ## Security
 

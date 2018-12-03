@@ -1,15 +1,19 @@
+/* eslint no-await-in-loop: "off" */
+
 const request = require('./request')
 
-module.exports = async (endpoint, limit) => {
+module.exports = async (config, endpoint, limit) => {
   const data = []
   let page = 1
   let maxPages = null
   while (maxPages === null || page <= maxPages) {
-    let response = (await request.get(`${endpoint}?page=${page}`)).data
-    if (response.data) {
+    const response = await request(config).get(`${endpoint}?page=${page}`)
+    if (response) {
       page++
       maxPages = response.meta.pageCount
       data.push(...response.data)
+    } else {
+      break
     }
   }
 

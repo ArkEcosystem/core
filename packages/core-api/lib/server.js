@@ -1,114 +1,125 @@
-'use strict'
+/* eslint no-await-in-loop: "off" */
 
-const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const {
+  createServer,
+  createSecureServer,
+  mountServer,
+  plugins,
+} = require('@arkecosystem/core-http-utils')
 
 /**
  * Create a new hapi.js server.
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-module.exports = async (config) => {
-  const baseConfig = {
+module.exports = async config => {
+  const options = {
     host: config.host,
     port: config.port,
     routes: {
       cors: {
-        additionalHeaders: ['api-version']
+        additionalHeaders: ['api-version'],
       },
       validate: {
-        async failAction (request, h, err) {
+        async failAction(request, h, err) {
           throw err
-        }
-      }
-    }
+        },
+      },
+    },
   }
 
-  if (config.cache.enabled) {
-    const cacheOptions = config.cache.options
-    cacheOptions.engine = require(cacheOptions.engine)
-    baseConfig.cache = [cacheOptions]
-    baseConfig.routes.cache = { expiresIn: cacheOptions.expiresIn }
+  const servers = { http: await createServer(options) }
+
+  if (config.ssl.enabled) {
+    servers.https = await createSecureServer(options, null, config.ssl)
   }
 
-  const server = new Hapi.Server(baseConfig)
+  for (const [type, server] of Object.entries(servers)) {
+    // TODO: enable after mainnet migration
+    // await server.register({ plugin: plugins.contentType })
 
-  await server.register([require('vision'), require('inert'), require('lout')])
+    await server.register({
+      plugin: plugins.corsHeaders,
+    })
 
-  await server.register({
-    plugin: require('./plugins/whitelist'),
-    options: {
-      whitelist: config.whitelist
-    }
-  })
+    await server.register({
+      plugin: plugins.transactionPayload,
+      options: {
+        routes: [
+          {
+            method: 'POST',
+            path: '/api/v2/transactions',
+          },
+        ],
+      },
+    })
 
-  await server.register({
-    plugin: require('hapi-api-version'),
-    options: {
-      validVersions: config.versions.valid,
-      defaultVersion: config.versions.default,
-      basePath: '/api/',
-      vendorName: 'ark-core-api'
-    }
-  })
+    await server.register({
+      plugin: plugins.whitelist,
+      options: {
+        whitelist: config.whitelist,
+        name: 'Public API',
+      },
+    })
 
-  await server.register({ plugin: require('./plugins/caster') })
+    await server.register({
+      plugin: require('./plugins/set-headers'),
+    })
 
-  await server.register({ plugin: require('./plugins/validation') })
+    await server.register({
+      plugin: require('hapi-api-version'),
+      options: config.versions,
+    })
 
-  await server.register({
-    plugin: require('hapi-rate-limit'),
-    options: {
-      enabled: config.rateLimit.enabled,
-      pathLimit: false,
-      userLimit: config.rateLimit.limit,
-      userCache: {
-        expiresIn: config.rateLimit.expires
+    await server.register({
+      plugin: require('./plugins/endpoint-version'),
+      options: { validVersions: config.versions.validVersions },
+    })
+
+    await server.register({
+      plugin: require('./plugins/caster'),
+    })
+
+    await server.register({
+      plugin: require('./plugins/validation'),
+    })
+
+    await server.register({
+      plugin: require('hapi-rate-limit'),
+      options: config.rateLimit,
+    })
+
+    await server.register({
+      plugin: require('hapi-pagination'),
+      options: {
+        meta: {
+          baseUri: '',
+        },
+        query: {
+          limit: {
+            default: config.pagination.limit,
+          },
+        },
+        results: {
+          name: 'data',
+        },
+        routes: {
+          include: config.pagination.include,
+          exclude: ['*'],
+        },
+      },
+    })
+
+    for (const plugin of config.plugins) {
+      if (typeof plugin.plugin === 'string') {
+        plugin.plugin = require(plugin.plugin)
       }
+
+      await server.register(plugin)
     }
-  })
 
-  await server.register({
-    plugin: require('hapi-pagination'),
-    options: {
-      meta: {
-        baseUri: ''
-      },
-      query: {
-        limit: {
-          default: config.pagination.limit
-        }
-      },
-      results: {
-        name: 'data'
-      },
-      routes: {
-        include: config.pagination.include,
-        exclude: ['*']
-      }
-    }
-  })
-
-  await server.register({
-    plugin: require('./versions/1'),
-    routes: { prefix: '/api/v1' }
-  })
-
-  await server.register({
-    plugin: require('./versions/2'),
-    routes: { prefix: '/api/v2' },
-    options: config
-  })
-
-  try {
-    await server.start()
-
-    logger.info(`Public API Server running at: ${server.info.uri}`)
-
-    return server
-  } catch (error) {
-    logger.error(error.stack)
-
-    process.exit(1)
+    await mountServer(`Public ${type} API`, server)
   }
+
+  return servers
 }

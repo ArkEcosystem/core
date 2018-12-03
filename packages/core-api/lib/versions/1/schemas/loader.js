@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * The AJV schema for the loader endpoints.
  * @type {Object}
@@ -10,20 +8,20 @@ module.exports = {
     properties: {
       signatures: {
         type: 'array',
-        uniqueItems: true
-      }
+        uniqueItems: true,
+      },
     },
-    required: ['signatures']
+    required: ['signatures'],
   },
   loadUnconfirmedTransactions: {
     type: 'object',
     properties: {
       transactions: {
         type: 'array',
-        uniqueItems: true
-      }
+        uniqueItems: true,
+      },
     },
-    required: ['transactions']
+    required: ['transactions'],
   },
   getNetwork: {
     peers: {
@@ -31,50 +29,50 @@ module.exports = {
       properties: {
         peers: {
           type: 'array',
-          uniqueItems: true
-        }
+          uniqueItems: true,
+        },
       },
-      required: ['peers']
+      required: ['peers'],
     },
     peer: {
       type: 'object',
       properties: {
         ip: {
           type: 'string',
-          format: 'ip'
+          format: 'ip',
         },
         port: {
           type: 'integer',
           minimum: 1,
-          maximum: 65535
+          maximum: 65535,
         },
         state: {
           type: 'integer',
           minimum: 0,
-          maximum: 3
+          maximum: 3,
         },
         os: {
-          type: 'string'
+          type: 'string',
         },
         version: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
-      required: ['ip', 'port']
+      required: ['ip', 'port'],
     },
     height: {
       type: 'object',
       properties: {
         height: {
           type: 'integer',
-          minimum: 0
+          minimum: 0,
         },
         id: {
           type: 'string',
-          minLength: 1
-        }
+          minLength: 1,
+        },
       },
-      required: ['height']
-    }
-  }
-};
+      required: ['height'],
+    },
+  },
+}

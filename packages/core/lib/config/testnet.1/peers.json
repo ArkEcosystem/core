@@ -1,15 +1,18 @@
 {
-  "minimumVersion": ">=1.1.1",
+  "minimumVersion": ">=2.0.0",
   "minimumNetworkReach": 20,
   "globalTimeout": 5000,
   "coldStart": 30,
-  "whiteList":[],
+  "whiteList": [],
   "blackList": [],
-  "list": [{
-    "ip": "127.0.0.1",
-    "port": 4102
-  }, {
-    "ip": "127.0.0.1",
-    "port": 4202
-  }]
+  "list": [
+    {
+      "ip": "127.0.0.1",
+      "port": 4102
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": 4202
+    }
+  ]
 }

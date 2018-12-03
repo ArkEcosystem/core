@@ -1,5 +1,3 @@
-'use strict'
-
 const app = require('../__support__/setup')
 
 let checker
@@ -17,10 +15,7 @@ beforeEach(() => {
 })
 
 describe('Check NTP', () => {
-  const hosts = [
-    'pool.ntp.org',
-    'time.google.com'
-  ]
+  const hosts = ['pool.ntp.org', 'time.google.com']
   const host = hosts[0]
 
   it('should be a function', () => {
@@ -36,24 +31,11 @@ describe('Check NTP', () => {
     expect(response.time.t).toBeNumber()
   })
 
-  xit('should try to connect to hosts randomly', () => {
-  })
-
-  describe('when a host is not avaible', () => {
-    xit('logs the error', () => {
-    })
-  })
-
-  describe('when a host times out', () => {
-    xit('logs the error', () => {
-    })
-  })
-
   describe('when none of the host could be reached', () => {
     it('produces an error', async () => {
       try {
         await checker(['notime.unknown.not'])
-        expect().fail('An error should have been thrown')
+        throw new Error('An error should have been thrown')
       } catch (error) {
         expect(error.message).toMatch(/ntp.*connect/i)
       }

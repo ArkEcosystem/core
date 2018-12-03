@@ -1,0 +1,43 @@
+{
+  "name": "@arkecosystem/core-http-utils",
+  "description": "Http Utilities for Ark Core",
+  "version": "0.2.0",
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
+    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./ --ignores=hapi,inert,lout,vision,good-console,good-squeeze"
+  },
+  "dependencies": {
+    "@arkecosystem/core-container": "~0.2",
+    "boom": "^7.3.0",
+    "expand-home-dir": "^0.0.3",
+    "good": "^8.1.1",
+    "good-console": "^7.1.0",
+    "good-squeeze": "^5.1.0",
+    "hapi": "^17.8.1",
+    "hapi-trailing-slash": "^3.0.1",
+    "inert": "^5.1.2",
+    "lout": "^11.1.0",
+    "micromatch": "^3.1.10",
+    "request-ip": "^2.1.3",
+    "vision": "^5.4.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=10.x"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0"
+  }
+}

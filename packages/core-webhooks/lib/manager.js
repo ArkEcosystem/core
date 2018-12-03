@@ -1,61 +1,55 @@
-'use strict'
+/* eslint no-await-in-loop: "off" */
 
 const axios = require('axios')
-const Bull = require('bull')
-const map = require('lodash/map')
-const container = require('@arkecosystem/core-container')
-const logger = container.resolvePlugin('logger')
+const app = require('@arkecosystem/core-container')
+
+const logger = app.resolvePlugin('logger')
 const database = require('./database')
-const emitter = container.resolvePlugin('event-emitter')
+
+const emitter = app.resolvePlugin('event-emitter')
 
 class WebhookManager {
   /**
-   * Set up the webhook container.
+   * Set up the webhook app.
    * @param  {Object} config
    * @return {void}
    */
-  async setUp (config) {
+  async setUp(config) {
     this.config = config
 
-    await this.__registerQueue()
-
-    map(this.config.events, 'name').forEach(event => {
+    for (const event of app.resolvePlugin('blockchain').getEvents()) {
       emitter.on(event, async payload => {
         const webhooks = await database.findByEvent(event)
 
-        this
-          .getMatchingWebhooks(webhooks, payload)
-          .forEach(webhook => this.queue.add({ webhook, payload }))
-      })
-    })
+        for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
+          try {
+            const response = await axios.post(
+              webhook.target,
+              {
+                timestamp: +new Date(),
+                data: payload,
+                event: webhook.event,
+              },
+              {
+                headers: {
+                  Authorization: webhook.token,
+                },
+              },
+            )
 
-    this.queue.process(async (job) => {
-      try {
-        const response = await axios.post(job.data.webhook.target, {
-          timestamp: +new Date(),
-          data: job.data.payload,
-          event: job.data.webhook.event
-        }, {
-          headers: {
-            Authorization: job.data.webhook.token
+            logger.debug(
+              `Webhooks Job ${webhook.id} completed! Event [${
+                webhook.event
+              }] has been transmitted to [${
+                webhook.target
+              }] with a status of [${response.status}].`,
+            )
+          } catch (error) {
+            logger.error(`Webhooks Job ${webhook.id} failed: ${error.message}`)
           }
-        })
-
-        return {
-          status: response.status,
-          headers: response.headers,
-          data: response.data
         }
-      } catch (error) {
-        logger.error(`Job ${job.id} failed: ${error.message}`)
-      }
-    })
-
-    this.queue.on('completed', (job, result) => {
-      logger.debug(`Webhooks Job ${job.id} completed! Event [${job.data.webhook.event}] has been transmitted to [${job.data.webhook.target}] with a status of [${result.status}].`)
-
-      job.remove()
-    })
+      })
+    }
   }
 
   /**
@@ -64,44 +58,32 @@ class WebhookManager {
    * @param  {Object} payload
    * @return {Array}
    */
-  getMatchingWebhooks (webhooks, payload) {
+  getMatchingWebhooks(webhooks, payload) {
     const matches = []
 
-    webhooks.forEach(webhook => {
-      if (!webhook.conditions) {
-        webhooks.push(webhook)
+    for (const webhook of webhooks) {
+      if (!webhook.enabled) {
+        continue
       }
 
-      for (let condition of webhook.conditions) {
+      if (!webhook.conditions) {
+        matches.push(webhook)
+
+        continue
+      }
+
+      for (const condition of webhook.conditions) {
         const satisfies = require(`./conditions/${condition.condition}`)
 
         if (!satisfies(payload[condition.key], condition.value)) {
-          break
+          continue
         }
 
         matches.push(webhook)
       }
-    })
+    }
 
     return matches
-  }
-
-  /**
-   * Get all webhook events.
-   * @return {Array}
-   */
-  getEvents () {
-    return this.config.events
-  }
-
-  /**
-   * Create a new redis queue instance.
-   * @return {void}
-   */
-  __registerQueue () {
-    this.queue = new Bull('webhooks', {
-      redis: this.config.redis
-    })
   }
 }
 

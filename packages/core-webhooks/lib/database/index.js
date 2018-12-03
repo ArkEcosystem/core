@@ -1,11 +1,10 @@
-'use strict'
-
 const Sequelize = require('sequelize')
+
 const Op = Sequelize.Op
 const Umzug = require('umzug')
 const path = require('path')
 const fs = require('fs-extra')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const app = require('@arkecosystem/core-container')
 
 class Database {
   /**
@@ -13,7 +12,7 @@ class Database {
    * @param  {Object} config
    * @return {void}
    */
-  async setUp (config) {
+  async setUp(config) {
     if (this.connection) {
       throw new Error('Webhooks database already initialised')
     }
@@ -24,7 +23,7 @@ class Database {
 
     this.connection = new Sequelize({
       ...config,
-      ...{ operatorsAliases: Op }
+      ...{ operatorsAliases: Op },
     })
 
     try {
@@ -32,9 +31,7 @@ class Database {
       await this.__runMigrations()
       await this.__registerModels()
     } catch (error) {
-      logger.error('Unable to connect to the database', error.stack)
-      // TODO no exit here?
-      process.exit(1)
+      app.forceExit('Unable to connect to the database!', error)
     }
   }
 
@@ -43,7 +40,7 @@ class Database {
    * @param  {Object} params
    * @return {Object}
    */
-  paginate (params) {
+  paginate(params) {
     return this.model.findAndCountAll(params)
   }
 
@@ -52,7 +49,7 @@ class Database {
    * @param  {Number} id
    * @return {Object}
    */
-  findById (id) {
+  findById(id) {
     return this.model.findById(id)
   }
 
@@ -61,8 +58,8 @@ class Database {
    * @param  {String} event
    * @return {Array}
    */
-  findByEvent (event) {
-    return this.model.findAll({ where: {event} })
+  findByEvent(event) {
+    return this.model.findAll({ where: { event } })
   }
 
   /**
@@ -70,7 +67,7 @@ class Database {
    * @param  {Object} data
    * @return {Object}
    */
-  create (data) {
+  create(data) {
     return this.model.create(data)
   }
 
@@ -80,7 +77,7 @@ class Database {
    * @param  {Object} data
    * @return {Boolean}
    */
-  async update (id, data) {
+  async update(id, data) {
     try {
       const webhook = await this.model.findById(id)
 
@@ -97,9 +94,9 @@ class Database {
    * @param  {Number} id
    * @return {Boolean}
    */
-  async destroy (id) {
+  async destroy(id) {
     try {
-      const webhook = this.model.findById(id)
+      const webhook = await this.model.findById(id)
 
       webhook.destroy()
 
@@ -113,19 +110,16 @@ class Database {
    * Run all migrations.
    * @return {Boolean}
    */
-  __runMigrations () {
+  __runMigrations() {
     const umzug = new Umzug({
       storage: 'sequelize',
       storageOptions: {
-        sequelize: this.connection
+        sequelize: this.connection,
       },
       migrations: {
-        params: [
-          this.connection.getQueryInterface(),
-          Sequelize
-        ],
-        path: path.join(__dirname, 'migrations')
-      }
+        params: [this.connection.getQueryInterface(), Sequelize],
+        path: path.join(__dirname, 'migrations'),
+      },
     })
 
     return umzug.up()
@@ -135,8 +129,8 @@ class Database {
    * Register all models.
    * @return {void}
    */
-  __registerModels () {
-    this.model = this.connection['import']('./model')
+  __registerModels() {
+    this.model = this.connection.import('./model')
   }
 }
 

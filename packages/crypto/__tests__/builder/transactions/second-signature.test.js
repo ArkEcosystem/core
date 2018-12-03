@@ -13,11 +13,27 @@ beforeEach(() => {
 })
 
 describe('Second Signature Transaction', () => {
+  describe('verify', () => {
+    it('should be valid with a signature', () => {
+      const actual = builder
+        .signatureAsset('signature')
+        .sign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+  })
+
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.SECOND_SIGNATURE)
-    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE))
+    expect(builder).toHaveProperty(
+      'data.type',
+      TRANSACTION_TYPES.SECOND_SIGNATURE,
+    )
+    expect(builder).toHaveProperty(
+      'data.fee',
+      feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE),
+    )
     expect(builder).toHaveProperty('data.amount', 0)
     expect(builder).toHaveProperty('data.recipientId', null)
     expect(builder).toHaveProperty('data.senderPublicKey', null)

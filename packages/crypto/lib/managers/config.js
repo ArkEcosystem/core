@@ -1,5 +1,4 @@
-const arkjsv1 = require('arkjsv1')
-const _ = require('lodash')
+const camelCase = require('lodash/camelCase')
 const deepmerge = require('deepmerge')
 const feeManager = require('./fee')
 const dynamicFeeManager = require('./dynamic-fee')
@@ -11,7 +10,7 @@ class ConfigManager {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     this.setConfig(defaultConfig)
   }
 
@@ -19,18 +18,16 @@ class ConfigManager {
    * Set config data.
    * @param {Object} config
    */
-  setConfig (config) {
+  setConfig(config) {
     this.config = {}
 
     for (const [key, value] of Object.entries(config)) {
       this.config[key] = value
-     }
-
-    arkjsv1.crypto.setNetworkVersion(this.config.pubKeyHash) // make sure ark.js v1 uses our config
+    }
 
     this.buildConstants()
     this.buildFees()
-    this.buildDynamicOffsets()
+    this.buildAddonBytes()
   }
 
   /**
@@ -38,7 +35,7 @@ class ConfigManager {
    * @param {String} coin
    * @param {String} network
    */
-  setFromPreset (coin, network) {
+  setFromPreset(coin, network) {
     this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()])
   }
 
@@ -46,7 +43,7 @@ class ConfigManager {
    * Get all config data.
    * @return {Object}
    */
-  all () {
+  all() {
     return this.config
   }
 
@@ -55,7 +52,7 @@ class ConfigManager {
    * @param {String} key
    * @param {*}      value
    */
-  set (key, value) {
+  set(key, value) {
     this.config[key] = value
   }
 
@@ -64,7 +61,7 @@ class ConfigManager {
    * @param  {String} key
    * @return {*}
    */
-  get (key) {
+  get(key) {
     return this.config[key]
   }
 
@@ -72,7 +69,7 @@ class ConfigManager {
    * Set config manager height.
    * @param {Number} value
    */
-  setHeight (value) {
+  setHeight(value) {
     this.height = value
   }
 
@@ -80,7 +77,7 @@ class ConfigManager {
    * Get config manager height.
    * @return {Number}
    */
-  getHeight () {
+  getHeight() {
     return this.height
   }
 
@@ -89,7 +86,7 @@ class ConfigManager {
    * @param  {String} key
    * @return {*}
    */
-  getConstant (key) {
+  getConstant(key) {
     return this.getConstants()[key]
   }
 
@@ -98,7 +95,7 @@ class ConfigManager {
    * @param  {(Number|undefined)} height
    * @return {*}
    */
-  getConstants (height) {
+  getConstants(height) {
     if (!height && this.height) {
       height = this.height
     }
@@ -107,7 +104,10 @@ class ConfigManager {
       height = 1
     }
 
-    while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
+    while (
+      this.constant.index < this.constants.length - 1 &&
+      height >= this.constants[this.constant.index + 1].height
+    ) {
       this.constant.index++
       this.constant.data = this.constants[this.constant.index]
     }
@@ -123,17 +123,20 @@ class ConfigManager {
   /**
    * Build constant data based on active heights.
    */
-  buildConstants () {
+  buildConstants() {
     this.constants = this.config.constants.sort((a, b) => a.height - b.height)
     this.constant = {
       index: 0,
-      data: this.constants[0]
+      data: this.constants[0],
     }
 
     let lastmerged = 0
 
     while (lastmerged < this.constants.length - 1) {
-      this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1])
+      this.constants[lastmerged + 1] = deepmerge(
+        this.constants[lastmerged],
+        this.constants[lastmerged + 1],
+      )
       lastmerged++
     }
   }
@@ -141,20 +144,26 @@ class ConfigManager {
   /**
    * Build fees from config constants.
    */
-  buildFees () {
-    Object
-      .keys(TRANSACTION_TYPES)
-      .forEach(type => feeManager.set(TRANSACTION_TYPES[type], this.getConstant('fees')[_.camelCase(type)]))
+  buildFees() {
+    Object.keys(TRANSACTION_TYPES).forEach(type =>
+      feeManager.set(
+        TRANSACTION_TYPES[type],
+        this.getConstant('fees').staticFees[camelCase(type)],
+      ),
+    )
   }
 
   /**
-   * Build dynamic offsets from config constants.
+   * Build addon bytes from config constants.
    */
-  buildDynamicOffsets () {
-    if (this.getConstant('dynamicOffsets')) {
-      Object
-        .keys(TRANSACTION_TYPES)
-        .forEach(type => dynamicFeeManager.set(TRANSACTION_TYPES[type], this.getConstant('dynamicOffsets')[_.camelCase(type)]))
+  buildAddonBytes() {
+    if (this.getConstant('fees').dynamicFees.addonBytes) {
+      Object.keys(TRANSACTION_TYPES).forEach(type =>
+        dynamicFeeManager.set(
+          TRANSACTION_TYPES[type],
+          this.getConstant('fees').dynamicFees.addonBytes[camelCase(type)],
+        ),
+      )
     }
   }
 }

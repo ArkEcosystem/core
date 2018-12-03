@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-blockchain",
-  "description": "Blockchain Manager for ARK Core",
-  "version": "0.1.1",
+  "description": "Blockchain Manager for Ark Core",
+  "version": "0.2.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -10,28 +10,36 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-utils": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
     "async": "^2.6.1",
-    "awilix": "^3.0.8",
-    "delay": "^2.0.0",
-    "pretty-ms": "^3.2.0",
-    "xstate": "^3.2.1"
+    "awilix": "^4.0.1",
+    "delay": "^4.1.0",
+    "pretty-ms": "^4.0.0",
+    "xstate": "^4.1.2",
+    "immutable": "^4.0.0-rc.12",
+    "pluralize": "^7.0.0"
+  },
+  "devDependencies": {
+    "@arkecosystem/core-p2p": "~0.2",
+    "@arkecosystem/core-test-utils": "~0.2",
+    "axios": "^0.18.0",
+    "axios-mock-adapter": "^1.15.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1"
+  "engines": {
+    "node": ">=10.x"
   }
 }

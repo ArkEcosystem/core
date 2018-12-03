@@ -1,18 +1,18 @@
-'use strict'
+const app = require('@arkecosystem/core-container')
+const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
-const path = require('path')
-const container = require('@arkecosystem/core-container')
+jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  await container.setUp({
-    data: '~/.ark',
-    config: path.resolve(__dirname, './config'),
-    network: 'testnet',
-    token: 'ark'
-  }, {
+  process.env.ARK_GRAPHQL_ENABLED = true
+
+  await appHelper.setUp({
+    exclude: ['@arkecosystem/core-api', '@arkecosystem/core-forger'],
   })
 
-  return container
+  return app
 }
 
-exports.tearDown = () => container.tearDown()
+exports.tearDown = async () => {
+  await app.tearDown()
+}

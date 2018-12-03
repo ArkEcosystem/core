@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 0.0.1 - 2018-05-31
+## 0.2.0 - 2018-12-03
+
 ### Added
+
+- Support plugin extensions
+- More graceful handling of shutdown
+- Silent shutdown to hide output
+- Configuration through a remote peer
+- Expose the git commit hash on development networks
+
+### Fixed
+
+- Cast numerical strings to numbers
+
+### Changed
+
+- No longer load the `.env` file in test environments
+- Dropped node.js 9 as minimum requirement in favour of node.js 10
+
+## 0.1.1 - 2018-06-14
+
+### Added
+
 - initial release

@@ -1,17 +1,15 @@
-'use strict'
-
 /* eslint-disable */
 
-const BigNumber = require('bignumber.js')
+const { bignumify } = require('@arkecosystem/core-utils')
 
 /**
  * Check if the given value is a boolean.
  * @param  {*}  value
  * @return {Boolean}
  */
-function isBoolean (value) {
+function isBoolean(value) {
   try {
-    return (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
+    return value.toLowerCase() === 'true' || value.toLowerCase() === 'false'
   } catch (e) {
     return false
   }
@@ -22,7 +20,7 @@ function isBoolean (value) {
  * @param  {*}  value
  * @return {Boolean}
  */
-function isNumber (value) {
+function isNumber(value) {
   return !isNaN(value)
 }
 
@@ -51,9 +49,10 @@ const register = async (server, options) => {
         }
         // Integers - making sure "BigNumbers" are kept as strings
         else if (isNumber(query[key])) {
-          query[key] = (query[key] == Number(query[key]))
-            ? Number(query[key])
-            : BigNumber(query[key]).toString()
+          query[key] =
+            query[key] == Number(query[key])
+              ? Number(query[key])
+              : bignumify(query[key]).toString()
         }
         // Strings
         else {
@@ -64,7 +63,7 @@ const register = async (server, options) => {
       request.query = query
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -75,5 +74,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'core-caster',
   version: '0.1.0',
-  register
+  register,
 }

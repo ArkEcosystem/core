@@ -1,5 +1,3 @@
-'use strict'
-
 const mm = require('micromatch')
 
 /**

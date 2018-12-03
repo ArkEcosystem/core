@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-api",
-  "description": "Public API for ARK Core",
-  "version": "0.1.1",
+  "description": "Public API for Ark Core",
+  "version": "0.2.0",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -9,43 +9,41 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores catbox-redis"
+    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-transaction-pool": "^0.1.1",
-    "@arkecosystem/crypto": "^0.1.1",
-    "ajv": "^6.5.0",
-    "bignumber.js": "^7.1.0",
-    "boom": "^7.2.0",
-    "bs58check": "^2.1.1",
-    "catbox-redis": "^4.1.0",
-    "hapi": "^17.5.0",
-    "hapi-api-version": "https://github.com/faustbrian/hapi-api-version",
+    "@arkecosystem/core-container": "~0.2",
+    "@arkecosystem/core-http-utils": "~0.2",
+    "@arkecosystem/core-transaction-pool": "~0.2",
+    "@arkecosystem/core-utils": "~0.2",
+    "@arkecosystem/crypto": "~0.2",
+    "ajv": "^6.5.5",
+    "boom": "^7.3.0",
+    "bs58check": "^2.1.2",
+    "dayjs-ext": "^2.2.0",
+    "hapi-api-version": "^2.1.0",
     "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
-    "hapi-rate-limit": "^2.1.2",
-    "inert": "^5.1.0",
+    "hapi-rate-limit": "^2.1.4",
     "ip": "^1.1.5",
-    "joi": "^13.3.0",
-    "lodash": "^4.17.10",
-    "lout": "^11.0.1",
-    "micromatch": "^3.1.10",
-    "moment": "^2.22.1",
-    "request-ip": "^2.1.1",
-    "vision": "^5.3.2"
+    "joi": "^14.3.0",
+    "lodash": "^4.17.11",
+    "lodash.orderby": "^4.6.0",
+    "lodash.snakecase": "^4.1.1"
+  },
+  "devDependencies": {
+    "@arkecosystem/core-test-utils": "~0.2",
+    "axios": "^0.18.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1",
-    "axios": "^0.18.0"
+  "engines": {
+    "node": ">=10.x"
   }
 }

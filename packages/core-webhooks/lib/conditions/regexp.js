@@ -1,9 +1,7 @@
-'use strict'
-
 /**
  * Check if the given value matches.
- * @param  {*} input
- * @param  {String} pattern
+ * @param  {*} actual
+ * @param  {String} expected
  * @return {Boolean}
  */
-module.exports = (input, pattern) => (new RegExp(pattern).test(input))
+module.exports = (actual, expected) => new RegExp(expected).test(actual)

@@ -1,26 +1,12 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - JSON-RPC
 
-# ARK Core - JSON-RPC Server
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-json-rpc
-```
-
-## Configuration
-
-### Defaults
-
-```js
-'use strict'
-
-module.exports = {
-  port: 8080,
-  allowRemote: true,
-  whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
-}
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-json-rpc.html).
 
 ## Security
 

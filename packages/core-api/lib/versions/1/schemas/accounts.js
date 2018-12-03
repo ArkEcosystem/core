@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * The AJV schema for the account endpoints.
  * @type {Object}
@@ -11,10 +9,10 @@ module.exports = {
       address: {
         type: 'string',
         minLength: 1,
-        format: 'address'
-      }
+        format: 'address',
+      },
     },
-    required: ['address']
+    required: ['address'],
   },
   getPublicKey: {
     type: 'object',
@@ -22,20 +20,20 @@ module.exports = {
       address: {
         type: 'string',
         minLength: 1,
-        format: 'address'
-      }
+        format: 'address',
+      },
     },
-    required: ['address']
+    required: ['address'],
   },
   generatePublicKey: {
     type: 'object',
     properties: {
       secret: {
         type: 'string',
-        minLength: 1
-      }
+        minLength: 1,
+      },
     },
-    required: ['secret']
+    required: ['secret'],
   },
   getDelegates: {
     type: 'object',
@@ -43,10 +41,10 @@ module.exports = {
       address: {
         type: 'string',
         minLength: 1,
-        format: 'address'
-      }
+        format: 'address',
+      },
     },
-    required: ['address']
+    required: ['address'],
   },
   getAccount: {
     type: 'object',
@@ -54,10 +52,10 @@ module.exports = {
       address: {
         type: 'string',
         minLength: 1,
-        format: 'address'
-      }
+        format: 'address',
+      },
     },
-    required: ['address']
+    required: ['address'],
   },
   top: {
     type: 'object',
@@ -65,12 +63,12 @@ module.exports = {
       limit: {
         type: 'integer',
         minimum: 0,
-        maximum: 100
+        maximum: 100,
       },
       offset: {
         type: 'integer',
-        minimum: 0
-      }
-    }
-  }
-};
+        minimum: 0,
+      },
+    },
+  },
+}

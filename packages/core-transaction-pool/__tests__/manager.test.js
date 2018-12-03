@@ -1,9 +1,7 @@
-'use strict'
-
 const transactionPoolManager = require('../lib/manager')
 
 class FakeDriver {
-  make () {
+  make() {
     return this
   }
 }
@@ -27,7 +25,9 @@ describe('Transaction Pool Manager', () => {
     it('should return the drive-connection for a different name', async () => {
       await transactionPoolManager.makeConnection(new FakeDriver(), 'testing')
 
-      expect(transactionPoolManager.connection('testing')).toBeInstanceOf(FakeDriver)
+      expect(transactionPoolManager.connection('testing')).toBeInstanceOf(
+        FakeDriver,
+      )
     })
   })
 

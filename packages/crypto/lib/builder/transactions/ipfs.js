@@ -6,7 +6,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.IPFS
@@ -22,7 +22,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    * @param  {String} ipfsHash
    * @return {IPFSBuilder}
    */
-  ipfsHash (ipfsHash) {
+  ipfsHash(ipfsHash) {
     this.data.ipfsHash = ipfsHash
     return this
   }
@@ -32,14 +32,17 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    * @param  {String} type TODO is it necessary?
    * @return {IPFSBuilder}
    */
-  vendorField (type) {
-    this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString('hex')
+  vendorField(type) {
+    this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString(
+      'hex',
+    )
 
     while (this.data.vendorFieldHex.length < 128) {
-      this.data.vendorFieldHex = '00' + this.data.vendorFieldHex
+      this.data.vendorFieldHex = `00${this.data.vendorFieldHex}`
     }
 
-    // TODO is this right? when is vendorFieldHex.length is odd, it will add 1 more "0" than previous way
+    // TODO is this right? when is vendorFieldHex.length is odd,
+    // it will add 1 more "0" than previous way
     // const vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString('hex')
     // this.data.vendorFieldHex = vendorFieldHex.padStart(128, '0')
 
@@ -50,7 +53,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    * Overrides the inherited method to return the additional required by this.
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.amount = this.data.amount
     struct.vendorFieldHex = this.data.vendorFieldHex
