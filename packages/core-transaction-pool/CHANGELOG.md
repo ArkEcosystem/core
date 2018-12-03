@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Revert excess transactions
 - Reject transactions that have a timestamp from the future
 - Remove invalid transactions from pool when receiving a bad block
+- Handling of cold wallets while applying transactions
 
 ## 0.1.1 - 2018-06-14
 

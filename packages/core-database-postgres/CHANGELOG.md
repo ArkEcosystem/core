@@ -35,6 +35,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Only commit data when `saveBlockCommit` is called
 - Various bad method calls for expected query results
 - Sorting of votes during SPV
+- Added a missing index for the `block_id` column in the `transactions` table
+- Moved the wallets integrity check after the wallet rebuild process to avoid false positive blockchain rebuilds
+- Insert bignumber objects as strings to avoid rounding issues caused by `Number.MAX_SAFE_INTEGER`
 
 ## 0.1.0 - 2018-09-11
 
