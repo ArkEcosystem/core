@@ -80,15 +80,6 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions that are ready to be forged.
-   * @param  {Number} blockSize
-   * @return {(Array|void)}
-   */
-  getTransactionsForForging(blockSize) {
-    throw new Error('Method [getTransactionsForForging] not implemented!')
-  }
-
-  /**
    * Get a transaction from the pool by transaction id.
    * @param  {Number} id
    * @return {(Transaction|String)}
@@ -105,16 +96,6 @@ module.exports = class TransactionPoolInterface {
    */
   getTransactions(start, size) {
     throw new Error('Method [getTransactions] not implemented!')
-  }
-
-  /**
-   * Get all cleans transactions IDs within the specified range from transaction pool.
-   * @param  {Number} start
-   * @param  {Number} size
-   * @return {Array}
-   */
-  getTransactionIdsForForging(start, size) {
-    throw new Error('Method [getTransactionIdsForForging] not implemented!')
   }
 
   /**
@@ -263,29 +244,20 @@ module.exports = class TransactionPoolInterface {
    * and validates them and apply to the pool manager.
    * @return {void}
    */
-  async buildWallets() {
+  buildWallets() {
     this.walletManager.reset()
-    const poolTransactionIds = await this.getTransactionIdsForForging(
-      0,
-      this.getPoolSize(),
-    )
 
-    app.resolve('state').removeCachedTransactionIds(poolTransactionIds)
+    const transactions = this.getTransactions(0, this.getPoolSize())
 
-    poolTransactionIds.forEach(transactionId => {
-      const transaction = this.getTransaction(transactionId)
-      if (!transaction) {
-        return
-      }
+    app.resolve('state').removeCachedTransactionIds(transactions.map(t => t.id))
 
-      const senderWallet = this.walletManager.findByPublicKey(
-        transaction.senderPublicKey,
-      )
+    transactions.forEach(transaction => {
+      const senderWallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
       const errors = []
       if (senderWallet && senderWallet.canApply(transaction, errors)) {
         senderWallet.applyTransactionToSender(transaction)
       } else {
-        logger.error('BuildWallets from pool:', errors)
+        logger.error('BuildWallets from pool: ', errors)
         this.purgeByPublicKey(transaction.senderPublicKey)
       }
     })

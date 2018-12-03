@@ -55,11 +55,6 @@ describe('Forger Manager', () => {
       expect(forgeManager.__forgeNewBlock).toBeFunction()
     })
     it('should forge a block', async () => {
-      forgeManager.client.getTransactions.mockReturnValue({
-        transactions: [
-          Transaction.serialize(sampleTransaction).toString('hex'),
-        ],
-      })
       forgeManager.usernames = []
       const del = new Delegate('a secret', 100)
       const round = {
@@ -67,6 +62,12 @@ describe('Forger Manager', () => {
         timestamp: 1,
         reward: 2,
       }
+      forgeManager.client.getTransactions.mockReturnValue({
+        asOfHeight: round.lastBlock.height,
+        transactions: [
+          Transaction.serialize(sampleTransaction).toString('hex'),
+        ],
+      })
 
       await forgeManager.__forgeNewBlock(del, round)
 

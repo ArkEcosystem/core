@@ -49,12 +49,23 @@ module.exports = class TransactionsRepository extends Repository {
   }
 
   /**
-   * Get all of the forged transactions from the database.
+   * From a given set of transaction ids, leave only the already forged ones.
    * @param  {Array} ids
    * @return {Promise}
    */
-  async forged(ids) {
-    return this.db.manyOrNone(sql.forged, { ids })
+  async forgedAll(ids) {
+    return this.db.manyOrNone(sql.forgedAll, { ids })
+  }
+
+  /**
+   * From a given set of transaction ids, leave only the already forged ones as of
+   * the given block height.
+   * @param  {Array} ids
+   * @param  {Number} as of blockchain height
+   * @return {Promise}
+   */
+  async forgedAsOfHeight(ids, asOfHeight) {
+    return this.db.manyOrNone(sql.forgedAsOfHeight, { ids, asOfHeight })
   }
 
   /**

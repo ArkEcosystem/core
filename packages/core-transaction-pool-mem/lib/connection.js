@@ -237,66 +237,17 @@ class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions that are ready to be forged.
-   * @param  {Number} blockSize
-   * @return {(Array|void)}
-   */
-  getTransactionsForForging(blockSize) {
-    return this.getTransactions(0, blockSize)
-  }
-
-  /**
-   * Get all transactions within the specified range [start, start + size), ordered by fee.
-   * @param  {Number} start
-   * @param  {Number} size
-   * @return {(Array|void)} array of serialized transaction hex strings
-   */
-  getTransactions(start, size) {
-    return this.getTransactionsData(start, size, 'serialized')
-  }
-
-  /**
    * Get all transactions within the specified range [start, start + size).
-   * @param  {Number} start
-   * @param  {Number} size
-   * @return {Array} array of transactions IDs in the specified range
-   */
-  getTransactionIdsForForging(start, size) {
-    return this.getTransactionsData(start, size, 'id')
-  }
-
-  /**
-   * Get data from all transactions within the specified range [start, start + size).
    * Transactions are ordered by fee (highest fee first) or by
    * insertion time, if fees equal (earliest transaction first).
    * @param  {Number} start
    * @param  {Number} size
-   * @param  {String} property
-   * @return {Array} array of transaction[property]
+   * @return {Array} array of Transaction
    */
-  getTransactionsData(start, size, property) {
+  getTransactions(start, size) {
     this.__purgeExpired()
 
-    const data = []
-
-    let i = 0
-    for (const memPoolTransaction of this.mem.getTransactionsOrderedByFee()) {
-      if (i >= start + size) {
-        break
-      }
-
-      if (i >= start) {
-        assert.notStrictEqual(
-          memPoolTransaction.transaction[property],
-          undefined,
-        )
-        data.push(memPoolTransaction.transaction[property])
-      }
-
-      i++
-    }
-
-    return data
+    return this.mem.getTransactionsOrderedByFee().slice(start, start + size).map(m => m.transaction)
   }
 
   /**

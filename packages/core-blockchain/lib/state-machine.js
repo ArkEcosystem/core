@@ -132,7 +132,7 @@ blockchainMachine.actionMap = blockchain => ({
       await blockchain.rollbackCurrentRound()
       await blockchain.database.buildWallets(state.getLastBlock().data.height)
       await blockchain.database.saveWallets(true)
-      await blockchain.transactionPool.buildWallets()
+      blockchain.transactionPool.buildWallets()
 
       return blockchain.dispatch('PROCESSFINISHED')
     } catch (error) {
@@ -217,7 +217,7 @@ blockchainMachine.actionMap = blockchain => ({
         await blockchain.database.buildWallets(block.data.height)
         await blockchain.database.saveWallets(true)
         await blockchain.database.applyRound(block.data.height)
-        await blockchain.transactionPool.buildWallets()
+        blockchain.transactionPool.buildWallets()
 
         return blockchain.dispatch('STARTED')
       }
@@ -285,7 +285,7 @@ blockchainMachine.actionMap = blockchain => ({
       }
 
       await blockchain.database.applyRound(block.data.height)
-      await blockchain.transactionPool.buildWallets()
+      blockchain.transactionPool.buildWallets()
 
       return blockchain.dispatch('STARTED')
     } catch (error) {
@@ -403,7 +403,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     logger.info(`Removed ${pluralize('block', random, true)} :wastebasket:`)
 
-    await blockchain.transactionPool.buildWallets()
+    blockchain.transactionPool.buildWallets()
     await blockchain.p2p.refreshPeersAfterFork()
 
     blockchain.dispatch('SUCCESS')

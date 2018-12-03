@@ -528,20 +528,28 @@ module.exports = class Blockchain {
   }
 
   /**
-   * Get unconfirmed transactions for the specified block size.
-   * @param  {Number}  blockSize
-   * @param  {Boolean} forForging
+   * Get the topmost N unconfirmed transactions as of blockchain height `asOfHeight`.
+   * @param {Number} n
+   * @param {Number} asOfHeight
    * @return {Object}
    */
-  getUnconfirmedTransactions(blockSize) {
-    const transactions = this.transactionPool.getTransactionsForForging(
-      blockSize,
-    )
+  async getUnconfirmedTransactions(n, asOfHeight = undefined) {
+    let transactions = this.transactionPool.getTransactions(0, n)
+    const transactionsIds = transactions.map(t => t.id)
+
+    const forgedIds = await this.database.getForgedTransactionsIds(transactionsIds, asOfHeight)
+
+    if (forgedIds.length > 0) {
+      const h = {}
+      forgedIds.forEach(id => { h[id] = true })
+      transactions = transactions.filter(t => !h[t.id])
+    }
 
     return {
-      transactions,
+      transactions: transactions.map(t => t.serialized),
       poolSize: this.transactionPool.getPoolSize(),
-      count: transactions ? transactions.length : -1,
+      count: transactions.length,
+      asOfHeight,
     }
   }
 

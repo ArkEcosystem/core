@@ -202,7 +202,7 @@ module.exports = class ForgerManager {
     //
     // this.client.emitEvent('forger.started', delegate.publicKey)
 
-    const transactions = await this.__getTransactionsForForging()
+    const transactions = await this.__getTransactionsForForging(round.lastBlock.height)
 
     const blockOptions = {}
     blockOptions.previousBlock = round.lastBlock
@@ -227,15 +227,40 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * Gets the unconfirmed transactions from the relay nodes transaction pool
+   * Gets the unconfirmed transactions from the relay nodes transaction pool.
+   * @param {Number} asOfHeight we require that the transactions are not forged
+   * as of the given height
    */
-  async __getTransactionsForForging() {
-    const response = await this.client.getTransactions()
+  async __getTransactionsForForging(asOfHeight) {
+    let response
+    let retry
+    let i = 0
+    do {
+      response = await this.client.getTransactions()
+
+      if (response.asOfHeight < asOfHeight) {
+        logger.warn(
+          `While fetching transactions to forge: got an outdated response: valid as of ` +
+          `block ${response.asOfHeight}, but we need data as of block ${asOfHeight} ` +
+          `because we are forging block ${asOfHeight + 1}`
+        )
+        if (i < 4) {
+          retry = true
+        } else {
+          retry = false
+          logger.warn(
+            `Will forge a block with the outdated list of transactions. ` +
+            `It is possible that some already forged transactions get included in the block`
+          )
+        }
+      } else {
+        retry = false
+      }
+      i++
+    } while (retry)
 
     const transactions = response.transactions
-      ? response.transactions.map(serializedTx =>
-          Transaction.fromBytes(serializedTx),
-        )
+      ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
       : []
 
     if (isEmpty(response)) {

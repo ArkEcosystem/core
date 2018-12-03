@@ -378,43 +378,12 @@ describe('Connection', () => {
       for (const i of [0, 1]) {
         const retrieved = connection
           .getTransactions(i, 1)
-          .map(serializedTx => Transaction.fromBytes(serializedTx))
+          .map(t => Transaction.fromBytes(t.serialized))
 
         expect(retrieved.length).toBe(1)
         expect(retrieved[0]).toBeObject()
         expect(retrieved[0].id).toBe(transactions[i].id)
       }
-    })
-  })
-
-  describe('getTransactionIdsForForging', () => {
-    it('should be a function', () => {
-      expect(connection.getTransactionIdsForForging).toBeFunction()
-    })
-
-    it('should return an array of transactions ids', () => {
-      connection.addTransaction(mockData.dummy1)
-      connection.addTransaction(mockData.dummy2)
-      connection.addTransaction(mockData.dummy3)
-      connection.addTransaction(mockData.dummy4)
-      connection.addTransaction(mockData.dummy5)
-      connection.addTransaction(mockData.dummy6)
-
-      const transactionIds = connection.getTransactionIdsForForging(0, 6)
-
-      expect(transactionIds).toBeArray()
-      expect(transactionIds[0]).toBe(mockData.dummy1.id)
-      expect(transactionIds[1]).toBe(mockData.dummy2.id)
-      expect(transactionIds[2]).toBe(mockData.dummy3.id)
-      expect(transactionIds[3]).toBe(mockData.dummy4.id)
-      expect(transactionIds[4]).toBe(mockData.dummy5.id)
-      expect(transactionIds[5]).toBe(mockData.dummy6.id)
-    })
-  })
-
-  describe('getTransactionsForForging', () => {
-    it('should be a function', () => {
-      expect(connection.getTransactionsForForging).toBeFunction()
     })
   })
 
@@ -641,12 +610,10 @@ describe('Connection', () => {
         .map(f => f.toString())
 
       // console.time(`time to get first ${nGet}`)
-      const topTransactionsSerialized = connection.getTransactions(0, nGet)
+      const topTransactions = connection.getTransactions(0, nGet)
       // console.timeEnd(`time to get first ${nGet}`)
 
-      const topFeesReceived = topTransactionsSerialized.map(e =>
-        new Transaction(e).fee.toString(),
-      )
+      const topFeesReceived = topTransactions.map(t => new Transaction(t.serialized).fee.toString())
 
       expect(topFeesReceived).toEqual(topFeesExpected)
     })

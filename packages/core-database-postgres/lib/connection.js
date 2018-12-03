@@ -534,18 +534,24 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Get forged transactions for the given IDs.
-   * @param  {Array} ids
-   * @return {Array}
+   * From a given set of transaction ids, leave only the already forged ones as of
+   * the given block height.
+   * @param {Array} transactions ids
+   * @return {Array} transactions ids
    */
-  async getForgedTransactionsIds(ids) {
-    if (!ids.length) {
+  async getForgedTransactionsIds(ids, asOfHeight = undefined) {
+    if (ids.length === 0) {
       return []
     }
 
-    const transactions = await this.db.transactions.forged(ids)
+    let rows
+    if (asOfHeight === undefined) {
+      rows = await this.db.transactions.forgedAll(ids)
+    } else {
+      rows = await this.db.transactions.forgedAsOfHeight(ids, asOfHeight)
+    }
 
-    return transactions.map(transaction => transaction.id)
+    return rows.map(row => row.id)
   }
 
   /**

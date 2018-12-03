@@ -50,7 +50,8 @@ module.exports = {
       './transactions/latest-by-blocks.sql',
     ),
     statistics: loadQueryFile(__dirname, './transactions/statistics.sql'),
-    forged: loadQueryFile(__dirname, './transactions/forged.sql'),
+    forgedAll: loadQueryFile(__dirname, './transactions/forged-all.sql'),
+    forgedAsOfHeight: loadQueryFile(__dirname, './transactions/forged-as-of-height.sql'),
     findById: loadQueryFile(__dirname, './transactions/find-by-id.sql'),
     findManyById: loadQueryFile(
       __dirname,

@@ -97,30 +97,6 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('getTransactionsForForging', () => {
-    it('should be a function', () => {
-      expect(poolInterface.getTransactionsForForging).toBeFunction()
-    })
-
-    it('should throw an exception', () => {
-      expect(poolInterface.getTransactionsForForging).toThrow(
-        'Method [getTransactionsForForging] not implemented!',
-      )
-    })
-  })
-
-  describe('getTransactionIdsForForging', () => {
-    it('should be a function', () => {
-      expect(poolInterface.getTransactionIdsForForging).toBeFunction()
-    })
-
-    it('should throw an exception', () => {
-      expect(poolInterface.getTransactionIdsForForging).toThrow(
-        'Method [getTransactionIdsForForging] not implemented!',
-      )
-    })
-  })
-
   describe('hasExceededMaxTransactions', () => {
     it('should be a function', () => {
       expect(poolInterface.hasExceededMaxTransactions).toBeFunction()

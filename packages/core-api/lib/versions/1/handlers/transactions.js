@@ -63,13 +63,8 @@ exports.unconfirmed = {
   handler(request, h) {
     const pagination = utils.paginate(request)
 
-    let transactions = transactionPool.getTransactions(
-      pagination.offset,
-      pagination.limit,
-    )
-    transactions = transactions.map(transaction => ({
-      serialized: transaction,
-    }))
+    let transactions = transactionPool.getTransactions(pagination.offset, pagination.limit)
+    transactions = transactions.map(t => ({ serialized: t.serialized }))
 
     return utils.respondWith({
       transactions: utils.toCollection(request, transactions, 'transaction'),

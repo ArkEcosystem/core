@@ -9,8 +9,10 @@ const axiosMock = new MockAdapter(axios)
 const delay = require('delay')
 
 const { asValue } = require('awilix')
-const { crypto, slots } = require('@arkecosystem/crypto')
-const { Block, Wallet } = require('@arkecosystem/crypto').models
+const arkCrypto = require('@arkecosystem/crypto')
+const { crypto, slots } = arkCrypto
+const { Block, Wallet } = arkCrypto.models
+const { TRANSACTION_TYPES } = arkCrypto.constants
 
 let genesisBlock
 let configManager
@@ -145,19 +147,16 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', async () => {
-      const transactionsWithoutType2 = genesisBlock.transactions.filter(
-        tx => tx.type !== 2,
-      )
+      const nonTransferTransactions = genesisBlock.transactions
+        .filter(tx => tx.type !== TRANSACTION_TYPES.TRANSFER).slice(70, 100)
 
       blockchain.transactionPool.flush()
-      await blockchain.postTransactions(transactionsWithoutType2, false)
-      const transactions = blockchain.transactionPool.getTransactions(0, 200)
+      await blockchain.postTransactions(nonTransferTransactions, false)
+      const serialized = blockchain.transactionPool.getTransactions(0, 200).map(t => t.serialized)
 
-      expect(transactions.length).toBe(transactionsWithoutType2.length)
+      expect(serialized.length).toBe(nonTransferTransactions.length)
 
-      expect(transactions).toEqual(
-        transactionsWithoutType2.map(transaction => transaction.serialized),
-      )
+      expect(serialized).toEqual(nonTransferTransactions.map(t => t.serialized))
 
       blockchain.transactionPool.flush()
     })
@@ -317,21 +316,27 @@ describe('Blockchain', () => {
     })
 
     it('should get unconfirmed transactions', async () => {
-      const transactionsWithoutType2 = genesisBlock.transactions.filter(
-        tx => tx.type !== 2,
+      const unconfirmed = require(
+        '@arkecosystem/core-test-utils/fixtures/testnet/unconfirmed-transactions'
       )
+
+      const confirmed = genesisBlock.transactions.filter(
+        t => t.type !== TRANSACTION_TYPES.DELEGATE_REGISTRATION
+      )
+
+      const input = [ unconfirmed.dummy1, ...confirmed, unconfirmed.dummy2 ]
+      const nUnconfirmed = 2
 
       blockchain.transactionPool.flush()
-      await blockchain.postTransactions(transactionsWithoutType2, false)
-      const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200)
 
-      expect(unconfirmedTransactions.transactions.length).toBe(
-        transactionsWithoutType2.length,
-      )
+      await blockchain.postTransactions(input, false)
 
-      expect(unconfirmedTransactions.transactions).toEqual(
-        transactionsWithoutType2.map(transaction => transaction.serialized),
-      )
+      const unconfirmedTransactions = await blockchain.getUnconfirmedTransactions(200)
+
+      expect(unconfirmedTransactions.transactions.length).toBe(nUnconfirmed)
+
+      expect(unconfirmedTransactions.transactions[0]).toEqual(unconfirmed.dummy1.serialized)
+      expect(unconfirmedTransactions.transactions[1]).toEqual(unconfirmed.dummy2.serialized)
 
       blockchain.transactionPool.flush()
     })
