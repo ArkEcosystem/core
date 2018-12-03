@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Enabled rate-limiting
 - Enable/Disable peer discovery
 - Dump the peer list on shutdown and load it on next start
+- Log how many peers were found with what versions
+- Log how many peers were found with what git commits _(development networks only)_
 
 ### Changed
 

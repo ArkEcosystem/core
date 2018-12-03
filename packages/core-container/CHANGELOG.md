@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - More graceful handling of shutdown
 - Silent shutdown to hide output
 - Configuration through a remote peer
+- Expose the git commit hash on development networks
 
 ### Fixed
 
