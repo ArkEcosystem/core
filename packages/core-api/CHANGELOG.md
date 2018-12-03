@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Fixed
+- Return the correct total count for `/api/v2/peers`
+
 ## 0.2.0 - 2018-12-03
 
 ### Added
