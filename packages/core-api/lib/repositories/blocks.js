@@ -60,6 +60,7 @@ class BlocksRepository extends Repository {
       .select()
       .from(this.query)
       .where(this.query.id.equals(id))
+      .or(this.query.height.equals(id))
 
     return this._find(query)
   }
