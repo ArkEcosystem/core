@@ -1,9 +1,9 @@
+import { strictEqual } from "assert";
+import { basename, extname, resolve } from "path";
 import { configManager } from "@arkecosystem/crypto";
 import axios from "axios";
 import * as dirTree from "directory-tree";
 import { copy, ensureDir, existsSync, writeFileSync } from "fs-extra";
-import ow from "ow";
-import { basename, extname, resolve } from "path";
 
 class ConfigLoader {
   public network: any;
@@ -158,12 +158,9 @@ class ConfigLoader {
    */
   public _validateConfig(): void {
     try {
-      // @ts-ignore
-      ow(this.network.pubKeyHash, ow.number);
-      // @ts-ignore
-      ow(this.network.nethash, ow.string.length(64));
-      // @ts-ignore
-      ow(this.network.wif, ow.number);
+      strictEqual(Number.isInteger(this.network.pubKeyHash), true);
+      strictEqual(this.network.nethash.length, 64);
+      strictEqual(Number.isInteger(this.network.wif), true);
     } catch (error) {
       throw Error(error.message);
       process.exit(1);
