@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import { configLoader } from '../src/loader'
+import { Loader } from '../src/loader'
 
 const stubConfigPath = resolve(__dirname, './__stubs__')
 
@@ -9,7 +9,9 @@ const stubConfig = {
   network: require('./__stubs__/network'),
 }
 
+let loader
 beforeEach(() => {
+  loader = new Loader();
   process.env.ARK_PATH_CONFIG = stubConfigPath
   process.env.ARK_NETWORK = JSON.stringify(stubConfig.network)
 })
@@ -21,14 +23,14 @@ afterEach(() => {
 describe('Config Loader', () => {
   it('should fail without a config', async () => {
     try {
-      await configLoader.setUp()
+      await loader.setUp()
     } catch (error) {
       expect(error.message).toEqual('undefined (object) is required')
     }
   })
 
   it('should succeed with a config from a string', async () => {
-    const result = await configLoader.setUp()
+    const result = await loader.setUp()
 
     expect(result.delegates).toEqual(stubConfig.delegates)
     expect(result.genesisBlock).toEqual(stubConfig.genesisBlock)
@@ -36,7 +38,7 @@ describe('Config Loader', () => {
   })
 
   it('should succeed with a config from an object', async () => {
-    const result = await configLoader.setUp()
+    const result = await loader.setUp()
 
     expect(result.delegates).toEqual(stubConfig.delegates)
     expect(result.genesisBlock).toEqual(stubConfig.genesisBlock)

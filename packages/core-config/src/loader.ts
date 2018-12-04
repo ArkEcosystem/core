@@ -1,10 +1,10 @@
 import { configManager } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import axios from "axios";
-import { copy, existsSync, readdirSync, writeFileSync } from "fs-extra";
+import { existsSync, readdirSync, writeFileSync } from "fs-extra";
 import { basename, extname, resolve } from "path";
 
-class ConfigLoader {
+export class Loader {
   public network: any;
   public peers: any;
   public delegates: any;
@@ -15,9 +15,9 @@ class ConfigLoader {
   /**
    * Make the config instance.
    * @param  {Object} options
-   * @return {ConfigLoader}
+   * @return {Loader}
    */
-  public async setUp(options: object = {}): Promise<this> {
+  public async setUp(options: object = {}): Promise<void> {
     this.options = options;
     this.network = JSON.parse(process.env.ARK_NETWORK);
 
@@ -26,8 +26,6 @@ class ConfigLoader {
     this._validateConfig();
 
     configManager.setConfig(this.network);
-
-    return this;
   }
 
   /**
@@ -136,5 +134,3 @@ class ConfigLoader {
     }
   }
 }
-
-export const configLoader = new ConfigLoader();

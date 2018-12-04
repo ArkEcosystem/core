@@ -1,11 +1,15 @@
 {
+  "extends": "@sindresorhus/tsconfig",
   "compilerOptions": {
-    "target": "es2018",
     "lib": ["es2018"],
+    "typeRoots": ["node_modules/@types"],
+    "target": "es2018",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
-    "typeRoots": ["node_modules/@types"]
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "exclude": ["node_modules"]
 }
