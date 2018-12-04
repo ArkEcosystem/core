@@ -4,6 +4,7 @@
     <img src="./banner.png" />
 </p>
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ArkEcosystem/core.svg)](https://greenkeeper.io/)
 [![Build Status](https://badgen.now.sh/circleci/github/ArkEcosystem/core)](https://circleci.com/gh/ArkEcosystem/core)
 [![Codecov](https://badgen.now.sh/codecov/c/github/arkecosystem/core)](https://codecov.io/gh/arkecosystem/core)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)

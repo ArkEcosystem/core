@@ -27,9 +27,6 @@ jobs:
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
-          name: Install Typescript
-          command: yarn global add typescript tslint
-      - run:
           name: Install packages
           command: yarn
       - save_cache:
@@ -67,9 +64,6 @@ jobs:
             - ./packages/crypto/node_modules
             - ./node_modules
       - run:
-          name: Build packages
-          command: yarn build
-      - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
@@ -90,31 +84,6 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  depcheck-lint:
-    working_directory: ~/ark-core
-    docker:
-      - image: 'circleci/node:10'
-    steps:
-      - checkout
-      - run:
-          name: Generate cache key
-          command: >-
-            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
-      - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
-      - run:
-          name: Install Typescript
-          command: yarn global add typescript tslint
-      - run:
-          name: Install packages
-          command: yarn
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Depcheck
-          command: yarn depcheck
   test-node10-1:
     working_directory: ~/ark-core
     docker:
@@ -142,9 +111,6 @@ jobs:
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
-          name: Install Typescript
-          command: yarn global add typescript tslint
-      - run:
           name: Install packages
           command: yarn
       - save_cache:
@@ -181,9 +147,6 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
-      - run:
-          name: Build packages
-          command: yarn build
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
@@ -231,9 +194,6 @@ jobs:
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
-          name: Install Typescript
-          command: yarn global add typescript tslint
-      - run:
           name: Install packages
           command: yarn
       - save_cache:
@@ -271,9 +231,6 @@ jobs:
             - ./packages/crypto/node_modules
             - ./node_modules
       - run:
-          name: Build packages
-          command: yarn build
-      - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
@@ -296,9 +253,8 @@ jobs:
           command: ./node_modules/.bin/codecov
 workflows:
   version: 2
-  test_depcheck_lint:
+  build_and_test:
     jobs:
-      - depcheck-lint
       - test-node10-0
       - test-node10-1
       - test-node10-2

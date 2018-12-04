@@ -8,8 +8,7 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@sentry/node": "^4.4.0"
