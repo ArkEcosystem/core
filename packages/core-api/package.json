@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-api",
   "description": "Public API for Ark Core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
