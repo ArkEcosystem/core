@@ -1,9 +1,9 @@
 import { configManager } from "@arkecosystem/crypto";
-import * as axios from "axios";
+import axios from "axios";
 import * as dirTree from "directory-tree";
-import * as fs from "fs-extra";
-import * as ow from "ow";
-import * as path from "path";
+import { copy, ensureDir, existsSync, writeFileSync } from "fs-extra";
+import ow from "ow";
+import { basename, extname, resolve } from "path";
 
 class ConfigLoader {
   public network: any;
@@ -58,9 +58,9 @@ class ConfigLoader {
       dest = `${process.env.ARK_PATH_DATA}/config`;
     }
 
-    await fs.ensureDir(dest);
+    await ensureDir(dest);
 
-    return fs.copy(process.env.ARK_PATH_CONFIG, dest);
+    return copy(process.env.ARK_PATH_CONFIG, dest);
   }
 
   /**
@@ -92,16 +92,16 @@ class ConfigLoader {
    * @return {Object}
    */
   public __getFiles(): Record<string, string> {
-    const basePath = path.resolve(process.env.ARK_PATH_CONFIG);
+    const basePath = resolve(process.env.ARK_PATH_CONFIG);
 
-    if (!fs.existsSync(basePath)) {
+    if (!existsSync(basePath)) {
       throw new Error(
         "An invalid configuration was provided or is inaccessible due to it's security settings.",
       );
       process.exit(1);
     }
 
-    const formatName = (file) => path.basename(file.name, path.extname(file.name));
+    const formatName = (file) => basename(file.name, extname(file.name));
 
     const configTree = {};
 
@@ -131,19 +131,18 @@ class ConfigLoader {
         if (source.startsWith("/")) {
           output.list = require(source);
 
-          fs.writeFileSync(configFile, JSON.stringify(output, null, 2));
+          writeFileSync(configFile, JSON.stringify(output, null, 2));
 
           break;
         }
 
         // URL...
         try {
-          // @ts-ignore
           const response = await axios.get(source);
 
           output.list = response.data;
 
-          fs.writeFileSync(configFile, JSON.stringify(output, null, 2));
+          writeFileSync(configFile, JSON.stringify(output, null, 2));
 
           break;
         } catch (error) {
