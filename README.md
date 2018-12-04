@@ -4,6 +4,7 @@
     <img src="./banner.png" />
 </p>
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ArkEcosystem/core.svg)](https://greenkeeper.io/)
 [![Build Status](https://badgen.now.sh/circleci/github/ArkEcosystem/core)](https://circleci.com/gh/ArkEcosystem/core)
 [![Codecov](https://badgen.now.sh/codecov/c/github/arkecosystem/core)](https://codecov.io/gh/arkecosystem/core)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
@@ -48,7 +49,7 @@ This repository contains all plugins that make up the Ark Core.
 | [tester-cli](/packages/core-tester-cli)                  | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-tester-cli.svg)](https://www.npmjs.com/package/@arkecosystem/core-tester-cli)             | Tester CLI                 |
 | [core-transaction-pool](/packages/core-transaction-pool) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-transaction-pool.svg)](https://www.npmjs.com/package/@arkecosystem/core-transaction-pool) | Transaction Pool Interface |
 | [core-webhooks](/packages/core-webhooks)                 | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-webhooks.svg)](https://www.npmjs.com/package/@arkecosystem/core-webhooks)                 | Webhooks Manager           |
-| [crypto](/packages/crypto)                               | [![npm](https://img.shields.io/npm/v/@arkecosystem/crypto.svg)](https://www.npmjs.com/package/@arkecosystem/crypto) [![Greenkeeper badge](https://badges.greenkeeper.io/ArkEcosystem/core.svg)](https://greenkeeper.io/)                               | Crypto Utilities           |
+| [crypto](/packages/crypto)                               | [![npm](https://img.shields.io/npm/v/@arkecosystem/crypto.svg)](https://www.npmjs.com/package/@arkecosystem/crypto)                               | Crypto Utilities           |
 
 ## Security
 
