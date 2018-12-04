@@ -4061,11 +4061,6 @@ dir-glob@^2.0.0:
     arrify "^1.0.1"
     path-type "^3.0.0"
 
-directory-tree@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/directory-tree/-/directory-tree-2.1.1.tgz#db42ab3bda37b0e7de51654ce9709b49cea2ba55"
-  integrity sha512-9uaftXCRHRntOsmeSxTMLNp52N0tb5eSXkLTIdbDnuC85lleB6/Xub6CG4swSrkS5XXHA56OpTiRj5ntRlsjCg==
-
 docdash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/docdash/-/docdash-1.0.0.tgz#5b7df10fed3d341fc4416a8978c65ad561869d18"

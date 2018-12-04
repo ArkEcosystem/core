@@ -2,7 +2,7 @@ import { configManager } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import axios from "axios";
 import * as dirTree from "directory-tree";
-import { copy, ensureDir, existsSync, writeFileSync } from "fs-extra";
+import { copy, ensureDir, existsSync, readdirSync, writeFileSync } from "fs-extra";
 import { basename, extname, resolve } from "path";
 
 class ConfigLoader {
@@ -100,18 +100,12 @@ class ConfigLoader {
       process.exit(1);
     }
 
-    const formatName = (file) => basename(file.name, extname(file.name));
-
     const configTree = {};
-
-    // @ts-ignore
-    dirTree(basePath, { extensions: /\.(js|json)$/ }).children.forEach(
-      (entry) => {
-        if (entry.type === "file") {
-          configTree[formatName(entry)] = entry.path;
-        }
-      },
-    );
+    for (const file of readdirSync(basePath)) {
+      if ([".js", ".json"].includes(extname(file))) {
+        configTree[basename(file, extname(file))] = resolve(basePath, file);
+      }
+    }
 
     return configTree;
   }
