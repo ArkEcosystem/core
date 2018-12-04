@@ -38,7 +38,7 @@ function genYaml(options) {
     )
 
     config.jobs[`test-node10-${index}`] = job
-    config.workflows.test_depcheck_lint.jobs.push(`test-node10-${index}`)
+    config.workflows.build_and_test.jobs.push(`test-node10-${index}`)
   })
 
   fs.writeFile('.circleci/config.yml', yaml.safeDump(config), 'utf8', err => {

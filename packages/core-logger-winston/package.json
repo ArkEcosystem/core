@@ -14,8 +14,7 @@
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=winston-daily-rotate-file"
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@arkecosystem/core-logger": "~0.2",
