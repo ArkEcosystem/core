@@ -31,7 +31,7 @@ exports.updateConfig = (file, values, configPath, forceOverwrite) => {
     config = {}
   }
 
-  values.forEach(key => set(config, key, values[key]))
+  Object.keys(values).forEach(key => set(config, key, values[key]))
 
   fs.ensureFileSync(configPath)
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
