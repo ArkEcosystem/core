@@ -3,6 +3,7 @@
 const delay = require('delay')
 
 const app = require('@arkecosystem/core-container')
+const assert = require('assert')
 
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')
@@ -232,32 +233,9 @@ module.exports = class ForgerManager {
    * as of the given height
    */
   async __getTransactionsForForging(asOfHeight) {
-    let response
-    let retry
-    let i = 0
-    do {
-      response = await this.client.getTransactions()
+    const response = await this.client.getTransactions()
 
-      if (response.asOfHeight < asOfHeight) {
-        logger.warn(
-          `While fetching transactions to forge: got an outdated response: valid as of ` +
-          `block ${response.asOfHeight}, but we need data as of block ${asOfHeight} ` +
-          `because we are forging block ${asOfHeight + 1}`
-        )
-        if (i < 4) {
-          retry = true
-        } else {
-          retry = false
-          logger.warn(
-            `Will forge a block with the outdated list of transactions. ` +
-            `It is possible that some already forged transactions get included in the block`
-          )
-        }
-      } else {
-        retry = false
-      }
-      i++
-    } while (retry)
+    assert.strictEqual(response.asOfHeight, asOfHeight)
 
     const transactions = response.transactions
       ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
