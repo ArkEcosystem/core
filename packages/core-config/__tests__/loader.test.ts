@@ -1,7 +1,7 @@
-const path = require('path')
-const configLoader = require('../lib/loader')
+import { resolve } from 'path'
+import { configLoader } from '../src/loader'
 
-const stubConfigPath = path.resolve(__dirname, './__stubs__')
+const stubConfigPath = resolve(__dirname, './__stubs__')
 
 const stubConfig = {
   delegates: require('./__stubs__/delegates'),
