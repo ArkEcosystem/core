@@ -82,7 +82,6 @@ class ConfigLoader {
    */
   public __createBindings(files: Record<string, string>): void {
     for (const [key, value] of Object.entries(files)) {
-      // @ts-ignore
       this[key] = require(value);
     }
   }
