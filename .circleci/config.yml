@@ -251,3 +251,5 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+workflows:
+  version: 2

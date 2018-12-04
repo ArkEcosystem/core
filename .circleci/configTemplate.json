@@ -80,5 +80,8 @@
         }
       ]
     }
+  },
+  "workflows": {
+    "version": 2
   }
 }
