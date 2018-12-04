@@ -4,6 +4,7 @@
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean",
     "commit": "git-cz",
+    "build": "lerna run build",
     "lint": "lerna run lint",
     "depcheck": "lerna run depcheck",
     "prepare": "lerna run prepare",

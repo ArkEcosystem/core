@@ -67,6 +67,9 @@ jobs:
             - ./packages/crypto/node_modules
             - ./node_modules
       - run:
+          name: Build packages
+          command: yarn build
+      - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
@@ -176,6 +179,9 @@ jobs:
             - ./packages/crypto/node_modules
             - ./node_modules
       - run:
+          name: Build packages
+          command: yarn build
+      - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
@@ -261,6 +267,9 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+      - run:
+          name: Build packages
+          command: yarn build
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
