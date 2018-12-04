@@ -6,4 +6,5 @@ module.exports = [
   loadQueryFile(__dirname, './20180305300000-create-blocks-table.sql'),
   loadQueryFile(__dirname, './20180305400000-create-transactions-table.sql'),
   loadQueryFile(__dirname, './20181129400000-add-block_id-index-to-transactions-table.sql'),
+  loadQueryFile(__dirname, './20181204100000-blocks-generator_public_key-index.sql'),
 ]
