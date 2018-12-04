@@ -36,7 +36,7 @@ class ConfigLoader {
    * @param  {Number} height
    * @return {void}
    */
-  public getConstants(height): void {
+  public getConstants(height: number): void {
     return configManager.getConstants(height);
   }
 
@@ -53,7 +53,7 @@ class ConfigLoader {
    * @param  {String} dest
    * @return {Promise}
    */
-  public async copyFiles(dest): Promise<any> {
+  public async copyFiles(dest: string): Promise<any> {
     if (!dest) {
       dest = `${process.env.ARK_PATH_DATA}/config`;
     }
@@ -77,10 +77,10 @@ class ConfigLoader {
 
   /**
    * Bind the config values to the instance.
-   * @param  {Array} files
+   * @param  {Object} files
    * @return {void}
    */
-  public __createBindings(files): void {
+  public __createBindings(files: Record<string, string>): void {
     for (const [key, value] of Object.entries(files)) {
       // @ts-ignore
       this[key] = require(value);
@@ -122,7 +122,7 @@ class ConfigLoader {
    * @param  {String} configFile
    * @return {void}
    */
-  public async __buildPeers(configFile): Promise<void> {
+  public async __buildPeers(configFile: string): Promise<void> {
     if (this.peers.sources) {
       const output = require(configFile);
 
