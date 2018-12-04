@@ -1,7 +1,7 @@
 import { configManager } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import axios from "axios";
-import { copy, ensureDir, existsSync, readdirSync, writeFileSync } from "fs-extra";
+import { copy, existsSync, readdirSync, writeFileSync } from "fs-extra";
 import { basename, extname, resolve } from "path";
 
 class ConfigLoader {
@@ -25,7 +25,7 @@ class ConfigLoader {
 
     this._validateConfig();
 
-    this.configureCrypto();
+    configManager.setConfig(this.network);
 
     return this;
   }
@@ -37,29 +37,6 @@ class ConfigLoader {
    */
   public getConstants(height: number): void {
     return configManager.getConstants(height);
-  }
-
-  /**
-   * Configure the crypto package.
-   * @return {void}
-   */
-  public configureCrypto(): void {
-    configManager.setConfig(this.network);
-  }
-
-  /**
-   * Copy the config files to the given destination.
-   * @param  {String} dest
-   * @return {Promise}
-   */
-  public async copyFiles(dest: string): Promise<any> {
-    if (!dest) {
-      dest = `${process.env.ARK_PATH_DATA}/config`;
-    }
-
-    await ensureDir(dest);
-
-    return copy(process.env.ARK_PATH_CONFIG, dest);
   }
 
   /**
