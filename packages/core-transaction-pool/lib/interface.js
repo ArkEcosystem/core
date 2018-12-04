@@ -198,35 +198,35 @@ module.exports = class TransactionPoolInterface {
    * @return {void}
    */
   acceptChainedBlock(block) {
-    for (const transaction of block.transactions) {
-      const exists = this.transactionExists(transaction.id)
-      const senderPublicKey = transaction.senderPublicKey
+    for (const { data } of block.transactions) {
+      const exists = this.transactionExists(data.id)
+      const senderPublicKey = data.senderPublicKey
 
       const senderWallet = this.walletManager.exists(senderPublicKey)
         ? this.walletManager.findByPublicKey(senderPublicKey)
         : false
 
-      const recipientWallet = this.walletManager.exists(transaction.recipientId)
-        ? this.walletManager.findByAddress(transaction.recipientId)
+      const recipientWallet = this.walletManager.exists(data.recipientId)
+        ? this.walletManager.findByAddress(data.recipientId)
         : false
 
       if (recipientWallet) {
-        recipientWallet.applyTransactionToRecipient(transaction)
+        recipientWallet.applyTransactionToRecipient(data)
       }
 
       if (exists) {
-        this.removeTransaction(transaction)
+        this.removeTransaction(data)
       } else if (senderWallet) {
         const errors = []
-        if (senderWallet.canApply(transaction, errors)) {
-          senderWallet.applyTransactionToSender(transaction)
+        if (senderWallet.canApply(data, errors)) {
+          senderWallet.applyTransactionToSender(data)
         } else {
-          this.purgeByPublicKey(transaction.senderPublicKey)
-          this.blockSender(transaction.senderPublicKey)
+          this.purgeByPublicKey(data.senderPublicKey)
+          this.blockSender(data.senderPublicKey)
 
           logger.error(
             `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
-              transaction.id
+              data.id
             } due to ${JSON.stringify(
               errors,
             )}. Possible double spending attack :bomb:`,
