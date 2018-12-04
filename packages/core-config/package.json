@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc -w",
-    "lint": "tslint -c tslint.json 'src/**/*.ts' --fix",
+    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --fix",
     "depcheck": "depcheck ./ --ignores=@types/fs-extra",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --detectOpenHandles",
