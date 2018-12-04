@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.1 - 2018-12-04
+
+### Fixed
+
+- Use the raw transaction data in `acceptChainedBlock` to avoid timestamp mismatches and second signature double spend errors
+
 ## 0.2.0 - 2018-12-03
 
 ### Added

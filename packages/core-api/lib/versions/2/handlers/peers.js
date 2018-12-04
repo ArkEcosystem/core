@@ -44,7 +44,7 @@ exports.index = {
 
     return utils.toPagination(
       request,
-      { rows: result, count: result.length },
+      { rows: result, count: allPeers.length },
       'peer',
     )
   },

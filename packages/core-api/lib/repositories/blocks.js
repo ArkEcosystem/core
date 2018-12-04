@@ -52,14 +52,18 @@ class BlocksRepository extends Repository {
 
   /**
    * Get a block.
-   * @param  {Number} id
+   * @param  {Number} value
    * @return {Object}
    */
-  async findById(id) {
+  async findById(value) {
     const query = this.query
       .select()
       .from(this.query)
-      .where(this.query.id.equals(id))
+      .where(this.query.id.equals(value))
+
+    if (Number.isSafeInteger(value)) {
+      query.or(this.query.height.equals(value))
+    }
 
     return this._find(query)
   }

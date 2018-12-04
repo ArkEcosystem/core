@@ -149,7 +149,7 @@ describe('Blockchain', () => {
         tx => tx.type !== 2,
       )
 
-      await blockchain.transactionPool.flush()
+      blockchain.transactionPool.flush()
       await blockchain.postTransactions(transactionsWithoutType2, false)
       const transactions = blockchain.transactionPool.getTransactions(0, 200)
 
@@ -159,7 +159,7 @@ describe('Blockchain', () => {
         transactionsWithoutType2.map(transaction => transaction.serialized),
       )
 
-      await blockchain.transactionPool.flush()
+      blockchain.transactionPool.flush()
     })
   })
 
@@ -321,7 +321,7 @@ describe('Blockchain', () => {
         tx => tx.type !== 2,
       )
 
-      await blockchain.transactionPool.flush()
+      blockchain.transactionPool.flush()
       await blockchain.postTransactions(transactionsWithoutType2, false)
       const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200)
 
@@ -333,7 +333,7 @@ describe('Blockchain', () => {
         transactionsWithoutType2.map(transaction => transaction.serialized),
       )
 
-      await blockchain.transactionPool.flush()
+      blockchain.transactionPool.flush()
     })
   })
 
