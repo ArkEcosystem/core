@@ -253,3 +253,8 @@ jobs:
           command: ./node_modules/.bin/codecov
 workflows:
   version: 2
+  build_and_test:
+    jobs:
+      - test-node10-0
+      - test-node10-1
+      - test-node10-2
