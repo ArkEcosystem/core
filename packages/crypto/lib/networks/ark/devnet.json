@@ -66,6 +66,13 @@
         "maxTransactions": 150,
         "maxPayload": 6300000
       }
+    },
+    {
+      "height": 1000000,
+      "block": {
+        "maxTransactions": 500,
+        "maxPayload": 21000000
+      }
     }
   ],
   "exceptions": {
