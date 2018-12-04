@@ -1,7 +1,6 @@
 import { configManager } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import axios from "axios";
-import * as dirTree from "directory-tree";
 import { copy, ensureDir, existsSync, readdirSync, writeFileSync } from "fs-extra";
 import { basename, extname, resolve } from "path";
 
