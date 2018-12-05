@@ -5,7 +5,7 @@ import { resolve } from "path";
 
 let app;
 beforeEach(async () => {
-  app = require("../src");
+  app = require("../src").app;
 
   await app.setUp(
     "2.0.0",
