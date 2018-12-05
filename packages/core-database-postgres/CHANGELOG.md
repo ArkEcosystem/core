@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.1 - 2018-12-05
+
+### Added
+
+- `sender_public_key`, `recipient_id` and `timestamp` indices on the `transactions` table
+- `generator_public_key` index on the `blocks` table
+
 ## 0.2.0 - 2018-12-03
 
 ### Added
