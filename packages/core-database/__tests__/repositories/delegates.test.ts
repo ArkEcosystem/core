@@ -37,7 +37,7 @@ beforeEach(async (done) => {
   const { WalletManager } = require("../../src/wallet-manager");
   walletManager = new WalletManager();
 
-  const { DelegatesRepository } = require("../../lib/repositories/delegates");
+  const { DelegatesRepository } = require("../../src/repositories/delegates");
   repository = new DelegatesRepository({
     walletManager,
   });
