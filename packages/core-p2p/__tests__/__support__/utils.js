@@ -1,4 +1,5 @@
 const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
+const { app } = require('@arkecosystem/core-container')
 
 class Helpers {
   constructor() {
@@ -20,8 +21,7 @@ class Helpers {
 
   async request(method, path, params = {}) {
     const url = `http://localhost:4002/${path}`
-    const server = require('@arkecosystem/core-container').resolvePlugin('p2p')
-      .server
+    const server = app.resolvePlugin('p2p').server
 
     return apiHelpers.request(server, method, url, this.headers, params)
   }

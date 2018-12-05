@@ -1,4 +1,5 @@
 const { crypto } = require('@arkecosystem/crypto')
+const { app: container } = require('@arkecosystem/core-container')
 
 const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
@@ -18,7 +19,7 @@ beforeAll(async () => {
   peerMock = new Peer('0.0.0.99', 4002)
   Object.assign(peerMock, peerMock.headers, { status: 'OK' })
 
-  const monitor = require('@arkecosystem/core-container').resolvePlugin('p2p')
+  const monitor = container.resolvePlugin('p2p')
   monitor.peers = {}
   monitor.peers[peerMock.ip] = peerMock
 })
