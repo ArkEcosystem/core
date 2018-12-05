@@ -51,10 +51,12 @@ const publicKey = async request => {
 }
 
 module.exports = server => {
+  const generateTimeout = require('../../utils').getCacheTimeout()
+
   server.method('v1.accounts.index', index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -67,7 +69,7 @@ module.exports = server => {
   server.method('v1.accounts.show', show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -77,7 +79,7 @@ module.exports = server => {
   server.method('v1.accounts.balance', balance, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -87,7 +89,7 @@ module.exports = server => {
   server.method('v1.accounts.publicKey', publicKey, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.11 - 2018-12-05
+
+### Added
+
+- Store executed migrations in the database
+
 ## 0.2.1 - 2018-12-05
 
 ### Added

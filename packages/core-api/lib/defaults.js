@@ -4,6 +4,21 @@ module.exports = {
   enabled: false,
   host: process.env.ARK_API_HOST || '0.0.0.0',
   port: process.env.ARK_API_PORT || 4003,
+  cache: {
+    /**
+     * How many seconds the server will try to complete the request and cache the result.
+     *
+     * Defaults to 8 seconds, set it to false if you do not care about the timeout.
+     *
+     * Setting it to false can result in requests never being completed, which is usually
+     * caused by low-spec servers that are unable to handle the heavy load that results
+     * out of SQL queries on the blocks and transactions tables.
+     *
+     * If you experience issues with the cache timeout, which is indicated by a 503 status codes,
+     * you should consider upgrading your hardware or tweak your PostgreSQL settings.
+     */
+    generateTimeout: process.env.ARK_API_CACHE_TIMEOUT || 8000,
+  },
   // @see https://hapijs.com/api#-serveroptionstls
   ssl: {
     enabled: process.env.ARK_API_SSL,
@@ -23,9 +38,9 @@ module.exports = {
   rateLimit: {
     enabled: !process.env.ARK_API_RATE_LIMIT,
     pathLimit: false,
-    userLimit: 300,
+    userLimit: process.env.ARK_API_RATE_LIMIT_USER_LIMIT || 300,
     userCache: {
-      expiresIn: 60000,
+      expiresIn: process.env.ARK_API_RATE_LIMIT_USER_EXPIRES || 60000,
     },
     ipWhitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
   },
