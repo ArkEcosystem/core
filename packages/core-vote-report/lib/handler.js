@@ -1,6 +1,9 @@
 const sumBy = require('lodash/sumBy')
 const { configManager } = require('@arkecosystem/crypto')
-const { bignumify, delegateCalculator } = require('@arkecosystem/core-utils')
+const {
+  delegateCalculator,
+  supplyCalculator,
+} = require('@arkecosystem/core-utils')
 const app = require('@arkecosystem/core-container')
 
 const config = app.resolvePlugin('config')
@@ -49,13 +52,7 @@ module.exports = (request, h) => {
   const constants = config.getConstants(lastBlock.data.height)
   const delegateRows = app.resolveOptions('vote-report').delegateRows
 
-  const rewards = bignumify(constants.reward).times(
-    lastBlock.data.height - constants.height,
-  )
-
-  const supply = +bignumify(config.genesisBlock.totalAmount)
-    .plus(rewards)
-    .toFixed()
+  const supply = supplyCalculator.calculate(lastBlock.data.height)
 
   const active = database.walletManager
     .allByUsername()
