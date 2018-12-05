@@ -35,9 +35,7 @@ const search = async request => {
 }
 
 module.exports = server => {
-  const {
-    generateTimeout,
-  } = require('@arkecosystem/core-container').resolveOptions('api').cache
+  const generateTimeout = require('../../utils').getCacheTimeout()
 
   server.method('v2.transactions.index', index, {
     cache: {
