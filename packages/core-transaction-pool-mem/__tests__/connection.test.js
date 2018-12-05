@@ -1,7 +1,7 @@
 /* eslint max-len: "off" */
 
 const { bignumify } = require('@arkecosystem/core-utils')
-const container = require('@arkecosystem/core-container')
+const { app: container } = require('@arkecosystem/core-container')
 const crypto = require('@arkecosystem/crypto')
 const delay = require('delay')
 const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
