@@ -4,9 +4,6 @@ const util = require('util')
 const dayjs = require('dayjs-ext')
 const { app } = require('@arkecosystem/core-container')
 
-const logger = app.resolvePlugin('logger')
-const config = app.resolvePlugin('config')
-
 module.exports = class Peer {
   /**
    * @constructor
@@ -14,6 +11,9 @@ module.exports = class Peer {
    * @param  {Number} port
    */
   constructor(ip, port) {
+    this.logger = app.resolvePlugin('logger')
+    this.config = app.resolvePlugin('config')
+
     this.ip = ip
     this.port = port
     this.ban = new Date().getTime()
@@ -25,12 +25,12 @@ module.exports = class Peer {
     this.headers = {
       version: app.getVersion(),
       port: app.resolveOptions('p2p').port,
-      nethash: config.network.nethash,
+      nethash: this.config.network.nethash,
       height: null,
       'Content-Type': 'application/json',
     }
 
-    if (config.network.name !== 'mainnet') {
+    if (this.config.network.name !== 'mainnet') {
       this.headers.hashid = app.getHashid()
     }
   }
@@ -62,7 +62,7 @@ module.exports = class Peer {
       delay: this.delay,
     }
 
-    if (config.network.name !== 'mainnet') {
+    if (this.config.network.name !== 'mainnet') {
       data.hashid = this.hashid || 'unknown'
     }
 
@@ -152,7 +152,7 @@ module.exports = class Peer {
 
       return blocks
     } catch (error) {
-      logger.debug(
+      this.logger.debug(
         `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
           depth: 1,
         })}`,
@@ -180,7 +180,7 @@ module.exports = class Peer {
 
     const body = await this.__get(
       '/peer/status',
-      delay || config.peers.globalTimeout,
+      delay || this.config.peers.globalTimeout,
     )
 
     if (!body) {
@@ -205,13 +205,15 @@ module.exports = class Peer {
    * @return {Object[]}
    */
   async getPeers() {
-    logger.info(`Fetching a fresh peer list from ${this.url}`)
+    this.logger.info(`Fetching a fresh peer list from ${this.url}`)
 
     await this.ping(2000)
 
     const body = await this.__get('/peer/list')
 
-    return body.peers.filter(peer => !config.peers.blackList.includes(peer.ip))
+    return body.peers.filter(
+      peer => !this.config.peers.blackList.includes(peer.ip),
+    )
   }
 
   /**
@@ -229,7 +231,7 @@ module.exports = class Peer {
 
       return body && body.success && body.common
     } catch (error) {
-      logger.error(
+      this.logger.error(
         `Could not determine common blocks with ${this.ip}: ${error}`,
       )
     }
@@ -249,7 +251,7 @@ module.exports = class Peer {
     try {
       const response = await axios.get(`${this.url}${endpoint}`, {
         headers: this.headers,
-        timeout: timeout || config.peers.globalTimeout,
+        timeout: timeout || this.config.peers.globalTimeout,
       })
 
       this.delay = new Date().getTime() - temp
@@ -260,7 +262,7 @@ module.exports = class Peer {
     } catch (error) {
       this.delay = -1
 
-      logger.debug(
+      this.logger.debug(
         `Request to ${this.url}${endpoint} failed because of "${
           error.message
         }"`,
@@ -287,7 +289,7 @@ module.exports = class Peer {
 
       return response.data
     } catch (error) {
-      logger.debug(
+      this.logger.debug(
         `Request to ${this.url}${endpoint} failed because of "${
           error.message
         }"`,
