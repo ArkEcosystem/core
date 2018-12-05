@@ -1,4 +1,4 @@
-import * as app from "@arkecosystem/core-container";
+import app from "@arkecosystem/core-container";
 import { Bignum } from "@arkecosystem/crypto";
 
 const BignumMod = Bignum.clone({ DECIMAL_PLACES: 2 });

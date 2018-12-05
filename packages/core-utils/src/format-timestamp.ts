@@ -1,4 +1,4 @@
-import * as app from "@arkecosystem/core-container";
+import app from "@arkecosystem/core-container";
 import dayjs from "dayjs-ext";
 
 /**
