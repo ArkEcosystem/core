@@ -52,7 +52,7 @@ module.exports = (request, h) => {
   const constants = config.getConstants(lastBlock.data.height)
   const delegateRows = app.resolveOptions('vote-report').delegateRows
 
-  const supply = +supplyCalculator.calculate(lastBlock.data.height)
+  const supply = supplyCalculator.calculate(lastBlock.data.height)
 
   const active = database.walletManager
     .allByUsername()

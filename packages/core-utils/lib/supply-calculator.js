@@ -1,15 +1,15 @@
 const { Bignum } = require('@arkecosystem/crypto')
 const app = require('@arkecosystem/core-container')
 
-const config = app.resolvePlugin('config')
-const network = config.network
-
 /**
  * Calculate the total supply at the given height
  * @param  {Number} height
- * @return {String}
+ * @return {Number}
  */
 exports.calculate = height => {
+  const config = app.resolvePlugin('config')
+  const network = config.network
+
   if (!height) {
     const blockchain = app.resolvePlugin('blockchain')
     height = blockchain ? blockchain.getLastBlock().data.height : 0
@@ -46,5 +46,5 @@ exports.calculate = height => {
     }
   }
 
-  return new Bignum(config.genesisBlock.totalAmount).plus(rewards).toFixed()
+  return +new Bignum(config.genesisBlock.totalAmount).plus(rewards).toFixed()
 }

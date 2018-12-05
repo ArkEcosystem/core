@@ -22,7 +22,7 @@ beforeAll(() => {
 describe('Supply calculator', () => {
   it('should calculate supply with milestone at height 2', () => {
     mockConfig.network.constants[0].height = 2
-    expect(+supplyCalculator.calculate(1)).toBe(
+    expect(supplyCalculator.calculate(1)).toBe(
       mockConfig.genesisBlock.totalAmount,
     )
     mockConfig.network.constants[0].height = 1
@@ -31,14 +31,14 @@ describe('Supply calculator', () => {
   describe.each([0, 5, 100, 2000, 4000, 8000])('at height %s', height => {
     it('should calculate the genesis supply without milestone', () => {
       const genesisSupply = config.genesisBlock.totalAmount
-      expect(+supplyCalculator.calculate(height)).toBe(
+      expect(supplyCalculator.calculate(height)).toBe(
         genesisSupply + height * config.network.constants[0].reward,
       )
     })
   })
 
   describe.each([0, 2000, 4000, 8000, 16000])('at height %s', height => {
-    it('should calculate the genesis supply with milestone', () => {
+    it('should calculate the genesis supply with one milestone', () => {
       mockConfig.network.constants.push({ height: 8000, reward: 3 })
 
       const reward = current => {
@@ -50,7 +50,7 @@ describe('Supply calculator', () => {
       }
 
       const genesisSupply = config.genesisBlock.totalAmount
-      expect(+supplyCalculator.calculate(height)).toBe(
+      expect(supplyCalculator.calculate(height)).toBe(
         genesisSupply + reward(height),
       )
 
@@ -70,7 +70,7 @@ describe('Supply calculator', () => {
     64000,
     128000,
   ])('at height %s', height => {
-    it('should calculate the genesis supply with five milestones', () => {
+    it('should calculate the genesis supply with four milestones', () => {
       mockConfig.network.constants.push({ height: 8000, reward: 4 })
       mockConfig.network.constants.push({ height: 16000, reward: 5 })
       mockConfig.network.constants.push({ height: 32000, reward: 10 })
@@ -97,7 +97,7 @@ describe('Supply calculator', () => {
       }
 
       const genesisSupply = config.genesisBlock.totalAmount
-      expect(+supplyCalculator.calculate(height)).toBe(
+      expect(supplyCalculator.calculate(height)).toBe(
         genesisSupply + reward(height),
       )
 
