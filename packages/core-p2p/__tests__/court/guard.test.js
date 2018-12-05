@@ -15,7 +15,8 @@ let peerMock
 
 beforeAll(async () => {
   await app.setUp()
-  container = require('@arkecosystem/core-container')
+  const { app: appContainer } = require('@arkecosystem/core-container')
+  container = appContainer
 
   guard = require('../../lib/court/guard')
   Peer = require('../../lib/peer')
