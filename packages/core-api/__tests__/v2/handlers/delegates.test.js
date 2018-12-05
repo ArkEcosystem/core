@@ -15,7 +15,8 @@ let container
 
 beforeAll(async () => {
   await app.setUp()
-  container = require('@arkecosystem/core-container')
+  const { app: appContainer } = require('@arkecosystem/core-container')
+  container = appContainer
 })
 
 afterAll(async () => {

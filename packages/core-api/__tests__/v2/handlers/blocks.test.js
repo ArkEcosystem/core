@@ -11,7 +11,8 @@ let container
 beforeAll(async () => {
   await app.setUp()
   await blockchainHelper.resetBlockchain()
-  container = require('@arkecosystem/core-container')
+  const { app: appContainer } = require('@arkecosystem/core-container')
+  container = appContainer
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
