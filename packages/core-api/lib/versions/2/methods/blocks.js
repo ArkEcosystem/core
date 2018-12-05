@@ -51,10 +51,12 @@ const search = async request => {
 }
 
 module.exports = server => {
+  const generateTimeout = require('../../utils').getCacheTimeout()
+
   server.method('v2.blocks.index', index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -67,7 +69,7 @@ module.exports = server => {
   server.method('v2.blocks.show', show, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.params.id }),
@@ -76,7 +78,7 @@ module.exports = server => {
   server.method('v2.blocks.transactions', transactions, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -89,7 +91,7 @@ module.exports = server => {
   server.method('v2.blocks.search', search, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>

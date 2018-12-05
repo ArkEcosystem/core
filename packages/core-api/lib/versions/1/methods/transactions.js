@@ -33,10 +33,12 @@ const show = async request => {
 }
 
 module.exports = server => {
+  const generateTimeout = require('../../utils').getCacheTimeout()
+
   server.method('v1.transactions.index', index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -49,7 +51,7 @@ module.exports = server => {
   server.method('v1.transactions.show', show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.query.id }),

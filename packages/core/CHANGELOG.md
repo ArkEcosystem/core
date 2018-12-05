@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.0.11 - 2018-12-05
+
+### Added
+
+- Store executed migrations in the database
+
+### Changed
+
+- Increase cache generation timeout and make it configurable
+
 ## 2.0.1 - 2018-12-05
 
 ### Changed

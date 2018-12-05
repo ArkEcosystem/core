@@ -34,10 +34,12 @@ const show = async request => {
 }
 
 module.exports = server => {
+  const generateTimeout = require('../../utils').getCacheTimeout()
+
   server.method('v1.blocks.index', index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -50,7 +52,7 @@ module.exports = server => {
   server.method('v1.blocks.show', show, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.query.id }),

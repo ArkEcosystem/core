@@ -13,6 +13,10 @@ module.exports = {
     statistics: loadQueryFile(__dirname, './blocks/statistics.sql'),
     top: loadQueryFile(__dirname, './blocks/top.sql'),
   },
+  migrations: {
+    create: loadQueryFile(__dirname, './migrations/create.sql'),
+    find: loadQueryFile(__dirname, './migrations/find.sql'),
+  },
   rounds: {
     delete: loadQueryFile(__dirname, './rounds/delete.sql'),
     find: loadQueryFile(__dirname, './rounds/find.sql'),
