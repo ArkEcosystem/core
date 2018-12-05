@@ -4,7 +4,7 @@ import { createSecureServer } from "./server/create-secure";
 import { monitorServer } from "./server/monitor";
 import { mountServer } from "./server/mount";
 
-export default {
+export {
   createServer,
   createSecureServer,
   monitorServer,
