@@ -184,7 +184,7 @@ exports.supply = {
    */
   handler(request, h) {
     const lastBlock = blockchain.getLastBlock()
-    return supplyCalculator(lastBlock.data.height).toFixed()
+    return supplyCalculator.calculate(lastBlock.data.height).toFixed()
   },
 }
 
@@ -208,7 +208,7 @@ exports.status = {
       milestone: Math.floor(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
-      supply: supplyCalculator(lastBlock.data.height).toFixed(),
+      supply: supplyCalculator.calculate(lastBlock.data.height).toFixed(),
     })
   },
 }

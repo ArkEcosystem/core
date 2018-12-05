@@ -9,7 +9,7 @@ const network = config.network
  * @param  {Number} height
  * @return {String}
  */
-module.exports = height => {
+exports.calculate = height => {
   if (!height) {
     const blockchain = app.resolvePlugin('blockchain')
     height = blockchain ? blockchain.getLastBlock().data.height : 0

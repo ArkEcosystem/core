@@ -22,14 +22,16 @@ beforeAll(() => {
 describe('Supply calculator', () => {
   it('should calculate supply with milestone at height 2', () => {
     mockConfig.network.constants[0].height = 2
-    expect(+supplyCalculator(1)).toBe(mockConfig.genesisBlock.totalAmount)
+    expect(+supplyCalculator.calculate(1)).toBe(
+      mockConfig.genesisBlock.totalAmount,
+    )
     mockConfig.network.constants[0].height = 1
   })
 
   describe.each([0, 5, 100, 2000, 4000, 8000])('at height %s', height => {
     it('should calculate the genesis supply without milestone', () => {
       const genesisSupply = config.genesisBlock.totalAmount
-      expect(+supplyCalculator(height)).toBe(
+      expect(+supplyCalculator.calculate(height)).toBe(
         genesisSupply + height * config.network.constants[0].reward,
       )
     })
@@ -48,7 +50,9 @@ describe('Supply calculator', () => {
       }
 
       const genesisSupply = config.genesisBlock.totalAmount
-      expect(+supplyCalculator(height)).toBe(genesisSupply + reward(height))
+      expect(+supplyCalculator.calculate(height)).toBe(
+        genesisSupply + reward(height),
+      )
 
       mockConfig.network.constants = [{ height: 1, reward: 2 }]
     })
@@ -93,7 +97,9 @@ describe('Supply calculator', () => {
       }
 
       const genesisSupply = config.genesisBlock.totalAmount
-      expect(+supplyCalculator(height)).toBe(genesisSupply + reward(height))
+      expect(+supplyCalculator.calculate(height)).toBe(
+        genesisSupply + reward(height),
+      )
 
       mockConfig.network.constants = [{ height: 1, reward: 2 }]
     })
