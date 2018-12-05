@@ -5,4 +5,4 @@ export const defaults = {
       network: process.env.ARK_NETWORK_NAME,
     },
   },
-}
+};

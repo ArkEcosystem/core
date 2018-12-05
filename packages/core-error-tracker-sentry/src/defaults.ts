@@ -3,4 +3,4 @@ export const defaults = {
   debug: true,
   attachStacktrace: true,
   environment: process.env.ARK_NETWORK_NAME,
-}
+};

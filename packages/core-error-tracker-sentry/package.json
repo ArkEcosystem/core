@@ -14,7 +14,7 @@
     "build:watch": "yarn clean && tsc -w",
     "clean": "del dist",
     "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --fix"
+    "lint": "tslint -c ../../tslint.json '**/*.ts' --fix"
   },
   "dependencies": {
     "@sentry/node": "^4.4.0"

@@ -18,7 +18,7 @@
     "build:watch": "yarn clean && tsc -w",
     "clean": "del dist",
     "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+    "lint": "tslint -c ../../tslint.json '**/*.ts' --fix",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --detectOpenHandles",
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
