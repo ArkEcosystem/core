@@ -1,12 +1,10 @@
-module.exports = class QueryExecutor {
+export class QueryExecutor {
   /**
    * Create a new QueryExecutor instance.
    * @param  {[type]} connection
    * @return {QueryBuilder}
    */
-  constructor(connection) {
-    this.connection = connection
-  }
+  constructor(public connection) { }
 
   /**
    * Execute the given query and expect no results.
@@ -14,8 +12,8 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async none(query, parameters) {
-    return this.__executeQueryFile(query, parameters, 'none')
+  public async none(query, parameters = {}) {
+    return this.__executeQueryFile(query, parameters, "none");
   }
 
   /**
@@ -24,8 +22,8 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async one(query, parameters) {
-    return this.__executeQueryFile(query, parameters, 'one')
+  public async one(query, parameters = {}) {
+    return this.__executeQueryFile(query, parameters, "one");
   }
 
   /**
@@ -34,8 +32,8 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async oneOrNone(query, parameters) {
-    return this.__executeQueryFile(query, parameters, 'oneOrNone')
+  public async oneOrNone(query, parameters = {}) {
+    return this.__executeQueryFile(query, parameters, "oneOrNone");
   }
 
   /**
@@ -44,8 +42,8 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async many(query, parameters) {
-    return this.__executeQueryFile(query, parameters, 'many')
+  public async many(query, parameters = {}) {
+    return this.__executeQueryFile(query, parameters, "many");
   }
 
   /**
@@ -54,8 +52,8 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async manyOrNone(query, parameters) {
-    return this.__executeQueryFile(query, parameters, 'manyOrNone')
+  public async manyOrNone(query, parameters = {}) {
+    return this.__executeQueryFile(query, parameters, "manyOrNone");
   }
 
   /**
@@ -64,8 +62,8 @@ module.exports = class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async any(query, parameters) {
-    return this.__executeQueryFile(query, parameters, 'any')
+  public async any(query, parameters = {}) {
+    return this.__executeQueryFile(query, parameters, "any");
   }
 
   /**
@@ -75,7 +73,7 @@ module.exports = class QueryExecutor {
    * @param  {String} method
    * @return {QueryBuilder}
    */
-  async __executeQueryFile(query, parameters, method) {
-    return this.connection.db[method](query, parameters)
+  public async __executeQueryFile(query, parameters, method) {
+    return this.connection.db[method](query, parameters);
   }
 }

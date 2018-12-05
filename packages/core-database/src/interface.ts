@@ -24,6 +24,7 @@ export abstract class ConnectionInterface {
   public wallets: any[];
   public delegates: any[];
   public config: any;
+  protected queuedQueries: any[];
 
   /**
    * @constructor
@@ -37,6 +38,7 @@ export abstract class ConnectionInterface {
     this.walletManager = null;
     this.wallets = [];
     this.delegates = [];
+    this.queuedQueries = null;
 
     this.__registerListeners();
   }
@@ -89,7 +91,7 @@ export abstract class ConnectionInterface {
    * @return {Boolean} success
    * @throws Error
    */
-  public abstract async buildWallets(height): Promise<void>;
+  public abstract async buildWallets(height): Promise<boolean>;
 
   /**
    * Commit wallets from the memory.
@@ -480,7 +482,7 @@ export abstract class ConnectionInterface {
    * @param  {number} round
    * @return {[]Block}
    */
-  public async __getBlocksForRound(round) {
+  public async __getBlocksForRound(round?) {
     let lastBlock;
     if (app.has("state")) {
       lastBlock = app.resolve("state").getLastBlock();

@@ -1,15 +1,17 @@
-const Repository = require('./repository')
-const { Transaction } = require('../models')
-const { transactions: sql } = require('../queries')
+import { Transaction } from "../models";
+import queries from "../queries";
+import { Repository } from "./repository";
 
-module.exports = class TransactionsRepository extends Repository {
+const { transactions: sql } = queries;
+
+export class TransactionsRepository extends Repository {
   /**
    * Find a transactions by its ID.
    * @param  {String} id
    * @return {Promise}
    */
-  async findById(id) {
-    return this.db.oneOrNone(sql.findById, { id })
+  public async findById(id) {
+    return this.db.oneOrNone(sql.findById, { id });
   }
 
   /**
@@ -17,8 +19,8 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Array} ids
    * @return {Promise}
    */
-  async findManyById(ids) {
-    return this.db.manyOrNone(sql.findManyById, { ids })
+  public async findManyById(ids) {
+    return this.db.manyOrNone(sql.findManyById, { ids });
   }
 
   /**
@@ -26,8 +28,8 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {String} id
    * @return {Promise}
    */
-  async findByBlock(id) {
-    return this.db.manyOrNone(sql.findByBlock, { id })
+  public async findByBlock(id) {
+    return this.db.manyOrNone(sql.findByBlock, { id });
   }
 
   /**
@@ -35,8 +37,8 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Promise}
    */
-  async latestByBlock(id) {
-    return this.db.manyOrNone(sql.latestByBlock, { id })
+  public async latestByBlock(id) {
+    return this.db.manyOrNone(sql.latestByBlock, { id });
   }
 
   /**
@@ -44,8 +46,8 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Array} ids
    * @return {Promise}
    */
-  async latestByBlocks(ids) {
-    return this.db.manyOrNone(sql.latestByBlocks, { ids })
+  public async latestByBlocks(ids) {
+    return this.db.manyOrNone(sql.latestByBlocks, { ids });
   }
 
   /**
@@ -53,16 +55,16 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Array} ids
    * @return {Promise}
    */
-  async forged(ids) {
-    return this.db.manyOrNone(sql.forged, { ids })
+  public async forged(ids) {
+    return this.db.manyOrNone(sql.forged, { ids });
   }
 
   /**
    * Get statistics about all transactions from the database.
    * @return {Promise}
    */
-  async statistics() {
-    return this.db.one(sql.statistics)
+  public async statistics() {
+    return this.db.one(sql.statistics);
   }
 
   /**
@@ -70,15 +72,15 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Promise}
    */
-  async deleteByBlock(id) {
-    return this.db.none(sql.deleteByBlock, { id })
+  public async deleteByBlock(id) {
+    return this.db.none(sql.deleteByBlock, { id });
   }
 
   /**
    * Get the model related to this repository.
-   * @return {Object}
+   * @return {Transaction}
    */
-  getModel() {
-    return new Transaction(this.pgp)
+  public getModel() {
+    return new Transaction(this.pgp);
   }
 }

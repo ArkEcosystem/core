@@ -1,14 +1,16 @@
-const Repository = require('./repository')
-const { Wallet } = require('../models')
-const { wallets: sql } = require('../queries')
+import { Wallet } from "../models";
+import queries from "../queries";
+import { Repository } from "./repository";
 
-module.exports = class WalletsRepository extends Repository {
+const { wallets: sql } = queries;
+
+export class WalletsRepository extends Repository {
   /**
    * Get all of the wallets from the database.
    * @return {Promise}
    */
-  async all() {
-    return this.db.manyOrNone(sql.all)
+  public async all() {
+    return this.db.manyOrNone(sql.all);
   }
 
   /**
@@ -16,24 +18,24 @@ module.exports = class WalletsRepository extends Repository {
    * @param  {String} address
    * @return {Promise}
    */
-  async findByAddress(address) {
-    return this.db.oneOrNone(sql.findByAddress, { address })
+  public async findByAddress(address) {
+    return this.db.oneOrNone(sql.findByAddress, { address });
   }
 
   /**
    * Get the count of wallets that have a negative balance.
    * @return {Promise}
    */
-  async findNegativeBalances() {
-    return this.db.oneOrNone(sql.findNegativeBalances)
+  public async findNegativeBalances() {
+    return this.db.oneOrNone(sql.findNegativeBalances);
   }
 
   /**
    * Get the count of wallets that have a negative vote balance.
    * @return {Promise}
    */
-  async findNegativeVoteBalances() {
-    return this.db.oneOrNone(sql.findNegativeVoteBalances)
+  public async findNegativeVoteBalances() {
+    return this.db.oneOrNone(sql.findNegativeVoteBalances);
   }
 
   /**
@@ -41,22 +43,22 @@ module.exports = class WalletsRepository extends Repository {
    * @param  {Object} wallet
    * @return {Promise}
    */
-  async updateOrCreate(wallet) {
+  public async updateOrCreate(wallet) {
     const query = `${this.__insertQuery(
       wallet,
     )} ON CONFLICT(address) DO UPDATE SET ${this.pgp.helpers.sets(
       wallet,
       this.model.getColumnSet(),
-    )}`
+    )}`;
 
-    return this.db.none(query)
+    return this.db.none(query);
   }
 
   /**
    * Get the model related to this repository.
    * @return {Object}
    */
-  getModel() {
-    return new Wallet(this.pgp)
+  public getModel() {
+    return new Wallet(this.pgp);
   }
 }

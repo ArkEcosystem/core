@@ -1,31 +1,39 @@
-module.exports = class Repository {
+import { Model } from "../models";
+
+export abstract class Repository {
+  protected model: Model;
+
   /**
    * Create a new repository instance.
    * @param  {Object} db
    * @param  {Object} pgp
    */
-  constructor(db, pgp) {
-    this.db = db
-    this.pgp = pgp
-    this.model = this.getModel()
+  constructor(public db, public pgp) {
+    this.model = this.getModel();
   }
+
+  /**
+   * Get the model related to this repository.
+   * @return {Model}
+   */
+  public abstract getModel(): Model;
 
   /**
    * Estimate the number of records in the table.
    * @return {Promise}
    */
-  async estimate() {
+  public async estimate() {
     return this.db.one(
       `SELECT count_estimate('SELECT * FROM ${this.model.getTable()})`,
-    )
+    );
   }
 
   /**
    * Run a truncate statement on the table.
    * @return {Promise}
    */
-  async truncate() {
-    return this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`)
+  public async truncate() {
+    return this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`);
   }
 
   /**
@@ -33,8 +41,8 @@ module.exports = class Repository {
    * @param  {Array|Object} item
    * @return {Promise}
    */
-  async create(item) {
-    return this.db.none(this.__insertQuery(item))
+  public async create(item) {
+    return this.db.none(this.__insertQuery(item));
   }
 
   /**
@@ -42,16 +50,8 @@ module.exports = class Repository {
    * @param  {Array|Object} item
    * @return {Promise}
    */
-  async update(item) {
-    return this.db.none(this.__updateQuery(item))
-  }
-
-  /**
-   * Get the model related to this repository.
-   * @return {Object}
-   */
-  getModel() {
-    throw new Error('Method [getModel] not implemented!')
+  public async update(item) {
+    return this.db.none(this.__updateQuery(item));
   }
 
   /**
@@ -59,8 +59,8 @@ module.exports = class Repository {
    * @param  {Array|Object} data
    * @return {String}
    */
-  __insertQuery(data) {
-    return this.pgp.helpers.insert(data, this.model.getColumnSet())
+  public __insertQuery(data) {
+    return this.pgp.helpers.insert(data, this.model.getColumnSet());
   }
 
   /**
@@ -68,7 +68,7 @@ module.exports = class Repository {
    * @param  {Array|Object} data
    * @return {String}
    */
-  __updateQuery(data) {
-    return this.pgp.helpers.update(data, this.model.getColumnSet())
+  public __updateQuery(data) {
+    return this.pgp.helpers.update(data, this.model.getColumnSet());
   }
 }
