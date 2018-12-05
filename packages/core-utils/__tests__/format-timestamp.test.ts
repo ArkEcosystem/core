@@ -1,15 +1,8 @@
-const app = require('@arkecosystem/core-container')
-const formatTimestamp = require('../lib/format-timestamp')
+import './__support__/mocks/core-container'
 
-app.resolvePlugin = jest.fn(plugin => {
-  if (plugin === 'config') {
-    return {
-      getConstants: () => ({
-        epoch: '2017-03-21T13:00:00.000Z',
-      }),
-    }
-  }
-})
+import 'jest-extended'
+import * as app from '@arkecosystem/core-container'
+import { formatTimestamp } from '../src/format-timestamp'
 
 describe('Format Timestamp', () => {
   it('should be a function', () => {
