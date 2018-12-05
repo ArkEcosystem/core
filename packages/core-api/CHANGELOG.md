@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.12 - 2018-12-05
+
 ### Changed
 
 - Increase cache generation timeout and make it configurable
