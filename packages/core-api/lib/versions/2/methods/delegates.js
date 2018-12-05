@@ -125,7 +125,7 @@ module.exports = server => {
   server.method('v2.delegates.blocks', blocks, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout: 8000,
       getDecoratedValue: true,
     },
     generateKey: request =>

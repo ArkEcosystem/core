@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Changed
+
+- Increase cache generation timeout for block and transaction endpoints
+
 ## 0.2.11 - 2018-12-05
 
 ### Fixed

@@ -35,7 +35,7 @@ module.exports = server => {
   server.method('v2.votes.index', index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout: 8000,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -48,7 +48,7 @@ module.exports = server => {
   server.method('v2.votes.show', show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout: 8000,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.params.id }),
