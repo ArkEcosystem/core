@@ -2,7 +2,7 @@ const Joi = require('joi')
 const { configManager, crypto, utils } = require('@arkecosystem/crypto')
 const bip39 = require('bip39')
 const bip38 = require('bip38')
-const wif = require('wif')
+const _wif = require('wif')
 const database = require('../../../services/database')
 const getBIP38Wallet = require('../../../utils/bip38-keys')
 
@@ -10,12 +10,12 @@ module.exports = {
   name: 'wallets.bip38.create',
   async method(params) {
     try {
-      const { keys, wifKey } = await getBIP38Wallet(params.userId, params.bip38)
+      const { keys, wif } = await getBIP38Wallet(params.userId, params.bip38)
 
       return {
         publicKey: keys.publicKey,
         address: crypto.getAddress(keys.publicKey),
-        wif: wifKey,
+        wif,
       }
     } catch (error) {
       const { publicKey, privateKey } = crypto.getKeys(bip39.generateMnemonic())
@@ -30,7 +30,7 @@ module.exports = {
         encryptedWif,
       )
 
-      const wifKey = wif.encode(configManager.get('wif'), privateKey, true)
+      const wifKey = _wif.encode(configManager.get('wif'), privateKey, true)
 
       return {
         publicKey,
