@@ -7,6 +7,7 @@ const crypto = require('crypto')
 const chunk = require('lodash/chunk')
 const pluralize = require('pluralize')
 const fs = require('fs')
+const path = require('path')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
@@ -658,7 +659,21 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    */
   async __runMigrations() {
     for (const migration of migrations) {
-      await this.query.none(migration)
+      const { name } = path.parse(migration.file)
+
+      if (name === '20180304100000-create-migrations-table') {
+        await this.query.none(migration)
+      } else {
+        const row = await this.db.migrations.findByName(name)
+
+        if (row === null) {
+          logger.debug(`Migrating ${name}`)
+
+          await this.query.none(migration)
+
+          await this.db.migrations.create({ name })
+        }
+      }
     }
   }
 
