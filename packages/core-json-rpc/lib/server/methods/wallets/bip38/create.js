@@ -1,8 +1,7 @@
 const Joi = require('joi')
-const { configManager, crypto, utils } = require('@arkecosystem/crypto')
+const { crypto, utils } = require('@arkecosystem/crypto')
 const bip39 = require('bip39')
 const bip38 = require('bip38')
-const _wif = require('wif')
 const database = require('../../../services/database')
 const getBIP38Wallet = require('../../../utils/bip38-keys')
 
@@ -30,12 +29,12 @@ module.exports = {
         encryptedWif,
       )
 
-      const wifKey = _wif.encode(configManager.get('wif'), privateKey, true)
+      const { wif } = await getBIP38Wallet(params.userId, params.bip38);
 
       return {
         publicKey,
         address: crypto.getAddress(publicKey),
-        wif: wifKey,
+        wif,
       }
     }
   },
