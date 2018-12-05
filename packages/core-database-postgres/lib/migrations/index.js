@@ -16,10 +16,14 @@ module.exports = [
   ),
   loadQueryFile(
     __dirname,
-    './20181204200000-add-transactions-timestamp-index-to-blocks-table.sql',
+    './20181204200000-add-timestamp-index-to-blocks-table.sql',
   ),
   loadQueryFile(
     __dirname,
-    './20181204300000-add-transactions-sender-and-receiver-indices-to-transactions-table.sql',
+    './20181204300000-add-sender_public_key-index-to-transactions-table.sql',
+  ),
+  loadQueryFile(
+    __dirname,
+    './20181204400000-add-recipient_id-index-to-transactions-table.sql',
   ),
 ]
