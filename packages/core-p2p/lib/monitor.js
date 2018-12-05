@@ -693,7 +693,7 @@ class Monitor {
       const restGroups = commonIdGroups.slice(1)
 
       if (restGroups.some(group => group.length === chosenPeers.length)) {
-        logger.warning(
+        logger.warn(
           'Peers are evenly split at same height with different block ids. :zap:',
         )
       }

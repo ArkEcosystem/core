@@ -34,13 +34,13 @@
           "addonBytes": {
             "transfer": 100,
             "secondSignature": 250,
-            "delegateRegistration": 500,
+            "delegateRegistration": 400000,
             "vote": 100,
             "multiSignature": 500,
             "ipfs": 250,
             "timelockTransfer": 500,
             "multiPayment": 500,
-            "delegateResignation": 500
+            "delegateResignation": 400000
           }
         },
         "staticFees": {

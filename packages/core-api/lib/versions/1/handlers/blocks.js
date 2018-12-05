@@ -1,5 +1,5 @@
 const app = require('@arkecosystem/core-container')
-const { bignumify } = require('@arkecosystem/core-utils')
+const { supplyCalculator } = require('@arkecosystem/core-utils')
 
 const config = app.resolvePlugin('config')
 const blockchain = app.resolvePlugin('blockchain')
@@ -184,15 +184,8 @@ exports.supply = {
    */
   handler(request, h) {
     const lastBlock = blockchain.getLastBlock()
-    const constants = config.getConstants(lastBlock.data.height)
-    const rewards = bignumify(constants.reward).times(
-      lastBlock.data.height - constants.height,
-    )
-
     return utils.respondWith({
-      supply: +bignumify(config.genesisBlock.totalAmount)
-        .plus(rewards)
-        .toFixed(),
+      supply: supplyCalculator.calculate(lastBlock.data.height),
     })
   },
 }
@@ -209,9 +202,6 @@ exports.status = {
   handler(request, h) {
     const lastBlock = blockchain.getLastBlock()
     const constants = config.getConstants(lastBlock.data.height)
-    const rewards = bignumify(constants.reward).times(
-      lastBlock.data.height - constants.height,
-    )
 
     return utils.respondWith({
       epoch: constants.epoch,
@@ -220,9 +210,7 @@ exports.status = {
       milestone: Math.floor(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
-      supply: +bignumify(config.genesisBlock.totalAmount)
-        .plus(rewards)
-        .toFixed(),
+      supply: supplyCalculator.calculate(lastBlock.data.height),
     })
   },
 }

@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-database-postgres",
   "description": "PostgreSQL integration for Ark Core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -13,8 +13,7 @@
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./ --ignores=lodash,lodash.*"
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@arkecosystem/core-container": "~0.2",

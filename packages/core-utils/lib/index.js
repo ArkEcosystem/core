@@ -4,4 +4,5 @@ module.exports = {
   delegateCalculator: require('./delegate-calculator'),
   formatTimestamp: require('./format-timestamp'),
   roundCalculator: require('./round-calculator'),
+  supplyCalculator: require('./supply-calculator'),
 }

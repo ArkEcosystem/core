@@ -79,52 +79,12 @@
           }
         }
       ]
-    },
-    "depcheck-lint": {
-      "working_directory": "~/ark-core",
-      "docker": [
-        {
-          "image": "circleci/node:10"
-        }
-      ],
-      "steps": [
-        "checkout",
-        {
-          "run": {
-            "name": "Generate cache key",
-            "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
-          }
-        },
-        {
-          "restore_cache": {
-            "key": "core-node10-{{ checksum \"checksum.txt\" }}-1"
-          }
-        },
-        {
-          "run": {
-            "name": "Install packages",
-            "command": "yarn"
-          }
-        },
-        {
-          "run": {
-            "name": "Lint",
-            "command": "yarn lint"
-          }
-        },
-        {
-          "run": {
-            "name": "Depcheck",
-            "command": "yarn depcheck"
-          }
-        }
-      ]
     }
   },
   "workflows": {
     "version": 2,
-    "test_depcheck_lint": {
-      "jobs": ["depcheck-lint"]
+    "build_and_test": {
+      "jobs": []
     }
   }
 }

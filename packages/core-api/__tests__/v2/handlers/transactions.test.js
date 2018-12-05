@@ -279,7 +279,6 @@ describe('API 2.0 - Transactions', () => {
 
         const transaction = response.data.data[0]
         utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
         expect(transaction.recipient).toBe(recipientAddress)
       })
     })

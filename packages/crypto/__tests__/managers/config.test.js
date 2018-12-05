@@ -93,14 +93,12 @@ describe('Configuration', () => {
   })
 
   it('should get constants for height', () => {
-    expect(configManager.getConstants(75600)).toEqual(
-      Object.assign({}, ...network.constants),
-    )
+    expect(configManager.getConstants(21600)).toEqual(network.constants[2])
   })
 
   it('should set the height', () => {
-    configManager.setHeight(75600)
+    configManager.setHeight(21600)
 
-    expect(configManager.getHeight()).toEqual(75600)
+    expect(configManager.getHeight()).toEqual(21600)
   })
 })
