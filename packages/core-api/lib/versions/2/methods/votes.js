@@ -32,10 +32,14 @@ const show = async request => {
 }
 
 module.exports = server => {
+  const {
+    generateTimeout,
+  } = require('@arkecosystem/core-container').resolveOptions('api').cache
+
   server.method('v2.votes.index', index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 8000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -48,7 +52,7 @@ module.exports = server => {
   server.method('v2.votes.show', show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 8000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.params.id }),

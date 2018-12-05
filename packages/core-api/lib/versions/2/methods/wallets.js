@@ -116,10 +116,14 @@ const search = async request => {
 }
 
 module.exports = server => {
+  const {
+    generateTimeout,
+  } = require('@arkecosystem/core-container').resolveOptions('api').cache
+
   server.method('v2.wallets.index', index, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -133,7 +137,7 @@ module.exports = server => {
   server.method('v2.wallets.top', top, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey(utils.paginate(request)),
@@ -142,7 +146,7 @@ module.exports = server => {
   server.method('v2.wallets.show', show, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.params.id }),
@@ -151,7 +155,7 @@ module.exports = server => {
   server.method('v2.wallets.transactions', transactions, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 8000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -165,7 +169,7 @@ module.exports = server => {
   server.method('v2.wallets.transactionsSent', transactionsSent, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 8000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -179,7 +183,7 @@ module.exports = server => {
   server.method('v2.wallets.transactionsReceived', transactionsReceived, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 8000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -193,7 +197,7 @@ module.exports = server => {
   server.method('v2.wallets.votes', votes, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 8000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -206,7 +210,7 @@ module.exports = server => {
   server.method('v2.wallets.search', search, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>

@@ -71,10 +71,14 @@ const voters = async request => {
 }
 
 module.exports = server => {
+  const {
+    generateTimeout,
+  } = require('@arkecosystem/core-container').resolveOptions('api').cache
+
   server.method('v1.delegates.index', index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -90,7 +94,7 @@ module.exports = server => {
   server.method('v1.delegates.show', show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -102,7 +106,7 @@ module.exports = server => {
   server.method('v1.delegates.count', count, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ time: +new Date() }),
@@ -111,7 +115,7 @@ module.exports = server => {
   server.method('v1.delegates.search', search, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request =>
@@ -124,7 +128,7 @@ module.exports = server => {
   server.method('v1.delegates.voters', voters, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout: 3000,
+      generateTimeout,
       getDecoratedValue: true,
     },
     generateKey: request => generateCacheKey({ id: request.query.publicKey }),
