@@ -1,5 +1,7 @@
-const EventEmitter = require('eventemitter3')
-const emitter = require('../lib/emitter')
+import EventEmitter from 'eventemitter3'
+import { plugin } from '../src'
+
+const emitter = plugin.register()
 
 let lastEmit
 beforeAll(() => {
