@@ -1,4 +1,4 @@
-import plugins from "./plugins";
+import * as plugins from "./plugins";
 import { createServer } from "./server/create";
 import { createSecureServer } from "./server/create-secure";
 import { monitorServer } from "./server/monitor";

@@ -3,7 +3,7 @@ import { corsHeaders } from "./cors-headers";
 import { transactionPayload } from "./transaction-payload";
 import { whitelist } from "./whitelist";
 
-export default {
+export {
   contentType,
   corsHeaders,
   transactionPayload,
