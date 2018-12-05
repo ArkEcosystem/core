@@ -61,7 +61,7 @@ class BlocksRepository extends Repository {
       .from(this.query)
       .where(this.query.id.equals(value))
 
-    if (Number.isSafeInteger(value)) {
+    if (Number.isSafeInteger(+value)) {
       query.or(this.query.height.equals(value))
     }
 

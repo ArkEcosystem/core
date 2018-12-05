@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.0.1 - 2018-12-05
+
+### Changed
+
+- Improved performance for block and transaction queries by adding more indices on critical columns
+
+### Fixed
+
+- Take milestones into account for supply calculations
+
 ## 2.0.0 - 2018-12-03
 
 ### Changed
