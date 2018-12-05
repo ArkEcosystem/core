@@ -1,9 +1,10 @@
 /* eslint max-len: "off" */
 /* eslint no-await-in-loop: "off" */
 
-const { slots } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
-const app = require('@arkecosystem/core-container')
+const { slots, models } = require('@arkecosystem/crypto')
+
+const { Block } = models
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')

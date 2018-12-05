@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const lastBlock = app.resolvePlugin('blockchain').getLastBlock()
 
@@ -64,9 +64,8 @@ module.exports = {
         type: 'integer',
         minimum: 1,
         maximum: lastBlock
-          ? app
-            .resolvePlugin('config')
-            .getConstants(lastBlock.data.height).activeDelegates
+          ? app.resolvePlugin('config').getConstants(lastBlock.data.height)
+              .activeDelegates
           : 51,
       },
       offset: {

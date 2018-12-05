@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 /**
  * The register method used by hapi.js.

@@ -1,4 +1,4 @@
-import app from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-container";
 import { Bignum } from "@arkecosystem/crypto";
 
 const BignumMod = Bignum.clone({ DECIMAL_PLACES: 2 });
@@ -9,7 +9,7 @@ const BignumMod = Bignum.clone({ DECIMAL_PLACES: 2 });
  * @param  {Number} height
  * @return {Number} Approval, with 2 decimals
  */
-function calculateApproval(delegate, height: any) {
+function calculateApproval(delegate, height: any = null) {
   const config = app.resolvePlugin("config");
 
   if (!height) {

@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const snapshotManager = app.resolvePlugin('snapshots')
 const emitter = app.resolvePlugin('event-emitter')

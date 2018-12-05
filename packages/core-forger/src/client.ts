@@ -1,4 +1,4 @@
-import app from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-container";
 import axios from "axios";
 import delay from "delay";
 import sample from "lodash/sample";

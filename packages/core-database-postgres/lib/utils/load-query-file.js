@@ -1,7 +1,7 @@
 const QueryFile = require('pg-promise').QueryFile
 const path = require('path')
 
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 

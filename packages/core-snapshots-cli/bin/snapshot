@@ -2,7 +2,7 @@
 
 const cli = require('commander')
 const util = require('../lib/utils')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 cli.version(require('../package.json').version)
 

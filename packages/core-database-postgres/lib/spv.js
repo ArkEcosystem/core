@@ -2,7 +2,7 @@ const {
   Bignum,
   models: { Transaction },
 } = require('@arkecosystem/crypto')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')

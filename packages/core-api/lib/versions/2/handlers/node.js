@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const blockchain = app.resolvePlugin('blockchain')
 const config = app.resolvePlugin('config')

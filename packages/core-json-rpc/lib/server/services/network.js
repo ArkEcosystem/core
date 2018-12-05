@@ -2,7 +2,7 @@ const axios = require('axios')
 const { configManager } = require('@arkecosystem/crypto')
 const isReachable = require('is-reachable')
 const sample = require('lodash/sample')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 const p2p = app.resolvePlugin('p2p')

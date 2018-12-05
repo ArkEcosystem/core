@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 const snapshotManager = app.resolvePlugin('snapshots')
@@ -10,9 +10,7 @@ module.exports = async options => {
     )
   }
   logger.info(
-    `Starting the process of blockchain rollback to block height of ${
-      options.blockHeight.toLocaleString()
-    }`,
+    `Starting the process of blockchain rollback to block height of ${options.blockHeight.toLocaleString()}`,
   )
 
   await snapshotManager.rollbackChain(options.blockHeight)

@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const config = app.resolvePlugin('config')
 const database = app.resolvePlugin('database')

@@ -2,7 +2,7 @@ const { crypto, formatArktoshi } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { roundCalculator } = require('@arkecosystem/core-utils')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const config = app.resolvePlugin('config')
 const logger = app.resolvePlugin('logger')

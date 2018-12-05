@@ -1,5 +1,5 @@
 const path = require('path')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 module.exports = {
   setUp: async options =>

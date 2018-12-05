@@ -1,6 +1,6 @@
 /* eslint camelcase: "off" */
 
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const emitter = app.resolvePlugin('event-emitter')
 const logger = app.resolvePlugin('logger')

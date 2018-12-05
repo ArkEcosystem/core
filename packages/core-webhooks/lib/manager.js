@@ -1,7 +1,7 @@
 /* eslint no-await-in-loop: "off" */
 
 const axios = require('axios')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 const database = require('./database')

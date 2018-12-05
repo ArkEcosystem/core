@@ -1,7 +1,7 @@
 /* eslint max-len: "off" */
 
 const pick = require('lodash/pick')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 const database = require('./db')
@@ -67,9 +67,7 @@ module.exports = class SnapshotManager {
     if (!params.skipRestartRound) {
       const newLastBlock = await this.database.rollbackChain(lastBlock.height)
       logger.info(
-        `Rolling back chain to last finished round with last block height ${
-          newLastBlock.height.toLocaleString()
-        }`,
+        `Rolling back chain to last finished round with last block height ${newLastBlock.height.toLocaleString()}`,
       )
     }
 
@@ -99,11 +97,7 @@ module.exports = class SnapshotManager {
     const rollBackHeight = height === -1 ? lastBlock.height : height
     if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
       app.forceExit(
-        `Specified rollback block height: ${
-          rollBackHeight.toLocaleString()
-        } is not valid. Current database height: ${
-          lastBlock.height.toLocaleString()
-        }. Exiting.`,
+        `Specified rollback block height: ${rollBackHeight.toLocaleString()} is not valid. Current database height: ${lastBlock.height.toLocaleString()}. Exiting.`,
       )
     }
 
@@ -121,9 +115,9 @@ module.exports = class SnapshotManager {
 
     const newLastBlock = await this.database.rollbackChain(rollBackHeight)
     logger.info(
-      `Rolling back chain to last finished round ${
-        (newLastBlock.height / maxDelegates).toLocaleString()
-      } with last block height ${newLastBlock.height.toLocaleString()}`,
+      `Rolling back chain to last finished round ${(
+        newLastBlock.height / maxDelegates
+      ).toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
     )
 
     this.database.close()

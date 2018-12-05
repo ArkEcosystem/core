@@ -10,7 +10,7 @@ const fs = require('fs')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const config = app.resolvePlugin('config')
 const logger = app.resolvePlugin('logger')

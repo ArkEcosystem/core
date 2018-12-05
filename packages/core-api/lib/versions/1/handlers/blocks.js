@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const { supplyCalculator } = require('@arkecosystem/core-utils')
 
 const config = app.resolvePlugin('config')

@@ -1,4 +1,4 @@
-import app from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import mm from "micromatch";
 import requestIp from "request-ip";

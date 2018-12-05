@@ -1,5 +1,5 @@
 const fs = require('fs-extra')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 exports.getPath = (table, folder, codec) => {
   const filename = `${table}.${codec}`
@@ -13,9 +13,10 @@ exports.writeMetaFile = snapshotInfo => {
   fs.writeFileSync(path, JSON.stringify(snapshotInfo, 'utf8'))
 }
 
-exports.getFilePath = (filename, folder) => `${process.env.ARK_PATH_DATA}/snapshots/${
-  process.env.ARK_NETWORK_NAME
-}/${folder}/${filename}`
+exports.getFilePath = (filename, folder) =>
+  `${process.env.ARK_PATH_DATA}/snapshots/${
+    process.env.ARK_NETWORK_NAME
+  }/${folder}/${filename}`
 
 exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   const logger = app.resolvePlugin('logger')
@@ -38,8 +39,8 @@ exports.copySnapshot = (sourceFolder, destFolder, codec) => {
   fs.ensureFileSync(paths.dest.transactions)
 
   if (
-    !fs.existsSync(paths.source.blocks)
-    || !fs.existsSync(paths.source.transactions)
+    !fs.existsSync(paths.source.blocks) ||
+    !fs.existsSync(paths.source.transactions)
   ) {
     app.forceExit(
       `Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`,

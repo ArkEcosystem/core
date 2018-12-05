@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)

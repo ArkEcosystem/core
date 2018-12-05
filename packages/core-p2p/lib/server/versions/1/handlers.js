@@ -1,6 +1,6 @@
 /* eslint no-restricted-globals: "off" */
 
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models

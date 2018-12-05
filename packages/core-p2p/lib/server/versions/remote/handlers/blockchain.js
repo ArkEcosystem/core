@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const schema = require('../schemas/blockchain')
 
 /**
@@ -12,9 +12,7 @@ exports.emitEvent = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const event = app.resolvePlugin('blockchain').events[
-      request.params.event
-    ]
+    const event = app.resolvePlugin('blockchain').events[request.params.event]
 
     request.query.param ? event(request.query.params) : event()
 

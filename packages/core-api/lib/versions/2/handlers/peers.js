@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const blockchain = app.resolvePlugin('blockchain')
 const utils = require('../utils')
@@ -36,9 +36,10 @@ exports.index = {
       const order = request.query.orderBy.split(':')
 
       if (['port', 'status', 'os', 'version'].includes(order[0])) {
-        result = order[1].toUpperCase() === 'ASC'
-          ? result.sort((a, b) => a[order[0]] - b[order[0]])
-          : result.sort((a, b) => a[order[0]] + b[order[0]])
+        result =
+          order[1].toUpperCase() === 'ASC'
+            ? result.sort((a, b) => a[order[0]] - b[order[0]])
+            : result.sort((a, b) => a[order[0]] + b[order[0]])
       }
     }
 

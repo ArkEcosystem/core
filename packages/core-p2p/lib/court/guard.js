@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const dayjs = require('dayjs-ext')
 const head = require('lodash/head')
 const prettyMs = require('pretty-ms')

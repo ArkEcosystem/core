@@ -1,6 +1,6 @@
-const database = require('@arkecosystem/core-container').resolvePlugin(
-  'database',
-)
+const { app } = require('@arkecosystem/core-container')
+
+const database = app.resolvePlugin('database')
 const { formatTimestamp, bignumify } = require('@arkecosystem/core-utils')
 
 /**

@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const requestIp = require('request-ip')
 const schema = require('../schemas/blocks')
 

@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const config = app.resolvePlugin('config')
 
@@ -37,8 +37,8 @@ exports.current = {
           delegates[(parseInt(timestamp / blockTime) + 1) % maxActive],
         lastBlock: lastBlock.data,
         canForge:
-          parseInt(1 + lastBlock.data.timestamp / blockTime) * blockTime
-          < timestamp - 1,
+          parseInt(1 + lastBlock.data.timestamp / blockTime) * blockTime <
+          timestamp - 1,
       },
     }
   },

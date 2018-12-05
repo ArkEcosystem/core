@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
 
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 const logger = app.resolvePlugin('logger')
 const immutable = require('immutable')
@@ -94,8 +94,7 @@ class StateStorage {
 
     // Delete oldest block if size exceeds the maximum
     if (
-      _lastBlocks.size >
-      app.resolveOptions('blockchain').state.maxLastBlocks
+      _lastBlocks.size > app.resolveOptions('blockchain').state.maxLastBlocks
     ) {
       _lastBlocks = _lastBlocks.delete(_lastBlocks.first().data.height)
     }
@@ -180,8 +179,7 @@ class StateStorage {
     })
 
     // Cap the Set of last transaction ids to maxLastTransactionIds
-    const limit = app.resolveOptions('blockchain').state
-      .maxLastTransactionIds
+    const limit = app.resolveOptions('blockchain').state.maxLastTransactionIds
     if (_cachedTransactionIds.size > limit) {
       _cachedTransactionIds = _cachedTransactionIds.takeLast(limit)
     }

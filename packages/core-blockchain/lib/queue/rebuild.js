@@ -1,5 +1,7 @@
 const async = require('async')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const { app } = require('@arkecosystem/core-container')
+
+const logger = app.resolvePlugin('logger')
 const { Block } = require('@arkecosystem/crypto').models
 const QueueInterface = require('./interface')
 

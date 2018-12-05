@@ -1,7 +1,7 @@
 const { bignumify } = require('@arkecosystem/core-utils')
-const blockchain = require('@arkecosystem/core-container').resolvePlugin(
-  'blockchain',
-)
+const { app } = require('@arkecosystem/core-container')
+
+const blockchain = app.resolvePlugin('blockchain')
 
 /**
  * Turns a "block" object into a generic object.

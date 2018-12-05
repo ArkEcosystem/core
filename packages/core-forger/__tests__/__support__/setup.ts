@@ -1,4 +1,4 @@
-import app from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-container";
 import appHelper from "@arkecosystem/core-test-utils/lib/helpers/container";
 
 async function setUp() {

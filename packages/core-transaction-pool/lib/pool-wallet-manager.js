@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 

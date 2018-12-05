@@ -1,4 +1,4 @@
-import app from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-container";
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";

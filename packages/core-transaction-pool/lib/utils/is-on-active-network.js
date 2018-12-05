@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const bs58check = require('bs58check')
 const { configManager } = require('@arkecosystem/crypto')
 

@@ -1,6 +1,6 @@
 const Boom = require('boom')
 const orderBy = require('lodash/orderBy')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 const generateCacheKey = require('../../../utils/generate-cache-key')
 const { blocks: blocksRepository } = require('../../../repositories')
 const utils = require('../utils')

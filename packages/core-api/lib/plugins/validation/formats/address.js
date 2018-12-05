@@ -1,5 +1,7 @@
 const bs58check = require('bs58check')
-const config = require('@arkecosystem/core-container').resolvePlugin('config')
+const { app } = require('@arkecosystem/core-container')
+
+const config = app.resolvePlugin('config')
 
 /**
  * Register the "address" validation rule.

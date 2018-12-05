@@ -4,7 +4,7 @@ const Op = Sequelize.Op
 const Umzug = require('umzug')
 const path = require('path')
 const fs = require('fs-extra')
-const app = require('@arkecosystem/core-container')
+const { app } = require('@arkecosystem/core-container')
 
 class Database {
   /**
