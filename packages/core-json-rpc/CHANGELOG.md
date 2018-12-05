@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-- Properly handle bip38 creation and reading for wallets
+- Return the encoded WIF for BIP38 wallets instead of the encrypted WIF
 
 ## 0.2.0 - 2018-12-03
 
