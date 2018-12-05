@@ -10,7 +10,8 @@ const formatter = (colorOutput: boolean = true) =>
     colorize(),
     timestamp(),
     printf((info) => {
-      const infoLevel = info[Symbol.for("level").toString()];
+      // @ts-ignore
+      const infoLevel = info[Symbol.for("level")];
 
       let level = infoLevel.toUpperCase();
       let message = emoji.emojify(info.message) || JSON.stringify(info.meta);

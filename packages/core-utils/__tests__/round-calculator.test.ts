@@ -1,7 +1,7 @@
 import './__support__/mocks/core-container'
 
 import 'jest-extended'
-import * as app from '@arkecosystem/core-container'
+import app from "@arkecosystem/core-container";
 import { calculateRound, isNewRound } from '../src/round-calculator'
 
 describe('Round calculator', () => {

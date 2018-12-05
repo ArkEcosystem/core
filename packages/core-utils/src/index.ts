@@ -5,11 +5,15 @@ import { formatTimestamp } from "./format-timestamp";
 import { calculateRound, isNewRound } from "./round-calculator";
 import { calculate } from "./supply-calculator";
 
-export default {
+const delegateCalculator = { calculateApproval, calculateProductivity };
+const roundCalculator = { calculateRound, isNewRound };
+const supplyCalculator = { calculate };
+
+export {
   bignumify,
   createTable,
-  delegateCalculator: { calculateApproval, calculateProductivity },
+  delegateCalculator,
   formatTimestamp,
-  roundCalculator: { calculateRound, isNewRound },
-  supplyCalculator: { calculate },
+  roundCalculator,
+  supplyCalculator,
 };

@@ -1,4 +1,4 @@
-import * as app from "@arkecosystem/core-container";
+import app from "@arkecosystem/core-container";
 
 /**
  * Calculate the round and nextRound based on the height and active delegates.

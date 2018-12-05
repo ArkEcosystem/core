@@ -2,7 +2,7 @@ import './__support__/mocks/core-container-calculator'
 
 import 'jest-extended'
 import { Bignum, models } from '@arkecosystem/crypto'
-import * as app from '@arkecosystem/core-container'
+import app from "@arkecosystem/core-container";
 import { calculateApproval, calculateProductivity } from '../src/delegate-calculator'
 
 let delegate
