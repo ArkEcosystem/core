@@ -1,1 +1,1 @@
-INSERT INTO migrations (id, name) VALUES (${id}, ${name})
+INSERT INTO migrations (name) VALUES (${name})
