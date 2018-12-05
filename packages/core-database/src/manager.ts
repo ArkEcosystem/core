@@ -1,10 +1,12 @@
-class DatabaseManager {
+export class DatabaseManager {
+  public connections: { [key: string]: any };
+
   /**
    * Create a new database manager instance.
    * @constructor
    */
   constructor() {
-    this.connections = {}
+    this.connections = {};
   }
 
   /**
@@ -12,8 +14,8 @@ class DatabaseManager {
    * @param  {String} name
    * @return {ConnectionInterface}
    */
-  connection(name = 'default') {
-    return this.connections[name]
+  public connection(name = "default") {
+    return this.connections[name];
   }
 
   /**
@@ -22,9 +24,7 @@ class DatabaseManager {
    * @param  {String} name
    * @return {void}
    */
-  async makeConnection(connection, name = 'default') {
-    this.connections[name] = await connection.make()
+  public async makeConnection(connection, name = "default") {
+    this.connections[name] = await connection.make();
   }
 }
-
-module.exports = new DatabaseManager()

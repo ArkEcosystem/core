@@ -1,24 +1,22 @@
-const { delegateCalculator } = require('@arkecosystem/core-utils')
-const orderBy = require('lodash/orderBy')
-const limitRows = require('./utils/limit-rows')
+import { delegateCalculator } from "@arkecosystem/core-utils";
+import orderBy from "lodash/orderBy";
+import limitRows from "./utils/limit-rows";
 
-module.exports = class DelegatesRepository {
+export class DelegatesRepository {
   /**
    * Create a new delegate repository instance.
    * @param  {ConnectionInterface} connection
    */
-  constructor(connection) {
-    this.connection = connection
-  }
+  public constructor(public connection) { }
 
   /**
    * Get all local delegates.
    * @return {Array}
    */
-  getLocalDelegates() {
+  public getLocalDelegates() {
     return this.connection.walletManager
       .all()
-      .filter(wallet => !!wallet.username)
+      .filter((wallet) => !!wallet.username);
   }
 
   /**
@@ -26,15 +24,15 @@ module.exports = class DelegatesRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAll(params = {}) {
-    const rows = this.getLocalDelegates()
+  public findAll(params: { orderBy?: string } = {}) {
+    const rows = this.getLocalDelegates();
 
-    const order = params.orderBy ? params.orderBy.split(':') : ['rate', 'asc']
+    const order = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
 
     return {
       rows: limitRows(orderBy(rows, order), params),
       count: rows.length,
-    }
+    };
   }
 
   /**
@@ -42,8 +40,8 @@ module.exports = class DelegatesRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  paginate(params) {
-    return this.findAll(params)
+  public paginate(params) {
+    return this.findAll(params);
   }
 
   /**
@@ -53,32 +51,32 @@ module.exports = class DelegatesRepository {
    * @param  {String} [params.username] - Search by username
    * @return {Object}
    */
-  search(params) {
+  public search(params) {
     let delegates = this.getLocalDelegates().filter(
-      delegate => delegate.username.indexOf(params.username) > -1,
-    )
+      (delegate) => delegate.username.indexOf(params.username) > -1,
+    );
 
     if (params.orderBy) {
-      const orderByField = params.orderBy.split(':')[0]
-      const orderByDirection = params.orderBy.split(':')[1] || 'desc'
+      const orderByField = params.orderBy.split(":")[0];
+      const orderByDirection = params.orderBy.split(":")[1] || "desc";
 
       delegates = delegates.sort((a, b) => {
-        if (orderByDirection === 'desc' && a[orderByField] < b[orderByField]) {
-          return -1
+        if (orderByDirection === "desc" && a[orderByField] < b[orderByField]) {
+          return -1;
         }
 
-        if (orderByDirection === 'asc' && a[orderByField] > b[orderByField]) {
-          return 1
+        if (orderByDirection === "asc" && a[orderByField] > b[orderByField]) {
+          return 1;
         }
 
-        return 0
-      })
+        return 0;
+      });
     }
 
     return {
       rows: limitRows(delegates, params),
       count: delegates.length,
-    }
+    };
   }
 
   /**
@@ -86,10 +84,10 @@ module.exports = class DelegatesRepository {
    * @param  {String} id
    * @return {Object}
    */
-  findById(id) {
+  public findById(id) {
     return this.getLocalDelegates().find(
-      a => a.address === id || a.publicKey === id || a.username === id,
-    )
+      (a) => a.address === id || a.publicKey === id || a.username === id,
+    );
   }
 
   /**
@@ -97,17 +95,17 @@ module.exports = class DelegatesRepository {
    * @param  {Number} height
    * @return {Array}
    */
-  getActiveAtHeight(height) {
-    const delegates = this.connection.getActiveDelegates(height)
+  public getActiveAtHeight(height) {
+    const delegates = this.connection.getActiveDelegates(height);
 
-    return delegates.map(delegate => {
-      const wallet = this.connection.wallets.findById(delegate.publicKey)
+    return delegates.map((delegate) => {
+      const wallet = this.connection.wallets.findById(delegate.publicKey);
 
       return {
         username: wallet.username,
         approval: delegateCalculator.calculateApproval(delegate, height),
         productivity: delegateCalculator.calculateProductivity(wallet),
-      }
-    })
+      };
+    });
   }
 }

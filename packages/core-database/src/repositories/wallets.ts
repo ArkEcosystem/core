@@ -1,40 +1,40 @@
-const orderBy = require('lodash/orderBy')
-const filterRows = require('./utils/filter-rows')
-const limitRows = require('./utils/limit-rows')
+import { Bignum } from "@arkecosystem/crypto";
+import orderBy from "lodash/orderBy";
+import filterRows from "./utils/filter-rows";
+import limitRows from "./utils/limit-rows";
 
-module.exports = class WalletsRepository {
+export class WalletsRepository {
   /**
    * Create a new wallet repository instance.
    * @param  {ConnectionInterface} connection
    */
-  constructor(connection) {
-    this.connection = connection
+  public constructor(public connection) {
   }
 
   /**
    * Get all local wallets.
    * @return {Array}
    */
-  all() {
-    return this.connection.walletManager.all()
+  public all() {
+    return this.connection.walletManager.all();
   }
 
   /**
    * Find all wallets.
-   * @param  {Object} params
+   * @param  {{ orderBy?: string }} params
    * @return {Object}
    */
-  findAll(params = {}) {
-    const wallets = this.all()
+  public findAll(params: { orderBy?: string } = {}) {
+    const wallets = this.all();
 
     const [iteratee, order] = params.orderBy
-      ? params.orderBy.split(':')
-      : ['rate', 'asc']
+      ? params.orderBy.split(":")
+      : ["rate", "asc"];
 
     return {
-      rows: limitRows(orderBy(wallets, iteratee, order), params),
+      rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
       count: wallets.length,
-    }
+    };
   }
 
   /**
@@ -43,13 +43,13 @@ module.exports = class WalletsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByVote(publicKey, params = {}) {
-    const wallets = this.all().filter(wallet => wallet.vote === publicKey)
+  public findAllByVote(publicKey, params = {}) {
+    const wallets = this.all().filter((wallet) => wallet.vote === publicKey);
 
     return {
       rows: limitRows(wallets, params),
       count: wallets.length,
-    }
+    };
   }
 
   /**
@@ -57,20 +57,20 @@ module.exports = class WalletsRepository {
    * @param  {Number} id
    * @return {Object}
    */
-  findById(id) {
+  public findById(id) {
     return this.all().find(
-      wallet => wallet.address === id
+      (wallet) => wallet.address === id
         || wallet.publicKey === id
         || wallet.username === id,
-    )
+    );
   }
 
   /**
    * Count all wallets.
    * @return {Number}
    */
-  count() {
-    return this.all().length
+  public count() {
+    return this.all().length;
   }
 
   /**
@@ -78,15 +78,15 @@ module.exports = class WalletsRepository {
    * @param  {Object}  params
    * @return {Object}
    */
-  top(params = {}) {
+  public top(params = {}) {
     const wallets = Object.values(this.all()).sort(
-      (a, b) => +b.balance.minus(a.balance).toFixed(),
-    )
+      (a: Bignum, b: Bignum) => +b.balance.minus(a.balance).toFixed(),
+    );
 
     return {
       rows: limitRows(wallets, params),
       count: wallets.length,
-    }
+    };
   }
 
   /**
@@ -108,15 +108,15 @@ module.exports = class WalletsRepository {
    * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
    * @return {Object}
    */
-  search(params) {
+  public search(params) {
     const wallets = filterRows(this.all(), params, {
-      exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
-      between: ['balance', 'voteBalance'],
-    })
+      exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
+      between: ["balance", "voteBalance"],
+    });
 
     return {
       rows: limitRows(wallets, params),
       count: wallets.length,
-    }
+    };
   }
 }

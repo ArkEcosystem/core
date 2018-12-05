@@ -1,36 +1,52 @@
-const { crypto, slots } = require('@arkecosystem/crypto')
-const { app } = require('@arkecosystem/core-container')
+import "jest-extended";
 
-const config = app.resolvePlugin('config')
-const logger = app.resolvePlugin('logger')
-const emitter = app.resolvePlugin('event-emitter')
-const { Block } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const { roundCalculator } = require('@arkecosystem/core-utils')
-const cloneDeep = require('lodash/cloneDeep')
-const assert = require('assert')
-const WalletManager = require('./wallet-manager')
+import { app } from "@arkecosystem/core-container";
+import { constants, crypto, models, slots } from "@arkecosystem/crypto";
 
-module.exports = class ConnectionInterface {
+import { roundCalculator } from "@arkecosystem/core-utils";
+import assert from "assert";
+import cloneDeep from "lodash/cloneDeep";
+import { WalletManager } from "./wallet-manager";
+
+const config = app.resolvePlugin("config");
+const logger = app.resolvePlugin("logger");
+const emitter = app.resolvePlugin("event-emitter");
+
+const { Block } = models;
+const { TRANSACTION_TYPES } = constants;
+
+export abstract class ConnectionInterface {
+  public connection: any;
+  public blocksInCurrentRound: any[];
+  public stateStarted: boolean;
+  public walletManager: WalletManager;
+  public forgingDelegates: any[];
+  public wallets: any[];
+  public delegates: any[];
+  public config: any;
+
   /**
    * @constructor
    * @param {Object} options
    */
-  constructor(options) {
-    this.config = options
-    this.connection = null
-    this.blocksInCurrentRound = null
-    this.stateStarted = false
+  public constructor(options) {
+    this.config = options;
+    this.connection = null;
+    this.blocksInCurrentRound = null;
+    this.stateStarted = false;
+    this.walletManager = null;
+    this.wallets = [];
+    this.delegates = [];
 
-    this.__registerListeners()
+    this.__registerListeners();
   }
 
   /**
    * Get the current connection.
    * @return {ConnectionInterface}
    */
-  getConnection() {
-    return this.connection
+  public getConnection(): any {
+    return this.connection;
   }
 
   /**
@@ -38,18 +54,14 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async connect() {
-    throw new Error('Method [connect] not implemented!')
-  }
+  public abstract async connect(): Promise<void>;
 
   /**
    * Disconnect from a database.
    * @return {void}
    * @throws Error
    */
-  async disconnect() {
-    throw new Error('Method [disconnect] not implemented!')
-  }
+  public abstract async disconnect(): Promise<void>;
 
   /**
    * Verify the blockchain stored on db is not corrupted making simple assertions:
@@ -60,20 +72,16 @@ module.exports = class ConnectionInterface {
    * - Sum of all tx amount equals the sum of block.totalAmount
    * @return {Object} An object { valid, errors } with the result of the verification and the errors
    */
-  async verifyBlockchain() {
-    throw new Error('Method [verifyBlockchain] not implemented!')
-  }
+  public abstract async verifyBlockchain(): Promise<any>;
 
   /**
    * Get the top 51 delegates.
    * @param  {Number} height
    * @param  {Array} delegates
-   * @return {void}
+   * @return {Array}
    * @throws Error
    */
-  async getActiveDelegates(height, delegates) {
-    throw new Error('Method [getActiveDelegates] not implemented!')
-  }
+  public abstract async  getActiveDelegates(height, delegates?): Promise<any[]>;
 
   /**
    * Load a list of wallets into memory.
@@ -81,9 +89,7 @@ module.exports = class ConnectionInterface {
    * @return {Boolean} success
    * @throws Error
    */
-  async buildWallets(height) {
-    throw new Error('Method [buildWallets] not implemented!')
-  }
+  public abstract async buildWallets(height): Promise<void>;
 
   /**
    * Commit wallets from the memory.
@@ -91,9 +97,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async saveWallets(force) {
-    throw new Error('Method [saveWallets] not implemented!')
-  }
+  public abstract async saveWallets(force): Promise<void>;
 
   /**
    * Commit the given block.
@@ -102,9 +106,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async saveBlock(block) {
-    throw new Error('Method [saveBlock] not implemented!')
-  }
+  public abstract async saveBlock(block): Promise<void>;
 
   /**
    * Queue a query to save the given block.
@@ -115,9 +117,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  enqueueSaveBlock(block) {
-    throw new Error('Method [enqueueSaveBlock] not implemented!')
-  }
+  public abstract enqueueSaveBlock(block): void;
 
   /**
    * Queue a query to delete the given block.
@@ -126,9 +126,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  enqueueDeleteBlock(block) {
-    throw new Error('Method [enqueueDeleteBlock] not implemented!')
-  }
+  public abstract enqueueDeleteBlock(block): void;
 
   /**
    * Queue a query to delete the round at given height.
@@ -137,9 +135,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  enqueueDeleteRound(height) {
-    throw new Error('Method [enqueueDeleteRound] not implemented!')
-  }
+  public abstract enqueueDeleteRound(height): void;
 
   /**
    * Commit all queued queries to the database.
@@ -147,9 +143,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async commitQueuedQueries() {
-    throw new Error('Method [commitQueuedQueries] not implemented!')
-  }
+  public abstract async commitQueuedQueries(): Promise<void>;
 
   /**
    * Delete the given block.
@@ -157,9 +151,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async deleteBlock(block) {
-    throw new Error('Method [deleteBlock] not implemented!')
-  }
+  public abstract async deleteBlock(block): Promise<void>;
 
   /**
    * Get a block.
@@ -167,18 +159,14 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async getBlock(id) {
-    throw new Error('Method [getBlock] not implemented!')
-  }
+  public abstract async getBlock(id): Promise<any>;
 
   /**
    * Get last block.
    * @return {void}
    * @throws Error
    */
-  async getLastBlock() {
-    throw new Error('Method [getLastBlock] not implemented!')
-  }
+  public abstract async getLastBlock(): Promise<any>;
 
   /**
    * Get blocks for the given offset and limit.
@@ -187,10 +175,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async getBlocks(offset, limit) {
-    throw new Error('Method [getBlocks] not implemented!')
-  }
-
+  public abstract async getBlocks(offset, limit): Promise<any[]>;
   /**
    * Get top count blocks ordered by height DESC.
    * NOTE: Only used when trying to restore database integrity.
@@ -199,17 +184,13 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async getTopBlocks(count) {
-    throw new Error('Method [getTopBlocks] not implemented!')
-  }
+  public abstract async  getTopBlocks(count): Promise<any[]>;
 
   /**
    * Get recent block ids.
    * @return {[]String}
    */
-  async getRecentBlockIds() {
-    throw new Error('Method [getRecentBlockIds] not implemented!')
-  }
+  public abstract async getRecentBlockIds(): Promise<string[]>;
 
   /**
    * Store the given round.
@@ -217,19 +198,21 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async saveRound(activeDelegates) {
-    throw new Error('Method [saveRound] not implemented!')
-  }
-
+  public abstract async saveRound(activeDelegates): Promise<void>;
   /**
    * Delete the given round.
    * @param  {Number} round
    * @return {void}
    * @throws Error
    */
-  async deleteRound(round) {
-    throw new Error('Method [deleteRound] not implemented!')
-  }
+  public abstract async deleteRound(round): Promise<void>;
+
+  /**
+   * Get a transaction.
+   * @param  {Number} id
+   * @return {Promise}
+   */
+  public abstract async getTransaction(id): Promise<any>;
 
   /**
    * Update delegate statistics in memory.
@@ -238,36 +221,36 @@ module.exports = class ConnectionInterface {
    * @param  {Array} delegates
    * @return {void}
    */
-  updateDelegateStats(height, delegates) {
+  public updateDelegateStats(height, delegates) {
     if (!delegates || !this.blocksInCurrentRound) {
-      return
+      return;
     }
 
-    logger.debug('Updating delegate statistics')
+    logger.debug("Updating delegate statistics");
 
     try {
-      delegates.forEach(delegate => {
+      delegates.forEach((delegate) => {
         const producedBlocks = this.blocksInCurrentRound.filter(
-          blockGenerator =>
+          (blockGenerator) =>
             blockGenerator.data.generatorPublicKey === delegate.publicKey,
-        )
-        const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
+        );
+        const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
         if (producedBlocks.length === 0) {
-          wallet.missedBlocks++
+          wallet.missedBlocks++;
           logger.debug(
             `Delegate ${wallet.username} (${
-              wallet.publicKey
+            wallet.publicKey
             }) just missed a block. Total: ${wallet.missedBlocks}`,
-          )
-          wallet.dirty = true
-          emitter.emit('forger.missing', {
+          );
+          wallet.dirty = true;
+          emitter.emit("forger.missing", {
             delegate: wallet,
-          })
+          });
         }
-      })
+      });
     } catch (error) {
-      logger.error(error.stack)
+      logger.error(error.stack);
     }
   }
 
@@ -278,12 +261,12 @@ module.exports = class ConnectionInterface {
    * @param  {Number} height
    * @return {void}
    */
-  async applyRound(height) {
-    const nextHeight = height === 1 ? 1 : height + 1
-    const maxDelegates = config.getConstants(nextHeight).activeDelegates
+  public async applyRound(height) {
+    const nextHeight = height === 1 ? 1 : height + 1;
+    const maxDelegates = config.getConstants(nextHeight).activeDelegates;
 
     if (nextHeight % maxDelegates === 1) {
-      const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
+      const round = Math.floor((nextHeight - 1) / maxDelegates) + 1;
 
       if (
         !this.forgingDelegates ||
@@ -291,30 +274,31 @@ module.exports = class ConnectionInterface {
         (this.forgingDelegates.length &&
           this.forgingDelegates[0].round !== round)
       ) {
-        logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`)
+        logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
 
         try {
-          this.updateDelegateStats(height, this.forgingDelegates)
-          this.saveWallets(false) // save only modified wallets during the last round
+          this.updateDelegateStats(height, this.forgingDelegates);
+          this.saveWallets(false); // save only modified wallets during the last round
           const delegates = this.walletManager.loadActiveDelegateList(
             maxDelegates,
             nextHeight,
-          ) // get active delegate list from in-memory wallet manager
-          this.saveRound(delegates) // save next round delegate list non-blocking
+          ); // get active delegate list from in-memory wallet manager
+          this.saveRound(delegates); // save next round delegate list non-blocking
           this.forgingDelegates = await this.getActiveDelegates(
             nextHeight,
             delegates,
-          ) // generate the new active delegates list
-          this.blocksInCurrentRound.length = 0
+          ); // generate the new active delegates list
+          this.blocksInCurrentRound.length = 0;
         } catch (error) {
           // trying to leave database state has it was
-          await this.deleteRound(round)
-          throw error
+          await this.deleteRound(round);
+          throw error;
         }
       } else {
         logger.warn(
+          // tslint:disable-next-line:max-line-length
           `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
-        )
+        );
       }
     }
   }
@@ -324,18 +308,18 @@ module.exports = class ConnectionInterface {
    * @param  {Number} height
    * @return {void}
    */
-  async revertRound(height) {
+  public async revertRound(height) {
     const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(
       height,
-    )
+    );
 
     if (nextRound === round + 1 && height >= maxDelegates) {
-      logger.info(`Back to previous round: ${round.toLocaleString()} :back:`)
+      logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
 
-      const delegates = await this.__calcPreviousActiveDelegates(round)
-      this.forgingDelegates = await this.getActiveDelegates(height, delegates)
+      const delegates = await this.__calcPreviousActiveDelegates(round);
+      this.forgingDelegates = await this.getActiveDelegates(height, delegates);
 
-      await this.deleteRound(nextRound)
+      await this.deleteRound(nextRound);
     }
   }
 
@@ -347,32 +331,32 @@ module.exports = class ConnectionInterface {
    * which are then used to restore the original order.
    * @param {Number} round
    */
-  async __calcPreviousActiveDelegates(round) {
+  public async __calcPreviousActiveDelegates(round) {
     // TODO: cache the blocks of the last X rounds
-    this.blocksInCurrentRound = await this.__getBlocksForRound(round)
+    this.blocksInCurrentRound = await this.__getBlocksForRound(round);
 
     // Create temp wallet manager from all delegates
-    const tempWalletManager = new WalletManager()
-    tempWalletManager.index(cloneDeep(this.walletManager.allByUsername()))
+    const tempWalletManager = new WalletManager();
+    tempWalletManager.index(cloneDeep(this.walletManager.allByUsername()));
 
     // Revert all blocks in reverse order
-    let height = 0
+    let height = 0;
     for (let i = this.blocksInCurrentRound.length - 1; i >= 0; i--) {
-      tempWalletManager.revertBlock(this.blocksInCurrentRound[i])
-      height = this.blocksInCurrentRound[i].data.height
+      tempWalletManager.revertBlock(this.blocksInCurrentRound[i]);
+      height = this.blocksInCurrentRound[i].data.height;
     }
 
     // The first round has no active delegates
     if (height === 1) {
-      return []
+      return [];
     }
 
     // Assert that the height is the beginning of a round.
-    const { maxDelegates } = roundCalculator.calculateRound(height)
-    assert(height > 1 && height % maxDelegates === 1)
+    const { maxDelegates } = roundCalculator.calculateRound(height);
+    assert(height > 1 && height % maxDelegates === 1);
 
     // Now retrieve the active delegate list from the temporary wallet manager.
-    return tempWalletManager.loadActiveDelegateList(maxDelegates, height)
+    return tempWalletManager.loadActiveDelegateList(maxDelegates, height);
   }
 
   /**
@@ -380,43 +364,43 @@ module.exports = class ConnectionInterface {
    * @param  {Block} block
    * @return {void}
    */
-  async validateDelegate(block) {
+  public async validateDelegate(block) {
     if (this.__isException(block.data)) {
-      return
+      return;
     }
 
-    const delegates = await this.getActiveDelegates(block.data.height)
-    const slot = slots.getSlotNumber(block.data.timestamp)
-    const forgingDelegate = delegates[slot % delegates.length]
+    const delegates = await this.getActiveDelegates(block.data.height);
+    const slot = slots.getSlotNumber(block.data.timestamp);
+    const forgingDelegate = delegates[slot % delegates.length];
 
     const generatorUsername = this.walletManager.findByPublicKey(
       block.data.generatorPublicKey,
-    ).username
+    ).username;
 
     if (!forgingDelegate) {
       logger.debug(
         `Could not decide if delegate ${generatorUsername} (${
-          block.data.generatorPublicKey
+        block.data.generatorPublicKey
         }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
-      )
+      );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       const forgingUsername = this.walletManager.findByPublicKey(
         forgingDelegate.publicKey,
-      ).username
+      ).username;
 
       throw new Error(
         `Delegate ${generatorUsername} (${
-          block.data.generatorPublicKey
+        block.data.generatorPublicKey
         }) not allowed to forge, should be ${forgingUsername} (${
-          forgingDelegate.publicKey
+        forgingDelegate.publicKey
         }) :-1:`,
-      )
+      );
     } else {
       logger.debug(
         `Delegate ${generatorUsername} (${
-          block.data.generatorPublicKey
+        block.data.generatorPublicKey
         }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
-      )
+      );
     }
   }
 
@@ -425,15 +409,15 @@ module.exports = class ConnectionInterface {
    * @param  {Block} block
    * @return {Boolean}
    */
-  async validateForkedBlock(block) {
+  public async validateForkedBlock(block) {
     try {
-      await this.validateDelegate(block)
+      await this.validateDelegate(block);
     } catch (error) {
-      logger.debug(error.stack)
-      return false
+      logger.debug(error.stack);
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -441,43 +425,17 @@ module.exports = class ConnectionInterface {
    * @param  {Block} block
    * @return {void}
    */
-  async applyBlock(block) {
-    await this.validateDelegate(block)
-    this.walletManager.applyBlock(block)
+  public async applyBlock(block) {
+    await this.validateDelegate(block);
+    this.walletManager.applyBlock(block);
 
     if (this.blocksInCurrentRound) {
-      this.blocksInCurrentRound.push(block)
+      this.blocksInCurrentRound.push(block);
     }
 
-    await this.applyRound(block.data.height)
-    block.transactions.forEach(tx => this.__emitTransactionEvents(tx))
-    emitter.emit('block.applied', block.data)
-  }
-
-  /**
-   * Emit events for the specified transaction.
-   * @param  {Object} transaction
-   * @return {void}
-   */
-  __emitTransactionEvents(transaction) {
-    emitter.emit('transaction.applied', transaction.data)
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      emitter.emit('delegate.registered', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      emitter.emit('delegate.resigned', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      const vote = transaction.asset.votes[0]
-
-      emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
-        delegate: vote,
-        transaction: transaction.data,
-      })
-    }
+    await this.applyRound(block.data.height);
+    block.transactions.forEach((tx) => this.__emitTransactionEvents(tx));
+    emitter.emit("block.applied", block.data);
   }
 
   /**
@@ -485,13 +443,13 @@ module.exports = class ConnectionInterface {
    * @param  {Block} block
    * @return {void}
    */
-  async revertBlock(block) {
-    await this.revertRound(block.data.height)
-    await this.walletManager.revertBlock(block)
+  public async revertBlock(block) {
+    await this.revertRound(block.data.height);
+    await this.walletManager.revertBlock(block);
 
-    assert(this.blocksInCurrentRound.pop().data.id === block.data.id)
+    assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
-    emitter.emit('block.reverted', block.data)
+    emitter.emit("block.reverted", block.data);
   }
 
   /**
@@ -499,22 +457,22 @@ module.exports = class ConnectionInterface {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  async verifyTransaction(transaction) {
+  public async verifyTransaction(transaction) {
     const senderId = crypto.getAddress(
       transaction.data.senderPublicKey,
       config.network.pubKeyHash,
-    )
+    );
 
-    const sender = this.walletManager.findByAddress(senderId) // should exist
+    const sender = this.walletManager.findByAddress(senderId); // should exist
 
     if (!sender.publicKey) {
-      sender.publicKey = transaction.data.senderPublicKey
-      this.walletManager.reindex(sender)
+      sender.publicKey = transaction.data.senderPublicKey;
+      this.walletManager.reindex(sender);
     }
 
-    const dbTransaction = await this.getTransaction(transaction.data.id)
+    const dbTransaction = await this.getTransaction(transaction.data.id);
 
-    return sender.canApply(transaction.data, []) && !dbTransaction
+    return sender.canApply(transaction.data, []) && !dbTransaction;
   }
 
   /**
@@ -522,55 +480,55 @@ module.exports = class ConnectionInterface {
    * @param  {number} round
    * @return {[]Block}
    */
-  async __getBlocksForRound(round) {
-    let lastBlock
-    if (app.has('state')) {
-      lastBlock = app.resolve('state').getLastBlock()
+  public async __getBlocksForRound(round) {
+    let lastBlock;
+    if (app.has("state")) {
+      lastBlock = app.resolve("state").getLastBlock();
     } else {
-      lastBlock = await this.getLastBlock()
+      lastBlock = await this.getLastBlock();
     }
 
     if (!lastBlock) {
-      return []
+      return [];
     }
 
-    let height = +lastBlock.data.height
+    let height = +lastBlock.data.height;
     if (!round) {
-      round = roundCalculator.calculateRound(height).round
+      round = roundCalculator.calculateRound(height).round;
     }
 
-    const maxDelegates = config.getConstants(height).activeDelegates
-    height = round * maxDelegates + 1
+    const maxDelegates = config.getConstants(height).activeDelegates;
+    height = round * maxDelegates + 1;
 
-    const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1)
-    return blocks.map(b => new Block(b))
+    const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1);
+    return blocks.map((b) => new Block(b));
   }
 
   /**
    * Register event listeners.
    * @return {void}
    */
-  __registerListeners() {
-    emitter.on('state:started', () => {
-      this.stateStarted = true
-    })
+  public __registerListeners() {
+    emitter.on("state:started", () => {
+      this.stateStarted = true;
+    });
   }
 
   /**
    * Register the wallet app.
    * @return {void}
    */
-  async _registerWalletManager() {
-    this.walletManager = new WalletManager()
+  public async _registerWalletManager() {
+    this.walletManager = new WalletManager();
   }
 
   /**
    * Register the wallet and delegate repositories.
    * @return {void}
    */
-  async _registerRepositories() {
-    this.wallets = new (require('./repositories/wallets'))(this)
-    this.delegates = new (require('./repositories/delegates'))(this)
+  public async _registerRepositories() {
+    this.wallets = new (require("./repositories/wallets"))(this);
+    this.delegates = new (require("./repositories/delegates"))(this);
   }
 
   /**
@@ -578,15 +536,41 @@ module.exports = class ConnectionInterface {
    * @param  {Object} block
    * @return {Boolean}
    */
-  __isException(block) {
+  public __isException(block) {
     if (!config) {
-      return false
+      return false;
     }
 
     if (!Array.isArray(config.network.exceptions.blocks)) {
-      return false
+      return false;
     }
 
-    return config.network.exceptions.blocks.includes(block.id)
+    return config.network.exceptions.blocks.includes(block.id);
+  }
+
+  /**
+   * Emit events for the specified transaction.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  private __emitTransactionEvents(transaction) {
+    emitter.emit("transaction.applied", transaction.data);
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      emitter.emit("delegate.registered", transaction.data);
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      emitter.emit("delegate.resigned", transaction.data);
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      const vote = transaction.asset.votes[0];
+
+      emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
+        delegate: vote,
+        transaction: transaction.data,
+      });
+    }
   }
 }
