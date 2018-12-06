@@ -1,3 +1,4 @@
+import Boom from "boom";
 import { network } from "../../services/network";
 
 export const blockLatest = {
@@ -7,6 +8,8 @@ export const blockLatest = {
       "blocks?orderBy=height:desc&limit=1",
     );
 
-    return response.data[0];
+    return response
+      ? response.data[0]
+      : Boom.notFound(`Latest block could not be found.`);
   },
 };

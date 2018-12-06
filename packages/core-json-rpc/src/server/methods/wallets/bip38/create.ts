@@ -4,6 +4,7 @@ import bip39 from "bip39";
 import Joi from "joi";
 import { database } from "../../../services/database";
 import { getBIP38Wallet } from "../../../utils/bip38-keys";
+import { decryptWIF } from "../../../utils/decrypt-wif";
 
 export const walletBIP38Create = {
   name: "wallets.bip38.create",
@@ -19,20 +20,22 @@ export const walletBIP38Create = {
     } catch (error) {
       const { publicKey, privateKey } = crypto.getKeys(bip39.generateMnemonic());
 
-      const encryptedWif = bip38.encrypt(
+      const encryptedWIF = bip38.encrypt(
         Buffer.from(privateKey, "hex"),
         true,
         params.bip38 + params.userId,
       );
       await database.set(
         utils.sha256(Buffer.from(params.userId)).toString("hex"),
-        encryptedWif,
+        encryptedWIF,
       );
+
+      const { wif } = decryptWIF(encryptedWIF, params.userId, params.bip38);
 
       return {
         publicKey,
         address: crypto.getAddress(publicKey),
-        wif: encryptedWif,
+        wif,
       };
     }
   },
