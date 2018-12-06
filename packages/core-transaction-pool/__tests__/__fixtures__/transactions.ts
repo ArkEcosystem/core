@@ -1,4 +1,4 @@
-// tslint:disable:max-line-length
+/*tslint:disable:max-line-length */
 import { models, slots } from "@arkecosystem/crypto";
 const { Transaction } = models;
 

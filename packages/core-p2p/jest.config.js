@@ -1,12 +1,15 @@
 module.exports = {
   testEnvironment: 'node',
   bail: false,
-  verbose: false,
-  testMatch: ['**/__tests__/**/*.test.js'],
-  moduleFileExtensions: ['js', 'json'],
+  verbose: true,
+  transform: {
+    '^.+\\.tsx?$': 'ts-jest',
+  },
+  testMatch: ['**/*.test.ts'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverage: false,
   coverageDirectory: '<rootDir>/.coverage',
-  collectCoverageFrom: ['lib/**/*.js', '!**/node_modules/**'],
+  collectCoverageFrom: ['lib/**/*.ts', '!**/node_modules/**'],
   watchman: false,
   setupTestFrameworkScriptFile: 'jest-extended',
 }
