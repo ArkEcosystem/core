@@ -72,7 +72,7 @@ export class RemoteLoader {
   public __configurePlugins(network) {
     const plugins = resolve(
       __dirname,
-      `../../core/lib/config/${network.name}/plugins.js`,
+      `../../core/src/config/${network.name}/plugins.js`,
     );
 
     copySync(plugins, `${this.config}/plugins.js`);
