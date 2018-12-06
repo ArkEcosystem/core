@@ -1,8 +1,9 @@
-const {
+import {
   createServer,
   mountServer,
   plugins,
-} = require("@arkecosystem/core-http-utils");
+} from "@arkecosystem/core-http-utils";
+import { routePlugin } from "./routes";
 
 /**
  * Creates a new hapi.js server.
@@ -30,7 +31,7 @@ module.exports = async (config) => {
     },
   });
 
-  await server.register(require("./routes"));
+  await server.register(routePlugin);
 
   return mountServer("Elasticsearch API", server);
 };

@@ -1,10 +1,10 @@
-const Joi = require("joi");
+import Joi from "joi";
 import { client } from "../services/client";
 
 /**
  * @type {Object}
  */
-exports.index = {
+const index = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -66,3 +66,5 @@ exports.index = {
     },
   },
 };
+
+export { index };

@@ -5,8 +5,8 @@ import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";
 
-import { models } from '@arkecosystem/crypto'
-const { Transaction } = models
+import { models } from "@arkecosystem/crypto";
+const { Transaction } = models;
 
 const emitter = app.resolvePlugin("event-emitter");
 const logger = app.resolvePlugin("logger");

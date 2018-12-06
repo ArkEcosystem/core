@@ -9,10 +9,10 @@ const database = app.resolvePlugin("database");
 export abstract class Index {
   public chunkSize: any;
 
-  abstract getType(): any;
-  abstract getIndex(): any;
-  abstract index(): any;
-  abstract listen(): any;
+  public abstract getType(): any;
+  public abstract getIndex(): any;
+  public abstract index(): any;
+  public abstract listen(): any;
 
   /**
    * Create a new index instance.
@@ -183,4 +183,4 @@ export abstract class Index {
 
     return database.query.one(query.toQuery());
   }
-};
+}

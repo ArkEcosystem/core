@@ -19,10 +19,10 @@ class Storage {
    */
   public read(file) {
     if (!this.exists(file)) {
-      return {}
+      return {};
     }
 
-    return JSON.parse(readFileSync(`${this.base}/${file}.json`).toString())
+    return JSON.parse(readFileSync(`${this.base}/${file}.json`).toString());
   }
 
   /**

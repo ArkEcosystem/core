@@ -1,27 +1,17 @@
-const handler = require("./handler");
+import { index } from "./handler";
 
-/**
- * Register search routes.
- * @param  {Hapi.Server} server
- * @param  {Object} options
- * @return {void}
- */
-const register = async (server, options) => {
-  server.route([
-    {
-      method: "POST",
-      path: "/",
-      ...handler.index,
-    },
-  ]);
-};
-
-/**
- * The struct used by hapi.js.
- * @type {Object}
- */
-exports.plugin = {
+const routePlugin = {
   name: "routes",
   version: "0.1.0",
-  register,
+  async register(server, options) {
+    server.route([
+      {
+        method: "POST",
+        path: "/",
+        ...index,
+      },
+    ]);
+  },
 };
+
+export { routePlugin };
