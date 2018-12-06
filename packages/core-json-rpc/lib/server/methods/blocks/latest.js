@@ -1,3 +1,4 @@
+const Boom = require('boom')
 const network = require('../../services/network')
 
 module.exports = {
@@ -7,6 +8,8 @@ module.exports = {
       'blocks?orderBy=height:desc&limit=1',
     )
 
-    return response.data[0]
+    return response
+      ? response.data[0]
+      : Boom.notFound(`Latest block could not be found.`)
   },
 }
