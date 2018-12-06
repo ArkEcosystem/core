@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.6 - 2018-12-06
+
+### Fixed
+
+- Perform second-signature checks in the `canApply` logic of multi-signatures
+
 ## 0.2.5 - 2018-11-19
 
 ### Fixed
