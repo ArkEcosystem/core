@@ -1,5 +1,5 @@
 import { PostgresConnection } from "./connection";
-import { migrations } from "./migrations";
+import { defaults } from "./defaults";
 
 /**
  * The struct used by the plugin container.
@@ -7,7 +7,7 @@ import { migrations } from "./migrations";
  */
 export const plugin = {
   pkg: require("../package.json"),
-  defaults: require("./defaults"),
+  defaults,
   alias: "database",
   extends: "@arkecosystem/core-database",
   async register(container, options) {
@@ -26,8 +26,3 @@ export const plugin = {
     return container.resolvePlugin("database").disconnect();
   },
 };
-
-/**
- * The files required to migrate the database.
- * @type {Array}
- */

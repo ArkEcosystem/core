@@ -2,7 +2,7 @@ import { delegateCalculator } from "@arkecosystem/core-utils";
 import orderBy from "lodash/orderBy";
 import limitRows from "./utils/limit-rows";
 
-export class DelegatesRepository {
+export default class DelegatesRepository {
   /**
    * Create a new delegate repository instance.
    * @param  {ConnectionInterface} connection

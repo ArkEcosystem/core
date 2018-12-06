@@ -3,6 +3,8 @@ import compact from "lodash/compact";
 import uniq from "lodash/uniq";
 import app from "../__support__/setup";
 
+import WalletsRepository from "../../src/repositories/wallets";
+
 const { Block } = models;
 
 let genesisBlock;
@@ -34,8 +36,6 @@ afterAll(async (done) => {
 beforeEach(async (done) => {
   const { WalletManager } = require("../../src/wallet-manager");
   walletManager = new WalletManager();
-
-  const { WalletsRepository } = require("../../src/repositories/wallets");
 
   repository = new WalletsRepository({
     walletManager,

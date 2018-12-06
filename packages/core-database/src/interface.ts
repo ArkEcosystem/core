@@ -8,6 +8,9 @@ import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
 import { WalletManager } from "./wallet-manager";
 
+import DelegatesRepository from "./repositories/delegates";
+import WalletsRepository from "./repositories/wallets";
+
 const config = app.resolvePlugin("config");
 const logger = app.resolvePlugin("logger");
 const emitter = app.resolvePlugin("event-emitter");
@@ -21,8 +24,8 @@ export abstract class ConnectionInterface {
   public stateStarted: boolean;
   public walletManager: WalletManager;
   public forgingDelegates: any[];
-  public wallets: any[];
-  public delegates: any[];
+  public wallets: WalletsRepository;
+  public delegates: DelegatesRepository;
   public config: any;
   protected queuedQueries: any[];
 
@@ -36,8 +39,8 @@ export abstract class ConnectionInterface {
     this.blocksInCurrentRound = null;
     this.stateStarted = false;
     this.walletManager = null;
-    this.wallets = [];
-    this.delegates = [];
+    this.wallets = null;
+    this.delegates = null;
     this.queuedQueries = null;
 
     this.__registerListeners();
@@ -529,8 +532,8 @@ export abstract class ConnectionInterface {
    * @return {void}
    */
   public async _registerRepositories() {
-    this.wallets = new (require("./repositories/wallets"))(this);
-    this.delegates = new (require("./repositories/delegates"))(this);
+    this.wallets = new WalletsRepository(this);
+    this.delegates = new DelegatesRepository(this);
   }
 
   /**

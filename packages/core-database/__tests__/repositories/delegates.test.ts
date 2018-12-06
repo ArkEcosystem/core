@@ -6,6 +6,7 @@ import {
 } from "@arkecosystem/crypto";
 
 import { delegateCalculator } from "@arkecosystem/core-utils";
+import DelegatesRepository from "../../src/repositories/delegates";
 import app from "../__support__/setup";
 
 const { ARKTOSHI } = constants;
@@ -37,7 +38,6 @@ beforeEach(async (done) => {
   const { WalletManager } = require("../../src/wallet-manager");
   walletManager = new WalletManager();
 
-  const { DelegatesRepository } = require("../../src/repositories/delegates");
   repository = new DelegatesRepository({
     walletManager,
   });

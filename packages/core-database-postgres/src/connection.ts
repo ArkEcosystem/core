@@ -1,7 +1,3 @@
-/* eslint no-await-in-loop: "off" */
-/* eslint no-use-before-define: "warn" */
-/* eslint max-len: "off" */
-
 import crypto from "crypto";
 import fs from "fs";
 import chunk from "lodash/chunk";

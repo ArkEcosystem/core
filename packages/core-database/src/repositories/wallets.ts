@@ -3,7 +3,7 @@ import orderBy from "lodash/orderBy";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 
-export class WalletsRepository {
+export default class WalletsRepository {
   /**
    * Create a new wallet repository instance.
    * @param  {ConnectionInterface} connection

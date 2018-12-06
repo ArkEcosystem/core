@@ -17,7 +17,7 @@ import { WalletManager } from "./wallet-manager";
  * The struct used by the plugin container.
  * @type {Object}
  */
-const plugin = {
+export const plugin = {
   pkg: require("../package.json"),
   defaults,
   alias: "databaseManager",
@@ -29,7 +29,6 @@ const plugin = {
 };
 
 export {
-  plugin,
   ConnectionInterface,
   WalletManager,
 };
