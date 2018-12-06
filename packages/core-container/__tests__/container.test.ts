@@ -2,11 +2,9 @@ import "jest-extended";
 
 import { asValue } from "awilix";
 import { resolve } from "path";
+import { app } from "../src";
 
-let app;
 beforeEach(async () => {
-  app = require("../src").app;
-
   await app.setUp(
     "2.0.0",
     {

@@ -16,11 +16,11 @@ class Network {
   constructor() {
     this.logger = app.resolvePlugin("logger");
     this.config = app.resolvePlugin("config");
-    this.p2p = app.resolvePlugin("p2p"); // TODO:  Is null
+    this.p2p = app.resolvePlugin("p2p");
 
     this.network = this.config.network;
 
-    // this.__loadRemotePeers();
+    this.__loadRemotePeers();
 
     configManager.setConfig(this.config.network);
 

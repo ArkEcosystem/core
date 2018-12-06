@@ -6,14 +6,14 @@ import { PluginRegistrar } from "./registrars/plugin";
 import { RemoteLoader } from "./remote-loader";
 
 export class Container {
-  private container: any;
-  private exitEvents: any;
-  private silentShutdown: boolean;
-  private hashid: string;
-  private env: Environment;
-  private plugins: any;
-  private shuttingDown: boolean;
-  private version: string;
+  public container: any;
+  public exitEvents: any;
+  public silentShutdown: boolean;
+  public hashid: string;
+  public env: Environment;
+  public plugins: any;
+  public shuttingDown: boolean;
+  public version: string;
 
   /**
    * Create a new container instance.
