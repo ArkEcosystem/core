@@ -1,10 +1,12 @@
 class TransactionPoolManager {
+  private connections: { [key: string]: any };
+
   /**
    * Create a new transaction pool manager instance.
    * @constructor
    */
   constructor() {
-    this.connections = {}
+    this.connections = {};
   }
 
   /**
@@ -12,8 +14,8 @@ class TransactionPoolManager {
    * @param  {String} name
    * @return {TransactionPoolInterface}
    */
-  connection(name = 'default') {
-    return this.connections[name]
+  public connection(name = "default") {
+    return this.connections[name];
   }
 
   /**
@@ -22,9 +24,9 @@ class TransactionPoolManager {
    * @param  {String} name
    * @return {void}
    */
-  async makeConnection(connection, name = 'default') {
-    this.connections[name] = await connection.make()
+  public async makeConnection(connection, name = "default") {
+    this.connections[name] = await connection.make();
   }
 }
 
-module.exports = new TransactionPoolManager()
+export const transactionPoolManager = new TransactionPoolManager();

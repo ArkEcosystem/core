@@ -25,7 +25,7 @@ module.exports = {
       password: process.env.ARK_DB_PASSWORD || 'password',
     },
   },
-  '@arkecosystem/core-transaction-pool-mem': {
+  '@arkecosystem/core-transaction-pool': {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
     maxTransactionsPerSender:
       process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,

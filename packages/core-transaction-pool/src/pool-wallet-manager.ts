@@ -1,22 +1,21 @@
-const { app } = require('@arkecosystem/core-container')
-const { Wallet } = require('@arkecosystem/crypto').models
-const { WalletManager } = require('@arkecosystem/core-database')
+import { app } from "@arkecosystem/core-container";
+import { WalletManager } from "@arkecosystem/core-database";
+import { constants, crypto, models } from "@arkecosystem/crypto";
 
-const logger = app.resolvePlugin('logger')
-const database = app.resolvePlugin('database')
-const config = app.resolvePlugin('config')
-const { crypto } = require('@arkecosystem/crypto')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const logger = app.resolvePlugin("logger");
+const database = app.resolvePlugin("database");
+const config = app.resolvePlugin("config");
 
-module.exports = class PoolWalletManager extends WalletManager {
+const { Wallet } = models;
+const { TRANSACTION_TYPES } = constants;
+
+export class PoolWalletManager extends WalletManager {
   /**
    * Create a new pool wallet manager instance.
    * @constructor
    */
   constructor() {
-    super()
-
-    this.emitEvents = false
+    super();
   }
 
   /**
@@ -27,15 +26,15 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {String} address
    * @return {(Wallet|null)}
    */
-  findByAddress(address) {
+  public findByAddress(address) {
     if (!this.byAddress[address]) {
-      const blockchainWallet = database.walletManager.findByAddress(address)
-      const wallet = Object.assign(new Wallet(address), blockchainWallet) // do not modify
+      const blockchainWallet = database.walletManager.findByAddress(address);
+      const wallet = Object.assign(new Wallet(address), blockchainWallet); // do not modify
 
-      this.reindex(wallet)
+      this.reindex(wallet);
     }
 
-    return this.byAddress[address]
+    return this.byAddress[address];
   }
 
   /**
@@ -44,22 +43,22 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {String} key can be publicKey or address of wallet
    * @return {Boolean} true if exists
    */
-  exists(key) {
+  public exists(key) {
     if (this.byPublicKey[key]) {
-      return true
+      return true;
     }
 
     if (this.byAddress[key]) {
-      return true
+      return true;
     }
-    return false
+    return false;
   }
 
-  deleteWallet(publicKey) {
-    this.forgetByPublicKey(publicKey)
+  public deleteWallet(publicKey) {
+    this.forgetByPublicKey(publicKey);
     this.forgetByAddress(
       crypto.getAddress(publicKey, config.network.pubKeyHash),
-    )
+    );
   }
 
   /**
@@ -68,27 +67,27 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {Array} errors The errors are written into the array.
    * @return {Boolean}
    */
-  canApply(transaction, errors) {
+  public canApply(transaction, errors) {
     // Edge case if sender is unknown and has no balance.
     // NOTE: Check is performed against the database wallet manager.
     if (!database.walletManager.byPublicKey[transaction.senderPublicKey]) {
       const senderAddress = crypto.getAddress(
         transaction.senderPublicKey,
         config.network.pubKeyHash,
-      )
+      );
 
       if (
         database.walletManager.findByAddress(senderAddress).balance.isZero()
       ) {
         errors.push(
-          'Cold wallet is not allowed to send until receiving transaction is confirmed.',
-        )
-        return false
+          "Cold wallet is not allowed to send until receiving transaction is confirmed.",
+        );
+        return false;
       }
     }
 
-    const sender = this.findByPublicKey(transaction.senderPublicKey)
-    const { type, asset } = transaction
+    const sender = this.findByPublicKey(transaction.senderPublicKey);
+    const { type, asset } = transaction;
 
     if (
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
@@ -96,15 +95,15 @@ module.exports = class PoolWalletManager extends WalletManager {
     ) {
       logger.error(
         `[PoolWalletManager] Can't apply transaction ${
-          transaction.id
+        transaction.id
         }: delegate name already taken. Data: ${JSON.stringify(transaction)}`,
-      )
+      );
 
       errors.push(
         `Can't apply transaction ${
-          transaction.id
+        transaction.id
         }: delegate name already taken.`,
-      )
+      );
       // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
     } else if (
       type === TRANSACTION_TYPES.VOTE &&
@@ -112,28 +111,28 @@ module.exports = class PoolWalletManager extends WalletManager {
     ) {
       logger.error(
         `[PoolWalletManager] Can't apply vote transaction: delegate ${
-          asset.votes[0]
+        asset.votes[0]
         } does not exist. Data: ${JSON.stringify(transaction)}`,
-      )
+      );
 
       errors.push(
         `Can't apply transaction ${transaction.id}: delegate ${
-          asset.votes[0]
+        asset.votes[0]
         } does not exist.`,
-      )
+      );
     } else if (this.__isException(transaction)) {
       logger.warn(
         `Transaction forcibly applied because it has been added as an exception: ${transaction}`,
-      )
+      );
     } else if (!sender.canApply(transaction, errors)) {
       const message = `[PoolWalletManager] Can't apply transaction id:${
         transaction.id
-      } from sender:${sender.address}`
-      logger.error(`${message} due to ${JSON.stringify(errors)}`)
-      errors.unshift(message)
+        } from sender:${sender.address}`;
+      logger.error(`${message} due to ${JSON.stringify(errors)}`);
+      errors.unshift(message);
     }
 
-    return errors.length === 0
+    return errors.length === 0;
   }
 
   /**
@@ -141,12 +140,12 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  revertTransactionForSender(transaction) {
-    const { data } = transaction
-    const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
+  public revertTransactionForSender(transaction) {
+    const { data } = transaction;
+    const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
 
-    sender.revertTransactionForSender(data)
+    sender.revertTransactionForSender(data);
 
-    return data
+    return data;
   }
 }

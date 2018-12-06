@@ -1,7 +1,17 @@
-const assert = require('assert')
-const { slots } = require('@arkecosystem/crypto')
+import { slots } from "@arkecosystem/crypto";
+import assert from "assert";
+import { MemPoolTransaction } from "./mem-pool-transaction";
 
-class Mem {
+export class Mem {
+  public sequence: number;
+  public all: MemPoolTransaction[];
+  public allIsSorted: boolean;
+  public byId: { [key: string]: MemPoolTransaction };
+  public bySender: { [key: string]: Set<MemPoolTransaction> };
+  public byExpiration: MemPoolTransaction[];
+  public byExpirationIsSorted: boolean;
+  public dirty: { added: Set<string>, removed: Set<string> };
+
   /**
    * Create the in-memory transaction pool structures.
    */
@@ -12,7 +22,7 @@ class Mem {
      * Used to:
      * - keep insertion order.
      */
-    this.sequence = 0
+    this.sequence = 0;
 
     /**
      * An array of MemPoolTransaction sorted by fee (the transaction with the
@@ -22,7 +32,7 @@ class Mem {
      * - get the transactions with the highest fee
      * - get the number of all transactions in the pool
      */
-    this.all = []
+    this.all = [];
 
     /**
      * A boolean flag indicating whether `this.all` is indeed sorted or
@@ -31,14 +41,14 @@ class Mem {
      * - deletion removes by using splice() (O(n)) + flag it as unsorted
      * - lookup sorts if it is not sorted (O(n*log(n)) + flag it as sorted
      */
-    this.allIsSorted = true
+    this.allIsSorted = true;
 
     /**
      * A map of (key=transaction id, value=MemPoolTransaction).
      * Used to:
      * - get a transaction, given its ID
      */
-    this.byId = {}
+    this.byId = {};
 
     /**
      * A map of (key=sender public key, value=Set of MemPoolTransaction).
@@ -46,7 +56,7 @@ class Mem {
      * - get all transactions from a given sender
      * - get the number of all transactions from a given sender.
      */
-    this.bySender = {}
+    this.bySender = {};
 
     /**
      * An array of MemPoolTransaction, sorted by expiration (earliest date
@@ -56,8 +66,8 @@ class Mem {
      * - find all transactions that have expired (have an expiration date
      *   earlier than a given date) - they are at the beginning of the array.
      */
-    this.byExpiration = []
-    this.byExpirationIsSorted = true
+    this.byExpiration = [];
+    this.byExpirationIsSorted = true;
 
     /**
      * List of dirty transactions ids (that are not saved in the on-disk
@@ -66,7 +76,7 @@ class Mem {
     this.dirty = {
       added: new Set(),
       removed: new Set(),
-    }
+    };
   }
 
   /**
@@ -78,40 +88,40 @@ class Mem {
    *                                                not need to schedule the transaction
    *                                                that is being added for saving to disk
    */
-  add(memPoolTransaction, maxTransactionAge, thisIsDBLoad = false) {
-    const transaction = memPoolTransaction.transaction
+  public add(memPoolTransaction, maxTransactionAge, thisIsDBLoad = false) {
+    const transaction = memPoolTransaction.transaction;
 
-    assert.strictEqual(this.byId[transaction.id], undefined)
+    assert.strictEqual(this.byId[transaction.id], undefined);
 
     if (thisIsDBLoad) {
       // Sequence is provided from outside, make sure we avoid duplicates
       // later when we start using our this.sequence.
-      assert.strictEqual(typeof memPoolTransaction.sequence, 'number')
-      this.sequence = Math.max(this.sequence, memPoolTransaction.sequence) + 1
+      assert.strictEqual(typeof memPoolTransaction.sequence, "number");
+      this.sequence = Math.max(this.sequence, memPoolTransaction.sequence) + 1;
     } else {
       // Sequence should only be set during DB load (when sequences come
       // from the database). In other scenarios sequence is not set and we
       // set it here.
-      memPoolTransaction.sequence = this.sequence++
+      memPoolTransaction.sequence = this.sequence++;
     }
 
-    this.all.push(memPoolTransaction)
-    this.allIsSorted = false
+    this.all.push(memPoolTransaction);
+    this.allIsSorted = false;
 
-    this.byId[transaction.id] = memPoolTransaction
+    this.byId[transaction.id] = memPoolTransaction;
 
-    const sender = transaction.senderPublicKey
+    const sender = transaction.senderPublicKey;
     if (this.bySender[sender] === undefined) {
       // First transaction from this sender, create a new Set.
-      this.bySender[sender] = new Set([memPoolTransaction])
+      this.bySender[sender] = new Set([memPoolTransaction]);
     } else {
       // Append to existing transaction ids for this sender.
-      this.bySender[sender].add(memPoolTransaction)
+      this.bySender[sender].add(memPoolTransaction);
     }
 
     if (memPoolTransaction.expireAt(maxTransactionAge) !== null) {
-      this.byExpiration.push(memPoolTransaction)
-      this.byExpirationIsSorted = false
+      this.byExpiration.push(memPoolTransaction);
+      this.byExpirationIsSorted = false;
     }
 
     if (!thisIsDBLoad) {
@@ -119,9 +129,9 @@ class Mem {
         // If the transaction has been already in the pool and has been removed
         // and the removal has not propagated to disk yet, just wipe it from the
         // list of removed transactions, so that the old copy stays on disk.
-        this.dirty.removed.delete(transaction.id)
+        this.dirty.removed.delete(transaction.id);
       } else {
-        this.dirty.added.add(transaction.id)
+        this.dirty.added.add(transaction.id);
       }
     }
   }
@@ -131,43 +141,43 @@ class Mem {
    * @param {String} id              id of the transaction to remove
    * @param {String} senderPublicKey public key of the sender, could be undefined
    */
-  remove(id, senderPublicKey) {
+  public remove(id, senderPublicKey) {
     if (this.byId[id] === undefined) {
       // Not found, not in pool
-      return
+      return;
     }
 
     if (senderPublicKey === undefined) {
-      senderPublicKey = this.byId[id].transaction.senderPublicKey
+      senderPublicKey = this.byId[id].transaction.senderPublicKey;
     }
 
-    const memPoolTransaction = this.byId[id]
+    const memPoolTransaction = this.byId[id];
 
     // XXX worst case: O(n)
-    let i = this.byExpiration.findIndex(e => e.transaction.id === id)
+    let i = this.byExpiration.findIndex((e) => e.transaction.id === id);
     if (i !== -1) {
-      this.byExpiration.splice(i, 1)
+      this.byExpiration.splice(i, 1);
     }
 
-    this.bySender[senderPublicKey].delete(memPoolTransaction)
+    this.bySender[senderPublicKey].delete(memPoolTransaction);
     if (this.bySender[senderPublicKey].size === 0) {
-      delete this.bySender[senderPublicKey]
+      delete this.bySender[senderPublicKey];
     }
 
-    delete this.byId[id]
+    delete this.byId[id];
 
-    i = this.all.findIndex(e => e.transaction.id === id)
-    assert.notStrictEqual(i, -1)
-    this.all.splice(i, 1)
-    this.allIsSorted = false
+    i = this.all.findIndex((e) => e.transaction.id === id);
+    assert.notStrictEqual(i, -1);
+    this.all.splice(i, 1);
+    this.allIsSorted = false;
 
     if (this.dirty.added.has(id)) {
       // This transaction has been added and deleted without data being synced
       // to disk in between, so it will never touch the disk, just remove it
       // from the added list.
-      this.dirty.added.delete(id)
+      this.dirty.added.delete(id);
     } else {
-      this.dirty.removed.add(id)
+      this.dirty.removed.add(id);
     }
   }
 
@@ -175,8 +185,8 @@ class Mem {
    * Get the number of transactions.
    * @return Number
    */
-  getSize() {
-    return this.all.length
+  public getSize() {
+    return this.all.length;
   }
 
   /**
@@ -184,12 +194,12 @@ class Mem {
    * @param {String} senderPublicKey public key of the sender
    * @return {Set of MemPoolTransaction} all transactions for the given sender, could be empty Set
    */
-  getBySender(senderPublicKey) {
-    const memPoolTransactions = this.bySender[senderPublicKey]
+  public getBySender(senderPublicKey) {
+    const memPoolTransactions = this.bySender[senderPublicKey];
     if (memPoolTransactions !== undefined) {
-      return memPoolTransactions
+      return memPoolTransactions;
     }
-    return new Set()
+    return new Set();
   }
 
   /**
@@ -197,11 +207,11 @@ class Mem {
    * @param {String} id transaction id
    * @return {Transaction|undefined}
    */
-  getTransactionById(id) {
+  public getTransactionById(id) {
     if (this.byId[id] === undefined) {
-      return undefined
+      return undefined;
     }
-    return this.byId[id].transaction
+    return this.byId[id].transaction;
   }
 
   /**
@@ -210,21 +220,21 @@ class Mem {
    * insertion time, if fees equal (earliest transaction first).
    * @return {Array of MemPoolTransaction} transactions
    */
-  getTransactionsOrderedByFee() {
+  public getTransactionsOrderedByFee() {
     if (!this.allIsSorted) {
       this.all.sort((a, b) => {
         if (a.transaction.fee.isGreaterThan(b.transaction.fee)) {
-          return -1
+          return -1;
         }
         if (a.transaction.fee.isLessThan(b.transaction.fee)) {
-          return 1
+          return 1;
         }
-        return a.sequence - b.sequence
-      })
-      this.allIsSorted = true
+        return a.sequence - b.sequence;
+      });
+      this.allIsSorted = true;
     }
 
-    return this.all
+    return this.all;
   }
 
   /**
@@ -232,8 +242,8 @@ class Mem {
    * @param {String} id transaction id
    * @return {Boolean} true if exists
    */
-  transactionExists(id) {
-    return this.byId[id] !== undefined
+  public transactionExists(id) {
+    return this.byId[id] !== undefined;
   }
 
   /**
@@ -241,41 +251,41 @@ class Mem {
    * @param {Number} maxTransactionAge maximum age of a transaction in seconds
    * @return {Array of Transaction} expired transactions
    */
-  getExpired(maxTransactionAge) {
+  public getExpired(maxTransactionAge) {
     if (!this.byExpirationIsSorted) {
       this.byExpiration.sort(
         (a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge),
-      )
-      this.byExpirationIsSorted = true
+      );
+      this.byExpirationIsSorted = true;
     }
 
-    const now = slots.getTime()
+    const now = slots.getTime();
 
-    const transactions = []
+    const transactions = [];
 
     for (const memPoolTransaction of this.byExpiration) {
       if (memPoolTransaction.expireAt(maxTransactionAge) <= now) {
-        transactions.push(memPoolTransaction.transaction)
+        transactions.push(memPoolTransaction.transaction);
       } else {
-        break
+        break;
       }
     }
 
-    return transactions
+    return transactions;
   }
 
   /**
    * Remove all transactions.
    */
-  flush() {
-    this.all = []
-    this.allIsSorted = true
-    this.byId = {}
-    this.bySender = {}
-    this.byExpiration = []
-    this.byExpirationIsSorted = true
-    this.dirty.added.clear()
-    this.dirty.removed.clear()
+  public flush() {
+    this.all = [];
+    this.allIsSorted = true;
+    this.byId = {};
+    this.bySender = {};
+    this.byExpiration = [];
+    this.byExpirationIsSorted = true;
+    this.dirty.added.clear();
+    this.dirty.removed.clear();
   }
 
   /**
@@ -283,8 +293,8 @@ class Mem {
    * removals have not been applied to the persistent storage).
    * @return {Number} number of dirty transactions
    */
-  getNumberOfDirty() {
-    return this.dirty.added.size + this.dirty.removed.size
+  public getNumberOfDirty() {
+    return this.dirty.added.size + this.dirty.removed.size;
   }
 
   /**
@@ -293,11 +303,11 @@ class Mem {
    * call to this method (or to the flush() method).
    * @return {Array of MemPoolTransaction}
    */
-  getDirtyAddedAndForget() {
-    const added = []
-    this.dirty.added.forEach(id => added.push(this.byId[id]))
-    this.dirty.added.clear()
-    return added
+  public getDirtyAddedAndForget() {
+    const added = [];
+    this.dirty.added.forEach((id) => added.push(this.byId[id]));
+    this.dirty.added.clear();
+    return added;
   }
 
   /**
@@ -306,11 +316,9 @@ class Mem {
    * call to this method (or to the flush() method).
    * @return {Array of String} transaction ids
    */
-  getDirtyRemovedAndForget() {
-    const removed = Array.from(this.dirty.removed)
-    this.dirty.removed.clear()
-    return removed
+  public getDirtyRemovedAndForget() {
+    const removed = Array.from(this.dirty.removed);
+    this.dirty.removed.clear();
+    return removed;
   }
 }
-
-module.exports = Mem

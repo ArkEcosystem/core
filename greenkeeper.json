@@ -26,7 +26,6 @@
         "packages/core-snapshots/package.json",
         "packages/core-test-utils/package.json",
         "packages/core-tester-cli/package.json",
-        "packages/core-transaction-pool-mem/package.json",
         "packages/core-transaction-pool/package.json",
         "packages/core-utils/package.json",
         "packages/core-vote-report/package.json",

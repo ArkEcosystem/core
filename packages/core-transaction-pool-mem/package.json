@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "~0.2",
-    "@arkecosystem/core-transaction-pool": "~0.2",
     "@arkecosystem/crypto": "~0.2",
     "better-sqlite3": "^5.0.1",
     "delay": "^4.1.0",
