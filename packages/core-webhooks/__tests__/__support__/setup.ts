@@ -1,5 +1,6 @@
 import { app } from '@arkecosystem/core-container'
 import appHelper from '../../../core-test-utils/lib/helpers/container'
+import { database } from "../../src/database";
 import { webhookManager } from "../../src/manager";
 import { startServer } from "../../src/server";
 
@@ -14,6 +15,12 @@ async function setUp() {
       '@arkecosystem/core-graphql',
       '@arkecosystem/core-forger',
     ],
+  })
+
+  await database.setUp({
+    dialect: "sqlite",
+    storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
+    logging: process.env.ARK_DB_LOGGING,
   })
 
   await webhookManager.setUp()

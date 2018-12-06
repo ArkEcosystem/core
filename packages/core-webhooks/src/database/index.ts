@@ -29,8 +29,8 @@ class Database {
 
     try {
       await this.connection.authenticate();
-      await this.__runMigrations();
-      await this.__registerModels();
+      this.__runMigrations();
+      this.__registerModels();
     } catch (error) {
       app.forceExit("Unable to connect to the database!", error);
     }

@@ -33,7 +33,7 @@ function createWebhook(data = null) {
 }
 
 describe('API 2.0 - Webhooks', () => {
-  describe.only('GET /webhooks', () => {
+  describe('GET /webhooks', () => {
     it('should GET all the webhooks', async () => {
       const response = await utils.request('GET', 'webhooks')
       utils.expectSuccessful(response)
