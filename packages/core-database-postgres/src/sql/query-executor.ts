@@ -12,7 +12,7 @@ export class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  public async none(query, parameters = {}) {
+  public async none(query, parameters = null) {
     return this.__executeQueryFile(query, parameters, "none");
   }
 
@@ -22,7 +22,7 @@ export class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  public async one(query, parameters = {}) {
+  public async one(query, parameters = null) {
     return this.__executeQueryFile(query, parameters, "one");
   }
 
@@ -32,7 +32,7 @@ export class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  public async oneOrNone(query, parameters = {}) {
+  public async oneOrNone(query, parameters = null) {
     return this.__executeQueryFile(query, parameters, "oneOrNone");
   }
 
@@ -42,7 +42,7 @@ export class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  public async many(query, parameters = {}) {
+  public async many(query, parameters = null) {
     return this.__executeQueryFile(query, parameters, "many");
   }
 
@@ -52,7 +52,7 @@ export class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  public async manyOrNone(query, parameters = {}) {
+  public async manyOrNone(query, parameters = null) {
     return this.__executeQueryFile(query, parameters, "manyOrNone");
   }
 
@@ -62,7 +62,7 @@ export class QueryExecutor {
    * @param  {Array} parameters
    * @return {Promise}
    */
-  public async any(query, parameters = {}) {
+  public async any(query, parameters = null) {
     return this.__executeQueryFile(query, parameters, "any");
   }
 

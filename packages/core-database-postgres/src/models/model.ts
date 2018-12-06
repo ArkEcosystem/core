@@ -25,16 +25,24 @@ export abstract class Model {
    * @return {Object}
    */
   public query() {
-    const { table, schema, columns } = this.getColumnSet();
-
+    // @ts-ignore
     return sql.define({
-      name: table,
-      schema,
-      columns: columns.map((column) => ({
+      name: this.getTable(),
+      columns: this.getColumnSet().columns.map((column) => ({
         name: column.name,
         prop: column.prop || column.name,
       })),
     });
+    // const { table, schema, columns } = this.getColumnSet();
+
+    // return sql.define({
+    //   name: table,
+    //   schema,
+    //   columns: columns.map((column) => ({
+    //     name: column.name,
+    //     prop: column.prop || column.name,
+    //   })),
+    // });
   }
 
   /**
