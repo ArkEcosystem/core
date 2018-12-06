@@ -29,7 +29,7 @@ class Database {
 
     try {
       await this.connection.authenticate();
-      this.__runMigrations();
+      await this.__runMigrations();
       this.__registerModels();
     } catch (error) {
       app.forceExit("Unable to connect to the database!", error);
@@ -111,7 +111,7 @@ class Database {
    * Run all migrations.
    * @return {Boolean}
    */
-  public __runMigrations() {
+  public async __runMigrations() {
     const umzug = new Umzug({
       storage: "sequelize",
       storageOptions: {
