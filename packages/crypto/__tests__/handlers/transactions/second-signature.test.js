@@ -6,34 +6,31 @@ let transaction
 
 beforeEach(() => {
   wallet = {
-    address: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
+    address: 'DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj',
     balance: new Bignum('6453530000000'),
     publicKey:
-      '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
-    secondPublicKey:
-      '03791c7d0229966ee41af0e5362f3bb2534ef8c706d7151fec70aead607227fce1',
+      '03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9',
   }
 
   transaction = {
     version: 1,
-    id: '5823017492ceedff074806baaa98034703242277af03822c96f1831b84e646e4',
-    blockid: '18049953523739571613',
-    type: 0,
-    timestamp: 36350726,
-    amount: new Bignum(5000000000),
-    fee: new Bignum(10000000),
-    senderId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
-    recipientId: 'D92qxqLRYwTannfANNGFm138WTrhsq9RVi',
+    network: 30,
+    type: 1,
+    timestamp: 53995738,
     senderPublicKey:
-      '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
+      '03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9',
+    fee: new Bignum(500000000),
+    asset: {
+      signature: {
+        publicKey:
+          '02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8',
+      },
+    },
     signature:
-      '3044022071d48f273ac2181dc03cdd9326bb93bc8260966089b6548b32ba9bcb3cc0912302205b9dbc037c789576728ae7ab80f050c697c7aa00ad98d11086353c7d03f9f013', // eslint-disable-line max-len
-    signSignature:
-      '3044022023791a170f5b44b9b11f7ca91af02519f241deb4b33e2bcda858df631e20e6d702200ced02b468543db5212ef9a53623fc87227125be4447c29c759c79100dc66544', // eslint-disable-line max-len
-    secondSignature:
-      '3044022023791a170f5b44b9b11f7ca91af02519f241deb4b33e2bcda858df631e20e6d702200ced02b468543db5212ef9a53623fc87227125be4447c29c759c79100dc66544', // eslint-disable-line max-len
-    asset: {},
-    confirmations: 19620,
+      '3044022064e7abe87c186b201eaeeb9587097432816c94b52b85520a70da1d78b93456aa0220205e263a278c64771d46038f116c37dc16c86e73664e7e829951d7c5544c6d3e',
+    amount: Bignum.ZERO,
+    recipientId: 'DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj',
+    id: 'e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31',
   }
 })
 
@@ -48,35 +45,15 @@ describe('SecondSignatureHandler', () => {
     })
 
     it('should be true', () => {
-      wallet.secondPublicKey = null
+      const errors = []
+      expect(handler.canApply(wallet, transaction, errors)).toBeTrue()
 
-      expect(
-        handler.canApply(
-          wallet,
-          {
-            version: 1,
-            id:
-              '5823017492ceedff074806baaa98034703242277af03822c96f1831b84e646e4',
-            blockid: '18049953523739571613',
-            type: 0,
-            timestamp: 36350726,
-            amount: new Bignum(5000000000),
-            fee: new Bignum(10000000),
-            senderId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
-            recipientId: 'D92qxqLRYwTannfANNGFm138WTrhsq9RVi',
-            senderPublicKey:
-              '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
-            signature:
-              '3044022071d48f273ac2181dc03cdd9326bb93bc8260966089b6548b32ba9bcb3cc0912302205b9dbc037c789576728ae7ab80f050c697c7aa00ad98d11086353c7d03f9f013', // eslint-disable-line max-len
-            asset: {},
-            confirmations: 19620,
-          },
-          [],
-        ),
-      ).toBeTrue()
+      expect(errors).toBeEmpty()
     })
 
     it('should be false if wallet already has a second signature', () => {
+      wallet.secondPublicKey =
+        '02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8'
       const errors = []
 
       expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
@@ -89,14 +66,29 @@ describe('SecondSignatureHandler', () => {
       expect(handler.apply).toBeFunction()
     })
 
-    it('should be ok', () => {
-      transaction.asset.signature = {
-        publicKey: 'dummy',
-      }
+    it('should apply second signature registration', () => {
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
 
       handler.apply(wallet, transaction)
 
-      expect(wallet.secondPublicKey).toBe('dummy')
+      expect(wallet.secondPublicKey).toBe(
+        '02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8',
+      )
+    })
+
+    it('should be invalid to apply a second signature registration twice', () => {
+      const errors = []
+      expect(handler.canApply(wallet, transaction, errors)).toBeTrue()
+      expect(errors).toBeEmpty()
+
+      handler.apply(wallet, transaction)
+
+      expect(wallet.secondPublicKey).toBe(
+        '02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8',
+      )
+
+      expect(handler.canApply(wallet, transaction, errors)).toBeFalse()
+      expect(errors).toContain('Wallet already has a second signature')
     })
   })
 
@@ -106,11 +98,19 @@ describe('SecondSignatureHandler', () => {
     })
 
     it('should be ok', () => {
-      wallet.secondPublicKey = 'fake-secondPublicKey'
+      expect(wallet.secondPublicKey).toBeUndefined()
+
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
+
+      handler.apply(wallet, transaction)
+
+      expect(wallet.secondPublicKey).toBe(
+        '02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8',
+      )
 
       handler.revert(wallet, transaction)
 
-      expect(wallet.secondPublicKey).toBeNull()
+      expect(wallet.secondPublicKey).toBeUndefined()
     })
   })
 })

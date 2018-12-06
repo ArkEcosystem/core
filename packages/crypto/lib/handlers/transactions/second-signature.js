@@ -9,15 +9,16 @@ class SecondSignatureHandler extends Handler {
    * @return {Boolean}
    */
   canApply(wallet, transaction, errors) {
+    if (wallet.secondPublicKey) {
+      errors.push('Wallet already has a second signature')
+      return false
+    }
+
     if (!super.canApply(wallet, transaction, errors)) {
       return false
     }
 
-    const canApply = !wallet.secondPublicKey
-    if (!canApply) {
-      errors.push('Wallet already has a second signature')
-    }
-    return canApply
+    return true
   }
 
   /**
@@ -37,7 +38,7 @@ class SecondSignatureHandler extends Handler {
    * @return {void}
    */
   revert(wallet, transaction) {
-    wallet.secondPublicKey = null
+    delete wallet.secondPublicKey
   }
 }
 

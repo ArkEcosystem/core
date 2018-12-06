@@ -149,9 +149,10 @@ describe('API 2.0 - Transactions', () => {
 
         expect(response.data.data).toHaveLength(1)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.id).toBe(transactionId)
+        }
       })
     })
 
@@ -186,13 +187,12 @@ describe('API 2.0 - Transactions', () => {
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
-
         expect(response.data.data).toHaveLength(51)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
-        expect(transaction.type).toBe(type)
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.type).toBe(type)
+        }
       })
     })
 
@@ -206,13 +206,13 @@ describe('API 2.0 - Transactions', () => {
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
-
         expect(response.data.data).toHaveLength(100)
         expect(response.data.meta.totalCount).toBe(153)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.version).toBe(version)
+        }
       })
     })
 
@@ -227,16 +227,10 @@ describe('API 2.0 - Transactions', () => {
 
         expect(response).toBeSuccessfulResponse()
 
-        const data = response.data.data
-        expect(data).toBeArray()
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.sender).toBe(senderAddress)
+        }
       })
     })
 
@@ -251,16 +245,10 @@ describe('API 2.0 - Transactions', () => {
 
         expect(response).toBeSuccessfulResponse()
 
-        const data = response.data.data
-        expect(data).toBeArray()
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.sender).toBe(senderAddress)
+        }
       })
     })
 
@@ -274,12 +262,12 @@ describe('API 2.0 - Transactions', () => {
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
-
         expect(response.data.data).toHaveLength(2)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.recipient).toBe(recipientAddress)
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.recipient).toBe(recipientAddress)
+        }
       })
     })
 
@@ -301,17 +289,10 @@ describe('API 2.0 - Transactions', () => {
         expect(data).toBeArray()
         expect(data.length).toEqual(100)
 
-        data.forEach(transaction => {
+        for (const transaction of response.data.data) {
           utils.expectTransaction(transaction)
-        })
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+          expect(transaction.timestamp.epoch).toBe(timestamp)
+        }
       })
     })
 
@@ -333,17 +314,13 @@ describe('API 2.0 - Transactions', () => {
         expect(data).toBeArray()
         expect(data).toHaveLength(100)
 
-        data.forEach(transaction => {
+        for (const transaction of response.data.data) {
           utils.expectTransaction(transaction)
-        })
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+          expect(transaction.timestamp.epoch).toBeGreaterThanOrEqual(
+            timestampFrom,
+          )
+          expect(transaction.timestamp.epoch).toBeLessThanOrEqual(timestampTo)
+        }
       })
     })
 
@@ -365,17 +342,10 @@ describe('API 2.0 - Transactions', () => {
         expect(data).toBeArray()
         expect(data).toHaveLength(50)
 
-        data.forEach(transaction => {
+        for (const transaction of response.data.data) {
           utils.expectTransaction(transaction)
-        })
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+          expect(transaction.amount).toBe(amount)
+        }
       })
     })
 
@@ -397,17 +367,11 @@ describe('API 2.0 - Transactions', () => {
         expect(data).toBeArray()
         expect(data).toHaveLength(50)
 
-        data.forEach(transaction => {
+        for (const transaction of response.data.data) {
           utils.expectTransaction(transaction)
-        })
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+          expect(transaction.amount).toBeGreaterThanOrEqual(amountFrom)
+          expect(transaction.amount).toBeLessThanOrEqual(amountTo)
+        }
       })
     })
 
@@ -429,17 +393,10 @@ describe('API 2.0 - Transactions', () => {
         expect(data).toBeArray()
         expect(data).toHaveLength(100)
 
-        data.forEach(transaction => {
+        for (const transaction of response.data.data) {
           utils.expectTransaction(transaction)
-        })
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+          expect(transaction.fee).toBe(fee)
+        }
       })
     })
 
@@ -461,17 +418,11 @@ describe('API 2.0 - Transactions', () => {
         expect(data).toBeArray()
         expect(data).toHaveLength(100)
 
-        data.forEach(transaction => {
+        for (const transaction of response.data.data) {
           utils.expectTransaction(transaction)
-        })
-
-        const transactions = {}
-        genesisBlock.transactions.forEach(transaction => {
-          transactions[transaction.id] = true
-        })
-        const failed = data.some(transaction => !transactions[transaction.id])
-
-        expect(!failed).toBeTrue()
+          expect(transaction.fee).toBeGreaterThanOrEqual(feeFrom)
+          expect(transaction.fee).toBeLessThanOrEqual(feeTo)
+        }
       })
     })
 
@@ -492,12 +443,12 @@ describe('API 2.0 - Transactions', () => {
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
-
         expect(response.data.data).toHaveLength(1)
 
-        const transaction = response.data.data[0]
-        utils.expectTransaction(transaction)
-        expect(transaction.id).toBe(transactionId)
+        for (const transaction of response.data.data) {
+          utils.expectTransaction(transaction)
+          expect(transaction.vendorField).toBe(vendorFieldHex.toString('utf8'))
+        }
       })
     })
 
@@ -512,7 +463,6 @@ describe('API 2.0 - Transactions', () => {
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
-
         expect(response.data.data).toHaveLength(0)
       })
     })
@@ -532,7 +482,6 @@ describe('API 2.0 - Transactions', () => {
         })
         expect(response).toBeSuccessfulResponse()
         expect(response.data.data).toBeArray()
-
         utils.expectTransaction(response.data.data[0])
       })
     })

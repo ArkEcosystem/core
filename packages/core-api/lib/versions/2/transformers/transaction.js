@@ -20,6 +20,7 @@ module.exports = model => {
   return {
     id: data.id,
     blockId: model.blockId,
+    version: data.version,
     type: data.type,
     amount: +bignumify(data.amount).toFixed(),
     fee: +bignumify(data.fee).toFixed(),
