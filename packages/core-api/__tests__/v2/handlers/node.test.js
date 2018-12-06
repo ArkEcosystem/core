@@ -61,6 +61,10 @@ describe('API 2.0 - Loader', () => {
         expect(response.data.data.symbol).toBeString()
         expect(response.data.data.explorer).toBeString()
         expect(response.data.data.version).toBeNumber()
+
+        Object.values(response.data.data.ports).forEach(port => {
+          expect(port).toBeNumber()
+        })
       })
     })
   })
