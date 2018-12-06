@@ -10,7 +10,7 @@ module.exports = {
    * @return {void}
    */
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('webhooks', {
+    await queryInterface.createTable("webhooks", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -33,9 +33,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-    })
+    });
 
-    queryInterface.addIndex('webhooks', ['event'])
+    queryInterface.addIndex("webhooks", ["event"]);
   },
   /**
    * Reverse the migrations.
@@ -44,6 +44,6 @@ module.exports = {
    * @return {void}
    */
   async down(queryInterface, Sequelize) {
-    return queryInterface.dropTable('webhooks')
+    return queryInterface.dropTable("webhooks");
   },
-}
+};

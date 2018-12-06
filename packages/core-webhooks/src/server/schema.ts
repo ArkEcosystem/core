@@ -1,24 +1,21 @@
-const Joi = require('joi')
+import Joi from "joi";
 
 const conditions = [
-  'between',
-  'contains',
-  'eq',
-  'falsy',
-  'gt',
-  'gte',
-  'lt',
-  'lte',
-  'ne',
-  'not-between',
-  'regexp',
-  'truthy',
-]
+  "between",
+  "contains",
+  "eq",
+  "falsy",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "ne",
+  "not-between",
+  "regexp",
+  "truthy",
+];
 
-/**
- * @return {Object}
- */
-exports.index = {
+const index = {
   query: {
     page: Joi.number()
       .integer()
@@ -27,21 +24,15 @@ exports.index = {
       .integer()
       .positive(),
   },
-}
+};
 
-/**
- * @return {Object}
- */
-exports.show = {
+const show = {
   params: {
     id: Joi.string(),
   },
-}
+};
 
-/**
- * @return {Object}
- */
-exports.store = {
+const store = {
   payload: {
     event: Joi.string().required(),
     target: Joi.string()
@@ -56,12 +47,9 @@ exports.store = {
       }),
     ),
   },
-}
+};
 
-/**
- * @return {Object}
- */
-exports.update = {
+const update = {
   params: {
     id: Joi.string(),
   },
@@ -77,13 +65,18 @@ exports.update = {
       }),
     ),
   },
-}
+};
 
-/**
- * @return {Object}
- */
-exports.destroy = {
+const destroy = {
   params: {
     id: Joi.string(),
   },
-}
+};
+
+export {
+  index,
+  show,
+  store,
+  update,
+  destroy,
+};

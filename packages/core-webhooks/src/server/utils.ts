@@ -1,6 +1,4 @@
-/* eslint max-len: "off" */
-
-const Boom = require('boom')
+import Boom from "boom";
 
 /**
  * Transform the given data into a resource.
@@ -8,87 +6,78 @@ const Boom = require('boom')
  * @param  {Object} data
  * @return {Object}
  */
-const transformResource = (request, data) => require('./transformer')(data)
+const transformResource = (request, data) => require("./transformer")(data);
 
 /**
  * Transform the given data into a collection.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {Object} transformer
  * @return {Array}
  */
-const transformCollection = (request, data, transformer) =>
-  data.map(d => transformResource(request, d, transformer))
+const transformCollection = (request, data) =>
+  data.map((d) => transformResource(request, d));
 
 /**
  * Create a pagination object for the request.
  * @param  {Hapi.Request} request
  * @return {Object}
  */
-const paginate = request => ({
+const paginate = (request) => ({
   offset: (request.query.page - 1) * request.query.limit,
   limit: request.query.limit,
-})
+});
 
 /**
  * Respond with a resource.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const respondWithResource = (request, data, transformer) =>
+const respondWithResource = (request, data) =>
   data
-    ? { data: transformResource(request, data, transformer) }
-    : Boom.notFound()
+    ? { data: transformResource(request, data) }
+    : Boom.notFound();
 
 /**
  * Respond with a collection.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformer
  * @return {Object}
  */
-const respondWithCollection = (request, data, transformer) => ({
-  data: transformCollection(request, data, transformer),
-})
+const respondWithCollection = (request, data) => ({
+  data: transformCollection(request, data),
+});
 
 /**
  * Alias of "transformResource".
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const toResource = (request, data, transformer) =>
-  transformResource(request, data, transformer)
+const toResource = (request, data) =>
+  transformResource(request, data);
 
 /**
  * Alias of "transformCollection".
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const toCollection = (request, data, transformer) =>
-  transformCollection(request, data, transformer)
+const toCollection = (request, data) =>
+  transformCollection(request, data);
 
 /**
  * Transform the given data into a pagination.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const toPagination = (request, data, transformer) => ({
-  results: transformCollection(request, data.rows, transformer),
+const toPagination = (request, data) => ({
+  results: transformCollection(request, data.rows),
   totalCount: data.count,
-})
+});
 
-/**
- * @type {Object}
- */
-module.exports = {
+export {
   transformResource,
   transformCollection,
   paginate,
@@ -97,4 +86,4 @@ module.exports = {
   toResource,
   toCollection,
   toPagination,
-}
+};

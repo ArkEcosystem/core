@@ -1,25 +1,27 @@
-/* eslint no-await-in-loop: "off" */
-
-const axios = require('axios')
-const { app } = require('@arkecosystem/core-container')
-
-const logger = app.resolvePlugin('logger')
-const database = require('./database')
-
-const emitter = app.resolvePlugin('event-emitter')
+import { app } from "@arkecosystem/core-container";
+import axios from "axios";
+import * as conditions from "./conditions";
+import { database } from "./database";
 
 class WebhookManager {
+  public config: any;
+  public logger: any;
+
+  public constructor() {
+    this.logger = app.resolvePlugin("logger");
+  }
+
   /**
    * Set up the webhook app.
-   * @param  {Object} config
    * @return {void}
    */
-  async setUp(config) {
-    this.config = config
+  public async setUp() {
+    const emitter = app.resolvePlugin("event-emitter");
+    const blockchain = app.resolvePlugin("blockchain");
 
-    for (const event of app.resolvePlugin('blockchain').getEvents()) {
-      emitter.on(event, async payload => {
-        const webhooks = await database.findByEvent(event)
+    for (const event of blockchain.getEvents()) {
+      emitter.on(event, async (payload) => {
+        const webhooks = await database.findByEvent(event);
 
         for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
           try {
@@ -35,20 +37,20 @@ class WebhookManager {
                   Authorization: webhook.token,
                 },
               },
-            )
+            );
 
-            logger.debug(
+            this.logger.debug(
               `Webhooks Job ${webhook.id} completed! Event [${
                 webhook.event
               }] has been transmitted to [${
                 webhook.target
               }] with a status of [${response.status}].`,
-            )
+            );
           } catch (error) {
-            logger.error(`Webhooks Job ${webhook.id} failed: ${error.message}`)
+            this.logger.error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
           }
         }
-      })
+      });
     }
   }
 
@@ -58,33 +60,33 @@ class WebhookManager {
    * @param  {Object} payload
    * @return {Array}
    */
-  getMatchingWebhooks(webhooks, payload) {
-    const matches = []
+  private getMatchingWebhooks(webhooks, payload) {
+    const matches = [];
 
     for (const webhook of webhooks) {
       if (!webhook.enabled) {
-        continue
+        continue;
       }
 
       if (!webhook.conditions) {
-        matches.push(webhook)
+        matches.push(webhook);
 
-        continue
+        continue;
       }
 
-      for (const condition of webhook.conditions) {
-        const satisfies = require(`./conditions/${condition.condition}`)
+      for (const condition of  webhook.conditions) {
+        const satisfies = conditions[condition.condition];
 
         if (!satisfies(payload[condition.key], condition.value)) {
-          continue
+          continue;
         }
 
-        matches.push(webhook)
+        matches.push(webhook);
       }
     }
 
-    return matches
+    return matches;
   }
 }
 
-module.exports = new WebhookManager()
+export const webhookManager = new WebhookManager();

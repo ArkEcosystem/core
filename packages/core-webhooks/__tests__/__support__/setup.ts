@@ -1,10 +1,12 @@
-const { app } = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+import { app } from '@arkecosystem/core-container'
+import appHelper from '../../../core-test-utils/lib/helpers/container'
+import { webhookManager } from "../../src/manager";
+import { startServer } from "../../src/server";
 
 jest.setTimeout(60000)
 
-exports.setUp = async () => {
-  process.env.ARK_WEBHOOKS_ENABLED = true
+async function setUp() {
+  process.env.ARK_WEBHOOKS_ENABLED = 'true'
 
   await appHelper.setUp({
     exclude: [
@@ -14,9 +16,9 @@ exports.setUp = async () => {
     ],
   })
 
-  await require('../../lib/manager').setUp({})
+  await webhookManager.setUp()
 
-  await require('../../lib/server')({
+  await startServer({
     enabled: false,
     host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
     port: process.env.ARK_WEBHOOKS_PORT || 4004,
@@ -28,6 +30,8 @@ exports.setUp = async () => {
   })
 }
 
-exports.tearDown = async () => {
+async function tearDown() {
   await app.tearDown()
 }
+
+export { setUp, tearDown }

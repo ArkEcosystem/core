@@ -1,15 +1,10 @@
-const {
+import {
   createServer,
   mountServer,
   plugins,
-} = require('@arkecosystem/core-http-utils')
+} from "@arkecosystem/core-http-utils";
 
-/**
- * Creates a new hapi.js server.
- * @param  {Object} config
- * @return {Hapi.Server}
- */
-module.exports = async config => {
+export async function startServer(config) {
   const server = await createServer({
     host: config.host,
     port: config.port,
@@ -17,25 +12,25 @@ module.exports = async config => {
       cors: true,
       validate: {
         async failAction(request, h, err) {
-          throw err
+          throw err;
         },
       },
     },
-  })
+  });
 
   await server.register({
     plugin: plugins.whitelist,
     options: {
       whitelist: config.whitelist,
-      name: 'Webhook API',
+      name: "Webhook API",
     },
-  })
+  });
 
   await server.register({
-    plugin: require('hapi-pagination'),
+    plugin: require("hapi-pagination"),
     options: {
       meta: {
-        baseUri: '',
+        baseUri: "",
       },
       query: {
         limit: {
@@ -43,20 +38,20 @@ module.exports = async config => {
         },
       },
       results: {
-        name: 'data',
+        name: "data",
       },
       routes: {
         include: config.pagination.include,
-        exclude: ['*'],
+        exclude: ["*"],
       },
     },
-  })
+  });
 
   await server.register({
-    plugin: require('./routes'),
-    routes: { prefix: '/api' },
+    plugin: require("./routes"),
+    routes: { prefix: "/api" },
     options: config,
-  })
+  });
 
-  return mountServer('Webhook API', server)
+  return mountServer("Webhook API", server);
 }

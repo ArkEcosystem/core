@@ -1,12 +1,13 @@
-const app = require('../__support__/setup')
-const utils = require('./utils')
+import 'jest-extended'
+import { setUp, tearDown } from '../__support__/setup'
+import * as utils from '../__support__/utils'
 
 beforeAll(async () => {
-  await app.setUp()
+  await setUp()
 })
 
 afterAll(async () => {
-  await app.tearDown()
+  await tearDown()
 })
 
 const postData = {
@@ -32,7 +33,7 @@ function createWebhook(data = null) {
 }
 
 describe('API 2.0 - Webhooks', () => {
-  describe('GET /webhooks', () => {
+  describe.only('GET /webhooks', () => {
     it('should GET all the webhooks', async () => {
       const response = await utils.request('GET', 'webhooks')
       utils.expectSuccessful(response)
