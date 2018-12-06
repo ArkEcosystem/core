@@ -169,14 +169,20 @@ describe('Wallets', () => {
 
     describe('info', () => {
       it('should find the wallet for the given userId', async () => {
-        const response = await request('wallets.bip38.info', { userId })
+        const response = await request('wallets.bip38.info', {
+          bip38: 'this is a top secret passphrase',
+          userId,
+        })
 
+        expect(response.data.result).toHaveProperty('address')
+        expect(response.data.result).toHaveProperty('publicKey')
         expect(response.data.result).toHaveProperty('wif')
         expect(response.data.result.wif).toBe(bip38wif)
       })
 
       it('should fail to find the wallet for the given userId', async () => {
         const response = await request('wallets.bip38.info', {
+          bip38: 'invalid',
           userId: '123456789',
         })
 

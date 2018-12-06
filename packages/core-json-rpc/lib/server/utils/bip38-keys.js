@@ -2,6 +2,7 @@ const { configManager, crypto, utils } = require('@arkecosystem/crypto')
 const bip38 = require('bip38')
 const wif = require('wif')
 const database = require('../services/database')
+const decryptWIF = require('./decrypt-wif')
 
 module.exports = async (userId, bip38password) => {
   try {
@@ -10,18 +11,7 @@ module.exports = async (userId, bip38password) => {
     )
 
     if (encryptedWif) {
-      const decrypted = bip38.decrypt(
-        encryptedWif.toString('hex'),
-        bip38password + userId,
-      )
-      const wifKey = wif.encode(
-        configManager.get('wif'),
-        decrypted.privateKey,
-        decrypted.compressed,
-      )
-      const keys = crypto.getKeysFromWIF(wifKey)
-
-      return { keys, wif: wifKey }
+      return decryptWIF(encryptedWif, userId, bip38password)
     }
   } catch (error) {
     throw Error('Could not find a matching WIF')
