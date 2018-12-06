@@ -1,12 +1,11 @@
 import sql from "sql";
 
 export abstract class Model {
-
   /**
    * Create a new model instance.
    * @param {Object} pgp
    */
-  constructor(public pgp) { }
+  constructor(public pgp) {}
 
   /**
    * Get table name for model.
@@ -25,24 +24,15 @@ export abstract class Model {
    * @return {Object}
    */
   public query() {
-    // @ts-ignore
+    const { schema, columns } = this.getColumnSet();
     return sql.define({
       name: this.getTable(),
-      columns: this.getColumnSet().columns.map((column) => ({
+      schema,
+      columns: columns.map((column) => ({
         name: column.name,
         prop: column.prop || column.name,
       })),
     });
-    // const { table, schema, columns } = this.getColumnSet();
-
-    // return sql.define({
-    //   name: table,
-    //   schema,
-    //   columns: columns.map((column) => ({
-    //     name: column.name,
-    //     prop: column.prop || column.name,
-    //   })),
-    // });
   }
 
   /**
