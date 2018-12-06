@@ -1,20 +1,26 @@
-/* eslint max-len: "off" */
+/* tslint:disable:max-line-length */
 /* eslint no-await-in-loop: "off" */
 
-const { slots, models } = require('@arkecosystem/crypto')
+import { app } from "@arkecosystem/core-container";
+import { models, slots } from "@arkecosystem/crypto";
 
-const { Block } = models
-const { app } = require('@arkecosystem/core-container')
+import delay from "delay";
+import pluralize from "pluralize";
+import { ProcessQueue, Queue, RebuildQueue } from "./queue";
+import { stateMachine } from "./state-machine";
 
-const logger = app.resolvePlugin('logger')
-const config = app.resolvePlugin('config')
-const emitter = app.resolvePlugin('event-emitter')
-const delay = require('delay')
-const pluralize = require('pluralize')
-const stateMachine = require('./state-machine')
-const Queue = require('./queue')
+const logger = app.resolvePlugin("logger");
+const config = app.resolvePlugin("config");
+const emitter = app.resolvePlugin("event-emitter");
+const { Block } = models;
 
-module.exports = class Blockchain {
+export class Blockchain {
+  public isStopped: boolean;
+  private actions: any;
+  private queue: Queue;
+  private processQueue: ProcessQueue;
+  private rebuildQueue: RebuildQueue;
+
   /**
    * Create a new blockchain manager instance.
    * @param  {Boolean} networkStart
@@ -22,18 +28,18 @@ module.exports = class Blockchain {
    */
   constructor(networkStart) {
     // flag to force a network start
-    this.state.networkStart = !!networkStart
+    this.state.networkStart = !!networkStart;
 
     if (this.state.networkStart) {
       logger.warn(
-        'Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:',
-      )
-      logger.info('Starting Ark Core for a new world, welcome aboard :rocket:')
+        "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:",
+      );
+      logger.info("Starting Ark Core for a new world, welcome aboard :rocket:");
     }
 
-    this.actions = stateMachine.actionMap(this)
+    this.actions = stateMachine.actionMap(this);
 
-    this.__registerQueue()
+    this.__registerQueue();
   }
 
   /**
@@ -41,8 +47,8 @@ module.exports = class Blockchain {
    * @param  {String} event
    * @return {void}
    */
-  dispatch(event) {
-    const nextState = stateMachine.transition(this.state.blockchain, event)
+  public dispatch(event) {
+    const nextState = stateMachine.transition(this.state.blockchain, event);
 
     if (nextState.actions.length > 0) {
       logger.debug(
@@ -50,73 +56,73 @@ module.exports = class Blockchain {
           this.state.blockchain.value,
         )} -> ${JSON.stringify(
           nextState.value,
-        )} -> actions: [${nextState.actions.map(a => a.type).join(', ')}]`,
-      )
+        )} -> actions: [${nextState.actions.map((a) => a.type).join(", ")}]`,
+      );
     }
 
-    this.state.blockchain = nextState
+    this.state.blockchain = nextState;
 
-    nextState.actions.forEach(actionKey => {
-      const action = this.actions[actionKey]
+    nextState.actions.forEach((actionKey) => {
+      const action = this.actions[actionKey];
 
       if (action) {
-        return setTimeout(() => action.call(this, event), 0)
+        setTimeout(() => action.call(this, event), 0);
+      } else {
+        logger.error(`No action '${actionKey}' found :interrobang:`);
       }
+    });
 
-      logger.error(`No action '${actionKey}' found :interrobang:`)
-    })
-
-    return nextState
+    return nextState;
   }
 
   /**
    * Start the blockchain and wait for it to be ready.
    * @return {void}
    */
-  async start(skipStartedCheck = false) {
-    logger.info('Starting Blockchain Manager :chains:')
+  public async start(skipStartedCheck = false) {
+    logger.info("Starting Blockchain Manager :chains:");
 
-    this.dispatch('START')
+    this.dispatch("START");
 
-    emitter.once('shutdown', () => {
-      this.stop()
-    })
+    emitter.once("shutdown", () => {
+      this.stop();
+    });
 
     if (skipStartedCheck || process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK) {
-      return true
+      return true;
     }
 
     // TODO: this state needs to be set after state.getLastBlock() is available if ARK_ENV=test
     while (!this.state.started && !this.isStopped) {
-      await delay(1000)
+      await delay(1000);
     }
 
-    return true
+    return true;
   }
 
-  async stop() {
+  public async stop() {
     if (!this.isStopped) {
-      logger.info('Stopping Blockchain Manager :chains:')
+      logger.info("Stopping Blockchain Manager :chains:");
 
-      this.isStopped = true
-      this.state.clearCheckLater()
+      this.isStopped = true;
+      this.state.clearCheckLater();
 
-      this.dispatch('STOP')
+      this.dispatch("STOP");
 
-      this.queue.destroy()
+      this.queue.destroy();
     }
   }
 
-  checkNetwork() {
-    throw new Error('Method [checkNetwork] not implemented!')
+  public checkNetwork() {
+    throw new Error("Method [checkNetwork] not implemented!");
   }
 
   /**
    * Update network status.
    * @return {void}
    */
-  async updateNetworkStatus() {
-    return this.p2p.updateNetworkStatus()
+  public async updateNetworkStatus() {
+    return this.p2p.updateNetworkStatus();
   }
 
   /**
@@ -124,19 +130,19 @@ module.exports = class Blockchain {
    * @param  {Number} nblocks
    * @return {void}
    */
-  rebuild(nblocks) {
-    throw new Error('Method [rebuild] not implemented!')
+  public rebuild(nblocks) {
+    throw new Error("Method [rebuild] not implemented!");
   }
 
   /**
    * Reset the state of the blockchain.
    * @return {void}
    */
-  resetState() {
-    this.queue.pause()
-    this.queue.clear()
+  public resetState() {
+    this.queue.pause();
+    this.queue.clear();
 
-    this.state.reset()
+    this.state.reset();
   }
 
   /**
@@ -144,15 +150,15 @@ module.exports = class Blockchain {
    * @param  {Array}   transactions
    * @return {void}
    */
-  async postTransactions(transactions) {
+  public async postTransactions(transactions) {
     logger.info(
       `Received ${transactions.length} new ${pluralize(
-        'transaction',
+        "transaction",
         transactions.length,
       )} :moneybag:`,
-    )
+    );
 
-    await this.transactionPool.addTransactions(transactions)
+    await this.transactionPool.addTransactions(transactions);
   }
 
   /**
@@ -160,30 +166,30 @@ module.exports = class Blockchain {
    * @param  {Block} block
    * @return {void}
    */
-  queueBlock(block) {
+  public queueBlock(block) {
     logger.info(
       `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
-        'transaction',
+        "transaction",
         block.numberOfTransactions,
         true,
       )} from ${block.ip}`,
-    )
+    );
 
     if (
       this.state.started &&
-      this.state.blockchain.value === 'idle' &&
+      this.state.blockchain.value === "idle" &&
       !this.state.forked
     ) {
-      this.dispatch('NEWBLOCK')
+      this.dispatch("NEWBLOCK");
 
-      this.processQueue.push(block)
-      this.state.lastDownloadedBlock = new Block(block)
+      this.processQueue.push(block);
+      this.state.lastDownloadedBlock = new Block(block);
     } else {
       logger.info(
         `Block disregarded because blockchain is ${
-          this.state.forked ? 'forked' : 'not ready'
+          this.state.forked ? "forked" : "not ready"
         } :exclamation:`,
-      )
+      );
     }
   }
 
@@ -191,62 +197,62 @@ module.exports = class Blockchain {
    * Rollback all blocks up to the previous round.
    * @return {void}
    */
-  async rollbackCurrentRound() {
-    const height = this.state.getLastBlock().data.height
-    const maxDelegates = config.getConstants(height).activeDelegates
-    const previousRound = Math.floor((height - 1) / maxDelegates)
+  public async rollbackCurrentRound() {
+    const height = this.state.getLastBlock().data.height;
+    const maxDelegates = config.getConstants(height).activeDelegates;
+    const previousRound = Math.floor((height - 1) / maxDelegates);
 
     if (previousRound < 2) {
-      return
+      return;
     }
 
-    const newHeight = previousRound * maxDelegates
+    const newHeight = previousRound * maxDelegates;
     const blocksToRemove = await this.database.getBlocks(
       newHeight,
       height - newHeight - 1,
-    )
+    );
     const deleteLastBlock = async () => {
-      const lastBlock = this.state.getLastBlock()
-      await this.database.enqueueDeleteBlock(lastBlock)
+      const lastBlock = this.state.getLastBlock();
+      await this.database.enqueueDeleteBlock(lastBlock);
 
-      const newLastBlock = new Block(blocksToRemove.pop())
+      const newLastBlock = new Block(blocksToRemove.pop());
 
-      this.state.setLastBlock(newLastBlock)
-      this.state.lastDownloadedBlock = newLastBlock
-    }
+      this.state.setLastBlock(newLastBlock);
+      this.state.lastDownloadedBlock = newLastBlock;
+    };
 
     logger.info(
       `Removing ${pluralize(
-        'block',
+        "block",
         height - newHeight,
         true,
       )} to reset current round :warning:`,
-    )
+    );
 
-    let count = 0
-    const max = this.state.getLastBlock().data.height - newHeight
+    let count = 0;
+    const max = this.state.getLastBlock().data.height - newHeight;
 
     while (this.state.getLastBlock().data.height >= newHeight + 1) {
-      const removalBlockId = this.state.getLastBlock().data.id
+      const removalBlockId = this.state.getLastBlock().data.id;
       const removalBlockHeight = this.state
         .getLastBlock()
-        .data.height.toLocaleString()
+        .data.height.toLocaleString();
       logger.printTracker(
-        'Removing block',
+        "Removing block",
         count++,
         max,
         `ID: ${removalBlockId}, height: ${removalBlockHeight}`,
-      )
+      );
 
-      await deleteLastBlock()
+      await deleteLastBlock();
     }
 
     // Commit delete blocks
-    await this.database.commitQueuedQueries()
+    await this.database.commitQueuedQueries();
 
-    logger.stopTracker(`${pluralize('block', max, true)} removed`, count, max)
+    logger.stopTracker(`${pluralize("block", max, true)} removed`, count, max);
 
-    await this.database.deleteRound(previousRound + 1)
+    await this.database.deleteRound(previousRound + 1);
   }
 
   /**
@@ -254,69 +260,71 @@ module.exports = class Blockchain {
    * @param  {Number} nblocks
    * @return {void}
    */
-  async removeBlocks(nblocks) {
+  public async removeBlocks(nblocks) {
     const blocksToRemove = await this.database.getBlocks(
       this.state.getLastBlock().data.height - nblocks,
       nblocks - 1,
-    )
+    );
 
     const revertLastBlock = async () => {
-      const lastBlock = this.state.getLastBlock()
+      // tslint:disable-next-line:no-shadowed-variable
+      const lastBlock = this.state.getLastBlock();
 
       // TODO: if revertBlock Failed, it might corrupt the database because one block could be left stored
-      await this.database.revertBlock(lastBlock)
-      this.database.enqueueDeleteBlock(lastBlock)
+      await this.database.revertBlock(lastBlock);
+      this.database.enqueueDeleteBlock(lastBlock);
 
       if (this.transactionPool) {
-        await this.transactionPool.addTransactions(lastBlock.transactions)
+        await this.transactionPool.addTransactions(lastBlock.transactions);
       }
 
-      const newLastBlock = new Block(blocksToRemove.pop())
+      const newLastBlock = new Block(blocksToRemove.pop());
 
-      this.state.setLastBlock(newLastBlock)
-      this.state.lastDownloadedBlock = newLastBlock
-    }
+      this.state.setLastBlock(newLastBlock);
+      this.state.lastDownloadedBlock = newLastBlock;
+    };
 
-    const __removeBlocks = async numberOfBlocks => {
+    // tslint:disable-next-line:variable-name
+    const __removeBlocks = async (numberOfBlocks) => {
       if (numberOfBlocks < 1) {
-        return
+        return;
       }
 
       logger.info(
         `Undoing block ${this.state
           .getLastBlock()
           .data.height.toLocaleString()}`,
-      )
+      );
 
-      await revertLastBlock()
-      await __removeBlocks(numberOfBlocks - 1)
-    }
+      await revertLastBlock();
+      await __removeBlocks(numberOfBlocks - 1);
+    };
 
-    const lastBlock = this.state.getLastBlock()
+    const lastBlock = this.state.getLastBlock();
     if (nblocks >= lastBlock.data.height) {
-      nblocks = lastBlock.data.height - 1
+      nblocks = lastBlock.data.height - 1;
     }
 
-    const resetHeight = lastBlock.data.height - nblocks
+    const resetHeight = lastBlock.data.height - nblocks;
     logger.info(
       `Removing ${pluralize(
-        'block',
+        "block",
         nblocks,
         true,
       )}. Reset to height ${resetHeight.toLocaleString()}`,
-    )
+    );
 
-    this.queue.pause()
-    this.queue.clear()
+    this.queue.pause();
+    this.queue.clear();
 
-    this.state.lastDownloadedBlock = lastBlock
+    this.state.lastDownloadedBlock = lastBlock;
 
-    await __removeBlocks(nblocks)
+    await __removeBlocks(nblocks);
 
     // Commit delete blocks
-    await this.database.commitQueuedQueries()
+    await this.database.commitQueuedQueries();
 
-    this.queue.resume()
+    this.queue.resume();
   }
 
   /**
@@ -325,25 +333,25 @@ module.exports = class Blockchain {
    * @param  {Number} count
    * @return {void}
    */
-  async removeTopBlocks(count) {
-    const blocks = await this.database.getTopBlocks(count)
+  public async removeTopBlocks(count) {
+    const blocks = await this.database.getTopBlocks(count);
 
     logger.info(
       `Removing ${pluralize(
-        'block',
+        "block",
         blocks.length,
         true,
       )} from height ${blocks[0].height.toLocaleString()}`,
-    )
+    );
 
     for (let block of blocks) {
-      block = new Block(block)
+      block = new Block(block);
 
-      this.database.enqueueDeleteRound(block.data.height)
-      this.database.enqueueDeleteBlock(block)
+      this.database.enqueueDeleteRound(block.data.height);
+      this.database.enqueueDeleteBlock(block);
     }
 
-    await this.database.commitQueuedQueries()
+    await this.database.commitQueuedQueries();
   }
 
   /**
@@ -353,46 +361,46 @@ module.exports = class Blockchain {
    * @param  {Function} callback
    * @return {Object}
    */
-  async rebuildBlock(block, callback) {
-    const lastBlock = this.state.getLastBlock()
+  public async rebuildBlock(block, callback) {
+    const lastBlock = this.state.getLastBlock();
 
     if (block.verification.verified) {
       if (this.__isChained(lastBlock, block)) {
         // save block on database
-        this.database.enqueueSaveBlock(block)
+        this.database.enqueueSaveBlock(block);
 
         // committing to db every 20,000 blocks
         if (block.data.height % 20000 === 0) {
-          await this.database.commitQueuedQueries()
+          await this.database.commitQueuedQueries();
         }
 
-        this.state.setLastBlock(block)
+        this.state.setLastBlock(block);
 
-        return callback()
+        return callback();
       }
       if (block.data.height > lastBlock.data.height + 1) {
-        this.state.lastDownloadedBlock = lastBlock
-        return callback()
+        this.state.lastDownloadedBlock = lastBlock;
+        return callback();
       }
       if (
         block.data.height < lastBlock.data.height ||
         (block.data.height === lastBlock.data.height &&
           block.data.id === lastBlock.data.id)
       ) {
-        this.state.lastDownloadedBlock = lastBlock
-        return callback()
+        this.state.lastDownloadedBlock = lastBlock;
+        return callback();
       }
-      this.state.lastDownloadedBlock = lastBlock
+      this.state.lastDownloadedBlock = lastBlock;
       logger.info(
         `Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`,
-      )
-      return callback()
+      );
+      return callback();
     }
     logger.warn(
       `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
-    )
-    logger.warn(block.verification)
-    return callback()
+    );
+    logger.warn(block.verification);
+    return callback();
   }
 
   /**
@@ -402,48 +410,48 @@ module.exports = class Blockchain {
    * @param  {Function} callback
    * @return {(Function|void)}
    */
-  async processBlock(block, callback) {
+  public async processBlock(block, callback) {
     if (!block.verification.verified) {
       logger.warn(
         `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
-      )
+      );
 
-      this.transactionPool.purgeSendersWithInvalidTransactions(block)
+      this.transactionPool.purgeSendersWithInvalidTransactions(block);
 
-      return callback()
+      return callback();
     }
 
     try {
       if (this.__isChained(this.state.getLastBlock(), block)) {
-        await this.acceptChainedBlock(block)
-        this.state.setLastBlock(block)
+        await this.acceptChainedBlock(block);
+        this.state.setLastBlock(block);
       } else {
-        await this.manageUnchainedBlock(block)
+        await this.manageUnchainedBlock(block);
       }
     } catch (error) {
-      logger.error(`Refused new block ${JSON.stringify(block.data)}`)
-      logger.debug(error.stack)
+      logger.error(`Refused new block ${JSON.stringify(block.data)}`);
+      logger.debug(error.stack);
 
-      this.transactionPool.purgeBlock(block)
+      this.transactionPool.purgeBlock(block);
 
-      this.dispatch('FORK')
-      return callback()
+      this.dispatch("FORK");
+      return callback();
     }
 
     try {
       // broadcast only current block
-      const blocktime = config.getConstants(block.data.height).blocktime
+      const blocktime = config.getConstants(block.data.height).blocktime;
       if (slots.getSlotNumber() * blocktime <= block.data.timestamp) {
-        this.p2p.broadcastBlock(block)
+        this.p2p.broadcastBlock(block);
       }
     } catch (error) {
       logger.warn(
         `Can't properly broadcast block ${block.data.height.toLocaleString()}`,
-      )
-      logger.debug(error.stack)
+      );
+      logger.debug(error.stack);
     }
 
-    return callback()
+    return callback();
   }
 
   /**
@@ -452,26 +460,26 @@ module.exports = class Blockchain {
    * @param  {Object} state
    * @return {void}
    */
-  async acceptChainedBlock(block) {
-    await this.database.applyBlock(block)
-    await this.database.saveBlock(block)
+  public async acceptChainedBlock(block) {
+    await this.database.applyBlock(block);
+    await this.database.saveBlock(block);
 
     // Check if we recovered from a fork
     if (
       this.state.forked &&
       this.state.forkedBlock.height === block.data.height
     ) {
-      logger.info('Successfully recovered from fork :star2:')
-      this.state.forked = false
-      this.state.forkedBlock = null
+      logger.info("Successfully recovered from fork :star2:");
+      this.state.forked = false;
+      this.state.forkedBlock = null;
     }
 
     if (this.transactionPool) {
       try {
-        this.transactionPool.acceptChainedBlock(block)
+        this.transactionPool.acceptChainedBlock(block);
       } catch (error) {
-        logger.warn('Issue applying block to transaction pool')
-        logger.debug(error.stack)
+        logger.warn("Issue applying block to transaction pool");
+        logger.debug(error.stack);
       }
     }
   }
@@ -482,36 +490,36 @@ module.exports = class Blockchain {
    * @param  {Object} state
    * @return {void}
    */
-  async manageUnchainedBlock(block) {
-    const lastBlock = this.state.getLastBlock()
+  public async manageUnchainedBlock(block) {
+    const lastBlock = this.state.getLastBlock();
 
     if (block.data.height > lastBlock.data.height + 1) {
       logger.debug(
         `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
-      )
-      this.state.lastDownloadedBlock = lastBlock
+      );
+      this.state.lastDownloadedBlock = lastBlock;
     } else if (block.data.height < lastBlock.data.height) {
       logger.debug(
         `Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`,
-      )
+      );
     } else if (
       block.data.height === lastBlock.data.height &&
       block.data.id === lastBlock.data.id
     ) {
       logger.debug(
         `Block ${block.data.height.toLocaleString()} just received :chains:`,
-      )
+      );
     } else {
-      const isValid = await this.database.validateForkedBlock(block)
+      const isValid = await this.database.validateForkedBlock(block);
 
       if (isValid) {
-        this.dispatch('FORK')
+        this.dispatch("FORK");
       } else {
         logger.info(
           `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
             block.data.generatorPublicKey
           } :bangbang:`,
-        )
+        );
       }
     }
   }
@@ -523,9 +531,9 @@ module.exports = class Blockchain {
    * @param  {Boolean} forForging
    * @return {Object}
    */
-  forceWakeup() {
-    this.state.clearCheckLater()
-    this.dispatch('WAKEUP')
+  public forceWakeup() {
+    this.state.clearCheckLater();
+    this.dispatch("WAKEUP");
   }
 
   /**
@@ -534,16 +542,16 @@ module.exports = class Blockchain {
    * @param  {Boolean} forForging
    * @return {Object}
    */
-  getUnconfirmedTransactions(blockSize) {
+  public getUnconfirmedTransactions(blockSize) {
     const transactions = this.transactionPool.getTransactionsForForging(
       blockSize,
-    )
+    );
 
     return {
       transactions,
       poolSize: this.transactionPool.getPoolSize(),
       count: transactions ? transactions.length : -1,
-    }
+    };
   }
 
   /**
@@ -551,17 +559,17 @@ module.exports = class Blockchain {
    * @param  {Block} [block=getLastBlock()]  block
    * @return {Boolean}
    */
-  isSynced(block) {
+  public isSynced(block) {
     if (!this.p2p.hasPeers()) {
-      return true
+      return true;
     }
 
-    block = block || this.getLastBlock()
+    block = block || this.getLastBlock();
 
     return (
       slots.getTime() - block.data.timestamp <
       3 * config.getConstants(block.data.height).blocktime
-    )
+    );
   }
 
   /**
@@ -569,18 +577,18 @@ module.exports = class Blockchain {
    * @param  {Block}  block
    * @return {Boolean}
    */
-  isRebuildSynced(block) {
+  public isRebuildSynced(block) {
     if (!this.p2p.hasPeers()) {
-      return true
+      return true;
     }
 
-    block = block || this.getLastBlock()
+    block = block || this.getLastBlock();
 
-    const remaining = slots.getTime() - block.data.timestamp
-    logger.info(`Remaining block timestamp ${remaining} :hourglass:`)
+    const remaining = slots.getTime() - block.data.timestamp;
+    logger.info(`Remaining block timestamp ${remaining} :hourglass:`);
 
     // stop fast rebuild 7 days before the last network block
-    return slots.getTime() - block.data.timestamp < 3600 * 24 * 7
+    return slots.getTime() - block.data.timestamp < 3600 * 24 * 7;
     // return slots.getTime() - block.data.timestamp < 100 * config.getConstants(block.data.height).blocktime
   }
 
@@ -588,75 +596,75 @@ module.exports = class Blockchain {
    * Get the last block of the blockchain.
    * @return {Object}
    */
-  getLastBlock() {
-    return this.state.getLastBlock()
+  public getLastBlock() {
+    return this.state.getLastBlock();
   }
 
   /**
    * Get the last height of the blockchain.
    * @return {Object}
    */
-  getLastHeight() {
-    return this.state.getLastBlock().data.height
+  public getLastHeight() {
+    return this.state.getLastBlock().data.height;
   }
 
   /**
    * Get the last downloaded block of the blockchain.
    * @return {Object}
    */
-  getLastDownloadedBlock() {
-    return this.state.lastDownloadedBlock
+  public getLastDownloadedBlock() {
+    return this.state.lastDownloadedBlock;
   }
 
   /**
    * Get the block ping.
    * @return {Object}
    */
-  getBlockPing() {
-    return this.state.blockPing
+  public getBlockPing() {
+    return this.state.blockPing;
   }
 
   /**
    * Ping a block.
    * @return {Object}
    */
-  pingBlock(incomingBlock) {
-    return this.state.pingBlock(incomingBlock)
+  public pingBlock(incomingBlock) {
+    return this.state.pingBlock(incomingBlock);
   }
 
   /**
    * Push ping block.
    * @return {Object}
    */
-  pushPingBlock(block) {
-    this.state.pushPingBlock(block)
+  public pushPingBlock(block) {
+    this.state.pushPingBlock(block);
   }
 
   /**
    * Get the list of events that are available.
    * @return {Array}
    */
-  getEvents() {
+  public getEvents() {
     return [
-      'block.applied',
-      'block.forged',
-      'block.reverted',
-      'delegate.registered',
-      'delegate.resigned',
-      'forger.failed',
-      'forger.missing',
-      'forger.started',
-      'peer.added',
-      'peer.removed',
-      'round.created',
-      'state:started',
-      'transaction.applied',
-      'transaction.expired',
-      'transaction.forged',
-      'transaction.reverted',
-      'wallet.saved',
-      'wallet.created.cold',
-    ]
+      "block.applied",
+      "block.forged",
+      "block.reverted",
+      "delegate.registered",
+      "delegate.resigned",
+      "forger.failed",
+      "forger.missing",
+      "forger.started",
+      "peer.added",
+      "peer.removed",
+      "round.created",
+      "state:started",
+      "transaction.applied",
+      "transaction.expired",
+      "transaction.forged",
+      "transaction.reverted",
+      "wallet.saved",
+      "wallet.created.cold",
+    ];
   }
 
   /**
@@ -664,7 +672,7 @@ module.exports = class Blockchain {
    * @return {StateStorage}
    */
   get state() {
-    return stateMachine.state
+    return stateMachine.state;
   }
 
   /**
@@ -672,7 +680,7 @@ module.exports = class Blockchain {
    * @return {P2PInterface}
    */
   get p2p() {
-    return app.resolvePlugin('p2p')
+    return app.resolvePlugin("p2p");
   }
 
   /**
@@ -680,7 +688,7 @@ module.exports = class Blockchain {
    * @return {TransactionPool}
    */
   get transactionPool() {
-    return app.resolvePlugin('transactionPool')
+    return app.resolvePlugin("transactionPool");
   }
 
   /**
@@ -688,7 +696,7 @@ module.exports = class Blockchain {
    * @return {ConnectionInterface}
    */
   get database() {
-    return app.resolvePlugin('database')
+    return app.resolvePlugin("database");
   }
 
   /**
@@ -697,26 +705,26 @@ module.exports = class Blockchain {
    * @param  {Block}  nextBlock
    * @return {Boolean}
    */
-  __isChained(previousBlock, nextBlock) {
+  public __isChained(previousBlock, nextBlock) {
     const followsPrevious =
-      nextBlock.data.previousBlock === previousBlock.data.id
-    const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp
-    const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1
+      nextBlock.data.previousBlock === previousBlock.data.id;
+    const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp;
+    const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1;
 
-    return followsPrevious && isFuture && isPlusOne
+    return followsPrevious && isFuture && isPlusOne;
   }
 
   /**
    * Register the block queue.
    * @return {void}
    */
-  __registerQueue() {
+  public __registerQueue() {
     this.queue = new Queue(this, {
-      process: 'PROCESSFINISHED',
-      rebuild: 'REBUILDFINISHED',
-    })
+      process: "PROCESSFINISHED",
+      rebuild: "REBUILDFINISHED",
+    });
 
-    this.processQueue = this.queue.process
-    this.rebuildQueue = this.queue.rebuild
+    this.processQueue = this.queue.process;
+    this.rebuildQueue = this.queue.rebuild;
   }
 }

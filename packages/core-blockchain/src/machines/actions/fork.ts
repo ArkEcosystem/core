@@ -1,15 +1,15 @@
-module.exports = {
-  initial: 'analysing',
+export default {
+  initial: "analysing",
   states: {
     analysing: {
-      onEntry: ['analyseFork'],
+      onEntry: ["analyseFork"],
       on: {
-        REBUILD: 'revertBlocks',
-        NOFORK: 'exit',
+        REBUILD: "revertBlocks",
+        NOFORK: "exit",
       },
     },
     network: {
-      onEntry: ['checkNetwork'],
+      onEntry: ["checkNetwork"],
       /* these transitions are not used yet (TODO?)
       on: {
         SUCCESS: 'blockchain',
@@ -19,10 +19,10 @@ module.exports = {
     },
     revertBlocks: {},
     exit: {
-      onEntry: ['forkRecovered'],
+      onEntry: ["forkRecovered"],
     },
   },
-}
+};
 
 // const fork = {
 //   initial: 'network',
