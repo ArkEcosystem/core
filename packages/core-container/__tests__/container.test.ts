@@ -9,7 +9,7 @@ beforeEach(async () => {
     "2.0.0",
     {
       data: "fake-path",
-      config: resolve(__dirname, "../../core/lib/config/testnet"),
+      config: resolve(__dirname, "../../core/src/config/testnet"),
       token: "ark",
       network: "testnet",
     },

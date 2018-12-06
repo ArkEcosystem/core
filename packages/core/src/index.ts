@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 
-const app = require('commander')
-const bip38 = require('bip38')
-const fs = require('fs')
-const wif = require('wif')
-const version = require('../package.json').version
+import app from 'commander'
+import bip38 from 'bip38'
+import fs from 'fs'
+import wif from 'wif'
+// import { version } from '../package.json'
+import { startRelay, startForger, startRelayAndForger } from './commands'
+
+// FIX: tsc copies src and package.json into the same directory
+const version = '2.0.11'
 
 app.version(version)
 
@@ -20,7 +24,7 @@ app
   .option('--network-start', 'force genesis network start', false)
   .option('--disable-discovery', 'disable any peer discovery')
   .option('--skip-discovery', 'skip the initial peer discovery')
-  .action(async (options) => require('../lib/start-relay-and-forger')(options, version))
+  .action(async (options) => startRelayAndForger(options, version))
 
 app
   .command('relay')
@@ -33,7 +37,7 @@ app
   .option('--network-start', 'force genesis network start', false)
   .option('--disable-discovery', 'disable any peer discovery')
   .option('--skip-discovery', 'skip the initial peer discovery')
-  .action(async (options) => require('../lib/start-relay')(options, version))
+  .action(async (options) => startRelay(options, version))
 
 app
   .command('forger')
@@ -44,7 +48,7 @@ app
   .option('-n, --network <network>', 'token network')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-p, --password <password>', 'forger password')
-  .action(async (options) => require('../lib/start-forger')(options, version))
+  .action(async (options) => startForger(options, version))
 
 app
   .command('forger-plain')

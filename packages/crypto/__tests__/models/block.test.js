@@ -183,7 +183,7 @@ describe('Models - Block', () => {
         ['devnet', 14492],
         ['testnet', 46488],
       ])('%s', (network, length) => {
-        const genesis = require(`@arkecosystem/core/lib/config/${network}/genesisBlock.json`)
+        const genesis = require(`@arkecosystem/core/src/config/${network}/genesisBlock.json`)
         const serialized = Block.serializeFull(genesis).toString('hex')
         const genesisBlock = new Block(Block.deserialize(serialized))
         expect(serialized).toHaveLength(length)

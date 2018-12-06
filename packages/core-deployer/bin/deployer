@@ -132,7 +132,7 @@ if (fs.existsSync(options.configPath)) {
 }
 fs.ensureDirSync(options.configPath)
 fs.copySync(
-  path.resolve(__dirname, `../../core/lib/config/${options.network}`),
+  path.resolve(__dirname, `../../core/src/config/${options.network}`),
   options.configPath,
 )
 const networkPath = path.resolve(

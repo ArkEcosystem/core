@@ -87,7 +87,7 @@ describe("Remote Loader", () => {
         .reply(() => [
           200,
           {
-            data: require("../../core/lib/config/devnet/genesisBlock.json"),
+            data: require("../../core/src/config/devnet/genesisBlock.json"),
           },
         ]);
 
@@ -118,7 +118,7 @@ describe("Remote Loader", () => {
       axiosMock.onGet("http://127.0.0.1:4002/config/peers").reply(() => [
         200,
         {
-          data: require("../../core/lib/config/devnet/peers.json"),
+          data: require("../../core/src/config/devnet/peers.json"),
         },
       ]);
 
@@ -149,7 +149,7 @@ describe("Remote Loader", () => {
       axiosMock.onGet("http://127.0.0.1:4002/config/delegates").reply(() => [
         200,
         {
-          data: require("../../core/lib/config/devnet/delegates.json"),
+          data: require("../../core/src/config/devnet/delegates.json"),
         },
       ]);
 
