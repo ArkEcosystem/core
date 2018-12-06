@@ -21,6 +21,8 @@ let guard;
 let transactionPool;
 
 beforeAll(async () => {
+  // FIX: resolve issue
+  // core-database: emitter => null
   container = await app.setUp();
   transactionPool = new TransactionPool(defaults);
   transactionPool.make();

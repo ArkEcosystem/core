@@ -14,6 +14,7 @@ class Network {
   public server: any;
 
   constructor() {
+    // FIX: resolve issue
     this.logger = app.resolvePlugin("logger");
     this.config = app.resolvePlugin("config");
     this.p2p = app.resolvePlugin("p2p");

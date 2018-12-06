@@ -22,6 +22,8 @@ let database;
 let connection;
 
 beforeAll(async () => {
+    // FIX: resolve issue
+    // core-database: emitter => null
     await appTest.setUp();
 
     config = container.resolvePlugin("config");
