@@ -1,5 +1,4 @@
-/* eslint no-await-in-loop: "off" */
-// tslint:disable:jsdoc-format max-line-length
+/* tslint:disable:jsdoc-format max-line-length */
 
 import { app } from "@arkecosystem/core-container";
 

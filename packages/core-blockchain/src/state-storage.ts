@@ -39,7 +39,7 @@ class StateStorage {
   public p2pUpdateCounter: number;
   public networkStart: boolean;
 
-constructor() {
+  constructor() {
     this.reset();
   }
 
@@ -152,7 +152,7 @@ constructor() {
    * @param {Number} start
    * @param {Number} end
    */
-  public getLastBlocksByHeight(start, end) {
+  public getLastBlocksByHeight(start, end?) {
     end = end || start;
 
     const blocks = _lastBlocks
@@ -251,7 +251,7 @@ constructor() {
     if (this.blockPing) {
       logger.info(
         `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
-          this.blockPing.count
+        this.blockPing.count
         } times`,
       );
     }

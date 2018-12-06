@@ -1,6 +1,4 @@
 /* tslint:disable:max-line-length */
-/* eslint no-await-in-loop: "off" */
-
 import { app } from "@arkecosystem/core-container";
 import { models, slots } from "@arkecosystem/crypto";
 
@@ -187,7 +185,7 @@ export class Blockchain {
     } else {
       logger.info(
         `Block disregarded because blockchain is ${
-          this.state.forked ? "forked" : "not ready"
+        this.state.forked ? "forked" : "not ready"
         } :exclamation:`,
       );
     }
@@ -517,7 +515,7 @@ export class Blockchain {
       } else {
         logger.info(
           `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
-            block.data.generatorPublicKey
+          block.data.generatorPublicKey
           } :bangbang:`,
         );
       }

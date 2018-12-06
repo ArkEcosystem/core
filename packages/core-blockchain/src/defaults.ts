@@ -1,4 +1,4 @@
-module.exports = {
+export const defaults = {
   fastRebuild: false,
   databaseRollback: {
     maxBlockRewind: 10000,
@@ -8,4 +8,4 @@ module.exports = {
     maxLastBlocks: 100,
     maxLastTransactionIds: 10000,
   },
-}
+};
