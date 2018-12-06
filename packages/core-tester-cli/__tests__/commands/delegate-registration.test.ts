@@ -1,6 +1,8 @@
-const axios = require('axios')
-const MockAdapter = require('axios-mock-adapter')
-const SecondSignatureCommand = require('../../lib/commands/second-signature')
+import "jest-extended";
+import axios from 'axios'
+import MockAdapter from 'axios-mock-adapter'
+import { DelegateRegistration } from '../../src/commands/delegate-registration'
+import superheroes from "superheroes";
 
 const mockAxios = new MockAdapter(axios)
 
@@ -24,21 +26,27 @@ afterEach(() => {
   mockAxios.reset()
 })
 
-describe('Commands - Second signature', () => {
+describe('Commands - Delegate Registration', () => {
   it('should be a function', () => {
-    expect(SecondSignatureCommand).toBeFunction()
+    expect(DelegateRegistration).toBeFunction()
   })
 
-  it('should apply second signature', async () => {
+  it('should register as delegate', async () => {
     const opts = {
       ...defaultOpts,
-      signatureFee: 1,
+      delegateFee: 1,
       number: 1,
     }
-    const command = await SecondSignatureCommand.init(opts)
-    mockAxios
-      .onPost('http://localhost:4003/api/v2/transactions')
-      .reply(200, { data: {} })
+    const command = await DelegateRegistration.init(opts)
+    const expectedDelegateName = 'mr_bojangles'
+    // call to delegates/{publicKey}/voters returns zero delegates
+    mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200, {
+      meta: { pageCount: 1 },
+      data: [],
+    })
+    jest
+      .spyOn(superheroes, 'random')
+      .mockImplementation(() => expectedDelegateName)
 
     await command.run()
 
@@ -48,10 +56,10 @@ describe('Commands - Second signature', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: SecondSignatureCommand.__arkToArktoshi(opts.signatureFee),
+            fee: DelegateRegistration.__arkToArktoshi(opts.delegateFee),
             asset: {
-              signature: {
-                publicKey: expect.any(String),
+              delegate: {
+                username: expectedDelegateName,
               },
             },
           }),

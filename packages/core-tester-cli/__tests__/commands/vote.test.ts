@@ -1,6 +1,7 @@
-const axios = require('axios')
-const MockAdapter = require('axios-mock-adapter')
-const VoteCommand = require('../../lib/commands/vote')
+import "jest-extended";
+import axios from 'axios'
+import MockAdapter from 'axios-mock-adapter'
+import { Vote } from '../../src/commands/vote'
 
 const mockAxios = new MockAdapter(axios)
 
@@ -28,7 +29,7 @@ afterAll(() => mockAxios.restore())
 
 describe('Commands - Vote', () => {
   it('should be a function', () => {
-    expect(VoteCommand).toBeFunction()
+    expect(Vote).toBeFunction()
   })
 
   it('should vote for specified delegate', async () => {
@@ -39,7 +40,7 @@ describe('Commands - Vote', () => {
       voteFee: 1,
       delegate: expectedDelegate,
     }
-    const command = await VoteCommand.init(opts)
+    const command = await Vote.init(opts)
     mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates.*/).reply(200)
     mockAxios
       .onPost('http://localhost:4003/api/v2/transactions')
@@ -53,7 +54,7 @@ describe('Commands - Vote', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: VoteCommand.__arkToArktoshi(opts.voteFee),
+            fee: Vote.__arkToArktoshi(opts.voteFee),
             asset: {
               votes: [`+${expectedDelegate}`],
             },
@@ -72,7 +73,7 @@ describe('Commands - Vote', () => {
       voteFee: 1,
       delegate: null,
     }
-    const command = await VoteCommand.init(opts)
+    const command = await Vote.init(opts)
     mockAxios
       .onPost('http://localhost:4003/api/v2/transactions')
       .reply(200, { data: {} })
@@ -93,7 +94,7 @@ describe('Commands - Vote', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: VoteCommand.__arkToArktoshi(opts.voteFee),
+            fee: Vote.__arkToArktoshi(opts.voteFee),
             asset: {
               votes: [`+${expectedDelegate}`],
             },

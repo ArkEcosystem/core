@@ -1,6 +1,7 @@
-const axios = require('axios')
-const MockAdapter = require('axios-mock-adapter')
-const TransferCommand = require('../../lib/commands/transfer')
+import "jest-extended";
+import axios from 'axios'
+import MockAdapter from 'axios-mock-adapter'
+import { Transfer } from '../../src/commands/transfer'
 
 const mockAxios = new MockAdapter(axios)
 
@@ -28,7 +29,7 @@ afterAll(() => mockAxios.restore())
 
 describe('Commands - Transfer', () => {
   it('should be a function', () => {
-    expect(TransferCommand).toBeFunction()
+    expect(Transfer).toBeFunction()
   })
 
   it('should postTransactions using custom smartBridge value', async () => {
@@ -43,7 +44,7 @@ describe('Commands - Transfer', () => {
       smartBridge: 'foo bar',
       recipient: expectedRecipientId,
     }
-    const command = await TransferCommand.init(opts)
+    const command = await Transfer.init(opts)
     mockAxios
       .onPost('http://localhost:4003/api/v2/transactions')
       .reply(200, { data: {} })
@@ -58,8 +59,8 @@ describe('Commands - Transfer', () => {
       expect.arrayContaining([
         expect.objectContaining({
           vendorField: 'foo bar',
-          amount: TransferCommand.__arkToArktoshi(expectedTransactionAmount),
-          fee: TransferCommand.__arkToArktoshi(expectedFee),
+          amount: Transfer.__arkToArktoshi(expectedTransactionAmount),
+          fee: Transfer.__arkToArktoshi(expectedFee),
           recipientId: expectedRecipientId,
         }),
       ]),
@@ -70,11 +71,11 @@ describe('Commands - Transfer', () => {
     const expectedTxCount = 5
     const opts = {
       ...defaultOpts,
-      amount: TransferCommand.__arkToArktoshi(2),
-      transferFee: TransferCommand.__arkToArktoshi(0.1),
+      amount: Transfer.__arkToArktoshi(2),
+      transferFee: Transfer.__arkToArktoshi(0.1),
       number: expectedTxCount,
     }
-    const command = await TransferCommand.init(opts)
+    const command = await Transfer.init(opts)
     mockAxios
       .onPost('http://localhost:4003/api/v2/transactions')
       .reply(200, { data: {} })
@@ -98,12 +99,12 @@ describe('Commands - Transfer', () => {
     const expectedRecipientId = 'DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq'
     const opts = {
       ...defaultOpts,
-      amount: TransferCommand.__arkToArktoshi(2),
-      transferFee: TransferCommand.__arkToArktoshi(0.1),
+      amount: Transfer.__arkToArktoshi(2),
+      transferFee: Transfer.__arkToArktoshi(0.1),
       number: expectedTxCount,
       recipient: expectedRecipientId,
     }
-    const command = await TransferCommand.init(opts)
+    const command = await Transfer.init(opts)
     mockAxios
       .onPost('http://localhost:4003/api/v2/transactions')
       .reply(200, { data: {} })
@@ -121,8 +122,8 @@ describe('Commands - Transfer', () => {
   })
 
   it('should sign with 2nd passphrase if specified', async () => {
-    const expectedTransactionAmount = TransferCommand.__arkToArktoshi(2)
-    const expectedFee = TransferCommand.__arkToArktoshi(0.1)
+    const expectedTransactionAmount = Transfer.__arkToArktoshi(2)
+    const expectedFee = Transfer.__arkToArktoshi(0.1)
     const opts = {
       ...defaultOpts,
       amount: expectedTransactionAmount,
@@ -130,7 +131,7 @@ describe('Commands - Transfer', () => {
       number: 1,
       secondPassphrase: 'she sells sea shells down by the sea shore',
     }
-    const command = await TransferCommand.init(opts)
+    const command = await Transfer.init(opts)
     mockAxios
       .onPost('http://localhost:4003/api/v2/transactions')
       .reply(200, { data: {} })

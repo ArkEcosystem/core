@@ -1,4 +1,5 @@
-const config = require('../../lib/config')
+import "jest-extended";
+import { config } from '../src/config'
 
 describe('Config', () => {
   it('should be an object', () => {

@@ -1,7 +1,7 @@
-const axios = require('axios')
-const MockAdapter = require('axios-mock-adapter')
-const superheroes = require('superheroes')
-const DelegateRegistrationCommand = require('../../lib/commands/delegate-registration')
+import "jest-extended";
+import axios from 'axios'
+import MockAdapter from 'axios-mock-adapter'
+import { SecondSignature } from '../../src/commands/second-signature'
 
 const mockAxios = new MockAdapter(axios)
 
@@ -25,27 +25,21 @@ afterEach(() => {
   mockAxios.reset()
 })
 
-describe('Commands - Delegate Registration', () => {
+describe('Commands - Second signature', () => {
   it('should be a function', () => {
-    expect(DelegateRegistrationCommand).toBeFunction()
+    expect(SecondSignature).toBeFunction()
   })
 
-  it('should register as delegate', async () => {
+  it('should apply second signature', async () => {
     const opts = {
       ...defaultOpts,
-      delegateFee: 1,
+      signatureFee: 1,
       number: 1,
     }
-    const command = await DelegateRegistrationCommand.init(opts)
-    const expectedDelegateName = 'mr_bojangles'
-    // call to delegates/{publicKey}/voters returns zero delegates
-    mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200, {
-      meta: { pageCount: 1 },
-      data: [],
-    })
-    jest
-      .spyOn(superheroes, 'random')
-      .mockImplementation(() => expectedDelegateName)
+    const command = await SecondSignature.init(opts)
+    mockAxios
+      .onPost('http://localhost:4003/api/v2/transactions')
+      .reply(200, { data: {} })
 
     await command.run()
 
@@ -55,10 +49,10 @@ describe('Commands - Delegate Registration', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: DelegateRegistrationCommand.__arkToArktoshi(opts.delegateFee),
+            fee: SecondSignature.__arkToArktoshi(opts.signatureFee),
             asset: {
-              delegate: {
-                username: expectedDelegateName,
+              signature: {
+                publicKey: expect.any(String),
               },
             },
           }),
