@@ -4,11 +4,9 @@ import app from 'commander'
 import bip38 from 'bip38'
 import fs from 'fs'
 import wif from 'wif'
-// import { version } from '../package.json'
 import { startRelay, startForger, startRelayAndForger } from './commands'
 
-// FIX: tsc copies src and package.json into the same directory
-const version = '2.0.11'
+const { version } = require('../package.json')
 
 app.version(version)
 

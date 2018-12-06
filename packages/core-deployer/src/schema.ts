@@ -1,6 +1,6 @@
-const Joi = require('joi')
+import Joi from "joi";
 
-module.exports = Joi.object().keys({
+export const schema = Joi.object().keys({
   network: Joi.string().required(),
   name: Joi.string().required(),
   nodeIp: Joi.string().required(),
@@ -12,7 +12,7 @@ module.exports = Joi.object().keys({
   dbPassword: Joi.string().required(),
   dbDatabase: Joi.string().required(),
   explorerUrl: Joi.string()
-    .uri({ scheme: ['http', 'https'] })
+    .uri({ scheme: ["http", "https"] })
     .required(),
   activeDelegates: Joi.number().required(),
   feeTransfer: Joi.number().required(),
@@ -42,4 +42,4 @@ module.exports = Joi.object().keys({
     .required(),
   totalPremine: Joi.number().required(),
   configPath: Joi.string().required(),
-})
+});
