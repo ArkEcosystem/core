@@ -50,7 +50,30 @@ describe('SecondSignatureHandler', () => {
     it('should be true', () => {
       wallet.secondPublicKey = null
 
-      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
+      expect(
+        handler.canApply(
+          wallet,
+          {
+            version: 1,
+            id:
+              '5823017492ceedff074806baaa98034703242277af03822c96f1831b84e646e4',
+            blockid: '18049953523739571613',
+            type: 0,
+            timestamp: 36350726,
+            amount: new Bignum(5000000000),
+            fee: new Bignum(10000000),
+            senderId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
+            recipientId: 'D92qxqLRYwTannfANNGFm138WTrhsq9RVi',
+            senderPublicKey:
+              '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
+            signature:
+              '3044022071d48f273ac2181dc03cdd9326bb93bc8260966089b6548b32ba9bcb3cc0912302205b9dbc037c789576728ae7ab80f050c697c7aa00ad98d11086353c7d03f9f013', // eslint-disable-line max-len
+            asset: {},
+            confirmations: 19620,
+          },
+          [],
+        ),
+      ).toBeTrue()
     })
 
     it('should be false if wallet already has a second signature', () => {
