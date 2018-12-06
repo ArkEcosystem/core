@@ -23,36 +23,45 @@ module.exports = class Handler {
         errors.push('Failed to verify multi-signatures')
         return false
       }
-    } else {
-      const balance = +wallet.balance
-        .minus(transaction.amount)
-        .minus(transaction.fee)
-        .toFixed()
-      if (balance < 0) {
-        errors.push('Insufficient balance in the wallet')
-        return false
-      }
-      if (
-        !(
-          transaction.senderPublicKey.toLowerCase() ===
-          wallet.publicKey.toLowerCase()
-        )
-      ) {
-        errors.push(
-          'wallet "publicKey" does not match transaction "senderPublicKey"',
-        )
-        return false
-      }
-
-      // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
-      if (
-        wallet.secondPublicKey &&
-        !crypto.verifySecondSignature(transaction, wallet.secondPublicKey)
-      ) {
-        errors.push('Failed to verify second-signature')
-        return false
-      }
     }
+
+    const balance = +wallet.balance
+      .minus(transaction.amount)
+      .minus(transaction.fee)
+      .toFixed()
+    if (balance < 0) {
+      errors.push('Insufficient balance in the wallet')
+      return false
+    }
+    if (
+      !(
+        transaction.senderPublicKey.toLowerCase() ===
+        wallet.publicKey.toLowerCase()
+      )
+    ) {
+      errors.push(
+        'wallet "publicKey" does not match transaction "senderPublicKey"',
+      )
+      return false
+    }
+
+    if (
+      !wallet.secondPublicKey &&
+      (transaction.secondSignature || transaction.signSignature)
+    ) {
+      errors.push('Invalid second-signature field')
+      return false
+    }
+
+    // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
+    if (
+      wallet.secondPublicKey &&
+      !crypto.verifySecondSignature(transaction, wallet.secondPublicKey)
+    ) {
+      errors.push('Failed to verify second-signature')
+      return false
+    }
+
     return true
   }
 
