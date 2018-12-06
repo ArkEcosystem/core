@@ -1,13 +1,15 @@
-const fs = require('fs-extra')
-const loget = require('lodash/get')
+import { ensureFileSync, existsSync, readFileSync, writeFileSync } from "fs-extra";
+import get from "lodash/get";
 
 class Storage {
+  private base: string;
+
   /**
    * Create a new storage instance.
    * @return {void}
    */
   constructor() {
-    this.base = `${process.env.ARK_PATH_DATA}/plugins/core-elasticsearch`
+    this.base = `${process.env.ARK_PATH_DATA}/plugins/core-elasticsearch`;
   }
 
   /**
@@ -15,10 +17,12 @@ class Storage {
    * @param  {String} file
    * @return {Object}
    */
-  read(file) {
-    return this.exists(file)
-      ? JSON.parse(fs.readFileSync(`${this.base}/${file}.json`))
-      : {}
+  public read(file) {
+    if (!this.exists(file)) {
+      return {}
+    }
+
+    return JSON.parse(readFileSync(`${this.base}/${file}.json`).toString())
   }
 
   /**
@@ -27,10 +31,10 @@ class Storage {
    * @param  {Object} data
    * @return {void}
    */
-  write(file, data) {
-    fs.ensureFileSync(`${this.base}/${file}.json`)
+  public write(file, data) {
+    ensureFileSync(`${this.base}/${file}.json`);
 
-    fs.writeFileSync(`${this.base}/${file}.json`, JSON.stringify(data, null, 2))
+    writeFileSync(`${this.base}/${file}.json`, JSON.stringify(data, null, 2));
   }
 
   /**
@@ -39,12 +43,12 @@ class Storage {
    * @param  {Object} data
    * @return {void}
    */
-  update(file, data) {
-    fs.ensureFileSync(`${this.base}/${file}.json`)
+  public update(file, data) {
+    ensureFileSync(`${this.base}/${file}.json`);
 
-    data = Object.assign(this.read(file), data)
+    data = Object.assign(this.read(file), data);
 
-    fs.writeFileSync(`${this.base}/${file}.json`, JSON.stringify(data, null, 2))
+    writeFileSync(`${this.base}/${file}.json`, JSON.stringify(data, null, 2));
   }
 
   /**
@@ -53,11 +57,11 @@ class Storage {
    * @param  {Object} data
    * @return {void}
    */
-  ensure(file) {
+  public ensure(file) {
     if (!this.exists(file)) {
-      fs.ensureFileSync(`${this.base}/${file}.json`)
+      ensureFileSync(`${this.base}/${file}.json`);
 
-      fs.writeFileSync(
+      writeFileSync(
         `${this.base}/${file}.json`,
         JSON.stringify(
           {
@@ -68,7 +72,7 @@ class Storage {
           null,
           2,
         ),
-      )
+      );
     }
   }
 
@@ -77,8 +81,8 @@ class Storage {
    * @param  {String} file
    * @return {Boolean}
    */
-  exists(file) {
-    return fs.existsSync(`${this.base}/${file}.json`)
+  public exists(file) {
+    return existsSync(`${this.base}/${file}.json`);
   }
 
   /**
@@ -88,9 +92,9 @@ class Storage {
    * @param  {*} key
    * @return {*}
    */
-  get(file, key, defaultValue = null) {
-    return loget(this.read(file), key, defaultValue)
+  public get(file, key, defaultValue = null) {
+    return get(this.read(file), key, defaultValue);
   }
 }
 
-module.exports = new Storage()
+export const storage = new Storage();

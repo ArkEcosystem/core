@@ -1,20 +1,22 @@
-const elasticsearch = require('elasticsearch')
+import elasticsearch from "elasticsearch";
 
 class Client {
+  private client: elasticsearch.Client;
+
   /**
    * Create a new client instance.
    * @param {Object} options
    */
-  async setUp(options) {
-    this.client = new elasticsearch.Client(options)
+  public async setUp(options) {
+    this.client = new elasticsearch.Client(options);
   }
 
   /**
    * Get the elasticsearch client.
    * @return {elasticsearch.Client}
    */
-  async getClient() {
-    return this.client
+  public async getClient() {
+    return this.client;
   }
 
   /**
@@ -22,8 +24,8 @@ class Client {
    * @param  {Object} body
    * @return {Promise}
    */
-  async bulk(body) {
-    return this.client.bulk({ body })
+  public async bulk(body) {
+    return this.client.bulk({ body });
   }
 
   /**
@@ -31,8 +33,8 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async count(params) {
-    return this.client.count(params)
+  public async count(params) {
+    return this.client.count(params);
   }
 
   /**
@@ -40,8 +42,8 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async search(params) {
-    return this.client.search(params)
+  public async search(params) {
+    return this.client.search(params);
   }
 
   /**
@@ -49,8 +51,8 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async create(params) {
-    return this.client.create(params)
+  public async create(params) {
+    return this.client.create(params);
   }
 
   /**
@@ -58,8 +60,8 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async update(params) {
-    return this.client.update(params)
+  public async update(params) {
+    return this.client.update(params);
   }
 
   /**
@@ -67,8 +69,8 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async delete(params) {
-    return this.client.delete(params)
+  public async delete(params) {
+    return this.client.delete(params);
   }
 
   /**
@@ -76,9 +78,9 @@ class Client {
    * @param  {Object} params
    * @return {Promise}
    */
-  async exists(params) {
-    return this.client.exists(params)
+  public async exists(params) {
+    return this.client.exists(params);
   }
 }
 
-module.exports = new Client()
+export const client = new Client();

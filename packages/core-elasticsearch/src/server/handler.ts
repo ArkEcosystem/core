@@ -1,5 +1,5 @@
-const Joi = require('joi')
-const client = require('../services/client')
+const Joi = require("joi");
+import { client } from "../services/client";
 
 /**
  * @type {Object}
@@ -11,14 +11,14 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler(request, h) {
-    const query = await client.search(request.payload)
+    const query = await client.search(request.payload);
 
     return {
       meta: {
         count: query.hits.total,
       },
-      data: query.hits.hits.map(result => result._source),
-    }
+      data: query.hits.hits.map((result) => result._source),
+    };
   },
   options: {
     validate: {
@@ -65,4 +65,4 @@ exports.index = {
       },
     },
   },
-}
+};
