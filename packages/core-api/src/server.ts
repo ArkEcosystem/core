@@ -3,7 +3,7 @@ import {
   createSecureServer,
   createServer,
   mountServer,
-  plugins,
+  plugins
 } from "@arkecosystem/core-http-utils";
 import Hapi from "hapi";
 
@@ -25,14 +25,14 @@ export default class Server {
       port: this.config.port,
       routes: {
         cors: {
-          additionalHeaders: ["api-version"],
+          additionalHeaders: ["api-version"]
         },
         validate: {
           async failAction(request, h, err) {
             throw err;
-          },
-        },
-      },
+          }
+        }
+      }
     };
 
     if (this.config.enabled) {
@@ -74,65 +74,83 @@ export default class Server {
     return this[type];
   }
 
-  private async registerPlugins(name: string, server: Hapi.Server): Promise<void> {
+  private async registerPlugins(
+    name: string,
+    server: Hapi.Server
+  ): Promise<void> {
+    // TODO: enable after mainnet migration
+    // await server.register({ plugin: plugins.contentType })
+
     await server.register({
-      plugin: plugins.corsHeaders,
+      plugin: plugins.corsHeaders
+    });
+
+    await server.register({
+      plugin: plugins.transactionPayload,
+      options: {
+        routes: [
+          {
+            method: "POST",
+            path: "/api/v2/transactions"
+          }
+        ]
+      }
     });
 
     await server.register({
       plugin: plugins.whitelist,
       options: {
         whitelist: this.config.whitelist,
-        name: "Public API",
-      },
+        name: "Public API"
+      }
     });
 
     await server.register({
-      plugin: require("./plugins/set-headers"),
+      plugin: require("./plugins/set-headers")
     });
 
     await server.register({
       plugin: require("hapi-api-version"),
-      options: this.config.versions,
+      options: this.config.versions
     });
 
     await server.register({
       plugin: require("./plugins/endpoint-version"),
-      options: { validVersions: this.config.versions.validVersions },
+      options: { validVersions: this.config.versions.validVersions }
     });
 
     await server.register({
-      plugin: require("./plugins/caster"),
+      plugin: require("./plugins/caster")
     });
 
     await server.register({
-      plugin: require("./plugins/validation"),
+      plugin: require("./plugins/validation")
     });
 
     await server.register({
       plugin: require("hapi-rate-limit"),
-      options: this.config.rateLimit,
+      options: this.config.rateLimit
     });
 
     await server.register({
       plugin: require("hapi-pagination"),
       options: {
         meta: {
-          baseUri: "",
+          baseUri: ""
         },
         query: {
           limit: {
-            default: this.config.pagination.limit,
-          },
+            default: this.config.pagination.limit
+          }
         },
         results: {
-          name: "data",
+          name: "data"
         },
         routes: {
           include: this.config.pagination.include,
-          exclude: ["*"],
-        },
-      },
+          exclude: ["*"]
+        }
+      }
     });
 
     for (const plugin of this.config.plugins) {

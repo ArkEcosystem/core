@@ -1,23 +1,23 @@
-import 'jest-extended'
-import '@arkecosystem/core-test-utils/lib/matchers'
+import "jest-extended";
+import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
-import utils from '../utils'
+import utils from "../utils";
 
 beforeAll(async () => {
-  await setUp()
-})
+  await setUp();
+});
 
 afterAll(async () => {
-  await tearDown()
-})
+  await tearDown();
+});
 
-describe('API 1.0 - Signatures', () => {
-  describe('GET /signatures/fee', () => {
-    it('should return second signature value from config', async () => {
-      const response = await utils.request('GET', 'signatures/fee')
-      expect(response).toBeSuccessfulResponse()
+describe("API 1.0 - Signatures", () => {
+  describe("GET /signatures/fee", () => {
+    it("should return second signature value from config", async () => {
+      const response = await utils.request("GET", "signatures/fee");
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.fee).toBeNumber()
-    })
-  })
-})
+      expect(response.data.fee).toBeNumber();
+    });
+  });
+});

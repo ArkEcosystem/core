@@ -12,6 +12,7 @@ export default function(model) {
   return {
     id: data.id,
     blockId: model.blockId,
+    version: data.version,
     type: data.type,
     amount: +bignumify(data.amount).toFixed(),
     fee: +bignumify(data.fee).toFixed(),
@@ -23,6 +24,6 @@ export default function(model) {
     vendorField: data.vendorField,
     asset: data.asset,
     confirmations: model.block ? lastBlock.data.height - model.block.height : 0,
-    timestamp: formatTimestamp(data.timestamp),
+    timestamp: formatTimestamp(data.timestamp)
   };
 }

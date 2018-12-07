@@ -1,18 +1,15 @@
+import { setUpContainer } from "../../../core-test-utils/src/helpers/container";
 import { app } from "@arkecosystem/core-container";
-import appHelper from "@arkecosystem/core-test-utils/lib/helpers/container";
 
-import activeDelegates from "@arkecosystem/core-test-utils/fixtures/testnet/delegates";
+import { delegates } from "../../../core-test-utils/src/fixtures/testnet/delegates";
 import { generateRound } from "./utils/generate-round";
 
-const round = generateRound(
-  activeDelegates.map((delegate) => delegate.publicKey),
-  1,
-);
+const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
 
 async function setUp() {
   jest.setTimeout(60000);
 
-  await appHelper.setUp({});
+  await setUpContainer({});
 
   const connection = app.resolvePlugin("database");
   await connection.db.rounds.truncate();
@@ -22,7 +19,7 @@ async function setUp() {
 }
 
 async function tearDown() {
-  await tearDown();
+  await app.tearDown();
 }
 
 export { setUp, tearDown };

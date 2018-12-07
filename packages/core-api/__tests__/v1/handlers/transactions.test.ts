@@ -1,291 +1,293 @@
-import 'jest-extended'
-import '@arkecosystem/core-test-utils/lib/matchers'
+import "jest-extended";
+import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
-import utils from '../utils'
+import utils from "../utils";
+import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
-const address1 = 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
-const address2 = 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri'
+const address1 = "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn";
+const address2 = "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri";
 
-let genesisBlock
-let transactionList
+let transactionList;
 
 beforeAll(async () => {
-  await setUp()
+  await setUp();
 
-  // Create the genesis block after the setup has finished or else it uses a potentially
-  // wrong network config.
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
-  transactionList = genesisBlock.transactions
-})
+  transactionList = genesisBlock.transactions;
+});
 
 afterAll(async () => {
-  await tearDown()
-})
+  await tearDown();
+});
 
-describe('API 1.0 - Transactions', () => {
-  describe('GET /transactions', () => {
-    it('should be ok using valid parameters', async () => {
+describe("API 1.0 - Transactions", () => {
+  describe("GET /transactions", () => {
+    it("should be ok using valid parameters", async () => {
       const data = {
-        blockId: '17184958558311101492',
+        blockId: "17184958558311101492",
         senderId: address1,
         recipientId: address2,
         limit: 10,
         offset: 0,
-        orderBy: 'amount:asc',
-      }
+        orderBy: "amount:asc"
+      };
 
-      const response = await utils.request('GET', 'transactions', data)
-      expect(response).toBeSuccessfulResponse()
+      const response = await utils.request("GET", "transactions", data);
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.transactions).toBeArray()
-      expect(response.data.transactions).not.toBeEmpty()
+      expect(response.data.transactions).toBeArray();
+      expect(response.data.transactions).not.toBeEmpty();
 
       response.data.transactions.forEach(transaction => {
-        expect(transaction).toBeApiTransaction()
-      })
-    })
+        expect(transaction).toBeApiTransaction();
+      });
+    });
 
-    it('should reply with transactions that have any of the values (OR)', async () => {
+    it("should reply with transactions that have any of the values (OR)", async () => {
       const data = {
         senderId: address1,
-        recipientId: address2,
-      }
+        recipientId: address2
+      };
 
-      const response = await utils.request('GET', 'transactions', data)
-      expect(response).toBeSuccessfulResponse()
+      const response = await utils.request("GET", "transactions", data);
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.transactions).toBeArray()
-      expect(response.data.transactions).not.toBeEmpty()
+      expect(response.data.transactions).toBeArray();
+      expect(response.data.transactions).not.toBeEmpty();
 
       response.data.transactions.forEach(transaction => {
-        expect(transaction).toBeApiTransaction()
+        expect(transaction).toBeApiTransaction();
         if (transaction.senderId === data.senderId) {
-          expect(transaction.senderId).toBe(data.senderId)
+          expect(transaction.senderId).toBe(data.senderId);
         } else {
-          expect(transaction.recipientId).toBe(data.recipientId)
+          expect(transaction.recipientId).toBe(data.recipientId);
         }
-      })
-    })
+      });
+    });
 
-    it('should be ok filtering by type', async () => {
-      const type = 3
+    it("should be ok filtering by type", async () => {
+      const type = 3;
 
-      const response = await utils.request('GET', 'transactions', { type })
-      expect(response).toBeSuccessfulResponse()
+      const response = await utils.request("GET", "transactions", { type });
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.transactions).toBeArray()
-      expect(response.data.transactions).not.toBeEmpty()
-
-      response.data.transactions.forEach(transaction => {
-        expect(transaction).toBeApiTransaction()
-        expect(transaction.type).toBe(type)
-      })
-    })
-
-    it('should be ok using no params', async () => {
-      const response = await utils.request('GET', 'transactions')
-      expect(response).toBeSuccessfulResponse()
-
-      expect(response.data.transactions).toBeArray()
-      expect(response.data.transactions).not.toBeEmpty()
+      expect(response.data.transactions).toBeArray();
+      expect(response.data.transactions).not.toBeEmpty();
 
       response.data.transactions.forEach(transaction => {
-        expect(transaction).toBeApiTransaction()
-      })
-    })
+        expect(transaction).toBeApiTransaction();
+        expect(transaction.type).toBe(type);
+      });
+    });
+
+    it("should be ok using no params", async () => {
+      const response = await utils.request("GET", "transactions");
+      expect(response).toBeSuccessfulResponse();
+
+      expect(response.data.transactions).toBeArray();
+      expect(response.data.transactions).not.toBeEmpty();
+
+      response.data.transactions.forEach(transaction => {
+        expect(transaction).toBeApiTransaction();
+      });
+    });
 
     // fixquery
     // http://localhost:4003/api/transactions?orderBy=timestamp:desc&offset=0&limit=50&recipientId=ANwZGjK55pe4xSWfnggt324S9XKY3TSwAr&senderId=ANwZGjK55pe4xSWfnggt324S9XKY3TSwAr
 
-    it('should fail using limit > 100', async () => {
-      const limit = 101
+    it("should fail using limit > 100", async () => {
+      const limit = 101;
 
-      const response = await utils.request('GET', 'transactions', { limit })
-      utils.expectError(response)
+      const response = await utils.request("GET", "transactions", { limit });
+      utils.expectError(response);
 
-      expect(response.data.error).toBeString()
-    })
+      expect(response.data.error).toBeString();
+    });
 
-    it('should be ok ordered by ascending timestamp', async () => {
-      const response = await utils.request('GET', 'transactions', {
-        orderBy: 'timestamp:asc',
-      })
-      expect(response).toBeSuccessfulResponse()
+    it("should be ok ordered by ascending timestamp", async () => {
+      const response = await utils.request("GET", "transactions", {
+        orderBy: "timestamp:asc"
+      });
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.transactions).toBeArray()
-      expect(response.data.transactions).not.toBeEmpty()
+      expect(response.data.transactions).toBeArray();
+      expect(response.data.transactions).not.toBeEmpty();
 
       response.data.transactions.forEach(transaction => {
-        expect(transaction).toBeApiTransaction()
-      })
+        expect(transaction).toBeApiTransaction();
+      });
 
-      let flag = 0
+      let flag = 0;
       for (let i = 0; i < response.data.transactions.length; i++) {
         if (response.data.transactions[i + 1]) {
           // await response.data.transactions[i].toHaveProperty('timestamp').which.is.at.most(response.data.transactions[i + 1].timestamp)
-          expect(response.data.transactions[i]).toHaveProperty('timestamp')
+          expect(response.data.transactions[i]).toHaveProperty("timestamp");
 
           if (flag === 0) {
             // offsetTimestamp = response.data.transactions[i + 1].timestamp
-            flag = 1
+            flag = 1;
           }
         }
       }
-    })
+    });
 
-    it('should be ok using offset == 1', async () => {
-      const response = await utils.request('GET', 'transactions', { offset: 1 })
-      expect(response).toBeSuccessfulResponse()
+    it("should be ok using offset == 1", async () => {
+      const response = await utils.request("GET", "transactions", {
+        offset: 1
+      });
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.transactions).toBeArray()
-      expect(response.data.transactions).not.toBeEmpty()
+      expect(response.data.transactions).toBeArray();
+      expect(response.data.transactions).not.toBeEmpty();
 
       response.data.transactions.forEach(transaction => {
-        expect(transaction).toBeApiTransaction()
-      })
-    })
+        expect(transaction).toBeApiTransaction();
+      });
+    });
 
     it('should fail using offset == "one"', async () => {
-      const response = await utils.request('GET', 'transactions', {
-        offset: 'one',
-      })
-      utils.expectError(response)
+      const response = await utils.request("GET", "transactions", {
+        offset: "one"
+      });
+      utils.expectError(response);
 
-      expect(response.data.error).toBeString()
-    })
+      expect(response.data.error).toBeString();
+    });
 
-    it('should fail using completely invalid fields', async () => {
-      const response = await utils.request('GET', 'transactions', {
-        blockId: 'invalid',
-        senderId: 'invalid',
-        recipientId: 'invalid',
-        limit: 'invalid',
-        offset: 'invalid',
-        orderBy: 'invalid',
-      })
-      utils.expectError(response)
+    it("should fail using completely invalid fields", async () => {
+      const response = await utils.request("GET", "transactions", {
+        blockId: "invalid",
+        senderId: "invalid",
+        recipientId: "invalid",
+        limit: "invalid",
+        offset: "invalid",
+        orderBy: "invalid"
+      });
+      utils.expectError(response);
 
-      expect(response.data.error).toBeString()
-    })
+      expect(response.data.error).toBeString();
+    });
 
-    it('should fail using partially invalid fields', async () => {
-      const response = await utils.request('GET', 'transactions', {
-        blockId: 'invalid',
-        senderId: 'invalid',
+    it("should fail using partially invalid fields", async () => {
+      const response = await utils.request("GET", "transactions", {
+        blockId: "invalid",
+        senderId: "invalid",
         recipientId: address1,
-        limit: 'invalid',
-        offset: 'invalid',
-        orderBy: 'invalid',
-      })
-      utils.expectError(response)
+        limit: "invalid",
+        offset: "invalid",
+        orderBy: "invalid"
+      });
+      utils.expectError(response);
 
-      expect(response.data.error).toBeString()
-    })
-  })
+      expect(response.data.error).toBeString();
+    });
+  });
 
-  describe('GET /transactions/get?id=', () => {
-    it('should be ok using valid id', async () => {
-      const transactionInCheck = transactionList[0]
-      const response = await utils.request('GET', 'transactions/get', {
-        id: transactionInCheck.id,
-      })
+  describe("GET /transactions/get?id=", () => {
+    it("should be ok using valid id", async () => {
+      const transactionInCheck = transactionList[0];
+      const response = await utils.request("GET", "transactions/get", {
+        id: transactionInCheck.id
+      });
 
-      expect(response).toBeSuccessfulResponse()
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.transaction).toBeApiTransaction()
+      expect(response.data.transaction).toBeApiTransaction();
 
       expect(response.data.transaction).toHaveProperty(
-        'id',
-        transactionInCheck.id,
-      )
+        "id",
+        transactionInCheck.id
+      );
       expect(response.data.transaction).toHaveProperty(
-        'amount',
-        transactionInCheck.amount,
-      )
+        "amount",
+        transactionInCheck.amount
+      );
       expect(response.data.transaction).toHaveProperty(
-        'fee',
-        transactionInCheck.fee,
-      )
+        "fee",
+        transactionInCheck.fee
+      );
       expect(response.data.transaction).toHaveProperty(
-        'recipientId',
-        transactionInCheck.recipientId,
-      )
+        "recipientId",
+        transactionInCheck.recipientId
+      );
       expect(response.data.transaction).toHaveProperty(
-        'senderId',
-        transactionInCheck.senderId,
-      )
+        "senderId",
+        transactionInCheck.senderId
+      );
       expect(response.data.transaction).toHaveProperty(
-        'type',
-        transactionInCheck.type,
-      )
-    })
+        "type",
+        transactionInCheck.type
+      );
+    });
 
-    it('should fail using invalid id', async () => {
-      const response = await utils.request('GET', 'transactions/get', {
-        id: 'invalid',
-      })
+    it("should fail using invalid id", async () => {
+      const response = await utils.request("GET", "transactions/get", {
+        id: "invalid"
+      });
 
-      utils.expectError(response)
+      utils.expectError(response);
 
-      expect(response.data.error).toBeString()
-    })
-  })
+      expect(response.data.error).toBeString();
+    });
+  });
 
-  describe('GET /transactions/unconfirmed/get?id=', () => {
-    it('should be ok using valid id', async () => {
-      const transaction = await utils.createTransaction()
+  describe("GET /transactions/unconfirmed/get?id=", () => {
+    it("should be ok using valid id", async () => {
+      const transaction = await utils.createTransaction();
 
       const response = await utils.request(
-        'GET',
-        'transactions/unconfirmed/get',
-        { id: transaction.id },
-      )
-      expect(response).toBeSuccessfulResponse()
+        "GET",
+        "transactions/unconfirmed/get",
+        { id: transaction.id }
+      );
+      expect(response).toBeSuccessfulResponse();
 
       if (response.data.success && response.data.transaction !== null) {
-        expect(response.data.transaction).toBeObject()
-        expect(response.data.transaction).toHaveProperty('id', transaction.id)
+        expect(response.data.transaction).toBeObject();
+        expect(response.data.transaction).toHaveProperty("id", transaction.id);
         expect(response.data.transaction).toHaveProperty(
-          'type',
-          transaction.type,
-        )
+          "type",
+          transaction.type
+        );
         expect(response.data.transaction).toHaveProperty(
-          'amount',
-          transaction.amount,
-        )
-        expect(response.data.transaction).toHaveProperty('fee', transaction.fee)
+          "amount",
+          transaction.amount
+        );
         expect(response.data.transaction).toHaveProperty(
-          'recipientId',
-          transaction.recipientId,
-        )
+          "fee",
+          transaction.fee
+        );
         expect(response.data.transaction).toHaveProperty(
-          'senderPublicKey',
-          transaction.senderPublicKey,
-        )
+          "recipientId",
+          transaction.recipientId
+        );
         expect(response.data.transaction).toHaveProperty(
-          'signature',
-          transaction.signature,
-        )
+          "senderPublicKey",
+          transaction.senderPublicKey
+        );
         expect(response.data.transaction).toHaveProperty(
-          'timestamp',
-          transaction.timestamp,
-        )
+          "signature",
+          transaction.signature
+        );
         expect(response.data.transaction).toHaveProperty(
-          'vendorField',
-          transaction.vendorField,
-        )
+          "timestamp",
+          transaction.timestamp
+        );
+        expect(response.data.transaction).toHaveProperty(
+          "vendorField",
+          transaction.vendorField
+        );
       } else {
-        expect(response.data.error).toBeString()
+        expect(response.data.error).toBeString();
       }
-    })
-  })
+    });
+  });
 
-  describe('GET /transactions/unconfirmed', () => {
-    it('should be ok', async () => {
-      const response = await utils.request('GET', 'transactions/unconfirmed')
-      expect(response).toBeSuccessfulResponse()
+  describe("GET /transactions/unconfirmed", () => {
+    it("should be ok", async () => {
+      const response = await utils.request("GET", "transactions/unconfirmed");
+      expect(response).toBeSuccessfulResponse();
 
-      expect(response.data.transactions).toBeArray()
-    })
-  })
-})
+      expect(response.data.transactions).toBeArray();
+    });
+  });
+});

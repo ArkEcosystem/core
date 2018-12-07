@@ -40,40 +40,38 @@ export const index: object = {
       fee: Joi.number()
         .integer()
         .min(0),
-      vendorFieldHex: Joi.string().hex(),
-    },
-  },
+      vendorFieldHex: Joi.string().hex()
+    }
+  }
 };
 
 export const store: object = {
   payload: {
     transactions: Joi.arkTransactions()
       .min(1)
-      .max(
-        app.resolveOptions("transactionPool").maxTransactionsPerRequest,
-      )
-      .options({ stripUnknown: true }),
-  },
+      .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
+      .options({ stripUnknown: true })
+  }
 };
 
 export const show: object = {
   params: {
     id: Joi.string()
       .hex()
-      .length(64),
-  },
+      .length(64)
+  }
 };
 
 export const unconfirmed: object = {
-  query: Pagination,
+  query: Pagination
 };
 
 export const showUnconfirmed: object = {
   params: {
     id: Joi.string()
       .hex()
-      .length(64),
-  },
+      .length(64)
+  }
 };
 
 export const search: object = {
@@ -109,7 +107,7 @@ export const search: object = {
         .min(0),
       to: Joi.number()
         .integer()
-        .min(0),
+        .min(0)
     }),
     amount: Joi.object().keys({
       from: Joi.number()
@@ -117,7 +115,7 @@ export const search: object = {
         .min(0),
       to: Joi.number()
         .integer()
-        .min(0),
+        .min(0)
     }),
     fee: Joi.object().keys({
       from: Joi.number()
@@ -125,7 +123,7 @@ export const search: object = {
         .min(0),
       to: Joi.number()
         .integer()
-        .min(0),
-    }),
-  },
+        .min(0)
+    })
+  }
 };

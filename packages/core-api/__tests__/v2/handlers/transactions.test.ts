@@ -1,16 +1,15 @@
 import "jest-extended";
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import utils from "../utils";
 
-import generateTransfers from "@arkecosystem/core-test-utils/lib/generators/transactions/transfer";
-import generateWallets from "@arkecosystem/core-test-utils/lib/generators/wallets";
-import delegates from "@arkecosystem/core-test-utils/fixtures/testnet/delegates";
-import genesisBlock from "@arkecosystem/core-test-utils/config/testnet/genesisBlock.json";
+import { generateTransfers } from "../../../../core-test-utils/src/generators/transactions/transfer";
+import { generateWallets } from "../../../../core-test-utils/src/generators/wallets";
+import { delegates } from "../../../../core-test-utils/src/fixtures/testnet/delegates";
+import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
 const transferFee = 10000000;
 
-let genesisBlock;
 let genesisTransactions;
 
 let transactionId;

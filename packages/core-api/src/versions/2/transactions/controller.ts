@@ -54,9 +54,9 @@ export default class TransactionsController extends Controller {
           accept: result.accept,
           broadcast: result.broadcast,
           excess: result.excess,
-          invalid: result.invalid,
+          invalid: result.invalid
         },
-        errors: result.errors,
+        errors: result.errors
       };
     } catch (error) {
       return Boom.badImplementation(error);
@@ -83,19 +83,19 @@ export default class TransactionsController extends Controller {
 
       let transactions = this.transactionPool.getTransactions(
         pagination.offset,
-        pagination.limit,
+        pagination.limit
       );
-      transactions = transactions.map((transaction) => ({
-        serialized: transaction,
+      transactions = transactions.map(transaction => ({
+        serialized: transaction
       }));
 
       return super.toPagination(
         request,
         {
           count: this.transactionPool.getPoolSize(),
-          rows: transactions,
+          rows: transactions
         },
-        "transaction",
+        "transaction"
       );
     } catch (error) {
       return Boom.badImplementation(error);
@@ -124,9 +124,9 @@ export default class TransactionsController extends Controller {
 
   public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
-    const data = await request.server.methods.v2.transactions.search(request);
+      const data = await request.server.methods.v2.transactions.search(request);
 
-    return super.respondWithCache(data, h);
+      return super.respondWithCache(data, h);
     } catch (error) {
       return Boom.badImplementation(error);
     }
@@ -135,7 +135,7 @@ export default class TransactionsController extends Controller {
   public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return {
-        data: constants.TRANSACTION_TYPES,
+        data: constants.TRANSACTION_TYPES
       };
     } catch (error) {
       return Boom.badImplementation(error);
@@ -145,7 +145,8 @@ export default class TransactionsController extends Controller {
   public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return {
-        data: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees,
+        data: this.config.getConstants(this.blockchain.getLastHeight()).fees
+          .staticFees
       };
     } catch (error) {
       return Boom.badImplementation(error);
