@@ -1,17 +1,17 @@
-const camelCase = require('lodash/camelCase')
-const deepmerge = require('deepmerge')
-const feeManager = require('./fee')
-const dynamicFeeManager = require('./dynamic-fee')
+const camelCase = require("lodash/camelCase");
+const deepmerge = require("deepmerge");
+const feeManager = require("./fee");
+const dynamicFeeManager = require("./dynamic-fee");
 
-const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../constants')
-const defaultConfig = require('../networks/ark/devnet.json')
+const { TRANSACTION_TYPES, CONFIGURATIONS } = require("../constants");
+const defaultConfig = require("../networks/ark/devnet.json");
 
 class ConfigManager {
   /**
    * @constructor
    */
   constructor() {
-    this.setConfig(defaultConfig)
+    this.setConfig(defaultConfig);
   }
 
   /**
@@ -19,15 +19,15 @@ class ConfigManager {
    * @param {Object} config
    */
   setConfig(config) {
-    this.config = {}
+    this.config = {};
 
     for (const [key, value] of Object.entries(config)) {
-      this.config[key] = value
+      this.config[key] = value;
     }
 
-    this.buildConstants()
-    this.buildFees()
-    this.buildAddonBytes()
+    this.buildConstants();
+    this.buildFees();
+    this.buildAddonBytes();
   }
 
   /**
@@ -36,7 +36,7 @@ class ConfigManager {
    * @param {String} network
    */
   setFromPreset(coin, network) {
-    this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()])
+    this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()]);
   }
 
   /**
@@ -44,7 +44,7 @@ class ConfigManager {
    * @return {Object}
    */
   all() {
-    return this.config
+    return this.config;
   }
 
   /**
@@ -53,7 +53,7 @@ class ConfigManager {
    * @param {*}      value
    */
   set(key, value) {
-    this.config[key] = value
+    this.config[key] = value;
   }
 
   /**
@@ -62,7 +62,7 @@ class ConfigManager {
    * @return {*}
    */
   get(key) {
-    return this.config[key]
+    return this.config[key];
   }
 
   /**
@@ -70,7 +70,7 @@ class ConfigManager {
    * @param {Number} value
    */
   setHeight(value) {
-    this.height = value
+    this.height = value;
   }
 
   /**
@@ -78,7 +78,7 @@ class ConfigManager {
    * @return {Number}
    */
   getHeight() {
-    return this.height
+    return this.height;
   }
 
   /**
@@ -87,7 +87,7 @@ class ConfigManager {
    * @return {*}
    */
   getConstant(key) {
-    return this.getConstants()[key]
+    return this.getConstants()[key];
   }
 
   /**
@@ -97,47 +97,47 @@ class ConfigManager {
    */
   getConstants(height) {
     if (!height && this.height) {
-      height = this.height
+      height = this.height;
     }
 
     if (!height) {
-      height = 1
+      height = 1;
     }
 
     while (
       this.constant.index < this.constants.length - 1 &&
       height >= this.constants[this.constant.index + 1].height
     ) {
-      this.constant.index++
-      this.constant.data = this.constants[this.constant.index]
+      this.constant.index++;
+      this.constant.data = this.constants[this.constant.index];
     }
 
     while (height < this.constants[this.constant.index].height) {
-      this.constant.index--
-      this.constant.data = this.constants[this.constant.index]
+      this.constant.index--;
+      this.constant.data = this.constants[this.constant.index];
     }
 
-    return this.constant.data
+    return this.constant.data;
   }
 
   /**
    * Build constant data based on active heights.
    */
   buildConstants() {
-    this.constants = this.config.constants.sort((a, b) => a.height - b.height)
+    this.constants = this.config.constants.sort((a, b) => a.height - b.height);
     this.constant = {
       index: 0,
-      data: this.constants[0],
-    }
+      data: this.constants[0]
+    };
 
-    let lastmerged = 0
+    let lastmerged = 0;
 
     while (lastmerged < this.constants.length - 1) {
       this.constants[lastmerged + 1] = deepmerge(
         this.constants[lastmerged],
-        this.constants[lastmerged + 1],
-      )
-      lastmerged++
+        this.constants[lastmerged + 1]
+      );
+      lastmerged++;
     }
   }
 
@@ -148,24 +148,24 @@ class ConfigManager {
     Object.keys(TRANSACTION_TYPES).forEach(type =>
       feeManager.set(
         TRANSACTION_TYPES[type],
-        this.getConstant('fees').staticFees[camelCase(type)],
-      ),
-    )
+        this.getConstant("fees").staticFees[camelCase(type)]
+      )
+    );
   }
 
   /**
    * Build addon bytes from config constants.
    */
   buildAddonBytes() {
-    if (this.getConstant('fees').dynamicFees.addonBytes) {
+    if (this.getConstant("fees").dynamicFees.addonBytes) {
       Object.keys(TRANSACTION_TYPES).forEach(type =>
         dynamicFeeManager.set(
           TRANSACTION_TYPES[type],
-          this.getConstant('fees').dynamicFees.addonBytes[camelCase(type)],
-        ),
-      )
+          this.getConstant("fees").dynamicFees.addonBytes[camelCase(type)]
+        )
+      );
     }
   }
 }
 
-module.exports = new ConfigManager()
+module.exports = new ConfigManager();

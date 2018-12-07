@@ -34,7 +34,7 @@ export class Environment {
     for (const [key, value] of Object.entries(this.variables)) {
       if (allowedKeys.includes(key)) {
         process.env[`ARK_PATH_${key.toUpperCase()}`] = resolve(
-          expandHomeDir(value),
+          expandHomeDir(value)
         );
       }
     }
@@ -50,12 +50,12 @@ export class Environment {
     if (this.variables.token && this.variables.network) {
       config = NetworkManager.findByName(
         this.variables.network,
-        this.variables.token,
+        this.variables.token
       );
     } else {
       try {
         const networkPath = resolve(
-          expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network.json`),
+          expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network.json`)
         );
 
         config = require(networkPath);
@@ -66,9 +66,9 @@ export class Environment {
 
     if (!config) {
       throw new Error(
-        "An invalid network configuration was provided or is inaccessible due to it's security settings.",
+        "An invalid network configuration was provided or is inaccessible due to it's security settings."
       );
-      process.exit(1); // eslint-disable-line no-unreachable
+      process.exit(1);
     }
 
     process.env.ARK_NETWORK = JSON.stringify(config);
@@ -91,7 +91,7 @@ export class Environment {
     if (existsSync(envPath)) {
       const env = require("envfile").parseFileSync(envPath);
 
-      Object.keys(env).forEach((key) => {
+      Object.keys(env).forEach(key => {
         process.env[key] = env[key];
       });
     }

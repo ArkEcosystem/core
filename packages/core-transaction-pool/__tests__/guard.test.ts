@@ -49,7 +49,7 @@ describe.skip("Transaction Guard", () => {
 
     it.each([false, true])(
       "should not apply transactions for chained transfers involving cold wallets",
-      async (inverseOrder) => {
+      async inverseOrder => {
         /* The logic here is we can't have a chained transfer A => B => C if B is a cold wallet.
           A => B needs to be first confirmed (forged), then B can transfer to C
         */
@@ -58,16 +58,16 @@ describe.skip("Transaction Guard", () => {
         // don't re-use the same delegate (need clean balance)
         const delegate = inverseOrder ? delegates[8] : delegates[9];
         const delegateWallet = transactionPool.walletManager.findByAddress(
-          delegate.address,
+          delegate.address
         );
 
         const wallets = generateWallets("testnet", 2);
-        const poolWallets = wallets.map((w) =>
-          transactionPool.walletManager.findByAddress(w.address),
+        const poolWallets = wallets.map(w =>
+          transactionPool.walletManager.findByAddress(w.address)
         );
 
         expect(+delegateWallet.balance).toBe(+delegate.balance);
-        poolWallets.forEach((w) => {
+        poolWallets.forEach(w => {
           expect(+w.balance).toBe(0);
         });
 
@@ -75,13 +75,13 @@ describe.skip("Transaction Guard", () => {
           // transfer from delegate to wallet 0
           from: delegate,
           to: wallets[0],
-          amount: 100 * arktoshi,
+          amount: 100 * arktoshi
         };
         const transfer1 = {
           // transfer from wallet 0 to wallet 1
           from: wallets[0],
           to: wallets[1],
-          amount: 55 * arktoshi,
+          amount: 55 * arktoshi
         };
         const transfers = [transfer0, transfer1];
         if (inverseOrder) {
@@ -94,7 +94,7 @@ describe.skip("Transaction Guard", () => {
             t.from.passphrase,
             t.to.address,
             t.amount,
-            1,
+            1
           )[0];
 
           await guard.validate([transferTx]);
@@ -106,7 +106,7 @@ describe.skip("Transaction Guard", () => {
           transfer1.from.passphrase,
           transfer1.to.address,
           transfer1.amount,
-          1,
+          1
         )[0];
 
         await guard.validate([transfer]);
@@ -114,17 +114,17 @@ describe.skip("Transaction Guard", () => {
         const expectedError = {
           message:
             '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
-          type: "ERR_APPLY",
+          type: "ERR_APPLY"
         };
         expect(guard.errors[transfer.id]).toContainEqual(expectedError);
 
         // check final balances
         expect(+delegateWallet.balance).toBe(
-          delegate.balance - (100 + 0.1) * arktoshi,
+          delegate.balance - (100 + 0.1) * arktoshi
         );
         expect(+poolWallets[0].balance).toBe(0);
         expect(+poolWallets[1].balance).toBe(0);
-      },
+      }
     );
 
     it("should not apply the tx to the balance of the sender & recipient with dyn fee < min fee", async () => {
@@ -133,9 +133,11 @@ describe.skip("Transaction Guard", () => {
       const newAddress = crypto.getAddress(publicKey);
 
       const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate0.publicKey,
+        delegate0.publicKey
       );
-      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(
+        publicKey
+      );
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance);
       expect(+newWallet.balance).toBe(0);
@@ -149,7 +151,7 @@ describe.skip("Transaction Guard", () => {
         amount1,
         1,
         false,
-        fee,
+        fee
       );
 
       await guard.validate(transfers);
@@ -164,9 +166,11 @@ describe.skip("Transaction Guard", () => {
       const newAddress = crypto.getAddress(publicKey);
 
       const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate1.publicKey,
+        delegate1.publicKey
       );
-      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(
+        publicKey
+      );
 
       expect(+delegateWallet.balance).toBe(+delegate1.balance);
       expect(+newWallet.balance).toBe(0);
@@ -180,7 +184,7 @@ describe.skip("Transaction Guard", () => {
         amount1,
         1,
         false,
-        fee,
+        fee
       );
 
       await guard.validate(transfers);
@@ -200,9 +204,11 @@ describe.skip("Transaction Guard", () => {
       const newAddress = crypto.getAddress(publicKey);
 
       const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate2.publicKey,
+        delegate2.publicKey
       );
-      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(
+        publicKey
+      );
 
       expect(+delegateWallet.balance).toBe(+delegate2.balance);
       expect(+newWallet.balance).toBe(0);
@@ -220,18 +226,18 @@ describe.skip("Transaction Guard", () => {
         amount1,
         1,
         false,
-        fee,
+        fee
       );
       const votes = generateVote(
         "testnet",
         newWalletPassphrase,
         delegate2.publicKey,
-        1,
+        1
       );
       const delegateRegs = generateDelegateReg(
         "testnet",
         newWalletPassphrase,
-        1,
+        1
       );
       const signatures = generateSignature("testnet", newWalletPassphrase, 1);
 
@@ -240,10 +246,10 @@ describe.skip("Transaction Guard", () => {
         ...transfers,
         ...votes,
         ...delegateRegs,
-        ...signatures,
+        ...signatures
       ];
 
-      allTransactions.forEach((transaction) => {
+      allTransactions.forEach(transaction => {
         container
           .resolvePlugin("database")
           .walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -266,7 +272,7 @@ describe.skip("Transaction Guard", () => {
       expect(guard.errors).toEqual({});
       expect(+delegateWallet.balance).toBe(+delegate2.balance - amount1 - fee);
       expect(+newWallet.balance).toBe(
-        amount1 - voteFee - delegateRegFee - signatureFee,
+        amount1 - voteFee - delegateRegFee - signatureFee
       );
     });
 
@@ -277,9 +283,11 @@ describe.skip("Transaction Guard", () => {
       const newAddress = crypto.getAddress(publicKey);
 
       const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate3.publicKey,
+        delegate3.publicKey
       );
-      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(
+        publicKey
+      );
 
       // Make sure it is not considered a cold wallet
       container.resolvePlugin("database").walletManager.reindex(newWallet);
@@ -295,7 +303,7 @@ describe.skip("Transaction Guard", () => {
         delegate3.secret,
         newAddress,
         amount1,
-        1,
+        1
       );
       await guard.validate(transfers1);
 
@@ -312,7 +320,7 @@ describe.skip("Transaction Guard", () => {
         newWalletPassphrase,
         delegate3.address,
         amount2,
-        1,
+        1
       );
       await guard.validate(transfers2);
 
@@ -332,30 +340,30 @@ describe.skip("Transaction Guard", () => {
           transferAmount,
           1,
           false,
-          transferDynFee,
+          transferDynFee
         ),
         generateSignature("testnet", newWalletPassphrase, 1),
         generateVote("testnet", newWalletPassphrase, delegate3.publicKey, 1),
-        generateDelegateReg("testnet", newWalletPassphrase, 1),
+        generateDelegateReg("testnet", newWalletPassphrase, 1)
       ];
 
       for (const transaction of allTransactions) {
-        await guard.validate(transaction); // eslint-disable-line no-await-in-loop
+        await guard.validate(transaction);
 
         const errorExpected = [
           {
             message: `["[PoolWalletManager] Can't apply transaction id:${
               transaction[0].id
-              } from sender:${
+            } from sender:${
               newWallet.address
-              }","Insufficient balance in the wallet"]`,
-            type: "ERR_APPLY",
-          },
+            }","Insufficient balance in the wallet"]`,
+            type: "ERR_APPLY"
+          }
         ];
         expect(guard.errors[transaction[0].id]).toEqual(errorExpected);
 
         expect(+delegateWallet.balance).toBe(
-          +delegate3.balance - amount1 - fee + amount2,
+          +delegate3.balance - amount1 - fee + amount2
         );
         expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
       }
@@ -369,7 +377,7 @@ describe.skip("Transaction Guard", () => {
         delegates[1].address,
         amount,
         2,
-        true,
+        true
       );
 
       const result = await guard.validate(transactions);
@@ -378,21 +386,21 @@ describe.skip("Transaction Guard", () => {
         {
           message: `["[PoolWalletManager] Can't apply transaction id:${
             transactions[1].id
-            } from sender:${
+          } from sender:${
             delegates[0].address
-            }","Insufficient balance in the wallet"]`,
-          type: "ERR_APPLY",
-        },
+          }","Insufficient balance in the wallet"]`,
+          type: "ERR_APPLY"
+        }
       ]);
     });
 
     it.each([3, 5, 8])(
       "should validate emptying wallet with %i transactions",
-      async (txNumber) => {
+      async txNumber => {
         // use txNumber so that we use a different delegate for each test case
         const sender = delegates[txNumber];
         const senderWallet = transactionPool.walletManager.findByPublicKey(
-          sender.publicKey,
+          sender.publicKey
         );
         const receivers = generateWallets("testnet", 2);
         const amountPlusFee = Math.floor(senderWallet.balance / txNumber);
@@ -406,7 +414,7 @@ describe.skip("Transaction Guard", () => {
           receivers[0].address,
           amountPlusFee - transferFee,
           txNumber - 1,
-          true,
+          true
         );
         const lastTransaction = generateTransfers(
           "testnet",
@@ -414,22 +422,22 @@ describe.skip("Transaction Guard", () => {
           receivers[1].address,
           lastAmountPlusFee - transferFee,
           1,
-          true,
+          true
         );
         // we change the receiver in lastTransaction to prevent having 2 exact
         // same transactions with same id (if not, could be same as transactions[0])
 
         const result = await guard.validate(
-          transactions.concat(lastTransaction),
+          transactions.concat(lastTransaction)
         );
 
         expect(result.errors).toEqual(null);
-      },
+      }
     );
 
     it.each([3, 5, 8])(
       "should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much",
-      async (txNumber) => {
+      async txNumber => {
         // use txNumber + 1 so that we don't use the same delegates as the above test
         const sender = delegates[txNumber + 1];
         const receivers = generateWallets("testnet", 2);
@@ -444,7 +452,7 @@ describe.skip("Transaction Guard", () => {
           receivers[0].address,
           amountPlusFee - transferFee,
           txNumber - 1,
-          true,
+          true
         );
         const lastTransaction = generateTransfers(
           "testnet",
@@ -452,7 +460,7 @@ describe.skip("Transaction Guard", () => {
           receivers[1].address,
           lastAmountPlusFee - transferFee,
           1,
-          true,
+          true
         );
         // we change the receiver in lastTransaction to prevent having 2
         // exact same transactions with same id (if not, could be same as transactions[0])
@@ -466,13 +474,13 @@ describe.skip("Transaction Guard", () => {
           {
             message: `["[PoolWalletManager] Can't apply transaction id:${
               lastTransaction[0].id
-              } from sender:${
+            } from sender:${
               sender.address
-              }","Insufficient balance in the wallet"]`,
-            type: "ERR_APPLY",
-          },
+            }","Insufficient balance in the wallet"]`,
+            type: "ERR_APPLY"
+          }
         ]);
-      },
+      }
     );
   });
 
@@ -491,8 +499,8 @@ describe.skip("Transaction Guard", () => {
       expect(guard.errors[tx.id]).toEqual([
         {
           message: `Duplicate transaction ${tx.id}`,
-          type: "ERR_DUPLICATE",
-        },
+          type: "ERR_DUPLICATE"
+        }
       ]);
 
       guard.pool.transactionExists = transactionExists;
@@ -511,9 +519,9 @@ describe.skip("Transaction Guard", () => {
         {
           message: `Transaction ${tx.id} rejected. Sender ${
             tx.senderPublicKey
-            } is blocked.`,
-          type: "ERR_SENDER_BLOCKED",
-        },
+          } is blocked.`,
+          type: "ERR_SENDER_BLOCKED"
+        }
       ]);
 
       guard.pool.isSenderBlocked = isSenderBlocked;
@@ -531,7 +539,7 @@ describe.skip("Transaction Guard", () => {
       const tx = {
         id: "1",
         senderPublicKey: "affe",
-        timestamp: slots.getTime() + secondsInFuture,
+        timestamp: slots.getTime() + secondsInFuture
       };
       guard.__filterAndTransformTransactions([tx]);
 
@@ -539,9 +547,9 @@ describe.skip("Transaction Guard", () => {
         {
           message: `Transaction ${
             tx.id
-            } is ${secondsInFuture} seconds in the future`,
-          type: "ERR_FROM_FUTURE",
-        },
+          } is ${secondsInFuture} seconds in the future`,
+          type: "ERR_FROM_FUTURE"
+        }
       ]);
 
       slots.getTime = getTime;
@@ -569,10 +577,10 @@ describe.skip("Transaction Guard", () => {
         delegates[0].secret,
         delegates[0].senderPublicKey,
         1,
-        4,
+        4
       );
 
-      transfers.forEach((tx) => {
+      transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
         guard.broadcast.set(tx.id, tx);
       });
@@ -603,10 +611,10 @@ describe.skip("Transaction Guard", () => {
         delegates[0].secret,
         delegates[0].senderPublicKey,
         1,
-        4,
+        4
       );
 
-      transfers.forEach((tx) => {
+      transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
         guard.broadcast.set(tx.id, tx);
       });
@@ -626,10 +634,10 @@ describe.skip("Transaction Guard", () => {
         delegates[0].secret,
         delegates[0].senderPublicKey,
         1,
-        4,
+        4
       );
 
-      transfers.forEach((tx) => {
+      transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
         guard.broadcast.set(tx.id, tx);
       });
@@ -650,7 +658,9 @@ describe.skip("Transaction Guard", () => {
 
       for (const transfer of transfers) {
         expect(guard.errors[transfer.id]).toHaveLength(1);
-        expect(guard.errors[transfer.id][0].type).toEqual("ERR_ALREADY_IN_POOL");
+        expect(guard.errors[transfer.id][0].type).toEqual(
+          "ERR_ALREADY_IN_POOL"
+        );
       }
     });
 
@@ -663,10 +673,10 @@ describe.skip("Transaction Guard", () => {
         delegates[0].secret,
         delegates[0].senderPublicKey,
         1,
-        4,
+        4
       );
 
-      transfers.forEach((tx) => {
+      transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
         guard.broadcast.set(tx.id, tx);
       });
@@ -697,7 +707,7 @@ describe.skip("Transaction Guard", () => {
       expect(guard.errors["1"]).toBeArray();
       expect(guard.errors["1"]).toHaveLength(1);
       expect(guard.errors["1"]).toEqual([
-        { message: "Invalid.", type: "ERR_INVALID" },
+        { message: "Invalid.", type: "ERR_INVALID" }
       ]);
 
       expect(guard.invalid.size).toEqual(1);
@@ -715,7 +725,7 @@ describe.skip("Transaction Guard", () => {
       expect(guard.errors["1"]).toHaveLength(2);
       expect(guard.errors["1"]).toEqual([
         { message: "Invalid 1.", type: "ERR_INVALID" },
-        { message: "Invalid 2.", type: "ERR_INVALID" },
+        { message: "Invalid 2.", type: "ERR_INVALID" }
       ]);
 
       expect(guard.invalid.size).toEqual(1);

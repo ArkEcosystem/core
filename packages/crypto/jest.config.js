@@ -1,12 +1,12 @@
 module.exports = {
-  testEnvironment: 'node',
+  testEnvironment: "node",
   bail: false,
   verbose: true,
-  testMatch: ['**/__tests__/**/*.test.js'],
-  moduleFileExtensions: ['js', 'json'],
-  coverageDirectory: '<rootDir>/.coverage',
-  collectCoverageFrom: ['lib/**/*.js', '!**/node_modules/**'],
+  testMatch: ["**/__tests__/**/*.test.js"],
+  moduleFileExtensions: ["js", "json"],
+  coverageDirectory: "<rootDir>/.coverage",
+  collectCoverageFrom: ["lib/**/*.js", "!**/node_modules/**"],
   watchman: false,
-  setupFiles: ['<rootDir>/../../node_modules/regenerator-runtime/runtime'],
-  setupTestFrameworkScriptFile: 'jest-extended',
-}
+  setupFiles: ["<rootDir>/../../node_modules/regenerator-runtime/runtime"],
+  setupTestFrameworkScriptFile: "jest-extended"
+};

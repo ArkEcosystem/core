@@ -1,21 +1,21 @@
-const feeManager = require('../../managers/fee')
-const { TRANSACTION_TYPES } = require('../../constants')
-const TransactionBuilder = require('./transaction')
-const sign = require('./mixins/sign')
+const feeManager = require("../../managers/fee");
+const { TRANSACTION_TYPES } = require("../../constants");
+const TransactionBuilder = require("./transaction");
+const sign = require("./mixins/sign");
 
 class MultiSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor() {
-    super()
+    super();
 
-    this.data.type = TRANSACTION_TYPES.MULTI_SIGNATURE
-    this.data.fee = 0
-    this.data.amount = 0
-    this.data.recipientId = null
-    this.data.senderPublicKey = null
-    this.data.asset = { multisignature: {} }
+    this.data.type = TRANSACTION_TYPES.MULTI_SIGNATURE;
+    this.data.fee = 0;
+    this.data.amount = 0;
+    this.data.recipientId = null;
+    this.data.senderPublicKey = null;
+    this.data.asset = { multisignature: {} };
   }
 
   /**
@@ -24,11 +24,12 @@ class MultiSignatureBuilder extends TransactionBuilder {
    * @return {MultiSignatureBuilder}
    */
   multiSignatureAsset(multiSignature) {
-    this.data.asset.multisignature = multiSignature
-    this.data.fee = (multiSignature.keysgroup.length + 1)
-      * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
+    this.data.asset.multisignature = multiSignature;
+    this.data.fee =
+      (multiSignature.keysgroup.length + 1) *
+      feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE);
 
-    return this
+    return this;
   }
 
   /**
@@ -36,13 +37,13 @@ class MultiSignatureBuilder extends TransactionBuilder {
    * @return {Object}
    */
   getStruct() {
-    const struct = super.getStruct()
-    struct.amount = this.data.amount
-    struct.recipientId = this.data.recipientId
-    struct.asset = this.data.asset
+    const struct = super.getStruct();
+    struct.amount = this.data.amount;
+    struct.recipientId = this.data.recipientId;
+    struct.asset = this.data.asset;
 
-    return struct
+    return struct;
   }
 }
 
-module.exports = sign.mixin(MultiSignatureBuilder)
+module.exports = sign.mixin(MultiSignatureBuilder);

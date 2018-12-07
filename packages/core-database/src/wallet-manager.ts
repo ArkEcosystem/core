@@ -1,6 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { constants, crypto, formatArktoshi, models } from "@arkecosystem/crypto";
+import {
+  constants,
+  crypto,
+  formatArktoshi,
+  models
+} from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const config = app.resolvePlugin("config");
@@ -185,7 +190,7 @@ export class WalletManager {
   }
 
   public clear() {
-    Object.values(this.byAddress).forEach((wallet) => {
+    Object.values(this.byAddress).forEach(wallet => {
       wallet.dirty = false;
     });
   }
@@ -206,8 +211,8 @@ export class WalletManager {
     if (delegates.length < maxDelegates) {
       throw new Error(
         `Expected to find ${maxDelegates} delegates but only found ${
-        delegates.length
-        }. This indicates an issue with the genesis block & delegates.`,
+          delegates.length
+        }. This indicates an issue with the genesis block & delegates.`
       );
     }
 
@@ -229,8 +234,8 @@ export class WalletManager {
           if (a.publicKey === b.publicKey) {
             throw new Error(
               `The balance and public key of both delegates are identical! Delegate "${
-              a.username
-              }" appears twice in the list.`,
+                a.username
+              }" appears twice in the list.`
             );
           }
 
@@ -249,13 +254,13 @@ export class WalletManager {
     for (const [voteBalance, set] of equalVotesMap.entries()) {
       const values: any[] = Array.from(set.values());
       if (delegates.includes(values[0])) {
-        const mapped = values.map((v) => `${v.username} (${v.publicKey})`);
+        const mapped = values.map(v => `${v.username} (${v.publicKey})`);
         logger.warn(
           `Delegates ${JSON.stringify(
             mapped,
             null,
-            4,
-          )} have a matching vote balance of ${formatArktoshi(voteBalance)}`,
+            4
+          )} have a matching vote balance of ${formatArktoshi(voteBalance)}`
         );
       }
     }
@@ -263,8 +268,8 @@ export class WalletManager {
     logger.debug(
       `Loaded ${delegates.length} active ${pluralize(
         "delegate",
-        delegates.length,
-      )}`,
+        delegates.length
+      )}`
     );
 
     return delegates;
@@ -276,7 +281,7 @@ export class WalletManager {
    * @return {void}
    */
   public buildVoteBalances() {
-    Object.values(this.byPublicKey).forEach((voter) => {
+    Object.values(this.byPublicKey).forEach(voter => {
       if (voter.vote) {
         const delegate = this.byPublicKey[voter.vote];
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance);
@@ -289,7 +294,7 @@ export class WalletManager {
    * @return {void}
    */
   public purgeEmptyNonDelegates() {
-    Object.values(this.byPublicKey).forEach((wallet) => {
+    Object.values(this.byPublicKey).forEach(wallet => {
       if (this.__canBePurged(wallet)) {
         delete this.byPublicKey[wallet.publicKey];
         delete this.byAddress[wallet.address];
@@ -323,7 +328,7 @@ export class WalletManager {
         }
 
         throw new Error(
-          `Could not find delegate with publicKey ${generatorPublicKey}`,
+          `Could not find delegate with publicKey ${generatorPublicKey}`
         );
       }
     }
@@ -331,7 +336,7 @@ export class WalletManager {
     const appliedTransactions = [];
 
     try {
-      block.transactions.forEach((transaction) => {
+      block.transactions.forEach(transaction => {
         this.applyTransaction(transaction);
         appliedTransactions.push(transaction);
       });
@@ -348,7 +353,7 @@ export class WalletManager {
       }
     } catch (error) {
       logger.error(
-        "Failed to apply all transactions in block - reverting previous transactions",
+        "Failed to apply all transactions in block - reverting previous transactions"
       );
       // Revert the applied transactions from last to first
       for (let i = appliedTransactions.length - 1; i >= 0; i--) {
@@ -373,8 +378,8 @@ export class WalletManager {
     if (!delegate) {
       app.forceExit(
         `Failed to lookup generator '${
-        block.data.generatorPublicKey
-        }' of block '${block.data.id}'. :skull:`,
+          block.data.generatorPublicKey
+        }' of block '${block.data.id}'. :skull:`
       );
     }
 
@@ -403,7 +408,7 @@ export class WalletManager {
 
       revertedTransactions
         .reverse()
-        .forEach((transaction) => this.applyTransaction(transaction));
+        .forEach(transaction => this.applyTransaction(transaction));
 
       throw error;
     }
@@ -415,7 +420,6 @@ export class WalletManager {
    * @return {Transaction}
    */
   public applyTransaction(transaction) {
-    /* eslint padded-blocks: "off" */
     const { data } = transaction;
     const { type, asset, recipientId, senderPublicKey } = data;
 
@@ -430,11 +434,11 @@ export class WalletManager {
     ) {
       logger.error(
         `Can't apply transaction ${
-        data.id
-        }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
+          data.id
+        }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`
       );
       throw new Error(
-        `Can't apply transaction ${data.id}: delegate name already taken.`,
+        `Can't apply transaction ${data.id}: delegate name already taken.`
       );
 
       // NOTE: We use the vote public key, because vote transactions
@@ -445,13 +449,13 @@ export class WalletManager {
     ) {
       logger.error(
         `Can't apply vote transaction ${data.id}: delegate ${
-        asset.votes[0]
-        } does not exist.`,
+          asset.votes[0]
+        } does not exist.`
       );
       throw new Error(
         `Can't apply transaction ${data.id}: delegate ${
-        asset.votes[0]
-        } does not exist.`,
+          asset.votes[0]
+        } does not exist.`
       );
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = "";
@@ -461,16 +465,18 @@ export class WalletManager {
     if (this.__isException(data)) {
       logger.warn(
         `Transaction ${
-        data.id
-        } forcibly applied because it has been added as an exception.`,
+          data.id
+        } forcibly applied because it has been added as an exception.`
       );
     } else if (!sender.canApply(data, errors)) {
       logger.error(
         `Can't apply transaction id:${data.id} from sender:${
-        sender.address
-        } due to ${JSON.stringify(errors)}`,
+          sender.address
+        } due to ${JSON.stringify(errors)}`
       );
-      logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
+      logger.debug(
+        `Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`
+      );
       throw new Error(`Can't apply transaction ${data.id}`);
     }
 

@@ -9,31 +9,31 @@ module.exports = (request, h) => {
   const database = app.resolvePlugin("database");
 
   const formatDelegates = (delegates, lastHeight) =>
-    delegates.map((delegate) => {
-      const voters = database.walletManager
+    delegates.map(delegate => {
+      const filteredVoters = database.walletManager
         .allByPublicKey()
         .filter(
-          (wallet) =>
-            wallet.vote === delegate.publicKey && wallet.balance > 0.1 * 1e8,
+          wallet =>
+            wallet.vote === delegate.publicKey && wallet.balance > 0.1 * 1e8
         );
 
       const approval = Number(
-        delegateCalculator.calculateApproval(delegate, lastHeight),
+        delegateCalculator.calculateApproval(delegate, lastHeight)
       ).toLocaleString(undefined, {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
+        maximumFractionDigits: 2
       });
 
       const rank = delegate.rate.toLocaleString(undefined, {
-        minimumIntegerDigits: 2,
+        minimumIntegerDigits: 2
       });
 
       const votes = Number(delegate.voteBalance.div(1e8)).toLocaleString(
         undefined,
-        { maximumFractionDigits: 0 },
+        { maximumFractionDigits: 0 }
       );
-      const voterCount = voters.length.toLocaleString(undefined, {
-        maximumFractionDigits: 0,
+      const voterCount = filteredVoters.length.toLocaleString(undefined, {
+        maximumFractionDigits: 0
       });
 
       return {
@@ -41,7 +41,7 @@ module.exports = (request, h) => {
         username: delegate.username.padEnd(25),
         approval: approval.padEnd(4),
         votes: votes.padStart(10),
-        voterCount: voterCount.padStart(5),
+        voterCount: voterCount.padStart(5)
       };
     });
 
@@ -52,18 +52,18 @@ module.exports = (request, h) => {
   const supply = supplyCalculator.calculate(lastBlock.data.height);
 
   const active = database.walletManager
-      .allByUsername()
-      .sort((a, b) => a.rate - b.rate)
-      .slice(0, constants.activeDelegates);
+    .allByUsername()
+    .sort((a, b) => a.rate - b.rate)
+    .slice(0, constants.activeDelegates);
 
   const standby = database.walletManager
-      .allByUsername()
-      .sort((a, b) => a.rate - b.rate)
-      .slice(constants.activeDelegates + 1, delegateRows);
+    .allByUsername()
+    .sort((a, b) => a.rate - b.rate)
+    .slice(constants.activeDelegates + 1, delegateRows);
 
   const voters = database.walletManager
-      .allByPublicKey()
-      .filter((wallet) => wallet.vote && wallet.balance > 0.1 * 1e8);
+    .allByPublicKey()
+    .filter(wallet => wallet.vote && wallet.balance > 0.1 * 1e8);
 
   const totalVotes = sumBy(voters, (wallet: any) => +wallet.balance.toFixed());
   const percentage = (totalVotes * 100) / supply;
@@ -78,18 +78,18 @@ module.exports = (request, h) => {
       activeDelegates: formatDelegates(active, lastBlock.data.height),
       standbyDelegates: formatDelegates(standby, lastBlock.data.height),
       voters: voters.length.toLocaleString(undefined, {
-        maximumFractionDigits: 0,
+        maximumFractionDigits: 0
       }),
       supply: (supply / 1e8).toLocaleString(undefined, {
-        maximumFractionDigits: 0,
+        maximumFractionDigits: 0
       }),
       totalVotes: (totalVotes / 1e8).toLocaleString(undefined, {
-        maximumFractionDigits: 0,
+        maximumFractionDigits: 0
       }),
       percentage: percentage.toLocaleString(undefined, {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }),
+        maximumFractionDigits: 2
+      })
     })
     .type("text/plain");
 };

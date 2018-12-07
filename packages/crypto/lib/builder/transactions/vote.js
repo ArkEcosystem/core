@@ -1,21 +1,21 @@
-const feeManager = require('../../managers/fee')
-const { TRANSACTION_TYPES } = require('../../constants')
-const TransactionBuilder = require('./transaction')
-const sign = require('./mixins/sign')
+const feeManager = require("../../managers/fee");
+const { TRANSACTION_TYPES } = require("../../constants");
+const TransactionBuilder = require("./transaction");
+const sign = require("./mixins/sign");
 
 class VoteBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor() {
-    super()
+    super();
 
-    this.data.type = TRANSACTION_TYPES.VOTE
-    this.data.fee = feeManager.get(TRANSACTION_TYPES.VOTE)
-    this.data.amount = 0
-    this.data.recipientId = null
-    this.data.senderPublicKey = null
-    this.data.asset = { votes: [] }
+    this.data.type = TRANSACTION_TYPES.VOTE;
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.VOTE);
+    this.data.amount = 0;
+    this.data.recipientId = null;
+    this.data.senderPublicKey = null;
+    this.data.asset = { votes: [] };
   }
 
   /**
@@ -24,8 +24,8 @@ class VoteBuilder extends TransactionBuilder {
    * @return {VoteBuilder}
    */
   votesAsset(votes) {
-    this.data.asset.votes = votes
-    return this
+    this.data.asset.votes = votes;
+    return this;
   }
 
   /**
@@ -33,12 +33,12 @@ class VoteBuilder extends TransactionBuilder {
    * @return {Object}
    */
   getStruct() {
-    const struct = super.getStruct()
-    struct.amount = this.data.amount
-    struct.recipientId = this.data.recipientId
-    struct.asset = this.data.asset
-    return struct
+    const struct = super.getStruct();
+    struct.amount = this.data.amount;
+    struct.recipientId = this.data.recipientId;
+    struct.asset = this.data.asset;
+    return struct;
   }
 }
 
-module.exports = sign.mixin(VoteBuilder)
+module.exports = sign.mixin(VoteBuilder);

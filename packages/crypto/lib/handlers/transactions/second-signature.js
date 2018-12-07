@@ -1,4 +1,4 @@
-const Handler = require('./handler')
+const Handler = require("./handler");
 
 class SecondSignatureHandler extends Handler {
   /**
@@ -10,15 +10,15 @@ class SecondSignatureHandler extends Handler {
    */
   canApply(wallet, transaction, errors) {
     if (wallet.secondPublicKey) {
-      errors.push('Wallet already has a second signature')
-      return false
+      errors.push("Wallet already has a second signature");
+      return false;
     }
 
     if (!super.canApply(wallet, transaction, errors)) {
-      return false
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -28,7 +28,7 @@ class SecondSignatureHandler extends Handler {
    * @return {void}
    */
   apply(wallet, transaction) {
-    wallet.secondPublicKey = transaction.asset.signature.publicKey
+    wallet.secondPublicKey = transaction.asset.signature.publicKey;
   }
 
   /**
@@ -38,8 +38,8 @@ class SecondSignatureHandler extends Handler {
    * @return {void}
    */
   revert(wallet, transaction) {
-    delete wallet.secondPublicKey
+    delete wallet.secondPublicKey;
   }
 }
 
-module.exports = new SecondSignatureHandler()
+module.exports = new SecondSignatureHandler();

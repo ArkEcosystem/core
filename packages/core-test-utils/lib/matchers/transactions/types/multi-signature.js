@@ -1,10 +1,10 @@
-const { MULTI_SIGNATURE } = require('@arkecosystem/crypto').constants
+const { MULTI_SIGNATURE } = require("@arkecosystem/crypto").constants;
 
 const toBeMultiSignatureType = received => ({
-  message: () => 'Expected value to be a valid MULTI_SIGNATURE transaction.',
-  pass: received.type === MULTI_SIGNATURE,
-})
+  message: () => "Expected value to be a valid MULTI_SIGNATURE transaction.",
+  pass: received.type === MULTI_SIGNATURE
+});
 
 expect.extend({
-  toBeMultiSignatureType,
-})
+  toBeMultiSignatureType
+});

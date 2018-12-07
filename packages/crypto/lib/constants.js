@@ -1,12 +1,12 @@
-const configMainnet = require('./networks/ark/mainnet.json')
-const configDevnet = require('./networks/ark/devnet.json')
-const configTestnet = require('./networks/ark/testnet.json')
+const configMainnet = require("./networks/ark/mainnet.json");
+const configDevnet = require("./networks/ark/devnet.json");
+const configTestnet = require("./networks/ark/testnet.json");
 
 /**
  * The Arktoshi base.
  * @type {Number}
  */
-exports.ARKTOSHI = 1e8
+exports.ARKTOSHI = 1e8;
 
 /**
  * Available transaction types.
@@ -25,28 +25,28 @@ exports.TRANSACTION_TYPES = Object.freeze({
   toString(type) {
     switch (type) {
       case this.TRANSFER:
-        return 'transfer'
+        return "transfer";
       case this.SECOND_SIGNATURE:
-        return 'second signature'
+        return "second signature";
       case this.DELEGATE_REGISTRATION:
-        return 'delegate registration'
+        return "delegate registration";
       case this.VOTE:
-        return 'vote'
+        return "vote";
       case this.MULTI_SIGNATURE:
-        return 'multi signature'
+        return "multi signature";
       case this.IPFS:
-        return 'ipfs'
+        return "ipfs";
       case this.TIMELOCK_TRANSFER:
-        return 'timelock transfer'
+        return "timelock transfer";
       case this.MULTI_PAYMENT:
-        return 'multi payment'
+        return "multi payment";
       case this.DELEGATE_RESIGNATION:
-        return 'delegate resignation'
+        return "delegate resignation";
       default:
-        throw new Error('Invalid transaction type')
+        throw new Error("Invalid transaction type");
     }
-  },
-})
+  }
+});
 
 /**
  * Available network configurations.
@@ -56,6 +56,6 @@ exports.CONFIGURATIONS = Object.freeze({
   ARK: {
     MAINNET: configMainnet,
     DEVNET: configDevnet,
-    TESTNET: configTestnet,
-  },
-})
+    TESTNET: configTestnet
+  }
+});

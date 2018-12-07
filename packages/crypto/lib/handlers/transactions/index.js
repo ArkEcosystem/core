@@ -1,4 +1,4 @@
-const { TRANSACTION_TYPES } = require('../../constants')
+const { TRANSACTION_TYPES } = require("../../constants");
 
 class TransactionHandler {
   /**
@@ -6,16 +6,16 @@ class TransactionHandler {
    */
   constructor() {
     this.handlers = {
-      [TRANSACTION_TYPES.TRANSFER]: require('./transfer'),
-      [TRANSACTION_TYPES.SECOND_SIGNATURE]: require('./second-signature'),
-      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: require('./delegate-registration'),
-      [TRANSACTION_TYPES.VOTE]: require('./vote'),
-      [TRANSACTION_TYPES.MULTI_SIGNATURE]: require('./multi-signature'),
-      [TRANSACTION_TYPES.IPFS]: require('./ipfs'),
-      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require('./timelock-transfer'),
-      [TRANSACTION_TYPES.MULTI_PAYMENT]: require('./multi-payment'),
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('./delegate-resignation'),
-    }
+      [TRANSACTION_TYPES.TRANSFER]: require("./transfer"),
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: require("./second-signature"),
+      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: require("./delegate-registration"),
+      [TRANSACTION_TYPES.VOTE]: require("./vote"),
+      [TRANSACTION_TYPES.MULTI_SIGNATURE]: require("./multi-signature"),
+      [TRANSACTION_TYPES.IPFS]: require("./ipfs"),
+      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require("./timelock-transfer"),
+      [TRANSACTION_TYPES.MULTI_PAYMENT]: require("./multi-payment"),
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require("./delegate-resignation")
+    };
   }
 
   /**
@@ -26,7 +26,11 @@ class TransactionHandler {
    * @return {Boolean}
    */
   canApply(wallet, transaction, errors) {
-    return this.handlers[transaction.type].canApply(wallet, transaction, errors)
+    return this.handlers[transaction.type].canApply(
+      wallet,
+      transaction,
+      errors
+    );
   }
 
   /**
@@ -36,7 +40,7 @@ class TransactionHandler {
    * @return {void}
    */
   apply(wallet, transaction) {
-    return this.handlers[transaction.type].apply(wallet, transaction)
+    return this.handlers[transaction.type].apply(wallet, transaction);
   }
 
   /**
@@ -48,8 +52,8 @@ class TransactionHandler {
   applyTransactionToSender(wallet, transaction) {
     return this.handlers[transaction.type].applyTransactionToSender(
       wallet,
-      transaction,
-    )
+      transaction
+    );
   }
 
   /**
@@ -61,8 +65,8 @@ class TransactionHandler {
   applyTransactionToRecipient(wallet, transaction) {
     return this.handlers[transaction.type].applyTransactionToRecipient(
       wallet,
-      transaction,
-    )
+      transaction
+    );
   }
 
   /**
@@ -72,7 +76,7 @@ class TransactionHandler {
    * @return {void}
    */
   revert(wallet, transaction) {
-    return this.handlers[transaction.type].revert(wallet, transaction)
+    return this.handlers[transaction.type].revert(wallet, transaction);
   }
 
   /**
@@ -84,8 +88,8 @@ class TransactionHandler {
   revertTransactionForSender(wallet, transaction) {
     return this.handlers[transaction.type].revertTransactionForSender(
       wallet,
-      transaction,
-    )
+      transaction
+    );
   }
 
   /**
@@ -97,9 +101,9 @@ class TransactionHandler {
   revertTransactionForRecipient(wallet, transaction) {
     return this.handlers[transaction.type].revertTransactionForRecipient(
       wallet,
-      transaction,
-    )
+      transaction
+    );
   }
 }
 
-module.exports = new TransactionHandler()
+module.exports = new TransactionHandler();

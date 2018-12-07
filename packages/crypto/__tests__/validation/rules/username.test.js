@@ -1,15 +1,15 @@
-const rule = require('../../../lib/validation/rules/username')
+const rule = require("../../../lib/validation/rules/username");
 
-describe('Username Rule', () => {
-  it('should be a function', () => {
-    expect(rule).toBeFunction()
-  })
+describe("Username Rule", () => {
+  it("should be a function", () => {
+    expect(rule).toBeFunction();
+  });
 
-  it('should be true', () => {
-    expect(rule('boldninja').passes).toBeTrue()
-  })
+  it("should be true", () => {
+    expect(rule("boldninja").passes).toBeTrue();
+  });
 
-  it('should be false', () => {
-    expect(rule('bold ninja').passes).toBeFalse()
-  })
-})
+  it("should be false", () => {
+    expect(rule("bold ninja").passes).toBeFalse();
+  });
+});

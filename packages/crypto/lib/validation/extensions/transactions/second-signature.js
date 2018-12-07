@@ -1,8 +1,8 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
-const transaction = require('./base')
+const { TRANSACTION_TYPES } = require("../../../constants");
+const transaction = require("./base");
 
 module.exports = joi => ({
-  name: 'arkSecondSignature',
+  name: "arkSecondSignature",
   base: transaction(joi).append({
     type: joi
       .number()
@@ -12,16 +12,16 @@ module.exports = joi => ({
       .alternatives()
       .try(joi.bignumber().only(0), joi.number().only(0))
       .optional(),
-    secondSignature: joi.string().only(''),
+    secondSignature: joi.string().only(""),
     asset: joi
       .object({
         signature: joi
           .object({
-            publicKey: joi.arkPublicKey().required(),
+            publicKey: joi.arkPublicKey().required()
           })
-          .required(),
+          .required()
       })
       .required(),
-    recipientId: joi.empty(),
-  }),
-})
+    recipientId: joi.empty()
+  })
+});

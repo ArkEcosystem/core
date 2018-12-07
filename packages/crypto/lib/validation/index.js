@@ -1,4 +1,4 @@
 module.exports = {
-  validator: require('./validator'),
-  transactionValidator: require('./validators/transaction'),
-}
+  validator: require("./validator"),
+  transactionValidator: require("./validators/transaction")
+};

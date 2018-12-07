@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { bignumify } from "@arkecosystem/core-utils";
 import Hapi from "hapi";
 
@@ -15,7 +13,10 @@ function isNumber(value) {
   return !isNaN(value);
 }
 
-const register = async (server: Hapi.Server, options: object): Promise<void> => {
+const register = async (
+  server: Hapi.Server,
+  options: object
+): Promise<void> => {
   server.ext({
     type: "onPreHandler",
     method: (request, h) => {
@@ -28,9 +29,10 @@ const register = async (server: Hapi.Server, options: object): Promise<void> => 
         } else if (isBoolean(query[key])) {
           query[key] = query[key].toLowerCase() === "true";
         } else if (isNumber(query[key])) {
-          // @ts-ignore
-          // tslint:disable-next-line triple-equals
-          query[key] = query[key] == Number(query[key])
+          query[key] =
+            // @ts-ignore
+            // tslint:disable-next-line triple-equals
+            query[key] == Number(query[key])
               ? Number(query[key])
               : bignumify(query[key]).toString();
         } else {
@@ -42,12 +44,12 @@ const register = async (server: Hapi.Server, options: object): Promise<void> => 
       request.query = query;
 
       return h.continue;
-    },
+    }
   });
 };
 
 export = {
   register,
   name: "core-caster",
-  version: "1.0.0",
+  version: "1.0.0"
 };

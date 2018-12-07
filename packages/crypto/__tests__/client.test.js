@@ -1,7 +1,7 @@
-const ark = require('../lib/client')
+const ark = require("../lib/client");
 
-describe('Client', () => {
-  it('should be instantiated', () => {
-    expect(ark).toBeObject()
-  })
-})
+describe("Client", () => {
+  it("should be instantiated", () => {
+    expect(ark).toBeObject();
+  });
+});

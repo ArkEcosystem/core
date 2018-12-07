@@ -1,10 +1,10 @@
-const bip32 = require('bip32')
-const bip39 = require('bip39')
-const configManager = require('../managers/config')
+const bip32 = require("bip32");
+const bip39 = require("bip39");
+const configManager = require("../managers/config");
 
 class HDWallet {
   constructor() {
-    this.slip44 = 111
+    this.slip44 = 111;
   }
 
   /**
@@ -14,8 +14,8 @@ class HDWallet {
    * @returns {bip32}
    */
   fromMnemonic(mnemonic, passphrase) {
-    const seed = bip39.mnemonicToSeed(mnemonic, passphrase)
-    return bip32.fromSeed(seed, configManager.config)
+    const seed = bip39.mnemonicToSeed(mnemonic, passphrase);
+    return bip32.fromSeed(seed, configManager.config);
   }
 
   /**
@@ -26,14 +26,14 @@ class HDWallet {
    */
   fromKeys(keys, chainCode) {
     if (!keys.compressed) {
-      throw new TypeError('BIP32 only allows compressed keys.')
+      throw new TypeError("BIP32 only allows compressed keys.");
     }
 
     return bip32.fromPrivateKey(
-      Buffer.from(keys.privateKey, 'hex'),
+      Buffer.from(keys.privateKey, "hex"),
       chainCode,
-      configManager.config,
-    )
+      configManager.config
+    );
   }
 
   /**
@@ -43,10 +43,10 @@ class HDWallet {
    */
   getKeys(node) {
     return {
-      publicKey: node.publicKey.toString('hex'),
-      privateKey: node.privateKey.toString('hex'),
-      compressed: true,
-    }
+      publicKey: node.publicKey.toString("hex"),
+      privateKey: node.privateKey.toString("hex"),
+      compressed: true
+    };
   }
 
   /**
@@ -56,7 +56,7 @@ class HDWallet {
    * @returns {bip32}
    */
   deriveSlip44(root, hardened = true) {
-    return root.derivePath(`m/44'/${this.slip44}${hardened ? "'" : ''}`)
+    return root.derivePath(`m/44'/${this.slip44}${hardened ? "'" : ""}`);
   }
 
   /**
@@ -66,9 +66,9 @@ class HDWallet {
    */
   deriveNetwork(root) {
     return this.deriveSlip44(root).deriveHardened(
-      configManager.config.aip20 || 1,
-    )
+      configManager.config.aip20 || 1
+    );
   }
 }
 
-module.exports = new HDWallet()
+module.exports = new HDWallet();

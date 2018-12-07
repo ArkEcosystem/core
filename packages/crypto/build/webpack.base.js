@@ -1,5 +1,5 @@
 module.exports = (babelOptions = {}) => ({
-  mode: 'production',
+  mode: "production",
 
   context: __dirname,
 
@@ -9,16 +9,16 @@ module.exports = (babelOptions = {}) => ({
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
-            presets: [['@babel/preset-env', babelOptions]],
-          },
-        },
-      },
-    ],
+            presets: [["@babel/preset-env", babelOptions]]
+          }
+        }
+      }
+    ]
   },
 
   resolve: {
-    extensions: ['.js', '.json'],
-  },
-})
+    extensions: [".js", ".json"]
+  }
+});

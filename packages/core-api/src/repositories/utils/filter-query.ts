@@ -1,5 +1,3 @@
-/* eslint no-prototype-builtins: "off" */
-
 export default function(parameters, filters) {
   const where = [];
 
@@ -9,7 +7,7 @@ export default function(parameters, filters) {
         where.push({
           column: elem,
           method: "equals",
-          value: parameters[elem],
+          value: parameters[elem]
         });
       }
     }
@@ -28,7 +26,7 @@ export default function(parameters, filters) {
         where.push({
           column: elem,
           method: "equals",
-          value: parameters[elem],
+          value: parameters[elem]
         });
       }
 
@@ -42,7 +40,7 @@ export default function(parameters, filters) {
           where.push({
             column: elem,
             method: "gte",
-            value: parameters[elem].from,
+            value: parameters[elem].from
           });
         }
 
@@ -50,7 +48,7 @@ export default function(parameters, filters) {
           where.push({
             column: elem,
             method: "lte",
-            value: parameters[elem].to,
+            value: parameters[elem].to
           });
         }
       }
@@ -63,7 +61,7 @@ export default function(parameters, filters) {
         where.push({
           column: elem,
           method: "like",
-          value: `%${parameters[elem]}%`,
+          value: `%${parameters[elem]}%`
         });
       }
     }

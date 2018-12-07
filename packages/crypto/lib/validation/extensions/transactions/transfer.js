@@ -1,8 +1,8 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
-const transaction = require('./base')
+const { TRANSACTION_TYPES } = require("../../../constants");
+const transaction = require("./base");
 
 module.exports = joi => ({
-  name: 'arkTransfer',
+  name: "arkTransfer",
   base: transaction(joi).append({
     type: joi
       .number()
@@ -14,13 +14,13 @@ module.exports = joi => ({
       .min(0),
     vendorField: joi
       .string()
-      .max(64, 'utf8')
-      .allow('', null)
+      .max(64, "utf8")
+      .allow("", null)
       .optional(), // TODO: remove in 2.1
     vendorFieldHex: joi
       .string()
-      .max(64, 'hex')
+      .max(64, "hex")
       .optional(),
-    asset: joi.object().empty(),
-  }),
-})
+    asset: joi.object().empty()
+  })
+});

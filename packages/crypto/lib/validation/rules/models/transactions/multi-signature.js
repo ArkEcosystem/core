@@ -1,16 +1,16 @@
-const { TRANSACTION_TYPES } = require('../../../../constants')
-const engine = require('../../../engine')
+const { TRANSACTION_TYPES } = require("../../../../constants");
+const engine = require("../../../engine");
 
 module.exports = transaction => {
-  let maxMinValue = 16
-  let signaturesLength = 2
+  let maxMinValue = 16;
+  let signaturesLength = 2;
   if (
     transaction.asset &&
     transaction.asset.multisignature &&
     Array.isArray(transaction.asset.multisignature.keysgroup)
   ) {
-    maxMinValue = transaction.asset.multisignature.keysgroup.length
-    signaturesLength = maxMinValue
+    maxMinValue = transaction.asset.multisignature.keysgroup.length;
+    signaturesLength = maxMinValue;
   }
   const { error, value } = engine.validate(
     transaction,
@@ -37,7 +37,7 @@ module.exports = transaction => {
           .number()
           .integer()
           .positive()
-          .required(),
+          .required()
       ),
       senderId: engine.joi.arkAddress(),
       recipientId: engine.joi.empty(),
@@ -71,7 +71,7 @@ module.exports = transaction => {
                     .not(`+${transaction.senderPublicKey}`)
                     .length(67)
                     .regex(/^\+/)
-                    .required(),
+                    .required()
                 )
                 .required(),
               lifetime: engine.joi
@@ -79,25 +79,25 @@ module.exports = transaction => {
                 .integer()
                 .min(1)
                 .max(72)
-                .required(),
+                .required()
             })
-            .required(),
+            .required()
         })
         .required(),
       confirmations: engine.joi
         .number()
         .integer()
-        .min(0),
+        .min(0)
     }),
     {
-      allowUnknown: true,
-    },
-  )
+      allowUnknown: true
+    }
+  );
 
   return {
     data: value,
     errors: error ? error.details : null,
     passes: !error,
-    fails: error,
-  }
-}
+    fails: error
+  };
+};

@@ -1,8 +1,8 @@
-const configManager = require('../managers/config')
-const { TRANSACTION_TYPES } = require('../constants')
-const { Bignum, formatArktoshi } = require('../utils')
-const crypto = require('../crypto/crypto')
-const transactionHandler = require('../handlers/transactions')
+const configManager = require("../managers/config");
+const { TRANSACTION_TYPES } = require("../constants");
+const { Bignum, formatArktoshi } = require("../utils");
+const crypto = require("../crypto/crypto");
+const transactionHandler = require("../handlers/transactions");
 
 /**
  * TODO copy some parts to ArkDocs
@@ -31,21 +31,21 @@ module.exports = class Wallet {
    * @param  {String} address
    */
   constructor(address) {
-    this.address = address
-    this.publicKey = null
-    this.secondPublicKey = null
-    this.balance = Bignum.ZERO
-    this.vote = null
-    this.voted = false
-    this.username = null
-    this.lastBlock = null
-    this.voteBalance = Bignum.ZERO
-    this.multisignature = null
-    this.dirty = true
-    this.producedBlocks = 0
-    this.missedBlocks = 0
-    this.forgedFees = Bignum.ZERO
-    this.forgedRewards = Bignum.ZERO
+    this.address = address;
+    this.publicKey = null;
+    this.secondPublicKey = null;
+    this.balance = Bignum.ZERO;
+    this.vote = null;
+    this.voted = false;
+    this.username = null;
+    this.lastBlock = null;
+    this.voteBalance = Bignum.ZERO;
+    this.multisignature = null;
+    this.dirty = true;
+    this.producedBlocks = 0;
+    this.missedBlocks = 0;
+    this.forgedFees = Bignum.ZERO;
+    this.forgedRewards = Bignum.ZERO;
   }
 
   /**
@@ -55,7 +55,7 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   canApply(transaction, errors) {
-    return transactionHandler.canApply(this, transaction, errors)
+    return transactionHandler.canApply(this, transaction, errors);
   }
 
   /**
@@ -64,7 +64,7 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   apply(transaction) {
-    return transactionHandler.apply(this, transaction)
+    return transactionHandler.apply(this, transaction);
   }
 
   /**
@@ -73,7 +73,7 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   revert(transaction) {
-    return transactionHandler.revert(this, transaction)
+    return transactionHandler.revert(this, transaction);
   }
 
   /**
@@ -81,7 +81,7 @@ module.exports = class Wallet {
    * @param {Transaction} transaction
    */
   applyTransactionToSender(transaction) {
-    return transactionHandler.applyTransactionToSender(this, transaction)
+    return transactionHandler.applyTransactionToSender(this, transaction);
   }
 
   /**
@@ -89,7 +89,7 @@ module.exports = class Wallet {
    * @param {Transaction} transaction
    */
   revertTransactionForSender(transaction) {
-    return transactionHandler.revertTransactionForSender(this, transaction)
+    return transactionHandler.revertTransactionForSender(this, transaction);
   }
 
   /**
@@ -97,7 +97,7 @@ module.exports = class Wallet {
    * @param {Transaction} transaction
    */
   applyTransactionToRecipient(transaction) {
-    return transactionHandler.applyTransactionToRecipient(this, transaction)
+    return transactionHandler.applyTransactionToRecipient(this, transaction);
   }
 
   /**
@@ -105,7 +105,7 @@ module.exports = class Wallet {
    * @param {Transaction} transaction
    */
   revertTransactionForRecipient(transaction) {
-    return transactionHandler.revertTransactionForRecipient(this, transaction)
+    return transactionHandler.revertTransactionForRecipient(this, transaction);
   }
 
   /**
@@ -114,23 +114,23 @@ module.exports = class Wallet {
    * @returns {Boolean}
    */
   applyBlock(block) {
-    this.dirty = true
+    this.dirty = true;
 
     if (
       block.generatorPublicKey === this.publicKey ||
       crypto.getAddress(block.generatorPublicKey) === this.address
     ) {
-      this.balance = this.balance.plus(block.reward).plus(block.totalFee)
+      this.balance = this.balance.plus(block.reward).plus(block.totalFee);
 
       // update stats
-      this.producedBlocks++
-      this.forgedFees = this.forgedFees.plus(block.totalFee)
-      this.forgedRewards = this.forgedRewards.plus(block.reward)
-      this.lastBlock = block
-      return true
+      this.producedBlocks++;
+      this.forgedFees = this.forgedFees.plus(block.totalFee);
+      this.forgedRewards = this.forgedRewards.plus(block.reward);
+      this.lastBlock = block;
+      return true;
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -138,26 +138,26 @@ module.exports = class Wallet {
    * @param {Block} block
    */
   revertBlock(block) {
-    this.dirty = true
+    this.dirty = true;
 
     if (
       block.generatorPublicKey === this.publicKey ||
       crypto.getAddress(block.generatorPublicKey) === this.address
     ) {
-      this.balance = this.balance.minus(block.reward).minus(block.totalFee)
+      this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
       // update stats
-      this.forgedFees = this.forgedFees.minus(block.totalFee)
-      this.forgedRewards = this.forgedRewards.minus(block.reward)
-      this.lastBlock = block
-      this.producedBlocks--
+      this.forgedFees = this.forgedFees.minus(block.totalFee);
+      this.forgedRewards = this.forgedRewards.minus(block.reward);
+      this.lastBlock = block;
+      this.producedBlocks--;
 
       // TODO: get it back from database?
-      this.lastBlock = null
-      return true
+      this.lastBlock = null;
+      return true;
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -168,8 +168,8 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verify(transaction, signature, publicKey) {
-    const hash = crypto.getHash(transaction, true, true)
-    return crypto.verifyHash(hash, signature, publicKey)
+    const hash = crypto.getHash(transaction, true, true);
+    return crypto.verifyHash(hash, signature, publicKey);
   }
 
   /**
@@ -183,31 +183,31 @@ module.exports = class Wallet {
       !transaction.signatures ||
       transaction.signatures.length < multisignature.min
     ) {
-      return false
+      return false;
     }
 
     const keysgroup = multisignature.keysgroup.map(publicKey =>
-      publicKey.startsWith('+') ? publicKey.slice(1) : publicKey,
-    )
-    const signatures = Object.values(transaction.signatures)
+      publicKey.startsWith("+") ? publicKey.slice(1) : publicKey
+    );
+    const signatures = Object.values(transaction.signatures);
 
-    let valid = 0
+    let valid = 0;
     for (const publicKey of keysgroup) {
       const signature = this.__verifyTransactionSignatures(
         transaction,
         signatures,
-        publicKey,
-      )
+        publicKey
+      );
       if (signature) {
-        signatures.splice(signatures.indexOf(signature), 1)
-        valid++
+        signatures.splice(signatures.indexOf(signature), 1);
+        valid++;
         if (valid === multisignature.min) {
-          return true
+          return true;
         }
       }
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -216,99 +216,99 @@ module.exports = class Wallet {
    * @return {[type]}
    */
   auditApply(transaction) {
-    const audit = []
+    const audit = [];
 
     if (this.multisignature) {
       audit.push({
-        Mutisignature: this.verifySignatures(transaction, this.multisignature),
-      })
+        Mutisignature: this.verifySignatures(transaction, this.multisignature)
+      });
     } else {
       audit.push({
-        'Remaining amount': +this.balance
+        "Remaining amount": +this.balance
           .minus(transaction.amount)
           .minus(transaction.fee)
-          .toFixed(),
-      })
-      audit.push({ 'Signature validation': crypto.verify(transaction) })
+          .toFixed()
+      });
+      audit.push({ "Signature validation": crypto.verify(transaction) });
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       if (this.secondPublicKey) {
         audit.push({
-          'Second Signature Verification': crypto.verifySecondSignature(
+          "Second Signature Verification": crypto.verifySecondSignature(
             transaction,
             this.secondPublicKey,
-            configManager.config,
-          ), // eslint-disable-line max-len
-        })
+            configManager.config
+          )
+        });
       }
     }
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      audit.push({ Transfer: true })
+      audit.push({ Transfer: true });
     }
 
     if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-      audit.push({ 'Second public key': this.secondPublicKey })
+      audit.push({ "Second public key": this.secondPublicKey });
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      const username = transaction.asset.delegate.username
-      audit.push({ 'Current username': this.username })
-      audit.push({ 'New username': username })
+      const username = transaction.asset.delegate.username;
+      audit.push({ "Current username": this.username });
+      audit.push({ "New username": username });
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      audit.push({ 'Current vote': this.vote })
-      audit.push({ 'New vote': transaction.asset.votes[0] })
+      audit.push({ "Current vote": this.vote });
+      audit.push({ "New vote": transaction.asset.votes[0] });
     }
 
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      const keysgroup = transaction.asset.multisignature.keysgroup
-      audit.push({ 'Multisignature not yet registered': !this.multisignature })
+      const keysgroup = transaction.asset.multisignature.keysgroup;
+      audit.push({ "Multisignature not yet registered": !this.multisignature });
       audit.push({
-        'Multisignature enough keys':
-          keysgroup.length >= transaction.asset.multisignature.min,
-      })
+        "Multisignature enough keys":
+          keysgroup.length >= transaction.asset.multisignature.min
+      });
       audit.push({
-        'Multisignature all keys signed':
-          keysgroup.length === transaction.signatures.length,
-      })
+        "Multisignature all keys signed":
+          keysgroup.length === transaction.signatures.length
+      });
       audit.push({
-        'Multisignature verification': this.verifySignatures(
+        "Multisignature verification": this.verifySignatures(
           transaction,
-          transaction.asset.multisignature,
-        ),
-      })
+          transaction.asset.multisignature
+        )
+      });
     }
 
     if (transaction.type === TRANSACTION_TYPES.IPFS) {
-      audit.push({ IPFS: true })
+      audit.push({ IPFS: true });
     }
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      audit.push({ Timelock: true })
+      audit.push({ Timelock: true });
     }
 
     if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       const amount = transaction.asset.payments.reduce(
         (a, p) => a.plus(p.amount),
-        Bignum.ZERO,
-      )
-      audit.push({ 'Multipayment remaining amount': amount })
+        Bignum.ZERO
+      );
+      audit.push({ "Multipayment remaining amount": amount });
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      audit.push({ 'Resignate Delegate': this.username })
+      audit.push({ "Resignate Delegate": this.username });
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      audit.push({ 'Resignate Delegate': this.username })
+      audit.push({ "Resignate Delegate": this.username });
     }
 
     if (!Object.values(TRANSACTION_TYPES).includes(transaction.type)) {
-      audit.push({ 'Unknown Type': true })
+      audit.push({ "Unknown Type": true });
     }
 
-    return audit
+    return audit;
   }
 
   /**
@@ -316,7 +316,7 @@ module.exports = class Wallet {
    * @return {String}
    */
   toString() {
-    return `${this.address} (${formatArktoshi(this.balance)})`
+    return `${this.address} (${formatArktoshi(this.balance)})`;
   }
 
   /**
@@ -328,12 +328,12 @@ module.exports = class Wallet {
    */
   __verifyTransactionSignatures(transaction, signatures, publicKey) {
     for (let i = 0; i < signatures.length; i++) {
-      const signature = signatures[i]
+      const signature = signatures[i];
       if (this.verify(transaction, signature, publicKey)) {
-        return signature
+        return signature;
       }
     }
 
-    return false
+    return false;
   }
-}
+};

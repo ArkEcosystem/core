@@ -1,5 +1,5 @@
-const Handler = require('./handler')
-const Bignum = require('../../utils/bignum')
+const Handler = require("./handler");
+const Bignum = require("../../utils/bignum");
 
 class MultiPaymentHandler extends Handler {
   /**
@@ -11,23 +11,23 @@ class MultiPaymentHandler extends Handler {
    */
   canApply(wallet, transaction, errors) {
     if (!super.canApply(wallet, transaction, errors)) {
-      return false
+      return false;
     }
 
     const amount = transaction.asset.payments.reduce(
       (total, payment) => total.plus(payment.amount),
-      Bignum.ZERO,
-    )
+      Bignum.ZERO
+    );
 
     const canApply =
       +wallet.balance
         .minus(amount)
         .minus(transaction.fee)
-        .toFixed() >= 0
+        .toFixed() >= 0;
     if (!canApply) {
-      errors.push('Insufficient balance in the wallet')
+      errors.push("Insufficient balance in the wallet");
     }
-    return canApply
+    return canApply;
   }
 
   /**
@@ -51,4 +51,4 @@ class MultiPaymentHandler extends Handler {
   }
 }
 
-module.exports = new MultiPaymentHandler()
+module.exports = new MultiPaymentHandler();

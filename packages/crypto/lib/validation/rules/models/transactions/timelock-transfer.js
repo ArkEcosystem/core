@@ -1,5 +1,5 @@
-const { TRANSACTION_TYPES } = require('../../../../constants')
-const engine = require('../../../engine')
+const { TRANSACTION_TYPES } = require("../../../../constants");
+const engine = require("../../../engine");
 
 module.exports = transaction => {
   const { error, value } = engine.validate(
@@ -36,17 +36,17 @@ module.exports = transaction => {
       confirmations: engine.joi
         .number()
         .integer()
-        .min(0),
+        .min(0)
     }),
     {
-      allowUnknown: true,
-    },
-  )
+      allowUnknown: true
+    }
+  );
 
   return {
     data: value,
     errors: error ? error.details : null,
     passes: !error,
-    fails: error,
-  }
-}
+    fails: error
+  };
+};

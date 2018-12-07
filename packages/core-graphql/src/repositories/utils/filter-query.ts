@@ -1,5 +1,3 @@
-/* eslint no-prototype-builtins: "off" */
-
 /**
  * Create a "where" object for a sql query.
  * @param  {Object} parameters
@@ -15,7 +13,7 @@ export default (parameters, filters) => {
         where.push({
           column: elem,
           method: "equals",
-          value: parameters[elem],
+          value: parameters[elem]
         });
       }
     }
@@ -31,7 +29,7 @@ export default (parameters, filters) => {
         where.push({
           column: elem,
           method: "equals",
-          value: parameters[elem],
+          value: parameters[elem]
         });
       }
 
@@ -42,7 +40,7 @@ export default (parameters, filters) => {
           where.push({
             column: elem,
             method: "gte",
-            value: parameters[elem].from,
+            value: parameters[elem].from
           });
         }
 
@@ -50,7 +48,7 @@ export default (parameters, filters) => {
           where.push({
             column: elem,
             method: "lte",
-            value: parameters[elem].to,
+            value: parameters[elem].to
           });
         }
       }
@@ -63,7 +61,7 @@ export default (parameters, filters) => {
         where.push({
           column: elem,
           method: "like",
-          value: `%${parameters[elem]}%`,
+          value: `%${parameters[elem]}%`
         });
       }
     }

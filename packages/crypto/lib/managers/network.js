@@ -1,5 +1,5 @@
-const get = require('lodash/get')
-const networks = require('../networks')
+const get = require("lodash/get");
+const networks = require("../networks");
 
 module.exports = class NetworkManager {
   /**
@@ -7,7 +7,7 @@ module.exports = class NetworkManager {
    * @return {Object}
    */
   static getAll() {
-    return networks
+    return networks;
   }
 
   /**
@@ -16,7 +16,7 @@ module.exports = class NetworkManager {
    * @param  {String} [token=ark]
    * @return {Object}
    */
-  static findByName(name, token = 'ark') {
-    return get(networks, `${token.toLowerCase()}.${name}`)
+  static findByName(name, token = "ark") {
+    return get(networks, `${token.toLowerCase()}.${name}`);
   }
-}
+};

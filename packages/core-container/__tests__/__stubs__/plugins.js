@@ -1,12 +1,12 @@
 module.exports = {
-  './plugin-a': {
-    enabled: true,
+  "./plugin-a": {
+    enabled: true
   },
-  './plugin-b': {
+  "./plugin-b": {
     enabled: true,
-    property: 'value',
+    property: "value"
   },
-  './plugin-c': {
-    enabled: true,
-  },
-}
+  "./plugin-c": {
+    enabled: true
+  }
+};

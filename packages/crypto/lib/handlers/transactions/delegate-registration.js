@@ -1,4 +1,4 @@
-const Handler = require('./handler')
+const Handler = require("./handler");
 
 class DelegateRegistrationHandler extends Handler {
   /**
@@ -10,17 +10,17 @@ class DelegateRegistrationHandler extends Handler {
    */
   canApply(wallet, transaction, errors) {
     if (!super.canApply(wallet, transaction, errors)) {
-      return false
+      return false;
     }
 
-    const username = transaction.asset.delegate.username
+    const username = transaction.asset.delegate.username;
     // TODO: Checking whether the username is a lowercase version of itself seems silly. Why can't we mutate it to lowercase
     const canApply =
-      !wallet.username && username && username === username.toLowerCase()
+      !wallet.username && username && username === username.toLowerCase();
     if (!canApply) {
-      errors.push('Wallet already has a registered username')
+      errors.push("Wallet already has a registered username");
     }
-    return canApply
+    return canApply;
   }
 
   /**
@@ -30,7 +30,7 @@ class DelegateRegistrationHandler extends Handler {
    * @return {void}
    */
   apply(wallet, transaction) {
-    wallet.username = transaction.asset.delegate.username
+    wallet.username = transaction.asset.delegate.username;
   }
 
   /**
@@ -40,8 +40,8 @@ class DelegateRegistrationHandler extends Handler {
    * @return {void}
    */
   revert(wallet, transaction) {
-    wallet.username = null
+    wallet.username = null;
   }
 }
 
-module.exports = new DelegateRegistrationHandler()
+module.exports = new DelegateRegistrationHandler();

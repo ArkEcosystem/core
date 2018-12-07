@@ -1,12 +1,12 @@
-const dayjs = require('dayjs-ext')
-const configManager = require('../managers/config')
+const dayjs = require("dayjs-ext");
+const configManager = require("../managers/config");
 
 class Slots {
   /**
    * Create a new Slot instance.
    */
   constructor() {
-    this.resetHeight()
+    this.resetHeight();
   }
 
   /**
@@ -14,7 +14,7 @@ class Slots {
    * @return {Number}
    */
   getHeight() {
-    return this.height
+    return this.height;
   }
 
   /**
@@ -23,7 +23,7 @@ class Slots {
    * @return {void}
    */
   setHeight(height) {
-    this.height = height
+    this.height = height;
   }
 
   /**
@@ -31,7 +31,7 @@ class Slots {
    * @return {void}
    */
   resetHeight() {
-    this.height = 1
+    this.height = 1;
   }
 
   /**
@@ -41,12 +41,12 @@ class Slots {
    */
   getEpochTime(time) {
     if (time === undefined) {
-      time = dayjs().valueOf()
+      time = dayjs().valueOf();
     }
 
-    const start = this.beginEpochTime().valueOf()
+    const start = this.beginEpochTime().valueOf();
 
-    return Math.floor((time - start) / 1000)
+    return Math.floor((time - start) / 1000);
   }
 
   /**
@@ -54,7 +54,7 @@ class Slots {
    * @return {Moment}
    */
   beginEpochTime() {
-    return dayjs(this.getConstant('epoch')).utc()
+    return dayjs(this.getConstant("epoch")).utc();
   }
 
   /**
@@ -63,7 +63,7 @@ class Slots {
    * @return {Number}
    */
   getTime(time) {
-    return this.getEpochTime(time)
+    return this.getEpochTime(time);
   }
 
   /**
@@ -73,12 +73,12 @@ class Slots {
    */
   getRealTime(epochTime) {
     if (epochTime === undefined) {
-      epochTime = this.getTime()
+      epochTime = this.getTime();
     }
 
-    const start = Math.floor(this.beginEpochTime().valueOf() / 1000) * 1000
+    const start = Math.floor(this.beginEpochTime().valueOf() / 1000) * 1000;
 
-    return start + epochTime * 1000
+    return start + epochTime * 1000;
   }
 
   /**
@@ -88,10 +88,10 @@ class Slots {
    */
   getSlotNumber(epochTime) {
     if (epochTime === undefined) {
-      epochTime = this.getTime()
+      epochTime = this.getTime();
     }
 
-    return Math.floor(epochTime / this.getConstant('blocktime'))
+    return Math.floor(epochTime / this.getConstant("blocktime"));
   }
 
   /**
@@ -100,7 +100,7 @@ class Slots {
    * @return {Number}
    */
   getSlotTime(slot) {
-    return slot * this.getConstant('blocktime')
+    return slot * this.getConstant("blocktime");
   }
 
   /**
@@ -108,7 +108,7 @@ class Slots {
    * @return {Number}
    */
   getNextSlot() {
-    return this.getSlotNumber() + 1
+    return this.getSlotNumber() + 1;
   }
 
   /**
@@ -117,7 +117,7 @@ class Slots {
    * @return {Number}
    */
   getLastSlot(nextSlot) {
-    return nextSlot + this.getConstant('activeDelegates')
+    return nextSlot + this.getConstant("activeDelegates");
   }
 
   /**
@@ -126,7 +126,7 @@ class Slots {
    * @return {*}
    */
   getConstant(key) {
-    return configManager.getConstants(this.height)[key]
+    return configManager.getConstants(this.height)[key];
   }
 
   /**
@@ -136,13 +136,13 @@ class Slots {
    */
   isForgingAllowed(epochTime) {
     if (epochTime === undefined) {
-      epochTime = this.getTime()
+      epochTime = this.getTime();
     }
 
-    const blockTime = this.getConstant('blocktime')
+    const blockTime = this.getConstant("blocktime");
 
-    return epochTime % blockTime < blockTime / 2
+    return epochTime % blockTime < blockTime / 2;
   }
 }
 
-module.exports = new Slots()
+module.exports = new Slots();

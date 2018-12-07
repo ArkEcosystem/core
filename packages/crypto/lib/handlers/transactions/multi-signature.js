@@ -1,4 +1,4 @@
-const Handler = require('./handler')
+const Handler = require("./handler");
 
 class MultiSignatureHandler extends Handler {
   /**
@@ -10,34 +10,34 @@ class MultiSignatureHandler extends Handler {
    */
   canApply(wallet, transaction, errors) {
     if (!super.canApply(wallet, transaction, errors)) {
-      return false
+      return false;
     }
 
     if (wallet.multisignature) {
-      errors.push('Wallet is already a multi-signature wallet')
-      return false
+      errors.push("Wallet is already a multi-signature wallet");
+      return false;
     }
 
-    const keysgroup = transaction.asset.multisignature.keysgroup
+    const keysgroup = transaction.asset.multisignature.keysgroup;
 
     if (keysgroup.length < transaction.asset.multisignature.min) {
-      errors.push('Specified key count does not meet minimum key count')
-      return false
+      errors.push("Specified key count does not meet minimum key count");
+      return false;
     }
 
     if (keysgroup.length !== transaction.signatures.length) {
-      errors.push('Specified key count does not equal signature count')
-      return false
+      errors.push("Specified key count does not equal signature count");
+      return false;
     }
 
     const canApply = wallet.verifySignatures(
       transaction,
-      transaction.asset.multisignature,
-    )
+      transaction.asset.multisignature
+    );
     if (!canApply) {
-      errors.push('Failed to verify multi-signatures')
+      errors.push("Failed to verify multi-signatures");
     }
-    return canApply
+    return canApply;
   }
 
   /**
@@ -47,7 +47,7 @@ class MultiSignatureHandler extends Handler {
    * @return {void}
    */
   apply(wallet, transaction) {
-    wallet.multisignature = transaction.asset.multisignature
+    wallet.multisignature = transaction.asset.multisignature;
   }
 
   /**
@@ -57,8 +57,8 @@ class MultiSignatureHandler extends Handler {
    * @return {void}
    */
   revert(wallet, transaction) {
-    wallet.multisignature = null
+    wallet.multisignature = null;
   }
 }
 
-module.exports = new MultiSignatureHandler()
+module.exports = new MultiSignatureHandler();

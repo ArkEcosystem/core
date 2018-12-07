@@ -1,6 +1,6 @@
-const assert = require('assert')
-const { crypto } = require('../../crypto')
-const { transactionValidator } = require('../../validation')
+const assert = require("assert");
+const { crypto } = require("../../crypto");
+const { transactionValidator } = require("../../validation");
 
 module.exports = class Handler {
   /**
@@ -11,27 +11,27 @@ module.exports = class Handler {
    * @return {Boolean}
    */
   canApply(wallet, transaction, errors) {
-    const validationResult = transactionValidator.validate(transaction)
-    assert.ok(errors instanceof Array)
+    const validationResult = transactionValidator.validate(transaction);
+    assert.ok(errors instanceof Array);
     if (validationResult.fails) {
-      errors.push(validationResult.fails.message)
-      return false
+      errors.push(validationResult.fails.message);
+      return false;
     }
 
     if (wallet.multisignature) {
       if (!wallet.verifySignatures(transaction, wallet.multisignature)) {
-        errors.push('Failed to verify multi-signatures')
-        return false
+        errors.push("Failed to verify multi-signatures");
+        return false;
       }
     }
 
     const balance = +wallet.balance
       .minus(transaction.amount)
       .minus(transaction.fee)
-      .toFixed()
+      .toFixed();
     if (balance < 0) {
-      errors.push('Insufficient balance in the wallet')
-      return false
+      errors.push("Insufficient balance in the wallet");
+      return false;
     }
     if (
       !(
@@ -40,17 +40,17 @@ module.exports = class Handler {
       )
     ) {
       errors.push(
-        'wallet "publicKey" does not match transaction "senderPublicKey"',
-      )
-      return false
+        'wallet "publicKey" does not match transaction "senderPublicKey"'
+      );
+      return false;
     }
 
     if (
       !wallet.secondPublicKey &&
       (transaction.secondSignature || transaction.signSignature)
     ) {
-      errors.push('Invalid second-signature field')
-      return false
+      errors.push("Invalid second-signature field");
+      return false;
     }
 
     // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
@@ -58,11 +58,11 @@ module.exports = class Handler {
       wallet.secondPublicKey &&
       !crypto.verifySecondSignature(transaction, wallet.secondPublicKey)
     ) {
-      errors.push('Failed to verify second-signature')
-      return false
+      errors.push("Failed to verify second-signature");
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -79,11 +79,11 @@ module.exports = class Handler {
     ) {
       wallet.balance = wallet.balance
         .minus(transaction.amount)
-        .minus(transaction.fee)
+        .minus(transaction.fee);
 
-      this.apply(wallet, transaction)
+      this.apply(wallet, transaction);
 
-      wallet.dirty = true
+      wallet.dirty = true;
     }
   }
 
@@ -101,11 +101,11 @@ module.exports = class Handler {
     ) {
       wallet.balance = wallet.balance
         .plus(transaction.amount)
-        .plus(transaction.fee)
+        .plus(transaction.fee);
 
-      this.revert(wallet, transaction)
+      this.revert(wallet, transaction);
 
-      wallet.dirty = true
+      wallet.dirty = true;
     }
   }
 
@@ -117,8 +117,8 @@ module.exports = class Handler {
    */
   applyTransactionToRecipient(wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
-      wallet.balance = wallet.balance.plus(transaction.amount)
-      wallet.dirty = true
+      wallet.balance = wallet.balance.plus(transaction.amount);
+      wallet.dirty = true;
     }
   }
 
@@ -130,8 +130,8 @@ module.exports = class Handler {
    */
   revertTransactionForRecipient(wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
-      wallet.balance = wallet.balance.minus(transaction.amount)
-      wallet.dirty = true
+      wallet.balance = wallet.balance.minus(transaction.amount);
+      wallet.dirty = true;
     }
   }
-}
+};

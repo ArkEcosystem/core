@@ -1,11 +1,11 @@
-const { TRANSACTION_TYPES } = require('../constants')
+const { TRANSACTION_TYPES } = require("../constants");
 
 class DynamicFeeManager {
   /**
    * @constructor
    */
   constructor() {
-    this.offsets = {}
+    this.offsets = {};
   }
 
   /**
@@ -16,15 +16,15 @@ class DynamicFeeManager {
    */
   calculateFee(arktoshiPerByte, transaction) {
     if (arktoshiPerByte <= 0) {
-      arktoshiPerByte = 1
+      arktoshiPerByte = 1;
     }
 
     // serialized is in hex
-    const transactionSizeInBytes = transaction.serialized.length / 2
+    const transactionSizeInBytes = transaction.serialized.length / 2;
 
     return (
       (this.get(transaction.type) + transactionSizeInBytes) * arktoshiPerByte
-    )
+    );
   }
 
   /**
@@ -33,7 +33,7 @@ class DynamicFeeManager {
    * @return {Number}
    */
   get(type) {
-    return this.offsets[type]
+    return this.offsets[type];
   }
 
   /**
@@ -43,10 +43,10 @@ class DynamicFeeManager {
    */
   set(type, value) {
     if (!this.__validType(type)) {
-      throw new Error('Invalid transaction type.')
+      throw new Error("Invalid transaction type.");
     }
 
-    this.offsets[type] = value
+    this.offsets[type] = value;
   }
 
   /**
@@ -55,8 +55,8 @@ class DynamicFeeManager {
    * @return {Boolean}
    */
   __validType(type) {
-    return Object.values(TRANSACTION_TYPES).indexOf(type) > -1
+    return Object.values(TRANSACTION_TYPES).indexOf(type) > -1;
   }
 }
 
-module.exports = new DynamicFeeManager()
+module.exports = new DynamicFeeManager();

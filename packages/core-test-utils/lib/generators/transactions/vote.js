@@ -1,5 +1,5 @@
-const generateTransactions = require('./transaction')
-const { TRANSACTION_TYPES } = require('../../../../crypto/lib/constants')
+const generateTransactions = require("./transaction");
+const { TRANSACTION_TYPES } = require("../../../../crypto/lib/constants");
 
 module.exports = (
   network,
@@ -7,7 +7,7 @@ module.exports = (
   publicKey,
   quantity = 10,
   getStruct = false,
-  fee,
+  fee
 ) =>
   generateTransactions(
     network,
@@ -17,5 +17,5 @@ module.exports = (
     undefined,
     quantity,
     getStruct,
-    fee,
-  )
+    fee
+  );

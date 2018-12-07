@@ -1,11 +1,11 @@
-const { TRANSACTION_TYPES } = require('../constants')
+const { TRANSACTION_TYPES } = require("../constants");
 
 class FeeManager {
   /**
    * @constructor
    */
   constructor() {
-    this.fees = {}
+    this.fees = {};
   }
 
   /**
@@ -15,10 +15,10 @@ class FeeManager {
    */
   set(type, value) {
     if (!this.__validType(type)) {
-      throw new Error('Invalid transaction type.')
+      throw new Error("Invalid transaction type.");
     }
 
-    this.fees[type] = value
+    this.fees[type] = value;
   }
 
   /**
@@ -27,7 +27,7 @@ class FeeManager {
    * @return {Number}
    */
   get(type) {
-    return this.fees[type]
+    return this.fees[type];
   }
 
   /**
@@ -38,12 +38,12 @@ class FeeManager {
   getForTransaction(transaction) {
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       return (
-        this.fees[transaction.type]
-        * (transaction.asset.multisignature.keysgroup.length + 1)
-      )
+        this.fees[transaction.type] *
+        (transaction.asset.multisignature.keysgroup.length + 1)
+      );
     }
 
-    return this.fees[transaction.type]
+    return this.fees[transaction.type];
   }
 
   /**
@@ -52,8 +52,8 @@ class FeeManager {
    * @return {Boolean}
    */
   __validType(type) {
-    return Object.values(TRANSACTION_TYPES).indexOf(type) > -1
+    return Object.values(TRANSACTION_TYPES).indexOf(type) > -1;
   }
 }
 
-module.exports = new FeeManager()
+module.exports = new FeeManager();

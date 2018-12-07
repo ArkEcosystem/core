@@ -4,7 +4,7 @@ class TransactionBuilderDirector {
    * @return {DelegateResignationBuilder}
    */
   delegateResignation() {
-    return this.__getTransaction('delegate-resignation')
+    return this.__getTransaction("delegate-resignation");
   }
 
   /**
@@ -12,7 +12,7 @@ class TransactionBuilderDirector {
    * @return {DelegateRegistrationBuilder}
    */
   delegateRegistration() {
-    return this.__getTransaction('delegate-registration')
+    return this.__getTransaction("delegate-registration");
   }
 
   /**
@@ -20,7 +20,7 @@ class TransactionBuilderDirector {
    * @return {IPFSBuilder}
    */
   ipfs() {
-    return this.__getTransaction('ipfs')
+    return this.__getTransaction("ipfs");
   }
 
   /**
@@ -28,7 +28,7 @@ class TransactionBuilderDirector {
    * @return {MultiPaymentBuilder}
    */
   multiPayment() {
-    return this.__getTransaction('multi-payment')
+    return this.__getTransaction("multi-payment");
   }
 
   /**
@@ -36,7 +36,7 @@ class TransactionBuilderDirector {
    * @return {MultiSignatureBuilder}
    */
   multiSignature() {
-    return this.__getTransaction('multi-signature')
+    return this.__getTransaction("multi-signature");
   }
 
   /**
@@ -44,7 +44,7 @@ class TransactionBuilderDirector {
    * @return {SecondSignatureBuilder}
    */
   secondSignature() {
-    return this.__getTransaction('second-signature')
+    return this.__getTransaction("second-signature");
   }
 
   /**
@@ -52,7 +52,7 @@ class TransactionBuilderDirector {
    * @return {TimelockTransferBuilder}
    */
   timelockTransfer() {
-    return this.__getTransaction('timelock-transfer')
+    return this.__getTransaction("timelock-transfer");
   }
 
   /**
@@ -60,7 +60,7 @@ class TransactionBuilderDirector {
    * @return {TransferBuilder}
    */
   transfer() {
-    return this.__getTransaction('transfer')
+    return this.__getTransaction("transfer");
   }
 
   /**
@@ -68,7 +68,7 @@ class TransactionBuilderDirector {
    * @return {VoteBuilder}
    */
   vote() {
-    return this.__getTransaction('vote')
+    return this.__getTransaction("vote");
   }
 
   /**
@@ -77,8 +77,8 @@ class TransactionBuilderDirector {
    * @return {TransactionBuilder}
    */
   __getTransaction(transactionType) {
-    return new (require(`./transactions/${transactionType}`))() // eslint-disable-line new-cap
+    return new (require(`./transactions/${transactionType}`))();
   }
 }
 
-module.exports = new TransactionBuilderDirector()
+module.exports = new TransactionBuilderDirector();

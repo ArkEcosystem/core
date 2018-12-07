@@ -1,7 +1,7 @@
-const transactionBuilder = require('../../lib/builder')
+const transactionBuilder = require("../../lib/builder");
 
-describe('Builder', () => {
-  it('should be instantiated', () => {
-    expect(transactionBuilder).toBeObject()
-  })
-})
+describe("Builder", () => {
+  it("should be instantiated", () => {
+    expect(transactionBuilder).toBeObject();
+  });
+});

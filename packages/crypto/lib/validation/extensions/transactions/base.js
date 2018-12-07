@@ -1,4 +1,4 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
+const { TRANSACTION_TYPES } = require("../../../constants");
 
 module.exports = joi =>
   joi.object().keys({
@@ -9,7 +9,7 @@ module.exports = joi =>
     blockid: joi.alternatives().try(
       // TODO: remove in 2.1
       joi.arkBlockId(),
-      joi.number().unsafe(),
+      joi.number().unsafe()
     ),
     version: joi
       .number()
@@ -29,7 +29,7 @@ module.exports = joi =>
         joi
           .number()
           .integer()
-          .positive(),
+          .positive()
       )
       .required(),
     fee: joi
@@ -39,7 +39,7 @@ module.exports = joi =>
         joi
           .number()
           .integer()
-          .positive(),
+          .positive()
       )
       .required(),
     senderId: joi.arkAddress(), // TODO: remove in 2.1
@@ -55,5 +55,5 @@ module.exports = joi =>
     confirmations: joi // TODO: remove in 2.1
       .number()
       .integer()
-      .min(0),
-  })
+      .min(0)
+  });

@@ -1,7 +1,7 @@
-const NetworkManager = require('./managers/network')
-const transactionBuilder = require('./builder')
-const configManager = require('./managers/config')
-const feeManager = require('./managers/fee')
+const NetworkManager = require("./managers/network");
+const transactionBuilder = require("./builder");
+const configManager = require("./managers/config");
+const feeManager = require("./managers/fee");
 
 class Client {
   /**
@@ -9,7 +9,7 @@ class Client {
    * @param {Object} config
    */
   constructor(config) {
-    this.setConfig(config || NetworkManager.findByName('devnet'))
+    this.setConfig(config || NetworkManager.findByName("devnet"));
   }
 
   /**
@@ -17,7 +17,7 @@ class Client {
    * @param {Object} config
    */
   setConfig(config) {
-    configManager.setConfig(config)
+    configManager.setConfig(config);
   }
 
   /**
@@ -25,7 +25,7 @@ class Client {
    * @return {FeeManager}
    */
   getFeeManager() {
-    return feeManager
+    return feeManager;
   }
 
   /**
@@ -33,7 +33,7 @@ class Client {
    * @return {ConfigManager}
    */
   getConfigManager() {
-    return configManager
+    return configManager;
   }
 
   /**
@@ -41,8 +41,8 @@ class Client {
    * @return {TransactionBuilder}
    */
   getBuilder() {
-    return transactionBuilder
+    return transactionBuilder;
   }
 }
 
-module.exports = new Client()
+module.exports = new Client();

@@ -1,4 +1,4 @@
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto } = require("@arkecosystem/crypto");
 
 /**
  * Verify if the given value is an ark address.
@@ -7,10 +7,10 @@ const { crypto } = require('@arkecosystem/crypto')
  * @return {Boolean}
  */
 const toBeArkAddress = (received, argument) => ({
-  message: () => 'Expected value to be a valid address',
-  pass: crypto.validateAddress(received, argument),
-})
+  message: () => "Expected value to be a valid address",
+  pass: crypto.validateAddress(received, argument)
+});
 
 expect.extend({
-  toBeArkAddress,
-})
+  toBeArkAddress
+});

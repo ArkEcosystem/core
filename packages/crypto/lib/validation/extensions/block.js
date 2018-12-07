@@ -1,5 +1,5 @@
 module.exports = joi => ({
-  name: 'arkBlock',
+  name: "arkBlock",
   base: joi.object().keys({
     id: joi.arkBlockId().required(),
     idHex: joi.string().hex(),
@@ -22,7 +22,7 @@ module.exports = joi => ({
     numberOfTransactions: joi
       .number()
       .integer()
-      .only(joi.ref('transactions.length')),
+      .only(joi.ref("transactions.length")),
     totalAmount: joi.alternatives().try(
       joi
         .number()
@@ -32,7 +32,7 @@ module.exports = joi => ({
       joi
         .string()
         .regex(/[0-9]+/)
-        .required(),
+        .required()
     ),
     totalFee: joi
       .number()
@@ -58,6 +58,6 @@ module.exports = joi => ({
       .string()
       .hex()
       .required(),
-    transactions: joi.arkTransactions(),
-  }),
-})
+    transactions: joi.arkTransactions()
+  })
+});

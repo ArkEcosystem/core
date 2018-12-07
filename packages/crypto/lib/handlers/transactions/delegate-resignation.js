@@ -1,4 +1,4 @@
-const Handler = require('./handler')
+const Handler = require("./handler");
 
 class DelegateResignationHandler extends Handler {
   /**
@@ -10,14 +10,14 @@ class DelegateResignationHandler extends Handler {
    */
   canApply(wallet, transaction, errors) {
     if (!super.canApply(wallet, transaction, errors)) {
-      return false
+      return false;
     }
 
-    const canApply = !!wallet.username
+    const canApply = !!wallet.username;
     if (!canApply) {
-      errors.push('Wallet has not registered a username')
+      errors.push("Wallet has not registered a username");
     }
-    return canApply
+    return canApply;
   }
 
   /**
@@ -41,4 +41,4 @@ class DelegateResignationHandler extends Handler {
   }
 }
 
-module.exports = new DelegateResignationHandler()
+module.exports = new DelegateResignationHandler();

@@ -1,5 +1,5 @@
-const { TRANSACTION_TYPES } = require('../../../../constants')
-const engine = require('../../../engine')
+const { TRANSACTION_TYPES } = require("../../../../constants");
+const engine = require("../../../engine");
 
 module.exports = transaction => {
   const { error, value } = engine.validate(
@@ -27,7 +27,7 @@ module.exports = transaction => {
           .number()
           .integer()
           .positive()
-          .required(),
+          .required()
       ),
       senderId: engine.joi.arkAddress(),
       senderPublicKey: engine.joi.arkPublicKey().required(),
@@ -41,25 +41,25 @@ module.exports = transaction => {
         .object({
           signature: engine.joi
             .object({
-              publicKey: engine.joi.arkPublicKey().required(),
+              publicKey: engine.joi.arkPublicKey().required()
             })
-            .required(),
+            .required()
         })
         .required(),
       confirmations: engine.joi
         .number()
         .integer()
-        .min(0),
+        .min(0)
     }),
     {
-      allowUnknown: true,
-    },
-  )
+      allowUnknown: true
+    }
+  );
 
   return {
     data: value,
     errors: error ? error.details : null,
     passes: !error,
-    fails: error,
-  }
-}
+    fails: error
+  };
+};

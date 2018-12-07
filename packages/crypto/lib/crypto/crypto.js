@@ -1,18 +1,16 @@
-/* eslint default-case: "off" */
+const bs58check = require("bs58check");
+const crypto = require("crypto");
+const ByteBuffer = require("bytebuffer");
+const secp256k1 = require("secp256k1");
+const wif = require("wif");
 
-const bs58check = require('bs58check')
-const crypto = require('crypto')
-const ByteBuffer = require('bytebuffer')
-const secp256k1 = require('secp256k1')
-const wif = require('wif')
-
-const configManager = require('../managers/config')
-const utils = require('./utils')
-const { Bignum } = require('../utils')
-const feeManager = require('../managers/fee')
+const configManager = require("../managers/config");
+const utils = require("./utils");
+const { Bignum } = require("../utils");
+const feeManager = require("../managers/fee");
 const {
-  transactionIdFixTable,
-} = require('../constants').CONFIGURATIONS.ARK.MAINNET
+  transactionIdFixTable
+} = require("../constants").CONFIGURATIONS.ARK.MAINNET;
 
 class Crypto {
   /**
@@ -21,7 +19,7 @@ class Crypto {
    * @return {Number}
    */
   getFee(transaction) {
-    return feeManager.get(transaction.type)
+    return feeManager.get(transaction.type);
   }
 
   /**
@@ -33,157 +31,157 @@ class Crypto {
    */
   getBytes(transaction, skipSignature, skipSecondSignature) {
     if (transaction.version && transaction.version !== 1) {
-      throw new Error('not supported yet')
+      throw new Error("not supported yet");
     }
 
-    let assetSize = 0
-    let assetBytes = null
+    let assetSize = 0;
+    let assetBytes = null;
 
     switch (transaction.type) {
       case 1: {
         // Signature
-        const { signature } = transaction.asset
-        const bb = new ByteBuffer(33, true)
-        const publicKeyBuffer = Buffer.from(signature.publicKey, 'hex')
+        const { signature } = transaction.asset;
+        const bb = new ByteBuffer(33, true);
+        const publicKeyBuffer = Buffer.from(signature.publicKey, "hex");
 
         for (let i = 0; i < publicKeyBuffer.length; i++) {
-          bb.writeByte(publicKeyBuffer[i])
+          bb.writeByte(publicKeyBuffer[i]);
         }
 
-        bb.flip()
+        bb.flip();
 
-        assetBytes = new Uint8Array(bb.toArrayBuffer())
-        assetSize = assetBytes.length
-        break
+        assetBytes = new Uint8Array(bb.toArrayBuffer());
+        assetSize = assetBytes.length;
+        break;
       }
 
       case 2: {
         // Delegate
-        assetBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
-        assetSize = assetBytes.length
-        break
+        assetBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
+        assetSize = assetBytes.length;
+        break;
       }
 
       case 3: {
         // Vote
         if (transaction.asset.votes !== null) {
-          assetBytes = Buffer.from(transaction.asset.votes.join(''), 'utf8')
-          assetSize = assetBytes.length
+          assetBytes = Buffer.from(transaction.asset.votes.join(""), "utf8");
+          assetSize = assetBytes.length;
         }
-        break
+        break;
       }
 
       case 4: {
         // Multi-Signature
         const keysgroupBuffer = Buffer.from(
-          transaction.asset.multisignature.keysgroup.join(''),
-          'utf8',
-        )
-        const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
+          transaction.asset.multisignature.keysgroup.join(""),
+          "utf8"
+        );
+        const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
 
-        bb.writeByte(transaction.asset.multisignature.min)
-        bb.writeByte(transaction.asset.multisignature.lifetime)
+        bb.writeByte(transaction.asset.multisignature.min);
+        bb.writeByte(transaction.asset.multisignature.lifetime);
 
         for (let i = 0; i < keysgroupBuffer.length; i++) {
-          bb.writeByte(keysgroupBuffer[i])
+          bb.writeByte(keysgroupBuffer[i]);
         }
 
-        bb.flip()
+        bb.flip();
 
-        assetBytes = bb.toBuffer()
-        assetSize = assetBytes.length
-        break
+        assetBytes = bb.toBuffer();
+        assetSize = assetBytes.length;
+        break;
       }
     }
 
     const bb = new ByteBuffer(
       1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize,
-      true,
-    )
-    bb.writeByte(transaction.type)
-    bb.writeInt(transaction.timestamp)
+      true
+    );
+    bb.writeByte(transaction.type);
+    bb.writeInt(transaction.timestamp);
 
     const senderPublicKeyBuffer = Buffer.from(
       transaction.senderPublicKey,
-      'hex',
-    )
+      "hex"
+    );
     for (let i = 0; i < senderPublicKeyBuffer.length; i++) {
-      bb.writeByte(senderPublicKeyBuffer[i])
+      bb.writeByte(senderPublicKeyBuffer[i]);
     }
 
     // Apply fix for broken type 1 and 4 transactions, which were
     // erroneously calculated with a recipient id.
     const isBrokenTransaction = Object.values(transactionIdFixTable).includes(
-      transaction.id,
-    )
-    const correctType = transaction.type !== 1 && transaction.type !== 4
+      transaction.id
+    );
+    const correctType = transaction.type !== 1 && transaction.type !== 4;
     if (transaction.recipientId && (isBrokenTransaction || correctType)) {
-      const recipient = bs58check.decode(transaction.recipientId)
+      const recipient = bs58check.decode(transaction.recipientId);
       for (let i = 0; i < recipient.length; i++) {
-        bb.writeByte(recipient[i])
+        bb.writeByte(recipient[i]);
       }
     } else {
       for (let i = 0; i < 21; i++) {
-        bb.writeByte(0)
+        bb.writeByte(0);
       }
     }
 
     if (transaction.vendorFieldHex) {
-      const vf = Buffer.from(transaction.vendorFieldHex, 'hex')
-      const fillstart = vf.length
+      const vf = Buffer.from(transaction.vendorFieldHex, "hex");
+      const fillstart = vf.length;
       for (let i = 0; i < fillstart; i++) {
-        bb.writeByte(vf[i])
+        bb.writeByte(vf[i]);
       }
       for (let i = fillstart; i < 64; i++) {
-        bb.writeByte(0)
+        bb.writeByte(0);
       }
     } else if (transaction.vendorField) {
-      const vf = Buffer.from(transaction.vendorField)
-      const fillstart = vf.length
+      const vf = Buffer.from(transaction.vendorField);
+      const fillstart = vf.length;
       for (let i = 0; i < fillstart; i++) {
-        bb.writeByte(vf[i])
+        bb.writeByte(vf[i]);
       }
       for (let i = fillstart; i < 64; i++) {
-        bb.writeByte(0)
+        bb.writeByte(0);
       }
     } else {
       for (let i = 0; i < 64; i++) {
-        bb.writeByte(0)
+        bb.writeByte(0);
       }
     }
 
-    bb.writeLong(+new Bignum(transaction.amount).toFixed())
-    bb.writeLong(+new Bignum(transaction.fee).toFixed())
+    bb.writeLong(+new Bignum(transaction.amount).toFixed());
+    bb.writeLong(+new Bignum(transaction.fee).toFixed());
 
     if (assetSize > 0) {
       for (let i = 0; i < assetSize; i++) {
-        bb.writeByte(assetBytes[i])
+        bb.writeByte(assetBytes[i]);
       }
     }
 
     if (!skipSignature && transaction.signature) {
-      const signatureBuffer = Buffer.from(transaction.signature, 'hex')
+      const signatureBuffer = Buffer.from(transaction.signature, "hex");
       for (let i = 0; i < signatureBuffer.length; i++) {
-        bb.writeByte(signatureBuffer[i])
+        bb.writeByte(signatureBuffer[i]);
       }
     }
 
     if (!skipSecondSignature && transaction.signSignature) {
-      const signSignatureBuffer = Buffer.from(transaction.signSignature, 'hex')
+      const signSignatureBuffer = Buffer.from(transaction.signSignature, "hex");
       for (let i = 0; i < signSignatureBuffer.length; i++) {
-        bb.writeByte(signSignatureBuffer[i])
+        bb.writeByte(signSignatureBuffer[i]);
       }
     }
 
-    bb.flip()
-    const arrayBuffer = new Uint8Array(bb.toArrayBuffer())
-    const buffer = []
+    bb.flip();
+    const arrayBuffer = new Uint8Array(bb.toArrayBuffer());
+    const buffer = [];
 
     for (let i = 0; i < arrayBuffer.length; i++) {
-      buffer[i] = arrayBuffer[i]
+      buffer[i] = arrayBuffer[i];
     }
 
-    return Buffer.from(buffer)
+    return Buffer.from(buffer);
   }
 
   /**
@@ -193,15 +191,15 @@ class Crypto {
    */
   getId(transaction) {
     if (transaction.version && transaction.version !== 1) {
-      throw new Error('not supported yet')
+      throw new Error("not supported yet");
     }
 
-    const bytes = this.getBytes(transaction)
+    const bytes = this.getBytes(transaction);
     return crypto
-      .createHash('sha256')
+      .createHash("sha256")
       .update(bytes)
       .digest()
-      .toString('hex')
+      .toString("hex");
 
     // TODO: Enable AIP11 id here
   }
@@ -213,14 +211,18 @@ class Crypto {
    */
   getHash(transaction, skipSignature, skipSecondSignature) {
     if (transaction.version && transaction.version !== 1) {
-      throw new Error('not supported yet')
+      throw new Error("not supported yet");
     }
 
-    const bytes = this.getBytes(transaction, skipSignature, skipSecondSignature)
+    const bytes = this.getBytes(
+      transaction,
+      skipSignature,
+      skipSecondSignature
+    );
     return crypto
-      .createHash('sha256')
+      .createHash("sha256")
       .update(bytes)
-      .digest()
+      .digest();
 
     // TODO: Enable AIP11 id here
   }
@@ -232,20 +234,20 @@ class Crypto {
    * @return {Object}
    */
   sign(transaction, keys) {
-    let hash
+    let hash;
     if (!transaction.version || transaction.version === 1) {
-      hash = this.getHash(transaction, true, true)
+      hash = this.getHash(transaction, true, true);
     } else {
-      hash = this.getHash(transaction, false, false)
+      hash = this.getHash(transaction, false, false);
     }
 
-    const signature = this.signHash(hash, keys)
+    const signature = this.signHash(hash, keys);
 
     if (!transaction.signature) {
-      transaction.signature = signature
+      transaction.signature = signature;
     }
 
-    return signature
+    return signature;
   }
 
   /**
@@ -255,14 +257,14 @@ class Crypto {
    * @return {Object}
    */
   secondSign(transaction, keys) {
-    const hash = this.getHash(transaction, false, true)
-    const signature = this.signHash(hash, keys)
+    const hash = this.getHash(transaction, false, true);
+    const signature = this.signHash(hash, keys);
 
     if (!transaction.secondSignature) {
-      transaction.secondSignature = signature
+      transaction.secondSignature = signature;
     }
 
-    return signature
+    return signature;
   }
 
   /**
@@ -274,9 +276,9 @@ class Crypto {
   signHash(hash, keys) {
     const { signature } = secp256k1.sign(
       hash,
-      Buffer.from(keys.privateKey, 'hex'),
-    )
-    return secp256k1.signatureExport(signature).toString('hex')
+      Buffer.from(keys.privateKey, "hex")
+    );
+    return secp256k1.signatureExport(signature).toString("hex");
   }
 
   /**
@@ -287,19 +289,19 @@ class Crypto {
   verify(transaction) {
     if (transaction.version && transaction.version !== 1) {
       // TODO: enable AIP11 when ready here
-      return false
+      return false;
     }
 
     if (!transaction.signature) {
-      return false
+      return false;
     }
 
-    const hash = this.getHash(transaction, true, true)
+    const hash = this.getHash(transaction, true, true);
     return this.verifyHash(
       hash,
       transaction.signature,
-      transaction.senderPublicKey,
-    )
+      transaction.senderPublicKey
+    );
   }
 
   /**
@@ -309,21 +311,21 @@ class Crypto {
    * @return {Boolean}
    */
   verifySecondSignature(transaction, publicKey) {
-    let hash
-    let secondSignature
+    let hash;
+    let secondSignature;
     if (transaction.version && transaction.version !== 1) {
-      hash = this.getHash(transaction)
-      secondSignature = transaction.secondSignature
+      hash = this.getHash(transaction);
+      secondSignature = transaction.secondSignature;
     } else {
-      hash = this.getHash(transaction, false, true)
-      secondSignature = transaction.signSignature
+      hash = this.getHash(transaction, false, true);
+      secondSignature = transaction.signSignature;
     }
 
     if (!secondSignature) {
-      return false
+      return false;
     }
 
-    return this.verifyHash(hash, secondSignature, publicKey)
+    return this.verifyHash(hash, secondSignature, publicKey);
   }
 
   /**
@@ -335,14 +337,14 @@ class Crypto {
    */
   verifyHash(hash, signature, publicKey) {
     signature =
-      signature instanceof Buffer ? signature : Buffer.from(signature, 'hex')
+      signature instanceof Buffer ? signature : Buffer.from(signature, "hex");
     publicKey =
-      publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, 'hex')
+      publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, "hex");
     return secp256k1.verify(
       hash,
       secp256k1.signatureImport(signature),
-      publicKey,
-    )
+      publicKey
+    );
   }
 
   /**
@@ -352,8 +354,8 @@ class Crypto {
    * @return {Object}
    */
   getKeys(secret, compressed = true) {
-    const privateKey = utils.sha256(Buffer.from(secret, 'utf8'))
-    return this.getKeysByPrivateKey(privateKey, compressed)
+    const privateKey = utils.sha256(Buffer.from(secret, "utf8"));
+    return this.getKeysByPrivateKey(privateKey, compressed);
   }
 
   /**
@@ -364,16 +366,18 @@ class Crypto {
    */
   getKeysByPrivateKey(privateKey, compressed = true) {
     privateKey =
-      privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, 'hex')
+      privateKey instanceof Buffer
+        ? privateKey
+        : Buffer.from(privateKey, "hex");
 
-    const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
+    const publicKey = secp256k1.publicKeyCreate(privateKey, compressed);
     const keyPair = {
-      publicKey: publicKey.toString('hex'),
-      privateKey: privateKey.toString('hex'),
-      compressed,
-    }
+      publicKey: publicKey.toString("hex"),
+      privateKey: privateKey.toString("hex"),
+      compressed
+    };
 
-    return keyPair
+    return keyPair;
   }
 
   /**
@@ -383,27 +387,27 @@ class Crypto {
    * @return {Object}
    */
   getKeysFromWIF(wifKey, network) {
-    const decoded = wif.decode(wifKey)
-    const version = decoded.version
+    const decoded = wif.decode(wifKey);
+    const version = decoded.version;
 
     if (!network) {
-      network = configManager.all()
+      network = configManager.all();
     }
 
     if (version !== network.wif) {
-      throw new Error('Invalid network version')
+      throw new Error("Invalid network version");
     }
 
-    const privateKey = decoded.privateKey
-    const publicKey = secp256k1.publicKeyCreate(privateKey, decoded.compressed)
+    const privateKey = decoded.privateKey;
+    const publicKey = secp256k1.publicKeyCreate(privateKey, decoded.compressed);
 
     const keyPair = {
-      publicKey: publicKey.toString('hex'),
-      privateKey: privateKey.toString('hex'),
-      compressed: decoded.compressed,
-    }
+      publicKey: publicKey.toString("hex"),
+      privateKey: privateKey.toString("hex"),
+      compressed: decoded.compressed
+    };
 
-    return keyPair
+    return keyPair;
   }
 
   /**
@@ -414,14 +418,14 @@ class Crypto {
    */
   keysToWIF(keys, network) {
     if (!network) {
-      network = configManager.all()
+      network = configManager.all();
     }
 
     return wif.encode(
       network.wif,
-      Buffer.from(keys.privateKey, 'hex'),
-      keys.compressed,
-    )
+      Buffer.from(keys.privateKey, "hex"),
+      keys.compressed
+    );
   }
 
   /**
@@ -431,22 +435,22 @@ class Crypto {
    * @return {String}
    */
   getAddress(publicKey, networkVersion) {
-    const pubKeyRegex = /^[0-9A-Fa-f]{66}$/
+    const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
     if (!pubKeyRegex.test(publicKey)) {
-      throw new Error(`publicKey '${publicKey}' is invalid`)
+      throw new Error(`publicKey '${publicKey}' is invalid`);
     }
 
     if (!networkVersion) {
-      networkVersion = configManager.get('pubKeyHash')
+      networkVersion = configManager.get("pubKeyHash");
     }
 
-    const buffer = utils.ripemd160(Buffer.from(publicKey, 'hex'))
-    const payload = Buffer.alloc(21)
+    const buffer = utils.ripemd160(Buffer.from(publicKey, "hex"));
+    const payload = Buffer.alloc(21);
 
-    payload.writeUInt8(networkVersion, 0)
-    buffer.copy(payload, 1)
+    payload.writeUInt8(networkVersion, 0);
+    buffer.copy(payload, 1);
 
-    return bs58check.encode(payload)
+    return bs58check.encode(payload);
   }
 
   /**
@@ -457,14 +461,14 @@ class Crypto {
    */
   validateAddress(address, networkVersion) {
     if (!networkVersion) {
-      networkVersion = configManager.get('pubKeyHash')
+      networkVersion = configManager.get("pubKeyHash");
     }
 
     try {
-      const decode = bs58check.decode(address)
-      return decode[0] === networkVersion
+      const decode = bs58check.decode(address);
+      return decode[0] === networkVersion;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
@@ -476,15 +480,15 @@ class Crypto {
    */
   validatePublicKey(address, networkVersion) {
     if (!networkVersion) {
-      networkVersion = configManager.get('pubKeyHash')
+      networkVersion = configManager.get("pubKeyHash");
     }
 
     try {
-      return this.getAddress(address, networkVersion).length === 34
+      return this.getAddress(address, networkVersion).length === 34;
     } catch (e) {
-      return false
+      return false;
     }
   }
 }
 
-module.exports = new Crypto()
+module.exports = new Crypto();

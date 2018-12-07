@@ -1,14 +1,16 @@
-
 /* tslint:disable:max-line-length no-empty */
 import "jest-extended";
 
-import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
+import {
+  Bignum,
+  constants,
+  crypto,
+  models,
+  transactionBuilder
+} from "@arkecosystem/crypto";
 const { Block, Transaction, Wallet } = models;
 
-const {
-  ARKTOSHI,
-  TRANSACTION_TYPES,
-} = constants;
+const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 
 import blocks from "@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100";
 import genDelegateReg from "@arkecosystem/core-test-utils/lib/generators/transactions/delegate";
@@ -24,16 +26,16 @@ const block = new Block(block3);
 const walletData1 = wallets[0];
 const walletData2 = wallets[1];
 
-let genesisBlock; // eslint-disable-line no-unused-vars
+let genesisBlock;
 let walletManager;
 
-beforeAll(async (done) => {
+beforeAll(async done => {
   await app.setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json")
   );
 
   const { WalletManager } = require("../src/wallet-manager");
@@ -47,7 +49,7 @@ beforeEach(() => {
   walletManager = new WalletManager();
 });
 
-afterAll(async (done) => {
+afterAll(async done => {
   await app.tearDown();
 
   done();
@@ -129,7 +131,7 @@ describe("Wallet Manager", () => {
 
       block2.transactions.forEach((transaction, i) => {
         expect(walletManager.applyTransaction.mock.calls[i][0]).toBe(
-          block2.transactions[i],
+          block2.transactions[i]
         );
       });
     });
@@ -142,7 +144,7 @@ describe("Wallet Manager", () => {
 
     describe("when 1 transaction fails while applying it", () => {
       it("should revert sequentially (from last to first) all the transactions of the block", async () => {
-        walletManager.applyTransaction = jest.fn((transaction) => {
+        walletManager.applyTransaction = jest.fn(transaction => {
           if (transaction === block2.transactions[2]) {
             throw new Error("Fake error");
           }
@@ -158,14 +160,14 @@ describe("Wallet Manager", () => {
           expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
           block2.transactions.slice(0, 1).forEach((transaction, i) => {
             expect(
-              walletManager.revertTransaction.mock.calls[1 - i][0],
+              walletManager.revertTransaction.mock.calls[1 - i][0]
             ).toEqual(block2.transactions[i]);
           });
         }
       });
 
       it("throws the Error", async () => {
-        walletManager.applyTransaction = jest.fn((transaction) => {
+        walletManager.applyTransaction = jest.fn(transaction => {
           throw new Error("Fake error");
         });
 
@@ -182,11 +184,11 @@ describe("Wallet Manager", () => {
 
     describe.skip("the delegate of the block is not indexed", () => {
       describe("not genesis block", () => {
-        it("throw an Error", () => { });
+        it("throw an Error", () => {});
       });
 
       describe("genesis block", () => {
-        it("generates a new wallet", () => { });
+        it("generates a new wallet", () => {});
       });
     });
   });
@@ -196,9 +198,9 @@ describe("Wallet Manager", () => {
       expect(walletManager.revertBlock).toBeFunction();
     });
 
-    it("should revert all transactions of the block", () => { });
+    it("should revert all transactions of the block", () => {});
 
-    it("should revert the block of the delegate", () => { });
+    it("should revert the block of the delegate", () => {});
   });
 
   describe("applyTransaction", () => {
@@ -206,30 +208,30 @@ describe("Wallet Manager", () => {
       expect(walletManager.applyTransaction).toBeFunction();
     });
 
-    describe("when the recipient is a cold wallet", () => { });
+    describe("when the recipient is a cold wallet", () => {});
 
     const transfer = genTransfer(
       "testnet",
       Math.random().toString(36),
       walletData2.address,
       96579,
-      1,
+      1
     )[0];
     const delegateReg = genDelegateReg(
       "testnet",
       Math.random().toString(36),
-      1,
+      1
     )[0];
     const secondSign = gen2ndSignature(
       "testnet",
       Math.random().toString(36),
-      1,
+      1
     )[0];
     const vote = genvote(
       "testnet",
       Math.random().toString(36),
       walletData2.publicKey,
-      1,
+      1
     )[0];
     describe.each`
       type          | transaction    | amount               | balanceSuccess               | balanceFail
@@ -265,7 +267,7 @@ describe("Wallet Manager", () => {
           await walletManager.applyTransaction(transaction);
 
           expect(sender.balance).toEqual(
-            balanceSuccess.minus(amount).minus(transaction.fee),
+            balanceSuccess.minus(amount).minus(transaction.fee)
           );
 
           if (type === "transfer") {
@@ -290,7 +292,7 @@ describe("Wallet Manager", () => {
             expect(+recipient.balance.toFixed()).toBe(0);
           }
         });
-      },
+      }
     );
   });
 
@@ -312,14 +314,14 @@ describe("Wallet Manager", () => {
         signature:
           "304402205fcb0677e06bde7aac3dc776665615f4b93ef8c3ed0fddecef9900e74fcb00f302206958a0c9868ea1b1f3d151bdfa92da1ce24de0b1fcd91933e64fb7971e92f48d",
         id: "db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd",
-        senderId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+        senderId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn"
       });
 
       const sender = walletManager.findByPublicKey(
-        transaction.data.senderPublicKey,
+        transaction.data.senderPublicKey
       );
       const recipient = walletManager.findByAddress(
-        transaction.data.recipientId,
+        transaction.data.recipientId
       );
       recipient.balance = transaction.data.amount;
 
@@ -350,7 +352,7 @@ describe("Wallet Manager", () => {
 
       walletManager.reindex(wallet);
       expect(walletManager.findByAddress(wallet.address).address).toBe(
-        wallet.address,
+        wallet.address
       );
     });
   });
@@ -374,7 +376,7 @@ describe("Wallet Manager", () => {
 
       walletManager.reindex(wallet);
       expect(walletManager.findByPublicKey(wallet.publicKey).publicKey).toBe(
-        wallet.publicKey,
+        wallet.publicKey
       );
     });
   });
@@ -398,7 +400,7 @@ describe("Wallet Manager", () => {
 
       walletManager.reindex(wallet);
       expect(walletManager.findByUsername(wallet.username).username).toBe(
-        wallet.username,
+        wallet.username
       );
     });
   });
@@ -532,14 +534,14 @@ describe("Wallet Manager", () => {
           address: crypto.getAddress(delegateKey),
           publicKey: delegateKey,
           username: `delegate${i}`,
-          voteBalance: Bignum.ZERO,
+          voteBalance: Bignum.ZERO
         };
 
         const voter = {
           address: crypto.getAddress((i + 5).toString().repeat(66)),
           balance: new Bignum((i + 1) * 1000 * ARKTOSHI),
           publicKey: `v${delegateKey}`,
-          vote: delegateKey,
+          vote: delegateKey
         };
 
         walletManager.index([delegate, voter]);
@@ -551,7 +553,7 @@ describe("Wallet Manager", () => {
       for (let i = 0; i < 5; i++) {
         const delegate = delegates[4 - i];
         expect(delegate.voteBalance).toEqual(
-          new Bignum((5 - i) * 1000 * ARKTOSHI),
+          new Bignum((5 - i) * 1000 * ARKTOSHI)
         );
       }
     });

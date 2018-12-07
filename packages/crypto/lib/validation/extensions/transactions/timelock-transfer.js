@@ -1,8 +1,8 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
-const transaction = require('./base')
+const { TRANSACTION_TYPES } = require("../../../constants");
+const transaction = require("./base");
 
 module.exports = joi => ({
-  name: 'arkTimelockTransfer',
+  name: "arkTimelockTransfer",
   base: transaction(joi).append({
     type: joi
       .number()
@@ -13,6 +13,6 @@ module.exports = joi => ({
       .try(joi.bignumber().only(0), joi.number().only(0))
       .optional(),
     asset: joi.object().required(),
-    recipientId: joi.empty(),
-  }),
-})
+    recipientId: joi.empty()
+  })
+});

@@ -1,9 +1,9 @@
-const Joi = require('joi')
-const extensions = require('./extensions')
+const Joi = require("joi");
+const extensions = require("./extensions");
 
 class Engine {
   constructor() {
-    this.joi = Joi.extend(extensions)
+    this.joi = Joi.extend(extensions);
   }
 
   validate(attributes, rules, options) {
@@ -13,15 +13,15 @@ class Engine {
         rules,
         Object.assign(
           {
-            convert: true,
+            convert: true
           },
-          options,
-        ),
-      )
+          options
+        )
+      );
     } catch (error) {
-      return { value: null, error: error.stack }
+      return { value: null, error: error.stack };
     }
   }
 }
 
-module.exports = new Engine()
+module.exports = new Engine();

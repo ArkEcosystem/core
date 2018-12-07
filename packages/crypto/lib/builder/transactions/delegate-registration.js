@@ -1,21 +1,21 @@
-const feeManager = require('../../managers/fee')
-const { TRANSACTION_TYPES } = require('../../constants')
-const TransactionBuilder = require('./transaction')
-const { crypto } = require('../../crypto')
+const feeManager = require("../../managers/fee");
+const { TRANSACTION_TYPES } = require("../../constants");
+const TransactionBuilder = require("./transaction");
+const { crypto } = require("../../crypto");
 
 module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor() {
-    super()
+    super();
 
-    this.data.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION
-    this.data.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)
-    this.data.amount = 0
-    this.data.recipientId = null
-    this.data.senderPublicKey = null
-    this.data.asset = { delegate: {} }
+    this.data.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION;
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION);
+    this.data.amount = 0;
+    this.data.recipientId = null;
+    this.data.senderPublicKey = null;
+    this.data.asset = { delegate: {} };
   }
 
   /**
@@ -24,8 +24,8 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * @return {DelegateRegistrationBuilder}
    */
   usernameAsset(username) {
-    this.data.asset.delegate.username = username
-    return this
+    this.data.asset.delegate.username = username;
+    return this;
   }
 
   /**
@@ -35,9 +35,9 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * TODO rename to `assetDelegate` and merge with username ?
    */
   sign(passphrase) {
-    this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey
-    super.sign(passphrase)
-    return this
+    this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey;
+    super.sign(passphrase);
+    return this;
   }
 
   /**
@@ -45,10 +45,10 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * @return {Object}
    */
   getStruct() {
-    const struct = super.getStruct()
-    struct.amount = this.data.amount
-    struct.recipientId = this.data.recipientId
-    struct.asset = this.data.asset
-    return struct
+    const struct = super.getStruct();
+    struct.amount = this.data.amount;
+    struct.recipientId = this.data.recipientId;
+    struct.asset = this.data.asset;
+    return struct;
   }
-}
+};

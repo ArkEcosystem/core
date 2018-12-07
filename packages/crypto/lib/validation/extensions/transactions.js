@@ -1,5 +1,5 @@
 module.exports = joi => ({
-  name: 'arkTransactions',
+  name: "arkTransactions",
   base: joi
     .array()
     .items(
@@ -10,7 +10,7 @@ module.exports = joi => ({
           joi.arkSecondSignature(),
           joi.arkDelegateRegistration(),
           joi.arkVote(),
-          joi.arkMultiSignature(),
-        ),
-    ),
-})
+          joi.arkMultiSignature()
+        )
+    )
+});

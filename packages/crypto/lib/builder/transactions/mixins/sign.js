@@ -1,5 +1,5 @@
-const { crypto } = require('../../../crypto')
-const configManager = require('../../../managers/config')
+const { crypto } = require("../../../crypto");
+const configManager = require("../../../managers/config");
 
 module.exports = {
   mixin(Base) {
@@ -12,13 +12,13 @@ module.exports = {
       sign(passphrase) {
         const pubKeyHash = this.data.network
           ? this.data.network.pubKeyHash
-          : null
+          : null;
         this.data.recipientId = crypto.getAddress(
           crypto.getKeys(passphrase).publicKey,
-          pubKeyHash,
-        )
-        super.sign(passphrase)
-        return this
+          pubKeyHash
+        );
+        super.sign(passphrase);
+        return this;
       }
 
       /**
@@ -30,15 +30,15 @@ module.exports = {
       signWithWif(wif, networkWif) {
         const pubKeyHash = this.data.network
           ? this.data.network.pubKeyHash
-          : null
+          : null;
         const keys = crypto.getKeysFromWIF(wif, {
-          wif: networkWif || configManager.get('wif'),
-        })
-        this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash)
-        super.signWithWif(wif, networkWif)
+          wif: networkWif || configManager.get("wif")
+        });
+        this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash);
+        super.signWithWif(wif, networkWif);
 
-        return this
+        return this;
       }
-    }
-  },
-}
+    };
+  }
+};

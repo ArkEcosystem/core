@@ -1,34 +1,34 @@
-const testSubject = require('../../lib/identities/public-key')
-const { data, passphrase } = require('./fixture')
+const testSubject = require("../../lib/identities/public-key");
+const { data, passphrase } = require("./fixture");
 
-describe('Identities - Public Key', () => {
-  describe('fromPassphrase', () => {
-    it('should be a function', () => {
-      expect(testSubject.fromPassphrase).toBeFunction()
-    })
+describe("Identities - Public Key", () => {
+  describe("fromPassphrase", () => {
+    it("should be a function", () => {
+      expect(testSubject.fromPassphrase).toBeFunction();
+    });
 
-    it('should be OK', () => {
-      expect(testSubject.fromPassphrase(passphrase)).toBe(data.publicKey)
-    })
-  })
+    it("should be OK", () => {
+      expect(testSubject.fromPassphrase(passphrase)).toBe(data.publicKey);
+    });
+  });
 
-  describe('fromWIF', () => {
-    it('should be a function', () => {
-      expect(testSubject.fromWIF).toBeFunction()
-    })
+  describe("fromWIF", () => {
+    it("should be a function", () => {
+      expect(testSubject.fromWIF).toBeFunction();
+    });
 
-    it('should be OK', () => {
-      expect(testSubject.fromWIF(data.wif)).toBe(data.publicKey)
-    })
-  })
+    it("should be OK", () => {
+      expect(testSubject.fromWIF(data.wif)).toBe(data.publicKey);
+    });
+  });
 
-  describe('validate', () => {
-    it('should be a function', () => {
-      expect(testSubject.validate).toBeFunction()
-    })
+  describe("validate", () => {
+    it("should be a function", () => {
+      expect(testSubject.validate).toBeFunction();
+    });
 
-    it('should be OK', () => {
-      expect(testSubject.validate(data.publicKey)).toBeTrue()
-    })
-  })
-})
+    it("should be OK", () => {
+      expect(testSubject.validate(data.publicKey)).toBeTrue();
+    });
+  });
+});

@@ -1,8 +1,8 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
-const transaction = require('./base')
+const { TRANSACTION_TYPES } = require("../../../constants");
+const transaction = require("./base");
 
 module.exports = joi => ({
-  name: 'arkMultiSignature',
+  name: "arkMultiSignature",
   base: transaction(joi).append({
     type: joi
       .number()
@@ -15,14 +15,14 @@ module.exports = joi => ({
     recipientId: joi.empty(),
     signatures: joi
       .array()
-      .length(joi.ref('asset.multisignature.keysgroup.length'))
+      .length(joi.ref("asset.multisignature.keysgroup.length"))
       .required(),
     asset: joi
       .object({
         multisignature: joi
           .object({
             min: joi
-              .when(joi.ref('keysgroup.length'), {
+              .when(joi.ref("keysgroup.length"), {
                 is: joi.number().greater(16),
                 then: joi
                   .number()
@@ -31,7 +31,7 @@ module.exports = joi => ({
                 otherwise: joi
                   .number()
                   .positive()
-                  .max(joi.ref('keysgroup.length')),
+                  .max(joi.ref("keysgroup.length"))
               })
               .required(),
             keysgroup: joi
@@ -44,7 +44,7 @@ module.exports = joi => ({
                   .not(`+${transaction.senderPublicKey}`)
                   .length(67)
                   .regex(/^\+/)
-                  .required(),
+                  .required()
               )
               .required(),
             lifetime: joi
@@ -52,10 +52,10 @@ module.exports = joi => ({
               .integer()
               .min(1)
               .max(72)
-              .required(),
+              .required()
           })
-          .required(),
+          .required()
       })
-      .required(),
-  }),
-})
+      .required()
+  })
+});

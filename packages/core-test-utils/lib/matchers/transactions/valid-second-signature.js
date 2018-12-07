@@ -1,16 +1,16 @@
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto } = require("@arkecosystem/crypto");
 
 const toHaveValidSecondSignature = (actual, expected) => {
-  let verified
+  let verified;
   try {
-    verified = crypto.verifySecondSignature(actual, expected.publicKey)
-  } catch (e) {} // eslint-disable-line no-empty
+    verified = crypto.verifySecondSignature(actual, expected.publicKey);
+  } catch (e) {}
   return {
-    message: () => 'Expected value to have a valid second signature',
-    pass: !!verified,
-  }
-}
+    message: () => "Expected value to have a valid second signature",
+    pass: !!verified
+  };
+};
 
 expect.extend({
-  toHaveValidSecondSignature,
-})
+  toHaveValidSecondSignature
+});

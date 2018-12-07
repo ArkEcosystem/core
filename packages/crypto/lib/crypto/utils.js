@@ -1,4 +1,4 @@
-const createHash = require('create-hash')
+const createHash = require("create-hash");
 
 class Utils {
   /**
@@ -7,9 +7,9 @@ class Utils {
    * @return {Buffer}
    */
   ripemd160(buffer) {
-    return createHash('rmd160')
+    return createHash("rmd160")
       .update(buffer)
-      .digest()
+      .digest();
   }
 
   /**
@@ -18,9 +18,9 @@ class Utils {
    * @return {Buffer}
    */
   sha1(buffer) {
-    return createHash('sha1')
+    return createHash("sha1")
       .update(buffer)
-      .digest()
+      .digest();
   }
 
   /**
@@ -29,9 +29,9 @@ class Utils {
    * @return {Buffer}
    */
   sha256(buffer) {
-    return createHash('sha256')
+    return createHash("sha256")
       .update(buffer)
-      .digest()
+      .digest();
   }
 
   /**
@@ -40,7 +40,7 @@ class Utils {
    * @return {Buffer}
    */
   hash160(buffer) {
-    return this.ripemd160(this.sha256(buffer))
+    return this.ripemd160(this.sha256(buffer));
   }
 
   /**
@@ -49,8 +49,8 @@ class Utils {
    * @return {Buffer}
    */
   hash256(buffer) {
-    return this.sha256(this.sha256(buffer))
+    return this.sha256(this.sha256(buffer));
   }
 }
 
-module.exports = new Utils()
+module.exports = new Utils();

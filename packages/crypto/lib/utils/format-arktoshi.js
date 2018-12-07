@@ -1,5 +1,5 @@
-const { ARKTOSHI } = require('../constants')
-const configManager = require('../managers/config')
+const { ARKTOSHI } = require("../constants");
+const configManager = require("../managers/config");
 
 /**
  * Get human readable string from arktoshis
@@ -7,10 +7,10 @@ const configManager = require('../managers/config')
  * @return {String}
  */
 module.exports = amount => {
-  const localeString = (+amount / ARKTOSHI).toLocaleString('en', {
+  const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 8,
-  })
+    maximumFractionDigits: 8
+  });
 
-  return `${localeString} ${configManager.config.client.symbol}`
-}
+  return `${localeString} ${configManager.config.client.symbol}`;
+};

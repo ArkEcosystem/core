@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers"; // eslint-disable-line no-unused-vars
+import "@arkecosystem/core-test-utils/lib/matchers";
 
 import machine from "../../../src/machines/blockchain";
 
@@ -11,7 +11,7 @@ describe("Blockchain machine > Fork", () => {
     it("should execute the `analyseFork` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "fork.analysing",
-        actions: ["analyseFork"],
+        actions: ["analyseFork"]
       });
     });
 
@@ -19,7 +19,7 @@ describe("Blockchain machine > Fork", () => {
       expect(machine).toTransition({
         from: "fork.analysing",
         on: "REBUILD",
-        to: "fork.revertBlocks",
+        to: "fork.revertBlocks"
       });
     });
 
@@ -27,7 +27,7 @@ describe("Blockchain machine > Fork", () => {
       expect(machine).toTransition({
         from: "fork.analysing",
         on: "NOFORK",
-        to: "fork.exit",
+        to: "fork.exit"
       });
     });
   });
@@ -36,7 +36,7 @@ describe("Blockchain machine > Fork", () => {
     it("should execute the `checkNetwork` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "fork.network",
-        actions: ["checkNetwork"],
+        actions: ["checkNetwork"]
       });
     });
   });
@@ -45,7 +45,7 @@ describe("Blockchain machine > Fork", () => {
     it("should execute the `forkRecovered` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "fork.exit",
-        actions: ["forkRecovered"],
+        actions: ["forkRecovered"]
       });
     });
   });

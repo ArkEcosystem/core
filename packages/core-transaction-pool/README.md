@@ -20,6 +20,7 @@ If you discover a security vulnerability within this package, please send an e-m
 - [Vasil Dimov](https://github.com/vasild)
 - [Joshua Noack](https://github.com/supaiku0)
 - [All Contributors](../../../../contributors)
+
 ## License
 
 [MIT](LICENSE) © [ArkEcosystem](https://ark.io)

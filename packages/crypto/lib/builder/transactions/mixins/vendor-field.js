@@ -7,12 +7,12 @@ module.exports = {
        * @return {TransactionBuilder}
        */
       vendorField(value) {
-        this.data.vendorField = value
+        this.data.vendorField = value;
         // V2
         // this.data.vendorFieldHex = Buffer.from(value, type).toString('hex')
 
-        return this
+        return this;
       }
-    }
-  },
-}
+    };
+  }
+};

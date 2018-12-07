@@ -1,4 +1,4 @@
-const Handler = require('./handler')
+const Handler = require("./handler");
 
 class IpfsHandler extends Handler {
   /**
@@ -9,7 +9,7 @@ class IpfsHandler extends Handler {
    * @return {Boolean}
    */
   canApply(wallet, transaction, errors) {
-    return super.canApply(wallet, transaction, errors)
+    return super.canApply(wallet, transaction, errors);
   }
 
   /**
@@ -33,4 +33,4 @@ class IpfsHandler extends Handler {
   }
 }
 
-module.exports = new IpfsHandler()
+module.exports = new IpfsHandler();

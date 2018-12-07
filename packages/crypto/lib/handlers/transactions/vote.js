@@ -1,4 +1,4 @@
-const Handler = require('./handler')
+const Handler = require("./handler");
 
 class VoteHandler extends Handler {
   /**
@@ -10,27 +10,29 @@ class VoteHandler extends Handler {
    */
   canApply(wallet, transaction, errors) {
     if (!super.canApply(wallet, transaction, errors)) {
-      return false
+      return false;
     }
 
-    const vote = transaction.asset.votes[0]
+    const vote = transaction.asset.votes[0];
     if (
-      vote.startsWith('-') &&
+      vote.startsWith("-") &&
       (!wallet.vote || wallet.vote !== vote.slice(1))
     ) {
       if (!wallet.vote) {
-        errors.push('Wallet has not voted yet')
+        errors.push("Wallet has not voted yet");
       } else {
-        errors.push('Wallet vote-choice does not match transaction vote-choice')
+        errors.push(
+          "Wallet vote-choice does not match transaction vote-choice"
+        );
       }
-      return false
+      return false;
     }
 
-    if (vote.startsWith('+') && wallet.vote) {
-      errors.push('Wallet has already voted')
-      return false
+    if (vote.startsWith("+") && wallet.vote) {
+      errors.push("Wallet has already voted");
+      return false;
     }
-    return true
+    return true;
   }
 
   /**
@@ -40,14 +42,14 @@ class VoteHandler extends Handler {
    * @return {void}
    */
   apply(wallet, transaction) {
-    const vote = transaction.asset.votes[0]
+    const vote = transaction.asset.votes[0];
 
-    if (vote.startsWith('+')) {
-      wallet.vote = vote.slice(1)
+    if (vote.startsWith("+")) {
+      wallet.vote = vote.slice(1);
     }
 
-    if (vote.startsWith('-')) {
-      wallet.vote = null
+    if (vote.startsWith("-")) {
+      wallet.vote = null;
     }
   }
 
@@ -58,16 +60,16 @@ class VoteHandler extends Handler {
    * @return {void}
    */
   revert(wallet, transaction) {
-    const vote = transaction.asset.votes[0]
+    const vote = transaction.asset.votes[0];
 
-    if (vote.startsWith('+')) {
-      wallet.vote = null
+    if (vote.startsWith("+")) {
+      wallet.vote = null;
     }
 
-    if (vote.startsWith('-')) {
-      wallet.vote = vote.slice(1)
+    if (vote.startsWith("-")) {
+      wallet.vote = vote.slice(1);
     }
   }
 }
 
-module.exports = new VoteHandler()
+module.exports = new VoteHandler();

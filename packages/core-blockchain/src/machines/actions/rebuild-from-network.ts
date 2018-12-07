@@ -1,52 +1,52 @@
 export default {
-  initial: 'rebuilding',
+  initial: "rebuilding",
   states: {
     rebuilding: {
-      onEntry: ['checkLastDownloadedBlockSynced'],
+      onEntry: ["checkLastDownloadedBlockSynced"],
       on: {
-        SYNCED: 'waitingFinished',
-        NOTSYNCED: 'rebuildBlocks',
-        PAUSED: 'rebuildPaused',
-      },
+        SYNCED: "waitingFinished",
+        NOTSYNCED: "rebuildBlocks",
+        PAUSED: "rebuildPaused"
+      }
     },
     idle: {
       on: {
-        DOWNLOADED: 'rebuildBlocks',
-      },
+        DOWNLOADED: "rebuildBlocks"
+      }
     },
     rebuildBlocks: {
-      onEntry: ['rebuildBlocks'],
+      onEntry: ["rebuildBlocks"],
       on: {
-        DOWNLOADED: 'rebuilding',
-        NOBLOCK: 'rebuilding',
-      },
+        DOWNLOADED: "rebuilding",
+        NOBLOCK: "rebuilding"
+      }
     },
     waitingFinished: {
       on: {
-        REBUILDFINISHED: 'rebuildFinished',
-      },
+        REBUILDFINISHED: "rebuildFinished"
+      }
     },
     rebuildFinished: {
-      onEntry: ['rebuildFinished'],
+      onEntry: ["rebuildFinished"],
       on: {
-        PROCESSFINISHED: 'processFinished',
-      },
+        PROCESSFINISHED: "processFinished"
+      }
     },
     rebuildPaused: {
-      onEntry: ['downloadPaused'],
+      onEntry: ["downloadPaused"],
       on: {
-        REBUILDFINISHED: 'processFinished',
-      },
+        REBUILDFINISHED: "processFinished"
+      }
     },
     processFinished: {
-      onEntry: ['checkRebuildBlockSynced'],
+      onEntry: ["checkRebuildBlockSynced"],
       on: {
-        SYNCED: 'end',
-        NOTSYNCED: 'rebuildBlocks',
-      },
+        SYNCED: "end",
+        NOTSYNCED: "rebuildBlocks"
+      }
     },
     end: {
-      onEntry: ['rebuildingComplete'],
-    },
-  },
-}
+      onEntry: ["rebuildingComplete"]
+    }
+  }
+};

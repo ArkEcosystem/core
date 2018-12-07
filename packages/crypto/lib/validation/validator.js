@@ -1,12 +1,12 @@
-const engine = require('./engine')
+const engine = require("./engine");
 
 class Validator {
   /**
    * Create a new validator instance.
    */
   constructor() {
-    this.rules = require('./rules')
-    this.engine = engine
+    this.rules = require("./rules");
+    this.engine = engine;
   }
 
   /**
@@ -16,21 +16,21 @@ class Validator {
    * @return {void|Boolean}
    */
   async validate(attributes, rules) {
-    this.__reset()
+    this.__reset();
 
     if (rules instanceof String) {
-      return this.__validateWithRule(attributes, rules)
+      return this.__validateWithRule(attributes, rules);
     }
 
     if (rules instanceof Function) {
-      return this.__validateWithFunction(attributes, rules)
+      return this.__validateWithFunction(attributes, rules);
     }
 
     if (rules instanceof Object) {
-      return this.__validateWithJoi(attributes, rules)
+      return this.__validateWithJoi(attributes, rules);
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -38,7 +38,7 @@ class Validator {
    * @return {Boolean}
    */
   passes() {
-    return this.results.passes
+    return this.results.passes;
   }
 
   /**
@@ -46,7 +46,7 @@ class Validator {
    * @return {Boolean}
    */
   fails() {
-    return this.results.fails
+    return this.results.fails;
   }
 
   /**
@@ -54,7 +54,7 @@ class Validator {
    * @return {*}
    */
   validated() {
-    return this.results.data
+    return this.results.data;
   }
 
   /**
@@ -62,7 +62,7 @@ class Validator {
    * @return {Array}
    */
   errors() {
-    return this.results.errors
+    return this.results.errors;
   }
 
   /**
@@ -70,7 +70,7 @@ class Validator {
    * @return {void}
    */
   extend(name, implementation) {
-    this.rules[name] = implementation
+    this.rules[name] = implementation;
   }
 
   /**
@@ -80,13 +80,13 @@ class Validator {
    * @return {void}
    */
   __validateWithRule(attributes, rules) {
-    const validate = this.rules[rules]
+    const validate = this.rules[rules];
 
     if (!rules) {
-      throw new Error('An invalid set of rules was provided.')
+      throw new Error("An invalid set of rules was provided.");
     }
 
-    this.results = validate(attributes)
+    this.results = validate(attributes);
   }
 
   /**
@@ -96,7 +96,7 @@ class Validator {
    * @return {void}
    */
   __validateWithFunction(attributes, validate) {
-    this.results = validate(attributes)
+    this.results = validate(attributes);
   }
 
   /**
@@ -106,22 +106,22 @@ class Validator {
    * @return {void}
    */
   __validateWithJoi(attributes, rules) {
-    const { error, value } = this.engine.validate(attributes, rules)
+    const { error, value } = this.engine.validate(attributes, rules);
 
     this.results = {
       data: value,
       errors: error ? error.details : null,
       passes: !error,
-      fails: error,
-    }
+      fails: error
+    };
   }
 
   /**
    * Reset any previous results.
    */
   __reset() {
-    this.results = null
+    this.results = null;
   }
 }
 
-module.exports = new Validator()
+module.exports = new Validator();

@@ -1,8 +1,8 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
-const transaction = require('./base')
+const { TRANSACTION_TYPES } = require("../../../constants");
+const transaction = require("./base");
 
 module.exports = joi => ({
-  name: 'arkDelegateRegistration',
+  name: "arkDelegateRegistration",
   base: transaction(joi).append({
     type: joi
       .number()
@@ -17,11 +17,11 @@ module.exports = joi => ({
         delegate: joi
           .object({
             username: joi.arkUsername().required(),
-            publicKey: joi.arkPublicKey(),
+            publicKey: joi.arkPublicKey()
           })
-          .required(),
+          .required()
       })
       .required(),
-    recipientId: joi.empty(),
-  }),
-})
+    recipientId: joi.empty()
+  })
+});

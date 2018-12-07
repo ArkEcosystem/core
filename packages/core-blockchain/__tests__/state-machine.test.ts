@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers"; // eslint-disable-line no-unused-vars
+import "@arkecosystem/core-test-utils/lib/matchers";
 
 import { asValue } from "awilix";
 
@@ -17,7 +17,7 @@ beforeAll(async () => {
   const plugin = require("../lib").plugin;
 
   blockchain = await plugin.register(container, {
-    networkStart: false,
+    networkStart: false
   });
 
   await container.register(
@@ -26,8 +26,8 @@ beforeAll(async () => {
       name: "blockchain",
       version: "0.1.0",
       plugin: blockchain,
-      options: {},
-    }),
+      options: {}
+    })
   );
 
   stateMachine = require("../lib/state-machine");
@@ -91,7 +91,7 @@ describe("State Machine", () => {
         blockchain.isSynced = jest.fn(() => false);
         expect(() => actionMap.checkLastBlockSynced()).toDispatch(
           blockchain,
-          "NOTSYNCED",
+          "NOTSYNCED"
         );
       });
     });
@@ -105,7 +105,7 @@ describe("State Machine", () => {
         blockchain.isRebuildSynced = jest.fn(() => true);
         expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(
           blockchain,
-          "SYNCED",
+          "SYNCED"
         );
       });
 
@@ -113,7 +113,7 @@ describe("State Machine", () => {
         blockchain.isRebuildSynced = jest.fn(() => false);
         expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(
           blockchain,
-          "NOTSYNCED",
+          "NOTSYNCED"
         );
       });
     });
@@ -134,7 +134,7 @@ describe("State Machine", () => {
           stateMachine.state.networkStart = true;
           expect(actionMap.downloadFinished).toDispatch(
             blockchain,
-            "SYNCFINISHED",
+            "SYNCFINISHED"
           );
         });
 
@@ -150,7 +150,7 @@ describe("State Machine", () => {
           stateMachine.state.networkStart = false;
           expect(() => actionMap.downloadFinished()).not.toDispatch([
             blockchain,
-            "SYNCFINISHED",
+            "SYNCFINISHED"
           ]);
           expect(stateMachine.state.networkStart).toBe(false);
         });
@@ -171,7 +171,7 @@ describe("State Machine", () => {
       it('should dispatch the event "SYNCFINISHED"', () => {
         expect(() => actionMap.syncingComplete()).toDispatch(
           blockchain,
-          "SYNCFINISHED",
+          "SYNCFINISHED"
         );
       });
     });
@@ -184,7 +184,7 @@ describe("State Machine", () => {
       it('should dispatch the event "REBUILDCOMPLETE"', () => {
         expect(() => actionMap.rebuildingComplete()).toDispatch(
           blockchain,
-          "REBUILDCOMPLETE",
+          "REBUILDCOMPLETE"
         );
       });
     });

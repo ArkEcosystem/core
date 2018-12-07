@@ -4,28 +4,28 @@ import { paginate, respondWith, toCollection, toResource } from "../utils";
 
 const database = app.resolvePlugin("database");
 
-const index = async (request) => {
+const index = async request => {
   const { count, rows } = await database.delegates.paginate({
     ...request.query,
     ...{
       offset: request.query.offset || 0,
-      limit: request.query.limit || 51,
-    },
+      limit: request.query.limit || 51
+    }
   });
 
   return respondWith({
     delegates: toCollection(request, rows, "delegate"),
-    totalCount: count,
+    totalCount: count
   });
 };
 
-const show = async (request) => {
+const show = async request => {
   if (!request.query.publicKey && !request.query.username) {
     return respondWith("Delegate not found", true);
   }
 
   const delegate = await database.delegates.findById(
-    request.query.publicKey || request.query.username,
+    request.query.publicKey || request.query.username
   );
 
   if (!delegate) {
@@ -33,103 +33,102 @@ const show = async (request) => {
   }
 
   return respondWith({
-    delegate: toResource(request, delegate, "delegate"),
+    delegate: toResource(request, delegate, "delegate")
   });
 };
 
-// @ts-ignore
-const count = async (request) => {
+const countDelegates = async request => {
   const delegate = await database.delegates.findAll();
 
   return respondWith({ count: delegate.count });
 };
 
-const search = async (request) => {
+const search = async request => {
   const { rows } = await database.delegates.search({
     ...{ username: request.query.q },
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return respondWith({
-    delegates: toCollection(request, rows, "delegate"),
+    delegates: toCollection(request, rows, "delegate")
   });
 };
 
-const voters = async (request) => {
+const voters = async request => {
   const delegate = await database.delegates.findById(request.query.publicKey);
 
   if (!delegate) {
     return respondWith({
-      accounts: [],
+      accounts: []
     });
   }
 
   const accounts = await database.wallets.findAllByVote(delegate.publicKey);
 
   return respondWith({
-    accounts: toCollection(request, accounts.rows, "voter"),
+    accounts: toCollection(request, accounts.rows, "voter")
   });
 };
 
-module.exports = (server) => {
+module.exports = server => {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v1.delegates.index", index, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
         ...{
           offset: request.query.offset || 0,
-          limit: request.query.limit || 51,
-        },
-      }),
+          limit: request.query.limit || 51
+        }
+      })
   });
 
   server.method("v1.delegates.show", show, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
-        id: request.query.publicKey || request.query.username,
-      }),
+        id: request.query.publicKey || request.query.username
+      })
   });
 
-  server.method("v1.delegates.count", count, {
+  server.method("v1.delegates.count", countDelegates, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ time: +new Date() }),
+    generateKey: request => generateCacheKey({ time: +new Date() })
   });
 
   server.method("v1.delegates.search", search, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...{ username: request.query.q },
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v1.delegates.voters", voters, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ id: request.query.publicKey }),
+    generateKey: request => generateCacheKey({ id: request.query.publicKey })
   });
 };

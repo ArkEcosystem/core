@@ -1,13 +1,13 @@
-const bip38 = require('bip38')
-const wif = require('wif')
-const { createHash } = require('crypto')
-const otplib = require('otplib')
-const forge = require('node-forge')
-const Bignum = require('../utils/bignum')
+const bip38 = require("bip38");
+const wif = require("wif");
+const { createHash } = require("crypto");
+const otplib = require("otplib");
+const forge = require("node-forge");
+const Bignum = require("../utils/bignum");
 
-const Block = require('./block')
-const crypto = require('../crypto/crypto')
-const sortTransactions = require('../utils/sort-transactions')
+const Block = require("./block");
+const crypto = require("../crypto/crypto");
+const sortTransactions = require("../utils/sort-transactions");
 
 /**
  * TODO copy some parts to ArkDocs
@@ -31,30 +31,30 @@ module.exports = class Delegate {
    * @param  {String} password
    */
   constructor(passphrase, network, password) {
-    this.network = network
-    this.keySize = 32 // AES-256
-    this.iterations = 5000
+    this.network = network;
+    this.keySize = 32; // AES-256
+    this.iterations = 5000;
 
     if (bip38.verify(passphrase)) {
       try {
-        this.keys = Delegate.decryptPassphrase(passphrase, network, password)
-        this.publicKey = this.keys.publicKey
+        this.keys = Delegate.decryptPassphrase(passphrase, network, password);
+        this.publicKey = this.keys.publicKey;
         this.address = crypto.getAddress(
           this.keys.publicKey,
-          network.pubKeyHash,
-        )
-        this.otpSecret = otplib.authenticator.generateSecret()
-        this.bip38 = true
-        this.encryptKeysWithOtp()
+          network.pubKeyHash
+        );
+        this.otpSecret = otplib.authenticator.generateSecret();
+        this.bip38 = true;
+        this.encryptKeysWithOtp();
       } catch (error) {
-        this.publicKey = null
-        this.keys = null
-        this.address = null
+        this.publicKey = null;
+        this.keys = null;
+        this.address = null;
       }
     } else {
-      this.keys = crypto.getKeys(passphrase)
-      this.publicKey = this.keys.publicKey
-      this.address = crypto.getAddress(this.publicKey, network.pubKeyHash)
+      this.keys = crypto.getKeys(passphrase);
+      this.publicKey = this.keys.publicKey;
+      this.address = crypto.getAddress(this.publicKey, network.pubKeyHash);
     }
   }
 
@@ -67,10 +67,10 @@ module.exports = class Delegate {
    * @static
    */
   static encryptPassphrase(passphrase, network, password) {
-    const keys = crypto.getKeys(passphrase)
-    const decoded = wif.decode(crypto.keysToWIF(keys, network))
+    const keys = crypto.getKeys(passphrase);
+    const decoded = wif.decode(crypto.keysToWIF(keys, network));
 
-    return bip38.encrypt(decoded.privateKey, decoded.compressed, password)
+    return bip38.encrypt(decoded.privateKey, decoded.compressed, password);
   }
 
   /**
@@ -82,33 +82,33 @@ module.exports = class Delegate {
    * @static
    */
   static decryptPassphrase(passphrase, network, password) {
-    const decryptedWif = bip38.decrypt(passphrase, password)
+    const decryptedWif = bip38.decrypt(passphrase, password);
     const wifKey = wif.encode(
       network.wif,
       decryptedWif.privateKey,
-      decryptedWif.compressed,
-    )
-    return crypto.getKeysFromWIF(wifKey, network)
+      decryptedWif.compressed
+    );
+    return crypto.getKeysFromWIF(wifKey, network);
   }
 
   /**
    * Encrypt keys with one time password - used to store encrypted in memory.
    */
   encryptKeysWithOtp() {
-    this.otp = otplib.authenticator.generate(this.otpSecret)
-    const wifKey = crypto.keysToWIF(this.keys, this.network)
-    this.encryptedKeys = this.__encryptData(wifKey, this.otp)
-    this.keys = null
+    this.otp = otplib.authenticator.generate(this.otpSecret);
+    const wifKey = crypto.keysToWIF(this.keys, this.network);
+    this.encryptedKeys = this.__encryptData(wifKey, this.otp);
+    this.keys = null;
   }
 
   /**
    * Decrypt keys with one time password.
    */
   decryptKeysWithOtp() {
-    const wifKey = this.__decryptData(this.encryptedKeys, this.otp)
-    this.keys = crypto.getKeysFromWIF(wifKey, this.network)
-    this.otp = null
-    this.encryptedKeys = null
+    const wifKey = this.__decryptData(this.encryptedKeys, this.otp);
+    this.keys = crypto.getKeysFromWIF(wifKey, this.network);
+    this.otp = null;
+    this.encryptedKeys = null;
   }
 
   /**
@@ -122,15 +122,17 @@ module.exports = class Delegate {
       const transactionData = {
         amount: Bignum.ZERO,
         fee: Bignum.ZERO,
-        sha256: createHash('sha256'),
-      }
+        sha256: createHash("sha256")
+      };
 
-      const sortedTransactions = sortTransactions(transactions)
+      const sortedTransactions = sortTransactions(transactions);
       sortedTransactions.forEach(transaction => {
-        transactionData.amount = transactionData.amount.plus(transaction.amount)
-        transactionData.fee = transactionData.fee.plus(transaction.fee)
-        transactionData.sha256.update(Buffer.from(transaction.id, 'hex'))
-      })
+        transactionData.amount = transactionData.amount.plus(
+          transaction.amount
+        );
+        transactionData.fee = transactionData.fee.plus(transaction.fee);
+        transactionData.sha256.update(Buffer.from(transaction.id, "hex"));
+      });
 
       const data = {
         version: 0,
@@ -144,24 +146,24 @@ module.exports = class Delegate {
         totalFee: transactionData.fee,
         reward: options.reward,
         payloadLength: 32 * sortedTransactions.length,
-        payloadHash: transactionData.sha256.digest().toString('hex'),
-        transactions: sortedTransactions,
-      }
+        payloadHash: transactionData.sha256.digest().toString("hex"),
+        transactions: sortedTransactions
+      };
 
       if (this.bip38) {
-        this.decryptKeysWithOtp()
+        this.decryptKeysWithOtp();
       }
 
-      const block = Block.create(data, this.keys)
+      const block = Block.create(data, this.keys);
 
       if (this.bip38) {
-        this.encryptKeysWithOtp()
+        this.encryptKeysWithOtp();
       }
 
-      return block
+      return block;
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -175,14 +177,14 @@ module.exports = class Delegate {
       password,
       this.otpSecret,
       this.iterations,
-      this.keySize,
-    )
-    const cipher = forge.cipher.createCipher('AES-CBC', derivedKey)
-    cipher.start({ iv: forge.util.decode64(this.otp) })
-    cipher.update(forge.util.createBuffer(content))
-    cipher.finish()
+      this.keySize
+    );
+    const cipher = forge.cipher.createCipher("AES-CBC", derivedKey);
+    cipher.start({ iv: forge.util.decode64(this.otp) });
+    cipher.update(forge.util.createBuffer(content));
+    cipher.finish();
 
-    return forge.util.encode64(cipher.output.getBytes())
+    return forge.util.encode64(cipher.output.getBytes());
   }
 
   /**
@@ -196,13 +198,13 @@ module.exports = class Delegate {
       password,
       this.otpSecret,
       this.iterations,
-      this.keySize,
-    )
-    const decipher = forge.cipher.createDecipher('AES-CBC', derivedKey)
-    decipher.start({ iv: forge.util.decode64(this.otp) })
-    decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)))
-    decipher.finish()
+      this.keySize
+    );
+    const decipher = forge.cipher.createDecipher("AES-CBC", derivedKey);
+    decipher.start({ iv: forge.util.decode64(this.otp) });
+    decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));
+    decipher.finish();
 
-    return decipher.output.toString()
+    return decipher.output.toString();
   }
-}
+};

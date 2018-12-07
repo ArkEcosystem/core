@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers"; // eslint-disable-line no-unused-vars
+import "@arkecosystem/core-test-utils/lib/matchers";
 
 import machine from "../../../src/machines/blockchain";
 
@@ -11,7 +11,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
     it("should execute the `checkLastDownloadedBlockSynced` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "syncWithNetwork.syncing",
-        actions: ["checkLastDownloadedBlockSynced"],
+        actions: ["checkLastDownloadedBlockSynced"]
       });
     });
 
@@ -19,7 +19,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.syncing",
         on: "SYNCED",
-        to: "syncWithNetwork.downloadFinished",
+        to: "syncWithNetwork.downloadFinished"
       });
     });
 
@@ -27,7 +27,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.syncing",
         on: "NOTSYNCED",
-        to: "syncWithNetwork.downloadBlocks",
+        to: "syncWithNetwork.downloadBlocks"
       });
     });
 
@@ -35,7 +35,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.syncing",
         on: "PAUSED",
-        to: "syncWithNetwork.downloadPaused",
+        to: "syncWithNetwork.downloadPaused"
       });
     });
 
@@ -43,7 +43,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.syncing",
         on: "NETWORKHALTED",
-        to: "syncWithNetwork.end",
+        to: "syncWithNetwork.end"
       });
     });
   });
@@ -53,7 +53,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.idle",
         on: "DOWNLOADED",
-        to: "syncWithNetwork.downloadBlocks",
+        to: "syncWithNetwork.downloadBlocks"
       });
     });
   });
@@ -62,7 +62,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
     it("should execute the `downloadBlocks` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "syncWithNetwork.downloadBlocks",
-        actions: ["downloadBlocks"],
+        actions: ["downloadBlocks"]
       });
     });
 
@@ -70,7 +70,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.downloadBlocks",
         on: "DOWNLOADED",
-        to: "syncWithNetwork.syncing",
+        to: "syncWithNetwork.syncing"
       });
     });
 
@@ -78,7 +78,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.downloadBlocks",
         on: "NOBLOCK",
-        to: "syncWithNetwork.syncing",
+        to: "syncWithNetwork.syncing"
       });
     });
   });
@@ -87,7 +87,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
     it("should execute the `downloadFinished` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "syncWithNetwork.downloadFinished",
-        actions: ["downloadFinished"],
+        actions: ["downloadFinished"]
       });
     });
 
@@ -95,7 +95,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.downloadFinished",
         on: "PROCESSFINISHED",
-        to: "syncWithNetwork.processFinished",
+        to: "syncWithNetwork.processFinished"
       });
     });
   });
@@ -104,7 +104,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
     it("should execute the `downloadPaused` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "syncWithNetwork.downloadPaused",
-        actions: ["downloadPaused"],
+        actions: ["downloadPaused"]
       });
     });
 
@@ -112,7 +112,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.downloadPaused",
         on: "PROCESSFINISHED",
-        to: "syncWithNetwork.processFinished",
+        to: "syncWithNetwork.processFinished"
       });
     });
   });
@@ -121,7 +121,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
     it("should execute the `checkLastBlockSynced` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "syncWithNetwork.processFinished",
-        actions: ["checkLastBlockSynced"],
+        actions: ["checkLastBlockSynced"]
       });
     });
 
@@ -129,7 +129,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.processFinished",
         on: "SYNCED",
-        to: "syncWithNetwork.end",
+        to: "syncWithNetwork.end"
       });
     });
 
@@ -137,7 +137,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
       expect(machine).toTransition({
         from: "syncWithNetwork.processFinished",
         on: "NOTSYNCED",
-        to: "syncWithNetwork.downloadBlocks",
+        to: "syncWithNetwork.downloadBlocks"
       });
     });
   });
@@ -146,7 +146,7 @@ describe("Blockchain machine > SyncWithNetwork", () => {
     it("should execute the `syncingComplete` action when is entered", () => {
       expect(machine).toExecuteOnEntry({
         state: "syncWithNetwork.end",
-        actions: ["syncingComplete"],
+        actions: ["syncingComplete"]
       });
     });
   });

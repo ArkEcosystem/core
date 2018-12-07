@@ -1,7 +1,7 @@
 module.exports = joi => ({
-  name: 'arkPublicKey',
+  name: "arkPublicKey",
   base: joi
     .string()
     .hex()
-    .length(66),
-})
+    .length(66)
+});

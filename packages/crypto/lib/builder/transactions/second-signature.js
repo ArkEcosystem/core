@@ -1,21 +1,21 @@
-const feeManager = require('../../managers/fee')
-const { TRANSACTION_TYPES } = require('../../constants')
-const TransactionBuilder = require('./transaction')
-const { crypto } = require('../../crypto')
+const feeManager = require("../../managers/fee");
+const { TRANSACTION_TYPES } = require("../../constants");
+const TransactionBuilder = require("./transaction");
+const { crypto } = require("../../crypto");
 
 module.exports = class SecondSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor() {
-    super()
+    super();
 
-    this.data.type = TRANSACTION_TYPES.SECOND_SIGNATURE
-    this.data.fee = feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)
-    this.data.amount = 0
-    this.data.recipientId = null
-    this.data.senderPublicKey = null
-    this.data.asset = { signature: {} }
+    this.data.type = TRANSACTION_TYPES.SECOND_SIGNATURE;
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE);
+    this.data.amount = 0;
+    this.data.recipientId = null;
+    this.data.senderPublicKey = null;
+    this.data.asset = { signature: {} };
   }
 
   /**
@@ -26,9 +26,9 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
    */
   signatureAsset(secondPassphrase) {
     this.data.asset.signature.publicKey = crypto.getKeys(
-      secondPassphrase,
-    ).publicKey
-    return this
+      secondPassphrase
+    ).publicKey;
+    return this;
   }
 
   /**
@@ -36,10 +36,10 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
    * @return {Object}
    */
   getStruct() {
-    const struct = super.getStruct()
-    struct.amount = this.data.amount
-    struct.recipientId = this.data.recipientId
-    struct.asset = this.data.asset
-    return struct
+    const struct = super.getStruct();
+    struct.amount = this.data.amount;
+    struct.recipientId = this.data.recipientId;
+    struct.asset = this.data.asset;
+    return struct;
   }
-}
+};

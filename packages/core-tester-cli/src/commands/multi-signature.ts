@@ -22,7 +22,7 @@ export class MultiSignature extends Command {
   public async run() {
     const approvalWallets = this.generateWallets(this.options.quantity);
     const publicKeys = approvalWallets.map(
-      (wallet) => `+${wallet.keys.publicKey}`,
+      wallet => `+${wallet.keys.publicKey}`
     );
     const min = this.options.min
       ? Math.min(this.options.min, publicKeys.length)
@@ -35,27 +35,27 @@ export class MultiSignature extends Command {
     await transfer.run({
       wallets,
       amount: (publicKeys.length + 1) * 5 + testCosts,
-      skipTesting: true,
+      skipTesting: true
     });
 
     const transactions = this.generateTransactions(
       wallets,
       approvalWallets,
       publicKeys,
-      min,
+      min
     );
 
     if (this.options.copy) {
       this.copyToClipboard(transactions);
 
-      return; // eslint-disable-line no-unreachable
+      return;
     }
 
     try {
       const response = await this.sendTransactions(
         transactions,
         "multi-signature",
-        !this.options.skipValidation,
+        !this.options.skipValidation
       );
 
       if (!this.options.skipValidation) {
@@ -66,7 +66,7 @@ export class MultiSignature extends Command {
             logger.error(
               `Multi-signature transaction '${
                 transaction.id
-              }' was not processed`,
+              }' was not processed`
             );
           }
         }
@@ -78,7 +78,7 @@ export class MultiSignature extends Command {
           const tx = await this.getTransaction(transaction.id);
           if (!tx) {
             logger.error(
-              `Transaction '${transaction.id}' should be on the blockchain`,
+              `Transaction '${transaction.id}' should be on the blockchain`
             );
           }
         }
@@ -88,7 +88,7 @@ export class MultiSignature extends Command {
         ? error.response.data.message
         : error.message;
       logger.error(
-        `There was a problem sending multi-signature transactions: ${message}`,
+        `There was a problem sending multi-signature transactions: ${message}`
       );
       process.exit(1);
     }
@@ -102,13 +102,13 @@ export class MultiSignature extends Command {
       transfer,
       wallets,
       approvalWallets,
-      min,
+      min
     );
     await this.__testSendWithBelowMinSignatures(
       transfer,
       wallets,
       approvalWallets,
-      min,
+      min
     );
     await this.__testSendWithoutSignatures(transfer, wallets);
     await this.__testSendWithEmptySignatures(transfer, wallets);
@@ -116,7 +116,7 @@ export class MultiSignature extends Command {
       wallets,
       approvalWallets,
       publicKeys,
-      min,
+      min
     );
   }
 
@@ -134,7 +134,7 @@ export class MultiSignature extends Command {
     approvalWallets = [],
     publicKeys = [],
     min = 2,
-    log = true,
+    log = true
   ) {
     const transactions = [];
     wallets.forEach((wallet, i) => {
@@ -145,14 +145,14 @@ export class MultiSignature extends Command {
         .multiSignatureAsset({
           lifetime: this.options.lifetime,
           keysgroup: publicKeys,
-          min,
+          min
         })
         .network(this.config.network.version)
         .sign(wallet.passphrase);
 
       if (wallet.secondPassphrase || this.config.secondPassphrase) {
         builder.secondSign(
-          wallet.secondPassphrase || this.config.secondPassphrase,
+          wallet.secondPassphrase || this.config.secondPassphrase
         );
       }
 
@@ -169,7 +169,7 @@ export class MultiSignature extends Command {
         logger.info(
           `${i} ==> ${transaction.id}, ${
             wallet.address
-          } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+          } (fee: ${Command.__arktoshiToArk(transaction.fee)})`
         );
       }
     });
@@ -184,13 +184,17 @@ export class MultiSignature extends Command {
    * @param  {Object[]} [approvalWallets=[]]
    * @return {void}
    */
-  public async __testSendWithSignatures(transfer, wallets, approvalWallets = []) {
+  public async __testSendWithSignatures(
+    transfer,
+    wallets,
+    approvalWallets = []
+  ) {
     logger.info("Sending transactions with signatures");
 
     const transactions = transfer.generateTransactions(
       Command.__arkToArktoshi(2),
       wallets,
-      approvalWallets,
+      approvalWallets
     );
 
     try {
@@ -199,7 +203,7 @@ export class MultiSignature extends Command {
         const tx = await this.getTransaction(transaction.id);
         if (!tx) {
           logger.error(
-            `Transaction '${transaction.id}' should be on the blockchain`,
+            `Transaction '${transaction.id}' should be on the blockchain`
           );
         }
       }
@@ -220,20 +224,20 @@ export class MultiSignature extends Command {
     transfer,
     wallets,
     approvalWallets = [],
-    min = 2,
+    min = 2
   ) {
     logger.info(
       `Sending transactions with ${min} (min) of ${pluralize(
         "signature",
         approvalWallets.length,
-        true,
-      )}`,
+        true
+      )}`
     );
 
     const transactions = transfer.generateTransactions(
       Command.__arkToArktoshi(2),
       wallets,
-      take(approvalWallets, min),
+      take(approvalWallets, min)
     );
 
     try {
@@ -242,7 +246,7 @@ export class MultiSignature extends Command {
         const tx = await this.getTransaction(transaction.id);
         if (!tx) {
           logger.error(
-            `Transaction '${transaction.id}' should be on the blockchain`,
+            `Transaction '${transaction.id}' should be on the blockchain`
           );
         }
       }
@@ -263,21 +267,21 @@ export class MultiSignature extends Command {
     transfer,
     wallets,
     approvalWallets = [],
-    min = 2,
+    min = 2
   ) {
     const max = min - 1;
     logger.info(
       `Sending transactions with ${max} (below min) of ${pluralize(
         "signature",
         approvalWallets.length,
-        true,
-      )}`,
+        true
+      )}`
     );
 
     const transactions = transfer.generateTransactions(
       Command.__arkToArktoshi(2),
       wallets,
-      take(approvalWallets, max),
+      take(approvalWallets, max)
     );
 
     try {
@@ -287,7 +291,7 @@ export class MultiSignature extends Command {
           const tx = await this.getTransaction(transaction.id);
           if (tx) {
             logger.error(
-              `Transaction '${transaction.id}' should not be on the blockchain`,
+              `Transaction '${transaction.id}' should not be on the blockchain`
             );
           }
         } catch (error) {
@@ -296,7 +300,7 @@ export class MultiSignature extends Command {
             : error.message;
           if (message !== "Transaction not found") {
             logger.error(
-              `Failed to check transaction '${transaction.id}': ${message}`,
+              `Failed to check transaction '${transaction.id}': ${message}`
             );
           }
         }
@@ -317,7 +321,7 @@ export class MultiSignature extends Command {
 
     const transactions = transfer.generateTransactions(
       Command.__arkToArktoshi(2),
-      wallets,
+      wallets
     );
 
     try {
@@ -327,7 +331,7 @@ export class MultiSignature extends Command {
           const tx = await this.getTransaction(transaction.id);
           if (tx) {
             logger.error(
-              `Transaction '${transaction.id}' should not be on the blockchain`,
+              `Transaction '${transaction.id}' should not be on the blockchain`
             );
           }
         } catch (error) {
@@ -336,7 +340,7 @@ export class MultiSignature extends Command {
             : error.message;
           if (message !== "Transaction not found") {
             logger.error(
-              `Failed to check transaction '${transaction.id}': ${message}`,
+              `Failed to check transaction '${transaction.id}': ${message}`
             );
           }
         }
@@ -357,7 +361,7 @@ export class MultiSignature extends Command {
 
     const transactions = transfer.generateTransactions(
       Command.__arkToArktoshi(2),
-      wallets,
+      wallets
     );
     for (const transaction of transactions) {
       transaction.data.signatures = [];
@@ -370,7 +374,7 @@ export class MultiSignature extends Command {
           const tx = await this.getTransaction(transaction.id);
           if (tx) {
             logger.error(
-              `Transaction '${transaction.id}' should not be on the blockchain`,
+              `Transaction '${transaction.id}' should not be on the blockchain`
             );
           }
         } catch (error) {
@@ -379,7 +383,7 @@ export class MultiSignature extends Command {
             : error.message;
           if (message !== "Transaction not found") {
             logger.error(
-              `Failed to check transaction '${transaction.id}': ${message}`,
+              `Failed to check transaction '${transaction.id}': ${message}`
             );
           }
         }
@@ -401,7 +405,7 @@ export class MultiSignature extends Command {
     wallets,
     approvalWallets = [],
     publicKeys = [],
-    min = 2,
+    min = 2
   ) {
     logger.info("Sending transactions to re-register multi-signature");
 
@@ -409,7 +413,7 @@ export class MultiSignature extends Command {
       wallets,
       approvalWallets,
       publicKeys,
-      min,
+      min
     );
 
     try {
@@ -419,7 +423,7 @@ export class MultiSignature extends Command {
           const tx = await this.getTransaction(transaction.id);
           if (tx) {
             logger.error(
-              `Transaction '${transaction.id}' should not be on the blockchain`,
+              `Transaction '${transaction.id}' should not be on the blockchain`
             );
           }
         } catch (error) {
@@ -428,7 +432,7 @@ export class MultiSignature extends Command {
             : error.message;
           if (message !== "Transaction not found") {
             logger.error(
-              `Failed to check transaction '${transaction.id}': ${message}`,
+              `Failed to check transaction '${transaction.id}': ${message}`
             );
           }
         }

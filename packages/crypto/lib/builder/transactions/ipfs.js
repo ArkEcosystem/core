@@ -1,20 +1,20 @@
-const feeManager = require('../../managers/fee')
-const { TRANSACTION_TYPES } = require('../../constants')
-const TransactionBuilder = require('./transaction')
+const feeManager = require("../../managers/fee");
+const { TRANSACTION_TYPES } = require("../../constants");
+const TransactionBuilder = require("./transaction");
 
 module.exports = class IPFSBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor() {
-    super()
+    super();
 
-    this.data.type = TRANSACTION_TYPES.IPFS
-    this.data.fee = feeManager.get(TRANSACTION_TYPES.IPFS)
-    this.data.amount = 0
-    this.data.vendorFieldHex = null
-    this.data.senderPublicKey = null
-    this.data.asset = {}
+    this.data.type = TRANSACTION_TYPES.IPFS;
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.IPFS);
+    this.data.amount = 0;
+    this.data.vendorFieldHex = null;
+    this.data.senderPublicKey = null;
+    this.data.asset = {};
   }
 
   /**
@@ -23,8 +23,8 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    * @return {IPFSBuilder}
    */
   ipfsHash(ipfsHash) {
-    this.data.ipfsHash = ipfsHash
-    return this
+    this.data.ipfsHash = ipfsHash;
+    return this;
   }
 
   /**
@@ -34,11 +34,11 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    */
   vendorField(type) {
     this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString(
-      'hex',
-    )
+      "hex"
+    );
 
     while (this.data.vendorFieldHex.length < 128) {
-      this.data.vendorFieldHex = `00${this.data.vendorFieldHex}`
+      this.data.vendorFieldHex = `00${this.data.vendorFieldHex}`;
     }
 
     // TODO is this right? when is vendorFieldHex.length is odd,
@@ -46,7 +46,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
     // const vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString('hex')
     // this.data.vendorFieldHex = vendorFieldHex.padStart(128, '0')
 
-    return this
+    return this;
   }
 
   /**
@@ -54,10 +54,10 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    * @return {Object}
    */
   getStruct() {
-    const struct = super.getStruct()
-    struct.amount = this.data.amount
-    struct.vendorFieldHex = this.data.vendorFieldHex
-    struct.asset = this.data.asset
-    return struct
+    const struct = super.getStruct();
+    struct.amount = this.data.amount;
+    struct.vendorFieldHex = this.data.vendorFieldHex;
+    struct.asset = this.data.asset;
+    return struct;
   }
-}
+};

@@ -1,5 +1,3 @@
-/* eslint max-len: "off" */
-
 import { resolve } from "path";
 
 import LegacyAccountTransformer from "../versions/1/accounts/transformer";
@@ -25,23 +23,23 @@ class Transformer {
   public constructor() {
     this.transformers.set(1, {
       "fee-statistics": LegacyFeeStatisticsTransformer,
-      "account": LegacyAccountTransformer,
-      "block": LegacyBlockTransformer,
-      "delegate": LegacyDelegateTransformer,
-      "peer": LegacyPeerTransformer,
-      "ports": LegacyPortsTransformer,
-      "transaction": LegacyTransactionTransformer,
-      "voter": LegacyVoterTransformer,
+      account: LegacyAccountTransformer,
+      block: LegacyBlockTransformer,
+      delegate: LegacyDelegateTransformer,
+      peer: LegacyPeerTransformer,
+      ports: LegacyPortsTransformer,
+      transaction: LegacyTransactionTransformer,
+      voter: LegacyVoterTransformer
     });
 
     this.transformers.set(2, {
       "fee-statistics": FeeStatisticsTransformer,
-      "block": BlockTransformer,
-      "delegate": DelegateTransformer,
-      "peer": PeerTransformer,
-      "ports": PortsTransformer,
-      "transaction": TransactionTransformer,
-      "wallet": WalletTransformer,
+      block: BlockTransformer,
+      delegate: DelegateTransformer,
+      peer: PeerTransformer,
+      ports: PortsTransformer,
+      transaction: TransactionTransformer,
+      wallet: WalletTransformer
     });
   }
 
@@ -50,7 +48,7 @@ class Transformer {
   }
 
   public toCollection(request, data, transformer): object[] {
-    return data.map((d) => this.toResource(request, d, transformer));
+    return data.map(d => this.toResource(request, d, transformer));
   }
 }
 
