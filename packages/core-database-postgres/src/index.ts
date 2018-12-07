@@ -1,5 +1,6 @@
 import { PostgresConnection } from "./connection";
 import { defaults } from "./defaults";
+import { migrations } from "./migrations";
 
 /**
  * The struct used by the plugin container.
@@ -26,3 +27,9 @@ export const plugin = {
     return container.resolvePlugin("database").disconnect();
   },
 };
+
+/**
+ * The files required to migrate the database.
+ * @type {Array}
+ */
+export { migrations };
