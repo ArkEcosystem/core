@@ -22,31 +22,49 @@ module.exports = class Repository {
 
   async _findManyWithCount(
     selectQuery,
-    countQuery,
     { limit, offset, orderBy },
   ) {
-    const { count } = await this._find(countQuery)
-
     if (this.columns.includes(orderBy[0])) {
       selectQuery.order(this.query[snakeCase(orderBy[0])][orderBy[1]])
     }
 
+    const offsetIsSet = Number.isInteger(offset) && offset > 0
+    const limitIsSet = Number.isInteger(limit)
+
+    if (!offsetIsSet && !limitIsSet) {
+      const rows = await this._findMany(selectQuery)
+
+      return { rows, count: rows.length }
+    }
+
     selectQuery.offset(offset).limit(limit)
 
-    return {
-      rows: await this._findMany(selectQuery),
-      count: +count,
+    const rows = await this._findMany(selectQuery)
+
+    if (rows.length < limit) {
+      return { rows, count: offset + rows.length }
     }
-  }
 
-  _makeCountQuery() {
-    return this.query.select('count(*) AS count').from(this.query)
-  }
+    // Get the last rows=... from something that looks like (1 column, few rows):
+    //
+    //                            QUERY PLAN
+    // ------------------------------------------------------------------
+    //  Limit  (cost=15.34..15.59 rows=100 width=622)
+    //    ->  Sort  (cost=15.34..15.64 rows=120 width=622)
+    //          Sort Key: "timestamp" DESC
+    //          ->  Seq Scan on transactions  (cost=0.00..11.20 rows=120 width=622)
 
-  _makeEstimateQuery() {
-    return this.query
-      .select('count(*) AS count')
-      .from(`${this.model.getTable()} TABLESAMPLE SYSTEM (100)`)
+    let count = 0
+    const explainSql = `EXPLAIN ${selectQuery.toString()}`
+    for (const row of await database.query.manyOrNone(explainSql)) {
+      const line = Object.values(row)[0]
+      const match = line.match(/rows=([0-9]+)/)
+      if (match !== null) {
+        count = Number(match[1])
+      }
+    }
+
+    return { rows, count: Math.max(count, rows.length) }
   }
 
   _formatConditions(parameters) {

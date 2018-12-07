@@ -16,7 +16,6 @@ class TransactionsRepository extends Repository {
    */
   async findAll(parameters = {}) {
     const selectQuery = this.query.select().from(this.query)
-    const countQuery = this._makeEstimateQuery()
 
     if (parameters.senderId) {
       const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
@@ -28,34 +27,26 @@ class TransactionsRepository extends Repository {
       parameters.senderPublicKey = senderPublicKey
     }
 
-    const applyConditions = queries => {
-      const conditions = Object.entries(this._formatConditions(parameters))
+    const conditions = Object.entries(this._formatConditions(parameters))
 
-      if (conditions.length) {
-        const first = conditions.shift()
+    if (conditions.length) {
+      const first = conditions.shift()
 
-        for (const item of queries) {
-          item.where(this.query[first[0]].equals(first[1]))
+      selectQuery.where(this.query[first[0]].equals(first[1]))
 
-          for (const condition of conditions) {
-            item.and(this.query[condition[0]].equals(condition[1]))
-          }
-        }
-      }
-
-      for (const item of queries) {
-        if (parameters.ownerId) {
-          const owner = database.walletManager.findByAddress(parameters.ownerId)
-
-          item.and(this.query.sender_public_key.equals(owner.publicKey))
-          item.or(this.query.recipient_id.equals(owner.address))
-        }
+      for (const condition of conditions) {
+        selectQuery.and(this.query[condition[0]].equals(condition[1]))
       }
     }
 
-    applyConditions([selectQuery, countQuery])
+    if (parameters.ownerId) {
+      const owner = database.walletManager.findByAddress(parameters.ownerId)
 
-    const results = await this._findManyWithCount(selectQuery, countQuery, {
+      selectQuery.and(this.query.sender_public_key.equals(owner.publicKey))
+      selectQuery.or(this.query.recipient_id.equals(owner.address))
+    }
+
+    const results = await this._findManyWithCount(selectQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters),
@@ -75,7 +66,6 @@ class TransactionsRepository extends Repository {
     const selectQuery = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
-    const countQuery = this._makeEstimateQuery()
 
     if (parameters.senderId) {
       parameters.senderPublicKey = this.__publicKeyFromSenderId(
@@ -83,25 +73,19 @@ class TransactionsRepository extends Repository {
       )
     }
 
-    const applyConditions = queries => {
-      const conditions = Object.entries(this._formatConditions(parameters))
+    const conditions = Object.entries(this._formatConditions(parameters))
 
-      if (conditions.length) {
-        const first = conditions.shift()
+    if (conditions.length) {
+      const first = conditions.shift()
 
-        for (const item of queries) {
-          item.where(this.query[first[0]].equals(first[1]))
+      selectQuery.where(this.query[first[0]].equals(first[1]))
 
-          for (const [key, value] of conditions) {
-            item.or(this.query[key].equals(value))
-          }
-        }
+      for (const [key, value] of conditions) {
+        selectQuery.or(this.query[key].equals(value))
       }
     }
 
-    applyConditions([selectQuery, countQuery])
-
-    const results = await this._findManyWithCount(selectQuery, countQuery, {
+    const results = await this._findManyWithCount(selectQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters),
@@ -122,19 +106,12 @@ class TransactionsRepository extends Repository {
     const selectQuery = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
-    const countQuery = this._makeEstimateQuery()
 
-    const applyConditions = queries => {
-      for (const item of queries) {
-        item
-          .where(this.query.sender_public_key.equals(wallet.publicKey))
-          .or(this.query.recipient_id.equals(wallet.address))
-      }
-    }
+    selectQuery
+      .where(this.query.sender_public_key.equals(wallet.publicKey))
+      .or(this.query.recipient_id.equals(wallet.address))
 
-    applyConditions([selectQuery, countQuery])
-
-    const results = await this._findManyWithCount(selectQuery, countQuery, {
+    const results = await this._findManyWithCount(selectQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters),
@@ -292,7 +269,6 @@ class TransactionsRepository extends Repository {
    */
   async search(parameters) {
     const selectQuery = this.query.select().from(this.query)
-    const countQuery = this._makeEstimateQuery()
 
     if (parameters.senderId) {
       const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
@@ -302,38 +278,30 @@ class TransactionsRepository extends Repository {
       }
     }
 
-    const applyConditions = queries => {
-      const conditions = buildFilterQuery(this._formatConditions(parameters), {
-        exact: [
-          'id',
-          'block_id',
-          'type',
-          'version',
-          'sender_public_key',
-          'recipient_id',
-        ],
-        between: ['timestamp', 'amount', 'fee'],
-        wildcard: ['vendor_field_hex'],
-      })
+    const conditions = buildFilterQuery(this._formatConditions(parameters), {
+      exact: [
+        'id',
+        'block_id',
+        'type',
+        'version',
+        'sender_public_key',
+        'recipient_id',
+      ],
+      between: ['timestamp', 'amount', 'fee'],
+      wildcard: ['vendor_field_hex'],
+    })
 
-      if (conditions.length) {
-        const first = conditions.shift()
+    if (conditions.length) {
+      const first = conditions.shift()
 
-        for (const item of queries) {
-          item.where(this.query[first.column][first.method](first.value))
+      selectQuery.where(this.query[first.column][first.method](first.value))
 
-          for (const condition of conditions) {
-            item.and(
-              this.query[condition.column][condition.method](condition.value),
-            )
-          }
-        }
+      for (const condition of conditions) {
+        selectQuery.and(this.query[condition.column][condition.method](condition.value))
       }
     }
 
-    applyConditions([selectQuery, countQuery])
-
-    const results = await this._findManyWithCount(selectQuery, countQuery, {
+    const results = await this._findManyWithCount(selectQuery, {
       limit: parameters.limit || 100,
       offset: parameters.offset || 0,
       orderBy: this.__orderBy(parameters),
