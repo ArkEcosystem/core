@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import appHelper from "../../../core-test-utils/lib/helpers/container";
+import appHelper from "@arkecosystem/core-test-utils/lib/helpers/container";
 
 jest.setTimeout(60000);
 
@@ -12,8 +12,8 @@ export async function setUp() {
       "@arkecosystem/core-api",
       "@arkecosystem/core-webhooks",
       "@arkecosystem/core-graphql",
-      "@arkecosystem/core-forger",
-    ],
+      "@arkecosystem/core-forger"
+    ]
   });
 }
 

@@ -1,6 +1,7 @@
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 import { database } from "./server/services/database";
+import { network } from "./server/services/network";
 
 export const plugin = {
   pkg: require("../package.json"),
@@ -17,6 +18,8 @@ export const plugin = {
 
     database.init(options.database);
 
+    await network.init();
+
     return startServer(options);
   },
   async deregister(container, options) {
@@ -25,5 +28,5 @@ export const plugin = {
 
       return container.resolvePlugin("json-rpc").stop();
     }
-  },
+  }
 };

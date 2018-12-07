@@ -13,8 +13,7 @@ class Network {
   public peers: any;
   public server: any;
 
-  constructor() {
-    // FIX: resolve issue
+  public async init() {
     this.logger = app.resolvePlugin("logger");
     this.config = app.resolvePlugin("config");
     this.p2p = app.resolvePlugin("p2p");
@@ -27,10 +26,10 @@ class Network {
 
     this.client = axios.create({
       headers: {
-        "Accept": "application/vnd.ark.core-api.v2+json",
-        "Content-Type": "application/json",
+        Accept: "application/vnd.ark.core-api.v2+json",
+        "Content-Type": "application/json"
       },
-      timeout: 3000,
+      timeout: 3000
     });
   }
 
@@ -61,8 +60,8 @@ class Network {
     return this.client.post(
       `http://${this.server.ip}:${this.server.port}/api/transactions`,
       {
-        transactions: [transaction],
-      },
+        transactions: [transaction]
+      }
     );
   }
 
@@ -77,13 +76,13 @@ class Network {
     try {
       const peerPort = app.resolveOptions("p2p").port;
       const response = await axios.get(
-        `http://${this.server.ip}:${peerPort}/config`,
+        `http://${this.server.ip}:${peerPort}/config`
       );
 
       const plugin = response.data.data.plugins["@arkecosystem/core-api"];
 
       if (!plugin.enabled) {
-        const index = this.peers.findIndex((peer) => peer.ip === this.server.ip);
+        const index = this.peers.findIndex(peer => peer.ip === this.server.ip);
         this.peers.splice(index, 1);
 
         if (!this.peers.length) {

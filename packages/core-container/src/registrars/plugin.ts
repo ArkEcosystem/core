@@ -19,7 +19,7 @@ export class PluginRegistrar {
    * @param  {Container} container
    * @param  {Object} options
    */
-  constructor(container, options = {}) {
+  constructor(container, options: any = {}) {
     this.container = container;
     this.plugins = this.__loadPlugins();
     this.resolvedPlugins = [];

@@ -1,8 +1,8 @@
 import "jest-extended";
-import "../../../core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils/lib/matchers";
 
 import { crypto } from "@arkecosystem/crypto";
-import genesisBlock from "../../../core-test-utils/config/testnet/genesisBlock.json";
+import genesisBlock from "@arkecosystem/core-test-utils/config/testnet/genesisBlock.json";
 import TransactionsRepository from "../../src/repositories/transactions";
 import { setUp, tearDown } from "../__support__/setup";
 
@@ -35,7 +35,7 @@ describe("Transaction Repository", () => {
 
       expect(transactions.rows).toBeArray();
       expect(transactions.rows).not.toBeEmpty();
-      transactions.rows.forEach((transaction) => {
+      transactions.rows.forEach(transaction => {
         expect(transaction).toContainKeys([
           "id",
           "version",
@@ -48,7 +48,7 @@ describe("Transaction Repository", () => {
           "blockId",
           "senderPublicKey",
           "vendorFieldHex",
-          "block",
+          "block"
         ]);
       });
 
@@ -78,12 +78,15 @@ describe("Transaction Repository", () => {
     it("should search transactions by the specified `senderPublicKey`", async () => {
       await expectSearch(
         { senderPublicKey: genesisTransaction.senderPublicKey },
-        51,
+        51
       );
     });
 
     it("should search transactions by the specified `senderId`", async () => {
-      const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+      const senderId = crypto.getAddress(
+        genesisTransaction.senderPublicKey,
+        23
+      );
       await expectSearch({ senderId }, 51);
     });
 
@@ -96,10 +99,10 @@ describe("Transaction Repository", () => {
         {
           timestamp: {
             from: genesisTransaction.timestamp,
-            to: genesisTransaction.timestamp,
-          },
+            to: genesisTransaction.timestamp
+          }
         },
-        153,
+        153
       );
     });
 
@@ -108,10 +111,10 @@ describe("Transaction Repository", () => {
         {
           amount: {
             from: genesisTransaction.amount,
-            to: genesisTransaction.amount,
-          },
+            to: genesisTransaction.amount
+          }
         },
-        50,
+        50
       );
     });
 
@@ -120,17 +123,17 @@ describe("Transaction Repository", () => {
         {
           fee: {
             from: genesisTransaction.fee,
-            to: genesisTransaction.fee,
-          },
+            to: genesisTransaction.fee
+          }
         },
-        153,
+        153
       );
     });
 
     it("should search transactions by the specified `vendorFieldHex`", async () => {
       await expectSearch(
         { vendorFieldHex: genesisTransaction.vendorFieldHex },
-        153,
+        153
       );
     });
 
@@ -138,7 +141,7 @@ describe("Transaction Repository", () => {
       it("should search transactions that includes all of them (AND)", async () => {
         await expectSearch(
           { recipientId: genesisTransaction.recipientId, type: 3 },
-          1,
+          1
         );
       });
     });
