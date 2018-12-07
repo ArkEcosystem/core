@@ -1,11 +1,11 @@
-const axios = require('axios')
-const {
+import axios from 'axios'
+import {
   client,
   transactionBuilder,
   NetworkManager,
-} = require('@arkecosystem/crypto')
-const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
-const { app } = require('@arkecosystem/core-container')
+} from '@arkecosystem/crypto'
+import apiHelpers from '@arkecosystem/core-test-utils/lib/helpers/api'
+import { app } from '@arkecosystem/core-container'
 
 class Helpers {
   async request(method, path, params = {}) {
@@ -102,7 +102,4 @@ class Helpers {
   }
 }
 
-/**
- * @type {Helpers}
- */
-module.exports = new Helpers()
+export default new Helpers()

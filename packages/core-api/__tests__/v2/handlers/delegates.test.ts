@@ -3,8 +3,13 @@ import '@arkecosystem/core-test-utils/lib/matchers'
 import { setUp, tearDown } from "../../__support__/setup";
 import utils from '../utils'
 
-const { Block } = require('@arkecosystem/crypto').models
-const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
+import blocks2to100 from '@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100'
+
+import { models } from '@arkecosystem/crypto'
+const { Block } = models
+
+import { app } from '@arkecosystem/core-container'
+const container = app
 
 const delegate = {
   username: 'genesis_9',
@@ -13,12 +18,8 @@ const delegate = {
     '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647',
 }
 
-let container
-
 beforeAll(async () => {
   await setUp()
-  const { app: appContainer } = require('@arkecosystem/core-container')
-  container = appContainer
 })
 
 afterAll(async () => {

@@ -3,10 +3,11 @@ import '@arkecosystem/core-test-utils/lib/matchers'
 import { setUp, tearDown } from "../../__support__/setup";
 import utils from '../utils'
 
-const blockchainHelper = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
-const { Block } = require('@arkecosystem/crypto').models
-const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
+import blockchainHelper from '@arkecosystem/core-test-utils/lib/helpers/blockchain'
+import { models } from '@arkecosystem/crypto'
+import blocks2to100 from '@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100'
 
+const { Block } = models
 let genesisBlock
 let container
 

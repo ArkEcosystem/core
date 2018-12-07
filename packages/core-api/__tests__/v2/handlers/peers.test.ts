@@ -3,7 +3,7 @@ import '@arkecosystem/core-test-utils/lib/matchers'
 import { setUp, tearDown } from "../../__support__/setup";
 import utils from '../utils'
 
-const peers = require('@arkecosystem/core-test-utils/config/testnet/peers.json')
+import peers from '@arkecosystem/core-test-utils/config/testnet/peers.json'
 
 
 beforeAll(async () => {

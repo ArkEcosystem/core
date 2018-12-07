@@ -2,15 +2,10 @@ import 'jest-extended'
 import '@arkecosystem/core-test-utils/lib/matchers'
 import { setUp, tearDown } from "../../__support__/setup";
 import utils from '../utils'
-
-let genesisBlock
+import genesisBlock from '@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'
 
 beforeAll(async () => {
   await setUp()
-
-  // Create the genesis block after the setup has finished or else it uses a potentially
-  // wrong network config.
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(async () => {

@@ -3,9 +3,10 @@ import '@arkecosystem/core-test-utils/lib/matchers'
 import { setUp, tearDown } from "../../__support__/setup";
 import utils from '../utils'
 
-const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
-const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
-const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
+import generateTransfers from '@arkecosystem/core-test-utils/lib/generators/transactions/transfer'
+import generateWallets from '@arkecosystem/core-test-utils/lib/generators/wallets'
+import delegates from '@arkecosystem/core-test-utils/fixtures/testnet/delegates'
+import genesisBlock from '@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'
 
 const transferFee = 10000000
 
@@ -33,9 +34,6 @@ let feeTo
 beforeAll(async () => {
   await setUp()
 
-  // Create the genesis block after the setup has finished or else it uses a potentially
-  // wrong network config.
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
   genesisTransactions = genesisBlock.transactions[0]
 
   transactionId = genesisTransactions.id
