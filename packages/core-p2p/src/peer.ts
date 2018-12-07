@@ -3,6 +3,9 @@ import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
 
+const logger = app.resolvePlugin("logger");
+const config = app.resolvePlugin("config");
+
 export class Peer {
   public static isOk(peer) {
     return peer.status === 200 || peer.status === "OK";
@@ -14,9 +17,6 @@ export class Peer {
   public os: any;
   public status: any;
   public delay: any;
-
-  public logger: any;
-  public config: any;
 
   private ban: number;
   private url: string;
@@ -39,9 +39,6 @@ export class Peer {
    * @param  {Number} port
    */
   constructor(readonly ip, readonly port) {
-    this.logger = app.resolvePlugin("logger");
-    this.config = app.resolvePlugin("config");
-
     this.ban = new Date().getTime();
     this.url = `${port % 443 === 0 ? "https://" : "http://"}${ip}:${port}`;
     this.state = {};
@@ -51,12 +48,12 @@ export class Peer {
     this.headers = {
       "version": app.getVersion(),
       "port": app.resolveOptions("p2p").port,
-      "nethash": this.config.network.nethash,
+      "nethash": config.network.nethash,
       "height": null,
       "Content-Type": "application/json",
     };
 
-    if (this.config.network.name !== "mainnet") {
+    if (config.network.name !== "mainnet") {
       this.headers.hashid = app.getHashid();
     }
   }
@@ -88,7 +85,7 @@ export class Peer {
       delay: this.delay,
     };
 
-    if (this.config.network.name !== "mainnet") {
+    if (config.network.name !== "mainnet") {
       (data as any).hashid = this.hashid || "unknown";
     }
 
@@ -174,7 +171,7 @@ export class Peer {
 
       return blocks;
     } catch (error) {
-      this.logger.debug(
+      logger.debug(
         `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
           depth: 1,
         })}`,
@@ -202,7 +199,7 @@ export class Peer {
 
     const body = await this.__get(
       "/peer/status",
-      delay || this.config.peers.globalTimeout,
+      delay || config.peers.globalTimeout,
     );
 
     if (!body) {
@@ -227,14 +224,14 @@ export class Peer {
    * @return {Object[]}
    */
   public async getPeers() {
-    this.logger.info(`Fetching a fresh peer list from ${this.url}`);
+    logger.info(`Fetching a fresh peer list from ${this.url}`);
 
     await this.ping(2000);
 
     const body = await this.__get("/peer/list");
 
     return body.peers.filter(
-      (peer) => !this.config.peers.blackList.includes(peer.ip),
+      (peer) => !config.peers.blackList.includes(peer.ip),
     );
   }
 
@@ -253,7 +250,7 @@ export class Peer {
 
       return body && body.success && body.common;
     } catch (error) {
-      this.logger.error(
+      logger.error(
         `Could not determine common blocks with ${this.ip}: ${error}`,
       );
     }
@@ -273,7 +270,7 @@ export class Peer {
     try {
       const response = await axios.get(`${this.url}${endpoint}`, {
         headers: this.headers,
-        timeout: timeout || this.config.peers.globalTimeout,
+        timeout: timeout || config.peers.globalTimeout,
       });
 
       this.delay = new Date().getTime() - temp;
@@ -284,7 +281,7 @@ export class Peer {
     } catch (error) {
       this.delay = -1;
 
-      this.logger.debug(
+      logger.debug(
         `Request to ${this.url}${endpoint} failed because of "${
         error.message
         }"`,
@@ -311,7 +308,7 @@ export class Peer {
 
       return response.data;
     } catch (error) {
-      this.logger.debug(
+      logger.debug(
         `Request to ${this.url}${endpoint} failed because of "${
         error.message
         }"`,
