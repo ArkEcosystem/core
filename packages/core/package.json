@@ -24,7 +24,7 @@
     "build:watch": "yarn clean && yarn compile -w",
     "clean": "del dist",
     "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+    "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
     "debug:start": "node --inspect-brk ./dist/index.js start",
     "debug:relay": "node --inspect-brk ./dist/index.js relay",
     "debug:forger": "node --inspect-brk ./dist/index.js forger",

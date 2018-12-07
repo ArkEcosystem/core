@@ -43,12 +43,6 @@
         },
         {
           "run": {
-            "name": "Install Typescript",
-            "command": "yarn global add typescript tslint"
-          }
-        },
-        {
-          "run": {
             "name": "Install packages",
             "command": "yarn"
           }

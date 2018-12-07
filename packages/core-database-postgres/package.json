@@ -15,7 +15,7 @@
     "build:watch": "yarn clean && yarn copy && yarn compile -w",
     "clean": "del dist",
     "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+    "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
     "copy": "cd src && mkdir -p ../dist && find . -name '*.sql' | xargs cp --parents -t ../dist && cd ..",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --detectOpenHandles",
