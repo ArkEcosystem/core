@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils";
 
 import { asValue } from "awilix";
 
@@ -9,12 +9,13 @@ let container;
 let blockchain;
 
 beforeAll(async () => {
+
   container = await app.setUp();
 
   process.env.ARK_SKIP_BLOCKCHAIN = "true";
 
   // Manually register the blockchain
-  const plugin = require("../lib").plugin;
+  const plugin = require("../src").plugin;
 
   blockchain = await plugin.register(container, {
     networkStart: false
@@ -30,7 +31,7 @@ beforeAll(async () => {
     })
   );
 
-  stateMachine = require("../lib/state-machine");
+  stateMachine = require("../src/state-machine").stateMachine;
 });
 
 afterAll(async () => {
@@ -148,10 +149,9 @@ describe("State Machine", () => {
       describe("if the network has not started", () => {
         it("should not do anything", () => {
           stateMachine.state.networkStart = false;
-          expect(() => actionMap.downloadFinished()).not.toDispatch([
+          expect(() => actionMap.downloadFinished()).not.toDispatch(
             blockchain,
-            "SYNCFINISHED"
-          ]);
+            "SYNCFINISHED");
           expect(stateMachine.state.networkStart).toBe(false);
         });
       });

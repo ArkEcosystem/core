@@ -1,8 +1,10 @@
+import "@arkecosystem/core-test-utils"
+
+import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.101-155";
+import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.2-100";
+
 import { models } from "@arkecosystem/crypto";
 const { Block } = models;
-
-import blocks101to155 from "@arkecosystem/core-test-utils/fixtures/testnet/blocks.101-155";
-import blocks1to100 from "@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100";
 
 import state from "../src/state-storage";
 import app from "./__support__/setup";

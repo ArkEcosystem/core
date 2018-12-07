@@ -1,4 +1,8 @@
 /* tslint:disable:max-line-length */
+import "@arkecosystem/core-test-utils"
+
+import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.101-155";
+import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.2-100";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
@@ -6,6 +10,8 @@ import delay from "delay";
 
 import { crypto, models, slots } from "@arkecosystem/crypto";
 import { asValue } from "awilix";
+
+import app from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
 const { Block, Wallet } = models;
@@ -17,10 +23,6 @@ let blockchain;
 let logger;
 let loggerDebugBackup;
 let peerMock;
-
-import blocks101to155 from "@arkecosystem/core-test-utils/fixtures/testnet/blocks.101-155";
-import blocks1to100 from "@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100";
-import app from "./__support__/setup";
 
 beforeAll(async () => {
   container = await app.setUp();
@@ -35,7 +37,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"),
   );
 
   configManager = container.resolvePlugin("config");
@@ -478,7 +480,7 @@ async function __start() {
   process.env.ARK_SKIP_BLOCKCHAIN = "false";
   process.env.ARK_ENV = "false";
 
-  const plugin = require("../lib").plugin;
+  const plugin = require("../src").plugin;
 
   blockchain = await plugin.register(container, {
     networkStart: false,
@@ -537,7 +539,7 @@ async function __resetToHeight1() {
 
 function __mockPeer() {
   // Mocking a peer which will send blocks until height 155
-  const Peer = require("@arkecosystem/core-p2p/lib/peer");
+  const Peer = require("@arkecosystem/core-p2p/src/peer").Peer;
   peerMock = new Peer("0.0.0.99", 4002);
   Object.assign(peerMock, peerMock.headers, { status: 200 });
 

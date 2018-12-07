@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils/";
 
 import machine from "../../src/machines/blockchain";
 
