@@ -1,16 +1,16 @@
-import { transfer } from "../../../src/generators";
+import { generateTransfers } from "../../../src/generators";
 import { Bignum, constants } from "../../../../crypto";
 
 const { TRANSACTION_TYPES, ARKTOSHI } = constants;
 
 describe("Transfer transaction", () => {
   it("should be a function", () => {
-    expect(transfer).toBeFunction();
+    expect(generateTransfers).toBeFunction();
   });
 
   const amount = new Bignum(20 * ARKTOSHI);
   const quantity = 4;
-  const transactions = transfer(
+  const transactions = generateTransfers(
     undefined,
     undefined,
     undefined,
