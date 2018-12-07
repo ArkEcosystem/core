@@ -6,8 +6,16 @@
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "prepublishOnly": "yarn test && yarn build",
+    "pretest": "yarn lint && yarn build",
+    "compile": "../../node_modules/typescript/bin/tsc",
+    "build": "yarn clean && yarn compile",
+    "build:watch": "yarn clean && yarn compile -w",
+    "clean": "del dist",
+    "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+    "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --detectOpenHandles",
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
