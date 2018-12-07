@@ -1,7 +1,7 @@
 import "jest-extended";
 
-export class ApiHelpers {
-  public async request(server, method, url, headers, params = {}) {
+export default class ApiHelpers {
+  public static async request(server, method, url, headers, params = {}) {
     // Build URL params from _params_ object for GET / DELETE requests
     const getParams = Object.entries(params)
       .map(([key, val]) => `${key}=${val}`)
@@ -24,28 +24,28 @@ export class ApiHelpers {
     return response;
   }
 
-  public expectJson(response) {
+  public static expectJson(response) {
     expect(response.data).toBeObject();
   }
 
-  public expectStatus(response, code) {
+  public static expectStatus(response, code) {
     expect(response.status).toBe(code);
   }
 
-  public expectResource(response) {
+  public static expectResource(response) {
     expect(response.data.data).toBeObject();
   }
 
-  public expectCollection(response) {
+  public static expectCollection(response) {
     expect(Array.isArray(response.data.data)).toBe(true);
   }
 
-  public expectSuccessful(response, statusCode = 200) {
+  public static expectSuccessful(response, statusCode = 200) {
     this.expectStatus(response, statusCode);
     this.expectJson(response);
   }
 
-  public expectError(response, statusCode = 404) {
+  public static expectError(response, statusCode = 404) {
     this.expectStatus(response, statusCode);
     this.expectJson(response);
     expect(response.data.statusCode).toBeNumber();

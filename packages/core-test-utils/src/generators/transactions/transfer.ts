@@ -3,7 +3,7 @@ import { transaction } from "./transaction";
 
 const { TRANSFER } = constants.TRANSACTION_TYPES;
 
-export const transfer = (
+export const generateTransfers = (
   network,
   passphrase,
   address?: string,
