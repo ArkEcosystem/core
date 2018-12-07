@@ -4,7 +4,8 @@ import { app } from "@arkecosystem/core-container";
 import cli from "commander";
 import * as utils from "./utils";
 
-import { version } from "../package.json";
+// tslint:disable-next-line:no-var-requires
+const { version } = require("../package.json")
 
 cli.version(version);
 

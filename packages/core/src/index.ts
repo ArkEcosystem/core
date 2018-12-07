@@ -6,7 +6,8 @@ import fs from "fs";
 import wif from "wif";
 import { startForger, startRelay, startRelayAndForger } from "./commands";
 
-import { version } from "../package.json";
+// tslint:disable-next-line:no-var-requires
+const { version } = require("../package.json")
 
 app.version(version);
 
