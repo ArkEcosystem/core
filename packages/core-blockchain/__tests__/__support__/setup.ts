@@ -5,7 +5,7 @@ jest.setTimeout(60000);
 
 export default {
   setUp: async () => {
-    await appHelper.setup({
+    await appHelper.setUp({
       exit: "@arkecosystem/core-p2p",
       exclude: ["@arkecosystem/core-blockchain"],
     });
