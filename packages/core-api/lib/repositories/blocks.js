@@ -60,11 +60,10 @@ class BlocksRepository extends Repository {
       .select()
       .from(this.query)
       .where(this.query.id.equals(value))
-    
-    // heights are stored as INTEGER of which the maximum safe value is 2147483647.
-    // this means we need to check for both the javascript and psql safe integer
+
+    // ensure that the value is not greater than 2147483647 (psql max int size)
     const height = +value
-    if (Number.isSafeInteger(height) && height <= 2147483647) {
+    if (height <= 2147483647) {
       query.or(this.query.height.equals(height))
     }
 
