@@ -7,10 +7,10 @@
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "prepublishOnly": "yarn test && yarn build",
-    "pretest": "yarn lint && yarn build",
+    "pretest": "yarn build",
     "build": "yarn clean && tsc",
     "build:watch": "yarn clean && tsc -w",
     "clean": "del dist",
