@@ -1,5 +1,11 @@
-export * from "./api";
-export * from "./blockchain";
-export * from "./fields";
-export * from "./models";
-export * from "./transactions";
+import "jest-extended"
+
+import "./api"
+import "./blockchain";
+import "./fields";
+import "./models";
+import "./transactions";
+
+import "./fields";
+import "./models";
+import "./transactions";

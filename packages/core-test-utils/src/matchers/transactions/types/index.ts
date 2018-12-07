@@ -1,9 +1,9 @@
-export * from "./delegate-resignation";
-export * from "./delegate";
-export * from "./ipfs";
-export * from "./multi-payment";
-export * from "./multi-signature";
-export * from "./second-signature";
-export * from "./timelock-transfer";
-export * from "./transfer";
-export * from "./vote";
+import "./delegate";
+import "./delegate-resignation";
+import "./ipfs";
+import "./multi-payment";
+import "./multi-signature";
+import "./second-signature";
+import "./timelock-transfer";
+import "./transfer";
+import "./vote";

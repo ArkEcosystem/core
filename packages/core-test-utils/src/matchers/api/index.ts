@@ -1,4 +1,4 @@
-export * from "./block";
-export * from "./peer";
-export * from "./response";
-export * from "./transaction";
+import "./block";
+import "./peer";
+import "./response";
+import "./transaction";

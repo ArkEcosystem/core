@@ -1,2 +1,2 @@
-export * from "./address";
-export * from "./public-key";
+import "./address";
+import "./public-key";
