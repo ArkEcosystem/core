@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.0.13 - 2018-12-07
+
+### Fixed
+
+- Ensure safe integer range for block height lookups via API
+
 ## 2.0.12 - 2018-12-06
 
 ### Fixed

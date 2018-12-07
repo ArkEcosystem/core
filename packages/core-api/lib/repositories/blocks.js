@@ -61,8 +61,10 @@ class BlocksRepository extends Repository {
       .from(this.query)
       .where(this.query.id.equals(value))
 
-    if (Number.isSafeInteger(+value)) {
-      query.or(this.query.height.equals(value))
+    // ensure that the value is not greater than 2147483647 (psql max int size)
+    const height = +value
+    if (height <= 2147483647) {
+      query.or(this.query.height.equals(height))
     }
 
     return this._find(query)
