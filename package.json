@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "setup": "yarn bootstrap && yarn build",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean",
     "build": "lerna run build",
@@ -57,5 +58,6 @@
     "hooks": {
       "pre-commit": "lint-staged && ./scripts/pre-commit.sh"
     }
-  }
+  },
+  "name": "core"
 }
