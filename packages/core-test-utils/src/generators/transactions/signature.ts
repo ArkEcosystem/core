@@ -1,16 +1,16 @@
 import { constants } from "@arkecosystem/crypto";
-import { transaction } from "./transaction";
+import { generateTransaction } from "./transaction";
 
 const { SECOND_SIGNATURE } = constants.TRANSACTION_TYPES;
 
-export const secondSignature = (
+export const generateSecondSignature = (
   network,
   passphrase,
   quantity: number = 10,
   getStruct: boolean = false,
   fee?: number
 ) =>
-  transaction(
+  generateTransaction(
     network,
     SECOND_SIGNATURE,
     passphrase,

@@ -1,4 +1,5 @@
 import "jest-extended";
+import { generators, fixtures } from "@arkecosystem/core-test-utils";
 
 import { crypto, slots } from "@arkecosystem/crypto";
 import { TransactionGuard } from "../src/guard";
@@ -6,15 +7,18 @@ import { TransactionGuard } from "../src/guard";
 import bip39 from "bip39";
 import app from "./__support__/setup";
 
-import delegates from "@arkecosystem/core-test-utils/fixtures/testnet/delegates";
-import generateDelegateReg from "@arkecosystem/core-test-utils/lib/generators/transactions/delegate";
-import generateSignature from "@arkecosystem/core-test-utils/lib/generators/transactions/signature";
-import generateTransfers from "@arkecosystem/core-test-utils/lib/generators/transactions/transfer";
-import generateVote from "@arkecosystem/core-test-utils/lib/generators/transactions/vote";
-import generateWallets from "@arkecosystem/core-test-utils/lib/generators/wallets";
-
 import { TransactionPool } from "../src/connection";
 import { defaults } from "../src/defaults";
+
+const {
+  generateDelegateRegistration,
+  generateSecondSignature,
+  generateTransfers,
+  generateVote,
+  generateWallets
+} = generators;
+
+const { delegates } = fixtures;
 
 let container;
 let guard;
@@ -234,12 +238,16 @@ describe.skip("Transaction Guard", () => {
         delegate2.publicKey,
         1
       );
-      const delegateRegs = generateDelegateReg(
+      const delegateRegs = generateDelegateRegistration(
         "testnet",
         newWalletPassphrase,
         1
       );
-      const signatures = generateSignature("testnet", newWalletPassphrase, 1);
+      const signatures = generateSecondSignature(
+        "testnet",
+        newWalletPassphrase,
+        1
+      );
 
       // Index wallets to not encounter cold wallet error
       const allTransactions = [
@@ -342,9 +350,9 @@ describe.skip("Transaction Guard", () => {
           false,
           transferDynFee
         ),
-        generateSignature("testnet", newWalletPassphrase, 1),
+        generateSecondSignature("testnet", newWalletPassphrase, 1),
         generateVote("testnet", newWalletPassphrase, delegate3.publicKey, 1),
-        generateDelegateReg("testnet", newWalletPassphrase, 1)
+        generateDelegateRegistration("testnet", newWalletPassphrase, 1)
       ];
 
       for (const transaction of allTransactions) {

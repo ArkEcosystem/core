@@ -1,15 +1,15 @@
-import { secondSignature } from "../../../src/generators";
+import { generateSecondSignature } from "../../../src/generators";
 import { constants } from "../../../../crypto";
 
 const { TRANSACTION_TYPES } = constants;
 
 describe("Signature transaction", () => {
   it("should be a function", () => {
-    expect(secondSignature).toBeFunction();
+    expect(generateSecondSignature).toBeFunction();
   });
 
   const quantity = 4;
-  const transactions = secondSignature(undefined, undefined, quantity);
+  const transactions = generateSecondSignature(undefined, undefined, quantity);
 
   it("should return an array", () => {
     expect(transactions).toBeArrayOfSize(quantity);

@@ -10,7 +10,7 @@ client.getConfigManager().setFromPreset("ark", "testnet");
 import { secrets } from "../../config/testnet/delegates.json";
 import { transactions as genesisTransactions } from "../../config/testnet/genesisBlock.json";
 
-export const delegates = secrets.map(secret => {
+export const delegates: any = secrets.map(secret => {
   const publicKey = crypto.getKeys(secret).publicKey;
   const address = crypto.getAddress(publicKey);
   const balance = genesisTransactions.find(

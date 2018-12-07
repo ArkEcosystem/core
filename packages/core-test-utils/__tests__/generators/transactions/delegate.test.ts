@@ -1,15 +1,19 @@
-import { delegateRegistration } from "../../../src/generators";
+import { generateDelegateRegistration } from "../../../src/generators";
 import { constants } from "../../../../crypto";
 
 const { TRANSACTION_TYPES } = constants;
 
 describe("Delegate transaction", () => {
   it("should be a function", () => {
-    expect(delegateRegistration).toBeFunction();
+    expect(generateDelegateRegistration).toBeFunction();
   });
 
   const quantity = 4;
-  const transactions = delegateRegistration(undefined, undefined, quantity);
+  const transactions = generateDelegateRegistration(
+    undefined,
+    undefined,
+    quantity
+  );
 
   it("should return an array", () => {
     expect(transactions).toBeArrayOfSize(quantity);

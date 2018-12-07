@@ -1,15 +1,15 @@
-import { vote } from "../../../src/generators";
+import { generateVote } from "../../../src/generators";
 import { constants } from "../../../../crypto";
 
 const { TRANSACTION_TYPES } = constants;
 
 describe("Vote transaction", () => {
   it("should be a function", () => {
-    expect(vote).toBeFunction();
+    expect(generateVote).toBeFunction();
   });
 
   const quantity = 4;
-  const transactions = vote(undefined, undefined, undefined, quantity);
+  const transactions = generateVote(undefined, undefined, undefined, quantity);
 
   it("should return an array", () => {
     expect(transactions).toBeArrayOfSize(quantity);

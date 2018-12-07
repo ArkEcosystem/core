@@ -1,8 +1,8 @@
 import { client, constants, crypto } from "@arkecosystem/crypto";
 import superheroes from "superheroes";
-import { passphrases } from "../../fixtures/testnet/passphrases";
+import { delegatesSecrets } from "../../fixtures/testnet/passphrases";
 
-const defaultPassphrase = passphrases[0];
+const defaultPassphrase = delegatesSecrets[0];
 const {
   TRANSFER,
   SECOND_SIGNATURE,
@@ -10,7 +10,7 @@ const {
   VOTE
 } = constants.TRANSACTION_TYPES;
 
-export const transaction = (
+export const generateTransaction = (
   network,
   type,
   passphrase,
