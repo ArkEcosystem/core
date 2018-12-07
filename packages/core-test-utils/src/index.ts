@@ -1,5 +1,7 @@
 import * as fixtures from "./fixtures";
 import * as generators from "./generators";
+import * as helpers from "./helpers";
+
 import * as api from "./matchers/api";
 import * as blockchain from "./matchers/blockchain";
 import * as fields from "./matchers/fields";
@@ -17,7 +19,7 @@ expect.extend(matcherPeer);
 expect.extend(matcherResponse);
 expect.extend(matcherTransaction);
 
-export { fixtures, generators };
+export { fixtures, generators, helpers };
 
 // const modules = [api, blockchain, fields, models, transactions];
 // console.log(modules)

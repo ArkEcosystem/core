@@ -7,11 +7,6 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  "types": "types/index.d.ts",
-  "files": [
-    "dist",
-    "types/index.d.ts"
-  ],
   "scripts": {
     "prepublishOnly": "yarn test && yarn build",
     "pretest": "yarn lint && yarn build",

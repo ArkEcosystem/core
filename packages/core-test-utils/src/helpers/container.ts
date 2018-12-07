@@ -8,7 +8,7 @@ export async function setUpContainer(options: any): Promise<any> {
       data: options.data || "~/.ark",
       config: options.config
         ? options.config
-        : path.resolve(__dirname, "../config/testnet"),
+        : path.resolve(__dirname, "../../config/testnet"),
       token: options.token || "ark",
       network: options.network || "testnet"
     },
