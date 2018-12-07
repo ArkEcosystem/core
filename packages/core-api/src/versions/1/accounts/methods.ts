@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { generateCacheKey } from "../../utils";
+import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
 const database = app.resolvePlugin("database");
@@ -51,12 +51,10 @@ const publicKey = async request => {
 };
 
 export function registerMethods(server) {
-  const generateTimeout = require("../../utils").getCacheTimeout();
-
   server.method("v1.accounts.index", index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -69,7 +67,7 @@ export function registerMethods(server) {
   server.method("v1.accounts.show", show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ address: request.query.address })
@@ -78,7 +76,7 @@ export function registerMethods(server) {
   server.method("v1.accounts.balance", balance, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ address: request.query.address })
@@ -87,7 +85,7 @@ export function registerMethods(server) {
   server.method("v1.accounts.publicKey", publicKey, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ address: request.query.address })

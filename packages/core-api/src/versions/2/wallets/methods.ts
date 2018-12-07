@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import { transactionsRepository } from "../../../repositories";
-import { generateCacheKey } from "../../utils";
+import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const database = app.resolvePlugin("database");
@@ -114,12 +114,10 @@ const search = async request => {
 };
 
 export function registerMethods(server) {
-  const generateTimeout = require("../../utils").getCacheTimeout();
-
   server.method("v2.wallets.index", index, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -133,7 +131,7 @@ export function registerMethods(server) {
   server.method("v2.wallets.top", top, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey(paginate(request))
@@ -142,7 +140,7 @@ export function registerMethods(server) {
   server.method("v2.wallets.show", show, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ id: request.params.id })
@@ -151,7 +149,7 @@ export function registerMethods(server) {
   server.method("v2.wallets.transactions", transactions, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -165,7 +163,7 @@ export function registerMethods(server) {
   server.method("v2.wallets.transactionsSent", transactionsSent, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -179,7 +177,7 @@ export function registerMethods(server) {
   server.method("v2.wallets.transactionsReceived", transactionsReceived, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -193,7 +191,7 @@ export function registerMethods(server) {
   server.method("v2.wallets.votes", votes, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -206,7 +204,7 @@ export function registerMethods(server) {
   server.method("v2.wallets.search", search, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>

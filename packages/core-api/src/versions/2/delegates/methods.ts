@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import orderBy from "lodash/orderBy";
 import { blocksRepository } from "../../../repositories";
-import { generateCacheKey } from "../../utils";
+import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const database = app.resolvePlugin("database");
@@ -86,12 +86,10 @@ const voterBalances = async request => {
 };
 
 export function registerMethods(server) {
-  const generateTimeout = require("../../utils").getCacheTimeout();
-
   server.method("v2.delegates.index", index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -104,7 +102,7 @@ export function registerMethods(server) {
   server.method("v2.delegates.show", show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ id: request.params.id })
@@ -113,7 +111,7 @@ export function registerMethods(server) {
   server.method("v2.delegates.search", search, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -127,7 +125,7 @@ export function registerMethods(server) {
   server.method("v2.delegates.blocks", blocks, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -140,7 +138,7 @@ export function registerMethods(server) {
   server.method("v2.delegates.voters", voters, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -153,7 +151,7 @@ export function registerMethods(server) {
   server.method("v2.delegates.voterBalances", voterBalances, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ id: request.params.id })

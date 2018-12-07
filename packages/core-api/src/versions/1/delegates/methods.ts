@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { generateCacheKey } from "../../utils";
+import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
 const database = app.resolvePlugin("database");
@@ -71,12 +71,10 @@ const voters = async request => {
 };
 
 export function registerMethods(server) {
-  const generateTimeout = require("../../utils").getCacheTimeout();
-
   server.method("v1.delegates.index", index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -92,7 +90,7 @@ export function registerMethods(server) {
   server.method("v1.delegates.show", show, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -104,7 +102,7 @@ export function registerMethods(server) {
   server.method("v1.delegates.count", countDelegates, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ time: +new Date() })
@@ -113,7 +111,7 @@ export function registerMethods(server) {
   server.method("v1.delegates.search", search, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -126,7 +124,7 @@ export function registerMethods(server) {
   server.method("v1.delegates.voters", voters, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ id: request.query.publicKey })

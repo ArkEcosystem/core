@@ -3,7 +3,7 @@ import {
   blocksRepository,
   transactionsRepository
 } from "../../../repositories";
-import { generateCacheKey } from "../../utils";
+import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const index = async request => {
@@ -51,12 +51,10 @@ const search = async request => {
 };
 
 export function registerMethods(server) {
-  const generateTimeout = require("../../utils").getCacheTimeout();
-
   server.method("v2.blocks.index", index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -69,7 +67,7 @@ export function registerMethods(server) {
   server.method("v2.blocks.show", show, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ id: request.params.id })
@@ -78,7 +76,7 @@ export function registerMethods(server) {
   server.method("v2.blocks.transactions", transactions, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -91,7 +89,7 @@ export function registerMethods(server) {
   server.method("v2.blocks.search", search, {
     cache: {
       expiresIn: 30 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>

@@ -1,5 +1,5 @@
 import { blocksRepository } from "../../../repositories";
-import { generateCacheKey } from "../../utils";
+import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
 const index = async request => {
@@ -31,12 +31,10 @@ const show = async request => {
 };
 
 export function registerMethods(server) {
-  const generateTimeout = require("../../utils").getCacheTimeout();
-
   server.method("v1.blocks.index", index, {
     cache: {
       expiresIn: 8 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request =>
@@ -49,7 +47,7 @@ export function registerMethods(server) {
   server.method("v1.blocks.show", show, {
     cache: {
       expiresIn: 600 * 1000,
-      generateTimeout,
+      generateTimeout: getCacheTimeout(),
       getDecoratedValue: true
     },
     generateKey: request => generateCacheKey({ id: request.query.id })
