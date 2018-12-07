@@ -10,8 +10,9 @@
   "scripts": {
     "prepublishOnly": "yarn test && yarn build",
     "pretest": "yarn lint && yarn build",
-    "build": "yarn clean && ../../node_modules/typescript/bin/tsc && cp -r src/templates dist/templates",
-    "build:watch": "yarn clean && ../../node_modules/typescript/bin/tsc -w",
+    "compile": "../../node_modules/typescript/bin/tsc",
+    "build": "yarn clean && yarn compile && cp -r src/templates dist/templates",
+    "build:watch": "yarn clean && yarn compile -w",
     "clean": "del dist",
     "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
     "lint": "tslint -c ../../tslint.json '**/*.ts' --fix",
