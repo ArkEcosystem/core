@@ -1,8 +1,8 @@
-import genTransfer from "@arkecosystem/core-test-utils/lib/generators/transactions/transfer";
+import genTransfer from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
 import blockFixture from "../../../core-debugger-cli/__tests__/__fixtures__/block.json";
-import * as app from "../__support__/setup";
-import { utils } from "../__support__/utils";
+import app from "../__support__/setup";
+import utils from "../__support__/utils";
 
 const { Block, Transaction } = models;
 
@@ -15,7 +15,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"),
   );
   genesisTransaction = new Transaction(genesisBlock.transactions[0]);
 });

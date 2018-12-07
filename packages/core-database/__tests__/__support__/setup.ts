@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import * as appHelper from "@arkecosystem/core-test-utils/lib/helpers/container";
+import appHelper from "@arkecosystem/core-test-utils/src/helpers/container";
 
 const setUp = async () => {
   jest.setTimeout(60000);

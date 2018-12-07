@@ -1,5 +1,5 @@
 import dayjs from "dayjs-ext";
-import * as app from "../__support__/setup";
+import app from "../__support__/setup";
 
 import offences from "../../src/court/offences";
 import defaults from "../../src/defaults";
@@ -16,8 +16,8 @@ beforeAll(async () => {
   const { app: appContainer } = require("@arkecosystem/core-container");
   container = appContainer;
 
-  guard = require("../../src/court/guard").guard;
-  Peer = require("../../src/peer").Peer;
+  guard = require("../../dist/court/guard").guard;
+  Peer = require("../../dist/peer").Peer;
 });
 
 afterAll(async () => {

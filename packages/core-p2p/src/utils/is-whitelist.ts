@@ -6,7 +6,7 @@ import mm from "micromatch";
  * @param  {String} value
  * @return {boolean}
  */
-export default (whitelist, value) => {
+export = (whitelist, value) => {
   if (Array.isArray(whitelist)) {
     for (const item of whitelist) {
       if (mm.isMatch(value, item)) {

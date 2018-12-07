@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import apiHelpers from "@arkecosystem/core-test-utils/lib/helpers/api";
+import apiHelpers from "@arkecosystem/core-test-utils/src/helpers/api";
 
 class Helpers {
   public headers: any;
@@ -31,5 +31,4 @@ class Helpers {
 /**
  * @type {Helpers}
  */
-const utils = new Helpers();
-export { utils };
+export default new Helpers();

@@ -1,7 +1,7 @@
-import genTransfer from "@arkecosystem/core-test-utils/lib/generators/transactions/transfer";
+import genTransfer from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
-import * as app from "../__support__/setup";
-import { utils } from "../__support__/utils";
+import app from "../__support__/setup";
+import utils from "../__support__/utils";
 
 const { Block, Transaction } = models;
 
@@ -13,7 +13,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"),
   );
 });
 
@@ -173,6 +173,7 @@ describe("API - Version 1", () => {
 
   describe("POST /peer/transactions", () => {
     it("should be ok", async () => {
+
       const transactions = genTransfer("testnet");
       const response = await utils.POST("peer/transactions", {
         transactions,
@@ -180,7 +181,8 @@ describe("API - Version 1", () => {
 
       expect(response.status).toBe(200);
 
-      expect(response.data).toBeObject();
+      // TODO: Rejected because cold wallet
+      expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty("success");
       expect(response.data.success).toBeTrue();

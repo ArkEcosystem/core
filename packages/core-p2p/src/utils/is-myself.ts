@@ -5,7 +5,7 @@ import os from "os";
  * @param {String} ipAddress to check
  * @returns {Boolean} true/false
  */
-export default (ipAddress) => {
+export = (ipAddress) => {
   const interfaces = os.networkInterfaces();
 
   return Object.keys(interfaces).some((ifname) =>

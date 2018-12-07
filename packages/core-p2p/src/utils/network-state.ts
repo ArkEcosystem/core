@@ -1,3 +1,5 @@
+/* tslint:disable:no-shadowed-variable */
+
 import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
 
@@ -9,14 +11,11 @@ const config = app.resolvePlugin("config");
  * @private {Block} lastBlock
  * @returns {Object} JSON response for the forger to assess if allowed to forge or not
  */
-export default (monitor, lastBlock) => {
+export = (monitor, lastBlock) => {
   const createStateObject = (
-    // tslint:disable-next-line:no-shadowed-variable
     quorum,
-    // tslint:disable-next-line:no-shadowed-variable
     minimumNetworkReach,
     coldStart,
-    // tslint:disable-next-line:no-shadowed-variable
     overHeightBlockHeader,
   ) => ({
     quorum,

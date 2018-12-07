@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import * as path from "path";
+import '../matchers'
 
 export default {
   setUp: async (options: any): Promise<any> => {

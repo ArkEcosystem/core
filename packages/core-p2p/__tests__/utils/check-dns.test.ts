@@ -1,4 +1,4 @@
-import * as app from "../__support__/setup";
+import app from "../__support__/setup";
 
 let checker;
 

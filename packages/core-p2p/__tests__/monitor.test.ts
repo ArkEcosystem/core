@@ -1,11 +1,9 @@
 /* tslint:disable:max-line-length  */
-import "jest-extended";
-
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 
 import defaults from "../src/defaults";
-import * as app from "./__support__/setup";
+import app from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
 
@@ -16,8 +14,8 @@ let peerMock;
 beforeAll(async () => {
   await app.setUp();
 
-  Peer = require("../src/peer").Peer;
-  monitor = require("../src/monitor").monitor;
+  Peer = require("../dist/peer").Peer;
+  monitor = require("../dist/monitor").monitor;
 });
 
 afterAll(async () => {

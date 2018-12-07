@@ -1,9 +1,7 @@
-import "jest-extended";
-
 import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import * as app from "./__support__/setup";
+import app from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
 const { Block, Transaction } = models;
@@ -20,11 +18,11 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"),
   );
   genesisTransaction = new Transaction(genesisBlock.transactions[0]);
 
-  Peer = require("../src/peer").Peer;
+  Peer = require("../dist/peer").Peer;
 });
 
 afterAll(async () => {

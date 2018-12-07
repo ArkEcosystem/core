@@ -3,9 +3,9 @@ import { generateTransaction } from "./transaction";
 
 const { TRANSFER } = constants.TRANSACTION_TYPES;
 
-export const generateTransfers = (
+export default (
   network,
-  passphrase,
+  passphrase = "secret passphrase",
   address?: string,
   amount: number = 2,
   quantity: number = 10,
