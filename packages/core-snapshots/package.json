@@ -10,8 +10,8 @@
   "scripts": {
     "prepublishOnly": "yarn test && yarn build",
     "pretest": "yarn build",
-    "build": "yarn clean && yarn copy && tsc",
-    "build:watch": "yarn clean && yarn copy && tsc -w",
+    "build": "yarn clean && yarn copy && ../../node_modules/typescript/bin/tsc",
+    "build:watch": "yarn clean && yarn copy && ../../node_modules/typescript/bin/tsc -w",
     "clean": "del dist",
     "copy": "cd src && mkdir -p ../dist && find . -name '*.sql' | xargs cp --parents -t ../dist && cd ..",
     "lint": "tslint -c ../../tslint.json '**/*.ts' --fix",
