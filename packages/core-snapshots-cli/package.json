@@ -11,9 +11,13 @@
     "ark:snapshot": "./dist/index.js"
   },
   "scripts": {
+    "prepublishOnly": "yarn test && yarn build",
+    "pretest": "yarn lint && yarn build",
     "build": "yarn clean && tsc",
-    "build:watch": "yarn clean  && tsc -w",
+    "build:watch": "yarn clean && tsc -w",
     "clean": "del dist",
+    "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+    "lint": "tslint -c ../../tslint.json '**/*.ts' --fix",
     "start": "./dist/index.js",
     "debug": "node --inspect-brk ./dist/index.js",
     "create:mainnet": "./dist/index.js create --config ../core/src/config/mainnet --network mainnet",
@@ -35,8 +39,7 @@
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "tslint -c ../../tslint.json '**/*.ts' --fix"
+    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
   },
   "dependencies": {
     "@arkecosystem/core-container": "~0.2",
