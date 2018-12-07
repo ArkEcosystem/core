@@ -6,22 +6,22 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 
 const { TRANSACTION_TYPES } = constants;
 
-const index = async (request) => {
+const index = async request => {
   const transactions = await transactionsRepository.findAllByType(
     TRANSACTION_TYPES.VOTE,
     {
       ...request.query,
-      ...paginate(request),
-    },
+      ...paginate(request)
+    }
   );
 
   return toPagination(request, transactions, "transaction");
 };
 
-const show = async (request) => {
+const show = async request => {
   const transaction = await transactionsRepository.findByTypeAndId(
     TRANSACTION_TYPES.VOTE,
-    request.params.id,
+    request.params.id
   );
 
   if (!transaction) {
@@ -31,28 +31,28 @@ const show = async (request) => {
   return respondWithResource(request, transaction, "transaction");
 };
 
-export function registerVoteMethods(server) {
+export function registerMethods(server) {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v2.votes.index", index, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.votes.show", show, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ id: request.params.id }),
+    generateKey: request => generateCacheKey({ id: request.params.id })
   });
 }

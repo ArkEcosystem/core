@@ -2,10 +2,10 @@ import { blocksRepository } from "../../../repositories";
 import { generateCacheKey } from "../../utils";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
-const index = async (request) => {
+const index = async request => {
   const { count, rows } = await blocksRepository.findAll({
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   if (!rows) {
@@ -14,47 +14,44 @@ const index = async (request) => {
 
   return respondWith({
     blocks: toCollection(request, rows, "block"),
-    count,
+    count
   });
 };
 
-const show = async (request) => {
+const show = async request => {
   const block = await blocksRepository.findById(request.query.id);
 
   if (!block) {
-    return respondWith(
-      `Block with id ${request.query.id} not found`,
-      true,
-    );
+    return respondWith(`Block with id ${request.query.id} not found`, true);
   }
 
   return respondWith({
-    block: toResource(request, block, "block"),
+    block: toResource(request, block, "block")
   });
 };
 
-module.exports = (server) => {
+export function registerMethods(server) {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v1.blocks.index", index, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v1.blocks.show", show, {
     cache: {
       expiresIn: 600 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ id: request.query.id }),
+    generateKey: request => generateCacheKey({ id: request.query.id })
   });
-};
+}

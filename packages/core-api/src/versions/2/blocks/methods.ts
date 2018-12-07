@@ -1,18 +1,21 @@
 import Boom from "boom";
-import { blocksRepository, transactionsRepository } from "../../../repositories";
+import {
+  blocksRepository,
+  transactionsRepository
+} from "../../../repositories";
 import { generateCacheKey } from "../../utils";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const index = async (request) => {
+const index = async request => {
   const blocks = await blocksRepository.findAll({
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, blocks, "block");
 };
 
-const show = async (request) => {
+const show = async request => {
   const block = await blocksRepository.findById(request.params.id);
 
   if (!block) {
@@ -22,7 +25,7 @@ const show = async (request) => {
   return respondWithResource(request, block, "block");
 };
 
-const transactions = async (request) => {
+const transactions = async request => {
   const block = await blocksRepository.findById(request.params.id);
 
   if (!block) {
@@ -31,71 +34,71 @@ const transactions = async (request) => {
 
   const rows = await transactionsRepository.findAllByBlock(block.id, {
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, rows, "transaction");
 };
 
-const search = async (request) => {
+const search = async request => {
   const blocks = await blocksRepository.search({
     ...request.payload,
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, blocks, "block");
 };
 
-export function registerBlockMethods(server) {
+export function registerMethods(server) {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v2.blocks.index", index, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.blocks.show", show, {
     cache: {
       expiresIn: 600 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ id: request.params.id }),
+    generateKey: request => generateCacheKey({ id: request.params.id })
   });
 
   server.method("v2.blocks.transactions", transactions, {
     cache: {
       expiresIn: 600 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.blocks.search", search, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.payload,
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 }

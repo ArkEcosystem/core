@@ -70,7 +70,7 @@ const voters = async request => {
   });
 };
 
-module.exports = server => {
+export function registerMethods(server) {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v1.delegates.index", index, {
@@ -131,4 +131,4 @@ module.exports = server => {
     },
     generateKey: request => generateCacheKey({ id: request.query.publicKey })
   });
-};
+}

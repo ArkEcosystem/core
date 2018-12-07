@@ -2,10 +2,10 @@ import { transactionsRepository } from "../../../repositories";
 import { generateCacheKey } from "../../utils";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
-const index = async (request) => {
+const index = async request => {
   const { count, rows } = await transactionsRepository.findAllLegacy({
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   if (!rows) {
@@ -14,11 +14,11 @@ const index = async (request) => {
 
   return respondWith({
     transactions: toCollection(request, rows, "transaction"),
-    count,
+    count
   });
 };
 
-const show = async (request) => {
+const show = async request => {
   const result = await transactionsRepository.findById(request.query.id);
 
   if (!result) {
@@ -26,32 +26,32 @@ const show = async (request) => {
   }
 
   return respondWith({
-    transaction: toResource(request, result, "transaction"),
+    transaction: toResource(request, result, "transaction")
   });
 };
 
-export function registerTransactionMethods(server) {
+export function registerMethods(server) {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v1.transactions.index", index, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v1.transactions.show", show, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ id: request.query.id }),
+    generateKey: request => generateCacheKey({ id: request.query.id })
   });
 }

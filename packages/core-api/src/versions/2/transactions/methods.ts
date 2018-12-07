@@ -3,16 +3,16 @@ import { transactionsRepository } from "../../../repositories";
 import { generateCacheKey } from "../../utils";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const index = async (request) => {
+const index = async request => {
   const transactions = await transactionsRepository.findAll({
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, transactions, "transaction");
 };
 
-const show = async (request) => {
+const show = async request => {
   const transaction = await transactionsRepository.findById(request.params.id);
 
   if (!transaction) {
@@ -22,52 +22,52 @@ const show = async (request) => {
   return respondWithResource(request, transaction, "transaction");
 };
 
-const search = async (request) => {
+const search = async request => {
   const transactions = await transactionsRepository.search({
     ...request.query,
     ...request.payload,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, transactions, "transaction");
 };
 
-export function registerTransactionMethods(server) {
+export function registerMethods(server) {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v2.transactions.index", index, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.transactions.show", show, {
     cache: {
       expiresIn: 8 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ id: request.params.id }),
+    generateKey: request => generateCacheKey({ id: request.params.id })
   });
 
   server.method("v2.transactions.search", search, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.payload,
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 }

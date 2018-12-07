@@ -6,22 +6,22 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 
 const database = app.resolvePlugin("database");
 
-const index = async (request) => {
+const index = async request => {
   const wallets = await database.wallets.findAll({
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, wallets, "wallet");
 };
 
-const top = async (request) => {
+const top = async request => {
   const wallets = await database.wallets.top(paginate(request));
 
   return toPagination(request, wallets, "wallet");
 };
 
-const show = async (request) => {
+const show = async request => {
   const wallet = await database.wallets.findById(request.params.id);
 
   if (!wallet) {
@@ -31,7 +31,7 @@ const show = async (request) => {
   return respondWithResource(request, wallet, "wallet");
 };
 
-const transactions = async (request) => {
+const transactions = async request => {
   const wallet = await database.wallets.findById(request.params.id);
 
   if (!wallet) {
@@ -41,13 +41,13 @@ const transactions = async (request) => {
   const rows = await transactionsRepository.findAllByWallet(wallet, {
     ...request.query,
     ...request.params,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, rows, "transaction");
 };
 
-const transactionsSent = async (request) => {
+const transactionsSent = async request => {
   const wallet = await database.wallets.findById(request.params.id);
 
   if (!wallet) {
@@ -60,13 +60,13 @@ const transactionsSent = async (request) => {
   const rows = await transactionsRepository.findAllBySender(wallet.publicKey, {
     ...request.query,
     ...request.params,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, rows, "transaction");
 };
 
-const transactionsReceived = async (request) => {
+const transactionsReceived = async request => {
   const wallet = await database.wallets.findById(request.params.id);
 
   if (!wallet) {
@@ -79,13 +79,13 @@ const transactionsReceived = async (request) => {
   const rows = await transactionsRepository.findAllByRecipient(wallet.address, {
     ...request.query,
     ...request.params,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, rows, "transaction");
 };
 
-const votes = async (request) => {
+const votes = async request => {
   const wallet = await database.wallets.findById(request.params.id);
 
   if (!wallet) {
@@ -97,123 +97,123 @@ const votes = async (request) => {
 
   const rows = await transactionsRepository.allVotesBySender(wallet.publicKey, {
     ...request.params,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, rows, "transaction");
 };
 
-const search = async (request) => {
+const search = async request => {
   const wallets = await database.wallets.search({
     ...request.payload,
     ...request.query,
-    ...paginate(request),
+    ...paginate(request)
   });
 
   return toPagination(request, wallets, "wallet");
 };
 
-export function registerWalletMethods(server) {
+export function registerMethods(server) {
   const generateTimeout = require("../../utils").getCacheTimeout();
 
   server.method("v2.wallets.index", index, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.payload,
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.wallets.top", top, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey(paginate(request)),
+    generateKey: request => generateCacheKey(paginate(request))
   });
 
   server.method("v2.wallets.show", show, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) => generateCacheKey({ id: request.params.id }),
+    generateKey: request => generateCacheKey({ id: request.params.id })
   });
 
   server.method("v2.wallets.transactions", transactions, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
         ...request.params,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.wallets.transactionsSent", transactionsSent, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
         ...request.params,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.wallets.transactionsReceived", transactionsReceived, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.query,
         ...request.params,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.wallets.votes", votes, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.params,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 
   server.method("v2.wallets.search", search, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout,
-      getDecoratedValue: true,
+      getDecoratedValue: true
     },
-    generateKey: (request) =>
+    generateKey: request =>
       generateCacheKey({
         ...request.payload,
         ...request.query,
-        ...paginate(request),
-      }),
+        ...paginate(request)
+      })
   });
 }
