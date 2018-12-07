@@ -1,6 +1,17 @@
 import * as _ from "lodash";
 
-export default {
+export { }
+
+declare global {
+  namespace jest {
+    // tslint:disable-next-line:interface-name
+    interface Matchers<R> {
+      toBeTransaction(): R;
+    }
+  }
+}
+
+expect.extend({
   toBeTransaction: actual => {
     // TODO based on type
     const allowedKeys = _.sortBy([
@@ -20,4 +31,4 @@ export default {
       pass: _.isEqual(_.sortBy(actualKeys), allowedKeys)
     };
   }
-};
+})

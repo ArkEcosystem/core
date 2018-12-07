@@ -1,5 +1,4 @@
-import matcher from "../../../src/matchers/models/delegate";
-expect.extend(matcher);
+import "../../../src/matchers/models/delegate";
 
 describe(".toBeDelegate", () => {
   const delegate = {

@@ -1,5 +1,5 @@
-import { generateTransfers } from "../../../src/generators";
 import { Bignum, constants } from "../../../../crypto";
+import { generateTransfers } from "../../../src/generators";
 
 const { TRANSACTION_TYPES, ARKTOSHI } = constants;
 
@@ -8,7 +8,7 @@ describe("Transfer transaction", () => {
     expect(generateTransfers).toBeFunction();
   });
 
-  const amount = new Bignum(20 * ARKTOSHI);
+  const amount = new (Bignum as any)(20 * ARKTOSHI);
   const quantity = 4;
   const transactions = generateTransfers(
     undefined,
@@ -23,16 +23,16 @@ describe("Transfer transaction", () => {
   });
 
   it("should return an array of 4 transfer objects", () => {
-    for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({
+    for (const transaction of transactions) {
+      expect(transaction).toMatchObject({
         type: TRANSACTION_TYPES.TRANSFER
       });
     }
   });
 
   it("should return an array sending 20 ark", () => {
-    for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({ amount });
+    for (const transaction of transactions) {
+      expect(transaction).toMatchObject({ amount });
     }
   });
 });

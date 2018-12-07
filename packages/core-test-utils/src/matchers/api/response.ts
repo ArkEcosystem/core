@@ -1,4 +1,16 @@
-export default {
+export { }
+
+declare global {
+  namespace jest {
+    // tslint:disable-next-line:interface-name
+    interface Matchers<R> {
+      toBeSuccessfulResponse(): R;
+      toBePaginated(): R;
+    }
+  }
+}
+
+expect.extend({
   toBeSuccessfulResponse: (actual, expected) => {
     return {
       message: () =>
@@ -32,4 +44,4 @@ export default {
         ].every(property => Object.keys(actual.data.meta).includes(property))
     };
   }
-};
+})

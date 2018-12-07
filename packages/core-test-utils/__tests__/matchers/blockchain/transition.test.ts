@@ -1,6 +1,5 @@
 import { Machine } from "xstate";
-import matcher from "../../../src/matchers/blockchain/transition";
-expect.extend(matcher);
+import "../../../src/matchers/blockchain/transition";
 
 describe(".toTransition", () => {
   const machine = Machine({

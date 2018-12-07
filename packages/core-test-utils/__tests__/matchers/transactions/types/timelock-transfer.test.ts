@@ -1,5 +1,4 @@
-import matcher from "../../../../src/matchers/transactions/types/timelock-transfer";
-expect.extend(matcher);
+import "../../../../src/matchers/transactions/types/timelock-transfer";
 
 import { constants } from "@arkecosystem/crypto";
 const { TRANSACTION_TYPES } = constants;

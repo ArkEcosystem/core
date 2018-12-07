@@ -1,5 +1,4 @@
-import matcher from "../../../src/matchers/transactions/valid";
-expect.extend(matcher);
+import "../../../src/matchers/transactions/valid";
 
 const transaction = {
   version: 1,

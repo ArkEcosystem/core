@@ -1,5 +1,4 @@
-import matcher from "../../../src/matchers/fields/address";
-expect.extend(matcher);
+import "../../../src/matchers/fields/address";
 
 describe(".toBeArkAddress", () => {
   test("passes when given a valid address", () => {

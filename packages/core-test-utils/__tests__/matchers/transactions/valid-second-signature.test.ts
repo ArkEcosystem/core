@@ -1,5 +1,4 @@
-import matcher from "../../../src/matchers/transactions/valid-second-signature";
-expect.extend(matcher);
+import "../../../src/matchers/transactions/valid-second-signature";
 
 import { generateTransfers, generateWallets } from "../../../src/generators";
 

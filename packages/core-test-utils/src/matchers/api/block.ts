@@ -1,5 +1,17 @@
 import * as _ from "lodash";
 
+export { }
+
+declare global {
+  namespace jest {
+    // tslint:disable-next-line:interface-name
+    interface Matchers<R> {
+      toBeValidBlock(): R;
+      toBeValidArrayOfBlocks(): R;
+    }
+  }
+}
+
 function isValidBlock(block) {
   const allowedKeys = _.sortBy([
     "blockSignature",
@@ -26,7 +38,7 @@ function isValidBlock(block) {
   return _.isEqual(_.sortBy(actualKeys), allowedKeys);
 }
 
-export default {
+expect.extend({
   toBeValidBlock: (actual, expected) => {
     return {
       message: () => `Expected ${JSON.stringify(actual)} to be a valid block`,
@@ -49,4 +61,4 @@ export default {
 
     return { message, pass: true };
   }
-};
+})

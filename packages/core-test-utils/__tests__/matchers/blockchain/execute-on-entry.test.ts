@@ -1,6 +1,5 @@
 import { Machine } from "xstate";
-import matcher from "../../../src/matchers/blockchain/execute-on-entry";
-expect.extend(matcher);
+import "../../../src/matchers/blockchain/execute-on-entry";
 
 describe(".toExecuteOnEntry", () => {
   const machine = Machine({

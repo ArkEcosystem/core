@@ -1,5 +1,5 @@
-import { generateTransaction } from "../../src/generators";
 import { constants } from "../../../crypto";
+import { generateTransaction } from "../../src/generators";
 
 const { TRANSACTION_TYPES } = constants;
 
@@ -17,8 +17,8 @@ describe("generateTransactions", () => {
       devnetAddress
     );
 
-    for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({ recipientId: devnetAddress });
+    for (const transaction of transactions) {
+      expect(transaction).toMatchObject({ recipientId: devnetAddress });
     }
   });
 });

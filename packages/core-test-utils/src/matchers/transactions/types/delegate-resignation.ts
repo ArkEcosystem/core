@@ -1,7 +1,18 @@
 import { constants } from "@arkecosystem/crypto";
 const { DELEGATE_RESIGNATION } = constants.TRANSACTION_TYPES;
 
-export default {
+export { }
+
+declare global {
+  namespace jest {
+    // tslint:disable-next-line:interface-name
+    interface Matchers<R> {
+      toBeDelegateResignationType(): R;
+    }
+  }
+}
+
+expect.extend({
   toBeDelegateResignationType: received => {
     return {
       message: () =>
@@ -9,4 +20,4 @@ export default {
       pass: received.type === DELEGATE_RESIGNATION
     };
   }
-};
+})

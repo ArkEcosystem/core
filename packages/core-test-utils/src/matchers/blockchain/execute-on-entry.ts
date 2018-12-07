@@ -1,6 +1,17 @@
 import * as _ from "lodash";
 
-export default {
+export { };
+
+declare global {
+  namespace jest {
+    // tslint:disable-next-line:interface-name
+    interface Matchers<R> {
+      toExecuteOnEntry(transition: object): R;
+    }
+  }
+}
+
+expect.extend({
   toExecuteOnEntry: (machine, transition) => {
     let path = transition.state;
 
@@ -19,7 +30,7 @@ export default {
       // @see https://facebook.github.io/jest/docs/en/expect.html#expectextendmatchers
       message: () =>
         `Expected machine to ${
-          this.isNot ? "not " : ""
+        this.isNot ? "not " : ""
         } call actions ${actions} on state "${transition.state}"`,
       pass: _.isEqual(
         state.onEntry.map(action => action.type),
@@ -27,4 +38,4 @@ export default {
       )
     };
   }
-};
+});

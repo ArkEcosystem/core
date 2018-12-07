@@ -1,5 +1,4 @@
-import matcher from "../../../src/matchers/models/wallet";
-expect.extend(matcher);
+import "../../../src/matchers/models/wallet";
 
 describe(".toBeWallet", () => {
   const wallet = {

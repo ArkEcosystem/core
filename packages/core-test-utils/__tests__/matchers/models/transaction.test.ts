@@ -1,5 +1,4 @@
-import matcher from "../../../src/matchers/models/transaction";
-expect.extend(matcher);
+import "../../../src/matchers/models/transaction";
 
 describe(".toBeTransaction", () => {
   const transaction = {

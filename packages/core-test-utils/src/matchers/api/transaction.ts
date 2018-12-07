@@ -1,6 +1,17 @@
 import * as _ from "lodash";
 
-export default {
+export { }
+
+declare global {
+  namespace jest {
+    // tslint:disable-next-line:interface-name
+    interface Matchers<R> {
+      toBeApiTransaction(): R;
+    }
+  }
+}
+
+expect.extend({
   toBeApiTransaction: (actual, expected) => {
     // TODO based on type
     const allowedKeys = _.sortBy([
@@ -26,4 +37,4 @@ export default {
       pass: _.isEqual(_.sortBy(actualKeys), allowedKeys)
     };
   }
-};
+})

@@ -1,5 +1,5 @@
-import { generateDelegateRegistration } from "../../../src/generators";
 import { constants } from "../../../../crypto";
+import { generateDelegateRegistration } from "../../../src/generators";
 
 const { TRANSACTION_TYPES } = constants;
 
@@ -20,8 +20,8 @@ describe("Delegate transaction", () => {
   });
 
   it("should return an array of 4 delegate objects", () => {
-    for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({
+    for (const transaction of transactions) {
+      expect(transaction).toMatchObject({
         type: TRANSACTION_TYPES.DELEGATE_REGISTRATION
       });
     }

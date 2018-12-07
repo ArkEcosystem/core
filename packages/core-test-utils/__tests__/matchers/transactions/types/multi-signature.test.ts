@@ -1,5 +1,4 @@
-import matcher from "../../../../src/matchers/transactions/types/multi-signature";
-expect.extend(matcher);
+import "../../../../src/matchers/transactions/types/multi-signature";
 
 import { constants } from "@arkecosystem/crypto";
 const { TRANSACTION_TYPES } = constants;

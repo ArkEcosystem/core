@@ -1,5 +1,4 @@
-import matcher from "../../../src/matchers/fields/public-key";
-expect.extend(matcher);
+import "../../../src/matchers/fields/public-key";
 
 describe(".toBeArkPublicKey", () => {
   test("passes when given a valid public key", () => {
