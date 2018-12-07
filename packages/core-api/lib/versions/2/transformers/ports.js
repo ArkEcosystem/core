@@ -13,17 +13,17 @@ module.exports = config => {
     '@arkecosystem/core-webhooks',
   ]
 
-  result[keys[0]] = config.plugins[keys[0]].port
+  result[keys[0]] = parseInt(config.plugins[keys[0]].port)
 
   for (const [name, options] of Object.entries(config.plugins)) {
     if (keys.includes(name) && options.enabled) {
       if (options.server && options.server.enabled) {
-        result[name] = options.server.port
+        result[name] = parseInt(options.server.port)
 
         continue
       }
 
-      result[name] = options.port
+      result[name] = parseInt(options.port)
     }
   }
 

@@ -63,9 +63,6 @@ exports.configuration = {
    */
   async handler(request, h) {
     const feeStatisticsData = await transactions.getFeeStatistics()
-    const ports = utils
-      .toResource(request, config, 'ports')
-      .map(port => parseInt(port))
 
     return {
       data: {
@@ -74,7 +71,7 @@ exports.configuration = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
-        ports,
+        ports: utils.toResource(request, config, 'ports'),
         constants: config.getConstants(blockchain.getLastBlock().data.height),
         feeStatistics: utils.toCollection(
           request,
