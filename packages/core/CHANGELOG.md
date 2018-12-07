@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- Ensure safe integer range for block height lookups via API
+
+### Fixed
+
 - Perform second-signature checks in the `canApply` logic of multi-signatures
 
 ## 2.0.11 - 2018-12-05
