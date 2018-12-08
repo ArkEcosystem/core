@@ -419,22 +419,20 @@ describe("API 2.0 - Transactions", () => {
     describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
       "using the %s header",
       (header, request) => {
-        it.skip("should POST a search for transactions with the exact specified vendorFieldHex", async () => {
-          const id = "0000faa27b422f7648b1a2f634f15c7e5c8e96b84929624fda44abf716bdf784";
-          const vendorFieldHex =
-            "64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f";
+        it("should POST a search for transactions with the exact specified vendorFieldHex", async () => {
+          const transaction = await utils.createTransaction();
+          const vendorFieldHex = Buffer.from(transaction.vendorField, "utf8").toString("hex");
 
           const response = await utils[request]("POST", "transactions/search", {
-            id,
             vendorFieldHex,
           });
+
           expect(response).toBeSuccessfulResponse();
           expect(response.data.data).toBeArray();
-          expect(response.data.data).toHaveLength(1);
 
           for (const transaction of response.data.data) {
             utils.expectTransaction(transaction);
-            expect(transaction.vendorField).toBe(vendorFieldHex.toString());
+            expect(transaction.vendorField).toBe(vendorFieldHex);
           }
         });
       },
