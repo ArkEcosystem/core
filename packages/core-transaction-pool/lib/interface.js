@@ -5,9 +5,6 @@ const logger = app.resolvePlugin('logger')
 const dayjs = require('dayjs-ext')
 const PoolWalletManager = require('./pool-wallet-manager')
 
-const database = app.resolvePlugin('database')
-const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
-
 module.exports = class TransactionPoolInterface {
   /**
    * Create a new transaction pool instance.
