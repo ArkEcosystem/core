@@ -14,6 +14,7 @@ export class Container {
   public plugins: any;
   public shuttingDown: boolean;
   public version: string;
+  public isReady: boolean;
 
   /**
    * Create a new container instance.
@@ -70,6 +71,8 @@ export class Container {
     // TODO: Move this out eventually - not really the responsibility of the container
     this.plugins = new PluginRegistrar(this, options);
     await this.plugins.setUp();
+
+    this.isReady = true;
   }
 
   /**
@@ -77,7 +80,9 @@ export class Container {
    * @return {Promise}
    */
   public async tearDown() {
-    return this.plugins.tearDown();
+    await this.plugins.tearDown();
+
+    this.isReady = false;
   }
 
   /**
@@ -224,9 +229,7 @@ export class Container {
 
       const logger = this.resolvePlugin("logger");
       logger.suppressConsoleOutput(this.silentShutdown);
-      logger.info(
-        "Ark Core is trying to gracefully shut down to avoid data corruption :pizza:",
-      );
+      logger.info("Ark Core is trying to gracefully shut down to avoid data corruption :pizza:");
 
       try {
         const database = this.resolvePlugin("database");
@@ -253,6 +256,6 @@ export class Container {
     };
 
     // Handle exit events
-    this.exitEvents.forEach((eventType) => process.on(eventType, handleExit));
+    this.exitEvents.forEach(eventType => process.on(eventType, handleExit));
   }
 }

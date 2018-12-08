@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 
 export async function startRelay(options, version) {
-  return app.setUp(version, options, {
+  await app.setUp(version, options, {
     exclude: ["@arkecosystem/core-forger"],
     options: {
       "@arkecosystem/core-p2p": {
@@ -14,10 +14,12 @@ export async function startRelay(options, version) {
       },
     },
   });
+
+  return app;
 }
 
 export async function startForger(options, version) {
-  return app.setUp(version, options, {
+  await app.setUp(version, options, {
     include: [
       "@arkecosystem/core-event-emitter",
       "@arkecosystem/core-config",
@@ -33,10 +35,12 @@ export async function startForger(options, version) {
       },
     },
   });
+
+  return app;
 }
 
 export async function startRelayAndForger(options, version) {
-  return app.setUp(version, options, {
+  await app.setUp(version, options, {
     options: {
       "@arkecosystem/core-p2p": {
         networkStart: options.networkStart,
@@ -53,4 +57,6 @@ export async function startRelayAndForger(options, version) {
       },
     },
   });
+
+  return app;
 }
