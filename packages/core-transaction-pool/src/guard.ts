@@ -1,13 +1,9 @@
 import { app } from "@arkecosystem/core-container";
-import crypto from "@arkecosystem/crypto";
+import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
-const {
-  configManager,
-  constants: { TRANSACTION_TYPES },
-  models: { Transaction },
-  slots,
-} = crypto;
+const { TRANSACTION_TYPES } = constants;
+const { Transaction } = models;
 
 import dynamicFeeMatch from "./utils/dynamicfee-matcher";
 import isRecipientOnActiveNetwork from "./utils/is-on-active-network";
@@ -74,7 +70,7 @@ export class TransactionGuard {
       broadcast: Array.from(this.broadcast.keys()),
       invalid: Array.from(this.invalid.keys()),
       excess: this.excess,
-      errors: Object.keys(this.errors).length > 0 ? this.errors : null,
+      errors: Object.keys(this.errors).length > 0 ? this.errors : null
     };
   }
 
@@ -88,7 +84,7 @@ export class TransactionGuard {
       .resolve("state")
       .cacheTransactions(transactions);
 
-    notAdded.forEach((transaction) => {
+    notAdded.forEach(transaction => {
       if (!this.errors[transaction.id]) {
         this.__pushError(transaction, "ERR_DUPLICATE", "Already in cache.");
       }
@@ -118,22 +114,22 @@ export class TransactionGuard {
    * @return {void}
    */
   public __filterAndTransformTransactions(transactions) {
-    transactions.forEach((transaction) => {
+    transactions.forEach(transaction => {
       const exists = this.pool.transactionExists(transaction.id);
 
       if (exists) {
         this.__pushError(
           transaction,
           "ERR_DUPLICATE",
-          `Duplicate transaction ${transaction.id}`,
+          `Duplicate transaction ${transaction.id}`
         );
       } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         this.__pushError(
           transaction,
           "ERR_SENDER_BLOCKED",
           `Transaction ${transaction.id} rejected. Sender ${
-          transaction.senderPublicKey
-          } is blocked.`,
+            transaction.senderPublicKey
+          } is blocked.`
         );
       } else if (this.pool.hasExceededMaxTransactions(transaction)) {
         this.excess.push(transaction.id);
@@ -148,7 +144,7 @@ export class TransactionGuard {
               this.__pushError(
                 transaction,
                 "ERR_LOW_FEE",
-                "Too low fee to be accepted in the pool",
+                "Too low fee to be accepted in the pool"
               );
             }
 
@@ -158,14 +154,14 @@ export class TransactionGuard {
               this.__pushError(
                 transaction,
                 "ERR_LOW_FEE",
-                "Too low fee for broadcast",
+                "Too low fee for broadcast"
               );
             }
           } else {
             this.__pushError(
               transaction,
               "ERR_BAD_DATA",
-              "Transaction didn't pass the verification process.",
+              "Transaction didn't pass the verification process."
             );
           }
         } catch (error) {
@@ -192,8 +188,8 @@ export class TransactionGuard {
         transaction,
         "ERR_FROM_FUTURE",
         `Transaction ${
-        transaction.id
-        } is ${secondsInFuture} seconds in the future`,
+          transaction.id
+        } is ${secondsInFuture} seconds in the future`
       );
       return false;
     }
@@ -211,8 +207,8 @@ export class TransactionGuard {
             transaction,
             "ERR_INVALID_RECIPIENT",
             `Recipient ${
-            transaction.recipientId
-            } is not on the same network: ${configManager.get("pubKeyHash")}`,
+              transaction.recipientId
+            } is not on the same network: ${configManager.get("pubKeyHash")}`
           );
           return false;
         }
@@ -223,16 +219,16 @@ export class TransactionGuard {
         if (
           this.pool.senderHasTransactionsOfType(
             transaction.senderPublicKey,
-            transaction.type,
+            transaction.type
           )
         ) {
           this.__pushError(
             transaction,
             "ERR_PENDING",
             `Sender ${
-            transaction.senderPublicKey
+              transaction.senderPublicKey
             } already has a transaction of type ` +
-            `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`,
+              `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`
           );
           return false;
         }
@@ -247,7 +243,7 @@ export class TransactionGuard {
           transaction,
           "ERR_UNSUPPORTED",
           "Invalidating transaction of unsupported type " +
-          `'${TRANSACTION_TYPES.toString(transaction.type)}'`,
+            `'${TRANSACTION_TYPES.toString(transaction.type)}'`
         );
         return false;
     }
@@ -263,12 +259,12 @@ export class TransactionGuard {
     const database = app.resolvePlugin("database");
 
     const forgedIdsSet = await database.getForgedTransactionsIds([
-      ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
+      ...new Set([...this.accept.keys(), ...this.broadcast.keys()])
     ]);
 
     app.resolve("state").removeCachedTransactionIds(forgedIdsSet);
 
-    forgedIdsSet.forEach((id) => {
+    forgedIdsSet.forEach(id => {
       this.__pushError(this.accept.get(id), "ERR_FORGED", "Already forged.");
 
       this.accept.delete(id);
@@ -283,11 +279,11 @@ export class TransactionGuard {
   public __addTransactionsToPool() {
     // Add transactions to the transaction pool
     const { added, notAdded } = this.pool.addTransactions(
-      Array.from(this.accept.values()),
+      Array.from(this.accept.values())
     );
 
     // Exclude transactions which were refused from the pool
-    notAdded.forEach((item) => {
+    notAdded.forEach(item => {
       this.accept.delete(item.transaction.id);
 
       // The transaction should still be broadcasted if the pool is full
@@ -326,10 +322,10 @@ export class TransactionGuard {
     const properties = ["accept", "broadcast", "excess", "invalid"];
     const stats = properties
       .map(
-        (prop) =>
+        prop =>
           `${prop}: ${
-          this[prop] instanceof Array ? this[prop].length : this[prop].size
-          }`,
+            this[prop] instanceof Array ? this[prop].length : this[prop].size
+          }`
       )
       .join(" ");
 
@@ -339,8 +335,8 @@ export class TransactionGuard {
         `Received ${pluralize(
           "transaction",
           this.transactions.length,
-          true,
-        )} (${stats}).`,
+          true
+        )} (${stats}).`
       );
   }
 }

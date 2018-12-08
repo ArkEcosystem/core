@@ -1,11 +1,12 @@
-import crypto from "@arkecosystem/crypto";
-const Joi = crypto.validator.engine.joi;
+import { validator } from "@arkecosystem/crypto";
+
+const Joi = validator.engine.joi;
 
 /**
  * @type {Object}
  */
 export const store = {
   payload: {
-    block: Joi.arkBlock().options({ stripUnknown: true }),
-  },
+    block: Joi.arkBlock().options({ stripUnknown: true })
+  }
 };

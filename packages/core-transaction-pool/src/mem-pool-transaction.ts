@@ -1,9 +1,10 @@
 // tslint:disable:variable-name
 
-import crypto from "@arkecosystem/crypto";
+import { constants, models } from "@arkecosystem/crypto";
 import assert from "assert";
 
-const { constants: { TRANSACTION_TYPES }, models: { Transaction } } = crypto;
+const { TRANSACTION_TYPES } = constants;
+const { Transaction } = models;
 
 /**
  * A mem pool transaction.
