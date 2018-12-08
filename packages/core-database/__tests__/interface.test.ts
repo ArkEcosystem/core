@@ -227,48 +227,6 @@ describe.skip("Connection Interface", () => {
     });
   });
 
-  describe.skip("applyRound", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.applyRound).toBeFunction();
-    });
-  });
-
-  describe.skip("revertRound", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.revertRound).toBeFunction();
-    });
-  });
-
-  describe.skip("validateDelegate", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.validateDelegate).toBeFunction();
-    });
-  });
-
-  describe.skip("validateForkedBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.validateForkedBlock).toBeFunction();
-    });
-  });
-
-  describe.skip("applyBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.applyBlock).toBeFunction();
-    });
-  });
-
-  describe.skip("revertBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.revertBlock).toBeFunction();
-    });
-  });
-
-  describe.skip("verifyTransaction", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.verifyTransaction).toBeFunction();
-    });
-  });
-
   describe("__calcPreviousActiveDelegates", () => {
     it("should be a function", () => {
       expect(connectionInterface.__calcPreviousActiveDelegates).toBeFunction();

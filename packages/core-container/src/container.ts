@@ -14,7 +14,7 @@ export class Container {
   public plugins: any;
   public shuttingDown: boolean;
   public version: string;
-  public isReady: boolean;
+  public isReady: boolean = false;
 
   /**
    * Create a new container instance.
