@@ -3,7 +3,7 @@ import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import utils from "../utils";
 
-import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks.2-100";
+import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
 
 import { models } from "@arkecosystem/crypto";
 const { Block } = models;

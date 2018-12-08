@@ -6,12 +6,25 @@ let config;
 
 const mockConfig = {
   genesisBlock: { totalAmount: 1000 },
-  network: { constants: [{ height: 1, reward: 2 }] },
+  network: { constants: [{ height: 1, reward: 2 }] }
 };
 
-app.resolvePlugin = jest.fn((plugin) => {
+app.resolvePlugin = jest.fn(plugin => {
   if (plugin === "config") {
     return mockConfig;
+  }
+
+  // FIX: check if that mock is correct
+  if (plugin === "blockchain") {
+    return {
+      getLastBlock: () => {
+        return {
+          data: {
+            height: 0
+          }
+        };
+      }
+    };
   }
 
   return {};
@@ -21,29 +34,28 @@ beforeAll(() => {
   config = app.resolvePlugin("config");
 });
 
-describe.skip("Supply calculator", () => {
+// FIX: the mocks are
+describe("Supply calculator", () => {
   it("should calculate supply with milestone at height 2", () => {
     mockConfig.network.constants[0].height = 2;
-    expect(calculate(1)).toBe(
-      mockConfig.genesisBlock.totalAmount,
-    );
+    expect(calculate(1)).toBe(mockConfig.genesisBlock.totalAmount);
     mockConfig.network.constants[0].height = 1;
   });
 
-  describe.each([0, 5, 100, 2000, 4000, 8000])("at height %s", (height) => {
+  describe.each([0, 5, 100, 2000, 4000, 8000])("at height %s", height => {
     it("should calculate the genesis supply without milestone", () => {
       const genesisSupply = config.genesisBlock.totalAmount;
       expect(calculate(height)).toBe(
-        genesisSupply + height * config.network.constants[0].reward,
+        genesisSupply + height * config.network.constants[0].reward
       );
     });
   });
 
-  describe.each([0, 2000, 4000, 8000, 16000])("at height %s", (height) => {
+  describe.each([0, 2000, 4000, 8000, 16000])("at height %s", height => {
     it("should calculate the genesis supply with one milestone", () => {
       mockConfig.network.constants.push({ height: 8000, reward: 3 });
 
-      const reward = (current) => {
+      const reward = current => {
         if (current < 8000) {
           return current * 2;
         }
@@ -52,9 +64,7 @@ describe.skip("Supply calculator", () => {
       };
 
       const genesisSupply = config.genesisBlock.totalAmount;
-      expect(calculate(height)).toBe(
-        genesisSupply + reward(height),
-      );
+      expect(calculate(height)).toBe(genesisSupply + reward(height));
 
       mockConfig.network.constants = [{ height: 1, reward: 2 }];
     });
@@ -70,15 +80,15 @@ describe.skip("Supply calculator", () => {
     32000,
     48000,
     64000,
-    128000,
-  ])("at height %s", (height) => {
+    128000
+  ])("at height %s", height => {
     it("should calculate the genesis supply with four milestones", () => {
       mockConfig.network.constants.push({ height: 8000, reward: 4 });
       mockConfig.network.constants.push({ height: 16000, reward: 5 });
       mockConfig.network.constants.push({ height: 32000, reward: 10 });
       mockConfig.network.constants.push({ height: 64000, reward: 15 });
 
-      const reward = (current) => {
+      const reward = current => {
         if (current < 8000) {
           return current * 2;
         }
@@ -99,9 +109,7 @@ describe.skip("Supply calculator", () => {
       };
 
       const genesisSupply = config.genesisBlock.totalAmount;
-      expect(calculate(height)).toBe(
-        genesisSupply + reward(height),
-      );
+      expect(calculate(height)).toBe(genesisSupply + reward(height));
 
       mockConfig.network.constants = [{ height: 1, reward: 2 }];
     });

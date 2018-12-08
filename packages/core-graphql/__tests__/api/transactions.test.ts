@@ -1,13 +1,11 @@
 import "@arkecosystem/core-test-utils";
+import genesisBlock from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
 import * as app from "../__support__/setup";
 import utils from "../__support__/utils";
 
-let genesisBlock;
-
 beforeAll(async () => {
   await app.setUp();
-  genesisBlock = require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json");
 });
 
 afterAll(() => {

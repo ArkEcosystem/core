@@ -1,7 +1,7 @@
-import "@arkecosystem/core-test-utils"
+import "@arkecosystem/core-test-utils";
 
-import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.101-155";
-import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.2-100";
+import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
+import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 
 import { models } from "@arkecosystem/crypto";
 const { Block } = models;
@@ -11,7 +11,7 @@ import app from "./__support__/setup";
 
 const blocks = blocks1to100
   .concat(blocks101to155)
-  .map((block) => new Block(block));
+  .map(block => new Block(block));
 
 beforeAll(async () => {
   await app.setUp();
@@ -197,7 +197,7 @@ describe("State Storage", () => {
       }
 
       // Heights 90 - 100
-      const ids = blocks.slice(89, 99).map((block) => block.data.id);
+      const ids = blocks.slice(89, 99).map(block => block.data.id);
       const commonBlocks = state.getCommonBlocks(ids);
       expect(ids).toHaveLength(10);
       expect(commonBlocks).toHaveLength(10);
@@ -216,7 +216,7 @@ describe("State Storage", () => {
     it("should add transaction id", () => {
       expect(state.cacheTransactions([{ id: "1" }])).toEqual({
         added: [{ id: "1" }],
-        notAdded: [],
+        notAdded: []
       });
       expect(state.getCachedTransactionIds()).toHaveLength(1);
     });
@@ -224,11 +224,11 @@ describe("State Storage", () => {
     it("should not add duplicate transaction ids", () => {
       expect(state.cacheTransactions([{ id: "1" }])).toEqual({
         added: [{ id: "1" }],
-        notAdded: [],
+        notAdded: []
       });
       expect(state.cacheTransactions([{ id: "1" }])).toEqual({
         added: [],
-        notAdded: [{ id: "1" }],
+        notAdded: [{ id: "1" }]
       });
       expect(state.getCachedTransactionIds()).toHaveLength(1);
     });
@@ -241,7 +241,7 @@ describe("State Storage", () => {
 
       expect(state.cacheTransactions(transactions)).toEqual({
         added: transactions,
-        notAdded: [],
+        notAdded: []
       });
 
       expect(state.getCachedTransactionIds()).toHaveLength(10000);
@@ -249,7 +249,7 @@ describe("State Storage", () => {
 
       expect(state.cacheTransactions([{ id: "10000" }])).toEqual({
         added: [{ id: "10000" }],
-        notAdded: [],
+        notAdded: []
       });
       expect(state.getCachedTransactionIds()).toHaveLength(10000);
       expect(state.getCachedTransactionIds()[0]).toEqual("1");
@@ -269,11 +269,11 @@ describe("State Storage", () => {
 
       expect(state.cacheTransactions(transactions)).toEqual({
         added: transactions,
-        notAdded: [],
+        notAdded: []
       });
 
       expect(state.getCachedTransactionIds()).toHaveLength(10);
-      state.removeCachedTransactionIds(transactions.map((tx) => tx.id));
+      state.removeCachedTransactionIds(transactions.map(tx => tx.id));
       expect(state.getCachedTransactionIds()).toHaveLength(0);
     });
   });

@@ -40,7 +40,7 @@ describe("applyPoolTransactionToSender", () => {
       expect(+newWallet.balance).toBe(0);
 
       const amount1 = 123 * 10 ** 8;
-      const transfer = generateTransfer(
+      const transfer = generateTransfers(
         "testnet",
         delegate0.secret,
         newAddress,
@@ -69,7 +69,7 @@ describe("applyPoolTransactionToSender", () => {
 
       const amount1 = 123 * 10 ** 8;
       const fee = 10;
-      const transfer = generateTransfer(
+      const transfer = generateTransfers(
         "testnet",
         delegate0.secret,
         newAddress,
@@ -117,7 +117,7 @@ describe("applyPoolTransactionToSender", () => {
       ];
 
       transfers.forEach(t => {
-        const transfer = generateTransfer(
+        const transfer = generateTransfers(
           "testnet",
           t.from.passphrase,
           t.to.address,
@@ -179,7 +179,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
       const wallet = generateWallets("testnet", 1)[0];
       const transferAmount = 1234;
       const transferDelegate = delegates[4];
-      const transfer = generateTransfer(
+      const transfer = generateTransfers(
         "testnet",
         transferDelegate.passphrase,
         wallet.address,

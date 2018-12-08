@@ -1,9 +1,9 @@
 import { constants } from "@arkecosystem/crypto";
-import generateTransaction from "./transaction";
+import { generateTransaction } from "./transaction";
 
 const { VOTE } = constants.TRANSACTION_TYPES;
 
-export default (
+export const generateVote = (
   network,
   passphrase,
   publicKey,

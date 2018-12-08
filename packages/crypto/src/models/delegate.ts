@@ -1,13 +1,13 @@
-import bip38 from "bip38"
-import { createHash } from "crypto"
+import bip38 from "bip38";
+import { createHash } from "crypto";
 import forge from "node-forge";
 import otplib from "otplib";
 import wif from "wif";
-import Bignum from "../utils/bignum"
+import Bignum from "../utils/bignum";
 
-import crypto from "../crypto/crypto"
-import sortTransactions from "../utils/sort-transactions"
-import Block from "./block"
+import crypto from "../crypto/crypto";
+import sortTransactions from "../utils/sort-transactions";
+import Block from "./block";
 
 /**
  * TODO copy some parts to ArkDocs
@@ -24,7 +24,6 @@ import Block from "./block"
  *   - bip38
  */
 export default class Delegate {
-
   /**
    * BIP38 encrypt passphrase.
    * @param  {String} passphrase
@@ -61,7 +60,7 @@ export default class Delegate {
   public network: any;
   public keySize: number;
   public iterations: number;
-  public keys: { publicKey: any; privateKey: any; compressed: any; };
+  public keys: { publicKey: any; privateKey: any; compressed: any };
   public publicKey: any;
   public address: any;
   public otpSecret: string;
@@ -75,7 +74,7 @@ export default class Delegate {
    * @param  {Number} network
    * @param  {String} password
    */
-  constructor(passphrase, network, password) {
+  constructor(passphrase, network, password?: any) {
     this.network = network;
     this.keySize = 32; // AES-256
     this.iterations = 5000;
@@ -219,4 +218,4 @@ export default class Delegate {
 
     return decipher.output.toString();
   }
-};
+}

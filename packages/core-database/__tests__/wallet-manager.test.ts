@@ -10,7 +10,7 @@ const { Block, Transaction, Wallet } = models;
 
 const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 
-import blocks from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.2-100";
+import blocks from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 import genDelegateReg from "@arkecosystem/core-test-utils/src/generators/transactions/delegate";
 import gen2ndSignature from "@arkecosystem/core-test-utils/src/generators/transactions/signature";
 import genTransfer from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
@@ -182,11 +182,11 @@ describe("Wallet Manager", () => {
 
     describe.skip("the delegate of the block is not indexed", () => {
       describe("not genesis block", () => {
-        it("throw an Error", () => { });
+        it("throw an Error", () => {});
       });
 
       describe("genesis block", () => {
-        it("generates a new wallet", () => { });
+        it("generates a new wallet", () => {});
       });
     });
   });
@@ -196,9 +196,9 @@ describe("Wallet Manager", () => {
       expect(walletManager.revertBlock).toBeFunction();
     });
 
-    it("should revert all transactions of the block", () => { });
+    it("should revert all transactions of the block", () => {});
 
-    it("should revert the block of the delegate", () => { });
+    it("should revert the block of the delegate", () => {});
   });
 
   describe("applyTransaction", () => {
@@ -206,7 +206,7 @@ describe("Wallet Manager", () => {
       expect(walletManager.applyTransaction).toBeFunction();
     });
 
-    describe("when the recipient is a cold wallet", () => { });
+    describe("when the recipient is a cold wallet", () => {});
 
     const transfer = genTransfer(
       "testnet",

@@ -5,7 +5,7 @@ import utils from "../utils";
 
 import { resetBlockchain } from "../../../../core-test-utils/src/helpers/blockchain";
 import { models } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks.2-100";
+import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
 import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
 import { app } from "@arkecosystem/core-container";

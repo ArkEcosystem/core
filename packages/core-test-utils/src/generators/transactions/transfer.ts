@@ -1,11 +1,11 @@
 import { constants } from "@arkecosystem/crypto";
-import generateTransaction from "./transaction";
+import { generateTransaction } from "./transaction";
 
 const { TRANSFER } = constants.TRANSACTION_TYPES;
 
-export default (
+export const generateTransfers = (
   network,
-  passphrase = "secret passphrase",
+  passphrase: any = "secret passphrase",
   address?: string,
   amount: number = 2,
   quantity: number = 10,

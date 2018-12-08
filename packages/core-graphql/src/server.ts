@@ -6,18 +6,18 @@ import server from "./schema";
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-export default async (config) => {
+export async function startServer(config) {
   const app = await createServer({
     host: config.host,
-    port: config.port,
+    port: config.port
   });
 
   await server.applyMiddleware({
     app,
-    path: config.path,
+    path: config.path
   });
 
   await server.installSubscriptionHandlers(app.listener);
 
   return mountServer("GraphQL", app);
-};
+}

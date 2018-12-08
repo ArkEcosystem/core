@@ -1,4 +1,5 @@
 import defaults from "./defaults";
+import { startServer } from "./server";
 
 /**
  * The struct used by the plugin manager.
@@ -17,7 +18,7 @@ export const plugin = {
       return;
     }
 
-    return require("./server")(options);
+    return startServer(options);
   },
   async deregister(container, options) {
     if (options.enabled) {
@@ -25,5 +26,5 @@ export const plugin = {
 
       return container.resolvePlugin("graphql").stop();
     }
-  },
+  }
 };

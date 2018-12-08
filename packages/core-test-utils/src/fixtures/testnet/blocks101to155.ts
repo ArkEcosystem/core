@@ -1,5 +1,5 @@
 /* tslint:disable */
-export default [
+export const blocks101to155 = [
   {
     id: "16380709717848284005",
     version: 0,

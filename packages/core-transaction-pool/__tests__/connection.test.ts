@@ -16,7 +16,7 @@ const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 const { Transaction } = models;
 const container = app;
 
-const { generateTransfer } = generators;
+const { generateTransfers } = generators;
 const { delegatesSecrets } = fixtures;
 
 let config;
@@ -669,7 +669,7 @@ describe.skip("Connection", () => {
     });
 
     it("should purge transactions from sender when invalid", async () => {
-      const transfersA = generateTransfer(
+      const transfersA = generateTransfers(
         "testnet",
         delegatesSecrets[0],
         mockData.dummy1.recipientId,
@@ -677,7 +677,7 @@ describe.skip("Connection", () => {
         5
       );
 
-      const transfersB = generateTransfer(
+      const transfersB = generateTransfers(
         "testnet",
         delegatesSecrets[1],
         mockData.dummy1.recipientId,
@@ -713,7 +713,7 @@ describe.skip("Connection", () => {
     });
 
     it("should purge transactions from block", async () => {
-      const transactions = generateTransfer(
+      const transactions = generateTransfers(
         "testnet",
         delegatesSecrets[0],
         mockData.dummy1.recipientId,

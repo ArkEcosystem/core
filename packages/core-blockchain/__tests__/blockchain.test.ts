@@ -1,8 +1,8 @@
 /* tslint:disable:max-line-length */
-import "@arkecosystem/core-test-utils"
+import "@arkecosystem/core-test-utils";
 
-import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.101-155";
-import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks.2-100";
+import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
+import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
@@ -37,7 +37,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json")
   );
 
   configManager = container.resolvePlugin("config");
@@ -45,7 +45,7 @@ beforeAll(async () => {
   // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
   // and otherwise don't pass validation.
   configManager.network.exceptions.transactions = genesisBlock.transactions.map(
-    (tx) => tx.id,
+    tx => tx.id
   );
 
   // Manually register the blockchain and start it
@@ -110,7 +110,7 @@ describe("Blockchain", () => {
 
     it("should throw an exception", () => {
       expect(() => blockchain.checkNetwork()).toThrow(
-        "Method [checkNetwork] not implemented!",
+        "Method [checkNetwork] not implemented!"
       );
     });
   });
@@ -128,7 +128,7 @@ describe("Blockchain", () => {
 
     it("should throw an exception", () => {
       expect(() => blockchain.rebuild()).toThrow(
-        "Method [rebuild] not implemented!",
+        "Method [rebuild] not implemented!"
       );
     });
   });
@@ -146,7 +146,7 @@ describe("Blockchain", () => {
 
     it("should be ok", async () => {
       const transactionsWithoutType2 = genesisBlock.transactions.filter(
-        (tx) => tx.type !== 2,
+        tx => tx.type !== 2
       );
 
       blockchain.transactionPool.flush();
@@ -156,7 +156,7 @@ describe("Blockchain", () => {
       expect(transactions.length).toBe(transactionsWithoutType2.length);
 
       expect(transactions).toEqual(
-        transactionsWithoutType2.map((transaction) => transaction.serialized),
+        transactionsWithoutType2.map(transaction => transaction.serialized)
       );
 
       blockchain.transactionPool.flush();
@@ -291,7 +291,7 @@ describe("Blockchain", () => {
     });
 
     it("should process a new unchained block", async () => {
-      const mockLoggerDebug = jest.fn((message) => true);
+      const mockLoggerDebug = jest.fn(message => true);
       logger.debug = mockLoggerDebug;
 
       const lastBlock = blockchain.getLastBlock();
@@ -306,7 +306,7 @@ describe("Blockchain", () => {
       expect(mockLoggerDebug).toHaveBeenLastCalledWith(debugMessage);
 
       expect(blockchain.getLastBlock().data.height).toBe(
-        lastBlock.data.height - 2,
+        lastBlock.data.height - 2
       );
     });
   });
@@ -318,19 +318,21 @@ describe("Blockchain", () => {
 
     it("should get unconfirmed transactions", async () => {
       const transactionsWithoutType2 = genesisBlock.transactions.filter(
-        (tx) => tx.type !== 2,
+        tx => tx.type !== 2
       );
 
       blockchain.transactionPool.flush();
       await blockchain.postTransactions(transactionsWithoutType2, false);
-      const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
+      const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(
+        200
+      );
 
       expect(unconfirmedTransactions.transactions.length).toBe(
-        transactionsWithoutType2.length,
+        transactionsWithoutType2.length
       );
 
       expect(unconfirmedTransactions.transactions).toEqual(
-        transactionsWithoutType2.map((transaction) => transaction.serialized),
+        transactionsWithoutType2.map(transaction => transaction.serialized)
       );
 
       blockchain.transactionPool.flush();
@@ -360,9 +362,9 @@ describe("Blockchain", () => {
           blockchain.isSynced({
             data: {
               timestamp: slots.getTime(),
-              height: genesisBlock.height,
-            },
-          }),
+              height: genesisBlock.height
+            }
+          })
         ).toBeTrue();
       });
     });
@@ -372,8 +374,8 @@ describe("Blockchain", () => {
         blockchain.getLastBlock = jest.fn().mockReturnValueOnce({
           data: {
             timestamp: slots.getTime(),
-            height: genesisBlock.height,
-          },
+            height: genesisBlock.height
+          }
         });
         expect(blockchain.isSynced()).toBeTrue();
         expect(blockchain.getLastBlock).toHaveBeenCalled();
@@ -392,9 +394,9 @@ describe("Blockchain", () => {
           blockchain.isRebuildSynced({
             data: {
               timestamp: slots.getTime() - 3600 * 24 * 6,
-              height: blocks101to155[52].height,
-            },
-          }),
+              height: blocks101to155[52].height
+            }
+          })
         ).toBeTrue();
       });
     });
@@ -404,8 +406,8 @@ describe("Blockchain", () => {
         blockchain.getLastBlock = jest.fn().mockReturnValueOnce({
           data: {
             timestamp: slots.getTime(),
-            height: genesisBlock.height,
-          },
+            height: genesisBlock.height
+          }
         });
         expect(blockchain.isRebuildSynced()).toBeTrue();
         expect(blockchain.getLastBlock).toHaveBeenCalled();
@@ -423,8 +425,8 @@ describe("Blockchain", () => {
         data: {
           id: 1,
           timestamp: 1,
-          height: 1,
-        },
+          height: 1
+        }
       };
 
       const nextBlock = {
@@ -432,8 +434,8 @@ describe("Blockchain", () => {
           id: 2,
           timestamp: 2,
           height: 2,
-          previousBlock: 1,
-        },
+          previousBlock: 1
+        }
       };
 
       expect(blockchain.__isChained(previousBlock, nextBlock)).toBeTrue();
@@ -444,8 +446,8 @@ describe("Blockchain", () => {
         data: {
           id: 2,
           timestamp: 2,
-          height: 2,
-        },
+          height: 2
+        }
       };
 
       const nextBlock = {
@@ -453,8 +455,8 @@ describe("Blockchain", () => {
           id: 1,
           timestamp: 1,
           height: 1,
-          previousBlock: 1,
-        },
+          previousBlock: 1
+        }
       };
 
       expect(blockchain.__isChained(previousBlock, nextBlock)).toBeFalse();
@@ -483,7 +485,7 @@ async function __start() {
   const plugin = require("../src").plugin;
 
   blockchain = await plugin.register(container, {
-    networkStart: false,
+    networkStart: false
   });
 
   await container.register(
@@ -492,8 +494,8 @@ async function __start() {
       name: "blockchain",
       version: "0.1.0",
       plugin: blockchain,
-      options: {},
-    }),
+      options: {}
+    })
   );
 
   const p2p = container.resolvePlugin("p2p");
@@ -548,9 +550,9 @@ function __mockPeer() {
     .reply(() => [
       200,
       { status: 200, success: true, common: true },
-      peerMock.headers,
+      peerMock.headers
     ]);
-  axiosMock.onGet(/.*\/peer\/blocks/).reply((config) => {
+  axiosMock.onGet(/.*\/peer\/blocks/).reply(config => {
     let blocks = [];
 
     if (config.params.lastBlockHeight === 1) {
@@ -566,7 +568,7 @@ function __mockPeer() {
     .reply(() => [
       200,
       { status: 200, success: true, height: 155 },
-      peerMock.headers,
+      peerMock.headers
     ]);
   axiosMock.onGet(/.*\/peer\/list/).reply(() => [
     200,
@@ -578,10 +580,10 @@ function __mockPeer() {
           ip: peerMock.ip,
           port: 4002,
           height: 155,
-          delay: 8,
-        },
-      ],
+          delay: 8
+        }
+      ]
     },
-    peerMock.headers,
+    peerMock.headers
   ]);
 }
