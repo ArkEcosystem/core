@@ -19,7 +19,7 @@ export default function(request, h) {
         maximumFractionDigits: 2,
       });
 
-      const rank = (delegate.rate || index + 1).toLocaleString(undefined, {
+      const rank = delegate.rate.toLocaleString(undefined, {
         minimumIntegerDigits: 2,
       });
 
@@ -43,15 +43,16 @@ export default function(request, h) {
 
   const supply = supplyCalculator.calculate(lastBlock.data.height);
 
-  const active = database.walletManager
+  const allByUsername = database.walletManager
     .allByUsername()
-    .sort((a, b) => a.rate - b.rate)
-    .slice(0, constants.activeDelegates);
+    .map((delegate, index) => {
+      delegate.rate = delegate.rate || index + 1;
+      return delegate;
+    })
+    .sort((a, b) => a.rate - b.rate);
 
-  const standby = database.walletManager
-    .allByUsername()
-    .sort((a, b) => a.rate - b.rate)
-    .slice(constants.activeDelegates + 1, delegateRows);
+  const active = allByUsername.slice(0, constants.activeDelegates);
+  const standby = allByUsername.slice(constants.activeDelegates + 1, delegateRows);
 
   const voters = database.walletManager.allByPublicKey().filter(wallet => wallet.vote && wallet.balance > 0.1 * 1e8);
 
