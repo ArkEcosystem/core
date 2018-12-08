@@ -1,4 +1,4 @@
-import genTransfer from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
+import { generateTransfers } from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
 import app from "../__support__/setup";
 import utils from "../__support__/utils";
@@ -13,7 +13,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json")
   );
 });
 
@@ -71,7 +71,7 @@ describe("API - Version 1", () => {
   describe("GET /peer/transactionsFromIds", () => {
     it("should be ok", async () => {
       const response = await utils.GET("peer/transactionsFromIds", {
-        ids: "e40ce11cab82736da1cc91191716f3c1f446ca7b6a9f4f93b7120ef105ba06e8",
+        ids: "e40ce11cab82736da1cc91191716f3c1f446ca7b6a9f4f93b7120ef105ba06e8"
       });
 
       expect(response.status).toBe(200);
@@ -124,7 +124,7 @@ describe("API - Version 1", () => {
   describe("GET /peer/blocks/common", () => {
     it("should be ok", async () => {
       const response = await utils.GET("peer/blocks/common", {
-        ids: "17184958558311101492",
+        ids: "17184958558311101492"
       });
 
       expect(response.status).toBe(200);
@@ -159,7 +159,7 @@ describe("API - Version 1", () => {
   describe("POST /peer/blocks", () => {
     it("should be ok", async () => {
       const response = await utils.POST("peer/blocks", {
-        block: genesisBlock.toJson(),
+        block: genesisBlock.toJson()
       });
 
       expect(response.status).toBe(200);
@@ -173,16 +173,15 @@ describe("API - Version 1", () => {
 
   describe("POST /peer/transactions", () => {
     it("should be ok", async () => {
-
-      const transactions = genTransfer("testnet");
+      const transactions = generateTransfers("testnet");
       const response = await utils.POST("peer/transactions", {
-        transactions,
+        transactions
       });
 
       expect(response.status).toBe(200);
 
       // TODO: Rejected because cold wallet
-      expect(response.data).toBeObject()
+      expect(response.data).toBeObject();
 
       expect(response.data).toHaveProperty("success");
       expect(response.data.success).toBeTrue();

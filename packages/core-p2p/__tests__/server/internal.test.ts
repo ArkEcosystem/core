@@ -1,4 +1,4 @@
-import genTransfer from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
+import { generateTransfers } from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
 import blockFixture from "../../../core-debugger-cli/__tests__/__fixtures__/block.json";
 import app from "../__support__/setup";
@@ -15,7 +15,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"),
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json")
   );
   genesisTransaction = new Transaction(genesisBlock.transactions[0]);
 });
@@ -53,7 +53,7 @@ describe("API - Internal", () => {
     it("should be ok", async () => {
       const block = new Block(blockFixture.data);
       const response = await utils.POST("internal/blocks", {
-        block: block.toJson(),
+        block: block.toJson()
       });
       expect(response.status).toBe(204);
     });
@@ -61,7 +61,7 @@ describe("API - Internal", () => {
     it("should return 403 without x-auth", async () => {
       delete utils.headers["x-auth"];
       const response = await utils.POST("internal/blocks", {
-        block: genesisBlock.toJson(),
+        block: genesisBlock.toJson()
       });
 
       expect(response.status).toBe(403);
@@ -70,9 +70,9 @@ describe("API - Internal", () => {
 
   describe("POST /transactions/verify", () => {
     it("should be ok", async () => {
-      const transaction = genTransfer("testnet")[0];
+      const transaction = generateTransfers("testnet")[0];
       const response = await utils.POST("internal/transactions/verify", {
-        transaction: Transaction.serialize(transaction).toString("hex"),
+        transaction: Transaction.serialize(transaction).toString("hex")
       });
 
       expect(response.status).toBe(200);
@@ -85,7 +85,7 @@ describe("API - Internal", () => {
     it("should return 403 without x-auth", async () => {
       delete utils.headers["x-auth"];
       const response = await utils.POST("internal/transactions/verify", {
-        transaction: genesisTransaction,
+        transaction: genesisTransaction
       });
 
       expect(response.status).toBe(403);
