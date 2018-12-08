@@ -1,7 +1,7 @@
 import "@arkecosystem/core-test-utils";
 
-import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
-import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
+import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 
 import { models } from "@arkecosystem/crypto";
 const { Block } = models;
@@ -9,7 +9,7 @@ const { Block } = models;
 import state from "../src/state-storage";
 import app from "./__support__/setup";
 
-const blocks = blocks1to100
+const blocks = blocks2to100
   .concat(blocks101to155)
   .map(block => new Block(block));
 

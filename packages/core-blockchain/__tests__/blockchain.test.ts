@@ -1,8 +1,8 @@
 /* tslint:disable:max-line-length */
 import "@arkecosystem/core-test-utils";
 
-import blocks101to155 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
-import blocks1to100 from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
+import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
@@ -556,7 +556,7 @@ function __mockPeer() {
     let blocks = [];
 
     if (config.params.lastBlockHeight === 1) {
-      blocks = blocks1to100;
+      blocks = blocks2to100;
     } else if (config.params.lastBlockHeight === 100) {
       blocks = blocks101to155;
     }
