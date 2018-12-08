@@ -73,11 +73,11 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-vote-report/ ./packages/core-tester-cli/
-            ./packages/core-snapshots/ ./packages/core-logger/
-            ./packages/core-graphql/ ./packages/core-error-tracker-sentry/
-            ./packages/core-deployer/ ./packages/core-database/
-            ./packages/core-blockchain/ ./packages/.DS_Store/
+            ./packages/core-vote-report/ ./packages/core-transaction-pool/
+            ./packages/core-snapshots-cli/ ./packages/core-logger-winston/
+            ./packages/core-api/ ./packages/core-event-emitter/
+            ./packages/core-elasticsearch/ ./packages/core-database-postgres/
+            ./packages/core-config/ ./packages/core-http-utils/
             --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
             test_output.txt
       - run:
@@ -160,11 +160,11 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-webhooks/ ./packages/core-transaction-pool/
-            ./packages/core-snapshots-cli/ ./packages/core-logger-winston/
-            ./packages/core-http-utils/ ./packages/core-event-emitter/
-            ./packages/core-elasticsearch/ ./packages/core-database-postgres/
-            ./packages/core-config/ ./packages/core/ --detectOpenHandles
+            ./packages/core-webhooks/ ./packages/core-transaction-pool-mem/
+            ./packages/core-test-utils/ ./packages/core-p2p/
+            ./packages/core-json-rpc/ ./packages/core-forger/
+            ./packages/core-error-tracker-bugsnag/ ./packages/core-debugger-cli/
+            ./packages/core-container/ ./packages/core/ --detectOpenHandles
             --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
