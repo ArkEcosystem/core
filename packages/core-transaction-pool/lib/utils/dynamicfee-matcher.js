@@ -65,7 +65,7 @@ module.exports = transaction => {
       logger.debug(
         `Transaction ${id} not eligible to enter pool - fee of ${formatArktoshi(
           fee,
-        )} is smaller than minimum fee ${formatArktoshi(minFeePool)}`,
+        )} is smaller than minimum fee (${formatArktoshi(minFeePool)})`,
       )
     }
   } else {
