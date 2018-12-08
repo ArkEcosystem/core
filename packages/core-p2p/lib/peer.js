@@ -21,6 +21,7 @@ module.exports = class Peer {
     this.state = {}
     this.offences = []
     this.lastPinged = null
+    this.setDynamicFees()
 
     this.headers = {
       version: app.getVersion(),
@@ -235,6 +236,32 @@ module.exports = class Peer {
     }
 
     return false
+  }
+
+  /**
+   * Get peer fees.
+   * @return {void}
+   */
+  async setDynamicFees() {
+    try {
+      const port = app.resolveOptions('api').port
+      const url = `${this.port === 443 ? 'https://' : 'http://'}${
+        this.ip
+      }:${port}/api/node/configuration`
+      const response = await axios.get(url, {
+        headers: {
+          'api-version': 2,
+          'Content-Type': 'application/json',
+        },
+        timeout: config.peers.globalTimeout,
+      })
+      const { fees } = response.data.data.constants
+      if (fees.dynamic === true && typeof fees.dynamicFees === 'object') {
+        this.fees = fees.dynamicFees
+      }
+    } catch (error) {
+      logger.debug(`Could not get fees from peer ${this.ip}: ${error}`)
+    }
   }
 
   /**
