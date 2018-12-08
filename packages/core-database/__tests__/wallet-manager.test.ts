@@ -1,24 +1,16 @@
 /* tslint:disable:max-line-length no-empty */
-import {
-  Bignum,
-  constants,
-  crypto,
-  models,
-  transactionBuilder
-} from "@arkecosystem/crypto";
-const { Block, Transaction, Wallet } = models;
-
-const { ARKTOSHI, TRANSACTION_TYPES } = constants;
-
-import blocks from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
-import genDelegateReg from "@arkecosystem/core-test-utils/src/generators/transactions/delegate";
-import gen2ndSignature from "@arkecosystem/core-test-utils/src/generators/transactions/signature";
-import genTransfer from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
-import genvote from "@arkecosystem/core-test-utils/src/generators/transactions/vote";
+import { generators, fixtures } from "@arkecosystem/core-test-utils";
+import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
+import genesisBlockTestnet from "../../core-test-utils/src/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
 import app from "./__support__/setup";
 
-const block3 = blocks[1];
+const { Block, Transaction, Wallet } = models;
+const { ARKTOSHI, TRANSACTION_TYPES } = constants;
+
+const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
+
+const block3 = fixtures.blocks2to100[1];
 const block = new Block(block3);
 
 const walletData1 = wallets[0];
@@ -32,9 +24,7 @@ beforeAll(async done => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json")
-  );
+  genesisBlock = new Block(genesisBlockTestnet);
 
   const { WalletManager } = require("../dist/wallet-manager");
   walletManager = new WalletManager();
@@ -128,9 +118,7 @@ describe("Wallet Manager", () => {
       await walletManager.applyBlock(block2);
 
       block2.transactions.forEach((transaction, i) => {
-        expect(walletManager.applyTransaction.mock.calls[i][0]).toBe(
-          block2.transactions[i]
-        );
+        expect(walletManager.applyTransaction.mock.calls[i][0]).toBe(block2.transactions[i]);
       });
     });
 
@@ -157,9 +145,7 @@ describe("Wallet Manager", () => {
         } catch (error) {
           expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
           block2.transactions.slice(0, 1).forEach((transaction, i) => {
-            expect(
-              walletManager.revertTransaction.mock.calls[1 - i][0]
-            ).toEqual(block2.transactions[i]);
+            expect(walletManager.revertTransaction.mock.calls[1 - i][0]).toEqual(block2.transactions[i]);
           });
         }
       });
@@ -208,90 +194,66 @@ describe("Wallet Manager", () => {
 
     describe("when the recipient is a cold wallet", () => {});
 
-    const transfer = genTransfer(
-      "testnet",
-      Math.random().toString(36),
-      walletData2.address,
-      96579,
-      1
-    )[0];
-    const delegateReg = genDelegateReg(
-      "testnet",
-      Math.random().toString(36),
-      1
-    )[0];
-    const secondSign = gen2ndSignature(
-      "testnet",
-      Math.random().toString(36),
-      1
-    )[0];
-    const vote = genvote(
-      "testnet",
-      Math.random().toString(36),
-      walletData2.publicKey,
-      1
-    )[0];
+    const transfer = generateTransfers("testnet", Math.random().toString(36), walletData2.address, 96579, 1)[0];
+    const delegateReg = generateDelegateRegistration("testnet", Math.random().toString(36), 1)[0];
+    const secondSign = generateSecondSignature("testnet", Math.random().toString(36), 1)[0];
+    const vote = generateVote("testnet", Math.random().toString(36), walletData2.publicKey, 1)[0];
     describe.each`
       type          | transaction    | amount               | balanceSuccess               | balanceFail
       ${"transfer"} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(1 * ARKTOSHI)}  | ${Bignum.ONE}
       ${"delegate"} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * ARKTOSHI)} | ${Bignum.ONE}
       ${"2nd sign"} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * ARKTOSHI)} | ${Bignum.ONE}
       ${"vote"}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * ARKTOSHI)}  | ${Bignum.ONE}
-    `(
-      "when the transaction is a $type",
-      ({ type, transaction, amount, balanceSuccess, balanceFail }) => {
-        let sender;
-        let recipient;
+    `("when the transaction is a $type", ({ type, transaction, amount, balanceSuccess, balanceFail }) => {
+      let sender;
+      let recipient;
 
-        beforeEach(() => {
-          sender = new Wallet(walletData1.address);
-          recipient = new Wallet(walletData2.address);
-          recipient.publicKey = walletData2.publicKey;
+      beforeEach(() => {
+        sender = new Wallet(walletData1.address);
+        recipient = new Wallet(walletData2.address);
+        recipient.publicKey = walletData2.publicKey;
 
-          sender.publicKey = transaction.senderPublicKey;
+        sender.publicKey = transaction.senderPublicKey;
 
-          walletManager.reindex(sender);
-          walletManager.reindex(recipient);
+        walletManager.reindex(sender);
+        walletManager.reindex(recipient);
 
-          walletManager.__isDelegate = jest.fn(() => true); // for vote transaction
-        });
+        walletManager.__isDelegate = jest.fn(() => true); // for vote transaction
+      });
 
-        it("should apply the transaction to the sender & recipient", async () => {
-          sender.balance = balanceSuccess;
+      it("should apply the transaction to the sender & recipient", async () => {
+        sender.balance = balanceSuccess;
 
-          expect(+sender.balance.toFixed()).toBe(+balanceSuccess);
-          expect(+recipient.balance.toFixed()).toBe(0);
+        expect(+sender.balance.toFixed()).toBe(+balanceSuccess);
+        expect(+recipient.balance.toFixed()).toBe(0);
 
-          await walletManager.applyTransaction(transaction);
+        await walletManager.applyTransaction(transaction);
 
-          expect(sender.balance).toEqual(
-            balanceSuccess.minus(amount).minus(transaction.fee)
-          );
+        expect(sender.balance).toEqual(balanceSuccess.minus(amount).minus(transaction.fee));
 
-          if (type === "transfer") {
-            expect(recipient.balance).toEqual(amount);
-          }
-        });
+        if (type === "transfer") {
+          expect(recipient.balance).toEqual(amount);
+        }
+      });
 
-        it("should fail if the transaction cannot be applied", async () => {
-          sender.balance = balanceFail;
+      it("should fail if the transaction cannot be applied", async () => {
+        sender.balance = balanceFail;
 
+        expect(+sender.balance.toFixed()).toBe(+balanceFail);
+        expect(+recipient.balance.toFixed()).toBe(0);
+
+        try {
+          expect(async () => {
+            await walletManager.applyTransaction(transaction);
+          }).toThrow(/apply transaction/);
+
+          expect(null).toBe("this should fail if no error is thrown");
+        } catch (error) {
           expect(+sender.balance.toFixed()).toBe(+balanceFail);
           expect(+recipient.balance.toFixed()).toBe(0);
-
-          try {
-            expect(async () => {
-              await walletManager.applyTransaction(transaction);
-            }).toThrow(/apply transaction/);
-
-            expect(null).toBe("this should fail if no error is thrown");
-          } catch (error) {
-            expect(+sender.balance.toFixed()).toBe(+balanceFail);
-            expect(+recipient.balance.toFixed()).toBe(0);
-          }
-        });
-      }
-    );
+        }
+      });
+    });
   });
 
   describe("revertTransaction", () => {
@@ -307,20 +269,15 @@ describe("Wallet Manager", () => {
         recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",
         timestamp: 0,
         asset: {},
-        senderPublicKey:
-          "035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788",
+        senderPublicKey: "035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788",
         signature:
           "304402205fcb0677e06bde7aac3dc776665615f4b93ef8c3ed0fddecef9900e74fcb00f302206958a0c9868ea1b1f3d151bdfa92da1ce24de0b1fcd91933e64fb7971e92f48d",
         id: "db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd",
-        senderId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn"
+        senderId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
       });
 
-      const sender = walletManager.findByPublicKey(
-        transaction.data.senderPublicKey
-      );
-      const recipient = walletManager.findByAddress(
-        transaction.data.recipientId
-      );
+      const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+      const recipient = walletManager.findByAddress(transaction.data.recipientId);
       recipient.balance = transaction.data.amount;
 
       expect(sender.balance).toEqual(Bignum.ZERO);
@@ -349,9 +306,7 @@ describe("Wallet Manager", () => {
       const wallet = new Wallet(walletData1.address);
 
       walletManager.reindex(wallet);
-      expect(walletManager.findByAddress(wallet.address).address).toBe(
-        wallet.address
-      );
+      expect(walletManager.findByAddress(wallet.address).address).toBe(wallet.address);
     });
   });
 
@@ -373,9 +328,7 @@ describe("Wallet Manager", () => {
       wallet.publicKey = "dummy-public-key";
 
       walletManager.reindex(wallet);
-      expect(walletManager.findByPublicKey(wallet.publicKey).publicKey).toBe(
-        wallet.publicKey
-      );
+      expect(walletManager.findByPublicKey(wallet.publicKey).publicKey).toBe(wallet.publicKey);
     });
   });
 
@@ -397,9 +350,7 @@ describe("Wallet Manager", () => {
       wallet.username = "dummy-username";
 
       walletManager.reindex(wallet);
-      expect(walletManager.findByUsername(wallet.username).username).toBe(
-        wallet.username
-      );
+      expect(walletManager.findByUsername(wallet.username).username).toBe(wallet.username);
     });
   });
 
@@ -532,14 +483,14 @@ describe("Wallet Manager", () => {
           address: crypto.getAddress(delegateKey),
           publicKey: delegateKey,
           username: `delegate${i}`,
-          voteBalance: Bignum.ZERO
+          voteBalance: Bignum.ZERO,
         };
 
         const voter = {
           address: crypto.getAddress((i + 5).toString().repeat(66)),
           balance: new Bignum((i + 1) * 1000 * ARKTOSHI),
           publicKey: `v${delegateKey}`,
-          vote: delegateKey
+          vote: delegateKey,
         };
 
         walletManager.index([delegate, voter]);
@@ -550,9 +501,7 @@ describe("Wallet Manager", () => {
       const delegates = walletManager.allByUsername();
       for (let i = 0; i < 5; i++) {
         const delegate = delegates[4 - i];
-        expect(delegate.voteBalance).toEqual(
-          new Bignum((5 - i) * 1000 * ARKTOSHI)
-        );
+        expect(delegate.voteBalance).toEqual(new Bignum((5 - i) * 1000 * ARKTOSHI));
       }
     });
   });

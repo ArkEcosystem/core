@@ -2,6 +2,7 @@ import { Bignum, crypto, models } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
 import app from "../__support__/setup";
+import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
 import WalletsRepository from "../../src/repositories/wallets";
 
@@ -12,28 +13,24 @@ let genesisSenders;
 let repository;
 let walletManager;
 
-beforeAll(async (done) => {
+beforeAll(async done => {
   await app.setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json"),
-  );
-  genesisSenders = uniq(
-    compact(genesisBlock.transactions.map((tx) => tx.senderPublicKey)),
-  );
+  genesisBlock = new Block(genesisBlockTestnet);
+  genesisSenders = uniq(compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)));
 
   done();
 });
 
-afterAll(async (done) => {
+afterAll(async done => {
   await app.tearDown();
 
   done();
 });
 
-beforeEach(async (done) => {
+beforeEach(async done => {
   const { WalletManager } = require("../../src/wallet-manager");
   walletManager = new WalletManager();
 
@@ -45,20 +42,20 @@ beforeEach(async (done) => {
 });
 
 function generateWallets() {
-  return genesisSenders.map((senderPublicKey) => ({
+  return genesisSenders.map(senderPublicKey => ({
     address: crypto.getAddress(senderPublicKey),
   }));
 }
 
 function generateVotes() {
-  return genesisSenders.map((senderPublicKey) => ({
+  return genesisSenders.map(senderPublicKey => ({
     address: crypto.getAddress(senderPublicKey),
     vote: genesisBlock.transactions[0].senderPublicKey,
   }));
 }
 
 function generateFullWallets() {
-  return genesisSenders.map((senderPublicKey) => {
+  return genesisSenders.map(senderPublicKey => {
     const address = crypto.getAddress(senderPublicKey);
 
     return {
@@ -196,7 +193,7 @@ describe("Wallet Repository", () => {
   });
 
   describe("findById", () => {
-    const expectWallet = (key) => {
+    const expectWallet = key => {
       const wallets = generateFullWallets();
       walletManager.index(wallets);
 

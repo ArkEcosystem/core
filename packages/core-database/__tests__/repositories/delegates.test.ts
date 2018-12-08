@@ -1,9 +1,5 @@
-import {
-  Bignum,
-  constants,
-  crypto,
-  models,
-} from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
+import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import DelegatesRepository from "../../src/repositories/delegates";
@@ -16,25 +12,23 @@ let genesisBlock;
 let repository;
 let walletManager;
 
-beforeAll(async (done) => {
+beforeAll(async done => {
   await app.setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json"),
-  );
+  genesisBlock = new Block(genesisBlockTestnet);
 
   done();
 });
 
-afterAll(async (done) => {
+afterAll(async done => {
   await app.tearDown();
 
   done();
 });
 
-beforeEach(async (done) => {
+beforeEach(async done => {
   const { WalletManager } = require("../../src/wallet-manager");
   walletManager = new WalletManager();
 
@@ -46,7 +40,7 @@ beforeEach(async (done) => {
 });
 
 function generateWallets() {
-  return genesisBlock.transactions.map((transaction) => {
+  return genesisBlock.transactions.map(transaction => {
     const address = crypto.getAddress(transaction.senderPublicKey);
 
     return {
@@ -67,19 +61,8 @@ describe("Delegate Repository", () => {
   });
 
   describe("getLocalDelegates", () => {
-    const delegates = [
-      { username: "delegate-0" },
-      { username: "delegate-1" },
-      { username: "delegate-2" },
-    ];
-    const wallets = [
-      delegates[0],
-      {},
-      delegates[1],
-      { username: "" },
-      delegates[2],
-      {},
-    ];
+    const delegates = [{ username: "delegate-0" }, { username: "delegate-1" }, { username: "delegate-2" }];
+    const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
     it("should be a function", () => {
       expect(repository.getLocalDelegates).toBeFunction();
@@ -88,9 +71,7 @@ describe("Delegate Repository", () => {
     it("should return the local wallets of the connection that are delegates", () => {
       repository.connection.walletManager.all = jest.fn(() => wallets);
 
-      expect(repository.getLocalDelegates()).toEqual(
-        expect.arrayContaining(delegates),
-      );
+      expect(repository.getLocalDelegates()).toEqual(expect.arrayContaining(delegates));
       expect(repository.connection.walletManager.all).toHaveBeenCalled();
     });
   });
@@ -287,7 +268,7 @@ describe("Delegate Repository", () => {
   });
 
   describe("findById", () => {
-    const expectWallet = (key) => {
+    const expectWallet = key => {
       const wallets = generateWallets();
       walletManager.index(wallets);
 
@@ -344,12 +325,8 @@ describe("Delegate Repository", () => {
       expect(results[0].username).toBeString();
       expect(results[0].approval).toBeNumber();
       expect(results[0].productivity).toBeNumber();
-      expect(results[0].approval).toBe(
-        delegateCalculator.calculateApproval(delegate, height),
-      );
-      expect(results[0].productivity).toBe(
-        delegateCalculator.calculateProductivity(delegate),
-      );
+      expect(results[0].approval).toBe(delegateCalculator.calculateApproval(delegate, height));
+      expect(results[0].productivity).toBe(delegateCalculator.calculateProductivity(delegate));
     });
   });
 });
