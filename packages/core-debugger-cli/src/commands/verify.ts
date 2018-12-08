@@ -4,13 +4,13 @@ import { handleOutput } from "../utils";
 function verify(opts) {
   const { Block, Transaction } = models;
 
-  const deserialized = opts.type === "transaction"
-    ? new Transaction(opts.data)
-    : new Block(Block.deserialize(opts.data));
+  const deserialized =
+    opts.type === "transaction"
+      ? new Transaction(opts.data)
+      : new Block(Block.deserialize(opts.data));
 
-  const output = opts.type === "transaction"
-    ? deserialized.verify()
-    : deserialized.verify().verified;
+  const result: any = deserialized.verify();
+  const output = opts.type === "transaction" ? result : result.verified;
 
   return handleOutput(opts, output);
 }

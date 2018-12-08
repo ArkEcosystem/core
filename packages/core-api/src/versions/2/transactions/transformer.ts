@@ -6,7 +6,7 @@ export default function(model) {
   const config = app.resolvePlugin("config");
   const blockchain = app.resolvePlugin("blockchain");
 
-  const data = new models.Transaction(model.serialized.toString("hex"));
+  const data: any = new models.Transaction(model.serialized.toString("hex"));
   const lastBlock = blockchain.getLastBlock();
 
   return {

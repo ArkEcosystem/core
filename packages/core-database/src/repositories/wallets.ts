@@ -8,8 +8,7 @@ export default class WalletsRepository {
    * Create a new wallet repository instance.
    * @param  {ConnectionInterface} connection
    */
-  public constructor(public connection) {
-  }
+  public constructor(public connection) {}
 
   /**
    * Get all local wallets.
@@ -32,8 +31,11 @@ export default class WalletsRepository {
       : ["rate", "asc"];
 
     return {
-      rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
-      count: wallets.length,
+      rows: limitRows(
+        orderBy(wallets, iteratee, order as "desc" | "asc"),
+        params
+      ),
+      count: wallets.length
     };
   }
 
@@ -44,11 +46,11 @@ export default class WalletsRepository {
    * @return {Object}
    */
   public findAllByVote(publicKey, params = {}) {
-    const wallets = this.all().filter((wallet) => wallet.vote === publicKey);
+    const wallets = this.all().filter(wallet => wallet.vote === publicKey);
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length,
+      count: wallets.length
     };
   }
 
@@ -59,9 +61,10 @@ export default class WalletsRepository {
    */
   public findById(id) {
     return this.all().find(
-      (wallet) => wallet.address === id
-        || wallet.publicKey === id
-        || wallet.username === id,
+      wallet =>
+        wallet.address === id ||
+        wallet.publicKey === id ||
+        wallet.username === id
     );
   }
 
@@ -80,12 +83,12 @@ export default class WalletsRepository {
    */
   public top(params = {}) {
     const wallets = Object.values(this.all()).sort(
-      (a: Bignum, b: Bignum) => +b.balance.minus(a.balance).toFixed(),
+      (a: any, b: any) => +b.balance.minus(a.balance).toFixed()
     );
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length,
+      count: wallets.length
     };
   }
 
@@ -111,12 +114,12 @@ export default class WalletsRepository {
   public search(params) {
     const wallets = filterRows(this.all(), params, {
       exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
-      between: ["balance", "voteBalance"],
+      between: ["balance", "voteBalance"]
     });
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length,
+      count: wallets.length
     };
   }
 }

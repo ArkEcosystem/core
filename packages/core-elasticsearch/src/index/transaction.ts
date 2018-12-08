@@ -29,7 +29,7 @@ class TransactionIndex extends Index {
         .select(modelQuery.block_id, modelQuery.serialized)
         .from(modelQuery)
         .where(
-          modelQuery.timestamp.gte(storage.get("history", "lastTransaction")),
+          modelQuery.timestamp.gte(storage.get("history", "lastTransaction"))
         )
         .order(modelQuery.timestamp.asc)
         .limit(this.chunkSize)
@@ -41,25 +41,27 @@ class TransactionIndex extends Index {
         continue;
       }
 
-      rows = rows.map((row) => {
-        const transaction = new Transaction(row.serialized.toString("hex"));
+      rows = rows.map(row => {
+        const transaction: any = new Transaction(
+          row.serialized.toString("hex")
+        );
         transaction.blockId = row.blockId;
 
         return transaction;
       });
 
-      const blockIds = rows.map((row) => row.blockId);
+      const blockIds = rows.map(row => row.blockId);
       logger.info(
         `[Elasticsearch] Indexing transactions from block ${first(
-          blockIds,
-        )} to ${last(blockIds)} :card_index_dividers:`,
+          blockIds
+        )} to ${last(blockIds)} :card_index_dividers:`
       );
 
       try {
         await client.bulk(this._buildBulkUpsert(rows));
 
         storage.update("history", {
-          lastTransaction: last(rows.map((row) => row.timestamp)),
+          lastTransaction: last(rows.map(row => row.timestamp))
         });
       } catch (error) {
         logger.error(`[Elasticsearch] ${error.message} :exclamation:`);

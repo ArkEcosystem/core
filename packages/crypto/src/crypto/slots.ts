@@ -1,5 +1,5 @@
 import dayjs from "dayjs-ext";
-import configManager from "../managers/config"
+import configManager from "../managers/config";
 
 class Slots {
   public height: number;
@@ -135,7 +135,7 @@ class Slots {
    * @param  {Number} epochTime
    * @return {Boolean}
    */
-  public isForgingAllowed(epochTime) {
+  public isForgingAllowed(epochTime?: any) {
     if (epochTime === undefined) {
       epochTime = this.getTime();
     }

@@ -44,7 +44,7 @@ export default (
 
   const transactions = [];
   for (let i = 0; i < quantity; i++) {
-    let builder = client.getBuilder();
+    let builder: any = client.getBuilder();
     switch (type) {
       case TRANSFER: {
         if (!addressOrPublicKey) {

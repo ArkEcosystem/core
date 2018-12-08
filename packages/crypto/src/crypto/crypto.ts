@@ -6,15 +6,13 @@ import crypto from "crypto";
 import secp256k1 from "secp256k1";
 import wif from "wif";
 
-import { CONFIGURATIONS } from "../constants"
-import configManager from "../managers/config"
-import feeManager from "../managers/fee"
-import { Bignum } from "../utils"
-import utils from "./utils"
+import { CONFIGURATIONS } from "../constants";
+import configManager from "../managers/config";
+import feeManager from "../managers/fee";
+import { Bignum } from "../utils";
+import utils from "./utils";
 
-const {
-  transactionIdFixTable
-} = CONFIGURATIONS.ARK.MAINNET;
+const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET;
 
 class Crypto {
   /**
@@ -33,7 +31,11 @@ class Crypto {
    * @param  {Boolean} skipSecondSignature
    * @return {String}
    */
-  public getBytes(transaction, skipSignature = false, skipSecondSignature = false) {
+  public getBytes(
+    transaction,
+    skipSignature = false,
+    skipSecondSignature = false
+  ) {
     if (transaction.version && transaction.version !== 1) {
       throw new Error("not supported yet");
     }
@@ -213,7 +215,11 @@ class Crypto {
    * @param  {Transaction} transaction
    * @return {Buffer}
    */
-  public getHash(transaction, skipSignature = false, skipSecondSignature = false) {
+  public getHash(
+    transaction,
+    skipSignature = false,
+    skipSecondSignature = false
+  ) {
     if (transaction.version && transaction.version !== 1) {
       throw new Error("not supported yet");
     }
@@ -390,7 +396,7 @@ class Crypto {
    * @param  {Object} network
    * @return {Object}
    */
-  public getKeysFromWIF(wifKey, network) {
+  public getKeysFromWIF(wifKey, network?: any) {
     const decoded = wif.decode(wifKey);
     const version = decoded.version;
 
@@ -482,7 +488,7 @@ class Crypto {
    * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
-  public validatePublicKey(address, networkVersion) {
+  public validatePublicKey(address, networkVersion: any = null) {
     if (!networkVersion) {
       networkVersion = configManager.get("pubKeyHash");
     }
@@ -494,6 +500,5 @@ class Crypto {
     }
   }
 }
-
 
 export default new Crypto();

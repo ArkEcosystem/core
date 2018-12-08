@@ -30,7 +30,7 @@ export class Blockchain {
 
     if (this.state.networkStart) {
       logger.warn(
-        "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:",
+        "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:"
       );
       logger.info("Starting Ark Core for a new world, welcome aboard :rocket:");
     }
@@ -51,16 +51,16 @@ export class Blockchain {
     if (nextState.actions.length > 0) {
       logger.debug(
         `event '${event}': ${JSON.stringify(
-          this.state.blockchain.value,
+          this.state.blockchain.value
         )} -> ${JSON.stringify(
-          nextState.value,
-        )} -> actions: [${nextState.actions.map((a) => a.type).join(", ")}]`,
+          nextState.value
+        )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`
       );
     }
 
     this.state.blockchain = nextState;
 
-    nextState.actions.forEach((actionKey) => {
+    nextState.actions.forEach(actionKey => {
       const action = this.actions[actionKey];
 
       if (action) {
@@ -152,8 +152,8 @@ export class Blockchain {
     logger.info(
       `Received ${transactions.length} new ${pluralize(
         "transaction",
-        transactions.length,
-      )} :moneybag:`,
+        transactions.length
+      )} :moneybag:`
     );
 
     await this.transactionPool.addTransactions(transactions);
@@ -169,8 +169,8 @@ export class Blockchain {
       `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
         "transaction",
         block.numberOfTransactions,
-        true,
-      )} from ${block.ip}`,
+        true
+      )} from ${block.ip}`
     );
 
     if (
@@ -185,8 +185,8 @@ export class Blockchain {
     } else {
       logger.info(
         `Block disregarded because blockchain is ${
-        this.state.forked ? "forked" : "not ready"
-        } :exclamation:`,
+          this.state.forked ? "forked" : "not ready"
+        } :exclamation:`
       );
     }
   }
@@ -207,7 +207,7 @@ export class Blockchain {
     const newHeight = previousRound * maxDelegates;
     const blocksToRemove = await this.database.getBlocks(
       newHeight,
-      height - newHeight - 1,
+      height - newHeight - 1
     );
     const deleteLastBlock = async () => {
       const lastBlock = this.state.getLastBlock();
@@ -223,8 +223,8 @@ export class Blockchain {
       `Removing ${pluralize(
         "block",
         height - newHeight,
-        true,
-      )} to reset current round :warning:`,
+        true
+      )} to reset current round :warning:`
     );
 
     let count = 0;
@@ -239,7 +239,7 @@ export class Blockchain {
         "Removing block",
         count++,
         max,
-        `ID: ${removalBlockId}, height: ${removalBlockHeight}`,
+        `ID: ${removalBlockId}, height: ${removalBlockHeight}`
       );
 
       await deleteLastBlock();
@@ -261,7 +261,7 @@ export class Blockchain {
   public async removeBlocks(nblocks) {
     const blocksToRemove = await this.database.getBlocks(
       this.state.getLastBlock().data.height - nblocks,
-      nblocks - 1,
+      nblocks - 1
     );
 
     const revertLastBlock = async () => {
@@ -283,7 +283,7 @@ export class Blockchain {
     };
 
     // tslint:disable-next-line:variable-name
-    const __removeBlocks = async (numberOfBlocks) => {
+    const __removeBlocks = async numberOfBlocks => {
       if (numberOfBlocks < 1) {
         return;
       }
@@ -291,7 +291,7 @@ export class Blockchain {
       logger.info(
         `Undoing block ${this.state
           .getLastBlock()
-          .data.height.toLocaleString()}`,
+          .data.height.toLocaleString()}`
       );
 
       await revertLastBlock();
@@ -308,8 +308,8 @@ export class Blockchain {
       `Removing ${pluralize(
         "block",
         nblocks,
-        true,
-      )}. Reset to height ${resetHeight.toLocaleString()}`,
+        true
+      )}. Reset to height ${resetHeight.toLocaleString()}`
     );
 
     this.queue.pause();
@@ -338,8 +338,8 @@ export class Blockchain {
       `Removing ${pluralize(
         "block",
         blocks.length,
-        true,
-      )} from height ${blocks[0].height.toLocaleString()}`,
+        true
+      )} from height ${blocks[0].height.toLocaleString()}`
     );
 
     for (let block of blocks) {
@@ -390,12 +390,12 @@ export class Blockchain {
       }
       this.state.lastDownloadedBlock = lastBlock;
       logger.info(
-        `Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`,
+        `Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`
       );
       return callback();
     }
     logger.warn(
-      `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
+      `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`
     );
     logger.warn(block.verification);
     return callback();
@@ -411,7 +411,7 @@ export class Blockchain {
   public async processBlock(block, callback) {
     if (!block.verification.verified) {
       logger.warn(
-        `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
+        `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`
       );
 
       this.transactionPool.purgeSendersWithInvalidTransactions(block);
@@ -444,7 +444,7 @@ export class Blockchain {
       }
     } catch (error) {
       logger.warn(
-        `Can't properly broadcast block ${block.data.height.toLocaleString()}`,
+        `Can't properly broadcast block ${block.data.height.toLocaleString()}`
       );
       logger.debug(error.stack);
     }
@@ -493,19 +493,19 @@ export class Blockchain {
 
     if (block.data.height > lastBlock.data.height + 1) {
       logger.debug(
-        `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
+        `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`
       );
       this.state.lastDownloadedBlock = lastBlock;
     } else if (block.data.height < lastBlock.data.height) {
       logger.debug(
-        `Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`,
+        `Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`
       );
     } else if (
       block.data.height === lastBlock.data.height &&
       block.data.id === lastBlock.data.id
     ) {
       logger.debug(
-        `Block ${block.data.height.toLocaleString()} just received :chains:`,
+        `Block ${block.data.height.toLocaleString()} just received :chains:`
       );
     } else {
       const isValid = await this.database.validateForkedBlock(block);
@@ -515,8 +515,8 @@ export class Blockchain {
       } else {
         logger.info(
           `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
-          block.data.generatorPublicKey
-          } :bangbang:`,
+            block.data.generatorPublicKey
+          } :bangbang:`
         );
       }
     }
@@ -542,13 +542,13 @@ export class Blockchain {
    */
   public getUnconfirmedTransactions(blockSize) {
     const transactions = this.transactionPool.getTransactionsForForging(
-      blockSize,
+      blockSize
     );
 
     return {
       transactions,
       poolSize: this.transactionPool.getPoolSize(),
-      count: transactions ? transactions.length : -1,
+      count: transactions ? transactions.length : -1
     };
   }
 
@@ -594,7 +594,7 @@ export class Blockchain {
    * Get the last block of the blockchain.
    * @return {Object}
    */
-  public getLastBlock() {
+  public getLastBlock(): any {
     return this.state.getLastBlock();
   }
 
@@ -661,7 +661,7 @@ export class Blockchain {
       "transaction.forged",
       "transaction.reverted",
       "wallet.saved",
-      "wallet.created.cold",
+      "wallet.created.cold"
     ];
   }
 
@@ -719,7 +719,7 @@ export class Blockchain {
   public __registerQueue() {
     this.queue = new Queue(this, {
       process: "PROCESSFINISHED",
-      rebuild: "REBUILDFINISHED",
+      rebuild: "REBUILDFINISHED"
     });
 
     this.processQueue = this.queue.process;

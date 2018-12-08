@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { helpers } from "@arkecosystem/core-test-utils";
+import appHelper from "@arkecosystem/core-test-utils/src/helpers/container";
 import { database } from "../../src/database";
 import { webhookManager } from "../../src/manager";
 import { startServer } from "../../src/server";
@@ -9,7 +9,7 @@ jest.setTimeout(60000);
 async function setUp() {
   process.env.ARK_WEBHOOKS_ENABLED = "true";
 
-  await helpers.setUpContainer({
+  await appHelper.setUp({
     exclude: [
       "@arkecosystem/core-api",
       "@arkecosystem/core-graphql",

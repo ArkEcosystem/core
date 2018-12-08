@@ -6,7 +6,7 @@ export default function(model) {
   const config = app.resolvePlugin("config");
   const blockchain = app.resolvePlugin("blockchain");
 
-  const data = new models.Transaction(model.serialized.toString("hex"));
+  const data: any = new models.Transaction(model.serialized.toString("hex"));
 
   return {
     id: data.id,
@@ -18,7 +18,7 @@ export default function(model) {
     recipientId: data.recipientId,
     senderId: crypto.getAddress(
       data.senderPublicKey,
-      config.network.pubKeyHash,
+      config.network.pubKeyHash
     ),
     senderPublicKey: data.senderPublicKey,
     vendorField: data.vendorField,
@@ -28,6 +28,6 @@ export default function(model) {
     asset: data.asset || {},
     confirmations: model.block
       ? blockchain.getLastBlock().data.height - model.block.height
-      : 0,
+      : 0
   };
 }

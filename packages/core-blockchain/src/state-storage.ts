@@ -12,15 +12,15 @@ const logger = app.resolvePlugin("logger");
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured with the option `state.maxLastBlocks`.
-let _lastBlocks = immutable.OrderedMap<number, typeof Block>();
+let _lastBlocks: any = immutable.OrderedMap<number, typeof Block>();
 
 // Stores the last n incoming transaction ids. The amount of transaction ids
 // can be configred with the option `state.maxLastTransactionIds`.
 let _cachedTransactionIds = immutable.OrderedSet();
 
 // Map Block instances to block data.
-const _mapToBlockData = (blocks) =>
-  blocks.map((block) => ({ ...block.data, transactions: block.transactions }));
+const _mapToBlockData = blocks =>
+  blocks.map(block => ({ ...block.data, transactions: block.transactions }));
 
 /**
  * Represents an in-memory storage for state machine data.
@@ -88,7 +88,7 @@ class StateStorage {
    * Get the last block.
    * @returns {Block|null}
    */
-  public getLastBlock() {
+  public getLastBlock(): any {
     return _lastBlocks.last() || null;
   }
 
@@ -103,7 +103,7 @@ class StateStorage {
       _lastBlocks.last().data.height !== block.data.height - 1
     ) {
       assert(block.data.height - 1 <= _lastBlocks.last().data.height);
-      _lastBlocks = _lastBlocks.filter((b) => b.data.height < block.data.height);
+      _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height);
     }
 
     _lastBlocks = _lastBlocks.set(block.data.height, block);
@@ -143,7 +143,7 @@ class StateStorage {
     return _lastBlocks
       .valueSeq()
       .reverse()
-      .map((b) => b.data.id)
+      .map(b => b.data.id)
       .toArray();
   }
 
@@ -157,7 +157,7 @@ class StateStorage {
 
     const blocks = _lastBlocks
       .valueSeq()
-      .filter((block) => block.data.height >= start && block.data.height <= end);
+      .filter(block => block.data.height >= start && block.data.height <= end);
 
     return _mapToBlockData(blocks).toArray();
   }
@@ -168,7 +168,7 @@ class StateStorage {
    */
   public getCommonBlocks(ids) {
     return this.getLastBlocksData()
-      .filter((block) => ids.includes(block.id))
+      .filter(block => ids.includes(block.id))
       .toArray();
   }
 
@@ -182,7 +182,7 @@ class StateStorage {
    */
   public cacheTransactions(transactions) {
     const notAdded = [];
-    const added = transactions.filter((tx) => {
+    const added = transactions.filter(tx => {
       if (_cachedTransactionIds.has(tx.id)) {
         notAdded.push(tx);
         return false;
@@ -190,8 +190,8 @@ class StateStorage {
       return true;
     });
 
-    _cachedTransactionIds = _cachedTransactionIds.withMutations((cache) => {
-      added.forEach((tx) => cache.add(tx.id));
+    _cachedTransactionIds = _cachedTransactionIds.withMutations(cache => {
+      added.forEach(tx => cache.add(tx.id));
     });
 
     // Cap the Set of last transaction ids to maxLastTransactionIds
@@ -226,7 +226,9 @@ class StateStorage {
    * @returns {Boolean}
    */
   public pingBlock(incomingBlock) {
-    if (!this.blockPing) { return false; }
+    if (!this.blockPing) {
+      return false;
+    }
 
     if (
       this.blockPing.block.height === incomingBlock.height &&
@@ -251,8 +253,8 @@ class StateStorage {
     if (this.blockPing) {
       logger.info(
         `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
-        this.blockPing.count
-        } times`,
+          this.blockPing.count
+        } times`
       );
     }
 
@@ -260,7 +262,7 @@ class StateStorage {
       count: 1,
       first: new Date().getTime(),
       last: new Date().getTime(),
-      block,
+      block
     };
   }
 }

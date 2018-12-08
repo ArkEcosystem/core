@@ -1,4 +1,6 @@
-exports.transfer = require("./transactions/transfer");
-exports.signature = require("./transactions/second-signature");
-exports.delegate = require("./transactions/delegate-registration");
-exports.vote = require("./transactions/vote");
+import delegate from "./transactions/delegate-registration";
+import signature from "./transactions/second-signature";
+import transfer from "./transactions/transfer";
+import vote from "./transactions/vote";
+
+export { transfer, signature, delegate, vote };
