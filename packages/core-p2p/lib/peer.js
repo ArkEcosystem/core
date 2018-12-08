@@ -21,7 +21,7 @@ module.exports = class Peer {
     this.state = {}
     this.offences = []
     this.lastPinged = null
-    this.setDynamicFees()
+    this.getPeerFees()
 
     this.headers = {
       version: app.getVersion(),
@@ -242,9 +242,9 @@ module.exports = class Peer {
    * Get peer fees.
    * @return {void}
    */
-  async setDynamicFees() {
+  async getPeerFees() {
     try {
-      const port = app.resolveOptions('api').port
+      const port = app.resolveOptions('api').port // Peer public API port?
       const url = `${this.port === 443 ? 'https://' : 'http://'}${
         this.ip
       }:${port}/api/node/configuration`
