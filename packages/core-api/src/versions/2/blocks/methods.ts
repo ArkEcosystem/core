@@ -50,7 +50,7 @@ const search = async request => {
 export function registerMethods(server) {
   server.method("v2.blocks.index", index, {
     cache: {
-      expiresIn: 8 * 1000,
+      expiresIn: 4 * 1000,
       generateTimeout: getCacheTimeout(),
       getDecoratedValue: true,
     },
