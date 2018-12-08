@@ -15,6 +15,6 @@ describe("Server", () => {
     const response = await axios.get("http://localhost:4006/");
 
     expect(response.status).toBe(200);
-    expect(response.data).toMatchSnapshot();
+    expect(response.data).toContain("Top 51 Delegates Stats");
   });
 });
