@@ -9,7 +9,7 @@ const database = app.resolvePlugin("database");
 const index = async request => {
   const wallets = await database.wallets.findAll({
     ...request.query,
-    ...paginate(request)
+    ...paginate(request),
   });
 
   return toPagination(request, wallets, "wallet");
@@ -41,7 +41,7 @@ const transactions = async request => {
   const rows = await transactionsRepository.findAllByWallet(wallet, {
     ...request.query,
     ...request.params,
-    ...paginate(request)
+    ...paginate(request),
   });
 
   return toPagination(request, rows, "transaction");
@@ -60,7 +60,7 @@ const transactionsSent = async request => {
   const rows = await transactionsRepository.findAllBySender(wallet.publicKey, {
     ...request.query,
     ...request.params,
-    ...paginate(request)
+    ...paginate(request),
   });
 
   return toPagination(request, rows, "transaction");
@@ -79,7 +79,7 @@ const transactionsReceived = async request => {
   const rows = await transactionsRepository.findAllByRecipient(wallet.address, {
     ...request.query,
     ...request.params,
-    ...paginate(request)
+    ...paginate(request),
   });
 
   return toPagination(request, rows, "transaction");
@@ -97,7 +97,7 @@ const votes = async request => {
 
   const rows = await transactionsRepository.allVotesBySender(wallet.publicKey, {
     ...request.params,
-    ...paginate(request)
+    ...paginate(request),
   });
 
   return toPagination(request, rows, "transaction");
@@ -107,7 +107,7 @@ const search = async request => {
   const wallets = await database.wallets.search({
     ...request.payload,
     ...request.query,
-    ...paginate(request)
+    ...paginate(request),
   });
 
   return toPagination(request, wallets, "wallet");
@@ -118,100 +118,104 @@ export function registerMethods(server) {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
     generateKey: request =>
       generateCacheKey({
         ...request.payload,
         ...request.query,
-        ...paginate(request)
-      })
+        ...paginate(request),
+      }),
   });
 
   server.method("v2.wallets.top", top, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
-    generateKey: request => generateCacheKey(paginate(request))
+    generateKey: request => generateCacheKey(paginate(request)),
   });
 
   server.method("v2.wallets.show", show, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
-    generateKey: request => generateCacheKey({ id: request.params.id })
+    generateKey: request => generateCacheKey({ id: request.params.id }),
   });
 
   server.method("v2.wallets.transactions", transactions, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
     generateKey: request =>
       generateCacheKey({
+        ...{ id: request.params.id },
         ...request.query,
         ...request.params,
-        ...paginate(request)
-      })
+        ...paginate(request),
+      }),
   });
 
   server.method("v2.wallets.transactionsSent", transactionsSent, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
     generateKey: request =>
       generateCacheKey({
+        ...{ id: request.params.id },
         ...request.query,
         ...request.params,
-        ...paginate(request)
-      })
+        ...paginate(request),
+      }),
   });
 
   server.method("v2.wallets.transactionsReceived", transactionsReceived, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
     generateKey: request =>
       generateCacheKey({
+        ...{ id: request.params.id },
         ...request.query,
         ...request.params,
-        ...paginate(request)
-      })
+        ...paginate(request),
+      }),
   });
 
   server.method("v2.wallets.votes", votes, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
     generateKey: request =>
       generateCacheKey({
+        ...{ id: request.params.id },
         ...request.params,
-        ...paginate(request)
-      })
+        ...paginate(request),
+      }),
   });
 
   server.method("v2.wallets.search", search, {
     cache: {
       expiresIn: 30 * 1000,
       generateTimeout: getCacheTimeout(),
-      getDecoratedValue: true
+      getDecoratedValue: true,
     },
     generateKey: request =>
       generateCacheKey({
         ...request.payload,
         ...request.query,
-        ...paginate(request)
-      })
+        ...paginate(request),
+      }),
   });
 }
