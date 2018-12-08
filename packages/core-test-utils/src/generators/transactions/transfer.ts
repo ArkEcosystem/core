@@ -1,5 +1,5 @@
 import { constants } from "@arkecosystem/crypto";
-import { generateTransaction } from "./transaction";
+import generateTransaction from "./transaction";
 
 const { TRANSFER } = constants.TRANSACTION_TYPES;
 

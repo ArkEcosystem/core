@@ -19,10 +19,10 @@ let genesisBlock;
 beforeAll(async done => {
   await app.setUp();
 
-  ConnectionInterface = require("../src").ConnectionInterface;
+  ConnectionInterface = require("../dist").ConnectionInterface;
   connectionInterface = new ConnectionInterface();
   genesisBlock = new Block(
-    require("@arkecosystem/core-test-utils/config/testnet/genesisBlock.json")
+    require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json")
   );
 
   done();
@@ -309,7 +309,7 @@ describe.skip("Connection Interface", () => {
     });
 
     it("should calculate the previous delegate list", async () => {
-      const walletManager = new (require("../lib/wallet-manager"))();
+      const walletManager = new (require("../dist/wallet-manager"))();
       const initialHeight = 52;
 
       // Create delegates

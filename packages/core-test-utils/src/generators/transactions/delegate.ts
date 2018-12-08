@@ -1,9 +1,9 @@
 import { constants } from "@arkecosystem/crypto";
-import { generateTransaction } from "./transaction";
+import generateTransaction from "./transaction";
 
 const { DELEGATE_REGISTRATION } = constants.TRANSACTION_TYPES;
 
-export const generateDelegateRegistration = (
+export default (
   network,
   passphrase,
   quantity: number = 10,

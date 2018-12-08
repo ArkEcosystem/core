@@ -10,7 +10,7 @@ const {
   VOTE
 } = constants.TRANSACTION_TYPES;
 
-export const generateTransaction = (
+export default (
   network,
   type,
   passphrase,
