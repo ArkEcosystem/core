@@ -4,6 +4,8 @@ const {
   dynamicFeeManager,
   formatArktoshi,
 } = require('@arkecosystem/crypto')
+const pluralize = require('pluralize')
+const peersMatchingFee = require('./peers-matching-fee')
 
 /**
  * Determine if a transaction's fee meets the minimum requirements for broadcasting
@@ -25,25 +27,23 @@ module.exports = transaction => {
   let enterPool
 
   if (fees.dynamic) {
-    const minFeeBroadcast = dynamicFeeManager.calculateFee(
-      fees.dynamicFees.minFeeBroadcast,
-      transaction,
-    )
-    if (fee >= minFeeBroadcast) {
+    const matchingPeers = peersMatchingFee(transaction)
+
+    if (matchingPeers.length) {
       broadcast = true
       logger.debug(
-        `Transaction ${id} eligible for broadcast - fee of ${formatArktoshi(
-          fee,
-        )} is ${
-          fee === minFeeBroadcast ? 'equal to' : 'greater than'
-        } minimum fee (${formatArktoshi(minFeeBroadcast)})`,
+        `Transaction ${id} eligible for broadcast - ${pluralize(
+          'peer',
+          matchingPeers.length,
+          true,
+        )} accept fee of ${formatArktoshi(fee)}`,
       )
     } else {
       broadcast = false
       logger.debug(
-        `Transaction ${id} not eligible for broadcast - fee of ${formatArktoshi(
+        `Transaction ${id} not eligible for broadcast - no peers match fee of ${formatArktoshi(
           fee,
-        )} is smaller than minimum fee (${formatArktoshi(minFeeBroadcast)})`,
+        )}`,
       )
     }
 
@@ -65,7 +65,7 @@ module.exports = transaction => {
       logger.debug(
         `Transaction ${id} not eligible to enter pool - fee of ${formatArktoshi(
           fee,
-        )} is smaller than minimum fee (${formatArktoshi(minFeePool)})`,
+        )} is smaller than minimum fee ${formatArktoshi(minFeePool)}`,
       )
     }
   } else {
