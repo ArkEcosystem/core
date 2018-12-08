@@ -9,7 +9,7 @@ export default function(request, h) {
   const database = app.resolvePlugin("database");
 
   const formatDelegates = (delegates, lastHeight) =>
-    delegates.map(delegate => {
+    delegates.map((delegate, index) => {
       const filteredVoters = database.walletManager
         .allByPublicKey()
         .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance > 0.1 * 1e8);
@@ -19,7 +19,7 @@ export default function(request, h) {
         maximumFractionDigits: 2,
       });
 
-      const rank = (delegate.rate || 0).toLocaleString(undefined, {
+      const rank = (delegate.rate || index + 1).toLocaleString(undefined, {
         minimumIntegerDigits: 2,
       });
 
