@@ -1,21 +1,31 @@
-import { TRANSACTION_TYPES } from "../../constants"
+import { TRANSACTION_TYPES } from "../../constants";
+
+import { DelegateRegistrationHandler } from "./delegate-registration";
+import { DelegateResignationHandler } from "./delegate-resignation";
+import { IpfsHandler } from "./ipfs";
+import { MultiPaymentHandler } from "./multi-payment";
+import { MultiSignatureHandler } from "./multi-signature";
+import { SecondSignatureHandler } from "./second-signature";
+import { TimelockTransferHandler } from "./timelock-transfer";
+import { TransferHandler } from "./transfer";
+import { VoteHandler } from "./vote";
 
 export class TransactionHandler {
-  public handlers: { [x: number]: any; };
+  public handlers: { [x: number]: any };
   /**
    * [constructor description]
    */
   constructor() {
     this.handlers = {
-      [TRANSACTION_TYPES.TRANSFER]: require("./transfer"),
-      [TRANSACTION_TYPES.SECOND_SIGNATURE]: require("./second-signature"),
-      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: require("./delegate-registration"),
-      [TRANSACTION_TYPES.VOTE]: require("./vote"),
-      [TRANSACTION_TYPES.MULTI_SIGNATURE]: require("./multi-signature"),
-      [TRANSACTION_TYPES.IPFS]: require("./ipfs"),
-      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require("./timelock-transfer"),
-      [TRANSACTION_TYPES.MULTI_PAYMENT]: require("./multi-payment"),
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require("./delegate-resignation")
+      [TRANSACTION_TYPES.TRANSFER]: TransferHandler,
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: SecondSignatureHandler,
+      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: DelegateRegistrationHandler,
+      [TRANSACTION_TYPES.VOTE]: VoteHandler,
+      [TRANSACTION_TYPES.MULTI_SIGNATURE]: MultiSignatureHandler,
+      [TRANSACTION_TYPES.IPFS]: IpfsHandler,
+      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: TimelockTransferHandler,
+      [TRANSACTION_TYPES.MULTI_PAYMENT]: MultiPaymentHandler,
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: DelegateResignationHandler,
     };
   }
 
@@ -27,11 +37,7 @@ export class TransactionHandler {
    * @return {Boolean}
    */
   public canApply(wallet, transaction, errors) {
-    return this.handlers[transaction.type].canApply(
-      wallet,
-      transaction,
-      errors
-    );
+    return this.getHandler(transaction).canApply(wallet, transaction, errors);
   }
 
   /**
@@ -41,7 +47,7 @@ export class TransactionHandler {
    * @return {void}
    */
   public apply(wallet, transaction) {
-    return this.handlers[transaction.type].apply(wallet, transaction);
+    return this.getHandler(transaction).apply(wallet, transaction);
   }
 
   /**
@@ -51,10 +57,7 @@ export class TransactionHandler {
    * @return {void}
    */
   public applyTransactionToSender(wallet, transaction) {
-    return this.handlers[transaction.type].applyTransactionToSender(
-      wallet,
-      transaction
-    );
+    return this.getHandler(transaction).applyTransactionToSender(wallet, transaction);
   }
 
   /**
@@ -64,10 +67,7 @@ export class TransactionHandler {
    * @return {void}
    */
   public applyTransactionToRecipient(wallet, transaction) {
-    return this.handlers[transaction.type].applyTransactionToRecipient(
-      wallet,
-      transaction
-    );
+    return this.getHandler(transaction).applyTransactionToRecipient(wallet, transaction);
   }
 
   /**
@@ -77,7 +77,7 @@ export class TransactionHandler {
    * @return {void}
    */
   public revert(wallet, transaction) {
-    return this.handlers[transaction.type].revert(wallet, transaction);
+    return this.getHandler(transaction).revert(wallet, transaction);
   }
 
   /**
@@ -87,10 +87,7 @@ export class TransactionHandler {
    * @return {void}
    */
   public revertTransactionForSender(wallet, transaction) {
-    return this.handlers[transaction.type].revertTransactionForSender(
-      wallet,
-      transaction
-    );
+    return this.getHandler(transaction).revertTransactionForSender(wallet, transaction);
   }
 
   /**
@@ -100,10 +97,15 @@ export class TransactionHandler {
    * @return {void}
    */
   public revertTransactionForRecipient(wallet, transaction) {
-    return this.handlers[transaction.type].revertTransactionForRecipient(
-      wallet,
-      transaction
-    );
+    return this.getHandler(transaction).revertTransactionForRecipient(wallet, transaction);
+  }
+
+  /**
+   * [getHandler description]
+   * @param {Transaction} transaction
+   */
+  private getHandler(transaction: any) {
+    return new this.handlers[transaction.type]();
   }
 }
 
