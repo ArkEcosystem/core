@@ -11,14 +11,14 @@ module.exports = (babelOptions = {}) => ({
         use: {
           loader: "babel-loader",
           options: {
-            presets: [["@babel/preset-env", babelOptions]]
-          }
-        }
-      }
-    ]
+            presets: [["@babel/preset-env", babelOptions]],
+          },
+        },
+      },
+    ],
   },
 
   resolve: {
-    extensions: [".js", ".json"]
-  }
+    extensions: [".js", ".json"],
+  },
 });

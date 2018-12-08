@@ -3,7 +3,7 @@ module.exports = {
   bail: false,
   verbose: true,
   transform: {
-    "^.+\\.tsx?$": "ts-jest"
+    "^.+\\.tsx?$": "ts-jest",
   },
   testMatch: ["**/*.test.ts"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
@@ -11,5 +11,5 @@ module.exports = {
   coverageDirectory: "<rootDir>/.coverage",
   collectCoverageFrom: ["src/**/*.ts", "!**/node_modules/**"],
   watchman: false,
-  setupTestFrameworkScriptFile: "jest-extended"
+  setupTestFrameworkScriptFile: "jest-extended",
 };
