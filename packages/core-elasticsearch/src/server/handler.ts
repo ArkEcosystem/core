@@ -1,15 +1,7 @@
 import Joi from "joi";
 import { client } from "../services/client";
 
-/**
- * @type {Object}
- */
-const index = {
-  /**
-   * @param  {Hapi.Request} request
-   * @param  {Hapi.Toolkit} h
-   * @return {Hapi.Response}
-   */
+export const index = {
   async handler(request, h) {
     const query = await client.search(request.payload);
 
@@ -17,7 +9,7 @@ const index = {
       meta: {
         count: query.hits.total,
       },
-      data: query.hits.hits.map((result) => result._source),
+      data: query.hits.hits.map(result => result._source),
     };
   },
   options: {
@@ -66,5 +58,3 @@ const index = {
     },
   },
 };
-
-export { index };

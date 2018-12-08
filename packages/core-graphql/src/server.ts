@@ -1,20 +1,15 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 import server from "./schema";
 
-/**
- * Create a new hapi.js server.
- * @param  {Object} config
- * @return {Hapi.Server}
- */
 export async function startServer(config) {
   const app = await createServer({
     host: config.host,
-    port: config.port
+    port: config.port,
   });
 
   await server.applyMiddleware({
     app,
-    path: config.path
+    path: config.path,
   });
 
   await server.installSubscriptionHandlers(app.listener);

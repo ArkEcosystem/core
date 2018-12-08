@@ -1,6 +1,6 @@
 import { index } from "./handler";
 
-const routePlugin = {
+export const routes = {
   name: "routes",
   version: "0.1.0",
   async register(server, options) {
@@ -13,5 +13,3 @@ const routePlugin = {
     ]);
   },
 };
-
-export { routePlugin };

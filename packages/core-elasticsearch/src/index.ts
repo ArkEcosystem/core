@@ -3,6 +3,7 @@ import { blockIndex } from "./index/block";
 import { roundIndex } from "./index/round";
 import { transactionIndex } from "./index/transaction";
 import { walletIndex } from "./index/wallet";
+import { startServer } from "./server";
 import { client } from "./services/client";
 import { storage } from "./services/storage";
 
@@ -24,12 +25,10 @@ export const plugin = {
     walletIndex.setUp(options.chunkSize);
     roundIndex.setUp(options.chunkSize);
 
-    return require("./server")(options.server);
+    return startServer(options.server);
   },
   async deregister(container, options) {
-    container
-      .resolvePlugin("logger")
-      .info("[Elasticsearch] Stopping API :warning:");
+    container.resolvePlugin("logger").info("[Elasticsearch] Stopping API :warning:");
 
     return container.resolvePlugin("elasticsearch").stop();
   },
