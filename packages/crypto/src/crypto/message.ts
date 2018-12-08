@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import configManager from "../managers/config"
-import arkCrypto from "./crypto"
+import configManager from "../managers/config";
+import arkCrypto from "./crypto";
 
 const createHash = message =>
   crypto
@@ -32,7 +32,7 @@ export default class Message {
    * @param  {Object} network
    * @return {Object}
    */
-  public static signWithWif(message, wif, network) {
+  public static signWithWif(message, wif, network?: any) {
     if (!network) {
       network = configManager.all();
     }
@@ -56,4 +56,4 @@ export default class Message {
   public static verify({ message, publicKey, signature }) {
     return arkCrypto.verifyHash(createHash(message), signature, publicKey);
   }
-};
+}

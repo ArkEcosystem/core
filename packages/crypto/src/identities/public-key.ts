@@ -9,11 +9,11 @@ export default class PublicKey {
 
   // static fromHex (publicKey) {}
 
-  public static fromWIF(wif, network) {
+  public static fromWIF(wif, network?: any) {
     return Keys.fromWIF(wif, network).publicKey;
   }
 
-  public static validate(publicKey, networkVersion) {
+  public static validate(publicKey, networkVersion?: any) {
     if (!networkVersion) {
       networkVersion = configManager.get("pubKeyHash");
     }
@@ -24,4 +24,4 @@ export default class PublicKey {
       return false;
     }
   }
-};
+}

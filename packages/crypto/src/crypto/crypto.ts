@@ -426,7 +426,7 @@ class Crypto {
    * @param {(Object|undefined)} network
    * @returns {String}
    */
-  public keysToWIF(keys, network) {
+  public keysToWIF(keys, network?: any) {
     if (!network) {
       network = configManager.all();
     }
@@ -469,7 +469,7 @@ class Crypto {
    * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
-  public validateAddress(address, networkVersion) {
+  public validateAddress(address, networkVersion?: any) {
     if (!networkVersion) {
       networkVersion = configManager.get("pubKeyHash");
     }
@@ -488,7 +488,7 @@ class Crypto {
    * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
-  public validatePublicKey(address, networkVersion: any = null) {
+  public validatePublicKey(address, networkVersion?: any) {
     if (!networkVersion) {
       networkVersion = configManager.get("pubKeyHash");
     }

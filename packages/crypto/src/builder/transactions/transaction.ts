@@ -1,10 +1,10 @@
 import { stringify } from "querystring";
-import { crypto, slots } from "../../crypto"
-import configManager from "../../managers/config"
-import Transaction from "../../models/transaction"
+import { crypto, slots } from "../../crypto";
+import configManager from "../../managers/config";
+import Transaction from "../../models/transaction";
 
 export default abstract class TransactionBuilder {
-  public data: any
+  public data: any;
   public model: any;
 
   /**
@@ -15,7 +15,7 @@ export default abstract class TransactionBuilder {
       id: null,
       timestamp: slots.getTime(),
       version: 0x01,
-      network: configManager.get("pubKeyHash"),
+      network: configManager.get("pubKeyHash")
     };
   }
 
@@ -23,7 +23,7 @@ export default abstract class TransactionBuilder {
    * Build a new Transaction instance.
    * @return {Transaction}
    */
-  public build(data) {
+  public build(data: any = {}) {
     return new Transaction({ ...this.data, ...data });
   }
 
@@ -246,4 +246,4 @@ export default abstract class TransactionBuilder {
 
     return data;
   }
-};
+}

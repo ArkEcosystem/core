@@ -1,18 +1,28 @@
-export class TransactionBuilderDirector {
-  /**
-   * Create new delegate resignation transaction type.
-   * @return {DelegateResignationBuilder}
-   */
-  public delegateResignation() {
-    return this.__getTransaction("delegate-resignation");
-  }
+import DelegateRegistrationBuilder from "./transactions/delegate-registration";
+import DelegateResignationBuilder from "./transactions/delegate-resignation";
+import IpfsBuilder from "./transactions/ipfs";
+import MultiPaymentBuilder from "./transactions/multi-payment";
+import MultiSignatureBuilder from "./transactions/multi-signature";
+import SecondSignatureBuilder from "./transactions/second-signature";
+import TimelockTransferBuilder from "./transactions/timelock-transfer";
+import TransferBuilder from "./transactions/transfer";
+import VoteBuilder from "./transactions/vote";
 
+export class TransactionBuilderDirector {
   /**
    * Create new delegate transaction type.
    * @return {DelegateRegistrationBuilder}
    */
   public delegateRegistration() {
-    return this.__getTransaction("delegate-registration");
+    return new DelegateRegistrationBuilder();
+  }
+
+  /**
+   * Create new delegate resignation transaction type.
+   * @return {DelegateResignationBuilder}
+   */
+  public delegateResignation() {
+    return new DelegateResignationBuilder();
   }
 
   /**
@@ -20,7 +30,7 @@ export class TransactionBuilderDirector {
    * @return {IPFSBuilder}
    */
   public ipfs() {
-    return this.__getTransaction("ipfs");
+    return new IpfsBuilder();
   }
 
   /**
@@ -28,7 +38,7 @@ export class TransactionBuilderDirector {
    * @return {MultiPaymentBuilder}
    */
   public multiPayment() {
-    return this.__getTransaction("multi-payment");
+    return new MultiPaymentBuilder();
   }
 
   /**
@@ -36,7 +46,7 @@ export class TransactionBuilderDirector {
    * @return {MultiSignatureBuilder}
    */
   public multiSignature() {
-    return this.__getTransaction("multi-signature");
+    return new MultiSignatureBuilder();
   }
 
   /**
@@ -44,7 +54,7 @@ export class TransactionBuilderDirector {
    * @return {SecondSignatureBuilder}
    */
   public secondSignature() {
-    return this.__getTransaction("second-signature");
+    return new SecondSignatureBuilder();
   }
 
   /**
@@ -52,7 +62,7 @@ export class TransactionBuilderDirector {
    * @return {TimelockTransferBuilder}
    */
   public timelockTransfer() {
-    return this.__getTransaction("timelock-transfer");
+    return new TimelockTransferBuilder();
   }
 
   /**
@@ -60,7 +70,7 @@ export class TransactionBuilderDirector {
    * @return {TransferBuilder}
    */
   public transfer() {
-    return this.__getTransaction("transfer");
+    return new TransferBuilder();
   }
 
   /**
@@ -68,16 +78,7 @@ export class TransactionBuilderDirector {
    * @return {VoteBuilder}
    */
   public vote() {
-    return this.__getTransaction("vote");
-  }
-
-  /**
-   * Create new instance of specified transaction type.
-   * @param  {String} transactionType
-   * @return {TransactionBuilder}
-   */
-  public __getTransaction(transactionType) {
-    return new (require(`./transactions/${transactionType}`))();
+    return new VoteBuilder();
   }
 }
 

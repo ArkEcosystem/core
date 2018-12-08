@@ -1,9 +1,9 @@
 import bip32 from "bip32";
 import bip39 from "bip39";
-import configManager from "../managers/config"
+import configManager from "../managers/config";
 
 class HDWallet {
-  public readonly slip44: number
+  public readonly slip44: number;
 
   constructor() {
     this.slip44 = 111;
@@ -15,7 +15,7 @@ class HDWallet {
    * @param {(String|undefined)} passphrase
    * @returns {bip32}
    */
-  public fromMnemonic(mnemonic, passphrase) {
+  public fromMnemonic(mnemonic, passphrase?: any) {
     const seed = bip39.mnemonicToSeed(mnemonic, passphrase);
     return bip32.fromSeed(seed, configManager.config);
   }

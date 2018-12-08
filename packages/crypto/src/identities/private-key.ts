@@ -7,7 +7,7 @@ export default class PrivateKey {
 
   // static fromHex (privateKey) {}
 
-  public static fromWIF(wif, network) {
+  public static fromWIF(wif, network?: any) {
     return Keys.fromWIF(wif, network).privateKey;
   }
-};
+}

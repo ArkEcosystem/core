@@ -4,14 +4,14 @@ import configManager from "../managers/config";
 import PublicKey from "./public-key";
 
 export default class Address {
-  public static fromPassphrase(passphrase, networkVersion) {
+  public static fromPassphrase(passphrase, networkVersion?: any) {
     return Address.fromPublicKey(
       PublicKey.fromPassphrase(passphrase),
       networkVersion
     );
   }
 
-  public static fromPublicKey(publicKey, networkVersion) {
+  public static fromPublicKey(publicKey, networkVersion?: any) {
     const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
     if (!pubKeyRegex.test(publicKey)) {
       throw new Error(`publicKey '${publicKey}' is invalid`);
@@ -30,11 +30,11 @@ export default class Address {
     return bs58check.encode(payload);
   }
 
-  public static fromPrivateKey(privateKey, networkVersion) {
+  public static fromPrivateKey(privateKey, networkVersion?: any) {
     return Address.fromPublicKey(privateKey.publicKey, networkVersion);
   }
 
-  public static validate(address, networkVersion) {
+  public static validate(address, networkVersion?: any) {
     if (!networkVersion) {
       networkVersion = configManager.get("pubKeyHash");
     }
@@ -46,4 +46,4 @@ export default class Address {
       return false;
     }
   }
-};
+}

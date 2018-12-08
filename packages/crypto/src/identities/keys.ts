@@ -1,8 +1,8 @@
 import secp256k1 from "secp256k1";
 import wif from "wif";
 
-import utils from "../crypto/utils"
-import configManager from "../managers/config"
+import utils from "../crypto/utils";
+import configManager from "../managers/config";
 
 export default class Keys {
   public static fromPassphrase(passphrase, compressed = true) {
@@ -26,7 +26,7 @@ export default class Keys {
     return keyPair;
   }
 
-  public static fromWIF(wifKey, network) {
+  public static fromWIF(wifKey, network?: any) {
     const decoded = wif.decode(wifKey);
     const version = decoded.version;
 
@@ -49,4 +49,4 @@ export default class Keys {
 
     return keyPair;
   }
-};
+}

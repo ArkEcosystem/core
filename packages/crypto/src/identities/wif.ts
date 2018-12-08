@@ -1,9 +1,9 @@
-import wif from "wif"
-import configManager from "../managers/config"
-import Keys from "./keys"
+import wif from "wif";
+import configManager from "../managers/config";
+import Keys from "./keys";
 
 export default class WIF {
-  public static fromPassphrase(passphrase, network) {
+  public static fromPassphrase(passphrase, network?: any) {
     const keys = Keys.fromPassphrase(passphrase);
 
     if (!network) {
@@ -16,4 +16,4 @@ export default class WIF {
       keys.compressed
     );
   }
-};
+}

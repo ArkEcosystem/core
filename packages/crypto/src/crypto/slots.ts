@@ -40,7 +40,7 @@ class Slots {
    * @param  {Number} time
    * @return {Number}
    */
-  public getEpochTime(time) {
+  public getEpochTime(time?: any) {
     if (time === undefined) {
       time = dayjs().valueOf();
     }
