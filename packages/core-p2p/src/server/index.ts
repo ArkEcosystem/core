@@ -1,8 +1,4 @@
-import {
-  createServer,
-  mountServer,
-  plugins,
-} from "@arkecosystem/core-http-utils";
+import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 
 /**
  * Create a new hapi.js server.

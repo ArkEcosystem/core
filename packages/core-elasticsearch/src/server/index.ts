@@ -1,8 +1,4 @@
-import {
-  createServer,
-  mountServer,
-  plugins,
-} from "@arkecosystem/core-http-utils";
+import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import { routePlugin } from "./routes";
 
 /**
@@ -10,7 +6,7 @@ import { routePlugin } from "./routes";
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-module.exports = async (config) => {
+module.exports = async config => {
   const server = await createServer({
     host: config.host,
     port: config.port,
