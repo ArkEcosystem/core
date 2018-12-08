@@ -9,10 +9,10 @@
   "license": "MIT",
   "main": "dist/index.js",
   "bin": {
-    "ark:tester": "./dist/index.js"
+    "ark:tester": "node ./dist/index.js"
   },
   "scripts": {
-    "start": "./dist/index.js",
+    "start": "node ./dist/index.js",
     "prepublishOnly": "yarn test && yarn build",
     "pretest": "yarn lint && yarn build",
     "compile": "../../node_modules/typescript/bin/tsc",
