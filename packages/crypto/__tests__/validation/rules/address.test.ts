@@ -1,4 +1,5 @@
-const rule = require("../../../lib/validation/rules/address");
+import "jest-extended";
+import rule from "../../../src/validation/rules/address";
 
 describe("Address Rule", () => {
   it("should be a function", () => {

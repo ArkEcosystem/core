@@ -1,4 +1,5 @@
-const rule = require("../../../lib/validation/rules/public-key");
+import "jest-extended";
+import rule from "../../../src/validation/rules/public-key";
 
 describe("Public Key Rule", () => {
   it("should be a function", () => {

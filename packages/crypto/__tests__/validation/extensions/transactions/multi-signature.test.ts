@@ -1,8 +1,8 @@
-const Joi = require("joi").extend(
-  require("../../../../lib/validation/extensions")
-);
+import Joi from "joi";
+import { crypto, constants, transactionBuilder } from "../../../../src";
+import extensions from "../../../../src/validation/extensions";
 
-const { constants, crypto, transactionBuilder } = require("../../../../lib");
+Joi.extend(extensions);
 
 const passphrase = "passphrase 1";
 const publicKey =

@@ -1,4 +1,5 @@
-const rule = require("../../../lib/validation/rules/username");
+import "jest-extended";
+import rule from "../../../src/validation/rules/username";
 
 describe("Username Rule", () => {
   it("should be a function", () => {

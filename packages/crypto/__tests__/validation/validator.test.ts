@@ -1,9 +1,9 @@
-const Joi = require("joi");
-
-let validator;
+import "jest-extended";
+import Joi from "joi";
+import { validator } from "../../src/validation";
 
 beforeEach(() => {
-  validator = require("../../lib/validation").validator;
+  validator.__reset();
 });
 
 describe("Validator", () => {

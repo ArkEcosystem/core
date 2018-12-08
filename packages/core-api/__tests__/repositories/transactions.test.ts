@@ -1,5 +1,5 @@
 import "jest-extended";
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils";
 
 import { crypto } from "@arkecosystem/crypto";
 import genesisBlock from "@arkecosystem/core-test-utils/config/testnet/genesisBlock.json";

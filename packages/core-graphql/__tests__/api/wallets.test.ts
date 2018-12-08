@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
 
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils";
 
 import * as app from "../__support__/setup";
 import utils from "../__support__/utils";
@@ -65,9 +65,9 @@ describe("GraphQL API { wallets }", () => {
       const data = response.data.data;
       expect(data).toBeObject();
       expect(data.wallets.length).toBe(5);
-      expect(
-        data.wallets.sort((a, b) => (+a <= +b ? -1 : 0)),
-      ).toEqual(data.wallets);
+      expect(data.wallets.sort((a, b) => (+a <= +b ? -1 : 0))).toEqual(
+        data.wallets
+      );
     });
   });
 

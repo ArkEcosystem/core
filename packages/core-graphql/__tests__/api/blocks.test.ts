@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils";
 
 import * as app from "../__support__/setup";
 import utils from "../__support__/utils";
@@ -20,7 +20,7 @@ describe("GraphQL API { blocks }", () => {
     it("should get blocks by generatorPublicKey", async () => {
       const query = `{ blocks(filter: { generatorPublicKey: "${
         genesisBlock.generatorPublicKey
-        }" }) { id } }`;
+      }" }) { id } }`;
       const response = await utils.request(query);
 
       expect(response).toBeSuccessfulResponse();
@@ -41,7 +41,7 @@ describe("GraphQL API { blocks }", () => {
       const data = response.data.data;
       expect(data).toBeObject();
       expect(data.blocks[0].generator.address).toEqual(
-        "AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins",
+        "AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins"
       );
     });
   });

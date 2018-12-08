@@ -1,8 +1,8 @@
-const Joi = require("joi").extend(
-  require("../../../../lib/validation/extensions")
-);
+import Joi from "joi";
+import { constants, transactionBuilder } from "../../../../src";
+import extensions from "../../../../src/validation/extensions";
 
-const { constants, transactionBuilder } = require("../../../../lib");
+Joi.extend(extensions);
 
 const address = "APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi";
 const fee = 1 * constants.ARKTOSHI;

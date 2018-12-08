@@ -1,8 +1,8 @@
-const Joi = require("joi").extend(
-  require("../../../../lib/validation/extensions")
-);
+import Joi from "joi";
+import { constants, transactionBuilder } from "../../../../src";
+import extensions from "../../../../src/validation/extensions";
 
-const { constants, transactionBuilder } = require("../../../../lib");
+Joi.extend(extensions);
 
 const vote =
   "+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9";

@@ -1,4 +1,5 @@
-const { transactionValidator } = require("../../lib/validation");
+import "jest-extended";
+import { transactionValidator } from "../../src/validation";
 
 describe("Validators - Transaction", () => {
   it("should be instantiated", () => {

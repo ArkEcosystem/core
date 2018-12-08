@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils";
 
 import * as app from "../__support__/setup";
 import utils from "../__support__/utils";
@@ -14,7 +14,8 @@ afterAll(() => {
 describe("GraphQL API { address }", () => {
   describe("GraphQL resolver for Address", () => {
     it("should get wallter for a correctly formatted Address", async () => {
-      const query = '{ wallet(address: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn") { producedBlocks } }';
+      const query =
+        '{ wallet(address: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn") { producedBlocks } }';
       const response = await utils.request(query);
 
       expect(response).toBeSuccessfulResponse();

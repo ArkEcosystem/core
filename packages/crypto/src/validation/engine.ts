@@ -1,8 +1,9 @@
-import Joi from "joi"
-import extensions from "./extensions"
+import Joi from "joi";
+import extensions from "./extensions";
 
 export class Engine {
   public joi: any;
+
   constructor() {
     this.joi = Joi.extend(extensions);
   }

@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils/lib/matchers";
+import "@arkecosystem/core-test-utils";
 
 import * as app from "../__support__/setup";
 import utils from "../__support__/utils";
@@ -20,7 +20,7 @@ describe("GraphQL API { wallet }", () => {
     it("should get a wallet by address", async () => {
       const query = `{ wallet(address:"${
         genesisBlock.transactions[0].senderId
-        }") { address } }`;
+      }") { address } }`;
       const response = await utils.request(query);
 
       expect(response).toBeSuccessfulResponse();
