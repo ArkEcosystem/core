@@ -10,7 +10,7 @@ const mockAxios = new MockAdapter(axios);
 
 jest.setTimeout(30000);
 
-const host = `http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`;
+const host = `http://127.0.0.1:4000`;
 
 let client;
 
@@ -34,10 +34,6 @@ afterEach(() => {
 });
 
 describe("Client", () => {
-  it("should be an object", () => {
-    expect(client).toBeObject();
-  });
-
   describe("constructor", () => {
     it("accepts 1 or more hosts as parameter", () => {
       expect(new Client(host).hosts).toEqual([host]);
@@ -55,7 +51,7 @@ describe("Client", () => {
 
     describe("when the host is available", () => {
       it("should be truthy if broadcasts", async () => {
-        mockAxios.onPost(`${host}/internal/blocks`).reply((c) => {
+        mockAxios.onPost(`${host}/internal/blocks`).reply(c => {
           expect(JSON.parse(c.data).block).toMatchObject(
             expect.objectContaining({
               id: block.data.id,
@@ -80,9 +76,7 @@ describe("Client", () => {
     describe("when the host is available", () => {
       it("should be ok", async () => {
         const expectedResponse = { foo: "bar" };
-        mockAxios
-          .onGet(`${host}/internal/rounds/current`)
-          .reply(200, { data: expectedResponse });
+        mockAxios.onGet(`${host}/internal/rounds/current`).reply(200, { data: expectedResponse });
 
         const response = await client.getRound();
 
@@ -99,9 +93,7 @@ describe("Client", () => {
     describe("when the host is available", () => {
       it("should be ok", async () => {
         const expectedResponse = { foo: "bar" };
-        mockAxios
-          .onGet(`${host}/internal/transactions/forging`)
-          .reply(200, { data: expectedResponse });
+        mockAxios.onGet(`${host}/internal/transactions/forging`).reply(200, { data: expectedResponse });
 
         await client.__chooseHost();
         const response = await client.getTransactions();
@@ -119,9 +111,7 @@ describe("Client", () => {
     describe("when the host is available", () => {
       it("should be ok", async () => {
         const expectedResponse = { foo: "bar" };
-        mockAxios
-          .onGet(`${host}/internal/network/state`)
-          .reply(200, { data: expectedResponse });
+        mockAxios.onGet(`${host}/internal/network/state`).reply(200, { data: expectedResponse });
 
         await client.__chooseHost();
         const response = await client.getNetworkState();
@@ -142,10 +132,7 @@ describe("Client", () => {
 
       await client.syncCheck();
 
-      expect(axios.get).toHaveBeenCalledWith(
-        `${host}/internal/blockchain/sync`,
-        expect.any(Object),
-      );
+      expect(axios.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
     });
   });
 
@@ -157,9 +144,7 @@ describe("Client", () => {
     it("should fetch usernames", async () => {
       jest.spyOn(axios, "get");
       const expectedResponse = { foo: "bar" };
-      mockAxios
-        .onGet(`${host}/internal/utils/usernames`)
-        .reply(200, { data: expectedResponse });
+      mockAxios.onGet(`${host}/internal/utils/usernames`).reply(200, { data: expectedResponse });
 
       const response = await client.getUsernames();
 
@@ -173,7 +158,7 @@ describe("Client", () => {
     });
     it("should emit events", async () => {
       jest.spyOn(axios, "post");
-      mockAxios.onPost(`${host}/internal/utils/events`).reply((c) => {
+      mockAxios.onPost(`${host}/internal/utils/events`).reply(c => {
         expect(JSON.parse(c.data)).toMatchObject({ event: "foo", body: "bar" });
         return [200];
       });
