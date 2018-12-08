@@ -11,7 +11,7 @@
     "Joshua Noack <joshua@ark.io>"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "browser": "dist/index.umd.js",
   "module": "dist/index.cjs.js",
   "files": [
@@ -19,8 +19,14 @@
     "dist"
   ],
   "scripts": {
-    "prepublish": "yarn run lint && yarn run build",
-    "build": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
+    "prepublishOnly": "yarn test && yarn build",
+    "pretest": "yarn lint && yarn build",
+    "compile": "../../node_modules/typescript/bin/tsc",
+    "build:watch": "yarn clean && yarn compile -w",
+    "clean": "del dist",
+    "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+    "build": "yarn clean && tsc",
+    "blabla": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --detectOpenHandles",
     "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",

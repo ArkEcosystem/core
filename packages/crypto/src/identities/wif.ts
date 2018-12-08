@@ -1,0 +1,19 @@
+import wif from "wif"
+import configManager from "../managers/config"
+import Keys from "./keys"
+
+export default class WIF {
+  public static fromPassphrase(passphrase, network) {
+    const keys = Keys.fromPassphrase(passphrase);
+
+    if (!network) {
+      network = configManager.all();
+    }
+
+    return wif.encode(
+      network.wif,
+      Buffer.from(keys.privateKey, "hex"),
+      keys.compressed
+    );
+  }
+};

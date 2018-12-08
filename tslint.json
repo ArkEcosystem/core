@@ -1,7 +1,11 @@
 {
-  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "extends": [
+    "tslint:recommended",
+    "tslint-config-prettier"
+  ],
   "rules": {
     "object-literal-sort-keys": false,
-    "no-console": false
+    "no-console": false,
+    "interface-name": false
   }
 }
