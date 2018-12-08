@@ -2,7 +2,7 @@ import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
 import extensions from "../../../../src/validation/extensions";
 
-Joi.extend(extensions);
+const validator = Joi.extend(extensions);
 
 let transaction;
 beforeEach(() => {
@@ -14,13 +14,16 @@ describe("Delegate Registration Transaction", () => {
     transaction.usernameAsset("delegate1").sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).toBeNull();
   });
 
   it("should be invalid due to no transaction as object", () => {
     expect(
-      Joi.validate("test", Joi.arkDelegateRegistration()).error
+      validator.validate("test", validator.arkDelegateRegistration()).error
     ).not.toBeNull();
   });
 
@@ -31,7 +34,10 @@ describe("Delegate Registration Transaction", () => {
       .sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).not.toBeNull();
   });
 
@@ -39,7 +45,10 @@ describe("Delegate Registration Transaction", () => {
     transaction.usernameAsset("test 123").sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).not.toBeNull();
   });
 
@@ -47,7 +56,10 @@ describe("Delegate Registration Transaction", () => {
     transaction.usernameAsset("£££").sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).not.toBeNull();
   });
 
@@ -55,7 +67,10 @@ describe("Delegate Registration Transaction", () => {
     transaction.usernameAsset("1234567890123456789012345").sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).not.toBeNull();
   });
 
@@ -63,8 +78,10 @@ describe("Delegate Registration Transaction", () => {
     try {
       transaction.usernameAsset(undefined).sign("passphrase");
       expect(
-        Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
-          .error
+        validator.validate(
+          transaction.getStruct(),
+          validator.arkDelegateRegistration()
+        ).error
       ).not.toBeNull();
     } catch (error) {}
   });
@@ -73,7 +90,10 @@ describe("Delegate Registration Transaction", () => {
     transaction.usernameAsset("").sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).not.toBeNull();
   });
 
@@ -81,7 +101,10 @@ describe("Delegate Registration Transaction", () => {
     transaction.usernameAsset("I_AM_INVALID").sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).not.toBeNull();
   });
 
@@ -93,7 +116,10 @@ describe("Delegate Registration Transaction", () => {
       .sign("passphrase");
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkDelegateRegistration()
+      ).error
     ).not.toBeNull();
   });
 });

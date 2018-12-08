@@ -1,8 +1,4 @@
+import validator from "./validator";
+import transactionValidator from "./validators/transaction";
 
-import validator from "./validator"
-import transactionValidator from "./validators/transaction"
-
-export {
-  validator,
-  transactionValidator
-};
+export { validator, transactionValidator };

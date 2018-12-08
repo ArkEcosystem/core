@@ -1,5 +1,6 @@
-import Bignum from "../../utils/bignum"
-import Handler from "./handler"
+import { sumBy } from "lodash";
+import Bignum from "../../utils/bignum";
+import Handler from "./handler";
 
 export class MultiPaymentHandler extends Handler {
   /**
@@ -14,9 +15,8 @@ export class MultiPaymentHandler extends Handler {
       return false;
     }
 
-    const amount = transaction.asset.payments.reduce(
-      (total, payment) => total.plus(payment.amount),
-      Bignum.ZERO
+    const amount = sumBy(transaction.asset.payments, (payment: any) =>
+      payment.amount.toFixed()
     );
 
     const canApply =

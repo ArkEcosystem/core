@@ -2,16 +2,13 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { createHash } from "crypto"
-import cloneDeepWith from "lodash/cloneDeepWith";
-import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants"
-import crypto from "../crypto/crypto"
-import configManager from "../managers/config"
-import { Bignum } from "../utils"
+import { createHash } from "crypto";
+import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants";
+import crypto from "../crypto/crypto";
+import configManager from "../managers/config";
+import { Bignum } from "../utils";
 
-const {
-  transactionIdFixTable
-} = CONFIGURATIONS.ARK.MAINNET;
+const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET;
 
 /**
  * TODO copy some parts to ArkDocs
@@ -195,7 +192,7 @@ export default class Transaction {
   }
 
   public static deserialize(hexString) {
-    const transaction: any = {}
+    const transaction: any = {};
     const buf = ByteBuffer.fromHex(hexString, true);
     transaction.version = buf.readInt8(1);
     transaction.network = buf.readInt8(2);
@@ -428,12 +425,12 @@ export default class Transaction {
   }
 
   public senderPublicKey: any;
-  public fee: Bignum;
+  public fee: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
   public vendorFieldHex: any;
-  public amount: Bignum;
+  public amount: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
   public expiration: any;
   public recipientId: any;
-  public asset: any
+  public asset: any;
   public timelockType: number;
   public timelock: any;
   public verified: boolean;
@@ -504,12 +501,10 @@ export default class Transaction {
    */
   public toJson() {
     // Convert Bignums
-    return cloneDeepWith(this.data, (value, key: string) => {
-      if (["amount", "fee"].indexOf(key) !== -1) {
-        return +value.toFixed();
-      }
+    const data = Object.assign({}, this.data);
+    data.amount = +data.amount.toFixed();
+    data.fee = +data.fee.toFixed();
 
-      return value
-    });
+    return data;
   }
-};
+}

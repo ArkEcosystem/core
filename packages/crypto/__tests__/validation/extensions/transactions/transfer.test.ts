@@ -2,7 +2,7 @@ import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
 import extensions from "../../../../src/validation/extensions";
 
-Joi.extend(extensions);
+const validator = Joi.extend(extensions);
 
 const address = "APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi";
 const fee = 1 * constants.ARKTOSHI;
@@ -20,7 +20,7 @@ describe("Transfer Transaction", () => {
       .amount(amount)
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).toBeNull();
   });
 
@@ -32,7 +32,7 @@ describe("Transfer Transaction", () => {
       .vendorField("Ahoy")
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).toBeNull();
   });
 
@@ -44,7 +44,7 @@ describe("Transfer Transaction", () => {
       .vendorField("a".repeat(64))
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).toBeNull();
 
     transaction
@@ -54,7 +54,7 @@ describe("Transfer Transaction", () => {
       .vendorField("⊁".repeat(21))
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).toBeNull();
   });
 
@@ -66,7 +66,7 @@ describe("Transfer Transaction", () => {
       .vendorField("a".repeat(65))
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).not.toBeNull();
 
     transaction
@@ -76,12 +76,14 @@ describe("Transfer Transaction", () => {
       .vendorField("⊁".repeat(22))
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).not.toBeNull();
   });
 
   it("should be invalid due to no transaction as object", () => {
-    expect(Joi.validate("test", Joi.arkTransfer()).error).not.toBeNull();
+    expect(
+      validator.validate("test", validator.arkTransfer()).error
+    ).not.toBeNull();
   });
 
   it("should be invalid due to no address", () => {
@@ -90,7 +92,7 @@ describe("Transfer Transaction", () => {
       .amount(amount)
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).not.toBeNull();
   });
 
@@ -101,7 +103,9 @@ describe("Transfer Transaction", () => {
       .sign("passphrase");
     const struct = transaction.getStruct();
     struct.recipientId = "woop";
-    expect(Joi.validate(struct, Joi.arkTransfer()).error).not.toBeNull();
+    expect(
+      validator.validate(struct, validator.arkTransfer()).error
+    ).not.toBeNull();
   });
 
   it("should be invalid due to zero amount", () => {
@@ -110,7 +114,7 @@ describe("Transfer Transaction", () => {
       .amount(0)
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).not.toBeNull();
   });
 
@@ -121,7 +125,7 @@ describe("Transfer Transaction", () => {
       .fee(0)
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).not.toBeNull();
   });
 
@@ -129,7 +133,7 @@ describe("Transfer Transaction", () => {
     transaction = transactionBuilder.delegateRegistration();
     transaction.usernameAsset("delegate_name").sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkTransfer()).error
+      validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).not.toBeNull();
   });
 });

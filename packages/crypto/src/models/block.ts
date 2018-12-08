@@ -1,12 +1,12 @@
 import ByteBuffer from "bytebuffer";
-import { createHash } from "crypto"
+import { createHash } from "crypto";
 import cloneDeepWith from "lodash/cloneDeepWith";
 import pluralize from "pluralize";
-import { CONFIGURATIONS } from "../constants"
-import { crypto, slots } from "../crypto"
-import configManager from "../managers/config"
-import { Bignum } from "../utils"
-import Transaction from "./transaction"
+import { CONFIGURATIONS } from "../constants";
+import { crypto, slots } from "../crypto";
+import configManager from "../managers/config";
+import { Bignum } from "../utils";
+import Transaction from "./transaction";
 
 const { outlookTable } = CONFIGURATIONS.ARK.MAINNET;
 
@@ -45,7 +45,6 @@ const toBytesHex = data => {
  */
 
 export default class Block {
-
   /**
    * Create block from data.
    * @param  {Object} data
@@ -144,11 +143,15 @@ export default class Block {
       104 + 64 + 33 * 2 + length * 2
     );
 
-    if (headerOnly) { return block; }
+    if (headerOnly) {
+      return block;
+    }
 
     let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2;
     block.transactions = [];
-    if (hexString.length === transactionOffset * 2) { return block; }
+    if (hexString.length === transactionOffset * 2) {
+      return block;
+    }
 
     // A serialized block stores transactions like this:
     // |L1|L2|L3|...|LN|  TX1  |    TX2    | TX3 | ... |  TXN  |
@@ -311,9 +314,9 @@ export default class Block {
   public previousBlockHex: string;
   public previousBlock: string;
   public numberOfTransactions: number;
-  public totalAmount: Bignum;
-  public totalFee: Bignum;
-  public reward: Bignum;
+  public totalAmount: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
+  public totalFee: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
+  public reward: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
   public payloadLength: number;
   public payloadHash: string;
   public generatorPublicKey: string;
@@ -321,11 +324,11 @@ export default class Block {
   public headerOnly: boolean;
   public serialized: any;
 
-  public data: any // TODO: split Block into separate classes
+  public data: any; // TODO: split Block into separate classes
   public genesis: boolean;
   public transactions: any;
   public transactionIds: any;
-  public verification: { verified: boolean; errors: any[]; };
+  public verification: { verified: boolean; errors: any[] };
 
   /**
    * @constructor
@@ -412,13 +415,13 @@ export default class Block {
   public toString() {
     return `${
       this.data.id
-      }, height: ${this.data.height.toLocaleString()}, ${pluralize(
-        "transaction",
-        this.data.numberOfTransactions,
-        true
-      )}, verified: ${this.verification.verified}, errors: ${
+    }, height: ${this.data.height.toLocaleString()}, ${pluralize(
+      "transaction",
+      this.data.numberOfTransactions,
+      true
+    )}, verified: ${this.verification.verified}, errors: ${
       this.verification.errors
-      }`;
+    }`;
   }
 
   /**
@@ -609,11 +612,11 @@ export default class Block {
         return +value.toFixed();
       }
 
-      return value
+      return value;
     });
 
     return Object.assign(blockData, {
       transactions: this.transactions.map(transaction => transaction.toJson())
     });
   }
-};
+}

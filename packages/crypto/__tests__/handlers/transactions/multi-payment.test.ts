@@ -1,4 +1,5 @@
 import "jest-extended";
+import { sumBy } from "lodash";
 import Bignum from "../../../src/utils/bignum";
 import handler from "../../../src/handlers/transactions/multi-payment";
 import originalWallet from "./__fixtures__/wallet";
@@ -27,19 +28,24 @@ beforeEach(() => {
     asset: {
       payments: [
         {
-          amount: new Bignum(10)
+          amount: new Bignum(10),
+          recipientId: "a"
         },
         {
-          amount: new Bignum(20)
+          amount: new Bignum(20),
+          recipientId: "b"
         },
         {
-          amount: new Bignum(30)
+          amount: new Bignum(30),
+          recipientId: "c"
         },
         {
-          amount: new Bignum(40)
+          amount: new Bignum(40),
+          recipientId: "d"
         },
         {
-          amount: new Bignum(50)
+          amount: new Bignum(50),
+          recipientId: "e"
         }
       ]
     }
@@ -57,19 +63,18 @@ describe("MultiPaymentHandler", () => {
     });
 
     it("should be true", () => {
-      const amount = transaction.asset.payments.reduce(
-        (a, p) => a.plus(p.amount),
-        Bignum.ZERO
+      const amount = sumBy(transaction.asset.payments, (payment: any) =>
+        payment.amount.toFixed()
       );
 
       expect(handler.canApply(wallet, transaction, [])).toBeTrue();
     });
 
     it("should be false if wallet has insufficient balance", () => {
-      const amount = transaction.asset.payments.reduce(
-        (a, p) => a.plus(p.amount),
-        Bignum.ZERO
+      const amount = sumBy(transaction.asset.payments, (payment: any) =>
+        payment.amount.toFixed()
       );
+
       wallet.balance = Bignum.ZERO;
       const errors = [];
 

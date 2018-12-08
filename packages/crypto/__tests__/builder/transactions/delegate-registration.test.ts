@@ -95,8 +95,8 @@ describe("Delegate Registration Transaction", () => {
         );
       });
       it("returns the id", () => {
-        // @ts-ignore
         expect(builder.getStruct().id).toBe(
+          // @ts-ignore
           crypto.getId(builder.data).toString("hex")
         );
       });

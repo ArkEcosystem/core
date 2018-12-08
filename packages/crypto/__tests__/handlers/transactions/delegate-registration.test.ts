@@ -1,3 +1,4 @@
+import "jest-extended";
 import Bignum from "../../../src/utils/bignum";
 import handler from "../../../src/handlers/transactions/delegate-registration";
 import originalWallet from "./__fixtures__/wallet";
@@ -25,7 +26,7 @@ beforeEach(() => {
     asset: {
       delegate: {
         username: "dummy",
-        publicKey: "a".repeat(66)
+        publicKey: ("a" as any).repeat(66)
       }
     }
   };
@@ -36,7 +37,7 @@ describe("DelegateRegistrationHandler", () => {
     expect(handler.constructor.name).toBe("DelegateRegistrationHandler");
   });
 
-  describe("canApply", () => {
+  describe.only("canApply", () => {
     it("should be a function", () => {
       expect(handler.canApply).toBeFunction();
     });

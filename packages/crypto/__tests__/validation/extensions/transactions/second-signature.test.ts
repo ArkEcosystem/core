@@ -2,7 +2,7 @@ import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
 import extensions from "../../../../src/validation/extensions";
 
-Joi.extend(extensions);
+const validator = Joi.extend(extensions);
 
 let transaction;
 beforeEach(() => {
@@ -15,7 +15,10 @@ describe("Second Signature Transaction", () => {
   it("should be valid", () => {
     transaction.signatureAsset("second passphrase").sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkSecondSignature()
+      ).error
     ).toBeNull();
   });
 
@@ -25,12 +28,17 @@ describe("Second Signature Transaction", () => {
       .fee(1 * constants.ARKTOSHI)
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkSecondSignature()
+      ).error
     ).toBeNull();
   });
 
   it("should be invalid due to no transaction as object", () => {
-    expect(Joi.validate("test", Joi.arkSecondSignature()).error).not.toBeNull();
+    expect(
+      validator.validate("test", validator.arkSecondSignature()).error
+    ).not.toBeNull();
   });
 
   it("should be invalid due to non-zero amount", () => {
@@ -39,7 +47,10 @@ describe("Second Signature Transaction", () => {
       .amount(10 * constants.ARKTOSHI)
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkSecondSignature()
+      ).error
     ).not.toBeNull();
   });
 
@@ -49,7 +60,10 @@ describe("Second Signature Transaction", () => {
       .fee(0)
       .sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkSecondSignature()
+      ).error
     ).not.toBeNull();
   });
 
@@ -60,7 +74,10 @@ describe("Second Signature Transaction", () => {
       .sign("passphrase")
       .secondSign("second passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature())
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkSecondSignature()
+      )
     ).not.toBeNull();
   });
 
@@ -68,7 +85,10 @@ describe("Second Signature Transaction", () => {
     transaction = transactionBuilder.delegateRegistration();
     transaction.usernameAsset("delegate_name").sign("passphrase");
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error
+      validator.validate(
+        transaction.getStruct(),
+        validator.arkSecondSignature()
+      ).error
     ).not.toBeNull();
   });
 });

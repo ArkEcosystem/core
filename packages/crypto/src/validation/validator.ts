@@ -1,4 +1,5 @@
-import engine from "./engine"
+import engine from "./engine";
+import * as customRules from "./rules";
 
 export class Validator {
   public rules: any;
@@ -9,7 +10,7 @@ export class Validator {
    * Create a new validator instance.
    */
   constructor() {
-    this.rules = require("./rules");
+    this.rules = customRules;
     this.engine = engine;
   }
 
