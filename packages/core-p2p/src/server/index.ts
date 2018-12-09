@@ -11,6 +11,8 @@ const startServer = async (p2p, config) => {
     port: config.port,
   });
 
+  server.app.config = config;
+
   // TODO: enable after mainnet migration
   // await server.register({ plugin: plugins.contentType })
 

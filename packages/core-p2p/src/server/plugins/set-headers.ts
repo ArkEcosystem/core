@@ -12,7 +12,7 @@ const register = async (server, options) => {
   const headers = {
     nethash: config.network.nethash,
     version: app.getVersion(),
-    port: app.resolveOptions("p2p").port,
+    port: server.app.config.port,
     os: require("os").platform(),
     height: null,
   };
@@ -44,11 +44,11 @@ const register = async (server, options) => {
           response.output.payload.error = response.data;
         }
 
-        requiredHeaders.forEach((key) => {
+        requiredHeaders.forEach(key => {
           response.output.headers[key] = headers[key];
         });
       } else {
-        requiredHeaders.forEach((key) => response.header(key, headers[key]));
+        requiredHeaders.forEach(key => response.header(key, headers[key]));
       }
 
       return h.continue;

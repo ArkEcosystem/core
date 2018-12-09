@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
+import { monitor } from "./monitor";
 
 export class Peer {
   public static isOk(peer) {
@@ -50,10 +51,10 @@ export class Peer {
 
     this.headers = {
       version: app.getVersion(),
-      port: app.resolveOptions("p2p").port,
+      port: monitor.config.port,
       nethash: this.config.network.nethash,
       height: null,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     };
 
     if (this.config.network.name !== "mainnet") {
@@ -85,7 +86,7 @@ export class Peer {
       os: this.os,
       status: this.status,
       height: this.state.height,
-      delay: this.delay
+      delay: this.delay,
     };
 
     if (this.config.network.name !== "mainnet") {
@@ -106,8 +107,8 @@ export class Peer {
       { block },
       {
         headers: this.headers,
-        timeout: 5000
-      }
+        timeout: 5000,
+      },
     );
   }
 
@@ -121,12 +122,12 @@ export class Peer {
       const response = await this.__post(
         "/peer/transactions",
         {
-          transactions
+          transactions,
         },
         {
           headers: this.headers,
-          timeout: 8000
-        }
+          timeout: 8000,
+        },
       );
 
       return response;
@@ -137,9 +138,7 @@ export class Peer {
 
   public async getTransactionsFromIds(ids) {
     // useless since there is a bug on v1
-    const response = await this.__get(
-      `/peer/transactionsFromIds?ids=${ids.join(",")}`
-    );
+    const response = await this.__get(`/peer/transactionsFromIds?ids=${ids.join(",")}`);
 
     return response.success ? response.transactions : [];
   }
@@ -160,7 +159,7 @@ export class Peer {
       const response = await axios.get(`${this.url}/peer/blocks`, {
         params: { lastBlockHeight: fromBlockHeight },
         headers: this.headers,
-        timeout: 10000
+        timeout: 10000,
       });
 
       this.__parseHeaders(response);
@@ -176,12 +175,11 @@ export class Peer {
     } catch (error) {
       this.logger.debug(
         `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
-          depth: 1
-        })}`
+          depth: 1,
+        })}`,
       );
 
-      this.ban =
-        new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000;
+      this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000;
 
       throw error;
     }
@@ -200,10 +198,7 @@ export class Peer {
       return;
     }
 
-    const body = await this.__get(
-      "/peer/status",
-      delay || this.config.peers.globalTimeout
-    );
+    const body = await this.__get("/peer/status", delay || this.config.peers.globalTimeout);
 
     if (!body) {
       throw new Error(`Peer ${this.ip} is unresponsive`);
@@ -233,9 +228,7 @@ export class Peer {
 
     const body = await this.__get("/peer/list");
 
-    return body.peers.filter(
-      peer => !this.config.peers.blackList.includes(peer.ip)
-    );
+    return body.peers.filter(peer => !this.config.peers.blackList.includes(peer.ip));
   }
 
   /**
@@ -253,9 +246,7 @@ export class Peer {
 
       return body && body.success && body.common;
     } catch (error) {
-      this.logger.error(
-        `Could not determine common blocks with ${this.ip}: ${error}`
-      );
+      this.logger.error(`Could not determine common blocks with ${this.ip}: ${error}`);
     }
 
     return false;
@@ -273,7 +264,7 @@ export class Peer {
     try {
       const response = await axios.get(`${this.url}${endpoint}`, {
         headers: this.headers,
-        timeout: timeout || this.config.peers.globalTimeout
+        timeout: timeout || this.config.peers.globalTimeout,
       });
 
       this.delay = new Date().getTime() - temp;
@@ -284,9 +275,7 @@ export class Peer {
     } catch (error) {
       this.delay = -1;
 
-      this.logger.debug(
-        `Request to ${this.url}${endpoint} failed because of "${error.message}"`
-      );
+      this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
       if (error.response) {
         this.__parseHeaders(error.response);
@@ -303,19 +292,13 @@ export class Peer {
    */
   public async __post(endpoint, body, headers) {
     try {
-      const response = await axios.post(
-        `${this.url}${endpoint}`,
-        body,
-        headers
-      );
+      const response = await axios.post(`${this.url}${endpoint}`, body, headers);
 
       this.__parseHeaders(response);
 
       return response.data;
     } catch (error) {
-      this.logger.debug(
-        `Request to ${this.url}${endpoint} failed because of "${error.message}"`
-      );
+      this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
       if (error.response) {
         this.__parseHeaders(error.response);
