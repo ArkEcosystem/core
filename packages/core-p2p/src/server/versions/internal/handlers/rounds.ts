@@ -25,19 +25,19 @@ export const current = {
     const delegates = await database.getActiveDelegates(height);
     const timestamp = slots.getTime();
 
+    const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
+    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
+
     return {
       data: {
         current: +(height / maxActive),
         reward,
         timestamp,
         delegates,
-        currentForger: delegates[+(timestamp / blockTime) % maxActive],
-        nextForger:
-          delegates[(+(timestamp / blockTime) + 1) % maxActive],
+        currentForger: delegates[currentForger],
+        nextForger: delegates[nextForger],
         lastBlock: lastBlock.data,
-        canForge:
-          +(1 + lastBlock.data.timestamp / blockTime) * blockTime <
-          timestamp - 1,
+        canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
       },
     };
   },

@@ -4,6 +4,7 @@
     "interface-name": false,
     "no-console": false,
     "no-default-export": true,
-    "object-literal-sort-keys": false
+    "object-literal-sort-keys": false,
+    "radix": false
   }
 }
