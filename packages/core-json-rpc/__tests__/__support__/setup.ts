@@ -8,12 +8,7 @@ export async function setUp() {
   process.env.ARK_JSON_RPC_ENABLED = true;
 
   return setUpContainer({
-    exclude: [
-      "@arkecosystem/core-api",
-      "@arkecosystem/core-webhooks",
-      "@arkecosystem/core-graphql",
-      "@arkecosystem/core-forger",
-    ],
+    exclude: ["@arkecosystem/core-webhooks", "@arkecosystem/core-graphql", "@arkecosystem/core-forger"],
   });
 }
 
