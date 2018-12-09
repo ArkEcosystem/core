@@ -4,7 +4,7 @@ import uniq from "lodash/uniq";
 import app from "../__support__/setup";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
-import WalletsRepository from "../../src/repositories/wallets";
+import { WalletsRepository } from "../../src/repositories/wallets";
 
 const { Block } = models;
 

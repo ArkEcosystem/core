@@ -2,7 +2,7 @@ import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
 import { delegateCalculator } from "@arkecosystem/core-utils";
-import DelegatesRepository from "../../src/repositories/delegates";
+import { DelegatesRepository } from "../../src/repositories/delegates";
 import app from "../__support__/setup";
 
 const { ARKTOSHI } = constants;
