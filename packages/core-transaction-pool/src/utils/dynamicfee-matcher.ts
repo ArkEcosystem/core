@@ -7,7 +7,7 @@ import { dynamicFeeManager, feeManager, formatArktoshi } from "@arkecosystem/cry
  * @param {Transaction} Transaction - transaction to check
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
-export function dyanmicFeeMatcher(transaction) {
+export function dynamicFeeMatcher(transaction) {
   const config = app.resolvePlugin("config");
   const logger = app.resolvePlugin("logger");
 

@@ -3,7 +3,6 @@ import { app } from "@arkecosystem/core-container";
 import assert from "assert";
 import dayjs from "dayjs-ext";
 import { PoolWalletManager } from "./pool-wallet-manager";
-import dynamicFeeMatch from "./utils/dynamicfee-matcher";
 
 import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
@@ -47,18 +46,16 @@ export class TransactionPool {
     this.loggedAllowedSenders = [];
 
     const all = this.storage.loadAll();
-    all.forEach((t) => this.mem.add(t, this.options.maxTransactionAge, true));
+    all.forEach(t => this.mem.add(t, this.options.maxTransactionAge, true));
 
     this.__purgeExpired();
 
     // Remove transactions that were forged while we were offline.
-    const allIds = all.map(
-      (memPoolTransaction) => memPoolTransaction.transaction.id,
-    );
+    const allIds = all.map(memPoolTransaction => memPoolTransaction.transaction.id);
 
     const forgedIds = await database.getForgedTransactionsIds(allIds);
 
-    forgedIds.forEach((id) => this.removeTransactionById(id));
+    forgedIds.forEach(id => this.removeTransactionById(id));
 
     return this;
   }
@@ -139,14 +136,10 @@ export class TransactionPool {
     if (this.transactionExists(transaction.id)) {
       logger.debug(
         "Transaction pool: ignoring attempt to add a transaction that is already " +
-        `in the pool, id: ${transaction.id}`,
+          `in the pool, id: ${transaction.id}`,
       );
 
-      return this.__createError(
-        transaction,
-        "ERR_ALREADY_IN_POOL",
-        "Already in pool",
-      );
+      return this.__createError(transaction, "ERR_ALREADY_IN_POOL", "Already in pool");
     }
 
     const poolSize = this.mem.getSize();
@@ -165,21 +158,16 @@ export class TransactionPool {
           transaction,
           "ERR_POOL_FULL",
           `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
-          `${transaction.fee.toFixed()} is not higher than the lowest fee already in pool ` +
-          `${lowest.fee.toFixed()}`,
+            `${transaction.fee.toFixed()} is not higher than the lowest fee already in pool ` +
+            `${lowest.fee.toFixed()}`,
         );
       }
     }
 
-    this.mem.add(
-      new MemPoolTransaction(transaction),
-      this.options.maxTransactionAge,
-    );
+    this.mem.add(new MemPoolTransaction(transaction), this.options.maxTransactionAge);
 
     // Apply transaction to pool wallet manager.
-    const senderWallet = this.walletManager.findByPublicKey(
-      transaction.senderPublicKey,
-    );
+    const senderWallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
     const errors = [];
     if (this.walletManager.canApply(transaction, errors)) {
@@ -188,11 +176,7 @@ export class TransactionPool {
       // Remove tx again from the pool
       this.mem.remove(transaction.id);
 
-      return this.__createError(
-        transaction,
-        "ERR_APPLY",
-        JSON.stringify(errors),
-      );
+      return this.__createError(transaction, "ERR_APPLY", JSON.stringify(errors));
     }
 
     this.__syncToPersistentStorageIfNecessary();
@@ -281,10 +265,7 @@ export class TransactionPool {
       }
 
       if (i >= start) {
-        assert.notStrictEqual(
-          memPoolTransaction.transaction[property],
-          undefined,
-        );
+        assert.notStrictEqual(memPoolTransaction.transaction[property], undefined);
         data.push(memPoolTransaction.transaction[property]);
       }
 
@@ -300,9 +281,7 @@ export class TransactionPool {
    * @return {void}
    */
   public removeTransactionsForSender(senderPublicKey) {
-    this.mem
-      .getBySender(senderPublicKey)
-      .forEach((e) => this.removeTransactionById(e.transaction.id));
+    this.mem.getBySender(senderPublicKey).forEach(e => this.removeTransactionById(e.transaction.id));
   }
 
   /**
@@ -317,7 +296,7 @@ export class TransactionPool {
       if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
         logger.debug(
           `Transaction pool: allowing sender public key: ${
-          transaction.senderPublicKey
+            transaction.senderPublicKey
           } (listed in options.allowedSenders), thus skipping throttling.`,
         );
         this.loggedAllowedSenders.push(transaction.senderPublicKey);
@@ -386,11 +365,7 @@ export class TransactionPool {
 
     this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
-    logger.warn(
-      `Sender ${senderPublicKey} blocked until ${
-      this.blockedByPublicKey[senderPublicKey]
-      } :stopwatch:`,
-    );
+    logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`);
 
     return blockReleaseTime;
   }
@@ -432,34 +407,25 @@ export class TransactionPool {
 
           logger.error(
             `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
-            data.id
-            } due to ${JSON.stringify(
-              errors,
-            )}. Possible double spending attack :bomb:`,
+              data.id
+            } due to ${JSON.stringify(errors)}. Possible double spending attack :bomb:`,
           );
         }
       }
 
-      if (
-        senderWallet.balance === 0 &&
-        this.getSenderSize(senderPublicKey) === 0
-      ) {
+      if (senderWallet.balance === 0 && this.getSenderSize(senderPublicKey) === 0) {
         this.walletManager.deleteWallet(senderPublicKey);
       }
     }
 
     // if delegate in poll wallet manager - apply rewards and fees
     if (this.walletManager.exists(block.data.generatorPublicKey)) {
-      const delegateWallet = this.walletManager.findByPublicKey(
-        block.data.generatorPublicKey,
-      );
+      const delegateWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
       const increase = block.data.reward.plus(block.data.totalFee);
       delegateWallet.balance = delegateWallet.balance.plus(increase);
     }
 
-    app
-      .resolve("state")
-      .removeCachedTransactionIds(block.transactions.map((tx) => tx.id));
+    app.resolve("state").removeCachedTransactionIds(block.transactions.map(tx => tx.id));
   }
 
   /**
@@ -471,22 +437,17 @@ export class TransactionPool {
    */
   public async buildWallets() {
     this.walletManager.reset();
-    const poolTransactionIds = await this.getTransactionIdsForForging(
-      0,
-      this.getPoolSize(),
-    );
+    const poolTransactionIds = await this.getTransactionIdsForForging(0, this.getPoolSize());
 
     app.resolve("state").removeCachedTransactionIds(poolTransactionIds);
 
-    poolTransactionIds.forEach((transactionId) => {
+    poolTransactionIds.forEach(transactionId => {
       const transaction = this.getTransaction(transactionId);
       if (!transaction) {
         return;
       }
 
-      const senderWallet = this.walletManager.findByPublicKey(
-        transaction.senderPublicKey,
-      );
+      const senderWallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
       const errors = [];
       if (senderWallet && senderWallet.canApply(transaction, errors)) {
         senderWallet.applyTransactionToSender(transaction);
@@ -512,13 +473,9 @@ export class TransactionPool {
    * @param {Block} block
    */
   public purgeSendersWithInvalidTransactions(block) {
-    const publicKeys = new Set(
-      block.transactions
-        .filter((tx) => !tx.verified)
-        .map((tx) => tx.senderPublicKey),
-    );
+    const publicKeys = new Set(block.transactions.filter(tx => !tx.verified).map(tx => tx.senderPublicKey));
 
-    publicKeys.forEach((publicKey) => this.purgeByPublicKey(publicKey));
+    publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey));
   }
 
   /**
@@ -527,12 +484,10 @@ export class TransactionPool {
    * @param {Block} block
    */
   public purgeBlock(block) {
-    block.transactions.forEach((tx) => {
+    block.transactions.forEach(tx => {
       if (this.transactionExists(tx.id)) {
         this.removeTransaction(tx);
-        this.walletManager
-          .findByPublicKey(tx.senderPublicKey)
-          .revertTransactionForSender(tx);
+        this.walletManager.findByPublicKey(tx.senderPublicKey).revertTransactionForSender(tx);
       }
     });
   }
@@ -600,9 +555,7 @@ export class TransactionPool {
    * @return {void}
    */
   private __purgeExpired() {
-    for (const transaction of this.mem.getExpired(
-      this.options.maxTransactionAge,
-    )) {
+    for (const transaction of this.mem.getExpired(this.options.maxTransactionAge)) {
       emitter.emit("transaction.expired", transaction.data);
 
       this.walletManager.revertTransactionForSender(transaction);
@@ -610,5 +563,4 @@ export class TransactionPool {
       this.__syncToPersistentStorageIfNecessary();
     }
   }
-
 }

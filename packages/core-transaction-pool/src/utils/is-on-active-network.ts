@@ -9,7 +9,7 @@ const logger = app.resolvePlugin("logger");
  * @param {Transaction}
  * @return {Boolean}
  */
-export function isOnActiveNetwork(transaction) {
+export function isRecipientOnActiveNetwork(transaction) {
   const recipientPrefix = bs58check.decode(transaction.recipientId).readUInt8(0);
 
   if (recipientPrefix === configManager.get("pubKeyHash")) {

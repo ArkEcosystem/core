@@ -1,5 +1,5 @@
 import { Transaction } from "../models";
-import queries from "../queries";
+import { queries } from "../queries";
 import { Repository } from "./repository";
 
 const { transactions: sql } = queries;

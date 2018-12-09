@@ -5,8 +5,8 @@ import pluralize from "pluralize";
 const { TRANSACTION_TYPES } = constants;
 const { Transaction } = models;
 
-import dynamicFeeMatch from "./utils/dynamicfee-matcher";
-import isRecipientOnActiveNetwork from "./utils/is-on-active-network";
+import { dynamicFeeMatcher } from "./utils/dynamicfee-matcher";
+import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 export class TransactionGuard {
   public transactions: any[];
@@ -70,7 +70,7 @@ export class TransactionGuard {
       broadcast: Array.from(this.broadcast.keys()),
       invalid: Array.from(this.invalid.keys()),
       excess: this.excess,
-      errors: Object.keys(this.errors).length > 0 ? this.errors : null
+      errors: Object.keys(this.errors).length > 0 ? this.errors : null,
     };
   }
 
@@ -80,9 +80,7 @@ export class TransactionGuard {
    * @return {Array}
    */
   public __cacheTransactions(transactions) {
-    const { added, notAdded } = app
-      .resolve("state")
-      .cacheTransactions(transactions);
+    const { added, notAdded } = app.resolve("state").cacheTransactions(transactions);
 
     notAdded.forEach(transaction => {
       if (!this.errors[transaction.id]) {
@@ -118,18 +116,12 @@ export class TransactionGuard {
       const exists = this.pool.transactionExists(transaction.id);
 
       if (exists) {
-        this.__pushError(
-          transaction,
-          "ERR_DUPLICATE",
-          `Duplicate transaction ${transaction.id}`
-        );
+        this.__pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
       } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         this.__pushError(
           transaction,
           "ERR_SENDER_BLOCKED",
-          `Transaction ${transaction.id} rejected. Sender ${
-            transaction.senderPublicKey
-          } is blocked.`
+          `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked.`,
         );
       } else if (this.pool.hasExceededMaxTransactions(transaction)) {
         this.excess.push(transaction.id);
@@ -137,32 +129,20 @@ export class TransactionGuard {
         try {
           const trx = new Transaction(transaction);
           if (trx.verified) {
-            const dynamicFee = dynamicFeeMatch(trx);
+            const dynamicFee = dynamicFeeMatcher(trx);
             if (dynamicFee.enterPool) {
               this.accept.set(trx.id, trx);
             } else {
-              this.__pushError(
-                transaction,
-                "ERR_LOW_FEE",
-                "Too low fee to be accepted in the pool"
-              );
+              this.__pushError(transaction, "ERR_LOW_FEE", "Too low fee to be accepted in the pool");
             }
 
             if (dynamicFee.broadcast) {
               this.broadcast.set(trx.id, trx);
             } else {
-              this.__pushError(
-                transaction,
-                "ERR_LOW_FEE",
-                "Too low fee for broadcast"
-              );
+              this.__pushError(transaction, "ERR_LOW_FEE", "Too low fee for broadcast");
             }
           } else {
-            this.__pushError(
-              transaction,
-              "ERR_BAD_DATA",
-              "Transaction didn't pass the verification process."
-            );
+            this.__pushError(transaction, "ERR_BAD_DATA", "Transaction didn't pass the verification process.");
           }
         } catch (error) {
           this.__pushError(transaction, "ERR_UNKNOWN", error.message);
@@ -187,9 +167,7 @@ export class TransactionGuard {
       this.__pushError(
         transaction,
         "ERR_FROM_FUTURE",
-        `Transaction ${
-          transaction.id
-        } is ${secondsInFuture} seconds in the future`
+        `Transaction ${transaction.id} is ${secondsInFuture} seconds in the future`,
       );
       return false;
     }
@@ -206,9 +184,7 @@ export class TransactionGuard {
           this.__pushError(
             transaction,
             "ERR_INVALID_RECIPIENT",
-            `Recipient ${
-              transaction.recipientId
-            } is not on the same network: ${configManager.get("pubKeyHash")}`
+            `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get("pubKeyHash")}`,
           );
           return false;
         }
@@ -216,19 +192,12 @@ export class TransactionGuard {
       case TRANSACTION_TYPES.SECOND_SIGNATURE:
       case TRANSACTION_TYPES.DELEGATE_REGISTRATION:
       case TRANSACTION_TYPES.VOTE:
-        if (
-          this.pool.senderHasTransactionsOfType(
-            transaction.senderPublicKey,
-            transaction.type
-          )
-        ) {
+        if (this.pool.senderHasTransactionsOfType(transaction.senderPublicKey, transaction.type)) {
           this.__pushError(
             transaction,
             "ERR_PENDING",
-            `Sender ${
-              transaction.senderPublicKey
-            } already has a transaction of type ` +
-              `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`
+            `Sender ${transaction.senderPublicKey} already has a transaction of type ` +
+              `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`,
           );
           return false;
         }
@@ -242,8 +211,7 @@ export class TransactionGuard {
         this.__pushError(
           transaction,
           "ERR_UNSUPPORTED",
-          "Invalidating transaction of unsupported type " +
-            `'${TRANSACTION_TYPES.toString(transaction.type)}'`
+          "Invalidating transaction of unsupported type " + `'${TRANSACTION_TYPES.toString(transaction.type)}'`,
         );
         return false;
     }
@@ -259,7 +227,7 @@ export class TransactionGuard {
     const database = app.resolvePlugin("database");
 
     const forgedIdsSet = await database.getForgedTransactionsIds([
-      ...new Set([...this.accept.keys(), ...this.broadcast.keys()])
+      ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
     ]);
 
     app.resolve("state").removeCachedTransactionIds(forgedIdsSet);
@@ -278,9 +246,7 @@ export class TransactionGuard {
    */
   public __addTransactionsToPool() {
     // Add transactions to the transaction pool
-    const { added, notAdded } = this.pool.addTransactions(
-      Array.from(this.accept.values())
-    );
+    const { added, notAdded } = this.pool.addTransactions(Array.from(this.accept.values()));
 
     // Exclude transactions which were refused from the pool
     notAdded.forEach(item => {
@@ -321,22 +287,11 @@ export class TransactionGuard {
   public __printStats() {
     const properties = ["accept", "broadcast", "excess", "invalid"];
     const stats = properties
-      .map(
-        prop =>
-          `${prop}: ${
-            this[prop] instanceof Array ? this[prop].length : this[prop].size
-          }`
-      )
+      .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
       .join(" ");
 
     app
       .resolvePlugin("logger")
-      .info(
-        `Received ${pluralize(
-          "transaction",
-          this.transactions.length,
-          true
-        )} (${stats}).`
-      );
+      .info(`Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`);
   }
 }

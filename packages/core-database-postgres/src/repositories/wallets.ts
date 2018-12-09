@@ -1,5 +1,5 @@
 import { Wallet } from "../models";
-import queries from "../queries";
+import { queries } from "../queries";
 import { Repository } from "./repository";
 
 const { wallets: sql } = queries;
@@ -44,9 +44,7 @@ export class WalletsRepository extends Repository {
    * @return {Promise}
    */
   public async updateOrCreate(wallet) {
-    const query = `${this.__insertQuery(
-      wallet,
-    )} ON CONFLICT(address) DO UPDATE SET ${this.pgp.helpers.sets(
+    const query = `${this.__insertQuery(wallet)} ON CONFLICT(address) DO UPDATE SET ${this.pgp.helpers.sets(
       wallet,
       this.model.getColumnSet(),
     )}`;

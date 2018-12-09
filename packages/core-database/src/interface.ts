@@ -8,8 +8,8 @@ import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
 import { WalletManager } from "./wallet-manager";
 
-import DelegatesRepository from "./repositories/delegates";
-import WalletsRepository from "./repositories/wallets";
+import { DelegatesRepository } from "./repositories/delegates";
+import { WalletsRepository } from "./repositories/wallets";
 
 const config = app.resolvePlugin("config");
 const logger = app.resolvePlugin("logger");
@@ -86,7 +86,7 @@ export abstract class ConnectionInterface {
    * @return {Array}
    * @throws Error
    */
-  public abstract async  getActiveDelegates(height, delegates?): Promise<any[]>;
+  public abstract async getActiveDelegates(height, delegates?): Promise<any[]>;
 
   /**
    * Load a list of wallets into memory.
@@ -189,7 +189,7 @@ export abstract class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  public abstract async  getTopBlocks(count): Promise<any[]>;
+  public abstract async getTopBlocks(count): Promise<any[]>;
 
   /**
    * Get recent block ids.
@@ -234,19 +234,16 @@ export abstract class ConnectionInterface {
     logger.debug("Updating delegate statistics");
 
     try {
-      delegates.forEach((delegate) => {
+      delegates.forEach(delegate => {
         const producedBlocks = this.blocksInCurrentRound.filter(
-          (blockGenerator) =>
-            blockGenerator.data.generatorPublicKey === delegate.publicKey,
+          blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey,
         );
         const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
         if (producedBlocks.length === 0) {
           wallet.missedBlocks++;
           logger.debug(
-            `Delegate ${wallet.username} (${
-            wallet.publicKey
-            }) just missed a block. Total: ${wallet.missedBlocks}`,
+            `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${wallet.missedBlocks}`,
           );
           wallet.dirty = true;
           emitter.emit("forger.missing", {
@@ -276,23 +273,16 @@ export abstract class ConnectionInterface {
       if (
         !this.forgingDelegates ||
         this.forgingDelegates.length === 0 ||
-        (this.forgingDelegates.length &&
-          this.forgingDelegates[0].round !== round)
+        (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
       ) {
         logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
 
         try {
           this.updateDelegateStats(height, this.forgingDelegates);
           this.saveWallets(false); // save only modified wallets during the last round
-          const delegates = this.walletManager.loadActiveDelegateList(
-            maxDelegates,
-            nextHeight,
-          ); // get active delegate list from in-memory wallet manager
+          const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight); // get active delegate list from in-memory wallet manager
           this.saveRound(delegates); // save next round delegate list non-blocking
-          this.forgingDelegates = await this.getActiveDelegates(
-            nextHeight,
-            delegates,
-          ); // generate the new active delegates list
+          this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates); // generate the new active delegates list
           this.blocksInCurrentRound.length = 0;
         } catch (error) {
           // trying to leave database state has it was
@@ -314,9 +304,7 @@ export abstract class ConnectionInterface {
    * @return {void}
    */
   public async revertRound(height) {
-    const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(
-      height,
-    );
+    const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
     if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
@@ -378,32 +366,26 @@ export abstract class ConnectionInterface {
     const slot = slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate = delegates[slot % delegates.length];
 
-    const generatorUsername = this.walletManager.findByPublicKey(
-      block.data.generatorPublicKey,
-    ).username;
+    const generatorUsername = this.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
 
     if (!forgingDelegate) {
       logger.debug(
         `Could not decide if delegate ${generatorUsername} (${
-        block.data.generatorPublicKey
+          block.data.generatorPublicKey
         }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
       );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-      const forgingUsername = this.walletManager.findByPublicKey(
-        forgingDelegate.publicKey,
-      ).username;
+      const forgingUsername = this.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
 
       throw new Error(
         `Delegate ${generatorUsername} (${
-        block.data.generatorPublicKey
-        }) not allowed to forge, should be ${forgingUsername} (${
-        forgingDelegate.publicKey
-        }) :-1:`,
+          block.data.generatorPublicKey
+        }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`,
       );
     } else {
       logger.debug(
         `Delegate ${generatorUsername} (${
-        block.data.generatorPublicKey
+          block.data.generatorPublicKey
         }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
       );
     }
@@ -439,7 +421,7 @@ export abstract class ConnectionInterface {
     }
 
     await this.applyRound(block.data.height);
-    block.transactions.forEach((tx) => this.__emitTransactionEvents(tx));
+    block.transactions.forEach(tx => this.__emitTransactionEvents(tx));
     emitter.emit("block.applied", block.data);
   }
 
@@ -463,10 +445,7 @@ export abstract class ConnectionInterface {
    * @return {Boolean}
    */
   public async verifyTransaction(transaction) {
-    const senderId = crypto.getAddress(
-      transaction.data.senderPublicKey,
-      config.network.pubKeyHash,
-    );
+    const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash);
 
     const sender = this.walletManager.findByAddress(senderId); // should exist
 
@@ -506,7 +485,7 @@ export abstract class ConnectionInterface {
     height = round * maxDelegates + 1;
 
     const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1);
-    return blocks.map((b) => new Block(b));
+    return blocks.map(b => new Block(b));
   }
 
   /**

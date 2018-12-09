@@ -1,5 +1,5 @@
 import { Block } from "../models";
-import queries from "../queries";
+import { queries } from "../queries";
 import { Repository } from "./repository";
 
 const { blocks: sql } = queries;

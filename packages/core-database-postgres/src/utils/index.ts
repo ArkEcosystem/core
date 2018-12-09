@@ -1,7 +1,4 @@
-import camelizeColumns from "./camelize-columns";
-import loadQueryFile from "./load-query-file";
+import { camelizeColumns } from "./camelize-columns";
+import { loadQueryFile } from "./load-query-file";
 
-export {
-  camelizeColumns,
-  loadQueryFile,
-};
+export { camelizeColumns, loadQueryFile };

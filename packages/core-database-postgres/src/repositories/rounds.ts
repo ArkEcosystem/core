@@ -1,5 +1,5 @@
 import { Round } from "../models";
-import queries from "../queries";
+import { queries } from "../queries";
 import { Repository } from "./repository";
 
 const { rounds: sql } = queries;
