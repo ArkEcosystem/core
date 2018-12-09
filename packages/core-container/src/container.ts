@@ -134,7 +134,11 @@ export class Container {
    * @throws {Error}
    */
   public resolveOptions(key) {
-    return this.plugins.resolveOptions(key);
+    try {
+      return this.container.resolve(key).options;
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**

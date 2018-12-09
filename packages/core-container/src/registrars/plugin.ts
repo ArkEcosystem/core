@@ -31,36 +31,11 @@ export class PluginRegistrar {
    * Set up all available plugins.
    * @return {void}
    */
-  public resolveOptions(name) {
-    if (!this.resolvedPlugins.length) {
-      this.resolvedPlugins = Object.keys(this.plugins).map(
-        item => require(item).plugin
-      );
-    }
-
-    const plugin: any = Object.values(this.resolvedPlugins).find(
-      (item: any) => item.alias === name || item.pkg.name === name
-    );
-
-    return this.__applyToDefaults(
-      plugin.pkg.name,
-      plugin.defaults,
-      this.plugins[plugin.pkg.name]
-    );
-  }
-
-  /**
-   * Set up all available plugins.
-   * @return {void}
-   */
   public async setUp() {
     for (const [name, options] of Object.entries(this.plugins)) {
       await this.register(name, options);
 
-      if (
-        (this.options.exit && this.options.exit === name) ||
-        this.container.shuttingDown
-      ) {
+      if ((this.options.exit && this.options.exit === name) || this.container.shuttingDown) {
         break;
       }
     }
@@ -119,7 +94,7 @@ export class PluginRegistrar {
     if (!semver.valid(version)) {
       throw new Error(
         // tslint:disable-next-line:max-line-length
-        `The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`
+        `The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`,
       );
     }
 
@@ -132,8 +107,8 @@ export class PluginRegistrar {
         name,
         version,
         plugin,
-        options
-      })
+        options,
+      }),
     );
 
     if (item.plugin.deregister) {
@@ -172,6 +147,7 @@ export class PluginRegistrar {
   public __castOptions(options) {
     const blacklist: any = [];
     const regex = new RegExp(/^\d+$/);
+
     Object.keys(options).forEach(key => {
       const value = options[key];
       if (isString(value) && !blacklist.includes(key) && regex.test(value)) {
@@ -239,9 +215,7 @@ export class PluginRegistrar {
     const files = ["plugins.js", "plugins.json"];
 
     for (const file of files) {
-      const configPath = resolve(
-        expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${file}`)
-      );
+      const configPath = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${file}`));
 
       if (existsSync(configPath)) {
         this.pluginsConfigPath = configPath;
@@ -250,9 +224,7 @@ export class PluginRegistrar {
       }
     }
 
-    throw new Error(
-      "An invalid configuration was provided or is inaccessible due to it's security settings."
-    );
+    throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
     process.exit(1);
   }
 }
