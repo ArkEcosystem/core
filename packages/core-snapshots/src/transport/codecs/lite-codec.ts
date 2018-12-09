@@ -1,7 +1,7 @@
 import msgpack from "msgpack-lite";
 import * as liteEncoder from "./lite";
 
-class LiteCodec {
+export class LiteCodec {
   get blocks() {
     const codec = msgpack.createCodec();
     codec.addExtPacker(0x3f, Object, liteEncoder.blockEncode);
@@ -18,5 +18,3 @@ class LiteCodec {
     return codec;
   }
 }
-
-export default new LiteCodec();

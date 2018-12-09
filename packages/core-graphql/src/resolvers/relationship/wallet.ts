@@ -6,7 +6,7 @@ const database = app.resolvePlugin("database");
 /**
  * Useful and common database operations with wallet data.
  */
-export default {
+export const Wallet = {
   /*
    * Get the transactions for a given wallet.
    * @param {Wallet} wallet

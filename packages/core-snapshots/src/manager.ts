@@ -4,20 +4,14 @@ import { app } from "@arkecosystem/core-container";
 import pick from "lodash/pick";
 
 const logger = app.resolvePlugin("logger");
-import database from "./db";
-import * as  utils from "./utils";
+import { database } from "./db";
+import * as utils from "./utils";
 
-import {
-  backupTransactionsToJSON,
-  exportTable,
-  importTable,
-  verifyTable,
-} from "./transport";
+import { backupTransactionsToJSON, exportTable, importTable, verifyTable } from "./transport";
 
 export class SnapshotManager {
-  public database: any
-    ;
-  constructor(readonly options) { }
+  public database: any;
+  constructor(readonly options) {}
 
   public async make(connection) {
     this.database = await database.make(connection);
@@ -29,11 +23,7 @@ export class SnapshotManager {
     const params = await this.__init(options, true);
 
     if (params.skipExportWhenNoChange) {
-      logger.info(
-        `Skipping export of snapshot, because ${
-        params.meta.folder
-        } is already up to date.`,
-      );
+      logger.info(`Skipping export of snapshot, because ${params.meta.folder} is already up to date.`);
       return;
     }
 
@@ -62,7 +52,7 @@ export class SnapshotManager {
     const lastBlock = await this.database.getLastBlock();
     logger.info(
       `Import from folder ${
-      params.meta.folder
+        params.meta.folder
       } completed. Last block in database: ${lastBlock.height.toLocaleString()} :+1:`,
     );
     if (!params.skipRestartRound) {
@@ -78,10 +68,7 @@ export class SnapshotManager {
   public async verifyData(options) {
     const params = await this.__init(options);
 
-    await Promise.all([
-      verifyTable("blocks", params),
-      verifyTable("transactions", params),
-    ]);
+    await Promise.all([verifyTable("blocks", params), verifyTable("transactions", params)]);
   }
 
   public async truncateChain() {
@@ -104,9 +91,7 @@ export class SnapshotManager {
 
     if (height) {
       const rollBackBlock = await this.database.getBlockByHeight(rollBackHeight);
-      const qTransactionBackup = await this.database.getTransactionsBackupQuery(
-        rollBackBlock.timestamp,
-      );
+      const qTransactionBackup = await this.database.getTransactionsBackupQuery(rollBackBlock.timestamp);
       await backupTransactionsToJSON(
         `rollbackTransactionBackup.${+height + 1}.${lastBlock.height}.json`,
         qTransactionBackup,
@@ -151,10 +136,7 @@ export class SnapshotManager {
         app.forceExit("Database is empty. Export not possible.");
       }
       params.meta = utils.setSnapshotInfo(params, lastBlock);
-      params.queries = await this.database.getExportQueries(
-        params.meta.startHeight,
-        params.meta.endHeight,
-      );
+      params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight);
 
       if (params.blocks) {
         if (options.blocks === params.meta.folder) {

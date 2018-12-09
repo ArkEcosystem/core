@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class AccountsController extends Controller {
+export class AccountsController extends Controller {
   protected config: any;
   protected database: any;
   protected blockchain: any;
@@ -59,8 +59,7 @@ export default class AccountsController extends Controller {
   public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return super.respondWith({
-        fee: this.config.getConstants(this.blockchain.getLastHeight()).fees
-          .staticFees.delegateRegistration,
+        fee: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees.delegateRegistration,
       });
     } catch (error) {
       return Boom.badImplementation(error);
@@ -98,7 +97,7 @@ export default class AccountsController extends Controller {
     try {
       let accounts = this.database.wallets.top(super.paginate(request));
 
-      accounts = accounts.rows.map((account) => ({
+      accounts = accounts.rows.map(account => ({
         address: account.address,
         balance: `${account.balance}`,
         publicKey: account.publicKey,

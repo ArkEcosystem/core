@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import appHelper from "@arkecosystem/core-test-utils/src/helpers/container";
+import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
 import { database } from "../../src/database";
 import { webhookManager } from "../../src/manager";
 import { startServer } from "../../src/server";
@@ -9,18 +9,14 @@ jest.setTimeout(60000);
 async function setUp() {
   process.env.ARK_WEBHOOKS_ENABLED = "true";
 
-  await appHelper.setUp({
-    exclude: [
-      "@arkecosystem/core-api",
-      "@arkecosystem/core-graphql",
-      "@arkecosystem/core-forger"
-    ]
+  await setUpContainer({
+    exclude: ["@arkecosystem/core-api", "@arkecosystem/core-graphql", "@arkecosystem/core-forger"],
   });
 
   await database.setUp({
     dialect: "sqlite",
     storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
-    logging: process.env.ARK_DB_LOGGING
+    logging: process.env.ARK_DB_LOGGING,
   });
 
   await webhookManager.setUp();
@@ -32,8 +28,8 @@ async function setUp() {
     whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     pagination: {
       limit: 100,
-      include: ["/api/webhooks"]
-    }
+      include: ["/api/webhooks"],
+    },
   });
 }
 

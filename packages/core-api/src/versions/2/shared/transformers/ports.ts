@@ -1,4 +1,4 @@
-export default function(config: any) {
+export function transformPorts(config: any) {
   const result = {};
   const keys = [
     "@arkecosystem/core-p2p",

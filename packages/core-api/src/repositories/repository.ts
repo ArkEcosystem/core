@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { snakeCase } from "lodash";
 
-export default class Repository {
+export class Repository {
   public database: any;
   public cache: any;
   public model: any;
@@ -26,11 +26,7 @@ export default class Repository {
     return this.database.query.manyOrNone(query.toQuery());
   }
 
-  public async _findManyWithCount(
-    selectQuery,
-    countQuery,
-    { limit, offset, orderBy },
-  ): Promise<any> {
+  public async _findManyWithCount(selectQuery, countQuery, { limit, offset, orderBy }): Promise<any> {
     const { count } = await this._find(countQuery);
 
     if (this.columns.includes(orderBy[0])) {
@@ -50,23 +46,19 @@ export default class Repository {
   }
 
   public _makeEstimateQuery(): Promise<any> {
-    return this.query
-      .select("count(*) AS count")
-      .from(`${this.model.getTable()} TABLESAMPLE SYSTEM (100)`);
+    return this.query.select("count(*) AS count").from(`${this.model.getTable()} TABLESAMPLE SYSTEM (100)`);
   }
 
   public _formatConditions(parameters): any {
-    const columns = this.model.getColumnSet().columns.map((column) => ({
+    const columns = this.model.getColumnSet().columns.map(column => ({
       name: column.name,
       prop: column.prop || column.name,
     }));
 
     return Object.keys(parameters)
-      .filter((arg) => this.columns.includes(arg))
+      .filter(arg => this.columns.includes(arg))
       .reduce((items, item) => {
-        const column = columns.find(
-          (value) => value.name === item || value.prop === item,
-        );
+        const column = columns.find(value => value.name === item || value.prop === item);
 
         column ? (items[column.name] = parameters[item]) : delete items[item];
 

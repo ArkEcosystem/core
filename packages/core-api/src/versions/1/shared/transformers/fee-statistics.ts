@@ -1,4 +1,4 @@
-export default function(model: any) {
+export function transformFeeStatisticsLegacy(model: any) {
   return {
     type: model.type,
     fees: {

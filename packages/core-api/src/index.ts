@@ -1,5 +1,5 @@
 import { defaults } from "./defaults";
-import Server from "./server";
+import { Server } from "./server";
 
 exports.plugin = {
   pkg: require("../package.json"),
@@ -7,9 +7,7 @@ exports.plugin = {
   alias: "api",
   async register(container, options) {
     if (!options.enabled) {
-      container
-        .resolvePlugin("logger")
-        .info("Public API is disabled :grey_exclamation:");
+      container.resolvePlugin("logger").info("Public API is disabled :grey_exclamation:");
 
       return false;
     }

@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class SignaturesController extends Controller {
+export class SignaturesController extends Controller {
   protected blockchain: any;
   protected config: any;
 

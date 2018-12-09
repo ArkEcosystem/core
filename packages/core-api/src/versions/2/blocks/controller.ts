@@ -1,9 +1,9 @@
 import Boom from "boom";
 import Hapi from "hapi";
 import { blocksRepository, transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class BlocksController extends Controller {
+export class BlocksController extends Controller {
   public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       const data = await request.server.methods.v2.blocks.index(request);

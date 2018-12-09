@@ -4,7 +4,7 @@ import prettyMs from "pretty-ms";
 const logger = app.resolvePlugin("logger");
 let tracker = null;
 
-export default async (blockCount, count) => {
+export function tickSyncTracker(blockCount, count) {
   if (!tracker) {
     tracker = {
       start: new Date().getTime(),
@@ -29,20 +29,13 @@ export default async (blockCount, count) => {
   tracker.blocksPerMillisecond = tracker.blocksSession / diffSinceStart;
 
   // The time left to download the missing blocks in milliseconds
-  tracker.remainingInMilliseconds =
-    (tracker.networkHeight - tracker.blocksDownloaded) /
-    tracker.blocksPerMillisecond;
-  tracker.remainingInMilliseconds = Math.abs(
-    Math.trunc(tracker.remainingInMilliseconds),
-  );
+  tracker.remainingInMilliseconds = (tracker.networkHeight - tracker.blocksDownloaded) / tracker.blocksPerMillisecond;
+  tracker.remainingInMilliseconds = Math.abs(Math.trunc(tracker.remainingInMilliseconds));
 
   // The percentage of total blocks that has been downloaded
   tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight;
 
-  if (
-    tracker.percent < 100 &&
-    Number.isFinite(tracker.remainingInMilliseconds)
-  ) {
+  if (tracker.percent < 100 && Number.isFinite(tracker.remainingInMilliseconds)) {
     const blocksDownloaded = tracker.blocksDownloaded.toLocaleString();
     const networkHeight = tracker.networkHeight.toLocaleString();
     const timeLeft = prettyMs(tracker.remainingInMilliseconds, {
@@ -62,4 +55,4 @@ export default async (blockCount, count) => {
 
     logger.stopTracker("Fast Sync", 100, 100);
   }
-};
+}

@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
 import { blocksRepository, transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class PeersController extends Controller {
+export class PeersController extends Controller {
   protected blockchain: any;
 
   public constructor() {
@@ -20,23 +20,23 @@ export default class PeersController extends Controller {
       let result = allPeers.sort((a, b) => a.delay - b.delay);
       // @ts-ignore
       result = request.query.os
-        // @ts-ignore
-        ? result.filter((peer) => peer.os === request.query.os)
+        ? // @ts-ignore
+          result.filter(peer => peer.os === request.query.os)
         : result;
       // @ts-ignore
       result = request.query.status
-        // @ts-ignore
-        ? result.filter((peer) => peer.status === request.query.status)
+        ? // @ts-ignore
+          result.filter(peer => peer.status === request.query.status)
         : result;
       // @ts-ignore
       result = request.query.port
-        // @ts-ignore
-        ? result.filter((peer) => peer.port === request.query.port)
+        ? // @ts-ignore
+          result.filter(peer => peer.port === request.query.port)
         : result;
       // @ts-ignore
       result = request.query.version
-        // @ts-ignore
-        ? result.filter((peer) => peer.version === request.query.version)
+        ? // @ts-ignore
+          result.filter(peer => peer.version === request.query.version)
         : result;
       // @ts-ignore
       result = result.slice(0, request.query.limit || 100);
@@ -47,17 +47,14 @@ export default class PeersController extends Controller {
         const order = request.query.orderBy.split(":");
 
         if (["port", "status", "os", "version"].includes(order[0])) {
-          result = order[1].toUpperCase() === "ASC"
-            ? result.sort((a, b) => a[order[0]] - b[order[0]])
-            : result.sort((a, b) => a[order[0]] + b[order[0]]);
+          result =
+            order[1].toUpperCase() === "ASC"
+              ? result.sort((a, b) => a[order[0]] - b[order[0]])
+              : result.sort((a, b) => a[order[0]] + b[order[0]]);
         }
       }
 
-      return super.toPagination(
-        request,
-        { rows: result, count: allPeers.length },
-        "peer",
-      );
+      return super.toPagination(request, { rows: result, count: allPeers.length }, "peer");
     } catch (error) {
       return Boom.badImplementation(error);
     }
@@ -66,7 +63,7 @@ export default class PeersController extends Controller {
   public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       const peers = await this.blockchain.p2p.getPeers();
-      const peer = peers.find((p) => p.ip === request.params.ip);
+      const peer = peers.find(p => p.ip === request.params.ip);
 
       if (!peer) {
         return Boom.notFound("Peer not found");
@@ -85,7 +82,7 @@ export default class PeersController extends Controller {
       return super.respondWithCollection(
         request,
         // @ts-ignore
-        Object.values(peers).map((peer) => peer.peer),
+        Object.values(peers).map(peer => peer.peer),
         "peer",
       );
     } catch (error) {

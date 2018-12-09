@@ -1,12 +1,11 @@
 import { app } from "@arkecosystem/core-container";
-import apiHelpers from "@arkecosystem/core-test-utils/src/helpers/api";
+import { ApiHelpers } from "@arkecosystem/core-test-utils/src/helpers/api";
 
 class Helpers {
   public headers: any;
   constructor() {
     this.headers = {
-      nethash:
-        "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+      nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
       port: 4000,
       version: "2.0.0",
     };
@@ -24,7 +23,7 @@ class Helpers {
     const url = `http://localhost:4002/${path}`;
     const server = app.resolvePlugin("p2p").server;
 
-    return apiHelpers.request(server, method, url, this.headers, params);
+    return ApiHelpers.request(server, method, url, this.headers, params);
   }
 }
 

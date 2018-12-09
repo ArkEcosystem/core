@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
 import { blocksRepository, transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class WalletsController extends Controller {
+export class WalletsController extends Controller {
   protected database: any;
 
   public constructor() {
@@ -55,9 +55,7 @@ export default class WalletsController extends Controller {
 
   public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
-      const data = await request.server.methods.v2.wallets.transactionsSent(
-        request,
-      );
+      const data = await request.server.methods.v2.wallets.transactionsSent(request);
 
       return super.respondWithCache(data, h);
     } catch (error) {
@@ -67,9 +65,7 @@ export default class WalletsController extends Controller {
 
   public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
-      const data = await request.server.methods.v2.wallets.transactionsReceived(
-        request,
-      );
+      const data = await request.server.methods.v2.wallets.transactionsReceived(request);
 
       return super.respondWithCache(data, h);
     } catch (error) {

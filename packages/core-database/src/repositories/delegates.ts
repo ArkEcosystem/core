@@ -2,21 +2,19 @@ import { delegateCalculator } from "@arkecosystem/core-utils";
 import orderBy from "lodash/orderBy";
 import limitRows from "./utils/limit-rows";
 
-export default class DelegatesRepository {
+export class DelegatesRepository {
   /**
    * Create a new delegate repository instance.
    * @param  {ConnectionInterface} connection
    */
-  public constructor(public connection) { }
+  public constructor(public connection) {}
 
   /**
    * Get all local delegates.
    * @return {Array}
    */
   public getLocalDelegates() {
-    return this.connection.walletManager
-      .all()
-      .filter((wallet) => !!wallet.username);
+    return this.connection.walletManager.all().filter(wallet => !!wallet.username);
   }
 
   /**
@@ -52,9 +50,7 @@ export default class DelegatesRepository {
    * @return {Object}
    */
   public search(params) {
-    let delegates = this.getLocalDelegates().filter(
-      (delegate) => delegate.username.indexOf(params.username) > -1,
-    );
+    let delegates = this.getLocalDelegates().filter(delegate => delegate.username.indexOf(params.username) > -1);
 
     if (params.orderBy) {
       const orderByField = params.orderBy.split(":")[0];
@@ -85,9 +81,7 @@ export default class DelegatesRepository {
    * @return {Object}
    */
   public findById(id) {
-    return this.getLocalDelegates().find(
-      (a) => a.address === id || a.publicKey === id || a.username === id,
-    );
+    return this.getLocalDelegates().find(a => a.address === id || a.publicKey === id || a.username === id);
   }
 
   /**
@@ -98,7 +92,7 @@ export default class DelegatesRepository {
   public getActiveAtHeight(height) {
     const delegates = this.connection.getActiveDelegates(height);
 
-    return delegates.map((delegate) => {
+    return delegates.map(delegate => {
       const wallet = this.connection.wallets.findById(delegate.publicKey);
 
       return {

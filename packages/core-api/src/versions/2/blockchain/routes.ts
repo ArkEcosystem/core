@@ -1,8 +1,8 @@
 import Hapi from "hapi";
-import Controller from "./controller";
+import { BlockchainController } from "./controller";
 
-export default function(server: Hapi.Server): void {
-  const controller = new Controller();
+export function registerRoutes(server: Hapi.Server): void {
+  const controller = new BlockchainController();
   server.bind(controller);
 
   server.route({

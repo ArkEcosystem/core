@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import "@arkecosystem/core-test-utils"
-import appHelper from "@arkecosystem/core-test-utils/src/helpers/container";
+import "@arkecosystem/core-test-utils";
+import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
 
 export default {
   setUp: async () => {
@@ -8,7 +8,7 @@ export default {
 
     process.env.ARK_SKIP_BLOCKCHAIN = "true";
 
-    await appHelper.setUp({
+    await setUpContainer({
       exit: "@arkecosystem/core-blockchain",
       exclude: [
         "@arkecosystem/core-p2p",
@@ -20,5 +20,5 @@ export default {
 
   tearDown: async () => {
     await app.tearDown();
-  }
-}
+  },
+};

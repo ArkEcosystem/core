@@ -1,6 +1,6 @@
 import "jest-extended";
 
-export default class ApiHelpers {
+export class ApiHelpers {
   public static async request(server, method, url, headers, params = {}) {
     // Build URL params from _params_ object for GET / DELETE requests
     const getParams = Object.entries(params)
@@ -12,14 +12,11 @@ export default class ApiHelpers {
       method,
       url: ["GET", "DELETE"].includes(method) ? `${url}?${getParams}` : url,
       headers,
-      payload: ["GET", "DELETE"].includes(method) ? {} : params
+      payload: ["GET", "DELETE"].includes(method) ? {} : params,
     };
 
     const response = await server.inject(injectOptions);
-    const data =
-      typeof response.result === "string"
-        ? JSON.parse(response.result)
-        : response.result;
+    const data = typeof response.result === "string" ? JSON.parse(response.result) : response.result;
     Object.assign(response, { data, status: response.statusCode });
     return response;
   }

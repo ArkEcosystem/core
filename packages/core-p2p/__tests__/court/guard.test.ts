@@ -1,8 +1,8 @@
 import dayjs from "dayjs-ext";
 import app from "../__support__/setup";
 
-import offences from "../../src/court/offences";
-import defaults from "../../src/defaults";
+import { offences } from "../../src/court/offences";
+import { defaults } from "../../src/defaults";
 
 const ARK_ENV = process.env.ARK_ENV;
 
@@ -92,12 +92,10 @@ describe("Guard", () => {
   });
 
   describe("__determineOffence", () => {
-    const convertToMinutes = (actual) =>
-      Math.ceil(actual.diff(dayjs()) / 1000) / 60;
+    const convertToMinutes = actual => Math.ceil(actual.diff(dayjs()) / 1000) / 60;
 
     const dummy = {
-      nethash:
-        "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+      nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
       version: "2.0.0",
       status: 200,
       state: {},
@@ -112,8 +110,7 @@ describe("Guard", () => {
       config.peers.blackList = ["dummy-ip-addr"];
 
       const { until, reason } = guard.__determineOffence({
-        nethash:
-          "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+        nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
         ip: "dummy-ip-addr",
       });
 
@@ -135,8 +132,7 @@ describe("Guard", () => {
 
     it('should return a 6 hours suspension for "Invalid Version"', () => {
       const { until, reason } = guard.__determineOffence({
-        nethash:
-          "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+        nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
         version: "1.0.0",
         status: 200,
         delay: 1000,

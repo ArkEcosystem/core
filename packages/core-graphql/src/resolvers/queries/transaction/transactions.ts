@@ -1,13 +1,13 @@
 import { formatOrderBy } from "../../../helpers";
-import { transactions } from "../../../repositories";
+import { transactionRepository } from "../../../repositories";
 
 /**
  * Get multiple transactions from the database
  * @return {Transaction[]}
  */
-export default async (root, args) => {
+export async function transactions(_, args: any) {
   const { orderBy, filter, limit } = args;
   const order = formatOrderBy(orderBy, "timestamp:desc");
-  const result = await transactions.findAll({ ...filter, orderBy: order, limit });
+  const result = await transactionRepository.findAll({ ...filter, orderBy: order, limit });
   return result ? result.rows : [];
-};
+}

@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { bignumify } from "@arkecosystem/core-utils";
 
-export default function(model) {
+export function transformBlockLegacy(model) {
   const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
 
   return {

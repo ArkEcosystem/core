@@ -1,10 +1,6 @@
-import {
-  bignumify,
-  delegateCalculator,
-  formatTimestamp,
-} from "@arkecosystem/core-utils";
+import { bignumify, delegateCalculator, formatTimestamp } from "@arkecosystem/core-utils";
 
-export default function(delegate) {
+export function transformDelegate(delegate) {
   const data = {
     username: delegate.username,
     address: delegate.address,

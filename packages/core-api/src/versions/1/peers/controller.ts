@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class PeersController extends Controller {
+export class PeersController extends Controller {
   protected blockchain: any;
   protected p2p: any;
 
@@ -65,11 +65,7 @@ export default class PeersController extends Controller {
       }
 
       return super.respondWith({
-        peers: super.toCollection(
-          request,
-          peers.map(peer => peer.toBroadcastInfo()),
-          "peer"
-        )
+        peers: super.toCollection(request, peers.map(peer => peer.toBroadcastInfo()), "peer"),
       });
     } catch (error) {
       return Boom.badImplementation(error);
@@ -85,20 +81,19 @@ export default class PeersController extends Controller {
 
       const peer = peers.find(
         // @ts-ignore
-        elem =>
-          elem.ip === request.query.ip && +elem.port === +request.query.port
+        elem => elem.ip === request.query.ip && +elem.port === +request.query.port,
       );
 
       if (!peer) {
         return super.respondWith(
           // @ts-ignore
           `Peer ${request.query.ip}:${request.query.port} not found`,
-          true
+          true,
         );
       }
 
       return super.respondWith({
-        peer: super.toResource(request, peer.toBroadcastInfo(), "peer")
+        peer: super.toResource(request, peer.toBroadcastInfo(), "peer"),
       });
     } catch (error) {
       return Boom.badImplementation(error);
@@ -108,7 +103,7 @@ export default class PeersController extends Controller {
   public async version(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return super.respondWith({
-        version: app.getVersion()
+        version: app.getVersion(),
       });
     } catch (error) {
       return Boom.badImplementation(error);

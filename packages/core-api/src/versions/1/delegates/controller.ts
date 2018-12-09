@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class DelegatesController extends Controller {
+export class DelegatesController extends Controller {
   protected blockchain: any;
   protected config: any;
   protected database: any;
@@ -70,8 +70,7 @@ export default class DelegatesController extends Controller {
   public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return super.respondWith({
-        fee: this.config.getConstants(this.blockchain.getLastHeight()).fees
-          .staticFees.delegateRegistration,
+        fee: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees.delegateRegistration,
       });
     } catch (error) {
       return Boom.badImplementation(error);
@@ -104,10 +103,8 @@ export default class DelegatesController extends Controller {
       const delegatesCount = this.config.getConstants(lastBlock).activeDelegates;
       const currentSlot = slots.getSlotNumber(lastBlock.data.timestamp);
 
-      let activeDelegates = await this.database.getActiveDelegates(
-        lastBlock.data.height,
-      );
-      activeDelegates = activeDelegates.map((delegate) => delegate.publicKey);
+      let activeDelegates = await this.database.getActiveDelegates(lastBlock.data.height);
+      activeDelegates = activeDelegates.map(delegate => delegate.publicKey);
 
       const nextForgers = [];
       for (let i = 1; i <= delegatesCount && i <= limit; i++) {

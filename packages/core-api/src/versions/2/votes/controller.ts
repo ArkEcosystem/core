@@ -2,9 +2,9 @@ import { constants } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
 import { blocksRepository, transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class VotesController extends Controller {
+export class VotesController extends Controller {
   public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       const data = await request.server.methods.v2.votes.index(request);

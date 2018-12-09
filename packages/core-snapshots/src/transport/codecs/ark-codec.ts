@@ -1,7 +1,7 @@
 import msgpack from "msgpack-lite";
 import * as arkEncoders from "./ark";
 
-class ArkCodec {
+export class ArkCodec {
   get blocks() {
     const codec = msgpack.createCodec();
     codec.addExtPacker(0x3f, Object, arkEncoders.blockEncode);
@@ -18,5 +18,3 @@ class ArkCodec {
     return codec;
   }
 }
-
-export default new ArkCodec();

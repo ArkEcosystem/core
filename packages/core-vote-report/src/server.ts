@@ -1,6 +1,6 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 import * as Handlebars from "handlebars";
-import handler from "./handler";
+import { handler } from "./handler";
 
 export async function startServer(config) {
   const server = await createServer(

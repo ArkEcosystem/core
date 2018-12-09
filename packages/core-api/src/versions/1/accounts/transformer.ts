@@ -1,4 +1,4 @@
-export default function(model) {
+export function transformAccountLegacy(model) {
   const hasSecondSignature = !!model.secondPublicKey;
 
   return {

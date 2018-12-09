@@ -1,15 +1,8 @@
 import Boom from "boom";
 import Hapi from "hapi";
-import Transformer from "../../../services/transformer";
-import {
-  paginate,
-  respondWith,
-  respondWithCache,
-  toCollection,
-  toResource,
-} from "../utils";
+import { paginate, respondWith, respondWithCache, toCollection, toResource } from "../utils";
 
-export default class Controller {
+export class Controller {
   protected paginate(request: Hapi.Request): any {
     return paginate(request);
   }

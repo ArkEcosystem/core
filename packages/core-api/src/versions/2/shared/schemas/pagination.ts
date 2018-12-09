@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 
-export default {
+export const pagination = {
   page: Joi.number()
     .integer()
     .positive(),

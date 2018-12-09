@@ -1,7 +1,7 @@
-export default function(ajv) {
+export function registerCsvFormat(ajv) {
   ajv.addFormat("csv", {
     type: "string",
-    validate: (value) => {
+    validate: value => {
       try {
         const a = value.split(",");
 

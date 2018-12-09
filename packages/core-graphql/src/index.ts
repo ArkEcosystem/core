@@ -1,4 +1,4 @@
-import defaults from "./defaults";
+import { defaults } from "./defaults";
 import { startServer } from "./server";
 
 /**
@@ -11,9 +11,7 @@ export const plugin = {
   alias: "graphql",
   async register(container, options) {
     if (!options.enabled) {
-      container
-        .resolvePlugin("logger")
-        .info("GraphQL API is disabled :grey_exclamation:");
+      container.resolvePlugin("logger").info("GraphQL API is disabled :grey_exclamation:");
 
       return;
     }
@@ -26,5 +24,5 @@ export const plugin = {
 
       return container.resolvePlugin("graphql").stop();
     }
-  }
+  },
 };

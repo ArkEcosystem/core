@@ -1,12 +1,8 @@
-import inputs from "./inputs";
-import root from "./root";
-import types from "./types";
+import { inputs } from "./inputs";
+import { root } from "./root";
+import { types } from "./types";
 
-/**
- * Concatenated strings following the GraphQL syntax to define Types
- * processed by the schema.
- */
-export default `
+export const typeDefs = `
   ${inputs}
   ${root}
   ${types}

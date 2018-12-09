@@ -3,7 +3,7 @@ import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";
 
-export default function(request, h) {
+export function handler(request, h) {
   const config = app.resolvePlugin("config");
   const blockchain = app.resolvePlugin("blockchain");
   const database = app.resolvePlugin("database");

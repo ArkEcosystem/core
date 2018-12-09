@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { createSecureServer, createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import Hapi from "hapi";
 
-export default class Server {
+export class Server {
   private config: any;
   private logger: any;
 

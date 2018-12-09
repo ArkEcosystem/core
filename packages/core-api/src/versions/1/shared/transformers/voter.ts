@@ -1,4 +1,4 @@
-export default function(model: any) {
+export function transformVoterLegacy(model: any) {
   return {
     username: model.username,
     address: model.address,

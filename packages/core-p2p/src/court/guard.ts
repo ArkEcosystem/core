@@ -6,7 +6,7 @@ import prettyMs from "pretty-ms";
 import semver from "semver";
 
 import * as utils from "../utils";
-import offences from "./offences";
+import { offences } from "./offences";
 
 const config = app.resolvePlugin("config");
 const logger = app.resolvePlugin("logger");
@@ -94,7 +94,7 @@ class Guard {
     }
 
     // Don't unsuspend critical offenders before the ban is expired.
-    if (peer.offences.some((offence) => offence.critical)) {
+    if (peer.offences.some(offence => offence.critical)) {
       if (dayjs().isBefore(this.suspensions[peer.ip].until)) {
         return;
       }
@@ -112,11 +112,7 @@ class Guard {
    */
   public async resetSuspendedPeers() {
     logger.info("Clearing suspended peers.");
-    await Promise.all(
-      Object.values(this.suspensions).map((suspension) =>
-        this.unsuspend(suspension.peer),
-      ),
-    );
+    await Promise.all(Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)));
   }
 
   /**
@@ -234,9 +230,7 @@ class Guard {
         return this.__determinePunishment(peer, offences.FORK);
       }
     } catch (error) {
-      logger.warn(
-        `The state storage is not ready, skipped fork check for ${peer.ip}.`,
-      );
+      logger.warn(`The state storage is not ready, skipped fork check for ${peer.ip}.`);
     }
 
     if (peer.commonBlocks === false) {
@@ -283,9 +277,7 @@ class Guard {
 
     // NOTE: Suspending this peer only means that we no longer
     // will download blocks from him but he can still download blocks from us.
-    const heightDifference = Math.abs(
-      this.monitor.getNetworkHeight() - peer.state.height,
-    );
+    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height);
 
     if (heightDifference >= 153) {
       return this.__determinePunishment(peer, offences.INVALID_HEIGHT);

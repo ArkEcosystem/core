@@ -1,51 +1,51 @@
 import "@arkecosystem/core-test-utils/";
 
-import machine from "../../../src/machines/blockchain";
+import { blockchainMachine } from "../../../src/machines/blockchain";
 
 describe("Blockchain machine > Fork", () => {
   it("should start with the `analysing` state", () => {
-    expect(machine.states.fork).toHaveProperty("initial", "analysing");
+    expect(blockchainMachine.states.fork).toHaveProperty("initial", "analysing");
   });
 
   describe("state `analysing`", () => {
     it("should execute the `analyseFork` action when is entered", () => {
-      expect(machine).toExecuteOnEntry({
+      expect(blockchainMachine).toExecuteOnEntry({
         state: "fork.analysing",
-        actions: ["analyseFork"]
+        actions: ["analyseFork"],
       });
     });
 
     it("should transition to `revertBlocks` on `REBUILD`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "fork.analysing",
         on: "REBUILD",
-        to: "fork.revertBlocks"
+        to: "fork.revertBlocks",
       });
     });
 
     it("should transition to `exit` on `NOFORK`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "fork.analysing",
         on: "NOFORK",
-        to: "fork.exit"
+        to: "fork.exit",
       });
     });
   });
 
   describe("state `network`", () => {
     it("should execute the `checkNetwork` action when is entered", () => {
-      expect(machine).toExecuteOnEntry({
+      expect(blockchainMachine).toExecuteOnEntry({
         state: "fork.network",
-        actions: ["checkNetwork"]
+        actions: ["checkNetwork"],
       });
     });
   });
 
   describe("state `exit`", () => {
     it("should execute the `forkRecovered` action when is entered", () => {
-      expect(machine).toExecuteOnEntry({
+      expect(blockchainMachine).toExecuteOnEntry({
         state: "fork.exit",
-        actions: ["forkRecovered"]
+        actions: ["forkRecovered"],
       });
     });
   });

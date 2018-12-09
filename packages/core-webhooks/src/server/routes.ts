@@ -1,6 +1,6 @@
-import * as handler from "./handler";
+import { destroy, index, show, store, update } from "./handler";
 
-exports.plugin = {
+export const registerRoutes = {
   name: "Ark Webhooks API",
   version: "0.1.0",
   async register(server, options) {
@@ -8,27 +8,27 @@ exports.plugin = {
       {
         method: "GET",
         path: "/webhooks",
-        ...handler.index,
+        ...index,
       },
       {
         method: "POST",
         path: "/webhooks",
-        ...handler.store,
+        ...store,
       },
       {
         method: "GET",
         path: "/webhooks/{id}",
-        ...handler.show,
+        ...show,
       },
       {
         method: "PUT",
         path: "/webhooks/{id}",
-        ...handler.update,
+        ...update,
       },
       {
         method: "DELETE",
         path: "/webhooks/{id}",
-        ...handler.destroy,
+        ...destroy,
       },
     ]);
   },

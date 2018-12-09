@@ -1,6 +1,6 @@
 import { bignumify } from "@arkecosystem/core-utils";
 
-export default function(model) {
+export function transformWallet(model) {
   return {
     address: model.address,
     publicKey: model.publicKey,

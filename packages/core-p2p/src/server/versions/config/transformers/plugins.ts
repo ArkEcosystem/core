@@ -3,7 +3,7 @@
  * @param  {Object} model
  * @return {Object}
  */
-export default (config) => {
+export function transformPlugins(config) {
   const allowed = [
     "@arkecosystem/core-api",
     "@arkecosystem/core-graphql",
@@ -32,4 +32,4 @@ export default (config) => {
   }
 
   return result;
-};
+}

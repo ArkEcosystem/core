@@ -1,4 +1,4 @@
-export default {
+export const syncWithNetwork = {
   initial: "syncing",
   states: {
     syncing: {

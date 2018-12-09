@@ -4,7 +4,7 @@ import { QueryFile } from "pg-promise";
 
 const logger = app.resolvePlugin("logger");
 
-export default (directory, file) => {
+export function loadQueryFile(directory, file) {
   const fullPath = path.join(directory, file);
 
   const options = {
@@ -21,4 +21,4 @@ export default (directory, file) => {
   }
 
   return query;
-};
+}

@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { bignumify, supplyCalculator } from "@arkecosystem/core-utils";
 import Boom from "boom";
 import Hapi from "hapi";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class BlockchainController extends Controller {
+export class BlockchainController extends Controller {
   protected config: any;
   protected blockchain: any;
 

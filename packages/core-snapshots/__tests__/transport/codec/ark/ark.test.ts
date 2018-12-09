@@ -6,9 +6,9 @@ import msgpack from "msgpack-lite";
 import { blocks } from "../../../fixtures/blocks";
 import { transactions } from "../../../fixtures/transactions";
 
-import codecs from "../../../../src/transport/codec";
+import { ArkCodec } from "../../../../src/transport/codecs/ark-codec";
 
-const codec = codecs.get("ark");
+const codec = new ArkCodec();
 
 beforeAll(async () => {
   transactions.forEach((transaction: any) => {
@@ -63,7 +63,7 @@ describe("Ark codec testing", () => {
       "fee",
       "serialized",
     ];
-    const transferTransactions = transactions.filter((trx) => trx.type === 0);
+    const transferTransactions = transactions.filter(trx => trx.type === 0);
     for (let i = 0; i < 100; i++) {
       for (const transaction of transferTransactions) {
         const encoded = msgpack.encode(transaction, {
@@ -94,7 +94,7 @@ describe("Ark codec testing", () => {
       "serialized",
     ];
 
-    const otherTransactions = transactions.filter((trx) => trx.type > 0);
+    const otherTransactions = transactions.filter(trx => trx.type > 0);
     for (const transaction of otherTransactions) {
       const encoded = msgpack.encode(transaction, { codec: codec.transactions });
       const decoded = msgpack.decode(encoded, { codec: codec.transactions });

@@ -4,8 +4,8 @@ const { Transaction } = models;
 /**
  * Deserialize multiple transactions
  */
-export default async (data) => {
-  const deserialize = (buffer) => {
+export async function unserializeTransactions(data) {
+  const deserialize = buffer => {
     const serialized = Buffer.from(buffer).toString("hex");
     return Transaction.deserialize(serialized);
   };
@@ -18,4 +18,4 @@ export default async (data) => {
     }, []);
   }
   return deserialize(data);
-};
+}

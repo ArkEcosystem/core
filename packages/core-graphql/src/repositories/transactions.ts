@@ -4,7 +4,7 @@ import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 
 import { Repository } from "./repository";
-import buildFilterQuery from "./utils/filter-query";
+import { buildFilterQuery } from "./utils/filter-query";
 
 const { TRANSACTION_TYPES } = constants;
 const database = app.resolvePlugin("database");
@@ -33,7 +33,7 @@ class TransactionsRepository extends Repository {
       parameters.type = TRANSACTION_TYPES[parameters.type];
     }
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = Object.entries(this._formatConditions(parameters));
 
       if (conditions.length) {
@@ -67,18 +67,14 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   public async findAllLegacy(parameters: any = {}) {
-    const selectQuery = this.query
-      .select(this.query.block_id, this.query.serialized)
-      .from(this.query);
+    const selectQuery = this.query.select(this.query.block_id, this.query.serialized).from(this.query);
     const countQuery = this._makeEstimateQuery();
 
     if (parameters.senderId) {
-      parameters.senderPublicKey = this.__publicKeyFromSenderId(
-        parameters.senderId,
-      );
+      parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
     }
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = Object.entries(this._formatConditions(parameters));
 
       if (conditions.length) {
@@ -114,12 +110,10 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   public async findAllByWallet(wallet, parameters: any = {}) {
-    const selectQuery = this.query
-      .select(this.query.block_id, this.query.serialized)
-      .from(this.query);
+    const selectQuery = this.query.select(this.query.block_id, this.query.serialized).from(this.query);
     const countQuery = this._makeEstimateQuery();
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       for (const item of queries) {
         item
           .where(this.query.sender_public_key.equals(wallet.publicKey))
@@ -251,9 +245,9 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.vendor_field_hex.isNotNull());
 
-    const transactions = await this._findMany(query);
+    const rows = await this._findMany(query);
 
-    return this.__mapBlocksToTransactions(transactions);
+    return this.__mapBlocksToTransactions(rows);
   }
 
   /**
@@ -270,9 +264,7 @@ class TransactionsRepository extends Repository {
         this.query.timestamp.max("timestamp"),
       )
       .from(this.query)
-      .where(
-        this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day"))),
-      )
+      .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day"))))
       .group(this.query.type)
       .order('"timestamp" DESC');
 
@@ -297,16 +289,9 @@ class TransactionsRepository extends Repository {
       }
     }
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = buildFilterQuery(this._formatConditions(parameters), {
-        exact: [
-          "id",
-          "block_id",
-          "type",
-          "version",
-          "sender_public_key",
-          "recipient_id",
-        ],
+        exact: ["id", "block_id", "type", "version", "sender_public_key", "recipient_id"],
         between: ["timestamp", "amount", "fee"],
         wildcard: ["vendor_field_hex"],
       });
@@ -318,9 +303,7 @@ class TransactionsRepository extends Repository {
           item.where(this.query[first.column][first.method](first.value));
 
           for (const condition of conditions) {
-            item.and(
-              this.query[condition.column][condition.method](condition.value),
-            );
+            item.and(this.query[condition.column][condition.method](condition.value));
           }
         }
       }
@@ -374,13 +357,13 @@ class TransactionsRepository extends Repository {
         const query = blockQuery
           .select(blockQuery.id, blockQuery.height)
           .from(blockQuery)
-          .where(blockQuery.id.in(missingFromCache.map((d) => d.blockId)))
+          .where(blockQuery.id.in(missingFromCache.map(d => d.blockId)))
           .group(blockQuery.id);
 
         const blocks = await this._findMany(query);
 
         for (const missing of missingFromCache) {
-          const block = blocks.find((item) => item.id === missing.blockId);
+          const block = blocks.find(item => item.id === missing.blockId);
           if (block) {
             data[missing.index].block = block;
             this.__setBlockCache(block);
@@ -443,11 +426,8 @@ class TransactionsRepository extends Repository {
   }
 
   public __orderBy(parameters) {
-    return parameters.orderBy
-      ? parameters.orderBy.split(":").map((p) => p.toLowerCase())
-      : ["timestamp", "desc"];
+    return parameters.orderBy ? parameters.orderBy.split(":").map(p => p.toLowerCase()) : ["timestamp", "desc"];
   }
 }
 
-const Transactions = new TransactionsRepository();
-export { Transactions };
+export const transactionRepository = new TransactionsRepository();

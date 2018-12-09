@@ -1,4 +1,4 @@
-export default {
+export const rebuildFromNetwork = {
   initial: "rebuilding",
   states: {
     rebuilding: {
@@ -6,47 +6,47 @@ export default {
       on: {
         SYNCED: "waitingFinished",
         NOTSYNCED: "rebuildBlocks",
-        PAUSED: "rebuildPaused"
-      }
+        PAUSED: "rebuildPaused",
+      },
     },
     idle: {
       on: {
-        DOWNLOADED: "rebuildBlocks"
-      }
+        DOWNLOADED: "rebuildBlocks",
+      },
     },
     rebuildBlocks: {
       onEntry: ["rebuildBlocks"],
       on: {
         DOWNLOADED: "rebuilding",
-        NOBLOCK: "rebuilding"
-      }
+        NOBLOCK: "rebuilding",
+      },
     },
     waitingFinished: {
       on: {
-        REBUILDFINISHED: "rebuildFinished"
-      }
+        REBUILDFINISHED: "rebuildFinished",
+      },
     },
     rebuildFinished: {
       onEntry: ["rebuildFinished"],
       on: {
-        PROCESSFINISHED: "processFinished"
-      }
+        PROCESSFINISHED: "processFinished",
+      },
     },
     rebuildPaused: {
       onEntry: ["downloadPaused"],
       on: {
-        REBUILDFINISHED: "processFinished"
-      }
+        REBUILDFINISHED: "processFinished",
+      },
     },
     processFinished: {
       onEntry: ["checkRebuildBlockSynced"],
       on: {
         SYNCED: "end",
-        NOTSYNCED: "rebuildBlocks"
-      }
+        NOTSYNCED: "rebuildBlocks",
+      },
     },
     end: {
-      onEntry: ["rebuildingComplete"]
-    }
-  }
+      onEntry: ["rebuildingComplete"],
+    },
+  },
 };

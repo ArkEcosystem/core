@@ -1,18 +1,15 @@
-import {
-  Bignum,
-  models,
-} from "@arkecosystem/crypto";
+import { Bignum, models } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
 import { app } from "@arkecosystem/core-container";
-import queries from "./queries";
+import { queries } from "./queries";
 
 const logger = app.resolvePlugin("logger");
 const config = app.resolvePlugin("config");
 
-const genesisWallets = config.genesisBlock.transactions.map((tx) => tx.senderId);
+const genesisWallets = config.genesisBlock.transactions.map(tx => tx.senderId);
 
-export default class SPV {
+export class SPV {
   private connection: any;
   private models: any;
   private walletManager: any;
@@ -64,16 +61,8 @@ export default class SPV {
     await this.__buildMultisignatures();
 
     logger.stopTracker("SPV", 8, 8);
-    logger.info(
-      `SPV rebuild finished, wallets in memory: ${
-      Object.keys(this.walletManager.byAddress).length
-      }`,
-    );
-    logger.info(
-      `Number of registered delegates: ${
-      Object.keys(this.walletManager.byUsername).length
-      }`,
-    );
+    logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`);
+    logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`);
 
     return this.__verifyWalletsConsistency();
   }
@@ -90,11 +79,7 @@ export default class SPV {
 
       wallet
         ? (wallet.balance = new Bignum(transaction.amount))
-        : logger.warn(
-          `Lost cold wallet: ${transaction.recipientId} ${
-          transaction.amount
-          }`,
-        );
+        : logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
     }
   }
 
@@ -106,9 +91,7 @@ export default class SPV {
     const blocks = await this.query.many(queries.spv.blockRewards);
 
     for (const block of blocks) {
-      const wallet = this.walletManager.findByPublicKey(
-        block.generatorPublicKey,
-      );
+      const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
       wallet.balance = wallet.balance.plus(block.reward);
     }
   }
@@ -123,9 +106,7 @@ export default class SPV {
     });
 
     for (const block of blocks) {
-      const wallet = this.walletManager.findByPublicKey(
-        block.generatorPublicKey,
-      );
+      const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
       wallet.lastBlock = block;
     }
   }
@@ -138,12 +119,8 @@ export default class SPV {
     const transactions = await this.query.many(queries.spv.sentTransactions);
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(
-        transaction.senderPublicKey,
-      );
-      wallet.balance = wallet.balance
-        .minus(transaction.amount)
-        .minus(transaction.fee);
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
+      wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
 
       if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
         logger.warn(`Negative balance: ${wallet}`);
@@ -164,14 +141,10 @@ export default class SPV {
    * @return {void}
    */
   public async __buildSecondSignatures() {
-    const transactions = await this.query.manyOrNone(
-      queries.spv.secondSignatures,
-    );
+    const transactions = await this.query.manyOrNone(queries.spv.secondSignatures);
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(
-        transaction.senderPublicKey,
-      );
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
       wallet.secondPublicKey = Transaction.deserialize(
         transaction.serialized.toString("hex"),
       ).asset.signature.publicKey;
@@ -186,14 +159,10 @@ export default class SPV {
     const transactions = await this.query.manyOrNone(queries.spv.votes);
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(
-        transaction.senderPublicKey,
-      );
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
       if (!wallet.voted) {
-        const vote = Transaction.deserialize(
-          transaction.serialized.toString("hex"),
-        ).asset.votes[0];
+        const vote = Transaction.deserialize(transaction.serialized.toString("hex")).asset.votes[0];
 
         if (vote.startsWith("+")) {
           wallet.vote = vote.slice(1);
@@ -217,24 +186,16 @@ export default class SPV {
     // Register...
     const transactions = await this.query.manyOrNone(queries.spv.delegates);
 
-    transactions.forEach((transaction) => {
-      const wallet = this.walletManager.findByPublicKey(
-        transaction.senderPublicKey,
-      );
-      wallet.username = Transaction.deserialize(
-        transaction.serialized.toString("hex"),
-      ).asset.delegate.username;
+    transactions.forEach(transaction => {
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
+      wallet.username = Transaction.deserialize(transaction.serialized.toString("hex")).asset.delegate.username;
       this.walletManager.reindex(wallet);
     });
 
     // Forged Blocks...
-    const forgedBlocks = await this.query.manyOrNone(
-      queries.spv.delegatesForgedBlocks,
-    );
-    forgedBlocks.forEach((block) => {
-      const wallet = this.walletManager.findByPublicKey(
-        block.generatorPublicKey,
-      );
+    const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks);
+    forgedBlocks.forEach(block => {
+      const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
       wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
       wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
       wallet.producedBlocks = +block.totalProduced;
@@ -256,19 +217,13 @@ export default class SPV {
    * @return {void}
    */
   public async __buildMultisignatures() {
-    const transactions = await this.query.manyOrNone(
-      queries.spv.multiSignatures,
-    );
+    const transactions = await this.query.manyOrNone(queries.spv.multiSignatures);
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(
-        transaction.senderPublicKey,
-      );
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
       if (!wallet.multisignature) {
-        wallet.multisignature = Transaction.deserialize(
-          transaction.serialized.toString("hex"),
-        ).asset.multisignature;
+        wallet.multisignature = Transaction.deserialize(transaction.serialized.toString("hex")).asset.multisignature;
       }
     }
   }
@@ -290,27 +245,17 @@ export default class SPV {
       for (const dbWallet of dbWallets) {
         if (dbWallet.balance < 0 && !this.isGenesis(dbWallet)) {
           detectedInconsistency = true;
-          logger.warn(
-            `Wallet '${dbWallet.address}' has a negative balance of '${
-            dbWallet.balance
-            }'`,
-          );
+          logger.warn(`Wallet '${dbWallet.address}' has a negative balance of '${dbWallet.balance}'`);
           break;
         }
 
         if (dbWallet.voteBalance < 0) {
           detectedInconsistency = true;
-          logger.warn(
-            `Wallet ${dbWallet.address} has a negative vote balance of '${
-            dbWallet.voteBalance
-            }'`,
-          );
+          logger.warn(`Wallet ${dbWallet.address} has a negative vote balance of '${dbWallet.voteBalance}'`);
           break;
         }
 
-        const inMemoryWallet = this.walletManager.findByPublicKey(
-          dbWallet.publicKey,
-        );
+        const inMemoryWallet = this.walletManager.findByPublicKey(dbWallet.publicKey);
 
         if (
           !inMemoryWallet.balance.isEqualTo(dbWallet.balance) ||

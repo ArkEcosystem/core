@@ -3,7 +3,7 @@ import { app } from "@arkecosystem/core-container";
 const database = app.resolvePlugin("database");
 
 import { Repository } from "./repository";
-import buildFilterQuery from "./utils/filter-query";
+import { buildFilterQuery } from "./utils/filter-query";
 
 class BlocksRepository extends Repository {
   /**
@@ -15,7 +15,7 @@ class BlocksRepository extends Repository {
     const selectQuery = this.query.select().from(this.query);
     const countQuery = this._makeEstimateQuery();
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = Object.entries(this._formatConditions(parameters));
 
       if (conditions.length) {
@@ -89,16 +89,9 @@ class BlocksRepository extends Repository {
     const selectQuery = this.query.select().from(this.query);
     const countQuery = this._makeEstimateQuery();
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = buildFilterQuery(this._formatConditions(parameters), {
-        exact: [
-          "id",
-          "version",
-          "previous_block",
-          "payload_hash",
-          "generator_public_key",
-          "block_signature",
-        ],
+        exact: ["id", "version", "previous_block", "payload_hash", "generator_public_key", "block_signature"],
         between: [
           "timestamp",
           "height",
@@ -117,9 +110,7 @@ class BlocksRepository extends Repository {
           item.where(this.query[first.column][first.method](first.value));
 
           for (const condition of conditions) {
-            item.and(
-              this.query[condition.column][condition.method](condition.value),
-            );
+            item.and(this.query[condition.column][condition.method](condition.value));
           }
         }
       }
@@ -139,11 +130,8 @@ class BlocksRepository extends Repository {
   }
 
   public __orderBy(parameters) {
-    return parameters.orderBy
-      ? parameters.orderBy.split(":").map((p) => p.toLowerCase())
-      : ["height", "desc"];
+    return parameters.orderBy ? parameters.orderBy.split(":").map(p => p.toLowerCase()) : ["height", "desc"];
   }
 }
 
-const Blocks = new BlocksRepository();
-export { Blocks };
+export const blockRepository = new BlocksRepository();

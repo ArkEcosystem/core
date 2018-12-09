@@ -1,7 +1,7 @@
 /* Column sets.
  * If you modify the order you must adapt the sql files export orders also
  */
-export default {
+export const columns = {
   blocks: [
     "id",
     "version",

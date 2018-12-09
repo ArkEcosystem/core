@@ -1,11 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
 
-export default function(model) {
+export function transformBlock(model) {
   const database = app.resolvePlugin("database");
-  const generator = database.walletManager.findByPublicKey(
-    model.generatorPublicKey,
-  );
+  const generator = database.walletManager.findByPublicKey(model.generatorPublicKey);
 
   model.reward = bignumify(model.reward);
   model.totalFee = bignumify(model.totalFee);

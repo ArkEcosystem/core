@@ -1,4 +1,5 @@
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
+import { registerRoutes } from "./routes";
 
 export async function startServer(config) {
   const server = await createServer({
@@ -44,7 +45,7 @@ export async function startServer(config) {
   });
 
   await server.register({
-    plugin: require("./routes"),
+    plugin: registerRoutes,
     routes: { prefix: "/api" },
     options: config,
   });

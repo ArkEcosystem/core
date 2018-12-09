@@ -3,9 +3,9 @@ import Boom from "boom";
 import Hapi from "hapi";
 import orderBy from "lodash/orderBy";
 import { blocksRepository, transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class DelegatesController extends Controller {
+export class DelegatesController extends Controller {
   protected database: any;
 
   public constructor() {
@@ -66,9 +66,7 @@ export default class DelegatesController extends Controller {
 
   public async voterBalances(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
-      const data = await request.server.methods.v2.delegates.voterBalances(
-        request,
-      );
+      const data = await request.server.methods.v2.delegates.voterBalances(request);
 
       return super.respondWithCache(data, h);
     } catch (error) {

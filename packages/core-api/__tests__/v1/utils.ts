@@ -1,11 +1,7 @@
 import "jest-extended";
 import axios from "axios";
-import {
-  client,
-  transactionBuilder,
-  NetworkManager
-} from "@arkecosystem/crypto";
-import apiHelpers from "@arkecosystem/core-test-utils/dist/helpers/api";
+import { client, transactionBuilder, NetworkManager } from "@arkecosystem/crypto";
+import { ApiHelpers } from "@arkecosystem/core-test-utils/dist/helpers/api";
 import { app } from "@arkecosystem/core-container";
 
 class Helpers {
@@ -13,12 +9,12 @@ class Helpers {
     const url = `http://localhost:4003/api/${path}`;
     const headers = {
       "API-Version": 1,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     };
 
     const server = app.resolvePlugin("api");
 
-    return apiHelpers.request(server.http, method, url, headers, params);
+    return ApiHelpers.request(server.http, method, url, headers, params);
   }
 
   expectJson(response) {
@@ -84,19 +80,17 @@ class Helpers {
       .amount(1 * 1e8)
       .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
       .vendorField("test")
-      .sign(
-        "prison tobacco acquire stone dignity palace note decade they current lesson robot"
-      )
+      .sign("prison tobacco acquire stone dignity palace note decade they current lesson robot")
       .getStruct();
 
     await axios.post(
       "http://127.0.0.1:4003/api/v2/transactions",
       {
-        transactions: [transaction]
+        transactions: [transaction],
       },
       {
-        headers: { "Content-Type": "application/json" }
-      }
+        headers: { "Content-Type": "application/json" },
+      },
     );
 
     return transaction;

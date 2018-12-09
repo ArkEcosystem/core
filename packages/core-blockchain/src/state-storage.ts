@@ -5,7 +5,7 @@ import { models } from "@arkecosystem/crypto";
 
 import assert from "assert";
 import immutable from "immutable";
-import blockchainMachine from "./machines/blockchain";
+import { blockchainMachine } from "./machines/blockchain";
 
 const { Block } = models;
 const logger = app.resolvePlugin("logger");
@@ -19,8 +19,7 @@ let _lastBlocks: any = immutable.OrderedMap<number, typeof Block>();
 let _cachedTransactionIds = immutable.OrderedSet();
 
 // Map Block instances to block data.
-const _mapToBlockData = blocks =>
-  blocks.map(block => ({ ...block.data, transactions: block.transactions }));
+const _mapToBlockData = blocks => blocks.map(block => ({ ...block.data, transactions: block.transactions }));
 
 /**
  * Represents an in-memory storage for state machine data.
@@ -98,10 +97,7 @@ class StateStorage {
    */
   public setLastBlock(block) {
     // Only keep blocks which are below the new block height (i.e. rollback)
-    if (
-      _lastBlocks.last() &&
-      _lastBlocks.last().data.height !== block.data.height - 1
-    ) {
+    if (_lastBlocks.last() && _lastBlocks.last().data.height !== block.data.height - 1) {
       assert(block.data.height - 1 <= _lastBlocks.last().data.height);
       _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height);
     }
@@ -109,9 +105,7 @@ class StateStorage {
     _lastBlocks = _lastBlocks.set(block.data.height, block);
 
     // Delete oldest block if size exceeds the maximum
-    if (
-      _lastBlocks.size > app.resolveOptions("blockchain").state.maxLastBlocks
-    ) {
+    if (_lastBlocks.size > app.resolveOptions("blockchain").state.maxLastBlocks) {
       _lastBlocks = _lastBlocks.delete(_lastBlocks.first().data.height);
     }
   }
@@ -155,9 +149,7 @@ class StateStorage {
   public getLastBlocksByHeight(start, end?) {
     end = end || start;
 
-    const blocks = _lastBlocks
-      .valueSeq()
-      .filter(block => block.data.height >= start && block.data.height <= end);
+    const blocks = _lastBlocks.valueSeq().filter(block => block.data.height >= start && block.data.height <= end);
 
     return _mapToBlockData(blocks).toArray();
   }
@@ -230,10 +222,7 @@ class StateStorage {
       return false;
     }
 
-    if (
-      this.blockPing.block.height === incomingBlock.height &&
-      this.blockPing.block.id === incomingBlock.id
-    ) {
+    if (this.blockPing.block.height === incomingBlock.height && this.blockPing.block.id === incomingBlock.id) {
       this.blockPing.count++;
       this.blockPing.last = new Date().getTime();
 
@@ -252,9 +241,7 @@ class StateStorage {
     // logging for stats about network health
     if (this.blockPing) {
       logger.info(
-        `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
-          this.blockPing.count
-        } times`
+        `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${this.blockPing.count} times`,
       );
     }
 
@@ -262,9 +249,9 @@ class StateStorage {
       count: 1,
       first: new Date().getTime(),
       last: new Date().getTime(),
-      block
+      block,
     };
   }
 }
 
-export default Object.seal(new StateStorage());
+export const stateStorage = Object.seal(new StateStorage());

@@ -3,7 +3,7 @@ import orderBy from "lodash/orderBy";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 
-export default class WalletsRepository {
+export class WalletsRepository {
   /**
    * Create a new wallet repository instance.
    * @param  {ConnectionInterface} connection
@@ -26,16 +26,11 @@ export default class WalletsRepository {
   public findAll(params: { orderBy?: string } = {}) {
     const wallets = this.all();
 
-    const [iteratee, order] = params.orderBy
-      ? params.orderBy.split(":")
-      : ["rate", "asc"];
+    const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
 
     return {
-      rows: limitRows(
-        orderBy(wallets, iteratee, order as "desc" | "asc"),
-        params
-      ),
-      count: wallets.length
+      rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
+      count: wallets.length,
     };
   }
 
@@ -50,7 +45,7 @@ export default class WalletsRepository {
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length
+      count: wallets.length,
     };
   }
 
@@ -60,12 +55,7 @@ export default class WalletsRepository {
    * @return {Object}
    */
   public findById(id) {
-    return this.all().find(
-      wallet =>
-        wallet.address === id ||
-        wallet.publicKey === id ||
-        wallet.username === id
-    );
+    return this.all().find(wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id);
   }
 
   /**
@@ -82,13 +72,11 @@ export default class WalletsRepository {
    * @return {Object}
    */
   public top(params = {}) {
-    const wallets = Object.values(this.all()).sort(
-      (a: any, b: any) => +b.balance.minus(a.balance).toFixed()
-    );
+    const wallets = Object.values(this.all()).sort((a: any, b: any) => +b.balance.minus(a.balance).toFixed());
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length
+      count: wallets.length,
     };
   }
 
@@ -114,12 +102,12 @@ export default class WalletsRepository {
   public search(params) {
     const wallets = filterRows(this.all(), params, {
       exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
-      between: ["balance", "voteBalance"]
+      between: ["balance", "voteBalance"],
     });
 
     return {
       rows: limitRows(wallets, params),
-      count: wallets.length
+      count: wallets.length,
     };
   }
 }

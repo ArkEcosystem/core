@@ -1,6 +1,6 @@
 /* tslint:disable:forin prefer-for-of*/
 
-export default (pgp, data) => {
+export function camelizeColumns(pgp, data) {
   const tmp = data[0];
 
   for (const prop in tmp) {
@@ -14,4 +14,4 @@ export default (pgp, data) => {
       }
     }
   }
-};
+}

@@ -1,9 +1,9 @@
 import Hapi from "hapi";
-import Controller from "./controller";
+import { VotesController } from "./controller";
 import * as Schema from "./schema";
 
-export default function(server: Hapi.Server): void {
-  const controller = new Controller();
+export function registerRoutes(server: Hapi.Server): void {
+  const controller = new VotesController();
   server.bind(controller);
 
   server.route({

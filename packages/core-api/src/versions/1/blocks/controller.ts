@@ -3,9 +3,9 @@ import { bignumify } from "@arkecosystem/core-utils";
 import Boom from "boom";
 import Hapi from "hapi";
 import { blocksRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class BlocksController extends Controller {
+export class BlocksController extends Controller {
   protected blockchain: any;
   protected config: any;
 
@@ -67,8 +67,7 @@ export default class BlocksController extends Controller {
   public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return super.respondWith({
-        fee: this.config.getConstants(this.blockchain.getLastHeight()).fees
-          .staticFees.transfer,
+        fee: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees.transfer,
       });
     } catch (error) {
       return Boom.badImplementation(error);
@@ -118,9 +117,7 @@ export default class BlocksController extends Controller {
     try {
       const lastBlock = this.blockchain.getLastBlock();
       const constants = this.config.getConstants(lastBlock.data.height);
-      const rewards = bignumify(constants.reward).times(
-        lastBlock.data.height - constants.height,
-      );
+      const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
 
       return super.respondWith({
         supply: +bignumify(this.config.genesisBlock.totalAmount)
@@ -136,9 +133,7 @@ export default class BlocksController extends Controller {
     try {
       const lastBlock = this.blockchain.getLastBlock();
       const constants = this.config.getConstants(lastBlock.data.height);
-      const rewards = bignumify(constants.reward).times(
-        lastBlock.data.height - constants.height,
-      );
+      const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
 
       return super.respondWith({
         epoch: constants.epoch,

@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
 import { transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class LoaderController extends Controller {
+export class LoaderController extends Controller {
   protected blockchain: any;
   protected config: any;
 
@@ -30,10 +30,7 @@ export default class LoaderController extends Controller {
       return super.respondWith({
         loaded: this.blockchain.isSynced(),
         now: lastBlock ? lastBlock.data.height : 0,
-        blocksCount:
-          this.blockchain.p2p.getNetworkHeight() - lastBlock
-            ? lastBlock.data.height
-            : 0,
+        blocksCount: this.blockchain.p2p.getNetworkHeight() - lastBlock ? lastBlock.data.height : 0,
       });
     } catch (error) {
       return Boom.badImplementation(error);
@@ -67,11 +64,7 @@ export default class LoaderController extends Controller {
           explorer: this.config.network.client.explorer,
           version: this.config.network.pubKeyHash,
           ports: super.toResource(request, this.config, "ports"),
-          feeStatistics: super.toCollection(
-            request,
-            feeStatisticsData,
-            "fee-statistics",
-          ),
+          feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
         },
       });
     } catch (error) {

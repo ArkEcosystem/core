@@ -1,9 +1,9 @@
 import { Machine } from "xstate";
-import fork from "./actions/fork";
-import rebuildFromNetwork from "./actions/rebuild-from-network";
-import syncWithNetwork from "./actions/sync-with-network";
+import { fork } from "./actions/fork";
+import { rebuildFromNetwork } from "./actions/rebuild-from-network";
+import { syncWithNetwork } from "./actions/sync-with-network";
 
-const machine = Machine({
+export const blockchainMachine: any = Machine({
   key: "blockchain",
   initial: "uninitialised",
   states: {
@@ -87,5 +87,3 @@ const machine = Machine({
     },
   },
 });
-
-export default machine as any;

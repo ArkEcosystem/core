@@ -2,10 +2,10 @@ import { app } from "@arkecosystem/core-container";
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import { IRepository } from "../interfaces/repository";
-import Repository from "./repository";
-import buildFilterQuery from "./utils/filter-query";
+import { Repository } from "./repository";
+import { buildFilterQuery } from "./utils/filter-query";
 
-export default class TransactionsRepository extends Repository implements IRepository {
+export class TransactionsRepository extends Repository implements IRepository {
   /**
    * Get all transactions.
    * @param  {Object}  params
@@ -25,7 +25,7 @@ export default class TransactionsRepository extends Repository implements IRepos
       parameters.senderPublicKey = senderPublicKey;
     }
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = Object.entries(this._formatConditions(parameters));
 
       if (conditions.length) {
@@ -69,18 +69,14 @@ export default class TransactionsRepository extends Repository implements IRepos
    * @return {Object}
    */
   public async findAllLegacy(parameters: any = {}): Promise<any> {
-    const selectQuery = this.query
-      .select(this.query.block_id, this.query.serialized)
-      .from(this.query);
+    const selectQuery = this.query.select(this.query.block_id, this.query.serialized).from(this.query);
     const countQuery = this._makeEstimateQuery();
 
     if (parameters.senderId) {
-      parameters.senderPublicKey = this.__publicKeyFromSenderId(
-        parameters.senderId,
-      );
+      parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
     }
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = Object.entries(this._formatConditions(parameters));
 
       if (conditions.length) {
@@ -116,12 +112,10 @@ export default class TransactionsRepository extends Repository implements IRepos
    * @return {Object}
    */
   public async findAllByWallet(wallet, parameters: any = {}): Promise<any> {
-    const selectQuery = this.query
-      .select(this.query.block_id, this.query.serialized)
-      .from(this.query);
+    const selectQuery = this.query.select(this.query.block_id, this.query.serialized).from(this.query);
     const countQuery = this._makeEstimateQuery();
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       for (const item of queries) {
         item
           .where(this.query.sender_public_key.equals(wallet.publicKey))
@@ -298,16 +292,9 @@ export default class TransactionsRepository extends Repository implements IRepos
       }
     }
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = buildFilterQuery(this._formatConditions(parameters), {
-        exact: [
-          "id",
-          "block_id",
-          "type",
-          "version",
-          "sender_public_key",
-          "recipient_id",
-        ],
+        exact: ["id", "block_id", "type", "version", "sender_public_key", "recipient_id"],
         between: ["timestamp", "amount", "fee"],
         wildcard: ["vendor_field_hex"],
       });
@@ -319,9 +306,7 @@ export default class TransactionsRepository extends Repository implements IRepos
           item.where(this.query[first.column][first.method](first.value));
 
           for (const condition of conditions) {
-            item.and(
-              this.query[condition.column][condition.method](condition.value),
-            );
+            item.and(this.query[condition.column][condition.method](condition.value));
           }
         }
       }
@@ -375,13 +360,13 @@ export default class TransactionsRepository extends Repository implements IRepos
         const query = blockQuery
           .select(blockQuery.id, blockQuery.height)
           .from(blockQuery)
-          .where(blockQuery.id.in(missingFromCache.map((d) => d.blockId)))
+          .where(blockQuery.id.in(missingFromCache.map(d => d.blockId)))
           .group(blockQuery.id);
 
         const blocks = await this._findMany(query);
 
         for (const missing of missingFromCache) {
-          const block = blocks.find((item) => item.id === missing.blockId);
+          const block = blocks.find(item => item.id === missing.blockId);
           if (block) {
             data[missing.index].block = block;
             this.__setBlockCache(block);
@@ -444,8 +429,6 @@ export default class TransactionsRepository extends Repository implements IRepos
   }
 
   public __orderBy(parameters): string[] {
-    return parameters.orderBy
-      ? parameters.orderBy.split(":").map((p) => p.toLowerCase())
-      : ["timestamp", "desc"];
+    return parameters.orderBy ? parameters.orderBy.split(":").map(p => p.toLowerCase()) : ["timestamp", "desc"];
   }
 }

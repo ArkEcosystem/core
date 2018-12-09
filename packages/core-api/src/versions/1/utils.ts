@@ -1,6 +1,6 @@
 import Boom from "boom";
 import Hapi from "hapi";
-import Transformer from "../../services/transformer";
+import { transformerService } from "../../services/transformer";
 
 function paginate(request: Hapi.Request): any {
   return {
@@ -12,9 +12,7 @@ function paginate(request: Hapi.Request): any {
 }
 
 function respondWith(data, error = false): object {
-  return error
-    ? { error: data, success: false }
-    : { ...data, success: true };
+  return error ? { error: data, success: false } : { ...data, success: true };
 }
 
 function respondWithCache(data, h): any {
@@ -27,17 +25,11 @@ function respondWithCache(data, h): any {
 }
 
 function toResource(request, data, transformer): object {
-  return Transformer.toResource(request, data, transformer);
+  return transformerService.toResource(request, data, transformer);
 }
 
 function toCollection(request, data, transformer): object {
-  return Transformer.toCollection(request, data, transformer);
+  return transformerService.toCollection(request, data, transformer);
 }
 
-export {
-  paginate,
-  respondWith,
-  respondWithCache,
-  toResource,
-  toCollection,
-};
+export { paginate, respondWith, respondWithCache, toResource, toCollection };

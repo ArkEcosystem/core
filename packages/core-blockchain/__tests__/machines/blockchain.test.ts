@@ -1,19 +1,19 @@
 import "@arkecosystem/core-test-utils/";
 
-import machine from "../../src/machines/blockchain";
+import { blockchainMachine } from "../../src/machines/blockchain";
 
 describe("Blockchain machine", () => {
   it("should use `blockchain` as the key", () => {
-    expect(machine).toHaveProperty("key", "blockchain");
+    expect(blockchainMachine).toHaveProperty("key", "blockchain");
   });
 
   it("should start with the `uninitialised` state", () => {
-    expect(machine.initialState).toHaveProperty("value", "uninitialised");
+    expect(blockchainMachine.initialState).toHaveProperty("value", "uninitialised");
   });
 
   describe("state `uninitialised`", () => {
     it("should transition to `init` on `START`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "uninitialised",
         on: "START",
         to: "init",
@@ -23,11 +23,11 @@ describe("Blockchain machine", () => {
 
   describe("state `init`", () => {
     it("should execute the `init` action when is entered", () => {
-      expect(machine).toExecuteOnEntry({ state: "init", actions: ["init"] });
+      expect(blockchainMachine).toExecuteOnEntry({ state: "init", actions: ["init"] });
     });
 
     it("should transition to `rebuild` on `REBUILD`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "init",
         on: "REBUILD",
         to: "rebuild",
@@ -35,7 +35,7 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `rebuild` on `NETWORKSTART`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "init",
         on: "NETWORKSTART",
         to: "idle",
@@ -43,7 +43,7 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `rebuild` on `STARTED`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "init",
         on: "STARTED",
         to: "syncWithNetwork",
@@ -51,13 +51,13 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `rebuild` on `FAILURE`", () => {
-      expect(machine).toTransition({ from: "init", on: "FAILURE", to: "exit" });
+      expect(blockchainMachine).toTransition({ from: "init", on: "FAILURE", to: "exit" });
     });
   });
 
   describe("state `rebuild`", () => {
     it("should transition to `syncWithNetwork` on `REBUILDCOMPLETE`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "rebuild",
         on: "REBUILDCOMPLETE",
         to: "syncWithNetwork",
@@ -65,13 +65,13 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `fork` on `FORK`", () => {
-      expect(machine).toTransition({ from: "rebuild", on: "FORK", to: "fork" });
+      expect(blockchainMachine).toTransition({ from: "rebuild", on: "FORK", to: "fork" });
     });
   });
 
   describe("state `syncWithNetwork`", () => {
     it("should transition to `idle` on `TEST`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "syncWithNetwork",
         on: "TEST",
         to: "idle",
@@ -79,7 +79,7 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `idle` on `SYNCFINISHED`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "syncWithNetwork",
         on: "SYNCFINISHED",
         to: "idle",
@@ -87,7 +87,7 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `fork` on `FORK`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "syncWithNetwork",
         on: "FORK",
         to: "fork",
@@ -97,14 +97,14 @@ describe("Blockchain machine", () => {
 
   describe("state `idle`", () => {
     it("should execute the `checkLater` and `blockchainReady` actions when is entered", () => {
-      expect(machine).toExecuteOnEntry({
+      expect(blockchainMachine).toExecuteOnEntry({
         state: "idle",
         actions: ["checkLater", "blockchainReady"],
       });
     });
 
     it("should transition to `syncWithNetwork` on `WAKEUP`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "idle",
         on: "WAKEUP",
         to: "syncWithNetwork",
@@ -112,7 +112,7 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `newBlock` on `NEWBLOCK`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "idle",
         on: "NEWBLOCK",
         to: "newBlock",
@@ -120,13 +120,13 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `stopped` on `STOP`", () => {
-      expect(machine).toTransition({ from: "idle", on: "STOP", to: "stopped" });
+      expect(blockchainMachine).toTransition({ from: "idle", on: "STOP", to: "stopped" });
     });
   });
 
   describe("state `newBlock`", () => {
     it("should transition to `idle` on `PROCESSFINISHED`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "newBlock",
         on: "PROCESSFINISHED",
         to: "idle",
@@ -134,7 +134,7 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `fork` on `FORK`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "newBlock",
         on: "FORK",
         to: "fork",
@@ -142,7 +142,7 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `stopped` on `STOP`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "newBlock",
         on: "STOP",
         to: "stopped",
@@ -152,14 +152,14 @@ describe("Blockchain machine", () => {
 
   describe("state `fork`", () => {
     it("should execute the `processBlock` action when is entered", () => {
-      expect(machine).toExecuteOnEntry({
+      expect(blockchainMachine).toExecuteOnEntry({
         state: "fork",
         actions: ["startForkRecovery"],
       });
     });
 
     it("should transition to `idle` on `SUCCESS`", () => {
-      expect(machine).toTransition({
+      expect(blockchainMachine).toTransition({
         from: "fork",
         on: "SUCCESS",
         to: "syncWithNetwork",
@@ -167,13 +167,13 @@ describe("Blockchain machine", () => {
     });
 
     it("should transition to `fork` on `FAILURE`", () => {
-      expect(machine).toTransition({ from: "fork", on: "FAILURE", to: "exit" });
+      expect(blockchainMachine).toTransition({ from: "fork", on: "FAILURE", to: "exit" });
     });
   });
 
   describe("state `stopped`", () => {
     it("should execute the `stopped` action when is entered", () => {
-      expect(machine).toExecuteOnEntry({
+      expect(blockchainMachine).toExecuteOnEntry({
         state: "stopped",
         actions: ["stopped"],
       });
@@ -182,7 +182,7 @@ describe("Blockchain machine", () => {
 
   describe("state `exit`", () => {
     it("should execute the `exitApp` action when is entered", () => {
-      expect(machine).toExecuteOnEntry({ state: "exit", actions: ["exitApp"] });
+      expect(blockchainMachine).toExecuteOnEntry({ state: "exit", actions: ["exitApp"] });
     });
   });
 });

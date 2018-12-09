@@ -1,4 +1,4 @@
-export default {
+export const offences = {
   BLACKLISTED: {
     number: 12,
     period: "hours",

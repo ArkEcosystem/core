@@ -1,4 +1,4 @@
-export default {
+export const defaults = {
   host: process.env.ARK_P2P_HOST || "0.0.0.0",
   port: process.env.ARK_P2P_PORT || 4002,
   remoteInterface: false,

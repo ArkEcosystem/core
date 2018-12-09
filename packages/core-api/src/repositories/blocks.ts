@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { IRepository } from "../interfaces/repository";
-import Repository from "./repository";
-import buildFilterQuery from "./utils/filter-query";
+import { Repository } from "./repository";
+import { buildFilterQuery } from "./utils/filter-query";
 
-export default class BlocksRepository extends Repository implements IRepository {
+export class BlockRepository extends Repository implements IRepository {
   /**
    * Get all blocks for the given parameters.
    * @param  {Object}  parameters
@@ -13,7 +13,7 @@ export default class BlocksRepository extends Repository implements IRepository 
     const selectQuery = this.query.select().from(this.query);
     const countQuery = this._makeEstimateQuery();
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = Object.entries(this._formatConditions(parameters));
 
       if (conditions.length) {
@@ -60,9 +60,9 @@ export default class BlocksRepository extends Repository implements IRepository 
       .where(this.query.id.equals(value));
 
     // ensure that the value is not greater than 2147483647 (psql max int size)
-    const height = +value
+    const height = +value;
     if (height <= 2147483647) {
-      query.or(this.query.height.equals(height))
+      query.or(this.query.height.equals(height));
     }
 
     return this._find(query);
@@ -93,16 +93,9 @@ export default class BlocksRepository extends Repository implements IRepository 
     const selectQuery = this.query.select().from(this.query);
     const countQuery = this._makeEstimateQuery();
 
-    const applyConditions = (queries) => {
+    const applyConditions = queries => {
       const conditions = buildFilterQuery(this._formatConditions(parameters), {
-        exact: [
-          "id",
-          "version",
-          "previous_block",
-          "payload_hash",
-          "generator_public_key",
-          "block_signature",
-        ],
+        exact: ["id", "version", "previous_block", "payload_hash", "generator_public_key", "block_signature"],
         between: [
           "timestamp",
           "height",
@@ -121,9 +114,7 @@ export default class BlocksRepository extends Repository implements IRepository 
           item.where(this.query[first.column][first.method](first.value));
 
           for (const condition of conditions) {
-            item.and(
-              this.query[condition.column][condition.method](condition.value),
-            );
+            item.and(this.query[condition.column][condition.method](condition.value));
           }
         }
       }
@@ -143,9 +134,11 @@ export default class BlocksRepository extends Repository implements IRepository 
   }
 
   public __orderBy(parameters): string[] {
-    if (!parameters.orderBy) { return ["height", "desc"]; }
+    if (!parameters.orderBy) {
+      return ["height", "desc"];
+    }
 
-    const orderBy = parameters.orderBy.split(":").map((p) => p.toLowerCase());
+    const orderBy = parameters.orderBy.split(":").map(p => p.toLowerCase());
     if (orderBy.length !== 2 || ["desc", "asc"].includes(orderBy[1]) !== true) {
       return ["height", "desc"];
     }

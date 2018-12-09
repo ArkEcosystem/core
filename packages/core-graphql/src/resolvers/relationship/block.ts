@@ -6,7 +6,7 @@ const database = app.resolvePlugin("database");
 /**
  * Useful and common database operations with block data.
  */
-export default {
+export const Block = {
   /**
    * Get the transactions for a given block
    * @param {Block}: block

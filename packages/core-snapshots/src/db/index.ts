@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { migrations } from "@arkecosystem/core-database-postgres";
 import promise from "bluebird";
 
-import queries from "./queries";
+import { queries } from "./queries";
 import { rawQuery } from "./utils";
-import columns from "./utils/column-set";
+import { columns } from "./utils/column-set";
 
 const logger = app.resolvePlugin("logger");
 
@@ -15,15 +15,13 @@ class Database {
   public blocksColumnSet: any;
   public transactionsColumnSet: any;
 
-  public async make(database) {
-    if (database) {
-      this.db = database.db;
-      this.pgp = database.pgp;
+  public async make(connection) {
+    if (connection) {
+      this.db = connection.db;
+      this.pgp = connection.pgp;
       this.__createColumnSets();
       this.isSharedConnection = true;
-      logger.info(
-        "Snapshots: reusing core-database-postgres connection from running core"
-      );
+      logger.info("Snapshots: reusing core-database-postgres connection from running core");
       return this;
     }
 
@@ -78,12 +76,12 @@ class Database {
         await Promise.all([
           this.db.none(queries.truncate("wallets")),
           this.db.none(queries.transactions.deleteFromTimestamp, {
-            timestamp: lastRemainingBlock.timestamp
+            timestamp: lastRemainingBlock.timestamp,
           }),
           this.db.none(queries.blocks.deleteFromHeight, {
-            height: lastRemainingBlock.height
+            height: lastRemainingBlock.height,
           }),
-          this.db.none(queries.rounds.deleteFromRound, { round: currentRound })
+          this.db.none(queries.rounds.deleteFromRound, { round: currentRound }),
         ]);
       }
     } catch (error) {
@@ -98,25 +96,23 @@ class Database {
     const endBlock = await this.getBlockByHeight(endHeight);
 
     if (!startBlock || !endBlock) {
-      app.forceExit(
-        "Wrong input height parameters for building export queries. Blocks at height not found in db."
-      );
+      app.forceExit("Wrong input height parameters for building export queries. Blocks at height not found in db.");
     }
     return {
       blocks: rawQuery(this.pgp, queries.blocks.heightRange, {
         start: startBlock.height,
-        end: endBlock.height
+        end: endBlock.height,
       }),
       transactions: rawQuery(this.pgp, queries.transactions.timestampRange, {
         start: startBlock.timestamp,
-        end: endBlock.timestamp
-      })
+        end: endBlock.timestamp,
+      }),
     };
   }
 
   public getTransactionsBackupQuery(startTimestamp) {
     return rawQuery(this.pgp, queries.transactions.timestampHigher, {
-      start: startTimestamp
+      start: startTimestamp,
     });
   }
 
@@ -141,12 +137,9 @@ class Database {
 
   public __createColumnSets() {
     this.blocksColumnSet = new this.pgp.helpers.ColumnSet(columns.blocks, {
-      table: "blocks"
+      table: "blocks",
     });
-    this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(
-      columns.transactions,
-      { table: "transactions" }
-    );
+    this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: "transactions" });
   }
 
   public async __runMigrations() {
@@ -156,4 +149,4 @@ class Database {
   }
 }
 
-export default new Database();
+export const database = new Database();

@@ -1,4 +1,5 @@
 import Boom from "boom";
+import { transform } from "./transformer";
 
 /**
  * Transform the given data into a resource.
@@ -6,7 +7,7 @@ import Boom from "boom";
  * @param  {Object} data
  * @return {Object}
  */
-const transformResource = (request, data) => require("./transformer")(data);
+const transformResource = (request, data) => transform(data);
 
 /**
  * Transform the given data into a collection.
@@ -14,15 +15,14 @@ const transformResource = (request, data) => require("./transformer")(data);
  * @param  {Object} data
  * @return {Array}
  */
-const transformCollection = (request, data) =>
-  data.map((d) => transformResource(request, d));
+const transformCollection = (request, data) => data.map(d => transformResource(request, d));
 
 /**
  * Create a pagination object for the request.
  * @param  {Hapi.Request} request
  * @return {Object}
  */
-const paginate = (request) => ({
+const paginate = request => ({
   offset: (request.query.page - 1) * request.query.limit,
   limit: request.query.limit,
 });
@@ -33,10 +33,7 @@ const paginate = (request) => ({
  * @param  {Object} data
  * @return {Hapi.Response}
  */
-const respondWithResource = (request, data) =>
-  data
-    ? { data: transformResource(request, data) }
-    : Boom.notFound();
+const respondWithResource = (request, data) => (data ? { data: transformResource(request, data) } : Boom.notFound());
 
 /**
  * Respond with a collection.
@@ -54,8 +51,7 @@ const respondWithCollection = (request, data) => ({
  * @param  {Object} data
  * @return {Hapi.Response}
  */
-const toResource = (request, data) =>
-  transformResource(request, data);
+const toResource = (request, data) => transformResource(request, data);
 
 /**
  * Alias of "transformCollection".
@@ -63,8 +59,7 @@ const toResource = (request, data) =>
  * @param  {Object} data
  * @return {Hapi.Response}
  */
-const toCollection = (request, data) =>
-  transformCollection(request, data);
+const toCollection = (request, data) => transformCollection(request, data);
 
 /**
  * Transform the given data into a pagination.

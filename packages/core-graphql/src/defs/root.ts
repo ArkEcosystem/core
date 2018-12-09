@@ -1,10 +1,4 @@
-/**
- * Necessary for the GraphQL engine to have a root schema and a base query.
- * Here we have definitions for root queries, which are like endpoints in a
- * REST API. Every root query has an associated return structure which is
- * based on types defined in types.js.
- */
-export default `
+export const root = `
   type Query {
     block(id: String): Block
     blocks(limit: Limit, offset: Offset, orderBy: OrderByInput, filter: BlockFilter): [Block]

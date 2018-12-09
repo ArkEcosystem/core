@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
 import { blocksRepository, transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
-export default class NodeController extends Controller {
+export class NodeController extends Controller {
   protected config: any;
   protected blockchain: any;
 
@@ -63,11 +63,7 @@ export default class NodeController extends Controller {
           version: this.config.network.pubKeyHash,
           ports: super.toResource(request, this.config, "ports"),
           constants: this.config.getConstants(this.blockchain.getLastHeight()),
-          feeStatistics: super.toCollection(
-            request,
-            feeStatisticsData,
-            "fee-statistics",
-          ),
+          feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
         },
       };
     } catch (error) {

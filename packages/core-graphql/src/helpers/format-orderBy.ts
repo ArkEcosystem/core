@@ -4,7 +4,7 @@
  * @param {String} defaultValue
  * @return {String}
  */
-export default (parameter, defaultValue) => {
+export function formatOrderBy(parameter, defaultValue) {
   let order;
 
   if (parameter) {
@@ -12,4 +12,4 @@ export default (parameter, defaultValue) => {
   }
 
   return order || defaultValue;
-};
+}

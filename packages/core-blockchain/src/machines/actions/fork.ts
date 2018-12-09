@@ -1,4 +1,4 @@
-export default {
+export const fork = {
   initial: "analysing",
   states: {
     analysing: {

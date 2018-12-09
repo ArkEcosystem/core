@@ -1,5 +1,5 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
-import server from "./schema";
+import { apolloServer } from "./apollo-server";
 
 export async function startServer(config) {
   const app = await createServer({
@@ -7,12 +7,12 @@ export async function startServer(config) {
     port: config.port,
   });
 
-  await server.applyMiddleware({
+  await apolloServer.applyMiddleware({
     app,
     path: config.path,
   });
 
-  await server.installSubscriptionHandlers(app.listener);
+  await apolloServer.installSubscriptionHandlers(app.listener);
 
   return mountServer("GraphQL", app);
 }

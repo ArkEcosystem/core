@@ -1,6 +1,6 @@
 import Hapi from "hapi";
-import Routes from "./routes";
+import { registerRoutes } from "./routes";
 
 export function register(server: Hapi.Server): void {
-  Routes(server);
+  registerRoutes(server);
 }

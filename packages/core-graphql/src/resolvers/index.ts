@@ -1,8 +1,8 @@
 import GraphQLTypes from "graphql-tools-types";
 import * as queries from "./queries";
-import Block from "./relationship/block";
-import Transaction from "./relationship/transaction";
-import Wallet from "./relationship/wallet";
+import { Block } from "./relationship/block";
+import { Transaction } from "./relationship/transaction";
+import { Wallet } from "./relationship/wallet";
 
 /**
  * Resolvers used by the executed schema when encountering a
@@ -16,7 +16,7 @@ import Wallet from "./relationship/wallet";
  * GraphQL query flow.
  */
 
-export default {
+export const resolvers = {
   JSON: GraphQLTypes.JSON({ name: "Json" }),
   Limit: GraphQLTypes.Int({ name: "Limit", min: 1, max: 100 }),
   Offset: GraphQLTypes.Int({ name: "Offset", min: 0 }),

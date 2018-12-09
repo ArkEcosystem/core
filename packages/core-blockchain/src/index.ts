@@ -1,8 +1,7 @@
 import { asValue } from "awilix";
 import { Blockchain } from "./blockchain";
 import { defaults } from "./defaults";
-
-import stateStorage from "./state-storage";
+import { stateStorage } from "./state-storage";
 
 /**
  * The struct used by the plugin container.

@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
-import appHelper from "@arkecosystem/core-test-utils/src/helpers/container";
+import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
 
 async function setUp() {
-  return appHelper.setUp({
+  return setUpContainer({
     exit: "@arkecosystem/core-logger-winston",
   });
 }

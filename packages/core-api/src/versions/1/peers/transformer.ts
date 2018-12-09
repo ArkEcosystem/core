@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 
-export default function(model) {
+export function transformPeerLegacy(model) {
   const config = app.resolvePlugin("config");
 
   const peer: any = {
@@ -10,7 +10,7 @@ export default function(model) {
     height: model.height,
     status: model.status,
     os: model.os,
-    delay: model.delay
+    delay: model.delay,
   };
 
   if (config.network.name !== "mainnet") {

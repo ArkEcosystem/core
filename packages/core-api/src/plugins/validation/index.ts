@@ -5,14 +5,14 @@ import Hapi from "hapi";
 import * as path from "path";
 
 // SOF: IMPORT CUSTOM AJV FORMATS
-import registerAddressFormat from "./formats/address";
-import registerCsvFormat from "./formats/csv";
-import registerHexFormat from "./formats/hex";
-import registerIpFormat from "./formats/ip";
-import registerParsedIntFormat from "./formats/parsedInt";
-import registerPublicKeyFormat from "./formats/publicKey";
-import registerSignatureFormat from "./formats/signature";
-import registerVendorFieldFormat from "./formats/vendorField";
+import { registerAddressFormat } from "./formats/address";
+import { registerCsvFormat } from "./formats/csv";
+import { registerHexFormat } from "./formats/hex";
+import { registerIpFormat } from "./formats/ip";
+import { registerParseIntFormat } from "./formats/parseInt";
+import { registerPublicKeyFormat } from "./formats/publicKey";
+import { registerSignatureFormat } from "./formats/signature";
+import { registerVendorFieldFormat } from "./formats/vendorField";
 // EOF: IMPORT CUSTOM AJV FORMATS
 
 const PLUGIN_NAME = "hapi-ajv";
@@ -23,7 +23,7 @@ const register = async (server: Hapi.Server, options: object): Promise<void> => 
   registerAddressFormat(ajv);
   registerHexFormat(ajv);
   registerIpFormat(ajv);
-  registerParsedIntFormat(ajv);
+  registerParseIntFormat(ajv);
   registerPublicKeyFormat(ajv);
   registerSignatureFormat(ajv);
   registerVendorFieldFormat(ajv);

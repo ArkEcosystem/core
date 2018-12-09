@@ -1,12 +1,12 @@
 import msgpack from "msgpack-lite";
-import columns from "../../../db/utils/column-set";
+import { columns } from "../../../db/utils/column-set";
 
-export const blockEncode = (block) => {
+export const blockEncode = block => {
   const values = Object.values(block);
   return msgpack.encode(values);
 };
 
-export const blockDecode = (bufferData) => {
+export const blockDecode = bufferData => {
   const values = msgpack.decode(bufferData);
   const block = {};
   columns.blocks.forEach((column, i) => {
@@ -15,12 +15,12 @@ export const blockDecode = (bufferData) => {
   return block;
 };
 
-export const transactionEncode = (transactionRecord) => {
+export const transactionEncode = transactionRecord => {
   const values = Object.values(transactionRecord);
   return msgpack.encode(values);
 };
 
-export const transactionDecode = (bufferData) => {
+export const transactionDecode = bufferData => {
   const values = msgpack.decode(bufferData);
   const transaction = {};
   columns.transactions.forEach((column, i) => {

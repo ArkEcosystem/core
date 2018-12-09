@@ -3,12 +3,12 @@ import Boom from "boom";
 import Hapi from "hapi";
 import * as pluralize from "pluralize";
 import { transactionsRepository } from "../../../repositories";
-import Controller from "../shared/controller";
+import { Controller } from "../shared/controller";
 
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { constants } from "@arkecosystem/crypto";
 
-export default class TransactionsController extends Controller {
+export class TransactionsController extends Controller {
   protected blockchain: any;
   protected config: any;
   protected logger: any;
@@ -44,9 +44,7 @@ export default class TransactionsController extends Controller {
       const result = await guard.validate(request.payload.transactions);
 
       if (result.broadcast.length > 0) {
-        app
-          .resolvePlugin("p2p")
-          .broadcastTransactions(guard.getBroadcastTransactions());
+        app.resolvePlugin("p2p").broadcastTransactions(guard.getBroadcastTransactions());
       }
 
       return {
@@ -54,9 +52,9 @@ export default class TransactionsController extends Controller {
           accept: result.accept,
           broadcast: result.broadcast,
           excess: result.excess,
-          invalid: result.invalid
+          invalid: result.invalid,
         },
-        errors: result.errors
+        errors: result.errors,
       };
     } catch (error) {
       return Boom.badImplementation(error);
@@ -81,21 +79,18 @@ export default class TransactionsController extends Controller {
 
       const pagination = super.paginate(request);
 
-      let transactions = this.transactionPool.getTransactions(
-        pagination.offset,
-        pagination.limit
-      );
+      let transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit);
       transactions = transactions.map(transaction => ({
-        serialized: transaction
+        serialized: transaction,
       }));
 
       return super.toPagination(
         request,
         {
           count: this.transactionPool.getPoolSize(),
-          rows: transactions
+          rows: transactions,
         },
-        "transaction"
+        "transaction",
       );
     } catch (error) {
       return Boom.badImplementation(error);
@@ -135,7 +130,7 @@ export default class TransactionsController extends Controller {
   public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return {
-        data: constants.TRANSACTION_TYPES
+        data: constants.TRANSACTION_TYPES,
       };
     } catch (error) {
       return Boom.badImplementation(error);
@@ -145,8 +140,7 @@ export default class TransactionsController extends Controller {
   public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     try {
       return {
-        data: this.config.getConstants(this.blockchain.getLastHeight()).fees
-          .staticFees
+        data: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees,
       };
     } catch (error) {
       return Boom.badImplementation(error);

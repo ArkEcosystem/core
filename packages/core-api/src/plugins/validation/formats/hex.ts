@@ -1,7 +1,7 @@
-export default function(ajv) {
+export function registerHexFormat(ajv) {
   ajv.addFormat("hex", {
     type: "string",
-    validate: (value) => {
+    validate: value => {
       try {
         Buffer.from(value, "hex");
 

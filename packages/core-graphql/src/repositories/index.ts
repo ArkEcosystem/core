@@ -1,7 +1,4 @@
-import { Blocks } from "./blocks";
-import { Transactions } from "./transactions";
+import { blockRepository } from "./blocks";
+import { transactionRepository } from "./transactions";
 
-export {
-  Blocks as blocks,
-  Transactions as transactions,
-};
+export { blockRepository, transactionRepository };

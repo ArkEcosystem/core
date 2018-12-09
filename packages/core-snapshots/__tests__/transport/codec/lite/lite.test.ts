@@ -1,11 +1,11 @@
 /* tslint:disable:no-console */
 
 import msgpack from "msgpack-lite";
-import codecs from "../../../../src/transport/codec";
+import { LiteCodec } from "../../../../src/transport/codecs/lite-codec";
 import { blocks } from "../../../fixtures/blocks";
 import { transactions } from "../../../fixtures/transactions";
 
-const codec = codecs.get("lite");
+const codec = new LiteCodec();
 
 beforeAll(async () => {
   transactions.forEach((transaction: any) => {
@@ -60,7 +60,7 @@ describe("Lite codec testing", () => {
 
   test("Encode/Decode transfer transactions", () => {
     console.time("transactions lite transfer");
-    const transferTransactions = transactions.filter((trx) => trx.type === 0);
+    const transferTransactions = transactions.filter(trx => trx.type === 0);
     for (let i = 0; i < 100; i++) {
       for (const transaction of transferTransactions) {
         const encoded = msgpack.encode(transaction, {
