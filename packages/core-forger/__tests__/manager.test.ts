@@ -25,7 +25,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-  defaults.hosts = [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`];
+  defaults.hosts = [`http://127.0.0.1:4000`];
   forgeManager = new ForgerManager(defaults);
 });
 
@@ -43,7 +43,7 @@ describe("Forger Manager", () => {
       const delegates = await forgeManager.loadDelegates();
 
       expect(delegates).toBeArray();
-      delegates.forEach((value) => expect(value).toBeInstanceOf(Delegate));
+      delegates.forEach(value => expect(value).toBeInstanceOf(Delegate));
       expect(forgeManager.client.getUsernames).toHaveBeenCalled();
     });
   });
@@ -60,9 +60,7 @@ describe("Forger Manager", () => {
     });
     it("should forge a block", async () => {
       forgeManager.client.getTransactions.mockReturnValue({
-        transactions: [
-          Transaction.serialize(sampleTransaction).toString("hex"),
-        ],
+        transactions: [Transaction.serialize(sampleTransaction).toString("hex")],
       });
       forgeManager.usernames = [];
       const del = new Delegate("a secret", 100);
@@ -80,14 +78,8 @@ describe("Forger Manager", () => {
           reward: round.reward,
         }),
       );
-      expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
-        "block.forged",
-        expect.any(Object),
-      );
-      expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
-        "transaction.forged",
-        expect.any(Object),
-      );
+      expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("block.forged", expect.any(Object));
+      expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("transaction.forged", expect.any(Object));
     });
   });
 
@@ -96,17 +88,12 @@ describe("Forger Manager", () => {
       expect(forgeManager.__monitor).toBeFunction();
     });
     it("should emit failed event if error while monitoring", async () => {
-      forgeManager.client.getUsernames.mockRejectedValue(
-        new Error("oh bollocks"),
-      );
+      forgeManager.client.getUsernames.mockRejectedValue(new Error("oh bollocks"));
 
       setTimeout(() => forgeManager.stop(), 1000);
       await forgeManager.__monitor();
 
-      expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
-        "forger.failed",
-        "oh bollocks",
-      );
+      expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("forger.failed", "oh bollocks");
     });
   });
 
@@ -124,9 +111,7 @@ describe("Forger Manager", () => {
     });
     it("should return deserialized transactions", async () => {
       forgeManager.client.getTransactions.mockReturnValue({
-        transactions: [
-          Transaction.serialize(sampleTransaction).toString("hex"),
-        ],
+        transactions: [Transaction.serialize(sampleTransaction).toString("hex")],
       });
 
       const transactions = await forgeManager.__getTransactionsForForging();
@@ -134,12 +119,8 @@ describe("Forger Manager", () => {
       expect(transactions).toHaveLength(1);
       expect(forgeManager.client.getTransactions).toHaveBeenCalled();
       expect(transactions[0]).toBeInstanceOf(Transaction);
-      expect(transactions[0].data.recipientId).toEqual(
-        sampleTransaction.data.recipientId,
-      );
-      expect(transactions[0].data.senderPublicKey).toEqual(
-        sampleTransaction.data.senderPublicKey,
-      );
+      expect(transactions[0].data.recipientId).toEqual(sampleTransaction.data.recipientId);
+      expect(transactions[0].data.senderPublicKey).toEqual(sampleTransaction.data.senderPublicKey);
     });
   });
 
@@ -152,8 +133,7 @@ describe("Forger Manager", () => {
       forgeManager.delegates = [
         {
           username: "arkxdev",
-          publicKey:
-            "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
+          publicKey: "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
         },
       ];
 
@@ -163,9 +143,7 @@ describe("Forger Manager", () => {
 
       expect(forger).toBeObject();
       expect(forger.username).toBe("arkxdev");
-      expect(forger.publicKey).toBe(
-        "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
-      );
+      expect(forger.publicKey).toBe("0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0");
     });
   });
 
@@ -183,10 +161,7 @@ describe("Forger Manager", () => {
         minimumNetworkReach: true,
         coldStart: false,
       };
-      const canForge = await forgeManager.__analyseNetworkState(
-        networkState,
-        delegate,
-      );
+      const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
 
       expect(canForge).toBeTrue();
     });
@@ -200,10 +175,7 @@ describe("Forger Manager", () => {
         minimumNetworkReach: true,
         coldStart: false,
       };
-      const canForge = await forgeManager.__analyseNetworkState(
-        networkState,
-        delegate,
-      );
+      const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
 
       expect(canForge).toBeFalse();
     });
@@ -217,10 +189,7 @@ describe("Forger Manager", () => {
         minimumNetworkReach: true,
         coldStart: true,
       };
-      const canForge = await forgeManager.__analyseNetworkState(
-        networkState,
-        delegate,
-      );
+      const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
 
       expect(canForge).toBeFalse();
     });
@@ -234,10 +203,7 @@ describe("Forger Manager", () => {
         minimumNetworkReach: false,
         coldStart: false,
       };
-      const canForge = await forgeManager.__analyseNetworkState(
-        networkState,
-        delegate,
-      );
+      const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
 
       expect(canForge).toBeFalse();
     });
@@ -247,8 +213,7 @@ describe("Forger Manager", () => {
       const overHeightBlockHeader = {
         id: "2816806946235018296",
         height: 2360065,
-        generatorPublicKey:
-          "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
+        generatorPublicKey: "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
       };
 
       const networkState = {
@@ -259,10 +224,7 @@ describe("Forger Manager", () => {
         minimumNetworkReach: 10,
         coldStart: false,
       };
-      const canForge = await forgeManager.__analyseNetworkState(
-        networkState,
-        delegate,
-      );
+      const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
 
       expect(canForge).toBeFalse();
     });

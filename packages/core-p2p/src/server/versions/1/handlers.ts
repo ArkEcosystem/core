@@ -25,7 +25,7 @@ export const getPeers = {
     try {
       const peers = monitor
         .getPeers()
-        .map((peer) => peer.toBroadcastInfo())
+        .map(peer => peer.toBroadcastInfo())
         .sort((a, b) => a.delay - b.delay);
 
       return {
@@ -82,7 +82,7 @@ export const getCommonBlocks = {
     const ids = request.query.ids
       .split(",")
       .slice(0, 9)
-      .filter((id) => id.match(/^\d+$/));
+      .filter(id => id.match(/^\d+$/));
 
     try {
       const commonBlocks = await blockchain.database.getCommonBlocks(ids);
@@ -113,32 +113,25 @@ export const getTransactionsFromIds = {
   async handler(request, h) {
     try {
       const blockchain = app.resolvePlugin("blockchain");
-      const maxTransactions = config.getConstants(blockchain.getLastHeight())
-        .block.maxTransactions;
+      const maxTransactions = config.getConstants(blockchain.getLastHeight()).block.maxTransactions;
 
       const transactionIds = request.query.ids
         .split(",")
         .slice(0, maxTransactions)
-        .filter((id) => id.match("[0-9a-fA-F]{32}"));
+        .filter(id => id.match("[0-9a-fA-F]{32}"));
 
-      const rows = await app
-        .resolvePlugin("database")
-        .getTransactionsFromIds(transactionIds);
+      const rows = await app.resolvePlugin("database").getTransactionsFromIds(transactionIds);
 
       // TODO: v1 compatibility patch. Add transformer and refactor later on
-      const transactions = await rows.map((row) => {
-        const transaction = Transaction.deserialize(
-          row.serialized.toString("hex"),
-        );
+      const transactions = await rows.map(row => {
+        const transaction = Transaction.deserialize(row.serialized.toString("hex"));
         transaction.blockId = row.block_id;
         transaction.senderId = crypto.getAddress(transaction.senderPublicKey);
         return transaction;
       });
 
       transactionIds.forEach((transaction, i) => {
-        transactionIds[i] = transactions.find(
-          (tx2) => tx2.id === transactionIds[i],
-        );
+        transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i]);
       });
 
       return { success: true, transactions: transactionIds };
@@ -206,15 +199,14 @@ export const postBlock = {
 
       const block = request.payload.block;
 
-      if (blockchain.pingBlock(block)) { return { success: true }; }
+      if (blockchain.pingBlock(block)) {
+        return { success: true };
+      }
       // already got it?
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
 
       // Are we ready to get it?
-      if (
-        lastDownloadedBlock &&
-        lastDownloadedBlock.data.height + 1 !== block.height
-      ) {
+      if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
         return { success: true };
       }
 
@@ -254,12 +246,8 @@ export const postBlock = {
         }
 
         // reorder them correctly
-        block.transactions = block.transactionIds.map((id) =>
-          transactions.find((tx) => tx.id === id),
-        );
-        logger.debug(
-          `Found missing transactions: ${block.transactions.map((tx) => tx.id)}`,
-        );
+        block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id));
+        logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`);
 
         if (block.transactions.length !== block.numberOfTransactions) {
           return { success: false };
@@ -308,9 +296,7 @@ export const postTransactions = {
     }
 
     if (result.broadcast.length > 0) {
-      app
-        .resolvePlugin("p2p")
-        .broadcastTransactions(guard.getBroadcastTransactions());
+      app.resolvePlugin("p2p").broadcastTransactions(guard.getBroadcastTransactions());
     }
 
     return {
@@ -361,10 +347,7 @@ export const getBlocks = {
           "block",
           blocks.length,
           true,
-        )} from height ${(!isNaN(reqBlockHeight)
-          ? reqBlockHeight
-          : blocks[0].data.height
-        ).toLocaleString()}`,
+        )} from height ${(!isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].data.height).toLocaleString()}`,
       );
 
       return { success: true, blocks: blocks || [] };
