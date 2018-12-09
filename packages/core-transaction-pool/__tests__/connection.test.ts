@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
+import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
-import { generators, fixtures } from "@arkecosystem/core-test-utils";
 
 import { app } from "@arkecosystem/core-container";
 import { bignumify } from "@arkecosystem/core-utils";
@@ -11,9 +11,6 @@ import delay from "delay";
 import randomSeed from "random-seed";
 import mockData from "./__fixtures__/transactions";
 import appTest from "./__support__/setup";
-
-import { defaults } from "../src/defaults";
-import { TransactionPool } from "../src/connection";
 
 const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 const { Transaction } = models;
@@ -27,30 +24,27 @@ let database;
 let connection;
 
 beforeAll(async () => {
-  // FIX: resolve issue
-  // core-database: emitter => null
-  await appTest.setUp();
+  await appTest.setUpFull();
 
   config = container.resolvePlugin("config");
   database = container.resolvePlugin("database");
+  connection = container.resolvePlugin("transactionPool");
 
-  connection = new TransactionPool(defaults);
-  await connection.make();
   // 100+ years in the future to avoid our hardcoded transactions used in these
   // tests to expire
   connection.options.maxTransactionAge = 4036608000;
 });
 
 afterAll(async () => {
-  //  connection.disconnect();
+  // connection.disconnect();
   await appTest.tearDown();
 });
 
 afterEach(() => {
-  // connection.flush();
+  connection.flush();
 });
 
-describe.skip("Connection", () => {
+describe("Connection", () => {
   it("should be an object", () => {
     expect(connection).toBeObject();
   });
