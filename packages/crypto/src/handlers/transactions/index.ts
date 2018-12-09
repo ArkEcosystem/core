@@ -109,4 +109,5 @@ export class TransactionHandler {
   }
 }
 
-export default new TransactionHandler();
+const transactionHandler = new TransactionHandler()
+export { transactionHandler }

@@ -1,8 +1,8 @@
-import configManager from "../managers/config";
-import Address from "./address";
-import Keys from "./keys";
+import { configManager } from "../managers/config";
+import { Address } from "./address";
+import { Keys } from "./keys";
 
-export default class PublicKey {
+export class PublicKey {
   public static fromPassphrase(passphrase) {
     return Keys.fromPassphrase(passphrase).publicKey;
   }

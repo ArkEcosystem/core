@@ -4,9 +4,9 @@ import cloneDeepWith from "lodash/cloneDeepWith";
 import pluralize from "pluralize";
 import { CONFIGURATIONS } from "../constants";
 import { crypto, slots } from "../crypto";
-import configManager from "../managers/config";
+import { configManager } from "../managers/config";
 import { Bignum } from "../utils";
-import Transaction from "./transaction";
+import { Transaction } from "./transaction";
 
 const { outlookTable } = CONFIGURATIONS.ARK.MAINNET;
 
@@ -44,7 +44,7 @@ const toBytesHex = data => {
  * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
  */
 
-export default class Block {
+export class Block {
   /**
    * Create block from data.
    * @param  {Object} data
@@ -415,13 +415,13 @@ export default class Block {
   public toString() {
     return `${
       this.data.id
-    }, height: ${this.data.height.toLocaleString()}, ${pluralize(
-      "transaction",
-      this.data.numberOfTransactions,
-      true
-    )}, verified: ${this.verification.verified}, errors: ${
+      }, height: ${this.data.height.toLocaleString()}, ${pluralize(
+        "transaction",
+        this.data.numberOfTransactions,
+        true
+      )}, verified: ${this.verification.verified}, errors: ${
       this.verification.errors
-    }`;
+      }`;
   }
 
   /**

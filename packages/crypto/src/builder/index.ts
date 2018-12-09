@@ -1,12 +1,12 @@
-import DelegateRegistrationBuilder from "./transactions/delegate-registration";
-import DelegateResignationBuilder from "./transactions/delegate-resignation";
-import IpfsBuilder from "./transactions/ipfs";
-import MultiPaymentBuilder from "./transactions/multi-payment";
-import MultiSignatureBuilder from "./transactions/multi-signature";
-import SecondSignatureBuilder from "./transactions/second-signature";
-import TimelockTransferBuilder from "./transactions/timelock-transfer";
-import TransferBuilder from "./transactions/transfer";
-import VoteBuilder from "./transactions/vote";
+import { DelegateRegistrationBuilder } from "./transactions/delegate-registration";
+import { DelegateResignationBuilder } from "./transactions/delegate-resignation";
+import { IPFSBuilder } from "./transactions/ipfs";
+import { MultiPaymentBuilder } from "./transactions/multi-payment";
+import { MultiSignatureBuilder } from "./transactions/multi-signature";
+import { SecondSignatureBuilder } from "./transactions/second-signature";
+import { TimelockTransferBuilder } from "./transactions/timelock-transfer";
+import { TransferBuilder } from "./transactions/transfer";
+import { VoteBuilder } from "./transactions/vote";
 
 export class TransactionBuilderDirector {
   /**
@@ -30,7 +30,7 @@ export class TransactionBuilderDirector {
    * @return {IPFSBuilder}
    */
   public ipfs() {
-    return new IpfsBuilder();
+    return new IPFSBuilder();
   }
 
   /**
@@ -82,4 +82,5 @@ export class TransactionBuilderDirector {
   }
 }
 
-export default new TransactionBuilderDirector();
+const transactionBuilder = new TransactionBuilderDirector()
+export { transactionBuilder }

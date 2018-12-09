@@ -1,6 +1,6 @@
-import Bignum from "../../utils/bignum"
+import { Bignum } from "../../utils/bignum"
 
-export default joi => ({
+export const bignumber = joi => ({
   name: "bignumber",
   base: joi.object().type(Bignum),
   language: {

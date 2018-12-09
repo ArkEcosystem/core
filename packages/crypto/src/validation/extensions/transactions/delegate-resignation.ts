@@ -1,7 +1,7 @@
 import { TRANSACTION_TYPES } from "../../../constants"
-import transaction from "./base"
+import { base as transaction } from "./base"
 
-export default joi => ({
+export const delegateResignation = joi => ({
   name: "arkDelegateResignation",
   base: transaction(joi).append({
     type: joi

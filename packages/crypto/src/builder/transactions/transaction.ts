@@ -1,11 +1,12 @@
-import { stringify } from "querystring";
 import { crypto, slots } from "../../crypto";
-import configManager from "../../managers/config";
-import Transaction from "../../models/transaction";
+import { configManager } from "../../managers/config";
+import { Transaction } from "../../models/transaction";
 
-export default abstract class TransactionBuilder {
+export abstract class TransactionBuilder {
   public data: any;
   public model: any;
+
+  protected signWithSenderAsRecipient: boolean = false
 
   /**
    * @constructor
@@ -128,6 +129,17 @@ export default abstract class TransactionBuilder {
   public sign(passphrase) {
     const keys = crypto.getKeys(passphrase);
     this.data.senderPublicKey = keys.publicKey;
+
+    if (this.signWithSenderAsRecipient) {
+      const pubKeyHash = this.data.network
+        ? this.data.network.pubKeyHash
+        : null;
+      this.data.recipientId = crypto.getAddress(
+        crypto.getKeys(passphrase).publicKey,
+        pubKeyHash
+      );
+    }
+
     this.data.signature = crypto.sign(this.__getSigningObject(), keys);
 
     return this;
@@ -144,6 +156,15 @@ export default abstract class TransactionBuilder {
       wif: networkWif || configManager.get("wif")
     });
     this.data.senderPublicKey = keys.publicKey;
+
+    if (this.signWithSenderAsRecipient) {
+      const pubKeyHash = this.data.network
+        ? this.data.network.pubKeyHash
+        : null;
+
+      this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash);
+    }
+
     this.data.signature = crypto.sign(this.__getSigningObject(), keys);
 
     return this;

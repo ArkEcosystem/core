@@ -1,4 +1,4 @@
-export default joi => ({
+export const block = joi => ({
   name: "arkBlock",
   base: joi.object().keys({
     id: joi.arkBlockId().required(),

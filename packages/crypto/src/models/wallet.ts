@@ -1,7 +1,7 @@
 import { TRANSACTION_TYPES } from "../constants"
-import crypto from "../crypto/crypto"
-import transactionHandler from "../handlers/transactions"
-import configManager from "../managers/config"
+import { crypto } from "../crypto/crypto"
+import { transactionHandler } from "../handlers/transactions"
+import { configManager } from "../managers/config"
 import { Bignum, formatArktoshi } from "../utils"
 
 /**
@@ -25,7 +25,7 @@ import { Bignum, formatArktoshi } from "../utils"
  *   - lastBlock (last block applied or `null``)
  *   - dirty
  */
-export default class Wallet {
+export class Wallet {
   public address: any;
   public publicKey: any;
   public secondPublicKey: any;

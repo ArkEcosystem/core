@@ -1,6 +1,6 @@
 import { TRANSACTION_TYPES } from "../../../constants"
 
-export default joi =>
+export const base = joi =>
   joi.object().keys({
     id: joi
       .string()

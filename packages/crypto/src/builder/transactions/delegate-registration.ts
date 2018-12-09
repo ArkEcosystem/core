@@ -1,9 +1,9 @@
 import { TRANSACTION_TYPES } from "../../constants"
 import { crypto } from "../../crypto"
-import feeManager from "../../managers/fee"
-import TransactionBuilder from "./transaction"
+import { feeManager } from "../../managers/fee"
+import { TransactionBuilder } from "./transaction"
 
-export default class DelegateRegistrationBuilder extends TransactionBuilder {
+export class DelegateRegistrationBuilder extends TransactionBuilder {
   /**
    * @constructor
    */

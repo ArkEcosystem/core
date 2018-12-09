@@ -1,5 +1,5 @@
-import ark from "./ark"
+import * as ark from "./ark"
 
-export default {
+export {
   ark
 };

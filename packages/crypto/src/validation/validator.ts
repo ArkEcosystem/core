@@ -1,9 +1,8 @@
-import engine from "./engine";
+import { Engine } from "./engine";
 import * as customRules from "./rules";
 
 export class Validator {
   public rules: any;
-  public engine: typeof engine;
   public results: any;
 
   /**
@@ -11,7 +10,6 @@ export class Validator {
    */
   constructor() {
     this.rules = customRules;
-    this.engine = engine;
   }
 
   /**
@@ -111,7 +109,7 @@ export class Validator {
    * @return {void}
    */
   public __validateWithJoi(attributes, rules) {
-    const { error, value } = this.engine.validate(attributes, rules);
+    const { error, value } = Engine.validate(attributes, rules);
 
     this.results = {
       data: value,
@@ -129,4 +127,5 @@ export class Validator {
   }
 }
 
-export default new Validator();
+const validator = new Validator()
+export { validator }

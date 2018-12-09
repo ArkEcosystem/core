@@ -1,5 +1,5 @@
-export default joi => ({
-  name: "arkTransactions",
+export const transactionArray = joi => ({
+  name: "arkTransactionArray",
   base: joi
     .array()
     .items(

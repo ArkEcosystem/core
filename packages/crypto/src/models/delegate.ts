@@ -3,11 +3,11 @@ import { createHash } from "crypto";
 import forge from "node-forge";
 import otplib from "otplib";
 import wif from "wif";
-import Bignum from "../utils/bignum";
+import { Bignum } from "../utils/bignum";
 
-import crypto from "../crypto/crypto";
-import sortTransactions from "../utils/sort-transactions";
-import Block from "./block";
+import { crypto } from "../crypto/crypto";
+import { sortTransactions } from "../utils/sort-transactions";
+import { Block } from "./block";
 
 /**
  * TODO copy some parts to ArkDocs
@@ -23,7 +23,7 @@ import Block from "./block";
  *   - otpSecret
  *   - bip38
  */
-export default class Delegate {
+export class Delegate {
   /**
    * BIP38 encrypt passphrase.
    * @param  {String} passphrase

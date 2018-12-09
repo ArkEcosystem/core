@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import configManager from "../managers/config";
-import arkCrypto from "./crypto";
+import { configManager } from "../managers/config";
+import { crypto as arkCrypto } from "./crypto";
 
 const createHash = message =>
   crypto
@@ -8,7 +8,7 @@ const createHash = message =>
     .update(Buffer.from(message, "utf-8"))
     .digest();
 
-export default class Message {
+export class Message {
   /**
    * Sign the given message.
    * @param  {String} message

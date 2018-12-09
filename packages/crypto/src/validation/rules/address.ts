@@ -1,7 +1,7 @@
-import engine from "../engine"
+import { Engine } from "../engine"
 
-export default attributes => {
-  const { error, value } = engine.validate(attributes, engine.joi.arkAddress());
+export const address = attributes => {
+  const { error, value } = Engine.validate(attributes, Engine.joi.arkAddress());
 
   return {
     data: value,

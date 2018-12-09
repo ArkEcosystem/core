@@ -1,9 +1,8 @@
 import { TRANSACTION_TYPES } from "../../constants"
-import feeManager from "../../managers/fee"
-import sign from "./mixins/sign"
-import TransactionBuilder from "./transaction"
+import { feeManager } from "../../managers/fee"
+import { TransactionBuilder } from "./transaction"
 
-class MultiSignatureBuilder extends TransactionBuilder {
+export class MultiSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -16,6 +15,8 @@ class MultiSignatureBuilder extends TransactionBuilder {
     this.data.recipientId = null;
     this.data.senderPublicKey = null;
     this.data.asset = { multisignature: {} };
+
+    this.signWithSenderAsRecipient = true
   }
 
   /**
@@ -45,5 +46,3 @@ class MultiSignatureBuilder extends TransactionBuilder {
     return struct;
   }
 }
-
-export default sign.mixin(MultiSignatureBuilder);

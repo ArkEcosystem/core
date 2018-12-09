@@ -1,4 +1,4 @@
-import Handler from "./handler"
+import { Handler } from "./handler"
 
 export class TimelockTransferHandler extends Handler {
   /**
@@ -32,5 +32,3 @@ export class TimelockTransferHandler extends Handler {
     //
   }
 }
-
-export default new TimelockTransferHandler();

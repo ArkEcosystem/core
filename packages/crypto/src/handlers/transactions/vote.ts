@@ -1,4 +1,4 @@
-import Handler from "./handler"
+import { Handler } from "./handler"
 
 export class VoteHandler extends Handler {
   /**
@@ -71,5 +71,3 @@ export class VoteHandler extends Handler {
     }
   }
 }
-
-export default new VoteHandler();

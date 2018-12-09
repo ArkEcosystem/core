@@ -2,8 +2,7 @@ import assert from "assert";
 import { crypto } from "../../crypto";
 import { transactionValidator } from "../../validation";
 
-// FIX: make this abstract and fix test
-export default class Handler {
+export abstract class Handler {
   /**
    * Check if the transaction can be applied to the wallet.
    * @param  {Wallet} wallet
@@ -75,7 +74,7 @@ export default class Handler {
   public applyTransactionToSender(wallet, transaction) {
     if (
       transaction.senderPublicKey.toLowerCase() ===
-        wallet.publicKey.toLowerCase() ||
+      wallet.publicKey.toLowerCase() ||
       crypto.getAddress(transaction.senderPublicKey) === wallet.address
     ) {
       wallet.balance = wallet.balance
@@ -88,9 +87,7 @@ export default class Handler {
     }
   }
 
-  public apply(wallet: any, transaction: any): any {
-    throw new Error("Method not implemented.");
-  }
+  public abstract apply(wallet: any, transaction: any): any
 
   /**
    * Remove this wallet as the sender of a transaction.
@@ -101,7 +98,7 @@ export default class Handler {
   public revertTransactionForSender(wallet, transaction) {
     if (
       transaction.senderPublicKey.toLowerCase() ===
-        wallet.publicKey.toLowerCase() ||
+      wallet.publicKey.toLowerCase() ||
       crypto.getAddress(transaction.senderPublicKey) === wallet.address
     ) {
       wallet.balance = wallet.balance
@@ -114,9 +111,7 @@ export default class Handler {
     }
   }
 
-  public revert(wallet: any, transaction: any): any {
-    throw new Error("Method not implemented.");
-  }
+  public abstract revert(wallet: any, transaction: any): any
 
   /**
    * Add transaction balance to this wallet.

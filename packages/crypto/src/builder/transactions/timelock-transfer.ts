@@ -1,9 +1,8 @@
 import { TRANSACTION_TYPES } from "../../constants"
-import feeManager from "../../managers/fee"
-import vendorField from "./mixins/vendor-field"
-import TransactionBuilder from "./transaction"
+import { feeManager } from "../../managers/fee"
+import { TransactionBuilder } from "./transaction"
 
-class TimelockTransferBuilder extends TransactionBuilder {
+export class TimelockTransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -46,5 +45,3 @@ class TimelockTransferBuilder extends TransactionBuilder {
     return struct;
   }
 }
-
-export default vendorField.mixin(TimelockTransferBuilder);

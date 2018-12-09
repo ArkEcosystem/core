@@ -1,9 +1,9 @@
 import bs58check from "bs58check";
-import utils from "../crypto/utils";
-import configManager from "../managers/config";
-import PublicKey from "./public-key";
+import { HashAlgorithms } from "../crypto/hash-algorithms";
+import { configManager } from "../managers/config";
+import { PublicKey } from "./public-key";
 
-export default class Address {
+export class Address {
   public static fromPassphrase(passphrase, networkVersion?: any) {
     return Address.fromPublicKey(
       PublicKey.fromPassphrase(passphrase),
@@ -21,7 +21,7 @@ export default class Address {
       networkVersion = configManager.get("pubKeyHash");
     }
 
-    const buffer = utils.ripemd160(Buffer.from(publicKey, "hex"));
+    const buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
     const payload = Buffer.alloc(21);
 
     payload.writeUInt8(networkVersion, 0);

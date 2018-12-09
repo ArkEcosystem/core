@@ -1,4 +1,4 @@
-import Handler from "./handler"
+import { Handler } from "./handler"
 
 export class MultiSignatureHandler extends Handler {
   /**
@@ -60,5 +60,3 @@ export class MultiSignatureHandler extends Handler {
     wallet.multisignature = null;
   }
 }
-
-export default new MultiSignatureHandler();

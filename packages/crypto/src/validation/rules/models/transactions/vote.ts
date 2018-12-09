@@ -1,49 +1,49 @@
 import { TRANSACTION_TYPES } from "../../../../constants"
-import engine from "../../../engine"
+import { Engine } from "../../../engine"
 
-export default transaction => {
-  const { error, value } = engine.validate(
+export const vote = transaction => {
+  const { error, value } = Engine.validate(
     transaction,
-    engine.joi.object({
-      id: engine.joi
+    Engine.joi.object({
+      id: Engine.joi
         .string()
         .alphanum()
         .required(),
-      blockid: engine.joi
+      blockid: Engine.joi
         .alternatives()
-        .try(engine.joi.arkBlockId(), engine.joi.number().unsafe()),
-      type: engine.joi.number().valid(TRANSACTION_TYPES.VOTE),
-      timestamp: engine.joi
+        .try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
+      type: Engine.joi.number().valid(TRANSACTION_TYPES.VOTE),
+      timestamp: Engine.joi
         .number()
         .integer()
         .min(0)
         .required(),
-      amount: engine.joi
+      amount: Engine.joi
         .alternatives()
-        .try(engine.joi.bignumber(), engine.joi.number().valid(0)),
-      fee: engine.joi.alternatives().try(
-        engine.joi.bignumber(),
-        engine.joi
+        .try(Engine.joi.bignumber(), Engine.joi.number().valid(0)),
+      fee: Engine.joi.alternatives().try(
+        Engine.joi.bignumber(),
+        Engine.joi
           .number()
           .integer()
           .positive()
           .required()
       ),
-      senderId: engine.joi.arkAddress(),
-      recipientId: engine.joi.arkAddress().required(),
-      senderPublicKey: engine.joi.arkPublicKey().required(),
-      signature: engine.joi
+      senderId: Engine.joi.arkAddress(),
+      recipientId: Engine.joi.arkAddress().required(),
+      senderPublicKey: Engine.joi.arkPublicKey().required(),
+      signature: Engine.joi
         .string()
         .alphanum()
         .required(),
-      signatures: engine.joi.array(),
-      secondSignature: engine.joi.string().alphanum(),
-      asset: engine.joi
+      signatures: Engine.joi.array(),
+      secondSignature: Engine.joi.string().alphanum(),
+      asset: Engine.joi
         .object({
-          votes: engine.joi
+          votes: Engine.joi
             .array()
             .items(
-              engine.joi
+              Engine.joi
                 .string()
                 .length(67)
                 .regex(/^(\+|-)[a-zA-Z0-9]+$/)
@@ -52,7 +52,7 @@ export default transaction => {
             .required()
         })
         .required(),
-      confirmations: engine.joi
+      confirmations: Engine.joi
         .number()
         .integer()
         .min(0)

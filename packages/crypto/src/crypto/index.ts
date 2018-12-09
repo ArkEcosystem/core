@@ -1,13 +1,13 @@
-import crypto from "./crypto"
-import hdwallet from "./hdwallet"
-import Message from "./message"
-import slots from "./slots"
-import utils from "./utils"
+import { crypto } from "./crypto"
+import { HashAlgorithms } from "./hash-algorithms"
+import { HDWallet } from "./hdwallet"
+import { Message } from "./message"
+import { slots } from "./slots"
 
 export {
   crypto,
-  hdwallet,
+  HDWallet,
   Message,
   slots,
-  utils
+  HashAlgorithms
 };

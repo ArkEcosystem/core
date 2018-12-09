@@ -1,6 +1,6 @@
 import bip32 from "bip32";
 import bip39 from "bip39";
-import configManager from "../managers/config";
+import { configManager } from "../managers/config";
 
 class HDWallet {
   public readonly slip44: number;
@@ -73,4 +73,5 @@ class HDWallet {
   }
 }
 
-export default new HDWallet();
+const hdWallet = new HDWallet()
+export { hdWallet as HDWallet }

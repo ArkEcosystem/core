@@ -1,6 +1,6 @@
-import Bignum from "./bignum"
-import formatArktoshi from "./format-arktoshi"
-import sortTransactions from "./sort-transactions"
+import { Bignum } from "./bignum"
+import { formatArktoshi } from "./format-arktoshi"
+import { sortTransactions } from "./sort-transactions"
 
 export {
   Bignum,

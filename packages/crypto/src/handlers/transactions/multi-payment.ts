@@ -1,6 +1,6 @@
 import { sumBy } from "lodash";
-import Bignum from "../../utils/bignum";
-import Handler from "./handler";
+import { Bignum } from "../../utils/bignum";
+import { Handler } from "./handler";
 
 export class MultiPaymentHandler extends Handler {
   /**
@@ -50,5 +50,3 @@ export class MultiPaymentHandler extends Handler {
     //
   }
 }
-
-export default new MultiPaymentHandler();

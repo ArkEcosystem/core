@@ -1,9 +1,8 @@
 import { TRANSACTION_TYPES } from "../../constants"
-import feeManager from "../../managers/fee"
-import sign from "./mixins/sign"
-import TransactionBuilder from "./transaction"
+import { feeManager } from "../../managers/fee"
+import { TransactionBuilder } from "./transaction"
 
-class VoteBuilder extends TransactionBuilder {
+export class VoteBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -16,6 +15,8 @@ class VoteBuilder extends TransactionBuilder {
     this.data.recipientId = null;
     this.data.senderPublicKey = null;
     this.data.asset = { votes: [] };
+
+    this.signWithSenderAsRecipient = true
   }
 
   /**
@@ -40,5 +41,3 @@ class VoteBuilder extends TransactionBuilder {
     return struct;
   }
 }
-
-export default sign.mixin(VoteBuilder);

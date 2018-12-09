@@ -1,9 +1,8 @@
 import { TRANSACTION_TYPES } from "../../constants"
-import feeManager from "../../managers/fee"
-import vendorField from "./mixins/vendor-field"
-import TransactionBuilder from "./transaction"
+import { feeManager } from "../../managers/fee"
+import { TransactionBuilder } from "./transaction"
 
-class TransferBuilder extends TransactionBuilder {
+export class TransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -32,5 +31,3 @@ class TransferBuilder extends TransactionBuilder {
     return struct;
   }
 }
-
-export default vendorField.mixin(TransferBuilder);

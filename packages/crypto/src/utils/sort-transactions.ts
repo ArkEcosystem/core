@@ -3,7 +3,7 @@
  * @param  {Transaction[]} transactions
  * @return {Transaction[]}
  */
-export default transactions =>
+export const sortTransactions = transactions =>
   transactions.sort((a, b) => {
     if (a.type < b.type) {
       return -1;

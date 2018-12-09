@@ -1,12 +1,12 @@
 import createHash from "create-hash";
 
-class Utils {
+export class HashAlgorithms {
   /**
    * Create a "ripemd160" buffer.
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  public ripemd160(buffer) {
+  public static ripemd160(buffer) {
     return createHash("rmd160")
       .update(buffer)
       .digest();
@@ -17,7 +17,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  public sha1(buffer) {
+  public static sha1(buffer) {
     return createHash("sha1")
       .update(buffer)
       .digest();
@@ -28,7 +28,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  public sha256(buffer) {
+  public static sha256(buffer) {
     return createHash("sha256")
       .update(buffer)
       .digest();
@@ -39,7 +39,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  public hash160(buffer) {
+  public static hash160(buffer) {
     return this.ripemd160(this.sha256(buffer));
   }
 
@@ -48,9 +48,7 @@ class Utils {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  public hash256(buffer) {
+  public static ash256(buffer) {
     return this.sha256(this.sha256(buffer));
   }
 }
-
-export default new Utils();

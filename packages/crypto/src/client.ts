@@ -1,9 +1,9 @@
-import transactionBuilder from "./builder"
-import configManager from "./managers/config"
-import feeManager from "./managers/fee"
-import NetworkManager from "./managers/network"
+import { transactionBuilder } from "./builder"
+import { configManager } from "./managers/config"
+import { feeManager } from "./managers/fee"
+import { NetworkManager } from "./managers/network"
 
-class Client {
+export class Client {
   /**
    * @constructor
    * @param {Object} config
@@ -44,5 +44,3 @@ class Client {
     return transactionBuilder;
   }
 }
-
-export default new Client();

@@ -60,4 +60,5 @@ class DynamicFeeManager {
   }
 }
 
-export default new DynamicFeeManager();
+const dynamicFeeManager = new DynamicFeeManager();
+export { dynamicFeeManager }

@@ -1,4 +1,4 @@
-export default joi => ({
+export const publicKey = joi => ({
   name: "arkPublicKey",
   base: joi
     .string()

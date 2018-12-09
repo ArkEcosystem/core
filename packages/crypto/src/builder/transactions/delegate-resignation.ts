@@ -1,8 +1,8 @@
 import { TRANSACTION_TYPES } from "../../constants"
-import feeManager from "../../managers/fee"
-import TransactionBuilder from "./transaction"
+import { feeManager } from "../../managers/fee"
+import { TransactionBuilder } from "./transaction"
 
-export default class DelegateResignationBuilder extends TransactionBuilder {
+export class DelegateResignationBuilder extends TransactionBuilder {
   /**
    * @constructor
    */

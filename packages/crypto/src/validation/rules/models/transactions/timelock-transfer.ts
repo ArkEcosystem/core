@@ -1,39 +1,39 @@
 import { TRANSACTION_TYPES } from "../../../../constants"
-import engine from "../../../engine"
+import { Engine } from "../../../engine"
 
-export default transaction => {
-  const { error, value } = engine.validate(
+export const timelockTransfer = transaction => {
+  const { error, value } = Engine.validate(
     transaction,
-    engine.joi.object({
-      id: engine.joi
+    Engine.joi.object({
+      id: Engine.joi
         .string()
         .alphanum()
         .required(),
-      blockid: engine.joi
+      blockid: Engine.joi
         .alternatives()
-        .try(engine.joi.arkBlockId(), engine.joi.number().unsafe()),
-      type: engine.joi.number().valid(TRANSACTION_TYPES.TIMELOCK_TRANSFER),
-      timestamp: engine.joi
+        .try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
+      type: Engine.joi.number().valid(TRANSACTION_TYPES.TIMELOCK_TRANSFER),
+      timestamp: Engine.joi
         .number()
         .integer()
         .min(0)
         .required(),
-      amount: engine.joi
+      amount: Engine.joi
         .alternatives()
-        .try(engine.joi.bignumber(), engine.joi.number().integer()),
-      fee: engine.joi
+        .try(Engine.joi.bignumber(), Engine.joi.number().integer()),
+      fee: Engine.joi
         .alternatives()
-        .try(engine.joi.bignumber(), engine.joi.number().integer()),
-      senderId: engine.joi.arkAddress(),
-      senderPublicKey: engine.joi.arkPublicKey().required(),
-      signature: engine.joi
+        .try(Engine.joi.bignumber(), Engine.joi.number().integer()),
+      senderId: Engine.joi.arkAddress(),
+      senderPublicKey: Engine.joi.arkPublicKey().required(),
+      signature: Engine.joi
         .string()
         .alphanum()
         .required(),
-      signatures: engine.joi.array(),
-      secondSignature: engine.joi.string().alphanum(),
-      asset: engine.joi.object().required(),
-      confirmations: engine.joi
+      signatures: Engine.joi.array(),
+      secondSignature: Engine.joi.string().alphanum(),
+      asset: Engine.joi.object().required(),
+      confirmations: Engine.joi
         .number()
         .integer()
         .min(0)

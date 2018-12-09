@@ -1,4 +1,4 @@
-import Handler from "./handler"
+import { Handler } from "./handler"
 
 export class DelegateRegistrationHandler extends Handler {
   /**
@@ -43,5 +43,3 @@ export class DelegateRegistrationHandler extends Handler {
     wallet.username = null;
   }
 }
-
-export default new DelegateRegistrationHandler();

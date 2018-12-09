@@ -1,4 +1,4 @@
-import Handler from "./handler"
+import { Handler } from "./handler"
 
 export class SecondSignatureHandler extends Handler {
   /**
@@ -41,5 +41,3 @@ export class SecondSignatureHandler extends Handler {
     delete wallet.secondPublicKey;
   }
 }
-
-export default new SecondSignatureHandler();

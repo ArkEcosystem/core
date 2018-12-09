@@ -1,7 +1,7 @@
 import { TRANSACTION_TYPES } from "../../../../constants"
-import engine from "../../../engine"
+import { Engine } from "../../../engine"
 
-export default transaction => {
+export const multiSignature = transaction => {
   let maxMinValue = 16;
   let signaturesLength = 2;
   if (
@@ -12,61 +12,61 @@ export default transaction => {
     maxMinValue = transaction.asset.multisignature.keysgroup.length;
     signaturesLength = maxMinValue;
   }
-  const { error, value } = engine.validate(
+  const { error, value } = Engine.validate(
     transaction,
-    engine.joi.object({
-      id: engine.joi
+    Engine.joi.object({
+      id: Engine.joi
         .string()
         .alphanum()
         .required(),
-      blockid: engine.joi
+      blockid: Engine.joi
         .alternatives()
-        .try(engine.joi.arkBlockId(), engine.joi.number().unsafe()),
-      type: engine.joi.number().valid(TRANSACTION_TYPES.MULTI_SIGNATURE),
-      timestamp: engine.joi
+        .try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
+      type: Engine.joi.number().valid(TRANSACTION_TYPES.MULTI_SIGNATURE),
+      timestamp: Engine.joi
         .number()
         .integer()
         .min(0)
         .required(),
-      amount: engine.joi
+      amount: Engine.joi
         .alternatives()
-        .try(engine.joi.bignumber(), engine.joi.number().valid(0)),
-      fee: engine.joi.alternatives().try(
-        engine.joi.bignumber(),
-        engine.joi
+        .try(Engine.joi.bignumber(), Engine.joi.number().valid(0)),
+      fee: Engine.joi.alternatives().try(
+        Engine.joi.bignumber(),
+        Engine.joi
           .number()
           .integer()
           .positive()
           .required()
       ),
-      senderId: engine.joi.arkAddress(),
-      recipientId: engine.joi.empty(),
-      senderPublicKey: engine.joi.arkPublicKey().required(),
-      signature: engine.joi
+      senderId: Engine.joi.arkAddress(),
+      recipientId: Engine.joi.empty(),
+      senderPublicKey: Engine.joi.arkPublicKey().required(),
+      signature: Engine.joi
         .string()
         .alphanum()
         .required(),
-      signatures: engine.joi
+      signatures: Engine.joi
         .array()
         .length(signaturesLength)
         .required(),
-      secondSignature: engine.joi.string().alphanum(),
-      asset: engine.joi
+      secondSignature: Engine.joi.string().alphanum(),
+      asset: Engine.joi
         .object({
-          multisignature: engine.joi
+          multisignature: Engine.joi
             .object({
-              min: engine.joi
+              min: Engine.joi
                 .number()
                 .integer()
                 .positive()
                 .max(Math.min(maxMinValue, 16))
                 .required(),
-              keysgroup: engine.joi
+              keysgroup: Engine.joi
                 .array()
                 .unique()
                 .min(2)
                 .items(
-                  engine.joi
+                  Engine.joi
                     .string()
                     .not(`+${transaction.senderPublicKey}`)
                     .length(67)
@@ -74,7 +74,7 @@ export default transaction => {
                     .required()
                 )
                 .required(),
-              lifetime: engine.joi
+              lifetime: Engine.joi
                 .number()
                 .integer()
                 .min(1)
@@ -84,7 +84,7 @@ export default transaction => {
             .required()
         })
         .required(),
-      confirmations: engine.joi
+      confirmations: Engine.joi
         .number()
         .integer()
         .min(0)

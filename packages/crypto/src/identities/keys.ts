@@ -1,12 +1,12 @@
 import secp256k1 from "secp256k1";
 import wif from "wif";
 
-import utils from "../crypto/utils";
-import configManager from "../managers/config";
+import { HashAlgorithms } from "../crypto/hash-algorithms";
+import { configManager } from "../managers/config";
 
-export default class Keys {
+export class Keys {
   public static fromPassphrase(passphrase, compressed = true) {
-    const privateKey = utils.sha256(Buffer.from(passphrase, "utf8"));
+    const privateKey = HashAlgorithms.sha256(Buffer.from(passphrase, "utf8"));
     return Keys.fromPrivateKey(privateKey, compressed);
   }
 

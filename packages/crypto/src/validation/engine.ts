@@ -1,14 +1,14 @@
 import Joi from "joi";
-import extensions from "./extensions";
+import { extensions } from "./extensions";
 
 export class Engine {
-  public joi: any;
+  public static joi: any;
 
-  constructor() {
+  public static init() {
     this.joi = Joi.extend(extensions);
   }
 
-  public validate(attributes, rules, options?) {
+  public static validate(attributes, rules, options?) {
     try {
       return this.joi.validate(
         attributes,
@@ -26,4 +26,4 @@ export class Engine {
   }
 }
 
-export default new Engine();
+Engine.init()

@@ -1,9 +1,9 @@
-import engine from "../engine"
+import { Engine } from "../engine"
 
-export default attributes => {
-  const { error, value } = engine.validate(
+export const username = attributes => {
+  const { error, value } = Engine.validate(
     attributes,
-    engine.joi.arkUsername()
+    Engine.joi.arkUsername()
   );
 
   return {

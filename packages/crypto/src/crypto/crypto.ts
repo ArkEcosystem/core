@@ -7,10 +7,10 @@ import secp256k1 from "secp256k1";
 import wif from "wif";
 
 import { CONFIGURATIONS } from "../constants";
-import configManager from "../managers/config";
-import feeManager from "../managers/fee";
+import { configManager } from "../managers/config";
+import { feeManager } from "../managers/fee";
 import { Bignum } from "../utils";
-import utils from "./utils";
+import { HashAlgorithms } from "./hash-algorithms";
 
 const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET;
 
@@ -364,7 +364,7 @@ class Crypto {
    * @return {Object}
    */
   public getKeys(secret, compressed = true) {
-    const privateKey = utils.sha256(Buffer.from(secret, "utf8"));
+    const privateKey = HashAlgorithms.sha256(Buffer.from(secret, "utf8"));
     return this.getKeysByPrivateKey(privateKey, compressed);
   }
 
@@ -454,7 +454,7 @@ class Crypto {
       networkVersion = configManager.get("pubKeyHash");
     }
 
-    const buffer = utils.ripemd160(Buffer.from(publicKey, "hex"));
+    const buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
     const payload = Buffer.alloc(21);
 
     payload.writeUInt8(networkVersion, 0);
@@ -501,4 +501,5 @@ class Crypto {
   }
 }
 
-export default new Crypto();
+const arkCrypto = new Crypto()
+export { arkCrypto as crypto }

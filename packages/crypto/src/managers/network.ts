@@ -1,7 +1,7 @@
 import get from "lodash/get";
-import networks from "../networks"
+import * as networks from "../networks"
 
-export default class NetworkManager {
+export class NetworkManager {
   /**
    * Get all network types.
    * @return {Object}

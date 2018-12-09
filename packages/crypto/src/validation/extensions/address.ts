@@ -1,4 +1,4 @@
-export default joi => ({
+export const address = joi => ({
   name: "arkAddress",
   base: joi
     .string()

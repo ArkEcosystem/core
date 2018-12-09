@@ -1,4 +1,4 @@
-import Handler from "./handler"
+import { Handler } from "./handler"
 
 export class DelegateResignationHandler extends Handler {
   /**
@@ -40,5 +40,3 @@ export class DelegateResignationHandler extends Handler {
     //
   }
 }
-
-export default new DelegateResignationHandler();

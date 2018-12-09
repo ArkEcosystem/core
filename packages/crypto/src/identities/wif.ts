@@ -1,8 +1,8 @@
 import wif from "wif";
-import configManager from "../managers/config";
-import Keys from "./keys";
+import { configManager } from "../managers/config";
+import { Keys } from "./keys";
 
-export default class WIF {
+export class WIF {
   public static fromPassphrase(passphrase, network?: any) {
     const keys = Keys.fromPassphrase(passphrase);
 

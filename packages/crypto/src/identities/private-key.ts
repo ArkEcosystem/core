@@ -1,6 +1,6 @@
-import Keys from "./keys";
+import { Keys } from "./keys";
 
-export default class PrivateKey {
+export class PrivateKey {
   public static fromPassphrase(passphrase) {
     return Keys.fromPassphrase(passphrase).privateKey;
   }

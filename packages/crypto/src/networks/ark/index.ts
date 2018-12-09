@@ -3,6 +3,6 @@ import devnet from "./devnet.json"
 import mainnet from "./mainnet.json"
 import testnet from "./testnet.json"
 
-export default {
+export {
   bitcoin, devnet, mainnet, testnet
 };

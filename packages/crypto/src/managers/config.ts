@@ -1,7 +1,7 @@
 import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
-import dynamicFeeManager from "./dynamic-fee"
-import feeManager from "./fee"
+import { dynamicFeeManager } from "./dynamic-fee"
+import { feeManager } from "./fee"
 
 import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants"
 import defaultConfig from "../networks/ark/devnet.json"
@@ -173,4 +173,5 @@ export class ConfigManager {
   }
 }
 
-export default new ConfigManager();
+const configManager = new ConfigManager();
+export { configManager }
