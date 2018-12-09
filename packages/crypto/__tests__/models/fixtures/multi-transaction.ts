@@ -1,4 +1,4 @@
-export default {
+export const multiTransaction = {
   version: 1,
   network: 30,
   type: 4,

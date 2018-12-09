@@ -1,6 +1,7 @@
 import "jest-extended";
-import Message from "../../src/crypto/message";
+
 import { crypto } from "../../src/crypto";
+import { Message } from "../../src/crypto/message";
 
 const passphrase = "sample passphrase";
 const wif = crypto.keysToWIF(crypto.getKeys(passphrase), { wif: 170 });

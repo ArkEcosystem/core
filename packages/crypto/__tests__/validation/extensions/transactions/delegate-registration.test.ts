@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
-import extensions from "../../../../src/validation/extensions";
+import { extensions } from "../../../../src/validation/extensions";
 
 const validator = Joi.extend(extensions);
 
@@ -83,7 +83,7 @@ describe("Delegate Registration Transaction", () => {
           validator.arkDelegateRegistration()
         ).error
       ).not.toBeNull();
-    } catch (error) {}
+    } catch (error) { }
   });
 
   it("should be invalid due to no username", () => {

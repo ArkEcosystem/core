@@ -1,6 +1,6 @@
 import Joi from "joi";
-import { crypto, constants, transactionBuilder } from "../../../../src";
-import extensions from "../../../../src/validation/extensions";
+import { constants, crypto, transactionBuilder } from "../../../../src";
+import { extensions } from "../../../../src/validation/extensions";
 
 const validator = Joi.extend(extensions);
 
@@ -224,7 +224,7 @@ describe("Multi Signature Transaction", () => {
           validator.arkMultiSignature()
         ).error
       ).not.toBeNull();
-    } catch (error) {}
+    } catch (error) { }
   });
 
   it("should be invalid due to wrong transaction type", () => {

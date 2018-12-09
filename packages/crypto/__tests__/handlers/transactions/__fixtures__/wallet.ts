@@ -1,6 +1,6 @@
-import Bignum from "../../../../src/utils/bignum";
+import { Bignum } from "../../../../src/utils/bignum";
 
-export default {
+export const wallet = {
   address: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
   balance: new Bignum(4527654310),
   publicKey:

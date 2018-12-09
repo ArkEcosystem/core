@@ -1,15 +1,16 @@
 import "jest-extended";
-import testSubject from "../../src/identities/keys";
-import Address from "../../src/identities/address";
+
+import { Address } from "../../src/identities/address";
+import { Keys } from "../../src/identities/keys";
 
 describe("Identities - Keys", () => {
   describe("fromPassphrase", () => {
     it("should be a function", () => {
-      expect(testSubject.fromPassphrase).toBeFunction();
+      expect(Keys.fromPassphrase).toBeFunction();
     });
 
     it("should return two keys in hex", () => {
-      const keys = testSubject.fromPassphrase("secret");
+      const keys = Keys.fromPassphrase("secret");
 
       expect(keys).toBeObject();
       expect(keys).toHaveProperty("publicKey");
@@ -27,7 +28,7 @@ describe("Identities - Keys", () => {
     });
 
     it("should return address", () => {
-      const keys = testSubject.fromPassphrase(
+      const keys = Keys.fromPassphrase(
         "SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov"
       );
       const address = Address.fromPublicKey(keys.publicKey.toString("hex"));
@@ -37,11 +38,11 @@ describe("Identities - Keys", () => {
 
   describe("fromWIF", () => {
     it("should be a function", () => {
-      expect(testSubject.fromWIF).toBeFunction();
+      expect(Keys.fromWIF).toBeFunction();
     });
 
     it("should return two keys in hex", () => {
-      const keys = testSubject.fromWIF(
+      const keys = Keys.fromWIF(
         "SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov"
       );
 
@@ -61,7 +62,7 @@ describe("Identities - Keys", () => {
     });
 
     it("should return address", () => {
-      const keys = testSubject.fromWIF(
+      const keys = Keys.fromWIF(
         "SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov"
       );
       const address = Address.fromPublicKey(keys.publicKey.toString("hex"));
@@ -69,7 +70,7 @@ describe("Identities - Keys", () => {
     });
 
     it("should get keys from compressed WIF", () => {
-      const keys = testSubject.fromWIF(
+      const keys = Keys.fromWIF(
         "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4"
       );
 
@@ -80,7 +81,7 @@ describe("Identities - Keys", () => {
     });
 
     it("should get keys from uncompressed WIF", () => {
-      const keys = testSubject.fromWIF(
+      const keys = Keys.fromWIF(
         "6hgnAG19GiMUf75C43XteG2mC8esKTiX9PYbKTh4Gca9MELRWmg"
       );
 

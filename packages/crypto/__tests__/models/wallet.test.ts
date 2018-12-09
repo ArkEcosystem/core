@@ -1,10 +1,12 @@
 import "jest-extended";
-import Bignum from "../../src/utils/bignum";
-import Wallet from "../../src/models/wallet";
-import multiTx from "./fixtures/multi-transaction";
+
 import { ARKTOSHI } from "../../src/constants";
-import configManager from "../../src/managers/config";
+import { configManager } from "../../src/managers/config";
+import { Wallet } from "../../src/models/wallet";
+import { Bignum } from "../../src/utils/bignum";
+
 import network from "../../src/networks/ark/devnet.json";
+import { multiTransaction } from "./fixtures/multi-transaction";
 
 describe("Models - Wallet", () => {
   beforeEach(() => configManager.setConfig(network));
@@ -14,7 +16,7 @@ describe("Models - Wallet", () => {
     it("returns the address and the balance", () => {
       const address = "Abcde";
       const wallet = new Wallet(address);
-      const balance = parseInt((Math.random() * 1000).toFixed(8));
+      const balance = +((Math.random() * 1000).toFixed(8));
       wallet.balance = new Bignum(balance * ARKTOSHI);
       expect(wallet.toString()).toBe(
         `${address} (${balance} ${configManager.config.client.symbol})`
@@ -43,7 +45,7 @@ describe("Models - Wallet", () => {
       Object.keys(data).forEach(k => {
         testWallet[k] = data[k];
       });
-      expect(testWallet.canApply(multiTx, [])).toBeTrue();
+      expect(testWallet.canApply(multiTransaction, [])).toBeTrue();
     });
   });
 

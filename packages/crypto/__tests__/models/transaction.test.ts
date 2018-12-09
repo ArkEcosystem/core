@@ -1,10 +1,11 @@
 import "jest-extended";
-import Transaction from "../../src/models/transaction";
-import builder from "../../src/builder";
-import crypto from "../../src/crypto/crypto";
-import transactionData from "./fixtures/transaction";
 
-import configManager from "../../src/managers/config";
+import { transactionBuilder as builder } from "../../src/builder";
+import { crypto } from "../../src/crypto/crypto";
+import { configManager } from "../../src/managers/config";
+import { Transaction } from "../../src/models/transaction";
+import { transaction as transactionData } from "./fixtures/transaction";
+
 import network from "../../src/networks/ark/devnet.json";
 
 const createRandomTx = type => {
@@ -235,7 +236,7 @@ describe("Models - Transaction", () => {
     );
   });
 
-  describe("static serialize", () => {});
+  describe("static serialize", () => { });
 
   it("Signatures are verified", () => {
     [0, 1, 2, 3, 4]

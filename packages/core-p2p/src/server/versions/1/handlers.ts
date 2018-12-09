@@ -325,7 +325,7 @@ export const postTransactions = {
     },
     validate: {
       payload: {
-        transactions: Joi.arkTransactions()
+        transactions: Joi.arkTransactionArray()
           .min(1)
           .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
           .options({ stripUnknown: true }),

@@ -1,7 +1,10 @@
 import "jest-extended";
-import handler from "../../../src/handlers/transactions/ipfs";
-import originalWallet from "./__fixtures__/wallet";
-import originalTransaction from "./__fixtures__/transaction";
+
+import { IpfsHandler } from "../../../src/handlers/transactions/ipfs";
+import { transaction as originalTransaction } from "./__fixtures__/transaction";
+import { wallet as originalWallet } from "./__fixtures__/wallet";
+
+const handler = new IpfsHandler()
 
 let wallet;
 let transaction;

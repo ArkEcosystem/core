@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
-import extensions from "../../../../src/validation/extensions";
+import { extensions } from "../../../../src/validation/extensions";
 
 const validator = Joi.extend(extensions);
 
@@ -63,18 +63,24 @@ describe("Transfer Transaction", () => {
       .recipientId(address)
       .amount(amount)
       .fee(fee)
-      .vendorField("a".repeat(65))
-      .sign("passphrase");
+
+    // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
+    transaction.data.vendorField = "a".repeat(65)
+    transaction.sign("passphrase");
+
     expect(
       validator.validate(transaction.getStruct(), validator.arkTransfer()).error
-    ).not.toBeNull();
+    ).not.toBeNull()
 
     transaction
       .recipientId(address)
       .amount(amount)
       .fee(fee)
-      .vendorField("⊁".repeat(22))
-      .sign("passphrase");
+
+    // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
+    transaction.vendorField("⊁".repeat(22))
+    transaction.sign("passphrase");
+
     expect(
       validator.validate(transaction.getStruct(), validator.arkTransfer()).error
     ).not.toBeNull();

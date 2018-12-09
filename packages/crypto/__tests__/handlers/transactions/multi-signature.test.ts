@@ -1,14 +1,17 @@
 import "jest-extended";
-import Bignum from "../../../src/utils/bignum";
-import handler from "../../../src/handlers/transactions/multi-signature";
-import WalletModel from "../../../src/models/wallet";
+
+import { MultiSignatureHandler } from "../../../src/handlers/transactions/multi-signature";
+import { Wallet } from "../../../src/models/wallet";
+import { Bignum } from "../../../src/utils/bignum";
+
+const handler = new MultiSignatureHandler()
 
 let wallet;
 let transaction;
 let multisignatureTest;
 
 beforeEach(() => {
-  wallet = new WalletModel("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+  wallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
   wallet.balance = new Bignum(100390000000);
   wallet.publicKey =
     "026f717e50bf3dbb9d8593996df5435ba22217410fc7a132f3d2c942a01a00a202";

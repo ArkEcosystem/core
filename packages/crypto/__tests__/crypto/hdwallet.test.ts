@@ -1,7 +1,8 @@
 import "jest-extended";
+
 import bip32 from "bip32";
-import { crypto, hdwallet } from "../../src/crypto";
-import configManager from "../../src/managers/config";
+import { crypto, HDWallet } from "../../src/crypto";
+import { configManager } from "../../src/managers/config";
 import network from "../../src/networks/ark/mainnet.json";
 
 const mnemonic =
@@ -68,16 +69,16 @@ describe("HDWallet", () => {
 
   describe("fromMnemonic", () => {
     it("should be a function", () => {
-      expect(hdwallet.fromMnemonic).toBeFunction();
+      expect(HDWallet.fromMnemonic).toBeFunction();
     });
 
     it("should return the root node", () => {
-      const root = hdwallet.fromMnemonic(mnemonic);
+      const root = HDWallet.fromMnemonic(mnemonic);
       expect(root.constructor.name).toBe("BIP32");
     });
 
     it("should derive path", () => {
-      const root = hdwallet.fromMnemonic(mnemonic);
+      const root = HDWallet.fromMnemonic(mnemonic);
       const node = root.derivePath("44'/1'/0'/0/0");
       expect(node.publicKey.toString("hex")).toBe(
         "02126148679f22c162afa24a264a6b6722a61aab622248f2f536da289f48a9291f"
@@ -90,13 +91,13 @@ describe("HDWallet", () => {
 
   describe("getKeys", () => {
     it("should be a function", () => {
-      expect(hdwallet.fromKeys).toBeFunction();
+      expect(HDWallet.fromKeys).toBeFunction();
     });
 
     it("should return keys from a node", () => {
-      const root = hdwallet.fromMnemonic(mnemonic);
+      const root = HDWallet.fromMnemonic(mnemonic);
       const node = root.derivePath("44'/1'/0'/0/0");
-      const keys = hdwallet.getKeys(node);
+      const keys = HDWallet.getKeys(node);
       expect(keys.publicKey).toBe(
         "02126148679f22c162afa24a264a6b6722a61aab622248f2f536da289f48a9291f"
       );
@@ -109,7 +110,7 @@ describe("HDWallet", () => {
 
   describe("fromKeys", () => {
     it("should be a function", () => {
-      expect(hdwallet.fromKeys).toBeFunction();
+      expect(HDWallet.fromKeys).toBeFunction();
     });
 
     it("should return node from keys", () => {
@@ -124,7 +125,7 @@ describe("HDWallet", () => {
         "2bbe729fab21bf8bca70763caf7fe85752726a363b494dea7a65e51e2d423d7b",
         "hex"
       );
-      const node = hdwallet.fromKeys(keys, chainCode);
+      const node = HDWallet.fromKeys(keys, chainCode);
       expect(node.publicKey.toString("hex")).toBe(
         "02126148679f22c162afa24a264a6b6722a61aab622248f2f536da289f48a9291f"
       );
@@ -136,13 +137,13 @@ describe("HDWallet", () => {
 
   describe("deriveSlip44", () => {
     it("should be a function", () => {
-      expect(hdwallet.deriveSlip44).toBeFunction();
+      expect(HDWallet.deriveSlip44).toBeFunction();
     });
 
     it("should derive path", () => {
-      const root = hdwallet.fromMnemonic(mnemonic);
+      const root = HDWallet.fromMnemonic(mnemonic);
 
-      const actual = hdwallet
+      const actual = HDWallet
         .deriveSlip44(root)
         .deriveHardened(0)
         .derive(0)
@@ -172,13 +173,13 @@ describe("HDWallet", () => {
 
   describe("deriveNetwork", () => {
     it("should be a function", () => {
-      expect(hdwallet.deriveNetwork).toBeFunction();
+      expect(HDWallet.deriveNetwork).toBeFunction();
     });
 
     it("should derive path", () => {
-      const root = hdwallet.fromMnemonic(mnemonic);
+      const root = HDWallet.fromMnemonic(mnemonic);
 
-      const actual = hdwallet
+      const actual = HDWallet
         .deriveNetwork(root)
         .deriveHardened(0)
         .derive(0);

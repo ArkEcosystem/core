@@ -1,4 +1,4 @@
-export default {
+export const transaction = {
   version: 1,
   network: 30,
   type: 4,

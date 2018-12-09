@@ -1,6 +1,9 @@
 import "jest-extended";
-import Bignum from "../../../src/utils/bignum";
-import handler from "../../../src/handlers/transactions/vote";
+
+import { VoteHandler } from "../../../src/handlers/transactions/vote";
+import { Bignum } from "../../../src/utils/bignum";
+
+const handler = new VoteHandler()
 
 let wallet;
 let transaction;

@@ -1,9 +1,10 @@
 import "jest-extended";
-import ByteBuffer from "bytebuffer";
-import Block from "../../src/models/block";
-import Bignum from "../../src/utils/bignum";
 
+import ByteBuffer from "bytebuffer";
 import { CONFIGURATIONS } from "../../src/constants";
+import { Block } from "../../src/models/block";
+import { Bignum } from "../../src/utils/bignum";
+
 const { outlookTable } = CONFIGURATIONS.ARK.MAINNET;
 
 describe("Models - Block", () => {
@@ -28,8 +29,8 @@ describe("Models - Block", () => {
   };
 
   describe("constructor", () => {
-    it.skip("stores the data", () => {});
-    it.skip("verifies the block", () => {});
+    it.skip("stores the data", () => { });
+    it.skip("verifies the block", () => { });
   });
 
   describe("getHeader", () => {

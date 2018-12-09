@@ -1,16 +1,13 @@
 import "jest-extended";
-import rule from "../../../src/validation/rules/address";
+
+import { address } from "../../../src/validation/rules/address";
 
 describe("Address Rule", () => {
-  it("should be a function", () => {
-    expect(rule).toBeFunction();
-  });
-
   it("should be true", () => {
-    expect(rule("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN").passes).toBeTrue();
+    expect(address("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN").passes).toBeTrue();
   });
 
   it("should be false", () => {
-    expect(rule("_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_").passes).toBeFalse();
+    expect(address("_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_").passes).toBeFalse();
   });
 });

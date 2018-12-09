@@ -1,6 +1,7 @@
 import "jest-extended";
-import tg from "tiny-glob/sync";
+
 import { parse } from "path";
+import tg from "tiny-glob/sync";
 
 const entries = tg("../../lib/networks/**/*.json", { cwd: __dirname });
 

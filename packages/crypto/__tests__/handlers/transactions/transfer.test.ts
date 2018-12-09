@@ -1,7 +1,10 @@
 import "jest-extended";
-import handler from "../../../src/handlers/transactions/transfer";
-import originalWallet from "./__fixtures__/wallet";
-import originalTransaction from "./__fixtures__/transaction";
+
+import { TransferHandler } from "../../../src/handlers/transactions/transfer";
+import { transaction as originalTransaction } from "./__fixtures__/transaction";
+import { wallet as originalWallet } from "./__fixtures__/wallet";
+
+const handler = new TransferHandler()
 
 let wallet;
 let transaction;

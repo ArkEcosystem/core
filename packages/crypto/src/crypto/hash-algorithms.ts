@@ -48,7 +48,7 @@ export class HashAlgorithms {
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
-  public static ash256(buffer) {
+  public static hash256(buffer) {
     return this.sha256(this.sha256(buffer));
   }
 }

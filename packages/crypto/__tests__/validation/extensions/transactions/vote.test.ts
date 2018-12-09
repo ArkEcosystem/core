@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
-import extensions from "../../../../src/validation/extensions";
+import { extensions } from "../../../../src/validation/extensions";
 
 const validator = Joi.extend(extensions);
 
@@ -101,7 +101,7 @@ describe("Vote Transaction", () => {
       expect(
         validator.validate(transaction.getStruct(), validator.arkVote()).error
       ).not.toBeNull();
-    } catch (error) {}
+    } catch (error) { }
   });
 
   it("should be invalid due to wrong transaction type", () => {

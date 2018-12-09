@@ -1,6 +1,7 @@
 import "jest-extended";
-import { Bignum, formatArktoshi } from "../../src/utils";
+
 import { ARKTOSHI } from "../../src/constants";
+import { Bignum, formatArktoshi } from "../../src/utils";
 
 describe("Format Arktoshi", () => {
   it("should format arktoshis", () => {

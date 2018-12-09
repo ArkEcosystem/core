@@ -1,5 +1,6 @@
 import "jest-extended";
-import NetworkManager from "../../src/managers/network";
+
+import { NetworkManager } from "../../src/managers/network";
 import networkMainnet from "../../src/networks/ark/mainnet.json";
 
 describe("Network Manager", () => {

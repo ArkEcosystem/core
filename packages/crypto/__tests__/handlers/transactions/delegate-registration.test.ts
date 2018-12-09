@@ -1,7 +1,9 @@
 import "jest-extended";
-import Bignum from "../../../src/utils/bignum";
-import handler from "../../../src/handlers/transactions/delegate-registration";
-import originalWallet from "./__fixtures__/wallet";
+import { DelegateRegistrationHandler } from "../../../src/handlers/transactions/delegate-registration";
+import { Bignum } from "../../../src/utils/bignum";
+import { wallet as originalWallet } from "./__fixtures__/wallet";
+
+const handler = new DelegateRegistrationHandler()
 
 let wallet;
 let transaction;

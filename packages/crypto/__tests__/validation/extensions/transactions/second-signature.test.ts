@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
-import extensions from "../../../../src/validation/extensions";
+import { extensions } from "../../../../src/validation/extensions";
 
 const validator = Joi.extend(extensions);
 

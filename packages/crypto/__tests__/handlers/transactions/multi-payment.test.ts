@@ -1,9 +1,12 @@
 import "jest-extended";
+
 import { sumBy } from "lodash";
-import Bignum from "../../../src/utils/bignum";
-import handler from "../../../src/handlers/transactions/multi-payment";
-import originalWallet from "./__fixtures__/wallet";
-import originalTransaction from "./__fixtures__/transaction";
+import { MultiPaymentHandler } from "../../../src/handlers/transactions/multi-payment";
+import { Bignum } from "../../../src/utils/bignum";
+import { transaction as originalTransaction } from "./__fixtures__/transaction";
+import { wallet as originalWallet } from "./__fixtures__/wallet";
+
+const handler = new MultiPaymentHandler()
 
 let wallet;
 let transaction;

@@ -1,8 +1,8 @@
 import "jest-extended";
-import ark from "../src/client";
+import { client } from "../src/client";
 
 describe("Client", () => {
   it("should be instantiated", () => {
-    expect(ark).toBeObject();
+    expect(client).toBeObject();
   });
 });

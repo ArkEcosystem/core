@@ -1,6 +1,7 @@
 import "jest-extended";
-import feeManager from "../../src/managers/fee";
+
 import { TRANSACTION_TYPES } from "../../src/constants";
+import { feeManager } from "../../src/managers/fee";
 
 describe("Fee Manager", () => {
   it("should be instantiated", () => {

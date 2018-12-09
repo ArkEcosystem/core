@@ -1,5 +1,5 @@
 import { transactionBuilder } from "./builder"
-import { Client } from "./client"
+import { client } from "./client"
 
 import * as constants from "./constants"
 import * as models from "./models"
@@ -12,7 +12,7 @@ export * from "./crypto"
 export * from "./client"
 
 export {
-  Client,
+  client,
   models,
   transactionBuilder,
   constants

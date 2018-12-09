@@ -1,9 +1,9 @@
 import "jest-extended";
-import ark from "../../../src/client";
-import crypto from "../../../src/crypto/crypto";
+import { client as ark } from "../../../src/client";
 import { TRANSACTION_TYPES } from "../../../src/constants";
-import feeManager from "../../../src/managers/fee";
-import transactionBuilderTests from "./__shared__/transaction";
+import { crypto } from "../../../src/crypto/crypto";
+import { feeManager } from "../../../src/managers/fee";
+import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder;
 
@@ -32,7 +32,7 @@ describe("Delegate Registration Transaction", () => {
     });
   });
 
-  transactionBuilderTests();
+  transactionBuilder();
 
   it("should have its specific properties", () => {
     expect(builder).toHaveProperty(
@@ -78,7 +78,7 @@ describe("Delegate Registration Transaction", () => {
       try {
         expect(() => builder.getStruct()).toThrow(/transaction.*sign/);
         expect("fail").toBe("this should fail when no error is thrown");
-      } catch (_error) {
+      } catch (error) {
         expect(() => builder.sign("example pass").getStruct()).not.toThrow();
       }
     });

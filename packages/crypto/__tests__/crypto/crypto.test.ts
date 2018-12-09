@@ -1,7 +1,7 @@
 import "jest-extended";
-import crypto from "../../src/crypto/crypto";
-import configManager from "../../src/managers/config";
-import { TRANSACTION_TYPES, CONFIGURATIONS } from "../../src/constants";
+import { CONFIGURATIONS, TRANSACTION_TYPES } from "../../src/constants";
+import { crypto } from "../../src/crypto/crypto";
+import { configManager } from "../../src/managers/config";
 
 beforeEach(() => configManager.setConfig(CONFIGURATIONS.ARK.DEVNET));
 

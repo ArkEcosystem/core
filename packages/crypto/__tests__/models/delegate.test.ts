@@ -1,9 +1,10 @@
 import "jest-extended";
-import Bignum from "../../src/utils/bignum";
-import Wallet from "../../src/models/wallet";
+
 import { ARKTOSHI } from "../../src/constants";
-import sortTransactions from "../../src/utils/sort-transactions";
-import configManager from "../../src/managers/config";
+import { configManager } from "../../src/managers/config";
+import { Wallet } from "../../src/models/wallet";
+import { Bignum } from "../../src/utils/bignum";
+import { sortTransactions } from "../../src/utils/sort-transactions";
 
 describe("Models - Delegate", () => {
   describe("static sortTransactions", () => {
@@ -33,7 +34,7 @@ describe("Models - Delegate", () => {
       });
 
       // TODO probably useful for debugging
-      it("throws an Error", () => {});
+      it("throws an Error", () => { });
     });
   });
 });

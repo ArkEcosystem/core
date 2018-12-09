@@ -1,6 +1,9 @@
 import "jest-extended";
-import Bignum from "../../../src/utils/bignum";
-import handler from "../../../src/handlers/transactions/second-signature";
+
+import { SecondSignatureHandler } from "../../../src/handlers/transactions/second-signature";
+import { Bignum } from "../../../src/utils/bignum";
+
+const handler = new SecondSignatureHandler()
 
 let wallet;
 let transaction;

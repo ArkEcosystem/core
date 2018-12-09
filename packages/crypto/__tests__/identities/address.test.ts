@@ -1,36 +1,37 @@
 import "jest-extended";
-import testSubject from "../../src/identities/address";
-import Keys from "../../src/identities/keys";
+
+import { Address } from "../../src/identities/address";
+import { Keys } from "../../src/identities/keys";
 import { data, passphrase } from "./fixture.json";
 
 describe("Identities - Address", () => {
   describe("fromPassphrase", () => {
     it("should be a function", () => {
-      expect(testSubject.fromPassphrase).toBeFunction();
+      expect(Address.fromPassphrase).toBeFunction();
     });
 
     it("should be OK", () => {
-      expect(testSubject.fromPassphrase(passphrase)).toBe(data.address);
+      expect(Address.fromPassphrase(passphrase)).toBe(data.address);
     });
   });
 
   describe("fromPublicKey", () => {
     it("should be a function", () => {
-      expect(testSubject.fromPublicKey).toBeFunction();
+      expect(Address.fromPublicKey).toBeFunction();
     });
 
     it("should be OK", () => {
-      expect(testSubject.fromPublicKey(data.publicKey)).toBe(data.address);
+      expect(Address.fromPublicKey(data.publicKey)).toBe(data.address);
     });
   });
 
   describe("fromPrivateKey", () => {
     it("should be a function", () => {
-      expect(testSubject.fromPrivateKey).toBeFunction();
+      expect(Address.fromPrivateKey).toBeFunction();
     });
 
     it("should be OK", () => {
-      expect(testSubject.fromPrivateKey(Keys.fromPassphrase(passphrase))).toBe(
+      expect(Address.fromPrivateKey(Keys.fromPassphrase(passphrase))).toBe(
         data.address
       );
     });
@@ -38,11 +39,11 @@ describe("Identities - Address", () => {
 
   describe("validate", () => {
     it("should be a function", () => {
-      expect(testSubject.validate).toBeFunction();
+      expect(Address.validate).toBeFunction();
     });
 
     it("should be OK", () => {
-      expect(testSubject.validate(data.address)).toBeTrue();
+      expect(Address.validate(data.address)).toBeTrue();
     });
   });
 });

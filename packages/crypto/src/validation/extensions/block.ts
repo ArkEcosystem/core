@@ -58,6 +58,6 @@ export const block = joi => ({
       .string()
       .hex()
       .required(),
-    transactions: joi.arkTransactions()
+    transactions: joi.arkTransactionArray()
   })
 });

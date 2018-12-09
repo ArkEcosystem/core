@@ -1,7 +1,8 @@
 import "jest-extended";
-import configManager from "../../src/managers/config";
+
+import { slots } from "../../src/crypto/slots";
+import { configManager } from "../../src/managers/config";
 import network from "../../src/networks/ark/devnet.json";
-import slots from "../../src/crypto/slots";
 
 beforeEach(() => configManager.setConfig(network));
 

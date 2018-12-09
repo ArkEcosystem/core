@@ -1,10 +1,11 @@
 import "jest-extended";
-import configManager from "../../src/managers/config";
-import feeManager from "../../src/managers/fee";
-import dynamicFeeManager from "../../src/managers/dynamic-fee";
+
+import { TRANSACTION_TYPES } from "../../src/constants";
+import { configManager } from "../../src/managers/config";
+import { dynamicFeeManager } from "../../src/managers/dynamic-fee";
+import { feeManager } from "../../src/managers/fee";
 import network from "../../src/networks/ark/devnet.json";
 import networkMainnet from "../../src/networks/ark/mainnet.json";
-import { TRANSACTION_TYPES } from "../../src/constants";
 
 beforeEach(() => configManager.setConfig(network));
 

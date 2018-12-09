@@ -44,3 +44,6 @@ export class Client {
     return transactionBuilder;
   }
 }
+
+const client = new Client()
+export { client }

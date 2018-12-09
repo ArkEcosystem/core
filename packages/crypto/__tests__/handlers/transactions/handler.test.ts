@@ -1,14 +1,27 @@
 import "jest-extended";
-import BaseHandler from "../../../src/handlers/transactions/handler";
+
 import { ARKTOSHI } from "../../../src/constants";
-import Bignum from "../../../src/utils/bignum";
+import { Handler } from "../../../src/handlers/transactions/handler";
+import { Bignum } from "../../../src/utils/bignum";
 
 let handler;
 let wallet;
 let transaction;
 
+class FakeHandler extends Handler {
+  // tslint:disable-next-line:no-shadowed-variable
+  public apply(wallet: any, transaction: any) {
+    throw new Error("Method not implemented.");
+  }
+
+  // tslint:disable-next-line:no-shadowed-variable
+  public revert(wallet: any, transaction: any) {
+    throw new Error("Method not implemented.");
+  }
+}
+
 beforeEach(() => {
-  handler = new BaseHandler();
+  handler = new FakeHandler();
 
   wallet = {
     address: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
@@ -37,7 +50,7 @@ beforeEach(() => {
 
 describe("Handler", () => {
   it("should be instantiated", () => {
-    expect(handler.constructor.name).toBe("Handler");
+    expect(handler.constructor.name).toBe("FakeHandler");
   });
 
   describe("canApply", () => {

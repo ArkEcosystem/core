@@ -1,10 +1,10 @@
-import TransactionBuilder from "../../../../src/builder/transactions/transaction";
-import Bignum from "../../../../src/utils/bignum";
+import { TransactionBuilder } from "../../../../src/builder/transactions/transaction";
 import { crypto, slots } from "../../../../src/crypto";
-import configManager from "../../../../src/managers/config";
-import Transaction from "../../../../src/models/transaction";
+import { configManager } from "../../../../src/managers/config";
+import { Transaction } from "../../../../src/models/transaction";
+import { Bignum } from "../../../../src/utils/bignum";
 
-export default function() {
+export const transactionBuilder = () => {
   let builder;
 
   beforeEach(() => {
