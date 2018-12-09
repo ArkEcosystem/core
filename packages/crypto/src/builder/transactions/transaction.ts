@@ -151,7 +151,7 @@ export abstract class TransactionBuilder {
    * @param  {String} networkWif - value associated with network
    * @return {TransactionBuilder}
    */
-  public signWithWif(wif, networkWif) {
+  public signWithWif(wif, networkWif?) {
     const keys = crypto.getKeysFromWIF(wif, {
       wif: networkWif || configManager.get("wif")
     });

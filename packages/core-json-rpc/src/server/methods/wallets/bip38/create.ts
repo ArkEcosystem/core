@@ -1,4 +1,4 @@
-import { crypto, utils } from "@arkecosystem/crypto";
+import { crypto, HashAlgorithms } from "@arkecosystem/crypto";
 import bip38 from "bip38";
 import bip39 from "bip39";
 import Joi from "joi";
@@ -26,7 +26,7 @@ export const walletBIP38Create = {
         params.bip38 + params.userId,
       );
       await database.set(
-        utils.sha256(Buffer.from(params.userId)).toString("hex"),
+        HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"),
         encryptedWIF,
       );
 

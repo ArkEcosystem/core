@@ -1,6 +1,4 @@
-import { validator } from "@arkecosystem/crypto";
-
-const Joi = validator.engine.joi;
+import { Joi } from "@arkecosystem/crypto";
 
 /**
  * @type {Object}

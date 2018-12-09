@@ -1,8 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { validator } from "@arkecosystem/crypto";
+import { Joi } from "@arkecosystem/crypto";
 import * as Pagination from "../shared/schemas/pagination";
-
-const Joi = validator.engine.joi;
 
 export const index: object = {
   query: {

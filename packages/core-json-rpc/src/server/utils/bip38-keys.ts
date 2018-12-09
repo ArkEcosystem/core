@@ -1,4 +1,4 @@
-import { configManager, crypto, utils } from "@arkecosystem/crypto";
+import { configManager, crypto, HashAlgorithms } from "@arkecosystem/crypto";
 import bip38 from "bip38";
 import wif from "wif";
 import { database } from "../services/database";
@@ -7,7 +7,7 @@ import { decryptWIF } from "./decrypt-wif";
 export async function getBIP38Wallet(userId, bip38password): Promise<any> {
   try {
     const encryptedWif = await database.get(
-      utils.sha256(Buffer.from(userId)).toString("hex"),
+      HashAlgorithms.sha256(Buffer.from(userId)).toString("hex"),
     );
 
     if (encryptedWif) {

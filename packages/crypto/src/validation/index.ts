@@ -1,4 +1,7 @@
 import { validator } from "./validator";
 import { transactionValidator } from "./validators/transaction";
 
-export { validator, transactionValidator };
+import { Engine } from "./engine"
+const Joi = Engine.joi
+
+export { Joi, validator, transactionValidator };

@@ -1,13 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { crypto, models, slots, validator } from "@arkecosystem/crypto";
+import { crypto, Joi, models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import requestIp from "request-ip";
 import { monitor } from "../../../monitor";
 
 const { Block, Transaction } = models;
-const Joi = validator.engine.joi;
 
 const transactionPool = app.resolvePlugin("transactionPool");
 const config = app.resolvePlugin("config");
