@@ -9,4 +9,4 @@ Sntp.time = (options) => {
   return { t: 111 };
 };
 
-export default Sntp;
+export = Sntp;

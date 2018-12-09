@@ -1,8 +1,7 @@
-import "jest-extended";
 import "@arkecosystem/core-test-utils";
-import { setUp, tearDown } from "../../__support__/setup";
-import utils from "../utils";
 import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
+import { setUp, tearDown } from "../../__support__/setup";
+import { utils } from "../utils";
 
 const address1 = "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn";
 const address2 = "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri";

@@ -13,4 +13,4 @@ class Helpers {
 /**
  * @type {Helpers}
  */
-export default new Helpers();
+export const utils = new Helpers();

@@ -10,17 +10,17 @@ import { config } from "../src/config";
 import { defaults } from "../src/defaults";
 import { stateStorage } from "../src/state-storage";
 
-import app from "./__support__/setup";
+import { setUp, tearDown } from "./__support__/setup";
 
 const blocks = blocks2to100.concat(blocks101to155).map(block => new Block(block));
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
   config.init(defaults);
 });
 
 afterAll(async () => {
-  await app.tearDown();
+  await tearDown();
 });
 
 beforeEach(() => {

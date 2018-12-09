@@ -3,14 +3,12 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 
 jest.setTimeout(60000);
 
-export default {
-  setUp: async () => {
-    await setUpContainer({
-      exit: "@arkecosystem/core-blockchain",
-    });
-  },
+export const setUp = async () => {
+  await setUpContainer({
+    exit: "@arkecosystem/core-blockchain",
+  });
+}
 
-  tearDown: async () => {
-    await app.tearDown();
-  },
+export const tearDown = async () => {
+  await app.tearDown();
 };

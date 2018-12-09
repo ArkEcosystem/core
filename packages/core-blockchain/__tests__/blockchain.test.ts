@@ -1,17 +1,17 @@
 /* tslint:disable:max-line-length */
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import "@arkecosystem/core-test-utils";
+import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 import { crypto, models, slots } from "@arkecosystem/crypto";
 import { asValue } from "awilix";
 import axios from "axios";
-import delay from "delay";
 import MockAdapter from "axios-mock-adapter";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
+import delay from "delay";
 
 import { defaults } from "../src/defaults";
 
-import app from "./__support__/setup";
+import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
 const { Block, Wallet } = models;
@@ -25,7 +25,7 @@ let loggerDebugBackup;
 let peerMock;
 
 beforeAll(async () => {
-  container = await app.setUp();
+  container = await setUp();
 
   // Backup logger.debug function as we are going to mock it in the test suite
   logger = container.resolvePlugin("logger");
@@ -58,7 +58,7 @@ afterAll(async () => {
   // Manually stop the blockchain
   await blockchain.stop();
 
-  await app.tearDown();
+  await tearDown();
 });
 
 afterEach(async () => {

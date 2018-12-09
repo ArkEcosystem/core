@@ -1,13 +1,13 @@
-import app from "../__support__/setup";
+import { setUp, tearDown } from "../__support__/setup";
 
 let checker;
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
 });
 
 afterAll(async () => {
-  await app.tearDown();
+  await tearDown();
 });
 
 beforeEach(() => {

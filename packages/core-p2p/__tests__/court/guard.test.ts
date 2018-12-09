@@ -1,8 +1,7 @@
 import dayjs from "dayjs-ext";
-import app from "../__support__/setup";
-
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
+import { setUp, tearDown } from "../__support__/setup";
 
 const ARK_ENV = process.env.ARK_ENV;
 
@@ -12,16 +11,16 @@ let Peer;
 let peerMock;
 
 beforeAll(async () => {
-  await app.setUp();
-  const { app: appContainer } = require("@arkecosystem/core-container");
-  container = appContainer;
+  await setUp();
+  const { app } = require("@arkecosystem/core-container");
+  container = app;
 
   guard = require("../../dist/court/guard").guard;
   Peer = require("../../dist/peer").Peer;
 });
 
 afterAll(async () => {
-  await app.tearDown();
+  await tearDown();
 });
 
 beforeEach(async () => {

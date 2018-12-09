@@ -3,7 +3,7 @@ import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 
 import { defaults } from "../src/defaults";
-import app from "./__support__/setup";
+import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
 
@@ -12,14 +12,14 @@ let Peer;
 let peerMock;
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
 
   Peer = require("../dist/peer").Peer;
   monitor = require("../dist/monitor").monitor;
 });
 
 afterAll(async () => {
-  await app.tearDown();
+  await tearDown();
 });
 
 beforeEach(async () => {

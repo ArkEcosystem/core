@@ -1,8 +1,8 @@
 import { generateTransfers } from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
 import blockFixture from "../../../core-debugger-cli/__tests__/__fixtures__/block.json";
-import app from "../__support__/setup";
-import utils from "../__support__/utils";
+import { setUp, tearDown } from "../__support__/setup";
+import { utils } from "../__support__/utils";
 
 const { Block, Transaction } = models;
 
@@ -10,7 +10,7 @@ let genesisBlock;
 let genesisTransaction;
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -26,7 +26,7 @@ beforeEach(() => {
 
 afterAll(async () => {
   delete utils.headers["x-auth"];
-  await app.tearDown();
+  await tearDown();
 });
 
 describe("API - Internal", () => {

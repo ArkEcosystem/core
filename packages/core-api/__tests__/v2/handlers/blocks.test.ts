@@ -1,12 +1,11 @@
-import "jest-extended";
 import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
-import utils from "../utils";
+import { utils } from "../utils";
 
-import { resetBlockchain } from "../../../../core-test-utils/src/helpers/blockchain";
 import { models } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
 import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
+import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
+import { resetBlockchain } from "../../../../core-test-utils/src/helpers/blockchain";
 
 import { app } from "@arkecosystem/core-container";
 

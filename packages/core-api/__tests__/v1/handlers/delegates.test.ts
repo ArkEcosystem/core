@@ -1,7 +1,6 @@
-import "jest-extended";
 import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
-import utils from "../utils";
+import { utils } from "../utils";
 
 const delegate = {
   username: "genesis_9",

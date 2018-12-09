@@ -1,7 +1,6 @@
-import "jest-extended";
 import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
-import utils from "../utils";
+import { utils } from "../utils";
 
 const address = "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo";
 

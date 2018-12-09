@@ -1,14 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
 
-async function setUp() {
+export const setUp = async () => {
   return setUpContainer({
     exit: "@arkecosystem/core-p2p",
   });
 }
 
-async function tearDown() {
+export const tearDown = async () => {
   return app.tearDown();
 }
-
-export { setUp, tearDown };

@@ -2,7 +2,7 @@ import "@arkecosystem/core-test-utils";
 
 import { asValue } from "awilix";
 
-import app from "./__support__/setup";
+import { setUp, tearDown } from "./__support__/setup";
 
 let stateMachine;
 let container;
@@ -10,7 +10,7 @@ let blockchain;
 
 beforeAll(async () => {
 
-  container = await app.setUp();
+  container = await setUp();
 
   process.env.ARK_SKIP_BLOCKCHAIN = "true";
 
@@ -38,7 +38,7 @@ afterAll(async () => {
   // Manually stop  the blockchain
   await blockchain.stop();
 
-  await app.tearDown();
+  await tearDown();
 });
 
 beforeEach(async () => {

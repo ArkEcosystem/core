@@ -1,15 +1,15 @@
 import "@arkecosystem/core-test-utils";
 import genesisBlock from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
-import * as app from "../__support__/setup";
-import utils from "../__support__/utils";
+import { setUp, tearDown } from "../__support__/setup";
+import { utils } from "../__support__/utils";
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
 });
 
 afterAll(() => {
-  app.tearDown();
+  tearDown();
 });
 
 describe("GraphQL API { blocks }", () => {
@@ -17,7 +17,7 @@ describe("GraphQL API { blocks }", () => {
     it("should get blocks by generatorPublicKey", async () => {
       const query = `{ blocks(filter: { generatorPublicKey: "${
         genesisBlock.generatorPublicKey
-      }" }) { id } }`;
+        }" }) { id } }`;
       const response = await utils.request(query);
 
       expect(response).toBeSuccessfulResponse();

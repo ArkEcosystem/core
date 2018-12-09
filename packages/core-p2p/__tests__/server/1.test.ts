@@ -1,14 +1,14 @@
 import { generateTransfers } from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
-import app from "../__support__/setup";
-import utils from "../__support__/utils";
+import { setUp, tearDown } from "../__support__/setup";
+import { utils } from "../__support__/utils";
 
 const { Block, Transaction } = models;
 
 let genesisBlock;
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -16,7 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await app.tearDown();
+  await tearDown();
 });
 
 describe("API - Version 1", () => {

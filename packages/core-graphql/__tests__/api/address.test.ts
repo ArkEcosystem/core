@@ -1,14 +1,14 @@
 import "@arkecosystem/core-test-utils";
 
-import * as app from "../__support__/setup";
-import utils from "../__support__/utils";
+import { setUp, tearDown } from "../__support__/setup";
+import { utils } from "../__support__/utils";
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
 });
 
 afterAll(() => {
-  app.tearDown();
+  tearDown();
 });
 
 describe("GraphQL API { address }", () => {

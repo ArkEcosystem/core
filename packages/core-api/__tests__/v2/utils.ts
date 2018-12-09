@@ -1,11 +1,11 @@
-import "jest-extended";
-import axios from "axios";
-import { client, transactionBuilder, NetworkManager } from "@arkecosystem/crypto";
-import { ApiHelpers } from "../../../core-test-utils/src/helpers/api";
 import { app } from "@arkecosystem/core-container";
+import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
+import axios from "axios";
+import "jest-extended";
+import { ApiHelpers } from "../../../core-test-utils/src/helpers/api";
 
 class Helpers {
-  async request(method, path, params = {}) {
+  public async request(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`;
     const headers = {
       "API-Version": 2,
@@ -17,7 +17,7 @@ class Helpers {
     return ApiHelpers.request(server.http, method, url, headers, params);
   }
 
-  async requestWithAcceptHeader(method, path, params = {}) {
+  public async requestWithAcceptHeader(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`;
     const headers = {
       Accept: "application/vnd.ark.core-api.v2+json",
@@ -29,28 +29,28 @@ class Helpers {
     return ApiHelpers.request(server.http, method, url, headers, params);
   }
 
-  expectJson(response) {
+  public expectJson(response) {
     expect(response.data).toBeObject();
   }
 
-  expectStatus(response, code) {
+  public expectStatus(response, code) {
     expect(response.status).toBe(code);
   }
 
-  assertVersion(response, version) {
+  public assertVersion(response, version) {
     expect(response.headers).toBeObject();
     expect(response.headers).toHaveProperty("api-version", version);
   }
 
-  expectResource(response) {
+  public expectResource(response) {
     expect(response.data.data).toBeObject();
   }
 
-  expectCollection(response) {
+  public expectCollection(response) {
     expect(Array.isArray(response.data.data)).toBe(true);
   }
 
-  expectPaginator(response, firstPage = true) {
+  public expectPaginator(response, firstPage = true) {
     expect(response.data.meta).toBeObject();
     expect(response.data.meta).toHaveProperty("count");
     expect(response.data.meta).toHaveProperty("pageCount");
@@ -62,13 +62,13 @@ class Helpers {
     expect(response.data.meta).toHaveProperty("last");
   }
 
-  expectSuccessful(response, statusCode = 200) {
+  public expectSuccessful(response, statusCode = 200) {
     this.expectStatus(response, statusCode);
     this.expectJson(response);
     this.assertVersion(response, 2);
   }
 
-  expectError(response, statusCode = 404) {
+  public expectError(response, statusCode = 404) {
     this.expectStatus(response, statusCode);
     this.expectJson(response);
     expect(response.data.statusCode).toBeNumber();
@@ -76,7 +76,7 @@ class Helpers {
     expect(response.data.message).toBeString();
   }
 
-  expectTransaction(transaction) {
+  public expectTransaction(transaction) {
     expect(transaction).toBeObject();
     expect(transaction).toHaveProperty("id");
     expect(transaction).toHaveProperty("blockId");
@@ -93,7 +93,7 @@ class Helpers {
     expect(transaction.confirmations).toBeNumber();
   }
 
-  expectBlock(block, expected: any = {}) {
+  public expectBlock(block, expected: any = {}) {
     expect(block).toBeObject();
     expect(block.id).toBeString();
     expect(block.version).toBeNumber();
@@ -117,7 +117,7 @@ class Helpers {
     });
   }
 
-  expectDelegate(delegate, expected: any = {}) {
+  public expectDelegate(delegate, expected: any = {}) {
     expect(delegate).toBeObject();
     expect(delegate.username).toBeString();
     expect(delegate.address).toBeString();
@@ -139,7 +139,7 @@ class Helpers {
     });
   }
 
-  expectWallet(wallet) {
+  public expectWallet(wallet) {
     expect(wallet).toBeObject();
     expect(wallet).toHaveProperty("address");
     expect(wallet).toHaveProperty("publicKey");
@@ -147,7 +147,7 @@ class Helpers {
     expect(wallet).toHaveProperty("isDelegate");
   }
 
-  async createTransaction() {
+  public async createTransaction() {
     client.setConfig(NetworkManager.findByName("testnet"));
 
     const transaction = transactionBuilder
@@ -172,4 +172,4 @@ class Helpers {
   }
 }
 
-export default new Helpers();
+export const utils = new Helpers();

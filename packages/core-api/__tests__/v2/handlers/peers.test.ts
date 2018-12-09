@@ -1,7 +1,6 @@
 import "@arkecosystem/core-test-utils";
-import "jest-extended";
 import { setUp, tearDown } from "../../__support__/setup";
-import utils from "../utils";
+import { utils } from "../utils";
 
 beforeAll(async () => {
   await setUp();

@@ -1,15 +1,15 @@
 import "@arkecosystem/core-test-utils";
 import genesisBlock from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 
-import * as app from "../__support__/setup";
-import utils from "../__support__/utils";
+import { setUp, tearDown } from "../__support__/setup";
+import { utils } from "../__support__/utils";
 
 beforeAll(async () => {
-  await app.setUp();
+  await setUp();
 });
 
 afterAll(() => {
-  app.tearDown();
+  tearDown();
 });
 
 describe("GraphQL API { transactions }", () => {
@@ -71,7 +71,7 @@ describe("GraphQL API { transactions }", () => {
     it("should get transactions for given blockId", async () => {
       const query = `{ transactions(filter: { blockId: "${
         genesisBlock.id
-      }" }) { id } }`;
+        }" }) { id } }`;
       const response = await utils.request(query);
 
       expect(response).toBeSuccessfulResponse();
@@ -92,7 +92,7 @@ describe("GraphQL API { transactions }", () => {
     it("should get transactions for given senderPublicKey", async () => {
       const query = `{ transactions(filter: { senderPublicKey: "${
         genesisBlock.transactions[0].senderPublicKey
-      }" }) { id } }`;
+        }" }) { id } }`;
       const response = await utils.request(query);
 
       expect(response).toBeSuccessfulResponse();

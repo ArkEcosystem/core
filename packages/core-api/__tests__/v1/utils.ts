@@ -1,11 +1,11 @@
-import "jest-extended";
-import axios from "axios";
-import { client, transactionBuilder, NetworkManager } from "@arkecosystem/crypto";
-import { ApiHelpers } from "@arkecosystem/core-test-utils/dist/helpers/api";
 import { app } from "@arkecosystem/core-container";
+import { ApiHelpers } from "@arkecosystem/core-test-utils/dist/helpers/api";
+import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
+import axios from "axios";
+import "jest-extended";
 
 class Helpers {
-  async request(method, path, params = {}) {
+  public async request(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`;
     const headers = {
       "API-Version": 1,
@@ -17,38 +17,38 @@ class Helpers {
     return ApiHelpers.request(server.http, method, url, headers, params);
   }
 
-  expectJson(response) {
+  public expectJson(response) {
     expect(response.data).toBeObject();
   }
 
-  expectStatus(response, code) {
+  public expectStatus(response, code) {
     expect(response.status).toBe(code);
   }
 
-  assertVersion(response, version) {
+  public assertVersion(response, version) {
     expect(response.headers).toBeObject();
     expect(response.headers).toHaveProperty("api-version", version);
   }
 
-  expectState(response, state) {
+  public expectState(response, state) {
     expect(response.data).toHaveProperty("success", state);
   }
 
-  expectSuccessful(response) {
+  public expectSuccessful(response) {
     this.expectStatus(response, 200);
     this.expectJson(response);
     this.expectState(response, true);
     this.assertVersion(response, 1);
   }
 
-  expectError(response) {
+  public expectError(response) {
     this.expectStatus(response, 200);
     this.expectJson(response);
     this.expectState(response, false);
     this.assertVersion(response, 1);
   }
 
-  expectDelegate(delegate, expected: any = {}) {
+  public expectDelegate(delegate, expected: any = {}) {
     expect(delegate).toBeObject();
     expect(delegate.username).toBeString();
     expect(delegate.address).toBeString();
@@ -65,14 +65,14 @@ class Helpers {
     });
   }
 
-  expectWallet(response) {
+  public expectWallet(response) {
     expect(response).toHaveProperty("username");
     expect(response).toHaveProperty("address");
     expect(response).toHaveProperty("publicKey");
     expect(response).toHaveProperty("balance");
   }
 
-  async createTransaction() {
+  public async createTransaction() {
     client.setConfig(NetworkManager.findByName("testnet"));
 
     const transaction = transactionBuilder
@@ -97,4 +97,4 @@ class Helpers {
   }
 }
 
-export default new Helpers();
+export const utils = new Helpers();
