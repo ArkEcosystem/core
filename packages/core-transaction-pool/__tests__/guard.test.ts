@@ -1,5 +1,5 @@
+import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
-import { generators, fixtures } from "@arkecosystem/core-test-utils";
 
 import { crypto, slots } from "@arkecosystem/crypto";
 import { TransactionGuard } from "../src/guard";
@@ -15,7 +15,7 @@ const {
   generateSecondSignature,
   generateTransfers,
   generateVote,
-  generateWallets
+  generateWallets,
 } = generators;
 
 const { delegates } = fixtures;
@@ -25,11 +25,8 @@ let guard;
 let transactionPool;
 
 beforeAll(async () => {
-  // FIX: resolve issue
-  // core-database: emitter => null
-  container = await app.setUp();
-  transactionPool = new TransactionPool(defaults);
-  transactionPool.make();
+  container = await app.setUpFull();
+  transactionPool = container.resolvePlugin("transactionPool");
 });
 
 afterAll(async () => {
@@ -41,7 +38,7 @@ beforeEach(() => {
   guard = new TransactionGuard(transactionPool);
 });
 
-describe.skip("Transaction Guard", () => {
+describe("Transaction Guard", () => {
   it("should be an object", () => {
     expect(guard).toBeObject();
   });
@@ -61,14 +58,10 @@ describe.skip("Transaction Guard", () => {
         const arktoshi = 10 ** 8;
         // don't re-use the same delegate (need clean balance)
         const delegate = inverseOrder ? delegates[8] : delegates[9];
-        const delegateWallet = transactionPool.walletManager.findByAddress(
-          delegate.address
-        );
+        const delegateWallet = transactionPool.walletManager.findByAddress(delegate.address);
 
         const wallets = generateWallets("testnet", 2);
-        const poolWallets = wallets.map(w =>
-          transactionPool.walletManager.findByAddress(w.address)
-        );
+        const poolWallets = wallets.map(w => transactionPool.walletManager.findByAddress(w.address));
 
         expect(+delegateWallet.balance).toBe(+delegate.balance);
         poolWallets.forEach(w => {
@@ -79,13 +72,13 @@ describe.skip("Transaction Guard", () => {
           // transfer from delegate to wallet 0
           from: delegate,
           to: wallets[0],
-          amount: 100 * arktoshi
+          amount: 100 * arktoshi,
         };
         const transfer1 = {
           // transfer from wallet 0 to wallet 1
           from: wallets[0],
           to: wallets[1],
-          amount: 55 * arktoshi
+          amount: 55 * arktoshi,
         };
         const transfers = [transfer0, transfer1];
         if (inverseOrder) {
@@ -93,13 +86,7 @@ describe.skip("Transaction Guard", () => {
         }
 
         for (const t of transfers) {
-          const transferTx = generateTransfers(
-            "testnet",
-            t.from.passphrase,
-            t.to.address,
-            t.amount,
-            1
-          )[0];
+          const transferTx = generateTransfers("testnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
 
           await guard.validate([transferTx]);
         }
@@ -110,25 +97,22 @@ describe.skip("Transaction Guard", () => {
           transfer1.from.passphrase,
           transfer1.to.address,
           transfer1.amount,
-          1
+          1,
         )[0];
 
         await guard.validate([transfer]);
 
         const expectedError = {
-          message:
-            '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
-          type: "ERR_APPLY"
+          message: '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
+          type: "ERR_APPLY",
         };
         expect(guard.errors[transfer.id]).toContainEqual(expectedError);
 
         // check final balances
-        expect(+delegateWallet.balance).toBe(
-          delegate.balance - (100 + 0.1) * arktoshi
-        );
+        expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * arktoshi);
         expect(+poolWallets[0].balance).toBe(0);
         expect(+poolWallets[1].balance).toBe(0);
-      }
+      },
     );
 
     it("should not apply the tx to the balance of the sender & recipient with dyn fee < min fee", async () => {
@@ -136,27 +120,15 @@ describe.skip("Transaction Guard", () => {
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic());
       const newAddress = crypto.getAddress(publicKey);
 
-      const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate0.publicKey
-      );
-      const newWallet = transactionPool.walletManager.findByPublicKey(
-        publicKey
-      );
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate0.publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
       expect(+delegateWallet.balance).toBe(+delegate0.balance);
       expect(+newWallet.balance).toBe(0);
 
       const amount1 = 123 * 10 ** 8;
       const fee = 10;
-      const transfers = generateTransfers(
-        "testnet",
-        delegate0.secret,
-        newAddress,
-        amount1,
-        1,
-        false,
-        fee
-      );
+      const transfers = generateTransfers("testnet", delegate0.secret, newAddress, amount1, 1, false, fee);
 
       await guard.validate(transfers);
 
@@ -169,27 +141,15 @@ describe.skip("Transaction Guard", () => {
       const { publicKey } = crypto.getKeys(bip39.generateMnemonic());
       const newAddress = crypto.getAddress(publicKey);
 
-      const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate1.publicKey
-      );
-      const newWallet = transactionPool.walletManager.findByPublicKey(
-        publicKey
-      );
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate1.publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
       expect(+delegateWallet.balance).toBe(+delegate1.balance);
       expect(+newWallet.balance).toBe(0);
 
       const amount1 = +delegateWallet.balance / 2;
       const fee = 0.1 * 10 ** 8;
-      const transfers = generateTransfers(
-        "testnet",
-        delegate1.secret,
-        newAddress,
-        amount1,
-        1,
-        false,
-        fee
-      );
+      const transfers = generateTransfers("testnet", delegate1.secret, newAddress, amount1, 1, false, fee);
 
       await guard.validate(transfers);
       expect(guard.errors).toEqual({});
@@ -207,12 +167,8 @@ describe.skip("Transaction Guard", () => {
       const { publicKey } = crypto.getKeys(newWalletPassphrase);
       const newAddress = crypto.getAddress(publicKey);
 
-      const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate2.publicKey
-      );
-      const newWallet = transactionPool.walletManager.findByPublicKey(
-        publicKey
-      );
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate2.publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
       expect(+delegateWallet.balance).toBe(+delegate2.balance);
       expect(+newWallet.balance).toBe(0);
@@ -223,44 +179,16 @@ describe.skip("Transaction Guard", () => {
       const voteFee = 10 ** 8;
       const delegateRegFee = 25 * 10 ** 8;
       const signatureFee = 5 * 10 ** 8;
-      const transfers = generateTransfers(
-        "testnet",
-        delegate2.secret,
-        newAddress,
-        amount1,
-        1,
-        false,
-        fee
-      );
-      const votes = generateVote(
-        "testnet",
-        newWalletPassphrase,
-        delegate2.publicKey,
-        1
-      );
-      const delegateRegs = generateDelegateRegistration(
-        "testnet",
-        newWalletPassphrase,
-        1
-      );
-      const signatures = generateSecondSignature(
-        "testnet",
-        newWalletPassphrase,
-        1
-      );
+      const transfers = generateTransfers("testnet", delegate2.secret, newAddress, amount1, 1, false, fee);
+      const votes = generateVote("testnet", newWalletPassphrase, delegate2.publicKey, 1);
+      const delegateRegs = generateDelegateRegistration("testnet", newWalletPassphrase, 1);
+      const signatures = generateSecondSignature("testnet", newWalletPassphrase, 1);
 
       // Index wallets to not encounter cold wallet error
-      const allTransactions = [
-        ...transfers,
-        ...votes,
-        ...delegateRegs,
-        ...signatures
-      ];
+      const allTransactions = [...transfers, ...votes, ...delegateRegs, ...signatures];
 
       allTransactions.forEach(transaction => {
-        container
-          .resolvePlugin("database")
-          .walletManager.findByPublicKey(transaction.senderPublicKey);
+        container.resolvePlugin("database").walletManager.findByPublicKey(transaction.senderPublicKey);
       });
 
       // first validate the 1st transfer so that new wallet is updated with the amount
@@ -279,9 +207,7 @@ describe.skip("Transaction Guard", () => {
 
       expect(guard.errors).toEqual({});
       expect(+delegateWallet.balance).toBe(+delegate2.balance - amount1 - fee);
-      expect(+newWallet.balance).toBe(
-        amount1 - voteFee - delegateRegFee - signatureFee
-      );
+      expect(+newWallet.balance).toBe(amount1 - voteFee - delegateRegFee - signatureFee);
     });
 
     it("should not accept transaction in excess", async () => {
@@ -290,12 +216,8 @@ describe.skip("Transaction Guard", () => {
       const { publicKey } = crypto.getKeys(newWalletPassphrase);
       const newAddress = crypto.getAddress(publicKey);
 
-      const delegateWallet = transactionPool.walletManager.findByPublicKey(
-        delegate3.publicKey
-      );
-      const newWallet = transactionPool.walletManager.findByPublicKey(
-        publicKey
-      );
+      const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate3.publicKey);
+      const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
       // Make sure it is not considered a cold wallet
       container.resolvePlugin("database").walletManager.reindex(newWallet);
@@ -306,13 +228,7 @@ describe.skip("Transaction Guard", () => {
       // first, transfer coins to new wallet so that we can test from it then
       const amount1 = 1000 * 10 ** 8;
       const fee = 0.1 * 10 ** 8;
-      const transfers1 = generateTransfers(
-        "testnet",
-        delegate3.secret,
-        newAddress,
-        amount1,
-        1
-      );
+      const transfers1 = generateTransfers("testnet", delegate3.secret, newAddress, amount1, 1);
       await guard.validate(transfers1);
 
       // simulate forged transaction
@@ -323,13 +239,7 @@ describe.skip("Transaction Guard", () => {
 
       // transfer almost everything from new wallet so that we don't have enough for any other transaction
       const amount2 = 999 * 10 ** 8;
-      const transfers2 = generateTransfers(
-        "testnet",
-        newWalletPassphrase,
-        delegate3.address,
-        amount2,
-        1
-      );
+      const transfers2 = generateTransfers("testnet", newWalletPassphrase, delegate3.address, amount2, 1);
       await guard.validate(transfers2);
 
       // simulate forged transaction
@@ -341,18 +251,10 @@ describe.skip("Transaction Guard", () => {
       const transferAmount = 0.5 * 10 ** 8;
       const transferDynFee = 0.5 * 10 ** 8;
       const allTransactions = [
-        generateTransfers(
-          "testnet",
-          newWalletPassphrase,
-          delegate3.address,
-          transferAmount,
-          1,
-          false,
-          transferDynFee
-        ),
+        generateTransfers("testnet", newWalletPassphrase, delegate3.address, transferAmount, 1, false, transferDynFee),
         generateSecondSignature("testnet", newWalletPassphrase, 1),
         generateVote("testnet", newWalletPassphrase, delegate3.publicKey, 1),
-        generateDelegateRegistration("testnet", newWalletPassphrase, 1)
+        generateDelegateRegistration("testnet", newWalletPassphrase, 1),
       ];
 
       for (const transaction of allTransactions) {
@@ -360,88 +262,67 @@ describe.skip("Transaction Guard", () => {
 
         const errorExpected = [
           {
-            message: `["[PoolWalletManager] Can't apply transaction id:${
-              transaction[0].id
-            } from sender:${
+            message: `["[PoolWalletManager] Can't apply transaction id:${transaction[0].id} from sender:${
               newWallet.address
             }","Insufficient balance in the wallet"]`,
-            type: "ERR_APPLY"
-          }
+            type: "ERR_APPLY",
+          },
         ];
         expect(guard.errors[transaction[0].id]).toEqual(errorExpected);
 
-        expect(+delegateWallet.balance).toBe(
-          +delegate3.balance - amount1 - fee + amount2
-        );
+        expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee + amount2);
         expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
       }
     });
 
     it("should not validate 2 double spending transactions", async () => {
       const amount = 245098000000000 - 5098000000000; // a bit less than the delegates' balance
-      const transactions = generateTransfers(
-        "testnet",
-        delegates[0].secret,
-        delegates[1].address,
-        amount,
-        2,
-        true
-      );
+      const transactions = generateTransfers("testnet", delegates[0].secret, delegates[1].address, amount, 2, true);
 
       const result = await guard.validate(transactions);
 
       expect(result.errors[transactions[1].id]).toEqual([
         {
-          message: `["[PoolWalletManager] Can't apply transaction id:${
-            transactions[1].id
-          } from sender:${
+          message: `["[PoolWalletManager] Can't apply transaction id:${transactions[1].id} from sender:${
             delegates[0].address
           }","Insufficient balance in the wallet"]`,
-          type: "ERR_APPLY"
-        }
+          type: "ERR_APPLY",
+        },
       ]);
     });
 
-    it.each([3, 5, 8])(
-      "should validate emptying wallet with %i transactions",
-      async txNumber => {
-        // use txNumber so that we use a different delegate for each test case
-        const sender = delegates[txNumber];
-        const senderWallet = transactionPool.walletManager.findByPublicKey(
-          sender.publicKey
-        );
-        const receivers = generateWallets("testnet", 2);
-        const amountPlusFee = Math.floor(senderWallet.balance / txNumber);
-        const lastAmountPlusFee =
-          senderWallet.balance - (txNumber - 1) * amountPlusFee;
-        const transferFee = 10000000;
+    it.each([3, 5, 8])("should validate emptying wallet with %i transactions", async txNumber => {
+      // use txNumber so that we use a different delegate for each test case
+      const sender = delegates[txNumber];
+      const senderWallet = transactionPool.walletManager.findByPublicKey(sender.publicKey);
+      const receivers = generateWallets("testnet", 2);
+      const amountPlusFee = Math.floor(senderWallet.balance / txNumber);
+      const lastAmountPlusFee = senderWallet.balance - (txNumber - 1) * amountPlusFee;
+      const transferFee = 10000000;
 
-        const transactions = generateTransfers(
-          "testnet",
-          sender.secret,
-          receivers[0].address,
-          amountPlusFee - transferFee,
-          txNumber - 1,
-          true
-        );
-        const lastTransaction = generateTransfers(
-          "testnet",
-          sender.secret,
-          receivers[1].address,
-          lastAmountPlusFee - transferFee,
-          1,
-          true
-        );
-        // we change the receiver in lastTransaction to prevent having 2 exact
-        // same transactions with same id (if not, could be same as transactions[0])
+      const transactions = generateTransfers(
+        "testnet",
+        sender.secret,
+        receivers[0].address,
+        amountPlusFee - transferFee,
+        txNumber - 1,
+        true,
+      );
+      const lastTransaction = generateTransfers(
+        "testnet",
+        sender.secret,
+        receivers[1].address,
+        lastAmountPlusFee - transferFee,
+        1,
+        true,
+      );
+      // we change the receiver in lastTransaction to prevent having 2 exact
+      // same transactions with same id (if not, could be same as transactions[0])
 
-        const result = await guard.validate(
-          transactions.concat(lastTransaction)
-        );
+      const result = await guard.validate(transactions.concat(lastTransaction));
 
-        expect(result.errors).toEqual(null);
-      }
-    );
+      expect(result.errors).toEqual(null);
+    });
 
     it.each([3, 5, 8])(
       "should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much",
@@ -450,8 +331,7 @@ describe.skip("Transaction Guard", () => {
         const sender = delegates[txNumber + 1];
         const receivers = generateWallets("testnet", 2);
         const amountPlusFee = Math.floor(sender.balance / txNumber);
-        const lastAmountPlusFee =
-          sender.balance - (txNumber - 1) * amountPlusFee + 1;
+        const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1;
         const transferFee = 10000000;
 
         const transactions = generateTransfers(
@@ -460,7 +340,7 @@ describe.skip("Transaction Guard", () => {
           receivers[0].address,
           amountPlusFee - transferFee,
           txNumber - 1,
-          true
+          true,
         );
         const lastTransaction = generateTransfers(
           "testnet",
@@ -468,7 +348,7 @@ describe.skip("Transaction Guard", () => {
           receivers[1].address,
           lastAmountPlusFee - transferFee,
           1,
-          true
+          true,
         );
         // we change the receiver in lastTransaction to prevent having 2
         // exact same transactions with same id (if not, could be same as transactions[0])
@@ -480,15 +360,13 @@ describe.skip("Transaction Guard", () => {
         expect(Object.keys(result.errors).length).toBe(1);
         expect(result.errors[lastTransaction[0].id]).toEqual([
           {
-            message: `["[PoolWalletManager] Can't apply transaction id:${
-              lastTransaction[0].id
-            } from sender:${
+            message: `["[PoolWalletManager] Can't apply transaction id:${lastTransaction[0].id} from sender:${
               sender.address
             }","Insufficient balance in the wallet"]`,
-            type: "ERR_APPLY"
-          }
+            type: "ERR_APPLY",
+          },
         ]);
-      }
+      },
     );
   });
 
@@ -507,8 +385,8 @@ describe.skip("Transaction Guard", () => {
       expect(guard.errors[tx.id]).toEqual([
         {
           message: `Duplicate transaction ${tx.id}`,
-          type: "ERR_DUPLICATE"
-        }
+          type: "ERR_DUPLICATE",
+        },
       ]);
 
       guard.pool.transactionExists = transactionExists;
@@ -525,11 +403,9 @@ describe.skip("Transaction Guard", () => {
 
       expect(guard.errors[tx.id]).toEqual([
         {
-          message: `Transaction ${tx.id} rejected. Sender ${
-            tx.senderPublicKey
-          } is blocked.`,
-          type: "ERR_SENDER_BLOCKED"
-        }
+          message: `Transaction ${tx.id} rejected. Sender ${tx.senderPublicKey} is blocked.`,
+          type: "ERR_SENDER_BLOCKED",
+        },
       ]);
 
       guard.pool.isSenderBlocked = isSenderBlocked;
@@ -547,17 +423,15 @@ describe.skip("Transaction Guard", () => {
       const tx = {
         id: "1",
         senderPublicKey: "affe",
-        timestamp: slots.getTime() + secondsInFuture
+        timestamp: slots.getTime() + secondsInFuture,
       };
       guard.__filterAndTransformTransactions([tx]);
 
       expect(guard.errors[tx.id]).toEqual([
         {
-          message: `Transaction ${
-            tx.id
-          } is ${secondsInFuture} seconds in the future`,
-          type: "ERR_FROM_FUTURE"
-        }
+          message: `Transaction ${tx.id} is ${secondsInFuture} seconds in the future`,
+          type: "ERR_FROM_FUTURE",
+        },
       ]);
 
       slots.getTime = getTime;
@@ -580,13 +454,7 @@ describe.skip("Transaction Guard", () => {
       const database = container.resolvePlugin("database");
       const getForgedTransactionsIds = database.getForgedTransactionsIds;
 
-      const transfers = generateTransfers(
-        "testnet",
-        delegates[0].secret,
-        delegates[0].senderPublicKey,
-        1,
-        4
-      );
+      const transfers = generateTransfers("testnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
       transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
@@ -614,13 +482,7 @@ describe.skip("Transaction Guard", () => {
     });
 
     it("should add transactions to the pool", () => {
-      const transfers = generateTransfers(
-        "testnet",
-        delegates[0].secret,
-        delegates[0].senderPublicKey,
-        1,
-        4
-      );
+      const transfers = generateTransfers("testnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
       transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
@@ -637,13 +499,7 @@ describe.skip("Transaction Guard", () => {
     });
 
     it("should raise ERR_ALREADY_IN_POOL when adding existing transactions", () => {
-      const transfers = generateTransfers(
-        "testnet",
-        delegates[0].secret,
-        delegates[0].senderPublicKey,
-        1,
-        4
-      );
+      const transfers = generateTransfers("testnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
       transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
@@ -666,9 +522,7 @@ describe.skip("Transaction Guard", () => {
 
       for (const transfer of transfers) {
         expect(guard.errors[transfer.id]).toHaveLength(1);
-        expect(guard.errors[transfer.id][0].type).toEqual(
-          "ERR_ALREADY_IN_POOL"
-        );
+        expect(guard.errors[transfer.id][0].type).toEqual("ERR_ALREADY_IN_POOL");
       }
     });
 
@@ -676,13 +530,7 @@ describe.skip("Transaction Guard", () => {
       const poolSize = transactionPool.options.maxTransactionsInPool;
       transactionPool.options.maxTransactionsInPool = 3;
 
-      const transfers = generateTransfers(
-        "testnet",
-        delegates[0].secret,
-        delegates[0].senderPublicKey,
-        1,
-        4
-      );
+      const transfers = generateTransfers("testnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
       transfers.forEach(tx => {
         guard.accept.set(tx.id, tx);
@@ -714,9 +562,7 @@ describe.skip("Transaction Guard", () => {
       expect(guard.errors).toBeObject();
       expect(guard.errors["1"]).toBeArray();
       expect(guard.errors["1"]).toHaveLength(1);
-      expect(guard.errors["1"]).toEqual([
-        { message: "Invalid.", type: "ERR_INVALID" }
-      ]);
+      expect(guard.errors["1"]).toEqual([{ message: "Invalid.", type: "ERR_INVALID" }]);
 
       expect(guard.invalid.size).toEqual(1);
       expect(guard.invalid.entries().next().value[1]).toEqual({ id: 1 });
@@ -733,7 +579,7 @@ describe.skip("Transaction Guard", () => {
       expect(guard.errors["1"]).toHaveLength(2);
       expect(guard.errors["1"]).toEqual([
         { message: "Invalid 1.", type: "ERR_INVALID" },
-        { message: "Invalid 2.", type: "ERR_INVALID" }
+        { message: "Invalid 2.", type: "ERR_INVALID" },
       ]);
 
       expect(guard.invalid.size).toEqual(1);
