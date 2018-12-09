@@ -7,28 +7,24 @@ const { Block, Transaction, Wallet } = models;
 
 const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 
-let ConnectionInterface;
 let connectionInterface;
 let genesisBlock;
+
+import { ConnectionInterface } from "../src/interface";
+import { DummyConnection } from "./__fixtures__/dummy-class";
 
 beforeAll(async done => {
   await app.setUp();
 
-  ConnectionInterface = require("../dist").ConnectionInterface;
-  connectionInterface = new ConnectionInterface();
+  connectionInterface = new DummyConnection({});
   genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
-
-  done();
 });
 
 afterAll(async done => {
   await app.tearDown();
-
-  done();
 });
 
-// FIX: adjust tests to an interface/abstract class
-describe.skip("Connection Interface", () => {
+describe("Connection Interface", () => {
   it("should be an object", () => {
     expect(connectionInterface).toBeInstanceOf(ConnectionInterface);
   });
@@ -304,7 +300,7 @@ describe.skip("Connection Interface", () => {
         expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
       }
 
-      const connection = new ConnectionInterface();
+      const connection = new DummyConnection({});
       connection.__getBlocksForRound = jest.fn(async () => blocksInRound);
       connection.walletManager = walletManager;
 
