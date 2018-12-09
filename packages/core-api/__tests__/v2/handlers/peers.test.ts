@@ -12,6 +12,8 @@ afterAll(async () => {
 });
 
 describe("API 2.0 - Peers", () => {
+  let peer;
+
   describe("GET /peers", () => {
     describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
       "using the %s header",
@@ -21,6 +23,8 @@ describe("API 2.0 - Peers", () => {
           expect(response).toBeSuccessfulResponse();
           expect(response.data.data).toBeArray();
           expect(response.data.data[0]).toBeObject();
+
+          peer = response.data.data[0];
         });
       },
     );
@@ -29,9 +33,9 @@ describe("API 2.0 - Peers", () => {
   describe("GET /peers/:ip", () => {
     describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
       "using the %s header",
-      (header, request) => {
+      (_, request) => {
         it("should GET a peer by the given ip", async () => {
-          const response = await utils[request]("GET", `peers/0.0.0.0`);
+          const response = await utils[request]("GET", `peers/${peer.ip}`);
           expect(response).toBeSuccessfulResponse();
           expect(response.data.data).toBeObject();
         });
