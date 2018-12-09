@@ -12,6 +12,13 @@ export default {
 
     return app;
   },
+  setUpFull: async () => {
+    await setUpContainer({
+      exit: "@arkecosystem/core-blockchain",
+    });
+
+    return app;
+  },
   tearDown: async () => {
     await app.tearDown();
   },

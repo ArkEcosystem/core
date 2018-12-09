@@ -6,8 +6,7 @@ let blockchain;
 let container;
 
 beforeAll(async () => {
-  container = await app.setUp();
-  await container.resolvePlugin("blockchain").start();
+  container = await app.setUpFull();
 });
 
 afterAll(async () => {

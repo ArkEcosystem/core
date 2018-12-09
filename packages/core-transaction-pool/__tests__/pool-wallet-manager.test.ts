@@ -17,7 +17,7 @@ let poolWalletManager;
 let blockchain;
 
 beforeAll(async () => {
-  container = await app.setUp();
+  container = await app.setUpFull();
   poolWalletManager = new (require("../src/pool-wallet-manager")).PoolWalletManager();
   blockchain = container.resolvePlugin("blockchain");
 });
