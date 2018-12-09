@@ -1,6 +1,6 @@
 import { models } from "@arkecosystem/crypto";
 
-export default new models.Block({
+export const sampleBlock = new models.Block({
   id: "4398082439836560423",
   version: 0,
   timestamp: 35751416,
@@ -11,10 +11,8 @@ export default new models.Block({
   totalFee: 0,
   reward: 200000000,
   payloadLength: 0,
-  payloadHash:
-    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  generatorPublicKey:
-    "03806036bc1bb470144184b10f815431c580ae2b806d5fd0ba2118dca823c5c4a6",
+  payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  generatorPublicKey: "03806036bc1bb470144184b10f815431c580ae2b806d5fd0ba2118dca823c5c4a6",
   generatorId: "DMrWy7PddjmDiJFm4bToMj4MhDBa9Wm9vN",
   blockSignature:
     // tslint:disable-next-line:max-line-length

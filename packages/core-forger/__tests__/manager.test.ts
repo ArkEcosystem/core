@@ -1,14 +1,16 @@
+import { generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
-import { models } from "@arkecosystem/crypto";
+import { Bignum, models } from "@arkecosystem/crypto";
 import { defaults } from "../src/defaults";
 import { ForgerManager } from "../src/manager";
-import sampleBlock from "./__fixtures__/block";
-import delegate from "./__fixtures__/delegate";
-import sampleTransaction from "./__fixtures__/transaction";
+import { sampleBlock } from "./__fixtures__/block";
+import { delegate } from "./__fixtures__/delegate";
+import { sampleTransaction } from "./__fixtures__/transaction";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Delegate, Transaction } = models;
+const { generateTransfers } = generators;
 
 jest.setTimeout(30000);
 jest.mock("../src/client");
@@ -59,15 +61,23 @@ describe("Forger Manager", () => {
       expect(forgeManager.__forgeNewBlock).toBeFunction();
     });
     it("should forge a block", async () => {
+      // NOTE: make sure we have valid transactions from an existing wallet
+      const transactions = generateTransfers(
+        "testnet",
+        "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
+      );
+
       forgeManager.client.getTransactions.mockReturnValue({
-        transactions: [Transaction.serialize(sampleTransaction).toString("hex")],
+        transactions: transactions.map(tx => tx.serialized),
       });
+
       forgeManager.usernames = [];
+
       const del = new Delegate("a secret", 100);
       const round = {
         lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
         timestamp: 1,
-        reward: 2,
+        reward: 2 * 1e8,
       };
 
       await forgeManager.__forgeNewBlock(del, round);
@@ -75,7 +85,7 @@ describe("Forger Manager", () => {
       expect(forgeManager.client.broadcast).toHaveBeenCalledWith(
         expect.objectContaining({
           height: round.lastBlock.height + 1,
-          reward: round.reward,
+          reward: new Bignum(round.reward),
         }),
       );
       expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("block.forged", expect.any(Object));

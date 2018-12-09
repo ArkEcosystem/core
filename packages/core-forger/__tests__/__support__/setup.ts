@@ -3,7 +3,7 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 
 async function setUp() {
   return setUpContainer({
-    exit: "@arkecosystem/core-database-postgres",
+    exit: "@arkecosystem/core-logger-winston",
   });
 }
 

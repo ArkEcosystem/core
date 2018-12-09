@@ -3,7 +3,7 @@ import "jest-extended";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Client } from "../src/client";
-import block from "./__fixtures__/block";
+import { sampleBlock } from "./__fixtures__/block";
 import { setUp, tearDown } from "./__support__/setup";
 
 const mockAxios = new MockAdapter(axios);
@@ -54,7 +54,7 @@ describe("Client", () => {
         mockAxios.onPost(`${host}/internal/blocks`).reply(c => {
           expect(JSON.parse(c.data).block).toMatchObject(
             expect.objectContaining({
-              id: block.data.id,
+              id: sampleBlock.data.id,
             }),
           );
           return [200, true];
@@ -62,7 +62,7 @@ describe("Client", () => {
 
         await client.__chooseHost();
 
-        const wasBroadcasted = await client.broadcast(block.toJson());
+        const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
         expect(wasBroadcasted).toBeTruthy();
       });
     });
