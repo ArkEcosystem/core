@@ -10,7 +10,6 @@ import { config } from "../config";
 import { logger, paginate, request } from "../utils";
 
 export abstract class Command {
-
   /**
    * Parse fee based on input.
    * @param  {(String|Number)} fee
@@ -19,7 +18,7 @@ export abstract class Command {
   public static parseFee(fee) {
     if (typeof fee === "string" && fee.indexOf("-") !== -1) {
       const feeRange = fee.split("-").map(
-        (f) =>
+        f =>
           +bignumify(f)
             .times(1e8)
             .toFixed(),
@@ -28,11 +27,7 @@ export abstract class Command {
         return feeRange[0];
       }
 
-      return bignumify(
-        Math.floor(
-          Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0],
-        ),
-      );
+      return bignumify(Math.floor(Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0]));
     }
 
     return bignumify(fee).times(1e8);
@@ -61,7 +56,7 @@ export abstract class Command {
    * @param  {Object} options
    * @return {*}
    */
-  protected static async initialize(command, options) {
+  public static async initialize(command, options) {
     command.options = options;
     command.__applyConfig();
     await command.__loadConstants();
@@ -108,24 +103,15 @@ export abstract class Command {
     for (let i = 0; i < quantity; i++) {
       const passphrase = bip39.generateMnemonic();
       const keys = crypto.getKeys(passphrase);
-      const address = crypto.getAddress(
-        keys.publicKey,
-        this.config.network.version,
-      );
+      const address = crypto.getAddress(keys.publicKey, this.config.network.version);
 
       wallets.push({ address, keys, passphrase });
     }
 
     const testWalletsPath = path.resolve(__dirname, "../../test-wallets");
-    fs.appendFileSync(
-      testWalletsPath,
-      `${new Date().toLocaleDateString()} ${"-".repeat(70)}\n`,
-    );
+    fs.appendFileSync(testWalletsPath, `${new Date().toLocaleDateString()} ${"-".repeat(70)}\n`);
     for (const wallet of wallets) {
-      fs.appendFileSync(
-        testWalletsPath,
-        `${wallet.address}: ${wallet.passphrase}\n`,
-      );
+      fs.appendFileSync(testWalletsPath, `${wallet.address}: ${wallet.passphrase}\n`);
     }
 
     return wallets;
@@ -142,9 +128,7 @@ export abstract class Command {
 
       return delegates;
     } catch (error) {
-      const message = error.response
-        ? error.response.data.message
-        : error.message;
+      const message = error.response ? error.response.data.message : error.message;
       throw new Error(`Could not get delegates: ${message}`);
     }
   }
@@ -157,12 +141,7 @@ export abstract class Command {
   public getTransactionDelaySeconds(transactions) {
     const waitPerBlock = Math.round(this.config.constants.blocktime / 10) * 20;
 
-    return (
-      waitPerBlock *
-      Math.ceil(
-        transactions.length / this.config.constants.block.maxTransactions,
-      )
-    );
+    return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions);
   }
 
   /**
@@ -172,9 +151,7 @@ export abstract class Command {
    */
   public async getTransaction(id) {
     try {
-      const response = await request(this.config).get(
-        `/api/v2/transactions/${id}`,
-      );
+      const response = await request(this.config).get(`/api/v2/transactions/${id}`);
 
       if (response.data) {
         return response.data;
@@ -195,9 +172,7 @@ export abstract class Command {
     try {
       return paginate(this.config, `/api/v2/delegates/${publicKey}/voters`);
     } catch (error) {
-      const message = error.response
-        ? error.response.data.message
-        : error.message;
+      const message = error.response ? error.response.data.message : error.message;
       throw new Error(`Could not get voters for '${publicKey}': ${message}`);
     }
   }
@@ -224,9 +199,7 @@ export abstract class Command {
    */
   public async getWallet(address) {
     try {
-      const response = await request(this.config).get(
-        `/api/v2/wallets/${address}`,
-      );
+      const response = await request(this.config).get(`/api/v2/wallets/${address}`);
 
       if (response.data) {
         return response.data;
@@ -234,9 +207,7 @@ export abstract class Command {
 
       return null;
     } catch (error) {
-      const message = error.response
-        ? error.response.data.message
-        : error.message;
+      const message = error.response ? error.response.data.message : error.message;
       throw new Error(`Could not get wallet for '${address}': ${message}`);
     }
   }
@@ -253,9 +224,7 @@ export abstract class Command {
 
     if (wait) {
       const delaySeconds = this.getTransactionDelaySeconds(transactions);
-      transactionType = `${
-        transactionType ? `${transactionType} ` : ""
-      }transactions`;
+      transactionType = `${transactionType ? `${transactionType} ` : ""}transactions`;
       logger.info(`Waiting ${delaySeconds} seconds to apply ${transactionType}`);
       await delay(delaySeconds * 1000);
     }
@@ -275,9 +244,7 @@ export abstract class Command {
       });
       return response.data;
     } catch (error) {
-      const message = error.response
-        ? error.response.data.message
-        : error.message;
+      const message = error.response ? error.response.data.message : error.message;
       throw new Error(`Could not post transactions: ${message}`);
     }
   }
@@ -315,9 +282,7 @@ export abstract class Command {
    */
   public async __loadConstants() {
     try {
-      this.config.constants = (await request(this.config).get(
-        "/api/v2/node/configuration",
-      )).data.constants;
+      this.config.constants = (await request(this.config).get("/api/v2/node/configuration")).data.constants;
     } catch (error) {
       logger.error("Failed to get constants: ", error.message);
       process.exit(1);
@@ -330,10 +295,7 @@ export abstract class Command {
    */
   public async __loadNetworkConfig() {
     try {
-      this.config.network = (await request(this.config).get(
-        "/config",
-        true,
-      )).data.network;
+      this.config.network = (await request(this.config).get("/config", true)).data.network;
     } catch (error) {
       logger.error("Failed to get network config: ", error.message);
       process.exit(1);
