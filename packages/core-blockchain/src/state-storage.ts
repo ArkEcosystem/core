@@ -2,9 +2,9 @@
 
 import { app } from "@arkecosystem/core-container";
 import { models } from "@arkecosystem/crypto";
-
 import assert from "assert";
 import immutable from "immutable";
+import { config } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 
 const { Block } = models;
@@ -105,7 +105,7 @@ class StateStorage {
     _lastBlocks = _lastBlocks.set(block.data.height, block);
 
     // Delete oldest block if size exceeds the maximum
-    if (_lastBlocks.size > app.resolveOptions("blockchain").state.maxLastBlocks) {
+    if (_lastBlocks.size > config.get("state.maxLastBlocks")) {
       _lastBlocks = _lastBlocks.delete(_lastBlocks.first().data.height);
     }
   }
@@ -187,7 +187,7 @@ class StateStorage {
     });
 
     // Cap the Set of last transaction ids to maxLastTransactionIds
-    const limit = app.resolveOptions("blockchain").state.maxLastTransactionIds;
+    const limit = config.get("state.maxLastTransactionIds");
     if (_cachedTransactionIds.size > limit) {
       _cachedTransactionIds = _cachedTransactionIds.takeLast(limit);
     }

@@ -14,6 +14,7 @@ const { Block } = models;
 
 export class Blockchain {
   public isStopped: boolean;
+  public options: any;
   private actions: any;
   private queue: Queue;
   private processQueue: ProcessQueue;
@@ -21,16 +22,16 @@ export class Blockchain {
 
   /**
    * Create a new blockchain manager instance.
-   * @param  {Boolean} networkStart
+   * @param  {Object} options
    * @return {void}
    */
-  constructor(networkStart) {
+  constructor(options) {
     // flag to force a network start
-    this.state.networkStart = !!networkStart;
+    this.state.networkStart = !!options.networkStart;
 
     if (this.state.networkStart) {
       logger.warn(
-        "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:"
+        "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:",
       );
       logger.info("Starting Ark Core for a new world, welcome aboard :rocket:");
     }
@@ -50,11 +51,9 @@ export class Blockchain {
 
     if (nextState.actions.length > 0) {
       logger.debug(
-        `event '${event}': ${JSON.stringify(
-          this.state.blockchain.value
-        )} -> ${JSON.stringify(
-          nextState.value
-        )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`
+        `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
+          nextState.value,
+        )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
       );
     }
 
@@ -149,12 +148,7 @@ export class Blockchain {
    * @return {void}
    */
   public async postTransactions(transactions) {
-    logger.info(
-      `Received ${transactions.length} new ${pluralize(
-        "transaction",
-        transactions.length
-      )} :moneybag:`
-    );
+    logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)} :moneybag:`);
 
     await this.transactionPool.addTransactions(transactions);
   }
@@ -169,24 +163,18 @@ export class Blockchain {
       `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
         "transaction",
         block.numberOfTransactions,
-        true
-      )} from ${block.ip}`
+        true,
+      )} from ${block.ip}`,
     );
 
-    if (
-      this.state.started &&
-      this.state.blockchain.value === "idle" &&
-      !this.state.forked
-    ) {
+    if (this.state.started && this.state.blockchain.value === "idle" && !this.state.forked) {
       this.dispatch("NEWBLOCK");
 
       this.processQueue.push(block);
       this.state.lastDownloadedBlock = new Block(block);
     } else {
       logger.info(
-        `Block disregarded because blockchain is ${
-          this.state.forked ? "forked" : "not ready"
-        } :exclamation:`
+        `Block disregarded because blockchain is ${this.state.forked ? "forked" : "not ready"} :exclamation:`,
       );
     }
   }
@@ -205,10 +193,7 @@ export class Blockchain {
     }
 
     const newHeight = previousRound * maxDelegates;
-    const blocksToRemove = await this.database.getBlocks(
-      newHeight,
-      height - newHeight - 1
-    );
+    const blocksToRemove = await this.database.getBlocks(newHeight, height - newHeight - 1);
     const deleteLastBlock = async () => {
       const lastBlock = this.state.getLastBlock();
       await this.database.enqueueDeleteBlock(lastBlock);
@@ -219,28 +204,15 @@ export class Blockchain {
       this.state.lastDownloadedBlock = newLastBlock;
     };
 
-    logger.info(
-      `Removing ${pluralize(
-        "block",
-        height - newHeight,
-        true
-      )} to reset current round :warning:`
-    );
+    logger.info(`Removing ${pluralize("block", height - newHeight, true)} to reset current round :warning:`);
 
     let count = 0;
     const max = this.state.getLastBlock().data.height - newHeight;
 
     while (this.state.getLastBlock().data.height >= newHeight + 1) {
       const removalBlockId = this.state.getLastBlock().data.id;
-      const removalBlockHeight = this.state
-        .getLastBlock()
-        .data.height.toLocaleString();
-      logger.printTracker(
-        "Removing block",
-        count++,
-        max,
-        `ID: ${removalBlockId}, height: ${removalBlockHeight}`
-      );
+      const removalBlockHeight = this.state.getLastBlock().data.height.toLocaleString();
+      logger.printTracker("Removing block", count++, max, `ID: ${removalBlockId}, height: ${removalBlockHeight}`);
 
       await deleteLastBlock();
     }
@@ -259,10 +231,7 @@ export class Blockchain {
    * @return {void}
    */
   public async removeBlocks(nblocks) {
-    const blocksToRemove = await this.database.getBlocks(
-      this.state.getLastBlock().data.height - nblocks,
-      nblocks - 1
-    );
+    const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks - 1);
 
     const revertLastBlock = async () => {
       // tslint:disable-next-line:no-shadowed-variable
@@ -288,11 +257,7 @@ export class Blockchain {
         return;
       }
 
-      logger.info(
-        `Undoing block ${this.state
-          .getLastBlock()
-          .data.height.toLocaleString()}`
-      );
+      logger.info(`Undoing block ${this.state.getLastBlock().data.height.toLocaleString()}`);
 
       await revertLastBlock();
       await __removeBlocks(numberOfBlocks - 1);
@@ -304,13 +269,7 @@ export class Blockchain {
     }
 
     const resetHeight = lastBlock.data.height - nblocks;
-    logger.info(
-      `Removing ${pluralize(
-        "block",
-        nblocks,
-        true
-      )}. Reset to height ${resetHeight.toLocaleString()}`
-    );
+    logger.info(`Removing ${pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`);
 
     this.queue.pause();
     this.queue.clear();
@@ -334,13 +293,7 @@ export class Blockchain {
   public async removeTopBlocks(count) {
     const blocks = await this.database.getTopBlocks(count);
 
-    logger.info(
-      `Removing ${pluralize(
-        "block",
-        blocks.length,
-        true
-      )} from height ${blocks[0].height.toLocaleString()}`
-    );
+    logger.info(`Removing ${pluralize("block", blocks.length, true)} from height ${blocks[0].height.toLocaleString()}`);
 
     for (let block of blocks) {
       block = new Block(block);
@@ -382,21 +335,16 @@ export class Blockchain {
       }
       if (
         block.data.height < lastBlock.data.height ||
-        (block.data.height === lastBlock.data.height &&
-          block.data.id === lastBlock.data.id)
+        (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id)
       ) {
         this.state.lastDownloadedBlock = lastBlock;
         return callback();
       }
       this.state.lastDownloadedBlock = lastBlock;
-      logger.info(
-        `Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`
-      );
+      logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`);
       return callback();
     }
-    logger.warn(
-      `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`
-    );
+    logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
     logger.warn(block.verification);
     return callback();
   }
@@ -410,9 +358,7 @@ export class Blockchain {
    */
   public async processBlock(block, callback) {
     if (!block.verification.verified) {
-      logger.warn(
-        `Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`
-      );
+      logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
 
       this.transactionPool.purgeSendersWithInvalidTransactions(block);
 
@@ -443,9 +389,7 @@ export class Blockchain {
         this.p2p.broadcastBlock(block);
       }
     } catch (error) {
-      logger.warn(
-        `Can't properly broadcast block ${block.data.height.toLocaleString()}`
-      );
+      logger.warn(`Can't properly broadcast block ${block.data.height.toLocaleString()}`);
       logger.debug(error.stack);
     }
 
@@ -463,10 +407,7 @@ export class Blockchain {
     await this.database.saveBlock(block);
 
     // Check if we recovered from a fork
-    if (
-      this.state.forked &&
-      this.state.forkedBlock.height === block.data.height
-    ) {
+    if (this.state.forked && this.state.forkedBlock.height === block.data.height) {
       logger.info("Successfully recovered from fork :star2:");
       this.state.forked = false;
       this.state.forkedBlock = null;
@@ -493,20 +434,13 @@ export class Blockchain {
 
     if (block.data.height > lastBlock.data.height + 1) {
       logger.debug(
-        `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`
+        `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
       );
       this.state.lastDownloadedBlock = lastBlock;
     } else if (block.data.height < lastBlock.data.height) {
-      logger.debug(
-        `Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`
-      );
-    } else if (
-      block.data.height === lastBlock.data.height &&
-      block.data.id === lastBlock.data.id
-    ) {
-      logger.debug(
-        `Block ${block.data.height.toLocaleString()} just received :chains:`
-      );
+      logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`);
+    } else if (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id) {
+      logger.debug(`Block ${block.data.height.toLocaleString()} just received :chains:`);
     } else {
       const isValid = await this.database.validateForkedBlock(block);
 
@@ -516,7 +450,7 @@ export class Blockchain {
         logger.info(
           `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
             block.data.generatorPublicKey
-          } :bangbang:`
+          } :bangbang:`,
         );
       }
     }
@@ -541,14 +475,12 @@ export class Blockchain {
    * @return {Object}
    */
   public getUnconfirmedTransactions(blockSize) {
-    const transactions = this.transactionPool.getTransactionsForForging(
-      blockSize
-    );
+    const transactions = this.transactionPool.getTransactionsForForging(blockSize);
 
     return {
       transactions,
       poolSize: this.transactionPool.getPoolSize(),
-      count: transactions ? transactions.length : -1
+      count: transactions ? transactions.length : -1,
     };
   }
 
@@ -564,10 +496,7 @@ export class Blockchain {
 
     block = block || this.getLastBlock();
 
-    return (
-      slots.getTime() - block.data.timestamp <
-      3 * config.getConstants(block.data.height).blocktime
-    );
+    return slots.getTime() - block.data.timestamp < 3 * config.getConstants(block.data.height).blocktime;
   }
 
   /**
@@ -661,7 +590,7 @@ export class Blockchain {
       "transaction.forged",
       "transaction.reverted",
       "wallet.saved",
-      "wallet.created.cold"
+      "wallet.created.cold",
     ];
   }
 
@@ -704,8 +633,7 @@ export class Blockchain {
    * @return {Boolean}
    */
   public __isChained(previousBlock, nextBlock) {
-    const followsPrevious =
-      nextBlock.data.previousBlock === previousBlock.data.id;
+    const followsPrevious = nextBlock.data.previousBlock === previousBlock.data.id;
     const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp;
     const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1;
 
@@ -719,7 +647,7 @@ export class Blockchain {
   public __registerQueue() {
     this.queue = new Queue(this, {
       process: "PROCESSFINISHED",
-      rebuild: "REBUILDFINISHED"
+      rebuild: "REBUILDFINISHED",
     });
 
     this.processQueue = this.queue.process;

@@ -6,6 +6,7 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
+import { config as localConfig } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
 import { tickSyncTracker } from "./utils/tick-sync-tracker";
@@ -215,7 +216,7 @@ blockchainMachine.actionMap = blockchain => ({
         slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime;
       // no fast rebuild if in last week
       stateStorage.fastRebuild =
-        slots.getTime() - block.data.timestamp > 3600 * 24 * 7 && !!app.resolveOptions("blockchain").fastRebuild;
+        slots.getTime() - block.data.timestamp > 3600 * 24 * 7 && !!localConfig.get("fastRebuild");
 
       if (process.env.NODE_ENV === "test") {
         logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY. :bangbang:");
@@ -379,7 +380,7 @@ blockchainMachine.actionMap = blockchain => ({
   async rollbackDatabase() {
     logger.info("Trying to restore database integrity :fire_engine:");
 
-    const { maxBlockRewind, steps } = app.resolveOptions("blockchain").databaseRollback;
+    const { maxBlockRewind, steps } = localConfig.get("databaseRollback");
     let blockchainAudit;
 
     for (let i = maxBlockRewind; i >= 0; i -= steps) {

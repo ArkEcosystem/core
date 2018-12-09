@@ -1,3 +1,4 @@
+import { config } from "./config";
 import { defaults } from "./defaults";
 import { monitor } from "./monitor";
 import { startServer } from "./server";
@@ -13,7 +14,9 @@ export const plugin: any = {
   async register(container, options) {
     container.resolvePlugin("logger").info("Starting P2P Interface");
 
-    monitor.server = await startServer(monitor, options);
+    config.init(options);
+
+    monitor.server = await startServer(options);
 
     await monitor.start(options);
 

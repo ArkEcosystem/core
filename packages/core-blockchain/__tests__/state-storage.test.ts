@@ -6,13 +6,17 @@ import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet
 import { models } from "@arkecosystem/crypto";
 const { Block } = models;
 
+import { config } from "../src/config";
+import { defaults } from "../src/defaults";
 import { stateStorage } from "../src/state-storage";
+
 import app from "./__support__/setup";
 
 const blocks = blocks2to100.concat(blocks101to155).map(block => new Block(block));
 
 beforeAll(async () => {
   await app.setUp();
+  config.init(defaults);
 });
 
 afterAll(async () => {

@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { config as localConfig } from "../../config";
 
 const config = app.resolvePlugin("config");
 
@@ -12,7 +13,7 @@ const register = async (server, options) => {
   const headers = {
     nethash: config.network.nethash,
     version: app.getVersion(),
-    port: server.app.config.port,
+    port: localConfig.get("port"),
     os: require("os").platform(),
     height: null,
   };

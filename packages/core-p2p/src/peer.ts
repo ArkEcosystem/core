@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
-import { monitor } from "./monitor";
+import { config as localConfig } from "./config";
 
 export class Peer {
   public static isOk(peer) {
@@ -51,7 +51,7 @@ export class Peer {
 
     this.headers = {
       version: app.getVersion(),
-      port: monitor.config.port,
+      port: localConfig.get("port"),
       nethash: this.config.network.nethash,
       height: null,
       "Content-Type": "application/json",

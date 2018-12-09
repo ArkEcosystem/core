@@ -1,15 +1,15 @@
 /* tslint:disable:max-line-length */
 import "@arkecosystem/core-test-utils";
-
+import { crypto, models, slots } from "@arkecosystem/crypto";
+import { asValue } from "awilix";
+import axios from "axios";
+import delay from "delay";
+import MockAdapter from "axios-mock-adapter";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
-import delay from "delay";
-
-import { crypto, models, slots } from "@arkecosystem/crypto";
-import { asValue } from "awilix";
+import { defaults } from "../src/defaults";
 
 import app from "./__support__/setup";
 
@@ -460,6 +460,7 @@ async function __start() {
 
   blockchain = await plugin.register(container, {
     networkStart: false,
+    ...defaults,
   });
 
   await container.register(
@@ -512,7 +513,6 @@ async function __resetToHeight1() {
 
 function __mockPeer() {
   // Mocking a peer which will send blocks until height 155
-  const Peer = require("@arkecosystem/core-p2p/src/peer").Peer;
   peerMock = new Peer("0.0.0.99", 4002);
   Object.assign(peerMock, peerMock.headers, { status: 200 });
 

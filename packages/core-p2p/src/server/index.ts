@@ -5,7 +5,7 @@ import { createServer, mountServer, plugins } from "@arkecosystem/core-http-util
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-const startServer = async (p2p, config) => {
+const startServer = async config => {
   const server = await createServer({
     host: config.host,
     port: config.port,

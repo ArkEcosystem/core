@@ -1,5 +1,6 @@
 import { asValue } from "awilix";
 import { Blockchain } from "./blockchain";
+import { config } from "./config";
 import { defaults } from "./defaults";
 import { stateStorage } from "./state-storage";
 
@@ -12,7 +13,9 @@ export const plugin = {
   defaults,
   alias: "blockchain",
   async register(container, options) {
-    const blockchain = new Blockchain(options.networkStart);
+    const blockchain = new Blockchain(options);
+
+    config.init(options);
 
     container.register("state", asValue(stateStorage));
 
