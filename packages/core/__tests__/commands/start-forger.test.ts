@@ -1,6 +1,5 @@
 import "jest-extended";
-import delay from "delay";
-import { startRelay, startForger } from "../../src/commands";
+import { startForger, startRelay } from "../../src/commands";
 import { opts, version } from "../__support__/app";
 
 describe("Commands - Start Forger", () => {

@@ -1,5 +1,4 @@
 import "jest-extended";
-import delay from "delay";
 import { startRelayAndForger } from "../../src/commands";
 import { opts, version } from "../__support__/app";
 
