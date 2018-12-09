@@ -1,11 +1,11 @@
 import "jest-extended";
 
-import app from "../../__support__/setup";
+import { setUp, tearDown } from "../../__support__/setup";
 
 let filterRows;
 
 beforeAll(async (done) => {
-  await app.setUp();
+  await setUp();
 
   filterRows = require("../../../src/repositories/utils/filter-rows");
 
@@ -13,7 +13,7 @@ beforeAll(async (done) => {
 });
 
 afterAll(async (done) => {
-  await app.tearDown();
+  await tearDown();
 
   done();
 });

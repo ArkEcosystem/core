@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Bignum, constants, models, transactionBuilder } from "@arkecosystem/crypto";
-import app from "./__support__/setup";
+import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
 
@@ -14,14 +14,14 @@ import { ConnectionInterface } from "../src/interface";
 import { DummyConnection } from "./__fixtures__/dummy-class";
 
 beforeAll(async done => {
-  await app.setUp();
+  await setUp();
 
   connectionInterface = new DummyConnection({});
   genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
 });
 
 afterAll(async done => {
-  await app.tearDown();
+  await tearDown();
 });
 
 describe("Connection Interface", () => {

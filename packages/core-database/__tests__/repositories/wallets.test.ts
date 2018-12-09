@@ -1,8 +1,8 @@
 import { Bignum, crypto, models } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
-import app from "../__support__/setup";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
+import { setUp, tearDown } from "../__support__/setup";
 
 import { WalletsRepository } from "../../src/repositories/wallets";
 
@@ -14,7 +14,7 @@ let repository;
 let walletManager;
 
 beforeAll(async done => {
-  await app.setUp();
+  await setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -25,7 +25,7 @@ beforeAll(async done => {
 });
 
 afterAll(async done => {
-  await app.tearDown();
+  await tearDown();
 
   done();
 });

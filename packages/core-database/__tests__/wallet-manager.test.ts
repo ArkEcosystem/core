@@ -3,7 +3,7 @@ import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import genesisBlockTestnet from "../../core-test-utils/src/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
-import app from "./__support__/setup";
+import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
 const { ARKTOSHI, TRANSACTION_TYPES } = constants;
@@ -20,7 +20,7 @@ let genesisBlock;
 let walletManager;
 
 beforeAll(async done => {
-  await app.setUp();
+  await setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -38,7 +38,7 @@ beforeEach(() => {
 });
 
 afterAll(async done => {
-  await app.tearDown();
+  await tearDown();
 
   done();
 });

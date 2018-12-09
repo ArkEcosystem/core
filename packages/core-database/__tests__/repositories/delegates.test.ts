@@ -3,7 +3,7 @@ import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/gen
 
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { DelegatesRepository } from "../../src/repositories/delegates";
-import app from "../__support__/setup";
+import { setUp, tearDown } from "../__support__/setup";
 
 const { ARKTOSHI } = constants;
 const { Block } = models;
@@ -13,7 +13,7 @@ let repository;
 let walletManager;
 
 beforeAll(async done => {
-  await app.setUp();
+  await setUp();
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -23,7 +23,7 @@ beforeAll(async done => {
 });
 
 afterAll(async done => {
-  await app.tearDown();
+  await tearDown();
 
   done();
 });
