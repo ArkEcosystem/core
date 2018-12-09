@@ -5,6 +5,7 @@ import sumBy from "lodash/sumBy";
 import prettyMs from "pretty-ms";
 import semver from "semver";
 
+import { config as localConfig } from "../config";
 import * as utils from "../utils";
 import { offences } from "./offences";
 
@@ -192,7 +193,7 @@ class Guard {
    * @return {Boolean}
    */
   public isValidPort(peer) {
-    return peer.port === app.resolveOptions("p2p").port;
+    return peer.port === localConfig.get("port");
   }
 
   /**
