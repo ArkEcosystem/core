@@ -5,9 +5,9 @@ import { TransactionsRepository } from "./transactions";
 import { WalletsRepository } from "./wallets";
 
 export const repositories = {
-  blocks: BlocksRepository,
-  migrations: MigrationsRepository,
-  rounds: RoundsRepository,
-  transactions: TransactionsRepository,
-  wallets: WalletsRepository,
+    blocks: BlocksRepository,
+    migrations: MigrationsRepository,
+    rounds: RoundsRepository,
+    transactions: TransactionsRepository,
+    wallets: WalletsRepository,
 };

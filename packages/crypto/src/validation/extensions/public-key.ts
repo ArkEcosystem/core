@@ -1,7 +1,7 @@
 export const publicKey = joi => ({
-  name: "arkPublicKey",
-  base: joi
-    .string()
-    .hex()
-    .length(66)
+    name: "arkPublicKey",
+    base: joi
+        .string()
+        .hex()
+        .length(66),
 });

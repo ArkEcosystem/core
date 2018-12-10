@@ -5,11 +5,11 @@
  * @return {String}
  */
 export function formatOrderBy(parameter, defaultValue) {
-  let order;
+    let order;
 
-  if (parameter) {
-    order = `${parameter.field}:${parameter.direction.toLowerCase()}`;
-  }
+    if (parameter) {
+        order = `${parameter.field}:${parameter.direction.toLowerCase()}`;
+    }
 
-  return order || defaultValue;
+    return order || defaultValue;
 }

@@ -18,38 +18,38 @@ import { transformTransaction } from "../versions/2/transactions/transformer";
 import { transformWallet } from "../versions/2/wallets/transformer";
 
 class Transformer {
-  private transformers: Map<number, any> = new Map();
+    private transformers: Map<number, any> = new Map();
 
-  public constructor() {
-    this.transformers.set(1, {
-      account: transformAccountLegacy,
-      block: transformBlockLegacy,
-      delegate: transformDelegateLegacy,
-      "fee-statistics": transformFeeStatisticsLegacy,
-      peer: transformPeerLegacy,
-      ports: transformPortsLegacy,
-      transaction: transformTransactionLegacy,
-      voter: transformVoterLegacy,
-    });
+    public constructor() {
+        this.transformers.set(1, {
+            account: transformAccountLegacy,
+            block: transformBlockLegacy,
+            delegate: transformDelegateLegacy,
+            "fee-statistics": transformFeeStatisticsLegacy,
+            peer: transformPeerLegacy,
+            ports: transformPortsLegacy,
+            transaction: transformTransactionLegacy,
+            voter: transformVoterLegacy,
+        });
 
-    this.transformers.set(2, {
-      block: transformBlock,
-      delegate: transformDelegate,
-      "fee-statistics": transformFeeStatistics,
-      peer: transformPeer,
-      ports: transformPorts,
-      transaction: transformTransaction,
-      wallet: transformWallet,
-    });
-  }
+        this.transformers.set(2, {
+            block: transformBlock,
+            delegate: transformDelegate,
+            "fee-statistics": transformFeeStatistics,
+            peer: transformPeer,
+            ports: transformPorts,
+            transaction: transformTransaction,
+            wallet: transformWallet,
+        });
+    }
 
-  public toResource(request, data, transformer): object {
-    return this.transformers.get(request.pre.apiVersion)[transformer](data);
-  }
+    public toResource(request, data, transformer): object {
+        return this.transformers.get(request.pre.apiVersion)[transformer](data);
+    }
 
-  public toCollection(request, data, transformer): object[] {
-    return data.map(d => this.toResource(request, d, transformer));
-  }
+    public toCollection(request, data, transformer): object[] {
+        return data.map(d => this.toResource(request, d, transformer));
+    }
 }
 
 export const transformerService = new Transformer();

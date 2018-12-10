@@ -8,20 +8,20 @@ import Boom from "boom";
  * @return {void}
  */
 const register = async (server, options) => {
-  server.ext({
-    type: "onRequest",
-    async method(request, h) {
-      if (!options.routes.includes(request.path)) {
-        return h.continue;
-      }
+    server.ext({
+        type: "onRequest",
+        async method(request, h) {
+            if (!options.routes.includes(request.path)) {
+                return h.continue;
+            }
 
-      if (!app.resolvePlugin("transactionPool")) {
-        return Boom.serverUnavailable("Transaction Pool not ready");
-      }
+            if (!app.resolvePlugin("transactionPool")) {
+                return Boom.serverUnavailable("Transaction Pool not ready");
+            }
 
-      return h.continue;
-    },
-  });
+            return h.continue;
+        },
+    });
 };
 
 /**
@@ -29,7 +29,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 export const plugin = {
-  name: "transaction-pool-ready",
-  version: "0.1.0",
-  register,
+    name: "transaction-pool-ready",
+    version: "0.1.0",
+    register,
 };

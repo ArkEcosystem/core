@@ -8,18 +8,15 @@ import * as Signatures from "./signatures";
 import * as Transactions from "./transactions";
 
 const register = async (server: Hapi.Server): Promise<void> => {
-  const modules = [
-    Accounts, Blocks, Delegates, Loader,
-    Peers, Signatures, Transactions,
-  ];
+    const modules = [Accounts, Blocks, Delegates, Loader, Peers, Signatures, Transactions];
 
-  for (const module of modules) {
-    module.register(server);
-  }
+    for (const module of modules) {
+        module.register(server);
+    }
 };
 
 export = {
-  register,
-  name: "Public API - Legacy",
-  version: "1.0.0",
+    register,
+    name: "Public API - Legacy",
+    version: "1.0.0",
 };

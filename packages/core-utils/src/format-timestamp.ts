@@ -7,15 +7,15 @@ import dayjs from "dayjs-ext";
  * @return {Object}
  */
 function formatTimestamp(epochStamp) {
-  const constants = app.resolvePlugin("config").getConstants(1);
-  // @ts-ignore
-  const timestamp = dayjs(constants.epoch).add(epochStamp, "seconds");
+    const constants = app.resolvePlugin("config").getConstants(1);
+    // @ts-ignore
+    const timestamp = dayjs(constants.epoch).add(epochStamp, "seconds");
 
-  return {
-    epoch: epochStamp,
-    unix: timestamp.unix(),
-    human: timestamp.toISOString(),
-  };
+    return {
+        epoch: epochStamp,
+        unix: timestamp.unix(),
+        human: timestamp.toISOString(),
+    };
 }
 
 export { formatTimestamp };

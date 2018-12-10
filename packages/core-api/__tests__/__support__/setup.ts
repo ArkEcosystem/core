@@ -7,19 +7,19 @@ import { generateRound } from "./utils/generate-round";
 const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
 
 async function setUp() {
-  jest.setTimeout(60000);
+    jest.setTimeout(60000);
 
-  await setUpContainer({});
+    await setUpContainer({});
 
-  const connection = app.resolvePlugin("database");
-  await connection.db.rounds.truncate();
-  await connection.buildWallets(1);
-  await connection.saveWallets(true);
-  await connection.saveRound(round);
+    const connection = app.resolvePlugin("database");
+    await connection.db.rounds.truncate();
+    await connection.buildWallets(1);
+    await connection.saveWallets(true);
+    await connection.saveRound(round);
 }
 
 async function tearDown() {
-  await app.tearDown();
+    await app.tearDown();
 }
 
 export { setUp, tearDown };

@@ -1,24 +1,24 @@
 module.exports = (babelOptions = {}) => ({
-  mode: "production",
+    mode: "production",
 
-  context: __dirname,
+    context: __dirname,
 
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [["@babel/preset-env", babelOptions]],
-          },
-        },
-      },
-    ],
-  },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader",
+                    options: {
+                        presets: [["@babel/preset-env", babelOptions]],
+                    },
+                },
+            },
+        ],
+    },
 
-  resolve: {
-    extensions: [".js", ".json"],
-  },
+    resolve: {
+        extensions: [".js", ".json"],
+    },
 });

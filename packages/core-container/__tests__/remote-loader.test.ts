@@ -13,161 +13,151 @@ const configDir = "./__test-remote-config__";
 let testSubject;
 
 afterAll(() => {
-  removeSync(configDir);
+    removeSync(configDir);
 });
 
 beforeEach(() => {
-  testSubject = new RemoteLoader({
-    remote: "127.0.0.1:4002",
-    config: configDir,
-    data: "./data",
-  });
+    testSubject = new RemoteLoader({
+        remote: "127.0.0.1:4002",
+        config: configDir,
+        data: "./data",
+    });
 });
 
 afterEach(() => {
-  axiosMock.reset();
+    axiosMock.reset();
 });
 
 describe("Remote Loader", () => {
-  it("should be an object", () => {
-    expect(testSubject).toBeObject();
-  });
-
-  it("should ensure the config directory exists", () => {
-    expect(pathExistsSync(testSubject.config)).toBeTrue();
-  });
-
-  describe("__configureNetwork", () => {
-    it("should be a function", () => {
-      expect(testSubject.__configureNetwork).toBeFunction();
+    it("should be an object", () => {
+        expect(testSubject).toBeObject();
     });
 
-    it("should not be OK", async () => {
-      const mockExit = mockProcess.mockProcessExit();
-
-      axiosMock
-        .onGet("http://127.0.0.1:4002/config/network")
-        .reply(() => [404, {}]);
-
-      await testSubject.__configureNetwork();
-
-      expect(mockExit).toHaveBeenCalledWith(1);
+    it("should ensure the config directory exists", () => {
+        expect(pathExistsSync(testSubject.config)).toBeTrue();
     });
 
-    it("should be OK", async () => {
-      axiosMock.onGet("http://127.0.0.1:4002/config/network").reply(() => [
-        200,
-        {
-          data: require("../../crypto/lib/networks/ark/devnet.json"),
-        },
-      ]);
+    describe("__configureNetwork", () => {
+        it("should be a function", () => {
+            expect(testSubject.__configureNetwork).toBeFunction();
+        });
 
-      await testSubject.__configureNetwork();
+        it("should not be OK", async () => {
+            const mockExit = mockProcess.mockProcessExit();
 
-      expect(existsSync(`${configDir}/network.json`)).toBeTrue();
-    });
-  });
+            axiosMock.onGet("http://127.0.0.1:4002/config/network").reply(() => [404, {}]);
 
-  describe("__configureGenesisBlock", () => {
-    it("should be a function", () => {
-      expect(testSubject.__configureGenesisBlock).toBeFunction();
-    });
+            await testSubject.__configureNetwork();
 
-    it("should not be OK", async () => {
-      axiosMock
-        .onGet("http://127.0.0.1:4002/config/genesis-block")
-        .reply(() => [404, {}]);
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
 
-      await expect(testSubject.__configureGenesisBlock()).rejects.toThrowError();
-    });
+        it("should be OK", async () => {
+            axiosMock.onGet("http://127.0.0.1:4002/config/network").reply(() => [
+                200,
+                {
+                    data: require("../../crypto/lib/networks/ark/devnet.json"),
+                },
+            ]);
 
-    it("should be OK", async () => {
-      axiosMock
-        .onGet("http://127.0.0.1:4002/config/genesis-block")
-        .reply(() => [
-          200,
-          {
-            data: require("../../core/src/config/devnet/genesisBlock.json"),
-          },
-        ]);
+            await testSubject.__configureNetwork();
 
-      await testSubject.__configureGenesisBlock();
-
-      expect(existsSync(`${configDir}/genesisBlock.json`)).toBeTrue();
-    });
-  });
-
-  describe("__configurePeers", () => {
-    it("should be a function", () => {
-      expect(testSubject.__configurePeers).toBeFunction();
+            expect(existsSync(`${configDir}/network.json`)).toBeTrue();
+        });
     });
 
-    it("should not be OK", async () => {
-      const mockExit = mockProcess.mockProcessExit();
+    describe("__configureGenesisBlock", () => {
+        it("should be a function", () => {
+            expect(testSubject.__configureGenesisBlock).toBeFunction();
+        });
 
-      axiosMock
-        .onGet("http://127.0.0.1:4002/config/peers")
-        .reply(() => [404, {}]);
+        it("should not be OK", async () => {
+            axiosMock.onGet("http://127.0.0.1:4002/config/genesis-block").reply(() => [404, {}]);
 
-      await testSubject.__configurePeers();
+            await expect(testSubject.__configureGenesisBlock()).rejects.toThrowError();
+        });
 
-      expect(mockExit).toHaveBeenCalledWith(1);
+        it("should be OK", async () => {
+            axiosMock.onGet("http://127.0.0.1:4002/config/genesis-block").reply(() => [
+                200,
+                {
+                    data: require("../../core/src/config/devnet/genesisBlock.json"),
+                },
+            ]);
+
+            await testSubject.__configureGenesisBlock();
+
+            expect(existsSync(`${configDir}/genesisBlock.json`)).toBeTrue();
+        });
     });
 
-    it("should be OK", async () => {
-      axiosMock.onGet("http://127.0.0.1:4002/config/peers").reply(() => [
-        200,
-        {
-          data: require("../../core/src/config/devnet/peers.json"),
-        },
-      ]);
+    describe("__configurePeers", () => {
+        it("should be a function", () => {
+            expect(testSubject.__configurePeers).toBeFunction();
+        });
 
-      await testSubject.__configurePeers();
+        it("should not be OK", async () => {
+            const mockExit = mockProcess.mockProcessExit();
 
-      expect(existsSync(`${configDir}/peers.json`)).toBeTrue();
-    });
-  });
+            axiosMock.onGet("http://127.0.0.1:4002/config/peers").reply(() => [404, {}]);
 
-  describe("__configureDelegates", () => {
-    it("should be a function", () => {
-      expect(testSubject.__configureDelegates).toBeFunction();
-    });
+            await testSubject.__configurePeers();
 
-    it("should not be OK", async () => {
-      const mockExit = mockProcess.mockProcessExit();
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
 
-      axiosMock
-        .onGet("http://127.0.0.1:4002/config/delegates")
-        .reply(() => [404, {}]);
+        it("should be OK", async () => {
+            axiosMock.onGet("http://127.0.0.1:4002/config/peers").reply(() => [
+                200,
+                {
+                    data: require("../../core/src/config/devnet/peers.json"),
+                },
+            ]);
 
-      await testSubject.__configureDelegates();
+            await testSubject.__configurePeers();
 
-      expect(mockExit).toHaveBeenCalledWith(1);
+            expect(existsSync(`${configDir}/peers.json`)).toBeTrue();
+        });
     });
 
-    it("should be OK", async () => {
-      axiosMock.onGet("http://127.0.0.1:4002/config/delegates").reply(() => [
-        200,
-        {
-          data: require("../../core/src/config/devnet/delegates.json"),
-        },
-      ]);
+    describe("__configureDelegates", () => {
+        it("should be a function", () => {
+            expect(testSubject.__configureDelegates).toBeFunction();
+        });
 
-      await testSubject.__configureDelegates();
+        it("should not be OK", async () => {
+            const mockExit = mockProcess.mockProcessExit();
 
-      expect(existsSync(`${configDir}/delegates.json`)).toBeTrue();
+            axiosMock.onGet("http://127.0.0.1:4002/config/delegates").reply(() => [404, {}]);
+
+            await testSubject.__configureDelegates();
+
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it("should be OK", async () => {
+            axiosMock.onGet("http://127.0.0.1:4002/config/delegates").reply(() => [
+                200,
+                {
+                    data: require("../../core/src/config/devnet/delegates.json"),
+                },
+            ]);
+
+            await testSubject.__configureDelegates();
+
+            expect(existsSync(`${configDir}/delegates.json`)).toBeTrue();
+        });
     });
-  });
 
-  describe("__configurePlugins", () => {
-    it("should be a function", () => {
-      expect(testSubject.__configurePlugins).toBeFunction();
+    describe("__configurePlugins", () => {
+        it("should be a function", () => {
+            expect(testSubject.__configurePlugins).toBeFunction();
+        });
+
+        it("should be OK", async () => {
+            await testSubject.__configurePlugins({ name: "devnet" });
+
+            expect(existsSync(`${configDir}/plugins.js`)).toBeTrue();
+        });
     });
-
-    it("should be OK", async () => {
-      await testSubject.__configurePlugins({ name: "devnet" });
-
-      expect(existsSync(`${configDir}/plugins.js`)).toBeTrue();
-    });
-  });
 });

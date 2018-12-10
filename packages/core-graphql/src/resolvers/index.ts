@@ -17,15 +17,15 @@ import { Wallet } from "./relationship/wallet";
  */
 
 export const resolvers = {
-  JSON: GraphQLTypes.JSON({ name: "Json" }),
-  Limit: GraphQLTypes.Int({ name: "Limit", min: 1, max: 100 }),
-  Offset: GraphQLTypes.Int({ name: "Offset", min: 0 }),
-  Address: GraphQLTypes.String({
-    name: "Address",
-    regex: /^[AaDd]{1}[0-9a-zA-Z]{33}/,
-  }),
-  Query: queries,
-  Block,
-  Transaction,
-  Wallet,
+    JSON: GraphQLTypes.JSON({ name: "Json" }),
+    Limit: GraphQLTypes.Int({ name: "Limit", min: 1, max: 100 }),
+    Offset: GraphQLTypes.Int({ name: "Offset", min: 0 }),
+    Address: GraphQLTypes.String({
+        name: "Address",
+        regex: /^[AaDd]{1}[0-9a-zA-Z]{33}/,
+    }),
+    Query: queries,
+    Block,
+    Transaction,
+    Wallet,
 };

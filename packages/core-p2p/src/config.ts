@@ -1,15 +1,15 @@
 import { get } from "lodash";
 
 class Config {
-  private config: any;
+    private config: any;
 
-  public init(options: any): void {
-    this.config = options;
-  }
+    public init(options: any): void {
+        this.config = options;
+    }
 
-  public get(key: string, defaultValue: any = null): any {
-    return get(this.config, key, defaultValue);
-  }
+    public get(key: string, defaultValue: any = null): any {
+        return get(this.config, key, defaultValue);
+    }
 }
 
 export const config = new Config();

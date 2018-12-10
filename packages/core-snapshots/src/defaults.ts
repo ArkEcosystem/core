@@ -1,4 +1,4 @@
 export const defaults = {
-  codec: "lite",
-  chunkSize: 50000,
+    codec: "lite",
+    chunkSize: 50000,
 };

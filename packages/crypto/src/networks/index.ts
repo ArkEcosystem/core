@@ -1,5 +1,3 @@
-import * as ark from "./ark"
+import * as ark from "./ark";
 
-export {
-  ark
-};
+export { ark };

@@ -1,4 +1,4 @@
-import * as  blockchain from "./handlers/blockchain";
+import * as blockchain from "./handlers/blockchain";
 
 /**
  * Register remote routes.
@@ -7,9 +7,7 @@ import * as  blockchain from "./handlers/blockchain";
  * @return {void}
  */
 const register = async (server, options) => {
-  server.route([
-    { method: "GET", path: "/blockchain/{event}", ...blockchain.emitEvent },
-  ]);
+    server.route([{ method: "GET", path: "/blockchain/{event}", ...blockchain.emitEvent }]);
 };
 
 /**
@@ -17,7 +15,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 export const plugin = {
-  name: "Ark P2P - Remote API",
-  version: "0.1.0",
-  register,
+    name: "Ark P2P - Remote API",
+    version: "0.1.0",
+    register,
 };

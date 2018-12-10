@@ -1,5 +1,5 @@
-import { ARKTOSHI } from "../constants"
-import { configManager } from "../managers/config"
+import { ARKTOSHI } from "../constants";
+import { configManager } from "../managers/config";
 
 /**
  * Get human readable string from arktoshis
@@ -7,10 +7,10 @@ import { configManager } from "../managers/config"
  * @return {String}
  */
 export const formatArktoshi = amount => {
-  const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 8
-  });
+    const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 8,
+    });
 
-  return `${localeString} ${configManager.config.client.symbol}`;
+    return `${localeString} ${configManager.config.client.symbol}`;
 };

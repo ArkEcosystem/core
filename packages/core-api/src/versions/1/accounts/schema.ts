@@ -1,73 +1,73 @@
 export const getBalance: object = {
-  type: "object",
-  properties: {
-    address: {
-      type: "string",
-      minLength: 1,
-      format: "address",
+    type: "object",
+    properties: {
+        address: {
+            type: "string",
+            minLength: 1,
+            format: "address",
+        },
     },
-  },
-  required: ["address"],
+    required: ["address"],
 };
 
 export const getPublicKey: object = {
-  type: "object",
-  properties: {
-    address: {
-      type: "string",
-      minLength: 1,
-      format: "address",
+    type: "object",
+    properties: {
+        address: {
+            type: "string",
+            minLength: 1,
+            format: "address",
+        },
     },
-  },
-  required: ["address"],
+    required: ["address"],
 };
 
 export const generatePublicKey: object = {
-  type: "object",
-  properties: {
-    secret: {
-      type: "string",
-      minLength: 1,
+    type: "object",
+    properties: {
+        secret: {
+            type: "string",
+            minLength: 1,
+        },
     },
-  },
-  required: ["secret"],
+    required: ["secret"],
 };
 
 export const getDelegates: object = {
-  type: "object",
-  properties: {
-    address: {
-      type: "string",
-      minLength: 1,
-      format: "address",
+    type: "object",
+    properties: {
+        address: {
+            type: "string",
+            minLength: 1,
+            format: "address",
+        },
     },
-  },
-  required: ["address"],
+    required: ["address"],
 };
 
 export const getAccount: object = {
-  type: "object",
-  properties: {
-    address: {
-      type: "string",
-      minLength: 1,
-      format: "address",
+    type: "object",
+    properties: {
+        address: {
+            type: "string",
+            minLength: 1,
+            format: "address",
+        },
     },
-  },
-  required: ["address"],
+    required: ["address"],
 };
 
 export const top: object = {
-  type: "object",
-  properties: {
-    limit: {
-      type: "integer",
-      minimum: 0,
-      maximum: 100,
+    type: "object",
+    properties: {
+        limit: {
+            type: "integer",
+            minimum: 0,
+            maximum: 100,
+        },
+        offset: {
+            type: "integer",
+            minimum: 0,
+        },
     },
-    offset: {
-      type: "integer",
-      minimum: 0,
-    },
-  },
 };

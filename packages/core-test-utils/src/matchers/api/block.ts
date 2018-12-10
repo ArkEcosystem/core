@@ -1,64 +1,61 @@
 import * as _ from "lodash";
 
-export { }
+export {};
 
 declare global {
-  namespace jest {
-    // tslint:disable-next-line:interface-name
-    interface Matchers<R> {
-      toBeValidBlock(): R;
-      toBeValidArrayOfBlocks(): R;
+    namespace jest {
+        // tslint:disable-next-line:interface-name
+        interface Matchers<R> {
+            toBeValidBlock(): R;
+            toBeValidArrayOfBlocks(): R;
+        }
     }
-  }
 }
 
 function isValidBlock(block) {
-  const allowedKeys = _.sortBy([
-    "blockSignature",
-    "createdAt",
-    "generatorPublicKey",
-    "height",
-    "id",
-    "numberOfTransactions",
-    "payloadHash",
-    "payloadLength",
-    "previousBlock",
-    "reward",
-    "timestamp",
-    "totalAmount",
-    "totalFee",
-    "transactions",
-    "updatedAt",
-    "version"
-  ]);
-  const actualKeys = Object.keys(block).filter(key =>
-    allowedKeys.includes(key)
-  );
+    const allowedKeys = _.sortBy([
+        "blockSignature",
+        "createdAt",
+        "generatorPublicKey",
+        "height",
+        "id",
+        "numberOfTransactions",
+        "payloadHash",
+        "payloadLength",
+        "previousBlock",
+        "reward",
+        "timestamp",
+        "totalAmount",
+        "totalFee",
+        "transactions",
+        "updatedAt",
+        "version",
+    ]);
+    const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key));
 
-  return _.isEqual(_.sortBy(actualKeys), allowedKeys);
+    return _.isEqual(_.sortBy(actualKeys), allowedKeys);
 }
 
 expect.extend({
-  toBeValidBlock: (actual, expected) => {
-    return {
-      message: () => `Expected ${JSON.stringify(actual)} to be a valid block`,
-      pass: isValidBlock(actual)
-    };
-  },
-  toBeValidArrayOfBlocks: (actual, expected) => {
-    const message = () =>
-      `Expected ${JSON.stringify(actual)} to be a valid array of blocks`;
+    toBeValidBlock: (actual, expected) => {
+        return {
+            message: () => `Expected ${JSON.stringify(actual)} to be a valid block`,
+            pass: isValidBlock(actual),
+        };
+    },
+    toBeValidArrayOfBlocks: (actual, expected) => {
+        const message = () => `Expected ${JSON.stringify(actual)} to be a valid array of blocks`;
 
-    if (!Array.isArray(actual)) {
-      return { message, pass: false };
-    }
+        if (!Array.isArray(actual)) {
+            return { message, pass: false };
+        }
 
-    for (const peer of actual) {
-      if (!isValidBlock(peer)) {
-        return { message, pass: false };
-      }
-    }
+        for (const peer of actual) {
+            if (!isValidBlock(peer)) {
+                return { message, pass: false };
+            }
+        }
 
-    return { message, pass: true };
-  }
-})
+        return { message, pass: true };
+    },
+});

@@ -4,25 +4,25 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class SignaturesController extends Controller {
-  protected blockchain: any;
-  protected config: any;
+    protected blockchain: any;
+    protected config: any;
 
-  public constructor() {
-    super();
+    public constructor() {
+        super();
 
-    this.blockchain = app.resolvePlugin("blockchain");
-    this.config = app.resolvePlugin("config");
-  }
-
-  public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-    try {
-      const height: number = this.blockchain.getLastHeight();
-
-      return super.respondWith({
-        fee: this.config.getConstants(height).fees.staticFees.secondSignature,
-      });
-    } catch (error) {
-      return Boom.badImplementation(error);
+        this.blockchain = app.resolvePlugin("blockchain");
+        this.config = app.resolvePlugin("config");
     }
-  }
+
+    public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+        try {
+            const height: number = this.blockchain.getLastHeight();
+
+            return super.respondWith({
+                fee: this.config.getConstants(height).fees.staticFees.secondSignature,
+            });
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
 }

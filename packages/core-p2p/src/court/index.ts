@@ -1,5 +1,3 @@
 import { guard } from "./guard";
 
-export {
-  guard,
-};
+export { guard };

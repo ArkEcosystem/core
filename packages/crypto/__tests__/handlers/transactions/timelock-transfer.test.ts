@@ -4,46 +4,46 @@ import { TimelockTransferHandler } from "../../../src/handlers/transactions/time
 import { transaction as originalTransaction } from "./__fixtures__/transaction";
 import { wallet as originalWallet } from "./__fixtures__/wallet";
 
-const handler = new TimelockTransferHandler()
+const handler = new TimelockTransferHandler();
 
 let wallet;
 let transaction;
 
 beforeEach(() => {
-  wallet = originalWallet;
-  transaction = originalTransaction;
+    wallet = originalWallet;
+    transaction = originalTransaction;
 });
 
 describe("TimelockTransferHandler", () => {
-  it("should be instantiated", () => {
-    expect(handler.constructor.name).toBe("TimelockTransferHandler");
-  });
-
-  describe("canApply", () => {
-    it("should be a function", () => {
-      expect(handler.canApply).toBeFunction();
+    it("should be instantiated", () => {
+        expect(handler.constructor.name).toBe("TimelockTransferHandler");
     });
 
-    it("should be true", () => {
-      expect(handler.canApply(wallet, transaction, [])).toBeTrue();
+    describe("canApply", () => {
+        it("should be a function", () => {
+            expect(handler.canApply).toBeFunction();
+        });
+
+        it("should be true", () => {
+            expect(handler.canApply(wallet, transaction, [])).toBeTrue();
+        });
+
+        it("should be false", () => {
+            transaction.senderPublicKey = "a".repeat(66);
+
+            expect(handler.canApply(wallet, transaction, [])).toBeFalse();
+        });
     });
 
-    it("should be false", () => {
-      transaction.senderPublicKey = "a".repeat(66);
-
-      expect(handler.canApply(wallet, transaction, [])).toBeFalse();
+    describe("apply", () => {
+        it("should be a function", () => {
+            expect(handler.apply).toBeFunction();
+        });
     });
-  });
 
-  describe("apply", () => {
-    it("should be a function", () => {
-      expect(handler.apply).toBeFunction();
+    describe("revert", () => {
+        it("should be a function", () => {
+            expect(handler.revert).toBeFunction();
+        });
     });
-  });
-
-  describe("revert", () => {
-    it("should be a function", () => {
-      expect(handler.revert).toBeFunction();
-    });
-  });
 });

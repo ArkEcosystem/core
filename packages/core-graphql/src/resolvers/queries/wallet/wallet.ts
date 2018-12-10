@@ -7,6 +7,6 @@ const database = app.resolvePlugin("database");
  * @return {Wallet}
  */
 export async function wallet(_, args: any) {
-  const param = args.address || args.publicKey || args.username;
-  return database.wallets.findById(param);
+    const param = args.address || args.publicKey || args.username;
+    return database.wallets.findById(param);
 }

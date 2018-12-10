@@ -6,13 +6,13 @@ import * as handlers from "./handlers";
  * @return {void}
  */
 const register = async (server, options) => {
-  server.route([
-    { method: "GET", path: "/", ...handlers.config },
-    { method: "GET", path: "/network", ...handlers.network },
-    { method: "GET", path: "/genesis-block", ...handlers.genesisBlock },
-    { method: "GET", path: "/peers", ...handlers.peers },
-    { method: "GET", path: "/delegates", ...handlers.delegates },
-  ]);
+    server.route([
+        { method: "GET", path: "/", ...handlers.config },
+        { method: "GET", path: "/network", ...handlers.network },
+        { method: "GET", path: "/genesis-block", ...handlers.genesisBlock },
+        { method: "GET", path: "/peers", ...handlers.peers },
+        { method: "GET", path: "/delegates", ...handlers.delegates },
+    ]);
 };
 
 /**
@@ -20,7 +20,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 export const plugin = {
-  name: "Ark P2P - Config API",
-  version: "0.1.0",
-  register,
+    name: "Ark P2P - Config API",
+    version: "0.1.0",
+    register,
 };

@@ -1,27 +1,27 @@
 export const fork = {
-  initial: "analysing",
-  states: {
-    analysing: {
-      onEntry: ["analyseFork"],
-      on: {
-        REBUILD: "revertBlocks",
-        NOFORK: "exit",
-      },
-    },
-    network: {
-      onEntry: ["checkNetwork"],
-      /* these transitions are not used yet (TODO?)
+    initial: "analysing",
+    states: {
+        analysing: {
+            onEntry: ["analyseFork"],
+            on: {
+                REBUILD: "revertBlocks",
+                NOFORK: "exit",
+            },
+        },
+        network: {
+            onEntry: ["checkNetwork"],
+            /* these transitions are not used yet (TODO?)
       on: {
         SUCCESS: 'blockchain',
         FAILURE: 'reset'
       }
       */
+        },
+        revertBlocks: {},
+        exit: {
+            onEntry: ["forkRecovered"],
+        },
     },
-    revertBlocks: {},
-    exit: {
-      onEntry: ["forkRecovered"],
-    },
-  },
 };
 
 // const fork = {

@@ -6,23 +6,23 @@ import { startServer } from "./server";
  * @type {Object}
  */
 export const plugin = {
-  pkg: require("../package.json"),
-  defaults,
-  alias: "graphql",
-  async register(container, options) {
-    if (!options.enabled) {
-      container.resolvePlugin("logger").info("GraphQL API is disabled :grey_exclamation:");
+    pkg: require("../package.json"),
+    defaults,
+    alias: "graphql",
+    async register(container, options) {
+        if (!options.enabled) {
+            container.resolvePlugin("logger").info("GraphQL API is disabled :grey_exclamation:");
 
-      return;
-    }
+            return;
+        }
 
-    return startServer(options);
-  },
-  async deregister(container, options) {
-    if (options.enabled) {
-      container.resolvePlugin("logger").info("Stopping GraphQL API");
+        return startServer(options);
+    },
+    async deregister(container, options) {
+        if (options.enabled) {
+            container.resolvePlugin("logger").info("Stopping GraphQL API");
 
-      return container.resolvePlugin("graphql").stop();
-    }
-  },
+            return container.resolvePlugin("graphql").stop();
+        }
+    },
 };

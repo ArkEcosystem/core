@@ -6,130 +6,130 @@ let logger;
 let message;
 
 beforeAll(() => {
-  const driver = new Logger({
-    transports: [
-      {
-        constructor: "Console",
-      },
-    ],
-  });
+    const driver = new Logger({
+        transports: [
+            {
+                constructor: "Console",
+            },
+        ],
+    });
 
-  logger = driver.make();
+    logger = driver.make();
 
-  capcon.startCapture(process.stdout, (stdout) => {
-    message += stdout;
-  });
+    capcon.startCapture(process.stdout, stdout => {
+        message += stdout;
+    });
 });
 
 describe("Logger", () => {
-  it("should be an object", () => {
-    expect(logger).toBeObject();
-  });
-
-  describe("error", () => {
-    it("should be a function", () => {
-      expect(logger.error).toBeFunction();
+    it("should be an object", () => {
+        expect(logger).toBeObject();
     });
 
-    it("should log a message", () => {
-      logger.info("error_message");
+    describe("error", () => {
+        it("should be a function", () => {
+            expect(logger.error).toBeFunction();
+        });
 
-      expect(message).toMatch(/error/);
-      expect(message).toMatch(/error_message/);
-      message = null;
-    });
-  });
+        it("should log a message", () => {
+            logger.info("error_message");
 
-  describe("warn", () => {
-    it("should be a function", () => {
-      expect(logger.warn).toBeFunction();
-    });
-
-    it("should log a message", () => {
-      logger.info("warning_message");
-
-      expect(message).toMatch(/warn/);
-      expect(message).toMatch(/warning_message/);
-      message = null;
-    });
-  });
-
-  describe("info", () => {
-    it("should be a function", () => {
-      expect(logger.info).toBeFunction();
+            expect(message).toMatch(/error/);
+            expect(message).toMatch(/error_message/);
+            message = null;
+        });
     });
 
-    it("should log a message", () => {
-      logger.info("info_message");
+    describe("warn", () => {
+        it("should be a function", () => {
+            expect(logger.warn).toBeFunction();
+        });
 
-      expect(message).toMatch(/info/);
-      expect(message).toMatch(/info_message/);
-      message = null;
-    });
-  });
+        it("should log a message", () => {
+            logger.info("warning_message");
 
-  describe("debug", () => {
-    it("should be a function", () => {
-      expect(logger.debug).toBeFunction();
-    });
-
-    it("should log a message", () => {
-      logger.info("debug_message");
-
-      expect(message).toMatch(/debug/);
-      expect(message).toMatch(/debug_message/);
-      message = null;
-    });
-  });
-
-  describe("printTracker", () => {
-    it("should be a function", () => {
-      expect(logger.printTracker).toBeFunction();
+            expect(message).toMatch(/warn/);
+            expect(message).toMatch(/warning_message/);
+            message = null;
+        });
     });
 
-    it("should print the tracker", () => {
-      logger.printTracker("test_title", 50, 100, "done");
+    describe("info", () => {
+        it("should be a function", () => {
+            expect(logger.info).toBeFunction();
+        });
 
-      expect(message).toMatch(/test_title/);
-      expect(message).toMatch(/=========================/);
-      expect(message).toMatch(/50/);
-      expect(message).toMatch(/done/);
-      message = null;
-    });
-  });
+        it("should log a message", () => {
+            logger.info("info_message");
 
-  describe("stopTracker", () => {
-    it("should be a function", () => {
-      expect(logger.stopTracker).toBeFunction();
+            expect(message).toMatch(/info/);
+            expect(message).toMatch(/info_message/);
+            message = null;
+        });
     });
 
-    it("should stop the tracker", () => {
-      logger.stopTracker("test_title", 50, 100);
+    describe("debug", () => {
+        it("should be a function", () => {
+            expect(logger.debug).toBeFunction();
+        });
 
-      expect(message).toMatch(/test_title/);
-      expect(message).toMatch(/=========================/);
-      expect(message).toMatch(/50/);
-      message = null;
+        it("should log a message", () => {
+            logger.info("debug_message");
+
+            expect(message).toMatch(/debug/);
+            expect(message).toMatch(/debug_message/);
+            message = null;
+        });
     });
-  });
 
-  describe("suppressConsoleOutput", () => {
-    it("should be a function", () => {
-      expect(logger.suppressConsoleOutput).toBeFunction();
+    describe("printTracker", () => {
+        it("should be a function", () => {
+            expect(logger.printTracker).toBeFunction();
+        });
+
+        it("should print the tracker", () => {
+            logger.printTracker("test_title", 50, 100, "done");
+
+            expect(message).toMatch(/test_title/);
+            expect(message).toMatch(/=========================/);
+            expect(message).toMatch(/50/);
+            expect(message).toMatch(/done/);
+            message = null;
+        });
     });
 
-    it("should suppress console output", () => {
-      logger.suppressConsoleOutput(true);
+    describe("stopTracker", () => {
+        it("should be a function", () => {
+            expect(logger.stopTracker).toBeFunction();
+        });
 
-      logger.info("silent_message");
-      expect(message).toBeNull();
+        it("should stop the tracker", () => {
+            logger.stopTracker("test_title", 50, 100);
 
-      logger.suppressConsoleOutput(false);
-
-      logger.info("non_silent_message");
-      expect(message).toMatch(/non_silent_message/);
-
-      message = null;
+            expect(message).toMatch(/test_title/);
+            expect(message).toMatch(/=========================/);
+            expect(message).toMatch(/50/);
+            message = null;
+        });
     });
-  });
+
+    describe("suppressConsoleOutput", () => {
+        it("should be a function", () => {
+            expect(logger.suppressConsoleOutput).toBeFunction();
+        });
+
+        it("should suppress console output", () => {
+            logger.suppressConsoleOutput(true);
+
+            logger.info("silent_message");
+            expect(message).toBeNull();
+
+            logger.suppressConsoleOutput(false);
+
+            logger.info("non_silent_message");
+            expect(message).toMatch(/non_silent_message/);
+
+            message = null;
+        });
+    });
 });

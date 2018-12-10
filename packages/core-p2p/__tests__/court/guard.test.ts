@@ -11,224 +11,224 @@ let Peer;
 let peerMock;
 
 beforeAll(async () => {
-  await setUp();
-  const { app } = require("@arkecosystem/core-container");
-  container = app;
+    await setUp();
+    const { app } = require("@arkecosystem/core-container");
+    container = app;
 
-  guard = require("../../dist/court/guard").guard;
-  Peer = require("../../dist/peer").Peer;
+    guard = require("../../dist/court/guard").guard;
+    Peer = require("../../dist/peer").Peer;
 });
 
 afterAll(async () => {
-  await tearDown();
+    await tearDown();
 });
 
 beforeEach(async () => {
-  guard.monitor.config = defaults;
-  guard.monitor.peers = {};
+    guard.monitor.config = defaults;
+    guard.monitor.peers = {};
 
-  // this peer is here to be ready for future use in tests (not added to initial peers)
-  peerMock = new Peer("0.0.0.99", 4002);
-  Object.assign(peerMock, peerMock.headers);
+    // this peer is here to be ready for future use in tests (not added to initial peers)
+    peerMock = new Peer("0.0.0.99", 4002);
+    Object.assign(peerMock, peerMock.headers);
 });
 
 describe("Guard", () => {
-  it("should be an object", () => {
-    expect(guard).toBeObject();
-  });
-
-  describe("isSuspended", () => {
-    it("should be a function", () => {
-      expect(guard.isSuspended).toBeFunction();
+    it("should be an object", () => {
+        expect(guard).toBeObject();
     });
 
-    it("should return true", async () => {
-      process.env.ARK_ENV = "false";
-      await guard.monitor.acceptNewPeer(peerMock);
-      process.env.ARK_ENV = ARK_ENV;
+    describe("isSuspended", () => {
+        it("should be a function", () => {
+            expect(guard.isSuspended).toBeFunction();
+        });
 
-      expect(guard.isSuspended(peerMock)).toBe(true);
+        it("should return true", async () => {
+            process.env.ARK_ENV = "false";
+            await guard.monitor.acceptNewPeer(peerMock);
+            process.env.ARK_ENV = ARK_ENV;
+
+            expect(guard.isSuspended(peerMock)).toBe(true);
+        });
+
+        it("should return false because passed", async () => {
+            process.env.ARK_ENV = "false";
+            await guard.monitor.acceptNewPeer(peerMock);
+            guard.suspensions[peerMock.ip].until = dayjs().subtract(1, "minute");
+            process.env.ARK_ENV = ARK_ENV;
+
+            expect(guard.isSuspended(peerMock)).toBe(false);
+        });
+
+        it("should return false because not suspended", () => {
+            expect(guard.isSuspended(peerMock)).toBe(false);
+        });
     });
 
-    it("should return false because passed", async () => {
-      process.env.ARK_ENV = "false";
-      await guard.monitor.acceptNewPeer(peerMock);
-      guard.suspensions[peerMock.ip].until = dayjs().subtract(1, "minute");
-      process.env.ARK_ENV = ARK_ENV;
+    describe("isRepeatOffender", () => {
+        it("should be a function", () => {
+            expect(guard.isRepeatOffender).toBeFunction();
+        });
 
-      expect(guard.isSuspended(peerMock)).toBe(false);
+        it("should be true if the threshold is met", () => {
+            const peer = { offences: [] };
+
+            for (let i = 0; i < 10; i++) {
+                peer.offences.push({ weight: 10 });
+            }
+
+            expect(guard.isRepeatOffender(peer)).toBeFalse();
+        });
+
+        it("should be false if the threshold is not met", () => {
+            const peer = { offences: [] };
+
+            for (let i = 0; i < 15; i++) {
+                peer.offences.push({ weight: 10 });
+            }
+
+            expect(guard.isRepeatOffender(peer)).toBeTrue();
+        });
     });
 
-    it("should return false because not suspended", () => {
-      expect(guard.isSuspended(peerMock)).toBe(false);
-    });
-  });
+    describe("__determineOffence", () => {
+        const convertToMinutes = actual => Math.ceil(actual.diff(dayjs()) / 1000) / 60;
 
-  describe("isRepeatOffender", () => {
-    it("should be a function", () => {
-      expect(guard.isRepeatOffender).toBeFunction();
-    });
+        const dummy = {
+            nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+            version: "2.0.0",
+            status: 200,
+            state: {},
+        };
 
-    it("should be true if the threshold is met", () => {
-      const peer = { offences: [] };
+        it("should be a function", () => {
+            expect(guard.__determineOffence).toBeFunction();
+        });
 
-      for (let i = 0; i < 10; i++) {
-        peer.offences.push({ weight: 10 });
-      }
+        it('should return a 1 day suspension for "Blacklisted"', () => {
+            const config = container.resolvePlugin("config");
+            config.peers.blackList = ["dummy-ip-addr"];
 
-      expect(guard.isRepeatOffender(peer)).toBeFalse();
-    });
+            const { until, reason } = guard.__determineOffence({
+                nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+                ip: "dummy-ip-addr",
+            });
 
-    it("should be false if the threshold is not met", () => {
-      const peer = { offences: [] };
+            expect(convertToMinutes(until)).toBe(720);
+            expect(reason).toBe("Blacklisted");
+        });
 
-      for (let i = 0; i < 15; i++) {
-        peer.offences.push({ weight: 10 });
-      }
+        it('should return a 5 minutes suspension for "No Common Blocks"', () => {
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                ...{
+                    commonBlocks: false,
+                },
+            });
 
-      expect(guard.isRepeatOffender(peer)).toBeTrue();
-    });
-  });
+            expect(convertToMinutes(until)).toBe(5);
+            expect(reason).toBe("No Common Blocks");
+        });
 
-  describe("__determineOffence", () => {
-    const convertToMinutes = actual => Math.ceil(actual.diff(dayjs()) / 1000) / 60;
+        it('should return a 6 hours suspension for "Invalid Version"', () => {
+            const { until, reason } = guard.__determineOffence({
+                nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+                version: "1.0.0",
+                status: 200,
+                delay: 1000,
+            });
 
-    const dummy = {
-      nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-      version: "2.0.0",
-      status: 200,
-      state: {},
-    };
+            expect(convertToMinutes(until)).toBe(360);
+            expect(reason).toBe("Invalid Version");
+        });
 
-    it("should be a function", () => {
-      expect(guard.__determineOffence).toBeFunction();
-    });
+        it('should return a 10 minutes suspension for "Node is not at height"', () => {
+            guard.monitor.getNetworkHeight = jest.fn(() => 154);
 
-    it('should return a 1 day suspension for "Blacklisted"', () => {
-      const config = container.resolvePlugin("config");
-      config.peers.blackList = ["dummy-ip-addr"];
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                state: {
+                    height: 1,
+                },
+            });
 
-      const { until, reason } = guard.__determineOffence({
-        nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-        ip: "dummy-ip-addr",
-      });
+            expect(convertToMinutes(until)).toBe(10);
+            expect(reason).toBe("Node is not at height");
+        });
 
-      expect(convertToMinutes(until)).toBe(720);
-      expect(reason).toBe("Blacklisted");
-    });
+        it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                ...{ status: 201 },
+            });
 
-    it('should return a 5 minutes suspension for "No Common Blocks"', () => {
-      const { until, reason } = guard.__determineOffence({
-        ...dummy,
-        ...{
-          commonBlocks: false,
-        },
-      });
+            expect(convertToMinutes(until)).toBe(5);
+            expect(reason).toBe("Invalid Response Status");
+        });
 
-      expect(convertToMinutes(until)).toBe(5);
-      expect(reason).toBe("No Common Blocks");
-    });
+        it('should return a 2 minutes suspension for "Timeout"', () => {
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                ...{ delay: -1 },
+            });
 
-    it('should return a 6 hours suspension for "Invalid Version"', () => {
-      const { until, reason } = guard.__determineOffence({
-        nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-        version: "1.0.0",
-        status: 200,
-        delay: 1000,
-      });
+            expect(convertToMinutes(until)).toBe(2);
+            expect(reason).toBe("Timeout");
+        });
 
-      expect(convertToMinutes(until)).toBe(360);
-      expect(reason).toBe("Invalid Version");
-    });
+        it('should return a 1 minutes suspension for "High Latency"', () => {
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                ...{ delay: 3000 },
+            });
 
-    it('should return a 10 minutes suspension for "Node is not at height"', () => {
-      guard.monitor.getNetworkHeight = jest.fn(() => 154);
+            expect(convertToMinutes(until)).toBe(1);
+            expect(reason).toBe("High Latency");
+        });
 
-      const { until, reason } = guard.__determineOffence({
-        ...dummy,
-        state: {
-          height: 1,
-        },
-      });
+        it('should return a 30 seconds suspension for "Blockchain not ready"', () => {
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                ...{ status: 503 },
+            });
 
-      expect(convertToMinutes(until)).toBe(10);
-      expect(reason).toBe("Node is not at height");
-    });
+            expect(convertToMinutes(until)).toBe(0.5);
+            expect(reason).toBe("Blockchain not ready");
+        });
 
-    it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
-      const { until, reason } = guard.__determineOffence({
-        ...dummy,
-        ...{ status: 201 },
-      });
+        it('should return a 60 seconds suspension for "Rate limit exceeded"', () => {
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                ...{ status: 429 },
+            });
 
-      expect(convertToMinutes(until)).toBe(5);
-      expect(reason).toBe("Invalid Response Status");
-    });
+            expect(convertToMinutes(until)).toBe(1);
+            expect(reason).toBe("Rate limit exceeded");
+        });
 
-    it('should return a 2 minutes suspension for "Timeout"', () => {
-      const { until, reason } = guard.__determineOffence({
-        ...dummy,
-        ...{ delay: -1 },
-      });
+        it('should return a 30 minutes suspension for "Unknown"', () => {
+            const { until, reason } = guard.__determineOffence(dummy);
 
-      expect(convertToMinutes(until)).toBe(2);
-      expect(reason).toBe("Timeout");
-    });
-
-    it('should return a 1 minutes suspension for "High Latency"', () => {
-      const { until, reason } = guard.__determineOffence({
-        ...dummy,
-        ...{ delay: 3000 },
-      });
-
-      expect(convertToMinutes(until)).toBe(1);
-      expect(reason).toBe("High Latency");
+            expect(convertToMinutes(until)).toBe(30);
+            expect(reason).toBe("Unknown");
+        });
     });
 
-    it('should return a 30 seconds suspension for "Blockchain not ready"', () => {
-      const { until, reason } = guard.__determineOffence({
-        ...dummy,
-        ...{ status: 503 },
-      });
+    describe("__determinePunishment", () => {
+        it("should be a function", () => {
+            expect(guard.__determinePunishment).toBeFunction();
+        });
 
-      expect(convertToMinutes(until)).toBe(0.5);
-      expect(reason).toBe("Blockchain not ready");
+        it("should be true if the threshold is met", () => {
+            const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER);
+
+            expect(actual).toHaveProperty("until");
+            expect(actual.until).toBeObject();
+
+            expect(actual).toHaveProperty("reason");
+            expect(actual.reason).toBeString();
+
+            expect(actual).toHaveProperty("weight");
+            expect(actual.weight).toBeNumber();
+        });
     });
-
-    it('should return a 60 seconds suspension for "Rate limit exceeded"', () => {
-      const { until, reason } = guard.__determineOffence({
-        ...dummy,
-        ...{ status: 429 },
-      });
-
-      expect(convertToMinutes(until)).toBe(1);
-      expect(reason).toBe("Rate limit exceeded");
-    });
-
-    it('should return a 30 minutes suspension for "Unknown"', () => {
-      const { until, reason } = guard.__determineOffence(dummy);
-
-      expect(convertToMinutes(until)).toBe(30);
-      expect(reason).toBe("Unknown");
-    });
-  });
-
-  describe("__determinePunishment", () => {
-    it("should be a function", () => {
-      expect(guard.__determinePunishment).toBeFunction();
-    });
-
-    it("should be true if the threshold is met", () => {
-      const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER);
-
-      expect(actual).toHaveProperty("until");
-      expect(actual.until).toBeObject();
-
-      expect(actual).toHaveProperty("reason");
-      expect(actual.reason).toBeString();
-
-      expect(actual).toHaveProperty("weight");
-      expect(actual.weight).toBeNumber();
-    });
-  });
 });

@@ -4,15 +4,15 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 jest.setTimeout(60000);
 
 export const setUp = async () => {
-  process.env.ARK_GRAPHQL_ENABLED = "true";
+    process.env.ARK_GRAPHQL_ENABLED = "true";
 
-  await setUpContainer({
-    exclude: ["@arkecosystem/core-api", "@arkecosystem/core-forger"],
-  });
+    await setUpContainer({
+        exclude: ["@arkecosystem/core-api", "@arkecosystem/core-forger"],
+    });
 
-  return app;
+    return app;
 };
 
 export const tearDown = async () => {
-  await app.tearDown();
+    await app.tearDown();
 };

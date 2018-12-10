@@ -15,318 +15,318 @@ import { setUp, tearDown } from "./__support__/setup";
 const blocks = blocks2to100.concat(blocks101to155).map(block => new Block(block));
 
 beforeAll(async () => {
-  await setUp();
-  config.init(defaults);
+    await setUp();
+    config.init(defaults);
 });
 
 afterAll(async () => {
-  await tearDown();
+    await tearDown();
 });
 
 beforeEach(() => {
-  stateStorage.reset();
+    stateStorage.reset();
 });
 
 describe("State Storage", () => {
-  it("should be an object", () => {
-    expect(stateStorage).toBeObject();
-  });
-
-  describe("getLastBlock", () => {
-    it("should be a function", () => {
-      expect(stateStorage.getLastBlock).toBeFunction();
+    it("should be an object", () => {
+        expect(stateStorage).toBeObject();
     });
 
-    it("should return null when no last block", () => {
-      expect(stateStorage.getLastBlock()).toBeNull();
+    describe("getLastBlock", () => {
+        it("should be a function", () => {
+            expect(stateStorage.getLastBlock).toBeFunction();
+        });
+
+        it("should return null when no last block", () => {
+            expect(stateStorage.getLastBlock()).toBeNull();
+        });
+
+        it("should return the last block", () => {
+            stateStorage.setLastBlock(blocks[0]);
+            stateStorage.setLastBlock(blocks[1]);
+
+            expect(stateStorage.getLastBlock()).toBe(blocks[1]);
+        });
     });
 
-    it("should return the last block", () => {
-      stateStorage.setLastBlock(blocks[0]);
-      stateStorage.setLastBlock(blocks[1]);
+    describe("setLastBlock", () => {
+        it("should be a function", () => {
+            expect(stateStorage.setLastBlock).toBeFunction();
+        });
 
-      expect(stateStorage.getLastBlock()).toBe(blocks[1]);
-    });
-  });
+        it("should set the last block", () => {
+            stateStorage.setLastBlock(blocks[0]);
+            expect(stateStorage.getLastBlock()).toBe(blocks[0]);
+        });
 
-  describe("setLastBlock", () => {
-    it("should be a function", () => {
-      expect(stateStorage.setLastBlock).toBeFunction();
-    });
+        it("should not exceed the max last blocks", () => {
+            for (let i = 0; i < 100; i++) {
+                // 100 is default
+                stateStorage.setLastBlock(blocks[i]);
+            }
 
-    it("should set the last block", () => {
-      stateStorage.setLastBlock(blocks[0]);
-      expect(stateStorage.getLastBlock()).toBe(blocks[0]);
-    });
+            expect(stateStorage.getLastBlocks()).toHaveLength(100);
+            expect(stateStorage.getLastBlock()).toBe(blocks[99]);
+            expect(stateStorage.getLastBlocks().slice(-1)[0]).toBe(blocks[0]);
 
-    it("should not exceed the max last blocks", () => {
-      for (let i = 0; i < 100; i++) {
-        // 100 is default
-        stateStorage.setLastBlock(blocks[i]);
-      }
+            // Push one more to remove the first last block.
+            stateStorage.setLastBlock(blocks[100]);
 
-      expect(stateStorage.getLastBlocks()).toHaveLength(100);
-      expect(stateStorage.getLastBlock()).toBe(blocks[99]);
-      expect(stateStorage.getLastBlocks().slice(-1)[0]).toBe(blocks[0]);
+            expect(stateStorage.getLastBlocks()).toHaveLength(100);
+            expect(stateStorage.getLastBlock()).toBe(blocks[100]);
+            expect(stateStorage.getLastBlocks().slice(-1)[0]).toBe(blocks[1]);
+        });
 
-      // Push one more to remove the first last block.
-      stateStorage.setLastBlock(blocks[100]);
+        it("should remove last blocks when going to lower height", () => {
+            for (let i = 0; i < 100; i++) {
+                // 100 is default
+                stateStorage.setLastBlock(blocks[i]);
+            }
 
-      expect(stateStorage.getLastBlocks()).toHaveLength(100);
-      expect(stateStorage.getLastBlock()).toBe(blocks[100]);
-      expect(stateStorage.getLastBlocks().slice(-1)[0]).toBe(blocks[1]);
-    });
+            expect(stateStorage.getLastBlocks()).toHaveLength(100);
+            expect(stateStorage.getLastBlock()).toBe(blocks[99]);
 
-    it("should remove last blocks when going to lower height", () => {
-      for (let i = 0; i < 100; i++) {
-        // 100 is default
-        stateStorage.setLastBlock(blocks[i]);
-      }
+            // Set last height - 1
+            stateStorage.setLastBlock(blocks[98]);
 
-      expect(stateStorage.getLastBlocks()).toHaveLength(100);
-      expect(stateStorage.getLastBlock()).toBe(blocks[99]);
+            expect(stateStorage.getLastBlocks()).toHaveLength(99);
+            expect(stateStorage.getLastBlock()).toBe(blocks[98]);
 
-      // Set last height - 1
-      stateStorage.setLastBlock(blocks[98]);
-
-      expect(stateStorage.getLastBlocks()).toHaveLength(99);
-      expect(stateStorage.getLastBlock()).toBe(blocks[98]);
-
-      // Set to first block
-      stateStorage.setLastBlock(blocks[0]);
-      expect(stateStorage.getLastBlocks()).toHaveLength(1);
-      expect(stateStorage.getLastBlock()).toBe(blocks[0]);
-    });
-  });
-
-  describe("getLastBlocks", () => {
-    it("should be a function", () => {
-      expect(stateStorage.getLastBlocks).toBeFunction();
+            // Set to first block
+            stateStorage.setLastBlock(blocks[0]);
+            expect(stateStorage.getLastBlocks()).toHaveLength(1);
+            expect(stateStorage.getLastBlock()).toBe(blocks[0]);
+        });
     });
 
-    it("should return the last blocks", () => {
-      for (let i = 0; i < 5; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
+    describe("getLastBlocks", () => {
+        it("should be a function", () => {
+            expect(stateStorage.getLastBlocks).toBeFunction();
+        });
 
-      const lastBlocks = stateStorage.getLastBlocks();
-      expect(lastBlocks).toHaveLength(5);
+        it("should return the last blocks", () => {
+            for (let i = 0; i < 5; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
 
-      for (let i = 0; i < 5; i++) {
-        expect(lastBlocks[i]).toBeInstanceOf(Block);
-        expect(lastBlocks[i].data.height).toBe(6 - i); // Height started at 2
-        expect(lastBlocks[i]).toBe(blocks[4 - i]);
-      }
-    });
-  });
+            const lastBlocks = stateStorage.getLastBlocks();
+            expect(lastBlocks).toHaveLength(5);
 
-  describe("getLastBlocksData", () => {
-    it("should be a function", () => {
-      expect(stateStorage.getLastBlocksData).toBeFunction();
-    });
-
-    it("should return the last blocks data", () => {
-      for (let i = 0; i < 5; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
-
-      const lastBlocksData = stateStorage.getLastBlocksData().toArray();
-      expect(lastBlocksData).toHaveLength(5);
-
-      for (let i = 0; i < 5; i++) {
-        expect(lastBlocksData[0]).not.toBeInstanceOf(Block);
-        expect(lastBlocksData[i].height).toBe(6 - i); // Height started at 2
-        expect(lastBlocksData[i]).toHaveProperty("transactions");
-        delete lastBlocksData[i].transactions;
-        expect(lastBlocksData[i]).toEqual(blocks[4 - i].data);
-      }
-    });
-  });
-
-  describe("getLastBlockIds", () => {
-    it("should be a function", () => {
-      expect(stateStorage.getLastBlockIds).toBeFunction();
+            for (let i = 0; i < 5; i++) {
+                expect(lastBlocks[i]).toBeInstanceOf(Block);
+                expect(lastBlocks[i].data.height).toBe(6 - i); // Height started at 2
+                expect(lastBlocks[i]).toBe(blocks[4 - i]);
+            }
+        });
     });
 
-    it("should return the last blocks data", () => {
-      for (let i = 0; i < 5; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
+    describe("getLastBlocksData", () => {
+        it("should be a function", () => {
+            expect(stateStorage.getLastBlocksData).toBeFunction();
+        });
 
-      const lastBlockIds = stateStorage.getLastBlockIds();
-      expect(lastBlockIds).toHaveLength(5);
+        it("should return the last blocks data", () => {
+            for (let i = 0; i < 5; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
 
-      for (let i = 0; i < 5; i++) {
-        expect(lastBlockIds[i]).toBe(blocks[4 - i].data.id);
-      }
-    });
-  });
+            const lastBlocksData = stateStorage.getLastBlocksData().toArray();
+            expect(lastBlocksData).toHaveLength(5);
 
-  describe("getLastBlocksByHeight", () => {
-    it("should be a function", () => {
-      expect(stateStorage.getLastBlocksByHeight).toBeFunction();
-    });
-
-    it("should return the last blocks data", () => {
-      for (let i = 0; i < 100; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
-
-      const lastBlocksByHeight = stateStorage.getLastBlocksByHeight(0, 101);
-      expect(lastBlocksByHeight).toHaveLength(100);
-      expect(lastBlocksByHeight[0].height).toBe(blocks[0].data.height);
+            for (let i = 0; i < 5; i++) {
+                expect(lastBlocksData[0]).not.toBeInstanceOf(Block);
+                expect(lastBlocksData[i].height).toBe(6 - i); // Height started at 2
+                expect(lastBlocksData[i]).toHaveProperty("transactions");
+                delete lastBlocksData[i].transactions;
+                expect(lastBlocksData[i]).toEqual(blocks[4 - i].data);
+            }
+        });
     });
 
-    it("should return one last block if no end height", () => {
-      for (let i = 0; i < 100; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
+    describe("getLastBlockIds", () => {
+        it("should be a function", () => {
+            expect(stateStorage.getLastBlockIds).toBeFunction();
+        });
 
-      const lastBlocksByHeight = stateStorage.getLastBlocksByHeight(50);
-      expect(lastBlocksByHeight).toHaveLength(1);
-      expect(lastBlocksByHeight[0].height).toBe(50);
-    });
-  });
+        it("should return the last blocks data", () => {
+            for (let i = 0; i < 5; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
 
-  describe("getCommonBlocks", () => {
-    it("should be a function", () => {
-      expect(stateStorage.getCommonBlocks).toBeFunction();
-    });
+            const lastBlockIds = stateStorage.getLastBlockIds();
+            expect(lastBlockIds).toHaveLength(5);
 
-    it("should get common blocks", () => {
-      for (let i = 0; i < 100; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
-
-      // Heights 90 - 100
-      const ids = blocks.slice(89, 99).map(block => block.data.id);
-      const commonBlocks = stateStorage.getCommonBlocks(ids);
-      expect(ids).toHaveLength(10);
-      expect(commonBlocks).toHaveLength(10);
-
-      for (let i = 0; i < commonBlocks.length; i++) {
-        expect(commonBlocks[i].height).toBe(blocks[98 - i].data.height);
-      }
-    });
-  });
-
-  describe("cacheTransactions", () => {
-    it("should be a function", () => {
-      expect(stateStorage.cacheTransactions).toBeFunction();
+            for (let i = 0; i < 5; i++) {
+                expect(lastBlockIds[i]).toBe(blocks[4 - i].data.id);
+            }
+        });
     });
 
-    it("should add transaction id", () => {
-      expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
-        added: [{ id: "1" }],
-        notAdded: [],
-      });
-      expect(stateStorage.getCachedTransactionIds()).toHaveLength(1);
+    describe("getLastBlocksByHeight", () => {
+        it("should be a function", () => {
+            expect(stateStorage.getLastBlocksByHeight).toBeFunction();
+        });
+
+        it("should return the last blocks data", () => {
+            for (let i = 0; i < 100; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
+
+            const lastBlocksByHeight = stateStorage.getLastBlocksByHeight(0, 101);
+            expect(lastBlocksByHeight).toHaveLength(100);
+            expect(lastBlocksByHeight[0].height).toBe(blocks[0].data.height);
+        });
+
+        it("should return one last block if no end height", () => {
+            for (let i = 0; i < 100; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
+
+            const lastBlocksByHeight = stateStorage.getLastBlocksByHeight(50);
+            expect(lastBlocksByHeight).toHaveLength(1);
+            expect(lastBlocksByHeight[0].height).toBe(50);
+        });
     });
 
-    it("should not add duplicate transaction ids", () => {
-      expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
-        added: [{ id: "1" }],
-        notAdded: [],
-      });
-      expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
-        added: [],
-        notAdded: [{ id: "1" }],
-      });
-      expect(stateStorage.getCachedTransactionIds()).toHaveLength(1);
+    describe("getCommonBlocks", () => {
+        it("should be a function", () => {
+            expect(stateStorage.getCommonBlocks).toBeFunction();
+        });
+
+        it("should get common blocks", () => {
+            for (let i = 0; i < 100; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
+
+            // Heights 90 - 100
+            const ids = blocks.slice(89, 99).map(block => block.data.id);
+            const commonBlocks = stateStorage.getCommonBlocks(ids);
+            expect(ids).toHaveLength(10);
+            expect(commonBlocks).toHaveLength(10);
+
+            for (let i = 0; i < commonBlocks.length; i++) {
+                expect(commonBlocks[i].height).toBe(blocks[98 - i].data.height);
+            }
+        });
     });
 
-    it("should not add more than 10000 unique transaction ids", () => {
-      const transactions = [];
-      for (let i = 0; i < 10000; i++) {
-        transactions.push({ id: i.toString() });
-      }
+    describe("cacheTransactions", () => {
+        it("should be a function", () => {
+            expect(stateStorage.cacheTransactions).toBeFunction();
+        });
 
-      expect(stateStorage.cacheTransactions(transactions)).toEqual({
-        added: transactions,
-        notAdded: [],
-      });
+        it("should add transaction id", () => {
+            expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
+                added: [{ id: "1" }],
+                notAdded: [],
+            });
+            expect(stateStorage.getCachedTransactionIds()).toHaveLength(1);
+        });
 
-      expect(stateStorage.getCachedTransactionIds()).toHaveLength(10000);
-      expect(stateStorage.getCachedTransactionIds()[0]).toEqual("0");
+        it("should not add duplicate transaction ids", () => {
+            expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
+                added: [{ id: "1" }],
+                notAdded: [],
+            });
+            expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
+                added: [],
+                notAdded: [{ id: "1" }],
+            });
+            expect(stateStorage.getCachedTransactionIds()).toHaveLength(1);
+        });
 
-      expect(stateStorage.cacheTransactions([{ id: "10000" }])).toEqual({
-        added: [{ id: "10000" }],
-        notAdded: [],
-      });
-      expect(stateStorage.getCachedTransactionIds()).toHaveLength(10000);
-      expect(stateStorage.getCachedTransactionIds()[0]).toEqual("1");
-    });
-  });
+        it("should not add more than 10000 unique transaction ids", () => {
+            const transactions = [];
+            for (let i = 0; i < 10000; i++) {
+                transactions.push({ id: i.toString() });
+            }
 
-  describe("removeCachedTransactionIds", () => {
-    it("should be a function", () => {
-      expect(stateStorage.removeCachedTransactionIds).toBeFunction();
-    });
+            expect(stateStorage.cacheTransactions(transactions)).toEqual({
+                added: transactions,
+                notAdded: [],
+            });
 
-    it("should remove cached transaction ids", () => {
-      const transactions = [];
-      for (let i = 0; i < 10; i++) {
-        transactions.push({ id: i.toString() });
-      }
+            expect(stateStorage.getCachedTransactionIds()).toHaveLength(10000);
+            expect(stateStorage.getCachedTransactionIds()[0]).toEqual("0");
 
-      expect(stateStorage.cacheTransactions(transactions)).toEqual({
-        added: transactions,
-        notAdded: [],
-      });
-
-      expect(stateStorage.getCachedTransactionIds()).toHaveLength(10);
-      stateStorage.removeCachedTransactionIds(transactions.map(tx => tx.id));
-      expect(stateStorage.getCachedTransactionIds()).toHaveLength(0);
-    });
-  });
-
-  describe("getCachedTransactionIds", () => {
-    it("should be a function", () => {
-      expect(stateStorage.getCachedTransactionIds).toBeFunction();
-    });
-  });
-
-  describe("pingBlock", () => {
-    it("should be a function", () => {
-      expect(stateStorage.pingBlock).toBeFunction();
-    });
-  });
-
-  describe("pushPingBlock", () => {
-    it("should be a function", () => {
-      expect(stateStorage.pushPingBlock).toBeFunction();
-    });
-  });
-
-  describe("reset", () => {
-    it("should be a function", () => {
-      expect(stateStorage.reset).toBeFunction();
+            expect(stateStorage.cacheTransactions([{ id: "10000" }])).toEqual({
+                added: [{ id: "10000" }],
+                notAdded: [],
+            });
+            expect(stateStorage.getCachedTransactionIds()).toHaveLength(10000);
+            expect(stateStorage.getCachedTransactionIds()[0]).toEqual("1");
+        });
     });
 
-    it("should reset the state", () => {
-      for (let i = 0; i < 100; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
+    describe("removeCachedTransactionIds", () => {
+        it("should be a function", () => {
+            expect(stateStorage.removeCachedTransactionIds).toBeFunction();
+        });
 
-      expect(stateStorage.getLastBlocks()).toHaveLength(100);
-      stateStorage.reset();
-      expect(stateStorage.getLastBlocks()).toHaveLength(0);
+        it("should remove cached transaction ids", () => {
+            const transactions = [];
+            for (let i = 0; i < 10; i++) {
+                transactions.push({ id: i.toString() });
+            }
+
+            expect(stateStorage.cacheTransactions(transactions)).toEqual({
+                added: transactions,
+                notAdded: [],
+            });
+
+            expect(stateStorage.getCachedTransactionIds()).toHaveLength(10);
+            stateStorage.removeCachedTransactionIds(transactions.map(tx => tx.id));
+            expect(stateStorage.getCachedTransactionIds()).toHaveLength(0);
+        });
     });
-  });
 
-  describe("clear", () => {
-    it("should be a function", () => {
-      expect(stateStorage.clear).toBeFunction();
+    describe("getCachedTransactionIds", () => {
+        it("should be a function", () => {
+            expect(stateStorage.getCachedTransactionIds).toBeFunction();
+        });
     });
 
-    it("should clear the last blocks", () => {
-      for (let i = 0; i < 100; i++) {
-        stateStorage.setLastBlock(blocks[i]);
-      }
-
-      expect(stateStorage.getLastBlocks()).toHaveLength(100);
-      stateStorage.clear();
-      expect(stateStorage.getLastBlocks()).toHaveLength(0);
+    describe("pingBlock", () => {
+        it("should be a function", () => {
+            expect(stateStorage.pingBlock).toBeFunction();
+        });
     });
-  });
+
+    describe("pushPingBlock", () => {
+        it("should be a function", () => {
+            expect(stateStorage.pushPingBlock).toBeFunction();
+        });
+    });
+
+    describe("reset", () => {
+        it("should be a function", () => {
+            expect(stateStorage.reset).toBeFunction();
+        });
+
+        it("should reset the state", () => {
+            for (let i = 0; i < 100; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
+
+            expect(stateStorage.getLastBlocks()).toHaveLength(100);
+            stateStorage.reset();
+            expect(stateStorage.getLastBlocks()).toHaveLength(0);
+        });
+    });
+
+    describe("clear", () => {
+        it("should be a function", () => {
+            expect(stateStorage.clear).toBeFunction();
+        });
+
+        it("should clear the last blocks", () => {
+            for (let i = 0; i < 100; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
+
+            expect(stateStorage.getLastBlocks()).toHaveLength(100);
+            stateStorage.clear();
+            expect(stateStorage.getLastBlocks()).toHaveLength(0);
+        });
+    });
 });

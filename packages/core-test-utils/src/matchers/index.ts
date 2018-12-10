@@ -1,6 +1,6 @@
-import "jest-extended"
+import "jest-extended";
 
-import "./api"
+import "./api";
 import "./blockchain";
 import "./fields";
 import "./models";

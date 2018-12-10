@@ -7,38 +7,38 @@ const config = app.resolvePlugin("config");
  * @type {Object}
  */
 export const current = {
-  /**
-   * @param  {Hapi.Request} request
-   * @param  {Hapi.Toolkit} h
-   * @return {Hapi.Response}
-   */
-  async handler(request, h) {
-    const database = app.resolvePlugin("database");
-    const blockchain = app.resolvePlugin("blockchain");
+    /**
+     * @param  {Hapi.Request} request
+     * @param  {Hapi.Toolkit} h
+     * @return {Hapi.Response}
+     */
+    async handler(request, h) {
+        const database = app.resolvePlugin("database");
+        const blockchain = app.resolvePlugin("blockchain");
 
-    const lastBlock = blockchain.getLastBlock();
+        const lastBlock = blockchain.getLastBlock();
 
-    const height = lastBlock.data.height + 1;
-    const maxActive = config.getConstants(height).activeDelegates;
-    const blockTime = config.getConstants(height).blocktime;
-    const reward = config.getConstants(height).reward;
-    const delegates = await database.getActiveDelegates(height);
-    const timestamp = slots.getTime();
+        const height = lastBlock.data.height + 1;
+        const maxActive = config.getConstants(height).activeDelegates;
+        const blockTime = config.getConstants(height).blocktime;
+        const reward = config.getConstants(height).reward;
+        const delegates = await database.getActiveDelegates(height);
+        const timestamp = slots.getTime();
 
-    const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
-    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
+        const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
+        const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
 
-    return {
-      data: {
-        current: +(height / maxActive),
-        reward,
-        timestamp,
-        delegates,
-        currentForger: delegates[currentForger],
-        nextForger: delegates[nextForger],
-        lastBlock: lastBlock.data,
-        canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
-      },
-    };
-  },
+        return {
+            data: {
+                current: +(height / maxActive),
+                reward,
+                timestamp,
+                delegates,
+                currentForger: delegates[currentForger],
+                nextForger: delegates[nextForger],
+                lastBlock: lastBlock.data,
+                canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
+            },
+        };
+    },
 };

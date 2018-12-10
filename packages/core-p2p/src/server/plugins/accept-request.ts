@@ -10,52 +10,47 @@ import isWhitelisted from "../../utils/is-whitelist";
  * @return {void}
  */
 const register = async (server, options) => {
-  const requiredHeaders = ["nethash", "version", "port", "os"];
+    const requiredHeaders = ["nethash", "version", "port", "os"];
 
-  server.ext({
-    type: "onRequest",
-    async method(request, h) {
-      const remoteAddress = requestIp.getClientIp(request);
+    server.ext({
+        type: "onRequest",
+        async method(request, h) {
+            const remoteAddress = requestIp.getClientIp(request);
 
-      if (request.path.startsWith("/config")) {
-        return h.continue;
-      }
+            if (request.path.startsWith("/config")) {
+                return h.continue;
+            }
 
-      if (
-        request.headers["x-auth"] === "forger" ||
-        request.path.startsWith("/remote")
-      ) {
-        return isWhitelisted(options.whitelist, remoteAddress)
-          ? h.continue
-          : Boom.forbidden();
-      }
+            if (request.headers["x-auth"] === "forger" || request.path.startsWith("/remote")) {
+                return isWhitelisted(options.whitelist, remoteAddress) ? h.continue : Boom.forbidden();
+            }
 
-      // Only forger requests are internal
-      if (request.path.startsWith("/internal")) {
-        return Boom.forbidden();
-      }
+            // Only forger requests are internal
+            if (request.path.startsWith("/internal")) {
+                return Boom.forbidden();
+            }
 
-      if (!monitor.guard) {
-        return Boom.serverUnavailable("Peer Monitor not ready");
-      }
+            if (!monitor.guard) {
+                return Boom.serverUnavailable("Peer Monitor not ready");
+            }
 
-      if (request.path.startsWith("/peer")) {
-        const peer = { ip: remoteAddress };
+            if (request.path.startsWith("/peer")) {
+                const peer = { ip: remoteAddress };
 
-        requiredHeaders.forEach((key) => {
-          peer[key] = request.headers[key];
-        });
+                requiredHeaders.forEach(key => {
+                    peer[key] = request.headers[key];
+                });
 
-        try {
-          await monitor.acceptNewPeer(peer);
-        } catch (error) {
-          return Boom.badImplementation(error.message);
-        }
-      }
+                try {
+                    await monitor.acceptNewPeer(peer);
+                } catch (error) {
+                    return Boom.badImplementation(error.message);
+                }
+            }
 
-      return h.continue;
-    },
-  });
+            return h.continue;
+        },
+    });
 };
 
 /**
@@ -63,7 +58,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 export const plugin = {
-  name: "accept-request",
-  version: "0.1.0",
-  register,
+    name: "accept-request",
+    version: "0.1.0",
+    register,
 };

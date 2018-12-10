@@ -5,20 +5,20 @@ import { Repository } from "./repository";
 const { migrations: sql } = queries;
 
 export class MigrationsRepository extends Repository {
-  /**
-   * Find a migration by its name.
-   * @param  {String} name
-   * @return {Promise}
-   */
-  public async findByName(name) {
-    return this.db.oneOrNone(sql.find, { name });
-  }
+    /**
+     * Find a migration by its name.
+     * @param  {String} name
+     * @return {Promise}
+     */
+    public async findByName(name) {
+        return this.db.oneOrNone(sql.find, { name });
+    }
 
-  /**
-   * Get the model related to this repository.
-   * @return {Migration}
-   */
-  public getModel() {
-    return new Migration(this.pgp);
-  }
+    /**
+     * Get the model related to this repository.
+     * @return {Migration}
+     */
+    public getModel() {
+        return new Migration(this.pgp);
+    }
 }

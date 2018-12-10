@@ -4,55 +4,55 @@ import { LoggerInterface } from "../src/interface";
 const logger = new LoggerInterface({});
 
 describe("Logger Interface", () => {
-  it("should be an object", () => {
-    expect(logger).toBeObject();
-  });
-
-  describe("driver", () => {
-    it("should be a function", () => {
-      expect(logger.driver).toBeFunction();
+    it("should be an object", () => {
+        expect(logger).toBeObject();
     });
-  });
 
-  describe("error", () => {
-    it("should be a function", () => {
-      expect(logger.error).toBeFunction();
+    describe("driver", () => {
+        it("should be a function", () => {
+            expect(logger.driver).toBeFunction();
+        });
     });
-  });
 
-  describe("warning", () => {
-    it("should be a function", () => {
-      expect(logger.warn).toBeFunction();
+    describe("error", () => {
+        it("should be a function", () => {
+            expect(logger.error).toBeFunction();
+        });
     });
-  });
 
-  describe("info", () => {
-    it("should be a function", () => {
-      expect(logger.info).toBeFunction();
+    describe("warning", () => {
+        it("should be a function", () => {
+            expect(logger.warn).toBeFunction();
+        });
     });
-  });
 
-  describe("debug", () => {
-    it("should be a function", () => {
-      expect(logger.debug).toBeFunction();
+    describe("info", () => {
+        it("should be a function", () => {
+            expect(logger.info).toBeFunction();
+        });
     });
-  });
 
-  describe("printTracker", () => {
-    it("should be a function", () => {
-      expect(logger.printTracker).toBeFunction();
+    describe("debug", () => {
+        it("should be a function", () => {
+            expect(logger.debug).toBeFunction();
+        });
     });
-  });
 
-  describe("stopTracker", () => {
-    it("should be a function", () => {
-      expect(logger.stopTracker).toBeFunction();
+    describe("printTracker", () => {
+        it("should be a function", () => {
+            expect(logger.printTracker).toBeFunction();
+        });
     });
-  });
 
-  describe("suppressConsoleOutput", () => {
-    it("should be a function", () => {
-      expect(logger.suppressConsoleOutput).toBeFunction();
+    describe("stopTracker", () => {
+        it("should be a function", () => {
+            expect(logger.stopTracker).toBeFunction();
+        });
     });
-  });
+
+    describe("suppressConsoleOutput", () => {
+        it("should be a function", () => {
+            expect(logger.suppressConsoleOutput).toBeFunction();
+        });
+    });
 });

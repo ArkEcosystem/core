@@ -9,78 +9,78 @@ import { TransferBuilder } from "./transactions/transfer";
 import { VoteBuilder } from "./transactions/vote";
 
 export class TransactionBuilderDirector {
-  /**
-   * Create new delegate transaction type.
-   * @return {DelegateRegistrationBuilder}
-   */
-  public delegateRegistration() {
-    return new DelegateRegistrationBuilder();
-  }
+    /**
+     * Create new delegate transaction type.
+     * @return {DelegateRegistrationBuilder}
+     */
+    public delegateRegistration() {
+        return new DelegateRegistrationBuilder();
+    }
 
-  /**
-   * Create new delegate resignation transaction type.
-   * @return {DelegateResignationBuilder}
-   */
-  public delegateResignation() {
-    return new DelegateResignationBuilder();
-  }
+    /**
+     * Create new delegate resignation transaction type.
+     * @return {DelegateResignationBuilder}
+     */
+    public delegateResignation() {
+        return new DelegateResignationBuilder();
+    }
 
-  /**
-   * Create new IPFS transaction type.
-   * @return {IPFSBuilder}
-   */
-  public ipfs() {
-    return new IPFSBuilder();
-  }
+    /**
+     * Create new IPFS transaction type.
+     * @return {IPFSBuilder}
+     */
+    public ipfs() {
+        return new IPFSBuilder();
+    }
 
-  /**
-   * Create new multi-payment transaction type.
-   * @return {MultiPaymentBuilder}
-   */
-  public multiPayment() {
-    return new MultiPaymentBuilder();
-  }
+    /**
+     * Create new multi-payment transaction type.
+     * @return {MultiPaymentBuilder}
+     */
+    public multiPayment() {
+        return new MultiPaymentBuilder();
+    }
 
-  /**
-   * Create new multi-signature transaction type.
-   * @return {MultiSignatureBuilder}
-   */
-  public multiSignature() {
-    return new MultiSignatureBuilder();
-  }
+    /**
+     * Create new multi-signature transaction type.
+     * @return {MultiSignatureBuilder}
+     */
+    public multiSignature() {
+        return new MultiSignatureBuilder();
+    }
 
-  /**
-   * Create new second signature transaction type.
-   * @return {SecondSignatureBuilder}
-   */
-  public secondSignature() {
-    return new SecondSignatureBuilder();
-  }
+    /**
+     * Create new second signature transaction type.
+     * @return {SecondSignatureBuilder}
+     */
+    public secondSignature() {
+        return new SecondSignatureBuilder();
+    }
 
-  /**
-   * Create new timelock transfer transaction type.
-   * @return {TimelockTransferBuilder}
-   */
-  public timelockTransfer() {
-    return new TimelockTransferBuilder();
-  }
+    /**
+     * Create new timelock transfer transaction type.
+     * @return {TimelockTransferBuilder}
+     */
+    public timelockTransfer() {
+        return new TimelockTransferBuilder();
+    }
 
-  /**
-   * Create new transfer transaction type.
-   * @return {TransferBuilder}
-   */
-  public transfer() {
-    return new TransferBuilder();
-  }
+    /**
+     * Create new transfer transaction type.
+     * @return {TransferBuilder}
+     */
+    public transfer() {
+        return new TransferBuilder();
+    }
 
-  /**
-   * Create new vote transaction type.
-   * @return {VoteBuilder}
-   */
-  public vote() {
-    return new VoteBuilder();
-  }
+    /**
+     * Create new vote transaction type.
+     * @return {VoteBuilder}
+     */
+    public vote() {
+        return new VoteBuilder();
+    }
 }
 
-const transactionBuilder = new TransactionBuilderDirector()
-export { transactionBuilder }
+const transactionBuilder = new TransactionBuilderDirector();
+export { transactionBuilder };

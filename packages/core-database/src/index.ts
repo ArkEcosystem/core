@@ -18,17 +18,14 @@ import { WalletManager } from "./wallet-manager";
  * @type {Object}
  */
 export const plugin = {
-  pkg: require("../package.json"),
-  defaults,
-  alias: "databaseManager",
-  async register(container, options) {
-    container.resolvePlugin("logger").info("Starting Database Manager");
+    pkg: require("../package.json"),
+    defaults,
+    alias: "databaseManager",
+    async register(container, options) {
+        container.resolvePlugin("logger").info("Starting Database Manager");
 
-    return new DatabaseManager();
-  },
+        return new DatabaseManager();
+    },
 };
 
-export {
-  ConnectionInterface,
-  WalletManager,
-};
+export { ConnectionInterface, WalletManager };

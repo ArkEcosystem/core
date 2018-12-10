@@ -4,33 +4,33 @@ import { webhookManager } from "./manager";
 import { startServer } from "./server";
 
 export const plugin = {
-  pkg: require("../package.json"),
-  defaults,
-  alias: "webhooks",
-  async register(container, options) {
-    const logger = container.resolvePlugin("logger");
+    pkg: require("../package.json"),
+    defaults,
+    alias: "webhooks",
+    async register(container, options) {
+        const logger = container.resolvePlugin("logger");
 
-    if (!options.enabled) {
-      logger.info("Webhooks are disabled :grey_exclamation:");
+        if (!options.enabled) {
+            logger.info("Webhooks are disabled :grey_exclamation:");
 
-      return;
-    }
+            return;
+        }
 
-    await database.setUp(options.database);
+        await database.setUp(options.database);
 
-    await webhookManager.setUp();
+        await webhookManager.setUp();
 
-    if (options.server.enabled) {
-      return startServer(options.server);
-    }
+        if (options.server.enabled) {
+            return startServer(options.server);
+        }
 
-    logger.info("Webhooks API server is disabled :grey_exclamation:");
-  },
-  async deregister(container, options) {
-    if (options.server.enabled) {
-      container.resolvePlugin("logger").info("Stopping Webhook API");
+        logger.info("Webhooks API server is disabled :grey_exclamation:");
+    },
+    async deregister(container, options) {
+        if (options.server.enabled) {
+            container.resolvePlugin("logger").info("Stopping Webhook API");
 
-      return container.resolvePlugin("webhooks").stop();
-    }
-  },
+            return container.resolvePlugin("webhooks").stop();
+        }
+    },
 };

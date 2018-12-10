@@ -15,162 +15,162 @@ const host = `http://127.0.0.1:4000`;
 let client;
 
 beforeAll(async () => {
-  await setUp();
+    await setUp();
 });
 
 afterAll(async () => {
-  await tearDown();
-  mockAxios.restore();
+    await tearDown();
+    mockAxios.restore();
 });
 
 beforeEach(() => {
-  client = new Client(host);
+    client = new Client(host);
 
-  mockAxios.onGet(`${host}/peer/status`).reply(200);
+    mockAxios.onGet(`${host}/peer/status`).reply(200);
 });
 
 afterEach(() => {
-  mockAxios.reset();
+    mockAxios.reset();
 });
 
 describe("Client", () => {
-  describe("constructor", () => {
-    it("accepts 1 or more hosts as parameter", () => {
-      expect(new Client(host).hosts).toEqual([host]);
+    describe("constructor", () => {
+        it("accepts 1 or more hosts as parameter", () => {
+            expect(new Client(host).hosts).toEqual([host]);
 
-      const hosts = [host, "http://localhost:4000"];
+            const hosts = [host, "http://localhost:4000"];
 
-      expect(new Client(hosts).hosts).toEqual(hosts);
-    });
-  });
-
-  describe("broadcast", () => {
-    it("should be a function", () => {
-      expect(client.broadcast).toBeFunction();
+            expect(new Client(hosts).hosts).toEqual(hosts);
+        });
     });
 
-    describe("when the host is available", () => {
-      it("should be truthy if broadcasts", async () => {
-        mockAxios.onPost(`${host}/internal/blocks`).reply(c => {
-          expect(JSON.parse(c.data).block).toMatchObject(
-            expect.objectContaining({
-              id: sampleBlock.data.id,
-            }),
-          );
-          return [200, true];
+    describe("broadcast", () => {
+        it("should be a function", () => {
+            expect(client.broadcast).toBeFunction();
         });
 
-        await client.__chooseHost();
+        describe("when the host is available", () => {
+            it("should be truthy if broadcasts", async () => {
+                mockAxios.onPost(`${host}/internal/blocks`).reply(c => {
+                    expect(JSON.parse(c.data).block).toMatchObject(
+                        expect.objectContaining({
+                            id: sampleBlock.data.id,
+                        }),
+                    );
+                    return [200, true];
+                });
 
-        const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
-        expect(wasBroadcasted).toBeTruthy();
-      });
-    });
-  });
+                await client.__chooseHost();
 
-  describe("getRound", () => {
-    it("should be a function", () => {
-      expect(client.getRound).toBeFunction();
-    });
-
-    describe("when the host is available", () => {
-      it("should be ok", async () => {
-        const expectedResponse = { foo: "bar" };
-        mockAxios.onGet(`${host}/internal/rounds/current`).reply(200, { data: expectedResponse });
-
-        const response = await client.getRound();
-
-        expect(response).toEqual(expectedResponse);
-      });
-    });
-  });
-
-  describe("getTransactions", () => {
-    it("should be a function", () => {
-      expect(client.getTransactions).toBeFunction();
+                const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
+                expect(wasBroadcasted).toBeTruthy();
+            });
+        });
     });
 
-    describe("when the host is available", () => {
-      it("should be ok", async () => {
-        const expectedResponse = { foo: "bar" };
-        mockAxios.onGet(`${host}/internal/transactions/forging`).reply(200, { data: expectedResponse });
+    describe("getRound", () => {
+        it("should be a function", () => {
+            expect(client.getRound).toBeFunction();
+        });
 
-        await client.__chooseHost();
-        const response = await client.getTransactions();
+        describe("when the host is available", () => {
+            it("should be ok", async () => {
+                const expectedResponse = { foo: "bar" };
+                mockAxios.onGet(`${host}/internal/rounds/current`).reply(200, { data: expectedResponse });
 
-        expect(response).toEqual(expectedResponse);
-      });
-    });
-  });
+                const response = await client.getRound();
 
-  describe("getNetworkState", () => {
-    it("should be a function", () => {
-      expect(client.getNetworkState).toBeFunction();
-    });
-
-    describe("when the host is available", () => {
-      it("should be ok", async () => {
-        const expectedResponse = { foo: "bar" };
-        mockAxios.onGet(`${host}/internal/network/state`).reply(200, { data: expectedResponse });
-
-        await client.__chooseHost();
-        const response = await client.getNetworkState();
-
-        expect(response).toEqual(expectedResponse);
-      });
-    });
-  });
-
-  describe("syncCheck", () => {
-    it("should be a function", () => {
-      expect(client.syncCheck).toBeFunction();
+                expect(response).toEqual(expectedResponse);
+            });
+        });
     });
 
-    it("should induce network sync", async () => {
-      jest.spyOn(axios, "get");
-      mockAxios.onGet(`${host}/internal/blockchain/sync`).reply(200);
+    describe("getTransactions", () => {
+        it("should be a function", () => {
+            expect(client.getTransactions).toBeFunction();
+        });
 
-      await client.syncCheck();
+        describe("when the host is available", () => {
+            it("should be ok", async () => {
+                const expectedResponse = { foo: "bar" };
+                mockAxios.onGet(`${host}/internal/transactions/forging`).reply(200, { data: expectedResponse });
 
-      expect(axios.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
+                await client.__chooseHost();
+                const response = await client.getTransactions();
+
+                expect(response).toEqual(expectedResponse);
+            });
+        });
     });
-  });
 
-  describe("getUsernames", () => {
-    it("should be a function", () => {
-      expect(client.getUsernames).toBeFunction();
+    describe("getNetworkState", () => {
+        it("should be a function", () => {
+            expect(client.getNetworkState).toBeFunction();
+        });
+
+        describe("when the host is available", () => {
+            it("should be ok", async () => {
+                const expectedResponse = { foo: "bar" };
+                mockAxios.onGet(`${host}/internal/network/state`).reply(200, { data: expectedResponse });
+
+                await client.__chooseHost();
+                const response = await client.getNetworkState();
+
+                expect(response).toEqual(expectedResponse);
+            });
+        });
     });
 
-    it("should fetch usernames", async () => {
-      jest.spyOn(axios, "get");
-      const expectedResponse = { foo: "bar" };
-      mockAxios.onGet(`${host}/internal/utils/usernames`).reply(200, { data: expectedResponse });
+    describe("syncCheck", () => {
+        it("should be a function", () => {
+            expect(client.syncCheck).toBeFunction();
+        });
 
-      const response = await client.getUsernames();
+        it("should induce network sync", async () => {
+            jest.spyOn(axios, "get");
+            mockAxios.onGet(`${host}/internal/blockchain/sync`).reply(200);
 
-      expect(response).toEqual(expectedResponse);
+            await client.syncCheck();
+
+            expect(axios.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
+        });
     });
-  });
 
-  describe("emitEvent", () => {
-    it("should be a function", () => {
-      expect(client.emitEvent).toBeFunction();
+    describe("getUsernames", () => {
+        it("should be a function", () => {
+            expect(client.getUsernames).toBeFunction();
+        });
+
+        it("should fetch usernames", async () => {
+            jest.spyOn(axios, "get");
+            const expectedResponse = { foo: "bar" };
+            mockAxios.onGet(`${host}/internal/utils/usernames`).reply(200, { data: expectedResponse });
+
+            const response = await client.getUsernames();
+
+            expect(response).toEqual(expectedResponse);
+        });
     });
-    it("should emit events", async () => {
-      jest.spyOn(axios, "post");
-      mockAxios.onPost(`${host}/internal/utils/events`).reply(c => {
-        expect(JSON.parse(c.data)).toMatchObject({ event: "foo", body: "bar" });
-        return [200];
-      });
 
-      await client.__chooseHost();
-      await client.emitEvent("foo", "bar");
+    describe("emitEvent", () => {
+        it("should be a function", () => {
+            expect(client.emitEvent).toBeFunction();
+        });
+        it("should emit events", async () => {
+            jest.spyOn(axios, "post");
+            mockAxios.onPost(`${host}/internal/utils/events`).reply(c => {
+                expect(JSON.parse(c.data)).toMatchObject({ event: "foo", body: "bar" });
+                return [200];
+            });
 
-      expect(axios.post).toHaveBeenCalledWith(
-        `${host}/internal/utils/events`,
-        { event: "foo", body: "bar" },
-        expect.any(Object),
-      );
+            await client.__chooseHost();
+            await client.emitEvent("foo", "bar");
+
+            expect(axios.post).toHaveBeenCalledWith(
+                `${host}/internal/utils/events`,
+                { event: "foo", body: "bar" },
+                expect.any(Object),
+            );
+        });
     });
-  });
 });

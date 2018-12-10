@@ -14,4 +14,4 @@ const Bignum: any = BigNumber.clone({ DECIMAL_PLACES: 0 });
 Bignum.ZERO = new Bignum(0);
 Bignum.ONE = new Bignum(1);
 
-export { Bignum }
+export { Bignum };

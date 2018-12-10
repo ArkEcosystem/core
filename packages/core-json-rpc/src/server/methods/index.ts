@@ -16,24 +16,24 @@ import { transactionCreate } from "./transactions/create";
 import { transactionInfo } from "./transactions/info";
 
 export function registerMethods(server: Hapi.Server) {
-  const registerMethod = (method) => {
-    server.app.schemas[method.name] = method.schema;
+    const registerMethod = method => {
+        server.app.schemas[method.name] = method.schema;
 
-    delete method.schema;
+        delete method.schema;
 
-    server.method(method);
-  };
+        server.method(method);
+    };
 
-  registerMethod(blockLatest);
-  registerMethod(blockInfo);
-  registerMethod(blockTransactions);
-  registerMethod(walletBIP38Create);
-  registerMethod(walletBIP38);
-  registerMethod(walletCreate);
-  registerMethod(walletInfo);
-  registerMethod(walletTransactions);
-  registerMethod(transactionBIP38Create);
-  registerMethod(transactionBroadcast);
-  registerMethod(transactionCreate);
-  registerMethod(transactionInfo);
+    registerMethod(blockLatest);
+    registerMethod(blockInfo);
+    registerMethod(blockTransactions);
+    registerMethod(walletBIP38Create);
+    registerMethod(walletBIP38);
+    registerMethod(walletCreate);
+    registerMethod(walletInfo);
+    registerMethod(walletTransactions);
+    registerMethod(transactionBIP38Create);
+    registerMethod(transactionBroadcast);
+    registerMethod(transactionCreate);
+    registerMethod(transactionInfo);
 }

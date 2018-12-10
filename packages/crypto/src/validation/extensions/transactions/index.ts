@@ -9,13 +9,13 @@ import { transfer } from "./transfer";
 import { vote } from "./vote";
 
 export const transactions = [
-  transfer,
-  secondSignature,
-  delegateRegistration,
-  vote,
-  multiSignature,
-  ipfs,
-  timelockTransfer,
-  multiPayment,
-  delegateResignation
+    transfer,
+    secondSignature,
+    delegateRegistration,
+    vote,
+    multiSignature,
+    ipfs,
+    timelockTransfer,
+    multiPayment,
+    delegateResignation,
 ];

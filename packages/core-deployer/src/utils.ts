@@ -11,8 +11,7 @@ import { logger } from "./logger";
  * @param  {Number} max
  * @return {Number}
  */
-const getRandomNumber = (min, max) =>
-  Math.floor(Math.random() * (max - min) + min);
+const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
 /**
  * Update the contents of the given file and return config.
@@ -21,21 +20,21 @@ const getRandomNumber = (min, max) =>
  * @return {Object}
  */
 const updateConfig = (file, values, configPath, forceOverwrite: boolean = false) => {
-  configPath = configPath || `${process.env.ARK_PATH_CONFIG}/deployer`;
-  configPath = resolve(configPath, file);
-  let config;
-  if (existsSync(configPath) && !forceOverwrite) {
-    config = require(configPath);
-  } else {
-    config = {};
-  }
+    configPath = configPath || `${process.env.ARK_PATH_CONFIG}/deployer`;
+    configPath = resolve(configPath, file);
+    let config;
+    if (existsSync(configPath) && !forceOverwrite) {
+        config = require(configPath);
+    } else {
+        config = {};
+    }
 
-  Object.keys(values).forEach((key) => set(config, key, values[key]));
+    Object.keys(values).forEach(key => set(config, key, values[key]));
 
-  ensureFileSync(configPath);
-  writeFileSync(configPath, JSON.stringify(config, null, 2));
+    ensureFileSync(configPath);
+    writeFileSync(configPath, JSON.stringify(config, null, 2));
 
-  return config;
+    return config;
 };
 
 /**
@@ -45,14 +44,9 @@ const updateConfig = (file, values, configPath, forceOverwrite: boolean = false)
  * @return {void}
  */
 const writeEnv = (object, filePath) => {
-  filePath = expandHomeDir(filePath);
-  ensureDirSync(dirname(filePath));
-  writeFileSync(filePath, envfile.stringifySync(object));
+    filePath = expandHomeDir(filePath);
+    ensureDirSync(dirname(filePath));
+    writeFileSync(filePath, envfile.stringifySync(object));
 };
 
-export {
-  getRandomNumber,
-  logger,
-  updateConfig,
-  writeEnv,
-};
+export { getRandomNumber, logger, updateConfig, writeEnv };

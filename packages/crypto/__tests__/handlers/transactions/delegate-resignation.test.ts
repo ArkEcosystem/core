@@ -4,50 +4,50 @@ import { DelegateResignationHandler } from "../../../src/handlers/transactions/d
 import { transaction as originalTransaction } from "./__fixtures__/transaction";
 import { wallet as originalWallet } from "./__fixtures__/wallet";
 
-const handler = new DelegateResignationHandler()
+const handler = new DelegateResignationHandler();
 
 let wallet;
 let transaction;
 
 beforeEach(() => {
-  wallet = originalWallet;
-  transaction = originalTransaction;
+    wallet = originalWallet;
+    transaction = originalTransaction;
 });
 
 describe("DelegateResignationHandler", () => {
-  it("should be instantiated", () => {
-    expect(handler.constructor.name).toBe("DelegateResignationHandler");
-  });
-
-  describe("canApply", () => {
-    it("should be a function", () => {
-      expect(handler.canApply).toBeFunction();
+    it("should be instantiated", () => {
+        expect(handler.constructor.name).toBe("DelegateResignationHandler");
     });
 
-    it("should be truth", () => {
-      wallet.username = "dummy";
+    describe("canApply", () => {
+        it("should be a function", () => {
+            expect(handler.canApply).toBeFunction();
+        });
 
-      expect(handler.canApply(wallet, transaction, [])).toBeTrue();
+        it("should be truth", () => {
+            wallet.username = "dummy";
+
+            expect(handler.canApply(wallet, transaction, [])).toBeTrue();
+        });
+
+        it("should be false if wallet has no registered username", () => {
+            wallet.username = null;
+            const errors = [];
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Wallet has not registered a username");
+        });
     });
 
-    it("should be false if wallet has no registered username", () => {
-      wallet.username = null;
-      const errors = [];
-
-      expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
-      expect(errors).toContain("Wallet has not registered a username");
+    describe("apply", () => {
+        it("should be a function", () => {
+            expect(handler.apply).toBeFunction();
+        });
     });
-  });
 
-  describe("apply", () => {
-    it("should be a function", () => {
-      expect(handler.apply).toBeFunction();
+    describe("revert", () => {
+        it("should be a function", () => {
+            expect(handler.revert).toBeFunction();
+        });
     });
-  });
-
-  describe("revert", () => {
-    it("should be a function", () => {
-      expect(handler.revert).toBeFunction();
-    });
-  });
 });

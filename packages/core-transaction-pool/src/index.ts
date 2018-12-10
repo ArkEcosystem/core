@@ -7,24 +7,22 @@ import { transactionPoolManager } from "./manager";
  * @type {Object}
  */
 const plugin = {
-  pkg: require("../package.json"),
-  defaults,
-  alias: "transactionPool",
-  async register(container, options) {
-    container.resolvePlugin("logger").info("Connecting to transaction pool");
+    pkg: require("../package.json"),
+    defaults,
+    alias: "transactionPool",
+    async register(container, options) {
+        container.resolvePlugin("logger").info("Connecting to transaction pool");
 
-    await transactionPoolManager.makeConnection(new TransactionPool(options));
+        await transactionPoolManager.makeConnection(new TransactionPool(options));
 
-    return transactionPoolManager.connection();
-  },
+        return transactionPoolManager.connection();
+    },
 
-  async deregister(container, options) {
-    container
-      .resolvePlugin("logger")
-      .info("Disconnecting from transaction pool");
+    async deregister(container, options) {
+        container.resolvePlugin("logger").info("Disconnecting from transaction pool");
 
-    return transactionPoolManager.connection().disconnect();
-  },
+        return transactionPoolManager.connection().disconnect();
+    },
 };
 
 /**
@@ -33,8 +31,4 @@ const plugin = {
  */
 import { TransactionGuard } from "./guard";
 
-export {
-  plugin,
-  TransactionPool,
-  TransactionGuard,
-};
+export { plugin, TransactionPool, TransactionGuard };

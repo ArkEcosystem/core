@@ -1,57 +1,57 @@
 {
-  "name": "@arkecosystem/core-snapshots-cli",
-  "description": "Provides live cli interface to the core-snapshots module for ARK Core",
-  "version": "0.1.0",
-  "contributors": [
-    "Kristjan Košič <chris@ark.io>"
-  ],
-  "license": "MIT",
-  "main": "dist/index.js",
-  "bin": {
-    "ark:snapshot": "./dist/index.js"
-  },
-  "scripts": {
-    "prepublishOnly": "yarn test && yarn build",
-    "pretest": "yarn lint && yarn build",
-    "compile": "../../node_modules/typescript/bin/tsc",
-    "build": "yarn clean && yarn compile",
-    "build:watch": "yarn clean && yarn compile -w",
-    "clean": "del dist",
-    "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-    "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
-    "start": "./dist/index.js",
-    "debug": "node --inspect-brk ./dist/index.js",
-    "create:mainnet": "./dist/index.js create --config ../core/src/config/mainnet --network mainnet",
-    "create:devnet": "./dist/index.js create --config ../core/src/config/devnet --network devnet",
-    "create:testnet": "./dist/index.js create --config ../core/src/config/testnet --network testnet",
-    "import:mainnet": "./dist/index.js import --config ../core/src/config/mainnet --network mainnet",
-    "import:devnet": "./dist/index.js import --config ../core/src/config/devnet --network devnet",
-    "import:testnet": "./dist/index.js import --config ../core/src/config/testnet --network testnet",
-    "verify:mainnet": "./dist/index.js verify --config ../core/src/config/mainnet --network mainnet",
-    "verify:devnet": "./dist/index.js verify --config ../core/src/config/devnet --network devnet",
-    "verify:testnet": "./dist/index.js verify --config ../core/src/config/testnet --network testnet",
-    "rollback:mainnet": "./dist/index.js rollback --config ../core/src/config/mainnet --network mainnet",
-    "rollback:devnet": "./dist/index.js rollback --config ../core/src/config/devnet --network devnet",
-    "rollback:testnet": "./dist/index.js rollback --config ../core/src/config/testnet --network testnet",
-    "truncate:mainnet": "./dist/index.js truncate --config ../core/src/config/mainnet --network mainnet",
-    "truncate:devnet": "./dist/index.js truncate --config ../core/src/config/devnet --network devnet",
-    "truncate:testnet": "./dist/index.js truncate --config ../core/src/config/testnet --network testnet",
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
-  },
-  "dependencies": {
-    "@arkecosystem/core-container": "~0.2",
-    "cli-progress": "^2.1.0",
-    "commander": "^2.19.0",
-    "fs-extra": "^7.0.1"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=10.x"
-  }
+    "name": "@arkecosystem/core-snapshots-cli",
+    "description": "Provides live cli interface to the core-snapshots module for ARK Core",
+    "version": "0.1.0",
+    "contributors": [
+        "Kristjan Košič <chris@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "bin": {
+        "ark:snapshot": "./dist/index.js"
+    },
+    "scripts": {
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "yarn lint && yarn build",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+        "start": "./dist/index.js",
+        "debug": "node --inspect-brk ./dist/index.js",
+        "create:mainnet": "./dist/index.js create --config ../core/src/config/mainnet --network mainnet",
+        "create:devnet": "./dist/index.js create --config ../core/src/config/devnet --network devnet",
+        "create:testnet": "./dist/index.js create --config ../core/src/config/testnet --network testnet",
+        "import:mainnet": "./dist/index.js import --config ../core/src/config/mainnet --network mainnet",
+        "import:devnet": "./dist/index.js import --config ../core/src/config/devnet --network devnet",
+        "import:testnet": "./dist/index.js import --config ../core/src/config/testnet --network testnet",
+        "verify:mainnet": "./dist/index.js verify --config ../core/src/config/mainnet --network mainnet",
+        "verify:devnet": "./dist/index.js verify --config ../core/src/config/devnet --network devnet",
+        "verify:testnet": "./dist/index.js verify --config ../core/src/config/testnet --network testnet",
+        "rollback:mainnet": "./dist/index.js rollback --config ../core/src/config/mainnet --network mainnet",
+        "rollback:devnet": "./dist/index.js rollback --config ../core/src/config/devnet --network devnet",
+        "rollback:testnet": "./dist/index.js rollback --config ../core/src/config/testnet --network testnet",
+        "truncate:mainnet": "./dist/index.js truncate --config ../core/src/config/mainnet --network mainnet",
+        "truncate:devnet": "./dist/index.js truncate --config ../core/src/config/devnet --network devnet",
+        "truncate:testnet": "./dist/index.js truncate --config ../core/src/config/testnet --network testnet",
+        "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+        "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
+        "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+        "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
+        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
+    },
+    "dependencies": {
+        "@arkecosystem/core-container": "~0.2",
+        "cli-progress": "^2.1.0",
+        "commander": "^2.19.0",
+        "fs-extra": "^7.0.1"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    }
 }

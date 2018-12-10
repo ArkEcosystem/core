@@ -23,8 +23,8 @@ const transformCollection = (request, data) => data.map(d => transformResource(r
  * @return {Object}
  */
 const paginate = request => ({
-  offset: (request.query.page - 1) * request.query.limit,
-  limit: request.query.limit,
+    offset: (request.query.page - 1) * request.query.limit,
+    limit: request.query.limit,
 });
 
 /**
@@ -42,7 +42,7 @@ const respondWithResource = (request, data) => (data ? { data: transformResource
  * @return {Object}
  */
 const respondWithCollection = (request, data) => ({
-  data: transformCollection(request, data),
+    data: transformCollection(request, data),
 });
 
 /**
@@ -68,17 +68,17 @@ const toCollection = (request, data) => transformCollection(request, data);
  * @return {Hapi.Response}
  */
 const toPagination = (request, data) => ({
-  results: transformCollection(request, data.rows),
-  totalCount: data.count,
+    results: transformCollection(request, data.rows),
+    totalCount: data.count,
 });
 
 export {
-  transformResource,
-  transformCollection,
-  paginate,
-  respondWithResource,
-  respondWithCollection,
-  toResource,
-  toCollection,
-  toPagination,
+    transformResource,
+    transformCollection,
+    paginate,
+    respondWithResource,
+    respondWithCollection,
+    toResource,
+    toCollection,
+    toPagination,
 };

@@ -7,7 +7,7 @@ const entries = tg("../../lib/networks/**/*.json", { cwd: __dirname });
 
 const NETWORKS = {};
 entries.forEach(file => {
-  NETWORKS[parse(file).name] = require(file);
+    NETWORKS[parse(file).name] = require(file);
 });
 
 const NETWORKS_LIST = [];

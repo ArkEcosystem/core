@@ -3,9 +3,4 @@ import { corsHeaders } from "./cors-headers";
 import { transactionPayload } from "./transaction-payload";
 import { whitelist } from "./whitelist";
 
-export {
-  contentType,
-  corsHeaders,
-  transactionPayload,
-  whitelist,
-};
+export { contentType, corsHeaders, transactionPayload, whitelist };

@@ -8,16 +8,16 @@ const database = app.resolvePlugin("database");
  * @return {Wallet[]}
  */
 export async function wallets(_, args: any) {
-  const { orderBy, filter, ...params } = args;
+    const { orderBy, filter, ...params } = args;
 
-  const order = formatOrderBy(orderBy, "height:desc");
-  const result =
-    filter && filter.vote
-      ? await database.wallets.findAllByVote(filter.vote, {
-          orderBy: order,
-          ...params,
-        })
-      : await database.wallets.findAll({ orderBy: order, ...params });
+    const order = formatOrderBy(orderBy, "height:desc");
+    const result =
+        filter && filter.vote
+            ? await database.wallets.findAllByVote(filter.vote, {
+                  orderBy: order,
+                  ...params,
+              })
+            : await database.wallets.findAll({ orderBy: order, ...params });
 
-  return result ? result.rows : [];
+    return result ? result.rows : [];
 }

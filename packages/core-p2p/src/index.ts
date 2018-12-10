@@ -8,26 +8,26 @@ import { startServer } from "./server";
  * @type {Object}
  */
 export const plugin: any = {
-  pkg: require("../package.json"),
-  defaults,
-  alias: "p2p",
-  async register(container, options) {
-    container.resolvePlugin("logger").info("Starting P2P Interface");
+    pkg: require("../package.json"),
+    defaults,
+    alias: "p2p",
+    async register(container, options) {
+        container.resolvePlugin("logger").info("Starting P2P Interface");
 
-    config.init(options);
+        config.init(options);
 
-    monitor.server = await startServer(options);
+        monitor.server = await startServer(options);
 
-    await monitor.start(options);
+        await monitor.start(options);
 
-    return monitor;
-  },
-  async deregister(container, options) {
-    container.resolvePlugin("logger").info("Stopping P2P Interface");
+        return monitor;
+    },
+    async deregister(container, options) {
+        container.resolvePlugin("logger").info("Stopping P2P Interface");
 
-    const p2p = container.resolvePlugin("p2p");
-    p2p.dumpPeers();
+        const p2p = container.resolvePlugin("p2p");
+        p2p.dumpPeers();
 
-    return p2p.server.stop();
-  },
+        return p2p.server.stop();
+    },
 };
