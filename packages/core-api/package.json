@@ -28,7 +28,7 @@
     "dayjs-ext": "^2.2.0",
     "hapi-api-version": "^2.1.0",
     "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
-    "hapi-rate-limit": "^2.1.4",
+    "hapi-rate-limit": "^3.0.0",
     "ip": "^1.1.5",
     "joi": "^14.3.0",
     "lodash": "^4.17.11",
