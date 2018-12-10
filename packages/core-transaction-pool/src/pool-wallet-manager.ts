@@ -2,20 +2,20 @@ import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
 import { constants, crypto, models } from "@arkecosystem/crypto";
 
-const logger = app.resolvePlugin("logger");
-const database = app.resolvePlugin("database");
-const config = app.resolvePlugin("config");
-
 const { Wallet } = models;
 const { TRANSACTION_TYPES } = constants;
 
 export class PoolWalletManager extends WalletManager {
+  public database: any;
+
   /**
    * Create a new pool wallet manager instance.
    * @constructor
    */
   constructor() {
     super();
+
+    this.database = app.resolvePlugin("database")
   }
 
   /**
@@ -28,7 +28,7 @@ export class PoolWalletManager extends WalletManager {
    */
   public findByAddress(address) {
     if (!this.byAddress[address]) {
-      const blockchainWallet = database.walletManager.findByAddress(address);
+      const blockchainWallet = this.database.walletManager.findByAddress(address);
       const wallet = Object.assign(new Wallet(address), blockchainWallet); // do not modify
 
       this.reindex(wallet);
@@ -56,7 +56,7 @@ export class PoolWalletManager extends WalletManager {
 
   public deleteWallet(publicKey) {
     this.forgetByPublicKey(publicKey);
-    this.forgetByAddress(crypto.getAddress(publicKey, config.network.pubKeyHash));
+    this.forgetByAddress(crypto.getAddress(publicKey, this.networkId));
   }
 
   /**
@@ -68,10 +68,10 @@ export class PoolWalletManager extends WalletManager {
   public canApply(transaction, errors) {
     // Edge case if sender is unknown and has no balance.
     // NOTE: Check is performed against the database wallet manager.
-    if (!database.walletManager.byPublicKey[transaction.senderPublicKey]) {
-      const senderAddress = crypto.getAddress(transaction.senderPublicKey, config.network.pubKeyHash);
+    if (!this.database.walletManager.byPublicKey[transaction.senderPublicKey]) {
+      const senderAddress = crypto.getAddress(transaction.senderPublicKey, this.networkId);
 
-      if (database.walletManager.findByAddress(senderAddress).balance.isZero()) {
+      if (this.database.walletManager.findByAddress(senderAddress).balance.isZero()) {
         errors.push("Cold wallet is not allowed to send until receiving transaction is confirmed.");
         return false;
       }
@@ -82,29 +82,29 @@ export class PoolWalletManager extends WalletManager {
 
     if (
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
-      database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
+      this.database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
     ) {
-      logger.error(
+      this.logger.error(
         `[PoolWalletManager] Can't apply transaction ${
-          transaction.id
+        transaction.id
         }: delegate name already taken. Data: ${JSON.stringify(transaction)}`,
       );
 
       errors.push(`Can't apply transaction ${transaction.id}: delegate name already taken.`);
       // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
-    } else if (type === TRANSACTION_TYPES.VOTE && !database.walletManager.__isDelegate(asset.votes[0].slice(1))) {
-      logger.error(
+    } else if (type === TRANSACTION_TYPES.VOTE && !this.database.walletManager.__isDelegate(asset.votes[0].slice(1))) {
+      this.logger.error(
         `[PoolWalletManager] Can't apply vote transaction: delegate ${
-          asset.votes[0]
+        asset.votes[0]
         } does not exist. Data: ${JSON.stringify(transaction)}`,
       );
 
       errors.push(`Can't apply transaction ${transaction.id}: delegate ${asset.votes[0]} does not exist.`);
     } else if (this.__isException(transaction)) {
-      logger.warn(`Transaction forcibly applied because it has been added as an exception: ${transaction.id}`);
+      this.logger.warn(`Transaction forcibly applied because it has been added as an exception: ${transaction.id}`);
     } else if (!sender.canApply(transaction, errors)) {
       const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${sender.address}`;
-      logger.error(`${message} due to ${JSON.stringify(errors)}`);
+      this.logger.error(`${message} due to ${JSON.stringify(errors)}`);
       errors.unshift(message);
     }
 

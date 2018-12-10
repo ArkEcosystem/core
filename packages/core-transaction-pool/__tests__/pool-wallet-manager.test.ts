@@ -1,5 +1,4 @@
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
-import "jest-extended";
 
 const { generateTransfers, generateWallets } = generators;
 const { blocks2to100, delegates } = fixtures;
@@ -7,7 +6,9 @@ const { blocks2to100, delegates } = fixtures;
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 
-import app from "./__support__/setup";
+import { setUpFull, tearDown } from "./__support__/setup";
+
+import { PoolWalletManager } from "../src/pool-wallet-manager"
 
 const { Block } = models;
 
@@ -17,13 +18,13 @@ let poolWalletManager;
 let blockchain;
 
 beforeAll(async () => {
-  container = await app.setUpFull();
-  poolWalletManager = new (require("../src/pool-wallet-manager")).PoolWalletManager();
+  container = await setUpFull();
+  poolWalletManager = new PoolWalletManager()
   blockchain = container.resolvePlugin("blockchain");
 });
 
 afterAll(async () => {
-  await app.tearDown();
+  await tearDown();
 });
 
 describe("applyPoolTransactionToSender", () => {
@@ -112,7 +113,7 @@ describe("applyPoolTransactionToSender", () => {
           expect(t.from).toBe(wallets[0]);
           expect(JSON.stringify(errors)).toEqual(
             `["[PoolWalletManager] Can't apply transaction id:${transfer.id} from sender:${
-              t.from.address
+            t.from.address
             }","Insufficient balance in the wallet"]`,
           );
         }

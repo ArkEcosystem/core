@@ -2,7 +2,7 @@
 import { models, slots } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
-export default {
+export const transactions = {
   dummy1: new Transaction({
     version: 1,
     network: 23,

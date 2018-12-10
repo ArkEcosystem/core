@@ -5,7 +5,7 @@ import { crypto, slots } from "@arkecosystem/crypto";
 import { TransactionGuard } from "../src/guard";
 
 import bip39 from "bip39";
-import app from "./__support__/setup";
+import { setUpFull, tearDown } from "./__support__/setup";
 
 import { TransactionPool } from "../src/connection";
 import { defaults } from "../src/defaults";
@@ -25,12 +25,12 @@ let guard;
 let transactionPool;
 
 beforeAll(async () => {
-  container = await app.setUpFull();
+  container = await setUpFull();
   transactionPool = container.resolvePlugin("transactionPool");
 });
 
 afterAll(async () => {
-  await app.tearDown();
+  await tearDown();
 });
 
 beforeEach(() => {
@@ -264,7 +264,7 @@ describe("Transaction Guard", () => {
           {
             message: `["[PoolWalletManager] Can't apply transaction id:${transaction[0].id} from sender:${
               newWallet.address
-            }","Insufficient balance in the wallet"]`,
+              }","Insufficient balance in the wallet"]`,
             type: "ERR_APPLY",
           },
         ];
@@ -285,7 +285,7 @@ describe("Transaction Guard", () => {
         {
           message: `["[PoolWalletManager] Can't apply transaction id:${transactions[1].id} from sender:${
             delegates[0].address
-          }","Insufficient balance in the wallet"]`,
+            }","Insufficient balance in the wallet"]`,
           type: "ERR_APPLY",
         },
       ]);
@@ -362,7 +362,7 @@ describe("Transaction Guard", () => {
           {
             message: `["[PoolWalletManager] Can't apply transaction id:${lastTransaction[0].id} from sender:${
               sender.address
-            }","Insufficient balance in the wallet"]`,
+              }","Insufficient balance in the wallet"]`,
             type: "ERR_APPLY",
           },
         ]);

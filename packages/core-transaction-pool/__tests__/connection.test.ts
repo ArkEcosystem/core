@@ -1,6 +1,5 @@
 /* tslint:disable:max-line-length */
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
-import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { bignumify } from "@arkecosystem/core-utils";
@@ -9,8 +8,8 @@ import { constants, models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 
 import randomSeed from "random-seed";
-import mockData from "./__fixtures__/transactions";
-import appTest from "./__support__/setup";
+import { transactions as mockData } from "./__fixtures__/transactions";
+import { setUpFull, tearDown } from "./__support__/setup";
 
 const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 const { Transaction } = models;
@@ -24,11 +23,16 @@ let database;
 let connection;
 
 beforeAll(async () => {
-  await appTest.setUpFull();
+  await setUpFull();
 
   config = container.resolvePlugin("config");
   database = container.resolvePlugin("database");
   connection = container.resolvePlugin("transactionPool");
+
+
+  // Ensure no cold wallet and enough funds
+  database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
+  database.walletManager.findByPublicKey("0310c283aac7b35b4ae6fab201d36e8322c3408331149982e16013a5bcb917081c").balance = bignumify(200 * 1e8)
 
   // 100+ years in the future to avoid our hardcoded transactions used in these
   // tests to expire
@@ -37,7 +41,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   // connection.disconnect();
-  await appTest.tearDown();
+  await tearDown();
 });
 
 afterEach(() => {
@@ -61,11 +65,11 @@ describe("Connection", () => {
     it("should return 2 if transactions were added", () => {
       expect(connection.getPoolSize()).toBe(0);
 
-      connection.addTransaction(mockData.dummy1);
+      expect(connection.addTransaction(mockData.dummy1)).toEqual({ success: true })
 
       expect(connection.getPoolSize()).toBe(1);
 
-      connection.addTransaction(mockData.dummy2);
+      expect(connection.addTransaction(mockData.dummy2)).toEqual({ success: true })
 
       expect(connection.getPoolSize()).toBe(2);
     });
@@ -85,11 +89,11 @@ describe("Connection", () => {
 
       expect(connection.getSenderSize(senderPublicKey)).toBe(0);
 
-      connection.addTransaction(mockData.dummy1);
+      expect(connection.addTransaction(mockData.dummy1)).toEqual({ success: true })
 
       expect(connection.getSenderSize(senderPublicKey)).toBe(1);
 
-      connection.addTransaction(mockData.dummy2);
+      expect(connection.addTransaction(mockData.dummy3)).toEqual({ success: true })
 
       expect(connection.getSenderSize(senderPublicKey)).toBe(2);
     });
@@ -140,9 +144,6 @@ describe("Connection", () => {
         mockData.dummy5,
         mockData.dummy6,
       ];
-
-      // Ensure no cold wallet
-      database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
 
       const { added, notAdded } = connection.addTransactions(transactions);
       expect(notAdded[0].message).toEqual(
@@ -241,18 +242,13 @@ describe("Connection", () => {
 
     it("should remove the senders transactions from the pool", () => {
       connection.addTransaction(mockData.dummy1);
-      connection.addTransaction(mockData.dummy2);
       connection.addTransaction(mockData.dummy3);
       connection.addTransaction(mockData.dummy4);
       connection.addTransaction(mockData.dummy5);
       connection.addTransaction(mockData.dummy6);
-
-      // dummy10 is the only cold wallet
-      database.walletManager.findByPublicKey(mockData.dummy10.data.senderPublicKey);
-
       connection.addTransaction(mockData.dummy10);
 
-      expect(connection.getPoolSize()).toBe(7);
+      expect(connection.getPoolSize()).toBe(6);
 
       connection.removeTransactionsForSender(mockData.dummy1.senderPublicKey);
 
