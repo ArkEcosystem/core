@@ -1,30 +1,31 @@
+import { AbstractLogger } from "./logger";
+
 export class LogManager {
-    private drivers: object;
+    private drivers: Map<string, AbstractLogger>;
 
     /**
-     * Create a new log manager instance.
-     * @constructor
+     * Create a new manager instance.
      */
     constructor() {
-        this.drivers = {};
+        this.drivers = new Map();
     }
 
     /**
      * Get a logger instance.
      * @param  {String} name
-     * @return {LoggerInterface}
+     * @return {AbstractLogger}
      */
-    public driver(name = "default") {
-        return this.drivers[name];
+    public driver(name: string = "default"): AbstractLogger {
+        return this.drivers.get(name);
     }
 
     /**
      * Make the logger instance.
-     * @param  {LoggerInterface} driver
+     * @param  {AbstractLogger} driver
      * @param  {String} name
      * @return {void}
      */
-    public async makeDriver(driver, name = "default") {
-        this.drivers[name] = await driver.make();
+    public async makeDriver(driver: AbstractLogger, name: string = "default"): Promise<void> {
+        this.drivers.set(name, await driver.make());
     }
 }

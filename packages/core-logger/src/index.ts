@@ -1,7 +1,7 @@
-import { LoggerInterface } from "./interface";
+import { AbstractLogger } from "./logger";
 import { LogManager } from "./manager";
 
-exports.plugin = {
+const plugin = {
     pkg: require("../package.json"),
     alias: "logManager",
     async register() {
@@ -9,4 +9,4 @@ exports.plugin = {
     },
 };
 
-export { LoggerInterface };
+export { plugin, AbstractLogger };

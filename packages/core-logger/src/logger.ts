@@ -1,4 +1,4 @@
-export class LoggerInterface {
+export abstract class AbstractLogger {
     public logger: any;
     protected options: any;
 
@@ -6,53 +6,58 @@ export class LoggerInterface {
      * Create a new logger instance.
      * @param  {Object} options
      */
-    constructor(options) {
+    constructor(options: any) {
         this.options = options;
     }
 
     /**
      * Get a driver instance.
-     * @return {LoggerInterface}
+     * @return {AbstractLogger}
      */
-    public driver() {
+    public driver(): AbstractLogger {
         return this.logger;
     }
 
     /**
+     * Make the logger instance.
+     * @return {Object}
+     */
+    public abstract make(): any;
+
+    /**
      * Log an error message.
-     * @param  {*} message
+     * @param  {String} message
      * @return {void}
      */
-    public error(message) {
-        throw new Error("Method [error] not implemented!");
-    }
+    public abstract error(message: string): void;
 
     /**
      * Log a warning message.
-     * @param  {*} message
+     * @param  {String} message
      * @return {void}
      */
-    public warn(message) {
-        throw new Error("Method [warn] not implemented!");
-    }
+    public abstract warn(message: string): void;
 
     /**
      * Log an info message.
-     * @param  {*} message
+     * @param  {String} message
      * @return {void}
      */
-    public info(message) {
-        throw new Error("Method [info] not implemented!");
-    }
+    public abstract info(message: string): void;
 
     /**
      * Log a debug message.
-     * @param  {*} message
+     * @param  {String} message
      * @return {void}
      */
-    public debug(message) {
-        throw new Error("Method [debug] not implemented!");
-    }
+    public abstract debug(message: string): void;
+
+    /**
+     * Log a verbose message.
+     * @param  {String} message
+     * @return {void}
+     */
+    public abstract verbose(message: string): void;
 
     /**
      * Print the progress tracker.
@@ -63,9 +68,7 @@ export class LoggerInterface {
      * @param  {Number} figures
      * @return {void}
      */
-    public printTracker(title, current, max, postTitle, figures = 0) {
-        throw new Error("Method [printTracker] not implemented!");
-    }
+    public abstract printTracker(title: string, current: number, max: number, postTitle: string, figures: number): void;
 
     /**
      * Stop the progress tracker.
@@ -74,16 +77,12 @@ export class LoggerInterface {
      * @param  {Number} max
      * @return {void}
      */
-    public stopTracker(title, current, max) {
-        throw new Error("Method [stopTracker] not implemented!");
-    }
+    public abstract stopTracker(title: string, current: number, max: number): void;
 
     /**
      * Suppress console output.
      * @param  {Boolean}
      * @return {void}
      */
-    public suppressConsoleOutput(suppress) {
-        throw new Error("Method [suppressConsoleOutput] not implemented!");
-    }
+    public abstract suppressConsoleOutput(suppress: boolean): void;
 }
