@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-blockchain",
   "description": "Blockchain Manager for Ark Core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
