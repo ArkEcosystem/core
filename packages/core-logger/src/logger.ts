@@ -11,18 +11,10 @@ export abstract class AbstractLogger {
     }
 
     /**
-     * Get a driver instance.
-     * @return {AbstractLogger}
-     */
-    public driver(): AbstractLogger {
-        return this.logger;
-    }
-
-    /**
      * Make the logger instance.
      * @return {Object}
      */
-    public abstract make(): any;
+    public abstract make(): AbstractLogger;
 
     /**
      * Log an error message.

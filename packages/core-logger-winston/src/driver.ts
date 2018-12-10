@@ -11,16 +11,12 @@ export class Logger extends AbstractLogger {
      * Make the logger instance.
      * @return {Winston.Logger}
      */
-    public make(): any {
+    public make(): AbstractLogger {
         this.logger = winston.createLogger();
 
         this.__registerTransports();
 
-        this.logger.printTracker = this.printTracker;
-        this.logger.stopTracker = this.stopTracker;
-        this.logger.suppressConsoleOutput = this.suppressConsoleOutput;
-
-        return this.logger;
+        return this;
     }
 
     /**
@@ -132,8 +128,8 @@ export class Logger extends AbstractLogger {
      * @return {void}
      */
     public suppressConsoleOutput(suppress: boolean): void {
-        // @ts-ignore
-        const consoleTransport = this.transports.find(t => t.name === "console");
+        const consoleTransport = this.logger.transports.find(t => t.name === "console");
+
         if (consoleTransport) {
             consoleTransport.silent = suppress;
         }
@@ -144,7 +140,6 @@ export class Logger extends AbstractLogger {
      * @return {void}
      */
     public __registerTransports(): void {
-        // @ts-ignore
         for (const transport of Object.values(this.options.transports)) {
             // @ts-ignore
             if (transport.package) {

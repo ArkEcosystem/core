@@ -2,7 +2,7 @@ import { AbstractLogger } from "../../src/logger";
 
 export class Logger extends AbstractLogger {
     public make(): any {
-        return console;
+        return this;
     }
 
     public error(message: string): void {
