@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import axios from "axios";
 import delay from "delay";
 import sample from "lodash/sample";
+import { URL } from "url";
 
 export class Client {
     public hosts: string[];
@@ -17,9 +18,15 @@ export class Client {
         this.logger = app.resolvePlugin("logger");
         this.hosts = Array.isArray(hosts) ? hosts : [hosts];
 
+        const { port } = new URL(this.hosts[0]);
+
+        if (!port) {
+            throw new Error("Failed to determine the P2P communcation port.");
+        }
+
         this.headers = {
             version: app.getVersion(),
-            port: app.resolveOptions("p2p").port,
+            port,
             nethash: app.resolvePlugin("config").network.nethash,
             "x-auth": "forger",
             "Content-Type": "application/json",
