@@ -27,10 +27,6 @@ describe("Logger", () => {
     });
 
     describe("error", () => {
-        it("should be a function", () => {
-            expect(logger.error).toBeFunction();
-        });
-
         it("should log a message", () => {
             logger.info("error_message");
 
@@ -41,10 +37,6 @@ describe("Logger", () => {
     });
 
     describe("warn", () => {
-        it("should be a function", () => {
-            expect(logger.warn).toBeFunction();
-        });
-
         it("should log a message", () => {
             logger.info("warning_message");
 
@@ -55,10 +47,6 @@ describe("Logger", () => {
     });
 
     describe("info", () => {
-        it("should be a function", () => {
-            expect(logger.info).toBeFunction();
-        });
-
         it("should log a message", () => {
             logger.info("info_message");
 
@@ -69,10 +57,6 @@ describe("Logger", () => {
     });
 
     describe("debug", () => {
-        it("should be a function", () => {
-            expect(logger.debug).toBeFunction();
-        });
-
         it("should log a message", () => {
             logger.info("debug_message");
 
@@ -83,10 +67,6 @@ describe("Logger", () => {
     });
 
     describe("printTracker", () => {
-        it("should be a function", () => {
-            expect(logger.printTracker).toBeFunction();
-        });
-
         it("should print the tracker", () => {
             logger.printTracker("test_title", 50, 100, "done");
 
@@ -99,10 +79,6 @@ describe("Logger", () => {
     });
 
     describe("stopTracker", () => {
-        it("should be a function", () => {
-            expect(logger.stopTracker).toBeFunction();
-        });
-
         it("should stop the tracker", () => {
             logger.stopTracker("test_title", 50, 100);
 
@@ -114,10 +90,6 @@ describe("Logger", () => {
     });
 
     describe("suppressConsoleOutput", () => {
-        it("should be a function", () => {
-            expect(logger.suppressConsoleOutput).toBeFunction();
-        });
-
         it("should suppress console output", () => {
             logger.suppressConsoleOutput(true);
 

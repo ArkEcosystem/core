@@ -1,17 +1,17 @@
-import { LoggerInterface } from "@arkecosystem/core-logger";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import "colors";
 import * as winston from "winston";
 
 let tracker = null;
 
-export class Logger extends LoggerInterface {
+export class Logger extends AbstractLogger {
     public logger: any;
 
     /**
      * Make the logger instance.
      * @return {Winston.Logger}
      */
-    public make() {
+    public make(): any {
         this.logger = winston.createLogger();
 
         this.__registerTransports();
@@ -24,6 +24,51 @@ export class Logger extends LoggerInterface {
     }
 
     /**
+     * Log an error message.
+     * @param  {String} message
+     * @return {void}
+     */
+    public error(message: string): void {
+        this.logger.error(message);
+    }
+
+    /**
+     * Log a warning message.
+     * @param  {String} message
+     * @return {void}
+     */
+    public warn(message: string): void {
+        this.logger.warn(message);
+    }
+
+    /**
+     * Log an info message.
+     * @param  {String} message
+     * @return {void}
+     */
+    public info(message: string): void {
+        this.logger.info(message);
+    }
+
+    /**
+     * Log a debug message.
+     * @param  {String} message
+     * @return {void}
+     */
+    public debug(message: string): void {
+        this.logger.debug(message);
+    }
+
+    /**
+     * Log a verbose message.
+     * @param  {String} message
+     * @return {void}
+     */
+    public verbose(message: string): void {
+        this.logger.verbose(message);
+    }
+
+    /**
      * Print the progress tracker.
      * @param  {String} title
      * @param  {Number} current
@@ -32,7 +77,7 @@ export class Logger extends LoggerInterface {
      * @param  {Number} figures
      * @return {void}
      */
-    public printTracker(title, current, max, postTitle, figures = 0) {
+    public printTracker(title: string, current: number, max: number, postTitle: string, figures: number = 0): void {
         const progress = (100 * current) / max;
 
         let line = "\u{1b}[0G  ";
@@ -58,7 +103,7 @@ export class Logger extends LoggerInterface {
      * @param  {Number} max
      * @return {void}
      */
-    public stopTracker(title, current, max) {
+    public stopTracker(title: string, current: number, max: number): void {
         let progress = (100 * current) / max;
 
         if (progress > 100) {
@@ -86,7 +131,7 @@ export class Logger extends LoggerInterface {
      * @param  {Boolean}
      * @return {void}
      */
-    public suppressConsoleOutput(suppress) {
+    public suppressConsoleOutput(suppress: boolean): void {
         // @ts-ignore
         const consoleTransport = this.transports.find(t => t.name === "console");
         if (consoleTransport) {
@@ -98,7 +143,7 @@ export class Logger extends LoggerInterface {
      * Register all transports.
      * @return {void}
      */
-    public __registerTransports() {
+    public __registerTransports(): void {
         // @ts-ignore
         for (const transport of Object.values(this.options.transports)) {
             // @ts-ignore
