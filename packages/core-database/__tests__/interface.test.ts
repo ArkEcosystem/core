@@ -10,30 +10,24 @@ const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 let connectionInterface;
 let genesisBlock;
 
-import { ConnectionInterface } from "../src/interface";
+import { DelegatesRepository } from "../src/repositories/delegates"
+import { WalletsRepository } from "../src/repositories/wallets"
+import { WalletManager } from "../src/wallet-manager"
 import { DummyConnection } from "./__fixtures__/dummy-class";
 
-beforeAll(async done => {
+beforeAll(async () => {
   await setUp();
 
-  connectionInterface = new DummyConnection({});
+  connectionInterface = new DummyConnection({})
   genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
 });
 
-afterAll(async done => {
+afterAll(async () => {
   await tearDown();
 });
 
 describe("Connection Interface", () => {
-  it("should be an object", () => {
-    expect(connectionInterface).toBeInstanceOf(ConnectionInterface);
-  });
-
   describe("getConnection", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.getConnection).toBeFunction();
-    });
-
     it("should return the set connection", () => {
       connectionInterface.connection = "fake-connection";
 
@@ -41,195 +35,9 @@ describe("Connection Interface", () => {
     });
   });
 
-  describe("connect", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.connect).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.connect()).rejects.toThrowError("Method [connect] not implemented!");
-    });
-  });
-
-  describe("disconnect", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.disconnect).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.disconnect()).rejects.toThrowError("Method [disconnect] not implemented!");
-    });
-  });
-
-  describe("getActiveDelegates", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.getActiveDelegates).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.getActiveDelegates()).rejects.toThrowError(
-        "Method [getActiveDelegates] not implemented!",
-      );
-    });
-  });
-
-  describe("buildWallets", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.buildWallets).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.buildWallets()).rejects.toThrowError("Method [buildWallets] not implemented!");
-    });
-  });
-
-  describe("saveWallets", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.saveWallets).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.saveWallets()).rejects.toThrowError("Method [saveWallets] not implemented!");
-    });
-  });
-
-  describe("saveBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.saveBlock).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.saveBlock()).rejects.toThrowError("Method [saveBlock] not implemented!");
-    });
-  });
-
-  describe("enqueueSaveBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.enqueueSaveBlock).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      expect(connectionInterface.enqueueSaveBlock).toThrow("Method [enqueueSaveBlock] not implemented!");
-    });
-  });
-
-  describe("enqueueDeleteBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.enqueueDeleteBlock).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      expect(connectionInterface.enqueueDeleteBlock).toThrow("Method [enqueueDeleteBlock] not implemented!");
-    });
-  });
-
-  describe("enqueueDeleteRound", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.enqueueDeleteRound).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      expect(connectionInterface.enqueueDeleteRound).toThrow("Method [enqueueDeleteRound] not implemented!");
-    });
-  });
-
-  describe("commitQueuedQueries", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.commitQueuedQueries).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.commitQueuedQueries()).rejects.toThrowError(
-        "Method [commitQueuedQueries] not implemented!",
-      );
-    });
-  });
-
-  describe("deleteBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.deleteBlock).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.deleteBlock()).rejects.toThrowError("Method [deleteBlock] not implemented!");
-    });
-  });
-
-  describe("getBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.getBlock).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.getBlock()).rejects.toThrowError("Method [getBlock] not implemented!");
-    });
-  });
-
-  describe("getLastBlock", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.getLastBlock).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.getLastBlock()).rejects.toThrowError("Method [getLastBlock] not implemented!");
-    });
-  });
-
-  describe("getBlocks", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.getBlocks).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.getBlocks()).rejects.toThrowError("Method [getBlocks] not implemented!");
-    });
-  });
-
-  describe("getRecentBlockIds", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.getRecentBlockIds).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.getRecentBlockIds()).rejects.toThrowError(
-        "Method [getRecentBlockIds] not implemented!",
-      );
-    });
-  });
-
-  describe("saveRound", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.saveRound).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.saveRound()).rejects.toThrowError("Method [saveRound] not implemented!");
-    });
-  });
-
-  describe("deleteRound", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.deleteRound).toBeFunction();
-    });
-
-    it("should throw an exception", async () => {
-      await expect(connectionInterface.deleteRound()).rejects.toThrowError("Method [deleteRound] not implemented!");
-    });
-  });
-
-  describe("updateDelegateStats", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.updateDelegateStats).toBeFunction();
-    });
-  });
-
   describe("__calcPreviousActiveDelegates", () => {
-    it("should be a function", () => {
-      expect(connectionInterface.__calcPreviousActiveDelegates).toBeFunction();
-    });
-
     it("should calculate the previous delegate list", async () => {
-      const walletManager = new (require("../dist/wallet-manager"))();
+      const walletManager = new WalletManager()
       const initialHeight = 52;
 
       // Create delegates
@@ -322,35 +130,24 @@ describe("Connection Interface", () => {
   });
 
   describe("_registerWalletManager", () => {
-    it("should be a function", () => {
-      expect(connectionInterface._registerWalletManager).toBeFunction();
-    });
-
     it("should register the wallet manager", () => {
-      expect(connectionInterface).not.toHaveProperty("walletManager");
+      expect(connectionInterface.walletManager).toBeNull()
 
       connectionInterface._registerWalletManager();
 
-      expect(connectionInterface).toHaveProperty("walletManager");
+      expect(connectionInterface.walletManager).toBeInstanceOf(WalletManager);
     });
   });
 
   describe("_registerRepositories", () => {
-    it("should be a function", () => {
-      expect(connectionInterface._registerRepositories).toBeFunction();
-    });
-
     it("should register the repositories", async () => {
-      await expect(connectionInterface).not.toHaveProperty("wallets");
-      await expect(connectionInterface).not.toHaveProperty("delegates");
+      expect(connectionInterface.wallets).toBeNull()
+      expect(connectionInterface.delegates).toBeNull()
 
       connectionInterface._registerRepositories();
 
-      await expect(connectionInterface).toHaveProperty("wallets");
-      await expect(connectionInterface.wallets).toBeInstanceOf(require("../lib/repositories/wallets"));
-
-      await expect(connectionInterface).toHaveProperty("delegates");
-      await expect(connectionInterface.delegates).toBeInstanceOf(require("../lib/repositories/delegates"));
+      expect(connectionInterface.wallets).toBeInstanceOf(WalletsRepository);
+      expect(connectionInterface.delegates).toBeInstanceOf(DelegatesRepository);
     });
   });
 });
