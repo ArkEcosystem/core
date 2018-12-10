@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { migrations } from "@arkecosystem/core-database-postgres";
+import { migrations, plugin } from "@arkecosystem/core-database-postgres";
 import promise from "bluebird";
 
 import { queries } from "./queries";
@@ -28,8 +28,10 @@ class Database {
         try {
             const pgp = require("pg-promise")({ promiseLib: promise });
             this.pgp = pgp;
-            const options = app.resolveOptions("database").connection;
+
+            const options: any = plugin.defaults.connection
             options.idleTimeoutMillis = 100;
+
             this.db = pgp(options);
             this.__createColumnSets();
             await this.__runMigrations();

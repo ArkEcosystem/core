@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import _cliProgress from "cli-progress";
 
-const snapshotManager = app.resolvePlugin("snapshots");
-const emitter = app.resolvePlugin("event-emitter");
-
 export async function importSnapshot(options) {
+    const snapshotManager = app.resolvePlugin("snapshots");
+    const emitter = app.resolvePlugin("event-emitter");
+
     const progressBar = new _cliProgress.Bar(
         {
             format: "{bar} {percentage}% | ETA: {eta}s | {value}/{total} | Duration: {duration}s",
