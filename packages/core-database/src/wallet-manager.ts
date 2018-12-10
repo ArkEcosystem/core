@@ -8,13 +8,13 @@ import {
 } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
-const config = app.resolvePlugin("config");
-const logger = app.resolvePlugin("logger");
-
 const { Wallet } = models;
 const { TRANSACTION_TYPES } = constants;
 
 export class WalletManager {
+  public logger: any;
+  public config: any;
+
   public networkId: number;
   public byAddress: { [key: string]: any };
   public byPublicKey: { [key: string]: any };
@@ -25,7 +25,10 @@ export class WalletManager {
    * @constructor
    */
   constructor() {
-    this.networkId = config ? config.network.pubKeyHash : 0x17;
+    this.config = app.resolvePlugin("config");
+    this.logger = app.resolvePlugin("logger");
+
+    this.networkId = this.config ? this.config.network.pubKeyHash : 0x17;
     this.reset();
   }
 
@@ -83,7 +86,7 @@ export class WalletManager {
    */
   public findByPublicKey(publicKey) {
     if (!this.byPublicKey[publicKey]) {
-      const address = crypto.getAddress(publicKey, config.network.pubKeyHash);
+      const address = crypto.getAddress(publicKey, this.networkId);
 
       const wallet = this.findByAddress(address);
       wallet.publicKey = publicKey;
@@ -211,7 +214,7 @@ export class WalletManager {
     if (delegates.length < maxDelegates) {
       throw new Error(
         `Expected to find ${maxDelegates} delegates but only found ${
-          delegates.length
+        delegates.length
         }. This indicates an issue with the genesis block & delegates.`
       );
     }
@@ -234,7 +237,7 @@ export class WalletManager {
           if (a.publicKey === b.publicKey) {
             throw new Error(
               `The balance and public key of both delegates are identical! Delegate "${
-                a.username
+              a.username
               }" appears twice in the list.`
             );
           }
@@ -255,7 +258,7 @@ export class WalletManager {
       const values: any[] = Array.from(set.values());
       if (delegates.includes(values[0])) {
         const mapped = values.map(v => `${v.username} (${v.publicKey})`);
-        logger.warn(
+        this.logger.warn(
           `Delegates ${JSON.stringify(
             mapped,
             null,
@@ -265,7 +268,7 @@ export class WalletManager {
       }
     }
 
-    logger.debug(
+    this.logger.debug(
       `Loaded ${delegates.length} active ${pluralize(
         "delegate",
         delegates.length
@@ -321,10 +324,10 @@ export class WalletManager {
 
         this.reindex(delegate);
       } else {
-        logger.debug(`Delegate by address: ${this.byAddress[generator]}`);
+        this.logger.debug(`Delegate by address: ${this.byAddress[generator]}`);
 
         if (this.byAddress[generator]) {
-          logger.info("This look like a bug, please report :bug:");
+          this.logger.info("This look like a bug, please report :bug:");
         }
 
         throw new Error(
@@ -352,7 +355,7 @@ export class WalletManager {
         votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase);
       }
     } catch (error) {
-      logger.error(
+      this.logger.error(
         "Failed to apply all transactions in block - reverting previous transactions"
       );
       // Revert the applied transactions from last to first
@@ -378,7 +381,7 @@ export class WalletManager {
     if (!delegate) {
       app.forceExit(
         `Failed to lookup generator '${
-          block.data.generatorPublicKey
+        block.data.generatorPublicKey
         }' of block '${block.data.id}'. :skull:`
       );
     }
@@ -404,7 +407,7 @@ export class WalletManager {
         votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease);
       }
     } catch (error) {
-      logger.error(error.stack);
+      this.logger.error(error.stack);
 
       revertedTransactions
         .reverse()
@@ -432,9 +435,9 @@ export class WalletManager {
       type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
       this.byUsername[asset.delegate.username.toLowerCase()]
     ) {
-      logger.error(
+      this.logger.error(
         `Can't apply transaction ${
-          data.id
+        data.id
         }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`
       );
       throw new Error(
@@ -447,14 +450,14 @@ export class WalletManager {
       type === TRANSACTION_TYPES.VOTE &&
       !this.__isDelegate(asset.votes[0].slice(1))
     ) {
-      logger.error(
+      this.logger.error(
         `Can't apply vote transaction ${data.id}: delegate ${
-          asset.votes[0]
+        asset.votes[0]
         } does not exist.`
       );
       throw new Error(
         `Can't apply transaction ${data.id}: delegate ${
-          asset.votes[0]
+        asset.votes[0]
         } does not exist.`
       );
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
@@ -463,18 +466,18 @@ export class WalletManager {
 
     // handle exceptions / verify that we can apply the transaction to the sender
     if (this.__isException(data)) {
-      logger.warn(
+      this.logger.warn(
         `Transaction ${
-          data.id
+        data.id
         } forcibly applied because it has been added as an exception.`
       );
     } else if (!sender.canApply(data, errors)) {
-      logger.error(
+      this.logger.error(
         `Can't apply transaction id:${data.id} from sender:${
-          sender.address
+        sender.address
         } due to ${JSON.stringify(errors)}`
       );
-      logger.debug(
+      this.logger.debug(
         `Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`
       );
       throw new Error(`Can't apply transaction ${data.id}`);
@@ -607,14 +610,14 @@ export class WalletManager {
    * @return {Boolean}
    */
   public __isException(transaction) {
-    if (!config) {
+    if (!this.config) {
       return false;
     }
 
-    if (!Array.isArray(config.network.exceptions.transactions)) {
+    if (!Array.isArray(this.config.network.exceptions.transactions)) {
       return false;
     }
 
-    return config.network.exceptions.transactions.includes(transaction.id);
+    return this.config.network.exceptions.transactions.includes(transaction.id);
   }
 }

@@ -19,10 +19,6 @@ import { repositories } from "./repositories";
 import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
 
-const config = app.resolvePlugin("config");
-const logger = app.resolvePlugin("logger");
-const emitter = app.resolvePlugin("event-emitter");
-
 const { Block, Transaction } = models;
 
 export class PostgresConnection extends ConnectionInterface {
@@ -42,7 +38,7 @@ export class PostgresConnection extends ConnectionInterface {
       throw new Error("Database connection already initialised");
     }
 
-    logger.debug("Connecting to database");
+    this.logger.debug("Connecting to database");
 
     this.queuedQueries = null;
     this.cache = new Map();
@@ -81,10 +77,10 @@ export class PostgresConnection extends ConnectionInterface {
       },
     };
 
-    const pgp = pgPromise({ ...this.config.initialization, ...initialization });
+    const pgp = pgPromise({ ...this.options.initialization, ...initialization });
 
     this.pgp = pgp;
-    this.db = this.pgp(this.config.connection);
+    this.db = this.pgp(this.options.connection);
   }
 
   /**
@@ -96,11 +92,11 @@ export class PostgresConnection extends ConnectionInterface {
       await this.commitQueuedQueries();
       this.cache.clear();
     } catch (error) {
-      logger.warn("Issue in commiting blocks, database might be corrupted");
-      logger.warn(error.message);
+      this.logger.warn("Issue in commiting blocks, database might be corrupted");
+      this.logger.warn(error.message);
     }
 
-    logger.debug("Disconnecting from database");
+    this.logger.debug("Disconnecting from database");
 
     return this.pgp.end();
   }
@@ -140,7 +136,7 @@ export class PostgresConnection extends ConnectionInterface {
     if (blockStats.numberOfTransactions !== transactionStats.count) {
       errors.push(
         `Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${
-          blockStats.numberOfTransactions
+        blockStats.numberOfTransactions
         }`,
       );
     }
@@ -156,7 +152,7 @@ export class PostgresConnection extends ConnectionInterface {
     if (blockStats.totalAmount !== transactionStats.totalAmount) {
       errors.push(
         `Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${
-          blockStats.totalAmount
+        blockStats.totalAmount
         }`,
       );
     }
@@ -174,7 +170,7 @@ export class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   public async getActiveDelegates(height, delegates) {
-    const maxDelegates = config.getConstants(height).activeDelegates;
+    const maxDelegates = this.config.getConstants(height).activeDelegates;
     const round = Math.floor((height - 1) / maxDelegates) + 1;
 
     if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
@@ -193,7 +189,7 @@ export class PostgresConnection extends ConnectionInterface {
       .digest();
 
     for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-      for (let x = 0; x < 4 && i < delCount; i++, x++) {
+      for (let x = 0; x < 4 && i < delCount; i++ , x++) {
         const newIndex = currentSeed[x] % delCount;
         const b = delegates[newIndex];
         delegates[newIndex] = delegates[i];
@@ -219,11 +215,11 @@ export class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   public async saveRound(delegates) {
-    logger.info(`Saving round ${delegates[0].round.toLocaleString()}`);
+    this.logger.info(`Saving round ${delegates[0].round.toLocaleString()}`);
 
     await this.db.rounds.create(delegates);
 
-    emitter.emit("round.created", delegates);
+    this.emitter.emit("round.created", delegates);
   }
 
   /**
@@ -248,7 +244,7 @@ export class PostgresConnection extends ConnectionInterface {
     if (fs.existsSync(spvPath)) {
       (fs as any).removeSync(spvPath);
 
-      logger.info("Ark Core ended unexpectedly - resuming from where we left off :runner:");
+      this.logger.info("Ark Core ended unexpectedly - resuming from where we left off :runner:");
 
       return true;
     }
@@ -263,7 +259,7 @@ export class PostgresConnection extends ConnectionInterface {
 
       return success;
     } catch (error) {
-      logger.error(error.stack);
+      this.logger.error(error.stack);
     }
 
     return false;
@@ -301,7 +297,7 @@ export class PostgresConnection extends ConnectionInterface {
         const chunks = chunk(wallets, 5000).map(c => this.db.wallets.create(c));
         await this.db.tx(t => t.batch(chunks));
       } catch (error) {
-        logger.error(error.stack);
+        this.logger.error(error.stack);
       }
     } else {
       // NOTE: The list of delegates is calculated in-memory against the WalletManager,
@@ -311,13 +307,13 @@ export class PostgresConnection extends ConnectionInterface {
         const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallet));
         await this.db.tx(t => t.batch(queries));
       } catch (error) {
-        logger.error(error.stack);
+        this.logger.error(error.stack);
       }
     }
 
-    logger.info(`${wallets.length} modified ${pluralize("wallet", wallets.length)} committed to database`);
+    this.logger.info(`${wallets.length} modified ${pluralize("wallet", wallets.length)} committed to database`);
 
-    emitter.emit("wallet.saved", wallets.length);
+    this.emitter.emit("wallet.saved", wallets.length);
 
     // NOTE: commented out as more use cases to be taken care of
     // this.walletManager.purgeEmptyNonDelegates()
@@ -339,7 +335,7 @@ export class PostgresConnection extends ConnectionInterface {
 
       await this.db.tx(t => t.batch(queries));
     } catch (err) {
-      logger.error(err.message);
+      this.logger.error(err.message);
     }
   }
 
@@ -354,7 +350,7 @@ export class PostgresConnection extends ConnectionInterface {
 
       await this.db.tx(t => t.batch(queries));
     } catch (error) {
-      logger.error(error.stack);
+      this.logger.error(error.stack);
 
       throw error;
     }
@@ -427,12 +423,12 @@ export class PostgresConnection extends ConnectionInterface {
       return;
     }
 
-    logger.debug("Committing database transactions.");
+    this.logger.debug("Committing database transactions.");
 
     try {
       await this.db.tx(t => t.batch(this.queuedQueries));
     } catch (error) {
-      logger.error(error);
+      this.logger.error(error);
 
       throw error;
     } finally {
@@ -641,7 +637,7 @@ export class PostgresConnection extends ConnectionInterface {
         const row = await this.db.migrations.findByName(name);
 
         if (row === null) {
-          logger.debug(`Migrating ${name}`);
+          this.logger.debug(`Migrating ${name}`);
 
           await this.query.none(migration);
 
@@ -678,7 +674,7 @@ export class PostgresConnection extends ConnectionInterface {
   public __registerListeners() {
     super.__registerListeners();
 
-    emitter.on("wallet.created.cold", async coldWallet => {
+    this.emitter.on("wallet.created.cold", async coldWallet => {
       try {
         const wallet = await this.db.wallets.findByAddress(coldWallet.address);
 
@@ -692,11 +688,11 @@ export class PostgresConnection extends ConnectionInterface {
           });
         }
       } catch (err) {
-        logger.error(err);
+        this.logger.error(err);
       }
     });
 
-    emitter.once("shutdown", async () => {
+    this.emitter.once("shutdown", async () => {
       if (!this.spvFinished) {
         // Prevent dirty wallets to be saved when SPV didn't finish
         this.walletManager.clear();

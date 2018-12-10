@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { app } from "@arkecosystem/core-container";
 import { constants, crypto, models, slots } from "@arkecosystem/crypto";
 
@@ -11,14 +9,14 @@ import { WalletManager } from "./wallet-manager";
 import { DelegatesRepository } from "./repositories/delegates";
 import { WalletsRepository } from "./repositories/wallets";
 
-const config = app.resolvePlugin("config");
-const logger = app.resolvePlugin("logger");
-const emitter = app.resolvePlugin("event-emitter");
-
 const { Block } = models;
 const { TRANSACTION_TYPES } = constants;
 
 export abstract class ConnectionInterface {
+  public config: any;
+  public logger: any;
+  public emitter: any;
+
   public connection: any;
   public blocksInCurrentRound: any[];
   public stateStarted: boolean;
@@ -26,15 +24,17 @@ export abstract class ConnectionInterface {
   public forgingDelegates: any[];
   public wallets: WalletsRepository;
   public delegates: DelegatesRepository;
-  public config: any;
   protected queuedQueries: any[];
 
   /**
    * @constructor
    * @param {Object} options
    */
-  public constructor(options) {
-    this.config = options;
+  public constructor(public readonly options) {
+    this.config = app.resolvePlugin("config");
+    this.logger = app.resolvePlugin("logger");
+    this.emitter = app.resolvePlugin("event-emitter");
+
     this.connection = null;
     this.blocksInCurrentRound = null;
     this.stateStarted = false;
@@ -231,7 +231,7 @@ export abstract class ConnectionInterface {
       return;
     }
 
-    logger.debug("Updating delegate statistics");
+    this.logger.debug("Updating delegate statistics");
 
     try {
       delegates.forEach(delegate => {
@@ -242,17 +242,17 @@ export abstract class ConnectionInterface {
 
         if (producedBlocks.length === 0) {
           wallet.missedBlocks++;
-          logger.debug(
+          this.logger.debug(
             `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${wallet.missedBlocks}`,
           );
           wallet.dirty = true;
-          emitter.emit("forger.missing", {
+          this.emitter.emit("forger.missing", {
             delegate: wallet,
           });
         }
       });
     } catch (error) {
-      logger.error(error.stack);
+      this.logger.error(error.stack);
     }
   }
 
@@ -265,7 +265,7 @@ export abstract class ConnectionInterface {
    */
   public async applyRound(height) {
     const nextHeight = height === 1 ? 1 : height + 1;
-    const maxDelegates = config.getConstants(nextHeight).activeDelegates;
+    const maxDelegates = this.config.getConstants(nextHeight).activeDelegates;
 
     if (nextHeight % maxDelegates === 1) {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1;
@@ -275,7 +275,7 @@ export abstract class ConnectionInterface {
         this.forgingDelegates.length === 0 ||
         (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
       ) {
-        logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
+        this.logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
 
         try {
           this.updateDelegateStats(height, this.forgingDelegates);
@@ -290,7 +290,7 @@ export abstract class ConnectionInterface {
           throw error;
         }
       } else {
-        logger.warn(
+        this.logger.warn(
           // tslint:disable-next-line:max-line-length
           `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
         );
@@ -307,7 +307,7 @@ export abstract class ConnectionInterface {
     const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
     if (nextRound === round + 1 && height >= maxDelegates) {
-      logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
+      this.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
 
       const delegates = await this.__calcPreviousActiveDelegates(round);
       this.forgingDelegates = await this.getActiveDelegates(height, delegates);
@@ -369,9 +369,9 @@ export abstract class ConnectionInterface {
     const generatorUsername = this.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
 
     if (!forgingDelegate) {
-      logger.debug(
+      this.logger.debug(
         `Could not decide if delegate ${generatorUsername} (${
-          block.data.generatorPublicKey
+        block.data.generatorPublicKey
         }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
       );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
@@ -379,13 +379,13 @@ export abstract class ConnectionInterface {
 
       throw new Error(
         `Delegate ${generatorUsername} (${
-          block.data.generatorPublicKey
+        block.data.generatorPublicKey
         }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`,
       );
     } else {
-      logger.debug(
+      this.logger.debug(
         `Delegate ${generatorUsername} (${
-          block.data.generatorPublicKey
+        block.data.generatorPublicKey
         }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
       );
     }
@@ -400,7 +400,7 @@ export abstract class ConnectionInterface {
     try {
       await this.validateDelegate(block);
     } catch (error) {
-      logger.debug(error.stack);
+      this.logger.debug(error.stack);
       return false;
     }
 
@@ -422,7 +422,7 @@ export abstract class ConnectionInterface {
 
     await this.applyRound(block.data.height);
     block.transactions.forEach(tx => this.__emitTransactionEvents(tx));
-    emitter.emit("block.applied", block.data);
+    this.emitter.emit("block.applied", block.data);
   }
 
   /**
@@ -436,7 +436,7 @@ export abstract class ConnectionInterface {
 
     assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
-    emitter.emit("block.reverted", block.data);
+    this.emitter.emit("block.reverted", block.data);
   }
 
   /**
@@ -445,7 +445,7 @@ export abstract class ConnectionInterface {
    * @return {Boolean}
    */
   public async verifyTransaction(transaction) {
-    const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash);
+    const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.network.pubKeyHash);
 
     const sender = this.walletManager.findByAddress(senderId); // should exist
 
@@ -481,7 +481,7 @@ export abstract class ConnectionInterface {
       round = roundCalculator.calculateRound(height).round;
     }
 
-    const maxDelegates = config.getConstants(height).activeDelegates;
+    const maxDelegates = this.config.getConstants(height).activeDelegates;
     height = round * maxDelegates + 1;
 
     const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1);
@@ -493,7 +493,7 @@ export abstract class ConnectionInterface {
    * @return {void}
    */
   public __registerListeners() {
-    emitter.on("state:started", () => {
+    this.emitter.on("state:started", () => {
       this.stateStarted = true;
     });
   }
@@ -502,7 +502,7 @@ export abstract class ConnectionInterface {
    * Register the wallet app.
    * @return {void}
    */
-  public async _registerWalletManager() {
+  public _registerWalletManager() {
     this.walletManager = new WalletManager();
   }
 
@@ -510,7 +510,7 @@ export abstract class ConnectionInterface {
    * Register the wallet and delegate repositories.
    * @return {void}
    */
-  public async _registerRepositories() {
+  public _registerRepositories() {
     this.wallets = new WalletsRepository(this);
     this.delegates = new DelegatesRepository(this);
   }
@@ -521,15 +521,15 @@ export abstract class ConnectionInterface {
    * @return {Boolean}
    */
   public __isException(block) {
-    if (!config) {
+    if (!this.config) {
       return false;
     }
 
-    if (!Array.isArray(config.network.exceptions.blocks)) {
+    if (!Array.isArray(this.config.network.exceptions.blocks)) {
       return false;
     }
 
-    return config.network.exceptions.blocks.includes(block.id);
+    return this.config.network.exceptions.blocks.includes(block.id);
   }
 
   /**
@@ -538,20 +538,20 @@ export abstract class ConnectionInterface {
    * @return {void}
    */
   private __emitTransactionEvents(transaction) {
-    emitter.emit("transaction.applied", transaction.data);
+    this.emitter.emit("transaction.applied", transaction.data);
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      emitter.emit("delegate.registered", transaction.data);
+      this.emitter.emit("delegate.registered", transaction.data);
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      emitter.emit("delegate.resigned", transaction.data);
+      this.emitter.emit("delegate.resigned", transaction.data);
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const vote = transaction.asset.votes[0];
 
-      emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
+      this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
         delegate: vote,
         transaction: transaction.data,
       });
