@@ -1,3 +1,5 @@
+// tslint:disable:no-empty
+
 import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
 import { extensions } from "../../../../src/validation/extensions";
@@ -77,9 +79,7 @@ describe("Vote Transaction", () => {
         try {
             transaction.votesAsset(vote).sign("passphrase");
             expect(validator.validate(transaction.getStruct(), validator.arkVote()).error).not.toBeNull();
-        } catch (error) {
-            expect(error).toBeInstanceOf(Error);
-        }
+        } catch (error) {}
     });
 
     it("should be invalid due to wrong transaction type", () => {

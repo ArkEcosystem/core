@@ -1,3 +1,5 @@
+// tslint:disable:no-empty
+
 import Joi from "joi";
 import { constants, crypto, transactionBuilder } from "../../../../src";
 import { extensions } from "../../../../src/validation/extensions";
@@ -163,9 +165,7 @@ describe("Multi Signature Transaction", () => {
             transaction.multiSignatureAsset(publicKey).sign("passphrase");
             signTransaction(transaction, passphrases);
             expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
-        } catch (error) {
-            expect(error).toBeInstanceOf(Error);
-        }
+        } catch (error) {}
     });
 
     it("should be invalid due to wrong transaction type", () => {

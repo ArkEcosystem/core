@@ -1,3 +1,5 @@
+// tslint:disable:no-empty
+
 import Joi from "joi";
 import { constants, transactionBuilder } from "../../../../src";
 import { extensions } from "../../../../src/validation/extensions";
@@ -53,9 +55,7 @@ describe("Delegate Registration Transaction", () => {
             expect(
                 validator.validate(transaction.getStruct(), validator.arkDelegateRegistration()).error,
             ).not.toBeNull();
-        } catch (error) {
-            expect(error).toBeInstanceOf(Error);
-        }
+        } catch (error) {}
     });
 
     it("should be invalid due to no username", () => {
