@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import sumBy from "lodash/sumby";
+import sumBy from "lodash/sumBy";
 import { MultiPaymentHandler } from "../../../src/handlers/transactions/multi-payment";
 import { Bignum } from "../../../src/utils/bignum";
 import { transaction as originalTransaction } from "./__fixtures__/transaction";

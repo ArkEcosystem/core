@@ -48,6 +48,7 @@
         "lodash.camelcase": "^4.3.0",
         "lodash.clonedeepwith": "^4.5.0",
         "lodash.get": "^4.4.2",
+        "lodash.sumby": "^4.6.0",
         "node-forge": "^0.7.6",
         "otplib": "^10.0.1",
         "pluralize": "^7.0.0",
