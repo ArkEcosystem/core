@@ -1,12 +1,17 @@
 {
     "name": "@arkecosystem/core-debugger-cli",
     "description": "Debugger CLI for Ark Core",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
     "bin": {
         "ark:debugger": "./bin/debugger"
     },
@@ -27,7 +32,7 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "~0.2",
+        "@arkecosystem/crypto": "~0.3",
         "clipboardy": "^1.2.3",
         "commander": "^2.19.0"
     },

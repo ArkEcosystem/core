@@ -1,12 +1,17 @@
 {
     "name": "@arkecosystem/core-container",
     "description": "Container for Ark Core",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
         "pretest": "yarn lint && yarn build",
@@ -23,7 +28,7 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "~0.2",
+        "@arkecosystem/crypto": "~0.3",
         "awilix": "^4.0.1",
         "axios": "^0.18.0",
         "delay": "^4.1.0",

@@ -1,14 +1,16 @@
 {
     "name": "@arkecosystem/core-utils",
     "description": "Utilities for Ark Core",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist"
+        "dist",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -26,8 +28,8 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.2",
-        "@arkecosystem/crypto": "~0.2",
+        "@arkecosystem/core-container": "~0.3",
+        "@arkecosystem/crypto": "~0.3",
         "cli-table3": "^0.5.1",
         "dayjs-ext": "^2.2.0"
     },

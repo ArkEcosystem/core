@@ -1,12 +1,17 @@
 {
     "name": "@arkecosystem/core-database-postgres",
     "description": "PostgreSQL integration for Ark Core",
-    "version": "0.2.1",
+    "version": "0.3.1",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
         "pretest": "yarn lint && yarn build",
@@ -24,10 +29,10 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.2",
-        "@arkecosystem/core-database": "~0.2",
-        "@arkecosystem/core-utils": "~0.2",
-        "@arkecosystem/crypto": "~0.2",
+        "@arkecosystem/core-container": "~0.3",
+        "@arkecosystem/core-database": "~0.3",
+        "@arkecosystem/core-utils": "~0.3",
+        "@arkecosystem/crypto": "~0.3",
         "bluebird": "^3.5.3",
         "lodash.chunk": "^4.2.0",
         "pg-promise": "^8.5.2",

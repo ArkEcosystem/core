@@ -1,14 +1,16 @@
 {
     "name": "@arkecosystem/core-error-tracker-bugsnag",
     "description": "Bugsnag error tracker integration for Ark Core.",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist"
+        "dist",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
