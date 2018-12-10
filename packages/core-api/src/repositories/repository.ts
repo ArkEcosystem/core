@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import snakeCase from "lodash/snakecase";
+import snakeCase from "lodash/snakeCase";
 
 export class Repository {
     public database: any;
