@@ -414,13 +414,12 @@ describe("API 2.0 - Transactions", () => {
             },
         );
 
-        // TODO remove the search by id, to be sure that is OK
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
             (header, request) => {
                 it("should POST a search for transactions with the exact specified vendorFieldHex", async () => {
-                    const transaction = await utils.createTransaction();
-                    const vendorFieldHex = Buffer.from(transaction.vendorField, "utf8").toString("hex");
+                    const dummyTransaction = await utils.createTransaction();
+                    const vendorFieldHex = Buffer.from(dummyTransaction.vendorField, "utf8").toString("hex");
 
                     const response = await utils[request]("POST", "transactions/search", {
                         vendorFieldHex,

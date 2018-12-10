@@ -1,5 +1,5 @@
-import "jest-extended";
 import axios from "axios";
+import "jest-extended";
 import { setUp, tearDown } from "./__support__/setup";
 
 beforeAll(async () => {

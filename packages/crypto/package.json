@@ -15,8 +15,9 @@
     "browser": "dist/index.umd.js",
     "module": "dist/index.cjs.js",
     "files": [
-        "lib",
-        "dist"
+        "dist",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -24,7 +25,7 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
         "build": "yarn clean && tsc",
         "blabla": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
         "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",

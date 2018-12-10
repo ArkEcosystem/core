@@ -13,8 +13,8 @@ const keysGroup = [
     "+03de72ef9d3ebf1b374f1214f5b8dde823690ab2aa32b4b8b3226cc568aaed1562",
 ];
 
-const signTransaction = (transaction, values) => {
-    values.map(value => transaction.multiSignatureSign(value));
+const signTransaction = (tx, values) => {
+    values.map(value => tx.multiSignatureSign(value));
 };
 
 let transaction;
@@ -163,7 +163,9 @@ describe("Multi Signature Transaction", () => {
             transaction.multiSignatureAsset(publicKey).sign("passphrase");
             signTransaction(transaction, passphrases);
             expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
-        } catch (error) {}
+        } catch (error) {
+            expect(error).toBeInstanceOf(Error);
+        }
     });
 
     it("should be invalid due to wrong transaction type", () => {

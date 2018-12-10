@@ -222,8 +222,6 @@ describe("Models - Transaction", () => {
         );
     });
 
-    describe("static serialize", () => {});
-
     it("Signatures are verified", () => {
         [0, 1, 2, 3, 4]
             .map(type => createRandomTx(type))

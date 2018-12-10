@@ -53,7 +53,9 @@ describe("Delegate Registration Transaction", () => {
             expect(
                 validator.validate(transaction.getStruct(), validator.arkDelegateRegistration()).error,
             ).not.toBeNull();
-        } catch (error) {}
+        } catch (error) {
+            expect(error).toBeInstanceOf(Error);
+        }
     });
 
     it("should be invalid due to no username", () => {

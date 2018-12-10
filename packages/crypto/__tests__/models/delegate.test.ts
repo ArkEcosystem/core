@@ -25,9 +25,6 @@ describe("Models - Delegate", () => {
 
                 expect(wallet.toString()).toBe(`${address} (1 ${configManager.config.client.symbol})`);
             });
-
-            // TODO probably useful for debugging
-            it("throws an Error", () => {});
         });
     });
 });

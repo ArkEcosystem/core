@@ -1,8 +1,8 @@
-import "jest-extended";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { DelegateRegistration } from "../../src/commands/delegate-registration";
+import "jest-extended";
 import superheroes from "superheroes";
+import { DelegateRegistration } from "../../src/commands/delegate-registration";
 
 const mockAxios = new MockAdapter(axios);
 

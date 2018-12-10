@@ -10,6 +10,11 @@
     ],
     "license": "MIT",
     "main": "dist/index.js",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
     "bin": {
         "ark:start": "node ./dist/index.js start",
         "ark:relay": "node ./dist/index.js relay",
@@ -24,7 +29,7 @@
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
         "debug:start": "node --inspect-brk node ./dist/index.js start",
         "debug:relay": "node --inspect-brk node ./dist/index.js relay",
         "debug:forger": "node --inspect-brk node ./dist/index.js forger",

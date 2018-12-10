@@ -1,11 +1,11 @@
-import "jest-extended";
 import axios from "axios";
+import "jest-extended";
 
 function request(method, path, params = {}) {
     const url = `http://localhost:4004/api/${path}`;
-    const request = axios[method.toLowerCase()];
+    const instance = axios[method.toLowerCase()];
 
-    return ["GET", "DELETE"].includes(method) ? request(url, { params }) : request(url, params);
+    return ["GET", "DELETE"].includes(method) ? instance(url, { params }) : instance(url, params);
 }
 
 function expectJson(response) {

@@ -1,5 +1,5 @@
-import "jest-extended";
 import delay from "delay";
+import "jest-extended";
 import { startRelay } from "../../src/commands";
 import { opts, version } from "../__support__/app";
 

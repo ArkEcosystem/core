@@ -1,16 +1,18 @@
-import "jest-extended";
-import clipboardy from "clipboardy";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
+import clipboardy from "clipboardy";
+import "jest-extended";
 import fill from "lodash/fill";
 import { Command } from "../../src/commands/command";
-import { logger } from "../../src/utils";
 import { Transfer } from "../../src/commands/transfer";
+import { logger } from "../../src/utils";
 
 const mockAxios = new MockAdapter(axios);
 
 class DummyCommand extends Command {
-    public async run(options) {}
+    public async run(options) {
+        return true;
+    }
 }
 
 let command;

@@ -1,6 +1,6 @@
-import "jest-extended";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
+import "jest-extended";
 import { Transfer } from "../../src/commands/transfer";
 
 const mockAxios = new MockAdapter(axios);
