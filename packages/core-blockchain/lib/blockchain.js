@@ -408,7 +408,7 @@ module.exports = class Blockchain {
       )
 
       this.transactionPool.purgeSendersWithInvalidTransactions(block)
-
+      this.state.lastDownloadedBlock = this.state.getLastBlock()
       return callback()
     }
 
