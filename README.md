@@ -15,17 +15,17 @@ This repository contains all plugins that make up the Ark Core.
 
 ## Documentation
 
-- Development : https://docs.ark.io/guidebook/core/development.html
-- Docker : https://docs.ark.io/guidebook/core/docker.html
+-   Development : https://docs.ark.io/guidebook/core/development.html
+-   Docker : https://docs.ark.io/guidebook/core/docker.html
 
 ## API Documentation
 
-- API v1 : https://docs.ark.io/api/public/v1/
-- API v2 : https://docs.ark.io/api/public/v2/
+-   API v1 : https://docs.ark.io/api/public/v1/
+-   API v2 : https://docs.ark.io/api/public/v2/
 
 ## GitHub Development Bounty
 
-- Get involved with Ark development and start earning ARK : https://bounty.ark.io
+-   Get involved with Ark development and start earning ARK : https://bounty.ark.io
 
 ## Core Packages
 
@@ -57,11 +57,11 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [François-Xavier Thoorens](https://github.com/fix)
-- [Kristjan Košič](https://github.com/kristjank)
-- [Brian Faust](https://github.com/faustbrian)
-- [Alex Barnsley](https://github.com/alexbarnsley)
-- [All Contributors](../../contributors)
+-   [François-Xavier Thoorens](https://github.com/fix)
+-   [Kristjan Košič](https://github.com/kristjank)
+-   [Brian Faust](https://github.com/faustbrian)
+-   [Alex Barnsley](https://github.com/alexbarnsley)
+-   [All Contributors](../../contributors)
 
 ## License
 
