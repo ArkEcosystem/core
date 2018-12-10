@@ -1,4 +1,5 @@
-import * as _ from "lodash";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export {};
 
@@ -13,10 +14,10 @@ declare global {
 }
 
 function isValidPeer(peer) {
-    const allowedKeys = _.sortBy(["ip", "port"]);
+    const allowedKeys = sortBy(["ip", "port"]);
     const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key));
 
-    return _.isEqual(_.sortBy(actualKeys), allowedKeys);
+    return isEqual(sortBy(actualKeys), allowedKeys);
 }
 
 expect.extend({

@@ -43,7 +43,6 @@
         "hapi-rate-limit": "^2.1.4",
         "ip": "^1.1.5",
         "joi": "^14.3.0",
-        "lodash": "^4.17.11",
         "lodash.orderby": "^4.6.0",
         "lodash.snakecase": "^4.1.1"
     },

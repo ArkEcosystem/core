@@ -1,4 +1,5 @@
-import * as _ from "lodash";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export {};
 
@@ -14,7 +15,7 @@ declare global {
 expect.extend({
     toBeApiTransaction: (actual, expected) => {
         // TODO based on type
-        const allowedKeys = _.sortBy([
+        const allowedKeys = sortBy([
             "id",
             "blockid",
             "type",
@@ -31,7 +32,7 @@ expect.extend({
 
         return {
             message: () => `Expected ${JSON.stringify(actual)} to be a valid transaction`,
-            pass: _.isEqual(_.sortBy(actualKeys), allowedKeys),
+            pass: isEqual(sortBy(actualKeys), allowedKeys),
         };
     },
 });

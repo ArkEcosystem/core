@@ -45,6 +45,7 @@
         "joi": "^14.3.0",
         "lodash.chunk": "^4.2.0",
         "lodash.flatten": "^4.4.0",
+        "lodash.get": "^4.4.2",
         "lodash.groupby": "^4.6.0",
         "lodash.head": "^4.0.1",
         "lodash.sample": "^4.2.1",

@@ -1,4 +1,6 @@
-import * as _ from "lodash";
+import get from "lodash/get";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export {};
 
@@ -21,7 +23,7 @@ expect.extend({
             path = `${slugs[0]}.states.${slugs[1]}`;
         }
 
-        const state = _.get(machine.states, path);
+        const state = get(machine.states, path);
 
         const actions = transition.actions.map(action => `"${action}"`).join(", ");
 
@@ -32,7 +34,7 @@ expect.extend({
                 `Expected machine to ${this.isNot ? "not " : ""} call actions ${actions} on state "${
                     transition.state
                 }"`,
-            pass: _.isEqual(state.onEntry.map(action => action.type), transition.actions),
+            pass: isEqual(state.onEntry.map(action => action.type), transition.actions),
         };
     },
 });

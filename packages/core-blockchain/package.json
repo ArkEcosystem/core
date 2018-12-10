@@ -36,10 +36,11 @@
         "async": "^2.6.1",
         "awilix": "^4.0.1",
         "delay": "^4.1.0",
-        "pretty-ms": "^4.0.0",
-        "xstate": "^4.2.1",
         "immutable": "^4.0.0-rc.12",
-        "pluralize": "^7.0.0"
+        "lodash.get": "^4.4.2",
+        "pluralize": "^7.0.0",
+        "pretty-ms": "^4.0.0",
+        "xstate": "^4.2.1"
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "~0.3",

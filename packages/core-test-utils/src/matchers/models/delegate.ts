@@ -1,4 +1,5 @@
-import * as _ from "lodash";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export {};
 
@@ -15,7 +16,7 @@ expect.extend({
     toBeDelegate: actual => {
         return {
             message: () => "Expected value to be a valid delegate",
-            pass: _.isEqual(_.sortBy(Object.keys(actual)), ["address", "publicKey", "username"]),
+            pass: isEqual(sortBy(Object.keys(actual)), ["address", "publicKey", "username"]),
         };
     },
 });

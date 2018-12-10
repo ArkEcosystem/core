@@ -1,4 +1,4 @@
-import { sumBy } from "lodash";
+import sumBy from "lodash/sumby";
 import { Bignum } from "../../utils/bignum";
 import { Handler } from "./handler";
 

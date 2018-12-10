@@ -1,4 +1,5 @@
-import * as _ from "lodash";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export {};
 
@@ -14,12 +15,12 @@ declare global {
 expect.extend({
     toBeTransaction: actual => {
         // TODO based on type
-        const allowedKeys = _.sortBy(["id", "type", "amount", "fee", "timestamp", "signature"]);
+        const allowedKeys = sortBy(["id", "type", "amount", "fee", "timestamp", "signature"]);
         const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key));
 
         return {
             message: () => "Expected value to be a valid transaction",
-            pass: _.isEqual(_.sortBy(actualKeys), allowedKeys),
+            pass: isEqual(sortBy(actualKeys), allowedKeys),
         };
     },
 });

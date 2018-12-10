@@ -1,4 +1,5 @@
-import * as _ from "lodash";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export {};
 
@@ -15,7 +16,7 @@ expect.extend({
     toBeWallet: actual => {
         return {
             message: () => "Expected value to be a valid wallet",
-            pass: _.isEqual(_.sortBy(Object.keys(actual)), ["address", "publicKey"]),
+            pass: isEqual(sortBy(Object.keys(actual)), ["address", "publicKey"]),
         };
     },
 });

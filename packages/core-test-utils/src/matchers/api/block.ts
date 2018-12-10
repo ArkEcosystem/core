@@ -1,4 +1,5 @@
-import * as _ from "lodash";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export {};
 
@@ -13,7 +14,7 @@ declare global {
 }
 
 function isValidBlock(block) {
-    const allowedKeys = _.sortBy([
+    const allowedKeys = sortBy([
         "blockSignature",
         "createdAt",
         "generatorPublicKey",
@@ -33,7 +34,7 @@ function isValidBlock(block) {
     ]);
     const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key));
 
-    return _.isEqual(_.sortBy(actualKeys), allowedKeys);
+    return isEqual(sortBy(actualKeys), allowedKeys);
 }
 
 expect.extend({
