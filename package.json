@@ -1,11 +1,12 @@
 {
     "private": true,
     "scripts": {
+        "lerna": "./node_modules/lerna/cli.js",
         "setup": "yarn bootstrap && yarn build",
         "bootstrap": "lerna bootstrap",
-        "clean": "lerna clean",
-        "build": "lerna run build",
-        "lint": "lerna run lint",
+        "clean": "yarn lerna clean",
+        "build": "yarn lerna run build",
+        "lint": "yarn lerna run lint",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\"",
         "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
