@@ -38,7 +38,6 @@ module.exports = {
         minimumVersion: ">=2.0.0",
         minimumNetworkReach: 5,
         coldStart: 5,
-        whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
     "@arkecosystem/core-blockchain": {
         fastRebuild: false,

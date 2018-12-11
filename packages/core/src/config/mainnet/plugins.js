@@ -32,7 +32,6 @@ module.exports = {
     "@arkecosystem/core-p2p": {
         host: process.env.ARK_P2P_HOST || "0.0.0.0",
         port: process.env.ARK_P2P_PORT || 4001,
-        whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
     "@arkecosystem/core-blockchain": {
         fastRebuild: false,
