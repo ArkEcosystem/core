@@ -1,4 +1,4 @@
-import bugsnag from "bugsnag";
+import bugsnag from "@bugsnag/js";
 import { defaults } from "./defaults";
 
 export const plugin = {
@@ -6,8 +6,6 @@ export const plugin = {
     defaults,
     alias: "error-tracker",
     async register(container, options) {
-        bugsnag.register(options.apiKey, options.configuration);
-
-        return bugsnag;
+        return bugsnag(options);
     },
 };
