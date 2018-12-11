@@ -22,11 +22,11 @@ export const defaults = {
      */
     maxPeersBroadcast: 20,
     /**
-     * The list of IPs we allow to access the P2P API
+     * The list of IPs we allow to be added to the peer list.
      */
     whitelist: ["*"],
     /**
-     * The list of IPs we do not allow to access the P2P API
+     * The list of IPs we do not allow to be added to the peer list.
      */
     blacklist: [],
     /**

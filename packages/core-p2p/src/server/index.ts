@@ -29,7 +29,7 @@ const startServer = async config => {
     await server.register({
         plugin: require("./plugins/accept-request"),
         options: {
-            whitelist: config.whitelist,
+            whitelist: config.remoteAccess,
         },
     });
 
