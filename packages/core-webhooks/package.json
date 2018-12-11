@@ -30,6 +30,11 @@
     "dependencies": {
         "@arkecosystem/core-container": "~0.3",
         "@arkecosystem/core-http-utils": "~0.3",
+        "@types/fs-extra": "^5.0.4",
+        "@types/joi": "^14.0.0",
+        "@types/sequelize": "^4.27.33",
+        "@types/sqlite3": "^3.1.3",
+        "@types/umzug": "^2.2.0",
         "axios": "^0.18.0",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",

@@ -85,6 +85,7 @@ app.command("forger-bip38")
         configManager.setFromPreset(options.token, options.network);
 
         const keys = crypto.getKeys(options.secret);
+        // @ts-ignore
         const decoded = wif.decode(crypto.keysToWIF(keys));
 
         const delegates = require(delegatesConfig);

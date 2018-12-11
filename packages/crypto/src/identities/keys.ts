@@ -24,12 +24,13 @@ export class Keys {
     }
 
     public static fromWIF(wifKey, network?: any) {
-        const decoded = wif.decode(wifKey);
-        const version = decoded.version;
-
         if (!network) {
             network = configManager.all();
         }
+
+        // @ts-ignore
+        const decoded = wif.decode(wifKey);
+        const version = decoded.version;
 
         if (version !== network.wif) {
             throw new Error("Invalid network version");

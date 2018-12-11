@@ -34,6 +34,7 @@
         "@arkecosystem/core-transaction-pool": "~0.3",
         "@arkecosystem/core-utils": "~0.3",
         "@arkecosystem/crypto": "~0.3",
+        "@types/ajv": "^1.0.0",
         "@types/lodash.orderby": "^4.6.4",
         "@types/lodash.snakecase": "^4.1.4",
         "ajv": "^6.5.5",

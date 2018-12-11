@@ -32,6 +32,7 @@
         "@arkecosystem/core-http-utils": "~0.3",
         "@arkecosystem/core-utils": "~0.3",
         "@arkecosystem/crypto": "~0.3",
+        "@types/handlebars": "^4.0.39",
         "@types/lodash.clonedeepwith": "^4.5.4",
         "@types/lodash.sumby": "^4.6.4",
         "handlebars": "^4.0.12",

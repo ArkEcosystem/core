@@ -34,6 +34,7 @@ export class Delegate {
      */
     public static encryptPassphrase(passphrase, network, password) {
         const keys = crypto.getKeys(passphrase);
+        // @ts-ignore
         const decoded = wif.decode(crypto.keysToWIF(keys, network));
 
         return bip38.encrypt(decoded.privateKey, decoded.compressed, password);
