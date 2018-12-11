@@ -5633,13 +5633,13 @@ hapi-pagination@^2.0.1:
     hoek "^5.0.2"
     joi "^13.0.2"
 
-hapi-rate-limit@^2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-2.1.4.tgz#bd2b15465faea6d7c2b3aad05f015ee628cc0005"
-  integrity sha512-xNZColWoYdoOKXEIC6GX4LJ4TUqpzaR4u/XZdq40/O2JYovENhQPc3ChnWHdToKA0o0QkNsBXR8tTrBDoNjEEQ==
+hapi-rate-limit@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-3.0.0.tgz#70d121e2007e3736dfd679f1373eed32289834a2"
+  integrity sha512-AvzAH3nMSh0t11a69PpCHjuVSKi6/J0kOT7lN68XAi5Yo/K9VD3svjYCH+Fy1dfRwQRgnaXOxJQHUDvkf2sRYw==
   dependencies:
     boom "^7.2.0"
-    hoek "^6.0.0"
+    joi "^14.3.0"
 
 hapi-trailing-slash@^3.0.1:
   version "3.0.1"
@@ -5837,7 +5837,7 @@ hoek@6.x.x:
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-6.0.4.tgz#8db638130825534575e8e4e80f97ca66108e6382"
   integrity sha512-9D47elppcwrTx2x9B6TrovxnUtlTBYFcHGgo0+LRA1+YfUkCecT//41ovdh6zbl7whB9Hc2whRO1c6lzPoTgww==
 
-hoek@^6.0.0, hoek@^6.1.1:
+hoek@^6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-6.1.1.tgz#dae8ca1c97b091b123281d87d4eba38d71580b7d"
   integrity sha512-q60PigXXRtRFSe1+Eal3y/wlIq5weFsYPiyulkg1EAObgWhkDqSwj4xqgtd7qT3IpS6e4eLigyMWH6duPRI7QA==
@@ -6597,11 +6597,6 @@ is-wsl@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/is-wsl/-/is-wsl-1.1.0.tgz#1f16e4aa22b04d1336b66188a66af3c600c3a66d"
   integrity sha1-HxbkqiKwTRM2tmGIpmrzxgDDpm0=
-
-is_js@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/is_js/-/is_js-0.9.0.tgz#0ab94540502ba7afa24c856aa985561669e9c52d"
-  integrity sha1-CrlFQFArp6+iTIVqqYVWFmnpxS0=
 
 isarray@0.0.1:
   version "0.0.1"
@@ -10414,13 +10409,6 @@ repeating@^2.0.0:
   integrity sha1-UhTFOpJtNVJwdSf7q0FdvAjQbdo=
   dependencies:
     is-finite "^1.0.0"
-
-request-ip@^2.1.3:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/request-ip/-/request-ip-2.1.3.tgz#99ab2bafdeaf2002626e28083cb10597511d9e14"
-  integrity sha512-J3qdE/IhVM3BXkwMIVO4yFrvhJlU3H7JH16+6yHucadT4fePnR8dyh+vEs6FIx0S2x5TCt2ptiPfHcn0sqhbYQ==
-  dependencies:
-    is_js "^0.9.0"
 
 request-promise-core@1.1.1:
   version "1.1.1"
