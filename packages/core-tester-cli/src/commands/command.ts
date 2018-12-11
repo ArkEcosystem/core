@@ -15,7 +15,7 @@ export abstract class Command {
      * @param  {(String|Number)} fee
      * @return {Bignum}
      */
-    public static parseFee(fee): any {
+    public static parseFee(fee): Bignum {
         if (typeof fee === "string" && fee.indexOf("-") !== -1) {
             const feeRange = fee.split("-").map(
                 f =>
@@ -24,7 +24,7 @@ export abstract class Command {
                         .toFixed(),
             );
             if (feeRange[1] < feeRange[0]) {
-                return feeRange[0];
+                return bignumify(feeRange[0]);
             }
 
             return bignumify(Math.floor(Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0]));
