@@ -28,6 +28,7 @@ export function transformDelegate(delegate) {
         // @ts-ignore
         data.blocks.last = {
             id: lastBlock.id,
+            height: lastBlock.height,
             timestamp: formatTimestamp(lastBlock.timestamp),
         };
     }
