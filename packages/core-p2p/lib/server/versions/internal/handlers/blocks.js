@@ -1,5 +1,4 @@
 const app = require('@arkecosystem/core-container')
-const requestIp = require('request-ip')
 const schema = require('../schemas/blocks')
 
 /**
@@ -12,7 +11,7 @@ exports.store = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    request.payload.block.ip = requestIp.getClientIp(request)
+    request.payload.block.ip = request.info.remoteAddress
 
     app.resolvePlugin('blockchain').queueBlock(request.payload.block)
 

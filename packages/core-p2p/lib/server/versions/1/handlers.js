@@ -6,7 +6,6 @@ const { slots, crypto } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 const Joi = require('@arkecosystem/crypto').validator.engine.joi
 
-const requestIp = require('request-ip')
 const pluralize = require('pluralize')
 
 const transactionPool = app.resolvePlugin('transactionPool')
@@ -240,7 +239,7 @@ exports.postBlock = {
         //   missingIds = block.transactionIds.slice(0)
         // }
         // if (missingIds.length > 0) {
-        let peer = await monitor.getPeer(requestIp.getClientIp(request))
+        let peer = await monitor.getPeer(request.info.remoteAddress)
         // only for test because it can be used for DDOS attack
         if (!peer && process.env.NODE_ENV === 'test_p2p') {
           peer = await monitor.getRandomPeer()
@@ -270,7 +269,7 @@ exports.postBlock = {
       }
       // } else return { success: false }
 
-      block.ip = requestIp.getClientIp(request)
+      block.ip = request.info.remoteAddress
       blockchain.queueBlock(block)
 
       return { success: true }
@@ -360,7 +359,7 @@ exports.getBlocks = {
       }
 
       logger.info(
-        `${requestIp.getClientIp(request)} has downloaded ${pluralize(
+        `${request.info.remoteAddress} has downloaded ${pluralize(
           'block',
           blocks.length,
           true,

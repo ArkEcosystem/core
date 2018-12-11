@@ -1,5 +1,4 @@
 const Boom = require('boom')
-const requestIp = require('request-ip')
 const isWhitelisted = require('../../utils/is-whitelist')
 const monitor = require('../../monitor')
 
@@ -15,7 +14,7 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method(request, h) {
-      const remoteAddress = requestIp.getClientIp(request)
+      const remoteAddress = request.info.remoteAddress
 
       if (request.path.startsWith('/config')) {
         return h.continue

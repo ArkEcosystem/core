@@ -1,5 +1,4 @@
 const Boom = require('boom')
-const requestIp = require('request-ip')
 const mm = require('micromatch')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
@@ -7,7 +6,7 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method(request, h) {
-      const remoteAddress = requestIp.getClientIp(request)
+      const remoteAddress = request.info.remoteAddress
 
       if (Array.isArray(options.whitelist)) {
         for (const ip of options.whitelist) {

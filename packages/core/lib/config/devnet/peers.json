@@ -1,5 +1,5 @@
 {
-  "minimumVersion": ">=2.0.0",
+  "minimumVersion": ">=2.0.12",
   "minimumNetworkReach": 5,
   "globalTimeout": 5000,
   "coldStart": 5,
