@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import set from "lodash/set";
 
 class Config {
     private config: any;
@@ -9,6 +10,10 @@ class Config {
 
     public get(key: string, defaultValue: any = null): any {
         return get(this.config, key, defaultValue);
+    }
+
+    public set(key: string, value: any): void {
+        set(this.config, key, value);
     }
 }
 

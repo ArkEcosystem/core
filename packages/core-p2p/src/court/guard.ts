@@ -21,6 +21,7 @@ interface ISuspension {
 
 class Guard {
     public readonly suspensions: { [ip: string]: ISuspension };
+    public config: any;
     private monitor: any;
 
     /**
@@ -28,6 +29,7 @@ class Guard {
      */
     constructor() {
         this.suspensions = {};
+        this.config = localConfig;
     }
 
     /**
@@ -61,7 +63,8 @@ class Guard {
      * @param {Peer} peer
      */
     public suspend(peer) {
-        if (config.peers.whiteList && config.peers.whiteList.includes(peer.ip)) {
+        const whitelist = this.config.get("whitelist");
+        if (whitelist && whitelist.includes(peer.ip)) {
             return;
         }
 
@@ -155,7 +158,7 @@ class Guard {
      * @return {Boolean}
      */
     public isWhitelisted(peer) {
-        return config.peers.whiteList.includes(peer.ip);
+        return this.config.get("whitelist").includes(peer.ip);
     }
 
     /**
@@ -164,7 +167,7 @@ class Guard {
      * @return {Boolean}
      */
     public isBlacklisted(peer) {
-        return config.peers.blackList.includes(peer.ip);
+        return this.config.get("blacklist").includes(peer.ip);
     }
 
     /**
@@ -174,7 +177,7 @@ class Guard {
      */
     public isValidVersion(peer) {
         const version = peer.version || (peer.headers && peer.headers.version);
-        return semver.satisfies(version, config.peers.minimumVersion);
+        return semver.satisfies(version, this.config.get("minimumVersion"));
     }
 
     /**
@@ -193,7 +196,7 @@ class Guard {
      * @return {Boolean}
      */
     public isValidPort(peer) {
-        return peer.port === localConfig.get("port");
+        return peer.port === this.config.get("port");
     }
 
     /**

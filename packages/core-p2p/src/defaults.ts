@@ -1,7 +1,45 @@
 export const defaults = {
     host: process.env.ARK_P2P_HOST || "0.0.0.0",
     port: process.env.ARK_P2P_PORT || 4002,
-    remoteInterface: false,
+    /**
+     * The minimum peer version we expect
+     */
+    minimumVersion: ">=2.0.14",
+    /**
+     * The number of peers we expect to be available to start a relay
+     */
+    minimumNetworkReach: 20,
+    /**
+     * The timeout for requests to other peers
+     */
+    globalTimeout: 5000,
+    /**
+     * The number of seconds until we allow forging
+     */
+    coldStart: 30,
+    /**
+     * The maximum number of peers we will broadcast data to
+     */
+    maxPeersBroadcast: 20,
+    /**
+     * The list of IPs we allow to access the P2P API
+     */
+    whitelist: ["*"],
+    /**
+     * The list of IPs we do not allow to access the P2P API
+     */
+    blacklist: [],
+    /**
+     * The list of IPs can access the remote/internal API.
+     *
+     * This should usually only include your localhost to grant access to
+     * the internal API to your forger. If you run a split relay and forger
+     * you will need to specify the IP of your forger here.
+     */
+    remoteAccess: ["127.0.0.1", "::ffff:127.0.0.1"],
+    /**
+     * The DNS servers we use to verify connectivity
+     */
     dns: [
         // Google
         "8.8.8.8",
@@ -13,9 +51,13 @@ export const defaults = {
         "208.67.222.222",
         "208.67.220.220",
     ],
+    /**
+     * The NTP servers we use to verify connectivity
+     */
     ntp: ["pool.ntp.org", "time.google.com"],
-    whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-    // @see https://github.com/wraithgar/hapi-rate-limit
+    /**
+     * @see https://github.com/wraithgar/hapi-rate-limit
+     */
     rateLimit: {
         enabled: true,
         pathLimit: false,
@@ -25,5 +67,8 @@ export const defaults = {
         },
         ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
-    maxPeersBroadcast: 20,
+    /**
+     * Whether or not we enable the remote API (Caution!)
+     */
+    remoteInterface: false,
 };

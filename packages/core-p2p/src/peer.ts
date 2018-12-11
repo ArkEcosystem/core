@@ -198,7 +198,7 @@ export class Peer {
             return;
         }
 
-        const body = await this.__get("/peer/status", delay || this.config.peers.globalTimeout);
+        const body = await this.__get("/peer/status", delay || localConfig.get("globalTimeout"));
 
         if (!body) {
             throw new Error(`Peer ${this.ip} is unresponsive`);
@@ -228,7 +228,7 @@ export class Peer {
 
         const body = await this.__get("/peer/list");
 
-        return body.peers.filter(peer => !this.config.peers.blackList.includes(peer.ip));
+        return body.peers.filter(peer => !localConfig.get("blacklist").includes(peer.ip));
     }
 
     /**

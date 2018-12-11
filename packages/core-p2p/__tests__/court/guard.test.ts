@@ -1,19 +1,20 @@
+import { app } from "@arkecosystem/core-container";
 import dayjs from "dayjs-ext";
+import { config } from "../../src/config";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
 import { setUp, tearDown } from "../__support__/setup";
 
 const ARK_ENV = process.env.ARK_ENV;
 
-let container;
+const container = app;
+
 let guard;
 let Peer;
 let peerMock;
 
 beforeAll(async () => {
     await setUp();
-    const { app } = require("@arkecosystem/core-container");
-    container = app;
 
     guard = require("../../dist/court/guard").guard;
     Peer = require("../../dist/peer").Peer;
@@ -105,8 +106,7 @@ describe("Guard", () => {
         });
 
         it('should return a 1 day suspension for "Blacklisted"', () => {
-            const config = container.resolvePlugin("config");
-            config.peers.blackList = ["dummy-ip-addr"];
+            guard.config.set("blacklist", ["dummy-ip-addr"]);
 
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
@@ -115,6 +115,8 @@ describe("Guard", () => {
 
             expect(convertToMinutes(until)).toBe(720);
             expect(reason).toBe("Blacklisted");
+
+            guard.config.set("blacklist", []);
         });
 
         it('should return a 5 minutes suspension for "No Common Blocks"', () => {

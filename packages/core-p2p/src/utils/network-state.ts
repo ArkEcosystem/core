@@ -2,6 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
+import { config as localConfig } from "../config";
 
 const config = app.resolvePlugin("config");
 
@@ -22,7 +23,7 @@ export = (monitor, lastBlock) => {
     });
 
     const peers = monitor.getPeers();
-    const minimumNetworkReach = config.peers.minimumNetworkReach || 20;
+    const minimumNetworkReach = localConfig.get("minimumNetworkReach", 20);
     const currentSlot = slots.getSlotNumber();
 
     let quorum = 0;

@@ -22,6 +22,7 @@ app.command("start")
     .option("--network-start", "force genesis network start", false)
     .option("--disable-discovery", "disable any peer discovery")
     .option("--skip-discovery", "skip the initial peer discovery")
+    .option("--ignore-minimum-network-reach", "skip the network reach check")
     .action(async options => startRelayAndForger(options, version));
 
 app.command("relay")
@@ -34,6 +35,7 @@ app.command("relay")
     .option("--network-start", "force genesis network start", false)
     .option("--disable-discovery", "disable any peer discovery")
     .option("--skip-discovery", "skip the initial peer discovery")
+    .option("--ignore-minimum-network-reach", "skip the network reach check")
     .action(async options => startRelay(options, version));
 
 app.command("forger")

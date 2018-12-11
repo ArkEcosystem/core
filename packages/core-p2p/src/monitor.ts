@@ -13,6 +13,7 @@ import take from "lodash/take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
+import { config as localConfig } from "./config";
 import { guard } from "./court";
 import { Peer } from "./peer";
 import networkState from "./utils/network-state";
@@ -38,7 +39,7 @@ class Monitor {
      */
     constructor() {
         this.peers = {};
-        this.coldStartPeriod = dayjs().add(config.peers.coldStart || 30, "second");
+        this.coldStartPeriod = dayjs().add(localConfig.get("coldStart"), "second");
 
         // Holds temporary peers which are in the process of being accepted. Prevents that
         // peers who are not accepted yet, but send multiple requests in a short timeframe will
@@ -148,7 +149,11 @@ class Monitor {
      * @return {Boolean}
      */
     public hasMinimumPeers() {
-        return Object.keys(this.peers).length >= config.peers.minimumNetworkReach;
+        if (this.config.ignoreMinimumNetworkReach) {
+            return true;
+        }
+
+        return Object.keys(this.peers).length >= localConfig.get("minimumNetworkReach");
     }
 
     /**
@@ -181,10 +186,14 @@ class Monitor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
+            const minimumVersion: string = localConfig.get("minimumVersion");
+
             logger.debug(
-                `Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${
-                    config.peers.minimumVersion
-                } - Received: ${peer.version}`,
+                `Rejected peer ${
+                    peer.ip
+                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersion} - Received: ${
+                    peer.version
+                }`,
             );
 
             return this.guard.suspend(newPeer);
@@ -241,7 +250,7 @@ class Monitor {
         const keys = Object.keys(this.peers);
         let count = 0;
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : config.peers.globalTimeout;
+        const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
 
         logger.info(`Checking ${max} peers :telescope:`);
@@ -564,8 +573,7 @@ class Monitor {
      * @param {Transaction[]} transactions
      */
     public async broadcastTransactions(transactions) {
-        const maxPeersBroadcast = app.resolveOptions("p2p").maxPeersBroadcast;
-        const peers = take(shuffle(this.getPeers()), maxPeersBroadcast);
+        const peers = take(shuffle(this.getPeers()), localConfig.get("maxPeersBroadcast"));
 
         logger.debug(
             `Broadcasting ${pluralize("transaction", transactions.length, true)} to ${pluralize(
