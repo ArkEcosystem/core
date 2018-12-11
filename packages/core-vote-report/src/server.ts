@@ -16,6 +16,7 @@ export async function startServer(config) {
             }),
     );
 
+    // @ts-ignore
     server.app.config = config;
 
     server.route({

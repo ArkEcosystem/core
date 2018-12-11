@@ -9,6 +9,7 @@ export const vote = transaction => {
                 .string()
                 .alphanum()
                 .required(),
+            // @ts-ignore
             blockid: Engine.joi.alternatives().try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
             type: Engine.joi.number().valid(TRANSACTION_TYPES.VOTE),
             timestamp: Engine.joi

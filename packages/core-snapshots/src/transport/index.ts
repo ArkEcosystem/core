@@ -86,6 +86,7 @@ export const importTable = async (table, options) => {
     };
 
     emitter.emit("start", { count: options.meta[table].count });
+    // @ts-ignore
     for await (const record of readStream) {
         counter++;
         if (!verifyData(table, record, prevData, options.signatureVerification)) {

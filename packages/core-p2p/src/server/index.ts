@@ -11,6 +11,7 @@ const startServer = async config => {
         port: config.port,
     });
 
+    // @ts-ignore
     server.app.config = config;
 
     // TODO: enable after mainnet migration

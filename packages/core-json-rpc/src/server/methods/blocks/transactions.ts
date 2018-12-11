@@ -22,6 +22,7 @@ export const blockTransactions = {
             : {};
     },
     schema: {
+        // @ts-ignore
         id: Joi.number()
             .unsafe()
             .required(),

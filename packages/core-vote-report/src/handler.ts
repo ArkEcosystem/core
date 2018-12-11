@@ -42,6 +42,7 @@ export function handler(request, h) {
 
     const lastBlock = blockchain.getLastBlock();
     const constants = config.getConstants(lastBlock.data.height);
+    // @ts-ignore
     const delegateRows = request.server.app.config.delegateRows;
 
     const supply = supplyCalculator.calculate(lastBlock.data.height);

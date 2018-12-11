@@ -90,6 +90,7 @@ if (!fs.existsSync(networkPath)) {
 fs.copySync(networkPath, path.resolve(options.configPath, "network.json"));
 
 const networkConfig = {
+    // @ts-ignore
     name: options.name.toLowerCase(),
     messagePrefix: `${options.token} message:\n`,
     pubKeyHash: options.prefixHash,

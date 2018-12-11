@@ -9,6 +9,7 @@ export const base = joi =>
         blockid: joi.alternatives().try(
             // TODO: remove in 2.1
             joi.arkBlockId(),
+            // @ts-ignore
             joi.number().unsafe(),
         ),
         version: joi
