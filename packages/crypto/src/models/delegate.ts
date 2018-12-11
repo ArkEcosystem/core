@@ -51,9 +51,9 @@ export class Delegate {
     public static decryptPassphrase(passphrase, network, password) {
         const decryptedWif = bip38.decrypt(passphrase, password);
         const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed);
+
         return crypto.getKeysFromWIF(wifKey, network);
     }
-
     public network: any;
     public keySize: number;
     public iterations: number;
@@ -175,7 +175,7 @@ export class Delegate {
      * @param  {String} password
      * @return {String}
      */
-    public __encryptData(content, password) {
+    private __encryptData(content, password) {
         const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize);
         const cipher = forge.cipher.createCipher("AES-CBC", derivedKey);
         cipher.start({ iv: forge.util.decode64(this.otp) });
@@ -191,7 +191,7 @@ export class Delegate {
      * @param  {String} password
      * @return {String}
      */
-    public __decryptData(cipherText, password) {
+    private __decryptData(cipherText, password) {
         const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize);
         const decipher = forge.cipher.createDecipher("AES-CBC", derivedKey);
         decipher.start({ iv: forge.util.decode64(this.otp) });
