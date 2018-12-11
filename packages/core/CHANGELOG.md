@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 2.0.14 - 2018-12-11
+## 2.0.15 - 2018-12-11
 
 ### Fixed
 
 - Ensure no local peers are enlisted
 - Ensure the IP of the TCP connection is used
+
+## 2.0.14 - 2018-12-10
+
+### Fixed
+
+- Reset last downloaded block when block is discarded
 
 ## 2.0.13 - 2018-12-07
 
