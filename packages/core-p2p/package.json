@@ -28,7 +28,7 @@
     "boom": "^7.3.0",
     "dayjs-ext": "^2.2.0",
     "delay": "^4.1.0",
-    "hapi-rate-limit": "^2.1.4",
+    "hapi-rate-limit": "^3.0.0",
     "ip": "^1.1.5",
     "joi": "^14.3.0",
     "lodash.chunk": "^4.2.0",
