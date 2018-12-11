@@ -12,7 +12,6 @@ const format = dist => ({
 });
 
 const browserConfig = {
-    entry: resolve(pkg.main),
     target: "web",
     babel: {
         modules: "umd",
@@ -58,7 +57,6 @@ const moduleConfig = {
             modulesDir: resolve("node_modules"),
         }),
     ],
-    entry: resolve(pkg.main),
     output: {
         ...format(pkg.module),
         libraryTarget: "commonjs2",
