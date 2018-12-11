@@ -28,6 +28,9 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install packages
+          command: yarn
+      - run:
+          name: Bootstrap & Build
           command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
@@ -110,6 +113,9 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install packages
+          command: yarn
+      - run:
+          name: Bootstrap & Build
           command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
@@ -192,6 +198,9 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install packages
+          command: yarn
+      - run:
+          name: Bootstrap & Build
           command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'

@@ -44,6 +44,12 @@
                 {
                     "run": {
                         "name": "Install packages",
+                        "command": "yarn"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Bootstrap & Build",
                         "command": "yarn setup"
                     }
                 },
