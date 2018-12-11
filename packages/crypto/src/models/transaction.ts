@@ -354,9 +354,9 @@ export class Transaction {
     }
 
     public senderPublicKey: any;
-    public fee: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
+    public fee: Bignum;
     public vendorFieldHex: any;
-    public amount: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
+    public amount: Bignum;
     public expiration: any;
     public recipientId: any;
     public asset: any;

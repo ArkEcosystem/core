@@ -293,9 +293,9 @@ export class Block {
     public previousBlockHex: string;
     public previousBlock: string;
     public numberOfTransactions: number;
-    public totalAmount: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
-    public totalFee: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
-    public reward: any; // FIX: make it Bignum once ZERO and ONE issue is resolved
+    public totalAmount: Bignum;
+    public totalFee: Bignum;
+    public reward: Bignum;
     public payloadLength: number;
     public payloadHash: string;
     public generatorPublicKey: string;
