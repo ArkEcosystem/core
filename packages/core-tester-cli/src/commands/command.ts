@@ -15,7 +15,7 @@ export abstract class Command {
      * @param  {(String|Number)} fee
      * @return {Bignum}
      */
-    public static parseFee(fee) {
+    public static parseFee(fee): any {
         if (typeof fee === "string" && fee.indexOf("-") !== -1) {
             const feeRange = fee.split("-").map(
                 f =>

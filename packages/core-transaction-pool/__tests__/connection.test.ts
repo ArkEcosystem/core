@@ -171,7 +171,7 @@ describe("Connection", () => {
             //   TRANSACTION_TYPES.TIMELOCK_TRANSFER
 
             // Workaround: Increase balance of sender wallet to succeed
-            const insufficientBalanceTx = new Transaction(mockData.dummyExp2);
+            const insufficientBalanceTx: any = new Transaction(mockData.dummyExp2);
             transactions.push(insufficientBalanceTx);
             insufficientBalanceTx.expiration = expiration;
 
@@ -450,7 +450,7 @@ describe("Connection", () => {
             const voteTx = new Transaction(tx);
             voteTx.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
             voteTx.type = TRANSACTION_TYPES.VOTE;
-            voteTx.amount = 0;
+            voteTx.amount = bignumify(0);
             voteTx.asset = { votes: [`+${tx.senderPublicKey}`] };
 
             const transactions = [tx, voteTx, mockData.dummy2];
