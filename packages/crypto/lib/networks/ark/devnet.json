@@ -68,7 +68,7 @@
       }
     },
     {
-      "height": 1000000,
+      "height": 910000,
       "block": {
         "maxTransactions": 500,
         "maxPayload": 21000000
