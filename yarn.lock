@@ -5539,13 +5539,13 @@ hapi-pagination@^2.0.1:
     hoek "^5.0.2"
     joi "^13.0.2"
 
-hapi-rate-limit@^2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-2.1.4.tgz#bd2b15465faea6d7c2b3aad05f015ee628cc0005"
-  integrity sha512-xNZColWoYdoOKXEIC6GX4LJ4TUqpzaR4u/XZdq40/O2JYovENhQPc3ChnWHdToKA0o0QkNsBXR8tTrBDoNjEEQ==
+hapi-rate-limit@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-3.0.0.tgz#70d121e2007e3736dfd679f1373eed32289834a2"
+  integrity sha512-AvzAH3nMSh0t11a69PpCHjuVSKi6/J0kOT7lN68XAi5Yo/K9VD3svjYCH+Fy1dfRwQRgnaXOxJQHUDvkf2sRYw==
   dependencies:
     boom "^7.2.0"
-    hoek "^6.0.0"
+    joi "^14.3.0"
 
 hapi-trailing-slash@^3.0.1:
   version "3.0.1"
@@ -5743,7 +5743,7 @@ hoek@5.x.x, hoek@^5.0.2:
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-5.0.4.tgz#0f7fa270a1cafeb364a4b2ddfaa33f864e4157da"
   integrity sha512-Alr4ZQgoMlnere5FZJsIyfIjORBqZll5POhDsF4q64dPuJR6rNxXdDxtHSQq8OXRurhmx+PWYEE8bXRROY8h0w==
 
-hoek@6.x.x, hoek@^6.0.0, hoek@^6.1.1:
+hoek@6.x.x, hoek@^6.1.1:
   version "6.1.2"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-6.1.2.tgz#99e6d070561839de74ee427b61aa476bd6bddfd6"
   integrity sha512-6qhh/wahGYZHFSFw12tBbJw5fsAhhwrrG/y3Cs0YMTv2WzMnL0oLPnQJjv1QJvEfylRSOFuP+xCu+tdx0tD16Q==
