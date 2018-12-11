@@ -175,6 +175,7 @@ describe("crypto.js", () => {
                 senderPublicKey: keys.publicKey,
             };
             const signature = crypto.sign(transaction, keys);
+            // @ts-ignore
             expect(signature.toString("hex")).toBe(
                 "3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe",
             );
@@ -208,6 +209,7 @@ describe("crypto.js", () => {
 
         it("should return address", () => {
             const keys = crypto.getKeys("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
+            // @ts-ignore
             const address = crypto.getAddress(keys.publicKey.toString("hex"));
             expect(address).toBe("DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub");
         });
@@ -234,6 +236,7 @@ describe("crypto.js", () => {
 
         it("should return address", () => {
             const keys = crypto.getKeysFromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
+            // @ts-ignore
             const address = crypto.getAddress(keys.publicKey.toString("hex"));
             expect(address).toBe("DCAaPzPAhhsMkHfQs7fZvXFW2EskDi92m8");
         });

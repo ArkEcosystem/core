@@ -25,6 +25,7 @@ describe("Identities - Keys", () => {
 
         it("should return address", () => {
             const keys = Keys.fromPassphrase("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
+            // @ts-ignore
             const address = Address.fromPublicKey(keys.publicKey.toString("hex"));
             expect(address).toBe("DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub");
         });
@@ -51,6 +52,7 @@ describe("Identities - Keys", () => {
 
         it("should return address", () => {
             const keys = Keys.fromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
+            // @ts-ignore
             const address = Address.fromPublicKey(keys.publicKey.toString("hex"));
             expect(address).toBe("DCAaPzPAhhsMkHfQs7fZvXFW2EskDi92m8");
         });
