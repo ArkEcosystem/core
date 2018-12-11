@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import mm from "micromatch";
-import requestIp from "request-ip";
 
 export const whitelist = {
     name: "whitelist",
@@ -10,7 +9,7 @@ export const whitelist = {
         server.ext({
             type: "onRequest",
             async method(request, h) {
-                const remoteAddress = requestIp.getClientIp(request);
+                const remoteAddress = request.info.remoteAddress;
 
                 if (Array.isArray(options.whitelist)) {
                     for (const ip of options.whitelist) {

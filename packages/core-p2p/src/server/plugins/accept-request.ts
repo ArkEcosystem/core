@@ -1,5 +1,4 @@
 import Boom from "boom";
-import requestIp from "request-ip";
 import { monitor } from "../../monitor";
 import isWhitelisted from "../../utils/is-whitelist";
 
@@ -15,7 +14,7 @@ const register = async (server, options) => {
     server.ext({
         type: "onRequest",
         async method(request, h) {
-            const remoteAddress = requestIp.getClientIp(request);
+            const remoteAddress = request.info.remoteAddress;
 
             if (request.path.startsWith("/config")) {
                 return h.continue;
