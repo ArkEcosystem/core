@@ -1,7 +1,7 @@
 import bip38 from "bip38";
 import { createHash } from "crypto";
 import forge from "node-forge";
-import otplib from "otplib";
+import { authenticator } from "otplib";
 import wif from "wif";
 import { Bignum } from "../utils/bignum";
 
@@ -80,7 +80,7 @@ export class Delegate {
                 this.keys = Delegate.decryptPassphrase(passphrase, network, password);
                 this.publicKey = this.keys.publicKey;
                 this.address = crypto.getAddress(this.keys.publicKey, network.pubKeyHash);
-                this.otpSecret = otplib.authenticator.generateSecret();
+                this.otpSecret = authenticator.generateSecret();
                 this.bip38 = true;
                 this.encryptKeysWithOtp();
             } catch (error) {
@@ -99,7 +99,7 @@ export class Delegate {
      * Encrypt keys with one time password - used to store encrypted in memory.
      */
     public encryptKeysWithOtp() {
-        this.otp = otplib.authenticator.generate(this.otpSecret);
+        this.otp = authenticator.generate(this.otpSecret);
         const wifKey = crypto.keysToWIF(this.keys, this.network);
         this.encryptedKeys = this.__encryptData(wifKey, this.otp);
         this.keys = null;
