@@ -61,14 +61,14 @@ export class Delegate {
     public publicKey: any;
     public address: any;
     public otpSecret: string;
-    public bip38: boolean;
+    public bip38: boolean = false;
     public otp: string;
     public encryptedKeys: any;
 
     /**
      * @constructor
      * @param  {String} passphrase
-     * @param  {Number} network
+     * @param  {Object} network
      * @param  {String} password
      */
     constructor(passphrase, network, password?: any) {

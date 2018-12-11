@@ -4,6 +4,7 @@ import "jest-extended";
 import { Bignum, models } from "@arkecosystem/crypto";
 import { defaults } from "../src/defaults";
 import { ForgerManager } from "../src/manager";
+import { testnet } from "../src/networks/ark";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
@@ -73,7 +74,7 @@ describe("Forger Manager", () => {
 
             forgeManager.usernames = [];
 
-            const del = new Delegate("a secret", 100);
+            const del = new Delegate("a secret", testnet);
             const round = {
                 lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
                 timestamp: 1,
