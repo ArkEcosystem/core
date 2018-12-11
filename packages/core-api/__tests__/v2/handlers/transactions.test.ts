@@ -430,7 +430,7 @@ describe("API 2.0 - Transactions", () => {
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
-                        expect(transaction.vendorField).toBe(vendorFieldHex);
+                        expect(transaction.vendorField.toString("hex")).toBe(vendorFieldHex);
                     }
                 });
             },
