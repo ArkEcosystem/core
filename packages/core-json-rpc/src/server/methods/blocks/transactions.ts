@@ -22,8 +22,8 @@ export const blockTransactions = {
             : {};
     },
     schema: {
-        // @ts-ignore
         id: Joi.number()
+            // @ts-ignore
             .unsafe()
             .required(),
         offset: Joi.number().default(0),
