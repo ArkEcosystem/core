@@ -28,7 +28,6 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@types/eventemitter3": "^2.0.2",
         "eventemitter3": "^3.1.0"
     },
     "publishConfig": {

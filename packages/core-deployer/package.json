@@ -35,7 +35,6 @@
     "dependencies": {
         "@arkecosystem/crypto": "~0.3",
         "@types/bip39": "^2.4.1",
-        "@types/commander": "^2.12.2",
         "@types/fs-extra": "^5.0.4",
         "@types/joi": "^14.0.0",
         "@types/lodash.set": "^4.3.4",
