@@ -35,6 +35,7 @@
     "dependencies": {
         "@arkecosystem/core-utils": "~0.3",
         "@arkecosystem/crypto": "~0.3",
+        "@types/lodash.fill": "^3.4.4",
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",

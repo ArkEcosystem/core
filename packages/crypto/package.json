@@ -35,6 +35,10 @@
         "test:watch:all": "jest --watchAll"
     },
     "dependencies": {
+        "@types/lodash.camelcase": "^4.3.4",
+        "@types/lodash.clonedeepwith": "^4.5.4",
+        "@types/lodash.get": "^4.4.4",
+        "@types/lodash.sumby": "^4.6.4",
         "bignumber.js": "^8.0.1",
         "bip32": "^1.0.2",
         "bip38": "^2.0.2",

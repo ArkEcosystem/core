@@ -30,6 +30,9 @@
     "dependencies": {
         "@arkecosystem/core-container": "~0.3",
         "@arkecosystem/crypto": "~0.3",
+        "@types/lodash.get": "^4.4.4",
+        "@types/lodash.isequal": "^4.5.3",
+        "@types/lodash.sortby": "^4.7.4",
         "bip39": "^2.5.0",
         "lodash.get": "^4.4.2",
         "lodash.isequal": "^4.5.0",

@@ -34,6 +34,7 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "~0.3",
+        "@types/lodash.set": "^4.3.4",
         "bip39": "^2.5.0",
         "bytebuffer": "^5.0.1",
         "commander": "^2.19.0",
