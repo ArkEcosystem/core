@@ -9977,14 +9977,15 @@ pinkie@^2.0.0:
   integrity sha1-clVrgM+g1IqXToDnckjoDtT3+HA=
 
 pino-pretty@^2.3.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-2.4.0.tgz#ac613738fc55c7e7f658be4abaa65dd02ffd609d"
-  integrity sha512-HmnIMePM4hU31E9ojya7Tn+EOODWUHeUq+TtI0YPq0WtvKmez5IU4iVneDfho9OhXUo1BP/xWn764YHjoOgyJw==
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-2.5.0.tgz#fade5b6d2acbdbf2c7e77adf220e7b7d89d04437"
+  integrity sha512-odR4SKdyubhe4aFts0/mBau2/mJLG23Ghyo86a+GZ2/Cev3CRr5nYv2+82V7v1hQL93yRSO004ASrrF7278TNQ==
   dependencies:
     args "^5.0.0"
     chalk "^2.3.2"
     dateformat "^3.0.3"
     fast-json-parse "^1.0.3"
+    fast-safe-stringify "^2.0.6"
     jmespath "^0.15.0"
     pump "^3.0.0"
     readable-stream "^3.0.6"
