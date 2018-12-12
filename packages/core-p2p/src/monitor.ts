@@ -150,6 +150,8 @@ class Monitor {
      */
     public hasMinimumPeers() {
         if (this.config.ignoreMinimumNetworkReach) {
+            logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
+
             return true;
         }
 

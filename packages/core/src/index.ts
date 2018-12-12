@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { configManager, crypto } from "@arkecosystem/crypto";
 import bip38 from "bip38";
 import app from "commander";
 import fs from "fs";
@@ -11,47 +12,35 @@ const { version } = require("../package.json");
 
 app.version(version);
 
-app.command("start")
-    .description("start a relay node and the forger")
-    .option("-d, --data <data>", "data directory", "~/.ark")
-    .option("-c, --config <config>", "core config", "~/.ark/config")
-    .option("-t, --token <token>", "token name", "ark")
-    .option("-n, --network <network>", "token network")
+function registerCommand(name: string, description: string): any {
+    return app
+        .command(name)
+        .description(description)
+        .option("-d, --data <data>", "data directory", "~/.ark")
+        .option("-c, --config <config>", "core config", "~/.ark/config")
+        .option("-t, --token <token>", "token name", "ark")
+        .option("-n, --network <network>", "token network")
+        .option("-r, --remote <remote>", "remote peer for config")
+        .option("--network-start", "force genesis network start", false)
+        .option("--disable-discovery", "disable any peer discovery")
+        .option("--skip-discovery", "skip the initial peer discovery")
+        .option("--ignore-minimum-network-reach", "skip the network reach check")
+        .option("--launch-mode <mode>", "remote peer for config");
+}
+
+registerCommand("start", "start a relay node and the forger")
     .option("-b, --bip38 <bip38>", "forger bip38")
     .option("-p, --password <password>", "forger password")
-    .option("--network-start", "force genesis network start", false)
-    .option("--disable-discovery", "disable any peer discovery")
-    .option("--skip-discovery", "skip the initial peer discovery")
-    .option("--ignore-minimum-network-reach", "skip the network reach check")
     .action(async options => startRelayAndForger(options, version));
 
-app.command("relay")
-    .description("start a relay node")
-    .option("-d, --data <data>", "data directory", "~/.ark")
-    .option("-c, --config <config>", "network config", "~/.ark/config")
-    .option("-t, --token <token>", "token name", "ark")
-    .option("-n, --network <network>", "token network")
-    .option("-r, --remote <remote>", "remote peer for config")
-    .option("--network-start", "force genesis network start", false)
-    .option("--disable-discovery", "disable any peer discovery")
-    .option("--skip-discovery", "skip the initial peer discovery")
-    .option("--ignore-minimum-network-reach", "skip the network reach check")
-    .action(async options => startRelay(options, version));
+registerCommand("relay", "start a relay node").action(async options => startRelay(options, version));
 
-app.command("forger")
-    .description("start the forger")
-    .option("-d, --data <data>", "data directory", "~/.ark")
-    .option("-c, --config <config>", "network config", "~/.ark/config")
-    .option("-t, --token <token>", "token name", "ark")
-    .option("-n, --network <network>", "token network")
+registerCommand("forger", "start the forger")
     .option("-b, --bip38 <bip38>", "forger bip38")
     .option("-p, --password <password>", "forger password")
     .action(async options => startForger(options, version));
 
-app.command("forger-plain")
-    .description("set the delegate secret")
-    .option("-c, --config <config>", "core config")
-    .option("-n, --network <network>", "network")
+registerCommand("forger-plain", "set the delegate secret")
     .option("-s, --secret <secret>", "forger secret")
     .action(async options => {
         const delegatesConfig = `${options.config}/delegates.json`;
@@ -67,11 +56,7 @@ app.command("forger-plain")
         fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
     });
 
-app.command("forger-bip38")
-    .description("encrypt the delegate passphrase using bip38")
-    .option("-c, --config <config>", "core config")
-    .option("-t, --token <token>", "token name", "ark")
-    .option("-n, --network <network>", "token network")
+registerCommand("forger-bip38", "encrypt the delegate passphrase using bip38")
     .option("-s, --secret <secret>", "forger secret")
     .option("-p, --password <password>", "bip38 password")
     .action(async options => {
@@ -81,7 +66,7 @@ app.command("forger-bip38")
             console.error("Missing or invalid delegates config path");
             process.exit(1);
         }
-        const { configManager, crypto } = require("@arkecosystem/crypto");
+
         configManager.setFromPreset(options.token, options.network);
 
         const keys = crypto.getKeys(options.secret);

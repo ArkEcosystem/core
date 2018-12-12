@@ -1,14 +1,11 @@
 import { app } from "@arkecosystem/core-container";
+import { buildPeerOptions } from "../utils";
 
 export async function startRelay(options, version) {
     await app.setUp(version, options, {
         exclude: ["@arkecosystem/core-forger"],
         options: {
-            "@arkecosystem/core-p2p": {
-                networkStart: options.networkStart,
-                disableDiscovery: options.disableDiscovery,
-                skipDiscovery: options.skipDiscovery,
-            },
+            "@arkecosystem/core-p2p": buildPeerOptions(options),
             "@arkecosystem/core-blockchain": {
                 networkStart: options.networkStart,
             },
@@ -42,11 +39,7 @@ export async function startForger(options, version) {
 export async function startRelayAndForger(options, version) {
     await app.setUp(version, options, {
         options: {
-            "@arkecosystem/core-p2p": {
-                networkStart: options.networkStart,
-                disableDiscovery: options.disableDiscovery,
-                skipDiscovery: options.skipDiscovery,
-            },
+            "@arkecosystem/core-p2p": buildPeerOptions(options),
             "@arkecosystem/core-blockchain": {
                 networkStart: options.networkStart,
             },
