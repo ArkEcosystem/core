@@ -215,7 +215,7 @@ ignore:
         reason: None given
         expires: '2018-12-11T05:03:38.314Z'
   'npm:chownr:20180731':
-    - '@arkecosystem/core > @arkecosystem/core-transaction-pool-mem > better-sqlite3 > tar > chownr':
+    - '@arkecosystem/core > @arkecosystem/core-transaction-pool > better-sqlite3 > tar > chownr':
         reason: None given
         expires: '2018-12-11T05:03:38.314Z'
     - '@arkecosystem/core > @arkecosystem/core-webhooks > sqlite3 > node-pre-gyp > tar > chownr':

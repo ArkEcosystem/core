@@ -27,8 +27,8 @@ jobs:
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
-          name: Install packages
-          command: yarn
+          name: Install and build packages
+          command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -57,7 +57,6 @@ jobs:
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transaction-pool-mem/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -70,13 +69,12 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-vote-report/ ./packages/core-transaction-pool/
+            ./packages/core-webhooks/ ./packages/core-transaction-pool/
             ./packages/core-snapshots-cli/ ./packages/core-logger-winston/
-            ./packages/core-api/ ./packages/core-event-emitter/
+            ./packages/core-http-utils/ ./packages/core-event-emitter/
             ./packages/core-elasticsearch/ ./packages/core-database-postgres/
-            ./packages/core-config/ ./packages/core-http-utils/
-            --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
-            test_output.txt
+            ./packages/core-config/ ./packages/core/ --detectOpenHandles
+            --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -111,8 +109,8 @@ jobs:
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
-          name: Install packages
-          command: yarn
+          name: Install and build packages
+          command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -141,7 +139,6 @@ jobs:
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transaction-pool-mem/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -154,11 +151,11 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-webhooks/ ./packages/core-transaction-pool-mem/
+            ./packages/crypto/ ./packages/core-utils/
             ./packages/core-test-utils/ ./packages/core-p2p/
             ./packages/core-json-rpc/ ./packages/core-forger/
             ./packages/core-error-tracker-bugsnag/ ./packages/core-debugger-cli/
-            ./packages/core-container/ ./packages/core/ --detectOpenHandles
+            ./packages/core-container/ ./packages/core-api/ --detectOpenHandles
             --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
@@ -194,8 +191,8 @@ jobs:
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
-          name: Install packages
-          command: yarn
+          name: Install and build packages
+          command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -224,7 +221,6 @@ jobs:
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transaction-pool-mem/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -237,13 +233,12 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/crypto/ ./packages/core-utils/
-            ./packages/core-tester-cli/ ./packages/core-snapshots/
-            ./packages/core-logger/ ./packages/core-graphql/
-            ./packages/core-error-tracker-sentry/ ./packages/core-deployer/
-            ./packages/core-database/ ./packages/core-blockchain/
-            --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
-            test_output.txt
+            ./packages/core-vote-report/ ./packages/core-tester-cli/
+            ./packages/core-snapshots/ ./packages/core-logger/
+            ./packages/core-graphql/ ./packages/core-error-tracker-sentry/
+            ./packages/core-deployer/ ./packages/core-database/
+            ./packages/core-blockchain/ --detectOpenHandles --runInBand
+            --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail

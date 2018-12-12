@@ -7,16 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Changed
+
+-   Migrated from JavaScript to TypeScript
+
 ## 0.2.0 - 2018-12-03
 
 ### Changed
 
-- Handle numbers as `BigNumber` instances
-- Updated `@arkecosystem/crypto` to `0.2.0`
-- Dropped node.js 9 as minimum requirement in favour of node.js 10
+-   Handle numbers as `BigNumber` instances
+-   Updated `@arkecosystem/crypto` to `0.2.0`
+-   Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ## 0.1.1 - 2018-07-26
 
 ### Added
 
-- initial release
+-   initial release

@@ -1,24 +1,25 @@
+const path = require("path");
+
 module.exports = (babelOptions = {}) => ({
-  mode: 'production',
+    mode: "production",
 
-  context: __dirname,
+    entry: path.resolve(__dirname, "../src/index.ts"),
 
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [['@babel/preset-env', babelOptions]],
-          },
-        },
-      },
-    ],
-  },
+    devtool: "inline-source-map",
 
-  resolve: {
-    extensions: ['.js', '.json'],
-  },
-})
+    context: __dirname,
+
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: "ts-loader",
+                exclude: /node_modules/,
+            },
+        ],
+    },
+
+    resolve: {
+        extensions: [".tsx", ".ts", ".js", ".json"],
+    },
+});
