@@ -366,7 +366,7 @@ export class Blockchain {
             logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
 
             this.transactionPool.purgeSendersWithInvalidTransactions(block);
-            this.state.lastDownloadedBlock = this.state.getLastBlock()
+            this.state.lastDownloadedBlock = this.state.getLastBlock();
             return callback();
         }
 
@@ -456,7 +456,7 @@ export class Blockchain {
             } else {
                 logger.info(
                     `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
-                    block.data.generatorPublicKey
+                        block.data.generatorPublicKey
                     } :bangbang:`,
                 );
             }

@@ -29,7 +29,7 @@ class Database {
             const pgp = require("pg-promise")({ promiseLib: promise });
             this.pgp = pgp;
 
-            const options: any = plugin.defaults.connection
+            const options: any = plugin.defaults.connection;
             options.idleTimeoutMillis = 100;
 
             this.db = pgp(options);

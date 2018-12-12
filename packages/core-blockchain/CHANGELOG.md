@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-- Reset last downloaded block when block is discarded
+-   Reset last downloaded block when block is discarded
 
 ## 0.2.0 - 2018-12-03
 

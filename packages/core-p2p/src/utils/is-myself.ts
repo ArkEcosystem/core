@@ -7,7 +7,7 @@ import os from "os";
  */
 export = (ipAddress: string) => {
     if (!ipAddress) {
-        return false
+        return false;
     }
 
     const interfaces = os.networkInterfaces();
@@ -15,8 +15,6 @@ export = (ipAddress: string) => {
     return (
         ipAddress.startsWith("127.") ||
         ipAddress.startsWith("0.") ||
-        Object.keys(interfaces).some(ifname =>
-            interfaces[ifname].some(iface => iface.address === ipAddress)
-        )
+        Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ipAddress))
     );
 };
