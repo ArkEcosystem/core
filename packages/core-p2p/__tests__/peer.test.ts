@@ -28,7 +28,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-    peerMock = new Peer("0.0.0.99", 4002);
+    peerMock = new Peer("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers);
 
     axiosMock.reset(); // important: resets any existing mocking behavior
