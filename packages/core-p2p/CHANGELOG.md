@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -   Migrated from JavaScript to TypeScript
 
+## 0.2.1 - 2018-12-11
+
+### Fixed
+
+- Ensure no local peers are enlisted
+- Ensure the IP of the TCP connection is used
+
 ## 0.2.0 - 2018-12-03
 
 ### Added
