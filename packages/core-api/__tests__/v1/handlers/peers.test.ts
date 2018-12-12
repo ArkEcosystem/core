@@ -2,7 +2,6 @@ import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-const peerIp = "167.114.29.55";
 const peerPort = "4002";
 
 beforeAll(async () => {
@@ -13,7 +12,7 @@ afterAll(async () => {
     await tearDown();
 });
 
-describe("API 1.0 - Peers", () => {
+describe.skip("API 1.0 - Peers", () => {
     describe("GET /peers/version", () => {
         it("should be ok", async () => {
             const response = await utils.request("GET", "peers/version");

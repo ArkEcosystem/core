@@ -71,11 +71,10 @@ jobs:
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
             ./packages/core-webhooks/ ./packages/core-transaction-pool/
             ./packages/core-snapshots-cli/ ./packages/core-logger-winston/
-            ./packages/core-api/ ./packages/core-event-emitter/
+            ./packages/core-http-utils/ ./packages/core-event-emitter/
             ./packages/core-elasticsearch/ ./packages/core-database-postgres/
-            ./packages/core-config/ ./packages/core-http-utils/
-            --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
-            test_output.txt
+            ./packages/core-config/ ./packages/core/ --detectOpenHandles
+            --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -156,7 +155,7 @@ jobs:
             ./packages/core-test-utils/ ./packages/core-p2p/
             ./packages/core-json-rpc/ ./packages/core-forger/
             ./packages/core-error-tracker-bugsnag/ ./packages/core-debugger-cli/
-            ./packages/core-container/ ./packages/core/ --detectOpenHandles
+            ./packages/core-container/ ./packages/core-api/ --detectOpenHandles
             --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output

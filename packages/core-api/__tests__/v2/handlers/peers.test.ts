@@ -10,7 +10,7 @@ afterAll(async () => {
     await tearDown();
 });
 
-describe("API 2.0 - Peers", () => {
+describe.skip("API 2.0 - Peers", () => {
     let peer;
 
     describe("GET /peers", () => {
