@@ -19,7 +19,7 @@
     "scripts": {
         "start": "node ./dist/index.js",
         "prepublishOnly": "yarn test && yarn build",
-        "pretest": "yarn lint && yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
