@@ -419,8 +419,9 @@ describe("API 2.0 - Transactions", () => {
             (header, request) => {
                 it("should POST a search for transactions with the exact specified vendorFieldHex", async () => {
                     const dummyTransaction = await utils.createTransaction();
-                    const vendorFieldHex = Buffer.from(dummyTransaction.vendorField, "utf8").toString("hex");
+                    const hexify = (value: string) => Buffer.from(value, "utf8").toString("hex")
 
+                    const vendorFieldHex = hexify(dummyTransaction.vendorField)
                     const response = await utils[request]("POST", "transactions/search", {
                         vendorFieldHex,
                     });
@@ -428,9 +429,12 @@ describe("API 2.0 - Transactions", () => {
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
 
+                    // TODO: the response is sometimes empty. Racy test?
+                    //expect(response.data.data).not.toBeEmpty()
+
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
-                        expect(transaction.vendorField.toString("hex")).toBe(vendorFieldHex);
+                        expect(hexify(transaction.vendorField)).toBe(vendorFieldHex);
                     }
                 });
             },
