@@ -6,6 +6,10 @@ import os from "os";
  * @returns {Boolean} true/false
  */
 export = (ipAddress: string) => {
+    if (!ipAddress) {
+        return false
+    }
+
     const interfaces = os.networkInterfaces();
 
     return (
