@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -   Migrated from JavaScript to TypeScript
 
+### Fixed
+
+-   Resolved an issue with the `resolveOptions` method that would result in options being resolved for plugins that are not registered in the container.
+
 ## 0.2.0 - 2018-12-03
 
 ### Added

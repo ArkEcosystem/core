@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 -   Migrated from JavaScript to TypeScript
+-   Merged `core-transaction-pool-mem` into `core-transaction-pool`
 
 ## 0.2.1 - 2018-12-04
 

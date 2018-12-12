@@ -10,19 +10,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 -   Migrated from JavaScript to TypeScript
+-   Moved the `peers.json` configuration into `core-p2p`
+-   Merged `core-transaction-pool-mem` into `core-transaction-pool`
+
+### Fixed
+
+-   Resolved an issue with the `resolveOptions` method that would result in options being resolved for plugins that are not registered in the container.
 
 ## 2.0.15 - 2018-12-11
 
 ### Fixed
 
-- Ensure no local peers are enlisted
-- Ensure the IP of the TCP connection is used
+-   Ensure no local peers are enlisted
+-   Ensure the IP of the TCP connection is used
 
 ## 2.0.14 - 2018-12-10
 
 ### Fixed
 
-- Reset last downloaded block when block is discarded
+-   Reset last downloaded block when block is discarded
 
 ## 2.0.13 - 2018-12-07
 
