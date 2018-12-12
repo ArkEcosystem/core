@@ -46,7 +46,7 @@ module.exports = class Repository {
   _makeEstimateQuery() {
     return this.query
       .select('count(*) AS count')
-      .from(`${this.model.getTable()} TABLESAMPLE SYSTEM (100)`)
+      .from(`${this.model.getTable()}`)
   }
 
   _formatConditions(parameters) {
