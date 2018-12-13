@@ -11,9 +11,9 @@
         "lint": "yarn lerna run lint",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\"",
-        "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+        "test": "cross-env ARK_ENV=test jest --runInBand --forceExit",
         "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --detectOpenHandles",
+        "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "snyk": "./node_modules/.bin/snyk protect"
     },
     "devDependencies": {
