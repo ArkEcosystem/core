@@ -14,9 +14,10 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
--   [François-Xavier Thoorens](https://github.com/fix)
--   [Kristjan Košič](https://github.com/kristjank)
 -   [Brian Faust](https://github.com/faustbrian)
+-   [François-Xavier Thoorens](https://github.com/fix)
+-   [Joshua Noack](https://github.com/supaiku0)
+-   [Kristjan Košič](https://github.com/kristjank)
 -   [All Contributors](../../../../contributors)
 
 ## License
