@@ -302,7 +302,8 @@ class Guard {
         }
 
         const until = dayjs().add(offence.number, offence.period);
-        const untilDiff = until.diff(dayjs(), offence.period);
+        // @ts-ignore
+        const untilDiff = until.diff(dayjs());
 
         logger.debug(
             `Suspended ${peer.ip} for ${prettyMs(untilDiff, {
