@@ -100,8 +100,6 @@ describe("API 2.0 - Transactions", () => {
                     const response = await utils[request]("GET", "transactions/unconfirmed");
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-
-                    expect(response.data.data).toBeArray();
                     expect(response.data.data).not.toBeEmpty();
                 });
             },
@@ -118,7 +116,6 @@ describe("API 2.0 - Transactions", () => {
                     const response = await utils[request]("GET", `transactions/unconfirmed/${transaction.id}`);
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeObject();
-
                     expect(response.data.data).toHaveProperty("id", transaction.id);
                 });
             },
@@ -135,7 +132,6 @@ describe("API 2.0 - Transactions", () => {
                     });
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-
                     expect(response.data.data).toHaveLength(1);
 
                     for (const transaction of response.data.data) {
@@ -155,7 +151,6 @@ describe("API 2.0 - Transactions", () => {
                     });
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-
                     expect(response.data.data).toHaveLength(100);
                     expect(response.data.meta.totalCount).toBe(153);
 
@@ -273,10 +268,8 @@ describe("API 2.0 - Transactions", () => {
                     });
 
                     expect(response).toBeSuccessfulResponse();
-
-                    const data = response.data.data;
-                    expect(data).toBeArray();
-                    expect(data.length).toEqual(100);
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(100);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -298,10 +291,8 @@ describe("API 2.0 - Transactions", () => {
                     });
 
                     expect(response).toBeSuccessfulResponse();
-
-                    const data = response.data.data;
-                    expect(data).toBeArray();
-                    expect(data).toHaveLength(100);
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(100);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -324,10 +315,8 @@ describe("API 2.0 - Transactions", () => {
                     });
 
                     expect(response).toBeSuccessfulResponse();
-
-                    const data = response.data.data;
-                    expect(data).toBeArray();
-                    expect(data).toHaveLength(50);
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(50);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -349,10 +338,8 @@ describe("API 2.0 - Transactions", () => {
                     });
 
                     expect(response).toBeSuccessfulResponse();
-
-                    const data = response.data.data;
-                    expect(data).toBeArray();
-                    expect(data).toHaveLength(50);
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(50);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -375,10 +362,8 @@ describe("API 2.0 - Transactions", () => {
                     });
 
                     expect(response).toBeSuccessfulResponse();
-
-                    const data = response.data.data;
-                    expect(data).toBeArray();
-                    expect(data).toHaveLength(100);
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(100);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -400,10 +385,8 @@ describe("API 2.0 - Transactions", () => {
                     });
 
                     expect(response).toBeSuccessfulResponse();
-
-                    const data = response.data.data;
-                    expect(data).toBeArray();
-                    expect(data).toHaveLength(100);
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(100);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -428,9 +411,8 @@ describe("API 2.0 - Transactions", () => {
 
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-
                     // TODO: the response is sometimes empty. Racy test?
-                    // expect(response.data.data).not.toBeEmpty();
+                    // expect(response.data.data).toHaveLength(1);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -524,13 +506,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 
-            expect(response.data.data.accept.length).toBe(1);
+            expect(response.data.data.accept).toHaveLength(1);
             expect(response.data.data.accept[0]).toBe(transactions[0].id);
 
-            expect(response.data.data.broadcast.length).toBe(1);
+            expect(response.data.data.broadcast).toHaveLength(1);
             expect(response.data.data.broadcast[0]).toBe(transactions[0].id);
 
-            expect(response.data.data.invalid.length).toBe(1);
+            expect(response.data.data.invalid).toHaveLength(1);
             expect(response.data.data.invalid[0]).toBe(transactions[1].id);
         });
 
@@ -570,7 +552,7 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data.broadcast.sort()).toEqual(
                 allTransactions.map(transaction => transaction.id).sort(),
             );
-            expect(response.data.data.invalid.length).toBe(0);
+            expect(response.data.data.invalid).toHaveLength(0);
         });
 
         it.each([3, 5, 8])(
