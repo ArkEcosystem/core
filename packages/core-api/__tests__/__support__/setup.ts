@@ -4,6 +4,8 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 import { delegates } from "../../../core-test-utils/src/fixtures/testnet/delegates";
 import { generateRound } from "./utils/generate-round";
 
+import { queries } from "../../../core-database-postgres/src/queries";
+
 const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
 
 async function setUp() {
@@ -29,4 +31,18 @@ async function tearDown() {
     await app.tearDown();
 }
 
-export { setUp, tearDown };
+async function calculateRanks() {
+    const connection = app.resolvePlugin("database");
+
+    const rows = await connection.query.manyOrNone(queries.spv.delegatesRanks);
+
+    rows.forEach((delegate, i) => {
+        const wallet = connection.walletManager.findByPublicKey(delegate.publicKey);
+        wallet.missedBlocks = +delegate.missedBlocks;
+        wallet.rate = i + 1;
+
+        connection.walletManager.reindex(wallet);
+    });
+}
+
+export { calculateRanks, setUp, tearDown };

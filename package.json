@@ -65,9 +65,6 @@
     },
     "jest": {
         "preset": "./jest-preset.json",
-        "projects": [
-            "<rootDir>/packages/*"
-        ],
         "collectCoverageFrom": [
             "packages/**/src/**/*.ts",
             "!**/node_modules/**"

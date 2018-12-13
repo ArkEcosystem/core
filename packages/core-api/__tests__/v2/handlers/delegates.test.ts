@@ -1,5 +1,5 @@
 import "@arkecosystem/core-test-utils";
-import { setUp, tearDown } from "../../__support__/setup";
+import { calculateRanks, setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
 import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
@@ -8,7 +8,6 @@ import { models } from "@arkecosystem/crypto";
 const { Block } = models;
 
 import { app } from "@arkecosystem/core-container";
-const container = app;
 
 const delegate = {
     username: "genesis_9",
@@ -18,6 +17,7 @@ const delegate = {
 
 beforeAll(async () => {
     await setUp();
+    await calculateRanks();
 });
 
 afterAll(async () => {
@@ -107,7 +107,7 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all blocks for a delegate by the given identifier", async () => {
                     // save a new block so that we can make the request with generatorPublicKey
                     const block2 = new Block(blocks2to100[0]);
-                    const database = container.resolvePlugin("database");
+                    const database = app.resolvePlugin("database");
                     await database.saveBlock(block2);
 
                     const response = await utils[request](
