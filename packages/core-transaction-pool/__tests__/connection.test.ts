@@ -13,7 +13,6 @@ import { setUpFull, tearDown } from "./__support__/setup";
 
 const { ARKTOSHI, TRANSACTION_TYPES } = constants;
 const { Transaction } = models;
-const container = app;
 
 const { generateTransfers } = generators;
 const { delegatesSecrets } = fixtures;
@@ -25,9 +24,9 @@ let connection;
 beforeAll(async () => {
     await setUpFull();
 
-    config = container.resolvePlugin("config");
-    database = container.resolvePlugin("database");
-    connection = container.resolvePlugin("transactionPool");
+    config = app.resolvePlugin("config");
+    database = app.resolvePlugin("database");
+    connection = app.resolvePlugin("transactionPool");
 
     // Ensure no cold wallet and enough funds
     database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
@@ -41,11 +40,10 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    // connection.disconnect();
     await tearDown();
 });
 
-afterEach(() => {
+beforeEach(() => {
     connection.flush();
 });
 
