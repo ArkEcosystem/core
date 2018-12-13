@@ -9,7 +9,7 @@ module.exports = {
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     collectCoverage: false,
     coverageDirectory: "<rootDir>/.coverage",
-    collectCoverageFrom: ["packages/**/lib/**/*.js", "packages/**/src/**/*.js", "!**/node_modules/**"],
+    collectCoverageFrom: ["packages/**/src/**/*.js", "!**/node_modules/**"],
     watchman: false,
     setupTestFrameworkScriptFile: "jest-extended",
 };
