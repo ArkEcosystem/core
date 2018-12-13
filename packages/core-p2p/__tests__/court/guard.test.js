@@ -22,6 +22,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  jest.restoreAllMocks()
   await app.tearDown()
 })
 
@@ -46,6 +47,7 @@ describe('Guard', () => {
 
     it('should return true', async () => {
       process.env.ARK_ENV = false
+      jest.spyOn(guard, 'isMyself').mockReturnValue(false)
       await guard.monitor.acceptNewPeer(peerMock)
       process.env.ARK_ENV = ARK_ENV
 

@@ -7,11 +7,19 @@ const app = require('./__support__/setup')
 
 const defaults = require('../lib/defaults')
 
+const { guard } = require('../lib/court')
+
 let monitor
 let Peer
 let peerMock
 
 beforeAll(async () => {
+  jest.spyOn(guard, 'isMyself').mockReturnValue(false)
+  jest.spyOn(guard, 'isSuspended').mockReturnValue(false)
+  jest.spyOn(guard, 'isBlacklisted').mockReturnValue(false)
+  jest.spyOn(guard, 'isValidVersion').mockReturnValue(true)
+  jest.spyOn(guard, 'isValidNetwork').mockReturnValue(true)
+
   await app.setUp()
 
   monitor = require('../lib/monitor')
@@ -19,6 +27,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  jest.restoreAllMocks()
   await app.tearDown()
 })
 
