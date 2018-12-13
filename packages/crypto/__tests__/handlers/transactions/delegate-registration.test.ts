@@ -38,11 +38,7 @@ describe("DelegateRegistrationHandler", () => {
         expect(handler.constructor.name).toBe("DelegateRegistrationHandler");
     });
 
-    describe.only("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
-
+    describe("canApply", () => {
         it("should be true", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
         });
@@ -57,10 +53,6 @@ describe("DelegateRegistrationHandler", () => {
     });
 
     describe("apply", () => {
-        it("should be a function", () => {
-            expect(handler.apply).toBeFunction();
-        });
-
         it("should set username", () => {
             handler.apply(wallet, transaction);
 
@@ -69,10 +61,6 @@ describe("DelegateRegistrationHandler", () => {
     });
 
     describe("revert", () => {
-        it("should be a function", () => {
-            expect(handler.revert).toBeFunction();
-        });
-
         it("should unset username", () => {
             handler.revert(wallet, transaction);
 

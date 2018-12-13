@@ -13,10 +13,6 @@ describe("Transaction Pool Manager", () => {
     });
 
     describe("connection", () => {
-        it("should be a function", () => {
-            expect(transactionPoolManager.connection).toBeFunction();
-        });
-
         it("should return the drive-connection", async () => {
             await transactionPoolManager.makeConnection(new FakeDriver());
 
@@ -27,12 +23,6 @@ describe("Transaction Pool Manager", () => {
             await transactionPoolManager.makeConnection(new FakeDriver(), "testing");
 
             expect(transactionPoolManager.connection("testing")).toBeInstanceOf(FakeDriver);
-        });
-    });
-
-    describe("makeConnection", () => {
-        it("should be a function", () => {
-            expect(transactionPoolManager.makeConnection).toBeFunction();
         });
     });
 });

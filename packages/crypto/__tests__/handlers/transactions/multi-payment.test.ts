@@ -60,10 +60,6 @@ describe("MultiPaymentHandler", () => {
     });
 
     describe("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
-
         it("should be true", () => {
             const amount = sumBy(transaction.asset.payments, (payment: any) => payment.amount.toFixed());
 
@@ -78,18 +74,6 @@ describe("MultiPaymentHandler", () => {
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Insufficient balance in the wallet");
-        });
-    });
-
-    describe("apply", () => {
-        it("should be a function", () => {
-            expect(handler.apply).toBeFunction();
-        });
-    });
-
-    describe("revert", () => {
-        it("should be a function", () => {
-            expect(handler.revert).toBeFunction();
         });
     });
 });

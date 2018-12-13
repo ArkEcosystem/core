@@ -4,10 +4,6 @@ import { generateTransfers } from "../../../src/generators";
 const { TRANSACTION_TYPES, ARKTOSHI } = constants;
 
 describe("Transfer transaction", () => {
-    it("should be a function", () => {
-        expect(generateTransfers).toBeFunction();
-    });
-
     const amount = new (Bignum as any)(20 * ARKTOSHI);
     const quantity = 4;
     const transactions = generateTransfers(undefined, undefined, undefined, amount, quantity);

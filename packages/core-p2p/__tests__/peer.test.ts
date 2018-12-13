@@ -40,10 +40,6 @@ describe("Peer", () => {
     });
 
     describe("toBroadcastInfo", () => {
-        it("should be a function", () => {
-            expect(peerMock.toBroadcastInfo).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const struct = peerMock.toBroadcastInfo();
 
@@ -59,10 +55,6 @@ describe("Peer", () => {
     });
 
     describe("postBlock", () => {
-        it("should be a function", () => {
-            expect(peerMock.postBlock).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock.onPost(`${peerMock.url}/peer/blocks`).reply(200, { success: true }, peerMock.headers);
 
@@ -75,10 +67,6 @@ describe("Peer", () => {
     });
 
     describe.skip("postTransactions", () => {
-        it("should be a function", () => {
-            expect(peerMock.postTransactions).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock.onPost(`${peerMock.url}/peer/transactions`).reply(200, { success: true }, peerMock.headers);
 
@@ -99,10 +87,6 @@ describe("Peer", () => {
                     throw err;
                 });
 
-        it("should be a function", () => {
-            expect(peerMock.downloadBlocks).toBeFunction();
-        });
-
         it("should return the blocks with status 200", async () => {
             const blocks = [{}];
             axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(200, { blocks }, peerMock.headers);
@@ -119,10 +103,6 @@ describe("Peer", () => {
     });
 
     describe("ping", () => {
-        it("should be a function", () => {
-            expect(peerMock.ping).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
 
@@ -149,10 +129,6 @@ describe("Peer", () => {
     });
 
     describe("recentlyPinged", () => {
-        it("should be a function", () => {
-            expect(peerMock.recentlyPinged).toBeFunction();
-        });
-
         it("should be recently pinged", async () => {
             peerMock.lastPinged = null;
 
@@ -170,10 +146,6 @@ describe("Peer", () => {
     });
 
     describe("getPeers", () => {
-        it("should be a function", () => {
-            expect(peerMock.getPeers).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const peersMock = [{ ip: "1.1.1.1" }];
             axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
@@ -220,17 +192,7 @@ describe("Peer", () => {
         });
     });
 
-    describe("__get", () => {
-        it("should be a function", () => {
-            expect(peerMock.__get).toBeFunction();
-        });
-    });
-
     describe("__parseHeaders", () => {
-        it("should be a function", () => {
-            expect(peerMock.__parseHeaders).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const headers = {
                 nethash: "nethash",

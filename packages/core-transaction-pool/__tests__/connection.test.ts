@@ -50,15 +50,7 @@ afterEach(() => {
 });
 
 describe("Connection", () => {
-    it("should be an object", () => {
-        expect(connection).toBeObject();
-    });
-
     describe("getPoolSize", () => {
-        it("should be a function", () => {
-            expect(connection.getPoolSize).toBeFunction();
-        });
-
         it("should return 0 if no transactions were added", () => {
             expect(connection.getPoolSize()).toBe(0);
         });
@@ -77,10 +69,6 @@ describe("Connection", () => {
     });
 
     describe("getSenderSize", () => {
-        it("should be a function", () => {
-            expect(connection.getSenderSize).toBeFunction();
-        });
-
         it("should return 0 if no transactions were added", () => {
             expect(connection.getSenderSize("undefined")).toBe(0);
         });
@@ -101,10 +89,6 @@ describe("Connection", () => {
     });
 
     describe("addTransaction", () => {
-        it("should be a function", () => {
-            expect(connection.addTransaction).toBeFunction();
-        });
-
         it("should add the transaction to the pool", () => {
             expect(connection.getPoolSize()).toBe(0);
 
@@ -118,10 +102,6 @@ describe("Connection", () => {
     });
 
     describe("addTransactions", () => {
-        it("should be a function", () => {
-            expect(connection.addTransactions).toBeFunction();
-        });
-
         it("should add the transactions to the pool", () => {
             expect(connection.getPoolSize()).toBe(0);
 
@@ -197,10 +177,6 @@ describe("Connection", () => {
     });
 
     describe("removeTransaction", () => {
-        it("should be a function", () => {
-            expect(connection.removeTransaction).toBeFunction();
-        });
-
         it("should remove the specified transaction from the pool", () => {
             connection.addTransaction(mockData.dummy1);
 
@@ -213,10 +189,6 @@ describe("Connection", () => {
     });
 
     describe("removeTransactionById", () => {
-        it("should be a function", () => {
-            expect(connection.removeTransactionById).toBeFunction();
-        });
-
         it("should remove the specified transaction from the pool (by id)", () => {
             connection.addTransaction(mockData.dummy1);
 
@@ -237,10 +209,6 @@ describe("Connection", () => {
     });
 
     describe("removeTransactionsForSender", () => {
-        it("should be a function", () => {
-            expect(connection.removeTransactionsForSender).toBeFunction();
-        });
-
         it("should remove the senders transactions from the pool", () => {
             connection.addTransaction(mockData.dummy1);
             connection.addTransaction(mockData.dummy3);
@@ -258,10 +226,6 @@ describe("Connection", () => {
     });
 
     describe("transactionExists", () => {
-        it("should be a function", () => {
-            expect(connection.transactionExists).toBeFunction();
-        });
-
         it("should return true if transaction is IN pool", () => {
             connection.addTransactions([mockData.dummy1, mockData.dummy2]);
 
@@ -276,10 +240,6 @@ describe("Connection", () => {
     });
 
     describe("hasExceededMaxTransactions", () => {
-        it("should be a function", () => {
-            expect(connection.hasExceededMaxTransactions).toBeFunction();
-        });
-
         it("should be true if exceeded", () => {
             connection.options.maxTransactionsPerSender = 5;
             connection.options.allowedSenders = [];
@@ -331,10 +291,6 @@ describe("Connection", () => {
     });
 
     describe("getTransaction", () => {
-        it("should be a function", () => {
-            expect(connection.getTransaction).toBeFunction();
-        });
-
         it("should return the specified transaction", () => {
             connection.addTransaction(mockData.dummy1);
 
@@ -350,10 +306,6 @@ describe("Connection", () => {
     });
 
     describe("getTransactions", () => {
-        it("should be a function", () => {
-            expect(connection.getTransactions).toBeFunction();
-        });
-
         it("should return transactions within the specified range", () => {
             const transactions = [mockData.dummy1, mockData.dummy2];
 
@@ -376,10 +328,6 @@ describe("Connection", () => {
     });
 
     describe("getTransactionIdsForForging", () => {
-        it("should be a function", () => {
-            expect(connection.getTransactionIdsForForging).toBeFunction();
-        });
-
         it("should return an array of transactions ids", () => {
             connection.addTransaction(mockData.dummy1);
             connection.addTransaction(mockData.dummy2);
@@ -400,17 +348,7 @@ describe("Connection", () => {
         });
     });
 
-    describe("getTransactionsForForging", () => {
-        it("should be a function", () => {
-            expect(connection.getTransactionsForForging).toBeFunction();
-        });
-    });
-
     describe("flush", () => {
-        it("should be a function", () => {
-            expect(connection.flush).toBeFunction();
-        });
-
         it("should flush the pool", () => {
             connection.addTransaction(mockData.dummy1);
 
@@ -423,10 +361,6 @@ describe("Connection", () => {
     });
 
     describe("senderHasTransactionsOfType", () => {
-        it("should be a function", () => {
-            expect(connection.senderHasTransactionsOfType).toBeFunction();
-        });
-
         it("should be false for non-existent sender", () => {
             connection.addTransaction(mockData.dummy1);
 
@@ -615,10 +549,6 @@ describe("Connection", () => {
     });
 
     describe("purgeSendersWithInvalidTransactions", () => {
-        it("should be a function", () => {
-            expect(connection.purgeSendersWithInvalidTransactions).toBeFunction();
-        });
-
         it("should purge transactions from sender when invalid", async () => {
             const transfersA = generateTransfers("testnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
 
@@ -647,10 +577,6 @@ describe("Connection", () => {
     });
 
     describe("purgeBlock", () => {
-        it("should be a function", () => {
-            expect(connection.purgeBlock).toBeFunction();
-        });
-
         it("should purge transactions from block", async () => {
             const transactions = generateTransfers("testnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
             const block = { transactions };

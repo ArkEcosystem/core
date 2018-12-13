@@ -6,10 +6,6 @@ describe("Commands - Serialize", () => {
     const fixtureBlock = require("../__fixtures__/block.json");
     const fixtureTransaction = require("../__fixtures__/transaction.json");
 
-    it("should be a function", () => {
-        expect(serialize).toBeFunction();
-    });
-
     it("should serialize a block (not-full)", () => {
         expect(
             serialize({

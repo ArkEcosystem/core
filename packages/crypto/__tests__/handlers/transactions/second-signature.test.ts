@@ -41,10 +41,6 @@ describe("SecondSignatureHandler", () => {
     });
 
     describe("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
-
         it("should be true", () => {
             const errors = [];
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
@@ -62,10 +58,6 @@ describe("SecondSignatureHandler", () => {
     });
 
     describe("apply", () => {
-        it("should be a function", () => {
-            expect(handler.apply).toBeFunction();
-        });
-
         it("should apply second signature registration", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
 
@@ -89,10 +81,6 @@ describe("SecondSignatureHandler", () => {
     });
 
     describe("revert", () => {
-        it("should be a function", () => {
-            expect(handler.revert).toBeFunction();
-        });
-
         it("should be ok", () => {
             expect(wallet.secondPublicKey).toBeUndefined();
 

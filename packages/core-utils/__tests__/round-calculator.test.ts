@@ -6,10 +6,6 @@ import { calculateRound, isNewRound } from "../src/round-calculator";
 
 describe("Round calculator", () => {
     describe("calculateRound", () => {
-        it("should be a function", () => {
-            expect(calculateRound).toBeFunction();
-        });
-
         it("should calculate the round when nextRound is the same", () => {
             const { round, nextRound } = calculateRound(1);
             expect(round).toBe(1);
@@ -24,10 +20,6 @@ describe("Round calculator", () => {
     });
 
     describe("isNewRound", () => {
-        it("should be a function", () => {
-            expect(isNewRound).toBeFunction();
-        });
-
         it("should determine the beginning of a new round", () => {
             expect(isNewRound(1)).toBeTrue();
             expect(isNewRound(2)).toBeFalse();

@@ -14,10 +14,6 @@ const fixture = {
 
 describe("Message", () => {
     describe("sign", () => {
-        it("should be a function", () => {
-            expect(Message.sign).toBeFunction();
-        });
-
         it("should be ok", () => {
             const actual = Message.sign(fixture.data.message, fixture.passphrase);
 
@@ -29,10 +25,6 @@ describe("Message", () => {
     });
 
     describe("verify", () => {
-        it("should be a function", () => {
-            expect(Message.verify).toBeFunction();
-        });
-
         it("should be ok", () => {
             expect(Message.verify(fixture.data)).toBeTrue();
         });

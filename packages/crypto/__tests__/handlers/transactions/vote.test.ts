@@ -42,9 +42,6 @@ describe("VoteHandler", () => {
     });
 
     describe("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
         it("should be false if wallet has already voted", () => {
             wallet.vote = "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
             const errors = [];
@@ -70,10 +67,6 @@ describe("VoteHandler", () => {
     });
 
     describe("apply", () => {
-        it("should be a function", () => {
-            expect(handler.apply).toBeFunction();
-        });
-
         it("should be ok", () => {
             expect(wallet.vote).toBeNull();
 
@@ -94,10 +87,6 @@ describe("VoteHandler", () => {
     });
 
     describe("revert", () => {
-        it("should be a function", () => {
-            expect(handler.revert).toBeFunction();
-        });
-
         it("should be ok", () => {
             wallet.vote = "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
 

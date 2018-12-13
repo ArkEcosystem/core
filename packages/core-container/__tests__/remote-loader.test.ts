@@ -38,10 +38,6 @@ describe("Remote Loader", () => {
     });
 
     describe("__configureNetwork", () => {
-        it("should be a function", () => {
-            expect(testSubject.__configureNetwork).toBeFunction();
-        });
-
         it("should not be OK", async () => {
             const mockExit = mockProcess.mockProcessExit();
 
@@ -67,10 +63,6 @@ describe("Remote Loader", () => {
     });
 
     describe("__configureGenesisBlock", () => {
-        it("should be a function", () => {
-            expect(testSubject.__configureGenesisBlock).toBeFunction();
-        });
-
         it("should not be OK", async () => {
             axiosMock.onGet("http://127.0.0.1:4002/config/genesis-block").reply(() => [404, {}]);
 
@@ -92,10 +84,6 @@ describe("Remote Loader", () => {
     });
 
     describe("__configurePeers", () => {
-        it("should be a function", () => {
-            expect(testSubject.__configurePeers).toBeFunction();
-        });
-
         it("should not be OK", async () => {
             const mockExit = mockProcess.mockProcessExit();
 
@@ -121,10 +109,6 @@ describe("Remote Loader", () => {
     });
 
     describe("__configureDelegates", () => {
-        it("should be a function", () => {
-            expect(testSubject.__configureDelegates).toBeFunction();
-        });
-
         it("should not be OK", async () => {
             const mockExit = mockProcess.mockProcessExit();
 
@@ -150,10 +134,6 @@ describe("Remote Loader", () => {
     });
 
     describe("__configurePlugins", () => {
-        it("should be a function", () => {
-            expect(testSubject.__configurePlugins).toBeFunction();
-        });
-
         it("should be OK", async () => {
             await testSubject.__configurePlugins({ name: "devnet" });
 

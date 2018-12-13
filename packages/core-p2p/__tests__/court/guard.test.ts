@@ -39,10 +39,6 @@ describe("Guard", () => {
     });
 
     describe("isSuspended", () => {
-        it("should be a function", () => {
-            expect(guard.isSuspended).toBeFunction();
-        });
-
         it("should return true", async () => {
             process.env.ARK_ENV = "false";
             await guard.monitor.acceptNewPeer(peerMock);
@@ -66,10 +62,6 @@ describe("Guard", () => {
     });
 
     describe("isRepeatOffender", () => {
-        it("should be a function", () => {
-            expect(guard.isRepeatOffender).toBeFunction();
-        });
-
         it("should be true if the threshold is met", () => {
             const peer = { offences: [] };
 
@@ -100,10 +92,6 @@ describe("Guard", () => {
             status: 200,
             state: {},
         };
-
-        it("should be a function", () => {
-            expect(guard.__determineOffence).toBeFunction();
-        });
 
         it('should return a 1 day suspension for "Blacklisted"', () => {
             guard.config.set("blacklist", ["dummy-ip-addr"]);
@@ -216,10 +204,6 @@ describe("Guard", () => {
     });
 
     describe("__determinePunishment", () => {
-        it("should be a function", () => {
-            expect(guard.__determinePunishment).toBeFunction();
-        });
-
         it("should be true if the threshold is met", () => {
             const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER);
 

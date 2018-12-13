@@ -24,10 +24,6 @@ afterEach(() => {
 afterAll(() => mockAxios.restore());
 
 describe("Commands - Vote", () => {
-    it("should be a function", () => {
-        expect(Vote).toBeFunction();
-    });
-
     it("should vote for specified delegate", async () => {
         const expectedDelegate = "03f294777f7376e970b2bd4805b4a90c8449b5935d530bdb566d02800ac44a4c00";
         const opts = {

@@ -24,10 +24,6 @@ afterEach(() => {
 afterAll(() => mockAxios.restore());
 
 describe("Commands - Transfer", () => {
-    it("should be a function", () => {
-        expect(Transfer).toBeFunction();
-    });
-
     it("should postTransactions using custom smartBridge value", async () => {
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
         const expectedTransactionAmount = 2;

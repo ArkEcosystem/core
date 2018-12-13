@@ -52,10 +52,6 @@ describe("Handler", () => {
     });
 
     describe("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
-
         it("should be true", () => {
             const errors = [];
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
@@ -80,10 +76,6 @@ describe("Handler", () => {
     });
 
     describe("applyTransactionToSender", () => {
-        it("should be a function", () => {
-            expect(handler.applyTransactionToSender).toBeFunction();
-        });
-
         it("should be ok", () => {
             handler.apply = jest.fn();
 
@@ -123,10 +115,6 @@ describe("Handler", () => {
     });
 
     describe("revertTransactionForSender", () => {
-        it("should be a function", () => {
-            expect(handler.revertTransactionForSender).toBeFunction();
-        });
-
         it("should be ok", () => {
             handler.revert = jest.fn();
 
@@ -166,10 +154,6 @@ describe("Handler", () => {
     });
 
     describe("applyTransactionToRecipient", () => {
-        it("should be a function", () => {
-            expect(handler.applyTransactionToRecipient).toBeFunction();
-        });
-
         it("should be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
             wallet.balance = new Bignum(initialBalance);
@@ -192,10 +176,6 @@ describe("Handler", () => {
     });
 
     describe("revertTransactionForRecipient", () => {
-        it("should be a function", () => {
-            expect(handler.revertTransactionForRecipient).toBeFunction();
-        });
-
         it("should be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
             wallet.balance = new Bignum(initialBalance);

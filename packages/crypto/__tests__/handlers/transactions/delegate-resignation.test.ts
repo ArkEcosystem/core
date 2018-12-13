@@ -20,10 +20,6 @@ describe("DelegateResignationHandler", () => {
     });
 
     describe("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
-
         it("should be truth", () => {
             wallet.username = "dummy";
 
@@ -36,18 +32,6 @@ describe("DelegateResignationHandler", () => {
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet has not registered a username");
-        });
-    });
-
-    describe("apply", () => {
-        it("should be a function", () => {
-            expect(handler.apply).toBeFunction();
-        });
-    });
-
-    describe("revert", () => {
-        it("should be a function", () => {
-            expect(handler.revert).toBeFunction();
         });
     });
 });

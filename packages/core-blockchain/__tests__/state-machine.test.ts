@@ -58,10 +58,6 @@ describe("State Machine", () => {
         });
 
         describe("checkLater", () => {
-            it("should be a function", () => {
-                expect(actionMap.checkLater).toBeFunction();
-            });
-
             it('should dispatch the event "WAKEUP" after a delay', async () => {
                 jest.useFakeTimers();
                 blockchain.dispatch = jest.fn();
@@ -78,10 +74,6 @@ describe("State Machine", () => {
         });
 
         describe("checkLastBlockSynced", () => {
-            it("should be a function", () => {
-                expect(actionMap.checkLastBlockSynced).toBeFunction();
-            });
-
             it('should dispatch the event "SYNCED" if the blockchain is synced', () => {
                 blockchain.isSynced = jest.fn(() => true);
                 expect(actionMap.checkLastBlockSynced).toDispatch(blockchain, "SYNCED");
@@ -94,10 +86,6 @@ describe("State Machine", () => {
         });
 
         describe("checkRebuildBlockSynced", () => {
-            it("should be a function", () => {
-                expect(actionMap.checkRebuildBlockSynced).toBeFunction();
-            });
-
             it('should dispatch the event "SYNCED" if the blockchain is synced after a rebuild', () => {
                 blockchain.isRebuildSynced = jest.fn(() => true);
                 expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(blockchain, "SYNCED");
@@ -109,17 +97,7 @@ describe("State Machine", () => {
             });
         });
 
-        describe("checkLastDownloadedBlockSynced", () => {
-            it("should be a function", () => {
-                expect(actionMap.checkLastDownloadedBlockSynced).toBeFunction();
-            });
-        });
-
         describe("downloadFinished", () => {
-            it("should be a function", () => {
-                expect(actionMap.downloadFinished).toBeFunction();
-            });
-
             describe("if the network has started", () => {
                 it('should dispatch the event "SYNCFINISHED"', () => {
                     stateMachine.state.networkStart = true;
@@ -142,65 +120,15 @@ describe("State Machine", () => {
             });
         });
 
-        describe("rebuildFinished", () => {
-            it("should be a function", () => {
-                expect(actionMap.rebuildFinished).toBeFunction();
-            });
-        });
-
         describe("downloadPaused", () => {
-            it("should be a function", () => {
-                expect(actionMap.downloadPaused).toBeFunction();
-            });
-
             it('should dispatch the event "SYNCFINISHED"', () => {
                 expect(() => actionMap.syncingComplete()).toDispatch(blockchain, "SYNCFINISHED");
             });
         });
 
         describe("rebuildingComplete", () => {
-            it("should be a function", () => {
-                expect(actionMap.rebuildingComplete).toBeFunction();
-            });
-
             it('should dispatch the event "REBUILDCOMPLETE"', () => {
                 expect(() => actionMap.rebuildingComplete()).toDispatch(blockchain, "REBUILDCOMPLETE");
-            });
-        });
-
-        describe("exitApp", () => {
-            it("should be a function", () => {
-                expect(actionMap.exitApp).toBeFunction();
-            });
-        });
-
-        describe("init", () => {
-            it("should be a function", () => {
-                expect(actionMap.init).toBeFunction();
-            });
-        });
-
-        describe("rebuildBlocks", () => {
-            it("should be a function", () => {
-                expect(actionMap.rebuildBlocks).toBeFunction();
-            });
-        });
-
-        describe("downloadBlocks", () => {
-            it("should be a function", () => {
-                expect(actionMap.downloadBlocks).toBeFunction();
-            });
-        });
-
-        describe("analyseFork", () => {
-            it("should be a function", () => {
-                expect(actionMap.analyseFork).toBeFunction();
-            });
-        });
-
-        describe("startForkRecovery", () => {
-            it("should be a function", () => {
-                expect(actionMap.startForkRecovery).toBeFunction();
             });
         });
     });

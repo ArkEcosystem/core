@@ -28,10 +28,6 @@ describe("Plugin Registrar", () => {
     });
 
     describe("register", () => {
-        it("should be a function", () => {
-            expect(instance.setUp).toBeFunction();
-        });
-
         it("should register plugins with relative paths", async () => {
             const pluginName = "./plugin-a";
 
@@ -42,10 +38,6 @@ describe("Plugin Registrar", () => {
     });
 
     describe("setUp", () => {
-        it("should be a function", () => {
-            expect(instance.setUp).toBeFunction();
-        });
-
         it("should register each plugin", async () => {
             await instance.setUp();
             const plugins = ["a", "b", "c"];

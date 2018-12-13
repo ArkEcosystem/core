@@ -15,10 +15,6 @@ beforeEach(() => {
 
 describe("Delegate Calculator", () => {
     describe("calculateApproval", () => {
-        it("should be a function", () => {
-            expect(calculateApproval).toBeFunction();
-        });
-
         it("should calculate correctly", () => {
             delegate.voteBalance = new Bignum(10000 * 1e8);
 
@@ -33,10 +29,6 @@ describe("Delegate Calculator", () => {
     });
 
     describe("calculateProductivity", () => {
-        it("should be a function", () => {
-            expect(calculateProductivity).toBeFunction();
-        });
-
         it("should calculate correctly for a value above 0", () => {
             delegate.missedBlocks = 10;
             delegate.producedBlocks = 100;

@@ -23,9 +23,6 @@ beforeEach(() => {
 
 describe("Command Base", () => {
     describe("Init", () => {
-        it("should be a function", () => {
-            expect(Command.initialize).toBeFunction();
-        });
         it("initialize with option", async () => {
             mockAxios
                 .onGet("http://test_baseUrl:1234/api/v2/node/configuration")
@@ -49,10 +46,6 @@ describe("Command Base", () => {
     });
 
     describe("Copy to Clipboard", () => {
-        it("should be a function", () => {
-            expect(command.copyToClipboard).toBeFunction();
-        });
-
         it("should contain the copied content", () => {
             command.copyToClipboard([
                 {
@@ -71,9 +64,6 @@ describe("Command Base", () => {
     });
 
     describe("Generate Wallets", () => {
-        it("should be a function", () => {
-            expect(command.generateWallets).toBeFunction();
-        });
         it("generate wallets", () => {
             command.config = {
                 network: {
@@ -89,9 +79,6 @@ describe("Command Base", () => {
     });
 
     describe("getDelegates", () => {
-        it("should be a function", () => {
-            expect(command.getDelegates).toBeFunction();
-        });
         it("should get delegates", async () => {
             const delegatePage1Fixture = require("../__fixtures__/delegates-page-1.json");
             const delegatePage2Fixture = require("../__fixtures__/delegates-page-2.json");
@@ -110,9 +97,6 @@ describe("Command Base", () => {
     });
 
     describe("getTransactionDelaySeconds", () => {
-        it("should be a function", () => {
-            expect(command.getTransactionDelaySeconds).toBeFunction();
-        });
         it("should delay correct", () => {
             command.config = {
                 constants: {
@@ -134,9 +118,6 @@ describe("Command Base", () => {
     });
 
     describe("getTransaction", () => {
-        it("should be a function", () => {
-            expect(command.getTransaction).toBeFunction();
-        });
         it("should get transaction", async () => {
             const transactionFixture = require("../__fixtures__/transaction-1.json");
             command.config = {
@@ -152,9 +133,6 @@ describe("Command Base", () => {
     });
 
     describe("getVoters", () => {
-        it("should be a function", () => {
-            expect(command.getVoters).toBeFunction();
-        });
         it("should get voters", async () => {
             const voterPage1Fixture = require("../__fixtures__/voters-page-1.json");
             const voterPage2Fixture = require("../__fixtures__/voters-page-2.json");
@@ -173,9 +151,6 @@ describe("Command Base", () => {
     });
 
     describe("getWalletBalance", () => {
-        it("should be a function", () => {
-            expect(command.getWalletBalance).toBeFunction();
-        });
         it("should get transaction", async () => {
             const walletFixture = require("../__fixtures__/wallet-1.json");
             command.config = {
@@ -191,9 +166,6 @@ describe("Command Base", () => {
     });
 
     describe("getWallet", () => {
-        it("should be a function", () => {
-            expect(command.getWallet).toBeFunction();
-        });
         it("should get transaction", async () => {
             const walletFixture = require("../__fixtures__/wallet-1.json");
             command.config = {
@@ -209,9 +181,6 @@ describe("Command Base", () => {
     });
 
     describe("static parseFee", () => {
-        it("should be a function", () => {
-            expect(Command.parseFee).toBeFunction();
-        });
         it("should give arktoshi", () => {
             expect(Command.parseFee(0.1).toString()).toBe("10000000");
             expect(Command.parseFee(1).toString()).toBe("100000000");
@@ -224,9 +193,6 @@ describe("Command Base", () => {
     });
 
     describe("sendTransactions", () => {
-        it("should be a function", () => {
-            expect(command.sendTransactions).toBeFunction();
-        });
         it("should send and wait", async () => {
             const responseFixture = require("../__fixtures__/transaction-response-1.json");
             const loggerInfo = logger.info;
@@ -253,9 +219,6 @@ describe("Command Base", () => {
     });
 
     describe("postTransactions", () => {
-        it("should be a function", () => {
-            expect(command.postTransactions).toBeFunction();
-        });
         it("should send transaction", async () => {
             const responseFixture = require("../__fixtures__/transaction-response-1.json");
             command.config = {
@@ -271,9 +234,6 @@ describe("Command Base", () => {
     });
 
     describe("__applyConfig", () => {
-        it("should be a function", () => {
-            expect(command.__applyConfig).toBeFunction();
-        });
         it("should sets constant", () => {
             command.options = {
                 baseUrl: "http://baseUrl///",
@@ -294,9 +254,6 @@ describe("Command Base", () => {
     });
 
     describe("__loadConstants", () => {
-        it("should be a function", () => {
-            expect(command.__loadConstants).toBeFunction();
-        });
         it("should sets constant", async () => {
             command.config = {
                 baseUrl: "http://baseUrl",
@@ -321,9 +278,6 @@ describe("Command Base", () => {
     });
 
     describe("__loadNetworkConfig", () => {
-        it("should be a function", () => {
-            expect(command.__loadNetworkConfig).toBeFunction();
-        });
         it("should sets constant", async () => {
             command.config = {
                 baseUrl: "http://baseUrl",
@@ -345,9 +299,6 @@ describe("Command Base", () => {
     });
 
     describe("static __arkToArktoshi", () => {
-        it("should be a function", () => {
-            expect(Command.__arkToArktoshi).toBeFunction();
-        });
         it("should give arktoshi", () => {
             expect(Command.__arkToArktoshi(0.00000001).toString()).toBe("1");
             expect(Command.__arkToArktoshi(0.1).toString()).toBe("10000000");
@@ -357,9 +308,6 @@ describe("Command Base", () => {
     });
 
     describe("static __arktoshiToArk", () => {
-        it("should be a function", () => {
-            expect(Command.__arktoshiToArk).toBeFunction();
-        });
         it("should give ark", () => {
             expect(Command.__arktoshiToArk(1)).toBe("0.00000001 DѦ");
             expect(Command.__arktoshiToArk(10000000)).toBe("0.1 DѦ");
@@ -369,9 +317,6 @@ describe("Command Base", () => {
     });
 
     describe("__problemSendingTransactions", () => {
-        it("should be a function", () => {
-            expect(command.__problemSendingTransactions).toBeFunction();
-        });
         it("should log message and exit", () => {
             const processExit = process.exit;
             const loggerError = logger.error;

@@ -76,10 +76,6 @@ describe("Wallet Repository", () => {
     });
 
     describe("all", () => {
-        it("should be a function", () => {
-            expect(repository.all).toBeFunction();
-        });
-
         it("should return the local wallets of the connection", () => {
             repository.connection.walletManager.all = jest.fn();
             repository.all();
@@ -88,10 +84,6 @@ describe("Wallet Repository", () => {
     });
 
     describe("findAll", () => {
-        it("should be a function", () => {
-            expect(repository.findAll).toBeFunction();
-        });
-
         it("should be ok without params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
@@ -151,10 +143,6 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
         });
 
-        it("should be a function", () => {
-            expect(repository.findAllByVote).toBeFunction();
-        });
-
         it("should be ok without params", () => {
             const { count, rows } = repository.findAllByVote(vote);
             expect(count).toBe(17);
@@ -204,10 +192,6 @@ describe("Wallet Repository", () => {
             expect(wallet.username).toBe(wallets[0].username);
         };
 
-        it("should be a function", () => {
-            expect(repository.findById).toBeFunction();
-        });
-
         it("should be ok with an address", () => {
             expectWallet("address");
         });
@@ -222,10 +206,6 @@ describe("Wallet Repository", () => {
     });
 
     describe("count", () => {
-        it("should be a function", () => {
-            expect(repository.count).toBeFunction();
-        });
-
         it("should be ok", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
@@ -239,10 +219,6 @@ describe("Wallet Repository", () => {
             walletManager.reindex({ address: "dummy-1", balance: new Bignum(1000) });
             walletManager.reindex({ address: "dummy-2", balance: new Bignum(2000) });
             walletManager.reindex({ address: "dummy-3", balance: new Bignum(3000) });
-        });
-
-        it("should be a function", () => {
-            expect(repository.top).toBeFunction();
         });
 
         it("should be ok without params", () => {
@@ -317,10 +293,6 @@ describe("Wallet Repository", () => {
 
             expect(wallets.count).toBe(rows);
         };
-
-        it("should be a function", () => {
-            expect(repository.search).toBeFunction();
-        });
 
         it("should search wallets by the specified address", () => {
             const wallets = generateFullWallets();

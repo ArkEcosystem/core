@@ -16,20 +16,12 @@ const signedMessageEntries: any = [
 
 describe("Message", () => {
     describe("sign", () => {
-        it("should be a function", () => {
-            expect(Message.sign).toBeFunction();
-        });
-
         it("should sign a message", () => {
             expect(Message.sign("test", passphrase)).toContainAllEntries(signedMessageEntries);
         });
     });
 
     describe("signWithWif", () => {
-        it("should be a function", () => {
-            expect(Message.signWithWif).toBeFunction();
-        });
-
         it("should sign a message", () => {
             expect(Message.signWithWif("test", wif)).toContainAllEntries(signedMessageEntries);
         });
@@ -42,10 +34,6 @@ describe("Message", () => {
     });
 
     describe("verify", () => {
-        it("should be a function", () => {
-            expect(Message.verify).toBeFunction();
-        });
-
         it("should verify a signed message", () => {
             const signedMessage = Message.sign("test", passphrase);
             expect(Message.verify(signedMessage)).toBe(true);

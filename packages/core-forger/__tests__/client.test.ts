@@ -45,10 +45,6 @@ describe("Client", () => {
     });
 
     describe("broadcast", () => {
-        it("should be a function", () => {
-            expect(client.broadcast).toBeFunction();
-        });
-
         describe("when the host is available", () => {
             it("should be truthy if broadcasts", async () => {
                 mockAxios.onPost(`${host}/internal/blocks`).reply(c => {
@@ -69,10 +65,6 @@ describe("Client", () => {
     });
 
     describe("getRound", () => {
-        it("should be a function", () => {
-            expect(client.getRound).toBeFunction();
-        });
-
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = { foo: "bar" };
@@ -86,10 +78,6 @@ describe("Client", () => {
     });
 
     describe("getTransactions", () => {
-        it("should be a function", () => {
-            expect(client.getTransactions).toBeFunction();
-        });
-
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = { foo: "bar" };
@@ -104,10 +92,6 @@ describe("Client", () => {
     });
 
     describe("getNetworkState", () => {
-        it("should be a function", () => {
-            expect(client.getNetworkState).toBeFunction();
-        });
-
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = { foo: "bar" };
@@ -122,10 +106,6 @@ describe("Client", () => {
     });
 
     describe("syncCheck", () => {
-        it("should be a function", () => {
-            expect(client.syncCheck).toBeFunction();
-        });
-
         it("should induce network sync", async () => {
             jest.spyOn(axios, "get");
             mockAxios.onGet(`${host}/internal/blockchain/sync`).reply(200);
@@ -137,10 +117,6 @@ describe("Client", () => {
     });
 
     describe("getUsernames", () => {
-        it("should be a function", () => {
-            expect(client.getUsernames).toBeFunction();
-        });
-
         it("should fetch usernames", async () => {
             jest.spyOn(axios, "get");
             const expectedResponse = { foo: "bar" };
@@ -153,9 +129,6 @@ describe("Client", () => {
     });
 
     describe("emitEvent", () => {
-        it("should be a function", () => {
-            expect(client.emitEvent).toBeFunction();
-        });
         it("should emit events", async () => {
             jest.spyOn(axios, "post");
             mockAxios.onPost(`${host}/internal/utils/events`).reply(c => {

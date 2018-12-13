@@ -23,10 +23,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("generate", () => {
-        it("should be a function", () => {
-            expect(builder.generate).toBeFunction();
-        });
-
         it("should return a genesis object", () => {
             genesis = builder.generate();
 
@@ -51,10 +47,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("__createWallet", () => {
-        it("should be a function", () => {
-            expect(builder.__createWallet).toBeFunction();
-        });
-
         it("should return an object", () => {
             wallet = builder.__createWallet();
 
@@ -71,10 +63,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("__createDelegateWallet", () => {
-        it("should be a function", () => {
-            expect(builder.__createDelegateWallet).toBeFunction();
-        });
-
         it("should return an object", () => {
             delegateWallet = builder.__createDelegateWallet("testing");
 
@@ -103,10 +91,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("__buildDelegates", () => {
-        it("should be a function", () => {
-            expect(builder.__buildDelegates).toBeFunction();
-        });
-
         it("should return an array of 2", () => {
             expect(delegateWallets).toBeArrayOfSize(2);
         });
@@ -121,10 +105,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("__buildDelegateTransactions", () => {
-        it("should be a function", () => {
-            expect(builder.__buildDelegateTransactions).toBeFunction();
-        });
-
         it("should return an array of 2", () => {
             const delegateTransactions = builder.__buildDelegateTransactions(delegateWallets);
 
@@ -141,10 +121,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("__createTransferTransaction", () => {
-        it("should be a function", () => {
-            expect(builder.__createTransferTransaction).toBeFunction();
-        });
-
         it("should return a transaction object", () => {
             const transferTransaction = builder.__createTransferTransaction(delegateWallet, wallet, 10);
 
@@ -166,10 +142,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("__createDelegateTransaction", () => {
-        it("should be a function", () => {
-            expect(builder.__createDelegateTransaction).toBeFunction();
-        });
-
         it("should return a transaction object", () => {
             const delegateTransaction = builder.__createDelegateTransaction(delegateWallet);
 
@@ -194,10 +166,6 @@ describe("Genesis Block Builder", () => {
     });
 
     describe("__createGenesisBlock", () => {
-        it("should be a function", () => {
-            expect(builder.__createGenesisBlock).toBeFunction();
-        });
-
         it("should match the expected struct", () => {
             const genesisBlock = builder.__createGenesisBlock({
                 keys: wallet.keys,

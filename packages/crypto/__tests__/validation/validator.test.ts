@@ -7,17 +7,7 @@ beforeEach(() => {
 });
 
 describe("Validator", () => {
-    describe("validate", () => {
-        it("should be a function", () => {
-            expect(validator.validate).toBeFunction();
-        });
-    });
-
     describe("passes", () => {
-        it("should be a function", () => {
-            expect(validator.passes).toBeFunction();
-        });
-
         it("should be true", () => {
             validator.results = {
                 passes: true,
@@ -36,10 +26,6 @@ describe("Validator", () => {
     });
 
     describe("fails", () => {
-        it("should be a function", () => {
-            expect(validator.fails).toBeFunction();
-        });
-
         it("should be true", () => {
             validator.results = {
                 fails: true,
@@ -58,10 +44,6 @@ describe("Validator", () => {
     });
 
     describe("validated", () => {
-        it("should be a function", () => {
-            expect(validator.validated).toBeFunction();
-        });
-
         it("should be true", () => {
             validator.results = {
                 data: {
@@ -84,10 +66,6 @@ describe("Validator", () => {
     });
 
     describe("extend", () => {
-        it("should be a function", () => {
-            expect(validator.extend).toBeFunction();
-        });
-
         it("should add the given method", () => {
             expect(validator.rules).not.toHaveProperty("fake");
 
@@ -98,10 +76,6 @@ describe("Validator", () => {
     });
 
     describe("__validateWithRule", () => {
-        it("should be a function", () => {
-            expect(validator.__validateWithRule).toBeFunction();
-        });
-
         it("should be true", () => {
             validator.__validateWithRule("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN", "address");
 
@@ -116,10 +90,6 @@ describe("Validator", () => {
     });
 
     describe("__validateWithFunction", () => {
-        it("should be a function", () => {
-            expect(validator.__validateWithFunction).toBeFunction();
-        });
-
         it("should be true", () => {
             validator.__validateWithFunction("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN", value => ({
                 data: value,
@@ -142,10 +112,6 @@ describe("Validator", () => {
     });
 
     describe("__validateWithJoi", () => {
-        it("should be a function", () => {
-            expect(validator.__validateWithJoi).toBeFunction();
-        });
-
         it("should be true", () => {
             validator.__validateWithJoi(
                 "DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN",
@@ -172,10 +138,6 @@ describe("Validator", () => {
     });
 
     describe("__reset", () => {
-        it("should be a function", () => {
-            expect(validator.__reset).toBeFunction();
-        });
-
         it("should be empty", () => {
             validator.results = {
                 key: "value",

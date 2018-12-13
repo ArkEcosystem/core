@@ -4,10 +4,6 @@ import { generateSecondSignature } from "../../../src/generators";
 const { TRANSACTION_TYPES } = constants;
 
 describe("Signature transaction", () => {
-    it("should be a function", () => {
-        expect(generateSecondSignature).toBeFunction();
-    });
-
     const quantity = 4;
     const transactions = generateSecondSignature(undefined, undefined, quantity);
 

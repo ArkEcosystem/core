@@ -55,10 +55,6 @@ describe("Transaction Repository", () => {
             expect(transactions.count).toBe(expected);
         };
 
-        it("should be a function", () => {
-            expect(repository.search).toBeFunction();
-        });
-
         it("should search transactions by the specified `id`", async () => {
             await expectSearch({ id: genesisTransaction.id }, 1);
         });

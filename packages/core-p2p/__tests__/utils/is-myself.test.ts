@@ -2,10 +2,6 @@ import os from "os";
 import isMyself from "../../src/utils/is-myself";
 
 describe("isMyself", () => {
-    it("should be a function", () => {
-        expect(isMyself).toBeFunction();
-    });
-
     it("should be ok for localhost addresses", () => {
         expect(isMyself("127.0.0.1")).toBeTrue();
 

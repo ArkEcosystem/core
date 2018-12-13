@@ -22,10 +22,6 @@ afterEach(() => {
 });
 
 describe("Commands - Second signature", () => {
-    it("should be a function", () => {
-        expect(SecondSignature).toBeFunction();
-    });
-
     it("should apply second signature", async () => {
         const opts = {
             ...defaultOpts,

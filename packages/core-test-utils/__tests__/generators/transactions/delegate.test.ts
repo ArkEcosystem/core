@@ -4,10 +4,6 @@ import { generateDelegateRegistration } from "../../../src/generators";
 const { TRANSACTION_TYPES } = constants;
 
 describe("Delegate transaction", () => {
-    it("should be a function", () => {
-        expect(generateDelegateRegistration).toBeFunction();
-    });
-
     const quantity = 4;
     const transactions = generateDelegateRegistration(undefined, undefined, quantity);
 

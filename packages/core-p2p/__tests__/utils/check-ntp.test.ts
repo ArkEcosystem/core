@@ -18,10 +18,6 @@ describe("Check NTP", () => {
     const hosts = ["pool.ntp.org", "time.google.com"];
     const host = hosts[0];
 
-    it("should be a function", () => {
-        expect(checker).toBeFunction();
-    });
-
     it("should get the time from hosts", async () => {
         const response = await checker([host]);
 

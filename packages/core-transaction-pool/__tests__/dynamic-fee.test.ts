@@ -25,10 +25,6 @@ describe("static fees", () => {
         container.resolvePlugin("config").getConstants(h).fees.dynamic = false;
     });
 
-    it("should be a function", () => {
-        expect(dynamicFeeMatcher).toBeFunction();
-    });
-
     it("should accept transactions matching the static fee for broadcast", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();

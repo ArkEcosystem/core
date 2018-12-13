@@ -5,10 +5,6 @@ import { Keys } from "../../src/identities/keys";
 
 describe("Identities - Keys", () => {
     describe("fromPassphrase", () => {
-        it("should be a function", () => {
-            expect(Keys.fromPassphrase).toBeFunction();
-        });
-
         it("should return two keys in hex", () => {
             const keys = Keys.fromPassphrase("secret");
 
@@ -32,10 +28,6 @@ describe("Identities - Keys", () => {
     });
 
     describe("fromWIF", () => {
-        it("should be a function", () => {
-            expect(Keys.fromWIF).toBeFunction();
-        });
-
         it("should return two keys in hex", () => {
             const keys = Keys.fromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
 

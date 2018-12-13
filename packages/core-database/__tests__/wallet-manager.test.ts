@@ -49,10 +49,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("reset", () => {
-        it("should be a function", () => {
-            expect(walletManager.reset).toBeFunction();
-        });
-
         it("should reset the index", () => {
             const wallet = new Wallet(walletData1.address);
 
@@ -65,10 +61,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("reindex", () => {
-        it("should be a function", () => {
-            expect(walletManager.reindex).toBeFunction();
-        });
-
         it("should index the wallets", () => {
             const wallet = new Wallet(walletData1.address);
 
@@ -108,10 +100,6 @@ describe("Wallet Manager", () => {
             block2 = new Block(data);
 
             walletManager.reindex(delegateMock);
-        });
-
-        it("should be a function", () => {
-            expect(walletManager.applyBlock).toBeFunction();
         });
 
         it("should apply sequentially the transactions of the block", async () => {
@@ -178,20 +166,12 @@ describe("Wallet Manager", () => {
     });
 
     describe.skip("revertBlock", () => {
-        it("should be a function", () => {
-            expect(walletManager.revertBlock).toBeFunction();
-        });
-
         it("should revert all transactions of the block", () => {});
 
         it("should revert the block of the delegate", () => {});
     });
 
     describe("applyTransaction", () => {
-        it("should be a function", () => {
-            expect(walletManager.applyTransaction).toBeFunction();
-        });
-
         describe("when the recipient is a cold wallet", () => {});
 
         const transfer = generateTransfers("testnet", Math.random().toString(36), walletData2.address, 96579, 1)[0];
@@ -257,10 +237,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("revertTransaction", () => {
-        it("should be a function", () => {
-            expect(walletManager.revertTransaction).toBeFunction();
-        });
-
         it("should revert the transaction from the sender & recipient", async () => {
             const transaction = new Transaction({
                 type: TRANSACTION_TYPES.TRANSFER,
@@ -291,10 +267,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("findByAddress", () => {
-        it("should be a function", () => {
-            expect(walletManager.findByAddress).toBeFunction();
-        });
-
         it("should index it by address", () => {
             const wallet = new Wallet(walletData1.address);
 
@@ -311,10 +283,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("findByPublicKey", () => {
-        it("should be a function", () => {
-            expect(walletManager.findByPublicKey).toBeFunction();
-        });
-
         it("should index it by publicKey", () => {
             const wallet = new Wallet(walletData1.address);
             wallet.publicKey = walletData1.publicKey;
@@ -333,10 +301,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("findByUsername", () => {
-        it("should be a function", () => {
-            expect(walletManager.findByUsername).toBeFunction();
-        });
-
         it("should index it by username", () => {
             const wallet = new Wallet(walletData1.address);
             wallet.username = "dummy-username";
@@ -355,10 +319,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("all", () => {
-        it("should be a function", () => {
-            expect(walletManager.all).toBeFunction();
-        });
-
         it("should return indexed", () => {
             const wallet1 = new Wallet(walletData1.address);
             walletManager.reindex(wallet1);
@@ -403,10 +363,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("purgeEmptyNonDelegates", () => {
-        it("should be a function", () => {
-            expect(walletManager.purgeEmptyNonDelegates).toBeFunction();
-        });
-
         it("should be purged if all criteria are satisfied", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
@@ -472,10 +428,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("buildVoteBalances", () => {
-        it("should be a function", () => {
-            expect(walletManager.buildVoteBalances).toBeFunction();
-        });
-
         it("should update vote balance of delegates", async () => {
             for (let i = 0; i < 5; i++) {
                 const delegateKey = i.toString().repeat(66);

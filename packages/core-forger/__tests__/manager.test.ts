@@ -34,10 +34,6 @@ beforeEach(() => {
 
 describe("Forger Manager", () => {
     describe("loadDelegates", () => {
-        it("should be a function", () => {
-            expect(forgeManager.loadDelegates).toBeFunction();
-        });
-
         it("should be ok with configured delegates", async () => {
             const secret = "a secret";
             forgeManager.secrets = [secret];
@@ -51,16 +47,7 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("startForging", () => {
-        it("should be a function", () => {
-            expect(forgeManager.startForging).toBeFunction();
-        });
-    });
-
     describe("__forgeNewBlock", () => {
-        it("should be a function", () => {
-            expect(forgeManager.__forgeNewBlock).toBeFunction();
-        });
         it("should forge a block", async () => {
             // NOTE: make sure we have valid transactions from an existing wallet
             const transactions = generateTransfers(
@@ -95,9 +82,6 @@ describe("Forger Manager", () => {
     });
 
     describe("__monitor", () => {
-        it("should be a function", () => {
-            expect(forgeManager.__monitor).toBeFunction();
-        });
         it("should emit failed event if error while monitoring", async () => {
             forgeManager.client.getUsernames.mockRejectedValue(new Error("oh bollocks"));
 
@@ -109,9 +93,6 @@ describe("Forger Manager", () => {
     });
 
     describe("__getTransactionsForForging", () => {
-        it("should be a function", () => {
-            expect(forgeManager.__getTransactionsForForging).toBeFunction();
-        });
         it("should return zero transactions if none to forge", async () => {
             forgeManager.client.getTransactions.mockReturnValue({});
 
@@ -136,10 +117,6 @@ describe("Forger Manager", () => {
     });
 
     describe("__isDelegateActivated", () => {
-        it("should be a function", () => {
-            expect(forgeManager.__isDelegateActivated).toBeFunction();
-        });
-
         it("should be ok", async () => {
             forgeManager.delegates = [
                 {
@@ -159,10 +136,6 @@ describe("Forger Manager", () => {
     });
 
     describe("__analyseNetworkState", () => {
-        it("should be a function", () => {
-            expect(forgeManager.__analyseNetworkState).toBeFunction();
-        });
-
         it("should be TRUE when quorum > 0.66", async () => {
             const networkState = {
                 quorum: 0.9,

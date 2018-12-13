@@ -4,10 +4,6 @@ import { generateVote } from "../../../src/generators";
 const { TRANSACTION_TYPES } = constants;
 
 describe("Vote transaction", () => {
-    it("should be a function", () => {
-        expect(generateVote).toBeFunction();
-    });
-
     const quantity = 4;
     const transactions = generateVote(undefined, undefined, undefined, quantity);
 

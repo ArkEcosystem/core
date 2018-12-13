@@ -20,10 +20,6 @@ describe("IpfsHandler", () => {
     });
 
     describe("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
-
         it("should be true", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
         });
@@ -32,18 +28,6 @@ describe("IpfsHandler", () => {
             transaction.senderPublicKey = ("a" as any).repeat(66);
 
             expect(handler.canApply(wallet, transaction, [])).toBeFalse();
-        });
-    });
-
-    describe("apply", () => {
-        it("should be a function", () => {
-            expect(handler.apply).toBeFunction();
-        });
-    });
-
-    describe("revert", () => {
-        it("should be a function", () => {
-            expect(handler.revert).toBeFunction();
         });
     });
 });

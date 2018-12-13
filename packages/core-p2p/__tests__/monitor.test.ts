@@ -47,23 +47,7 @@ describe("Monitor", () => {
         expect(monitor).toBeObject();
     });
 
-    describe("updateNetworkStatus", () => {
-        it("should be a function", () => {
-            expect(monitor.updateNetworkStatus).toBeFunction();
-        });
-    });
-
-    describe("updateNetworkStatusIfNotEnoughPeers", () => {
-        it("should be a function", () => {
-            expect(monitor.updateNetworkStatusIfNotEnoughPeers).toBeFunction();
-        });
-    });
-
     describe("cleanPeers", () => {
-        it("should be a function", () => {
-            expect(monitor.cleanPeers).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const previousLength = Object.keys(monitor.peers).length;
 
@@ -74,10 +58,6 @@ describe("Monitor", () => {
     });
 
     describe("acceptNewPeer", () => {
-        it("should be a function", () => {
-            expect(monitor.acceptNewPeer).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
             process.env.ARK_ENV = "false";
@@ -91,10 +71,6 @@ describe("Monitor", () => {
     });
 
     describe("getPeers", () => {
-        it("should be a function", () => {
-            expect(monitor.getPeers).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const peers = monitor.getPeers();
 
@@ -104,10 +80,6 @@ describe("Monitor", () => {
     });
 
     describe("getRandomPeer", () => {
-        it("should be a function", () => {
-            expect(monitor.getRandomPeer).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const peer = monitor.getRandomPeer();
 
@@ -118,10 +90,6 @@ describe("Monitor", () => {
     });
 
     describe("getRandomDownloadBlocksPeer", () => {
-        it("should be a function", () => {
-            expect(monitor.getRandomDownloadBlocksPeer).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock
                 .onGet(/.*\/peer\/blocks\/common/)
@@ -135,10 +103,6 @@ describe("Monitor", () => {
     });
 
     describe("discoverPeers", () => {
-        it("should be a function", () => {
-            expect(monitor.discoverPeers).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true }, peerMock.headers]);
             axiosMock
@@ -153,17 +117,7 @@ describe("Monitor", () => {
         });
     });
 
-    describe("hasPeers", () => {
-        it("should be a function", () => {
-            expect(monitor.hasPeers).toBeFunction();
-        });
-    });
-
     describe("getNetworkHeight", () => {
-        it("should be a function", () => {
-            expect(monitor.getNetworkHeight).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers]);
             axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
@@ -177,10 +131,6 @@ describe("Monitor", () => {
     });
 
     describe("getPBFTForgingStatus", () => {
-        it("should be a function", () => {
-            expect(monitor.getPBFTForgingStatus).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers]);
             axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
@@ -194,10 +144,6 @@ describe("Monitor", () => {
     });
 
     describe("downloadBlocks", () => {
-        it("should be a function", () => {
-            expect(monitor.downloadBlocks).toBeFunction();
-        });
-
         it("should be ok", async () => {
             axiosMock
                 .onGet(/.*\/peer\/blocks\/common/)
@@ -211,30 +157,6 @@ describe("Monitor", () => {
 
             expect(blocks).toBeArray();
             expect(blocks.length).toBe(2);
-        });
-    });
-
-    describe("broadcastBlock", () => {
-        it("should be a function", () => {
-            expect(monitor.broadcastBlock).toBeFunction();
-        });
-    });
-
-    describe("broadcastTransactions", () => {
-        it("should be a function", () => {
-            expect(monitor.broadcastTransactions).toBeFunction();
-        });
-    });
-
-    describe("__checkDNSConnectivity", () => {
-        it("should be a function", () => {
-            expect(monitor.__checkDNSConnectivity).toBeFunction();
-        });
-    });
-
-    describe("__checkNTPConnectivity", () => {
-        it("should be a function", () => {
-            expect(monitor.__checkNTPConnectivity).toBeFunction();
         });
     });
 });

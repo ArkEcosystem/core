@@ -5,10 +5,6 @@ import { verifySecondSignature } from "../../src/commands/verify-second";
 describe("Commands - Verify Second", () => {
     const fixtureTransaction = require("../__fixtures__/transaction-second.json");
 
-    it("should be a function", () => {
-        expect(verifySecondSignature).toBeFunction();
-    });
-
     it("should verify a second signature", () => {
         expect(
             verifySecondSignature({

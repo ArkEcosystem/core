@@ -15,10 +15,6 @@ beforeEach(() => {
 });
 
 describe("Check DNS", () => {
-    it("should be a function", () => {
-        expect(checker).toBeFunction();
-    });
-
     it("should be ok", async () => {
         const response = await checker(["1.1.1.1"]);
 

@@ -5,10 +5,6 @@ import { identity } from "../../src/commands/identity";
 describe("Commands - Identity", () => {
     const fixtureIdentities = require("../__fixtures__/identities.json");
 
-    it("should be a function", () => {
-        expect(identity).toBeFunction();
-    });
-
     it("should return identities from passphrase", () => {
         const expected = {
             passphrase: "this is a top secret passphrase",

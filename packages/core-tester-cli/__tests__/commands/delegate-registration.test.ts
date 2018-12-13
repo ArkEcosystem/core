@@ -23,10 +23,6 @@ afterEach(() => {
 });
 
 describe("Commands - Delegate Registration", () => {
-    it("should be a function", () => {
-        expect(DelegateRegistration).toBeFunction();
-    });
-
     it("should register as delegate", async () => {
         const opts = {
             ...defaultOpts,

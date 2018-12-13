@@ -9,10 +9,6 @@ describe("crypto.js", () => {
     describe("getBytes", () => {
         let bytes = null;
 
-        it("should be a function", () => {
-            expect(crypto.getBytes).toBeFunction();
-        });
-
         // it('should return Buffer of simply transaction and buffer must be 292 length', () => {
         //   const transaction = {
         //     type: 0,
@@ -97,10 +93,6 @@ describe("crypto.js", () => {
     });
 
     describe("getHash", () => {
-        it("should be a function", () => {
-            expect(crypto.getHash).toBeFunction();
-        });
-
         it("should return Buffer and Buffer most be 32 bytes length", () => {
             const transaction = {
                 version: 1,
@@ -123,10 +115,6 @@ describe("crypto.js", () => {
     });
 
     describe("getId", () => {
-        it("should be a function", () => {
-            expect(crypto.getId).toBeFunction();
-        });
-
         it("should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea", () => {
             const transaction = {
                 type: 0,
@@ -147,10 +135,6 @@ describe("crypto.js", () => {
     });
 
     describe("getFee", () => {
-        it("should be a function", () => {
-            expect(crypto.getFee).toBeFunction();
-        });
-
         it("should return 10000000", () => {
             const fee = crypto.getFee({ type: TRANSACTION_TYPES.TRANSFER });
             expect(fee).toBeNumber();
@@ -159,10 +143,6 @@ describe("crypto.js", () => {
     });
 
     describe("sign", () => {
-        it("should be a function", () => {
-            expect(crypto.sign).toBeFunction();
-        });
-
         it("should return a valid signature", () => {
             const keys = crypto.getKeys("secret");
             const transaction = {
@@ -182,17 +162,7 @@ describe("crypto.js", () => {
         });
     });
 
-    describe("secondSign", () => {
-        it("should be a function", () => {
-            expect(crypto.secondSign).toBeFunction();
-        });
-    });
-
     describe("getKeys", () => {
-        it("should be a function", () => {
-            expect(crypto.getKeys).toBeFunction();
-        });
-
         it("should return two keys in hex", () => {
             const keys = crypto.getKeys("secret");
 
@@ -216,10 +186,6 @@ describe("crypto.js", () => {
     });
 
     describe("getKeysFromWIF", () => {
-        it("should be a function", () => {
-            expect(crypto.getKeysFromWIF).toBeFunction();
-        });
-
         it("should return two keys in hex", () => {
             const keys = crypto.getKeysFromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
 
@@ -261,10 +227,6 @@ describe("crypto.js", () => {
     });
 
     describe("keysToWIF", () => {
-        it("should be a function", () => {
-            expect(crypto.keysToWIF).toBeFunction();
-        });
-
         it("should get keys from WIF", () => {
             const wifKey = "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4";
             const keys = crypto.getKeysFromWIF(wifKey);
@@ -296,10 +258,6 @@ describe("crypto.js", () => {
     });
 
     describe("getAddress", () => {
-        it("should be a function", () => {
-            expect(crypto.getAddress).toBeFunction();
-        });
-
         it("should generate address by publicKey", () => {
             const keys = crypto.getKeys("secret");
             const address = crypto.getAddress(keys.publicKey);
@@ -335,18 +293,6 @@ describe("crypto.js", () => {
             for (const invalidKey of invalidKeys) {
                 expect(() => crypto.getAddress(invalidKey)).toThrow(new Error(`publicKey '${invalidKey}' is invalid`));
             }
-        });
-    });
-
-    describe("verify", () => {
-        it("should be a function", () => {
-            expect(crypto.verify).toBeFunction();
-        });
-    });
-
-    describe("verifySecondSignature", () => {
-        it("should be a function", () => {
-            expect(crypto.verifySecondSignature).toBeFunction();
         });
     });
 

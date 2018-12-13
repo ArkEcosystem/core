@@ -64,10 +64,6 @@ describe("Delegate Repository", () => {
         const delegates = [{ username: "delegate-0" }, { username: "delegate-1" }, { username: "delegate-2" }];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
-        it("should be a function", () => {
-            expect(repository.getLocalDelegates).toBeFunction();
-        });
-
         it("should return the local wallets of the connection that are delegates", () => {
             repository.connection.walletManager.all = jest.fn(() => wallets);
 
@@ -77,10 +73,6 @@ describe("Delegate Repository", () => {
     });
 
     describe("findAll", () => {
-        it("should be a function", () => {
-            expect(repository.findAll).toBeFunction();
-        });
-
         it("should be ok without params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
@@ -128,10 +120,6 @@ describe("Delegate Repository", () => {
     });
 
     describe("paginate", () => {
-        it("should be a function", () => {
-            expect(repository.paginate).toBeFunction();
-        });
-
         it("should be ok without params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
@@ -179,10 +167,6 @@ describe("Delegate Repository", () => {
     });
 
     describe("search", () => {
-        it("should be a function", () => {
-            expect(repository.search).toBeFunction();
-        });
-
         it("should search by exact username match", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
@@ -279,10 +263,6 @@ describe("Delegate Repository", () => {
             expect(wallet.username).toBe(wallets[0].username);
         };
 
-        it("should be a function", () => {
-            expect(repository.findById).toBeFunction();
-        });
-
         it("should be ok with an address", () => {
             expectWallet("address");
         });
@@ -297,10 +277,6 @@ describe("Delegate Repository", () => {
     });
 
     describe("getActiveAtHeight", () => {
-        it("should be a function", () => {
-            expect(repository.getActiveAtHeight).toBeFunction();
-        });
-
         it("should be ok", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);

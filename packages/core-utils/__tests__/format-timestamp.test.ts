@@ -5,10 +5,6 @@ import "jest-extended";
 import { formatTimestamp } from "../src/format-timestamp";
 
 describe("Format Timestamp", () => {
-    it("should be a function", () => {
-        expect(formatTimestamp).toBeFunction();
-    });
-
     it("should compute the correct epoch value", () => {
         expect(formatTimestamp(100).epoch).toBe(100);
     });

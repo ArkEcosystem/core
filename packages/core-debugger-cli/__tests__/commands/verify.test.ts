@@ -6,10 +6,6 @@ describe("Commands - Verify", () => {
     const fixtureBlock = require("../__fixtures__/block.json");
     const fixtureTransaction = require("../__fixtures__/transaction.json");
 
-    it("should be a function", () => {
-        expect(verify).toBeFunction();
-    });
-
     it("should verify a block", () => {
         expect(
             verify({

@@ -102,10 +102,6 @@ describe("MultiSignatureHandler", () => {
     });
 
     describe("canApply", () => {
-        it("should be a function", () => {
-            expect(handler.canApply).toBeFunction();
-        });
-
         it("should be true", () => {
             delete wallet.multisignature;
 
@@ -131,10 +127,6 @@ describe("MultiSignatureHandler", () => {
     });
 
     describe("apply", () => {
-        it("should be a function", () => {
-            expect(handler.apply).toBeFunction();
-        });
-
         it("should be ok", () => {
             wallet.multisignature = null;
 
@@ -147,10 +139,6 @@ describe("MultiSignatureHandler", () => {
     });
 
     describe("revert", () => {
-        it("should be a function", () => {
-            expect(handler.revert).toBeFunction();
-        });
-
         it("should be ok", () => {
             handler.revert(wallet, transaction);
 

@@ -44,10 +44,6 @@ describe("Transaction Guard", () => {
     });
 
     describe("validate", () => {
-        it("should be a function", () => {
-            expect(guard.validate).toBeFunction();
-        });
-
         it.each([false, true])(
             "should not apply transactions for chained transfers involving cold wallets",
             async inverseOrder => {
@@ -386,10 +382,6 @@ describe("Transaction Guard", () => {
     });
 
     describe("__filterAndTransformTransactions", () => {
-        it("should be a function", () => {
-            expect(guard.__filterAndTransformTransactions).toBeFunction();
-        });
-
         it("should reject duplicate transactions", () => {
             const transactionExists = guard.pool.transactionExists;
             guard.pool.transactionExists = jest.fn(() => true);
@@ -454,17 +446,7 @@ describe("Transaction Guard", () => {
         });
     });
 
-    describe("__validateTransaction", () => {
-        it("should be a function", () => {
-            expect(guard.__validateTransaction).toBeFunction();
-        });
-    });
-
     describe("__removeForgedTransactions", () => {
-        it("should be a function", () => {
-            expect(guard.__removeForgedTransactions).toBeFunction();
-        });
-
         it("should remove forged transactions", async () => {
             const database = container.resolvePlugin("database");
             const getForgedTransactionsIds = database.getForgedTransactionsIds;
@@ -492,10 +474,6 @@ describe("Transaction Guard", () => {
     });
 
     describe("__addTransactionsToPool", () => {
-        it("should be a function", () => {
-            expect(guard.__addTransactionsToPool).toBeFunction();
-        });
-
         it("should add transactions to the pool", () => {
             const transfers = generateTransfers("testnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
@@ -565,10 +543,6 @@ describe("Transaction Guard", () => {
     });
 
     describe("__pushError", () => {
-        it("should be a function", () => {
-            expect(guard.__pushError).toBeFunction();
-        });
-
         it("should have error for transaction", () => {
             expect(guard.errors).toBeEmpty();
 

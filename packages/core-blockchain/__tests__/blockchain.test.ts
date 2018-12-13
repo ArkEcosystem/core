@@ -69,15 +69,7 @@ afterEach(async () => {
 });
 
 describe("Blockchain", () => {
-    it("should be an object", () => {
-        expect(blockchain).toBeObject();
-    });
-
     describe("dispatch", () => {
-        it("should be a function", () => {
-            expect(blockchain.dispatch).toBeFunction();
-        });
-
         it("should be ok", () => {
             const nextState = blockchain.dispatch("START");
 
@@ -86,10 +78,6 @@ describe("Blockchain", () => {
     });
 
     describe("start", () => {
-        it("should be a function", () => {
-            expect(blockchain.start).toBeFunction();
-        });
-
         it("should be ok", async () => {
             process.env.ARK_SKIP_BLOCKCHAIN = "false";
 
@@ -100,36 +88,18 @@ describe("Blockchain", () => {
     });
 
     describe("checkNetwork", () => {
-        it("should be a function", () => {
-            expect(blockchain.checkNetwork).toBeFunction();
-        });
-
         it("should throw an exception", () => {
             expect(() => blockchain.checkNetwork()).toThrow("Method [checkNetwork] not implemented!");
         });
     });
 
     describe("rebuild", () => {
-        it("should be a function", () => {
-            expect(blockchain.rebuild).toBeFunction();
-        });
-
         it("should throw an exception", () => {
             expect(() => blockchain.rebuild()).toThrow("Method [rebuild] not implemented!");
         });
     });
 
-    describe("resetState", () => {
-        it("should be a function", () => {
-            expect(blockchain.resetState).toBeFunction();
-        });
-    });
-
     describe("postTransactions", () => {
-        it("should be a function", () => {
-            expect(blockchain.postTransactions).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
 
@@ -146,10 +116,6 @@ describe("Blockchain", () => {
     });
 
     describe("queueBlock", () => {
-        it("should be a function", () => {
-            expect(blockchain.queueBlock).toBeFunction();
-        });
-
         it("should be ok", async () => {
             const block = new Block(blocks101to155[54]);
 
@@ -160,10 +126,6 @@ describe("Blockchain", () => {
     });
 
     describe("rollbackCurrentRound", () => {
-        it("should be a function", () => {
-            expect(blockchain.rollbackCurrentRound).toBeFunction();
-        });
-
         it("should rollback", async () => {
             await blockchain.rollbackCurrentRound();
             expect(blockchain.getLastBlock().data.height).toBe(153);
@@ -171,10 +133,6 @@ describe("Blockchain", () => {
     });
 
     describe("removeBlocks", () => {
-        it("should be a function", () => {
-            expect(blockchain.removeBlocks).toBeFunction();
-        });
-
         it("should remove blocks", async () => {
             const lastBlockHeight = blockchain.getLastBlock().data.height;
 
@@ -184,10 +142,6 @@ describe("Blockchain", () => {
     });
 
     describe("rebuildBlock", () => {
-        it("should be a function", () => {
-            expect(blockchain.rebuildBlock).toBeFunction();
-        });
-
         it("should rebuild with a known block", async () => {
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
@@ -215,10 +169,6 @@ describe("Blockchain", () => {
     });
 
     describe("processBlock", () => {
-        it("should be a function", () => {
-            expect(blockchain.processBlock).toBeFunction();
-        });
-
         it("should process a new chained block", async () => {
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
@@ -247,10 +197,6 @@ describe("Blockchain", () => {
     });
 
     describe("acceptChainedBlock", () => {
-        it("should be a function", () => {
-            expect(blockchain.acceptChainedBlock).toBeFunction();
-        });
-
         it("should process a new chained block", async () => {
             const lastBlock = blockchain.getLastBlock();
 
@@ -268,10 +214,6 @@ describe("Blockchain", () => {
     });
 
     describe("manageUnchainedBlock", () => {
-        it("should be a function", () => {
-            expect(blockchain.manageUnchainedBlock).toBeFunction();
-        });
-
         it("should process a new unchained block", async () => {
             const mockLoggerDebug = jest.fn(message => true);
             logger.debug = mockLoggerDebug;
@@ -292,10 +234,6 @@ describe("Blockchain", () => {
     });
 
     describe("getUnconfirmedTransactions", () => {
-        it("should be a function", () => {
-            expect(blockchain.getUnconfirmedTransactions).toBeFunction();
-        });
-
         it("should get unconfirmed transactions", async () => {
             const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
 
@@ -314,10 +252,6 @@ describe("Blockchain", () => {
     });
 
     describe("getLastBlock", () => {
-        it("should be a function", () => {
-            expect(blockchain.getLastBlock).toBeFunction();
-        });
-
         it("should be ok", () => {
             blockchain.state.setLastBlock(genesisBlock);
 
@@ -326,10 +260,6 @@ describe("Blockchain", () => {
     });
 
     describe("isSynced", () => {
-        it("should be a function", () => {
-            expect(blockchain.isSynced).toBeFunction();
-        });
-
         describe("with a block param", () => {
             it("should be ok", () => {
                 expect(
@@ -358,10 +288,6 @@ describe("Blockchain", () => {
     });
 
     describe("isRebuildSynced", () => {
-        it("should be a function", () => {
-            expect(blockchain.isRebuildSynced).toBeFunction();
-        });
-
         describe("with a block param", () => {
             it("should be ok", () => {
                 expect(
@@ -390,10 +316,6 @@ describe("Blockchain", () => {
     });
 
     describe("__isChained", () => {
-        it("should be a function", () => {
-            expect(blockchain.__isChained).toBeFunction();
-        });
-
         it("should be ok", () => {
             const previousBlock = {
                 data: {
@@ -438,10 +360,6 @@ describe("Blockchain", () => {
     });
 
     describe("__registerQueue", () => {
-        it("should be a function", () => {
-            expect(blockchain.__registerQueue).toBeFunction();
-        });
-
         it("should be ok", () => {
             blockchain.__registerQueue();
 
