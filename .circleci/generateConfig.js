@@ -29,13 +29,34 @@ function genYaml(options) {
   ]
 
   jobs.forEach((job, index) => {
-    const testStep = job.steps.find(
-      step => typeof step === 'object' && step.run && step.run.name === 'Test',
-    )
-    testStep.run.command = testStep.run.command.replace(
-      '{{TESTPATHS}}',
-      packagesSplit[index].map(package => `./packages/${package}/`).join(' '),
-    )
+    const testStepIndex = job.steps.findIndex(step => typeof step === 'object' && step.run && step.run.name === 'Test')
+
+    const pkgs = packagesSplit[index].map(package => `./packages/${package}/`)
+
+    const steps = pkgs.map(pkg => {
+        const name = path.basename(pkg)
+
+        return {
+            run: {
+                name,
+                command: `cd ~/ark-core/packages/${name} && yarn test`
+            }
+        }
+    }).filter(pkg => {
+        const { scripts } = require(path.resolve(__dirname, `../packages/${pkg.run.name}/package.json`))
+
+        return Object.keys(scripts).includes("test")
+    })
+
+    const stepLog = job.steps[9]
+    const stepCoverage = job.steps[10]
+
+    for (i = 0; i < steps.length; i++) {
+        job.steps[testStepIndex + i] = steps[i];
+    }
+
+    job.steps.push(stepLog)
+    job.steps.push(stepCoverage)
 
     config.jobs[`test-node10-${index}`] = job
     config.workflows.build_and_test.jobs.push(`test-node10-${index}`)

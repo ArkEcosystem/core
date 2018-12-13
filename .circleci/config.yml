@@ -66,15 +66,26 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: Test
-          command: >
-            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-webhooks/ ./packages/core-transaction-pool/
-            ./packages/core-snapshots-cli/ ./packages/core-logger-winston/
-            ./packages/core-http-utils/ ./packages/core-event-emitter/
-            ./packages/core-elasticsearch/ ./packages/core-database-postgres/
-            ./packages/core-config/ ./packages/core/ --detectOpenHandles
-            --runInBand --forceExit --ci --coverage | tee test_output.txt
+          name: core-webhooks
+          command: cd ~/ark-core/packages/core-webhooks && yarn test
+      - run:
+          name: core-transaction-pool
+          command: cd ~/ark-core/packages/core-transaction-pool && yarn test
+      - run:
+          name: core-logger-winston
+          command: cd ~/ark-core/packages/core-logger-winston && yarn test
+      - run:
+          name: core-http-utils
+          command: cd ~/ark-core/packages/core-http-utils && yarn test
+      - run:
+          name: core-event-emitter
+          command: cd ~/ark-core/packages/core-event-emitter && yarn test
+      - run:
+          name: core-config
+          command: cd ~/ark-core/packages/core-config && yarn test
+      - run:
+          name: core
+          command: cd ~/ark-core/packages/core && yarn test
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -148,15 +159,32 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: Test
-          command: >
-            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/crypto/ ./packages/core-utils/
-            ./packages/core-test-utils/ ./packages/core-p2p/
-            ./packages/core-json-rpc/ ./packages/core-forger/
-            ./packages/core-error-tracker-bugsnag/ ./packages/core-debugger-cli/
-            ./packages/core-container/ ./packages/core-api/ --detectOpenHandles
-            --runInBand --forceExit --ci --coverage | tee test_output.txt
+          name: crypto
+          command: cd ~/ark-core/packages/crypto && yarn test
+      - run:
+          name: core-utils
+          command: cd ~/ark-core/packages/core-utils && yarn test
+      - run:
+          name: core-test-utils
+          command: cd ~/ark-core/packages/core-test-utils && yarn test
+      - run:
+          name: core-p2p
+          command: cd ~/ark-core/packages/core-p2p && yarn test
+      - run:
+          name: core-json-rpc
+          command: cd ~/ark-core/packages/core-json-rpc && yarn test
+      - run:
+          name: core-forger
+          command: cd ~/ark-core/packages/core-forger && yarn test
+      - run:
+          name: core-debugger-cli
+          command: cd ~/ark-core/packages/core-debugger-cli && yarn test
+      - run:
+          name: core-container
+          command: cd ~/ark-core/packages/core-container && yarn test
+      - run:
+          name: core-api
+          command: cd ~/ark-core/packages/core-api && yarn test
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -230,15 +258,29 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: Test
-          command: >
-            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-vote-report/ ./packages/core-tester-cli/
-            ./packages/core-snapshots/ ./packages/core-logger/
-            ./packages/core-graphql/ ./packages/core-error-tracker-sentry/
-            ./packages/core-deployer/ ./packages/core-database/
-            ./packages/core-blockchain/ --detectOpenHandles --runInBand
-            --forceExit --ci --coverage | tee test_output.txt
+          name: core-vote-report
+          command: cd ~/ark-core/packages/core-vote-report && yarn test
+      - run:
+          name: core-tester-cli
+          command: cd ~/ark-core/packages/core-tester-cli && yarn test
+      - run:
+          name: core-snapshots
+          command: cd ~/ark-core/packages/core-snapshots && yarn test
+      - run:
+          name: core-logger
+          command: cd ~/ark-core/packages/core-logger && yarn test
+      - run:
+          name: core-graphql
+          command: cd ~/ark-core/packages/core-graphql && yarn test
+      - run:
+          name: core-deployer
+          command: cd ~/ark-core/packages/core-deployer && yarn test
+      - run:
+          name: core-database
+          command: cd ~/ark-core/packages/core-database && yarn test
+      - run:
+          name: core-blockchain
+          command: cd ~/ark-core/packages/core-blockchain && yarn test
       - run:
           name: Last 1000 lines of test output
           when: on_fail

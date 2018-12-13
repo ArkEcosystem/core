@@ -62,7 +62,7 @@
                 {
                     "run": {
                         "name": "Test",
-                        "command": "./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest {{TESTPATHS}} --detectOpenHandles --runInBand --forceExit --ci --coverage | tee test_output.txt\n"
+                        "command": ""
                     }
                 },
                 {
