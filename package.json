@@ -1,5 +1,7 @@
 {
     "private": true,
+    "name": "core",
+    "description": "The packages that make up the Ark Core",
     "scripts": {
         "lerna": "./node_modules/lerna/cli.js",
         "setup": "yarn && yarn bootstrap && yarn build",
@@ -61,5 +63,14 @@
             "pre-commit": "lint-staged && ./scripts/pre-commit.sh"
         }
     },
-    "name": "core"
+    "jest": {
+        "preset": "./jest-preset.js",
+        "projects": [
+            "<rootDir>/packages/*"
+        ],
+        "collectCoverageFrom": [
+            "packages/**/src/**/*.ts",
+            "!**/node_modules/**"
+        ]
+    }
 }

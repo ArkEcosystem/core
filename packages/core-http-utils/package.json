@@ -48,6 +48,9 @@
     "engines": {
         "node": ">=10.x"
     },
+    "jest": {
+        "preset": "../../jest-preset.js"
+    },
     "devDependencies": {
         "axios": "^0.18.0"
     }
