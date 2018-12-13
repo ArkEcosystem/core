@@ -75,5 +75,8 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
     }
 }
