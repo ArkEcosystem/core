@@ -1,3 +1,4 @@
 ignore:
   - "packages/core-tester-cli/**/*"
-  - "packages/**/lib/index"
+  - "packages/**/src/index.ts"
+  - "packages/**/src/defaults.ts"

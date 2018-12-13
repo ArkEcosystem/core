@@ -1,38 +1,56 @@
 {
-  "name": "@arkecosystem/core-database",
-  "description": "Database Interface for Ark Core",
-  "version": "0.2.0",
-  "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
-    "Kristjan Košič <kristjan@ark.io>",
-    "Brian Faust <brian@ark.io>"
-  ],
-  "license": "MIT",
-  "main": "lib/index.js",
-  "scripts": {
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "@arkecosystem/core-container": "~0.2",
-    "@arkecosystem/core-utils": "~0.2",
-    "@arkecosystem/crypto": "~0.2",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.compact": "^3.0.1",
-    "lodash.uniq": "^4.5.0",
-    "pluralize": "^7.0.0"
-  },
-  "devDependencies": {
-    "@arkecosystem/core-test-utils": "~0.2"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=10.x"
-  }
+    "name": "@arkecosystem/core-database",
+    "description": "Database Interface for Ark Core",
+    "version": "0.3.0",
+    "contributors": [
+        "François-Xavier Thoorens <fx@ark.io>",
+        "Kristjan Košič <kristjan@ark.io>",
+        "Brian Faust <brian@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "test": "cross-env ARK_ENV=test jest --runInBand --forceExit",
+        "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
+        "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+        "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
+        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
+    },
+    "dependencies": {
+        "@arkecosystem/core-container": "~0.3",
+        "@arkecosystem/core-utils": "~0.3",
+        "@arkecosystem/crypto": "~0.3",
+        "@types/lodash.clonedeep": "^4.5.4",
+        "@types/lodash.compact": "^3.0.4",
+        "@types/lodash.uniq": "^4.5.4",
+        "lodash.clonedeep": "^4.5.0",
+        "lodash.compact": "^3.0.1",
+        "lodash.uniq": "^4.5.0",
+        "pluralize": "^7.0.0"
+    },
+    "devDependencies": {
+        "@arkecosystem/core-test-utils": "~0.3"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
+    }
 }

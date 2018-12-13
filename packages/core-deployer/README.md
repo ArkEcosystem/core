@@ -14,9 +14,9 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [Brian Faust](https://github.com/faustbrian)
-- [Alex Barnsley](https://github.com/alexbarnsley)
-- [All Contributors](../../../../contributors)
+-   [Alex Barnsley](https://github.com/alexbarnsley)
+-   [Brian Faust](https://github.com/faustbrian)
+-   [All Contributors](../../../../contributors)
 
 ## License
 

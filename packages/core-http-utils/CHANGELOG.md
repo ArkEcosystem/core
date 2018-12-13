@@ -7,19 +7,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Changed
+
+-   Migrated from JavaScript to TypeScript
+
 ## 0.2.0 - 2018-12-03
 
 ### Added
 
-- cors-headers plugin for better CORS handling
-- transaction payload size validation plugin
+-   cors-headers plugin for better CORS handling
+-   transaction payload size validation plugin
 
 ### Changed
 
-- Dropped node.js 9 as minimum requirement in favour of node.js 10
+-   Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ## 0.1.0 - 2018-10-25
 
 ### Added
 
-- initial release
+-   initial release

@@ -7,34 +7,38 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Changed
+
+-   Migrated from JavaScript to TypeScript
+
 ## 0.2.1 - 2018-12-10
 
 ### Fixed
 
-- Reset last downloaded block when block is discarded
+-   Reset last downloaded block when block is discarded
 
 ## 0.2.0 - 2018-12-03
 
 ### Added
 
-- More graceful handling of shutdown
-- State Storage to handle state machine data
-- Peer banning after forks
+-   More graceful handling of shutdown
+-   State Storage to handle state machine data
+-   Peer banning after forks
 
 ### Changed
 
-- Improved the logic of how blocks are being processed
-- Dropped node.js 9 as minimum requirement in favour of node.js 10
+-   Improved the logic of how blocks are being processed
+-   Dropped node.js 9 as minimum requirement in favour of node.js 10
 
 ### Fixed
 
-- Properly stop blockchain if manually started
-- Various state issues with the last downloaded blocks
-- Various state issues with the wallet manager
-- Properly handle forks while idle
+-   Properly stop blockchain if manually started
+-   Various state issues with the last downloaded blocks
+-   Various state issues with the wallet manager
+-   Properly handle forks while idle
 
 ## 0.1.1 - 2018-06-14
 
 ### Added
 
-- initial release
+-   initial release
