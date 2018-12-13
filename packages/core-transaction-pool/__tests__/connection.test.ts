@@ -490,7 +490,7 @@ describe("Connection", () => {
             const block = await database.getLastBlock();
 
             // XXX This accesses directly block.transactions which is not even
-            // documented in packages/crypto/lib/models/block.js
+            // documented in packages/crypto/src/models/block.js
             const forgedTransaction = block.transactions[0];
 
             // Workaround: Add tx to exceptions so it gets applied, because the fee is 0.

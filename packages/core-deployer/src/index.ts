@@ -74,7 +74,7 @@ if (fs.existsSync(options.configPath)) {
     } else {
         logger.error(
             `Deployer config already exists in '${
-                options.configPath
+            options.configPath
             }' - to overwrite, use the '--overwriteConfig' flag`,
         );
         process.exit(1);
@@ -82,7 +82,7 @@ if (fs.existsSync(options.configPath)) {
 }
 fs.ensureDirSync(options.configPath);
 fs.copySync(path.resolve(__dirname, `../../core/src/config/${options.network}`), options.configPath);
-const networkPath = path.resolve(__dirname, `../../crypto/lib/networks/ark/${options.network}.json`);
+const networkPath = path.resolve(__dirname, `../../crypto/src/networks/ark/${options.network}.json`);
 if (!fs.existsSync(networkPath)) {
     logger.error(`Network '${options.network}' does not exist`);
     process.exit(1);
