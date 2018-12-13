@@ -430,7 +430,7 @@ describe("API 2.0 - Transactions", () => {
                     expect(response.data.data).toBeArray();
 
                     // TODO: the response is sometimes empty. Racy test?
-                    //expect(response.data.data).not.toBeEmpty()
+                    // expect(response.data.data).not.toBeEmpty()
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);

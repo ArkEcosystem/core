@@ -1778,6 +1778,11 @@
   resolved "https://registry.yarnpkg.com/@types/pluralize/-/pluralize-0.0.29.tgz#6ffa33ed1fc8813c469b859681d09707eb40d03c"
   integrity sha512-BYOID+l2Aco2nBik+iYS4SZX0Lf20KPILP5RGmM1IgzdwNdTs0eebiFriOPcej1sX9mLnSoiNte5zcFxssgpGA==
 
+"@types/pretty-ms@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/pretty-ms/-/pretty-ms-4.0.0.tgz#5e5177b9e447fbc8446e6fd2b09aea045971f11d"
+  integrity sha512-l5aIszYIm3s4jIL4wLDwajEml1w3E4zqGDDUgvnroX1ux6YAxsCrgRHLUafgrHFGTHlx7TpwiwSwcHV8IBvccw==
+
 "@types/secp256k1@^3.5.0":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@types/secp256k1/-/secp256k1-3.5.0.tgz#0f3baf16b07488c6da2633a63b4160bcf8d0fd5b"
@@ -5126,7 +5131,7 @@ fast-plural-rules@^0.0.1:
   resolved "https://registry.yarnpkg.com/fast-plural-rules/-/fast-plural-rules-0.0.1.tgz#7032c8afa979e6dc65a452f0ef5b4ef31eca763b"
   integrity sha512-0Cxx7LaH7+dNJEBozlisCxqaN5g68VTFT9PyLeFGBHmkPnQ3e46zss+r8pRC94KpzPlitL6m33GVdbMIDiUgqg==
 
-fast-redact@^1.4.0:
+fast-redact@^1.4.2:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/fast-redact/-/fast-redact-1.4.2.tgz#14989f452ee07f0723fbb483ee778d363135b7ad"
   integrity sha512-ttC8IgelNvYqb9RBC+rirgUCVPtPVonfdeRdsHBcBx3kzQat1DafbUKAEhLo5GnvuBqda+Xe1BvblecPpQkZ2Q==
@@ -5277,7 +5282,7 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
-flatstr@^1.0.5, flatstr@^1.0.8:
+flatstr@^1.0.9:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/flatstr/-/flatstr-1.0.9.tgz#0950d56fec02de1030c1311847ecd58c25690eb9"
   integrity sha512-qFlJnOBWDfIaunF54/lBqNKmXOI0HqNhu+mHkLmbaBXlS71PUd9OjFOdyevHt/aHoHB1+eW7eKHgRKOG5aHSpw==
@@ -9959,19 +9964,19 @@ pino-std-serializers@^2.3.0:
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-2.3.0.tgz#34eeaab97c055c28e22c0542ae55978e7e427786"
   integrity sha512-klfGoOsP6sJH7ON796G4xoUSx2fkpFgKHO4YVVO2zmz31jR+etzc/QzGJILaOIiCD6HTCFgkPx+XN8nk+ruqPw==
 
-pino@^5.9.0:
-  version "5.9.0"
-  resolved "https://registry.yarnpkg.com/pino/-/pino-5.9.0.tgz#4a436289ea90cefd0fad1e3ca5726b6d58922c71"
-  integrity sha512-6sHy38gWsZbrmYq6vk343VCThy93ZdVfmLsHDVzbl/j621SjSaxCcS/ySmxK/hRmq8jpQb3n44dNRIeqbbQw6A==
+pino@^5.10.1:
+  version "5.10.1"
+  resolved "https://registry.yarnpkg.com/pino/-/pino-5.10.1.tgz#24831a60681622f96f16df723b48eb6802fcd993"
+  integrity sha512-a2pXIoYfEpQaGKR87/iY97jRjAqSVCyULyNsYJLTXCXbout4qGe2tvAz9jHlm1kMVwOw3IYVZ2baKP8GvLMeiw==
   dependencies:
     fast-json-parse "^1.0.3"
-    fast-redact "^1.4.0"
+    fast-redact "^1.4.2"
     fast-safe-stringify "^2.0.6"
-    flatstr "^1.0.5"
+    flatstr "^1.0.9"
     pino-std-serializers "^2.3.0"
     pump "^3.0.0"
     quick-format-unescaped "^3.0.0"
-    sonic-boom "^0.6.3"
+    sonic-boom "^0.7.1"
 
 pkg-dir@^2.0.0:
   version "2.0.0"
@@ -11599,12 +11604,12 @@ somever@2.x.x:
     bounce "1.x.x"
     hoek "6.x.x"
 
-sonic-boom@^0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-0.6.3.tgz#a02f9fc8d5ec42166e28c39760cc833552056595"
-  integrity sha512-TMhj6kDJk9LLzCTTL8+HPCfFn4MwkE4P6k2Up89Rz949+DSRw90V62upRKC99rJEOmu4E9ljH5Otu2JSRmx+bg==
+sonic-boom@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-0.7.1.tgz#d6aae30428802dbd43b1167643efe1ef708bb534"
+  integrity sha512-zveqTNcDTI35ae0LgK/SwHkFeMfe6FJKyeACgPzuOe3f+9CyaoXJHTnDgekXt8PKIoMCGF/m57/9RNjjkqmt2A==
   dependencies:
-    flatstr "^1.0.8"
+    flatstr "^1.0.9"
 
 sort-keys@^2.0.0:
   version "2.0.0"

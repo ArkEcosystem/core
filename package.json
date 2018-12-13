@@ -20,6 +20,7 @@
         "@sindresorhus/tsconfig": "^0.1.1",
         "@types/jest": "^23.3.10",
         "@types/node": "^10.12.12",
+        "@types/pretty-ms": "^4.0.0",
         "axios": "^0.18.0",
         "babel-loader": "^8.0.4",
         "body-parser": "^1.18.3",
