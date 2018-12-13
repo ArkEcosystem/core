@@ -64,7 +64,7 @@
         }
     },
     "jest": {
-        "preset": "./jest-preset.js",
+        "preset": "./jest-preset.json",
         "projects": [
             "<rootDir>/packages/*"
         ],
