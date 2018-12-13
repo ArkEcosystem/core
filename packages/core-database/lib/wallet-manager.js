@@ -250,7 +250,9 @@ module.exports = class WalletManager {
             mapped,
             null,
             4,
-          )} have a matching vote balance of ${formatPhantomtoshi(voteBalance)}`,
+          )} have a matching vote balance of ${formatPhantomtoshi(
+            voteBalance,
+          )}`,
         )
       }
     }

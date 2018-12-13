@@ -19,15 +19,18 @@ const register = async (server, options) => {
       }
 
       response.statusCode = 200
-      response.headers['access-control-expose-headers'] = 'content-type, content-length, etag'
+      response.headers['access-control-expose-headers'] =
+        'content-type, content-length, etag'
       response.headers['access-control-max-age'] = options.maxAge || 60 * 10
 
       if (request.headers['access-control-request-headers']) {
-        response.headers['access-control-allow-headers'] = request.headers['access-control-request-headers']
+        response.headers['access-control-allow-headers'] =
+          request.headers['access-control-request-headers']
       }
 
       if (request.headers['access-control-request-method']) {
-        response.headers['access-control-allow-methods'] = request.headers['access-control-request-method']
+        response.headers['access-control-allow-methods'] =
+          request.headers['access-control-request-method']
       }
 
       return h.continue
@@ -37,6 +40,6 @@ const register = async (server, options) => {
 
 exports.plugin = {
   name: 'cors-headers',
-  version: '0.1.0',
+  version: '0.1.2',
   register,
 }

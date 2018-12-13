@@ -14,7 +14,6 @@ let client
 
 describe('Client', () => {
   beforeAll(async () => {
-    console.log('=====> Env Setup...')
     await app.setUp()
   })
 
@@ -24,7 +23,6 @@ describe('Client', () => {
   })
 
   beforeEach(() => {
-    console.log('=====> Client Setup...')
     Client = require('../lib/client')
     client = new Client(host)
 
