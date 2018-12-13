@@ -12,7 +12,7 @@ afterAll(async () => {
     await tearDown();
 });
 
-describe.skip("API 1.0 - Peers", () => {
+describe("API 1.0 - Peers", () => {
     describe("GET /peers/version", () => {
         it("should be ok", async () => {
             const response = await utils.request("GET", "peers/version");

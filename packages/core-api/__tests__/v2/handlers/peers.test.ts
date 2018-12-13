@@ -3,14 +3,14 @@ import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
 beforeAll(async () => {
-    await setUp();
+    const app = await setUp();
 });
 
 afterAll(async () => {
     await tearDown();
 });
 
-describe.skip("API 2.0 - Peers", () => {
+describe("API 2.0 - Peers", () => {
     let peer;
 
     describe("GET /peers", () => {
