@@ -43,10 +43,6 @@ beforeEach(async () => {
 });
 
 describe("Monitor", () => {
-    it("should be an object", () => {
-        expect(monitor).toBeObject();
-    });
-
     describe("cleanPeers", () => {
         it("should be ok", async () => {
             const previousLength = Object.keys(monitor.peers).length;

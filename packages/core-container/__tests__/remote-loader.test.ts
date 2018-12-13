@@ -29,10 +29,6 @@ afterEach(() => {
 });
 
 describe("Remote Loader", () => {
-    it("should be an object", () => {
-        expect(testSubject).toBeObject();
-    });
-
     it("should ensure the config directory exists", () => {
         expect(pathExistsSync(testSubject.config)).toBeTrue();
     });

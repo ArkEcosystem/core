@@ -18,10 +18,6 @@ beforeEach(() => {
 });
 
 describe("Genesis Block Builder", () => {
-    it("should be an object", () => {
-        expect(builder).toBeInstanceOf(GenesisBlockBuilder);
-    });
-
     describe("generate", () => {
         it("should return a genesis object", () => {
             genesis = builder.generate();

@@ -22,10 +22,6 @@ beforeAll(() => {
 });
 
 describe("Logger", () => {
-    it("should be an object", () => {
-        expect(logger).toBeObject();
-    });
-
     describe("error", () => {
         it("should log a message", () => {
             logger.info("error_message");

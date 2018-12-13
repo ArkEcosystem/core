@@ -39,10 +39,6 @@ beforeEach(() => {
 });
 
 describe("Transaction Guard", () => {
-    it("should be an object", () => {
-        expect(guard).toBeObject();
-    });
-
     describe("validate", () => {
         it.each([false, true])(
             "should not apply transactions for chained transfers involving cold wallets",

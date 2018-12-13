@@ -8,10 +8,6 @@ class FakeDriver {
 }
 
 describe("Transaction Pool Manager", () => {
-    it("should be an object", () => {
-        expect(transactionPoolManager).toBeObject();
-    });
-
     describe("connection", () => {
         it("should return the drive-connection", async () => {
             await transactionPoolManager.makeConnection(new FakeDriver());

@@ -323,9 +323,6 @@ describe("Models - Block", () => {
         };
 
         describe("outlook table", () => {
-            it("should be an object", () => {
-                expect(typeof outlookTable).toBe("object");
-            });
             it("should have expected values in the outlook table", () => {
                 expect(outlookTable).toEqual(table);
             });

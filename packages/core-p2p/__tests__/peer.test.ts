@@ -35,10 +35,6 @@ beforeEach(() => {
 });
 
 describe("Peer", () => {
-    it("should be an object", () => {
-        expect(peerMock).toBeObject();
-    });
-
     describe("toBroadcastInfo", () => {
         it("should be ok", async () => {
             const struct = peerMock.toBroadcastInfo();

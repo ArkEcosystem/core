@@ -44,10 +44,6 @@ afterAll(async done => {
 });
 
 describe("Wallet Manager", () => {
-    it("should be an object", () => {
-        expect(walletManager).toBeObject();
-    });
-
     describe("reset", () => {
         it("should reset the index", () => {
             const wallet = new Wallet(walletData1.address);

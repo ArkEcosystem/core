@@ -71,10 +71,6 @@ function generateFullWallets() {
 }
 
 describe("Wallet Repository", () => {
-    it("should be an object", () => {
-        expect(repository).toBeObject();
-    });
-
     describe("all", () => {
         it("should return the local wallets of the connection", () => {
             repository.connection.walletManager.all = jest.fn();

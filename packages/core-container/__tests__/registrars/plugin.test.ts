@@ -14,10 +14,6 @@ beforeEach(() => {
 });
 
 describe("Plugin Registrar", () => {
-    it("should be an object", () => {
-        expect(instance).toBeObject();
-    });
-
     it("should load the plugins and their options", () => {
         ["a", "b", "c"].forEach(char => {
             const pluginName = `./plugin-${char}`;

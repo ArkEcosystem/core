@@ -34,10 +34,6 @@ beforeEach(async () => {
 });
 
 describe("Guard", () => {
-    it("should be an object", () => {
-        expect(guard).toBeObject();
-    });
-
     describe("isSuspended", () => {
         it("should return true", async () => {
             process.env.ARK_ENV = "false";

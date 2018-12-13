@@ -2,10 +2,6 @@ import "jest-extended";
 import { config } from "../src/config";
 
 describe("Config", () => {
-    it("should be an object", () => {
-        expect(config).toBeObject();
-    });
-
     it("should have specific data", () => {
         expect(config).toEqual({
             apiPort: 4003,

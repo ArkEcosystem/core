@@ -56,10 +56,6 @@ function generateWallets() {
 }
 
 describe("Delegate Repository", () => {
-    it("should be an object", () => {
-        expect(repository).toBeObject();
-    });
-
     describe("getLocalDelegates", () => {
         const delegates = [{ username: "delegate-0" }, { username: "delegate-1" }, { username: "delegate-2" }];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];

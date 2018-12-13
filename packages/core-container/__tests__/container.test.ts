@@ -20,10 +20,6 @@ beforeEach(async () => {
 });
 
 describe("Container", () => {
-    it("should be an object", () => {
-        expect(app).toBeObject();
-    });
-
     it("should add a new registration", () => {
         app.register("fake", asValue("value"));
 

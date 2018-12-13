@@ -46,10 +46,6 @@ beforeEach(async () => {
 });
 
 describe("State Machine", () => {
-    it("should be an object", () => {
-        expect(stateMachine).toBeObject();
-    });
-
     describe("actionMap", () => {
         let actionMap;
 

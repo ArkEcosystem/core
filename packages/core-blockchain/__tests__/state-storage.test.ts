@@ -28,10 +28,6 @@ beforeEach(() => {
 });
 
 describe("State Storage", () => {
-    it("should be an object", () => {
-        expect(stateStorage).toBeObject();
-    });
-
     describe("getLastBlock", () => {
         it("should return null when no last block", () => {
             expect(stateStorage.getLastBlock()).toBeNull();
