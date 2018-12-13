@@ -1,35 +1,50 @@
 {
-  "name": "@arkecosystem/core-database-postgres",
-  "description": "PostgreSQL integration for Ark Core",
-  "version": "0.2.1",
-  "contributors": [
-    "Brian Faust <brian@ark.io>"
-  ],
-  "license": "MIT",
-  "main": "lib/index.js",
-  "scripts": {
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "@arkecosystem/core-container": "~0.2",
-    "@arkecosystem/core-database": "~0.2",
-    "@arkecosystem/core-utils": "~0.2",
-    "@arkecosystem/crypto": "~0.2",
-    "bluebird": "^3.5.3",
-    "lodash.chunk": "^4.2.0",
-    "pg-promise": "^8.5.2",
-    "pluralize": "^7.0.0",
-    "sql": "^0.78.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=10.x"
-  }
+    "name": "@arkecosystem/core-database-postgres",
+    "description": "PostgreSQL integration for Ark Core",
+    "version": "0.3.1",
+    "contributors": [
+        "Brian Faust <brian@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn copy && yarn compile",
+        "build:watch": "yarn clean && yarn copy && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
+    },
+    "dependencies": {
+        "@arkecosystem/core-container": "~0.3",
+        "@arkecosystem/core-database": "~0.3",
+        "@arkecosystem/core-utils": "~0.3",
+        "@arkecosystem/crypto": "~0.3",
+        "@types/bluebird": "^3.5.24",
+        "@types/lodash.chunk": "^4.2.4",
+        "@types/pluralize": "^0.0.29",
+        "bluebird": "^3.5.3",
+        "cpy-cli": "^2.0.0",
+        "lodash.chunk": "^4.2.0",
+        "pg-promise": "^8.5.2",
+        "pluralize": "^7.0.0",
+        "sql": "^0.78.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
+    }
 }

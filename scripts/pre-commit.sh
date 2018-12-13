@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo "Running pre-commit script..."
 
 node .circleci/generateConfig.js

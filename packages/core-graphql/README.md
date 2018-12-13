@@ -14,8 +14,10 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [Lúcio Rubens](https://github.com/luciorubeens)
-- [All Contributors](../../../../contributors)
+-   [Brian Faust](https://github.com/faustbrian)
+-   [Joshua Noack](https://github.com/supaiku0)
+-   [Lúcio Rubens](https://github.com/luciorubeens)
+-   [All Contributors](../../../../contributors)
 
 ## License
 
