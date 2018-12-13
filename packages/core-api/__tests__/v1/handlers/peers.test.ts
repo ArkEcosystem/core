@@ -1,44 +1,37 @@
+import { app } from "@arkecosystem/core-container";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-const peerPort = "4002";
+const mockAddress = "1.0.0.99";
+const mockPort = 4002;
 
 beforeAll(async () => {
     await setUp();
+
+    const peerMock = new Peer(mockAddress, mockPort);
+    peerMock.setStatus("OK");
+
+    const monitor = app.resolvePlugin("p2p");
+    monitor.peers = {};
+    monitor.peers[peerMock.ip] = peerMock;
 });
 
 afterAll(async () => {
+    const monitor = app.resolvePlugin("p2p");
+    monitor.peers = {};
+
     await tearDown();
 });
 
 describe("API 1.0 - Peers", () => {
-    describe("GET /peers/version", () => {
-        it("should be ok", async () => {
-            const response = await utils.request("GET", "peers/version");
-            expect(response).toBeSuccessfulResponse();
-
-            expect(response.data.version).toBeString();
-        });
-    });
-
     describe("GET /peers", () => {
-        // NOTE Seems that ark-node replies successfully
-        // it('should fail using empty parameters', async () => {
-        //   const response = await utils.request('GET', 'peers', {
-        //     state: null,
-        //     os: null,
-        //     shared: null,
-        //     version: null,
-        //     limit: null,
-        //     offset: null,
-        //     orderBy: null
-        //   })
-        //   debugger
-        //   utils.expectError(response)
-        //
-        //   expect(response.data.error).toContain('should be string')
-        // })
+        it("should pass using valid parameters", async () => {
+            const response = await utils.request("GET", "peers", { limit: 50 });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.error).toBeUndefined();
+        });
 
         it("should fail using limit > 100", async () => {
             const response = await utils.request("GET", "peers", { limit: 101 });
@@ -62,6 +55,17 @@ describe("API 1.0 - Peers", () => {
     });
 
     describe("GET /peers/get", () => {
+        it("should pass using valid data", async () => {
+            const response = await utils.request("GET", "peers/get", {
+                ip: mockAddress,
+                port: mockPort,
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data).toBeObject();
+            expect(response.data.peer.ip).toBe(mockAddress);
+            expect(response.data.peer.port).toBe(mockPort);
+        });
+
         it("should fail using known ip address with no port", async () => {
             const response = await utils.request("GET", "peers/get", {
                 ip: "127.0.0.1",
@@ -81,11 +85,20 @@ describe("API 1.0 - Peers", () => {
         it("should fail using unknown ip address and port", async () => {
             const response = await utils.request("GET", "peers/get", {
                 ip: "99.99.99.99",
-                port: peerPort,
+                port: mockPort,
             });
             utils.expectError(response);
 
-            expect(response.data.error).toBe(`Peer 99.99.99.99:${peerPort} not found`);
+            expect(response.data.error).toBe(`Peer 99.99.99.99:${mockPort} not found`);
+        });
+    });
+
+    describe("GET /peers/version", () => {
+        it("should be ok", async () => {
+            const response = await utils.request("GET", "peers/version");
+            expect(response).toBeSuccessfulResponse();
+
+            expect(response.data.version).toBeString();
         });
     });
 });

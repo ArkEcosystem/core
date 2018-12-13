@@ -9,7 +9,14 @@ const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
 async function setUp() {
     jest.setTimeout(60000);
 
-    await setUpContainer({});
+    await setUpContainer({
+        exclude: [
+            "@arkecosystem/core-webhooks",
+            "@arkecosystem/core-graphql",
+            "@arkecosystem/core-forger",
+            "@arkecosystem/core-json-rpc",
+        ],
+    });
 
     const connection = app.resolvePlugin("database");
     await connection.db.rounds.truncate();

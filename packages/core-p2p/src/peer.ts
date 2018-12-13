@@ -32,6 +32,7 @@ export class Peer {
         height: number | null;
         "Content-Type": "application/json";
         hashid?: string;
+        status?: any;
     };
 
     /**
@@ -71,6 +72,15 @@ export class Peer {
         ["nethash", "os", "version"].forEach(key => {
             this[key] = headers[key];
         });
+    }
+
+    /**
+     * Set the given status for the peer.
+     * @param  {String} value
+     * @return {void}
+     */
+    public setStatus(value) {
+        this.headers.status = value;
     }
 
     /**
