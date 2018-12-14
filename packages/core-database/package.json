@@ -39,7 +39,9 @@
         "lodash.clonedeep": "^4.5.0",
         "lodash.compact": "^3.0.1",
         "lodash.uniq": "^4.5.0",
-        "pluralize": "^7.0.0"
+        "pluralize": "^7.0.0",
+        "dayjs-ext": "^2.2.0",
+        "pretty-ms": "^4.0.0"
     },
     "devDependencies": {
         "@arkecosystem/core-test-utils": "~0.3"

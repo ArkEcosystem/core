@@ -209,7 +209,7 @@ export class WalletManager {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${
-                    delegates.length
+                delegates.length
                 }. This indicates an issue with the genesis block & delegates.`,
             );
         }
@@ -232,7 +232,7 @@ export class WalletManager {
                     if (a.publicKey === b.publicKey) {
                         throw new Error(
                             `The balance and public key of both delegates are identical! Delegate "${
-                                a.username
+                            a.username
                             }" appears twice in the list.`,
                         );
                     }
@@ -244,7 +244,11 @@ export class WalletManager {
             })
             .map((delegate, i) => {
                 const rate = i + 1;
-                this.byUsername[delegate.username].rate = rate;
+                delegate.rate = rate;
+
+                // Check if forge ban should be lifted
+                delegate.updateForgeBan()
+
                 return { ...{ round }, ...delegate, rate };
             })
             .slice(0, maxDelegates);
@@ -417,7 +421,7 @@ export class WalletManager {
         ) {
             this.logger.error(
                 `Can't apply transaction ${
-                    data.id
+                data.id
                 }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
             );
             throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`);

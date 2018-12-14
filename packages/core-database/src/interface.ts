@@ -4,6 +4,8 @@ import { constants, crypto, models, slots } from "@arkecosystem/crypto";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
+import prettyMs from "pretty-ms";
+import dayjs from "dayjs-ext";
 import { WalletManager } from "./wallet-manager";
 
 import { DelegatesRepository } from "./repositories/delegates";
@@ -11,6 +13,10 @@ import { WalletsRepository } from "./repositories/wallets";
 
 const { Block } = models;
 const { TRANSACTION_TYPES } = constants;
+
+export enum BlockGeneratorValidationResult {
+    Success = "success", Mismatch = "mismatch", ForgerBanned = "forgerBanned"
+}
 
 export abstract class ConnectionInterface {
     public config: any;
@@ -244,7 +250,7 @@ export abstract class ConnectionInterface {
                     wallet.missedBlocks++;
                     this.logger.debug(
                         `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
-                            wallet.missedBlocks
+                        wallet.missedBlocks
                         }`,
                     );
                     wallet.dirty = true;
@@ -357,40 +363,50 @@ export abstract class ConnectionInterface {
     /**
      * Validate a delegate.
      * @param  {Block} block
-     * @return {void}
+     * @return {Promise<BlockGeneratorValidationResult>}
      */
-    public async validateDelegate(block) {
+    public async validateBlockGenerator(block): Promise<BlockGeneratorValidationResult> {
+        let result = BlockGeneratorValidationResult.Success
+
         if (this.__isException(block.data)) {
-            return;
+            return result
         }
 
         const delegates = await this.getActiveDelegates(block.data.height);
         const slot = slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate = delegates[slot % delegates.length];
 
-        const generatorUsername = this.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
-
+        const generator = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
+        const generatorUsername = generator.username;
         if (!forgingDelegate) {
             this.logger.debug(
                 `Could not decide if delegate ${generatorUsername} (${
-                    block.data.generatorPublicKey
+                generator.publicKey
                 }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
             );
-        } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-            const forgingUsername = this.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
 
-            throw new Error(
-                `Delegate ${generatorUsername} (${
-                    block.data.generatorPublicKey
-                }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`,
-            );
+        } else if (forgingDelegate.publicKey !== generator.publicKey) {
+            result = BlockGeneratorValidationResult.Mismatch
+
+            const forgingUsername = this.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
+            this.logger.warn(`Delegate ${generatorUsername} (${
+                generator.publicKey
+                }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`)
+
+        } else if (generator.isBannedFromForging()) {
+            result = BlockGeneratorValidationResult.ForgerBanned
+
+            const banDiff = generator.forgeBan.diff(dayjs(), "minute");
+            this.logger.info(`Delegate ${generatorUsername} (${generator.publicKey}) is banned from forging until ${prettyMs(banDiff, { verbose: true })}.`)
         } else {
             this.logger.debug(
                 `Delegate ${generatorUsername} (${
-                    block.data.generatorPublicKey
+                generator.publicKey
                 }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
             );
         }
+
+        return result
     }
 
     /**
@@ -399,14 +415,36 @@ export abstract class ConnectionInterface {
      * @return {Boolean}
      */
     public async validateForkedBlock(block) {
-        try {
-            await this.validateDelegate(block);
-        } catch (error) {
-            this.logger.debug(error.stack);
-            return false;
+        const result = await this.validateBlockGenerator(block);
+        if (result !== BlockGeneratorValidationResult.Success) {
+            return false
         }
 
+        // Double forgery!
+        // Blacklist the generator for the next 55 rounds ~ 6 hours
+        // TODO: create AIP on how to deal with rogue forgers (penalties, etc. )
+        // Also need persistence - wallets table?
+        const generatorWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey)
+        this.logger.warn(`Double forgery by ${generatorWallet.username} (${block.data.generatorPublicKey}).`)
+        this.logger.warn(`Banned from forging for the next 55 rounds.`)
+        generatorWallet.banFromForging()
+
         return true;
+    }
+
+    /**
+     * Apply and save the given block. Returns wether it could be applied or not.
+     * @param {Block} block
+     * @returns {BlockGeneratorValidationResult} result
+     */
+    public async acceptBlock(block): Promise<BlockGeneratorValidationResult> {
+        const result = await this.validateBlockGenerator(block);
+        if (result === BlockGeneratorValidationResult.Success) {
+            await this.applyBlock(block)
+            await this.saveBlock(block)
+        }
+
+        return result
     }
 
     /**
@@ -415,7 +453,6 @@ export abstract class ConnectionInterface {
      * @return {void}
      */
     public async applyBlock(block) {
-        await this.validateDelegate(block);
         this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {

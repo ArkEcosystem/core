@@ -3,6 +3,8 @@ import { crypto } from "../crypto/crypto";
 import { transactionHandler } from "../handlers/transactions";
 import { configManager } from "../managers/config";
 import { Bignum, formatArktoshi } from "../utils";
+import assert from "assert"
+import dayjs from "dayjs-ext";
 
 /**
  * TODO copy some parts to ArkDocs
@@ -41,6 +43,7 @@ export class Wallet {
     public missedBlocks: number;
     public forgedFees: any;
     public forgedRewards: any;
+    public forgeBan: dayjs.Dayjs | null;
 
     /**
      * @constructor
@@ -62,6 +65,7 @@ export class Wallet {
         this.missedBlocks = 0;
         this.forgedFees = Bignum.ZERO;
         this.forgedRewards = Bignum.ZERO;
+        this.forgeBan = null;
     }
 
     /**
@@ -306,6 +310,35 @@ export class Wallet {
         }
 
         return audit;
+    }
+
+    /**
+     * Bans this wallet from forging.
+     * @returns {void}
+     */
+    public banFromForging() {
+        // Ban for 55 rounds ~ 360 minutes
+        assert(this.username)
+        assert(this.forgeBan === null)
+        this.forgeBan = dayjs().add(55 * 6.8, 'minute')
+    }
+
+    /**
+     * Checks and lifts the ban if any. Called at the start of each round.
+     * @returns {void}
+     */
+    public updateForgeBan() {
+        if (this.forgeBan && this.forgeBan.isBefore(dayjs())) {
+            this.forgeBan = null
+        }
+    }
+
+    /**
+     * Returns true if the forge ban can be lifted.
+     * @returns {void}
+     */
+    public isBannedFromForging(): Boolean {
+        return this.forgeBan !== null
     }
 
     /**

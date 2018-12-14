@@ -370,19 +370,33 @@ export class Blockchain {
             return callback();
         }
 
+        let shouldFork = false
+
         try {
             if (this.__isChained(this.state.getLastBlock(), block)) {
-                await this.acceptChainedBlock(block);
-                this.state.setLastBlock(block);
+                const result = await this.acceptChainedBlock(block);
+                if (result === "success") {
+                    this.state.setLastBlock(block);
+
+                } else if (result === "forgerBanned") {
+                    this.state.lastDownloadedBlock = this.state.getLastBlock();
+                    return callback();
+
+                } else if (result === "mismatch") {
+                    shouldFork = true
+                }
+
             } else {
                 await this.manageUnchainedBlock(block);
             }
         } catch (error) {
             logger.error(`Refused new block ${JSON.stringify(block.data)}`);
             logger.debug(error.stack);
+            shouldFork = true
+        }
 
+        if (shouldFork) {
             this.transactionPool.purgeBlock(block);
-
             this.dispatch("FORK");
             return callback();
         }
@@ -405,27 +419,32 @@ export class Blockchain {
      * Accept a new chained block.
      * @param  {Block} block
      * @param  {Object} state
-     * @return {void}
+     * @return {Object} result
      */
     public async acceptChainedBlock(block) {
-        await this.database.applyBlock(block);
-        await this.database.saveBlock(block);
+        const result = await this.database.acceptBlock(block);
+        if (result.type === "success") {
 
-        // Check if we recovered from a fork
-        if (this.state.forked && this.state.forkedBlock.height === block.data.height) {
-            logger.info("Successfully recovered from fork :star2:");
-            this.state.forked = false;
-            this.state.forkedBlock = null;
-        }
+            await this.database.saveBlock(block);
 
-        if (this.transactionPool) {
-            try {
-                this.transactionPool.acceptChainedBlock(block);
-            } catch (error) {
-                logger.warn("Issue applying block to transaction pool");
-                logger.debug(error.stack);
+            // Check if we recovered from a fork
+            if (this.state.forked && this.state.forkedBlock.height === block.data.height) {
+                logger.info("Successfully recovered from fork :star2:");
+                this.state.forked = false;
+                this.state.forkedBlock = null;
+            }
+
+            if (this.transactionPool) {
+                try {
+                    this.transactionPool.acceptChainedBlock(block);
+                } catch (error) {
+                    logger.warn("Issue applying block to transaction pool");
+                    logger.debug(error.stack);
+                }
             }
         }
+
+        return result
     }
 
     /**
@@ -451,12 +470,13 @@ export class Blockchain {
         } else {
             const isValid = await this.database.validateForkedBlock(block);
 
+            // Fork on double forgery. Generator is now banned for the next couple of rounds.
             if (isValid) {
                 this.dispatch("FORK");
             } else {
                 logger.info(
                     `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
-                        block.data.generatorPublicKey
+                    block.data.generatorPublicKey
                     } :bangbang:`,
                 );
             }
