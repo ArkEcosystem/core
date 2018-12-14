@@ -74,7 +74,7 @@ if (fs.existsSync(options.configPath)) {
     } else {
         logger.error(
             `Deployer config already exists in '${
-            options.configPath
+                options.configPath
             }' - to overwrite, use the '--overwriteConfig' flag`,
         );
         process.exit(1);
