@@ -59,7 +59,7 @@ class Monitor {
 
         this.guard = guard.init(this);
 
-        this.__filterPeers();
+        this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
             logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
@@ -110,7 +110,7 @@ class Monitor {
         let nextRunDelaySeconds = 600;
 
         if (!this.hasMinimumPeers()) {
-            this.__addPeers(config.peers.list);
+            this.populateSeedPeers();
             nextRunDelaySeconds = 5;
             logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
         }
@@ -721,10 +721,10 @@ class Monitor {
     }
 
     /**
-     * Filter the initial seed list.
+     * Populate the initial seed list.
      * @return {void}
      */
-    public __filterPeers() {
+    private populateSeedPeers() {
         if (!config.peers.list) {
             app.forceExit("No seed peers defined in peers.json :interrobang:");
         }
@@ -743,6 +743,7 @@ class Monitor {
         );
 
         for (const peer of filteredPeers) {
+            delete this.guard.suspensions[peer.ip];
             this.peers[peer.ip] = new Peer(peer.ip, peer.port);
         }
     }
