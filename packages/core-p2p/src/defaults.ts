@@ -4,7 +4,7 @@ export const defaults = {
     /**
      * The minimum peer version we expect
      */
-    minimumVersion: ">=2.0.15",
+    minimumVersion: ">=2.1.0",
     /**
      * The number of peers we expect to be available to start a relay
      */
