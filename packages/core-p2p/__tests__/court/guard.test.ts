@@ -89,7 +89,7 @@ describe("Guard", () => {
             state: {},
         };
 
-        it('should return a 1 day suspension for "Blacklisted"', () => {
+        it('should return a 1 year suspension for "Blacklisted"', () => {
             guard.config.set("blacklist", ["dummy-ip-addr"]);
 
             const { until, reason } = guard.__determineOffence({
@@ -97,7 +97,7 @@ describe("Guard", () => {
                 ip: "dummy-ip-addr",
             });
 
-            expect(convertToMinutes(until)).toBe(720);
+            expect(convertToMinutes(until)).toBe(525600);
             expect(reason).toBe("Blacklisted");
 
             guard.config.set("blacklist", []);
@@ -115,7 +115,7 @@ describe("Guard", () => {
             expect(reason).toBe("No Common Blocks");
         });
 
-        it('should return a 6 hours suspension for "Invalid Version"', () => {
+        it('should return a 5 minute suspension for "Invalid Version"', () => {
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
                 version: "1.0.0",
@@ -123,7 +123,7 @@ describe("Guard", () => {
                 delay: 1000,
             });
 
-            expect(convertToMinutes(until)).toBe(360);
+            expect(convertToMinutes(until)).toBe(5);
             expect(reason).toBe("Invalid Version");
         });
 
@@ -191,10 +191,10 @@ describe("Guard", () => {
             expect(reason).toBe("Rate limit exceeded");
         });
 
-        it('should return a 30 minutes suspension for "Unknown"', () => {
+        it('should return a 10 minutes suspension for "Unknown"', () => {
             const { until, reason } = guard.__determineOffence(dummy);
 
-            expect(convertToMinutes(until)).toBe(30);
+            expect(convertToMinutes(until)).toBe(10);
             expect(reason).toBe("Unknown");
         });
     });
