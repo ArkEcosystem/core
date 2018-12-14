@@ -45,7 +45,41 @@ export const transactions: object = {
     },
     query: {
         ...pagination,
-        orderBy: Joi.string(),
+        ...{
+            orderBy: Joi.string(),
+            id: Joi.string()
+                .hex()
+                .length(64),
+            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            type: Joi.number()
+                .integer()
+                .min(0),
+            version: Joi.number()
+                .integer()
+                .positive(),
+            senderPublicKey: Joi.string()
+                .hex()
+                .length(66),
+            senderId: Joi.string()
+                .alphanum()
+                .length(34),
+            recipientId: Joi.string()
+                .alphanum()
+                .length(34),
+            ownerId: Joi.string()
+                .alphanum()
+                .length(34),
+            timestamp: Joi.number()
+                .integer()
+                .min(0),
+            amount: Joi.number()
+                .integer()
+                .min(0),
+            fee: Joi.number()
+                .integer()
+                .min(0),
+            vendorFieldHex: Joi.string().hex(),
+        },
     },
 };
 
@@ -55,7 +89,35 @@ export const transactionsSent: object = {
     },
     query: {
         ...pagination,
-        orderBy: Joi.string(),
+        ...{
+            orderBy: Joi.string(),
+            id: Joi.string()
+                .hex()
+                .length(64),
+            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            type: Joi.number()
+                .integer()
+                .min(0),
+            version: Joi.number()
+                .integer()
+                .positive(),
+            recipientId: Joi.string()
+                .alphanum()
+                .length(34),
+            ownerId: Joi.string()
+                .alphanum()
+                .length(34),
+            timestamp: Joi.number()
+                .integer()
+                .min(0),
+            amount: Joi.number()
+                .integer()
+                .min(0),
+            fee: Joi.number()
+                .integer()
+                .min(0),
+            vendorFieldHex: Joi.string().hex(),
+        },
     },
 };
 
@@ -65,7 +127,38 @@ export const transactionsReceived: object = {
     },
     query: {
         ...pagination,
-        orderBy: Joi.string(),
+        ...{
+            orderBy: Joi.string(),
+            id: Joi.string()
+                .hex()
+                .length(64),
+            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            type: Joi.number()
+                .integer()
+                .min(0),
+            version: Joi.number()
+                .integer()
+                .positive(),
+            senderPublicKey: Joi.string()
+                .hex()
+                .length(66),
+            senderId: Joi.string()
+                .alphanum()
+                .length(34),
+            ownerId: Joi.string()
+                .alphanum()
+                .length(34),
+            timestamp: Joi.number()
+                .integer()
+                .min(0),
+            amount: Joi.number()
+                .integer()
+                .min(0),
+            fee: Joi.number()
+                .integer()
+                .min(0),
+            vendorFieldHex: Joi.string().hex(),
+        },
     },
 };
 
