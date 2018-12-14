@@ -1,9 +1,10 @@
 export const offences = {
     BLACKLISTED: {
-        number: 12,
-        period: "hour",
+        number: 1,
+        period: "year",
         reason: "Blacklisted",
         weight: 10,
+        critical: true,
     },
     NO_COMMON_BLOCKS: {
         number: 5,
@@ -20,22 +21,23 @@ export const offences = {
         critical: true,
     },
     INVALID_VERSION: {
-        number: 6,
-        period: "hour",
+        number: 5,
+        period: "minute",
         reason: "Invalid Version",
-        weight: 7,
+        weight: 2,
     },
     INVALID_HEIGHT: {
         number: 10,
         period: "minute",
         reason: "Node is not at height",
-        weight: 5,
+        weight: 3,
     },
     INVALID_NETWORK: {
         number: 5,
         period: "minute",
         reason: "Invalid Network",
         weight: 5,
+        critical: true,
     },
     INVALID_STATUS: {
         number: 5,
@@ -67,8 +69,14 @@ export const offences = {
         reason: "Rate limit exceeded",
         weight: 0,
     },
+    FORK: {
+        number: 15,
+        period: "minute",
+        reason: "Fork",
+        weight: 10,
+    },
     UNKNOWN: {
-        number: 30,
+        number: 10,
         period: "minute",
         reason: "Unknown",
         weight: 5,
@@ -78,12 +86,5 @@ export const offences = {
         period: "day",
         reason: "Repeat Offender",
         weight: 100,
-    },
-    FORK: {
-        number: 1,
-        period: "day",
-        reason: "Fork",
-        weight: 150,
-        critical: true,
     },
 };
