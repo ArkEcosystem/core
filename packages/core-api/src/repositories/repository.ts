@@ -60,8 +60,8 @@ export class Repository {
 
         let count = 0;
         const explainSql = `EXPLAIN ${selectQuery.toString()}`;
-        for (const row of await database.query.manyOrNone(explainSql)) {
-            const line = Object.values(row)[0];
+        for (const row of await this.database.query.manyOrNone(explainSql)) {
+            const line: any = Object.values(row)[0];
             const match = line.match(/rows=([0-9]+)/);
             if (match !== null) {
                 count = Number(match[1]);
