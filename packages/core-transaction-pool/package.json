@@ -35,7 +35,7 @@
         "@arkecosystem/core-container": "~0.3",
         "@arkecosystem/core-database": "~0.3",
         "@arkecosystem/crypto": "~0.3",
-        "@types/better-sqlite3": "^5.0.0",
+        "@types/better-sqlite3": "^5.0.1",
         "@types/fs-extra": "^5.0.4",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.0.1",
