@@ -747,9 +747,7 @@ class Monitor {
             peers = { ...peers, ...config.peers_backup };
         }
 
-        const filteredPeers: any[] = Object.values(peers).filter(
-            peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValidVersion(peer),
-        );
+        const filteredPeers: any[] = Object.values(peers).filter(peer => !this.guard.isMyself(peer) && this.guard.isValidPort(peer) && this.guard.isValidVersion(peer));
 
         for (const peer of filteredPeers) {
             this.peers[peer.ip] = new Peer(peer.ip, peer.port);
