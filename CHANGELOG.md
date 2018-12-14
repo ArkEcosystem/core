@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
--   Resolved an issue with the `resolveOptions` method that would result in options being resolved for plugins that are not registered in the container.
+-   Resolved an issue with the `resolveOptions` method that would result in options being resolved for plugins that are not registered in the container ([fad5a259b1b1c074e7cf35d8279371ac78a47062])
 -   Malformed condition for filtering peers ([0c2319649f9304465bfc60140c77e45fa225e77a])
 -   Use the correct pagination schema for the v2 public API ([9f320c4f9aa19960ba19b75a19882dfe8d56f238])
 
