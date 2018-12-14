@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-api",
     "description": "Public API for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -9,9 +9,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -29,11 +27,11 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-http-utils": "~0.3",
-        "@arkecosystem/core-transaction-pool": "~0.3",
-        "@arkecosystem/core-utils": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-http-utils": "^2.1.0",
+        "@arkecosystem/core-transaction-pool": "^2.1.0",
+        "@arkecosystem/core-utils": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/lodash.orderby": "^4.6.4",
         "@types/lodash.snakecase": "^4.1.4",
         "ajv": "^6.5.5",
@@ -49,7 +47,7 @@
         "lodash.snakecase": "^4.1.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "~0.3",
+        "@arkecosystem/core-test-utils": "^2.1.0",
         "axios": "^0.18.0"
     },
     "publishConfig": {

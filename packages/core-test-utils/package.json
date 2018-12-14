@@ -1,16 +1,14 @@
 {
     "name": "@arkecosystem/core-test-utils",
     "description": "Test Utilities for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -28,8 +26,8 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.isequal": "^4.5.3",

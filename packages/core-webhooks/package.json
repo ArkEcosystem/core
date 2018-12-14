@@ -1,16 +1,14 @@
 {
     "name": "@arkecosystem/core-webhooks",
     "description": "Webhooks for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -28,8 +26,8 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-http-utils": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-http-utils": "^2.1.0",
         "@types/fs-extra": "^5.0.4",
         "@types/joi": "^14.0.0",
         "@types/sequelize": "^4.27.33",
@@ -45,7 +43,7 @@
         "umzug": "^2.2.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "~0.3"
+        "@arkecosystem/core-test-utils": "^2.1.0"
     },
     "publishConfig": {
         "access": "public"

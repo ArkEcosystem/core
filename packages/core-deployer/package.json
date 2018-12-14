@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-deployer",
     "description": "Deployer for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -9,9 +9,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "bin": {
         "ark:deployer": "node ./dist/index.js"
@@ -33,7 +31,7 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/bip39": "^2.4.1",
         "@types/fs-extra": "^5.0.4",
         "@types/joi": "^14.0.0",

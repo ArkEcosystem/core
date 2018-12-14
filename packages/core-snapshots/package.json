@@ -1,16 +1,14 @@
 {
     "name": "@arkecosystem/core-snapshots",
     "description": "Provides live local streamed snapshots functionality for ARK Core",
-    "version": "0.2.0",
+    "version": "2.1.0",
     "contributors": [
         "Kristjan Košič <chris@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -28,9 +26,9 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-database-postgres": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-database-postgres": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/bluebird": "^3.5.24",
         "@types/create-hash": "^1.2.0",
         "@types/fs-extra": "^5.0.4",
