@@ -40,7 +40,7 @@ beforeEach(async done => {
 });
 
 function generateWallets() {
-    return genesisBlock.transactions.map(transaction => {
+    return genesisBlock.transactions.map((transaction, index) => {
         const address = crypto.getAddress(transaction.senderPublicKey);
 
         return {
@@ -51,6 +51,7 @@ function generateWallets() {
             username: `username-${address}`,
             balance: new Bignum(100),
             voteBalance: new Bignum(200),
+            rate: index + 1,
         };
     });
 }
@@ -76,15 +77,17 @@ describe("Delegate Repository", () => {
             const { count, rows } = repository.findAll();
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
+            expect(rows.sort((a, b) => (a.rate < b.rate))).toEqual(rows);
         });
 
         it("should be ok with params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 10, limit: 10 });
+            const { count, rows } = repository.findAll({ offset: 10, limit: 10, orderBy: "rate:desc" });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
+            expect(rows.sort((a, b) => (a.rate > b.rate))).toEqual(rows);
         });
 
         it("should be ok with params (no offset)", () => {
@@ -123,15 +126,17 @@ describe("Delegate Repository", () => {
             const { count, rows } = repository.paginate();
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
+            expect(rows.sort((a, b) => (a.rate < b.rate))).toEqual(rows);
         });
 
         it("should be ok with params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.paginate({ offset: 10, limit: 10 });
+            const { count, rows } = repository.paginate({ offset: 10, limit: 10, orderBy: "rate:desc" });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
+            expect(rows.sort((a, b) => (a.rate > b.rate))).toEqual(rows);
         });
 
         it("should be ok with params (no offset)", () => {
