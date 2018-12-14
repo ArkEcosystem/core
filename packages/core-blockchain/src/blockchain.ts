@@ -350,7 +350,7 @@ export class Blockchain {
             return callback();
         }
         logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
-        logger.warn(block.verification);
+        logger.warn(JSON.stringify(block.verification, null, 4));
         return callback();
     }
 
@@ -364,6 +364,7 @@ export class Blockchain {
     public async processBlock(block, callback) {
         if (!block.verification.verified) {
             logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
+            logger.warn(JSON.stringify(block.verification, null, 4));
 
             this.transactionPool.purgeSendersWithInvalidTransactions(block);
             this.state.lastDownloadedBlock = this.state.getLastBlock();
