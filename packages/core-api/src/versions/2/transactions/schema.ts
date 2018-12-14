@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Joi } from "@arkecosystem/crypto";
-import * as Pagination from "../shared/schemas/pagination";
+import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
     query: {
-        ...Pagination,
+        ...pagination,
         ...{
             orderBy: Joi.string(),
             id: Joi.string()
@@ -61,7 +61,7 @@ export const show: object = {
 };
 
 export const unconfirmed: object = {
-    query: Pagination,
+    query: pagination,
 };
 
 export const showUnconfirmed: object = {
@@ -73,7 +73,7 @@ export const showUnconfirmed: object = {
 };
 
 export const search: object = {
-    query: Pagination,
+    query: pagination,
     payload: {
         orderBy: Joi.string(),
         id: Joi.string()

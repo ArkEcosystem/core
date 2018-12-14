@@ -1,9 +1,9 @@
 import * as Joi from "joi";
-import * as Pagination from "../shared/schemas/pagination";
+import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
     query: {
-        ...Pagination,
+        ...pagination,
         ...{
             orderBy: Joi.string(),
             id: Joi.string()

@@ -1,9 +1,9 @@
 import * as Joi from "joi";
-import * as Pagination from "../shared/schemas/pagination";
+import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
     query: {
-        ...Pagination,
+        ...pagination,
         ...{
             orderBy: Joi.string(),
             address: Joi.string()
@@ -42,7 +42,7 @@ export const show: object = {
 };
 
 export const search: object = {
-    query: Pagination,
+    query: pagination,
     payload: {
         username: Joi.string(),
     },
@@ -53,7 +53,7 @@ export const blocks: object = {
         id: Joi.string(),
     },
     query: {
-        ...Pagination,
+        ...pagination,
         ...{
             orderBy: Joi.string(),
             id: Joi.string().regex(/^[0-9]+$/, "numbers"),
@@ -96,7 +96,7 @@ export const voters: object = {
         id: Joi.string(),
     },
     query: {
-        ...Pagination,
+        ...pagination,
         ...{
             orderBy: Joi.string(),
             address: Joi.string()
