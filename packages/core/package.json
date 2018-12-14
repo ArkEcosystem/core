@@ -11,9 +11,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "bin": {
         "ark:start": "node ./dist/index.js start",

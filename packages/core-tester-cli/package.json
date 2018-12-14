@@ -9,9 +9,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "bin": {
         "ark:tester": "node ./dist/index.js"
