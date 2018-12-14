@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core",
     "description": "Core of the Ark Blockchain",
-    "version": "2.0.15",
+    "version": "2.1.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -11,9 +11,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "bin": {
         "ark:start": "node ./dist/index.js start",
@@ -66,20 +64,20 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-api": "~0.3",
-        "@arkecosystem/core-blockchain": "~0.3",
-        "@arkecosystem/core-config": "~0.3",
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-database-postgres": "~0.3",
-        "@arkecosystem/core-forger": "~0.3",
-        "@arkecosystem/core-graphql": "~0.3",
-        "@arkecosystem/core-json-rpc": "~0.3",
-        "@arkecosystem/core-logger-winston": "~0.3",
-        "@arkecosystem/core-p2p": "~0.3",
-        "@arkecosystem/core-snapshots": "~0.2",
-        "@arkecosystem/core-transaction-pool": "~0.3",
-        "@arkecosystem/core-webhooks": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-api": "^2.1.0",
+        "@arkecosystem/core-blockchain": "^2.1.0",
+        "@arkecosystem/core-config": "^2.1.0",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-database-postgres": "^2.1.0",
+        "@arkecosystem/core-forger": "^2.1.0",
+        "@arkecosystem/core-graphql": "^2.1.0",
+        "@arkecosystem/core-json-rpc": "^2.1.0",
+        "@arkecosystem/core-logger-winston": "^2.1.0",
+        "@arkecosystem/core-p2p": "^2.1.0",
+        "@arkecosystem/core-snapshots": "^2.1.0",
+        "@arkecosystem/core-transaction-pool": "^2.1.0",
+        "@arkecosystem/core-webhooks": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "bip38": "^2.0.2",
         "commander": "^2.19.0",
         "wif": "^2.0.6"

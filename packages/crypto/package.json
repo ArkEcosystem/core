@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the Ark Blockchain",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -15,9 +15,7 @@
     "browser": "dist/index.umd.js",
     "module": "dist/index.cjs.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",

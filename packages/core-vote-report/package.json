@@ -1,16 +1,14 @@
 {
     "name": "@arkecosystem/core-vote-report",
     "description": "Vote Report for Ark Core",
-    "version": "0.2.0",
+    "version": "2.1.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -28,10 +26,10 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-http-utils": "~0.3",
-        "@arkecosystem/core-utils": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-http-utils": "^2.1.0",
+        "@arkecosystem/core-utils": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/handlebars": "^4.0.39",
         "@types/lodash.clonedeepwith": "^4.5.4",
         "@types/lodash.sumby": "^4.6.4",

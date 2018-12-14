@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
     "description": "Forger for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -10,9 +10,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -30,8 +28,8 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/lodash.isempty": "^4.4.4",
         "@types/lodash.sample": "^4.2.4",
         "@types/lodash.uniq": "^4.5.4",
@@ -44,7 +42,7 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "~0.3",
+        "@arkecosystem/core-test-utils": "^2.1.0",
         "axios-mock-adapter": "^1.15.0"
     },
     "publishConfig": {

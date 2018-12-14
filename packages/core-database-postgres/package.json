@@ -1,16 +1,14 @@
 {
     "name": "@arkecosystem/core-database-postgres",
     "description": "PostgreSQL integration for Ark Core",
-    "version": "0.3.1",
+    "version": "2.1.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -24,10 +22,10 @@
         "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-database": "~0.3",
-        "@arkecosystem/core-utils": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-database": "^2.1.0",
+        "@arkecosystem/core-utils": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/bluebird": "^3.5.24",
         "@types/lodash.chunk": "^4.2.4",
         "@types/pluralize": "^0.0.29",

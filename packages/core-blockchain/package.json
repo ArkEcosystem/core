@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-blockchain",
     "description": "Blockchain Manager for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -10,9 +10,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -30,9 +28,9 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-utils": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-utils": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/lodash.get": "^4.4.4",
         "async": "^2.6.1",
         "awilix": "^4.0.1",
@@ -44,8 +42,8 @@
         "xstate": "^4.2.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "~0.3",
-        "@arkecosystem/core-test-utils": "~0.3",
+        "@arkecosystem/core-p2p": "^2.1.0",
+        "@arkecosystem/core-test-utils": "^2.1.0",
         "axios": "^0.18.0",
         "axios-mock-adapter": "^1.15.0"
     },

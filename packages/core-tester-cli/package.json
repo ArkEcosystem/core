@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-tester-cli",
     "description": "Tester CLI for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -9,9 +9,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "bin": {
         "ark:tester": "node ./dist/index.js"
@@ -33,8 +31,8 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-utils": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-utils": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/bip39": "^2.4.1",
         "@types/clipboardy": "^1.1.0",
         "@types/lodash.fill": "^3.4.4",

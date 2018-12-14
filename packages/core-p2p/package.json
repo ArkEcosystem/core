@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-p2p",
     "description": "P2P API for Ark Core",
-    "version": "0.3.0",
+    "version": "2.1.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -11,9 +11,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -31,10 +29,10 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-http-utils": "~0.3",
-        "@arkecosystem/core-transaction-pool": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-http-utils": "^2.1.0",
+        "@arkecosystem/core-transaction-pool": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
         "@types/joi": "^14.0.0",
         "@types/lodash.chunk": "^4.2.4",
         "@types/lodash.flatten": "^4.4.4",
@@ -74,7 +72,7 @@
         "sntp": "^3.0.2"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "~0.3",
+        "@arkecosystem/core-test-utils": "^2.1.0",
         "axios-mock-adapter": "^1.15.0"
     },
     "publishConfig": {

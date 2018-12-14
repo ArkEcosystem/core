@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
     "description": "Transaction Pool Manager for Ark Core",
-    "version": "0.3.1",
+    "version": "2.1.0",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -12,9 +12,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
+        "dist"
     ],
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -32,9 +30,10 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "~0.3",
-        "@arkecosystem/core-database": "~0.3",
-        "@arkecosystem/crypto": "~0.3",
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-database": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
+        "@types/better-sqlite3": "^5.0.0",
         "@types/better-sqlite3": "^5.0.1",
         "@types/fs-extra": "^5.0.4",
         "@types/pluralize": "^0.0.29",
@@ -46,8 +45,8 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "~0.3",
-        "@arkecosystem/core-utils": "~0.3",
+        "@arkecosystem/core-test-utils": "^2.1.0",
+        "@arkecosystem/core-utils": "^2.1.0",
         "bip39": "^2.5.0",
         "random-seed": "^0.3.0"
     },
