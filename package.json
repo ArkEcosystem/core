@@ -13,7 +13,8 @@
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\"",
         "test": "cross-env ARK_ENV=test jest --runInBand --forceExit",
         "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "snyk": "./node_modules/.bin/snyk protect"
+        "snyk": "./node_modules/.bin/snyk protect",
+        "version": "cross-env-shell ./scripts/version.sh"
     },
     "devDependencies": {
         "@babel/core": "^7.1.6",
