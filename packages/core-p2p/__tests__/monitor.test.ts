@@ -108,8 +108,9 @@ describe("Monitor", () => {
             await monitor.discoverPeers();
             const peers = monitor.getPeers();
 
+            expect(peers).toBeArray();
             expect(Object.keys(peers).length).toBe(6); // 5 from initial peers + 1 from peerMock
-            expect(peers[peerMock.ip]).toBeObject();
+            expect(peers.find(e => e.ip === peerMock.ip)).toBeDefined();
         });
     });
 
