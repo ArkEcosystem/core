@@ -748,7 +748,7 @@ class Monitor {
         }
 
         const filteredPeers: any[] = Object.values(peers).filter(
-            peer => !this.guard.isMyself(peer) && this.guard.isValidPort(peer) && this.guard.isValidVersion(peer),
+            peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValidVersion(peer),
         );
 
         for (const peer of filteredPeers) {
