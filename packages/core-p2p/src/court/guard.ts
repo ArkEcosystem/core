@@ -131,7 +131,8 @@ class Guard {
             const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder;
 
             if (!nextSuspensionReminder || dayjs().isAfter(nextSuspensionReminder)) {
-                const untilDiff = suspendedPeer.until.diff(dayjs(), "minute");
+                // @ts-ignore
+                const untilDiff = suspendedPeer.until.diff(dayjs());
 
                 logger.debug(
                     `${peer.ip} still suspended for ${prettyMs(untilDiff, {
