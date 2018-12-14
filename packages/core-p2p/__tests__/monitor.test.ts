@@ -105,7 +105,8 @@ describe("Monitor", () => {
                 .onGet(/.*\/peer\/list/)
                 .reply(() => [200, { peers: [peerMock.toBroadcastInfo()] }, peerMock.headers]);
 
-            const peers = await monitor.discoverPeers();
+            await monitor.discoverPeers();
+            const peers = monitor.getPeers();
 
             expect(peers).toBeObject();
             expect(Object.keys(peers).length).toBe(6); // 5 from initial peers + 1 from peerMock
