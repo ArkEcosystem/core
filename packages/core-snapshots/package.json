@@ -44,7 +44,7 @@
         "fs-extra": "^7.0.1",
         "lodash.pick": "^4.4.0",
         "msgpack-lite": "^0.1.26",
-        "pg-promise": "^8.5.2",
+        "pg-promise": "^8.5.4",
         "pg-query-stream": "^1.1.2",
         "pluralize": "^7.0.0",
         "xcase": "^2.0.1"
