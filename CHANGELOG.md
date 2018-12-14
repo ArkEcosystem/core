@@ -21,81 +21,58 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
--   Ensure no local peers are enlisted
--   Ensure the IP of the TCP connection is used
+-   Ensure no local peers are enlisted and that the IP of the TCP connection is used (https://github.com/ArkEcosystem/core/commit/a3c70fb5f575c95e9c9666c581b76b992683df17)
 
 ## [2.0.14] - 2018-12-10
 
 ### Fixed
 
--   Reset last downloaded block when block is discarded
+-   Reset last downloaded block when block is discarded (https://github.com/ArkEcosystem/core/commit/3d7baf961b23d5ba8757375096d15a2ea90367af)
 
 ## [2.0.13] - 2018-12-07
 
 ### Fixed
 
--   Ensure safe integer range for block height lookups via API
+-   Ensure safe integer range for block height lookups via API (https://github.com/ArkEcosystem/core/commit/97c25727f7a012f6db803e7191c1901098d628de)
 
 ## [2.0.12] - 2018-12-06
 
 ### Fixed
 
--   Perform second-signature checks in the `canApply` logic of multi-signatures
+-   Perform second-signature checks in the `canApply` logic of multi-signatures (https://github.com/ArkEcosystem/core/commit/97c387661ae2718f986ddd06b072fc6cbcdb50f1)
+-   return the encoded WIF for BIP38 wallets instead of the encrypted WIF (https://github.com/ArkEcosystem/core/commit/3a0b19bfdd93fc4634a0f1faa922756ea715dbbf)
 
 ## [2.0.11] - 2018-12-05
 
 ### Added
 
--   Store executed migrations in the database
+-   Store executed migrations in the database (https://github.com/ArkEcosystem/core/commit/b4e4d5661d8afd5d743d933a9f636459b52aecb3)
 
 ### Changed
 
--   Increase cache generation timeout and make it configurable
+-   Increase cache generation timeout and make it configurable (https://github.com/ArkEcosystem/core/commit/f2b8ba5f36a6872ace2e2f7ea75b6fbdeb0e47fb, https://github.com/ArkEcosystem/core/commit/75328312cfcb3047a3908122a82795634f0fcc79)
 
 ## [2.0.1] - 2018-12-05
 
+### Added
+
+-   Retrieve blocks via height or ID per public API (https://github.com/ArkEcosystem/core/commit/c91254666922213f8a9608447ecd6b6e2ca692cb)
+
 ### Changed
 
--   Improved performance for block and transaction queries by adding more indices on critical columns
+-   Improved performance for block and transaction queries by adding more indices on critical columns (https://github.com/ArkEcosystem/core/commit/d0ba6564de8098dabb3839217c87db7682dadef1, https://github.com/ArkEcosystem/core/commit/81f414ae65b6cdab290cae085babba9b4366a7f9, https://github.com/ArkEcosystem/core/commit/83a9641f2ec72b8d68c59c95c36fe8513a12e4ed)
 
 ### Fixed
 
--   Take milestones into account for supply calculations
+-   Take milestones into account for supply calculations (https://github.com/ArkEcosystem/core/commit/a6a6802bfbbde6bf203c372a3a094a83b19e8693)
+-   Use the raw transaction data in `acceptChainedBlock` to avoid timestamp mismatches and second signature double spend errors (https://github.com/ArkEcosystem/core/commit/867d9eab567d3945285f0af0392fba070bac12d5)
+-   Return the correct peer count for the v2 public API (https://github.com/ArkEcosystem/core/commit/b0e5772fa084c22039918dab1d5af5667c22a32e)
 
 ## [2.0.0] - 2018-12-03
 
 ### Changed
 
 -   Initial Release
--   Publish first major release of `core`
--   Publish first major release of `core-api`
--   Publish first major release of `core-blockchain`
--   Publish first major release of `core-config`
--   Publish first major release of `core-container`
--   Publish first major release of `core-database`
--   Publish first major release of `core-database-postgres`
--   Publish first major release of `core-debugger-cli`
--   Publish first major release of `core-deployer`
--   Publish first major release of `core-elasticsearch`
--   Publish first major release of `core-error-tracker-bugsnag`
--   Publish first major release of `core-error-tracker-sentry`
--   Publish first major release of `core-event-emitter`
--   Publish first major release of `core-forger`
--   Publish first major release of `core-graphql`
--   Publish first major release of `core-http-utils`
--   Publish first major release of `core-json-rpc`
--   Publish first major release of `core-logger`
--   Publish first major release of `core-logger-winston`
--   Publish first major release of `core-p2p`
--   Publish first major release of `core-snapshots`
--   Publish first major release of `core-snapshots-cli`
--   Publish first major release of `core-test-utils`
--   Publish first major release of `core-tester-cli`
--   Publish first major release of `core-transaction-pool`
--   Publish first major release of `core-utils`
--   Publish first major release of `core-vote-report`
--   Publish first major release of `core-webhooks`
--   Publish first major release of `crypto`
 
 [unreleased]: https://github.com/ArkEcosystem/core/compare/2.0.15...develop
 [2.0.15]: https://github.com/ArkEcosystem/core/compare/2.0.14...2.0.15
