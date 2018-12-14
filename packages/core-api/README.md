@@ -14,9 +14,10 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [Kristjan Košič](https://github.com/kristjank)
-- [Brian Faust](https://github.com/faustbrian)
-- [All Contributors](../../../../contributors)
+-   [Brian Faust](https://github.com/faustbrian)
+-   [Joshua Noack](https://github.com/supaiku0)
+-   [Kristjan Košič](https://github.com/kristjank)
+-   [All Contributors](../../../../contributors)
 
 ## License
 

@@ -1,22 +1,37 @@
 {
-  "name": "@arkecosystem/core-error-tracker-bugsnag",
-  "description": "Bugsnag error tracker integration for Ark Core.",
-  "version": "0.1.0",
-  "contributors": [
-    "Brian Faust <brian@ark.io>"
-  ],
-  "license": "MIT",
-  "main": "lib/index.js",
-  "scripts": {
-    "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "bugsnag": "^2.4.3"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=10.x"
-  }
+    "name": "@arkecosystem/core-error-tracker-bugsnag",
+    "description": "Bugsnag error tracker integration for Ark Core.",
+    "version": "0.2.0",
+    "contributors": [
+        "Brian Faust <brian@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "yarn lint && yarn build",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix"
+    },
+    "dependencies": {
+        "@bugsnag/js": "^5.0.2"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
+    }
 }

@@ -1,0 +1,251 @@
+#!/usr/bin/env node
+
+/* tslint:disable:forin no-var-requires*/
+
+import commander from "commander";
+import fs from "fs-extra";
+import Joi from "joi";
+import os from "os";
+import path from "path";
+import { GenesisBlockBuilder } from "./builder/genesis-block";
+import { schema } from "./schema";
+import { getRandomNumber, logger, updateConfig, writeEnv } from "./utils";
+
+const { version } = require("../package.json");
+
+process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), ".ark");
+
+commander
+    .version(version)
+    .option("--network <value>", "Network to initially copy", "mainnet")
+    .option("--name <value>", "Name", "Bridgechain")
+    .option("--nodeIp <value>", "IP for node", "0.0.0.0")
+    .option("--p2pPort <value>", "P2P API Port", 4102)
+    .option("--apiPort <value>", "Public P2P Port", 4103)
+    .option("--dbHost <value>", "Database host", "localhost")
+    .option("--dbPort <value>", "Database port", 5432)
+    .option("--dbUsername <value>", "Database username", "node")
+    .option("--dbPassword <value>", "Database password", "password")
+    .option("--dbDatabase <value>", "Database name", `ark_${(commander.name as any).toLowerCase()}`)
+    .option("--explorerUrl <value>", "URL to link to explorer", "http://localhost:4200")
+    .option("--activeDelegates <value>", "How many forgers for the network [51]", 51)
+    .option("--feeTransfer <value>", "Fee for sending Transaction", 10000000)
+    .option("--feeVote <value>", "Fee for Vote Transaction", 100000000)
+    .option("--feeSecondSignature <value>", "Fee for Second Passphrase Transaction", 500000000)
+    .option("--feeDelegateRegistration <value>", "Fee for Register Delegate Transaction", 2500000000)
+    .option("--feeMultiSignature <value>", "Fee for Multisignature Transaction", 500000000)
+    .option("--epoch <value>", "Set Epoch based on time the chain was created", "2017-02-21T13:00:00.000Z")
+    .option("--rewardHeight <value>", "Block Height when Forgers receive Rewards [1]", 1)
+    .option("--rewardPerBlock <value>", "How many Rewarded Tokens per Forged Block [200000000 (2)]", 200000000)
+    .option("--blocktime <value>", "Time per block (seconds) [8]", 8)
+    .option("--token <value>", "Token Name [CHAIN]", "CHAIN")
+    .option("--symbol <value>", "Symbol for Token [C]", "C")
+    .option("--prefixHash <value>", "Address Prefix Hash [28]", 28)
+    .option("--transactionsPerBlock <value>", "Max Transaction count per Block [50]", 50)
+    .option("--wifPrefix <value>", "Prefix for generating a WIF [rand(1, 255)]", getRandomNumber(1, 255))
+    .option(
+        "--totalPremine <value>",
+        "How many tokens initially added to genesis account [2100000000000000 (21 million)]",
+        2100000000000000,
+    )
+    // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
+    .option("--overwriteConfig", "Overwrite current deployer config files [off]", false)
+    .option(
+        "--configPath <value>",
+        "Deployer config path destination [~/.ark/deployer]",
+        `${process.env.ARK_PATH_CONFIG}/deployer`,
+    )
+    .parse(process.argv);
+
+const { error, value } = Joi.validate(commander, schema, {
+    allowUnknown: true,
+    convert: true,
+});
+const options = value;
+
+if (error) {
+    error.details.forEach(detail => logger.error(detail.message));
+    process.exit(1);
+}
+
+if (fs.existsSync(options.configPath)) {
+    if (options.overwriteConfig) {
+        fs.removeSync(options.configPath);
+    } else {
+        logger.error(
+            `Deployer config already exists in '${
+            options.configPath
+            }' - to overwrite, use the '--overwriteConfig' flag`,
+        );
+        process.exit(1);
+    }
+}
+fs.ensureDirSync(options.configPath);
+fs.copySync(path.resolve(__dirname, `../../core/src/config/${options.network}`), options.configPath);
+const networkPath = path.resolve(__dirname, `../../crypto/src/networks/ark/${options.network}.json`);
+if (!fs.existsSync(networkPath)) {
+    logger.error(`Network '${options.network}' does not exist`);
+    process.exit(1);
+}
+fs.copySync(networkPath, path.resolve(options.configPath, "network.json"));
+
+const networkConfig = {
+    // @ts-ignore
+    name: options.name.toLowerCase(),
+    messagePrefix: `${options.token} message:\n`,
+    pubKeyHash: options.prefixHash,
+    wif: options.wifPrefix,
+    constants: [
+        {
+            blocktime: options.blocktime,
+            block: {
+                version: 0,
+                maxTransactions: options.transactionsPerBlock,
+                maxPayload: 2097152,
+            },
+            epoch: options.epoch,
+            activeDelegates: options.activeDelegates,
+            fees: {
+                dynamic: false,
+                dynamicFees: {
+                    minFeePool: 1000,
+                    minFeeBroadcast: 1000,
+                    addonBytes: {
+                        transfer: 100,
+                        secondSignature: 250,
+                        delegateRegistration: 500,
+                        vote: 100,
+                        multiSignature: 500,
+                        ipfs: 250,
+                        timelockTransfer: 500,
+                        multiPayment: 500,
+                        delegateResignation: 500,
+                    },
+                },
+                staticFees: {
+                    transfer: options.feeTransfer,
+                    secondSignature: options.feeVote,
+                    delegateRegistration: options.feeSecondSignature,
+                    vote: options.feeDelegateRegistration,
+                    multiSignature: options.feeMultiSignature,
+                    ipfs: 0,
+                    timelockTransfer: 0,
+                    multiPayment: 0,
+                    delegateResignation: 0,
+                },
+            },
+        },
+    ],
+    client: {
+        token: options.token,
+        symbol: options.symbol,
+        explorer: options.explorerUrl,
+    },
+    exceptions: {},
+};
+
+const network = updateConfig("network.json", networkConfig, options.configPath);
+
+const genesis = new GenesisBlockBuilder(network, options).generate();
+
+network.nethash = genesis.genesisBlock.payloadHash;
+
+if (options.rewardHeight === 1) {
+    network.constants = [network.constants[0]];
+    network.constants[0].height = options.rewardHeight;
+    network.constants[0].reward = options.rewardPerBlock;
+} else {
+    network.constants[1].height = options.rewardHeight;
+    network.constants[1].reward = options.rewardPerBlock;
+}
+
+const requestNodeIp = options.nodeIp === "0.0.0.0" ? "127.0.0.1" : options.nodeIp;
+
+updateConfig("network.json", networkConfig, options.configPath);
+updateConfig(
+    "peers.json",
+    {
+        minimumVersion: ">=1.3.3",
+        minimumNetworkReach: 1,
+        list: [
+            {
+                ip: requestNodeIp,
+                port: options.p2pPort,
+            },
+        ],
+        sources: [],
+    },
+    options.configPath,
+);
+
+updateConfig(
+    "genesisWallet.json",
+    {
+        address: genesis.genesisWallet.address,
+        passphrase: genesis.genesisWallet.passphrase,
+    },
+    options.configPath,
+    true,
+);
+updateConfig("genesisBlock.json", genesis.genesisBlock, options.configPath, true);
+updateConfig(
+    "delegates.json",
+    {
+        secrets: genesis.delegatePassphrases,
+    },
+    options.configPath,
+    true,
+);
+
+updateConfig(
+    "server.json",
+    {
+        port: options.p2pPort,
+        fastRebuild: false,
+    },
+    options.configPath,
+);
+
+updateConfig("api/public.json", { port: options.apiPort }, options.configPath);
+
+const pluginsOriginal = require(path.resolve(options.configPath, "plugins"));
+const plugins = {};
+for (const plugin in pluginsOriginal) {
+    plugins[plugin] = {};
+}
+plugins["@arkecosystem/core-p2p"] = {
+    host: options.nodeIp,
+    port: options.p2pPort,
+    whitelist: ["127.0.0.1", "192.168.*"],
+};
+plugins["@arkecosystem/core-api"] = {
+    enabled: true,
+    host: options.nodeIp,
+    port: options.apiPort,
+    whitelist: ["*"],
+};
+plugins["@arkecosystem/core-database-postgres"] = {
+    host: options.dbHost,
+    port: options.dbPort,
+    username: options.dbUsername,
+    password: options.dbPassword,
+    database: options.dbDatabase,
+};
+plugins["@arkecosystem/core-blockchain"] = {
+    fastRebuild: false,
+};
+plugins["@arkecosystem/core-forger"] = {
+    hosts: [`http://${requestNodeIp}:${options.p2pPort}`],
+};
+
+updateConfig("plugins.json", plugins, options.configPath, true);
+fs.removeSync(path.resolve(options.configPath, "plugins.js"));
+
+writeEnv(
+    {
+        P2P_PORT: options.p2pPort,
+        API_PORT: options.apiPort,
+        DB_PORT: options.dbPort,
+    },
+    "~/.ark/.env",
+);
