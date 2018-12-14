@@ -192,9 +192,9 @@ class Monitor {
 
             logger.debug(
                 `Rejected peer ${
-                peer.ip
+                    peer.ip
                 } as it doesn't meet the minimum version requirements. Expected: ${minimumVersion} - Received: ${
-                peer.version
+                    peer.version
                 }`,
             );
 
@@ -204,7 +204,7 @@ class Monitor {
         if (!this.guard.isValidNetwork(peer)) {
             logger.debug(
                 `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${
-                config.network.nethash
+                    config.network.nethash
                 } - Received: ${peer.nethash}`,
             );
 
@@ -692,7 +692,7 @@ class Monitor {
                         peersToBan.length,
                         true,
                     )} at height '${peersMostCommonHeight[0].state.height.toLocaleString()}' which do not have common id '${
-                    chosenPeers[0].state.header.id
+                        chosenPeers[0].state.header.id
                     }'.`,
                 );
             } else {
@@ -703,7 +703,7 @@ class Monitor {
             const commonHeader = peersMostCommonHeight[0].state.header;
             logger.info(
                 `All peers at most common height ${peersMostCommonHeight[0].state.height.toLocaleString()} share the same block id${
-                commonHeader ? ` '${commonHeader.id}'` : ""
+                    commonHeader ? ` '${commonHeader.id}'` : ""
                 }. :pray:`,
             );
         }
@@ -795,7 +795,9 @@ class Monitor {
 
             logger.info(`Your NTP connectivity has been verified by ${host}`);
 
-            logger.info(`Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP :alarm_clock:`);
+            logger.info(
+                `Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP :alarm_clock:`,
+            );
         } catch (error) {
             logger.error(error.message);
         }

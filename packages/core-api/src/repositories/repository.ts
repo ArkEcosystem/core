@@ -26,19 +26,49 @@ export class Repository {
         return this.database.query.manyOrNone(query.toQuery());
     }
 
-    public async _findManyWithCount(selectQuery, countQuery, { limit, offset, orderBy }): Promise<any> {
-        const { count } = await this._find(countQuery);
-
+    public async _findManyWithCount(selectQuery, { limit, offset, orderBy }): Promise<any> {
         if (this.columns.includes(orderBy[0])) {
             selectQuery.order(this.query[snakeCase(orderBy[0])][orderBy[1]]);
         }
 
+        const offsetIsSet = Number.isInteger(offset) && offset > 0;
+        const limitIsSet = Number.isInteger(limit);
+
+        if (!offsetIsSet && !limitIsSet) {
+            // tslint:disable-next-line:no-shadowed-variable
+            const rows = await this._findMany(selectQuery);
+
+            return { rows, count: rows.length };
+        }
+
         selectQuery.offset(offset).limit(limit);
 
-        return {
-            rows: await this._findMany(selectQuery),
-            count: +count,
-        };
+        const rows = await this._findMany(selectQuery);
+
+        if (rows.length < limit) {
+            return { rows, count: offset + rows.length };
+        }
+
+        // Get the last rows=... from something that looks like (1 column, few rows):
+        //
+        //                            QUERY PLAN
+        // ------------------------------------------------------------------
+        //  Limit  (cost=15.34..15.59 rows=100 width=622)
+        //    ->  Sort  (cost=15.34..15.64 rows=120 width=622)
+        //          Sort Key: "timestamp" DESC
+        //          ->  Seq Scan on transactions  (cost=0.00..11.20 rows=120 width=622)
+
+        let count = 0;
+        const explainSql = `EXPLAIN ${selectQuery.toString()}`;
+        for (const row of await this.database.query.manyOrNone(explainSql)) {
+            const line: any = Object.values(row)[0];
+            const match = line.match(/rows=([0-9]+)/);
+            if (match !== null) {
+                count = Number(match[1]);
+            }
+        }
+
+        return { rows, count: Math.max(count, rows.length) };
     }
 
     public _makeCountQuery(): Promise<any> {

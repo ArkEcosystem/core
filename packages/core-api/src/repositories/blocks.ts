@@ -11,27 +11,20 @@ export class BlockRepository extends Repository implements IRepository {
      */
     public async findAll(parameters: any = {}): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
-        const countQuery = this._makeEstimateQuery();
 
-        const applyConditions = queries => {
-            const conditions = Object.entries(this._formatConditions(parameters));
+        const conditions = Object.entries(this._formatConditions(parameters));
 
-            if (conditions.length) {
-                const first = conditions.shift();
+        if (conditions.length) {
+            const first = conditions.shift();
 
-                for (const item of queries) {
-                    item.where(this.query[first[0]].equals(first[1]));
+            selectQuery.where(this.query[first[0]].equals(first[1]));
 
-                    for (const condition of conditions) {
-                        item.and(this.query[condition[0]].equals(condition[1]));
-                    }
-                }
+            for (const condition of conditions) {
+                selectQuery.and(this.query[condition[0]].equals(condition[1]));
             }
-        };
+        }
 
-        applyConditions([selectQuery, countQuery]);
-
-        return this._findManyWithCount(selectQuery, countQuery, {
+        return this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
             orderBy: this.__orderBy(parameters),
@@ -91,38 +84,31 @@ export class BlockRepository extends Repository implements IRepository {
      */
     public async search(parameters): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
-        const countQuery = this._makeEstimateQuery();
 
-        const applyConditions = queries => {
-            const conditions = buildFilterQuery(this._formatConditions(parameters), {
-                exact: ["id", "version", "previous_block", "payload_hash", "generator_public_key", "block_signature"],
-                between: [
-                    "timestamp",
-                    "height",
-                    "number_of_transactions",
-                    "total_amount",
-                    "total_fee",
-                    "reward",
-                    "payload_length",
-                ],
-            });
+        const conditions = buildFilterQuery(this._formatConditions(parameters), {
+            exact: ["id", "version", "previous_block", "payload_hash", "generator_public_key", "block_signature"],
+            between: [
+                "timestamp",
+                "height",
+                "number_of_transactions",
+                "total_amount",
+                "total_fee",
+                "reward",
+                "payload_length",
+            ],
+        });
 
-            if (conditions.length) {
-                const first = conditions.shift();
+        if (conditions.length) {
+            const first = conditions.shift();
 
-                for (const item of queries) {
-                    item.where(this.query[first.column][first.method](first.value));
+            selectQuery.where(this.query[first.column][first.method](first.value));
 
-                    for (const condition of conditions) {
-                        item.and(this.query[condition.column][condition.method](condition.value));
-                    }
-                }
+            for (const condition of conditions) {
+                selectQuery.and(this.query[condition.column][condition.method](condition.value));
             }
-        };
+        }
 
-        applyConditions([selectQuery, countQuery]);
-
-        return this._findManyWithCount(selectQuery, countQuery, {
+        return this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
             orderBy: this.__orderBy(parameters),
