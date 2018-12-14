@@ -152,7 +152,6 @@ describe("API 2.0 - Transactions", () => {
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
                     expect(response.data.data).toHaveLength(100);
-                    expect(response.data.meta.totalCount).toBe(153);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
@@ -191,7 +190,6 @@ describe("API 2.0 - Transactions", () => {
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
                     expect(response.data.data).toHaveLength(100);
-                    expect(response.data.meta.totalCount).toBe(153);
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
