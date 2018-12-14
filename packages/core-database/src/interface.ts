@@ -360,10 +360,6 @@ export abstract class ConnectionInterface {
      * @return {void}
      */
     public async validateDelegate(block) {
-        if (this.__isException(block.data)) {
-            return;
-        }
-
         const delegates = await this.getActiveDelegates(block.data.height);
         const slot = slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate = delegates[slot % delegates.length];
