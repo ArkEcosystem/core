@@ -1,5 +1,5 @@
 import "jest-extended";
-import network from "../../../crypto/src/networks/ark/testnet.json";
+import { testnet } from "../../../crypto/src/networks/ark";
 import { GenesisBlockBuilder } from "../../src/builder/genesis-block";
 
 let builder;
@@ -9,7 +9,7 @@ let delegateWallet;
 let delegateWallets;
 
 beforeEach(() => {
-    builder = new GenesisBlockBuilder(network, {
+    builder = new GenesisBlockBuilder(testnet.network, {
         totalPremine: 2100000000000000,
         activeDelegates: 2,
     });
@@ -17,7 +17,7 @@ beforeEach(() => {
     delegateWallets = builder.__buildDelegates();
 });
 
-describe.skip("Genesis Block Builder", () => {
+describe("Genesis Block Builder", () => {
     describe("generate", () => {
         it("should return a genesis object", () => {
             genesis = builder.generate();
