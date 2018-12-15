@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Bignum } from "@arkecosystem/crypto";
+import { Bignum, configManager } from "@arkecosystem/crypto";
 
 /**
  * Calculate the total supply at the given height
@@ -8,7 +8,7 @@ import { Bignum } from "@arkecosystem/crypto";
  */
 function calculate(height) {
     const config = app.resolvePlugin("config");
-    const network = config.network;
+    const network = configManager.all();
 
     if (!height) {
         const blockchain = app.resolvePlugin("blockchain");
