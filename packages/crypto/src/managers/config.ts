@@ -42,12 +42,22 @@ export class ConfigManager {
     }
 
     /**
-     * Get config from preset configurations.
+     * Set the configuration based on a preset.
      * @param {String} coin
      * @param {String} network
      */
     public setFromPreset(coin, network) {
         this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()]);
+    }
+
+    /**
+     * Get the configuration for a preset.
+     * @param {String} coin
+     * @param {String} network
+     * @return {Object}
+     */
+    public getFromPreset(coin, network) {
+        return CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()];
     }
 
     /**
@@ -134,7 +144,7 @@ export class ConfigManager {
     /**
      * Build constant data based on active heights.
      */
-    public buildConstants() {
+    private buildConstants() {
         this.constants = this.config.constants.sort((a, b) => a.height - b.height);
         this.constant = {
             index: 0,
@@ -152,7 +162,7 @@ export class ConfigManager {
     /**
      * Build fees from config constants.
      */
-    public buildFees() {
+    private buildFees() {
         Object.keys(TRANSACTION_TYPES).forEach(type =>
             feeManager.set(TRANSACTION_TYPES[type], this.getConstant("fees").staticFees[camelCase(type)]),
         );
@@ -161,7 +171,7 @@ export class ConfigManager {
     /**
      * Build addon bytes from config constants.
      */
-    public buildAddonBytes() {
+    private buildAddonBytes() {
         const dynamicFees = this.config.dynamicFees;
 
         if (dynamicFees.addonBytes) {
