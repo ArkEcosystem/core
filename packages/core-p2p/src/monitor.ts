@@ -10,7 +10,6 @@ import groupBy from "lodash/groupBy";
 import sample from "lodash/sample";
 import shuffle from "lodash/shuffle";
 import take from "lodash/take";
-import pTimeout from "p-timeout";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
@@ -31,6 +30,7 @@ class Monitor {
     public server: any;
     public guard: any;
     public config: any;
+    public nextUpdateNetworkStatusScheduled: boolean;
     private pendingPeers: { [ip: string]: any };
     private coldStartPeriod: dayjs.Dayjs;
 
@@ -113,36 +113,10 @@ class Monitor {
         if (!this.hasMinimumPeers()) {
             this.populateSeedPeers();
             nextRunDelaySeconds = 5;
-            logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
+            logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
 
-        pTimeout(this.updateNetworkStatusIfNotEnoughPeers.bind(this), nextRunDelaySeconds * 1000);
-    }
-
-    /**
-     * Updates the network status if not enough peers are available.
-     * NOTE: This is usually only necessary for nodes without incoming requests,
-     * since the available peers are depleting over time due to suspensions.
-     * @return {void}
-     */
-    public async updateNetworkStatusIfNotEnoughPeers() {
-        if (!this.hasMinimumPeers() && process.env.ARK_ENV !== "test") {
-            await this.updateNetworkStatus(this.config.networkStart);
-        }
-    }
-
-    /**
-     * Returns if the minimum amount of peers are available.
-     * @return {Boolean}
-     */
-    public hasMinimumPeers() {
-        if (this.config.ignoreMinimumNetworkReach) {
-            logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
-
-            return true;
-        }
-
-        return Object.keys(this.peers).length >= localConfig.get("minimumNetworkReach");
+        this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
     /**
@@ -804,6 +778,39 @@ class Monitor {
         for (const peer of peers) {
             this.__addPeer(peer);
         }
+    }
+
+    /**
+     * Schedule the next update network status.
+     * @param {Number} nextUpdateInSeconds
+     * @returns {void}
+     */
+    private async scheduleUpdateNetworkStatus(nextUpdateInSeconds) {
+        if (this.nextUpdateNetworkStatusScheduled) {
+            return;
+        }
+
+        this.nextUpdateNetworkStatusScheduled = true;
+
+        await delay(nextUpdateInSeconds * 1000);
+
+        this.nextUpdateNetworkStatusScheduled = false;
+
+        this.updateNetworkStatus(this.config.networkStart);
+    }
+
+    /**
+     * Returns if the minimum amount of peers are available.
+     * @return {Boolean}
+     */
+    private hasMinimumPeers() {
+        if (this.config.ignoreMinimumNetworkReach) {
+            logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
+
+            return true;
+        }
+
+        return Object.keys(this.peers).length >= localConfig.get("minimumNetworkReach");
     }
 
     /**
