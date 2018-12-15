@@ -239,9 +239,9 @@ describe("crypto.js", () => {
         it("should get address from compressed WIF (mainnet)", () => {
             const keys = crypto.getKeysFromWIF(
                 "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4",
-                CONFIGURATIONS.ARK.MAINNET,
+                CONFIGURATIONS.ARK.MAINNET.network,
             );
-            const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.MAINNET.pubKeyHash);
+            const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.MAINNET.network.pubKeyHash);
             expect(keys.compressed).toBeTruthy();
             expect(address).toBe("APnrtb2JGa6WjrRik9W3Hjt6h71mD6Zgez");
         });
@@ -249,9 +249,9 @@ describe("crypto.js", () => {
         it("should get address from compressed WIF (devnet)", () => {
             const keys = crypto.getKeysFromWIF(
                 "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4",
-                CONFIGURATIONS.ARK.DEVNET,
+                CONFIGURATIONS.ARK.DEVNET.network,
             );
-            const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.DEVNET.pubKeyHash);
+            const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.DEVNET.network.pubKeyHash);
             expect(keys.compressed).toBeTruthy();
             expect(address).toBe("DDA5nM7KEqLeTtQKv5qGgcnc6dpNBKJNTS");
         });

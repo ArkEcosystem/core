@@ -88,7 +88,7 @@ const createRandomTx = type => {
 };
 
 describe("Models - Transaction", () => {
-    beforeEach(() => configManager.setConfig(network));
+    beforeEach(() => configManager.setConfig(devnet));
 
     describe("static fromBytes", () => {
         it("should verify all transactions", () => {

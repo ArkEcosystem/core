@@ -4,7 +4,7 @@ import { dynamicFeeManager } from "./dynamic-fee";
 import { feeManager } from "./fee";
 
 import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants";
-import { devnet } from "../networks/ark/devnet";
+import { devnet } from "../networks/ark";
 
 export class ConfigManager {
     public config: any;
