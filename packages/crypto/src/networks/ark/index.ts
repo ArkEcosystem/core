@@ -1,6 +1,6 @@
-import bitcoin from "./bitcoin.json";
-import devnet from "./devnet.json";
-import mainnet from "./mainnet.json";
-import testnet from "./testnet.json";
+import { bitcoin } from "./bitcoin";
+import { devnet } from "./devnet";
+import { mainnet } from "./mainnet";
+import { testnet } from "./testnet";
 
 export { bitcoin, devnet, mainnet, testnet };
