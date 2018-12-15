@@ -17,8 +17,12 @@ describe("Identities - Public Key", () => {
     });
 
     describe("validate", () => {
-        it("should be OK", () => {
+        it("should pass with a valid public key", () => {
             expect(PublicKey.validate(data.publicKey)).toBeTrue();
+        });
+
+        it("should fail with an invalid public key", () => {
+            expect(PublicKey.validate("invalid")).toBeFalse();
         });
     });
 });

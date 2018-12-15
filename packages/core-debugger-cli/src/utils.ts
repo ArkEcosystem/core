@@ -1,10 +1,10 @@
 import clipboardy from "clipboardy";
 
-function copyToClipboard(data) {
+export function copyToClipboard(data) {
     clipboardy.writeSync(JSON.stringify(data));
 }
 
-function handleOutput(opts, data) {
+export function handleOutput(opts, data) {
     if (opts.copy) {
         return copyToClipboard(data);
     }
@@ -16,5 +16,3 @@ function handleOutput(opts, data) {
 
     return data;
 }
-
-export { copyToClipboard, handleOutput };
