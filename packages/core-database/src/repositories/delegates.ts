@@ -23,13 +23,13 @@ export class DelegatesRepository {
      * @return {Object}
      */
     public findAll(params: { orderBy?: string } = {}) {
-        const rows = this.getLocalDelegates();
+        const delegates = this.getLocalDelegates();
 
-        const order = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
+        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
 
         return {
-            rows: limitRows(orderBy(rows, order), params),
-            count: rows.length,
+            rows: limitRows(orderBy(delegates, iteratee, order as "desc" | "asc"), params),
+            count: delegates.length,
         };
     }
 
