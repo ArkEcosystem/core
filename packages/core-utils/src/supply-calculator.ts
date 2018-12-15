@@ -8,7 +8,7 @@ import { Bignum, configManager } from "@arkecosystem/crypto";
  */
 function calculate(height) {
     const config = app.resolvePlugin("config");
-    const network = configManager.all();
+    const network = config.network;
 
     if (!height) {
         const blockchain = app.resolvePlugin("blockchain");

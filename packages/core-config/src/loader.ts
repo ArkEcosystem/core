@@ -30,7 +30,7 @@ export class Loader {
         configManager.setConfig(this.network);
 
         // TODO: change once the config object has been implemented
-        this.network = this.network.network;
+        this.network = configManager.all();
     }
 
     public get(key: string, defaultValue: any = null): any {
