@@ -136,10 +136,17 @@ export class Blockchain {
      * @return {void}
      */
     public resetState() {
+        this.resetQueue();
+        this.state.reset();
+    }
+
+    /**
+     * Reset and stop the queue.
+     * @return {void}
+     */
+    public resetQueue() {
         this.queue.pause();
         this.queue.clear();
-
-        this.state.reset();
     }
 
     /**
@@ -231,6 +238,8 @@ export class Blockchain {
      * @return {void}
      */
     public async removeBlocks(nblocks) {
+        this.resetQueue();
+
         const blocksToRemove = await this.database.getBlocks(
             this.state.getLastBlock().data.height - nblocks,
             nblocks - 1,
@@ -273,9 +282,6 @@ export class Blockchain {
 
         const resetHeight = lastBlock.data.height - nblocks;
         logger.info(`Removing ${pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`);
-
-        this.queue.pause();
-        this.queue.clear();
 
         this.state.lastDownloadedBlock = lastBlock;
 

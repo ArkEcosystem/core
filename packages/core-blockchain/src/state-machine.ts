@@ -368,6 +368,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     async startForkRecovery() {
         logger.info("Starting fork recovery :fork_and_knife:");
+        blockchain.resetQueue();
 
         await blockchain.database.commitQueuedQueries();
 
