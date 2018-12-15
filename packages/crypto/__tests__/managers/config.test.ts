@@ -32,8 +32,8 @@ describe("Configuration", () => {
         expect(configManager.get("nethash")).toBe("2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867");
     });
 
-    it("should build constants", () => {
-        expect(configManager.constants).toEqual(devnet.milestones);
+    it("should build milestones", () => {
+        expect(configManager.milestones).toEqual(devnet.milestones);
     });
 
     it("should build fees", () => {
@@ -64,7 +64,7 @@ describe("Configuration", () => {
         expect(dynamicFeeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)).toEqual(addonBytes.delegateResignation);
     });
 
-    it("should get constants for height", () => {
+    it("should get milestone for height", () => {
         expect(configManager.getMilestone(21600)).toEqual(devnet.milestones[2]);
     });
 

@@ -12,6 +12,8 @@ export class Loader {
     public peers: any;
     public delegates: any;
     public genesisBlock: any;
+    public milestones: any;
+    public dynamicFees: any;
 
     private options: any;
 
@@ -36,6 +38,8 @@ export class Loader {
 
         // TODO: change once the config object has been implemented
         this.network = configManager.all();
+        this.milestones = configManager.get("milestones");
+        this.dynamicFees = configManager.get("dynamicFees");
     }
 
     public get(key: string, defaultValue: any = null): any {

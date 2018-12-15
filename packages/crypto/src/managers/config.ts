@@ -13,6 +13,8 @@ export class ConfigManager {
     public height: any;
     public constant: any;
     public constants: any;
+    public milestones: any;
+    public dynamicFees: any;
 
     /**
      * @constructor
@@ -33,7 +35,7 @@ export class ConfigManager {
             this.config[key] = value;
         }
 
-        this.config.constants = config.milestones;
+        this.config.milestones = config.milestones;
         this.config.dynamicFees = config.dynamicFees;
 
         this.buildConstants();
@@ -43,21 +45,21 @@ export class ConfigManager {
 
     /**
      * Set the configuration based on a preset.
-     * @param {String} coin
+     * @param {String} token
      * @param {String} network
      */
-    public setFromPreset(coin, network) {
-        this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()]);
+    public setFromPreset(token, network) {
+        this.setConfig(this.getPreset(token, network));
     }
 
     /**
      * Get the configuration for a preset.
-     * @param {String} coin
+     * @param {String} token
      * @param {String} network
      * @return {Object}
      */
-    public getFromPreset(coin, network) {
-        return CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()];
+    public getPreset(token, network) {
+        return CONFIGURATIONS[token.toUpperCase()][network.toUpperCase()];
     }
 
     /**
@@ -145,7 +147,7 @@ export class ConfigManager {
      * Build constant data based on active heights.
      */
     private buildConstants() {
-        this.constants = this.config.constants.sort((a, b) => a.height - b.height);
+        this.constants = this.config.milestones.sort((a, b) => a.height - b.height);
         this.constant = {
             index: 0,
             data: this.constants[0],
