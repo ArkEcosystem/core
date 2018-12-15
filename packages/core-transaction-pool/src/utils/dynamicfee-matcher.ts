@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { dynamicFeeManager, feeManager, formatArktoshi } from "@arkecosystem/crypto";
+import { configManager, dynamicFeeManager, feeManager, formatArktoshi } from "@arkecosystem/crypto";
 
 /**
  * Determine if a transaction's fee meets the minimum requirements for broadcasting
@@ -8,14 +8,13 @@ import { dynamicFeeManager, feeManager, formatArktoshi } from "@arkecosystem/cry
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
 export function dynamicFeeMatcher(transaction) {
-    const config = app.resolvePlugin("config");
     const logger = app.resolvePlugin("logger");
 
     const fee = +transaction.fee.toFixed();
     const id = transaction.id;
 
     const blockchain = app.resolvePlugin("blockchain");
-    const dynamicFees = config.get("dynamicFees");
+    const dynamicFees = configManager.get("dynamicFees");
 
     let broadcast;
     let enterPool;

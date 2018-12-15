@@ -44,8 +44,8 @@ describe("Transaction Guard", () => {
             "should not apply transactions for chained transfers involving cold wallets",
             async inverseOrder => {
                 /* The logic here is we can't have a chained transfer A => B => C if B is a cold wallet.
-          A => B needs to be first confirmed (forged), then B can transfer to C
-        */
+                  A => B needs to be first confirmed (forged), then B can transfer to C
+                */
 
                 const arktoshi = 10 ** 8;
                 // don't re-use the same delegate (need clean balance)
