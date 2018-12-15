@@ -2,6 +2,7 @@ import { TRANSACTION_TYPES } from "../constants";
 
 class DynamicFeeManager {
     public offsets: {};
+
     /**
      * @constructor
      */
@@ -58,5 +59,4 @@ class DynamicFeeManager {
     }
 }
 
-const dynamicFeeManager = new DynamicFeeManager();
-export { dynamicFeeManager };
+export const dynamicFeeManager = new DynamicFeeManager();

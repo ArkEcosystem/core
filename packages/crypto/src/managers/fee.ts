@@ -54,5 +54,4 @@ export class FeeManager {
     }
 }
 
-const feeManager = new FeeManager();
-export { feeManager };
+export const feeManager = new FeeManager();

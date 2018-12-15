@@ -1,5 +1,7 @@
 import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
+import get from "lodash/get";
+import set from "lodash/set";
 import { dynamicFeeManager } from "./dynamic-fee";
 import { feeManager } from "./fee";
 
@@ -62,7 +64,7 @@ export class ConfigManager {
      * @param {*}      value
      */
     public set(key, value) {
-        this.config[key] = value;
+        set(this.config, key, value);
     }
 
     /**
@@ -71,7 +73,7 @@ export class ConfigManager {
      * @return {*}
      */
     public get(key) {
-        return this.config[key];
+        return get(this.config, key);
     }
 
     /**
