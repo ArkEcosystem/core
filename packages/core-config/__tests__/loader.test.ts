@@ -32,6 +32,10 @@ describe("Config Loader", () => {
     it("should succeed with a config", async () => {
         const result = await loader.setUp(stubConfig);
 
+        stubConfig.network.milestones[1] = { ...stubConfig.network.milestones[0] };
+        stubConfig.network.milestones[1].height = 75600;
+        stubConfig.network.milestones[1].reward = 200000000;
+
         expect(loader.delegates).toEqual(stubConfig.delegates);
         expect(loader.genesisBlock).toEqual(stubConfig.genesisBlock);
         expect(loader.network).toEqual(stubConfig.network);

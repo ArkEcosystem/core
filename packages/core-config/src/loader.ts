@@ -123,9 +123,11 @@ export class Loader {
      */
     public _validateConfig(): void {
         try {
-            strictEqual(Number.isInteger(this.network.pubKeyHash), true);
-            strictEqual(this.network.nethash.length, 64);
-            strictEqual(Number.isInteger(this.network.wif), true);
+            const network = this.network.network;
+
+            strictEqual(Number.isInteger(network.pubKeyHash), true);
+            strictEqual(network.nethash.length, 64);
+            strictEqual(Number.isInteger(network.wif), true);
         } catch (error) {
             throw Error(error.message);
             process.exit(1);
