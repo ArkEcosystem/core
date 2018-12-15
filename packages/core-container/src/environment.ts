@@ -65,7 +65,7 @@ export class Environment {
         }
 
         process.env.ARK_NETWORK = JSON.stringify(config);
-        process.env.ARK_NETWORK_NAME = config.name;
+        process.env.ARK_NETWORK_NAME = config.network.name;
     }
 
     /**
