@@ -10,7 +10,6 @@ import groupBy from "lodash/groupBy";
 import sample from "lodash/sample";
 import shuffle from "lodash/shuffle";
 import take from "lodash/take";
-import pTimeout from "p-timeout";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
