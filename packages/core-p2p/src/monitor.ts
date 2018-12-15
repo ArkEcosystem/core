@@ -10,6 +10,7 @@ import groupBy from "lodash/groupBy";
 import sample from "lodash/sample";
 import shuffle from "lodash/shuffle";
 import take from "lodash/take";
+import pTimeout from "p-timeout";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
@@ -115,7 +116,7 @@ class Monitor {
             logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
         }
 
-        setTimeout(this.updateNetworkStatusIfNotEnoughPeers, nextRunDelaySeconds * 1000);
+        pTimeout(this.updateNetworkStatusIfNotEnoughPeers.bind(this), nextRunDelaySeconds * 1000);
     }
 
     /**
