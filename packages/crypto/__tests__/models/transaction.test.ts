@@ -6,7 +6,7 @@ import { configManager } from "../../src/managers/config";
 import { Transaction } from "../../src/models/transaction";
 import { transaction as transactionData } from "./fixtures/transaction";
 
-import network from "../../src/networks/ark/devnet.json";
+import { devnet } from "../../src/networks/ark";
 
 const createRandomTx = type => {
     let transaction;

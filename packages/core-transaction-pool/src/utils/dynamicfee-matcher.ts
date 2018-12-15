@@ -15,13 +15,13 @@ export function dynamicFeeMatcher(transaction) {
     const id = transaction.id;
 
     const blockchain = app.resolvePlugin("blockchain");
-    const fees = config.getConstants(blockchain.getLastBlock().data.height).fees;
+    const dynamicFees = config.get("dynamicFees");
 
     let broadcast;
     let enterPool;
 
-    if (fees.dynamic) {
-        const minFeeBroadcast = dynamicFeeManager.calculateFee(fees.dynamicFees.minFeeBroadcast, transaction);
+    if (dynamicFees.enabled) {
+        const minFeeBroadcast = dynamicFeeManager.calculateFee(dynamicFees.minFeeBroadcast, transaction);
         if (fee >= minFeeBroadcast) {
             broadcast = true;
             logger.debug(
@@ -38,7 +38,7 @@ export function dynamicFeeMatcher(transaction) {
             );
         }
 
-        const minFeePool = dynamicFeeManager.calculateFee(fees.dynamicFees.minFeePool, transaction);
+        const minFeePool = dynamicFeeManager.calculateFee(dynamicFees.minFeePool, transaction);
         if (fee >= minFeePool) {
             enterPool = true;
             logger.debug(

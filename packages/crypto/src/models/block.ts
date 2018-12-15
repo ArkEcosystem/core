@@ -8,7 +8,7 @@ import { configManager } from "../managers/config";
 import { Bignum } from "../utils";
 import { Transaction } from "./transaction";
 
-const { outlookTable } = CONFIGURATIONS.ARK.MAINNET;
+const { outlookTable } = CONFIGURATIONS.ARK.MAINNET.network;
 
 const toBytesHex = data => {
     const temp = data ? new Bignum(data).toString(16) : "";

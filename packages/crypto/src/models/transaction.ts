@@ -8,7 +8,7 @@ import { crypto } from "../crypto/crypto";
 import { configManager } from "../managers/config";
 import { Bignum } from "../utils";
 
-const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET;
+const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET.network;
 
 /**
  * TODO copy some parts to ArkDocs

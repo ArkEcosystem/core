@@ -2,9 +2,9 @@ import "jest-extended";
 
 import { slots } from "../../src/crypto/slots";
 import { configManager } from "../../src/managers/config";
-import network from "../../src/networks/ark/devnet.json";
+import { devnet } from "../../src/networks/ark";
 
-beforeEach(() => configManager.setConfig(network));
+beforeEach(() => configManager.setConfig(devnet));
 
 describe("Slots", () => {
     describe("getHeight", () => {

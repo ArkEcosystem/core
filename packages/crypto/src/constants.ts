@@ -1,6 +1,4 @@
-import configDevnet from "./networks/ark/devnet.json";
-import configMainnet from "./networks/ark/mainnet.json";
-import configTestnet from "./networks/ark/testnet.json";
+import { devnet, mainnet, testnet } from "./networks/ark";
 
 /**
  * The Arktoshi base.
@@ -54,8 +52,8 @@ export const TRANSACTION_TYPES = Object.freeze({
  */
 export const CONFIGURATIONS = Object.freeze({
     ARK: {
-        MAINNET: configMainnet,
-        DEVNET: configDevnet,
-        TESTNET: configTestnet,
+        MAINNET: mainnet,
+        DEVNET: devnet,
+        TESTNET: testnet,
     },
 });

@@ -4,7 +4,7 @@ import { dynamicFeeManager } from "./dynamic-fee";
 import { feeManager } from "./fee";
 
 import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants";
-import defaultConfig from "../networks/ark/devnet.json";
+import { devnet } from "../networks/ark/devnet";
 
 export class ConfigManager {
     public config: any;
@@ -16,7 +16,7 @@ export class ConfigManager {
      * @constructor
      */
     constructor() {
-        this.setConfig(defaultConfig);
+        this.setConfig(devnet);
     }
 
     /**
@@ -26,9 +26,13 @@ export class ConfigManager {
     public setConfig(config) {
         this.config = {};
 
-        for (const [key, value] of Object.entries(config)) {
+        // Map the config.network values to the root
+        for (const [key, value] of Object.entries(config.network)) {
             this.config[key] = value;
         }
+
+        this.config.constants = config.milestones;
+        this.config.dynamicFees = config.dynamicFees;
 
         this.buildConstants();
         this.buildFees();
@@ -156,16 +160,14 @@ export class ConfigManager {
      * Build addon bytes from config constants.
      */
     public buildAddonBytes() {
-        if (this.getConstant("fees").dynamicFees.addonBytes) {
+        const dynamicFees = this.config.dynamicFees;
+
+        if (dynamicFees.addonBytes) {
             Object.keys(TRANSACTION_TYPES).forEach(type =>
-                dynamicFeeManager.set(
-                    TRANSACTION_TYPES[type],
-                    this.getConstant("fees").dynamicFees.addonBytes[camelCase(type)],
-                ),
+                dynamicFeeManager.set(TRANSACTION_TYPES[type], dynamicFees.addonBytes[camelCase(type)]),
             );
         }
     }
 }
 
-const configManager = new ConfigManager();
-export { configManager };
+export const configManager = new ConfigManager();
