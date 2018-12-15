@@ -117,8 +117,8 @@ class Monitor {
             logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
         }
 
-        // @ts-ignore
-        if (!this.lastNetworkUpdate && this.lastNetworkUpdate.isBefore(dayjs())) {
+        if (!this.lastNetworkUpdate || this.lastNetworkUpdate.isAfter(dayjs())) {
+            // @ts-ignore
             this.lastNetworkUpdate = dayjs().add(nextRunDelaySeconds, "seconds");
         }
 
