@@ -33,6 +33,7 @@ class Monitor {
     public config: any;
     private pendingPeers: { [ip: string]: any };
     private coldStartPeriod: dayjs.Dayjs;
+    private lastNetworkUpdate: dayjs.Dayjs;
 
     /**
      * @constructor
@@ -116,7 +117,12 @@ class Monitor {
             logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
         }
 
-        pTimeout(this.updateNetworkStatusIfNotEnoughPeers.bind(this), nextRunDelaySeconds * 1000);
+        // @ts-ignore
+        if (!this.lastNetworkUpdate && this.lastNetworkUpdate.isBefore(dayjs())) {
+            this.lastNetworkUpdate = dayjs().add(nextRunDelaySeconds, "seconds");
+        }
+
+        this.updateNetworkStatusIfNotEnoughPeers();
     }
 
     /**
@@ -125,7 +131,11 @@ class Monitor {
      * since the available peers are depleting over time due to suspensions.
      * @return {void}
      */
-    public async updateNetworkStatusIfNotEnoughPeers() {
+    public async updateNetworkStatusIfNotEnoughPeers(): Promise<any> {
+        if (this.lastNetworkUpdate && this.lastNetworkUpdate.isBefore(dayjs())) {
+            return;
+        }
+
         if (!this.hasMinimumPeers() && process.env.ARK_ENV !== "test") {
             await this.updateNetworkStatus(this.config.networkStart);
         }
