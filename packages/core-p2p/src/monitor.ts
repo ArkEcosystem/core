@@ -10,6 +10,7 @@ import groupBy from "lodash/groupBy";
 import sample from "lodash/sample";
 import shuffle from "lodash/shuffle";
 import take from "lodash/take";
+import pTimeout from "p-timeout";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
@@ -115,7 +116,7 @@ class Monitor {
             logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
         }
 
-        setTimeout(this.updateNetworkStatusIfNotEnoughPeers, nextRunDelaySeconds * 1000);
+        pTimeout(this.updateNetworkStatusIfNotEnoughPeers.bind(this), nextRunDelaySeconds * 1000);
     }
 
     /**
@@ -388,11 +389,11 @@ class Monitor {
 
         for (const peer of shuffledPeers) {
             try {
-                const hisPeers = await peer.getPeers()
+                const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
                     if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
-                        this.__addPeer(p)
+                        this.__addPeer(p);
                     }
                 }
             } catch (error) {
@@ -721,34 +722,6 @@ class Monitor {
     }
 
     /**
-     * Populate the initial seed list.
-     * @return {void}
-     */
-    private populateSeedPeers() {
-        if (!config.peers.list) {
-            app.forceExit("No seed peers defined in peers.json :interrobang:");
-        }
-
-        let peers = config.peers.list.map(peer => {
-            peer.version = app.getVersion();
-            return peer;
-        });
-
-        if (config.peers_backup) {
-            peers = { ...peers, ...config.peers_backup };
-        }
-
-        const filteredPeers: any[] = Object.values(peers).filter(
-            peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValidVersion(peer),
-        );
-
-        for (const peer of filteredPeers) {
-            delete this.guard.suspensions[peer.ip];
-            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
-        }
-    }
-
-    /**
      * Get last 10 block IDs from database.
      * @return {[]String}
      */
@@ -830,6 +803,34 @@ class Monitor {
     public __addPeers(peers) {
         for (const peer of peers) {
             this.__addPeer(peer);
+        }
+    }
+
+    /**
+     * Populate the initial seed list.
+     * @return {void}
+     */
+    private populateSeedPeers() {
+        if (!config.peers.list) {
+            app.forceExit("No seed peers defined in peers.json :interrobang:");
+        }
+
+        let peers = config.peers.list.map(peer => {
+            peer.version = app.getVersion();
+            return peer;
+        });
+
+        if (config.peers_backup) {
+            peers = { ...peers, ...config.peers_backup };
+        }
+
+        const filteredPeers: any[] = Object.values(peers).filter(
+            peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValidVersion(peer),
+        );
+
+        for (const peer of filteredPeers) {
+            delete this.guard.suspensions[peer.ip];
+            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
         }
     }
 }
