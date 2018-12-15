@@ -59,7 +59,7 @@ class Monitor {
 
         this.guard = guard.init(this);
 
-        this.__filterPeers();
+        this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
             logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
@@ -86,7 +86,7 @@ class Monitor {
      * @return {Promise}
      */
     public async updateNetworkStatus(networkStart: boolean = false) {
-        if (process.env.NODE_ENV === "test") {
+        if (process.env.ARK_ENV === "test" || process.env.NODE_ENV === "test") {
             return;
         }
 
@@ -101,35 +101,21 @@ class Monitor {
         }
 
         try {
-            if (process.env.ARK_ENV !== "test") {
-                await this.discoverPeers();
-                await this.cleanPeers();
-
-                if (!this.hasMinimumPeers()) {
-                    this.__addPeers(config.peers.list);
-
-                    logger.info("Couldn't find enough peers, trying again in 5 seconds.");
-
-                    await delay(5000);
-
-                    this.updateNetworkStatus();
-                    return;
-                }
-            }
+            await this.discoverPeers();
+            await this.cleanPeers();
         } catch (error) {
             logger.error(`Network Status: ${error.message}`);
-
-            this.__addPeers(config.peers.list);
-
-            logger.info("Failed to discover peers, trying again in 5 seconds.");
-
-            if (process.env.NODE_ENV !== "test") {
-                await delay(5000);
-            }
-
-            this.updateNetworkStatus();
-            return;
         }
+
+        let nextRunDelaySeconds = 600;
+
+        if (!this.hasMinimumPeers()) {
+            this.populateSeedPeers();
+            nextRunDelaySeconds = 5;
+            logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
+        }
+
+        setTimeout(this.updateNetworkStatusIfNotEnoughPeers, nextRunDelaySeconds * 1000);
     }
 
     /**
@@ -396,21 +382,26 @@ class Monitor {
 
     /**
      * Populate list of available peers from random peers.
-     * @return {Peer[]}
      */
     public async discoverPeers() {
-        try {
-            const peers = await this.getRandomPeer().getPeers();
+        const shuffledPeers = shuffle(this.getPeers());
 
-            peers.forEach(peer => {
-                if (Peer.isOk(peer) && !this.getPeer(peer.ip) && !this.guard.isMyself(peer)) {
-                    this.__addPeer(peer);
+        for (const peer of shuffledPeers) {
+            try {
+                const hisPeers = await peer.getPeers()
+
+                for (const p of hisPeers) {
+                    if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
+                        this.__addPeer(p)
+                    }
                 }
-            });
+            } catch (error) {
+                // Just try with the next peer from shuffledPeers.
+            }
 
-            return this.peers;
-        } catch (error) {
-            return this.discoverPeers();
+            if (this.hasMinimumPeers()) {
+                return;
+            }
         }
     }
 
@@ -730,10 +721,10 @@ class Monitor {
     }
 
     /**
-     * Filter the initial seed list.
+     * Populate the initial seed list.
      * @return {void}
      */
-    public __filterPeers() {
+    private populateSeedPeers() {
         if (!config.peers.list) {
             app.forceExit("No seed peers defined in peers.json :interrobang:");
         }
@@ -752,6 +743,7 @@ class Monitor {
         );
 
         for (const peer of filteredPeers) {
+            delete this.guard.suspensions[peer.ip];
             this.peers[peer.ip] = new Peer(peer.ip, peer.port);
         }
     }
