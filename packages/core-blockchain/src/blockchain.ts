@@ -319,6 +319,7 @@ export class Blockchain {
         }
 
         await this.database.commitQueuedQueries();
+        await this.database.loadBlocksFromCurrentRound();
     }
 
     /**

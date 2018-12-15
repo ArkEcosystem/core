@@ -220,6 +220,14 @@ export abstract class ConnectionInterface {
     public abstract async getTransaction(id): Promise<any>;
 
     /**
+     * Load blocks from current round into memory.
+     * @return {void]}
+     */
+    public async loadBlocksFromCurrentRound() {
+        this.blocksInCurrentRound = await this.__getBlocksForRound();
+    }
+
+    /**
      * Update delegate statistics in memory.
      * NOTE: must be called before saving new round of delegates
      * @param  {Block} block

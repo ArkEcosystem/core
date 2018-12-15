@@ -403,7 +403,7 @@ async function __start() {
 }
 
 async function __resetBlocksInCurrentRound() {
-    blockchain.database.blocksInCurrentRound = await blockchain.database.__getBlocksForRound();
+    await blockchain.database.loadBlocksFromCurrentRound();
 }
 
 async function __resetToHeight1() {
