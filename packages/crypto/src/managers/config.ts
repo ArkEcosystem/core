@@ -98,7 +98,7 @@ export class ConfigManager {
      * @return {*}
      */
     public getConstant(key) {
-        return this.getConstants()[key];
+        return this.getMilestone()[key];
     }
 
     /**
@@ -106,7 +106,7 @@ export class ConfigManager {
      * @param  {(Number|undefined)} height
      * @return {*}
      */
-    public getConstants(height?) {
+    public getMilestone(height?) {
         if (!height && this.height) {
             height = this.height;
         }

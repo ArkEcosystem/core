@@ -267,7 +267,7 @@ export abstract class ConnectionInterface {
      */
     public async applyRound(height) {
         const nextHeight = height === 1 ? 1 : height + 1;
-        const maxDelegates = this.config.getConstants(nextHeight).activeDelegates;
+        const maxDelegates = this.config.getMilestone(nextHeight).activeDelegates;
 
         if (nextHeight % maxDelegates === 1) {
             const round = Math.floor((nextHeight - 1) / maxDelegates) + 1;
@@ -483,7 +483,7 @@ export abstract class ConnectionInterface {
             round = roundCalculator.calculateRound(height).round;
         }
 
-        const maxDelegates = this.config.getConstants(height).activeDelegates;
+        const maxDelegates = this.config.getMilestone(height).activeDelegates;
         height = round * maxDelegates + 1;
 
         const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1);

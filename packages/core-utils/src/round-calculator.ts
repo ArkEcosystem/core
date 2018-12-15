@@ -8,7 +8,7 @@ import { app } from "@arkecosystem/core-container";
  */
 function calculateRound(height, maxDelegates: any = null) {
     const config = app.resolvePlugin("config");
-    maxDelegates = maxDelegates || config.getConstants(height).activeDelegates;
+    maxDelegates = maxDelegates || config.getMilestone(height).activeDelegates;
 
     const round = Math.floor((height - 1) / maxDelegates) + 1;
     const nextRound = Math.floor(height / maxDelegates) + 1;
@@ -23,7 +23,7 @@ function calculateRound(height, maxDelegates: any = null) {
  */
 function isNewRound(height) {
     const config = app.resolvePlugin("config");
-    const maxDelegates = config.getConstants(height).activeDelegates;
+    const maxDelegates = config.getMilestone(height).activeDelegates;
 
     return height % maxDelegates === 1;
 }

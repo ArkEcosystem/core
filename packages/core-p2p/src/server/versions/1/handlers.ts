@@ -112,7 +112,7 @@ export const getTransactionsFromIds = {
     async handler(request, h) {
         try {
             const blockchain = app.resolvePlugin("blockchain");
-            const maxTransactions = config.getConstants(blockchain.getLastHeight()).block.maxTransactions;
+            const maxTransactions = config.getMilestone(blockchain.getLastHeight()).block.maxTransactions;
 
             const transactionIds = request.query.ids
                 .split(",")

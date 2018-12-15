@@ -48,8 +48,8 @@ export class Loader {
      * @param  {Number} height
      * @return {void}
      */
-    public getConstants(height: number): void {
-        return configManager.getConstants(height);
+    public getMilestone(height: number): void {
+        return configManager.getMilestone(height);
     }
 
     /**

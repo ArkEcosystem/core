@@ -127,7 +127,7 @@ class Slots {
      * @return {*}
      */
     public getConstant(key) {
-        return configManager.getConstants(this.height)[key];
+        return configManager.getMilestone(this.height)[key];
     }
 
     /**

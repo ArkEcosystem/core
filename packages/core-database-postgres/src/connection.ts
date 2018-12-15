@@ -172,7 +172,7 @@ export class PostgresConnection extends ConnectionInterface {
      * @return {Array}
      */
     public async getActiveDelegates(height, delegates) {
-        const maxDelegates = this.config.getConstants(height).activeDelegates;
+        const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;
 
         if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {

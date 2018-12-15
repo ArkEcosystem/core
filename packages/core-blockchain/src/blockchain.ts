@@ -185,7 +185,7 @@ export class Blockchain {
      */
     public async rollbackCurrentRound() {
         const height = this.state.getLastBlock().data.height;
-        const maxDelegates = config.getConstants(height).activeDelegates;
+        const maxDelegates = config.getMilestone(height).activeDelegates;
         const previousRound = Math.floor((height - 1) / maxDelegates);
 
         if (previousRound < 2) {
@@ -390,7 +390,7 @@ export class Blockchain {
 
         try {
             // broadcast only current block
-            const blocktime = config.getConstants(block.data.height).blocktime;
+            const blocktime = config.getMilestone(block.data.height).blocktime;
             if (slots.getSlotNumber() * blocktime <= block.data.timestamp) {
                 this.p2p.broadcastBlock(block);
             }
@@ -504,7 +504,7 @@ export class Blockchain {
 
         block = block || this.getLastBlock();
 
-        return slots.getTime() - block.data.timestamp < 3 * config.getConstants(block.data.height).blocktime;
+        return slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
     }
 
     /**
@@ -524,7 +524,7 @@ export class Blockchain {
 
         // stop fast rebuild 7 days before the last network block
         return slots.getTime() - block.data.timestamp < 3600 * 24 * 7;
-        // return slots.getTime() - block.data.timestamp < 100 * config.getConstants(block.data.height).blocktime
+        // return slots.getTime() - block.data.timestamp < 100 * config.getMilestone(block.data.height).blocktime
     }
 
     /**

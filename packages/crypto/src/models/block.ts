@@ -431,7 +431,7 @@ export class Block {
         };
 
         try {
-            const constants = configManager.getConstants(block.height);
+            const constants = configManager.getMilestone(block.height);
 
             // let previousBlock = null
 

@@ -16,7 +16,7 @@ function calculateApproval(delegate, height: any = null) {
         height = app.resolvePlugin("blockchain").getLastBlock().data.height;
     }
 
-    const constants = config.getConstants(height);
+    const constants = config.getMilestone(height);
     const totalSupply = new BignumMod(config.genesisBlock.totalAmount).plus(
         (height - constants.height) * constants.reward,
     );

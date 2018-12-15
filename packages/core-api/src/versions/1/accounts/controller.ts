@@ -59,7 +59,7 @@ export class AccountsController extends Controller {
     public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                fee: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees.delegateRegistration,
+                fee: this.config.getMilestone(this.blockchain.getLastHeight()).fees.staticFees.delegateRegistration,
             });
         } catch (error) {
             return Boom.badImplementation(error);

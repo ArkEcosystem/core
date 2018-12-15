@@ -101,7 +101,7 @@ export class ForgerManager {
             await this.__loadUsernames();
 
             round = await this.client.getRound();
-            const delayTime = +this.config.getConstants(round.lastBlock.height).blocktime * 1000 - 2000;
+            const delayTime = +this.config.getMilestone(round.lastBlock.height).blocktime * 1000 - 2000;
 
             if (!round.canForge) {
                 // this.logger.debug('Block already forged in current slot')

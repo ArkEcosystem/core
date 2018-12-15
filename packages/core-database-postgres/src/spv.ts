@@ -34,7 +34,7 @@ export class SPV {
      * @return {void}
      */
     public async build(height) {
-        this.activeDelegates = config.getConstants(height).activeDelegates;
+        this.activeDelegates = config.getMilestone(height).activeDelegates;
 
         logger.printTracker("SPV", 1, 8, "Received Transactions");
         await this.__buildReceivedTransactions();

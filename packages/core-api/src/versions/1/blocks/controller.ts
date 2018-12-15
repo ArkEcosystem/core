@@ -39,7 +39,7 @@ export class BlocksController extends Controller {
     public async epoch(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                epoch: this.config.getConstants(this.blockchain.getLastHeight()).epoch,
+                epoch: this.config.getMilestone(this.blockchain.getLastHeight()).epoch,
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -67,7 +67,7 @@ export class BlocksController extends Controller {
     public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                fee: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees.transfer,
+                fee: this.config.getMilestone(this.blockchain.getLastHeight()).fees.staticFees.transfer,
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -77,7 +77,7 @@ export class BlocksController extends Controller {
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastHeight = this.blockchain.getLastHeight();
-            const fees = this.config.getConstants(lastHeight).fees.staticFees;
+            const fees = this.config.getMilestone(lastHeight).fees.staticFees;
 
             return super.respondWith({
                 fees: {
@@ -106,7 +106,7 @@ export class BlocksController extends Controller {
     public async reward(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                reward: this.config.getConstants(this.blockchain.getLastHeight()).reward,
+                reward: this.config.getMilestone(this.blockchain.getLastHeight()).reward,
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -116,7 +116,7 @@ export class BlocksController extends Controller {
     public async supply(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
-            const constants = this.config.getConstants(lastBlock.data.height);
+            const constants = this.config.getMilestone(lastBlock.data.height);
             const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
 
             return super.respondWith({
@@ -132,7 +132,7 @@ export class BlocksController extends Controller {
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
-            const constants = this.config.getConstants(lastBlock.data.height);
+            const constants = this.config.getMilestone(lastBlock.data.height);
             const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
 
             return super.respondWith({

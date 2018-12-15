@@ -65,7 +65,7 @@ describe("Configuration", () => {
     });
 
     it("should get constants for height", () => {
-        expect(configManager.getConstants(21600)).toEqual(devnet.milestones[2]);
+        expect(configManager.getMilestone(21600)).toEqual(devnet.milestones[2]);
     });
 
     it("should set the height", () => {

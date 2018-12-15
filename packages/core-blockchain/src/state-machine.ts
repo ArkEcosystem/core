@@ -201,7 +201,7 @@ blockchainMachine.actionMap = blockchain => ({
             /** *******************************
              *  state machine data init      *
              ******************************* */
-            const constants = config.getConstants(block.data.height);
+            const constants = config.getMilestone(block.data.height);
             stateStorage.setLastBlock(block);
             stateStorage.lastDownloadedBlock = block;
 

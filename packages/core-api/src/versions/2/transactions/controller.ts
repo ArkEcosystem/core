@@ -140,7 +140,7 @@ export class TransactionsController extends Controller {
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return {
-                data: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees,
+                data: this.config.getMilestone(this.blockchain.getLastHeight()).fees.staticFees,
             };
         } catch (error) {
             return Boom.badImplementation(error);

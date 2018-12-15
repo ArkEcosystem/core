@@ -4,7 +4,7 @@ jest.mock("@arkecosystem/core-container", () => {
             resolvePlugin: name => {
                 if (name === "config") {
                     return {
-                        getConstants: () => ({
+                        getMilestone: () => ({
                             height: 1,
                             reward: 2 * 1e8,
                         }),
