@@ -11,8 +11,7 @@ import { devnet } from "../networks/ark";
 export class ConfigManager {
     public config: any;
     public height: any;
-    public constant: any;
-    public constants: any;
+    public milestone: any;
     public milestones: any;
     public dynamicFees: any;
 
@@ -128,36 +127,36 @@ export class ConfigManager {
         }
 
         while (
-            this.constant.index < this.constants.length - 1 &&
-            height >= this.constants[this.constant.index + 1].height
+            this.milestone.index < this.milestones.length - 1 &&
+            height >= this.milestones[this.milestone.index + 1].height
         ) {
-            this.constant.index++;
-            this.constant.data = this.constants[this.constant.index];
+            this.milestone.index++;
+            this.milestone.data = this.milestones[this.milestone.index];
         }
 
-        while (height < this.constants[this.constant.index].height) {
-            this.constant.index--;
-            this.constant.data = this.constants[this.constant.index];
+        while (height < this.milestones[this.milestone.index].height) {
+            this.milestone.index--;
+            this.milestone.data = this.milestones[this.milestone.index];
         }
 
-        return this.constant.data;
+        return this.milestone.data;
     }
 
     /**
      * Build constant data based on active heights.
      */
     private buildConstants() {
-        this.constants = this.config.milestones.sort((a, b) => a.height - b.height);
-        this.constant = {
+        this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
+        this.milestone = {
             index: 0,
-            data: this.constants[0],
+            data: this.milestones[0],
         };
 
-        let lastmerged = 0;
+        let lastMerged = 0;
 
-        while (lastmerged < this.constants.length - 1) {
-            this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1]);
-            lastmerged++;
+        while (lastMerged < this.milestones.length - 1) {
+            this.milestones[lastMerged + 1] = deepmerge(this.milestones[lastMerged], this.milestones[lastMerged + 1]);
+            lastMerged++;
         }
     }
 
