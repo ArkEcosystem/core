@@ -84,8 +84,8 @@ jobs:
           name: core-config
           command: 'cd ~/ark-core/packages/core-config && yarn test:coverage'
       - run:
-          name: core-forger
-          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
+          name: core
+          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -177,8 +177,8 @@ jobs:
           name: core-config
           command: 'cd ~/ark-core/packages/core-config && yarn test:coverage'
       - run:
-          name: core-forger
-          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
+          name: core
+          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -345,8 +345,8 @@ jobs:
           name: core-logger
           command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+          name: core-forger
+          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
       - run:
           name: core-debugger-cli
           command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
@@ -354,8 +354,8 @@ jobs:
           name: core-container
           command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
-          name: core
-          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -615,8 +615,8 @@ jobs:
           name: core-logger
           command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+          name: core-forger
+          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
       - run:
           name: core-debugger-cli
           command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
@@ -624,8 +624,8 @@ jobs:
           name: core-container
           command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
-          name: core
-          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
