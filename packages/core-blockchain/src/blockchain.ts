@@ -383,6 +383,20 @@ export class Blockchain {
             return callback();
         }
 
+        // Discard block if it contains already forged transactions
+        if (block.transactions.length > 0) {
+            const forgedIds = await this.database.getForgedTransactionsIds(block.transactions.map(tx => tx.id));
+            if (forgedIds.length > 0) {
+                logger.warn(
+                    `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions :scroll:`,
+                );
+                logger.warn(`${JSON.stringify(forgedIds, null, 4)}`);
+
+                this.state.lastDownloadedBlock = this.state.getLastBlock();
+                return callback();
+            }
+        }
+
         try {
             if (this.__isChained(this.state.getLastBlock(), block)) {
                 await this.acceptChainedBlock(block);
