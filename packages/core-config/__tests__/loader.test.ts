@@ -38,7 +38,7 @@ describe("Config Loader", () => {
         expect(loader.genesisBlock).toEqual(stubConfig.genesisBlock);
         expect(loader.network).toContainAllKeys([
             ...Object.keys(stubConfig.network.network),
-            ...["constants", "dynamicFees"],
+            ...["milestones", "dynamicFees"],
         ]);
     });
 });

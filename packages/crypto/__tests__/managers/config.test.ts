@@ -18,7 +18,7 @@ describe("Configuration", () => {
 
         expect(configManager.all()).toContainAllKeys([
             ...Object.keys(mainnet.network),
-            ...["constants", "dynamicFees"],
+            ...["milestones", "dynamicFees"],
         ]);
     });
 
