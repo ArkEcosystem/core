@@ -29,10 +29,12 @@
     "dependencies": {
         "@arkecosystem/crypto": "^2.1.0",
         "@types/fs-extra": "^5.0.4",
+        "@types/joi": "^14.0.1",
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.set": "^4.3.4",
         "axios": "^0.18.0",
         "fs-extra": "^7.0.1",
+        "joi": "^14.3.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2"
     },

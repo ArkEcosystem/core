@@ -1,10 +1,11 @@
 import { configManager } from "@arkecosystem/crypto";
-import { strictEqual } from "assert";
 import axios from "axios";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
+import Joi from "joi";
 import get from "lodash/get";
 import set from "lodash/set";
 import { basename, extname, resolve } from "path";
+import { schema } from "./schema";
 
 export class Loader {
     public network: any;
@@ -21,13 +22,17 @@ export class Loader {
      */
     public async setUp(options: object = {}): Promise<void> {
         this.options = options;
-        this.network = JSON.parse(process.env.ARK_NETWORK);
+
+        const { value, error } = Joi.validate(JSON.parse(process.env.ARK_NETWORK), schema);
+
+        if (error) {
+            console.error(error.message);
+            process.exit(1);
+        }
 
         await this.__createFromDirectory();
 
-        this._validateConfig();
-
-        configManager.setConfig(this.network);
+        configManager.setConfig(value);
 
         // TODO: change once the config object has been implemented
         this.network = configManager.all();
@@ -129,23 +134,6 @@ export class Loader {
                     //
                 }
             }
-        }
-    }
-
-    /**
-     * Validate crucial parts of the configuration.
-     * @return {void}
-     */
-    public _validateConfig(): void {
-        try {
-            const network = this.network.network;
-
-            strictEqual(Number.isInteger(network.pubKeyHash), true);
-            strictEqual(network.nethash.length, 64);
-            strictEqual(Number.isInteger(network.wif), true);
-        } catch (error) {
-            throw Error(error.message);
-            process.exit(1);
         }
     }
 }
