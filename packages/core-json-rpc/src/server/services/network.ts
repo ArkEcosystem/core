@@ -18,11 +18,9 @@ class Network {
         this.config = app.resolvePlugin("config");
         this.p2p = app.resolvePlugin("p2p");
 
-        this.network = this.config.network;
+        this.network = configManager.get("name");
 
         this.__loadRemotePeers();
-
-        configManager.setConfig(this.config.network);
 
         this.client = axios.create({
             headers: {
