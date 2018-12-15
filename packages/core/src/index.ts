@@ -2,18 +2,18 @@
 
 import { configManager, crypto } from "@arkecosystem/crypto";
 import bip38 from "bip38";
-import app from "commander";
+import cli from "commander";
 import fs from "fs";
 import wif from "wif";
-import { startForger, startRelay, startRelayAndForger } from "./commands";
+import { app, config, start } from "./commands";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../package.json");
 
-app.version(version);
+cli.version(version);
 
-function registerCommand(name: string, description: string): any {
-    return app
+function command(name: string, description: string): any {
+    return cli
         .command(name)
         .description(description)
         .option("-d, --data <data>", "data directory", "~/.ark")
@@ -28,61 +28,40 @@ function registerCommand(name: string, description: string): any {
         .option("--launch-mode <mode>", "remote peer for config");
 }
 
-registerCommand("start", "start a relay node and the forger")
+// Start Processes
+command("start", "start a relay node and the forger")
     .option("-b, --bip38 <bip38>", "forger bip38")
     .option("-p, --password <password>", "forger password")
-    .action(async options => startRelayAndForger(options, version));
+    .action(start.relayAndForger);
 
-registerCommand("relay", "start a relay node").action(async options => startRelay(options, version));
+command("relay", "start a relay node").action(start.relay);
 
-registerCommand("forger", "start the forger")
+command("forger", "start the forger")
     .option("-b, --bip38 <bip38>", "forger bip38")
     .option("-p, --password <password>", "forger password")
-    .action(async options => startForger(options, version));
+    .action(start.forger);
 
-registerCommand("forger-plain", "set the delegate secret")
+// Forger
+command("forger:secret", "set the delegate secret")
     .option("-s, --secret <secret>", "forger secret")
-    .action(async options => {
-        const delegatesConfig = `${options.config}/delegates.json`;
-        if (!options.config || !fs.existsSync(delegatesConfig)) {
-            // tslint:disable-next-line:no-console
-            console.error("Missing or invalid delegates config path");
-            process.exit(1);
-        }
-        const delegates = require(delegatesConfig);
-        delegates.secrets = [options.secret];
-        delete delegates.bip38;
+    .action(config.forgerSecret);
 
-        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
-    });
-
-registerCommand("forger-bip38", "encrypt the delegate passphrase using bip38")
+command("forger:bip38", "encrypt the delegate passphrase using bip38")
     .option("-s, --secret <secret>", "forger secret")
     .option("-p, --password <password>", "bip38 password")
-    .action(async options => {
-        const delegatesConfig = `${options.config}/delegates.json`;
-        if (!options.config || !fs.existsSync(delegatesConfig)) {
-            // tslint:disable-next-line:no-console
-            console.error("Missing or invalid delegates config path");
-            process.exit(1);
-        }
+    .action(config.forgerBIP38);
 
-        configManager.setFromPreset(options.token, options.network);
+// Configuration
+command("config:publish", "TBD").action(config.publish);
 
-        const keys = crypto.getKeys(options.secret);
-        // @ts-ignore
-        const decoded = wif.decode(crypto.keysToWIF(keys));
+command("config:reset", "TBD").action(config.reset);
 
-        const delegates = require(delegatesConfig);
-        delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, options.password);
-        delegates.secrets = []; // remove the plain text secrets in favour of bip38
+// App
+command("update", "TBD").action(app.update);
 
-        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
-    });
-
-app.command("*").action(env => {
-    app.help();
+cli.command("*").action(env => {
+    cli.help();
     process.exit(0);
 });
 
-app.parse(process.argv);
+cli.parse(process.argv);

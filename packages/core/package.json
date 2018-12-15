@@ -14,10 +14,7 @@
         "dist"
     ],
     "bin": {
-        "ark:start": "node ./dist/index.js start",
-        "ark:relay": "node ./dist/index.js relay",
-        "ark:forger": "node ./dist/index.js forger",
-        "ark:snapshot": "node ./dist/index.js snapshot"
+        "ark": "node ./dist/index.js"
     },
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -32,6 +29,7 @@
         "debug:relay": "node --inspect-brk node ./dist/index.js relay",
         "debug:forger": "node --inspect-brk node ./dist/index.js forger",
         "debug:snapshot": "node --inspect-brk node ./dist/index.js snapshot",
+        "ark": "node ./dist/index.js",
         "start": "node ./dist/index.js start",
         "start:mainnet": "node ./dist/index.js start --config ./src/config/mainnet --network mainnet",
         "start:devnet": "node ./dist/index.js start --config ./src/config/devnet --network devnet",
