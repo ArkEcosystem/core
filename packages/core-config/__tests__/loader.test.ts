@@ -29,7 +29,7 @@ describe("Config Loader", () => {
         }
     });
 
-    it("should succeed with a config", async () => {
+    it.skip("should succeed with a config", async () => {
         const result = await loader.setUp(stubConfig);
 
         stubConfig.network.milestones[1] = { ...stubConfig.network.milestones[0] };
