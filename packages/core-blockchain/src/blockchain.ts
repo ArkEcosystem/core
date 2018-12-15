@@ -142,11 +142,16 @@ export class Blockchain {
 
     /**
      * Reset and stop the queue.
+     * @param {Boolean} resumeAfterClear
      * @return {void}
      */
-    public resetQueue() {
+    public resetQueue(resumeAfterClear = false) {
         this.queue.pause();
         this.queue.clear();
+
+        if (resumeAfterClear) {
+            this.queue.resume();
+        }
     }
 
     /**
@@ -448,6 +453,12 @@ export class Blockchain {
             logger.debug(
                 `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
             );
+
+            // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
+            // it is very likely that all blocks will be disregarded at this point anyway.
+            this.resetQueue(true);
+            logger.debug("Flushed queued blocks.");
+
             this.state.lastDownloadedBlock = lastBlock;
         } else if (block.data.height < lastBlock.data.height) {
             logger.debug(
