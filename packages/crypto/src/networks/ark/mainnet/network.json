@@ -14,60 +14,6 @@
         "symbol": "Ѧ",
         "explorer": "https://explorer.ark.io"
     },
-    "constants": [
-        {
-            "height": 1,
-            "reward": 0,
-            "activeDelegates": 51,
-            "blocktime": 8,
-            "block": {
-                "version": 0,
-                "maxTransactions": 50,
-                "maxPayload": 2097152
-            },
-            "epoch": "2017-03-21T13:00:00.000Z",
-            "fees": {
-                "dynamic": true,
-                "dynamicFees": {
-                    "minFeePool": 3000,
-                    "minFeeBroadcast": 3000,
-                    "addonBytes": {
-                        "transfer": 100,
-                        "secondSignature": 250,
-                        "delegateRegistration": 400000,
-                        "vote": 100,
-                        "multiSignature": 500,
-                        "ipfs": 250,
-                        "timelockTransfer": 500,
-                        "multiPayment": 500,
-                        "delegateResignation": 400000
-                    }
-                },
-                "staticFees": {
-                    "transfer": 10000000,
-                    "secondSignature": 500000000,
-                    "delegateRegistration": 2500000000,
-                    "vote": 100000000,
-                    "multiSignature": 500000000,
-                    "ipfs": 0,
-                    "timelockTransfer": 0,
-                    "multiPayment": 0,
-                    "delegateResignation": 0
-                }
-            }
-        },
-        {
-            "height": 75600,
-            "reward": 200000000
-        },
-        {
-            "height": 6600000,
-            "block": {
-                "maxTransactions": 150,
-                "maxPayload": 6300000
-            }
-        }
-    ],
     "exceptions": {
         "transactions": ["608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e"]
     },
