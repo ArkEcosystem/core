@@ -38,6 +38,6 @@ describe("Config Loader", () => {
 
         expect(loader.delegates).toEqual(stubConfig.delegates);
         expect(loader.genesisBlock).toEqual(stubConfig.genesisBlock);
-        expect(loader.network).toEqual(stubConfig.network);
+        expect(loader.network).toEqual(stubConfig.network.network);
     });
 });

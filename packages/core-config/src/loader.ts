@@ -2,6 +2,8 @@ import { configManager } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import axios from "axios";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
+import get from "lodash/get";
+import set from "lodash/set";
 import { basename, extname, resolve } from "path";
 
 export class Loader {
@@ -26,6 +28,19 @@ export class Loader {
         this._validateConfig();
 
         configManager.setConfig(this.network);
+
+        // TODO: change once the config object has been implemented
+        this.network = this.network.network;
+    }
+
+    public get(key: string, defaultValue: any = null): any {
+        // TODO: change to a config object that holds all values
+        return get(this.network, key, defaultValue);
+    }
+
+    public set(key: string, value: any): void {
+        // TODO: change to a config object that holds all values
+        set(this.network, key, value);
     }
 
     /**
