@@ -78,6 +78,7 @@
         "@arkecosystem/crypto": "^2.1.0",
         "bip38": "^2.0.2",
         "commander": "^2.19.0",
+        "prompts": "^2.0.0",
         "wif": "^2.0.6"
     },
     "publishConfig": {

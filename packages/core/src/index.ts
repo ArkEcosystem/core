@@ -25,7 +25,8 @@ function command(name: string, description: string): any {
         .option("--disable-discovery", "disable any peer discovery")
         .option("--skip-discovery", "skip the initial peer discovery")
         .option("--ignore-minimum-network-reach", "skip the network reach check")
-        .option("--launch-mode <mode>", "remote peer for config");
+        .option("--launch-mode <mode>", "the application configuration mode")
+        .option("--i, --interactive", "provide an interactive UI", false);
 }
 
 // Start Processes
