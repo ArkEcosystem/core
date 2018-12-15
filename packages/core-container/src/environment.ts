@@ -49,7 +49,7 @@ export class Environment {
             config = NetworkManager.findByName(this.variables.network, this.variables.token);
         } else {
             try {
-                const networkPath = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network.json`));
+                const networkPath = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network`));
 
                 config = require(networkPath);
             } catch (error) {
