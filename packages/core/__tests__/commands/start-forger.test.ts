@@ -2,7 +2,7 @@ import "jest-extended";
 import { startForger, startRelay } from "../../src/commands";
 import { opts, version } from "../__support__/app";
 
-describe.skip("Commands - Start Forger", () => {
+describe("Commands - Start Forger", () => {
     it("should be OK", async () => {
         const relay = await startRelay(opts, version);
         const forger = await startForger(opts, version);

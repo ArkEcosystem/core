@@ -10,6 +10,7 @@ export async function startRelay(options, version) {
                 networkStart: options.networkStart,
             },
         },
+        skipPlugins: options.skipPlugins,
     });
 
     return app;
@@ -31,6 +32,7 @@ export async function startForger(options, version) {
                 password: options.password || process.env.ARK_FORGER_PASSWORD,
             },
         },
+        skipPlugins: options.skipPlugins,
     });
 
     return app;
@@ -49,6 +51,7 @@ export async function startRelayAndForger(options, version) {
                 password: options.password || process.env.ARK_FORGER_PASSWORD,
             },
         },
+        skipPlugins: options.skipPlugins,
     });
 
     return app;

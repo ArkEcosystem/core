@@ -7,6 +7,7 @@ import { RemoteLoader } from "./remote-loader";
 
 export class Container {
     public container: any;
+    public options: any;
     public exitEvents: any;
     public silentShutdown: boolean;
     public hashid: string;
@@ -52,6 +53,8 @@ export class Container {
      * @return {void}
      */
     public async setUp(version, variables, options: any = {}) {
+        this.options = options;
+
         this.__registerExitHandler();
 
         this.setVersion(version);
@@ -65,6 +68,7 @@ export class Container {
         this.env.setUp();
 
         if (options.skipPlugins) {
+            this.isReady = true;
             return;
         }
 
@@ -80,7 +84,9 @@ export class Container {
      * @return {Promise}
      */
     public async tearDown() {
-        await this.plugins.tearDown();
+        if (!this.options.skipPlugins) {
+            await this.plugins.tearDown();
+        }
 
         this.isReady = false;
     }
