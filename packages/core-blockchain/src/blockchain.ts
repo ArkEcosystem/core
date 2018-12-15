@@ -383,24 +383,9 @@ export class Blockchain {
             return callback();
         }
 
-        // Discard block if it contains already forged transactions
-        if (block.transactions.length > 0) {
-            const forgedIds = await this.database.getForgedTransactionsIds(block.transactions.map(tx => tx.id));
-            if (forgedIds.length > 0) {
-                logger.warn(
-                    `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions :scroll:`,
-                );
-                logger.warn(`${JSON.stringify(forgedIds, null, 4)}`);
-
-                this.state.lastDownloadedBlock = this.state.getLastBlock();
-                return callback();
-            }
-        }
-
         try {
             if (this.__isChained(this.state.getLastBlock(), block)) {
                 await this.acceptChainedBlock(block);
-                this.state.setLastBlock(block);
             } else {
                 await this.manageUnchainedBlock(block);
             }
@@ -435,6 +420,12 @@ export class Blockchain {
      * @return {void}
      */
     public async acceptChainedBlock(block) {
+        const containsForgedTransactions = await this.checkBlockContainsForgedTransactions(block);
+        if (containsForgedTransactions) {
+            this.state.lastDownloadedBlock = this.state.getLastBlock();
+            return;
+        }
+
         await this.database.applyBlock(block);
         await this.database.saveBlock(block);
 
@@ -452,6 +443,13 @@ export class Blockchain {
                 logger.warn("Issue applying block to transaction pool");
                 logger.debug(error.stack);
             }
+        }
+
+        this.state.setLastBlock(block);
+
+        // Ensure the lastDownloadedBlock is not behind the last accepted block.
+        if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.data.height < block.data.height) {
+            this.state.lastDownloadedBlock = block;
         }
     }
 
@@ -494,6 +492,27 @@ export class Blockchain {
                 );
             }
         }
+    }
+
+    /**
+     * Checks if the given block contains already forged transactions.
+     * @param {Block} block
+     * @returns {Boolean}
+     */
+    public async checkBlockContainsForgedTransactions(block) {
+        // Discard block if it contains already forged transactions
+        if (block.transactions.length > 0) {
+            const forgedIds = await this.database.getForgedTransactionsIds(block.transactions.map(tx => tx.id));
+            if (forgedIds.length > 0) {
+                logger.warn(
+                    `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions :scroll:`,
+                );
+                logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
