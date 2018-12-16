@@ -12,7 +12,7 @@ export class LoaderController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {

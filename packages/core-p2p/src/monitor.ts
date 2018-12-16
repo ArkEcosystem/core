@@ -21,7 +21,7 @@ import networkState from "./utils/network-state";
 import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 const emitter = app.resolvePlugin("event-emitter");
 

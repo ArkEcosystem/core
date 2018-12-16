@@ -20,7 +20,6 @@ export async function startForger(options, version) {
     await app.setUp(version, options, {
         include: [
             "@arkecosystem/core-event-emitter",
-            "@arkecosystem/core-config",
             "@arkecosystem/core-logger",
             "@arkecosystem/core-logger-winston",
             "@arkecosystem/core-forger",

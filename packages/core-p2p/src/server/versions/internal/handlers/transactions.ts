@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { models } from "@arkecosystem/crypto";
 import * as schema from "../schemas/transactions";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const { Transaction } = models;
 
 /**

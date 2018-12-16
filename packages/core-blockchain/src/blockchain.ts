@@ -8,7 +8,7 @@ import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
 
 const logger = app.resolvePlugin("logger");
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const emitter = app.resolvePlugin("event-emitter");
 const { Block } = models;
 

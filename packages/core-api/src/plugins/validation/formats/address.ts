@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import * as bs58check from "bs58check";
 
 export function registerAddressFormat(ajv) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
 
     ajv.addFormat("address", {
         type: "string",

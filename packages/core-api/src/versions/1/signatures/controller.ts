@@ -11,7 +11,7 @@ export class SignaturesController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
     }
 
     public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {

@@ -18,7 +18,7 @@ export class TransactionsController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.logger = app.resolvePlugin("logger");
         this.transactionPool = app.resolvePlugin("transactionPool");
     }

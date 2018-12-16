@@ -10,7 +10,7 @@ const BignumMod = Bignum.clone({ DECIMAL_PLACES: 2 });
  * @return {Number} Approval, with 2 decimals
  */
 function calculateApproval(delegate, height: any = null) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
 
     if (!height) {
         height = app.resolvePlugin("blockchain").getLastBlock().data.height;

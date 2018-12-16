@@ -12,7 +12,7 @@ import { stateStorage } from "./state-storage";
 import { tickSyncTracker } from "./utils/tick-sync-tracker";
 
 const { Block } = models;
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const emitter = app.resolvePlugin("event-emitter");
 const logger = app.resolvePlugin("logger");
 

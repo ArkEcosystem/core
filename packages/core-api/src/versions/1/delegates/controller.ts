@@ -13,7 +13,7 @@ export class DelegatesController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.database = app.resolvePlugin("database");
     }
 

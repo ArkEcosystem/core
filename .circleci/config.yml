@@ -35,7 +35,6 @@ jobs:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
@@ -66,23 +65,26 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-utils
-          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+          name: core-vote-report
+          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
       - run:
-          name: core-test-utils
-          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+          name: core-tester-cli
+          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
       - run:
-          name: core-p2p
-          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+          name: core-snapshots
+          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
       - run:
-          name: core-http-utils
-          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+          name: core-logger
+          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
-          name: core-event-emitter
-          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
+          name: core-forger
+          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
       - run:
-          name: core-config
-          command: 'cd ~/ark-core/packages/core-config && yarn test:coverage'
+          name: core-debugger-cli
+          command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
+      - run:
+          name: core-container
+          command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
           name: core
           command: 'cd ~/ark-core/packages/core && yarn test:coverage'
@@ -128,7 +130,6 @@ jobs:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
@@ -159,23 +160,26 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-utils
-          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+          name: core-vote-report
+          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
       - run:
-          name: core-test-utils
-          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+          name: core-tester-cli
+          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
       - run:
-          name: core-p2p
-          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+          name: core-snapshots
+          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
       - run:
-          name: core-http-utils
-          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+          name: core-logger
+          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
-          name: core-event-emitter
-          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
+          name: core-forger
+          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
       - run:
-          name: core-config
-          command: 'cd ~/ark-core/packages/core-config && yarn test:coverage'
+          name: core-debugger-cli
+          command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
+      - run:
+          name: core-container
+          command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
           name: core
           command: 'cd ~/ark-core/packages/core && yarn test:coverage'
@@ -221,7 +225,6 @@ jobs:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
@@ -302,103 +305,6 @@ jobs:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
-            - ./packages/core-container/node_modules
-            - ./packages/core-database/node_modules
-            - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
-            - ./packages/core-elasticsearch/node_modules
-            - ./packages/core-error-tracker-bugsnag/node_modules
-            - ./packages/core-error-tracker-sentry/node_modules
-            - ./packages/core-event-emitter/node_modules
-            - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
-            - ./packages/core-http-utils/node_modules
-            - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
-            - ./packages/core-test-utils/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
-      - run:
-          name: Create .ark/database directory
-          command: mkdir -p $HOME/.ark/database
-      - run:
-          name: core-vote-report
-          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
-      - run:
-          name: core-tester-cli
-          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
-      - run:
-          name: core-snapshots
-          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
-      - run:
-          name: core-logger
-          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
-      - run:
-          name: core-forger
-          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
-      - run:
-          name: core-debugger-cli
-          command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
-      - run:
-          name: core-container
-          command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
-      - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
-      - run:
-          name: Last 1000 lines of test output
-          when: on_fail
-          command: tail -n 1000 test_output.txt
-      - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
-  test-node10-2:
-    working_directory: ~/ark-core
-    docker:
-      - image: 'circleci/node:10-browsers'
-      - image: 'postgres:alpine'
-        environment:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: ark_development
-          POSTGRES_USER: ark
-    steps:
-      - checkout
-      - run:
-          name: Apt update
-          command: >-
-            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
-            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
-      - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
-      - run:
-          name: Generate cache key
-          command: >-
-            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
-      - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
-      - run:
-          name: Install and build packages
-          command: yarn setup
-      - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
-          paths:
-            - ./packages/core/node_modules
-            - ./packages/core-api/node_modules
-            - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
@@ -447,6 +353,95 @@ jobs:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
       - run:
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node10-2:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:10-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: sudo apt-get install -q xsel
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-debugger-cli/node_modules
+            - ./packages/core-deployer/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-graphql/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-snapshots-cli/node_modules
+            - ./packages/core-test-utils/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .ark/database directory
+          command: mkdir -p $HOME/.ark/database
+      - run:
+          name: core-utils
+          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+      - run:
+          name: core-test-utils
+          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+      - run:
+          name: core-p2p
+          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+      - run:
+          name: core-http-utils
+          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+      - run:
+          name: core-event-emitter
+          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
+      - run:
           name: core-blockchain
           command: 'cd ~/ark-core/packages/core-blockchain && yarn test:coverage'
       - run:
@@ -491,7 +486,6 @@ jobs:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
@@ -572,103 +566,6 @@ jobs:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
-            - ./packages/core-container/node_modules
-            - ./packages/core-database/node_modules
-            - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
-            - ./packages/core-elasticsearch/node_modules
-            - ./packages/core-error-tracker-bugsnag/node_modules
-            - ./packages/core-error-tracker-sentry/node_modules
-            - ./packages/core-event-emitter/node_modules
-            - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
-            - ./packages/core-http-utils/node_modules
-            - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
-            - ./packages/core-test-utils/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
-      - run:
-          name: Create .ark/database directory
-          command: mkdir -p $HOME/.ark/database
-      - run:
-          name: core-vote-report
-          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
-      - run:
-          name: core-tester-cli
-          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
-      - run:
-          name: core-snapshots
-          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
-      - run:
-          name: core-logger
-          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
-      - run:
-          name: core-forger
-          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
-      - run:
-          name: core-debugger-cli
-          command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
-      - run:
-          name: core-container
-          command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
-      - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
-      - run:
-          name: Last 1000 lines of test output
-          when: on_fail
-          command: tail -n 1000 test_output.txt
-      - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
-  test-node11-2:
-    working_directory: ~/ark-core
-    docker:
-      - image: 'circleci/node:11-browsers'
-      - image: 'postgres:alpine'
-        environment:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: ark_development
-          POSTGRES_USER: ark
-    steps:
-      - checkout
-      - run:
-          name: Apt update
-          command: >-
-            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
-            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
-      - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
-      - run:
-          name: Generate cache key
-          command: >-
-            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
-      - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
-      - run:
-          name: Install and build packages
-          command: yarn setup
-      - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
-          paths:
-            - ./packages/core/node_modules
-            - ./packages/core-api/node_modules
-            - ./packages/core-blockchain/node_modules
-            - ./packages/core-config/node_modules
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
@@ -716,6 +613,95 @@ jobs:
       - run:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
+      - run:
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node11-2:
+    working_directory: ~/ark-core
+    docker:
+      - image: 'circleci/node:11-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_development
+          POSTGRES_USER: ark
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: sudo apt-get install -q xsel
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-debugger-cli/node_modules
+            - ./packages/core-deployer/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-graphql/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-snapshots-cli/node_modules
+            - ./packages/core-test-utils/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .ark/database directory
+          command: mkdir -p $HOME/.ark/database
+      - run:
+          name: core-utils
+          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+      - run:
+          name: core-test-utils
+          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+      - run:
+          name: core-p2p
+          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+      - run:
+          name: core-http-utils
+          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+      - run:
+          name: core-event-emitter
+          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
       - run:
           name: core-blockchain
           command: 'cd ~/ark-core/packages/core-blockchain && yarn test:coverage'

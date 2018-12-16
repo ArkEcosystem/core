@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 
 export function transformPeerLegacy(model) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
 
     const peer: any = {
         ip: model.ip,

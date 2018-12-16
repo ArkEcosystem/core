@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { transformPlugins } from "../transformers/plugins";
 
-const appConfig = app.resolvePlugin("config");
+const appConfig = app.getConfig();
 
 export const config = {
     async handler(request, h) {

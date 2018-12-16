@@ -26,7 +26,7 @@ export class ForgerManager {
      */
     constructor(options) {
         this.logger = app.resolvePlugin("logger");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
 
         this.secrets = this.config.delegates ? this.config.delegates.secrets : null;
         this.network = this.config.network;

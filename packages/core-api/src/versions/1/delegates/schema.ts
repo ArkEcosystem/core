@@ -61,7 +61,7 @@ export const getDelegates: object = {
         limit: {
             type: "integer",
             minimum: 1,
-            maximum: lastBlock ? app.resolvePlugin("config").getMilestone(lastBlock.data.height).activeDelegates : 51,
+            maximum: lastBlock ? app.getConfig().getMilestone(lastBlock.data.height).activeDelegates : 51,
         },
         offset: {
             type: "integer",

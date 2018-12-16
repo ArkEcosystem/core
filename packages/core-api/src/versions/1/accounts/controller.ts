@@ -11,7 +11,7 @@ export class AccountsController extends Controller {
     public constructor() {
         super();
 
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.database = app.resolvePlugin("database");
         this.blockchain = app.resolvePlugin("blockchain");
     }

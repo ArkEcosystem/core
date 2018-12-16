@@ -4,7 +4,7 @@ import { configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";
 
 export function handler(request, h) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
     const blockchain = app.resolvePlugin("blockchain");
     const database = app.resolvePlugin("database");
 

@@ -31,7 +31,7 @@ export abstract class ConnectionInterface {
      * @param {Object} options
      */
     public constructor(public readonly options) {
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.logger = app.resolvePlugin("logger");
         this.emitter = app.resolvePlugin("event-emitter");
 

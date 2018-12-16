@@ -4,7 +4,7 @@ import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../config";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 
 /**
  * Returns current network state. Peers are update before the call

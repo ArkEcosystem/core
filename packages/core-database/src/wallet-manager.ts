@@ -20,7 +20,7 @@ export class WalletManager {
      * @constructor
      */
     constructor() {
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.logger = app.resolvePlugin("logger");
 
         this.networkId = this.config ? this.config.network.pubKeyHash : 0x17;

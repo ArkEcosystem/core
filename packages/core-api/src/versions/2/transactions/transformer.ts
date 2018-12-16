@@ -3,7 +3,7 @@ import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
 import { crypto, models } from "@arkecosystem/crypto";
 
 export function transformTransaction(model) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
     const blockchain = app.resolvePlugin("blockchain");
 
     const data: any = new models.Transaction(model.serialized.toString("hex"));

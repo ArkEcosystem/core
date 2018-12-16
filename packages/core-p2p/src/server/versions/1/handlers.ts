@@ -8,7 +8,7 @@ import { monitor } from "../../../monitor";
 const { Block, Transaction } = models;
 
 const transactionPool = app.resolvePlugin("transactionPool");
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 
 /**

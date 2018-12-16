@@ -30,7 +30,7 @@ app.resolvePlugin = jest.fn(plugin => {
 });
 
 beforeAll(() => {
-    config = app.resolvePlugin("config");
+    config = app.getConfig();
 });
 
 describe("Supply calculator", () => {

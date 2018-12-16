@@ -24,7 +24,7 @@ let connection;
 beforeAll(async () => {
     await setUpFull();
 
-    config = app.resolvePlugin("config");
+    config = app.getConfig();
     database = app.resolvePlugin("database");
     connection = app.resolvePlugin("transactionPool");
 

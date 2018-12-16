@@ -16,7 +16,6 @@ export class Environment {
      */
     public setUp() {
         this.exportPaths();
-        this.exportNetwork();
         this.exportVariables();
     }
 
@@ -32,35 +31,6 @@ export class Environment {
                 process.env[`ARK_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
             }
         }
-    }
-
-    /**
-     * Export all network variables for the core environment.
-     * @return {void}
-     */
-    private exportNetwork() {
-        let config;
-
-        if (this.variables.token && this.variables.network) {
-            config = NetworkManager.findByName(this.variables.network, this.variables.token);
-        } else {
-            try {
-                const networkPath = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network`));
-
-                config = require(networkPath);
-            } catch (error) {
-                config = false;
-            }
-        }
-
-        if (!config) {
-            throw new Error(
-                "An invalid network configuration was provided or is inaccessible due to it's security settings.",
-            );
-        }
-
-        process.env.ARK_NETWORK = JSON.stringify(config);
-        process.env.ARK_NETWORK_NAME = config.network.name;
     }
 
     /**

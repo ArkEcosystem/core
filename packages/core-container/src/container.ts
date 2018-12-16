@@ -2,6 +2,7 @@ import { createContainer } from "awilix";
 import { execSync } from "child_process";
 import delay from "delay";
 import semver from "semver";
+import { Config } from "./config";
 import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
 
@@ -16,6 +17,7 @@ export class Container {
     public version: string;
     public isReady: boolean = false;
     public variables: any;
+    public config: any;
 
     /**
      * Create a new container instance.
@@ -70,11 +72,18 @@ export class Container {
             return;
         }
 
+        // Setup the configuration
+        this.config = await Config.setUp(variables, options);
+
         // TODO: Move this out eventually - not really the responsibility of the container
         this.plugins = new PluginRegistrar(this, options);
         await this.plugins.setUp();
 
         this.isReady = true;
+    }
+
+    public getConfig() {
+        return this.config;
     }
 
     /**

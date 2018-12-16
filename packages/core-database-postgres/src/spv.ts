@@ -5,7 +5,7 @@ import { app } from "@arkecosystem/core-container";
 import { queries } from "./queries";
 
 const logger = app.resolvePlugin("logger");
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 
 const genesisWallets = config.genesisBlock.transactions.map(tx => tx.senderId);
 

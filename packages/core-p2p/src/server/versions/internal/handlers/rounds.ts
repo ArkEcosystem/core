@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 
 /**
  * @type {Object}

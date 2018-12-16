@@ -9,7 +9,7 @@ import { config as localConfig } from "../config";
 import * as utils from "../utils";
 import { offences } from "./offences";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 
 interface ISuspension {

@@ -42,7 +42,7 @@ export class Peer {
      */
     constructor(readonly ip, readonly port) {
         this.logger = app.resolvePlugin("logger");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
 
         this.ban = new Date().getTime();
         this.url = `${port % 443 === 0 ? "https://" : "http://"}${ip}:${port}`;

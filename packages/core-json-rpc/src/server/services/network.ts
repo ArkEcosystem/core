@@ -15,7 +15,7 @@ class Network {
 
     public async init() {
         this.logger = app.resolvePlugin("logger");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.p2p = app.resolvePlugin("p2p");
 
         this.network = configManager.get("name");

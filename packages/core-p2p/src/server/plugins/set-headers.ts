@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { config as localConfig } from "../../config";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 
 /**
  * The register method used by hapi.js.
