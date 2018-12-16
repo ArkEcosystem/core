@@ -2887,7 +2887,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-better-sqlite3@^5.0.1:
+better-sqlite3@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-5.2.0.tgz#5e99744e44bfe7bf1aef71bcf4a6079f7a9181d3"
   integrity sha512-jcrsuySida9dmIJ2+XOklH6Xw8bnYJfT+KoSs9JCNH93Ji6TMoVRkbqR9jyfBqDdAR2BEy4BTC/FrX0nRxu9yA==
@@ -12937,9 +12937,9 @@ vise@3.x.x:
     hoek "6.x.x"
 
 vision@^5.4.3:
-  version "5.4.4"
-  resolved "https://registry.yarnpkg.com/vision/-/vision-5.4.4.tgz#981b2d811a6061cc14cf2d5d05ad3bbc3ee59572"
-  integrity sha512-jFeH7pU/ODYmTOpY5jutMKU/fDr+P621WYEnWgqwDikxutBWJ+koxlgGnkZQoKY6JlYdY4Awo+rPN3DNdTeDKg==
+  version "5.4.3"
+  resolved "https://registry.yarnpkg.com/vision/-/vision-5.4.3.tgz#648663667f22dc6da17a00c049c2c1a97366d72f"
+  integrity sha512-4uVrdAKSjNF3WVf1Mjq//SfMclUgpHJtk0EBESyLFcZmrqJjUQ08DyCsRYqw31qEFK3bVm8UO9BlfodRwuyETg==
   dependencies:
     boom "7.x.x"
     hoek "6.x.x"

@@ -30,6 +30,7 @@ class Monitor {
     public server: any;
     public guard: any;
     public config: any;
+    public nextUpdateNetworkStatusScheduled: boolean;
     private pendingPeers: { [ip: string]: any };
     private coldStartPeriod: dayjs.Dayjs;
 
@@ -112,36 +113,10 @@ class Monitor {
         if (!this.hasMinimumPeers()) {
             this.populateSeedPeers();
             nextRunDelaySeconds = 5;
-            logger.info(`Couldn't find enough peers, trying again in ${nextRunDelaySeconds} seconds`);
+            logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
 
-        setTimeout(this.updateNetworkStatusIfNotEnoughPeers, nextRunDelaySeconds * 1000);
-    }
-
-    /**
-     * Updates the network status if not enough peers are available.
-     * NOTE: This is usually only necessary for nodes without incoming requests,
-     * since the available peers are depleting over time due to suspensions.
-     * @return {void}
-     */
-    public async updateNetworkStatusIfNotEnoughPeers() {
-        if (!this.hasMinimumPeers() && process.env.ARK_ENV !== "test") {
-            await this.updateNetworkStatus(this.config.networkStart);
-        }
-    }
-
-    /**
-     * Returns if the minimum amount of peers are available.
-     * @return {Boolean}
-     */
-    public hasMinimumPeers() {
-        if (this.config.ignoreMinimumNetworkReach) {
-            logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
-
-            return true;
-        }
-
-        return Object.keys(this.peers).length >= localConfig.get("minimumNetworkReach");
+        this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
     /**
@@ -388,11 +363,11 @@ class Monitor {
 
         for (const peer of shuffledPeers) {
             try {
-                const hisPeers = await peer.getPeers()
+                const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
                     if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
-                        this.__addPeer(p)
+                        this.__addPeer(p);
                     }
                 }
             } catch (error) {
@@ -721,34 +696,6 @@ class Monitor {
     }
 
     /**
-     * Populate the initial seed list.
-     * @return {void}
-     */
-    private populateSeedPeers() {
-        if (!config.peers.list) {
-            app.forceExit("No seed peers defined in peers.json :interrobang:");
-        }
-
-        let peers = config.peers.list.map(peer => {
-            peer.version = app.getVersion();
-            return peer;
-        });
-
-        if (config.peers_backup) {
-            peers = { ...peers, ...config.peers_backup };
-        }
-
-        const filteredPeers: any[] = Object.values(peers).filter(
-            peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValidVersion(peer),
-        );
-
-        for (const peer of filteredPeers) {
-            delete this.guard.suspensions[peer.ip];
-            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
-        }
-    }
-
-    /**
      * Get last 10 block IDs from database.
      * @return {[]String}
      */
@@ -830,6 +777,67 @@ class Monitor {
     public __addPeers(peers) {
         for (const peer of peers) {
             this.__addPeer(peer);
+        }
+    }
+
+    /**
+     * Schedule the next update network status.
+     * @param {Number} nextUpdateInSeconds
+     * @returns {void}
+     */
+    private async scheduleUpdateNetworkStatus(nextUpdateInSeconds) {
+        if (this.nextUpdateNetworkStatusScheduled) {
+            return;
+        }
+
+        this.nextUpdateNetworkStatusScheduled = true;
+
+        await delay(nextUpdateInSeconds * 1000);
+
+        this.nextUpdateNetworkStatusScheduled = false;
+
+        this.updateNetworkStatus(this.config.networkStart);
+    }
+
+    /**
+     * Returns if the minimum amount of peers are available.
+     * @return {Boolean}
+     */
+    private hasMinimumPeers() {
+        if (this.config.ignoreMinimumNetworkReach) {
+            logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
+
+            return true;
+        }
+
+        return Object.keys(this.peers).length >= localConfig.get("minimumNetworkReach");
+    }
+
+    /**
+     * Populate the initial seed list.
+     * @return {void}
+     */
+    private populateSeedPeers() {
+        if (!config.peers.list) {
+            app.forceExit("No seed peers defined in peers.json :interrobang:");
+        }
+
+        let peers = config.peers.list.map(peer => {
+            peer.version = app.getVersion();
+            return peer;
+        });
+
+        if (config.peers_backup) {
+            peers = { ...peers, ...config.peers_backup };
+        }
+
+        const filteredPeers: any[] = Object.values(peers).filter(
+            peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValidVersion(peer),
+        );
+
+        for (const peer of filteredPeers) {
+            delete this.guard.suspensions[peer.ip];
+            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
         }
     }
 }
