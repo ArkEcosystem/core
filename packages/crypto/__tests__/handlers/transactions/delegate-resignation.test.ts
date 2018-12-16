@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { DelegateResignationHandler } from "../../../src/handlers/transactions/delegate-resignation";
+import { Bignum } from "../../../src/utils/bignum";
 import { transaction as originalTransaction } from "./__fixtures__/transaction";
 import { wallet as originalWallet } from "./__fixtures__/wallet";
 
@@ -8,17 +9,16 @@ const handler = new DelegateResignationHandler();
 
 let wallet;
 let transaction;
+let errors;
 
 beforeEach(() => {
     wallet = originalWallet;
     transaction = originalTransaction;
+
+    errors = [];
 });
 
 describe("DelegateResignationHandler", () => {
-    it("should be instantiated", () => {
-        expect(handler.constructor.name).toBe("DelegateResignationHandler");
-    });
-
     describe("canApply", () => {
         it("should be truth", () => {
             wallet.username = "dummy";
@@ -28,10 +28,16 @@ describe("DelegateResignationHandler", () => {
 
         it("should be false if wallet has no registered username", () => {
             wallet.username = null;
-            const errors = [];
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet has not registered a username");
+        });
+
+        it("should be false if wallet has insufficient funds", () => {
+            wallet.balance = new Bignum(0);
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
         });
     });
 });

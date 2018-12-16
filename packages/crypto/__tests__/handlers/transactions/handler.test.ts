@@ -7,6 +7,7 @@ import { Bignum } from "../../../src/utils/bignum";
 let handler;
 let wallet;
 let transaction;
+let errors;
 
 class FakeHandler extends Handler {
     // tslint:disable-next-line:no-shadowed-variable
@@ -44,6 +45,8 @@ beforeEach(() => {
             "304402205881204c6e515965098099b0e20a7bf104cd1bad6cfe8efd1641729fcbfdbf1502203cfa3bd9efb2ad250e2709aaf719ac0db04cb85d27a96bc8149aeaab224de82b",
         asset: {},
     };
+
+    errors = [];
 });
 
 describe("Handler", () => {
@@ -53,14 +56,12 @@ describe("Handler", () => {
 
     describe("canApply", () => {
         it("should be true", () => {
-            const errors = [];
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
             expect(errors).toHaveLength(0);
         });
 
         it("should be false if wallet publicKey does not match tx senderPublicKey", () => {
             transaction.senderPublicKey = "a".repeat(66);
-            const errors = [];
             const result = handler.canApply(wallet, transaction, errors);
 
             expect(result).toBeFalse();

@@ -84,6 +84,13 @@ describe("VoteHandler", () => {
             expect(handler.canApply(wallet, unvoteTransaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet has not voted yet");
         });
+
+        it("should be false if wallet has insufficient funds", () => {
+            wallet.balance = new Bignum(0);
+
+            expect(handler.canApply(wallet, voteTransaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
+        });
     });
 
     describe("apply", () => {
