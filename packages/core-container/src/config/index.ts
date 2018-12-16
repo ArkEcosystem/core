@@ -15,9 +15,7 @@ class Config {
 
         const { config, files } = await fileLoader.setUp(Network.setUp(opts));
 
-        for (const [key, value] of Object.entries(files)) {
-            this.config[key] = value;
-        }
+        this.config = files;
 
         this.configureCrypto(config);
 

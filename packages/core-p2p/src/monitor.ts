@@ -71,7 +71,7 @@ class Monitor {
                 logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
             }
 
-            if (config.network.name !== "mainnet") {
+            if (config.get("network.name") !== "mainnet") {
                 for (const [hashid, peers] of Object.entries(groupBy(this.peers, "hashid"))) {
                     logger.info(`Discovered ${pluralize("peer", peers.length, true)} on commit ${hashid}.`);
                 }
@@ -818,17 +818,19 @@ class Monitor {
      * @return {void}
      */
     private populateSeedPeers() {
-        if (!config.peers.list) {
+        const peerList = config.get("peers.list");
+
+        if (!peerList) {
             app.forceExit("No seed peers defined in peers.json :interrobang:");
         }
 
-        let peers = config.peers.list.map(peer => {
+        let peers = peerList.map(peer => {
             peer.version = app.getVersion();
             return peer;
         });
 
-        if (config.peers_backup) {
-            peers = { ...peers, ...config.peers_backup };
+        if (config.get("peers_backup")) {
+            peers = { ...peers, ...config.get("peers_backup") };
         }
 
         const filteredPeers: any[] = Object.values(peers).filter(
