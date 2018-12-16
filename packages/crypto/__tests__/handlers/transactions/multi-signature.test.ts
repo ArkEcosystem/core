@@ -107,7 +107,16 @@ describe("MultiSignatureHandler", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
         });
 
+        it("should be false if the wallet already has multisignatures", () => {
+            wallet.verifySignatures = jest.fn(() => true);
+            wallet.multisignature = multisignatureTest;
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toEqual(["Wallet is already a multi-signature wallet"]);
+        });
+
         it("should be false if failure to verify signatures", () => {
+            wallet.verifySignatures = jest.fn(() => false);
             wallet.multisignature = multisignatureTest;
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
@@ -115,11 +124,19 @@ describe("MultiSignatureHandler", () => {
         });
 
         it.skip("should be false if the number of keys is less than minimum", () => {
+            // transaction.asset.multisignature.keysgroup.length < transaction.asset.multisignature.min
+
+            wallet.verifySignatures = jest.fn(() => true);
+
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toEqual(["Specified key count does not meet minimum key count"]);
         });
 
         it.skip("should be false if the number of keys does not equal the signature count", () => {
+            // transaction.asset.multisignature.keysgroup.length !== transaction.signatures.length
+
+            wallet.verifySignatures = jest.fn(() => true);
+
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toEqual(["Specified key count does not equal signature count"]);
         });
