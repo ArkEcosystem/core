@@ -314,60 +314,6 @@ describe("Blockchain", () => {
             });
         });
     });
-
-    describe("__isChained", () => {
-        it("should be ok", () => {
-            const previousBlock = {
-                data: {
-                    id: 1,
-                    timestamp: 1,
-                    height: 1,
-                },
-            };
-
-            const nextBlock = {
-                data: {
-                    id: 2,
-                    timestamp: 2,
-                    height: 2,
-                    previousBlock: 1,
-                },
-            };
-
-            expect(blockchain.__isChained(previousBlock, nextBlock)).toBeTrue();
-        });
-
-        it("should not be ok", () => {
-            const previousBlock = {
-                data: {
-                    id: 2,
-                    timestamp: 2,
-                    height: 2,
-                },
-            };
-
-            const nextBlock = {
-                data: {
-                    id: 1,
-                    timestamp: 1,
-                    height: 1,
-                    previousBlock: 1,
-                },
-            };
-
-            expect(blockchain.__isChained(previousBlock, nextBlock)).toBeFalse();
-        });
-    });
-
-    describe("__registerQueue", () => {
-        it("should be ok", () => {
-            blockchain.__registerQueue();
-
-            expect(blockchain).toHaveProperty("queue");
-            expect(blockchain).toHaveProperty("processQueue");
-            expect(blockchain).toHaveProperty("rebuildQueue");
-        });
-    });
 });
 
 async function __start() {
