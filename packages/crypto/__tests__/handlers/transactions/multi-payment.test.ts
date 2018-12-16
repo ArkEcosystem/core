@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import sumBy from "lodash/sumBy";
 import { MultiPaymentHandler } from "../../../src/handlers/transactions/multi-payment";
 import { Bignum } from "../../../src/utils/bignum";
 import { transaction as originalTransaction } from "./__fixtures__/transaction";
@@ -21,7 +20,7 @@ beforeEach(() => {
         blockid: "11233167632577333611",
         type: 7,
         timestamp: 36482198,
-        amount: new Bignum(100000000),
+        amount: new Bignum(0),
         fee: new Bignum(10000000),
         senderId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
         recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
@@ -69,6 +68,13 @@ describe("MultiPaymentHandler", () => {
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Insufficient balance in the wallet");
+        });
+
+        it("should be false if wallet has insufficient funds send all payouts", () => {
+            wallet.balance = new Bignum(10000149);
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet to transfer all payments");
         });
     });
 });
