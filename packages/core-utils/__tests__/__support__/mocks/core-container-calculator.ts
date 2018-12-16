@@ -3,6 +3,7 @@ jest.mock("@arkecosystem/core-container", () => {
         app: {
             getConfig: () => {
                 return {
+                    get: () => 1000000 * 1e8,
                     getMilestone: () => ({
                         height: 1,
                         reward: 2 * 1e8,

@@ -14,8 +14,6 @@ beforeAll(async () => {
 
     repository = new TransactionsRepository();
 
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
     genesisTransaction = genesisBlock.transactions[0];
 });
 

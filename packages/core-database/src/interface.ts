@@ -447,7 +447,7 @@ export abstract class ConnectionInterface {
      * @return {Boolean}
      */
     public async verifyTransaction(transaction) {
-        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.network.pubKeyHash);
+        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
 
@@ -527,11 +527,11 @@ export abstract class ConnectionInterface {
             return false;
         }
 
-        if (!Array.isArray(this.config.network.exceptions.blocks)) {
+        if (!Array.isArray(this.config.get("network.exceptions.blocks"))) {
             return false;
         }
 
-        return this.config.network.exceptions.blocks.includes(block.id);
+        return this.config.get("network.exceptions.blocks").includes(block.id);
     }
 
     /**

@@ -17,7 +17,7 @@ function calculateApproval(delegate, height: any = null) {
     }
 
     const constants = config.getMilestone(height);
-    const totalSupply = new BignumMod(config.genesisBlock.totalAmount).plus(
+    const totalSupply = new BignumMod(config.get("genesisBlock.totalAmount")).plus(
         (height - constants.height) * constants.reward,
     );
     const voteBalance = new BignumMod(delegate.voteBalance);

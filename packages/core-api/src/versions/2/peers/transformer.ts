@@ -13,7 +13,7 @@ export function transformPeer(model) {
         latency: model.delay,
     };
 
-    if (config.network.name !== "mainnet") {
+    if (config.get("network.name") !== "mainnet") {
         peer.hashid = model.hashid || "unknown";
     }
 

@@ -9,7 +9,13 @@ const mockConfig = {
     milestones: [{ height: 1, reward: 2 }],
 };
 
-app.getConfig = jest.fn(() => mockConfig);
+app.getConfig = jest.fn(() => {
+    return {
+        all: () => {
+            return mockConfig;
+        },
+    };
+});
 
 app.resolvePlugin = jest.fn(plugin => {
     if (plugin === "blockchain") {
@@ -28,7 +34,7 @@ app.resolvePlugin = jest.fn(plugin => {
 });
 
 beforeAll(() => {
-    config = app.getConfig();
+    config = app.getConfig().all();
 });
 
 describe("Supply calculator", () => {

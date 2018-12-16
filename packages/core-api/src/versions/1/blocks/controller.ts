@@ -58,7 +58,7 @@ export class BlocksController extends Controller {
 
     public async nethash(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            return super.respondWith({ nethash: this.config.network.nethash });
+            return super.respondWith({ nethash: this.config.get("network.nethash") });
         } catch (error) {
             return Boom.badImplementation(error);
         }
@@ -120,7 +120,7 @@ export class BlocksController extends Controller {
             const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
 
             return super.respondWith({
-                supply: +bignumify(this.config.genesisBlock.totalAmount)
+                supply: +bignumify(this.config.get("genesisBlock.totalAmount"))
                     .plus(rewards)
                     .toFixed(),
             });
@@ -140,9 +140,9 @@ export class BlocksController extends Controller {
                 height: lastBlock.data.height,
                 fee: constants.fees.staticFees.transfer,
                 milestone: Math.floor(lastBlock.data.height / 3000000),
-                nethash: this.config.network.nethash,
+                nethash: this.config.get("network.nethash"),
                 reward: constants.reward,
-                supply: +bignumify(this.config.genesisBlock.totalAmount)
+                supply: +bignumify(this.config.get("genesisBlock.totalAmount"))
                     .plus(rewards)
                     .toFixed(),
             });

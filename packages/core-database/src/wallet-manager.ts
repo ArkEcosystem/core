@@ -23,7 +23,7 @@ export class WalletManager {
         this.config = app.getConfig();
         this.logger = app.resolvePlugin("logger");
 
-        this.networkId = this.config ? this.config.network.pubKeyHash : 0x17;
+        this.networkId = this.config ? this.config.get("network.pubKeyHash") : 0x17;
         this.reset();
     }
 
@@ -566,10 +566,12 @@ export class WalletManager {
             return false;
         }
 
-        if (!Array.isArray(this.config.network.exceptions.transactions)) {
+        const exceptions: any = this.config.get("network.exceptions.transactions");
+
+        if (!Array.isArray(exceptions)) {
             return false;
         }
 
-        return this.config.network.exceptions.transactions.includes(transaction.id);
+        return exceptions.includes(transaction.id);
     }
 }

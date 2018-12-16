@@ -16,7 +16,7 @@ export function transformTransaction(model) {
         type: data.type,
         amount: +bignumify(data.amount).toFixed(),
         fee: +bignumify(data.fee).toFixed(),
-        sender: crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
+        sender: crypto.getAddress(data.senderPublicKey, config.get("network.pubKeyHash")),
         recipient: data.recipientId,
         signature: data.signature,
         signSignature: data.signSignature,

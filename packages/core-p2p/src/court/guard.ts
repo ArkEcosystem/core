@@ -188,7 +188,7 @@ class Guard {
      */
     public isValidNetwork(peer) {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
-        return nethash === config.network.nethash;
+        return nethash === config.get("network.nethash");
     }
 
     /**

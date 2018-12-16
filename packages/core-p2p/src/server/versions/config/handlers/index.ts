@@ -9,12 +9,12 @@ export const config = {
             data: {
                 version: app.getVersion(),
                 network: {
-                    version: appConfig.network.pubKeyHash,
-                    nethash: appConfig.network.nethash,
-                    explorer: appConfig.network.client.explorer,
+                    version: appConfig.get("network.pubKeyHash"),
+                    nethash: appConfig.get("network.nethash"),
+                    explorer: appConfig.get("network.client.explorer"),
                     token: {
-                        name: appConfig.network.client.token,
-                        symbol: appConfig.network.client.symbol,
+                        name: appConfig.get("network.client.token"),
+                        symbol: appConfig.get("network.client.symbol"),
                     },
                 },
                 plugins: transformPlugins(appConfig),

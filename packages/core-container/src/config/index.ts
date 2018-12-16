@@ -1,20 +1,11 @@
 import { configManager as crypto } from "@arkecosystem/crypto";
-import axios from "axios";
-import { existsSync, readdirSync, writeFileSync } from "fs-extra";
-import Joi from "joi";
 import get from "lodash/get";
 import set from "lodash/set";
-import { basename, extname, resolve } from "path";
 import { fileLoader, RemoteLoader } from "./loaders";
 import { Network } from "./network";
 
 class Config {
-    public network: any;
-    public peers: any;
-    public delegates: any;
-    public genesisBlock: any;
-    public milestones: any;
-    public dynamicFees: any;
+    private config: Record<string, any>;
 
     public async setUp(opts) {
         if (opts.remote) {
@@ -25,7 +16,7 @@ class Config {
         const { config, files } = await fileLoader.setUp(Network.setUp(opts));
 
         for (const [key, value] of Object.entries(files)) {
-            this[key] = value;
+            this.config[key] = value;
         }
 
         this.configureCrypto(config);
@@ -33,12 +24,16 @@ class Config {
         return this;
     }
 
+    public all(): any {
+        return this.config;
+    }
+
     public get(key: string, defaultValue: any = null): any {
-        return get(this.network, key, defaultValue);
+        return get(this.config, key, defaultValue);
     }
 
     public set(key: string, value: any): void {
-        set(this.network, key, value);
+        set(this.config, key, value);
     }
 
     /**
@@ -57,9 +52,9 @@ class Config {
     private configureCrypto(value: any): void {
         crypto.setConfig(value);
 
-        this.network = crypto.all();
-        this.milestones = crypto.get("milestones");
-        this.dynamicFees = crypto.get("dynamicFees");
+        this.config.network = crypto.all();
+        this.config.milestones = crypto.get("milestones");
+        this.config.dynamicFees = crypto.get("dynamicFees");
     }
 }
 

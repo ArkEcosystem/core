@@ -54,13 +54,15 @@ export class NodeController extends Controller {
         try {
             const feeStatisticsData = await transactionsRepository.getFeeStatistics();
 
+            const network = this.config.get("network");
+
             return {
                 data: {
-                    nethash: this.config.network.nethash,
-                    token: this.config.network.client.token,
-                    symbol: this.config.network.client.symbol,
-                    explorer: this.config.network.client.explorer,
-                    version: this.config.network.pubKeyHash,
+                    nethash: network.nethash,
+                    token: network.client.token,
+                    symbol: network.client.symbol,
+                    explorer: network.client.explorer,
+                    version: network.pubKeyHash,
                     ports: super.toResource(request, this.config, "ports"),
                     constants: this.config.getMilestone(this.blockchain.getLastHeight()),
                     feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),

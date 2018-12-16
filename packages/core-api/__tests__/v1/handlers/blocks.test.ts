@@ -78,7 +78,7 @@ describe("API 1.0 - Blocks", () => {
 
             const config = app.getConfig();
 
-            expect(response.data.nethash).toBe(config.network.nethash);
+            expect(response.data.nethash).toBe(config.get("network.nethash"));
         });
     });
 

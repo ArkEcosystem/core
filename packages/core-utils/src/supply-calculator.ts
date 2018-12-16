@@ -7,7 +7,7 @@ import { Bignum, configManager } from "@arkecosystem/crypto";
  * @return {Number}
  */
 function calculate(height) {
-    const { genesisBlock, milestones } = app.getConfig();
+    const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
         const blockchain = app.resolvePlugin("blockchain");

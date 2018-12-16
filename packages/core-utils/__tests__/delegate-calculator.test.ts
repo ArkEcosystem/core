@@ -1,6 +1,5 @@
 import "./__support__/mocks/core-container-calculator";
 
-import { app } from "@arkecosystem/core-container";
 import { Bignum, models } from "@arkecosystem/crypto";
 import "jest-extended";
 import { calculateApproval, calculateProductivity } from "../src/delegate-calculator";

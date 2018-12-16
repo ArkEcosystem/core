@@ -28,8 +28,8 @@ export class ForgerManager {
         this.logger = app.resolvePlugin("logger");
         this.config = app.getConfig();
 
-        this.secrets = this.config.delegates ? this.config.delegates.secrets : null;
-        this.network = this.config.network;
+        this.secrets = this.config.get("delegates.secrets");
+        this.network = this.config.get("network");
         this.client = new Client(options.hosts);
     }
 

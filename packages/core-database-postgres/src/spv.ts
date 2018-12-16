@@ -7,7 +7,7 @@ import { queries } from "./queries";
 const logger = app.resolvePlugin("logger");
 const config = app.getConfig();
 
-const genesisWallets = config.genesisBlock.transactions.map(tx => tx.senderId);
+const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
 
 export class SPV {
     private connection: any;
