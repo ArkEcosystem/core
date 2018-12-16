@@ -8,7 +8,7 @@ export function registerAddressFormat(ajv) {
         type: "string",
         validate: value => {
             try {
-                return bs58check.decode(value)[0] === config.network.pubKeyHash;
+                return bs58check.decode(value)[0] === config.get("network.pubKeyHash");
             } catch (e) {
                 return false;
             }

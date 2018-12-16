@@ -16,7 +16,7 @@ export function transformTransactionLegacy(model) {
         amount: +bignumify(data.amount).toFixed(),
         fee: +bignumify(data.fee).toFixed(),
         recipientId: data.recipientId,
-        senderId: crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
+        senderId: crypto.getAddress(data.senderPublicKey, config.get("network.pubKeyHash")),
         senderPublicKey: data.senderPublicKey,
         vendorField: data.vendorField,
         signature: data.signature,
