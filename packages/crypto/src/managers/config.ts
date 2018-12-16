@@ -104,15 +104,6 @@ export class ConfigManager {
     }
 
     /**
-     * Get specific config constant based on height 1.
-     * @param  {String} key
-     * @return {*}
-     */
-    public getConstant(key) {
-        return this.getMilestone()[key];
-    }
-
-    /**
      * Get all config constants based on height.
      * @param  {(Number|undefined)} height
      * @return {*}
@@ -164,21 +155,17 @@ export class ConfigManager {
      * Build fees from config constants.
      */
     private buildFees() {
-        Object.keys(TRANSACTION_TYPES).forEach(type =>
-            feeManager.set(TRANSACTION_TYPES[type], this.getConstant("fees").staticFees[camelCase(type)]),
-        );
+        for (const type of Object.keys(TRANSACTION_TYPES)) {
+            feeManager.set(TRANSACTION_TYPES[type], this.getMilestone().fees.staticFees[camelCase(type)]);
+        }
     }
 
     /**
      * Build addon bytes from config constants.
      */
     private buildAddonBytes() {
-        const dynamicFees = this.config.dynamicFees;
-
-        if (dynamicFees.addonBytes) {
-            Object.keys(TRANSACTION_TYPES).forEach(type =>
-                dynamicFeeManager.set(TRANSACTION_TYPES[type], dynamicFees.addonBytes[camelCase(type)]),
-            );
+        for (const type of Object.keys(TRANSACTION_TYPES)) {
+            dynamicFeeManager.set(TRANSACTION_TYPES[type], this.config.dynamicFees.addonBytes[camelCase(type)]);
         }
     }
 }

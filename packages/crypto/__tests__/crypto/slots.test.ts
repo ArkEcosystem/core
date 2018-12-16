@@ -88,12 +88,6 @@ describe("Slots", () => {
         });
     });
 
-    describe("getConstant", () => {
-        it("returns constant", () => {
-            expect(slots.getConstant("epoch")).toBe("2017-03-21T13:00:00.000Z");
-        });
-    });
-
     describe("isForgingAllowed", () => {
         it("returns boolean", () => {
             expect(slots.isForgingAllowed()).toBeDefined();
