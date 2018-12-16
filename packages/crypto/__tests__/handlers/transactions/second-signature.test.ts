@@ -7,6 +7,7 @@ const handler = new SecondSignatureHandler();
 
 let wallet;
 let transaction;
+let errors;
 
 beforeEach(() => {
     wallet = {
@@ -33,16 +34,13 @@ beforeEach(() => {
         recipientId: "DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj",
         id: "e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31",
     };
+
+    errors = [];
 });
 
 describe("SecondSignatureHandler", () => {
-    it("should be instantiated", () => {
-        expect(handler.constructor.name).toBe("SecondSignatureHandler");
-    });
-
     describe("canApply", () => {
         it("should be true", () => {
-            const errors = [];
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
 
             expect(errors).toBeEmpty();
@@ -50,10 +48,16 @@ describe("SecondSignatureHandler", () => {
 
         it("should be false if wallet already has a second signature", () => {
             wallet.secondPublicKey = "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8";
-            const errors = [];
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet already has a second signature");
+        });
+
+        it("should be false if wallet has insufficient funds", () => {
+            wallet.balance = new Bignum(0);
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
         });
     });
 
@@ -67,7 +71,6 @@ describe("SecondSignatureHandler", () => {
         });
 
         it("should be invalid to apply a second signature registration twice", () => {
-            const errors = [];
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
             expect(errors).toBeEmpty();
 

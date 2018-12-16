@@ -10,6 +10,7 @@ const handler = new MultiPaymentHandler();
 
 let wallet;
 let transaction;
+let errors;
 
 beforeEach(() => {
     wallet = originalWallet;
@@ -52,13 +53,11 @@ beforeEach(() => {
             ],
         },
     };
+
+    errors = [];
 });
 
 describe("MultiPaymentHandler", () => {
-    it("should be instantiated", () => {
-        expect(handler.constructor.name).toBe("MultiPaymentHandler");
-    });
-
     describe("canApply", () => {
         it("should be true", () => {
             const amount = sumBy(transaction.asset.payments, (payment: any) => payment.amount.toFixed());
@@ -70,7 +69,13 @@ describe("MultiPaymentHandler", () => {
             const amount = sumBy(transaction.asset.payments, (payment: any) => payment.amount.toFixed());
 
             wallet.balance = Bignum.ZERO;
-            const errors = [];
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
+        });
+
+        it("should be false if wallet has insufficient funds", () => {
+            wallet.balance = new Bignum(0);
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Insufficient balance in the wallet");
