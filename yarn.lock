@@ -2838,7 +2838,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-better-sqlite3@^5.0.1:
+better-sqlite3@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-5.2.0.tgz#5e99744e44bfe7bf1aef71bcf4a6079f7a9181d3"
   integrity sha512-jcrsuySida9dmIJ2+XOklH6Xw8bnYJfT+KoSs9JCNH93Ji6TMoVRkbqR9jyfBqDdAR2BEy4BTC/FrX0nRxu9yA==
