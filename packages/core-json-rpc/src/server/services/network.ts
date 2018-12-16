@@ -18,7 +18,7 @@ class Network {
         this.config = app.getConfig();
         this.p2p = app.resolvePlugin("p2p");
 
-        this.network = configManager.get("name");
+        this.network = configManager.all();
 
         this.__loadRemotePeers();
 

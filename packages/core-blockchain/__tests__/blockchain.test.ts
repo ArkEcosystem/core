@@ -38,7 +38,7 @@ beforeAll(async () => {
     // wrong network config.
     genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
 
-    configManager = container.resolvePlugin("config");
+    configManager = container.getConfig();
 
     // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
     // and otherwise don't pass validation.
