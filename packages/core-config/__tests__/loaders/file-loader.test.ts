@@ -1,19 +1,19 @@
 import "jest-extended";
 
 import { resolve } from "path";
-import { Loader } from "../src/loader";
+import { FileLoader } from "../../src/loaders";
 
-const stubConfigPath = resolve(__dirname, "./__stubs__");
+const stubConfigPath = resolve(__dirname, "../__stubs__");
 
 const stubConfig = {
-    delegates: require("./__stubs__/delegates"),
-    genesisBlock: require("./__stubs__/genesisBlock"),
-    network: require("./__stubs__/network"),
+    delegates: require(resolve(__dirname, "../__stubs__/delegates")),
+    genesisBlock: require(resolve(__dirname, "../__stubs__/genesisBlock")),
+    network: require(resolve(__dirname, "../__stubs__/network")),
 };
 
 let loader;
 beforeEach(() => {
-    loader = new Loader();
+    loader = new FileLoader();
     process.env.ARK_PATH_CONFIG = stubConfigPath;
     process.env.ARK_NETWORK = JSON.stringify(stubConfig.network);
 });

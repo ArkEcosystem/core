@@ -5,7 +5,7 @@ import * as mockProcess from "jest-mock-process";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { RemoteLoader } from "../src/loaders";
+import { RemoteLoader } from "../../src/loaders";
 
 const axiosMock = new MockAdapter(axios);
 const configDir = "./__test-remote-config__";
