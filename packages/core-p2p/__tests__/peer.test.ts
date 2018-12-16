@@ -187,20 +187,4 @@ describe("Peer", () => {
             expect(peerMock.state.height).toBe(1);
         });
     });
-
-    describe("__parseHeaders", () => {
-        it("should be ok", async () => {
-            const headers = {
-                nethash: "nethash",
-                os: "os",
-                version: "version",
-            };
-
-            await peerMock.__parseHeaders({ headers });
-
-            expect(peerMock.nethash).toBe(headers.nethash);
-            expect(peerMock.os).toBe(headers.os);
-            expect(peerMock.version).toBe(headers.version);
-        });
-    });
 });
