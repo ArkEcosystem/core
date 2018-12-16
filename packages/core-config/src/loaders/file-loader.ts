@@ -5,9 +5,9 @@ import Joi from "joi";
 import get from "lodash/get";
 import set from "lodash/set";
 import { basename, extname, resolve } from "path";
-import { schema } from "./schema";
+import { schema } from "../schema";
 
-export class Loader {
+export class FileLoader {
     public network: any;
     public peers: any;
     public delegates: any;

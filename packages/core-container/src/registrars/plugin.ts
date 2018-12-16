@@ -225,6 +225,5 @@ export class PluginRegistrar {
         }
 
         throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
-        process.exit(1);
     }
 }

@@ -77,7 +77,7 @@ describe("Delegate Repository", () => {
             const { count, rows } = repository.findAll();
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
-            expect(rows.sort((a, b) => (a.rate < b.rate))).toEqual(rows);
+            expect(rows.sort((a, b) => a.rate < b.rate)).toEqual(rows);
         });
 
         it("should be ok with params", () => {
@@ -87,7 +87,7 @@ describe("Delegate Repository", () => {
             const { count, rows } = repository.findAll({ offset: 10, limit: 10, orderBy: "rate:desc" });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
-            expect(rows.sort((a, b) => (a.rate > b.rate))).toEqual(rows);
+            expect(rows.sort((a, b) => a.rate > b.rate)).toEqual(rows);
         });
 
         it("should be ok with params (no offset)", () => {
@@ -126,7 +126,7 @@ describe("Delegate Repository", () => {
             const { count, rows } = repository.paginate();
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
-            expect(rows.sort((a, b) => (a.rate < b.rate))).toEqual(rows);
+            expect(rows.sort((a, b) => a.rate < b.rate)).toEqual(rows);
         });
 
         it("should be ok with params", () => {
@@ -136,7 +136,7 @@ describe("Delegate Repository", () => {
             const { count, rows } = repository.paginate({ offset: 10, limit: 10, orderBy: "rate:desc" });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
-            expect(rows.sort((a, b) => (a.rate > b.rate))).toEqual(rows);
+            expect(rows.sort((a, b) => a.rate > b.rate)).toEqual(rows);
         });
 
         it("should be ok with params (no offset)", () => {

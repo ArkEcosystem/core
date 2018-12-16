@@ -1,9 +1,9 @@
 import { createContainer } from "awilix";
+import { execSync } from "child_process";
 import delay from "delay";
 import semver from "semver";
 import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
-import { RemoteLoader } from "./remote-loader";
 
 export class Container {
     public container: any;
@@ -11,11 +11,11 @@ export class Container {
     public exitEvents: any;
     public silentShutdown: boolean;
     public hashid: string;
-    public env: Environment;
     public plugins: any;
     public shuttingDown: boolean;
     public version: string;
     public isReady: boolean = false;
+    public variables: any;
 
     /**
      * Create a new container instance.
@@ -23,7 +23,6 @@ export class Container {
      */
     constructor() {
         this.container = createContainer();
-        this.exitEvents = ["SIGINT", "exit"];
 
         /**
          * May be used by CLI programs to suppress the shutdown
@@ -36,13 +35,17 @@ export class Container {
          * easily idenfity nodes based on their commit hash and version.
          */
         try {
-            this.hashid = require("child_process")
-                .execSync("git rev-parse --short=8 HEAD")
+            this.hashid = execSync("git rev-parse --short=8 HEAD")
                 .toString()
                 .trim();
         } catch (e) {
             this.hashid = "unknown";
         }
+
+        /**
+         * Register any exit signal handling.
+         */
+        this.registerExitHandler(["SIGINT", "exit"]);
     }
 
     /**
@@ -52,21 +55,16 @@ export class Container {
      * @param  {Object} options
      * @return {void}
      */
-    public async setUp(version, variables, options: any = {}) {
+    public async setUp(version: string, variables: any, options: any = {}) {
         this.options = options;
-
-        this.__registerExitHandler();
+        this.variables = variables;
 
         this.setVersion(version);
 
-        if (variables.remote) {
-            const remoteLoader = new RemoteLoader(variables);
-            await remoteLoader.setUp();
-        }
+        // Register the environment variables
+        new Environment(variables).setUp();
 
-        this.env = new Environment(variables);
-        this.env.setUp();
-
+        // Mainly used for testing environments!
         if (options.skipPlugins) {
             this.isReady = true;
             return;
@@ -229,7 +227,7 @@ export class Container {
      * Handle any exit signals.
      * @return {void}
      */
-    public __registerExitHandler() {
+    private registerExitHandler(exitEvents: string[]) {
         const handleExit = async () => {
             if (this.shuttingDown) {
                 return;
@@ -266,6 +264,6 @@ export class Container {
         };
 
         // Handle exit events
-        this.exitEvents.forEach(eventType => process.on(eventType, handleExit));
+        exitEvents.forEach(eventType => process.on(eventType as any, handleExit));
     }
 }
