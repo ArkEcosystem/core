@@ -12,8 +12,14 @@ describe("Identities - Address", () => {
     });
 
     describe("fromPublicKey", () => {
-        it("should be OK", () => {
+        it("should pass with a valid public key", () => {
             expect(Address.fromPublicKey(data.publicKey)).toBe(data.address);
+        });
+
+        it("should fail with an invalid public key", () => {
+            expect(() => {
+                Address.fromPublicKey("invalid");
+            }).toThrow(`publicKey 'invalid' is invalid`);
         });
     });
 
@@ -24,8 +30,12 @@ describe("Identities - Address", () => {
     });
 
     describe("validate", () => {
-        it("should be OK", () => {
+        it("should pass with a valid address", () => {
             expect(Address.validate(data.address)).toBeTrue();
+        });
+
+        it("should fail with an invalid address", () => {
+            expect(Address.validate("invalid")).toBeFalse();
         });
     });
 });
