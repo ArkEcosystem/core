@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import { transactionBuilder } from "../../../src";
 import { VoteHandler } from "../../../src/handlers/transactions/vote";
 import { Bignum } from "../../../src/utils/bignum";
 
@@ -86,7 +85,7 @@ describe("VoteHandler", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = new Bignum(0);
+            wallet.balance = Bignum.ZERO;
 
             expect(handler.canApply(wallet, voteTransaction, errors)).toBeFalse();
             expect(errors).toContain("Insufficient balance in the wallet");

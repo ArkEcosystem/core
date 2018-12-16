@@ -17,15 +17,17 @@ export class MultiPaymentHandler extends Handler {
 
         const amount = sumBy(transaction.asset.payments, (payment: any) => payment.amount.toFixed());
 
-        const canApply =
-            +wallet.balance
+        if (
+            wallet.balance
                 .minus(amount)
                 .minus(transaction.fee)
-                .toFixed() >= 0;
-        if (!canApply) {
+                .isLessThan(0)
+        ) {
             errors.push("Insufficient balance in the wallet");
+            return false;
         }
-        return canApply;
+
+        return true;
     }
 
     /**
