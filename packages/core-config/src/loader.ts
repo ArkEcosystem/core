@@ -25,21 +25,25 @@ export class Loader {
     public async setUp(options: object = {}): Promise<void> {
         this.options = options;
 
-        const { value, error } = Joi.validate(JSON.parse(process.env.ARK_NETWORK), schema);
+        try {
+            const { value, error } = Joi.validate(JSON.parse(process.env.ARK_NETWORK), schema);
 
-        if (error) {
+            if (error) {
+                throw error;
+            }
+
+            await this.createFromDirectory();
+
+            configManager.setConfig(value);
+
+            // TODO: change once the config object has been implemented
+            this.network = configManager.all();
+            this.milestones = configManager.get("milestones");
+            this.dynamicFees = configManager.get("dynamicFees");
+        } catch (error) {
             console.error(error.message);
             process.exit(1);
         }
-
-        await this.__createFromDirectory();
-
-        configManager.setConfig(value);
-
-        // TODO: change once the config object has been implemented
-        this.network = configManager.all();
-        this.milestones = configManager.get("milestones");
-        this.dynamicFees = configManager.get("dynamicFees");
     }
 
     public get(key: string, defaultValue: any = null): any {
@@ -65,12 +69,12 @@ export class Loader {
      * Load and bind the config.
      * @return {void}
      */
-    public async __createFromDirectory(): Promise<void> {
-        const files: Record<string, string> = this.__getFiles();
+    private async createFromDirectory(): Promise<void> {
+        const files: Record<string, string> = this.getFiles();
 
-        this.__createBindings(files);
+        this.createBindings(files);
 
-        await this.__buildPeers(files.peers);
+        await this.buildPeers(files.peers);
     }
 
     /**
@@ -78,7 +82,7 @@ export class Loader {
      * @param  {Object} files
      * @return {void}
      */
-    public __createBindings(files: Record<string, string>): void {
+    private createBindings(files: Record<string, string>): void {
         for (const [key, value] of Object.entries(files)) {
             this[key] = require(value);
         }
@@ -88,12 +92,11 @@ export class Loader {
      * Get all config files.
      * @return {Object}
      */
-    public __getFiles(): Record<string, string> {
+    private getFiles(): Record<string, string> {
         const basePath = resolve(process.env.ARK_PATH_CONFIG);
 
         if (!existsSync(basePath)) {
             throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
-            process.exit(1);
         }
 
         const configTree = {};
@@ -111,7 +114,7 @@ export class Loader {
      * @param  {String} configFile
      * @return {void}
      */
-    public async __buildPeers(configFile: string): Promise<void> {
+    private async buildPeers(configFile: string): Promise<void> {
         if (this.peers.sources) {
             const output = require(configFile);
 

@@ -4,31 +4,27 @@ import { existsSync } from "fs-extra";
 import { resolve } from "path";
 
 export class Environment {
-    private variables: any;
-
     /**
      * Create a new environment instance.
      * @param  {Object} variables
      * @return {void}
      */
-    constructor(variables) {
-        this.variables = variables;
-    }
+    constructor(readonly variables: any) {}
 
     /**
      * Set up the environment variables.
      */
     public setUp() {
-        this.__exportPaths();
-        this.__exportNetwork();
-        this.__exportVariables();
+        this.exportPaths();
+        this.exportNetwork();
+        this.exportVariables();
     }
 
     /**
      * Export all path variables for the core environment.
      * @return {void}
      */
-    public __exportPaths() {
+    private exportPaths() {
         const allowedKeys = ["config", "data"];
 
         for (const [key, value] of Object.entries(this.variables)) {
@@ -42,7 +38,7 @@ export class Environment {
      * Export all network variables for the core environment.
      * @return {void}
      */
-    public __exportNetwork() {
+    private exportNetwork() {
         let config;
 
         if (this.variables.token && this.variables.network) {
@@ -61,7 +57,6 @@ export class Environment {
             throw new Error(
                 "An invalid network configuration was provided or is inaccessible due to it's security settings.",
             );
-            process.exit(1);
         }
 
         process.env.ARK_NETWORK = JSON.stringify(config);
@@ -72,9 +67,8 @@ export class Environment {
      * Export all additional variables for the core environment.
      * @return {void}
      */
-    public __exportVariables() {
-        // Don't pollute the test environment, which is more in line with how
-        // travis runs the tests.
+    private exportVariables() {
+        // Don't pollute the test environment!
         if (process.env.NODE_ENV === "test") {
             return;
         }
