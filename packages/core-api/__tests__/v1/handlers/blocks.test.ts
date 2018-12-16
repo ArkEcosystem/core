@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import "@arkecosystem/core-test-utils";
 import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../../__support__/setup";
@@ -75,8 +76,7 @@ describe("API 1.0 - Blocks", () => {
 
             expect(response.data.nethash).toBeString();
 
-            const { app: container } = require("@arkecosystem/core-container");
-            const config = container.getConfig();
+            const config = app.getConfig();
 
             expect(response.data.nethash).toBe(config.network.nethash);
         });
