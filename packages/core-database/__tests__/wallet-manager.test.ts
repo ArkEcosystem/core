@@ -326,38 +326,6 @@ describe("Wallet Manager", () => {
         });
     });
 
-    describe("__canBePurged", () => {
-        it("should be removed if all criteria are satisfied", async () => {
-            const wallet = new Wallet(walletData1.address);
-
-            expect(walletManager.__canBePurged(wallet)).toBeTrue();
-        });
-
-        it("should not be removed if wallet.secondPublicKey is set", async () => {
-            const wallet = new Wallet(walletData1.address);
-            wallet.secondPublicKey = "secondPublicKey";
-
-            expect(wallet.secondPublicKey).toBe("secondPublicKey");
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
-        });
-
-        it("should not be removed if wallet.multisignature is set", async () => {
-            const wallet = new Wallet(walletData1.address);
-            wallet.multisignature = "multisignature";
-
-            expect(wallet.multisignature).toBe("multisignature");
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
-        });
-
-        it("should not be removed if wallet.username is set", async () => {
-            const wallet = new Wallet(walletData1.address);
-            wallet.username = "username";
-
-            expect(wallet.username).toBe("username");
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
-        });
-    });
-
     describe("purgeEmptyNonDelegates", () => {
         it("should be purged if all criteria are satisfied", async () => {
             const wallet1 = new Wallet(walletData1.address);
