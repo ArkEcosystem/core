@@ -7,6 +7,7 @@ const handler = new DelegateRegistrationHandler();
 
 let wallet;
 let transaction;
+let errors;
 
 beforeEach(() => {
     wallet = originalWallet;
@@ -31,13 +32,11 @@ beforeEach(() => {
             },
         },
     };
+
+    errors = [];
 });
 
 describe("DelegateRegistrationHandler", () => {
-    it("should be instantiated", () => {
-        expect(handler.constructor.name).toBe("DelegateRegistrationHandler");
-    });
-
     describe("canApply", () => {
         it("should be true", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
@@ -45,10 +44,16 @@ describe("DelegateRegistrationHandler", () => {
 
         it("should be false if wallet already registered a username", () => {
             wallet.username = "dummy";
-            const errors = [];
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet already has a registered username");
+        });
+
+        it("should be false if wallet has insufficient funds", () => {
+            wallet.balance = new Bignum(0);
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
         });
     });
 

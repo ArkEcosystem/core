@@ -9,6 +9,7 @@ const handler = new MultiSignatureHandler();
 let wallet;
 let transaction;
 let multisignatureTest;
+let errors;
 
 beforeEach(() => {
     wallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
@@ -94,13 +95,11 @@ beforeEach(() => {
             "03206f7ae26f14cffb62b8c28b5e632952cdeb84b7c74ac0c2198b08bd84ee4f23",
         ],
     };
+
+    errors = [];
 });
 
 describe("MultiSignatureHandler", () => {
-    it("should be instantiated", () => {
-        expect(handler.constructor.name).toBe("MultiSignatureHandler");
-    });
-
     describe("canApply", () => {
         it("should be true", () => {
             delete wallet.multisignature;
@@ -110,7 +109,6 @@ describe("MultiSignatureHandler", () => {
 
         it("should be false if failure to verify signatures", () => {
             wallet.multisignature = multisignatureTest;
-            const errors = [];
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Failed to verify multi-signatures");
@@ -119,10 +117,18 @@ describe("MultiSignatureHandler", () => {
         it("should be false if keyCount is less than minimum", () => {
             wallet.multisignature = multisignatureTest;
             wallet.multisignature.min = 20;
-            const errors = [];
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Failed to verify multi-signatures");
+        });
+
+        it("should be false if wallet has insufficient funds", () => {
+            delete wallet.multisignature;
+
+            wallet.balance = new Bignum(0);
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
         });
     });
 

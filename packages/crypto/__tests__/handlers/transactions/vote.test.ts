@@ -1,100 +1,153 @@
 import "jest-extended";
 
+import { transactionBuilder } from "../../../src";
 import { VoteHandler } from "../../../src/handlers/transactions/vote";
 import { Bignum } from "../../../src/utils/bignum";
 
 const handler = new VoteHandler();
 
 let wallet;
-let transaction;
+let voteTransaction;
+let unvoteTransaction;
+let errors;
 
 beforeEach(() => {
     wallet = {
         address: "DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh",
         balance: new Bignum("6453530000000"),
-        publicKey: "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
+        publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
         vote: null,
     };
 
-    transaction = {
-        version: 1,
-        id: "44d6f5ac5fbb6104ee250f6b5cb43401961114263499fd067922f3e2a9cb9d24",
-        blockid: "5273958469976113749",
-        type: 3,
-        timestamp: 36345270,
-        amount: Bignum.ZERO,
-        fee: new Bignum(100000000),
-        senderId: "DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh",
-        recipientId: "DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh",
-        senderPublicKey: "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
+    voteTransaction = {
+        id: "73cbce62d69308ff7e69f1a7836106a16dc59907198aea4bb80d340232e53041",
         signature:
-            "304402204da11f2677ea67ad3718520020eb2e2d43b5c83f947490d2b454ce3ec0f1dcba022011a00e3c3febdaf531a404d728b111812647c2f0e33df439c7cbae01dcb702ba",
+            "3045022100f53da6eb18ca7954bb7c620ceeaf5cb3433685d173401146aea35ee8e5f5c95002204ea57f573745c8f5c57b256e38397d3e1977bdbfac295128320401c6117bb2f3",
+        timestamp: 54833694,
+        type: 3,
+        fee: new Bignum(100000000),
+        senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
+        amount: Bignum.ZERO,
+        recipientId: "DLvBAvLePTJ9DfDzby5AAkqPqwCVDCT647",
         asset: {
-            votes: ["+0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0"],
+            votes: ["+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af"],
         },
-        confirmations: 19771,
     };
+
+    unvoteTransaction = {
+        id: "d714bc0443208f9281ad83f9f3d941628b875c84f65a09601148ce87ca879cb9",
+        signature:
+            "3045022100957106a924eb40df6ff530cff80fede0195c30284fdb5671e736c7d0b57696f6022072b0fd80af235d79701e9aea74ef48366ef9f5aecedbb5d502e6392569c059c8",
+        timestamp: 54833718,
+        type: 3,
+        fee: new Bignum(100000000),
+        senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
+        amount: Bignum.ZERO,
+        recipientId: "DLvBAvLePTJ9DfDzby5AAkqPqwCVDCT647",
+        asset: {
+            votes: ["-02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af"],
+        },
+    };
+
+    errors = [];
 });
 
 describe("VoteHandler", () => {
-    it("should be instantiated", () => {
-        expect(handler.constructor.name).toBe("VoteHandler");
-    });
-
     describe("canApply", () => {
-        it("should be false if wallet has already voted", () => {
-            wallet.vote = "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
-            const errors = [];
+        it("should be true if the vote is valid and the wallet has not voted", () => {
+            expect(handler.canApply(wallet, voteTransaction, errors)).toBeTrue();
+            expect(errors).toBeEmpty();
+        });
 
-            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+        it("should be true if the unvote is valid and the wallet has voted", () => {
+            wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+
+            expect(handler.canApply(wallet, unvoteTransaction, errors)).toBeTrue();
+            expect(errors).toBeEmpty();
+        });
+
+        it("should be false if wallet has already voted", () => {
+            wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+
+            expect(handler.canApply(wallet, voteTransaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet has already voted");
         });
-        it("should be false if tx vote-choice does not match wallet vote-choice", () => {
+
+        it("should be false if the asset public key differs from the currently voted one", () => {
             wallet.vote = "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
-            transaction.asset.votes[0] = "-0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
-            const errors = [];
 
-            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
-            expect(errors).toContain("Wallet vote-choice does not match transaction vote-choice");
+            expect(handler.canApply(wallet, unvoteTransaction, errors)).toBeFalse();
+            expect(errors).toContain("The unvote public key does not match the currently voted one");
         });
-        it("should be false if unvoting a non-voted wallet", () => {
-            transaction.asset.votes[0] = "-0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
-            const errors = [];
 
-            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+        it("should be false if unvoting a non-voted wallet", () => {
+            expect(handler.canApply(wallet, unvoteTransaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet has not voted yet");
+        });
+
+        it("should be false if wallet has insufficient funds", () => {
+            wallet.balance = new Bignum(0);
+
+            expect(handler.canApply(wallet, voteTransaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
         });
     });
 
     describe("apply", () => {
-        it("should be ok", () => {
-            expect(wallet.vote).toBeNull();
+        describe("vote", () => {
+            it("should be ok", () => {
+                expect(wallet.vote).toBeNull();
 
-            handler.apply(wallet, transaction);
+                handler.apply(wallet, voteTransaction);
 
-            expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeNull();
+            });
+
+            it("should not be ok", () => {
+                wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+
+                expect(wallet.vote).not.toBeNull();
+
+                handler.apply(wallet, voteTransaction);
+
+                expect(wallet.vote).not.toBeNull();
+            });
         });
 
-        it("should not be ok", () => {
-            wallet.vote = "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
+        describe("unvote", () => {
+            it("should remove the vote from the wallet", () => {
+                wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
 
-            expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeNull();
 
-            handler.apply(wallet, transaction);
+                handler.apply(wallet, unvoteTransaction);
 
-            expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).toBeNull();
+            });
         });
     });
 
     describe("revert", () => {
-        it("should be ok", () => {
-            wallet.vote = "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
+        describe("vote", () => {
+            it("should remove the vote from the wallet", () => {
+                wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
 
-            expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeNull();
 
-            handler.revert(wallet, transaction);
+                handler.revert(wallet, voteTransaction);
 
-            expect(wallet.vote).toBeNull();
+                expect(wallet.vote).toBeNull();
+            });
+        });
+
+        describe("unvote", () => {
+            it("should add the vote to the wallet", () => {
+                expect(wallet.vote).toBeNull();
+
+                handler.revert(wallet, unvoteTransaction);
+
+                expect(wallet.vote).toBe("02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af");
+            });
         });
     });
 });

@@ -18,8 +18,9 @@ export class VoteHandler extends Handler {
             if (!wallet.vote) {
                 errors.push("Wallet has not voted yet");
             } else {
-                errors.push("Wallet vote-choice does not match transaction vote-choice");
+                errors.push("The unvote public key does not match the currently voted one");
             }
+
             return false;
         }
 
