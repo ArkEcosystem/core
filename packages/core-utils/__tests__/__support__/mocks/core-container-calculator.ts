@@ -14,6 +14,14 @@ jest.mock("@arkecosystem/core-container", () => {
                     };
                 }
 
+                if (name === "blockchain") {
+                    return {
+                        getLastBlock: () => ({
+                            data: { height: 1 },
+                        }),
+                    };
+                }
+
                 return {};
             },
         },
