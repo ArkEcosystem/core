@@ -1,14 +1,11 @@
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
-import { crypto, slots } from "@arkecosystem/crypto";
+import { crypto } from "@arkecosystem/crypto";
 import { TransactionGuard } from "../src/guard";
 
 import bip39 from "bip39";
 import { setUpFull, tearDown } from "./__support__/setup";
-
-import { TransactionPool } from "../src/connection";
-import { defaults } from "../src/defaults";
 
 const {
     generateDelegateRegistration,
