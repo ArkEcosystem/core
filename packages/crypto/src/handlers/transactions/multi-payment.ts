@@ -23,7 +23,7 @@ export class MultiPaymentHandler extends Handler {
                 .minus(transaction.fee)
                 .isLessThan(0)
         ) {
-            errors.push("Insufficient balance in the wallet");
+            errors.push("Insufficient balance in the wallet to transfer all payments");
             return false;
         }
 

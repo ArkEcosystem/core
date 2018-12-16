@@ -1,8 +1,10 @@
 import "jest-extended";
 
+import { crypto } from "../../../src/crypto";
 import { MultiSignatureHandler } from "../../../src/handlers/transactions/multi-signature";
 import { Wallet } from "../../../src/models/wallet";
 import { Bignum } from "../../../src/utils/bignum";
+import { transactionValidator } from "../../../src/validation";
 
 const handler = new MultiSignatureHandler();
 
@@ -123,19 +125,27 @@ describe("MultiSignatureHandler", () => {
             expect(errors).toEqual(["Failed to verify multi-signatures"]);
         });
 
-        it.skip("should be false if the number of keys is less than minimum", () => {
-            // transaction.asset.multisignature.keysgroup.length < transaction.asset.multisignature.min
+        it("should be false if the number of keys is less than minimum", () => {
+            delete wallet.multisignature;
 
             wallet.verifySignatures = jest.fn(() => true);
+            crypto.verifySecondSignature = jest.fn(() => true);
+            transactionValidator.validate = jest.fn(() => ({ fails: false }));
+
+            transaction.asset.multisignature.keysgroup.splice(0, 5);
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toEqual(["Specified key count does not meet minimum key count"]);
         });
 
-        it.skip("should be false if the number of keys does not equal the signature count", () => {
-            // transaction.asset.multisignature.keysgroup.length !== transaction.signatures.length
+        it("should be false if the number of keys does not equal the signature count", () => {
+            delete wallet.multisignature;
 
             wallet.verifySignatures = jest.fn(() => true);
+            crypto.verifySecondSignature = jest.fn(() => true);
+            transactionValidator.validate = jest.fn(() => ({ fails: false }));
+
+            transaction.signatures.splice(0, 5);
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toEqual(["Specified key count does not equal signature count"]);
