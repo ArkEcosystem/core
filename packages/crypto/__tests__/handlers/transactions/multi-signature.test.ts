@@ -100,7 +100,7 @@ beforeEach(() => {
 });
 
 describe("MultiSignatureHandler", () => {
-    describe.only("canApply", () => {
+    describe("canApply", () => {
         it("should be true", () => {
             delete wallet.multisignature;
 
