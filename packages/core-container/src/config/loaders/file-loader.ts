@@ -7,86 +7,40 @@ import set from "lodash/set";
 import { basename, extname, resolve } from "path";
 import { schema } from "../schema";
 
-export class FileLoader {
-    public network: any;
-    public peers: any;
-    public delegates: any;
-    public genesisBlock: any;
-    public milestones: any;
-    public dynamicFees: any;
-
-    private options: any;
-
+class FileLoader {
     /**
      * Make the config instance.
-     * @param  {Object} options
+     * @param  {Object} opts
      * @return {Loader}
      */
-    public async setUp(network, options: object = {}) {
-        if (!network) {
+    public async setUp(opts) {
+        if (!opts) {
             throw new Error("Invalid network configuration provided.");
         }
 
-        this.options = options;
-
-        const { value, error } = Joi.validate(network, schema);
+        const { value, error } = Joi.validate(opts, schema);
 
         if (error) {
             throw error;
         }
 
-        await this.createFromDirectory();
-
-        configManager.setConfig(value);
-
-        // TODO: change once the config object has been implemented
-        this.network = configManager.all();
-        this.milestones = configManager.get("milestones");
-        this.dynamicFees = configManager.get("dynamicFees");
-
-        return this;
-    }
-
-    public get(key: string, defaultValue: any = null): any {
-        // TODO: change to a config object that holds all values
-        return get(this.network, key, defaultValue);
-    }
-
-    public set(key: string, value: any): void {
-        // TODO: change to a config object that holds all values
-        set(this.network, key, value);
-    }
-
-    /**
-     * Get constants for the specified height.
-     * @param  {Number} height
-     * @return {void}
-     */
-    public getMilestone(height: number): void {
-        return configManager.getMilestone(height);
+        return { config: value, files: await this.createFromDirectory() };
     }
 
     /**
      * Load and bind the config.
      * @return {void}
      */
-    private async createFromDirectory(): Promise<void> {
+    private async createFromDirectory() {
         const files: Record<string, string> = this.getFiles();
 
-        this.createBindings(files);
+        for (const [key, value] of Object.entries(files)) {
+            files[key] = require(value);
+        }
 
         await this.buildPeers(files.peers);
-    }
 
-    /**
-     * Bind the config values to the instance.
-     * @param  {Object} files
-     * @return {void}
-     */
-    private createBindings(files: Record<string, string>): void {
-        for (const [key, value] of Object.entries(files)) {
-            this[key] = require(value);
-        }
+        return files;
     }
 
     /**
@@ -115,16 +69,14 @@ export class FileLoader {
      * @param  {String} configFile
      * @return {void}
      */
-    private async buildPeers(configFile: string): Promise<void> {
-        if (this.peers.sources) {
-            const output = require(configFile);
-
-            for (const source of this.peers.sources) {
+    private async buildPeers(configFile: any): Promise<void> {
+        if (configFile.sources) {
+            for (const source of configFile.sources) {
                 // Local File...
                 if (source.startsWith("/")) {
-                    output.list = require(source);
+                    configFile.list = require(source);
 
-                    writeFileSync(configFile, JSON.stringify(output, null, 2));
+                    writeFileSync(configFile, JSON.stringify(configFile, null, 2));
 
                     break;
                 }
@@ -133,9 +85,9 @@ export class FileLoader {
                 try {
                     const response = await axios.get(source);
 
-                    output.list = response.data;
+                    configFile.list = response.data;
 
-                    writeFileSync(configFile, JSON.stringify(output, null, 2));
+                    writeFileSync(configFile, JSON.stringify(configFile, null, 2));
 
                     break;
                 } catch (error) {
@@ -145,3 +97,5 @@ export class FileLoader {
         }
     }
 }
+
+export const fileLoader = new FileLoader();
