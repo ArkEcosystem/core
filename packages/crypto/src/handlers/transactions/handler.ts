@@ -34,6 +34,7 @@ export abstract class Handler {
             errors.push("Insufficient balance in the wallet");
             return false;
         }
+
         if (!(transaction.senderPublicKey.toLowerCase() === wallet.publicKey.toLowerCase())) {
             errors.push('wallet "publicKey" does not match transaction "senderPublicKey"');
             return false;
