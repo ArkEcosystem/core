@@ -29,7 +29,7 @@ export abstract class Handler {
             wallet.balance
                 .minus(transaction.amount)
                 .minus(transaction.fee)
-                .isLessThanOrEqualTo(0)
+                .isLessThan(0)
         ) {
             errors.push("Insufficient balance in the wallet");
             return false;
