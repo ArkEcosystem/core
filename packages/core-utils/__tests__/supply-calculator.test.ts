@@ -9,11 +9,9 @@ const mockConfig = {
     milestones: [{ height: 1, reward: 2 }],
 };
 
-app.resolvePlugin = jest.fn(plugin => {
-    if (plugin === "config") {
-        return mockConfig;
-    }
+app.getConfig = jest.fn(() => mockConfig);
 
+app.resolvePlugin = jest.fn(plugin => {
     if (plugin === "blockchain") {
         return {
             getLastBlock: () => {
