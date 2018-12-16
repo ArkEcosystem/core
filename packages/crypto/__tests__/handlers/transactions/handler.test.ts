@@ -7,6 +7,7 @@ import { Bignum } from "../../../src/utils/bignum";
 let handler;
 let wallet;
 let transaction;
+let transactionWithSecondSignature;
 let errors;
 
 class FakeHandler extends Handler {
@@ -25,35 +26,41 @@ beforeEach(() => {
     handler = new FakeHandler();
 
     wallet = {
-        address: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
+        address: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
         balance: new Bignum(4527654310),
-        publicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
+        publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
     };
 
     transaction = {
-        version: 1,
-        id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-        blockid: "11233167632577333611",
-        type: 0,
-        timestamp: 36482198,
-        amount: new Bignum(100000000),
-        fee: new Bignum(10000000),
-        senderId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
-        recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
-        senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
+        id: "65a4f09a3a19d212a65d27de05d1ae7e0c461e088a35499996667f98d2a3897c",
         signature:
-            "304402205881204c6e515965098099b0e20a7bf104cd1bad6cfe8efd1641729fcbfdbf1502203cfa3bd9efb2ad250e2709aaf719ac0db04cb85d27a96bc8149aeaab224de82b",
-        asset: {},
+            "304402206974568da7c363155decbc20ddc17746a2e7e663901c426f5a41411374cc6d18022052f4353ec93227713f9907f2bb2549e6bc42584b736aa5f9ff36e2c239154648",
+        timestamp: 54836734,
+        type: 0,
+        fee: new Bignum(10000000),
+        senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
+        amount: new Bignum(10000000),
+        recipientId: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
+    };
+
+    transactionWithSecondSignature = {
+        id: "e3b29bba60d5f1f2aad2087dea44644f166b00ae3db1a16a99b622dc4f3900f8",
+        signature:
+            "304402206974568da7c363155decbc20ddc17746a2e7e663901c426f5a41411374cc6d18022052f4353ec93227713f9907f2bb2549e6bc42584b736aa5f9ff36e2c239154648",
+        signSignature:
+            "304402202d0ae57c6a0afb225443b56c6e049cb08df48b5813362f7e11574b96f225738f0220055b5a941cc70100404a7788c57b37e2e806acf58c4284c567dc53477f546540",
+        timestamp: 54836734,
+        type: 0,
+        fee: new Bignum(10000000),
+        senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
+        amount: new Bignum(10000000),
+        recipientId: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
     };
 
     errors = [];
 });
 
 describe("Handler", () => {
-    it("should be instantiated", () => {
-        expect(handler.constructor.name).toBe("FakeHandler");
-    });
-
     describe("canApply", () => {
         it("should be true", () => {
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
@@ -73,6 +80,26 @@ describe("Handler", () => {
             wallet.publicKey = wallet.publicKey.toLowerCase();
 
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
+        });
+
+        it("should be false if the transaction has a second signature but wallet does not", () => {
+            expect(handler.canApply(wallet, transactionWithSecondSignature, errors)).toBeFalse();
+            expect(errors).toContain("Invalid second-signature field");
+        });
+
+        it("should be false if the wallet has a second public key but the transaction second signature does not match", () => {
+            transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
+            wallet.secondPublicKey = "invalid-public-key";
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Failed to verify second-signature");
+        });
+
+        it("should be false if the validation fails", () => {
+            delete transaction.senderPublicKey;
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain('child "senderPublicKey" fails because ["senderPublicKey" is required]');
         });
     });
 

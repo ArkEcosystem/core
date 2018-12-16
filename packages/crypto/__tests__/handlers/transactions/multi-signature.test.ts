@@ -100,7 +100,7 @@ beforeEach(() => {
 });
 
 describe("MultiSignatureHandler", () => {
-    describe("canApply", () => {
+    describe.only("canApply", () => {
         it("should be true", () => {
             delete wallet.multisignature;
 
@@ -111,21 +111,23 @@ describe("MultiSignatureHandler", () => {
             wallet.multisignature = multisignatureTest;
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
-            expect(errors).toContain("Failed to verify multi-signatures");
+            expect(errors).toEqual(["Failed to verify multi-signatures"]);
         });
 
-        it("should be false if keyCount is less than minimum", () => {
-            wallet.multisignature = multisignatureTest;
-            wallet.multisignature.min = 20;
-
+        it.skip("should be false if the number of keys is less than minimum", () => {
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
-            expect(errors).toContain("Failed to verify multi-signatures");
+            expect(errors).toEqual(["Specified key count does not meet minimum key count"]);
+        });
+
+        it.skip("should be false if the number of keys does not equal the signature count", () => {
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toEqual(["Specified key count does not equal signature count"]);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             delete wallet.multisignature;
 
-            wallet.balance = new Bignum(0);
+            wallet.balance = Bignum.ZERO;
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Insufficient balance in the wallet");
