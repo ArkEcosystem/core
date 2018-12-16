@@ -30,11 +30,12 @@ export class MultiSignatureHandler extends Handler {
             return false;
         }
 
-        const canApply = wallet.verifySignatures(transaction, transaction.asset.multisignature);
-        if (!canApply) {
+        if (!wallet.verifySignatures(transaction, transaction.asset.multisignature)) {
             errors.push("Failed to verify multi-signatures");
+            return false;
         }
-        return canApply;
+
+        return true;
     }
 
     /**

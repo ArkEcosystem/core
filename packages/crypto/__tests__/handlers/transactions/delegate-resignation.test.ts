@@ -34,7 +34,7 @@ describe("DelegateResignationHandler", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = new Bignum(0);
+            wallet.balance = Bignum.ZERO;
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Insufficient balance in the wallet");

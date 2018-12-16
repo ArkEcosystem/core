@@ -10,9 +10,9 @@ export abstract class Handler {
      * @param {Array} errors
      * @return {Boolean}
      */
-    public canApply(wallet, transaction, errors) {
+    public canApply(wallet, transaction, errors: string[]) {
         const validationResult = transactionValidator.validate(transaction);
-        assert.ok(errors instanceof Array);
+
         if (validationResult.fails) {
             errors.push(validationResult.fails.message);
             return false;
@@ -25,11 +25,12 @@ export abstract class Handler {
             }
         }
 
-        const balance = +wallet.balance
-            .minus(transaction.amount)
-            .minus(transaction.fee)
-            .toFixed();
-        if (balance < 0) {
+        if (
+            wallet.balance
+                .minus(transaction.amount)
+                .minus(transaction.fee)
+                .isLessThan(0)
+        ) {
             errors.push("Insufficient balance in the wallet");
             return false;
         }
