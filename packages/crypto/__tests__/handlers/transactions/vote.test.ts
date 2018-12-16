@@ -9,6 +9,7 @@ const handler = new VoteHandler();
 let wallet;
 let voteTransaction;
 let unvoteTransaction;
+let errors;
 
 beforeEach(() => {
     wallet = {
@@ -47,20 +48,19 @@ beforeEach(() => {
             votes: ["-02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af"],
         },
     };
+
+    errors = [];
 });
 
 describe("VoteHandler", () => {
     describe("canApply", () => {
         it("should be true if the vote is valid and the wallet has not voted", () => {
-            const errors = [];
-
             expect(handler.canApply(wallet, voteTransaction, errors)).toBeTrue();
             expect(errors).toBeEmpty();
         });
 
         it("should be true if the unvote is valid and the wallet has voted", () => {
             wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
-            const errors = [];
 
             expect(handler.canApply(wallet, unvoteTransaction, errors)).toBeTrue();
             expect(errors).toBeEmpty();
@@ -68,26 +68,20 @@ describe("VoteHandler", () => {
 
         it("should be false if wallet has already voted", () => {
             wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
-            const errors = [];
 
             expect(handler.canApply(wallet, voteTransaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet has already voted");
         });
 
-        it("should be false if tx vote-choice does not match wallet vote-choice", () => {
+        it("should be false if the asset public key differs from the currently voted one", () => {
             wallet.vote = "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
-            voteTransaction.asset.votes[0] = "-02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
-            const errors = [];
 
-            expect(handler.canApply(wallet, voteTransaction, errors)).toBeFalse();
-            expect(errors).toContain("Wallet vote-choice does not match transaction vote-choice");
+            expect(handler.canApply(wallet, unvoteTransaction, errors)).toBeFalse();
+            expect(errors).toContain("The unvote public key does not match the currently voted one");
         });
 
         it("should be false if unvoting a non-voted wallet", () => {
-            voteTransaction.asset.votes[0] = "-02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
-            const errors = [];
-
-            expect(handler.canApply(wallet, voteTransaction, errors)).toBeFalse();
+            expect(handler.canApply(wallet, unvoteTransaction, errors)).toBeFalse();
             expect(errors).toContain("Wallet has not voted yet");
         });
     });
