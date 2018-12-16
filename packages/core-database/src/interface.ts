@@ -20,6 +20,7 @@ export abstract class ConnectionInterface {
     public connection: any;
     public blocksInCurrentRound: any[];
     public stateStarted: boolean;
+    public restoredDatabaseIntegrity: boolean;
     public walletManager: WalletManager;
     public forgingDelegates: any[];
     public wallets: WalletsRepository;
@@ -38,6 +39,7 @@ export abstract class ConnectionInterface {
         this.connection = null;
         this.blocksInCurrentRound = null;
         this.stateStarted = false;
+        this.restoredDatabaseIntegrity = false;
         this.walletManager = null;
         this.wallets = null;
         this.delegates = null;

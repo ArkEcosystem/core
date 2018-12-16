@@ -11,6 +11,8 @@ import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
 import { tickSyncTracker } from "./utils/tick-sync-tracker";
 
+import { Blockchain } from "./blockchain";
+
 const { Block } = models;
 const config = app.resolvePlugin("config");
 const emitter = app.resolvePlugin("event-emitter");
@@ -26,7 +28,7 @@ blockchainMachine.state = stateStorage;
  * @param  {Blockchain} blockchain
  * @return {Object}
  */
-blockchainMachine.actionMap = blockchain => ({
+blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;
@@ -175,7 +177,7 @@ blockchainMachine.actionMap = blockchain => ({
                 await blockchain.database.saveBlock(block);
             }
 
-            if (!blockchain.restoredDatabaseIntegrity) {
+            if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity :hourglass_flowing_sand:");
 
                 const blockchainAudit = await blockchain.database.verifyBlockchain();
@@ -363,7 +365,7 @@ blockchainMachine.actionMap = blockchain => ({
                     blockchain.dispatch("FORK");
                 } else {
                     // TODO: only remove blocks from last downloaded block height
-                    blockchain.resetQueue(true);
+                    blockchain.clearAndStopQueue();
                     blockchain.dispatch("DOWNLOADED");
                 }
             }
@@ -376,7 +378,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     async startForkRecovery() {
         logger.info("Starting fork recovery :fork_and_knife:");
-        blockchain.resetQueue();
+        blockchain.clearAndStopQueue();
 
         await blockchain.database.commitQueuedQueries();
 
@@ -419,7 +421,7 @@ blockchainMachine.actionMap = blockchain => ({
             return;
         }
 
-        blockchain.restoredDatabaseIntegrity = true;
+        blockchain.database.restoredDatabaseIntegrity = true;
 
         const lastBlock = await blockchain.database.getLastBlock();
         logger.info(

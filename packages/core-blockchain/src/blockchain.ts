@@ -15,10 +15,10 @@ const { Block } = models;
 export class Blockchain {
     public isStopped: boolean;
     public options: any;
+    public processQueue: ProcessQueue;
+    public rebuildQueue: RebuildQueue;
     private actions: any;
     private queue: Queue;
-    private processQueue: ProcessQueue;
-    private rebuildQueue: RebuildQueue;
 
     /**
      * Create a new blockchain manager instance.
@@ -136,22 +136,17 @@ export class Blockchain {
      * @return {void}
      */
     public resetState() {
-        this.resetQueue();
+        this.clearAndStopQueue();
         this.state.reset();
     }
 
     /**
-     * Reset and stop the queue.
-     * @param {Boolean} resumeAfterClear
+     * Clear and stop the queue.
      * @return {void}
      */
-    public resetQueue(resumeAfterClear = false) {
+    public clearAndStopQueue() {
         this.queue.pause();
         this.queue.clear();
-
-        if (resumeAfterClear) {
-            this.queue.resume();
-        }
     }
 
     /**
@@ -243,7 +238,7 @@ export class Blockchain {
      * @return {void}
      */
     public async removeBlocks(nblocks) {
-        this.resetQueue();
+        this.clearAndStopQueue();
 
         const blocksToRemove = await this.database.getBlocks(
             this.state.getLastBlock().data.height - nblocks,
@@ -469,8 +464,8 @@ export class Blockchain {
 
             // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
             // it is very likely that all blocks will be disregarded at this point anyway.
-            this.resetQueue(true);
-            logger.debug("Flushed queued blocks.");
+            this.queue.clear();
+            logger.debug("Cleared queued blocks.");
 
             this.state.lastDownloadedBlock = lastBlock;
         } else if (block.data.height < lastBlock.data.height) {
@@ -548,7 +543,7 @@ export class Blockchain {
      * @param  {Block} [block=getLastBlock()]  block
      * @return {Boolean}
      */
-    public isSynced(block) {
+    public isSynced(block?) {
         if (!this.p2p.hasPeers()) {
             return true;
         }
@@ -563,7 +558,7 @@ export class Blockchain {
      * @param  {Block}  block
      * @return {Boolean}
      */
-    public isRebuildSynced(block) {
+    public isRebuildSynced(block?) {
         if (!this.p2p.hasPeers()) {
             return true;
         }
