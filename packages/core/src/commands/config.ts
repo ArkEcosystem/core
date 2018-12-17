@@ -98,7 +98,7 @@ export async function reset(options) {
     }
 }
 
-export async function forgerSecret(options) {
+export async function forgerPlain(options) {
     const response = await prompts([
         {
             type: "password",

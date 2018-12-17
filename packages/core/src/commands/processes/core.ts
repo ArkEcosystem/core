@@ -20,11 +20,11 @@ export async function start(options) {
     return app;
 }
 
-export async function stop(options) {
+export async function stop() {
     pm2.stop("ark-core");
 }
 
-export async function restart(options) {
+export async function restart() {
     pm2.reload("ark-core");
 }
 

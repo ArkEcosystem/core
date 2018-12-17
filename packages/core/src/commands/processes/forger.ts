@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import * as pm2 from "../../pm2";
-import { buildPeerOptions } from "../../utils";
 
 export async function start(options) {
     await app.setUp(options.parent._version, options, {
@@ -23,11 +22,11 @@ export async function start(options) {
     return app;
 }
 
-export async function stop(options) {
+export async function stop() {
     pm2.stop("ark-core-forger");
 }
 
-export async function restart(options) {
+export async function restart() {
     pm2.reload("ark-core-forger");
 }
 
