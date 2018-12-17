@@ -1,10 +1,10 @@
 import "jest-extended";
-import { startRelayAndForger } from "../../src/commands";
-import { opts, version } from "../__support__/app";
+import { start } from "../../../src/commands/processes/core";
+import { opts } from "../../__support__/app";
 
 describe.skip("Commands - Start Relay & Forger", () => {
     it("should be OK", async () => {
-        const app = await startRelayAndForger(opts, version);
+        const app = await start(opts);
 
         expect(app.isReady).toBeTrue();
 

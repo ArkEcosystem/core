@@ -1,11 +1,11 @@
 import delay from "delay";
 import "jest-extended";
-import { startRelay } from "../../src/commands";
-import { opts, version } from "../__support__/app";
+import { start } from "../../../src/commands/processes/relay";
+import { opts } from "../../__support__/app";
 
 describe.skip("Commands - Start Relay", () => {
     it("should be OK", async () => {
-        const app = await startRelay(opts, version);
+        const app = await start(opts);
 
         expect(app.isReady).toBeTrue();
 
