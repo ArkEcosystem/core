@@ -16,7 +16,7 @@ export class Network {
             config = NetworkManager.findByName(opts.network, opts.token);
         } else {
             try {
-                const networkPath = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}`));
+                const networkPath = resolve(expandHomeDir(process.env.ARK_PATH_CONFIG));
 
                 config = {
                     network: require(`${networkPath}/network`),

@@ -100,4 +100,4 @@ export const schemaConfig = Joi.object({
     ),
     plugins: Joi.object().required(),
     genesisBlock: Joi.object().required(),
-});
+}).unknown();
