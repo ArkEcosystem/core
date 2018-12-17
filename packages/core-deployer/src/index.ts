@@ -106,22 +106,6 @@ const networkConfig = {
             epoch: options.epoch,
             activeDelegates: options.activeDelegates,
             fees: {
-                dynamic: false,
-                dynamicFees: {
-                    minFeePool: 1000,
-                    minFeeBroadcast: 1000,
-                    addonBytes: {
-                        transfer: 100,
-                        secondSignature: 250,
-                        delegateRegistration: 500,
-                        vote: 100,
-                        multiSignature: 500,
-                        ipfs: 250,
-                        timelockTransfer: 500,
-                        multiPayment: 500,
-                        delegateResignation: 500,
-                    },
-                },
                 staticFees: {
                     transfer: options.feeTransfer,
                     secondSignature: options.feeVote,

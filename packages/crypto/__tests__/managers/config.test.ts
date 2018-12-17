@@ -18,7 +18,7 @@ describe("Configuration", () => {
 
         expect(configManager.all()).toContainAllKeys([
             ...Object.keys(mainnet.network),
-            ...["milestones", "dynamicFees", "exceptions"],
+            ...["milestones", "exceptions"],
         ]);
     });
 
@@ -48,20 +48,6 @@ describe("Configuration", () => {
         expect(feeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)).toEqual(feesStatic.timelockTransfer);
         expect(feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)).toEqual(feesStatic.multiPayment);
         expect(feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)).toEqual(feesStatic.delegateResignation);
-    });
-
-    it("should build dynamic fee offsets", () => {
-        const addonBytes = devnet.dynamicFees.addonBytes;
-
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.TRANSFER)).toEqual(addonBytes.transfer);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)).toEqual(addonBytes.secondSignature);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)).toEqual(addonBytes.delegateRegistration);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.VOTE)).toEqual(addonBytes.vote);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)).toEqual(addonBytes.multiSignature);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.IPFS)).toEqual(addonBytes.ipfs);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)).toEqual(addonBytes.timelockTransfer);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)).toEqual(addonBytes.multiPayment);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)).toEqual(addonBytes.delegateResignation);
     });
 
     it("should get milestone for height", () => {

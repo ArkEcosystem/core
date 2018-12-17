@@ -19,8 +19,6 @@ export class RemoteLoader {
     public async setUp() {
         const network = await this.configureNetwork();
 
-        await this.configureDynamicFees();
-
         await this.configureExceptions();
 
         await this.configureMilestones();
@@ -42,14 +40,6 @@ export class RemoteLoader {
         this.writeConfig("network", network);
 
         return network;
-    }
-
-    private async configureDynamicFees() {
-        const dynamicFees = await this.getConfig("dynamicFees");
-
-        this.writeConfig("dynamicFees", dynamicFees);
-
-        return dynamicFees;
     }
 
     private async configureExceptions() {

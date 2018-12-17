@@ -1,5 +1,4 @@
-import { configManager } from "@arkecosystem/crypto";
-import { dynamicFeeMatcher } from "../src/utils/dynamicfee-matcher";
+import { dynamicFeeMatcher } from "../src/dynamic-fee/matcher";
 import { transactions } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 
@@ -22,8 +21,9 @@ describe("static fees", () => {
                 height: 20,
             },
         }));
+
         const h = blockchain.getLastBlock().data.height;
-        configManager.set("dynamicFees.enabled", false);
+        container.resolvePlugin("transactionPool").config.set("dynamicFees.enabled", false);
     });
 
     it("should accept transactions matching the static fee for broadcast", () => {
@@ -55,8 +55,9 @@ describe("dynamic fees", () => {
                 height: 20,
             },
         }));
+
         const h = blockchain.getLastBlock().data.height;
-        configManager.set("dynamicFees.enabled", true);
+        container.resolvePlugin("transactionPool").config.set("dynamicFees.enabled", true);
     });
 
     it("should broadcast transactions with high enough fee", () => {

@@ -5,7 +5,7 @@ import pluralize from "pluralize";
 const { TRANSACTION_TYPES } = constants;
 const { Transaction } = models;
 
-import { dynamicFeeMatcher } from "./utils/dynamicfee-matcher";
+import { dynamicFeeMatcher } from "./dynamic-fee";
 import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 export class TransactionGuard {

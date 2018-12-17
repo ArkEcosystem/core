@@ -13,7 +13,6 @@ export class ConfigManager {
     public height: any;
     public milestone: any;
     public milestones: any;
-    public dynamicFees: any;
 
     /**
      * @constructor
@@ -34,13 +33,11 @@ export class ConfigManager {
             this.config[key] = value;
         }
 
-        this.config.dynamicFees = config.dynamicFees;
         this.config.exceptions = config.exceptions;
         this.config.milestones = config.milestones;
 
         this.buildConstants();
         this.buildFees();
-        this.buildAddonBytes();
     }
 
     /**
@@ -156,15 +153,6 @@ export class ConfigManager {
     private buildFees() {
         for (const type of Object.keys(TRANSACTION_TYPES)) {
             feeManager.set(TRANSACTION_TYPES[type], this.getMilestone().fees.staticFees[camelCase(type)]);
-        }
-    }
-
-    /**
-     * Build addon bytes from config constants.
-     */
-    private buildAddonBytes() {
-        for (const type of Object.keys(TRANSACTION_TYPES)) {
-            dynamicFeeManager.set(TRANSACTION_TYPES[type], this.config.dynamicFees.addonBytes[camelCase(type)]);
         }
     }
 }

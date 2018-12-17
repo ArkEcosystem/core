@@ -16,19 +16,11 @@ export class Network {
         // Default configuration...
         if (opts.network) {
             config = NetworkManager.findByName(opts.network);
-
-            // Default configuration + Custom dynamic fees...
-            const dynamicFees = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/dynamicFees.json`));
-
-            if (existsSync(dynamicFees)) {
-                config.dynamicFees = require(dynamicFees);
-            }
         } else {
             try {
                 const networkPath = resolve(expandHomeDir(process.env.ARK_PATH_CONFIG));
 
                 config = {
-                    dynamicFees: require(`${networkPath}/dynamicFees`),
                     exceptions: require(`${networkPath}/exceptions`),
                     milestones: require(`${networkPath}/milestones`),
                     network: require(`${networkPath}/network`),

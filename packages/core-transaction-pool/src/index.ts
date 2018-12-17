@@ -1,5 +1,7 @@
+import { config } from "./config";
 import { TransactionPool } from "./connection";
 import { defaults } from "./defaults";
+import { dynamicFeeManager } from "./dynamic-fee";
 import { transactionPoolManager } from "./manager";
 
 /**
@@ -11,13 +13,16 @@ const plugin = {
     defaults,
     alias: "transactionPool",
     async register(container, options) {
+        config.init(options);
+
+        dynamicFeeManager.init();
+
         container.resolvePlugin("logger").info("Connecting to transaction pool");
 
         await transactionPoolManager.makeConnection(new TransactionPool(options));
 
         return transactionPoolManager.connection();
     },
-
     async deregister(container, options) {
         container.resolvePlugin("logger").info("Disconnecting from transaction pool");
 
@@ -31,4 +36,4 @@ const plugin = {
  */
 import { TransactionGuard } from "./guard";
 
-export { plugin, TransactionPool, TransactionGuard };
+export { config, plugin, TransactionPool, TransactionGuard };

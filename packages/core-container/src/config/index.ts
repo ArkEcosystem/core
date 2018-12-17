@@ -53,7 +53,6 @@ class Config {
         crypto.setConfig(value);
 
         this.config.network = crypto.all();
-        this.config.dynamicFees = crypto.get("dynamicFees");
         this.config.exceptions = crypto.get("exceptions");
         this.config.milestones = crypto.get("milestones");
     }

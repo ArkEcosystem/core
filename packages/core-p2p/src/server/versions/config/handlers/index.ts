@@ -35,16 +35,6 @@ export const network = {
     },
 };
 
-export const dynamicFees = {
-    handler(request, h) {
-        const networkName = appConfig.get("network.name");
-
-        return {
-            data: require(`../../../../../../crypto/src/networks/${networkName}/dynamicFees.json`),
-        };
-    },
-};
-
 export const exceptions = {
     handler(request, h) {
         return {

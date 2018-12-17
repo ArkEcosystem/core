@@ -1,48 +1,6 @@
 import Joi from "joi";
 
 export const schemaNetwork = Joi.object({
-    dynamicFees: Joi.object({
-        enabled: Joi.boolean().required(),
-        minFeePool: Joi.number()
-            .integer()
-            .positive()
-            .required(),
-        minFeeBroadcast: Joi.number()
-            .integer()
-            .positive()
-            .required(),
-        addonBytes: Joi.object()
-            .keys({
-                transfer: Joi.number()
-                    .integer()
-                    .required(),
-                secondSignature: Joi.number()
-                    .integer()
-                    .required(),
-                delegateRegistration: Joi.number()
-                    .integer()
-                    .required(),
-                vote: Joi.number()
-                    .integer()
-                    .required(),
-                multiSignature: Joi.number()
-                    .integer()
-                    .required(),
-                ipfs: Joi.number()
-                    .integer()
-                    .required(),
-                timelockTransfer: Joi.number()
-                    .integer()
-                    .required(),
-                multiPayment: Joi.number()
-                    .integer()
-                    .required(),
-                delegateResignation: Joi.number()
-                    .integer()
-                    .required(),
-            })
-            .required(),
-    }).required(),
     milestones: Joi.array()
         .items(Joi.object())
         .required(),

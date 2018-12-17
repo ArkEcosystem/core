@@ -1,8 +1,6 @@
 import "jest-extended";
 
-import bip38 from "bip38";
 import { ARKTOSHI } from "../../src/constants";
-import { PrivateKey } from "../../src/identities";
 import { configManager } from "../../src/managers/config";
 import { Delegate } from "../../src/models/delegate";
 import { Wallet } from "../../src/models/wallet";
