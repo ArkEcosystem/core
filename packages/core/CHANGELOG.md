@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.0.16 - 2018-12-17
+
+### Fixed
+
+- Prevent the list of peers to become too short
+
 ## 2.0.15 - 2018-12-11
 
 ### Fixed
