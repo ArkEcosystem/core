@@ -168,87 +168,134 @@ describe("Delegate Repository", () => {
     });
 
     describe("search", () => {
-        it("should search by exact username match", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
+        describe("by `username`", () => {
+            it("should search by exact match", () => {
+                const wallets = generateWallets();
+                walletManager.index(wallets);
 
-            const { count, rows } = repository.search({
-                username: "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                const { count, rows } = repository.search({
+                    username: "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                });
+
+                expect(count).toBe(1);
+                expect(rows).toHaveLength(1);
             });
 
-            expect(count).toBe(1);
-            expect(rows).toHaveLength(1);
-        });
+            it("should search that username contains the string", () => {
+                const wallets = generateWallets();
+                walletManager.index(wallets);
 
-        it("should search that username contains the string", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
+                const { count, rows } = repository.search({ username: "username" });
 
-            const { count, rows } = repository.search({ username: "username" });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(52);
+            });
 
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(52);
-        });
+            describe('when a username is "undefined"', () => {
+                it("should return it", () => {
+                    const wallets = generateWallets();
+                    walletManager.index(wallets);
 
-        describe("when no results", () => {
-            it("should be ok", () => {
-                const { count, rows } = repository.search({
-                    username: "unknown-dummy-username",
+                    // Index a wallet with username "undefined"
+                    const address = Object.keys(walletManager.byAddress)[0];
+                    walletManager.byAddress[address].username = "undefined";
+
+                    const username = "undefined";
+                    const { count, rows } = repository.search({ username });
+
+                    expect(count).toBe(1);
+                    expect(rows).toHaveLength(1);
+                    expect(rows[0].username).toEqual(username);
                 });
+            });
+
+            describe("when the username does not exist", () => {
+                it("should return no results", () => {
+                    const { count, rows } = repository.search({
+                        username: "unknown-dummy-username",
+                    });
+
+                    expect(count).toBe(0);
+                    expect(rows).toHaveLength(0);
+                });
+            });
+
+            it("should be ok with params", () => {
+                const wallets = generateWallets();
+                walletManager.index(wallets);
+
+                const { count, rows } = repository.search({
+                    username: "username",
+                    offset: 10,
+                    limit: 10,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(10);
+            });
+
+            it("should be ok with params (no offset)", () => {
+                const wallets = generateWallets();
+                walletManager.index(wallets);
+
+                const { count, rows } = repository.search({
+                    username: "username",
+                    limit: 10,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(10);
+            });
+
+            it("should be ok with params (offset = 0)", () => {
+                const wallets = generateWallets();
+                walletManager.index(wallets);
+
+                const { count, rows } = repository.search({
+                    username: "username",
+                    offset: 0,
+                    limit: 12,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(12);
+            });
+
+            it("should be ok with params (no limit)", () => {
+                const wallets = generateWallets();
+                walletManager.index(wallets);
+
+                const { count, rows } = repository.search({
+                    username: "username",
+                    offset: 10,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(42);
+            });
+        });
+
+        describe("when searching without params", () => {
+            it("should return no results", () => {
+                const wallets = generateWallets();
+                walletManager.index(wallets);
+
+                const { count, rows } = repository.search({});
 
                 expect(count).toBe(0);
                 expect(rows).toHaveLength(0);
             });
-        });
 
-        it("should be ok with params", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
+            describe('when a username is "undefined"', () => {
+                it("should return no results", () => {
+                    const wallets = generateWallets();
+                    walletManager.index(wallets);
 
-            const { count, rows } = repository.search({
-                username: "username",
-                offset: 10,
-                limit: 10,
+                    // Index a wallet with username "undefined"
+                    const address = Object.keys(walletManager.byAddress)[0];
+                    walletManager.byAddress[address].username = "undefined";
+
+                    const { count, rows } = repository.search({});
+                    expect(count).toBe(0);
+                    expect(rows).toHaveLength(0);
+                });
             });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(10);
-        });
-
-        it("should be ok with params (no offset)", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.search({
-                username: "username",
-                limit: 10,
-            });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(10);
-        });
-
-        it("should be ok with params (offset = 0)", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.search({
-                username: "username",
-                offset: 0,
-                limit: 12,
-            });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(12);
-        });
-
-        it("should be ok with params (no limit)", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.search({
-                username: "username",
-                offset: 10,
-            });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(42);
         });
     });
 
