@@ -15,7 +15,7 @@ export function calculateFee(arktoshiPerByte, transaction) {
     }
 
     const addonBytes = localConfig.get("dynamicFees.addonBytes")[
-        camelCase(constants.TRANSACTION_TYPES.toString(transaction.type))
+        camelCase(constants.TransactionTypes[transaction.type])
     ];
 
     // serialized is in hex

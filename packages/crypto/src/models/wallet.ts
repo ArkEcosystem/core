@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../constants";
+import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
 import { transactionHandler } from "../handlers/transactions";
 import { configManager } from "../managers/config";
@@ -247,26 +247,26 @@ export class Wallet {
             }
         }
 
-        if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
+        if (transaction.type === TransactionTypes.Transfer) {
             audit.push({ Transfer: true });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+        if (transaction.type === TransactionTypes.SecondSignature) {
             audit.push({ "Second public key": this.secondPublicKey });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+        if (transaction.type === TransactionTypes.DelegateRegistration) {
             const username = transaction.asset.delegate.username;
             audit.push({ "Current username": this.username });
             audit.push({ "New username": username });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.VOTE) {
+        if (transaction.type === TransactionTypes.Vote) {
             audit.push({ "Current vote": this.vote });
             audit.push({ "New vote": transaction.asset.votes[0] });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        if (transaction.type === TransactionTypes.MultiSignature) {
             const keysgroup = transaction.asset.multisignature.keysgroup;
             audit.push({ "Multisignature not yet registered": !this.multisignature });
             audit.push({
@@ -280,28 +280,28 @@ export class Wallet {
             });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.IPFS) {
+        if (transaction.type === TransactionTypes.Ipfs) {
             audit.push({ IPFS: true });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+        if (transaction.type === TransactionTypes.TimelockTransfer) {
             audit.push({ Timelock: true });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+        if (transaction.type === TransactionTypes.MultiPayment) {
             const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Bignum.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+        if (transaction.type === TransactionTypes.DelegateResignation) {
             audit.push({ "Resignate Delegate": this.username });
         }
 
-        if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+        if (transaction.type === TransactionTypes.DelegateResignation) {
             audit.push({ "Resignate Delegate": this.username });
         }
 
-        if (!Object.values(TRANSACTION_TYPES).includes(transaction.type)) {
+        if (!Object.values(TransactionTypes).includes(transaction.type)) {
             audit.push({ "Unknown Type": true });
         }
 

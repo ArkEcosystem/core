@@ -1,5 +1,5 @@
 import "jest-extended";
-import { TRANSACTION_TYPES } from "../../src/constants";
+import { TransactionTypes } from "../../src/constants";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
 
@@ -139,7 +139,7 @@ describe("crypto.js", () => {
 
     describe("getFee", () => {
         it("should return 10000000", () => {
-            const fee = crypto.getFee({ type: TRANSACTION_TYPES.TRANSFER });
+            const fee = crypto.getFee({ type: TransactionTypes.Transfer });
             expect(fee).toBeNumber();
             expect(fee).toBe(10000000);
         });

@@ -10,7 +10,7 @@ import { DelegatesRepository } from "./repositories/delegates";
 import { WalletsRepository } from "./repositories/wallets";
 
 const { Block } = models;
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 export abstract class ConnectionInterface {
     public config: any;
@@ -542,15 +542,15 @@ export abstract class ConnectionInterface {
     private __emitTransactionEvents(transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+        if (transaction.type === TransactionTypes.DelegateRegistration) {
             this.emitter.emit("delegate.registered", transaction.data);
         }
 
-        if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+        if (transaction.type === TransactionTypes.DelegateResignation) {
             this.emitter.emit("delegate.resigned", transaction.data);
         }
 
-        if (transaction.type === TRANSACTION_TYPES.VOTE) {
+        if (transaction.type === TransactionTypes.Vote) {
             const vote = transaction.asset.votes[0];
 
             this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {

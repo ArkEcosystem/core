@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { TRANSACTION_TYPES } from "../../src/constants";
+import { TransactionTypes } from "../../src/constants";
 import { configManager } from "../../src/managers/config";
 import { feeManager } from "../../src/managers/fee";
 import { devnet, mainnet } from "../../src/networks";
@@ -38,15 +38,15 @@ describe("Configuration", () => {
     it("should build fees", () => {
         const feesStatic = devnet.milestones[0].fees.staticFees;
 
-        expect(feeManager.get(TRANSACTION_TYPES.TRANSFER)).toEqual(feesStatic.transfer);
-        expect(feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)).toEqual(feesStatic.secondSignature);
-        expect(feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)).toEqual(feesStatic.delegateRegistration);
-        expect(feeManager.get(TRANSACTION_TYPES.VOTE)).toEqual(feesStatic.vote);
-        expect(feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)).toEqual(feesStatic.multiSignature);
-        expect(feeManager.get(TRANSACTION_TYPES.IPFS)).toEqual(feesStatic.ipfs);
-        expect(feeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)).toEqual(feesStatic.timelockTransfer);
-        expect(feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)).toEqual(feesStatic.multiPayment);
-        expect(feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)).toEqual(feesStatic.delegateResignation);
+        expect(feeManager.get(TransactionTypes.Transfer)).toEqual(feesStatic.transfer);
+        expect(feeManager.get(TransactionTypes.SecondSignature)).toEqual(feesStatic.secondSignature);
+        expect(feeManager.get(TransactionTypes.DelegateRegistration)).toEqual(feesStatic.delegateRegistration);
+        expect(feeManager.get(TransactionTypes.Vote)).toEqual(feesStatic.vote);
+        expect(feeManager.get(TransactionTypes.MultiSignature)).toEqual(feesStatic.multiSignature);
+        expect(feeManager.get(TransactionTypes.Ipfs)).toEqual(feesStatic.ipfs);
+        expect(feeManager.get(TransactionTypes.TimelockTransfer)).toEqual(feesStatic.timelockTransfer);
+        expect(feeManager.get(TransactionTypes.MultiPayment)).toEqual(feesStatic.multiPayment);
+        expect(feeManager.get(TransactionTypes.DelegateResignation)).toEqual(feesStatic.delegateResignation);
     });
 
     it("should get milestone for height", () => {

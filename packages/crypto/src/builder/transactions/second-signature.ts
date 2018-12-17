@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../constants";
+import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { feeManager } from "../../managers/fee";
 import { TransactionBuilder } from "./transaction";
@@ -10,8 +10,8 @@ export class SecondSignatureBuilder extends TransactionBuilder {
     constructor() {
         super();
 
-        this.data.type = TRANSACTION_TYPES.SECOND_SIGNATURE;
-        this.data.fee = feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE);
+        this.data.type = TransactionTypes.SecondSignature;
+        this.data.fee = feeManager.get(TransactionTypes.SecondSignature);
         this.data.amount = 0;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;

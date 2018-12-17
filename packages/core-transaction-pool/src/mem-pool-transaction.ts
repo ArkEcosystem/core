@@ -3,7 +3,7 @@
 import { constants, models } from "@arkecosystem/crypto";
 import assert from "assert";
 
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 const { Transaction } = models;
 
 /**
@@ -60,7 +60,7 @@ export class MemPoolTransaction {
             return t.expiration;
         }
 
-        if (t.type !== TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+        if (t.type !== TransactionTypes.TimelockTransfer) {
             return t.timestamp + maxTransactionAge;
         }
 

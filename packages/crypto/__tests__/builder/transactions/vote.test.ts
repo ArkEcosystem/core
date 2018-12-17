@@ -1,6 +1,6 @@
 import "jest-extended";
 import { client as ark } from "../../../src/client";
-import { TRANSACTION_TYPES } from "../../../src/constants";
+import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -37,8 +37,8 @@ describe("Vote Transaction", () => {
     transactionBuilder();
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TRANSACTION_TYPES.VOTE);
-        expect(builder).toHaveProperty("data.fee", feeManager.get(TRANSACTION_TYPES.VOTE));
+        expect(builder).toHaveProperty("data.type", TransactionTypes.Vote);
+        expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Vote));
         expect(builder).toHaveProperty("data.amount", 0);
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);

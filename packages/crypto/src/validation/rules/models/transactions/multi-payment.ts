@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../../../constants";
+import { TransactionTypes } from "../../../../constants";
 import { Engine } from "../../../engine";
 
 export const multiPayment = transaction => {
@@ -11,7 +11,7 @@ export const multiPayment = transaction => {
                 .required(),
             // @ts-ignore
             blockid: Engine.joi.alternatives().try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
-            type: Engine.joi.number().valid(TRANSACTION_TYPES.MULTI_PAYMENT),
+            type: Engine.joi.number().valid(TransactionTypes.MultiPayment),
             timestamp: Engine.joi
                 .number()
                 .integer()

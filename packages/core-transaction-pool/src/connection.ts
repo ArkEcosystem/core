@@ -497,7 +497,7 @@ export class TransactionPool {
      * in the pool.
      * @param {String} senderPublicKey public key of the sender
      * @param {Number} transactionType transaction type, must be one of
-     * TRANSACTION_TYPES.* and is compared against transaction.type.
+     * TransactionTypes.* and is compared against transaction.type.
      * @return {Boolean} true if exist
      */
     public senderHasTransactionsOfType(senderPublicKey, transactionType) {

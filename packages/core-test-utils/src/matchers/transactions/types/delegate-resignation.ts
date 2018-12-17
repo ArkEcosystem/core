@@ -1,5 +1,5 @@
 import { constants } from "@arkecosystem/crypto";
-const { DELEGATE_RESIGNATION } = constants.TRANSACTION_TYPES;
+const { DelegateResignation } = constants.TransactionTypes;
 
 export {};
 
@@ -15,8 +15,8 @@ declare global {
 expect.extend({
     toBeDelegateResignationType: received => {
         return {
-            message: () => "Expected value to be a valid DELEGATE_RESIGNATION transaction.",
-            pass: received.type === DELEGATE_RESIGNATION,
+            message: () => "Expected value to be a valid DelegateResignation transaction.",
+            pass: received.type === DelegateResignation,
         };
     },
 });

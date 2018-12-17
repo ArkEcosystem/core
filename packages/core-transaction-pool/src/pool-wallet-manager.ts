@@ -3,7 +3,7 @@ import { WalletManager } from "@arkecosystem/core-database";
 import { constants, crypto, models } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 export class PoolWalletManager extends WalletManager {
     public database: any;
@@ -81,7 +81,7 @@ export class PoolWalletManager extends WalletManager {
         const { type, asset } = transaction;
 
         if (
-            type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
+            type === TransactionTypes.DelegateRegistration &&
             this.database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
         ) {
             this.logger.error(
@@ -93,7 +93,7 @@ export class PoolWalletManager extends WalletManager {
             errors.push(`Can't apply transaction ${transaction.id}: delegate name already taken.`);
             // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
         } else if (
-            type === TRANSACTION_TYPES.VOTE &&
+            type === TransactionTypes.Vote &&
             !this.database.walletManager.__isDelegate(asset.votes[0].slice(1))
         ) {
             this.logger.error(

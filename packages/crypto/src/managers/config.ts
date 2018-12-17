@@ -4,7 +4,7 @@ import get from "lodash/get";
 import set from "lodash/set";
 import { feeManager } from "./fee";
 
-import { TRANSACTION_TYPES } from "../constants";
+import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
 
 export class ConfigManager {
@@ -150,8 +150,8 @@ export class ConfigManager {
      * Build fees from config constants.
      */
     private buildFees() {
-        for (const type of Object.keys(TRANSACTION_TYPES)) {
-            feeManager.set(TRANSACTION_TYPES[type], this.getMilestone().fees.staticFees[camelCase(type)]);
+        for (const type of Object.keys(TransactionTypes)) {
+            feeManager.set(TransactionTypes[type], this.getMilestone().fees.staticFees[camelCase(type)]);
         }
     }
 }

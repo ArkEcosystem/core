@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { IPFS } = constants.TRANSACTION_TYPES;
+const { Ipfs } = constants.TransactionTypes;
 
 export {};
 
@@ -17,7 +17,7 @@ expect.extend({
     toBeIpfsType: received => {
         return {
             message: () => "Expected value to be a valid IPFS transaction.",
-            pass: received.type === IPFS,
+            pass: received.type === Ipfs,
         };
     },
 });

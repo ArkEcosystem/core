@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../constants";
+import { TransactionTypes } from "../../constants";
 
 import { DelegateRegistrationHandler } from "./delegate-registration";
 import { DelegateResignationHandler } from "./delegate-resignation";
@@ -17,15 +17,15 @@ export class TransactionHandler {
      */
     constructor() {
         this.handlers = {
-            [TRANSACTION_TYPES.TRANSFER]: TransferHandler,
-            [TRANSACTION_TYPES.SECOND_SIGNATURE]: SecondSignatureHandler,
-            [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: DelegateRegistrationHandler,
-            [TRANSACTION_TYPES.VOTE]: VoteHandler,
-            [TRANSACTION_TYPES.MULTI_SIGNATURE]: MultiSignatureHandler,
-            [TRANSACTION_TYPES.IPFS]: IpfsHandler,
-            [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: TimelockTransferHandler,
-            [TRANSACTION_TYPES.MULTI_PAYMENT]: MultiPaymentHandler,
-            [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: DelegateResignationHandler,
+            [TransactionTypes.Transfer]: TransferHandler,
+            [TransactionTypes.SecondSignature]: SecondSignatureHandler,
+            [TransactionTypes.DelegateRegistration]: DelegateRegistrationHandler,
+            [TransactionTypes.Vote]: VoteHandler,
+            [TransactionTypes.MultiSignature]: MultiSignatureHandler,
+            [TransactionTypes.Ipfs]: IpfsHandler,
+            [TransactionTypes.TimelockTransfer]: TimelockTransferHandler,
+            [TransactionTypes.MultiPayment]: MultiPaymentHandler,
+            [TransactionTypes.DelegateResignation]: DelegateResignationHandler,
         };
     }
 

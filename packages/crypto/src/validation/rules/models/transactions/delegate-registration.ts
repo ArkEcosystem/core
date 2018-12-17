@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../../../constants";
+import { TransactionTypes } from "../../../../constants";
 import { Engine } from "../../../engine";
 
 export const delegateRegistration = transaction => {
@@ -11,7 +11,7 @@ export const delegateRegistration = transaction => {
                 .required(),
             // @ts-ignore
             blockid: Engine.joi.alternatives().try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
-            type: Engine.joi.number().valid(TRANSACTION_TYPES.DELEGATE_REGISTRATION),
+            type: Engine.joi.number().valid(TransactionTypes.DelegateRegistration),
             timestamp: Engine.joi
                 .number()
                 .integer()

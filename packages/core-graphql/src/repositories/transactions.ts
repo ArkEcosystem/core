@@ -6,7 +6,7 @@ import dayjs from "dayjs-ext";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/filter-query";
 
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 const database = app.resolvePlugin("database");
 
 class TransactionsRepository extends Repository {
@@ -30,7 +30,7 @@ class TransactionsRepository extends Repository {
         }
 
         if (parameters.type) {
-            parameters.type = TRANSACTION_TYPES[parameters.type];
+            parameters.type = TransactionTypes[parameters.type];
         }
 
         const applyConditions = queries => {
@@ -163,7 +163,7 @@ class TransactionsRepository extends Repository {
      */
     public async allVotesBySender(senderPublicKey, parameters = {}) {
         return this.findAll({
-            ...{ senderPublicKey, type: TRANSACTION_TYPES.VOTE },
+            ...{ senderPublicKey, type: TransactionTypes.Vote },
             ...parameters,
         });
     }

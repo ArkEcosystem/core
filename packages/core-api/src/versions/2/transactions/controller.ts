@@ -130,7 +130,7 @@ export class TransactionsController extends Controller {
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return {
-                data: constants.TRANSACTION_TYPES,
+                data: constants.TransactionTypes,
             };
         } catch (error) {
             return Boom.badImplementation(error);

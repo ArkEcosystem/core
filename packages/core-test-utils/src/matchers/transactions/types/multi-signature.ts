@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { MULTI_SIGNATURE } = constants.TRANSACTION_TYPES;
+const { MultiSignature } = constants.TransactionTypes;
 
 export {};
 
@@ -16,8 +16,8 @@ declare global {
 expect.extend({
     toBeMultiSignatureType: received => {
         return {
-            message: () => "Expected value to be a valid MULTI_SIGNATURE transaction.",
-            pass: received.type === MULTI_SIGNATURE,
+            message: () => "Expected value to be a valid MultiSignature transaction.",
+            pass: received.type === MultiSignature,
         };
     },
 });

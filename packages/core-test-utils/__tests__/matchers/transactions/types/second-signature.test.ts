@@ -1,12 +1,12 @@
 import "../../../../src/matchers/transactions/types/second-signature";
 
 import { constants } from "@arkecosystem/crypto";
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 describe(".toBeSecondSignatureType", () => {
     test("passes when given a valid transaction", () => {
         expect({
-            type: TRANSACTION_TYPES.SECOND_SIGNATURE,
+            type: TransactionTypes.SecondSignature,
         }).toBeSecondSignatureType();
     });
 

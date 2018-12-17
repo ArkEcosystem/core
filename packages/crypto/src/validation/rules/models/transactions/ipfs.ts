@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../../../constants";
+import { TransactionTypes } from "../../../../constants";
 import { Engine } from "../../../engine";
 
 export const ipfs = transaction => {
@@ -11,7 +11,7 @@ export const ipfs = transaction => {
                 .required(),
             // @ts-ignore
             blockid: Engine.joi.alternatives().try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
-            type: Engine.joi.number().valid(TRANSACTION_TYPES.IPFS),
+            type: Engine.joi.number().valid(TransactionTypes.Ipfs),
             timestamp: Engine.joi
                 .number()
                 .integer()

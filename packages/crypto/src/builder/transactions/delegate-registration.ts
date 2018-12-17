@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../constants";
+import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { feeManager } from "../../managers/fee";
 import { TransactionBuilder } from "./transaction";
@@ -10,8 +10,8 @@ export class DelegateRegistrationBuilder extends TransactionBuilder {
     constructor() {
         super();
 
-        this.data.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION;
-        this.data.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION);
+        this.data.type = TransactionTypes.DelegateRegistration;
+        this.data.fee = feeManager.get(TransactionTypes.DelegateRegistration);
         this.data.amount = 0;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
