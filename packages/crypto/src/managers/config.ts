@@ -34,8 +34,9 @@ export class ConfigManager {
             this.config[key] = value;
         }
 
-        this.config.milestones = config.milestones;
         this.config.dynamicFees = config.dynamicFees;
+        this.config.exceptions = config.exceptions;
+        this.config.milestones = config.milestones;
 
         this.buildConstants();
         this.buildFees();
