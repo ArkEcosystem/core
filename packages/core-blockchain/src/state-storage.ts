@@ -29,7 +29,6 @@ class StateStorage {
     public lastDownloadedBlock: any;
     public blockPing: any;
     public started: boolean;
-    public forked: boolean;
     public forkedBlock: any;
     public rebuild: boolean;
     public fastRebuild: boolean;
@@ -51,7 +50,6 @@ class StateStorage {
         this.lastDownloadedBlock = null;
         this.blockPing = null;
         this.started = false;
-        this.forked = false;
         this.forkedBlock = null;
         this.rebuild = true;
         this.fastRebuild = false;

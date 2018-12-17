@@ -227,7 +227,7 @@ describe("Blockchain", () => {
             const debugMessage = `Blockchain not ready to accept new block at height ${lastBlock.data.height.toLocaleString()}. Last block: ${(
                 lastBlock.data.height - 2
             ).toLocaleString()} :warning:`;
-            expect(mockLoggerDebug).toHaveBeenLastCalledWith(debugMessage);
+            expect(mockLoggerDebug).toHaveBeenCalledWith(debugMessage);
 
             expect(blockchain.getLastBlock().data.height).toBe(lastBlock.data.height - 2);
         });
@@ -403,7 +403,7 @@ async function __start() {
 }
 
 async function __resetBlocksInCurrentRound() {
-    blockchain.database.blocksInCurrentRound = await blockchain.database.__getBlocksForRound();
+    await blockchain.database.loadBlocksFromCurrentRound();
 }
 
 async function __resetToHeight1() {

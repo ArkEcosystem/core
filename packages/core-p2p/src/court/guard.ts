@@ -228,14 +228,9 @@ class Guard {
             return this.__determinePunishment(peer, offences.BLACKLISTED);
         }
 
-        try {
-            const state = app.resolve("state");
-
-            if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-                return this.__determinePunishment(peer, offences.FORK);
-            }
-        } catch (error) {
-            logger.warn(`The state storage is not ready, skipped fork check for ${peer.ip}.`);
+        const state = app.resolve("state");
+        if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
+            return this.__determinePunishment(peer, offences.FORK);
         }
 
         if (peer.commonBlocks === false) {
