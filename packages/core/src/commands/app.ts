@@ -1,7 +1,6 @@
 import axios from "axios";
 import { execSync } from "child_process";
 import dayjs from "dayjs-ext";
-import getRepoInfo from "git-repo-info";
 import latestVersion from "latest-version";
 import prompts from "prompts";
 import semver from "semver";
@@ -35,7 +34,11 @@ export async function update(options) {
     } else {
         const response = await axios.get(`https://api.github.com/repos/ArkEcosystem/core/commits`);
         const lastCommit = dayjs(response.data[0].commit.author.date);
-        const currentCommit = dayjs(getRepoInfo().authorDate);
+        const currentCommit = dayjs(
+            execSync("git log -1 --format=%cd")
+                .toString()
+                .trim(),
+        );
 
         if (lastCommit.isAfter(currentCommit)) {
             return performUpdate(() => {

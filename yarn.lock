@@ -5890,11 +5890,6 @@ git-remote-origin-url@^2.0.0:
     gitconfiglocal "^1.0.0"
     pify "^2.3.0"
 
-git-repo-info@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/git-repo-info/-/git-repo-info-2.1.0.tgz#13d1f753c75bc2994432e65a71e35377ff563813"
-  integrity sha512-+kigfDB7j3W80f74BoOUX+lKOmf4pR3/i2Ww6baKTCPe2hD4FRdjhV3s4P5Dy0Tak1uY1891QhKoYNtnyX2VvA==
-
 git-semver-tags@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/git-semver-tags/-/git-semver-tags-2.0.2.tgz#f506ec07caade191ac0c8d5a21bdb8131b4934e3"
