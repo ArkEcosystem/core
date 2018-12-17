@@ -51,7 +51,7 @@ export class PostgresConnection extends ConnectionInterface {
             await super._registerRepositories();
             await super._registerWalletManager();
 
-            this.blocksInCurrentRound = await this.__getBlocksForRound();
+            await this.loadBlocksFromCurrentRound();
 
             return this;
         } catch (error) {

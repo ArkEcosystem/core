@@ -20,6 +20,7 @@ export abstract class ConnectionInterface {
     public connection: any;
     public blocksInCurrentRound: any[];
     public stateStarted: boolean;
+    public restoredDatabaseIntegrity: boolean;
     public walletManager: WalletManager;
     public forgingDelegates: any[];
     public wallets: WalletsRepository;
@@ -38,6 +39,7 @@ export abstract class ConnectionInterface {
         this.connection = null;
         this.blocksInCurrentRound = null;
         this.stateStarted = false;
+        this.restoredDatabaseIntegrity = false;
         this.walletManager = null;
         this.wallets = null;
         this.delegates = null;
@@ -220,6 +222,14 @@ export abstract class ConnectionInterface {
     public abstract async getTransaction(id): Promise<any>;
 
     /**
+     * Load blocks from current round into memory.
+     * @return {void]}
+     */
+    public async loadBlocksFromCurrentRound() {
+        this.blocksInCurrentRound = await this.__getBlocksForRound();
+    }
+
+    /**
      * Update delegate statistics in memory.
      * NOTE: must be called before saving new round of delegates
      * @param  {Block} block
@@ -360,10 +370,6 @@ export abstract class ConnectionInterface {
      * @return {void}
      */
     public async validateDelegate(block) {
-        if (this.__isException(block.data)) {
-            return;
-        }
-
         const delegates = await this.getActiveDelegates(block.data.height);
         const slot = slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate = delegates[slot % delegates.length];

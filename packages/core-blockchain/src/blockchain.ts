@@ -15,10 +15,10 @@ const { Block } = models;
 export class Blockchain {
     public isStopped: boolean;
     public options: any;
+    public processQueue: ProcessQueue;
+    public rebuildQueue: RebuildQueue;
     private actions: any;
     private queue: Queue;
-    private processQueue: ProcessQueue;
-    private rebuildQueue: RebuildQueue;
 
     /**
      * Create a new blockchain manager instance.
@@ -136,10 +136,17 @@ export class Blockchain {
      * @return {void}
      */
     public resetState() {
+        this.clearAndStopQueue();
+        this.state.reset();
+    }
+
+    /**
+     * Clear and stop the queue.
+     * @return {void}
+     */
+    public clearAndStopQueue() {
         this.queue.pause();
         this.queue.clear();
-
-        this.state.reset();
     }
 
     /**
@@ -167,15 +174,13 @@ export class Blockchain {
             )} from ${block.ip}`,
         );
 
-        if (this.state.started && this.state.blockchain.value === "idle" && !this.state.forked) {
+        if (this.state.started && this.state.blockchain.value === "idle") {
             this.dispatch("NEWBLOCK");
 
             this.processQueue.push(block);
             this.state.lastDownloadedBlock = new Block(block);
         } else {
-            logger.info(
-                `Block disregarded because blockchain is ${this.state.forked ? "forked" : "not ready"} :exclamation:`,
-            );
+            logger.info(`Block disregarded because blockchain is not ready :exclamation:`);
         }
     }
 
@@ -231,6 +236,8 @@ export class Blockchain {
      * @return {void}
      */
     public async removeBlocks(nblocks) {
+        this.clearAndStopQueue();
+
         const blocksToRemove = await this.database.getBlocks(
             this.state.getLastBlock().data.height - nblocks,
             nblocks - 1,
@@ -274,9 +281,6 @@ export class Blockchain {
         const resetHeight = lastBlock.data.height - nblocks;
         logger.info(`Removing ${pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`);
 
-        this.queue.pause();
-        this.queue.clear();
-
         this.state.lastDownloadedBlock = lastBlock;
 
         await __removeBlocks(nblocks);
@@ -308,6 +312,7 @@ export class Blockchain {
         }
 
         await this.database.commitQueuedQueries();
+        await this.database.loadBlocksFromCurrentRound();
     }
 
     /**
@@ -362,7 +367,7 @@ export class Blockchain {
      * @return {(Function|void)}
      */
     public async processBlock(block, callback) {
-        if (!block.verification.verified) {
+        if (!block.verification.verified && !this.database.__isException(block.data)) {
             logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
             logger.warn(JSON.stringify(block.verification, null, 4));
 
@@ -374,7 +379,6 @@ export class Blockchain {
         try {
             if (this.__isChained(this.state.getLastBlock(), block)) {
                 await this.acceptChainedBlock(block);
-                this.state.setLastBlock(block);
             } else {
                 await this.manageUnchainedBlock(block);
             }
@@ -383,8 +387,8 @@ export class Blockchain {
             logger.debug(error.stack);
 
             this.transactionPool.purgeBlock(block);
+            this.forkBlock(block);
 
-            this.dispatch("FORK");
             return callback();
         }
 
@@ -409,13 +413,18 @@ export class Blockchain {
      * @return {void}
      */
     public async acceptChainedBlock(block) {
+        const containsForgedTransactions = await this.checkBlockContainsForgedTransactions(block);
+        if (containsForgedTransactions) {
+            this.state.lastDownloadedBlock = this.state.getLastBlock();
+            return;
+        }
+
         await this.database.applyBlock(block);
         await this.database.saveBlock(block);
 
         // Check if we recovered from a fork
-        if (this.state.forked && this.state.forkedBlock.height === block.data.height) {
+        if (this.state.forkedBlock && this.state.forkedBlock.height === block.data.height) {
             logger.info("Successfully recovered from fork :star2:");
-            this.state.forked = false;
             this.state.forkedBlock = null;
         }
 
@@ -426,6 +435,13 @@ export class Blockchain {
                 logger.warn("Issue applying block to transaction pool");
                 logger.debug(error.stack);
             }
+        }
+
+        this.state.setLastBlock(block);
+
+        // Ensure the lastDownloadedBlock is not behind the last accepted block.
+        if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.data.height < block.data.height) {
+            this.state.lastDownloadedBlock = block;
         }
     }
 
@@ -442,6 +458,16 @@ export class Blockchain {
             logger.debug(
                 `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
             );
+
+            // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
+            // it is very likely that all blocks will be disregarded at this point anyway.
+            // NOTE: This isn't really elegant, but still better than spamming the log with
+            //       useless `not ready to accept` messages.
+            if (this.processQueue.length() > 0) {
+                logger.debug(`Discarded ${this.processQueue.length()} downloaded blocks.`);
+            }
+            this.queue.clear();
+
             this.state.lastDownloadedBlock = lastBlock;
         } else if (block.data.height < lastBlock.data.height) {
             logger.debug(
@@ -453,7 +479,7 @@ export class Blockchain {
             const isValid = await this.database.validateForkedBlock(block);
 
             if (isValid) {
-                this.dispatch("FORK");
+                this.forkBlock(block);
             } else {
                 logger.info(
                     `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
@@ -462,6 +488,27 @@ export class Blockchain {
                 );
             }
         }
+    }
+
+    /**
+     * Checks if the given block contains already forged transactions.
+     * @param {Block} block
+     * @returns {Boolean}
+     */
+    public async checkBlockContainsForgedTransactions(block) {
+        // Discard block if it contains already forged transactions
+        if (block.transactions.length > 0) {
+            const forgedIds = await this.database.getForgedTransactionsIds(block.transactions.map(tx => tx.id));
+            if (forgedIds.length > 0) {
+                logger.warn(
+                    `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions :scroll:`,
+                );
+                logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -474,6 +521,17 @@ export class Blockchain {
     public forceWakeup() {
         this.state.clearCheckLater();
         this.dispatch("WAKEUP");
+    }
+
+    /**
+     * Fork the chain at the given block.
+     * @param {Block} block
+     * @returns {void}
+     */
+    public forkBlock(block) {
+        this.state.forkedBlock = block;
+
+        this.dispatch("FORK");
     }
 
     /**
@@ -497,7 +555,7 @@ export class Blockchain {
      * @param  {Block} [block=getLastBlock()]  block
      * @return {Boolean}
      */
-    public isSynced(block) {
+    public isSynced(block?) {
         if (!this.p2p.hasPeers()) {
             return true;
         }
@@ -512,7 +570,7 @@ export class Blockchain {
      * @param  {Block}  block
      * @return {Boolean}
      */
-    public isRebuildSynced(block) {
+    public isRebuildSynced(block?) {
         if (!this.p2p.hasPeers()) {
             return true;
         }

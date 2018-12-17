@@ -11,6 +11,8 @@ import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
 import { tickSyncTracker } from "./utils/tick-sync-tracker";
 
+import { Blockchain } from "./blockchain";
+
 const { Block } = models;
 const config = app.resolvePlugin("config");
 const emitter = app.resolvePlugin("event-emitter");
@@ -26,7 +28,7 @@ blockchainMachine.state = stateStorage;
  * @param  {Blockchain} blockchain
  * @return {Object}
  */
-blockchainMachine.actionMap = blockchain => ({
+blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;
@@ -62,7 +64,7 @@ blockchainMachine.actionMap = blockchain => ({
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (stateStorage.noBlockCounter > 5) {
+        if (stateStorage.noBlockCounter > 5 && blockchain.processQueue.length() === 0) {
             // TODO: make this dynamic in 2.1
             logger.info(
                 "Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:",
@@ -175,7 +177,7 @@ blockchainMachine.actionMap = blockchain => ({
                 await blockchain.database.saveBlock(block);
             }
 
-            if (!blockchain.restoredDatabaseIntegrity) {
+            if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity :hourglass_flowing_sand:");
 
                 const blockchainAudit = await blockchain.database.verifyBlockchain();
@@ -312,8 +314,8 @@ blockchainMachine.actionMap = blockchain => ({
     },
 
     async downloadBlocks() {
-        const lastBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
-        const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height);
+        const lastDownloadedBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
+        const blocks = await blockchain.p2p.downloadBlocks(lastDownloadedBlock.data.height);
 
         if (blockchain.isStopped) {
             return;
@@ -337,7 +339,7 @@ blockchainMachine.actionMap = blockchain => ({
                 )}`,
             );
 
-            if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
+            if (blockchain.__isChained(lastDownloadedBlock, { data: blocks[0] })) {
                 stateStorage.noBlockCounter = 0;
                 stateStorage.p2pUpdateCounter = 0;
                 stateStorage.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
@@ -346,16 +348,23 @@ blockchainMachine.actionMap = blockchain => ({
 
                 blockchain.dispatch("DOWNLOADED");
             } else {
-                stateStorage.lastDownloadedBlock = lastBlock;
-
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
-                logger.warn(`Last block: ${JSON.stringify(lastBlock.data)}`);
+                logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
 
-                stateStorage.forked = true;
-                stateStorage.forkedBlock = blocks[0];
+                // Reset lastDownloadedBlock to last accepted block
+                const lastAcceptedBlock = stateStorage.getLastBlock();
+                stateStorage.lastDownloadedBlock = lastAcceptedBlock;
 
-                // disregard the whole block list
-                blockchain.dispatch("FORK");
+                // Fork only if the downloaded block could not be chained with the last accepted block.
+                // Otherwise simply discard the downloaded blocks by resetting the queue.
+                const shouldFork = blocks[0].height === lastAcceptedBlock.data.height + 1;
+                if (shouldFork) {
+                    blockchain.forkBlock(blocks[0]);
+                } else {
+                    // TODO: only remove blocks from last downloaded block height
+                    blockchain.clearAndStopQueue();
+                    blockchain.dispatch("DOWNLOADED");
+                }
             }
         }
     },
@@ -366,6 +375,7 @@ blockchainMachine.actionMap = blockchain => ({
 
     async startForkRecovery() {
         logger.info("Starting fork recovery :fork_and_knife:");
+        blockchain.clearAndStopQueue();
 
         await blockchain.database.commitQueuedQueries();
 
@@ -408,7 +418,7 @@ blockchainMachine.actionMap = blockchain => ({
             return;
         }
 
-        blockchain.restoredDatabaseIntegrity = true;
+        blockchain.database.restoredDatabaseIntegrity = true;
 
         const lastBlock = await blockchain.database.getLastBlock();
         logger.info(

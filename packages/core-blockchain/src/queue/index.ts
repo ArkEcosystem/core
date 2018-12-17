@@ -38,7 +38,7 @@ export class Queue {
     }
 
     /**
-     *  Resue all queues.
+     *  Resume all queues.
      * @return {void}
      */
     public resume() {
