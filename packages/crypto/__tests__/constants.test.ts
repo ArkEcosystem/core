@@ -9,7 +9,6 @@ describe("Constants", () => {
 
     it("transaction types are defined", () => {
         expect(constants.TransactionTypes).toBeDefined();
-        expect(constants.TransactionTypes).toBeFrozen();
 
         expect(constants.TransactionTypes.Transfer).toBeDefined();
         expect(constants.TransactionTypes.Transfer).toBe(0);
