@@ -33,7 +33,7 @@ export const generateTransaction = (
         passphrase = passphrase[0];
     }
 
-    client.getConfigManager().setFromPreset("ark", network);
+    client.getConfigManager().setFromPreset(network);
 
     const transactions = [];
     for (let i = 0; i < quantity; i++) {

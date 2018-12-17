@@ -6,7 +6,7 @@ import { PrivateKey } from "../../src/identities";
 import { configManager } from "../../src/managers/config";
 import { Delegate } from "../../src/models/delegate";
 import { Wallet } from "../../src/models/wallet";
-import { testnet } from "../../src/networks/ark";
+import { testnet } from "../../src/networks";
 import { Bignum } from "../../src/utils/bignum";
 import { sortTransactions } from "../../src/utils/sort-transactions";
 

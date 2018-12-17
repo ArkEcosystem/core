@@ -1,5 +1,5 @@
 import "jest-extended";
-import { testnet } from "../../../crypto/src/networks/ark";
+import { testnet } from "../../../crypto/src/networks";
 import { GenesisBlockBuilder } from "../../src/builder/genesis-block";
 
 let builder;

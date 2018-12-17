@@ -2,7 +2,7 @@ import { generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
 import { Bignum, models } from "@arkecosystem/crypto";
-import { testnet } from "../../crypto/src/networks/ark";
+import { testnet } from "../../crypto/src/networks";
 import { defaults } from "../src/defaults";
 import { ForgerManager } from "../src/manager";
 import { sampleBlock } from "./__fixtures__/block";

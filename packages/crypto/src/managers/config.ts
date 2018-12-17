@@ -5,8 +5,8 @@ import set from "lodash/set";
 import { dynamicFeeManager } from "./dynamic-fee";
 import { feeManager } from "./fee";
 
-import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants";
-import { devnet } from "../networks/ark";
+import { TRANSACTION_TYPES } from "../constants";
+import * as networks from "../networks";
 
 export class ConfigManager {
     public config: any;
@@ -19,7 +19,7 @@ export class ConfigManager {
      * @constructor
      */
     constructor() {
-        this.setConfig(devnet);
+        this.setConfig(networks.devnet);
     }
 
     /**
@@ -45,21 +45,19 @@ export class ConfigManager {
 
     /**
      * Set the configuration based on a preset.
-     * @param {String} token
      * @param {String} network
      */
-    public setFromPreset(token, network) {
-        this.setConfig(this.getPreset(token, network));
+    public setFromPreset(network: string) {
+        this.setConfig(this.getPreset(network));
     }
 
     /**
      * Get the configuration for a preset.
-     * @param {String} token
      * @param {String} network
      * @return {Object}
      */
-    public getPreset(token, network) {
-        return CONFIGURATIONS[token.toUpperCase()][network.toUpperCase()];
+    public getPreset(network: string) {
+        return networks[network.toLowerCase()];
     }
 
     /**

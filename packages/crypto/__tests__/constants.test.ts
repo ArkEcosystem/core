@@ -38,15 +38,4 @@ describe("Constants", () => {
         expect(constants.TRANSACTION_TYPES.DELEGATE_RESIGNATION).toBeDefined();
         expect(constants.TRANSACTION_TYPES.DELEGATE_RESIGNATION).toBe(8);
     });
-
-    it("configurations are defined", () => {
-        expect(constants.CONFIGURATIONS).toBeDefined();
-        expect(constants.CONFIGURATIONS).toBeFrozen();
-
-        expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeDefined();
-        expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeObject();
-
-        expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeDefined();
-        expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeObject();
-    });
 });

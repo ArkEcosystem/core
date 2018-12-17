@@ -48,7 +48,7 @@ describe.skip("Remote Loader", () => {
             axiosMock.onGet("http://127.0.0.1:4002/config/network").reply(() => [
                 200,
                 {
-                    data: require("../../crypto/src/networks/ark/devnet.json"),
+                    data: require("../../crypto/src/networks/devnet.json"),
                 },
             ]);
 

@@ -3,12 +3,12 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { createHash } from "crypto";
-import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants";
+import { TRANSACTION_TYPES } from "../constants";
 import { crypto } from "../crypto/crypto";
 import { configManager } from "../managers/config";
 import { Bignum } from "../utils";
 
-const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET.exceptions;
+const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
 /**
  * TODO copy some parts to ArkDocs

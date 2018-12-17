@@ -5,7 +5,7 @@ import { client, crypto } from "@arkecosystem/crypto";
  * @return {Array} array of objects like { secret, publicKey, address, balance }
  */
 
-client.getConfigManager().setFromPreset("ark", "testnet");
+client.getConfigManager().setFromPreset("testnet");
 
 import { secrets } from "../../config/testnet/delegates.json";
 import { transactions as genesisTransactions } from "../../config/testnet/genesisBlock.json";

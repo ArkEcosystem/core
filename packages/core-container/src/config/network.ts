@@ -14,8 +14,8 @@ export class Network {
         let config;
 
         // Default configuration...
-        if (opts.token && opts.network) {
-            config = NetworkManager.findByName(opts.network, opts.token);
+        if (opts.network) {
+            config = NetworkManager.findByName(opts.network);
 
             // Default configuration + Custom dynamic fees...
             const dynamicFees = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/dynamicFees.json`));

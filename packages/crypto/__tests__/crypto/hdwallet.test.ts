@@ -3,7 +3,7 @@ import "jest-extended";
 import bip32 from "bip32";
 import { crypto, HDWallet } from "../../src/crypto";
 import { configManager } from "../../src/managers/config";
-import { mainnet } from "../../src/networks/ark";
+import { mainnet } from "../../src/networks";
 
 const mnemonic =
     "sorry hawk one science reject employ museum ride into post machine attack bar seminar myself unhappy faculty differ grain fish chest bird muffin mesh";

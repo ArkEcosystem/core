@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { NetworkManager } from "../../src/managers/network";
-import { mainnet } from "../../src/networks/ark";
+import { mainnet } from "../../src/networks";
 
 describe("Network Manager", () => {
     it("should be instantiated", () => {

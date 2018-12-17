@@ -82,7 +82,7 @@ if (fs.existsSync(options.configPath)) {
 }
 fs.ensureDirSync(options.configPath);
 fs.copySync(path.resolve(__dirname, `../../core/src/config/${options.network}`), options.configPath);
-const networkPath = path.resolve(__dirname, `../../crypto/src/networks/ark/${options.network}.json`);
+const networkPath = path.resolve(__dirname, `../../crypto/src/networks/${options.network}.json`);
 if (!fs.existsSync(networkPath)) {
     logger.error(`Network '${options.network}' does not exist`);
     process.exit(1);

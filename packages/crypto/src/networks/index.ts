@@ -1,3 +1,5 @@
-import * as ark from "./ark";
+import { devnet } from "./devnet";
+import { mainnet } from "./mainnet";
+import { testnet } from "./testnet";
 
-export { ark };
+export { devnet, mainnet, testnet };

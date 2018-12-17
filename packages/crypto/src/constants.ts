@@ -1,5 +1,3 @@
-import { devnet, mainnet, testnet } from "./networks/ark";
-
 /**
  * The Arktoshi base.
  * @type {Number}
@@ -43,17 +41,5 @@ export const TRANSACTION_TYPES = Object.freeze({
             default:
                 throw new Error("Invalid transaction type");
         }
-    },
-});
-
-/**
- * Available network configurations.
- * @type {Object}
- */
-export const CONFIGURATIONS = Object.freeze({
-    ARK: {
-        MAINNET: mainnet,
-        DEVNET: devnet,
-        TESTNET: testnet,
     },
 });

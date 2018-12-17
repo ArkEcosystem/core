@@ -40,7 +40,7 @@ export const dynamicFees = {
         const networkName = appConfig.get("network.name");
 
         return {
-            data: require(`../../../../../../crypto/src/networks/ark/${networkName}/dynamicFees.json`),
+            data: require(`../../../../../../crypto/src/networks/${networkName}/dynamicFees.json`),
         };
     },
 };
