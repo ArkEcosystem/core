@@ -56,13 +56,7 @@ commandWithForger("forger:monitor", "Start a forger instance via PM2").action(pr
 // Configuration
 command("config:publish", "Publish the configuration").action(config.publish);
 command("config:reset", "Reset the configuration").action(config.reset);
-command("config:forger", "Configure the forger to use a plain text BIP39")
-    .option("-s, --secret <secret>", "forger secret")
-    .action(config.forgerPlain);
-command("config:forger-bip38", "Configure the forger to use an encrypted BIP38")
-    .option("-s, --secret <secret>", "forger secret")
-    .option("-p, --password <password>", "bip38 password")
-    .action(config.forgerBIP38);
+command("config:forger", "Configure the delegate that will be used to forge").action(config.forger);
 
 // App
 command("update", "Update the installation").action(app.update);

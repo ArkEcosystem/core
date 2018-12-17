@@ -98,97 +98,109 @@ export async function reset(options) {
     }
 }
 
-export async function forgerPlain(options) {
-    const response = await prompts([
+export async function forger(options) {
+    let response = await prompts([
         {
-            type: "password",
-            name: "secret",
-            message: "Please enter your delegate passphrase",
-            validate: value =>
-                !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
-        },
-        {
-            type: "confirm",
-            name: "confirm",
-            message: "Can you confirm?",
-            initial: true,
+            type: "select",
+            name: "method",
+            message: "What method would you like to use to store your passphrase?",
+            choices: [
+                { title: "Encrypted BIP38 (Recommended)", value: "bip38" },
+                { title: "Plain BIP39", value: "bip39" },
+            ],
         },
     ]);
 
-    if (response.confirm) {
-        const spinner = ora("Configuring forger...").start();
+    if (response.method === "bip38") {
+        response = await prompts([
+            {
+                type: "password",
+                name: "passphrase",
+                message: "Please enter your delegate passphrase",
+                validate: value =>
+                    !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+            },
+            {
+                type: "password",
+                name: "bip38password",
+                message: "Please enter your desired BIP38 password",
+            },
+            {
+                type: "confirm",
+                name: "confirm",
+                message: "Can you confirm?",
+                initial: true,
+            },
+        ]);
 
-        const delegatesConfig = `${options.config}/delegates.json`;
+        if (response.confirm) {
+            const spinner = ora("Configuring forger...").start();
 
-        if (!fs.existsSync(delegatesConfig)) {
-            return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+            const delegatesConfig = `${options.config}/delegates.json`;
+
+            if (!fs.existsSync(delegatesConfig)) {
+                return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+            }
+
+            spinner.text = "Preparing crypto...";
+            configManager.setFromPreset(options.token, options.network);
+
+            await delay(750);
+
+            spinner.text = "Loading private key...";
+            const keys = crypto.getKeys(response.passphrase);
+            // @ts-ignore
+            const decoded = wif.decode(crypto.keysToWIF(keys));
+
+            await delay(750);
+
+            spinner.text = "Encrypting BIP38...";
+
+            const delegates = require(delegatesConfig);
+            delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, response.bip38password);
+            delegates.secrets = []; // remove the plain text secrets in favour of bip38
+
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+
+            await delay(750);
+
+            spinner.succeed("Configured forger!");
         }
+    } else if (response.method === "bip39") {
+        response = await prompts([
+            {
+                type: "password",
+                name: "secret",
+                message: "Please enter your delegate passphrase",
+                validate: value =>
+                    !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+            },
+            {
+                type: "confirm",
+                name: "confirm",
+                message: "Can you confirm?",
+                initial: true,
+            },
+        ]);
 
-        const delegates = require(delegatesConfig);
-        delegates.secrets = [options.secret];
-        delete delegates.bip38;
+        if (response.confirm) {
+            const spinner = ora("Configuring forger...").start();
 
-        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+            const delegatesConfig = `${options.config}/delegates.json`;
 
-        await delay(750);
+            if (!fs.existsSync(delegatesConfig)) {
+                return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+            }
 
-        spinner.succeed("Configured forger!");
-    }
-}
+            const delegates = require(delegatesConfig);
+            delegates.secrets = [options.secret];
+            delete delegates.bip38;
 
-export async function forgerBIP38(options) {
-    const response = await prompts([
-        {
-            type: "password",
-            name: "passphrase",
-            message: "Please enter your delegate passphrase",
-            validate: value =>
-                !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
-        },
-        {
-            type: "password",
-            name: "bip38password",
-            message: "Please enter your desired BIP38 password",
-        },
-        {
-            type: "confirm",
-            name: "confirm",
-            message: "Can you confirm?",
-            initial: true,
-        },
-    ]);
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 
-    if (response.confirm) {
-        const spinner = ora("Configuring forger...").start();
+            await delay(750);
 
-        const delegatesConfig = `${options.config}/delegates.json`;
-
-        if (!fs.existsSync(delegatesConfig)) {
-            return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+            spinner.succeed("Configured forger!");
         }
-
-        spinner.text = "Preparing crypto...";
-        configManager.setFromPreset(options.token, options.network);
-
-        await delay(750);
-
-        spinner.text = "Loading private key...";
-        const keys = crypto.getKeys(response.passphrase);
-        // @ts-ignore
-        const decoded = wif.decode(crypto.keysToWIF(keys));
-
-        await delay(750);
-
-        spinner.text = "Encrypting BIP38...";
-
-        const delegates = require(delegatesConfig);
-        delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, response.bip38password);
-        delegates.secrets = []; // remove the plain text secrets in favour of bip38
-
-        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
-
-        await delay(750);
-
-        spinner.succeed("Configured forger!");
     }
 }
