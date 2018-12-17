@@ -1,7 +1,28 @@
 import { app } from "@arkecosystem/core-container";
-import { feeManager, formatArktoshi } from "@arkecosystem/crypto";
+import { constants, feeManager, formatArktoshi } from "@arkecosystem/crypto";
+import camelCase from "lodash/camelCase";
 import { config as localConfig } from "../config";
-import { dynamicFeeManager } from "../dynamic-fee";
+
+/**
+ * Calculate minimum fee of a transaction for entering the pool.
+ * @param {Number} Minimum fee ARKTOSHI/byte
+ * @param {Transaction} Transaction for which we calculate the fee
+ * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
+ */
+export function calculateFee(arktoshiPerByte, transaction) {
+    if (arktoshiPerByte <= 0) {
+        arktoshiPerByte = 1;
+    }
+
+    const addonBytes = localConfig.get("dynamicFees.addonBytes")[
+        camelCase(constants.TRANSACTION_TYPES.toString(transaction.type))
+    ];
+
+    // serialized is in hex
+    const transactionSizeInBytes = transaction.serialized.length / 2;
+
+    return (addonBytes + transactionSizeInBytes) * arktoshiPerByte;
+}
 
 /**
  * Determine if a transaction's fee meets the minimum requirements for broadcasting
@@ -21,7 +42,7 @@ export function dynamicFeeMatcher(transaction) {
     let enterPool;
 
     if (dynamicFees.enabled) {
-        const minFeeBroadcast = dynamicFeeManager.calculateFee(dynamicFees.minFeeBroadcast, transaction);
+        const minFeeBroadcast = calculateFee(dynamicFees.minFeeBroadcast, transaction);
 
         if (fee >= minFeeBroadcast) {
             broadcast = true;
@@ -39,7 +60,7 @@ export function dynamicFeeMatcher(transaction) {
             );
         }
 
-        const minFeePool = dynamicFeeManager.calculateFee(dynamicFees.minFeePool, transaction);
+        const minFeePool = calculateFee(dynamicFees.minFeePool, transaction);
         if (fee >= minFeePool) {
             enterPool = true;
             logger.debug(

@@ -1,4 +1,3 @@
-import { dynamicFeeManager } from "./manager";
-import { dynamicFeeMatcher } from "./matcher";
+import { calculateFee, dynamicFeeMatcher } from "./matcher";
 
-export { dynamicFeeManager, dynamicFeeMatcher };
+export { calculateFee, dynamicFeeMatcher };
