@@ -53,19 +53,16 @@ command("forger:stop", "Stop a forger instance").action(processes.forger.stop);
 command("forger:restart", "Restart a forger instance").action(processes.forger.restart);
 commandWithForger("forger:monitor", "Start a forger instance via PM2").action(processes.forger.monitor);
 
-// Forger
-command("forger:secret", "set the delegate secret")
-    .option("-s, --secret <secret>", "forger secret")
-    .action(config.forgerSecret);
-
-command("forger:bip38", "encrypt the delegate passphrase using bip38")
-    .option("-s, --secret <secret>", "forger secret")
-    .option("-p, --password <password>", "bip38 password")
-    .action(config.forgerBIP38);
-
 // Configuration
 command("config:publish", "Publish the configuration").action(config.publish);
 command("config:reset", "Reset the configuration").action(config.reset);
+command("config:secret", "set the delegate secret")
+    .option("-s, --secret <secret>", "forger secret")
+    .action(config.forgerSecret);
+command("config:bip38", "encrypt the delegate passphrase using bip38")
+    .option("-s, --secret <secret>", "forger secret")
+    .option("-p, --password <password>", "bip38 password")
+    .action(config.forgerBIP38);
 
 // App
 command("update", "Update the installation").action(app.update);

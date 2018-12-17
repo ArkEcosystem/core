@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { configManager, crypto } from "@arkecosystem/crypto";
 import bip38 from "bip38";
+import bip39 from "bip39";
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
@@ -27,6 +28,7 @@ export async function publish(options) {
             name: "config",
             message: "Where do you want the configuration to be located?",
             initial: options.config,
+            validate: value => fs.existsSync(value),
         },
         {
             type: "confirm",
@@ -51,7 +53,7 @@ export async function publish(options) {
         }
 
         if (!fs.existsSync(cryptoConfigSrc)) {
-            spinner.fail(`Couldn't find the core configuration files at ${cryptoConfigSrc}.`);
+            spinner.fail(`Couldn't find the crypto configuration files at ${cryptoConfigSrc}.`);
         }
 
         fs.ensureDirSync(coreConfigDest);
@@ -97,39 +99,96 @@ export async function reset(options) {
 }
 
 export async function forgerSecret(options) {
-    const delegatesConfig = `${options.config}/delegates.json`;
+    const response = await prompts([
+        {
+            type: "password",
+            name: "secret",
+            message: "Please enter your delegate passphrase",
+            validate: value =>
+                !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+        },
+        {
+            type: "confirm",
+            name: "confirm",
+            message: "Can you confirm?",
+            initial: true,
+        },
+    ]);
 
-    if (!fs.existsSync(delegatesConfig)) {
-        // tslint:disable-next-line:no-console
-        console.error("Missing or invalid delegates config path");
-        process.exit(1);
+    if (response.confirm) {
+        const spinner = ora("Configuring forger...").start();
+
+        const delegatesConfig = `${options.config}/delegates.json`;
+
+        if (!fs.existsSync(delegatesConfig)) {
+            return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+        }
+
+        const delegates = require(delegatesConfig);
+        delegates.secrets = [options.secret];
+        delete delegates.bip38;
+
+        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+
+        await delay(750);
+
+        spinner.succeed("Configured forger!");
     }
-
-    const delegates = require(delegatesConfig);
-    delegates.secrets = [options.secret];
-    delete delegates.bip38;
-
-    fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 }
 
 export async function forgerBIP38(options) {
-    const delegatesConfig = `${options.config}/delegates.json`;
+    const response = await prompts([
+        {
+            type: "password",
+            name: "passphrase",
+            message: "Please enter your delegate passphrase",
+            validate: value =>
+                !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+        },
+        {
+            type: "password",
+            name: "bip38password",
+            message: "Please enter your desired BIP38 password",
+        },
+        {
+            type: "confirm",
+            name: "confirm",
+            message: "Can you confirm?",
+            initial: true,
+        },
+    ]);
 
-    if (!fs.existsSync(delegatesConfig)) {
-        // tslint:disable-next-line:no-console
-        console.error("Missing or invalid delegates config path");
-        process.exit(1);
+    if (response.confirm) {
+        const spinner = ora("Configuring forger...").start();
+
+        const delegatesConfig = `${options.config}/delegates.json`;
+
+        if (!fs.existsSync(delegatesConfig)) {
+            return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+        }
+
+        spinner.text = "Preparing crypto...";
+        configManager.setFromPreset(options.token, options.network);
+
+        await delay(750);
+
+        spinner.text = "Loading private key...";
+        const keys = crypto.getKeys(response.passphrase);
+        // @ts-ignore
+        const decoded = wif.decode(crypto.keysToWIF(keys));
+
+        await delay(750);
+
+        spinner.text = "Encrypting BIP38...";
+
+        const delegates = require(delegatesConfig);
+        delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, response.bip38password);
+        delegates.secrets = []; // remove the plain text secrets in favour of bip38
+
+        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+
+        await delay(750);
+
+        spinner.succeed("Configured forger!");
     }
-
-    configManager.setFromPreset(options.token, options.network);
-
-    const keys = crypto.getKeys(options.secret);
-    // @ts-ignore
-    const decoded = wif.decode(crypto.keysToWIF(keys));
-
-    const delegates = require(delegatesConfig);
-    delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, options.password);
-    delegates.secrets = []; // remove the plain text secrets in favour of bip38
-
-    fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 }
