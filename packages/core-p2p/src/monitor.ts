@@ -31,6 +31,7 @@ class Monitor {
     public guard: any;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
+    private initializing: boolean;
     private pendingPeers: { [ip: string]: any };
     private coldStartPeriod: dayjs.Dayjs;
 
@@ -41,6 +42,7 @@ class Monitor {
     constructor() {
         this.peers = {};
         this.coldStartPeriod = dayjs().add(localConfig.get("coldStart"), "second");
+        this.initializing = true;
 
         // Holds temporary peers which are in the process of being accepted. Prevents that
         // peers who are not accepted yet, but send multiple requests in a short timeframe will
@@ -78,6 +80,7 @@ class Monitor {
             }
         }
 
+        this.initializing = false;
         return this;
     }
 
@@ -209,7 +212,7 @@ class Monitor {
      * @param {Boolean} tracker
      * @param {Boolean} forcePing
      */
-    public async cleanPeers(fast = false, tracker = true, forcePing = false) {
+    public async cleanPeers(fast = false, forcePing = false) {
         const keys = Object.keys(this.peers);
         let count = 0;
         let unresponsivePeers = 0;
@@ -223,7 +226,7 @@ class Monitor {
                 try {
                     await peer.ping(pingDelay, forcePing);
 
-                    if (tracker) {
+                    if (this.initializing) {
                         logger.printTracker("Peers Discovery", ++count, max);
                     }
                 } catch (error) {
@@ -240,7 +243,7 @@ class Monitor {
             }),
         );
 
-        if (tracker) {
+        if (this.initializing) {
             logger.stopTracker("Peers Discovery", max, max);
             logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
             logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
@@ -431,7 +434,7 @@ class Monitor {
 
     public async getNetworkState() {
         if (!this.__isColdStartActive()) {
-            await this.cleanPeers(true, false, true);
+            await this.cleanPeers(true, true);
         }
 
         return networkState(this, app.resolvePlugin("blockchain").getLastBlock());
@@ -578,7 +581,7 @@ class Monitor {
     public async updatePeersOnMissingBlocks() {
         // First ping all peers to get updated heights and remove unresponsive ones.
         if (!this.__isColdStartActive()) {
-            await this.cleanPeers(true, false);
+            await this.cleanPeers(true);
         }
 
         const peersGroupedByHeight = groupBy(this.getPeers(), "state.height");
