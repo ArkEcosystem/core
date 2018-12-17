@@ -1,5 +1,5 @@
 import * as app from "./app";
 import * as config from "./config";
-import * as start from "./start";
+import * as processes from "./processes";
 
-export { app, config, start };
+export { app, config, processes };
