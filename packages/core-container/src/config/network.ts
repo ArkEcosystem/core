@@ -24,7 +24,6 @@ export class Network {
                     dynamicFees: require(`${networkPath}/dynamicFees`),
                 };
             } catch (error) {
-                console.log(error);
                 config = false;
             }
         }
