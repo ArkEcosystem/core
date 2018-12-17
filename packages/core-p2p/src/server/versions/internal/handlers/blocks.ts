@@ -13,7 +13,7 @@ export const store = {
     handler: (request, h) => {
         request.payload.block.ip = request.info.remoteAddress;
 
-        app.resolvePlugin("blockchain").queueBlock(request.payload.block);
+        app.resolvePlugin("blockchain").queueBlock(request.payload.block, true);
 
         return h.response(null).code(204);
     },

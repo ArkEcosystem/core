@@ -163,9 +163,10 @@ export class Blockchain {
     /**
      * Push a block to the process queue.
      * @param  {Block} block
+     * @param  {Boolean} internal
      * @return {void}
      */
-    public queueBlock(block) {
+    public queueBlock(block, internal = false) {
         logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
                 "transaction",
@@ -174,7 +175,7 @@ export class Blockchain {
             )} from ${block.ip}`,
         );
 
-        if (this.state.started && this.state.blockchain.value === "idle" && !this.state.forked) {
+        if (this.state.started && this.state.blockchain.value === "idle" && (!this.state.forked || internal)) {
             this.dispatch("NEWBLOCK");
 
             this.processQueue.push(block);
