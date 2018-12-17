@@ -35,6 +35,8 @@ class Monitor {
     this.peers = {}
     this.coldStartPeriod = dayjs().add(config.peers.coldStart || 30, 'seconds')
 
+    this.nextUpdateNetworkStatusScheduled = false
+
     // Holds temporary peers which are in the process of being accepted. Prevents that
     // peers who are not accepted yet, but send multiple requests in a short timeframe will
     // get processed multiple times in `acceptNewPeer`.
@@ -53,7 +55,7 @@ class Monitor {
 
     this.guard = guard.init(this)
 
-    this.__filterPeers()
+    this.__populateSeedPeers()
 
     if (this.config.skipDiscovery) {
       logger.warn(
@@ -98,7 +100,7 @@ class Monitor {
    * @return {Promise}
    */
   async updateNetworkStatus(networkStart) {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.ARK_ENV === 'test' || process.env.NODE_ENV === 'test') {
       return
     }
 
@@ -117,53 +119,21 @@ class Monitor {
     }
 
     try {
-      if (process.env.ARK_ENV !== 'test') {
-        await this.discoverPeers()
-        await this.cleanPeers()
-
-        if (!this.hasMinimumPeers()) {
-          this.__addPeers(config.peers.list)
-
-          logger.info("Couldn't find enough peers, trying again in 5 seconds.")
-
-          await delay(5000)
-
-          return this.updateNetworkStatus()
-        }
-      }
+      await this.discoverPeers()
+      await this.cleanPeers()
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
-
-      this.__addPeers(config.peers.list)
-
-      logger.info('Failed to discover peers, trying again in 5 seconds.')
-
-      if (process.env.NODE_ENV !== 'test') {
-        await delay(5000)
-      }
-
-      return this.updateNetworkStatus()
     }
-  }
 
-  /**
-   * Updates the network status if not enough peers are available.
-   * NOTE: This is usually only necessary for nodes without incoming requests,
-   * since the available peers are depleting over time due to suspensions.
-   * @return {void}
-   */
-  async updateNetworkStatusIfNotEnoughPeers() {
-    if (!this.hasMinimumPeers() && process.env.ARK_ENV !== 'test') {
-      await this.updateNetworkStatus(this.config.networkStart)
+    let nextRunDelaySeconds = 600
+
+    if (!this.__hasMinimumPeers()) {
+      this.__populateSeedPeers();
+      nextRunDelaySeconds = 5;
+      logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
     }
-  }
 
-  /**
-   * Returns if the minimum amount of peers are available.
-   * @return {Boolean}
-   */
-  hasMinimumPeers() {
-    return Object.keys(this.peers).length >= config.peers.minimumNetworkReach
+    this.__scheduleUpdateNetworkStatus(nextRunDelaySeconds)
   }
 
   /**
@@ -413,25 +383,26 @@ class Monitor {
 
   /**
    * Populate list of available peers from random peers.
-   * @return {Peer[]}
    */
   async discoverPeers() {
-    try {
-      const peers = await this.getRandomPeer().getPeers()
+    const shuffledPeers = shuffle(this.getPeers())
 
-      peers.forEach(peer => {
-        if (
-          Peer.isOk(peer) &&
-          !this.getPeer(peer.ip) &&
-          !this.guard.isMyself(peer)
-        ) {
-          this.__addPeer(peer)
+    for (const peer of shuffledPeers) {
+      try {
+        const hisPeers = await peer.getPeers()
+
+        for (const p of hisPeers) {
+          if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
+            this.__addPeer(p)
+          }
         }
-      })
+      } catch (error) {
+        // Just try with the next peer from shuffledPeers.
+      }
 
-      return this.peers
-    } catch (error) {
-      return this.discoverPeers()
+      if (this.__hasMinimumPeers()) {
+        return;
+      }
     }
   }
 
@@ -783,36 +754,6 @@ class Monitor {
   }
 
   /**
-   * Filter the initial seed list.
-   * @return {void}
-   */
-  __filterPeers() {
-    if (!config.peers.list) {
-      app.forceExit('No seed peers defined in peers.json :interrobang:')
-    }
-
-    let peers = config.peers.list.map(peer => {
-      peer.version = app.getVersion()
-      return peer
-    })
-
-    if (config.peers_backup) {
-      peers = { ...peers, ...config.peers_backup }
-    }
-
-    const filteredPeers = Object.values(peers).filter(
-      peer =>
-        !this.guard.isMyself(peer) ||
-        !this.guard.isValidPort(peer) ||
-        !this.guard.isValidVersion(peer),
-    )
-
-    for (const peer of filteredPeers) {
-      this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-    }
-  }
-
-  /**
    * Get last 10 block IDs from database.
    * @return {[]String}
    */
@@ -894,6 +835,61 @@ class Monitor {
   __addPeers(peers) {
     for (const peer of peers) {
       this.__addPeer(peer)
+    }
+  }
+
+  /**
+   * Schedule the next update network status.
+   * @param {Number} nextUpdateInSeconds
+   * @returns {void}
+   */
+  async __scheduleUpdateNetworkStatus(nextUpdateInSeconds) {
+    if (this.nextUpdateNetworkStatusScheduled) {
+      return
+    }
+
+    this.nextUpdateNetworkStatusScheduled = true
+
+    await delay(nextUpdateInSeconds * 1000)
+
+    this.nextUpdateNetworkStatusScheduled = false
+
+    this.updateNetworkStatus(this.config.networkStart)
+  }
+
+  /**
+   * Returns if the minimum amount of peers are available.
+   * @return {Boolean}
+   */
+  __hasMinimumPeers() {
+    return Object.keys(this.peers).length >= config.peers.minimumNetworkReach
+  }
+
+  /**
+   * Populate the initial seed list.
+   * @return {void}
+   */
+  __populateSeedPeers() {
+    if (!config.peers.list) {
+      app.forceExit("No seed peers defined in peers.json :interrobang:")
+    }
+
+    let peers = config.peers.list.map(peer => {
+      peer.version = app.getVersion()
+      return peer
+    })
+
+    if (config.peers_backup) {
+      peers = { ...peers, ...config.peers_backup }
+    }
+
+    const filteredPeers = Object.values(peers).filter(
+      peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValid
+    )
+
+    for (const peer of filteredPeers) {
+      delete this.guard.suspensions[peer.ip]
+      this.peers[peer.ip] = new Peer(peer.ip, peer.port)
     }
   }
 }
