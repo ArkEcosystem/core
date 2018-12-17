@@ -1,5 +1,6 @@
 import { NetworkManager } from "@arkecosystem/crypto";
 import expandHomeDir from "expand-home-dir";
+import { existsSync } from "fs";
 import Joi from "joi";
 import { resolve } from "path";
 import { schemaNetwork } from "./schema";
@@ -12,8 +13,16 @@ export class Network {
     public static setUp(opts: any) {
         let config;
 
+        // Default configuration...
         if (opts.token && opts.network) {
             config = NetworkManager.findByName(opts.network, opts.token);
+
+            // Default configuration + Custom dynamic fees...
+            const dynamicFees = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/dynamicFees.json`));
+
+            if (existsSync(dynamicFees)) {
+                config.dynamicFees = require(dynamicFees);
+            }
         } else {
             try {
                 const networkPath = resolve(expandHomeDir(process.env.ARK_PATH_CONFIG));
@@ -28,6 +37,7 @@ export class Network {
             }
         }
 
+        // Validate the configuration...
         const { error } = Joi.validate(config, schemaNetwork);
 
         if (error) {
