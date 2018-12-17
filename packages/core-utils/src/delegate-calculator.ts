@@ -10,14 +10,14 @@ const BignumMod = Bignum.clone({ DECIMAL_PLACES: 2 });
  * @return {Number} Approval, with 2 decimals
  */
 function calculateApproval(delegate, height: any = null) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
 
     if (!height) {
         height = app.resolvePlugin("blockchain").getLastBlock().data.height;
     }
 
-    const constants = config.getConstants(height);
-    const totalSupply = new BignumMod(config.genesisBlock.totalAmount).plus(
+    const constants = config.getMilestone(height);
+    const totalSupply = new BignumMod(config.get("genesisBlock.totalAmount")).plus(
         (height - constants.height) * constants.reward,
     );
     const voteBalance = new BignumMod(delegate.voteBalance);

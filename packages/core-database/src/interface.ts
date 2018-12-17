@@ -10,7 +10,7 @@ import { DelegatesRepository } from "./repositories/delegates";
 import { WalletsRepository } from "./repositories/wallets";
 
 const { Block } = models;
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 export abstract class ConnectionInterface {
     public config: any;
@@ -20,6 +20,7 @@ export abstract class ConnectionInterface {
     public connection: any;
     public blocksInCurrentRound: any[];
     public stateStarted: boolean;
+    public restoredDatabaseIntegrity: boolean;
     public walletManager: WalletManager;
     public forgingDelegates: any[];
     public wallets: WalletsRepository;
@@ -31,13 +32,14 @@ export abstract class ConnectionInterface {
      * @param {Object} options
      */
     public constructor(public readonly options) {
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.logger = app.resolvePlugin("logger");
         this.emitter = app.resolvePlugin("event-emitter");
 
         this.connection = null;
         this.blocksInCurrentRound = null;
         this.stateStarted = false;
+        this.restoredDatabaseIntegrity = false;
         this.walletManager = null;
         this.wallets = null;
         this.delegates = null;
@@ -220,6 +222,14 @@ export abstract class ConnectionInterface {
     public abstract async getTransaction(id): Promise<any>;
 
     /**
+     * Load blocks from current round into memory.
+     * @return {void]}
+     */
+    public async loadBlocksFromCurrentRound() {
+        this.blocksInCurrentRound = await this.__getBlocksForRound();
+    }
+
+    /**
      * Update delegate statistics in memory.
      * NOTE: must be called before saving new round of delegates
      * @param  {Block} block
@@ -267,7 +277,7 @@ export abstract class ConnectionInterface {
      */
     public async applyRound(height) {
         const nextHeight = height === 1 ? 1 : height + 1;
-        const maxDelegates = this.config.getConstants(nextHeight).activeDelegates;
+        const maxDelegates = this.config.getMilestone(nextHeight).activeDelegates;
 
         if (nextHeight % maxDelegates === 1) {
             const round = Math.floor((nextHeight - 1) / maxDelegates) + 1;
@@ -360,10 +370,6 @@ export abstract class ConnectionInterface {
      * @return {void}
      */
     public async validateDelegate(block) {
-        if (this.__isException(block.data)) {
-            return;
-        }
-
         const delegates = await this.getActiveDelegates(block.data.height);
         const slot = slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate = delegates[slot % delegates.length];
@@ -447,7 +453,7 @@ export abstract class ConnectionInterface {
      * @return {Boolean}
      */
     public async verifyTransaction(transaction) {
-        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.network.pubKeyHash);
+        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
 
@@ -483,7 +489,7 @@ export abstract class ConnectionInterface {
             round = roundCalculator.calculateRound(height).round;
         }
 
-        const maxDelegates = this.config.getConstants(height).activeDelegates;
+        const maxDelegates = this.config.getMilestone(height).activeDelegates;
         height = round * maxDelegates + 1;
 
         const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1);
@@ -527,11 +533,11 @@ export abstract class ConnectionInterface {
             return false;
         }
 
-        if (!Array.isArray(this.config.network.exceptions.blocks)) {
+        if (!Array.isArray(this.config.get("exceptions.blocks"))) {
             return false;
         }
 
-        return this.config.network.exceptions.blocks.includes(block.id);
+        return this.config.get("exceptions.blocks").includes(block.id);
     }
 
     /**
@@ -542,15 +548,15 @@ export abstract class ConnectionInterface {
     private __emitTransactionEvents(transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+        if (transaction.type === TransactionTypes.DelegateRegistration) {
             this.emitter.emit("delegate.registered", transaction.data);
         }
 
-        if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+        if (transaction.type === TransactionTypes.DelegateResignation) {
             this.emitter.emit("delegate.resigned", transaction.data);
         }
 
-        if (transaction.type === TRANSACTION_TYPES.VOTE) {
+        if (transaction.type === TransactionTypes.Vote) {
             const vote = transaction.asset.votes[0];
 
             this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {

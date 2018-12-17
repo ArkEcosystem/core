@@ -55,7 +55,7 @@ class Slots {
      * @return {Moment}
      */
     public beginEpochTime() {
-        return dayjs(this.getConstant("epoch")).utc();
+        return dayjs(this.getMilestone("epoch")).utc();
     }
 
     /**
@@ -92,7 +92,7 @@ class Slots {
             epochTime = this.getTime();
         }
 
-        return Math.floor(epochTime / this.getConstant("blocktime"));
+        return Math.floor(epochTime / this.getMilestone("blocktime"));
     }
 
     /**
@@ -101,7 +101,7 @@ class Slots {
      * @return {Number}
      */
     public getSlotTime(slot) {
-        return slot * this.getConstant("blocktime");
+        return slot * this.getMilestone("blocktime");
     }
 
     /**
@@ -118,16 +118,7 @@ class Slots {
      * @return {Number}
      */
     public getLastSlot(nextSlot) {
-        return nextSlot + this.getConstant("activeDelegates");
-    }
-
-    /**
-     * Get constant from height 1.
-     * @param  {String} key
-     * @return {*}
-     */
-    public getConstant(key) {
-        return configManager.getConstants(this.height)[key];
+        return nextSlot + this.getMilestone("activeDelegates");
     }
 
     /**
@@ -140,9 +131,18 @@ class Slots {
             epochTime = this.getTime();
         }
 
-        const blockTime = this.getConstant("blocktime");
+        const blockTime = this.getMilestone("blocktime");
 
         return epochTime % blockTime < blockTime / 2;
+    }
+
+    /**
+     * Get constant from height 1.
+     * @param  {String} key
+     * @return {*}
+     */
+    private getMilestone(key) {
+        return configManager.getMilestone(this.height)[key];
     }
 }
 

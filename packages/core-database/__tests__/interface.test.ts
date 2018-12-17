@@ -5,7 +5,7 @@ import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
 
-const { ARKTOSHI, TRANSACTION_TYPES } = constants;
+const { ARKTOSHI, TransactionTypes } = constants;
 
 let connectionInterface;
 let genesisBlock;
@@ -42,7 +42,7 @@ describe("Connection Interface", () => {
 
             // Create delegates
             for (const transaction of genesisBlock.transactions) {
-                if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+                if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
                     wallet.username = Transaction.deserialize(
                         transaction.serialized.toString("hex"),

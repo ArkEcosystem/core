@@ -8,9 +8,11 @@ export function transformPortsLegacy(config: any) {
         "@arkecosystem/core-webhooks",
     ];
 
-    result[keys[0]] = config.plugins[keys[0]].port;
+    const plugins = config.get("plugins");
 
-    for (const [name, options] of Object.entries(config.plugins)) {
+    result[keys[0]] = plugins[keys[0]].port;
+
+    for (const [name, options] of Object.entries(plugins)) {
         // @ts-ignore
         if (keys.includes(name) && options.enabled) {
             // @ts-ignore

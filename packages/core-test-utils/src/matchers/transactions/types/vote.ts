@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { VOTE } = constants.TRANSACTION_TYPES;
+const { Vote } = constants.TransactionTypes;
 
 export {};
 
@@ -17,7 +17,7 @@ expect.extend({
     toBeVoteType: received => {
         return {
             message: () => "Expected value to be a valid VOTE transaction.",
-            pass: received.type === VOTE,
+            pass: received.type === Vote,
         };
     },
 });

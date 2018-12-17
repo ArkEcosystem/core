@@ -8,7 +8,7 @@ import { monitor } from "../../../monitor";
 const { Block, Transaction } = models;
 
 const transactionPool = app.resolvePlugin("transactionPool");
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 
 /**
@@ -112,7 +112,7 @@ export const getTransactionsFromIds = {
     async handler(request, h) {
         try {
             const blockchain = app.resolvePlugin("blockchain");
-            const maxTransactions = config.getConstants(blockchain.getLastHeight()).block.maxTransactions;
+            const maxTransactions = config.getMilestone(blockchain.getLastHeight()).block.maxTransactions;
 
             const transactionIds = request.query.ids
                 .split(",")

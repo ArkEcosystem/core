@@ -11,7 +11,7 @@ export class BlockchainController extends Controller {
     public constructor() {
         super();
 
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.blockchain = app.resolvePlugin("blockchain");
     }
 

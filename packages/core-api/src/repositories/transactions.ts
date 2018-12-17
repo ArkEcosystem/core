@@ -156,7 +156,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async allVotesBySender(senderPublicKey, parameters: any = {}): Promise<any> {
         return this.findAll({
-            ...{ senderPublicKey, type: constants.TRANSACTION_TYPES.VOTE },
+            ...{ senderPublicKey, type: constants.TransactionTypes.Vote },
             ...parameters,
         });
     }

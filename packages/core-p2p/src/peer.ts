@@ -42,7 +42,7 @@ export class Peer {
      */
     constructor(readonly ip, readonly port) {
         this.logger = app.resolvePlugin("logger");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
 
         this.ban = new Date().getTime();
         this.url = `${port % 443 === 0 ? "https://" : "http://"}${ip}:${port}`;
@@ -53,12 +53,12 @@ export class Peer {
         this.headers = {
             version: app.getVersion(),
             port: localConfig.get("port"),
-            nethash: this.config.network.nethash,
+            nethash: this.config.get("network.nethash"),
             height: null,
             "Content-Type": "application/json",
         };
 
-        if (this.config.network.name !== "mainnet") {
+        if (this.config.get("network.name") !== "mainnet") {
             this.headers.hashid = app.getHashid();
         }
     }
@@ -99,7 +99,7 @@ export class Peer {
             delay: this.delay,
         };
 
-        if (this.config.network.name !== "mainnet") {
+        if (this.config.get("network.name") !== "mainnet") {
             (data as any).hashid = this.hashid || "unknown";
         }
 
@@ -274,7 +274,7 @@ export class Peer {
         try {
             const response = await axios.get(`${this.url}${endpoint}`, {
                 headers: this.headers,
-                timeout: timeout || this.config.peers.globalTimeout,
+                timeout: timeout || this.config.get("peers.globalTimeout"),
             });
 
             this.delay = new Date().getTime() - temp;

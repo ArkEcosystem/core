@@ -82,7 +82,7 @@ if (fs.existsSync(options.configPath)) {
 }
 fs.ensureDirSync(options.configPath);
 fs.copySync(path.resolve(__dirname, `../../core/src/config/${options.network}`), options.configPath);
-const networkPath = path.resolve(__dirname, `../../crypto/src/networks/ark/${options.network}.json`);
+const networkPath = path.resolve(__dirname, `../../crypto/src/networks/${options.network}.json`);
 if (!fs.existsSync(networkPath)) {
     logger.error(`Network '${options.network}' does not exist`);
     process.exit(1);
@@ -106,22 +106,6 @@ const networkConfig = {
             epoch: options.epoch,
             activeDelegates: options.activeDelegates,
             fees: {
-                dynamic: false,
-                dynamicFees: {
-                    minFeePool: 1000,
-                    minFeeBroadcast: 1000,
-                    addonBytes: {
-                        transfer: 100,
-                        secondSignature: 250,
-                        delegateRegistration: 500,
-                        vote: 100,
-                        multiSignature: 500,
-                        ipfs: 250,
-                        timelockTransfer: 500,
-                        multiPayment: 500,
-                        delegateResignation: 500,
-                    },
-                },
                 staticFees: {
                     transfer: options.feeTransfer,
                     secondSignature: options.feeVote,

@@ -1,12 +1,12 @@
 import "../../../../src/matchers/transactions/types/delegate";
 
 import { constants } from "@arkecosystem/crypto";
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 describe(".toBeDelegateType", () => {
     test("passes when given a valid transaction", () => {
         expect({
-            type: TRANSACTION_TYPES.DELEGATE_REGISTRATION,
+            type: TransactionTypes.DelegateRegistration,
         }).toBeDelegateType();
     });
 

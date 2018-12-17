@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 
 export function transformPeer(model) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
 
     const peer: any = {
         ip: model.ip,
@@ -13,7 +13,7 @@ export function transformPeer(model) {
         latency: model.delay,
     };
 
-    if (config.network.name !== "mainnet") {
+    if (config.get("network.name") !== "mainnet") {
         peer.hashid = model.hashid || "unknown";
     }
 

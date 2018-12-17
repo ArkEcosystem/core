@@ -3,7 +3,7 @@ import "jest-extended";
 import { start } from "../../../src/commands/processes/relay";
 import { opts } from "../../__support__/app";
 
-describe.skip("Commands - Start Relay", () => {
+describe("Commands - Start Relay", () => {
     it("should be OK", async () => {
         const app = await start(opts);
 

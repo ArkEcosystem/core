@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../../constants";
+import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const timelockTransfer = joi => ({
@@ -6,7 +6,7 @@ export const timelockTransfer = joi => ({
     base: transaction(joi).append({
         type: joi
             .number()
-            .only(TRANSACTION_TYPES.MULTI_PAYMENT)
+            .only(TransactionTypes.MultiPayment)
             .required(),
         amount: joi
             .alternatives()

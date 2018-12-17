@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { NetworkManager } from "../../src/managers/network";
-import networkMainnet from "../../src/networks/ark/mainnet.json";
+import { mainnet } from "../../src/networks";
 
 describe("Network Manager", () => {
     it("should be instantiated", () => {
@@ -9,7 +9,7 @@ describe("Network Manager", () => {
     });
 
     it("should find mainnet by name", () => {
-        const mainnet = NetworkManager.findByName("mainnet");
-        expect(mainnet).toMatchObject(networkMainnet);
+        const actual = NetworkManager.findByName("mainnet");
+        expect(actual).toMatchObject(mainnet);
     });
 });

@@ -1,22 +1,23 @@
 import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
-import { dynamicFeeManager } from "./dynamic-fee";
+import get from "lodash/get";
+import set from "lodash/set";
 import { feeManager } from "./fee";
 
-import { CONFIGURATIONS, TRANSACTION_TYPES } from "../constants";
-import defaultConfig from "../networks/ark/devnet.json";
+import { TransactionTypes } from "../constants";
+import * as networks from "../networks";
 
 export class ConfigManager {
     public config: any;
     public height: any;
-    public constant: any;
-    public constants: any;
+    public milestone: any;
+    public milestones: any;
 
     /**
      * @constructor
      */
     constructor() {
-        this.setConfig(defaultConfig);
+        this.setConfig(networks.devnet);
     }
 
     /**
@@ -26,22 +27,33 @@ export class ConfigManager {
     public setConfig(config) {
         this.config = {};
 
-        for (const [key, value] of Object.entries(config)) {
+        // Map the config.network values to the root
+        for (const [key, value] of Object.entries(config.network)) {
             this.config[key] = value;
         }
 
+        this.config.exceptions = config.exceptions;
+        this.config.milestones = config.milestones;
+
         this.buildConstants();
         this.buildFees();
-        this.buildAddonBytes();
     }
 
     /**
-     * Get config from preset configurations.
-     * @param {String} coin
+     * Set the configuration based on a preset.
      * @param {String} network
      */
-    public setFromPreset(coin, network) {
-        this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()]);
+    public setFromPreset(network: string) {
+        this.setConfig(this.getPreset(network));
+    }
+
+    /**
+     * Get the configuration for a preset.
+     * @param {String} network
+     * @return {Object}
+     */
+    public getPreset(network: string) {
+        return networks[network.toLowerCase()];
     }
 
     /**
@@ -58,7 +70,7 @@ export class ConfigManager {
      * @param {*}      value
      */
     public set(key, value) {
-        this.config[key] = value;
+        set(this.config, key, value);
     }
 
     /**
@@ -67,7 +79,7 @@ export class ConfigManager {
      * @return {*}
      */
     public get(key) {
-        return this.config[key];
+        return get(this.config, key);
     }
 
     /**
@@ -87,20 +99,11 @@ export class ConfigManager {
     }
 
     /**
-     * Get specific config constant based on height 1.
-     * @param  {String} key
-     * @return {*}
-     */
-    public getConstant(key) {
-        return this.getConstants()[key];
-    }
-
-    /**
      * Get all config constants based on height.
      * @param  {(Number|undefined)} height
      * @return {*}
      */
-    public getConstants(height?) {
+    public getMilestone(height?) {
         if (!height && this.height) {
             height = this.height;
         }
@@ -110,62 +113,47 @@ export class ConfigManager {
         }
 
         while (
-            this.constant.index < this.constants.length - 1 &&
-            height >= this.constants[this.constant.index + 1].height
+            this.milestone.index < this.milestones.length - 1 &&
+            height >= this.milestones[this.milestone.index + 1].height
         ) {
-            this.constant.index++;
-            this.constant.data = this.constants[this.constant.index];
+            this.milestone.index++;
+            this.milestone.data = this.milestones[this.milestone.index];
         }
 
-        while (height < this.constants[this.constant.index].height) {
-            this.constant.index--;
-            this.constant.data = this.constants[this.constant.index];
+        while (height < this.milestones[this.milestone.index].height) {
+            this.milestone.index--;
+            this.milestone.data = this.milestones[this.milestone.index];
         }
 
-        return this.constant.data;
+        return this.milestone.data;
     }
 
     /**
      * Build constant data based on active heights.
      */
-    public buildConstants() {
-        this.constants = this.config.constants.sort((a, b) => a.height - b.height);
-        this.constant = {
+    private buildConstants() {
+        this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
+        this.milestone = {
             index: 0,
-            data: this.constants[0],
+            data: this.milestones[0],
         };
 
-        let lastmerged = 0;
+        let lastMerged = 0;
 
-        while (lastmerged < this.constants.length - 1) {
-            this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1]);
-            lastmerged++;
+        while (lastMerged < this.milestones.length - 1) {
+            this.milestones[lastMerged + 1] = deepmerge(this.milestones[lastMerged], this.milestones[lastMerged + 1]);
+            lastMerged++;
         }
     }
 
     /**
      * Build fees from config constants.
      */
-    public buildFees() {
-        Object.keys(TRANSACTION_TYPES).forEach(type =>
-            feeManager.set(TRANSACTION_TYPES[type], this.getConstant("fees").staticFees[camelCase(type)]),
-        );
-    }
-
-    /**
-     * Build addon bytes from config constants.
-     */
-    public buildAddonBytes() {
-        if (this.getConstant("fees").dynamicFees.addonBytes) {
-            Object.keys(TRANSACTION_TYPES).forEach(type =>
-                dynamicFeeManager.set(
-                    TRANSACTION_TYPES[type],
-                    this.getConstant("fees").dynamicFees.addonBytes[camelCase(type)],
-                ),
-            );
+    private buildFees() {
+        for (const type of Object.keys(TransactionTypes)) {
+            feeManager.set(TransactionTypes[type], this.getMilestone().fees.staticFees[camelCase(type)]);
         }
     }
 }
 
-const configManager = new ConfigManager();
-export { configManager };
+export const configManager = new ConfigManager();

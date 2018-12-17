@@ -27,7 +27,7 @@ export class Client {
         this.headers = {
             version: app.getVersion(),
             port,
-            nethash: app.resolvePlugin("config").network.nethash,
+            nethash: app.getConfig().get("network.nethash"),
             "x-auth": "forger",
             "Content-Type": "application/json",
         };

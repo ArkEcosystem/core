@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { DELEGATE_REGISTRATION } = constants.TRANSACTION_TYPES;
+const { DelegateRegistration } = constants.TransactionTypes;
 
 export {};
 
@@ -17,7 +17,7 @@ expect.extend({
     toBeDelegateType: received => {
         return {
             message: () => "Expected value to be a valid DELEGATE transaction.",
-            pass: received.type === DELEGATE_REGISTRATION,
+            pass: received.type === DelegateRegistration,
         };
     },
 });

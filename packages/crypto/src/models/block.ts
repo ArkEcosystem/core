@@ -2,13 +2,12 @@ import ByteBuffer from "bytebuffer";
 import { createHash } from "crypto";
 import cloneDeepWith from "lodash/cloneDeepWith";
 import pluralize from "pluralize";
-import { CONFIGURATIONS } from "../constants";
 import { crypto, slots } from "../crypto";
 import { configManager } from "../managers/config";
 import { Bignum } from "../utils";
 import { Transaction } from "./transaction";
 
-const { outlookTable } = CONFIGURATIONS.ARK.MAINNET;
+const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
 const toBytesHex = data => {
     const temp = data ? new Bignum(data).toString(16) : "";
@@ -431,7 +430,7 @@ export class Block {
         };
 
         try {
-            const constants = configManager.getConstants(block.height);
+            const constants = configManager.getMilestone(block.height);
 
             // let previousBlock = null
 

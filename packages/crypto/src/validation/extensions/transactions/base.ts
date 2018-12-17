@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../../constants";
+import { TransactionTypes } from "../../../constants";
 
 export const base = joi =>
     joi.object().keys({

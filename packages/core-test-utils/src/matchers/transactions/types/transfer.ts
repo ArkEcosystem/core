@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { TRANSFER } = constants.TRANSACTION_TYPES;
+const { Transfer } = constants.TransactionTypes;
 
 export {};
 
@@ -16,8 +16,8 @@ declare global {
 expect.extend({
     toBeTransferType: received => {
         return {
-            message: () => "Expected value to be a valid TRANSFER transaction.",
-            pass: received.type === TRANSFER,
+            message: () => "Expected value to be a valid Transfer transaction.",
+            pass: received.type === Transfer,
         };
     },
 });

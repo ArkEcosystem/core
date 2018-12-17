@@ -79,8 +79,8 @@ export class SnapshotManager {
 
     public async rollbackChain(height) {
         const lastBlock = await this.database.getLastBlock();
-        const config = app.resolvePlugin("config");
-        const maxDelegates = config.getConstants(lastBlock.height).activeDelegates;
+        const config = app.getConfig();
+        const maxDelegates = config.getMilestone(lastBlock.height).activeDelegates;
 
         const rollBackHeight = height === -1 ? lastBlock.height : height;
         if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {

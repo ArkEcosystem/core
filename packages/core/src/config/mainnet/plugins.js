@@ -1,6 +1,5 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
-    "@arkecosystem/core-config": {},
     "@arkecosystem/core-logger-winston": {
         transports: {
             console: {

@@ -9,7 +9,7 @@ import { config as localConfig } from "../config";
 import * as utils from "../utils";
 import { offences } from "./offences";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 
 interface ISuspension {
@@ -188,7 +188,7 @@ class Guard {
      */
     public isValidNetwork(peer) {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
-        return nethash === config.network.nethash;
+        return nethash === config.get("network.nethash");
     }
 
     /**
@@ -228,14 +228,9 @@ class Guard {
             return this.__determinePunishment(peer, offences.BLACKLISTED);
         }
 
-        try {
-            const state = app.resolve("state");
-
-            if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-                return this.__determinePunishment(peer, offences.FORK);
-            }
-        } catch (error) {
-            logger.warn(`The state storage is not ready, skipped fork check for ${peer.ip}.`);
+        const state = app.resolve("state");
+        if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
+            return this.__determinePunishment(peer, offences.FORK);
         }
 
         if (peer.commonBlocks === false) {

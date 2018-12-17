@@ -8,42 +8,60 @@ import { resolve } from "path";
 export class RemoteLoader {
     private remote: any;
     private config: any;
-    private data: any;
 
     constructor(variables) {
         this.remote = variables.remote;
         this.config = expandHomeDir(variables.config);
-        this.data = expandHomeDir(variables.data);
 
         ensureDirSync(this.config);
     }
 
     public async setUp() {
-        const network = await this.__configureNetwork();
+        const network = await this.configureNetwork();
 
-        await this.__configureGenesisBlock();
+        await this.configureExceptions();
 
-        await this.__configurePeers();
+        await this.configureMilestones();
 
-        await this.__configureDelegates();
+        await this.configureGenesisBlock();
 
-        this.__configurePlugins(network);
+        await this.configurePeers();
 
-        this.__configureDatabase(network);
+        await this.configureDelegates();
+
+        this.configurePlugins(network);
+
+        this.configureDatabase(network);
     }
 
-    public async __configureNetwork() {
-        const network = await this.__getConfig("network");
+    private async configureNetwork() {
+        const network = await this.getConfig("network");
 
-        this.__writeConfig("network", network);
+        this.writeConfig("network", network);
 
         return network;
     }
 
-    public async __configureGenesisBlock() {
+    private async configureExceptions() {
+        const exceptions = await this.getConfig("exceptions");
+
+        this.writeConfig("exceptions", exceptions);
+
+        return exceptions;
+    }
+
+    private async configureMilestones() {
+        const milestones = await this.getConfig("milestones");
+
+        this.writeConfig("milestones", milestones);
+
+        return milestones;
+    }
+
+    private async configureGenesisBlock() {
         const { Block } = models;
 
-        const genesisBlock = await this.__getConfig("genesis-block");
+        const genesisBlock = await this.getConfig("genesis-block");
         const genesisBlockModel = new Block(genesisBlock);
 
         if (!genesisBlockModel.verification.verified) {
@@ -52,28 +70,28 @@ export class RemoteLoader {
             process.exit(1);
         }
 
-        this.__writeConfig("genesisBlock", genesisBlock);
+        this.writeConfig("genesisBlock", genesisBlock);
     }
 
-    public async __configurePeers() {
-        const peers = await this.__getConfig("peers");
+    private async configurePeers() {
+        const peers = await this.getConfig("peers");
 
-        this.__writeConfig("peers", peers);
+        this.writeConfig("peers", peers);
     }
 
-    public async __configureDelegates() {
-        const delegates = await this.__getConfig("delegates");
+    private async configureDelegates() {
+        const delegates = await this.getConfig("delegates");
 
-        this.__writeConfig("delegates", delegates);
+        this.writeConfig("delegates", delegates);
     }
 
-    public __configurePlugins(network) {
+    private configurePlugins(network) {
         const plugins = resolve(__dirname, `../../core/src/config/${network.name}/plugins.js`);
 
         copySync(plugins, `${this.config}/plugins.js`);
     }
 
-    public __configureDatabase(network) {
+    private configureDatabase(network) {
         const command = spawnSync("createdb", [`ark_${network.name}`]);
 
         if (command.stderr.length > 0) {
@@ -86,7 +104,7 @@ export class RemoteLoader {
         console.info(command.stdout.toString());
     }
 
-    public async __getConfig(type) {
+    private async getConfig(type) {
         try {
             const { data } = await axios.get(`http://${this.remote}/config/${type}`, {
                 headers: { "Content-Type": "application/json" },
@@ -94,7 +112,7 @@ export class RemoteLoader {
 
             return data.data;
         } catch (error) {
-            if (!this.__exists(type)) {
+            if (!this.exists(type)) {
                 // tslint:disable-next-line:no-console
                 console.error(error.message);
                 process.exit(1);
@@ -102,11 +120,11 @@ export class RemoteLoader {
         }
     }
 
-    public __writeConfig(file, data) {
+    private writeConfig(file, data) {
         writeFileSync(`${this.config}/${file}.json`, JSON.stringify(data, null, 4));
     }
 
-    public __exists(file) {
+    private exists(file) {
         return existsSync(`${this.config}/${file}.json`);
     }
 }

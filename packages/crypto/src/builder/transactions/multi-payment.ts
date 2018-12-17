@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../constants";
+import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers/fee";
 import { TransactionBuilder } from "./transaction";
 
@@ -9,8 +9,8 @@ export class MultiPaymentBuilder extends TransactionBuilder {
     constructor() {
         super();
 
-        this.data.type = TRANSACTION_TYPES.MULTI_PAYMENT;
-        this.data.fee = feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT);
+        this.data.type = TransactionTypes.MultiPayment;
+        this.data.fee = feeManager.get(TransactionTypes.MultiPayment);
         this.data.payments = {};
         this.data.vendorFieldHex = null;
     }

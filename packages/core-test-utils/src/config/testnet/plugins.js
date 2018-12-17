@@ -1,6 +1,5 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
-    "@arkecosystem/core-config": {},
     "@arkecosystem/core-logger-winston": {
         transports: {
             console: {
@@ -31,6 +30,10 @@ module.exports = {
         // 100+ years in the future to avoid our hardcoded transactions used in the
         // tests to expire immediately
         maxTransactionAge: 4036608000,
+        dynamicFees: {
+            minFeePool: 1000,
+            minFeeBroadcast: 1000
+        }
     },
     "@arkecosystem/core-p2p": {
         host: process.env.ARK_P2P_HOST || "0.0.0.0",

@@ -1,4 +1,5 @@
-import { dynamicFeeMatcher } from "../src/utils/dynamicfee-matcher";
+import { config } from "../src/config";
+import { dynamicFeeMatcher } from "../src/dynamic-fee/matcher";
 import { transactions } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 
@@ -7,6 +8,7 @@ let container;
 
 beforeAll(async () => {
     container = await setUpFull();
+    config.init(container.resolveOptions("transactionPool"));
 });
 
 afterAll(async () => {
@@ -21,8 +23,8 @@ describe("static fees", () => {
                 height: 20,
             },
         }));
-        const h = blockchain.getLastBlock().data.height;
-        container.resolvePlugin("config").getConstants(h).fees.dynamic = false;
+
+        config.set("dynamicFees.enabled", false);
     });
 
     it("should accept transactions matching the static fee for broadcast", () => {
@@ -54,8 +56,8 @@ describe("dynamic fees", () => {
                 height: 20,
             },
         }));
-        const h = blockchain.getLastBlock().data.height;
-        container.resolvePlugin("config").getConstants(h).fees.dynamic = true;
+
+        config.set("dynamicFees.enabled", true);
     });
 
     it("should broadcast transactions with high enough fee", () => {

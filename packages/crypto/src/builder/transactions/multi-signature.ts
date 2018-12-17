@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../constants";
+import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers/fee";
 import { TransactionBuilder } from "./transaction";
 
@@ -9,7 +9,7 @@ export class MultiSignatureBuilder extends TransactionBuilder {
     constructor() {
         super();
 
-        this.data.type = TRANSACTION_TYPES.MULTI_SIGNATURE;
+        this.data.type = TransactionTypes.MultiSignature;
         this.data.fee = 0;
         this.data.amount = 0;
         this.data.recipientId = null;
@@ -26,7 +26,7 @@ export class MultiSignatureBuilder extends TransactionBuilder {
      */
     public multiSignatureAsset(multiSignature) {
         this.data.asset.multisignature = multiSignature;
-        this.data.fee = (multiSignature.keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE);
+        this.data.fee = (multiSignature.keysgroup.length + 1) * feeManager.get(TransactionTypes.MultiSignature);
 
         return this;
     }

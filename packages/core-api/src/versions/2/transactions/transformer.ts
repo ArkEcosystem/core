@@ -3,7 +3,7 @@ import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
 import { crypto, models } from "@arkecosystem/crypto";
 
 export function transformTransaction(model) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
     const blockchain = app.resolvePlugin("blockchain");
 
     const data: any = new models.Transaction(model.serialized.toString("hex"));
@@ -16,7 +16,7 @@ export function transformTransaction(model) {
         type: data.type,
         amount: +bignumify(data.amount).toFixed(),
         fee: +bignumify(data.fee).toFixed(),
-        sender: crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
+        sender: crypto.getAddress(data.senderPublicKey, config.get("network.pubKeyHash")),
         recipient: data.recipientId,
         signature: data.signature,
         signSignature: data.signSignature,

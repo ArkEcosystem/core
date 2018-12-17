@@ -7,7 +7,7 @@ export const generateWallets = (network, quantity = 10) => {
         throw new Error("Invalid network");
     }
 
-    client.getConfigManager().setFromPreset("ark", network);
+    client.getConfigManager().setFromPreset(network);
 
     const wallets = [];
     for (let i = 0; i < quantity; i++) {

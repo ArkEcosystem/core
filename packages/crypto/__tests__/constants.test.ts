@@ -8,45 +8,33 @@ describe("Constants", () => {
     });
 
     it("transaction types are defined", () => {
-        expect(constants.TRANSACTION_TYPES).toBeDefined();
-        expect(constants.TRANSACTION_TYPES).toBeFrozen();
+        expect(constants.TransactionTypes).toBeDefined();
 
-        expect(constants.TRANSACTION_TYPES.TRANSFER).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.TRANSFER).toBe(0);
+        expect(constants.TransactionTypes.Transfer).toBeDefined();
+        expect(constants.TransactionTypes.Transfer).toBe(0);
 
-        expect(constants.TRANSACTION_TYPES.SECOND_SIGNATURE).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.SECOND_SIGNATURE).toBe(1);
+        expect(constants.TransactionTypes.SecondSignature).toBeDefined();
+        expect(constants.TransactionTypes.SecondSignature).toBe(1);
 
-        expect(constants.TRANSACTION_TYPES.DELEGATE_REGISTRATION).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.DELEGATE_REGISTRATION).toBe(2);
+        expect(constants.TransactionTypes.DelegateRegistration).toBeDefined();
+        expect(constants.TransactionTypes.DelegateRegistration).toBe(2);
 
-        expect(constants.TRANSACTION_TYPES.VOTE).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.VOTE).toBe(3);
+        expect(constants.TransactionTypes.Vote).toBeDefined();
+        expect(constants.TransactionTypes.Vote).toBe(3);
 
-        expect(constants.TRANSACTION_TYPES.MULTI_SIGNATURE).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.MULTI_SIGNATURE).toBe(4);
+        expect(constants.TransactionTypes.MultiSignature).toBeDefined();
+        expect(constants.TransactionTypes.MultiSignature).toBe(4);
 
-        expect(constants.TRANSACTION_TYPES.IPFS).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.IPFS).toBe(5);
+        expect(constants.TransactionTypes.Ipfs).toBeDefined();
+        expect(constants.TransactionTypes.Ipfs).toBe(5);
 
-        expect(constants.TRANSACTION_TYPES.TIMELOCK_TRANSFER).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.TIMELOCK_TRANSFER).toBe(6);
+        expect(constants.TransactionTypes.TimelockTransfer).toBeDefined();
+        expect(constants.TransactionTypes.TimelockTransfer).toBe(6);
 
-        expect(constants.TRANSACTION_TYPES.MULTI_PAYMENT).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.MULTI_PAYMENT).toBe(7);
+        expect(constants.TransactionTypes.MultiPayment).toBeDefined();
+        expect(constants.TransactionTypes.MultiPayment).toBe(7);
 
-        expect(constants.TRANSACTION_TYPES.DELEGATE_RESIGNATION).toBeDefined();
-        expect(constants.TRANSACTION_TYPES.DELEGATE_RESIGNATION).toBe(8);
-    });
-
-    it("configurations are defined", () => {
-        expect(constants.CONFIGURATIONS).toBeDefined();
-        expect(constants.CONFIGURATIONS).toBeFrozen();
-
-        expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeDefined();
-        expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeObject();
-
-        expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeDefined();
-        expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeObject();
+        expect(constants.TransactionTypes.DelegateResignation).toBeDefined();
+        expect(constants.TransactionTypes.DelegateResignation).toBe(8);
     });
 });

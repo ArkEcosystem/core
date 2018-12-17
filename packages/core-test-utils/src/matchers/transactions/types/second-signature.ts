@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { SECOND_SIGNATURE } = constants.TRANSACTION_TYPES;
+const { SecondSignature } = constants.TransactionTypes;
 
 export {};
 
@@ -16,8 +16,8 @@ declare global {
 expect.extend({
     toBeSecondSignatureType: received => {
         return {
-            message: () => "Expected value to be a valid SECOND_SIGNATURE transaction.",
-            pass: received.type === SECOND_SIGNATURE,
+            message: () => "Expected value to be a valid SecondSignature transaction.",
+            pass: received.type === SecondSignature,
         };
     },
 });

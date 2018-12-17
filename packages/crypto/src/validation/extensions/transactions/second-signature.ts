@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../../constants";
+import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const secondSignature = joi => ({
@@ -6,7 +6,7 @@ export const secondSignature = joi => ({
     base: transaction(joi).append({
         type: joi
             .number()
-            .only(TRANSACTION_TYPES.SECOND_SIGNATURE)
+            .only(TransactionTypes.SecondSignature)
             .required(),
         amount: joi
             .alternatives()

@@ -3,7 +3,7 @@ import superheroes from "superheroes";
 import { delegatesSecrets } from "../../fixtures/testnet/passphrases";
 
 const defaultPassphrase = delegatesSecrets[0];
-const { TRANSFER, SECOND_SIGNATURE, DELEGATE_REGISTRATION, VOTE } = constants.TRANSACTION_TYPES;
+const { Transfer, SecondSignature, DelegateRegistration, Vote } = constants.TransactionTypes;
 
 export const generateTransaction = (
     network,
@@ -16,14 +16,14 @@ export const generateTransaction = (
     fee?: number,
 ) => {
     network = network || "testnet";
-    type = type || TRANSFER;
+    type = type || Transfer;
     passphrase = passphrase || defaultPassphrase;
 
     if (!["mainnet", "devnet", "testnet"].includes(network)) {
         throw new Error("Invalid network");
     }
 
-    if (![TRANSFER, SECOND_SIGNATURE, DELEGATE_REGISTRATION, VOTE].includes(type)) {
+    if (![Transfer, SecondSignature, DelegateRegistration, Vote].includes(type)) {
         throw new Error("Invalid transaction type");
     }
 
@@ -33,13 +33,13 @@ export const generateTransaction = (
         passphrase = passphrase[0];
     }
 
-    client.getConfigManager().setFromPreset("ark", network);
+    client.getConfigManager().setFromPreset(network);
 
     const transactions = [];
     for (let i = 0; i < quantity; i++) {
         let builder: any = client.getBuilder();
         switch (type) {
-            case TRANSFER: {
+            case Transfer: {
                 if (!addressOrPublicKey) {
                     addressOrPublicKey = crypto.getAddress(crypto.getKeys(passphrase).publicKey);
                 }
@@ -50,11 +50,11 @@ export const generateTransaction = (
                     .vendorField(`Test Transaction ${i + 1}`);
                 break;
             }
-            case SECOND_SIGNATURE: {
+            case SecondSignature: {
                 builder = builder.secondSignature().signatureAsset(passphrase);
                 break;
             }
-            case DELEGATE_REGISTRATION: {
+            case DelegateRegistration: {
                 const username = superheroes
                     .random()
                     .toLowerCase()
@@ -63,7 +63,7 @@ export const generateTransaction = (
                 builder = builder.delegateRegistration().usernameAsset(username);
                 break;
             }
-            case VOTE: {
+            case Vote: {
                 if (!addressOrPublicKey) {
                     addressOrPublicKey = crypto.getKeys(passphrase).publicKey;
                 }

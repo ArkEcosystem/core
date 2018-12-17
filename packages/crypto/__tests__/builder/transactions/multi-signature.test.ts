@@ -1,6 +1,6 @@
 import "jest-extended";
 import { client as ark } from "../../../src/client";
-import { TRANSACTION_TYPES } from "../../../src/constants";
+import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto/crypto";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -39,7 +39,7 @@ describe("Multi Signature Transaction", () => {
     transactionBuilder();
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TRANSACTION_TYPES.MULTI_SIGNATURE);
+        expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);
         expect(builder).toHaveProperty("data.fee", 0);
         expect(builder).toHaveProperty("data.amount", 0);
         expect(builder).toHaveProperty("data.recipientId", null);
@@ -49,7 +49,7 @@ describe("Multi Signature Transaction", () => {
     });
 
     describe("multiSignatureAsset", () => {
-        const multiSignatureFee = feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE);
+        const multiSignatureFee = feeManager.get(TransactionTypes.MultiSignature);
         const multisignature = {
             keysgroup: ["key a", "key b", "key c"],
             lifetime: 1,

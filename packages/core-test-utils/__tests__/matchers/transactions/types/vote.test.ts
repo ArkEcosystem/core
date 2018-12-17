@@ -1,11 +1,11 @@
 import "../../../../src/matchers/transactions/types/vote";
 
 import { constants } from "@arkecosystem/crypto";
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 describe(".toBeVoteType", () => {
     test("passes when given a valid transaction", () => {
-        expect({ type: TRANSACTION_TYPES.VOTE }).toBeVoteType();
+        expect({ type: TransactionTypes.Vote }).toBeVoteType();
     });
 
     test("fails when given an invalid transaction", () => {

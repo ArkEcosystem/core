@@ -27,7 +27,7 @@ export class Delegate {
     /**
      * BIP38 encrypt passphrase.
      * @param  {String} passphrase
-     * @param  {Number} network
+     * @param  {Object} network
      * @param  {String} password
      * @return {String}
      * @static
