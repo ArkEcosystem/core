@@ -2,7 +2,6 @@ import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import set from "lodash/set";
-import { dynamicFeeManager } from "./dynamic-fee";
 import { feeManager } from "./fee";
 
 import { TRANSACTION_TYPES } from "../constants";

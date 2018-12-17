@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { TRANSACTION_TYPES } from "../../src/constants";
 import { configManager } from "../../src/managers/config";
-import { dynamicFeeManager } from "../../src/managers/dynamic-fee";
 import { feeManager } from "../../src/managers/fee";
 import { devnet, mainnet } from "../../src/networks";
 
