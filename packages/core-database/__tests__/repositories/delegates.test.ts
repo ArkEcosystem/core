@@ -168,23 +168,22 @@ describe("Delegate Repository", () => {
     });
 
     describe("search", () => {
+        beforeEach(() => {
+            const wallets = generateWallets();
+            walletManager.index(wallets);
+        });
+
         describe("by `username`", () => {
             it("should search by exact match", () => {
-                const wallets = generateWallets();
-                walletManager.index(wallets);
-
-                const { count, rows } = repository.search({
-                    username: "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
-                });
+                const username = "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn";
+                const { count, rows } = repository.search({ username });
 
                 expect(count).toBe(1);
                 expect(rows).toHaveLength(1);
+                expect(rows[0].username).toEqual(username);
             });
 
             it("should search that username contains the string", () => {
-                const wallets = generateWallets();
-                walletManager.index(wallets);
-
                 const { count, rows } = repository.search({ username: "username" });
 
                 expect(count).toBe(52);
@@ -193,9 +192,6 @@ describe("Delegate Repository", () => {
 
             describe('when a username is "undefined"', () => {
                 it("should return it", () => {
-                    const wallets = generateWallets();
-                    walletManager.index(wallets);
-
                     // Index a wallet with username "undefined"
                     const address = Object.keys(walletManager.byAddress)[0];
                     walletManager.byAddress[address].username = "undefined";
@@ -221,9 +217,6 @@ describe("Delegate Repository", () => {
             });
 
             it("should be ok with params", () => {
-                const wallets = generateWallets();
-                walletManager.index(wallets);
-
                 const { count, rows } = repository.search({
                     username: "username",
                     offset: 10,
@@ -234,9 +227,6 @@ describe("Delegate Repository", () => {
             });
 
             it("should be ok with params (no offset)", () => {
-                const wallets = generateWallets();
-                walletManager.index(wallets);
-
                 const { count, rows } = repository.search({
                     username: "username",
                     limit: 10,
@@ -246,9 +236,6 @@ describe("Delegate Repository", () => {
             });
 
             it("should be ok with params (offset = 0)", () => {
-                const wallets = generateWallets();
-                walletManager.index(wallets);
-
                 const { count, rows } = repository.search({
                     username: "username",
                     offset: 0,
@@ -259,9 +246,6 @@ describe("Delegate Repository", () => {
             });
 
             it("should be ok with params (no limit)", () => {
-                const wallets = generateWallets();
-                walletManager.index(wallets);
-
                 const { count, rows } = repository.search({
                     username: "username",
                     offset: 10,
@@ -273,9 +257,6 @@ describe("Delegate Repository", () => {
 
         describe("when searching without params", () => {
             it("should return no results", () => {
-                const wallets = generateWallets();
-                walletManager.index(wallets);
-
                 const { count, rows } = repository.search({});
 
                 expect(count).toBe(0);
@@ -284,9 +265,6 @@ describe("Delegate Repository", () => {
 
             describe('when a username is "undefined"', () => {
                 it("should return no results", () => {
-                    const wallets = generateWallets();
-                    walletManager.index(wallets);
-
                     // Index a wallet with username "undefined"
                     const address = Object.keys(walletManager.byAddress)[0];
                     walletManager.byAddress[address].username = "undefined";
