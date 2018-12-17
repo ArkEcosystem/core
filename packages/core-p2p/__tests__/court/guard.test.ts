@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import dayjs from "dayjs-ext";
-import { config } from "../../src/config";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
 import { setUp, tearDown } from "../__support__/setup";
@@ -76,6 +75,37 @@ describe("Guard", () => {
             }
 
             expect(guard.isRepeatOffender(peer)).toBeTrue();
+        });
+    });
+
+    describe("isValidVersion", () => {
+        it("should be a valid version", () => {
+            const get = guard.config.get;
+            guard.config.get = jest.fn(() => ">=2.0.0");
+
+            expect(guard.isValidVersion({ version: "2.0.0" })).toBeTrue();
+            expect(guard.isValidVersion({ version: "2.1.39" })).toBeTrue();
+            expect(guard.isValidVersion({ version: "3.0.0" })).toBeTrue();
+
+            guard.config.get = get;
+        });
+
+        it("should be an invalid version", () => {
+            const get = guard.config.get;
+            guard.config.get = jest.fn(() => ">=2.0.0");
+
+            expect(guard.isValidVersion({ version: "1.0.0" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "1.0" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "---aaa" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "2490" })).toBeFalse();
+            expect(guard.isValidVersion({ version: 2 })).toBeFalse();
+            expect(guard.isValidVersion({ version: -10.2 })).toBeFalse();
+            expect(guard.isValidVersion({ version: {} })).toBeFalse();
+            expect(guard.isValidVersion({ version: true })).toBeFalse();
+            expect(guard.isValidVersion({ version: () => "1" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "2.0.0.0" })).toBeFalse();
+
+            guard.config.get = get;
         });
     });
 
