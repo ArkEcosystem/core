@@ -256,22 +256,22 @@ describe("Delegate Repository", () => {
         });
 
         describe("when searching without params", () => {
-            it("should return no results", () => {
+            it("should return all results", () => {
                 const { count, rows } = repository.search({});
 
-                expect(count).toBe(0);
-                expect(rows).toHaveLength(0);
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(52);
             });
 
             describe('when a username is "undefined"', () => {
-                it("should return no results", () => {
+                it("should return all results", () => {
                     // Index a wallet with username "undefined"
                     const address = Object.keys(walletManager.byAddress)[0];
                     walletManager.byAddress[address].username = "undefined";
 
                     const { count, rows } = repository.search({});
-                    expect(count).toBe(0);
-                    expect(rows).toHaveLength(0);
+                    expect(count).toBe(52);
+                    expect(rows).toHaveLength(52);
                 });
             });
         });
