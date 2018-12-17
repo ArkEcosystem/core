@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { MULTI_PAYMENT } = constants.TRANSACTION_TYPES;
+const { MultiPayment } = constants.TransactionTypes;
 
 export {};
 
@@ -16,8 +16,8 @@ declare global {
 expect.extend({
     toBeMultiPaymentType: received => {
         return {
-            message: () => "Expected value to be a valid MULTI_PAYMENT transaction.",
-            pass: received.type === MULTI_PAYMENT,
+            message: () => "Expected value to be a valid MultiPayment transaction.",
+            pass: received.type === MultiPayment,
         };
     },
 });

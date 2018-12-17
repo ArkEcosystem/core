@@ -11,7 +11,7 @@ import randomSeed from "random-seed";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 
-const { ARKTOSHI, TRANSACTION_TYPES } = constants;
+const { ARKTOSHI, TransactionTypes } = constants;
 const { Transaction } = models;
 
 const { generateTransfers } = generators;
@@ -24,7 +24,7 @@ let connection;
 beforeAll(async () => {
     await setUpFull();
 
-    config = app.resolvePlugin("config");
+    config = app.getConfig();
     database = app.resolvePlugin("database");
     connection = app.resolvePlugin("transactionPool");
 
@@ -146,7 +146,7 @@ describe("Connection", () => {
 
             transactions.push(new Transaction(mockData.dummy1));
             // transactions[transactions.length - 1].type =
-            //   TRANSACTION_TYPES.TIMELOCK_TRANSFER
+            //   TransactionTypes.TimelockTransfer
 
             // Workaround: Increase balance of sender wallet to succeed
             const insufficientBalanceTx: any = new Transaction(mockData.dummyExp2);
@@ -362,7 +362,7 @@ describe("Connection", () => {
         it("should be false for non-existent sender", () => {
             connection.addTransaction(mockData.dummy1);
 
-            expect(connection.senderHasTransactionsOfType("nonexistent", TRANSACTION_TYPES.VOTE)).toBeFalse();
+            expect(connection.senderHasTransactionsOfType("nonexistent", TransactionTypes.Vote)).toBeFalse();
         });
 
         it("should be false for existent sender with no votes", () => {
@@ -370,7 +370,7 @@ describe("Connection", () => {
 
             connection.addTransaction(tx);
 
-            expect(connection.senderHasTransactionsOfType(tx.senderPublicKey, TRANSACTION_TYPES.VOTE)).toBeFalse();
+            expect(connection.senderHasTransactionsOfType(tx.senderPublicKey, TransactionTypes.Vote)).toBeFalse();
         });
 
         it("should be true for existent sender with votes", () => {
@@ -381,7 +381,7 @@ describe("Connection", () => {
 
             const voteTx = new Transaction(tx);
             voteTx.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-            voteTx.type = TRANSACTION_TYPES.VOTE;
+            voteTx.type = TransactionTypes.Vote;
             voteTx.amount = bignumify(0);
             voteTx.asset = { votes: [`+${tx.senderPublicKey}`] };
 
@@ -389,7 +389,7 @@ describe("Connection", () => {
 
             connection.addTransactions(transactions);
 
-            expect(connection.senderHasTransactionsOfType(tx.senderPublicKey, TRANSACTION_TYPES.VOTE)).toBeTrue();
+            expect(connection.senderHasTransactionsOfType(tx.senderPublicKey, TransactionTypes.Vote)).toBeTrue();
         });
     });
 
@@ -426,7 +426,7 @@ describe("Connection", () => {
             const forgedTransaction = block.transactions[0];
 
             // Workaround: Add tx to exceptions so it gets applied, because the fee is 0.
-            config.network.exceptions.transactions = [forgedTransaction.id];
+            config.set("exceptions.transactions", [forgedTransaction.id]);
 
             // For some reason all genesis transactions fail signature verification, so
             // they are not loaded from the local storage and this fails otherwise.

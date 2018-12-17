@@ -1,6 +1,6 @@
 import { constants } from "@arkecosystem/crypto";
 
-const { TIMELOCK_TRANSFER } = constants.TRANSACTION_TYPES;
+const { TimelockTransfer } = constants.TransactionTypes;
 
 export {};
 
@@ -16,8 +16,8 @@ declare global {
 expect.extend({
     toBeTimelockTransferType: received => {
         return {
-            message: () => "Expected value to be a valid TIMELOCK_TRANSFER transaction.",
-            pass: received.type === TIMELOCK_TRANSFER,
+            message: () => "Expected value to be a valid TimelockTransfer transaction.",
+            pass: received.type === TimelockTransfer,
         };
     },
 });

@@ -14,7 +14,7 @@ import { tickSyncTracker } from "./utils/tick-sync-tracker";
 import { Blockchain } from "./blockchain";
 
 const { Block } = models;
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const emitter = app.resolvePlugin("event-emitter");
 const logger = app.resolvePlugin("logger");
 
@@ -164,9 +164,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (!block) {
                 logger.warn("No block found in database :hushed:");
 
-                block = new Block(config.genesisBlock);
+                block = new Block(config.get("genesisBlock"));
 
-                if (block.data.payloadHash !== config.network.nethash) {
+                if (block.data.payloadHash !== config.get("network.nethash")) {
                     logger.error(
                         "FATAL: The genesis block payload hash is different from configured the nethash :rotating_light:",
                     );
@@ -201,7 +201,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             /** *******************************
              *  state machine data init      *
              ******************************* */
-            const constants = config.getConstants(block.data.height);
+            const constants = config.getMilestone(block.data.height);
             stateStorage.setLastBlock(block);
             stateStorage.lastDownloadedBlock = block;
 
@@ -223,7 +223,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY. :bangbang:");
 
-                stateStorage.setLastBlock(new Block(config.genesisBlock));
+                stateStorage.setLastBlock(new Block(config.get("genesisBlock")));
                 await blockchain.database.buildWallets(block.data.height);
 
                 return blockchain.dispatch("STARTED");

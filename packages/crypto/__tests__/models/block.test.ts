@@ -1,12 +1,12 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import { CONFIGURATIONS } from "../../src/constants";
+import { configManager } from "../../src";
 import { Block } from "../../src/models/block";
 import { Bignum } from "../../src/utils/bignum";
 import { dummyBlock } from "./fixtures/block";
 
-const { outlookTable } = CONFIGURATIONS.ARK.MAINNET;
+const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
 describe("Models - Block", () => {
     const data = {

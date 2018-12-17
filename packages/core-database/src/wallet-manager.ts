@@ -4,7 +4,7 @@ import { constants, crypto, formatArktoshi, models } from "@arkecosystem/crypto"
 import pluralize from "pluralize";
 
 const { Wallet } = models;
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 export class WalletManager {
     public logger: any;
@@ -20,10 +20,10 @@ export class WalletManager {
      * @constructor
      */
     constructor() {
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.logger = app.resolvePlugin("logger");
 
-        this.networkId = this.config ? this.config.network.pubKeyHash : 0x17;
+        this.networkId = this.config ? this.config.get("network.pubKeyHash") : 0x17;
         this.reset();
     }
 
@@ -411,10 +411,7 @@ export class WalletManager {
         const errors = [];
 
         // specific verifications / adjustments depending on transaction type
-        if (
-            type === TRANSACTION_TYPES.DELEGATE_REGISTRATION &&
-            this.byUsername[asset.delegate.username.toLowerCase()]
-        ) {
+        if (type === TransactionTypes.DelegateRegistration && this.byUsername[asset.delegate.username.toLowerCase()]) {
             this.logger.error(
                 `Can't apply transaction ${
                     data.id
@@ -424,10 +421,10 @@ export class WalletManager {
 
             // NOTE: We use the vote public key, because vote transactions
             // have the same sender and recipient
-        } else if (type === TRANSACTION_TYPES.VOTE && !this.__isDelegate(asset.votes[0].slice(1))) {
+        } else if (type === TransactionTypes.Vote && !this.__isDelegate(asset.votes[0].slice(1))) {
             this.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
             throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
-        } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+        } else if (type === TransactionTypes.SecondSignature) {
             data.recipientId = "";
         }
 
@@ -444,11 +441,11 @@ export class WalletManager {
 
         sender.applyTransactionToSender(data);
 
-        if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+        if (type === TransactionTypes.DelegateRegistration) {
             this.reindex(sender);
         }
 
-        if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+        if (recipient && type === TransactionTypes.Transfer) {
             recipient.applyTransactionToRecipient(data);
         }
 
@@ -475,7 +472,7 @@ export class WalletManager {
      */
     public _updateVoteBalances(sender, recipient, transaction, revert = false) {
         // TODO: multipayment?
-        if (transaction.type !== TRANSACTION_TYPES.VOTE) {
+        if (transaction.type !== TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.vote) {
                 const delegate = this.findByPublicKey(sender.vote);
@@ -519,11 +516,11 @@ export class WalletManager {
         sender.revertTransactionForSender(data);
 
         // removing the wallet from the delegates index
-        if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+        if (type === TransactionTypes.DelegateRegistration) {
             delete this.byUsername[data.asset.delegate.username];
         }
 
-        if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+        if (recipient && type === TransactionTypes.Transfer) {
             recipient.revertTransactionForRecipient(data);
         }
 
@@ -566,10 +563,12 @@ export class WalletManager {
             return false;
         }
 
-        if (!Array.isArray(this.config.network.exceptions.transactions)) {
+        const exceptions: any = this.config.get("exceptions.transactions");
+
+        if (!Array.isArray(exceptions)) {
             return false;
         }
 
-        return this.config.network.exceptions.transactions.includes(transaction.id);
+        return exceptions.includes(transaction.id);
     }
 }

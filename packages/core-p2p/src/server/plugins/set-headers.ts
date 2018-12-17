@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { config as localConfig } from "../../config";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 
 /**
  * The register method used by hapi.js.
@@ -11,7 +11,7 @@ const config = app.resolvePlugin("config");
  */
 const register = async (server, options) => {
     const headers = {
-        nethash: config.network.nethash,
+        nethash: config.get("network.nethash"),
         version: app.getVersion(),
         port: localConfig.get("port"),
         os: require("os").platform(),
@@ -20,7 +20,7 @@ const register = async (server, options) => {
 
     const requiredHeaders = ["nethash", "version", "port", "os", "height"];
 
-    if (config.network.name !== "mainnet") {
+    if (config.get("network.name") !== "mainnet") {
         (headers as any).hashid = app.getHashid();
         requiredHeaders.push("hashid");
     }

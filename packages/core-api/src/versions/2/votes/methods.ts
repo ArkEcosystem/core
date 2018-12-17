@@ -4,10 +4,10 @@ import { transactionsRepository } from "../../../repositories";
 import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 const index = async request => {
-    const transactions = await transactionsRepository.findAllByType(TRANSACTION_TYPES.VOTE, {
+    const transactions = await transactionsRepository.findAllByType(TransactionTypes.Vote, {
         ...request.query,
         ...paginate(request),
     });
@@ -16,7 +16,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const transaction = await transactionsRepository.findByTypeAndId(TRANSACTION_TYPES.VOTE, request.params.id);
+    const transaction = await transactionsRepository.findByTypeAndId(TransactionTypes.Vote, request.params.id);
 
     if (!transaction) {
         return Boom.notFound("Vote not found");

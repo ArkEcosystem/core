@@ -1,12 +1,12 @@
 import "../../../../src/matchers/transactions/types/timelock-transfer";
 
 import { constants } from "@arkecosystem/crypto";
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 describe(".toBeTimelockTransferType", () => {
     test("passes when given a valid transaction", () => {
         expect({
-            type: TRANSACTION_TYPES.TIMELOCK_TRANSFER,
+            type: TransactionTypes.TimelockTransfer,
         }).toBeTimelockTransferType();
     });
 

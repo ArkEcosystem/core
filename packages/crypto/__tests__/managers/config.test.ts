@@ -1,13 +1,11 @@
 import "jest-extended";
 
-import { TRANSACTION_TYPES } from "../../src/constants";
+import { TransactionTypes } from "../../src/constants";
 import { configManager } from "../../src/managers/config";
-import { dynamicFeeManager } from "../../src/managers/dynamic-fee";
 import { feeManager } from "../../src/managers/fee";
-import network from "../../src/networks/ark/devnet.json";
-import networkMainnet from "../../src/networks/ark/mainnet.json";
+import { devnet, mainnet } from "../../src/networks";
 
-beforeEach(() => configManager.setConfig(network));
+beforeEach(() => configManager.setConfig(devnet));
 
 describe("Configuration", () => {
     it("should be instantiated", () => {
@@ -15,9 +13,12 @@ describe("Configuration", () => {
     });
 
     it("should be set on runtime", () => {
-        configManager.setConfig(networkMainnet);
+        configManager.setConfig(mainnet);
 
-        expect(configManager.all()).toEqual(networkMainnet);
+        expect(configManager.all()).toContainAllKeys([
+            ...Object.keys(mainnet.network),
+            ...["milestones", "exceptions"],
+        ]);
     });
 
     it('key should be "set"', () => {
@@ -30,40 +31,26 @@ describe("Configuration", () => {
         expect(configManager.get("nethash")).toBe("2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867");
     });
 
-    it("should build constants", () => {
-        expect(configManager.constants).toEqual(network.constants);
+    it("should build milestones", () => {
+        expect(configManager.milestones).toEqual(devnet.milestones);
     });
 
     it("should build fees", () => {
-        const fees = network.constants[0].fees.staticFees;
+        const feesStatic = devnet.milestones[0].fees.staticFees;
 
-        expect(feeManager.get(TRANSACTION_TYPES.TRANSFER)).toEqual(fees.transfer);
-        expect(feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)).toEqual(fees.secondSignature);
-        expect(feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)).toEqual(fees.delegateRegistration);
-        expect(feeManager.get(TRANSACTION_TYPES.VOTE)).toEqual(fees.vote);
-        expect(feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)).toEqual(fees.multiSignature);
-        expect(feeManager.get(TRANSACTION_TYPES.IPFS)).toEqual(fees.ipfs);
-        expect(feeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)).toEqual(fees.timelockTransfer);
-        expect(feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)).toEqual(fees.multiPayment);
-        expect(feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)).toEqual(fees.delegateResignation);
+        expect(feeManager.get(TransactionTypes.Transfer)).toEqual(feesStatic.transfer);
+        expect(feeManager.get(TransactionTypes.SecondSignature)).toEqual(feesStatic.secondSignature);
+        expect(feeManager.get(TransactionTypes.DelegateRegistration)).toEqual(feesStatic.delegateRegistration);
+        expect(feeManager.get(TransactionTypes.Vote)).toEqual(feesStatic.vote);
+        expect(feeManager.get(TransactionTypes.MultiSignature)).toEqual(feesStatic.multiSignature);
+        expect(feeManager.get(TransactionTypes.Ipfs)).toEqual(feesStatic.ipfs);
+        expect(feeManager.get(TransactionTypes.TimelockTransfer)).toEqual(feesStatic.timelockTransfer);
+        expect(feeManager.get(TransactionTypes.MultiPayment)).toEqual(feesStatic.multiPayment);
+        expect(feeManager.get(TransactionTypes.DelegateResignation)).toEqual(feesStatic.delegateResignation);
     });
 
-    it("should build dynamic fee offsets", () => {
-        const addonBytes = network.constants[0].fees.dynamicFees.addonBytes;
-
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.TRANSFER)).toEqual(addonBytes.transfer);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)).toEqual(addonBytes.secondSignature);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)).toEqual(addonBytes.delegateRegistration);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.VOTE)).toEqual(addonBytes.vote);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)).toEqual(addonBytes.multiSignature);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.IPFS)).toEqual(addonBytes.ipfs);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)).toEqual(addonBytes.timelockTransfer);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)).toEqual(addonBytes.multiPayment);
-        expect(dynamicFeeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)).toEqual(addonBytes.delegateResignation);
-    });
-
-    it("should get constants for height", () => {
-        expect(configManager.getConstants(21600)).toEqual(network.constants[2]);
+    it("should get milestone for height", () => {
+        expect(configManager.getMilestone(21600)).toEqual(devnet.milestones[2]);
     });
 
     it("should set the height", () => {

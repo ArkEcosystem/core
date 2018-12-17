@@ -5,11 +5,11 @@ import { configManager } from "../../src/managers/config";
 import { Wallet } from "../../src/models/wallet";
 import { Bignum } from "../../src/utils/bignum";
 
-import network from "../../src/networks/ark/devnet.json";
+import { devnet } from "../../src/networks";
 import { multiTransaction } from "./fixtures/multi-transaction";
 
 describe("Models - Wallet", () => {
-    beforeEach(() => configManager.setConfig(network));
+    beforeEach(() => configManager.setConfig(devnet));
 
     describe("toString", () => {
         // TODO implementation is right?

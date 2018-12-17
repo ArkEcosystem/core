@@ -6,7 +6,7 @@ import wallets from "./__fixtures__/wallets.json";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
-const { ARKTOSHI, TRANSACTION_TYPES } = constants;
+const { ARKTOSHI, TransactionTypes } = constants;
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
 
@@ -235,7 +235,7 @@ describe("Wallet Manager", () => {
     describe("revertTransaction", () => {
         it("should revert the transaction from the sender & recipient", async () => {
             const transaction = new Transaction({
-                type: TRANSACTION_TYPES.TRANSFER,
+                type: TransactionTypes.Transfer,
                 amount: 245098000000000,
                 fee: 0,
                 recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",

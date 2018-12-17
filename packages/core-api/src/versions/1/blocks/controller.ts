@@ -13,7 +13,7 @@ export class BlocksController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -39,7 +39,7 @@ export class BlocksController extends Controller {
     public async epoch(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                epoch: this.config.getConstants(this.blockchain.getLastHeight()).epoch,
+                epoch: this.config.getMilestone(this.blockchain.getLastHeight()).epoch,
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -58,7 +58,7 @@ export class BlocksController extends Controller {
 
     public async nethash(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            return super.respondWith({ nethash: this.config.network.nethash });
+            return super.respondWith({ nethash: this.config.get("network.nethash") });
         } catch (error) {
             return Boom.badImplementation(error);
         }
@@ -67,7 +67,7 @@ export class BlocksController extends Controller {
     public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                fee: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees.transfer,
+                fee: this.config.getMilestone(this.blockchain.getLastHeight()).fees.staticFees.transfer,
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -77,7 +77,7 @@ export class BlocksController extends Controller {
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastHeight = this.blockchain.getLastHeight();
-            const fees = this.config.getConstants(lastHeight).fees.staticFees;
+            const fees = this.config.getMilestone(lastHeight).fees.staticFees;
 
             return super.respondWith({
                 fees: {
@@ -106,7 +106,7 @@ export class BlocksController extends Controller {
     public async reward(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                reward: this.config.getConstants(this.blockchain.getLastHeight()).reward,
+                reward: this.config.getMilestone(this.blockchain.getLastHeight()).reward,
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -116,11 +116,11 @@ export class BlocksController extends Controller {
     public async supply(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
-            const constants = this.config.getConstants(lastBlock.data.height);
+            const constants = this.config.getMilestone(lastBlock.data.height);
             const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
 
             return super.respondWith({
-                supply: +bignumify(this.config.genesisBlock.totalAmount)
+                supply: +bignumify(this.config.get("genesisBlock.totalAmount"))
                     .plus(rewards)
                     .toFixed(),
             });
@@ -132,7 +132,7 @@ export class BlocksController extends Controller {
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
-            const constants = this.config.getConstants(lastBlock.data.height);
+            const constants = this.config.getMilestone(lastBlock.data.height);
             const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
 
             return super.respondWith({
@@ -140,9 +140,9 @@ export class BlocksController extends Controller {
                 height: lastBlock.data.height,
                 fee: constants.fees.staticFees.transfer,
                 milestone: Math.floor(lastBlock.data.height / 3000000),
-                nethash: this.config.network.nethash,
+                nethash: this.config.get("network.nethash"),
                 reward: constants.reward,
-                supply: +bignumify(this.config.genesisBlock.totalAmount)
+                supply: +bignumify(this.config.get("genesisBlock.totalAmount"))
                     .plus(rewards)
                     .toFixed(),
             });

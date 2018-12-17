@@ -3,12 +3,12 @@ import "jest-extended";
 import bip32 from "bip32";
 import { crypto, HDWallet } from "../../src/crypto";
 import { configManager } from "../../src/managers/config";
-import network from "../../src/networks/ark/mainnet.json";
+import { mainnet } from "../../src/networks";
 
 const mnemonic =
     "sorry hawk one science reject employ museum ride into post machine attack bar seminar myself unhappy faculty differ grain fish chest bird muffin mesh";
 
-beforeEach(() => configManager.setConfig(network));
+beforeEach(() => configManager.setConfig(mainnet));
 
 describe("HDWallet", () => {
     describe("bip32", () => {

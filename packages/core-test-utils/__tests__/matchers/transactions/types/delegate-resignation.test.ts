@@ -1,12 +1,12 @@
 import "../../../../src/matchers/transactions/types/delegate-resignation";
 
 import { constants } from "@arkecosystem/crypto";
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 describe(".toBeDelegateResignationType", () => {
     test("passes when given a valid transaction", () => {
         expect({
-            type: TRANSACTION_TYPES.DELEGATE_RESIGNATION,
+            type: TransactionTypes.DelegateResignation,
         }).toBeDelegateResignationType();
     });
 

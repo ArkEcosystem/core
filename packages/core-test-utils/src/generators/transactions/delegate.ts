@@ -1,7 +1,7 @@
 import { constants } from "@arkecosystem/crypto";
 import { generateTransaction } from "./transaction";
 
-const { DELEGATE_REGISTRATION } = constants.TRANSACTION_TYPES;
+const { DelegateRegistration } = constants.TransactionTypes;
 
 export const generateDelegateRegistration = (
     network,
@@ -9,4 +9,4 @@ export const generateDelegateRegistration = (
     quantity: number = 10,
     getStruct: boolean = false,
     fee?: number,
-) => generateTransaction(network, DELEGATE_REGISTRATION, passphrase, undefined, undefined, quantity, getStruct, fee);
+) => generateTransaction(network, DelegateRegistration, passphrase, undefined, undefined, quantity, getStruct, fee);

@@ -4,7 +4,7 @@ import { configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";
 
 export function handler(request, h) {
-    const config = app.resolvePlugin("config");
+    const config = app.getConfig();
     const blockchain = app.resolvePlugin("blockchain");
     const database = app.resolvePlugin("database");
 
@@ -41,7 +41,7 @@ export function handler(request, h) {
         });
 
     const lastBlock = blockchain.getLastBlock();
-    const constants = config.getConstants(lastBlock.data.height);
+    const constants = config.getMilestone(lastBlock.data.height);
     // @ts-ignore
     const delegateRows = request.server.app.config.delegateRows;
 

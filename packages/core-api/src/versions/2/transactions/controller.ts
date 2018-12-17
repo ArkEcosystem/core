@@ -18,7 +18,7 @@ export class TransactionsController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.logger = app.resolvePlugin("logger");
         this.transactionPool = app.resolvePlugin("transactionPool");
     }
@@ -130,7 +130,7 @@ export class TransactionsController extends Controller {
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return {
-                data: constants.TRANSACTION_TYPES,
+                data: constants.TransactionTypes,
             };
         } catch (error) {
             return Boom.badImplementation(error);
@@ -140,7 +140,7 @@ export class TransactionsController extends Controller {
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return {
-                data: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees,
+                data: this.config.getMilestone(this.blockchain.getLastHeight()).fees.staticFees,
             };
         } catch (error) {
             return Boom.badImplementation(error);

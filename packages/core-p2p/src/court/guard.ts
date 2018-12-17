@@ -9,7 +9,7 @@ import { config as localConfig } from "../config";
 import * as utils from "../utils";
 import { offences } from "./offences";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 
 interface ISuspension {
@@ -188,7 +188,7 @@ class Guard {
      */
     public isValidNetwork(peer) {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
-        return nethash === config.network.nethash;
+        return nethash === config.get("network.nethash");
     }
 
     /**

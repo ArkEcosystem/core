@@ -2,6 +2,7 @@ import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
 import { crypto, slots } from "@arkecosystem/crypto";
+import { config as localConfig } from "../src/config";
 import { TransactionGuard } from "../src/guard";
 
 import bip39 from "bip39";
@@ -27,6 +28,7 @@ let transactionPool;
 beforeAll(async () => {
     container = await setUpFull();
     transactionPool = container.resolvePlugin("transactionPool");
+    localConfig.init(transactionPool.options);
 });
 
 afterAll(async () => {
@@ -44,8 +46,8 @@ describe("Transaction Guard", () => {
             "should not apply transactions for chained transfers involving cold wallets",
             async inverseOrder => {
                 /* The logic here is we can't have a chained transfer A => B => C if B is a cold wallet.
-          A => B needs to be first confirmed (forged), then B can transfer to C
-        */
+                  A => B needs to be first confirmed (forged), then B can transfer to C
+                */
 
                 const arktoshi = 10 ** 8;
                 // don't re-use the same delegate (need clean balance)

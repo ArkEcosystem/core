@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { models } from "@arkecosystem/crypto";
 import * as schema from "../schemas/transactions";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 const { Transaction } = models;
 
 /**
@@ -41,7 +41,7 @@ export const forging = {
         const blockchain = app.resolvePlugin("blockchain");
 
         const height = blockchain.getLastBlock().data.height;
-        const maxTransactions = config.getConstants(height).block.maxTransactions;
+        const maxTransactions = config.getMilestone(height).block.maxTransactions;
 
         return {
             data: blockchain.getUnconfirmedTransactions(maxTransactions, true),

@@ -1,12 +1,10 @@
 import "jest-extended";
 
-import bip38 from "bip38";
 import { ARKTOSHI } from "../../src/constants";
-import { PrivateKey } from "../../src/identities";
 import { configManager } from "../../src/managers/config";
 import { Delegate } from "../../src/models/delegate";
 import { Wallet } from "../../src/models/wallet";
-import { testnet } from "../../src/networks/ark";
+import { testnet } from "../../src/networks";
 import { Bignum } from "../../src/utils/bignum";
 import { sortTransactions } from "../../src/utils/sort-transactions";
 
@@ -20,7 +18,7 @@ const dummy = {
 describe("Models - Delegate", () => {
     describe("constructor", () => {
         it("should be ok with a plain text passphrase", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet);
+            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
 
             expect(delegate.publicKey).toBe(dummy.publicKey);
             expect(delegate.address).toBe(dummy.address);
@@ -29,7 +27,7 @@ describe("Models - Delegate", () => {
 
         describe("bip38", () => {
             it("should pass with a valid passphrase", () => {
-                const delegate = new Delegate(dummy.bip38Passphrase, testnet, "bip38-password");
+                const delegate = new Delegate(dummy.bip38Passphrase, testnet.network, "bip38-password");
 
                 expect(delegate.publicKey).toBe(dummy.publicKey);
                 expect(delegate.address).toBe(dummy.address);
@@ -37,7 +35,7 @@ describe("Models - Delegate", () => {
             });
 
             it("should fail with an invalid passphrase", () => {
-                const delegate = new Delegate(dummy.bip38Passphrase, testnet, "invalid-password");
+                const delegate = new Delegate(dummy.bip38Passphrase, testnet.network, "invalid-password");
 
                 expect(delegate.publicKey).toBeNull();
                 expect(delegate.address).toBeNull();
@@ -48,7 +46,7 @@ describe("Models - Delegate", () => {
 
     describe("encryptPassphrase", () => {
         it("should pass with valid data", () => {
-            const passphrase = Delegate.encryptPassphrase(dummy.plainPassphrase, testnet, "bip38-password");
+            const passphrase = Delegate.encryptPassphrase(dummy.plainPassphrase, testnet.network, "bip38-password");
 
             expect(passphrase).toBe(dummy.bip38Passphrase);
         });
@@ -62,21 +60,21 @@ describe("Models - Delegate", () => {
 
     describe("decryptPassphrase", () => {
         it("should pass with a valid password", () => {
-            const { publicKey } = Delegate.decryptPassphrase(dummy.bip38Passphrase, testnet, "bip38-password");
+            const { publicKey } = Delegate.decryptPassphrase(dummy.bip38Passphrase, testnet.network, "bip38-password");
 
             expect(publicKey).toBe(dummy.publicKey);
         });
 
         it("should fail with an invalid password", () => {
             expect(() => {
-                Delegate.decryptPassphrase(dummy.bip38Passphrase, testnet, "invalid-password");
+                Delegate.decryptPassphrase(dummy.bip38Passphrase, testnet.network, "invalid-password");
             }).toThrow();
         });
     });
 
     describe("encryptKeysWithOtp", () => {
         it("should pass with a valid OTP secret", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet);
+            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
             delegate.otpSecret = "one-time-password";
 
             delegate.encryptKeysWithOtp();
@@ -87,7 +85,7 @@ describe("Models - Delegate", () => {
         });
 
         it("should fail without an OTP secret", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet);
+            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
             delegate.otpSecret = undefined;
 
             expect(() => {
@@ -98,7 +96,7 @@ describe("Models - Delegate", () => {
 
     describe("decryptKeysWithOtp", () => {
         it("should pass with valid data", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet);
+            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
             delegate.otpSecret = "one-time-password";
 
             delegate.encryptKeysWithOtp();
@@ -115,7 +113,7 @@ describe("Models - Delegate", () => {
         });
 
         it("should fail with missing encrypted data", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet);
+            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
 
             expect(() => {
                 delegate.decryptKeysWithOtp();
@@ -123,7 +121,7 @@ describe("Models - Delegate", () => {
         });
 
         it("should fail with invalid encrypted data", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet);
+            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
             delegate.otpSecret = "one-time-password";
 
             delegate.encryptKeysWithOtp();

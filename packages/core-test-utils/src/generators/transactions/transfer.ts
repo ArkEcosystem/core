@@ -1,7 +1,7 @@
 import { constants } from "@arkecosystem/crypto";
 import { generateTransaction } from "./transaction";
 
-const { TRANSFER } = constants.TRANSACTION_TYPES;
+const { Transfer } = constants.TransactionTypes;
 
 export const generateTransfers = (
     network,
@@ -11,4 +11,4 @@ export const generateTransfers = (
     quantity: number = 10,
     getStruct: boolean = false,
     fee?: number,
-) => generateTransaction(network, TRANSFER, passphrase, address, amount, quantity, getStruct, fee);
+) => generateTransaction(network, Transfer, passphrase, address, amount, quantity, getStruct, fee);

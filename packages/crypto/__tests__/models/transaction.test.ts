@@ -6,7 +6,7 @@ import { configManager } from "../../src/managers/config";
 import { Transaction } from "../../src/models/transaction";
 import { transaction as transactionData } from "./fixtures/transaction";
 
-import network from "../../src/networks/ark/devnet.json";
+import { devnet } from "../../src/networks";
 
 const createRandomTx = type => {
     let transaction;
@@ -88,7 +88,7 @@ const createRandomTx = type => {
 };
 
 describe("Models - Transaction", () => {
-    beforeEach(() => configManager.setConfig(network));
+    beforeEach(() => configManager.setConfig(devnet));
 
     describe("static fromBytes", () => {
         it("should verify all transactions", () => {

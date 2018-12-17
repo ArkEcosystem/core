@@ -1,9 +1,12 @@
 import "jest-extended";
-import { CONFIGURATIONS, TRANSACTION_TYPES } from "../../src/constants";
+import { TransactionTypes } from "../../src/constants";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
 
-beforeEach(() => configManager.setConfig(CONFIGURATIONS.ARK.DEVNET));
+const networkMainnet = configManager.getPreset("mainnet");
+const networkDevnet = configManager.getPreset("devnet");
+
+beforeEach(() => configManager.setFromPreset("devnet"));
 
 describe("crypto.js", () => {
     describe("getBytes", () => {
@@ -136,7 +139,7 @@ describe("crypto.js", () => {
 
     describe("getFee", () => {
         it("should return 10000000", () => {
-            const fee = crypto.getFee({ type: TRANSACTION_TYPES.TRANSFER });
+            const fee = crypto.getFee({ type: TransactionTypes.Transfer });
             expect(fee).toBeNumber();
             expect(fee).toBe(10000000);
         });
@@ -239,9 +242,9 @@ describe("crypto.js", () => {
         it("should get address from compressed WIF (mainnet)", () => {
             const keys = crypto.getKeysFromWIF(
                 "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4",
-                CONFIGURATIONS.ARK.MAINNET,
+                networkMainnet.network,
             );
-            const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.MAINNET.pubKeyHash);
+            const address = crypto.getAddress(keys.publicKey, networkMainnet.network.pubKeyHash);
             expect(keys.compressed).toBeTruthy();
             expect(address).toBe("APnrtb2JGa6WjrRik9W3Hjt6h71mD6Zgez");
         });
@@ -249,9 +252,9 @@ describe("crypto.js", () => {
         it("should get address from compressed WIF (devnet)", () => {
             const keys = crypto.getKeysFromWIF(
                 "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4",
-                CONFIGURATIONS.ARK.DEVNET,
+                networkDevnet.network,
             );
-            const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.DEVNET.pubKeyHash);
+            const address = crypto.getAddress(keys.publicKey, networkDevnet.network.pubKeyHash);
             expect(keys.compressed).toBeTruthy();
             expect(address).toBe("DDA5nM7KEqLeTtQKv5qGgcnc6dpNBKJNTS");
         });
@@ -298,13 +301,13 @@ describe("crypto.js", () => {
 
     describe("validate address on different networks", () => {
         it("should validate MAINNET addresses", () => {
-            configManager.setConfig(CONFIGURATIONS.ARK.MAINNET);
+            configManager.setConfig(networkMainnet);
 
             expect(crypto.validateAddress("AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX")).toBeTrue();
         });
 
         it("should validate DEVNET addresses", () => {
-            configManager.setConfig(CONFIGURATIONS.ARK.DEVNET);
+            configManager.setConfig(networkDevnet);
 
             expect(crypto.validateAddress("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN")).toBeTrue();
         });

@@ -1,11 +1,11 @@
 import "../../../../src/matchers/transactions/types/multi-payment";
 
 import { constants } from "@arkecosystem/crypto";
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 describe(".toBeMultiPaymentType", () => {
     test("passes when given a valid transaction", () => {
-        expect({ type: TRANSACTION_TYPES.MULTI_PAYMENT }).toBeMultiPaymentType();
+        expect({ type: TransactionTypes.MultiPayment }).toBeMultiPaymentType();
     });
 
     test("fails when given an invalid transaction", () => {

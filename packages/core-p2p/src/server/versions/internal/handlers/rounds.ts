@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
 
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 
 /**
  * @type {Object}
@@ -19,9 +19,9 @@ export const current = {
         const lastBlock = blockchain.getLastBlock();
 
         const height = lastBlock.data.height + 1;
-        const maxActive = config.getConstants(height).activeDelegates;
-        const blockTime = config.getConstants(height).blocktime;
-        const reward = config.getConstants(height).reward;
+        const maxActive = config.getMilestone(height).activeDelegates;
+        const blockTime = config.getMilestone(height).blocktime;
+        const reward = config.getMilestone(height).reward;
         const delegates = await database.getActiveDelegates(height);
         const timestamp = slots.getTime();
 

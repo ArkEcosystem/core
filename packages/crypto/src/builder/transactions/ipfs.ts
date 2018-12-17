@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../constants";
+import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers/fee";
 import { TransactionBuilder } from "./transaction";
 
@@ -9,8 +9,8 @@ export class IPFSBuilder extends TransactionBuilder {
     constructor() {
         super();
 
-        this.data.type = TRANSACTION_TYPES.IPFS;
-        this.data.fee = feeManager.get(TRANSACTION_TYPES.IPFS);
+        this.data.type = TransactionTypes.Ipfs;
+        this.data.fee = feeManager.get(TransactionTypes.Ipfs);
         this.data.amount = 0;
         this.data.vendorFieldHex = null;
         this.data.senderPublicKey = null;

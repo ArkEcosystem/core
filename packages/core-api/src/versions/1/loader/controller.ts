@@ -12,7 +12,7 @@ export class LoaderController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -56,13 +56,15 @@ export class LoaderController extends Controller {
         try {
             const feeStatisticsData = await transactionsRepository.getFeeStatistics();
 
+            const network = this.config.get("network");
+
             return super.respondWith({
                 network: {
-                    nethash: this.config.network.nethash,
-                    token: this.config.network.client.token,
-                    symbol: this.config.network.client.symbol,
-                    explorer: this.config.network.client.explorer,
-                    version: this.config.network.pubKeyHash,
+                    nethash: network.nethash,
+                    token: network.client.token,
+                    symbol: network.client.symbol,
+                    explorer: network.client.explorer,
+                    version: network.pubKeyHash,
                     ports: super.toResource(request, this.config, "ports"),
                     feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
                 },

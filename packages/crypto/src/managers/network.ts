@@ -16,7 +16,7 @@ export class NetworkManager {
      * @param  {String} [token=ark]
      * @return {Object}
      */
-    public static findByName(name, token = "ark") {
-        return get(networks, `${token.toLowerCase()}.${name}`);
+    public static findByName(name) {
+        return get(networks, name.toLowerCase());
     }
 }

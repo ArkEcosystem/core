@@ -5,9 +5,9 @@ import { app } from "@arkecosystem/core-container";
 import { queries } from "./queries";
 
 const logger = app.resolvePlugin("logger");
-const config = app.resolvePlugin("config");
+const config = app.getConfig();
 
-const genesisWallets = config.genesisBlock.transactions.map(tx => tx.senderId);
+const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
 
 export class SPV {
     private connection: any;
@@ -34,7 +34,7 @@ export class SPV {
      * @return {void}
      */
     public async build(height) {
-        this.activeDelegates = config.getConstants(height).activeDelegates;
+        this.activeDelegates = config.getMilestone(height).activeDelegates;
 
         logger.printTracker("SPV", 1, 8, "Received Transactions");
         await this.__buildReceivedTransactions();

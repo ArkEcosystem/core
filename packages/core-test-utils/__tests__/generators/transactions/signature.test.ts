@@ -1,7 +1,7 @@
 import { constants } from "../../../../crypto";
 import { generateSecondSignature } from "../../../src/generators";
 
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 
 describe("Signature transaction", () => {
     const quantity = 4;
@@ -14,7 +14,7 @@ describe("Signature transaction", () => {
     it("should return an array of 4 signature objects", () => {
         for (const transaction of transactions) {
             expect(transaction).toMatchObject({
-                type: TRANSACTION_TYPES.SECOND_SIGNATURE,
+                type: TransactionTypes.SecondSignature,
             });
         }
     });

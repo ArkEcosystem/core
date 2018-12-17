@@ -15,14 +15,12 @@ class Network {
 
     public async init() {
         this.logger = app.resolvePlugin("logger");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.p2p = app.resolvePlugin("p2p");
 
-        this.network = this.config.network;
+        this.network = configManager.all();
 
         this.__loadRemotePeers();
-
-        configManager.setConfig(this.config.network);
 
         this.client = axios.create({
             headers: {

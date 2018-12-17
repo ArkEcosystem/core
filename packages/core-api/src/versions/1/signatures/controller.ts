@@ -11,7 +11,7 @@ export class SignaturesController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
     }
 
     public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -19,7 +19,7 @@ export class SignaturesController extends Controller {
             const height: number = this.blockchain.getLastHeight();
 
             return super.respondWith({
-                fee: this.config.getConstants(height).fees.staticFees.secondSignature,
+                fee: this.config.getMilestone(height).fees.staticFees.secondSignature,
             });
         } catch (error) {
             return Boom.badImplementation(error);

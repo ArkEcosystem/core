@@ -26,10 +26,10 @@ export class ForgerManager {
      */
     constructor(options) {
         this.logger = app.resolvePlugin("logger");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
 
-        this.secrets = this.config.delegates ? this.config.delegates.secrets : null;
-        this.network = this.config.network;
+        this.secrets = this.config.get("delegates.secrets");
+        this.network = this.config.get("network");
         this.client = new Client(options.hosts);
     }
 
@@ -101,7 +101,7 @@ export class ForgerManager {
             await this.__loadUsernames();
 
             round = await this.client.getRound();
-            const delayTime = +this.config.getConstants(round.lastBlock.height).blocktime * 1000 - 2000;
+            const delayTime = +this.config.getMilestone(round.lastBlock.height).blocktime * 1000 - 2000;
 
             if (!round.canForge) {
                 // this.logger.debug('Block already forged in current slot')

@@ -13,7 +13,7 @@ export class DelegatesController extends Controller {
         super();
 
         this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.resolvePlugin("config");
+        this.config = app.getConfig();
         this.database = app.resolvePlugin("database");
     }
 
@@ -70,7 +70,7 @@ export class DelegatesController extends Controller {
     public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                fee: this.config.getConstants(this.blockchain.getLastHeight()).fees.staticFees.delegateRegistration,
+                fee: this.config.getMilestone(this.blockchain.getLastHeight()).fees.staticFees.delegateRegistration,
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -100,7 +100,7 @@ export class DelegatesController extends Controller {
             // @ts-ignore
             const limit = request.query.limit || 10;
 
-            const delegatesCount = this.config.getConstants(lastBlock).activeDelegates;
+            const delegatesCount = this.config.getMilestone(lastBlock).activeDelegates;
             const currentSlot = slots.getSlotNumber(lastBlock.data.timestamp);
 
             let activeDelegates = await this.database.getActiveDelegates(lastBlock.data.height);

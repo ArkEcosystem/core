@@ -67,8 +67,8 @@ class Database {
     }
 
     public async rollbackChain(height) {
-        const config = app.resolvePlugin("config");
-        const maxDelegates = config.getConstants(height).activeDelegates;
+        const config = app.getConfig();
+        const maxDelegates = config.getMilestone(height).activeDelegates;
         const currentRound = Math.floor(height / maxDelegates);
         const lastBlockHeight = currentRound * maxDelegates;
         const lastRemainingBlock = await this.getBlockByHeight(lastBlockHeight);

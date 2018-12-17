@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../constants";
+import { TransactionTypes } from "../constants";
 
 export class FeeManager {
     public fees: {};
@@ -37,7 +37,7 @@ export class FeeManager {
      * @return {Number}
      */
     public getForTransaction(transaction) {
-        if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        if (transaction.type === TransactionTypes.MultiSignature) {
             return this.fees[transaction.type] * (transaction.asset.multisignature.keysgroup.length + 1);
         }
 
@@ -50,9 +50,8 @@ export class FeeManager {
      * @return {Boolean}
      */
     public __validType(type) {
-        return Object.values(TRANSACTION_TYPES).indexOf(type) > -1;
+        return Object.values(TransactionTypes).indexOf(type) > -1;
     }
 }
 
-const feeManager = new FeeManager();
-export { feeManager };
+export const feeManager = new FeeManager();

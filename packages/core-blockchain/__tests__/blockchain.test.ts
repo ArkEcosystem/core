@@ -38,11 +38,11 @@ beforeAll(async () => {
     // wrong network config.
     genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
 
-    configManager = container.resolvePlugin("config");
+    configManager = container.getConfig();
 
     // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
     // and otherwise don't pass validation.
-    configManager.network.exceptions.transactions = genesisBlock.transactions.map(tx => tx.id);
+    configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
 
     // Manually register the blockchain and start it
     await __start();
@@ -51,7 +51,7 @@ beforeAll(async () => {
 afterAll(async () => {
     axiosMock.reset();
 
-    delete configManager.network.exceptions.transactions;
+    configManager.set("exceptions.transactions", []);
 
     await __resetToHeight1();
 

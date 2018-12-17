@@ -2,9 +2,9 @@ import "jest-extended";
 
 import { slots } from "../../src/crypto/slots";
 import { configManager } from "../../src/managers/config";
-import network from "../../src/networks/ark/devnet.json";
+import { devnet } from "../../src/networks";
 
-beforeEach(() => configManager.setConfig(network));
+beforeEach(() => configManager.setConfig(devnet));
 
 describe("Slots", () => {
     describe("getHeight", () => {
@@ -85,12 +85,6 @@ describe("Slots", () => {
     describe("getLastSlot", () => {
         it("returns last slot", () => {
             expect(slots.getLastSlot(1)).toBe(52);
-        });
-    });
-
-    describe("getConstant", () => {
-        it("returns constant", () => {
-            expect(slots.getConstant("epoch")).toBe("2017-03-21T13:00:00.000Z");
         });
     });
 

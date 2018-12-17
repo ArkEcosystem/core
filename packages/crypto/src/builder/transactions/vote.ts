@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from "../../constants";
+import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers/fee";
 import { TransactionBuilder } from "./transaction";
 
@@ -9,8 +9,8 @@ export class VoteBuilder extends TransactionBuilder {
     constructor() {
         super();
 
-        this.data.type = TRANSACTION_TYPES.VOTE;
-        this.data.fee = feeManager.get(TRANSACTION_TYPES.VOTE);
+        this.data.type = TransactionTypes.Vote;
+        this.data.fee = feeManager.get(TransactionTypes.Vote);
         this.data.amount = 0;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;

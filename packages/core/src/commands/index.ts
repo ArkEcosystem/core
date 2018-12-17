@@ -10,6 +10,7 @@ export async function startRelay(options, version) {
                 networkStart: options.networkStart,
             },
         },
+        skipPlugins: options.skipPlugins,
     });
 
     return app;
@@ -19,7 +20,6 @@ export async function startForger(options, version) {
     await app.setUp(version, options, {
         include: [
             "@arkecosystem/core-event-emitter",
-            "@arkecosystem/core-config",
             "@arkecosystem/core-logger",
             "@arkecosystem/core-logger-winston",
             "@arkecosystem/core-forger",
@@ -31,6 +31,7 @@ export async function startForger(options, version) {
                 password: options.password || process.env.ARK_FORGER_PASSWORD,
             },
         },
+        skipPlugins: options.skipPlugins,
     });
 
     return app;
@@ -49,6 +50,7 @@ export async function startRelayAndForger(options, version) {
                 password: options.password || process.env.ARK_FORGER_PASSWORD,
             },
         },
+        skipPlugins: options.skipPlugins,
     });
 
     return app;

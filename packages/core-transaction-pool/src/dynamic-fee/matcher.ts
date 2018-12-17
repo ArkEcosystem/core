@@ -1,5 +1,28 @@
 import { app } from "@arkecosystem/core-container";
-import { dynamicFeeManager, feeManager, formatArktoshi } from "@arkecosystem/crypto";
+import { constants, feeManager, formatArktoshi } from "@arkecosystem/crypto";
+import camelCase from "lodash/camelCase";
+import { config as localConfig } from "../config";
+
+/**
+ * Calculate minimum fee of a transaction for entering the pool.
+ * @param {Number} Minimum fee ARKTOSHI/byte
+ * @param {Transaction} Transaction for which we calculate the fee
+ * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
+ */
+export function calculateFee(arktoshiPerByte, transaction) {
+    if (arktoshiPerByte <= 0) {
+        arktoshiPerByte = 1;
+    }
+
+    const addonBytes = localConfig.get("dynamicFees.addonBytes")[
+        camelCase(constants.TransactionTypes[transaction.type])
+    ];
+
+    // serialized is in hex
+    const transactionSizeInBytes = transaction.serialized.length / 2;
+
+    return (addonBytes + transactionSizeInBytes) * arktoshiPerByte;
+}
 
 /**
  * Determine if a transaction's fee meets the minimum requirements for broadcasting
@@ -8,20 +31,19 @@ import { dynamicFeeManager, feeManager, formatArktoshi } from "@arkecosystem/cry
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
 export function dynamicFeeMatcher(transaction) {
-    const config = app.resolvePlugin("config");
     const logger = app.resolvePlugin("logger");
 
     const fee = +transaction.fee.toFixed();
     const id = transaction.id;
 
-    const blockchain = app.resolvePlugin("blockchain");
-    const fees = config.getConstants(blockchain.getLastBlock().data.height).fees;
+    const dynamicFees = localConfig.get("dynamicFees");
 
     let broadcast;
     let enterPool;
 
-    if (fees.dynamic) {
-        const minFeeBroadcast = dynamicFeeManager.calculateFee(fees.dynamicFees.minFeeBroadcast, transaction);
+    if (dynamicFees.enabled) {
+        const minFeeBroadcast = calculateFee(dynamicFees.minFeeBroadcast, transaction);
+
         if (fee >= minFeeBroadcast) {
             broadcast = true;
             logger.debug(
@@ -38,7 +60,7 @@ export function dynamicFeeMatcher(transaction) {
             );
         }
 
-        const minFeePool = dynamicFeeManager.calculateFee(fees.dynamicFees.minFeePool, transaction);
+        const minFeePool = calculateFee(dynamicFees.minFeePool, transaction);
         if (fee >= minFeePool) {
             enterPool = true;
             logger.debug(

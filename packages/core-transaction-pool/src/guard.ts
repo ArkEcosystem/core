@@ -2,10 +2,10 @@ import { app } from "@arkecosystem/core-container";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
-const { TRANSACTION_TYPES } = constants;
+const { TransactionTypes } = constants;
 const { Transaction } = models;
 
-import { dynamicFeeMatcher } from "./utils/dynamicfee-matcher";
+import { dynamicFeeMatcher } from "./dynamic-fee";
 import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 export class TransactionGuard {
@@ -183,7 +183,7 @@ export class TransactionGuard {
         }
 
         switch (transaction.type) {
-            case TRANSACTION_TYPES.TRANSFER:
+            case TransactionTypes.Transfer:
                 if (!isRecipientOnActiveNetwork(transaction)) {
                     this.__pushError(
                         transaction,
@@ -195,30 +195,29 @@ export class TransactionGuard {
                     return false;
                 }
                 break;
-            case TRANSACTION_TYPES.SECOND_SIGNATURE:
-            case TRANSACTION_TYPES.DELEGATE_REGISTRATION:
-            case TRANSACTION_TYPES.VOTE:
+            case TransactionTypes.SecondSignature:
+            case TransactionTypes.DelegateRegistration:
+            case TransactionTypes.Vote:
                 if (this.pool.senderHasTransactionsOfType(transaction.senderPublicKey, transaction.type)) {
                     this.__pushError(
                         transaction,
                         "ERR_PENDING",
                         `Sender ${transaction.senderPublicKey} already has a transaction of type ` +
-                            `'${TRANSACTION_TYPES.toString(transaction.type)}' in the pool`,
+                            `'${TransactionTypes[transaction.type]}' in the pool`,
                     );
                     return false;
                 }
                 break;
-            case TRANSACTION_TYPES.MULTI_SIGNATURE:
-            case TRANSACTION_TYPES.IPFS:
-            case TRANSACTION_TYPES.TIMELOCK_TRANSFER:
-            case TRANSACTION_TYPES.MULTI_PAYMENT:
-            case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
+            case TransactionTypes.MultiSignature:
+            case TransactionTypes.Ipfs:
+            case TransactionTypes.TimelockTransfer:
+            case TransactionTypes.MultiPayment:
+            case TransactionTypes.DelegateResignation:
             default:
                 this.__pushError(
                     transaction,
                     "ERR_UNSUPPORTED",
-                    "Invalidating transaction of unsupported type " +
-                        `'${TRANSACTION_TYPES.toString(transaction.type)}'`,
+                    "Invalidating transaction of unsupported type " + `'${TransactionTypes[transaction.type]}'`,
                 );
                 return false;
         }
