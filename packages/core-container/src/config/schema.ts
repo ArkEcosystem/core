@@ -47,10 +47,8 @@ export const schemaNetwork = Joi.object({
         .items(Joi.object())
         .required(),
     exceptions: Joi.object({
-        exceptions: Joi.object({
-            blocks: Joi.array().items(Joi.string()),
-            transactions: Joi.array().items(Joi.string()),
-        }).required(),
+        blocks: Joi.array().items(Joi.string()),
+        transactions: Joi.array().items(Joi.string()),
         outlookTable: Joi.object(),
         transactionIdFixTable: Joi.object(),
     }).default({ exceptions: {} }),

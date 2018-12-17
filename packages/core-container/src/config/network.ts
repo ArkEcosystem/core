@@ -43,7 +43,9 @@ export class Network {
 
         if (error) {
             throw new Error(
-                "An invalid network configuration was provided or is inaccessible due to it's security settings.",
+                `An invalid network configuration was provided or is inaccessible due to it's security settings. ${
+                    error.message
+                }.`,
             );
         }
 
