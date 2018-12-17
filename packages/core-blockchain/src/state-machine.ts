@@ -64,7 +64,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (stateStorage.noBlockCounter > 5) {
+        if (stateStorage.noBlockCounter > 5 && blockchain.processQueue.length() === 0) {
             // TODO: make this dynamic in 2.1
             logger.info(
                 "Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:",
