@@ -1,4 +1,3 @@
-import { AbstractLogger } from "./logger";
 import { LogManager } from "./manager";
 
 const plugin = {
@@ -9,4 +8,4 @@ const plugin = {
     },
 };
 
-export { plugin, AbstractLogger };
+export { plugin };

@@ -62,3 +62,6 @@ packages/**/dist/
 
 # Random
 peers_backup.json
+
+#Webstorm/Intellij
+.idea
