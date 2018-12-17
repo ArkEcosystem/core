@@ -1,11 +1,12 @@
 import axios from "axios";
+import { execSync } from "child_process";
 import dayjs from "dayjs-ext";
 import getRepoInfo from "git-repo-info";
 import latestVersion from "latest-version";
 import prompts from "prompts";
 import semver from "semver";
 
-async function performUpdate(options, callback) {
+async function performUpdate(callback) {
     const response = await prompts([
         {
             type: "confirm",
@@ -16,7 +17,7 @@ async function performUpdate(options, callback) {
     ]);
 
     if (response.confirm) {
-        callback(options);
+        callback();
     }
 }
 
@@ -27,8 +28,8 @@ export async function update(options) {
         const latestRelease = await latestVersion("@arkecosystem/core");
 
         if (semver.gt(latestRelease, options.parent._version)) {
-            return performUpdate(options, () => {
-                // update via yarn
+            return performUpdate(() => {
+                execSync("yarn global add @arkecosystem/core@latest");
             });
         }
     } else {
@@ -37,8 +38,8 @@ export async function update(options) {
         const currentCommit = dayjs(getRepoInfo().authorDate);
 
         if (lastCommit.isAfter(currentCommit)) {
-            return performUpdate(options, () => {
-                // update via git
+            return performUpdate(() => {
+                execSync("git reset --hard && git pull");
             });
         }
     }
