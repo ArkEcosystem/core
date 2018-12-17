@@ -87,17 +87,18 @@ export const schemaConfig = Joi.object({
         bip38: Joi.string(),
     }),
     peers: Joi.object().required(),
-    peers_backup: Joi.array().items(
-        Joi.object().keys({
-            ip: Joi.string()
-                .ip()
-                .required(),
-            port: Joi.number()
-                .port()
-                .required(),
-            version: Joi.string().required(),
-        }),
-    ),
+    peers_backup: Joi.array().items(Joi.object()),
+    // peers_backup: Joi.array().items(
+    //     Joi.object().keys({
+    //         ip: Joi.string()
+    //             .ip()
+    //             .required(),
+    //         port: Joi.number()
+    //             .port()
+    //             .required(),
+    //         version: Joi.string().required(),
+    //     }),
+    // ),
     plugins: Joi.object().required(),
     genesisBlock: Joi.object().required(),
 }).unknown();
