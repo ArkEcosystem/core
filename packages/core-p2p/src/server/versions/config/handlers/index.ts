@@ -10,6 +10,7 @@ export const config = {
                 version: app.getVersion(),
                 network: {
                     version: appConfig.get("network.pubKeyHash"),
+                    name: appConfig.get("network.name"),
                     nethash: appConfig.get("network.nethash"),
                     explorer: appConfig.get("network.client.explorer"),
                     token: {
@@ -36,8 +37,10 @@ export const network = {
 
 export const dynamicFees = {
     handler(request, h) {
+        const networkName = appConfig.get("network.name");
+
         return {
-            data: require(`${process.env.ARK_PATH_CONFIG}/dynamicFees.json`),
+            data: require(`../../../../../../crypto/src/networks/ark/${networkName}/dynamicFees.json`),
         };
     },
 };

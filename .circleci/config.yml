@@ -86,8 +86,8 @@ jobs:
           name: core-container
           command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
-          name: core
-          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
+          name: core-graphql
+          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -181,8 +181,8 @@ jobs:
           name: core-container
           command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
-          name: core
-          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
+          name: core-graphql
+          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -344,8 +344,8 @@ jobs:
           name: core-logger-winston
           command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-graphql
-          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
       - run:
           name: core-deployer
           command: 'cd ~/ark-core/packages/core-deployer && yarn test:coverage'
@@ -353,8 +353,8 @@ jobs:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
       - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+          name: core
+          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -605,8 +605,8 @@ jobs:
           name: core-logger-winston
           command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-graphql
-          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
       - run:
           name: core-deployer
           command: 'cd ~/ark-core/packages/core-deployer && yarn test:coverage'
@@ -614,8 +614,8 @@ jobs:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
       - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+          name: core
+          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
