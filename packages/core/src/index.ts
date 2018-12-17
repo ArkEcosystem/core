@@ -64,11 +64,11 @@ command("forger:bip38", "encrypt the delegate passphrase using bip38")
     .action(config.forgerBIP38);
 
 // Configuration
-command("config:publish", "TBD").action(config.publish);
-command("config:reset", "TBD").action(config.reset);
+command("config:publish", "Publish the configuration").action(config.publish);
+command("config:reset", "Reset the configuration").action(config.reset);
 
 // App
-command("update", "TBD").action(app.update);
+command("update", "Update the installation").action(app.update);
 
 cli.command("*").action(env => {
     cli.help();
