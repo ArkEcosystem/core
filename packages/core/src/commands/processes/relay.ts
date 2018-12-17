@@ -26,8 +26,6 @@ export async function restart(options) {
 }
 
 export async function monitor(options) {
-    // TODO: https://pm2.io/doc/en/runtime/integration/transpilers/
-    // @ts-ignore
     pm2.start({
         name: "ark-core-relay",
         script: "./dist/index.js",

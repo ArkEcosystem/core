@@ -14,7 +14,6 @@ export async function start(options) {
         options: {
             "@arkecosystem/core-forger": {
                 bip38: options.bip38 || process.env.ARK_FORGER_BIP38,
-                address: options.address,
                 password: options.password || process.env.ARK_FORGER_PASSWORD,
             },
         },
@@ -33,14 +32,13 @@ export async function restart(options) {
 }
 
 export async function monitor(options) {
-    // TODO: https://pm2.io/doc/en/runtime/integration/transpilers/
     pm2.start({
         name: "ark-core-forger",
         script: "./dist/index.js",
         args: `forger --data ${options.data} --config ${options.config}`,
-        // env: {
-        //     ARK_FORGER_BIP38: delegates.bip38,
-        //     ARK_FORGER_PASSWORD: getPasswordFromArgs()
-        // }
+        env: {
+            ARK_FORGER_BIP38: options.bip38,
+            ARK_FORGER_PASSWORD: options.password,
+        },
     });
 }
