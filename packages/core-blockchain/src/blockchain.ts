@@ -163,10 +163,9 @@ export class Blockchain {
     /**
      * Push a block to the process queue.
      * @param  {Block} block
-     * @param  {Boolean} internal
      * @return {void}
      */
-    public queueBlock(block, internal = false) {
+    public queueBlock(block) {
         logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
                 "transaction",
@@ -175,15 +174,13 @@ export class Blockchain {
             )} from ${block.ip}`,
         );
 
-        if (this.state.started && this.state.blockchain.value === "idle" && (!this.state.forked || internal)) {
+        if (this.state.started && this.state.blockchain.value === "idle") {
             this.dispatch("NEWBLOCK");
 
             this.processQueue.push(block);
             this.state.lastDownloadedBlock = new Block(block);
         } else {
-            logger.info(
-                `Block disregarded because blockchain is ${this.state.forked ? "forked" : "not ready"} :exclamation:`,
-            );
+            logger.info(`Block disregarded because blockchain is not ready :exclamation:`);
         }
     }
 
@@ -426,9 +423,8 @@ export class Blockchain {
         await this.database.saveBlock(block);
 
         // Check if we recovered from a fork
-        if (this.state.forked && this.state.forkedBlock.height === block.data.height) {
+        if (this.state.forkedBlock && this.state.forkedBlock.height === block.data.height) {
             logger.info("Successfully recovered from fork :star2:");
-            this.state.forked = false;
             this.state.forkedBlock = null;
         }
 
@@ -533,7 +529,6 @@ export class Blockchain {
      * @returns {void}
      */
     public forkBlock(block) {
-        this.state.forked = true;
         this.state.forkedBlock = block;
 
         this.dispatch("FORK");
