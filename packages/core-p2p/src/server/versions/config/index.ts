@@ -9,6 +9,9 @@ const register = async (server, options) => {
     server.route([
         { method: "GET", path: "/", ...handlers.config },
         { method: "GET", path: "/network", ...handlers.network },
+        { method: "GET", path: "/dynamicFees", ...handlers.dynamicFees },
+        { method: "GET", path: "/exceptions", ...handlers.exceptions },
+        { method: "GET", path: "/milestones", ...handlers.milestones },
         { method: "GET", path: "/genesis-block", ...handlers.genesisBlock },
         { method: "GET", path: "/peers", ...handlers.peers },
         { method: "GET", path: "/delegates", ...handlers.delegates },

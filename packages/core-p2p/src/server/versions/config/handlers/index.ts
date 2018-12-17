@@ -34,6 +34,30 @@ export const network = {
     },
 };
 
+export const dynamicFees = {
+    handler(request, h) {
+        return {
+            data: require(`${process.env.ARK_PATH_CONFIG}/dynamicFees.json`),
+        };
+    },
+};
+
+export const exceptions = {
+    handler(request, h) {
+        return {
+            data: require(`${process.env.ARK_PATH_CONFIG}/exceptions.json`),
+        };
+    },
+};
+
+export const milestones = {
+    handler(request, h) {
+        return {
+            data: require(`${process.env.ARK_PATH_CONFIG}/milestones.json`),
+        };
+    },
+};
+
 export const genesisBlock = {
     handler(request, h) {
         return {
