@@ -359,10 +359,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 // Otherwise simply discard the downloaded blocks by resetting the queue.
                 const shouldFork = blocks[0].height === lastAcceptedBlock.data.height + 1;
                 if (shouldFork) {
-                    stateStorage.forked = true;
-                    stateStorage.forkedBlock = blocks[0];
-
-                    blockchain.dispatch("FORK");
+                    blockchain.forkBlock(blocks[0]);
                 } else {
                     // TODO: only remove blocks from last downloaded block height
                     blockchain.clearAndStopQueue();

@@ -389,8 +389,8 @@ export class Blockchain {
             logger.debug(error.stack);
 
             this.transactionPool.purgeBlock(block);
+            this.forkBlock(block);
 
-            this.dispatch("FORK");
             return callback();
         }
 
@@ -482,7 +482,7 @@ export class Blockchain {
             const isValid = await this.database.validateForkedBlock(block);
 
             if (isValid) {
-                this.dispatch("FORK");
+                this.forkBlock(block);
             } else {
                 logger.info(
                     `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
@@ -524,6 +524,18 @@ export class Blockchain {
     public forceWakeup() {
         this.state.clearCheckLater();
         this.dispatch("WAKEUP");
+    }
+
+    /**
+     * Fork the chain at the given block.
+     * @param {Block} block
+     * @returns {void}
+     */
+    public forkBlock(block) {
+        this.state.forked = true;
+        this.state.forkedBlock = block;
+
+        this.dispatch("FORK");
     }
 
     /**
