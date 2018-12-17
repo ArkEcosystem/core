@@ -57,8 +57,6 @@ blockchainMachine.actionMap = blockchain => ({
             `Queued blocks (rebuild: ${blockchain.rebuildQueue.length()} process: ${blockchain.processQueue.length()})`,
         );
 
-        await blockchain.p2p.updateNetworkStatusIfNotEnoughPeers();
-
         if (blockchain.rebuildQueue.length() > 10000 || blockchain.processQueue.length() > 10000) {
             event = "PAUSED";
         }

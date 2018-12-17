@@ -18,8 +18,8 @@
         "release": "cross-env-shell ./scripts/release.sh"
     },
     "devDependencies": {
-        "@babel/core": "^7.1.6",
-        "@babel/preset-env": "^7.1.6",
+        "@babel/core": "^7.2.2",
+        "@babel/preset-env": "^7.2.0",
         "@sindresorhus/tsconfig": "^0.1.1",
         "@types/jest": "^23.3.10",
         "@types/node": "^10.12.12",

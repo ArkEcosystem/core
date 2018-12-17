@@ -34,7 +34,7 @@
         "@arkecosystem/crypto": "^2.1.0",
         "@types/lodash.orderby": "^4.6.4",
         "@types/lodash.snakecase": "^4.1.4",
-        "ajv": "^6.5.5",
+        "ajv": "^6.6.2",
         "boom": "^7.3.0",
         "bs58check": "^2.1.2",
         "dayjs-ext": "^2.2.0",

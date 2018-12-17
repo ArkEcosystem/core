@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
--   Increase cache generation timeout and make it configurable ([f2b8ba5f36a6872ace2e2f7ea75b6fbdeb0e47fb], [75328312cfcb3047a3908122a82795634f0fcc79]]
+-   Increase cache generation timeout and make it configurable ([f2b8ba5f36a6872ace2e2f7ea75b6fbdeb0e47fb], [75328312cfcb3047a3908122a82795634f0fcc79])
 
 ## [2.0.1] - 2018-12-05
 

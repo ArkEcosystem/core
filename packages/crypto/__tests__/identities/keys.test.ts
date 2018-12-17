@@ -1,7 +1,9 @@
 import "jest-extended";
+import wif from "wif";
 
 import { Address } from "../../src/identities/address";
 import { Keys } from "../../src/identities/keys";
+import { data, passphrase } from "./fixture.json";
 
 describe("Identities - Keys", () => {
     describe("fromPassphrase", () => {
@@ -9,44 +11,42 @@ describe("Identities - Keys", () => {
             const keys = Keys.fromPassphrase("secret");
 
             expect(keys).toBeObject();
-            expect(keys).toHaveProperty("publicKey");
-            expect(keys).toHaveProperty("privateKey");
-
-            expect(keys.publicKey).toBeString();
-            expect(keys.publicKey).toMatch(Buffer.from(keys.publicKey, "hex").toString("hex"));
-
-            expect(keys.privateKey).toBeString();
-            expect(keys.privateKey).toMatch(Buffer.from(keys.privateKey, "hex").toString("hex"));
+            expect(keys.publicKey).toMatch(keys.publicKey);
+            expect(keys.privateKey).toMatch(keys.privateKey);
         });
 
         it("should return address", () => {
-            const keys = Keys.fromPassphrase("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
+            const keys = Keys.fromPassphrase(passphrase);
             // @ts-ignore
             const address = Address.fromPublicKey(keys.publicKey.toString("hex"));
-            expect(address).toBe("DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub");
+            expect(address).toBe(data.address);
+        });
+    });
+
+    describe("fromPrivateKey", () => {
+        it("should return two keys in hex", () => {
+            const keys = Keys.fromPrivateKey(data.privateKey);
+
+            expect(keys).toBeObject();
+            expect(keys.publicKey).toMatch(data.publicKey);
+            expect(keys.privateKey).toMatch(data.privateKey);
         });
     });
 
     describe("fromWIF", () => {
         it("should return two keys in hex", () => {
-            const keys = Keys.fromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
+            const keys = Keys.fromWIF("SGq4xLgZKCGxs7bjmwnBrWcT4C1ADFEermj846KC97FSv1WFD1dA");
 
             expect(keys).toBeObject();
-            expect(keys).toHaveProperty("publicKey");
-            expect(keys).toHaveProperty("privateKey");
-
-            expect(keys.publicKey).toBeString();
-            expect(keys.publicKey).toMatch(Buffer.from(keys.publicKey, "hex").toString("hex"));
-
-            expect(keys.privateKey).toBeString();
-            expect(keys.privateKey).toMatch(Buffer.from(keys.privateKey, "hex").toString("hex"));
+            expect(keys.publicKey).toMatch(data.publicKey);
+            expect(keys.privateKey).toMatch(data.privateKey);
         });
 
         it("should return address", () => {
-            const keys = Keys.fromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
+            const keys = Keys.fromWIF(data.wif);
             // @ts-ignore
             const address = Address.fromPublicKey(keys.publicKey.toString("hex"));
-            expect(address).toBe("DCAaPzPAhhsMkHfQs7fZvXFW2EskDi92m8");
+            expect(address).toBe(data.address);
         });
 
         it("should get keys from compressed WIF", () => {
@@ -65,6 +65,14 @@ describe("Identities - Keys", () => {
             expect(keys).toHaveProperty("publicKey");
             expect(keys).toHaveProperty("privateKey");
             expect(keys).toHaveProperty("compressed", false);
+        });
+
+        it("should fail with an invalid network version", () => {
+            wif.decode = jest.fn(() => ({ version: 1 }));
+
+            expect(() => {
+                Keys.fromWIF("invalid");
+            }).toThrow(`Invalid network version`);
         });
     });
 });

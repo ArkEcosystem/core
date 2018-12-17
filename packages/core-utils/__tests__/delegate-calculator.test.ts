@@ -15,10 +15,16 @@ beforeEach(() => {
 
 describe("Delegate Calculator", () => {
     describe("calculateApproval", () => {
-        it("should calculate correctly", () => {
+        it("should calculate correctly with a height", () => {
             delegate.voteBalance = new Bignum(10000 * 1e8);
 
             expect(calculateApproval(delegate, 1)).toBe(1);
+        });
+
+        it("should calculate correctly without a height", () => {
+            delegate.voteBalance = new Bignum(10000 * 1e8);
+
+            expect(calculateApproval(delegate)).toBe(1);
         });
 
         it("should calculate correctly with 2 decimals", () => {
