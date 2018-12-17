@@ -2,6 +2,7 @@ import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
 import { crypto, slots } from "@arkecosystem/crypto";
+import { config as localConfig } from "../src/config";
 import { TransactionGuard } from "../src/guard";
 
 import bip39 from "bip39";
@@ -27,6 +28,7 @@ let transactionPool;
 beforeAll(async () => {
     container = await setUpFull();
     transactionPool = container.resolvePlugin("transactionPool");
+    localConfig.init(transactionPool.options);
 });
 
 afterAll(async () => {
