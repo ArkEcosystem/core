@@ -46,6 +46,14 @@ export const schemaNetwork = Joi.object({
     milestones: Joi.array()
         .items(Joi.object())
         .required(),
+    exceptions: Joi.object({
+        exceptions: Joi.object({
+            blocks: Joi.array().items(Joi.string()),
+            transactions: Joi.array().items(Joi.string()),
+        }).required(),
+        outlookTable: Joi.object(),
+        transactionIdFixTable: Joi.object(),
+    }).default({ exceptions: {} }),
     network: Joi.object({
         name: Joi.string().required(),
         messagePrefix: Joi.string().required(),
@@ -72,12 +80,6 @@ export const schemaNetwork = Joi.object({
             symbol: Joi.string().required(),
             explorer: Joi.string().required(),
         }),
-        exceptions: Joi.object({
-            blocks: Joi.array().items(Joi.string()),
-            transactions: Joi.array().items(Joi.string()),
-        }).required(),
-        outlookTable: Joi.object(),
-        transactionIdFixTable: Joi.object(),
     }).required(),
 });
 

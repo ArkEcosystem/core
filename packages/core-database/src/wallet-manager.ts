@@ -566,7 +566,7 @@ export class WalletManager {
             return false;
         }
 
-        const exceptions: any = this.config.get("network.exceptions.transactions");
+        const exceptions: any = this.config.get("exceptions.transactions");
 
         if (!Array.isArray(exceptions)) {
             return false;

@@ -7,11 +7,12 @@ import { Network } from "../../../src/config/network";
 const stubConfigPath = resolve(__dirname, "../../__stubs__/config");
 
 const stubConfig = {
+    delegates: require(resolve(__dirname, "../../__stubs__/config/delegates")),
     dynamicFees: require(resolve(__dirname, "../../__stubs__/config/dynamicFees")),
+    exceptions: require(resolve(__dirname, "../../__stubs__/config/exceptions")),
+    genesisBlock: require(resolve(__dirname, "../../__stubs__/config/genesisBlock")),
     milestones: require(resolve(__dirname, "../../__stubs__/config/milestones")),
     network: require(resolve(__dirname, "../../__stubs__/config/network")),
-    delegates: require(resolve(__dirname, "../../__stubs__/config/delegates")),
-    genesisBlock: require(resolve(__dirname, "../../__stubs__/config/genesisBlock")),
     peers: require(resolve(__dirname, "../../__stubs__/config/peers")),
     plugins: require(resolve(__dirname, "../../__stubs__/config/plugins")),
 };

@@ -12,7 +12,7 @@ import { feeManager } from "../managers/fee";
 import { Bignum } from "../utils";
 import { HashAlgorithms } from "./hash-algorithms";
 
-const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET.network;
+const { transactionIdFixTable } = CONFIGURATIONS.ARK.MAINNET.exceptions;
 
 class Crypto {
     /**

@@ -426,7 +426,7 @@ describe("Connection", () => {
             const forgedTransaction = block.transactions[0];
 
             // Workaround: Add tx to exceptions so it gets applied, because the fee is 0.
-            config.set("network.exceptions.transactions", [forgedTransaction.id]);
+            config.set("exceptions.transactions", [forgedTransaction.id]);
 
             // For some reason all genesis transactions fail signature verification, so
             // they are not loaded from the local storage and this fails otherwise.

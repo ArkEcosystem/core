@@ -6,7 +6,7 @@ import { Block } from "../../src/models/block";
 import { Bignum } from "../../src/utils/bignum";
 import { dummyBlock } from "./fixtures/block";
 
-const { outlookTable } = CONFIGURATIONS.ARK.MAINNET.network;
+const { outlookTable } = CONFIGURATIONS.ARK.MAINNET.exceptions;
 
 describe("Models - Block", () => {
     const data = {

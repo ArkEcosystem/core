@@ -527,11 +527,11 @@ export abstract class ConnectionInterface {
             return false;
         }
 
-        if (!Array.isArray(this.config.get("network.exceptions.blocks"))) {
+        if (!Array.isArray(this.config.get("exceptions.blocks"))) {
             return false;
         }
 
-        return this.config.get("network.exceptions.blocks").includes(block.id);
+        return this.config.get("exceptions.blocks").includes(block.id);
     }
 
     /**

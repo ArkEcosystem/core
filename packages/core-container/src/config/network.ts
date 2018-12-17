@@ -28,9 +28,10 @@ export class Network {
                 const networkPath = resolve(expandHomeDir(process.env.ARK_PATH_CONFIG));
 
                 config = {
-                    network: require(`${networkPath}/network`),
-                    milestones: require(`${networkPath}/milestones`),
                     dynamicFees: require(`${networkPath}/dynamicFees`),
+                    exceptions: require(`${networkPath}/exceptions`),
+                    milestones: require(`${networkPath}/milestones`),
+                    network: require(`${networkPath}/network`),
                 };
             } catch (error) {
                 config = false;

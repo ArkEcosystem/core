@@ -42,7 +42,7 @@ beforeAll(async () => {
 
     // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
     // and otherwise don't pass validation.
-    configManager.set("network.exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
+    configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
 
     // Manually register the blockchain and start it
     await __start();
@@ -51,7 +51,7 @@ beforeAll(async () => {
 afterAll(async () => {
     axiosMock.reset();
 
-    configManager.set("network.exceptions.transactions", []);
+    configManager.set("exceptions.transactions", []);
 
     await __resetToHeight1();
 
