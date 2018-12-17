@@ -464,8 +464,12 @@ export class Blockchain {
 
             // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
             // it is very likely that all blocks will be disregarded at this point anyway.
+            // NOTE: This isn't really elegant, but still better than spamming the log with
+            //       useless `not ready to accept` messages.
+            if (this.processQueue.length() > 0) {
+                logger.debug(`Discarded ${this.processQueue.length()} downloaded blocks.`);
+            }
             this.queue.clear();
-            logger.debug("Cleared queued blocks.");
 
             this.state.lastDownloadedBlock = lastBlock;
         } else if (block.data.height < lastBlock.data.height) {
