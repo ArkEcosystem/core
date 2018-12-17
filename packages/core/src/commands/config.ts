@@ -3,8 +3,7 @@ import { configManager, crypto } from "@arkecosystem/crypto";
 import bip38 from "bip38";
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
-import fs from "fs";
-import { copySync, ensureDirSync, ensureFileSync, existsSync, removeSync } from "fs-extra";
+import fs from "fs-extra";
 import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
@@ -47,26 +46,26 @@ export async function publish(options) {
         // TODO: adjust this once feat/milestones is merged
         const cryptoConfigSrc = resolve(__dirname, `../../../crypto/src/networks/ark/${response.network}.json`);
 
-        if (!existsSync(coreConfigSrc)) {
+        if (!fs.existsSync(coreConfigSrc)) {
             spinner.fail(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
         }
 
-        if (!existsSync(cryptoConfigSrc)) {
+        if (!fs.existsSync(cryptoConfigSrc)) {
             spinner.fail(`Couldn't find the core configuration files at ${cryptoConfigSrc}.`);
         }
 
-        ensureDirSync(coreConfigDest);
+        fs.ensureDirSync(coreConfigDest);
 
         await delay(750);
 
         spinner.text = "Publishing core configuration...";
-        copySync(coreConfigSrc, coreConfigDest);
+        fs.copySync(coreConfigSrc, coreConfigDest);
 
         await delay(750);
 
         spinner.text = "Publishing crypto configuration...";
         // TODO: adjust this once feat/milestones is merged
-        copySync(cryptoConfigSrc, `${coreConfigDest}/network.json`);
+        fs.copySync(cryptoConfigSrc, `${coreConfigDest}/network.json`);
 
         await delay(750);
 
@@ -75,15 +74,32 @@ export async function publish(options) {
 }
 
 export async function reset(options) {
-    removeSync(resolve(expandHomeDir(options.config)));
+    const response = await prompts([
+        {
+            type: "confirm",
+            name: "confirm",
+            message: "Are you absolutely sure that you want to reset the configuration?",
+            initial: true,
+        },
+    ]);
 
-    await publish(options);
+    if (response.confirm) {
+        const spinner = ora("Removing configuration...").start();
+
+        fs.removeSync(resolve(expandHomeDir(options.config)));
+
+        await delay(750);
+
+        spinner.succeed("Removed configuration!");
+
+        await publish(options);
+    }
 }
 
-export function forgerSecret(options) {
+export async function forgerSecret(options) {
     const delegatesConfig = `${options.config}/delegates.json`;
 
-    if (!options.config || !fs.existsSync(delegatesConfig)) {
+    if (!fs.existsSync(delegatesConfig)) {
         // tslint:disable-next-line:no-console
         console.error("Missing or invalid delegates config path");
         process.exit(1);
@@ -96,10 +112,10 @@ export function forgerSecret(options) {
     fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 }
 
-export function forgerBIP38(options) {
+export async function forgerBIP38(options) {
     const delegatesConfig = `${options.config}/delegates.json`;
 
-    if (!options.config || !fs.existsSync(delegatesConfig)) {
+    if (!fs.existsSync(delegatesConfig)) {
         // tslint:disable-next-line:no-console
         console.error("Missing or invalid delegates config path");
         process.exit(1);
