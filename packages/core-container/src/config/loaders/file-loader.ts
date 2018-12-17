@@ -5,7 +5,7 @@ import Joi from "joi";
 import get from "lodash/get";
 import set from "lodash/set";
 import { basename, extname, resolve } from "path";
-import { schema } from "../schema";
+import { schemaConfig } from "../schema";
 
 class FileLoader {
     /**
@@ -18,13 +18,15 @@ class FileLoader {
             throw new Error("Invalid network configuration provided.");
         }
 
-        const { value, error } = Joi.validate(opts, schema);
+        const files = await this.createFromDirectory();
+
+        const { value, error } = Joi.validate(files, schemaConfig);
 
         if (error) {
             throw error;
         }
 
-        return { config: value, files: await this.createFromDirectory() };
+        return { config: value, files };
     }
 
     /**

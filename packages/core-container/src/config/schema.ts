@@ -1,11 +1,6 @@
 import Joi from "joi";
 
-export const schema = Joi.object({
-    delegates: Joi.object({
-        secrets: Joi.array().items(Joi.string()),
-        bip38: Joi.string(),
-    }),
-    genesisBlock: Joi.object(),
+export const schemaNetwork = Joi.object({
     dynamicFees: Joi.object({
         enabled: Joi.boolean().required(),
         minFeePool: Joi.number()
@@ -84,4 +79,25 @@ export const schema = Joi.object({
         outlookTable: Joi.object(),
         transactionIdFixTable: Joi.object(),
     }).required(),
+});
+
+export const schemaConfig = Joi.object({
+    delegates: Joi.object({
+        secrets: Joi.array().items(Joi.string()),
+        bip38: Joi.string(),
+    }),
+    peers: Joi.object().required(),
+    peers_backup: Joi.array().items(
+        Joi.object().keys({
+            ip: Joi.string()
+                .ip()
+                .required(),
+            port: Joi.number()
+                .port()
+                .required(),
+            version: Joi.string().required(),
+        }),
+    ),
+    plugins: Joi.object().required(),
+    genesisBlock: Joi.object().required(),
 });

@@ -13,11 +13,13 @@ class Config {
             await remoteLoader.setUp();
         }
 
-        const { config, files } = await fileLoader.setUp(Network.setUp(opts));
+        const network = Network.setUp(opts);
+
+        const { config, files } = await fileLoader.setUp(network);
 
         this.config = files;
 
-        this.configureCrypto(config);
+        this.configureCrypto(network);
 
         return this;
     }

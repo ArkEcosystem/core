@@ -8,7 +8,7 @@ const stubConfigPath = resolve(__dirname, "../../__stubs__/config");
 
 const stubConfig = {
     delegates: require(resolve(__dirname, "../../__stubs__/config/delegates")),
-    dynamicFees: require(resolve(__dirname, "../../__stubs__/config/network/dynamic-fees")),
+    dynamicFees: require(resolve(__dirname, "../../__stubs__/config/network/dynamicFees")),
     genesisBlock: require(resolve(__dirname, "../../__stubs__/config/genesisBlock")),
     milestones: require(resolve(__dirname, "../../__stubs__/config/network/milestones")),
     network: require(resolve(__dirname, "../../__stubs__/config/network/network")),
