@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { constants, crypto, formatArktoshi, models } from "@arkecosystem/crypto";
+import { configManager, constants, crypto, formatArktoshi, models } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const { Wallet } = models;
@@ -559,16 +559,8 @@ export class WalletManager {
      * @return {Boolean}
      */
     public __isException(transaction) {
-        if (!this.config) {
-            return false;
-        }
+        const exceptions: any = configManager.get("exceptions.transactions");
 
-        const exceptions: any = this.config.get("exceptions.transactions");
-
-        if (!Array.isArray(exceptions)) {
-            return false;
-        }
-
-        return exceptions.includes(transaction.id);
+        return Array.isArray(exceptions) ? exceptions.includes(transaction.id) : false;
     }
 }

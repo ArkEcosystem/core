@@ -367,7 +367,10 @@ export class Blockchain {
      * @return {(Function|void)}
      */
     public async processBlock(block, callback) {
-        if (!block.verification.verified && !this.database.__isException(block.data)) {
+        // FIX: this condition fails to handle exceptions
+        // if (!block.verification.verified && !this.database.__isException(block.data))
+
+        if (!block.verification.verified) {
             logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
             logger.warn(JSON.stringify(block.verification, null, 4));
 
