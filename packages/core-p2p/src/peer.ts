@@ -16,11 +16,11 @@ export class Peer {
     public os: any;
     public status: any;
     public delay: any;
+    public ban: number;
+    public offences: any[];
 
-    private ban: number;
     private url: string;
     private state: any;
-    private offences: any[];
     private lastPinged: dayjs.Dayjs | null;
 
     private config: any;
