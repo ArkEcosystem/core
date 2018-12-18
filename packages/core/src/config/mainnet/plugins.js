@@ -27,6 +27,22 @@ module.exports = {
         enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
         maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
         allowedSenders: [],
+        dynamicFees: {
+            enabled: true,
+            minFeePool: 3000,
+            minFeeBroadcast: 3000,
+            addonBytes: {
+                transfer: 100,
+                secondSignature: 250,
+                delegateRegistration: 400000,
+                vote: 100,
+                multiSignature: 500,
+                ipfs: 250,
+                timelockTransfer: 500,
+                multiPayment: 500,
+                delegateResignation: 400000,
+            },
+        },
     },
     "@arkecosystem/core-p2p": {
         host: process.env.ARK_P2P_HOST || "0.0.0.0",
