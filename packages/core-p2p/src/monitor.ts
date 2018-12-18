@@ -14,7 +14,7 @@ import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
 import { config as localConfig } from "./config";
-import { guard } from "./court";
+import { guard, Guard } from "./court";
 import { Peer } from "./peer";
 import networkState from "./utils/network-state";
 
@@ -28,7 +28,7 @@ const emitter = app.resolvePlugin("event-emitter");
 class Monitor {
     public readonly peers: { [ip: string]: any };
     public server: any;
-    public guard: any;
+    public guard: Guard;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean;
@@ -170,6 +170,16 @@ class Monitor {
                 `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${
                     config.network.nethash
                 } - Received: ${peer.nethash}`,
+            );
+
+            return this.guard.suspend(newPeer);
+        }
+
+        if (!this.guard.isValidMilestoneHash(peer)) {
+            logger.debug(
+                `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${
+                    config.milestoneHash
+                } - Received: ${peer.milestoneHash}`,
             );
 
             return this.guard.suspend(newPeer);
