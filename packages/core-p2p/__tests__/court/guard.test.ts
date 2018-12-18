@@ -81,6 +81,37 @@ describe("Guard", () => {
         });
     });
 
+    describe("isValidVersion", () => {
+        it("should be a valid version", () => {
+            const get = guard.config.get;
+            guard.config.get = jest.fn(() => ">=2.0.0");
+
+            expect(guard.isValidVersion({ version: "2.0.0" })).toBeTrue();
+            expect(guard.isValidVersion({ version: "2.1.39" })).toBeTrue();
+            expect(guard.isValidVersion({ version: "3.0.0" })).toBeTrue();
+
+            guard.config.get = get;
+        });
+
+        it("should be an invalid version", () => {
+            const get = guard.config.get;
+            guard.config.get = jest.fn(() => ">=2.0.0");
+
+            expect(guard.isValidVersion({ version: "1.0.0" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "1.0" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "---aaa" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "2490" })).toBeFalse();
+            expect(guard.isValidVersion({ version: 2 })).toBeFalse();
+            expect(guard.isValidVersion({ version: -10.2 })).toBeFalse();
+            expect(guard.isValidVersion({ version: {} })).toBeFalse();
+            expect(guard.isValidVersion({ version: true })).toBeFalse();
+            expect(guard.isValidVersion({ version: () => "1" })).toBeFalse();
+            expect(guard.isValidVersion({ version: "2.0.0.0" })).toBeFalse();
+
+            guard.config.get = get;
+        });
+    });
+
     describe("__determineOffence", () => {
         const convertToMinutes = actual => Math.ceil(actual.diff(dayjs()) / 1000) / 60;
 

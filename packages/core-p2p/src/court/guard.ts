@@ -178,6 +178,10 @@ export class Guard {
      */
     public isValidVersion(peer) {
         const version = peer.version || (peer.headers && peer.headers.version);
+        if (!semver.valid(version)) {
+            return false;
+        }
+
         return semver.satisfies(version, this.config.get("minimumVersion"));
     }
 
