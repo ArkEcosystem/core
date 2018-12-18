@@ -11,6 +11,7 @@ export class Peer {
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
+    public milestoneHash: string;
     public version: any;
     public os: any;
     public status: any;
@@ -29,6 +30,7 @@ export class Peer {
         version: string;
         port: number;
         nethash: number;
+        milestoneHash: string;
         height: number | null;
         "Content-Type": "application/json";
         hashid?: string;
@@ -54,6 +56,7 @@ export class Peer {
             version: app.getVersion(),
             port: localConfig.get("port"),
             nethash: this.config.get("network.nethash"),
+            milestoneHash: this.config.get("milestoneHash"),
             height: null,
             "Content-Type": "application/json",
         };
@@ -69,7 +72,7 @@ export class Peer {
      * @return {void}
      */
     public setHeaders(headers) {
-        ["nethash", "os", "version"].forEach(key => {
+        ["nethash", "milestoneHash", "os", "version"].forEach(key => {
             this[key] = headers[key];
         });
     }
@@ -92,6 +95,7 @@ export class Peer {
             ip: this.ip,
             port: +this.port,
             nethash: this.nethash,
+            milestoneHash: this.milestoneHash,
             version: this.version,
             os: this.os,
             status: this.status,
@@ -322,7 +326,7 @@ export class Peer {
      * @return {Object}
      */
     public __parseHeaders(response) {
-        ["nethash", "os", "version", "hashid"].forEach(key => {
+        ["nethash", "milestoneHash", "os", "version", "hashid"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });
 
