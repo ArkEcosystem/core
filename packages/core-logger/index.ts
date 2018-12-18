@@ -1,3 +1,3 @@
-export * from "./src/index";
 export * from "./src/manager";
 export * from "./src/logger";
+export * from "./src/index";

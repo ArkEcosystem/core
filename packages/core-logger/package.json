@@ -6,7 +6,7 @@
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
-    "main": "dist/index",
+    "main": "index",
     "types": "index",
     "files": [
         "dist"
