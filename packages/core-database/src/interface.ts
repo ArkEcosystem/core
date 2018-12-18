@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { constants, crypto, models, slots } from "@arkecosystem/crypto";
+import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import assert from "assert";
@@ -370,6 +370,10 @@ export abstract class ConnectionInterface {
      * @return {void}
      */
     public async validateDelegate(block) {
+        if (this.__isException(block.data)) {
+            return;
+        }
+
         const delegates = await this.getActiveDelegates(block.data.height);
         const slot = slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate = delegates[slot % delegates.length];
@@ -529,15 +533,9 @@ export abstract class ConnectionInterface {
      * @return {Boolean}
      */
     public __isException(block) {
-        if (!this.config) {
-            return false;
-        }
+        const exceptions: any = configManager.get("exceptions.blocks");
 
-        if (!Array.isArray(this.config.get("exceptions.blocks"))) {
-            return false;
-        }
-
-        return this.config.get("exceptions.blocks").includes(block.id);
+        return Array.isArray(exceptions) ? exceptions.includes(block.id) : false;
     }
 
     /**
