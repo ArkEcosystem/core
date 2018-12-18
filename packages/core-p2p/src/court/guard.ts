@@ -12,14 +12,14 @@ import { offences } from "./offences";
 const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 
-interface ISuspension {
+export interface ISuspension {
     peer: any;
     reason: string;
     until: dayjs.Dayjs;
     nextSuspensionReminder?: dayjs.Dayjs;
 }
 
-class Guard {
+export class Guard {
     public readonly suspensions: { [ip: string]: ISuspension };
     public config: any;
     private monitor: any;
@@ -178,6 +178,10 @@ class Guard {
      */
     public isValidVersion(peer) {
         const version = peer.version || (peer.headers && peer.headers.version);
+        if (!semver.valid(version)) {
+            return false;
+        }
+
         return semver.satisfies(version, this.config.get("minimumVersion"));
     }
 
@@ -189,6 +193,15 @@ class Guard {
     public isValidNetwork(peer) {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
         return nethash === config.get("network.nethash");
+    }
+
+    /**
+     * Determine if the peer is has the same milestones.
+     * @param  {Peer}  peer
+     * @return {Boolean}
+     */
+    public isValidMilestoneHash(peer) {
+        return peer.milestoneHash === config.get("milestoneHash");
     }
 
     /**
@@ -273,6 +286,10 @@ class Guard {
 
         if (!this.isValidVersion(peer)) {
             return this.__determinePunishment(peer, offences.INVALID_VERSION);
+        }
+
+        if (!this.isValidMilestoneHash(peer)) {
+            return this.__determinePunishment(peer, offences.INVALID_MILESTONE_HASH);
         }
 
         // NOTE: Suspending this peer only means that we no longer

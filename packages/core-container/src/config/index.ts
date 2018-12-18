@@ -1,4 +1,4 @@
-import { configManager as crypto } from "@arkecosystem/crypto";
+import { configManager as crypto, HashAlgorithms } from "@arkecosystem/crypto";
 import get from "lodash/get";
 import set from "lodash/set";
 import { fileLoader, RemoteLoader } from "./loaders";
@@ -55,6 +55,12 @@ class Config {
         this.config.network = crypto.all();
         this.config.exceptions = crypto.get("exceptions");
         this.config.milestones = crypto.get("milestones");
+
+        // Calculate milestone hash
+        const milestonesBuffer = Buffer.from(JSON.stringify(this.config.milestones));
+        this.config.milestoneHash = HashAlgorithms.sha256(milestonesBuffer)
+            .slice(0, 8)
+            .toString("hex");
     }
 }
 
