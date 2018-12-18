@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import dayjs from "dayjs-ext";
-import { config } from "../../src/config";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
 import { setUp, tearDown } from "../__support__/setup";
@@ -16,6 +15,8 @@ let peerMock;
 beforeAll(async () => {
     await setUp();
 
+    app.getConfig().set("milestoneHash", "dummy-milestone");
+
     guard = require("../../dist/court/guard").guard;
     Peer = require("../../dist/peer").Peer;
 });
@@ -30,6 +31,7 @@ beforeEach(async () => {
 
     // this peer is here to be ready for future use in tests (not added to initial peers)
     peerMock = new Peer("1.0.0.99", 4002);
+    peerMock.milestoneHash = "dummy-milestone";
     Object.assign(peerMock, peerMock.headers);
 });
 
@@ -84,6 +86,7 @@ describe("Guard", () => {
 
         const dummy = {
             nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+            milestoneHash: "dummy-milestone",
             version: "2.0.0",
             status: 200,
             state: {},
@@ -94,11 +97,12 @@ describe("Guard", () => {
 
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+                milestoneHash: "dummy-milestone",
                 ip: "dummy-ip-addr",
             });
 
-            expect(convertToMinutes(until)).toBe(525600);
             expect(reason).toBe("Blacklisted");
+            expect(convertToMinutes(until)).toBe(525600);
 
             guard.config.set("blacklist", []);
         });
@@ -111,20 +115,31 @@ describe("Guard", () => {
                 },
             });
 
-            expect(convertToMinutes(until)).toBe(5);
             expect(reason).toBe("No Common Blocks");
+            expect(convertToMinutes(until)).toBe(5);
         });
 
         it('should return a 5 minute suspension for "Invalid Version"', () => {
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+                milestoneHash: "dummy-milestone",
                 version: "1.0.0",
                 status: 200,
                 delay: 1000,
             });
 
-            expect(convertToMinutes(until)).toBe(5);
             expect(reason).toBe("Invalid Version");
+            expect(convertToMinutes(until)).toBe(5);
+        });
+
+        it('should return a 5 minute suspension for "Invalid Milestones"', () => {
+            const { until, reason } = guard.__determineOffence({
+                ...dummy,
+                milestoneHash: "wrong-milestone",
+            });
+
+            expect(reason).toBe("Invalid Milestones");
+            expect(convertToMinutes(until)).toBe(5);
         });
 
         it('should return a 10 minutes suspension for "Node is not at height"', () => {
@@ -137,8 +152,8 @@ describe("Guard", () => {
                 },
             });
 
-            expect(convertToMinutes(until)).toBe(10);
             expect(reason).toBe("Node is not at height");
+            expect(convertToMinutes(until)).toBe(10);
         });
 
         it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
@@ -147,8 +162,8 @@ describe("Guard", () => {
                 ...{ status: 201 },
             });
 
-            expect(convertToMinutes(until)).toBe(5);
             expect(reason).toBe("Invalid Response Status");
+            expect(convertToMinutes(until)).toBe(5);
         });
 
         it('should return a 2 minutes suspension for "Timeout"', () => {
@@ -157,8 +172,8 @@ describe("Guard", () => {
                 ...{ delay: -1 },
             });
 
-            expect(convertToMinutes(until)).toBe(2);
             expect(reason).toBe("Timeout");
+            expect(convertToMinutes(until)).toBe(2);
         });
 
         it('should return a 1 minutes suspension for "High Latency"', () => {
@@ -167,8 +182,8 @@ describe("Guard", () => {
                 ...{ delay: 3000 },
             });
 
-            expect(convertToMinutes(until)).toBe(1);
             expect(reason).toBe("High Latency");
+            expect(convertToMinutes(until)).toBe(1);
         });
 
         it('should return a 30 seconds suspension for "Blockchain not ready"', () => {
@@ -177,8 +192,8 @@ describe("Guard", () => {
                 ...{ status: 503 },
             });
 
-            expect(convertToMinutes(until)).toBe(0.5);
             expect(reason).toBe("Blockchain not ready");
+            expect(convertToMinutes(until)).toBe(0.5);
         });
 
         it('should return a 60 seconds suspension for "Rate limit exceeded"', () => {
@@ -187,15 +202,15 @@ describe("Guard", () => {
                 ...{ status: 429 },
             });
 
-            expect(convertToMinutes(until)).toBe(1);
             expect(reason).toBe("Rate limit exceeded");
+            expect(convertToMinutes(until)).toBe(1);
         });
 
         it('should return a 10 minutes suspension for "Unknown"', () => {
             const { until, reason } = guard.__determineOffence(dummy);
 
-            expect(convertToMinutes(until)).toBe(10);
             expect(reason).toBe("Unknown");
+            expect(convertToMinutes(until)).toBe(10);
         });
     });
 

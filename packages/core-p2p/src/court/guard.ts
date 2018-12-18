@@ -12,14 +12,14 @@ import { offences } from "./offences";
 const config = app.getConfig();
 const logger = app.resolvePlugin("logger");
 
-interface ISuspension {
+export interface ISuspension {
     peer: any;
     reason: string;
     until: dayjs.Dayjs;
     nextSuspensionReminder?: dayjs.Dayjs;
 }
 
-class Guard {
+export class Guard {
     public readonly suspensions: { [ip: string]: ISuspension };
     public config: any;
     private monitor: any;
@@ -192,6 +192,15 @@ class Guard {
     }
 
     /**
+     * Determine if the peer is has the same milestones.
+     * @param  {Peer}  peer
+     * @return {Boolean}
+     */
+    public isValidMilestoneHash(peer) {
+        return peer.milestoneHash === config.get("milestoneHash");
+    }
+
+    /**
      * Determine if the peer has a valid port.
      * @param  {Peer}  peer
      * @return {Boolean}
@@ -273,6 +282,10 @@ class Guard {
 
         if (!this.isValidVersion(peer)) {
             return this.__determinePunishment(peer, offences.INVALID_VERSION);
+        }
+
+        if (!this.isValidMilestoneHash(peer)) {
+            return this.__determinePunishment(peer, offences.INVALID_MILESTONE_HASH);
         }
 
         // NOTE: Suspending this peer only means that we no longer

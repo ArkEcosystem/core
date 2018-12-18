@@ -26,6 +26,12 @@ export const offences = {
         reason: "Invalid Version",
         weight: 2,
     },
+    INVALID_MILESTONE_HASH: {
+        number: 5,
+        period: "minute",
+        reason: "Invalid Milestones",
+        weight: 2,
+    },
     INVALID_HEIGHT: {
         number: 10,
         period: "minute",
