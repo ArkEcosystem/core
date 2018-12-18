@@ -167,9 +167,9 @@ class Monitor {
 
         if (!this.guard.isValidNetwork(peer)) {
             logger.debug(
-                `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${
-                    config.network.nethash
-                } - Received: ${peer.nethash}`,
+                `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${config.get(
+                    "network.nethash",
+                )} - Received: ${peer.nethash}`,
             );
 
             return this.guard.suspend(newPeer);
@@ -177,9 +177,9 @@ class Monitor {
 
         if (!this.guard.isValidMilestoneHash(newPeer)) {
             logger.debug(
-                `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${
-                    config.milestoneHash
-                } - Received: ${peer.milestoneHash}`,
+                `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${config.get(
+                    "milestoneHash",
+                )} - Received: ${peer.milestoneHash}`,
             );
 
             return this.guard.suspend(newPeer);
