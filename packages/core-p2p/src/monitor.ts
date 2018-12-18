@@ -175,7 +175,7 @@ class Monitor {
             return this.guard.suspend(newPeer);
         }
 
-        if (!this.guard.isValidMilestoneHash(peer)) {
+        if (!this.guard.isValidMilestoneHash(newPeer)) {
             logger.debug(
                 `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${
                     config.milestoneHash
