@@ -9,7 +9,7 @@ import isWhitelisted from "../../utils/is-whitelist";
  * @return {void}
  */
 const register = async (server, options) => {
-    const requiredHeaders = ["nethash", "version", "port", "os"];
+    const requiredHeaders = ["nethash", "milestoneHash", "version", "port", "os"];
 
     server.ext({
         type: "onRequest",
