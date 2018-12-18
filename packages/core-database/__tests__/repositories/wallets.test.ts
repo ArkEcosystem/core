@@ -297,6 +297,14 @@ describe("Wallet Repository", () => {
             expectSearch({ address: wallets[0].address });
         });
 
+        it("should search wallets by several address", () => {
+            const wallets = generateFullWallets();
+            walletManager.index(wallets);
+
+            const addresses = [wallets[0].address, wallets[3].address, wallets[9].address];
+            expectSearch({ addresses }, 3, 3);
+        });
+
         it("should search wallets by the specified publicKey", () => {
             const wallets = generateFullWallets();
             walletManager.index(wallets);
