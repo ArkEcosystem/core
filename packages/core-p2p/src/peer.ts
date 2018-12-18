@@ -326,9 +326,13 @@ export class Peer {
      * @return {Object}
      */
     public __parseHeaders(response) {
-        ["nethash", "milestoneHash", "os", "version", "hashid"].forEach(key => {
+        ["nethash", "os", "version", "hashid"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });
+
+        if (response.headers.milestonehash) {
+            this.milestoneHash = response.headers.milestonehash;
+        }
 
         if (response.headers.height) {
             this.state.height = +response.headers.height;
