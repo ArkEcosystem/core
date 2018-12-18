@@ -129,9 +129,15 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            return {
-                data: constants.TransactionTypes,
-            };
+            // Remove reverse mapping from TransactionTypes enum.
+            const { TransactionTypes } = constants;
+            const data = Object.assign({}, TransactionTypes);
+            Object.values(TransactionTypes)
+                .filter(value => typeof value === "string")
+                .map((type: string) => data[type])
+                .forEach((key: string) => delete data[key]);
+
+            return { data };
         } catch (error) {
             return Boom.badImplementation(error);
         }
