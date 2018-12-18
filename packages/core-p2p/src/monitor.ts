@@ -380,7 +380,7 @@ class Monitor {
 
                 for (const p of hisPeers) {
                     if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
-                        this.__addPeer(p);
+                        this.addPeer(p);
                     }
                 }
             } catch (error) {
@@ -762,7 +762,7 @@ class Monitor {
      * @param  {Peer} peer
      * @return {void}
      */
-    public __addPeer(peer) {
+    private addPeer(peer) {
         if (this.guard.isBlacklisted(peer)) {
             return;
         }
@@ -775,22 +775,15 @@ class Monitor {
             return;
         }
 
+        if (!this.guard.isValidMilestoneHash(peer)) {
+            return;
+        }
+
         if (!this.guard.isValidPort(peer)) {
             return;
         }
 
         this.peers[peer.ip] = new Peer(peer.ip, peer.port);
-    }
-
-    /**
-     * Add new peers after they pass a few checks.
-     * @param  {Peer[]} peers
-     * @return {void}
-     */
-    public __addPeers(peers) {
-        for (const peer of peers) {
-            this.__addPeer(peer);
-        }
     }
 
     /**
