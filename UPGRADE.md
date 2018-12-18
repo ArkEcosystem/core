@@ -26,9 +26,19 @@ The simple way to upgrade Core is using [Core Commander](https://github.com/ArkE
 This command will execute the **Core Commander** and perform a check for updates. If one is available you will be
 asked to update, press `Y` to perform the update and restart your relay and forger.
 
-### Via Git
+### Via Git (stable release)
 
-Another way to upgrade is to change to a specific version, for example to version 2.0.10 (replace this with the version you want) will be running `git checkout`:
+Another way to upgrade is to run the latest stable release through the `master` branch:
+
+    cd ~/ark-core
+    git reset --hard
+    git fetch && git pull
+    git checkout master
+    yarn setup
+
+### Via Git (specific version)
+
+Another way to upgrade is to change to a specific version, for example to version 2.0.10 (replace this with the version you want):
 
     cd ~/ark-core
     git reset --hard
@@ -36,8 +46,13 @@ Another way to upgrade is to change to a specific version, for example to versio
     git checkout tags/2.0.10
     yarn setup
 
-This command will upgrade Core and its direct dependencies. Without `yarn setup` the upgrade will fail as
-Core is written in TypeScript and the files need to be run through the TypeScript Compiler **(tsc)**.
+### Notes
+
+-   The `yarn setup` command will upgrade Core and its direct dependencies. Without `yarn setup` the upgrade will fail as
+    Core is written in TypeScript and the files need to be run through the TypeScript Compiler **(tsc)**.
+
+-   It is **recommended** to start your relay and forger through the [Core Commander](https://github.com/ArkEcosystem/core-commander).
+    If you wish to run them on your own you should take a look at how commander executes them via `pm2`.
 
 After upgrading you should check whether your application still works as expected and no plugins are broken.
 See the following notes on which changes to consider when upgrading from one version to another.
