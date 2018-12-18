@@ -50,7 +50,10 @@ export class DelegatesRepository {
      * @return {Object}
      */
     public search(params) {
-        let delegates = this.getLocalDelegates().filter(delegate => delegate.username.indexOf(params.username) > -1);
+        let delegates = this.getLocalDelegates();
+        if (params.hasOwnProperty("username")) {
+            delegates = delegates.filter(delegate => delegate.username.indexOf(params.username) > -1);
+        }
 
         if (params.orderBy) {
             const orderByField = params.orderBy.split(":")[0];

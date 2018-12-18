@@ -362,7 +362,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                     blockchain.forkBlock(blocks[0]);
                 } else {
                     // TODO: only remove blocks from last downloaded block height
-                    blockchain.clearAndStopQueue();
+                    blockchain.processQueue.clear();
                     blockchain.dispatch("DOWNLOADED");
                 }
             }
