@@ -18,7 +18,7 @@ export const config = {
                         symbol: appConfig.get("network.client.symbol"),
                     },
                 },
-                plugins: transformPlugins(appConfig),
+                plugins: transformPlugins(appConfig.config),
             },
         };
     },

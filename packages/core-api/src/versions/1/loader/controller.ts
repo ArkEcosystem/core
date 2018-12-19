@@ -5,16 +5,6 @@ import { transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class LoaderController extends Controller {
-    protected blockchain: any;
-    protected config: any;
-
-    public constructor() {
-        super();
-
-        this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.getConfig();
-    }
-
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return { data: true };

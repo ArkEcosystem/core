@@ -4,13 +4,11 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
-    protected blockchain: any;
     protected p2p: any;
 
     public constructor() {
         super();
 
-        this.blockchain = app.resolvePlugin("blockchain");
         this.p2p = app.resolvePlugin("p2p");
     }
 

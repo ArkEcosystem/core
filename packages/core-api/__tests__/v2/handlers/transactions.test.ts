@@ -1,4 +1,5 @@
 import "@arkecosystem/core-test-utils";
+import { constants } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
@@ -117,6 +118,30 @@ describe("API 2.0 - Transactions", () => {
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeObject();
                     expect(response.data.data).toHaveProperty("id", transaction.id);
+                });
+            },
+        );
+    });
+
+    describe("GET /transactions/types", () => {
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET transaction types", async () => {
+                    const response = await utils[request]("GET", "transactions/types");
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeObject();
+                    expect(response.data.data).toEqual({
+                        Transfer: 0,
+                        SecondSignature: 1,
+                        DelegateRegistration: 2,
+                        Vote: 3,
+                        MultiSignature: 4,
+                        Ipfs: 5,
+                        TimelockTransfer: 6,
+                        MultiPayment: 7,
+                        DelegateResignation: 8,
+                    });
                 });
             },
         );
