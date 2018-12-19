@@ -333,5 +333,4 @@ export class Guard {
     }
 }
 
-const guard = new Guard();
-export { guard };
+export const guard = new Guard();
