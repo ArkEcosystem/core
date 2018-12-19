@@ -1,7 +1,7 @@
 // tslint:disable:variable-name
 
 import { app } from "@arkecosystem/core-container";
-import { models } from "@arkecosystem/crypto";
+import { configManager, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
 import { config } from "./config";
@@ -101,6 +101,7 @@ class StateStorage {
         }
 
         _lastBlocks = _lastBlocks.set(block.data.height, block);
+        configManager.setHeight(block.data.height);
 
         // Delete oldest block if size exceeds the maximum
         if (_lastBlocks.size > config.get("state.maxLastBlocks")) {
