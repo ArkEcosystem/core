@@ -66,7 +66,7 @@ class WebhookManager {
                 continue;
             }
 
-            if (!webhook.conditions) {
+            if (!webhook.conditions || (Array.isArray(webhook.conditions) && !webhook.conditions.length)) {
                 matches.push(webhook);
 
                 continue;
