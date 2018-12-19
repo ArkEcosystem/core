@@ -1,6 +1,5 @@
 import "jest-extended";
-import { AbstractLogger } from "../src/logger";
-import { LogManager } from "../src/manager";
+import { AbstractLogger, LogManager } from "../src";
 import { Logger } from "./__stubs__/logger";
 
 const manager = new LogManager();
