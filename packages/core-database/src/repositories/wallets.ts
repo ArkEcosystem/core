@@ -85,8 +85,9 @@ export class WalletsRepository {
      * @param  {Object} [params]
      * @param  {Number} [params.limit] - Limit the number of results
      * @param  {Number} [params.offset] - Skip some results
-     * @param  {Array} [params.orderBy] - Order of the results
+     * @param  {Array}  [params.orderBy] - Order of the results
      * @param  {String} [params.address] - Search by address
+     * @param  {Array}  [params.addresses] - Search by several addresses
      * @param  {String} [params.publicKey] - Search by publicKey
      * @param  {String} [params.secondPublicKey] - Search by secondPublicKey
      * @param  {String} [params.username] - Search by username
@@ -100,10 +101,22 @@ export class WalletsRepository {
      * @return {Object}
      */
     public search(params) {
-        const wallets = filterRows(this.all(), params, {
+        const query: any = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance"],
-        });
+        };
+
+        if (params.addresses) {
+            // Use the `in` filter instead of `exact` for the `address` field
+            if (!params.address) {
+                params.address = params.addresses;
+                query.exact.shift();
+                query.in = ["address"];
+            }
+            delete params.addresses;
+        }
+
+        const wallets = filterRows(this.all(), params, query);
 
         return {
             rows: limitRows(wallets, params),
