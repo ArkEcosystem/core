@@ -1,7 +1,7 @@
 {
   "name": "@phantomchain/core-snapshots-cli",
   "description": "Provides live cli interface to the core-snapshots module for PHANTOM Core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "contributors": [
     "Kristjan Košič <chris@ark.io>"
   ],
