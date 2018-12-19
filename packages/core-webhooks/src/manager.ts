@@ -66,7 +66,7 @@ class WebhookManager {
                 continue;
             }
 
-            if (!webhook.conditions) {
+            if (!webhook.conditions || webhook.conditions == 0) {
                 matches.push(webhook);
 
                 continue;
