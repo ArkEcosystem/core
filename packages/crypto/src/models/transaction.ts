@@ -86,15 +86,15 @@ export class Transaction {
     }
 
     // AIP11 serialization
-    public static serialize(transaction) {
+    public static serialize(transaction): any {
         const bb = new ByteBuffer(512, true);
         bb.writeByte(0xff); // fill, to disambiguate from v1
         bb.writeByte(transaction.version || 0x01); // version
         bb.writeByte(transaction.network || configManager.get("pubKeyHash")); // ark = 0x17, devnet = 0x30
         bb.writeByte(transaction.type);
-        bb.writeUInt32(transaction.timestamp);
+        bb.writeUint32(transaction.timestamp);
         bb.append(transaction.senderPublicKey, "hex");
-        bb.writeUInt64(+new Bignum(transaction.fee).toFixed());
+        bb.writeUint64(+new Bignum(transaction.fee).toFixed());
 
         if (transaction.vendorField) {
             const vf = Buffer.from(transaction.vendorField, "utf8");
@@ -108,8 +108,8 @@ export class Transaction {
         }
 
         if (transaction.type === TransactionTypes.Transfer) {
-            bb.writeUInt64(+new Bignum(transaction.amount).toFixed());
-            bb.writeUInt32(transaction.expiration || 0);
+            bb.writeUint64(+new Bignum(transaction.amount).toFixed());
+            bb.writeUint32(transaction.expiration || 0);
             bb.append(bs58check.decode(transaction.recipientId));
         } else if (transaction.type === TransactionTypes.Vote) {
             const voteBytes = transaction.asset.votes
@@ -141,14 +141,14 @@ export class Transaction {
             bb.writeByte(transaction.asset.ipfs.dag.length / 2);
             bb.append(transaction.asset.ipfs.dag, "hex");
         } else if (transaction.type === TransactionTypes.TimelockTransfer) {
-            bb.writeUInt64(+transaction.amount.toFixed());
+            bb.writeUint64(+transaction.amount.toFixed());
             bb.writeByte(transaction.timelockType);
-            bb.writeUInt32(transaction.timelock);
+            bb.writeUint32(transaction.timelock);
             bb.append(bs58check.decode(transaction.recipientId));
         } else if (transaction.type === TransactionTypes.MultiPayment) {
-            bb.writeUInt32(transaction.asset.payments.length);
+            bb.writeUint32(transaction.asset.payments.length);
             transaction.asset.payments.forEach(p => {
-                bb.writeUInt64(p.amount);
+                bb.writeUint64(p.amount);
                 bb.append(bs58check.decode(p.recipientId));
             });
         } else if (transaction.type === TransactionTypes.DelegateResignation) {
@@ -181,9 +181,9 @@ export class Transaction {
         transaction.version = buf.readInt8(1);
         transaction.network = buf.readInt8(2);
         transaction.type = buf.readInt8(3);
-        transaction.timestamp = buf.readUInt32(4);
+        transaction.timestamp = buf.readUint32(4);
         transaction.senderPublicKey = hexString.substring(16, 16 + 33 * 2);
-        transaction.fee = new Bignum(buf.readUInt64(41));
+        transaction.fee = new Bignum(buf.readUint64(41) as any);
 
         const vflength = buf.readInt8(41 + 8);
         if (vflength > 0) {
@@ -193,8 +193,8 @@ export class Transaction {
         const assetOffset = (41 + 8 + 1) * 2 + vflength * 2;
 
         if (transaction.type === TransactionTypes.Transfer) {
-            transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2));
-            transaction.expiration = buf.readUInt32(assetOffset / 2 + 8);
+            transaction.amount = new Bignum(buf.readUint64(assetOffset / 2) as any);
+            transaction.expiration = buf.readUint32(assetOffset / 2 + 8);
             transaction.recipientId = bs58check.encode(
                 buf.buffer.slice(assetOffset / 2 + 12, assetOffset / 2 + 12 + 21),
             );
@@ -261,9 +261,9 @@ export class Transaction {
         }
 
         if (transaction.type === TransactionTypes.TimelockTransfer) {
-            transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2));
+            transaction.amount = new Bignum(buf.readUint64(assetOffset / 2) as any);
             transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff;
-            transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber();
+            transaction.timelock = buf.readUint64(assetOffset / 2 + 9).toNumber();
             transaction.recipientId = bs58check.encode(
                 buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21),
             );
@@ -279,7 +279,7 @@ export class Transaction {
 
             for (let j = 0; j < total; j++) {
                 const payment: any = {};
-                payment.amount = new Bignum(buf.readUInt64(offset));
+                payment.amount = new Bignum(buf.readUint64(offset) as any);
                 payment.recipientId = bs58check.encode(buf.buffer.slice(offset + 1, offset + 1 + 21));
                 transaction.asset.payments.push(payment);
                 offset += 22;
@@ -375,6 +375,7 @@ export class Transaction {
         if (typeof data === "string") {
             this.serialized = data;
         } else {
+            // @ts-ignore
             this.serialized = Transaction.serialize(data).toString("hex");
         }
         const deserialized = Transaction.deserialize(this.serialized);
