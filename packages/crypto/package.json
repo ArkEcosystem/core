@@ -30,7 +30,8 @@
         "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
         "test:watch": "jest --watch",
-        "test:watch:all": "jest --watchAll"
+        "test:watch:all": "jest --watchAll",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@types/bip32": "^1.0.0",
@@ -38,7 +39,7 @@
         "@types/bip39": "^2.4.1",
         "@types/create-hash": "^1.2.0",
         "@types/deepmerge": "^2.2.0",
-        "@types/joi": "^14.0.0",
+        "@types/joi": "^14.0.1",
         "@types/lodash.camelcase": "^4.3.4",
         "@types/lodash.clonedeepwith": "^4.5.4",
         "@types/lodash.get": "^4.4.4",
@@ -67,9 +68,9 @@
         "otplib": "^10.0.1",
         "pluralize": "^7.0.0",
         "secp256k1": "^3.5.2",
-        "tiny-glob": "^0.2.3",
+        "tiny-glob": "^0.2.6",
         "ts-loader": "^5.3.1",
-        "webpack-merge": "^4.1.4",
+        "webpack-merge": "^4.1.5",
         "webpack-node-externals": "^1.7.2",
         "wif": "^2.0.6"
     },
