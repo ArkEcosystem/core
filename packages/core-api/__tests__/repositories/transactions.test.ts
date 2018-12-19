@@ -23,13 +23,14 @@ afterAll(async () => {
 
 describe("Transaction Repository", () => {
     describe("search", () => {
-        const expectSearch = async params => {
+        const expectSearch = async (params, count = 1) => {
             // await connection.saveBlock(genesisBlock)
 
             const transactions = await repository.search(params);
             expect(transactions).toBeObject();
 
             expect(transactions.count).toBeNumber();
+            expect(transactions.count).toBe(count);
 
             expect(transactions.rows).toBeArray();
             expect(transactions.rows).not.toBeEmpty();
@@ -56,59 +57,68 @@ describe("Transaction Repository", () => {
         });
 
         it("should search transactions by the specified `blockId`", async () => {
-            await expectSearch({ blockId: genesisTransaction.blockId });
+            await expectSearch({ blockId: genesisTransaction.blockId }, 153);
         });
 
         it("should search transactions by the specified `type`", async () => {
-            await expectSearch({ type: genesisTransaction.type });
+            await expectSearch({ type: genesisTransaction.type }, 51);
         });
 
         it("should search transactions by the specified `version`", async () => {
-            await expectSearch({ version: genesisTransaction.version });
+            await expectSearch({ version: genesisTransaction.version }, 153);
         });
 
         it("should search transactions by the specified `senderPublicKey`", async () => {
-            await expectSearch({ senderPublicKey: genesisTransaction.senderPublicKey });
+            await expectSearch({ senderPublicKey: genesisTransaction.senderPublicKey }, 51);
         });
 
         it("should search transactions by the specified `senderId`", async () => {
             const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
-            await expectSearch({ senderId });
+            await expectSearch({ senderId }, 51);
         });
 
         it("should search transactions by the specified `recipientId`", async () => {
-            await expectSearch({ recipientId: genesisTransaction.recipientId });
+            await expectSearch({ recipientId: genesisTransaction.recipientId }, 2);
         });
 
         it("should search transactions by the specified `timestamp`", async () => {
-            await expectSearch({
-                timestamp: {
-                    from: genesisTransaction.timestamp,
-                    to: genesisTransaction.timestamp,
+            await expectSearch(
+                {
+                    timestamp: {
+                        from: genesisTransaction.timestamp,
+                        to: genesisTransaction.timestamp,
+                    },
                 },
-            });
+                153,
+            );
         });
 
         it("should search transactions by the specified `amount`", async () => {
-            await expectSearch({
-                amount: {
-                    from: genesisTransaction.amount,
-                    to: genesisTransaction.amount,
+            await expectSearch(
+                {
+                    amount: {
+                        from: genesisTransaction.amount,
+                        to: genesisTransaction.amount,
+                    },
                 },
-            });
+                50,
+            );
         });
 
         it("should search transactions by the specified `fee`", async () => {
-            await expectSearch({
-                fee: {
-                    from: genesisTransaction.fee,
-                    to: genesisTransaction.fee,
+            await expectSearch(
+                {
+                    fee: {
+                        from: genesisTransaction.fee,
+                        to: genesisTransaction.fee,
+                    },
                 },
-            });
+                153,
+            );
         });
 
         it("should search transactions by the specified `vendorFieldHex`", async () => {
-            await expectSearch({ vendorFieldHex: genesisTransaction.vendorFieldHex });
+            await expectSearch({ vendorFieldHex: genesisTransaction.vendorFieldHex }, 153);
         });
 
         describe("when there are more than 1 condition", () => {
