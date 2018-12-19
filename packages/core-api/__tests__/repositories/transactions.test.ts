@@ -23,33 +23,39 @@ afterAll(async () => {
 
 describe("Transaction Repository", () => {
     describe("search", () => {
-        const expectSearch = async (params, count = 1) => {
-            // await connection.saveBlock(genesisBlock)
+        const expectSearch = async (paramsOrTransactions, count = 1) => {
+            let transactions;
+            if (paramsOrTransactions.rows) {
+                transactions = paramsOrTransactions;
+            } else {
+                transactions = await repository.search(paramsOrTransactions);
+            }
 
-            const transactions = await repository.search(params);
             expect(transactions).toBeObject();
 
             expect(transactions.count).toBeNumber();
             expect(transactions.count).toBe(count);
 
             expect(transactions.rows).toBeArray();
-            expect(transactions.rows).not.toBeEmpty();
-            transactions.rows.forEach(transaction => {
-                expect(transaction).toContainKeys([
-                    "id",
-                    "version",
-                    "sequence",
-                    "timestamp",
-                    "type",
-                    "amount",
-                    "fee",
-                    "serialized",
-                    "blockId",
-                    "senderPublicKey",
-                    "vendorFieldHex",
-                    "block",
-                ]);
-            });
+            if (count > 0) {
+                expect(transactions.rows).not.toBeEmpty();
+                transactions.rows.forEach(transaction => {
+                    expect(transaction).toContainKeys([
+                        "id",
+                        "version",
+                        "sequence",
+                        "timestamp",
+                        "type",
+                        "amount",
+                        "fee",
+                        "serialized",
+                        "blockId",
+                        "senderPublicKey",
+                        "vendorFieldHex",
+                        "block",
+                    ]);
+                });
+            }
         };
 
         it("should search transactions by the specified `id`", async () => {
@@ -72,9 +78,26 @@ describe("Transaction Repository", () => {
             await expectSearch({ senderPublicKey: genesisTransaction.senderPublicKey }, 51);
         });
 
-        it("should search transactions by the specified `senderId`", async () => {
-            const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
-            await expectSearch({ senderId }, 51);
+        describe("`senderId`", () => {
+            it("should search transactions by the specified `senderId`", async () => {
+                const senderPublicKey = genesisTransaction.senderPublicKey;
+                const senderId = crypto.getAddress(senderPublicKey, 23);
+
+                const transactions = await repository.search({ senderId });
+
+                await expectSearch(transactions, 51);
+
+                for (const row of transactions.rows) {
+                    expect(row.senderPublicKey).toEqual(senderPublicKey);
+                }
+            });
+
+            describe("when the `senderId` is incorrect", () => {
+                it("should return no result", async () => {
+                    const senderId = "unknown";
+                    await expectSearch({ senderId }, 0);
+                });
+            });
         });
 
         it("should search transactions by the specified `recipientId`", async () => {
