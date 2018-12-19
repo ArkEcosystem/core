@@ -165,16 +165,14 @@ describe("API 2.0 - Wallets", () => {
                     });
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-
                     expect(response.data.data).toHaveLength(2);
 
-                    const wallet = response.data.data[1];
-                    utils.expectWallet(wallet);
-                    expect(wallet.address).toBe(address);
+                    for (const wallet of response.data.data) {
+                        utils.expectWallet(wallet);
+                    }
 
-                    const wallet2 = response.data.data[0];
-                    utils.expectWallet(wallet2);
-                    expect(wallet2.address).toBe(address2);
+                    const addresses = response.data.data.map(wallet => wallet.address).sort();
+                    expect(addresses).toEqual([address, address2]);
                 });
             },
         );

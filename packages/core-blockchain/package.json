@@ -25,7 +25,8 @@
         "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
         "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
+        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
@@ -39,7 +40,7 @@
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
-        "xstate": "^4.2.1"
+        "xstate": "^4.2.2"
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.1.0",

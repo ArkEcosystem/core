@@ -18,15 +18,16 @@
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix"
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
-        "@types/elasticsearch": "^5.0.29",
+        "@types/elasticsearch": "^5.0.30",
         "@types/fs-extra": "^5.0.4",
-        "@types/joi": "^14.0.0",
+        "@types/joi": "^14.0.1",
         "@types/lodash.first": "^3.0.4",
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.last": "^3.0.4",
