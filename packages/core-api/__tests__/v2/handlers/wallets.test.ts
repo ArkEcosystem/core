@@ -6,6 +6,7 @@ const username = "genesis_9";
 const address = "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo";
 const publicKey = "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647";
 const balance = 245098000000000;
+const address2 = "AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD";
 
 beforeAll(async () => {
     await setUp();
@@ -156,6 +157,22 @@ describe("API 2.0 - Wallets", () => {
                     const wallet = response.data.data[0];
                     utils.expectWallet(wallet);
                     expect(wallet.address).toBe(address);
+                });
+
+                it("should POST a search for wallets with the any of the specified addresses", async () => {
+                    const response = await utils[request]("POST", "wallets/search", {
+                        addresses: [address, address2],
+                    });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(2);
+
+                    for (const wallet of response.data.data) {
+                        utils.expectWallet(wallet);
+                    }
+
+                    const addresses = response.data.data.map(wallet => wallet.address).sort();
+                    expect(addresses).toEqual([address, address2]);
                 });
             },
         );

@@ -169,13 +169,20 @@ export const votes: object = {
     query: pagination,
 };
 
+const address: object = Joi.string()
+    .alphanum()
+    .length(34);
+
 export const search: object = {
     query: pagination,
     payload: {
         orderBy: Joi.string(),
-        address: Joi.string()
-            .alphanum()
-            .length(34),
+        address,
+        addresses: Joi.array()
+            .unique()
+            .min(1)
+            .max(50)
+            .items(address),
         publicKey: Joi.string()
             .hex()
             .length(66),

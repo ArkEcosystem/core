@@ -67,6 +67,17 @@ describe("API 2.0 - Webhooks", () => {
             utils.expectSuccessful(response, 201);
             utils.expectResource(response);
         });
+
+        it("should POST a new webhook with an empty array as condition", async () => {
+            const response = await createWebhook({
+                event: "block.forged",
+                target: "https://httpbin.org/post",
+                enabled: true,
+                conditions: [],
+            });
+            utils.expectSuccessful(response, 201);
+            utils.expectResource(response);
+        });
     });
 
     describe("GET /webhooks/{id}", () => {

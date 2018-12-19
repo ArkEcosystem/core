@@ -1,19 +1,8 @@
-import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import orderBy from "lodash/orderBy";
-import { blocksRepository, transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class DelegatesController extends Controller {
-    protected database: any;
-
-    public constructor() {
-        super();
-
-        this.database = app.resolvePlugin("database");
-    }
-
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const data = await request.server.methods.v2.delegates.index(request);

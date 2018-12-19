@@ -61,7 +61,8 @@
         "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
         "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
+        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@arkecosystem/core-api": "^2.1.0",
@@ -77,6 +78,9 @@
         "@arkecosystem/core-transaction-pool": "^2.1.0",
         "@arkecosystem/core-webhooks": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
+        "@types/bip38": "^2.0.0",
+        "@types/commander": "^2.12.2",
+        "@types/wif": "^2.0.1",
         "bip38": "^2.0.2",
         "commander": "^2.19.0",
         "wif": "^2.0.6"
