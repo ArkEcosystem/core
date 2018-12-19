@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
+import partition from "lodash/partition";
 import { IRepository } from "../interfaces/repository";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
@@ -274,6 +275,13 @@ export class TransactionsRepository extends Repository implements IRepository {
     public async search(parameters): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
+        const filters = {
+            exact: ["id", "block_id", "type", "version"],
+            between: ["timestamp", "amount", "fee"],
+            wildcard: ["vendor_field_hex"],
+            in: [],
+        };
+
         if (parameters.senderId) {
             const senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
 
@@ -284,18 +292,59 @@ export class TransactionsRepository extends Repository implements IRepository {
             }
         }
 
-        const conditions = buildFilterQuery(this._formatConditions(parameters), {
-            exact: ["id", "block_id", "type", "version", "sender_public_key", "recipient_id"],
-            between: ["timestamp", "amount", "fee"],
-            wildcard: ["vendor_field_hex"],
-        });
+        if (parameters.recipientId) {
+            filters.exact.push("recipient_id");
+        }
+        if (parameters.senderPublicKey) {
+            filters.exact.push("sender_public_key");
+        }
 
+        // When both participants, sender and recipient, are provided, searching by addresses is not useful
+        if (parameters.addresses) {
+            if (!parameters.recipientId) {
+                filters.in.push("recipient_id");
+                parameters.recipientId = parameters.addresses;
+            }
+            if (!parameters.senderPublicKey) {
+                filters.in.push("sender_public_key");
+                parameters.senderPublicKey = parameters.addresses.map(address => {
+                    return this.__publicKeyFromAddress(address);
+                });
+            }
+        }
+
+        const conditions = buildFilterQuery(this._formatConditions(parameters), filters);
+
+        /*
+         * Searching by `addresses` could create queries:
+         *  - 1 `senderPublicKey` AND n `recipientId`
+         *  - n `senderPublicKey` AND 1 `recipientId`.
+         *  - n `senderPublicKey` OR n `recipientId`.
+         */
         if (conditions.length) {
-            const first = conditions.shift();
+            const [participants, rest] = partition(conditions, condition => {
+                return ["sender_public_key", "recipient_id"].indexOf(condition.column) > -1;
+            });
 
-            selectQuery.where(this.query[first.column][first.method](first.value));
+            if (participants.length > 0) {
+                const [first, last] = participants;
+                selectQuery.where(this.query[first.column][first.method](first.value));
 
-            for (const condition of conditions) {
+                if (last) {
+                    const usesInOperator = participants.every(condition => condition.method === "in");
+                    if (usesInOperator) {
+                        selectQuery.or(this.query[last.column][last.method](last.value));
+                    } else {
+                        // This search is 1 `senderPublicKey` and 1 `recipientId`
+                        selectQuery.and(this.query[last.column][last.method](last.value));
+                    }
+                }
+            } else if (rest.length) {
+                const first = rest.shift();
+                selectQuery.where(this.query[first.column][first.method](first.value));
+            }
+
+            for (const condition of rest) {
                 selectQuery.and(this.query[condition.column][condition.method](condition.value));
             }
         }
