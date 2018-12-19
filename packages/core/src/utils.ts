@@ -1,5 +1,3 @@
-import { app } from "@arkecosystem/core-container";
-
 export function buildPeerOptions(options) {
     const config = {
         networkStart: options.networkStart,

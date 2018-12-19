@@ -1,69 +1,34 @@
 #!/usr/bin/env node
 
-import { configManager, crypto } from "@arkecosystem/crypto";
-import bip38 from "bip38";
-import cli from "commander";
-import fs from "fs";
-import wif from "wif";
+import { CLI } from "./cli";
 import { app, config, processes } from "./commands";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../package.json");
 
-cli.version(version);
+const program = new CLI(version);
 
-function command(name: string, description: string): any {
-    return cli
-        .command(name)
-        .description(description)
-        .option("-d, --data <data>", "data directory", "~/.ark")
-        .option("-c, --config <config>", "core config", "~/.ark/config")
-        .option("-t, --token <token>", "token name", "ark")
-        .option("-n, --network <network>", "token network")
-        .option("-r, --remote <remote>", "remote peer for config")
-        .option("--network-start", "force genesis network start", false)
-        .option("--disable-discovery", "disable any peer discovery")
-        .option("--skip-discovery", "skip the initial peer discovery")
-        .option("--ignore-minimum-network-reach", "skip the network reach check")
-        .option("--launch-mode <mode>", "the application configuration mode")
-        .option("--i, --interactive", "provide an interactive UI", false);
-}
-
-function commandWithForger(name: string, description: string): any {
-    return command(name, description)
-        .option("-b, --bip38 <bip38>", "forger bip38")
-        .option("-p, --password <password>", "forger password");
-}
-
-// Core
-commandWithForger("core:start", "Start a full core instance").action(processes.core.start);
-command("core:stop", "Stop a full core instance").action(processes.core.stop);
-command("core:restart", "Restart a full core instance").action(processes.core.restart);
-commandWithForger("core:monitor", "Start a full core instance via PM2").action(processes.core.monitor);
-
-// Relay
-command("relay:start", "Start a relay instance").action(processes.relay.start);
-command("relay:stop", "Stop a relay instance").action(processes.relay.stop);
-command("relay:restart", "Restart a relay instance").action(processes.relay.restart);
-command("relay:monitor", "Start a relay instance via PM2").action(processes.relay.monitor);
-
-// Forger
-commandWithForger("forger:start", "Start a forger instance").action(processes.forger.start);
-command("forger:stop", "Stop a forger instance").action(processes.forger.stop);
-command("forger:restart", "Restart a forger instance").action(processes.forger.restart);
-commandWithForger("forger:monitor", "Start a forger instance via PM2").action(processes.forger.monitor);
-
-// Configuration
-command("config:publish", "Publish the configuration").action(config.publish);
-command("config:reset", "Reset the configuration").action(config.reset);
-command("config:forger", "Configure the delegate that will be used to forge").action(config.forger);
-
-// App
-command("update", "Update the installation").action(app.update);
-
-cli.command("*").action(env => {
-    cli.help();
-    process.exit(0);
-});
-
-cli.parse(process.argv);
+program
+    // Core
+    .add("core:start", "Start a full core instance", processes.core.start)
+    .add("core:stop", "Stop a full core instance", processes.core.stop)
+    .add("core:restart", "Restart a full core instance", processes.core.restart)
+    .add("core:monitor", "Start a full core instance via PM2", processes.core.monitor)
+    // Relay
+    .add("relay:start", "Start a relay instance", processes.relay.start)
+    .add("relay:stop", "Stop a relay instance", processes.relay.stop)
+    .add("relay:restart", "Restart a relay instance", processes.relay.restart)
+    .add("relay:monitor", "Start a relay instance via PM2", processes.relay.monitor)
+    // Forger
+    .add("forger:start", "Start a forger instance", processes.forger.start)
+    .add("forger:stop", "Stop a forger instance", processes.forger.stop)
+    .add("forger:restart", "Restart a forger instance", processes.forger.restart)
+    .add("forger:monitor", "Start a forger instance via PM2", processes.forger.monitor)
+    // Configuration
+    .add("config:publish", "Publish the configuration", config.publish)
+    .add("config:reset", "Reset the configuration", config.reset)
+    .add("config:forger", "Configure the delegate that will be used to forge", config.forger)
+    // App
+    .add("update", "Update the installation", app.update)
+    // Launch
+    .launch();

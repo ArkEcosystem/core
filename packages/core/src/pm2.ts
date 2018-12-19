@@ -35,6 +35,7 @@ export function stop(processName: string) {
 
         pm2.stop(processName, (stopError, apps) => {
             pm2.disconnect();
+
             if (stopError) {
                 throw stopError;
             }
@@ -51,6 +52,7 @@ export function reload(processName: string) {
 
         pm2.reload(processName, (reloadError, apps) => {
             pm2.disconnect();
+
             if (reloadError) {
                 throw reloadError;
             }
@@ -67,6 +69,7 @@ export function destroy(processName: string) {
 
         pm2.delete(processName, (deleteError, apps) => {
             pm2.disconnect();
+
             if (deleteError) {
                 throw deleteError;
             }

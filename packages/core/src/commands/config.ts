@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import { configManager, crypto } from "@arkecosystem/crypto";
 import bip38 from "bip38";
 import bip39 from "bip39";
@@ -9,7 +8,6 @@ import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
 import wif from "wif";
-import { buildPeerOptions } from "../utils";
 
 export async function publish(options) {
     const response = await prompts([
@@ -143,7 +141,7 @@ export async function forger(options) {
             }
 
             spinner.text = "Preparing crypto...";
-            configManager.setFromPreset(options.token, options.network);
+            configManager.setFromPreset(options.network);
 
             await delay(750);
 
