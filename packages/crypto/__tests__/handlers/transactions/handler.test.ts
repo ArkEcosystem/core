@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { ARKTOSHI } from "../../../src/constants";
 import { Handler } from "../../../src/handlers/transactions/handler";
+import { configManager } from "../../../src/managers";
 import { Bignum } from "../../../src/utils/bignum";
 
 let handler;
@@ -83,6 +84,8 @@ describe("Handler", () => {
         });
 
         it("should be false if the transaction has a second signature but wallet does not", () => {
+            delete configManager.getMilestone().ignoreInvalidSecondSignatureField;
+
             expect(handler.canApply(wallet, transactionWithSecondSignature, errors)).toBeFalse();
             expect(errors).toContain("Invalid second-signature field");
         });
