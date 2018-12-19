@@ -38,13 +38,14 @@
         "rollback:testnet": "node ./dist/index.js rollback --config ../core/src/config/testnet --network testnet",
         "truncate:mainnet": "node ./dist/index.js truncate --config ../core/src/config/mainnet --network mainnet",
         "truncate:devnet": "node ./dist/index.js truncate --config ../core/src/config/devnet --network devnet",
-        "truncate:testnet": "node ./dist/index.js truncate --config ../core/src/config/testnet --network testnet"
+        "truncate:testnet": "node ./dist/index.js truncate --config ../core/src/config/testnet --network testnet",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
         "@types/cli-progress": "^1.8.0",
         "@types/fs-extra": "^5.0.4",
-        "cli-progress": "^2.1.0",
+        "cli-progress": "^2.1.1",
         "commander": "^2.19.0",
         "fs-extra": "^7.0.1"
     },

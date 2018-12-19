@@ -1,25 +1,17 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import * as pluralize from "pluralize";
-import { transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { constants } from "@arkecosystem/crypto";
 
 export class TransactionsController extends Controller {
-    protected blockchain: any;
-    protected config: any;
-    protected logger: any;
-    protected transactionPool: any;
+    private transactionPool: any;
 
     public constructor() {
         super();
 
-        this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.getConfig();
-        this.logger = app.resolvePlugin("logger");
         this.transactionPool = app.resolvePlugin("transactionPool");
     }
 
@@ -129,9 +121,15 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            return {
-                data: constants.TransactionTypes,
-            };
+            // Remove reverse mapping from TransactionTypes enum.
+            const { TransactionTypes } = constants;
+            const data = Object.assign({}, TransactionTypes);
+            Object.values(TransactionTypes)
+                .filter(value => typeof value === "string")
+                .map((type: string) => data[type])
+                .forEach((key: string) => delete data[key]);
+
+            return { data };
         } catch (error) {
             return Boom.badImplementation(error);
         }

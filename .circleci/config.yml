@@ -39,7 +39,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -65,20 +64,17 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-vote-report
-          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
+          name: core-webhooks
+          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
       - run:
-          name: core-tester-cli
-          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
+          name: core-transaction-pool
+          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
       - run:
-          name: core-snapshots
-          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
+          name: core-logger-winston
+          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-logger
-          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
-      - run:
-          name: core-forger
-          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
+          name: core-graphql
+          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
       - run:
           name: core-debugger-cli
           command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
@@ -134,7 +130,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -160,20 +155,17 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-vote-report
-          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
+          name: core-webhooks
+          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
       - run:
-          name: core-tester-cli
-          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
+          name: core-transaction-pool
+          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
       - run:
-          name: core-snapshots
-          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
+          name: core-logger-winston
+          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-logger
-          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
-      - run:
-          name: core-forger
-          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
+          name: core-graphql
+          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
       - run:
           name: core-debugger-cli
           command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
@@ -229,7 +221,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -309,7 +300,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -335,20 +325,20 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-webhooks
-          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
+          name: core-utils
+          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
       - run:
-          name: core-transaction-pool
-          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
+          name: core-test-utils
+          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
       - run:
-          name: core-logger-winston
-          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
+          name: core-p2p
+          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
       - run:
-          name: core-graphql
-          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
+          name: core-http-utils
+          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
       - run:
-          name: core-deployer
-          command: 'cd ~/ark-core/packages/core-deployer && yarn test:coverage'
+          name: core-event-emitter
+          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
       - run:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
@@ -401,7 +391,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -427,20 +416,20 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-utils
-          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+          name: core-vote-report
+          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
       - run:
-          name: core-test-utils
-          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+          name: core-tester-cli
+          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
       - run:
-          name: core-p2p
-          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+          name: core-snapshots
+          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
       - run:
-          name: core-http-utils
-          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+          name: core-logger
+          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
-          name: core-event-emitter
-          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
+          name: core-forger
+          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
       - run:
           name: core-blockchain
           command: 'cd ~/ark-core/packages/core-blockchain && yarn test:coverage'
@@ -490,7 +479,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -570,7 +558,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -596,20 +583,20 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-webhooks
-          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
+          name: core-utils
+          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
       - run:
-          name: core-transaction-pool
-          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
+          name: core-test-utils
+          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
       - run:
-          name: core-logger-winston
-          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
+          name: core-p2p
+          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
       - run:
-          name: core-graphql
-          command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
+          name: core-http-utils
+          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
       - run:
-          name: core-deployer
-          command: 'cd ~/ark-core/packages/core-deployer && yarn test:coverage'
+          name: core-event-emitter
+          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
       - run:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
@@ -662,7 +649,6 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-debugger-cli/node_modules
-            - ./packages/core-deployer/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -688,20 +674,20 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-utils
-          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+          name: core-vote-report
+          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
       - run:
-          name: core-test-utils
-          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+          name: core-tester-cli
+          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
       - run:
-          name: core-p2p
-          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+          name: core-snapshots
+          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
       - run:
-          name: core-http-utils
-          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+          name: core-logger
+          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
-          name: core-event-emitter
-          command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
+          name: core-forger
+          command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
       - run:
           name: core-blockchain
           command: 'cd ~/ark-core/packages/core-blockchain && yarn test:coverage'

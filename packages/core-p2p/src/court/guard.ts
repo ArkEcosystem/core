@@ -201,7 +201,8 @@ export class Guard {
      * @return {Boolean}
      */
     public isValidMilestoneHash(peer) {
-        return peer.milestoneHash === config.get("milestoneHash");
+        const milestoneHash = peer.milestoneHash || (peer.headers && peer.headers.milestoneHash);
+        return milestoneHash === config.get("milestoneHash");
     }
 
     /**
@@ -332,5 +333,4 @@ export class Guard {
     }
 }
 
-const guard = new Guard();
-export { guard };
+export const guard = new Guard();

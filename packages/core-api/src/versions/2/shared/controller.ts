@@ -1,4 +1,5 @@
-import Boom from "boom";
+import { app } from "@arkecosystem/core-container";
+
 import Hapi from "hapi";
 import {
     paginate,
@@ -11,6 +12,16 @@ import {
 } from "../utils";
 
 export class Controller {
+    protected config: any;
+    protected blockchain: any;
+    protected database: any;
+
+    public constructor() {
+        this.config = app.getConfig();
+        this.blockchain = app.resolvePlugin("blockchain");
+        this.database = app.resolvePlugin("database");
+    }
+
     protected paginate(request: Hapi.Request): any {
         return paginate(request);
     }

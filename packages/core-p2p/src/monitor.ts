@@ -167,19 +167,19 @@ class Monitor {
 
         if (!this.guard.isValidNetwork(peer)) {
             logger.debug(
-                `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${
-                    config.network.nethash
-                } - Received: ${peer.nethash}`,
+                `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${config.get(
+                    "network.nethash",
+                )} - Received: ${peer.nethash}`,
             );
 
             return this.guard.suspend(newPeer);
         }
 
-        if (!this.guard.isValidMilestoneHash(peer)) {
+        if (!this.guard.isValidMilestoneHash(newPeer)) {
             logger.debug(
-                `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${
-                    config.milestoneHash
-                } - Received: ${peer.milestoneHash}`,
+                `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${config.get(
+                    "milestoneHash",
+                )} - Received: ${peer.milestoneHash}`,
             );
 
             return this.guard.suspend(newPeer);
@@ -380,7 +380,7 @@ class Monitor {
 
                 for (const p of hisPeers) {
                     if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
-                        this.__addPeer(p);
+                        this.addPeer(p);
                     }
                 }
             } catch (error) {
@@ -762,7 +762,7 @@ class Monitor {
      * @param  {Peer} peer
      * @return {void}
      */
-    public __addPeer(peer) {
+    private addPeer(peer) {
         if (this.guard.isBlacklisted(peer)) {
             return;
         }
@@ -775,22 +775,15 @@ class Monitor {
             return;
         }
 
+        if (!this.guard.isValidMilestoneHash(peer)) {
+            return;
+        }
+
         if (!this.guard.isValidPort(peer)) {
             return;
         }
 
         this.peers[peer.ip] = new Peer(peer.ip, peer.port);
-    }
-
-    /**
-     * Add new peers after they pass a few checks.
-     * @param  {Peer[]} peers
-     * @return {void}
-     */
-    public __addPeers(peers) {
-        for (const peer of peers) {
-            this.__addPeer(peer);
-        }
     }
 
     /**
