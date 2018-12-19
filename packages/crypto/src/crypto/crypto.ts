@@ -140,8 +140,8 @@ class Crypto {
             }
         }
 
-        bb.writeLong(+new Bignum(transaction.amount).toFixed());
-        bb.writeLong(+new Bignum(transaction.fee).toFixed());
+        bb.writeInt64(+new Bignum(transaction.amount).toFixed());
+        bb.writeInt64(+new Bignum(transaction.fee).toFixed());
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {

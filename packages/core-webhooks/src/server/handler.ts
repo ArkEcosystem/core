@@ -1,3 +1,4 @@
+import Boom from "boom";
 import { randomBytes } from "crypto";
 import { database } from "../database";
 import * as schema from "./schema";
