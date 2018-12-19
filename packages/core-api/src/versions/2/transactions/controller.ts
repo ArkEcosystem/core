@@ -1,25 +1,17 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import * as pluralize from "pluralize";
-import { transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { constants } from "@arkecosystem/crypto";
 
 export class TransactionsController extends Controller {
-    protected blockchain: any;
-    protected config: any;
-    protected logger: any;
-    protected transactionPool: any;
+    private transactionPool: any;
 
     public constructor() {
         super();
 
-        this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.getConfig();
-        this.logger = app.resolvePlugin("logger");
         this.transactionPool = app.resolvePlugin("transactionPool");
     }
 
