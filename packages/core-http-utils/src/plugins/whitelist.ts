@@ -13,8 +13,12 @@ export const whitelist = {
 
                 if (Array.isArray(options.whitelist)) {
                     for (const ip of options.whitelist) {
-                        if (mm.isMatch(remoteAddress, ip)) {
-                            return h.continue;
+                        try {
+                            if (mm.isMatch(remoteAddress, ip)) {
+                                return h.continue;
+                            }
+                        } catch {
+                            return Boom.forbidden();
                         }
                     }
                 }

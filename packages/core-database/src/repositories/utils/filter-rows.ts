@@ -46,6 +46,14 @@ export = (rows, params, filters) =>
             }
         }
 
+        if (filters.hasOwnProperty("in")) {
+            for (const elem of filters.in) {
+                if (params[elem] && Array.isArray(params[elem])) {
+                    return params[elem].indexOf(item[elem]) > -1;
+                }
+            }
+        }
+
         // NOTE: it was used to filter by `votes`, but that field was rejected and
         // replaced by `vote`. This filter is kept here just in case
         if (filters.hasOwnProperty("any")) {
