@@ -15,7 +15,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const selectQuery = this.query.select().from(this.query);
 
         if (parameters.senderId) {
-            const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
+            const senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
 
             if (!senderPublicKey) {
                 return { rows: [], count: 0 };
@@ -64,7 +64,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const countQuery = this._makeEstimateQuery();
 
         if (parameters.senderId) {
-            parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
+            parameters.senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
         }
 
         const applyConditions = queries => {
@@ -275,10 +275,12 @@ export class TransactionsRepository extends Repository implements IRepository {
         const selectQuery = this.query.select().from(this.query);
 
         if (parameters.senderId) {
-            const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
+            const senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
 
             if (senderPublicKey) {
                 parameters.senderPublicKey = senderPublicKey;
+            } else {
+                return { count: 0, rows: [] };
             }
         }
 
@@ -408,7 +410,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param {String} senderId
      * @return {String}
      */
-    public __publicKeyFromSenderId(senderId): string {
+    public __publicKeyFromAddress(senderId): string {
         return this.database.walletManager.findByAddress(senderId).publicKey;
     }
 
