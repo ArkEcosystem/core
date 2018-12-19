@@ -1,7 +1,7 @@
 {
   "name": "@phantomchain/core-snapshots",
   "description": "Provides live local streamed snapshots functionality for PHANTOM Core",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "contributors": [
     "Kristjan Košič <chris@ark.io>"
   ],
