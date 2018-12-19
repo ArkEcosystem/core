@@ -3,7 +3,7 @@ import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import { IRepository } from "../interfaces/repository";
 import { Repository } from "./repository";
-import { buildFilterQuery } from "./utils/filter-query";
+import { buildFilterQuery } from "./utils/build-filter-query";
 
 export class TransactionsRepository extends Repository implements IRepository {
     /**
