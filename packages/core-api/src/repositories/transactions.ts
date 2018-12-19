@@ -269,7 +269,27 @@ export class TransactionsRepository extends Repository implements IRepository {
     /**
      * Search all transactions.
      *
-     * @param  {Object} params
+     * @param  {Object} parameters
+     * @param  {Number} [parameters.limit] - Limit the number of results
+     * @param  {Number} [parameters.offset] - Skip some results
+     * @param  {Array}  [parameters.orderBy] - Order of the results
+     * @param  {String} [parameters.id] - Search by transaction id
+     * @param  {String} [parameters.blockId] - Search by block id
+     * @param  {String} [parameters.recipientId] - Search by recipient address
+     * @param  {String} [parameters.senderPublicKey] - Search by sender public key
+     * @param  {String} [parameters.senderId] - Search by sender address
+     * @param  {Array}  [parameters.addresses] - Search by senders or recipients addresses
+     * @param  {Number} [parameters.type] - Search by transaction type
+     * @param  {Number} [parameters.version] - Search by transaction version
+     * @param  {Object} [parameters.timestamp] - Search by transaction date
+     * @param  {Number} [parameters.timestamp.from] - Since date
+     * @param  {Number} [parameters.timestamp.to] - Until date
+     * @param  {Object} [parameters.amount] - Search by transaction amount
+     * @param  {Number} [parameters.amount.from] - From amount
+     * @param  {Number} [parameters.amount.to] - To date
+     * @param  {Object} [parameters.fee] - Search by transaction fee
+     * @param  {Number} [parameters.fee.from] - From fee
+     * @param  {Number} [parameters.fee.to] - To fee
      * @return {Object}
      */
     public async search(parameters): Promise<any> {
