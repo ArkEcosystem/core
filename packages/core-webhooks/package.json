@@ -23,13 +23,14 @@
         "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
         "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll"
+        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@types/fs-extra": "^5.0.4",
-        "@types/joi": "^14.0.0",
+        "@types/joi": "^14.0.1",
         "@types/sequelize": "^4.27.33",
         "@types/sqlite3": "^3.1.3",
         "@types/umzug": "^2.2.0",
@@ -38,7 +39,7 @@
         "fs-extra": "^7.0.1",
         "hapi-pagination": "^2.0.1",
         "joi": "^14.3.0",
-        "sequelize": "^4.41.2",
+        "sequelize": "^4.42.0",
         "sqlite3": "^4.0.4",
         "umzug": "^2.2.0"
     },
