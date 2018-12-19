@@ -47,7 +47,7 @@ export const verifyData = (context, data, prevData, signatureVerification) => {
 
         // TODO: manually calculate block ID and compare to existing
         if (signatureVerification) {
-            const bytes = Block.serialize(camelizeKeys(data), false);
+            const bytes: any = Block.serialize(camelizeKeys(data), false);
             const hash = createHash("sha256")
                 .update(bytes)
                 .digest();
