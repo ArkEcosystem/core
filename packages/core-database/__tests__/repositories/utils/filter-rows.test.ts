@@ -66,6 +66,13 @@ describe("Filter Rows", () => {
         });
     });
 
+    describe("in", () => {
+        it("match objects that include some values of the parameters", () => {
+            expect(filterRows(rows, { e: ["value-e-99"] }, { in: ["e"] })).toEqual([]);
+            expect(filterRows(rows, { e: ["value-e-1", "value-e-3"] }, { in: ["e"] })).toEqual([rows[1], rows[5]]);
+        });
+    });
+
     // This filter is not used yet
     describe("any", () => {
         it("match objects that include some values of the parameters", () => {
