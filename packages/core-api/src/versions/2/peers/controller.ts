@@ -4,10 +4,6 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
-    public constructor() {
-        super();
-    }
-
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const allPeers = await this.blockchain.p2p.getPeers();

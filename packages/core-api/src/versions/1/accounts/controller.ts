@@ -3,10 +3,6 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class AccountsController extends Controller {
-    public constructor() {
-        super();
-    }
-
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const data = await request.server.methods.v1.accounts.index(request);

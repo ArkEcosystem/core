@@ -4,10 +4,6 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class BlockchainController extends Controller {
-    public constructor() {
-        super();
-    }
-
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();

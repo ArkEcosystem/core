@@ -3,10 +3,6 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class SignaturesController extends Controller {
-    public constructor() {
-        super();
-    }
-
     public async fee(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const height: number = this.blockchain.getLastHeight();

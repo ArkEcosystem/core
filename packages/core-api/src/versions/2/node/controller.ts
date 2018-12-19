@@ -4,10 +4,6 @@ import { transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class NodeController extends Controller {
-    public constructor() {
-        super();
-    }
-
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
