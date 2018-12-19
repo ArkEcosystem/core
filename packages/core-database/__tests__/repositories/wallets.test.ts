@@ -297,12 +297,23 @@ describe("Wallet Repository", () => {
             expectSearch({ address: wallets[0].address });
         });
 
-        it("should search wallets by several address", () => {
+        it("should search wallets by several addresses", () => {
             const wallets = generateFullWallets();
             walletManager.index(wallets);
 
-            const addresses = [wallets[0].address, wallets[3].address, wallets[9].address];
+            const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
             expectSearch({ addresses }, 3, 3);
+        });
+
+        describe("when searching by `address` and `addresses`", () => {
+            it("should search wallets only by `address`", () => {
+                const wallets = generateFullWallets();
+                walletManager.index(wallets);
+
+                const { address } = wallets[0];
+                const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
+                expectSearch({ address, addresses }, 1, 1);
+            });
         });
 
         it("should search wallets by the specified publicKey", () => {
