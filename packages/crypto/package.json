@@ -37,6 +37,7 @@
         "@types/bip32": "^1.0.0",
         "@types/bip38": "^2.0.0",
         "@types/bip39": "^2.4.1",
+        "@types/bytebuffer": "^5.0.37",
         "@types/create-hash": "^1.2.0",
         "@types/deepmerge": "^2.2.0",
         "@types/joi": "^14.0.1",
