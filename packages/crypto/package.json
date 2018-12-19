@@ -19,7 +19,7 @@
     "dist"
   ],
   "scripts": {
-    "prepublish": "yarn run lint && yarn run build",
+    "prepublish": "yarn run build",
     "build": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
     "test": "cross-env PHANTOM_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env PHANTOM_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
