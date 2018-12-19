@@ -1,7 +1,7 @@
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
-import { crypto, slots } from "@arkecosystem/crypto";
+import { configManager, crypto, slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../src/config";
 import { TransactionGuard } from "../src/guard";
 
@@ -441,6 +441,75 @@ describe("Transaction Guard", () => {
 
             slots.getTime = getTime;
             guard.pool.transactionExists = transactionExists;
+        });
+
+        it("should accept transaction with correct network byte", () => {
+            const transactionExists = guard.pool.transactionExists;
+            guard.pool.transactionExists = jest.fn(() => false);
+
+            const canApply = guard.pool.walletManager.canApply;
+            guard.pool.walletManager.canApply = jest.fn(() => true);
+
+            const tx = {
+                id: "1",
+                network: 23,
+                senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+            };
+            guard.__filterAndTransformTransactions([tx]);
+
+            expect(guard.errors[tx.id]).not.toEqual([
+                {
+                    message: `Transaction network '${tx.network}' does not match '${configManager.get("pubKeyHash")}'`,
+                    type: "ERR_WRONG_NETWORK",
+                },
+            ]);
+
+            guard.pool.transactionExists = transactionExists;
+            guard.pool.walletManager.canApply = canApply;
+        });
+
+        it("should accept transaction with missing network byte", () => {
+            const transactionExists = guard.pool.transactionExists;
+            guard.pool.transactionExists = jest.fn(() => false);
+
+            const canApply = guard.pool.walletManager.canApply;
+            guard.pool.walletManager.canApply = jest.fn(() => true);
+
+            const tx = {
+                id: "1",
+                senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+            };
+            guard.__filterAndTransformTransactions([tx]);
+
+            expect(guard.errors[tx.id].type).not.toEqual("ERR_WRONG_NETWORK");
+
+            guard.pool.transactionExists = transactionExists;
+            guard.pool.walletManager.canApply = canApply;
+        });
+
+        it("should not accept transaction with wrong network byte", () => {
+            const transactionExists = guard.pool.transactionExists;
+            guard.pool.transactionExists = jest.fn(() => false);
+
+            const canApply = guard.pool.walletManager.canApply;
+            guard.pool.walletManager.canApply = jest.fn(() => true);
+
+            const tx = {
+                id: "1",
+                network: 2,
+                senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+            };
+            guard.__filterAndTransformTransactions([tx]);
+
+            expect(guard.errors[tx.id]).toEqual([
+                {
+                    message: `Transaction network '${tx.network}' does not match '${configManager.get("pubKeyHash")}'`,
+                    type: "ERR_WRONG_NETWORK",
+                },
+            ]);
+
+            guard.pool.transactionExists = transactionExists;
+            guard.pool.walletManager.canApply = canApply;
         });
     });
 
