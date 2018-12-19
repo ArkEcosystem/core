@@ -1,21 +1,8 @@
-import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class AccountsController extends Controller {
-    protected config: any;
-    protected database: any;
-    protected blockchain: any;
-
-    public constructor() {
-        super();
-
-        this.config = app.getConfig();
-        this.database = app.resolvePlugin("database");
-        this.blockchain = app.resolvePlugin("blockchain");
-    }
-
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const data = await request.server.methods.v1.accounts.index(request);

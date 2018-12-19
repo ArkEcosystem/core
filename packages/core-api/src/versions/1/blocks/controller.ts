@@ -1,21 +1,9 @@
-import { app } from "@arkecosystem/core-container";
 import { bignumify } from "@arkecosystem/core-utils";
 import Boom from "boom";
 import Hapi from "hapi";
-import { blocksRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class BlocksController extends Controller {
-    protected blockchain: any;
-    protected config: any;
-
-    public constructor() {
-        super();
-
-        this.blockchain = app.resolvePlugin("blockchain");
-        this.config = app.getConfig();
-    }
-
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const data = await request.server.methods.v1.blocks.index(request);
