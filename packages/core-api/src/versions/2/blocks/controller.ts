@@ -1,6 +1,5 @@
 import Boom from "boom";
 import Hapi from "hapi";
-import { blocksRepository, transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class BlocksController extends Controller {
