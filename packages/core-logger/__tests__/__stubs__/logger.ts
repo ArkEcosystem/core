@@ -1,4 +1,4 @@
-import { AbstractLogger } from "../../src/logger";
+import { AbstractLogger } from "../../src";
 
 export class Logger extends AbstractLogger {
     public make(): any {
