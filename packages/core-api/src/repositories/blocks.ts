@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { IRepository } from "../interfaces/repository";
 import { Repository } from "./repository";
-import { buildFilterQuery } from "./utils/filter-query";
+import { buildFilterQuery } from "./utils/build-filter-query";
 
 export class BlockRepository extends Repository implements IRepository {
     /**
