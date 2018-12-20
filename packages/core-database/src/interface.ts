@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
@@ -14,7 +15,7 @@ const { TransactionTypes } = constants;
 
 export abstract class ConnectionInterface {
     public config: any;
-    public logger: any;
+    public logger: AbstractLogger;
     public emitter: any;
 
     public connection: any;
@@ -33,7 +34,7 @@ export abstract class ConnectionInterface {
      */
     public constructor(public readonly options) {
         this.config = app.getConfig();
-        this.logger = app.resolvePlugin("logger");
+        this.logger = app.resolvePlugin<AbstractLogger>("logger");
         this.emitter = app.resolvePlugin("event-emitter");
 
         this.connection = null;
