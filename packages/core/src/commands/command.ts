@@ -1,7 +1,5 @@
-import { Command } from "commander";
-
 export abstract class AbstractCommand {
-    constructor(readonly options: Command) {}
+    constructor(readonly options: any) {}
 
     protected isInterface(): boolean {
         return !this.isInteractive();
