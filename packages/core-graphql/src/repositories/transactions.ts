@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { config as localConfig } from "@arkecosystem/core-transaction-pool";
 
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
@@ -255,6 +256,7 @@ class TransactionsRepository extends Repository {
      * @return {Object}
      */
     public async getFeeStatistics() {
+        const minFeeBroadcast = localConfig.get("dynamicFees.minFeeBroadcast");
         const query = this.query
             .select(
                 this.query.type,
@@ -265,6 +267,7 @@ class TransactionsRepository extends Repository {
             )
             .from(this.query)
             .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day"))))
+            .and(this.query.fee.gte(minFeeBroadcast))
             .group(this.query.type)
             .order('"timestamp" DESC');
 
