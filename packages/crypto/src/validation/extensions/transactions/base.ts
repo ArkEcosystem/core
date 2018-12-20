@@ -1,3 +1,5 @@
+import { configManager } from "../../../managers";
+
 export const base = joi =>
     joi.object().keys({
         id: joi
@@ -10,10 +12,14 @@ export const base = joi =>
             // @ts-ignore
             joi.number().unsafe(),
         ),
-        network: joi
-            .number()
-            .only(joi.arkCrypto.pubKeyHash)
-            .optional(),
+        network: joi.lazy(
+            () =>
+                joi
+                    .number()
+                    .only(configManager.get("pubKeyHash"))
+                    .optional(),
+            { once: false },
+        ),
         version: joi
             .number()
             .integer()

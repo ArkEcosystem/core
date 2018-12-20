@@ -1,13 +1,11 @@
 import Joi from "joi";
+import { configManager } from "../managers";
 import { extensions } from "./extensions";
 
 export class Engine {
     public static joi: any;
 
-    public static init(config): void {
-        // @ts-ignore
-        Joi.arkCrypto = config;
-
+    public static init(): void {
         this.joi = Joi.extend(extensions);
     }
 
@@ -28,3 +26,5 @@ export class Engine {
         }
     }
 }
+
+Engine.init();

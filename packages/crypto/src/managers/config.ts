@@ -5,6 +5,7 @@ import set from "lodash/set";
 import { Engine } from "../validation/engine";
 import { feeManager } from "./fee";
 
+import { EventEmitter } from "events";
 import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
 
@@ -38,8 +39,6 @@ export class ConfigManager {
 
         this.buildConstants();
         this.buildFees();
-
-        Engine.init(this.config);
     }
 
     /**
