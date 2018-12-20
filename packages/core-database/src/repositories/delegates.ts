@@ -111,11 +111,11 @@ export class DelegatesRepository {
             return ["rate", "asc"];
         }
 
-        const orderBy = params.orderBy.split(":").map(p => p.toLowerCase());
-        if (orderBy.length !== 2 || ["desc", "asc"].includes(orderBy[1]) !== true) {
+        const orderByMapped = params.orderBy.split(":").map(p => p.toLowerCase());
+        if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
             return ["rate", "asc"];
         }
 
-        return orderBy[0] === "rank" ? ["rate", orderBy[1]] : orderBy;
+        return orderByMapped[0] === "rank" ? ["rate", orderByMapped[1]] : orderByMapped;
     }
 }

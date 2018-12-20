@@ -12,7 +12,6 @@ export class PluginRegistrar {
     private resolvedPlugins: any;
     private options: any;
     private deregister: any;
-    private pluginsConfigPath: any;
 
     /**
      * Create a new plugin manager instance.
@@ -21,7 +20,7 @@ export class PluginRegistrar {
      */
     constructor(container, options: any = {}) {
         this.container = container;
-        this.plugins = this.container.config.get("plugins");
+        this.plugins = container.config.get("plugins");
         this.resolvedPlugins = [];
         this.options = this.__castOptions(options);
         this.deregister = [];
@@ -164,25 +163,10 @@ export class PluginRegistrar {
      * @return {Object}
      */
     public __resolve(plugin) {
-        let item: any = {};
+        let item: any = require(plugin);
 
-        if (isString(plugin)) {
-            if (plugin.startsWith(".")) {
-                plugin = resolve(`${dirname(this.pluginsConfigPath)}/${plugin}`);
-            } else if (!plugin.startsWith("@")) {
-                plugin = resolve(plugin);
-            }
-
-            try {
-                item = require(plugin);
-            } catch (error) {
-                // tslint:disable-next-line:no-console
-                console.error(error);
-            }
-
-            if (!item.plugin) {
-                item = { plugin: item };
-            }
+        if (!item.plugin) {
+            item = { plugin: item };
         }
 
         return item;
