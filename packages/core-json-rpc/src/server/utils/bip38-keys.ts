@@ -1,6 +1,4 @@
 import { configManager, crypto, HashAlgorithms } from "@arkecosystem/crypto";
-import bip38 from "bip38";
-import wif from "wif";
 import { database } from "../services/database";
 import { decryptWIF } from "./decrypt-wif";
 
@@ -13,7 +11,7 @@ export async function getBIP38Wallet(userId, bip38password): Promise<any> {
         }
     } catch (error) {
         throw Error("Could not find a matching WIF");
-
+        // TODO: Unreachable code. What was the intention here? To have it return a boolean or throw an Error?
         return false;
     }
 }
