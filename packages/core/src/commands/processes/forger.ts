@@ -19,6 +19,7 @@ export class ForgerProcess extends AbstractCommand {
                 },
             },
             skipPlugins: this.options.skipPlugins,
+            preset: this.options.preset,
         });
 
         return app;

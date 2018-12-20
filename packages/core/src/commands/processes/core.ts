@@ -17,6 +17,7 @@ export class CoreProcess extends AbstractCommand {
                 },
             },
             skipPlugins: this.options.skipPlugins,
+            preset: this.options.preset,
         });
 
         return app;

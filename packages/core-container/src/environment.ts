@@ -20,6 +20,15 @@ export class Environment {
     }
 
     /**
+     * Merge the given variables into the environment.
+     */
+    public merge(variables: object) {
+        for (const [key, value] of Object.entries(variables)) {
+            process.env[key] = value;
+        }
+    }
+
+    /**
      * Export all path variables for the core environment.
      * @return {void}
      */

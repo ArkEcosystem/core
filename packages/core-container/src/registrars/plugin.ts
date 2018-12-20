@@ -21,7 +21,7 @@ export class PluginRegistrar {
      */
     constructor(container, options: any = {}) {
         this.container = container;
-        this.plugins = this.__loadPlugins();
+        this.plugins = this.container.config.get("plugins");
         this.resolvedPlugins = [];
         this.options = this.__castOptions(options);
         this.deregister = [];
@@ -205,25 +205,5 @@ export class PluginRegistrar {
         }
 
         return register;
-    }
-
-    /**
-     * Load plugins from any of the available files (plugins.js or plugins.json).
-     * @return {[Object|void]}
-     */
-    public __loadPlugins() {
-        const files = ["plugins.js", "plugins.json"];
-
-        for (const file of files) {
-            const configPath = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${file}`));
-
-            if (existsSync(configPath)) {
-                this.pluginsConfigPath = configPath;
-
-                return require(configPath);
-            }
-        }
-
-        throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
     }
 }
