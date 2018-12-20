@@ -1,5 +1,5 @@
-import * as forger from "./forger";
-import * as publish from "./publish";
-import * as reset from "./reset";
+import { ConfigureForger } from "./forger";
+import { ConfigPublish } from "./publish";
+import { ConfigReset } from "./reset";
 
-export { publish, forger, reset };
+export { ConfigPublish, ConfigReset, ConfigureForger };

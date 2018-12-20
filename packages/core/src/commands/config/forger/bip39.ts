@@ -4,48 +4,52 @@ import fs from "fs-extra";
 import ora from "ora";
 import prompts from "prompts";
 
-async function performConfiguration(bip39opts) {
-    const spinner = ora("Configuring forger...").start();
+import { AbstractCommand } from "../../command";
 
-    const delegatesConfig = `${bip39opts.config}/delegates.json`;
+export class ConfigureBIP39 extends AbstractCommand {
+    public async configure() {
+        if (this.isInterface()) {
+            return this.performConfiguration(this.options);
+        }
 
-    if (!fs.existsSync(delegatesConfig)) {
-        return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+        const response = await prompts([
+            {
+                type: "password",
+                name: "forgerBip39",
+                message: "Please enter your delegate passphrase",
+                validate: value =>
+                    !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+            },
+            {
+                type: "confirm",
+                name: "confirm",
+                message: "Can you confirm?",
+                initial: true,
+            },
+        ]);
+
+        if (response.confirm) {
+            return this.performConfiguration({ ...this.options, ...response });
+        }
     }
 
-    const delegates = require(delegatesConfig);
-    delegates.secrets = [bip39opts.forgerBip39];
-    delete delegates.bip38;
+    private async performConfiguration(bip39opts) {
+        const spinner = ora("Configuring forger...").start();
 
-    fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+        const delegatesConfig = `${bip39opts.config}/delegates.json`;
 
-    await delay(750);
+        if (!fs.existsSync(delegatesConfig)) {
+            return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
+        }
 
-    spinner.succeed("Configured forger!");
-}
+        const delegates = require(delegatesConfig);
+        delegates.secrets = [bip39opts.forgerBip39];
+        delete delegates.bip38;
 
-export async function performBIP39Configuration(options) {
-    if (!options.interactive) {
-        return performConfiguration(options);
-    }
+        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 
-    const response = await prompts([
-        {
-            type: "password",
-            name: "forgerBip39",
-            message: "Please enter your delegate passphrase",
-            validate: value =>
-                !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
-        },
-        {
-            type: "confirm",
-            name: "confirm",
-            message: "Can you confirm?",
-            initial: true,
-        },
-    ]);
+        await delay(750);
 
-    if (response.confirm) {
-        return performConfiguration({ ...options, ...response });
+        spinner.succeed("Configured forger!");
     }
 }

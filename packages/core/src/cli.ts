@@ -23,14 +23,14 @@ export class CLI {
         this.cli = cli;
     }
 
-    public add(name: string, description: string, action: any): CLI {
+    public add(name: string, description: string, handler: any, action: string): CLI {
         const command = this.cli.command(name).description(description);
 
         for (const [flag, flagDesc, defaultValue] of this.options) {
             command.option(flag, flagDesc, defaultValue);
         }
 
-        command.action(action);
+        command.action(options => new handler()[action]);
 
         return this;
     }

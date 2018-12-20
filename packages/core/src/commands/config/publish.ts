@@ -5,62 +5,66 @@ import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
 
-async function performPublishment(response) {
-    const spinner = ora("Searching configuration...").start();
+import { AbstractCommand } from "../command";
 
-    // create .env file
+export class ConfigPublish extends AbstractCommand {
+    public async publish() {
+        if (this.isInterface()) {
+            return this.performPublishment(this.options);
+        }
 
-    const coreConfigDest = resolve(expandHomeDir(response.config));
-    const coreConfigSrc = resolve(__dirname, `../../src/config/${response.network}`);
+        const response = await prompts([
+            {
+                type: "autocomplete",
+                name: "network",
+                message: "What network do you want to operate on?",
+                choices: [
+                    { title: "Production", value: "mainnet" },
+                    { title: "Development", value: "devnet" },
+                    { title: "Test", value: "testnet" },
+                ],
+            },
+            {
+                type: "text",
+                name: "config",
+                message: "Where do you want the configuration to be located?",
+                initial: this.options.config,
+                validate: value => fs.existsSync(value),
+            },
+            {
+                type: "confirm",
+                name: "confirm",
+                message: "Can you confirm?",
+                initial: true,
+            },
+        ]);
 
-    if (!fs.existsSync(coreConfigSrc)) {
-        spinner.fail(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
+        if (response.confirm) {
+            return this.performPublishment(response);
+        }
     }
 
-    fs.ensureDirSync(coreConfigDest);
+    private async performPublishment(response) {
+        const spinner = ora("Searching configuration...").start();
 
-    await delay(750);
+        // create .env file
 
-    spinner.text = "Publishing core configuration...";
-    fs.copySync(coreConfigSrc, coreConfigDest);
+        const coreConfigDest = resolve(expandHomeDir(response.config));
+        const coreConfigSrc = resolve(__dirname, `../../src/config/${response.network}`);
 
-    await delay(750);
+        if (!fs.existsSync(coreConfigSrc)) {
+            spinner.fail(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
+        }
 
-    spinner.succeed("Published configuration!");
-}
+        fs.ensureDirSync(coreConfigDest);
 
-export async function publish(options) {
-    if (!options.interactive) {
-        return performPublishment(options);
-    }
+        await delay(750);
 
-    const response = await prompts([
-        {
-            type: "autocomplete",
-            name: "network",
-            message: "What network do you want to operate on?",
-            choices: [
-                { title: "Production", value: "mainnet" },
-                { title: "Development", value: "devnet" },
-                { title: "Test", value: "testnet" },
-            ],
-        },
-        {
-            type: "text",
-            name: "config",
-            message: "Where do you want the configuration to be located?",
-            initial: options.config,
-            validate: value => fs.existsSync(value),
-        },
-        {
-            type: "confirm",
-            name: "confirm",
-            message: "Can you confirm?",
-            initial: true,
-        },
-    ]);
+        spinner.text = "Publishing core configuration...";
+        fs.copySync(coreConfigSrc, coreConfigDest);
 
-    if (response.confirm) {
-        return performPublishment(response);
+        await delay(750);
+
+        spinner.succeed("Published configuration!");
     }
 }

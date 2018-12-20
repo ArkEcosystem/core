@@ -4,35 +4,40 @@ import fs from "fs-extra";
 import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
-import { publish } from "./publish";
+import { ConfigPublish } from "./publish";
 
-async function performReset(options) {
-    const spinner = ora("Removing configuration...").start();
+import { AbstractCommand } from "../command";
 
-    fs.removeSync(resolve(expandHomeDir(options.config)));
+export class ConfigReset extends AbstractCommand {
+    public async reset() {
+        if (this.isInterface()) {
+            return this.performReset();
+        }
 
-    await delay(750);
+        const response = await prompts([
+            {
+                type: "confirm",
+                name: "confirm",
+                message: "Are you absolutely sure that you want to reset the configuration?",
+                initial: true,
+            },
+        ]);
 
-    spinner.succeed("Removed configuration!");
-
-    await publish(options);
-}
-
-export async function reset(options) {
-    if (!options.interactive) {
-        return performReset(options);
+        if (response.confirm) {
+            return this.performReset();
+        }
     }
 
-    const response = await prompts([
-        {
-            type: "confirm",
-            name: "confirm",
-            message: "Are you absolutely sure that you want to reset the configuration?",
-            initial: true,
-        },
-    ]);
+    private async performReset() {
+        const spinner = ora("Removing configuration...").start();
 
-    if (response.confirm) {
-        return performReset(options);
+        fs.removeSync(resolve(expandHomeDir(this.options.config)));
+
+        await delay(750);
+
+        spinner.succeed("Removed configuration!");
+
+        const publisher = new ConfigPublish(this.options);
+        await publisher.publish();
     }
 }

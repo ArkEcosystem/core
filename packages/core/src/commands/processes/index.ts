@@ -1,5 +1,5 @@
-import * as core from "./core";
-import * as forger from "./forger";
-import * as relay from "./relay";
+import { CoreProcess } from "./core";
+import { ForgerProcess } from "./forger";
+import { RelayProcess } from "./relay";
 
-export { core, forger, relay };
+export { CoreProcess, ForgerProcess, RelayProcess };
