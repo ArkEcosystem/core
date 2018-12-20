@@ -1,3 +1,5 @@
+import { Container } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import pluralize from "pluralize";
 import { defaults } from "./defaults";
 import { ForgerManager } from "./manager";
@@ -6,12 +8,13 @@ export const plugin = {
     pkg: require("../package.json"),
     defaults,
     alias: "forger",
-    async register(container, options) {
+    async register(container: Container, options) {
         const forgerManager = new ForgerManager(options);
         const forgers = await forgerManager.loadDelegates(options.bip38, options.password);
+        const logger = container.resolvePlugin<AbstractLogger>("logger");
 
         if (!forgers) {
-            container.resolvePlugin("logger").info("Forger is disabled :grey_exclamation:");
+            logger.info("Forger is disabled :grey_exclamation:");
             return false;
         }
 
@@ -19,20 +22,17 @@ export const plugin = {
         delete process.env.ARK_FORGER_PASSWORD;
         delete options.password;
 
-        container
-            .resolvePlugin("logger")
-            .info(`Forger Manager started with ${pluralize("forger", forgers.length, true)}`);
+        logger.info(`Forger Manager started with ${pluralize("forger", forgers.length, true)}`);
 
         forgerManager.startForging();
 
         return forgerManager;
     },
-    async deregister(container, options) {
+    async deregister(container: Container, options) {
         const forger = container.resolvePlugin("forger");
 
         if (forger) {
-            container.resolvePlugin("logger").info("Stopping Forger Manager");
-
+            container.resolvePlugin<AbstractLogger>("logger").info("Stopping Forger Manager");
             return forger.stop();
         }
     },

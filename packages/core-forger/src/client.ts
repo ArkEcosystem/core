@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import axios from "axios";
 import delay from "delay";
 import sample from "lodash/sample";
@@ -8,14 +9,14 @@ export class Client {
     public hosts: string[];
     private host: any;
     private headers: any;
-    private logger: any;
+    private logger: AbstractLogger;
 
     /**
      * Create a new client instance.
      * @param  {(Array|String)} hosts - Host or Array of hosts
      */
     constructor(hosts) {
-        this.logger = app.resolvePlugin("logger");
+        this.logger = app.resolvePlugin<AbstractLogger>("logger");
         this.hosts = Array.isArray(hosts) ? hosts : [hosts];
 
         const { port } = new URL(this.hosts[0]);
