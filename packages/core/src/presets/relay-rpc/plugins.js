@@ -5,6 +5,5 @@ module.exports = {
     "@arkecosystem/core-transaction-pool": {},
     "@arkecosystem/core-p2p": {},
     "@arkecosystem/core-blockchain": {},
-    "@arkecosystem/core-json-rpc": {},
-    "@arkecosystem/core-snapshots": {}
+    "@arkecosystem/core-json-rpc": {}
 };
