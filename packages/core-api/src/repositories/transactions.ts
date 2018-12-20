@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
+import partition from "lodash/partition";
 import { IRepository } from "../interfaces/repository";
 import { Repository } from "./repository";
-import { buildFilterQuery } from "./utils/filter-query";
+import { buildFilterQuery } from "./utils/build-filter-query";
 
 export class TransactionsRepository extends Repository implements IRepository {
     /**
@@ -15,7 +16,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const selectQuery = this.query.select().from(this.query);
 
         if (parameters.senderId) {
-            const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
+            const senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
 
             if (!senderPublicKey) {
                 return { rows: [], count: 0 };
@@ -64,7 +65,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const countQuery = this._makeEstimateQuery();
 
         if (parameters.senderId) {
-            parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
+            parameters.senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
         }
 
         const applyConditions = queries => {
@@ -268,32 +269,102 @@ export class TransactionsRepository extends Repository implements IRepository {
     /**
      * Search all transactions.
      *
-     * @param  {Object} params
+     * @param  {Object} parameters
+     * @param  {Number} [parameters.limit] - Limit the number of results
+     * @param  {Number} [parameters.offset] - Skip some results
+     * @param  {Array}  [parameters.orderBy] - Order of the results
+     * @param  {String} [parameters.id] - Search by transaction id
+     * @param  {String} [parameters.blockId] - Search by block id
+     * @param  {String} [parameters.recipientId] - Search by recipient address
+     * @param  {String} [parameters.senderPublicKey] - Search by sender public key
+     * @param  {String} [parameters.senderId] - Search by sender address
+     * @param  {Array}  [parameters.addresses] - Search by senders or recipients addresses
+     * @param  {Number} [parameters.type] - Search by transaction type
+     * @param  {Number} [parameters.version] - Search by transaction version
+     * @param  {Object} [parameters.timestamp] - Search by transaction date
+     * @param  {Number} [parameters.timestamp.from] - Since date
+     * @param  {Number} [parameters.timestamp.to] - Until date
+     * @param  {Object} [parameters.amount] - Search by transaction amount
+     * @param  {Number} [parameters.amount.from] - From amount
+     * @param  {Number} [parameters.amount.to] - To date
+     * @param  {Object} [parameters.fee] - Search by transaction fee
+     * @param  {Number} [parameters.fee.from] - From fee
+     * @param  {Number} [parameters.fee.to] - To fee
      * @return {Object}
      */
     public async search(parameters): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
+        const filters = {
+            exact: ["id", "block_id", "type", "version"],
+            between: ["timestamp", "amount", "fee"],
+            wildcard: ["vendor_field_hex"],
+            in: [],
+        };
+
         if (parameters.senderId) {
-            const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId);
+            const senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
 
             if (senderPublicKey) {
                 parameters.senderPublicKey = senderPublicKey;
+            } else {
+                return { count: 0, rows: [] };
             }
         }
 
-        const conditions = buildFilterQuery(this._formatConditions(parameters), {
-            exact: ["id", "block_id", "type", "version", "sender_public_key", "recipient_id"],
-            between: ["timestamp", "amount", "fee"],
-            wildcard: ["vendor_field_hex"],
-        });
+        if (parameters.recipientId) {
+            filters.exact.push("recipient_id");
+        }
+        if (parameters.senderPublicKey) {
+            filters.exact.push("sender_public_key");
+        }
 
+        // When both participants, sender and recipient, are provided, searching by addresses is not useful
+        if (parameters.addresses) {
+            if (!parameters.recipientId) {
+                filters.in.push("recipient_id");
+                parameters.recipientId = parameters.addresses;
+            }
+            if (!parameters.senderPublicKey) {
+                filters.in.push("sender_public_key");
+                parameters.senderPublicKey = parameters.addresses.map(address => {
+                    return this.__publicKeyFromAddress(address);
+                });
+            }
+        }
+
+        const conditions = buildFilterQuery(this._formatConditions(parameters), filters);
+
+        /*
+         * Searching by `addresses` could create queries:
+         *  - 1 `senderPublicKey` AND n `recipientId`
+         *  - n `senderPublicKey` AND 1 `recipientId`.
+         *  - n `senderPublicKey` OR n `recipientId`.
+         */
         if (conditions.length) {
-            const first = conditions.shift();
+            const [participants, rest] = partition(conditions, condition => {
+                return ["sender_public_key", "recipient_id"].indexOf(condition.column) > -1;
+            });
 
-            selectQuery.where(this.query[first.column][first.method](first.value));
+            if (participants.length > 0) {
+                const [first, last] = participants;
+                selectQuery.where(this.query[first.column][first.method](first.value));
 
-            for (const condition of conditions) {
+                if (last) {
+                    const usesInOperator = participants.every(condition => condition.method === "in");
+                    if (usesInOperator) {
+                        selectQuery.or(this.query[last.column][last.method](last.value));
+                    } else {
+                        // This search is 1 `senderPublicKey` and 1 `recipientId`
+                        selectQuery.and(this.query[last.column][last.method](last.value));
+                    }
+                }
+            } else if (rest.length) {
+                const first = rest.shift();
+                selectQuery.where(this.query[first.column][first.method](first.value));
+            }
+
+            for (const condition of rest) {
                 selectQuery.and(this.query[condition.column][condition.method](condition.value));
             }
         }
@@ -408,7 +479,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param {String} senderId
      * @return {String}
      */
-    public __publicKeyFromSenderId(senderId): string {
+    public __publicKeyFromAddress(senderId): string {
         return this.database.walletManager.findByAddress(senderId).publicKey;
     }
 
