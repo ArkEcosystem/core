@@ -1,6 +1,7 @@
 // tslint:disable:variable-name
 
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { configManager, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
@@ -8,7 +9,7 @@ import { config } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 
 const { Block } = models;
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured with the option `state.maxLastBlocks`.

@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import prettyMs from "pretty-ms";
 
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 let tracker = null;
 
 export function tickSyncTracker(blockCount, count) {
