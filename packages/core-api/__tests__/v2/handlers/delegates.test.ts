@@ -33,9 +33,9 @@ describe("API 2.0 - Delegates", () => {
                     const response = await utils[request]("GET", "delegates");
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-                    expect(response.data.data.sort((a, b) => a.rank < b.rank)).toEqual(response.data.data);
 
-                    utils.expectDelegate(response.data.data[0]);
+                    response.data.data.forEach(utils.expectDelegate);
+                    expect(response.data.data.sort((a, b) => a.rank < b.rank)).toEqual(response.data.data);
                 });
             },
         );
@@ -47,9 +47,9 @@ describe("API 2.0 - Delegates", () => {
                     const response = await utils[request]("GET", "delegates", { orderBy: "rank:desc" });
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-                    expect(response.data.data.sort((a, b) => a.rank > b.rank)).toEqual(response.data.data);
 
-                    utils.expectDelegate(response.data.data[0]);
+                    response.data.data.forEach(utils.expectDelegate);
+                    expect(response.data.data.sort((a, b) => a.rank > b.rank)).toEqual(response.data.data);
                 });
             },
         );
