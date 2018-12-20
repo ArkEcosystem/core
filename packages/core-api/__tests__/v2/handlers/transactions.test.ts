@@ -10,6 +10,7 @@ import { generateWallets } from "../../../../core-test-utils/src/generators/wall
 
 const transferFee = 10000000;
 
+let genesisTransaction;
 let genesisTransactions;
 
 let transactionId;
@@ -33,23 +34,24 @@ let feeTo;
 beforeAll(async () => {
     await setUp();
 
-    genesisTransactions = genesisBlock.transactions[0];
+    genesisTransactions = genesisBlock.transactions;
+    genesisTransaction = genesisTransactions[0];
 
-    transactionId = genesisTransactions.id;
+    transactionId = genesisTransaction.id;
     blockId = genesisBlock.id;
-    type = genesisTransactions.type;
+    type = genesisTransaction.type;
     wrongType = 3;
     version = 1;
-    senderPublicKey = genesisTransactions.senderPublicKey;
-    senderAddress = genesisTransactions.senderId;
-    recipientAddress = genesisTransactions.recipientId;
-    timestamp = genesisTransactions.timestamp;
+    senderPublicKey = genesisTransaction.senderPublicKey;
+    senderAddress = genesisTransaction.senderId;
+    recipientAddress = genesisTransaction.recipientId;
+    timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;
     timestampTo = timestamp;
-    amount = genesisTransactions.amount;
+    amount = genesisTransaction.amount;
     amountFrom = amount;
     amountTo = amount;
-    fee = genesisTransactions.fee;
+    fee = genesisTransaction.fee;
     feeFrom = fee;
     feeTo = fee;
 });
@@ -274,6 +276,26 @@ describe("API 2.0 - Transactions", () => {
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
                         expect(transaction.recipient).toBe(recipientAddress);
+                    }
+                });
+            },
+        );
+
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should POST a search for transactions with the any of the specified addresses", async () => {
+                    const response = await utils[request]("POST", "transactions/search", {
+                        addresses: [genesisTransactions[3].recipientId, genesisTransactions[8].recipientId],
+                    });
+
+                    expect(response).toBeSuccessfulResponse();
+
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(6);
+
+                    for (const transaction of response.data.data) {
+                        utils.expectTransaction(transaction);
                     }
                 });
             },

@@ -72,6 +72,10 @@ export const showUnconfirmed: object = {
     },
 };
 
+const address: object = Joi.string()
+    .alphanum()
+    .length(34);
+
 export const search: object = {
     query: pagination,
     payload: {
@@ -89,15 +93,14 @@ export const search: object = {
         senderPublicKey: Joi.string()
             .hex()
             .length(66),
-        senderId: Joi.string()
-            .alphanum()
-            .length(34),
-        recipientId: Joi.string()
-            .alphanum()
-            .length(34),
-        ownerId: Joi.string()
-            .alphanum()
-            .length(34),
+        senderId: address,
+        recipientId: address,
+        ownerId: address,
+        addresses: Joi.array()
+            .unique()
+            .min(1)
+            .max(50)
+            .items(address),
         vendorFieldHex: Joi.string().hex(),
         timestamp: Joi.object().keys({
             from: Joi.number()
