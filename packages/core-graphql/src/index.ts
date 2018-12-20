@@ -1,3 +1,5 @@
+import { Container } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 
@@ -9,18 +11,17 @@ export const plugin = {
     pkg: require("../package.json"),
     defaults,
     alias: "graphql",
-    async register(container, options) {
+    async register(container: Container, options) {
         if (!options.enabled) {
-            container.resolvePlugin("logger").info("GraphQL API is disabled :grey_exclamation:");
-
+            container.resolvePlugin<AbstractLogger>("logger").info("GraphQL API is disabled :grey_exclamation:");
             return;
         }
 
         return startServer(options);
     },
-    async deregister(container, options) {
+    async deregister(container: Container, options) {
         if (options.enabled) {
-            container.resolvePlugin("logger").info("Stopping GraphQL API");
+            container.resolvePlugin<AbstractLogger>("logger").info("Stopping GraphQL API");
 
             return container.resolvePlugin("graphql").stop();
         }
