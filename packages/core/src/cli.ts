@@ -15,8 +15,8 @@ export class CLI {
         ["--ignore-minimum-network-reach", "skip the network reach check", null],
         ["--launch-mode <mode>", "the application configuration mode", null],
         ["--i, --interactive", "provide an interactive UI", false],
-        ["-b, --bip38 <bip38>", "forger bip38", null],
-        ["-p, --password <password>", "forger password", null],
+        ["-fb, --forger-bip38 <forger-bip38>", "forger bip38", null],
+        ["-fp, --forger-bip39 <forger-bip39>", "forger bip39", null],
     ];
 
     constructor(readonly version: string) {
