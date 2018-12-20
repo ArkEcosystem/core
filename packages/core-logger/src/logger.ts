@@ -60,7 +60,13 @@ export abstract class AbstractLogger {
      * @param  {Number} figures
      * @return {void}
      */
-    public abstract printTracker(title: string, current: number, max: number, postTitle: string, figures: number): void;
+    public abstract printTracker(
+        title: string,
+        current: number,
+        max: number,
+        postTitle: string,
+        figures?: number,
+    ): void;
 
     /**
      * Stop the progress tracker.
