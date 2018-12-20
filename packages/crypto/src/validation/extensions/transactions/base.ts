@@ -1,5 +1,3 @@
-import { configManager } from "../../../managers";
-
 export const base = joi =>
     joi.object().keys({
         id: joi
@@ -14,7 +12,7 @@ export const base = joi =>
         ),
         network: joi
             .number()
-            .only(configManager.get("pubKeyHash"))
+            .only(joi.arkCrypto.pubKeyHash)
             .optional(),
         version: joi
             .number()

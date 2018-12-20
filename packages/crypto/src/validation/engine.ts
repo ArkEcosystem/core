@@ -4,7 +4,10 @@ import { extensions } from "./extensions";
 export class Engine {
     public static joi: any;
 
-    public static init() {
+    public static init(config): void {
+        // @ts-ignore
+        Joi.arkCrypto = config;
+
         this.joi = Joi.extend(extensions);
     }
 
@@ -25,5 +28,3 @@ export class Engine {
         }
     }
 }
-
-Engine.init();

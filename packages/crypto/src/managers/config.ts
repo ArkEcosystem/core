@@ -2,6 +2,7 @@ import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import set from "lodash/set";
+import { Engine } from "../validation/engine";
 import { feeManager } from "./fee";
 
 import { TransactionTypes } from "../constants";
@@ -37,6 +38,8 @@ export class ConfigManager {
 
         this.buildConstants();
         this.buildFees();
+
+        Engine.init(this.config);
     }
 
     /**
