@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import { constants, slots } from "@arkecosystem/crypto";
-import { config as localConfig } from "@arkecosystem/core-transaction-pool";
 import dayjs from "dayjs-ext";
 import { IRepository } from "../interfaces/repository";
 import { Repository } from "./repository";
@@ -249,7 +248,6 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {Object}
      */
     public async getFeeStatistics(): Promise<any> {
-        const minFeeBroadcast = localConfig.get("dynamicFees.minFeeBroadcast");
         const query = this.query
             .select(
                 this.query.type,
