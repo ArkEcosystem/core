@@ -10,7 +10,7 @@ export function transformPorts(config: any) {
 
     const plugins = config.get("plugins");
 
-    result[keys[0]] = plugins[keys[0]].port;
+    result[keys[0]] = +plugins[keys[0]].port;
 
     for (const [name, options] of Object.entries(plugins)) {
         // @ts-ignore
