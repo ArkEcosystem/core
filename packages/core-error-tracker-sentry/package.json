@@ -22,7 +22,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@sentry/node": "^4.4.2"
+        "@sentry/node": "^4.4.2",
+        "@arkecosystem/core-container": "^2.1.0"
     },
     "publishConfig": {
         "access": "public"
