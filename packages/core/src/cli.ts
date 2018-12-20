@@ -4,19 +4,24 @@ export class CLI {
     private cli: Command;
 
     private options: Array<[string, string, any]> = [
-        ["-d, --data <data>", "data directory", "~/.ark"],
-        ["-c, --config <config>", "core config", "~/.ark/config"],
-        ["-t, --token <token>", "token name", "ark"],
+        // Configuration
+        ["-d, --data <data>", "core data directory", "~/.ark"],
+        ["-c, --config <config>", "core configuration location", "~/.ark/config"],
         ["-n, --network <network>", "token network", null],
-        ["-r, --remote <remote>", "remote peer for config", null],
+        ["-r, --remote <remote>", "remote peer for configuration", null],
+        // Forger (Delegates only)
+        ["-fb, --forger-bip38 <forger-bip38>", "forger bip38", null],
+        ["-fp, --forger-bip39 <forger-bip39>", "forger bip39", null],
+        // Modify certain behaviours
         ["--network-start", "force genesis network start", false],
         ["--disable-discovery", "disable any peer discovery", null],
         ["--skip-discovery", "skip the initial peer discovery", null],
         ["--ignore-minimum-network-reach", "skip the network reach check", null],
+        // Presets & Modes
         ["--launch-mode <mode>", "the application configuration mode", null],
+        ["--preset <preset>", "zero-configuration preset", null],
+        // CLI Modes
         ["--i, --interactive", "provide an interactive UI", true],
-        ["-fb, --forger-bip38 <forger-bip38>", "forger bip38", null],
-        ["-fp, --forger-bip39 <forger-bip39>", "forger bip39", null],
     ];
 
     constructor(readonly version: string) {
