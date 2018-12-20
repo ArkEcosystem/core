@@ -1,4 +1,4 @@
-import { NetworkManager } from "@arkecosystem/crypto";
+import envfile from "envfile";
 import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
 import { resolve } from "path";
@@ -55,11 +55,7 @@ export class Environment {
         const envPath = expandHomeDir(`${process.env.ARK_PATH_DATA}/.env`);
 
         if (existsSync(envPath)) {
-            const env = require("envfile").parseFileSync(envPath);
-
-            Object.keys(env).forEach(key => {
-                process.env[key] = env[key];
-            });
+            this.merge(envfile.parseFileSync(envPath));
         }
     }
 }

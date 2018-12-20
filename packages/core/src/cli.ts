@@ -1,27 +1,28 @@
 import cli, { Command } from "commander";
+import { Validator } from "./services/validator";
 
 export class CLI {
     private cli: Command;
 
-    private options: Array<[string, string, any]> = [
+    private options: Array<[string, string]> = [
         // Configuration
-        ["-d, --data <data>", "core data directory", "~/.ark"],
-        ["-c, --config <config>", "core configuration location", "~/.ark/config"],
-        ["-n, --network <network>", "token network", null],
-        ["-r, --remote <remote>", "remote peer for configuration", null],
+        ["-d, --data <data>", "core data directory"],
+        ["-c, --config <config>", "core configuration location"],
+        ["-n, --network <network>", "token network"],
+        ["-r, --remote <remote>", "remote peer for configuration"],
         // Forger (Delegates only)
-        ["-fb, --forger-bip38 <forger-bip38>", "forger bip38", null],
-        ["-fp, --forger-bip39 <forger-bip39>", "forger bip39", null],
+        ["-fb, --forger-bip38 <forger-bip38>", "forger bip38"],
+        ["-fp, --forger-bip39 <forger-bip39>", "forger bip39"],
         // Modify certain behaviours
-        ["--network-start", "force genesis network start", false],
-        ["--disable-discovery", "disable any peer discovery", null],
-        ["--skip-discovery", "skip the initial peer discovery", null],
-        ["--ignore-minimum-network-reach", "skip the network reach check", null],
+        ["--network-start", "force genesis network start"],
+        ["--disable-discovery", "disable any peer discovery"],
+        ["--skip-discovery", "skip the initial peer discovery"],
+        ["--ignore-minimum-network-reach", "skip the network reach check"],
         // Presets & Modes
-        ["--launch-mode <mode>", "the application configuration mode", null],
-        ["--preset <preset>", "zero-configuration preset", null],
+        ["--launch-mode <mode>", "the application configuration mode"],
+        ["--preset <preset>", "zero-configuration preset"],
         // CLI Modes
-        ["--i, --interactive", "provide an interactive UI", true],
+        ["--i, --interactive", "provide an interactive UI"],
     ];
 
     constructor(readonly version: string) {
@@ -31,12 +32,19 @@ export class CLI {
     public add(name: string, description: string, handler: any, action: string = "handle"): CLI {
         const command = this.cli.command(name).description(description);
 
-        for (const [flag, flagDesc, defaultValue] of this.options) {
-            command.option(flag, flagDesc, defaultValue);
+        for (const [flag, flagDesc] of this.options) {
+            command.option(flag, flagDesc);
         }
 
         command.action(async options => {
-            return new handler(options)[action]();
+            const { value, error } = Validator.validate(options);
+
+            if (error) {
+                console.error(error.details[0].message);
+                process.exit(1);
+            }
+
+            return new handler(value)[action]();
         });
 
         return this;
