@@ -1,9 +1,12 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const { TransactionTypes } = constants;
 const { Transaction } = models;
+
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
@@ -296,7 +299,7 @@ export class TransactionGuard {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin("logger").info(
+        logger.info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
         );
     }
