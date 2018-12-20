@@ -1,8 +1,9 @@
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import * as capcon from "capture-console";
 import "jest-extended";
-import { Logger } from "../src/driver";
+import { Logger } from "..";
 
-let logger;
+let logger: AbstractLogger;
 let message;
 
 beforeAll(() => {
