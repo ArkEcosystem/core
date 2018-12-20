@@ -4,9 +4,10 @@ export abstract class AbstractCommand {
     constructor(readonly options: Command) {}
 
     protected isInterface(): boolean {
-        return this.isInterface();
+        return !this.isInteractive();
     }
+
     protected isInteractive(): boolean {
-        return !this.isInterface();
+        return !!this.options.interactive;
     }
 }

@@ -8,7 +8,7 @@ import prompts from "prompts";
 import { AbstractCommand } from "../command";
 
 export class ConfigPublish extends AbstractCommand {
-    public async publish() {
+    public async handle() {
         if (this.isInterface()) {
             return this.performPublishment(this.options);
         }
@@ -50,10 +50,10 @@ export class ConfigPublish extends AbstractCommand {
         // create .env file
 
         const coreConfigDest = resolve(expandHomeDir(response.config));
-        const coreConfigSrc = resolve(__dirname, `../../src/config/${response.network}`);
+        const coreConfigSrc = resolve(__dirname, `../../../src/config/${response.network}`);
 
         if (!fs.existsSync(coreConfigSrc)) {
-            spinner.fail(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
+            return spinner.fail(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
         }
 
         fs.ensureDirSync(coreConfigDest);

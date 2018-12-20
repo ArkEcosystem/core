@@ -14,7 +14,7 @@ export class CLI {
         ["--skip-discovery", "skip the initial peer discovery", null],
         ["--ignore-minimum-network-reach", "skip the network reach check", null],
         ["--launch-mode <mode>", "the application configuration mode", null],
-        ["--i, --interactive", "provide an interactive UI", false],
+        ["--i, --interactive", "provide an interactive UI", true],
         ["-fb, --forger-bip38 <forger-bip38>", "forger bip38", null],
         ["-fp, --forger-bip39 <forger-bip39>", "forger bip39", null],
     ];
@@ -23,14 +23,16 @@ export class CLI {
         this.cli = cli;
     }
 
-    public add(name: string, description: string, handler: any, action: string): CLI {
+    public add(name: string, description: string, handler: any, action: string = "handle"): CLI {
         const command = this.cli.command(name).description(description);
 
         for (const [flag, flagDesc, defaultValue] of this.options) {
             command.option(flag, flagDesc, defaultValue);
         }
 
-        command.action(options => new handler()[action]);
+        command.action(async options => {
+            return new handler(options)[action]();
+        });
 
         return this;
     }

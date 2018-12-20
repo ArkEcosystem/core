@@ -27,9 +27,9 @@ program
     .add("forger:restart", "Restart a forger instance", ForgerProcess, "restart")
     .add("forger:monitor", "Start a forger instance via PM2", ForgerProcess, "monitor")
     // Configuration
-    .add("config:publish", "Publish the configuration", ConfigPublish, "publish")
-    .add("config:reset", "Reset the configuration", ConfigReset, "reset")
-    .add("config:forger", "Configure the delegate that will be used to forge", ConfigureForger, "forger")
+    .add("config:publish", "Publish the configuration", ConfigPublish)
+    .add("config:reset", "Reset the configuration", ConfigReset)
+    .add("config:forger", "Configure the delegate that will be used to forge", ConfigureForger)
     // App
     .add("update", "Update the installation", AppUpdate, "update")
     // Launch

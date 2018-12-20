@@ -9,7 +9,7 @@ import { ConfigPublish } from "./publish";
 import { AbstractCommand } from "../command";
 
 export class ConfigReset extends AbstractCommand {
-    public async reset() {
+    public async handle() {
         if (this.isInterface()) {
             return this.performReset();
         }
@@ -37,7 +37,6 @@ export class ConfigReset extends AbstractCommand {
 
         spinner.succeed("Removed configuration!");
 
-        const publisher = new ConfigPublish(this.options);
-        await publisher.publish();
+        await new ConfigPublish(this.options).handle();
     }
 }

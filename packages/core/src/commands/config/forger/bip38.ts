@@ -10,7 +10,7 @@ import wif from "wif";
 import { AbstractCommand } from "../../command";
 
 export class ConfigureBIP38 extends AbstractCommand {
-    public async configure() {
+    public async handle() {
         if (this.isInterface()) {
             return this.performConfiguration(this.options);
         }

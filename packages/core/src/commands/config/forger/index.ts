@@ -5,14 +5,14 @@ import { ConfigureBIP39 } from "./bip39";
 import { AbstractCommand } from "../../command";
 
 export class ConfigureForger extends AbstractCommand {
-    public async forger(options) {
+    public async handle() {
         if (this.isInterface()) {
-            if (options.forgerBip38) {
-                return new ConfigureBIP38(this.options).configure();
+            if (this.options.forgerBip38) {
+                return new ConfigureBIP38(this.options).handle();
             }
 
-            if (options.forgerBip39) {
-                return new ConfigureBIP39(this.options).configure();
+            if (this.options.forgerBip39) {
+                return new ConfigureBIP39(this.options).handle();
             }
         }
 
@@ -29,11 +29,11 @@ export class ConfigureForger extends AbstractCommand {
         ]);
 
         if (response.method === "bip38") {
-            return new ConfigureBIP38(this.options).configure();
+            return new ConfigureBIP38(this.options).handle();
         }
 
         if (response.method === "bip39") {
-            return new ConfigureBIP39(this.options).configure();
+            return new ConfigureBIP39(this.options).handle();
         }
     }
 }

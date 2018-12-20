@@ -7,7 +7,7 @@ import prompts from "prompts";
 import { AbstractCommand } from "../../command";
 
 export class ConfigureBIP39 extends AbstractCommand {
-    public async configure() {
+    public async handle() {
         if (this.isInterface()) {
             return this.performConfiguration(this.options);
         }
