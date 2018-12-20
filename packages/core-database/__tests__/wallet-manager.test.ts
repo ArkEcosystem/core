@@ -203,9 +203,6 @@ describe("Wallet Manager", () => {
                 expect(+sender.balance.toFixed()).toBe(+balanceSuccess);
                 expect(+recipient.balance.toFixed()).toBe(0);
 
-                // The Joi schema is created with devnet, but the tx is created for testnet
-                transaction.data.network = 30;
-
                 await walletManager.applyTransaction(transaction);
 
                 expect(sender.balance).toEqual(balanceSuccess.minus(amount).minus(transaction.fee));

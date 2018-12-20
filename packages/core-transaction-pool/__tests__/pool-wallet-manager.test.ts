@@ -138,11 +138,11 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         const forgingDelegate = delegates[reward ? 2 : 3]; // use different delegate to have clean initial balance
         const generatorPublicKey = forgingDelegate.publicKey;
 
-        const wallet = generateWallets("devnet", 1)[0];
+        const wallet = generateWallets("testnet", 1)[0];
         const transferAmount = 1234;
         const transferDelegate = delegates[4];
         const transfer = generateTransfers(
-            "devnet",
+            "testnet",
             transferDelegate.passphrase,
             wallet.address,
             transferAmount,
