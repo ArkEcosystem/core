@@ -1,3 +1,4 @@
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { createContainer } from "awilix";
 import { execSync } from "child_process";
 import delay from "delay";
@@ -118,9 +119,9 @@ export class Container {
      * @return {Object}
      * @throws {Error}
      */
-    public resolve(key) {
+    public resolve<T = any>(key): T {
         try {
-            return this.container.resolve(key);
+            return this.container.resolve(key) as T;
         } catch (err) {
             throw new Error(err.message);
         }
@@ -132,9 +133,9 @@ export class Container {
      * @return {Object}
      * @throws {Error}
      */
-    public resolvePlugin(key) {
+    public resolvePlugin<T = any>(key): T {
         try {
-            return this.container.resolve(key).plugin;
+            return this.container.resolve(key).plugin as T;
         } catch (err) {
             return null;
         }
@@ -189,7 +190,7 @@ export class Container {
     public exit(exitCode, message, error = null) {
         this.shuttingDown = true;
 
-        const logger = this.resolvePlugin("logger");
+        const logger = this.resolvePlugin<AbstractLogger>("logger");
         logger.error(":boom: Container force shutdown :boom:");
         logger.error(message);
 
@@ -244,7 +245,7 @@ export class Container {
 
             this.shuttingDown = true;
 
-            const logger = this.resolvePlugin("logger");
+            const logger = this.resolvePlugin<AbstractLogger>("logger");
             logger.suppressConsoleOutput(this.silentShutdown);
             logger.info("Ark Core is trying to gracefully shut down to avoid data corruption :pizza:");
 

@@ -1,5 +1,4 @@
 import { Container } from "./container";
 
 const app = new Container();
-
-export { app };
+export { app, Container };
