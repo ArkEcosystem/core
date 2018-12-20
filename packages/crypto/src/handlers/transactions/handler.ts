@@ -1,5 +1,6 @@
 import assert from "assert";
 import { crypto } from "../../crypto";
+import { configManager } from "../../managers";
 import { transactionValidator } from "../../validation";
 
 export abstract class Handler {
@@ -41,6 +42,11 @@ export abstract class Handler {
         }
 
         if (!wallet.secondPublicKey && (transaction.secondSignature || transaction.signSignature)) {
+            // Accept invalid second signature fields prior the applied patch.
+            if (configManager.getMilestone().ignoreInvalidSecondSignatureField) {
+                return true;
+            }
+
             errors.push("Invalid second-signature field");
             return false;
         }
