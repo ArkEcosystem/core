@@ -33,39 +33,59 @@ const search = async request => {
 };
 
 export function registerMethods(server) {
-    server.method("v2.transactions.index", index, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.query,
-                ...paginate(request),
-            }),
-    });
+    const cacheDisabled = !server.app.config.cache.enabled;
 
-    server.method("v2.transactions.show", show, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ id: request.params.id }),
-    });
+    server.method(
+        "v2.transactions.index",
+        index,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.query,
+                          ...paginate(request),
+                      }),
+              },
+    );
 
-    server.method("v2.transactions.search", search, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.payload,
-                ...request.query,
-                ...paginate(request),
-            }),
-    });
+    server.method(
+        "v2.transactions.show",
+        show,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ id: request.params.id }),
+              },
+    );
+
+    server.method(
+        "v2.transactions.search",
+        search,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.payload,
+                          ...request.query,
+                          ...paginate(request),
+                      }),
+              },
+    );
 }

@@ -114,108 +114,158 @@ const search = async request => {
 };
 
 export function registerMethods(server) {
-    server.method("v2.wallets.index", index, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.payload,
-                ...request.query,
-                ...paginate(request),
-            }),
-    });
+    const cacheDisabled = !server.app.config.cache.enabled;
 
-    server.method("v2.wallets.top", top, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey(paginate(request)),
-    });
+    server.method(
+        "v2.wallets.index",
+        index,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.payload,
+                          ...request.query,
+                          ...paginate(request),
+                      }),
+              },
+    );
 
-    server.method("v2.wallets.show", show, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ id: request.params.id }),
-    });
+    server.method(
+        "v2.wallets.top",
+        top,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey(paginate(request)),
+              },
+    );
 
-    server.method("v2.wallets.transactions", transactions, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...{ id: request.params.id },
-                ...request.query,
-                ...request.params,
-                ...paginate(request),
-            }),
-    });
+    server.method(
+        "v2.wallets.show",
+        show,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ id: request.params.id }),
+              },
+    );
 
-    server.method("v2.wallets.transactionsSent", transactionsSent, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...{ id: request.params.id },
-                ...request.query,
-                ...request.params,
-                ...paginate(request),
-            }),
-    });
+    server.method(
+        "v2.wallets.transactions",
+        transactions,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...{ id: request.params.id },
+                          ...request.query,
+                          ...request.params,
+                          ...paginate(request),
+                      }),
+              },
+    );
 
-    server.method("v2.wallets.transactionsReceived", transactionsReceived, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...{ id: request.params.id },
-                ...request.query,
-                ...request.params,
-                ...paginate(request),
-            }),
-    });
+    server.method(
+        "v2.wallets.transactionsSent",
+        transactionsSent,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...{ id: request.params.id },
+                          ...request.query,
+                          ...request.params,
+                          ...paginate(request),
+                      }),
+              },
+    );
 
-    server.method("v2.wallets.votes", votes, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...{ id: request.params.id },
-                ...request.params,
-                ...paginate(request),
-            }),
-    });
+    server.method(
+        "v2.wallets.transactionsReceived",
+        transactionsReceived,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...{ id: request.params.id },
+                          ...request.query,
+                          ...request.params,
+                          ...paginate(request),
+                      }),
+              },
+    );
 
-    server.method("v2.wallets.search", search, {
-        cache: {
-            expiresIn: 30 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.payload,
-                ...request.query,
-                ...paginate(request),
-            }),
-    });
+    server.method(
+        "v2.wallets.votes",
+        votes,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...{ id: request.params.id },
+                          ...request.params,
+                          ...paginate(request),
+                      }),
+              },
+    );
+
+    server.method(
+        "v2.wallets.search",
+        search,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 30 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.payload,
+                          ...request.query,
+                          ...paginate(request),
+                      }),
+              },
+    );
 }
