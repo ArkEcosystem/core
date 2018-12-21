@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import first from "lodash/first";
 import last from "lodash/last";
 import { client } from "../services/client";
@@ -6,7 +7,7 @@ import { storage } from "../services/storage";
 import { Index } from "./index";
 
 const emitter = app.resolvePlugin("event-emitter");
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 const database = app.resolvePlugin("database");
 
 class BlockIndex extends Index {

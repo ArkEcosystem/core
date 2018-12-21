@@ -43,13 +43,43 @@ describe("API 2.0 - Delegates", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
             (header, request) => {
-                it("should GET all the delegates ordered by 'rank:desc'", async () => {
+                it("should GET all the delegates ordered by descending rank", async () => {
                     const response = await utils[request]("GET", "delegates", { orderBy: "rank:desc" });
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
 
                     response.data.data.forEach(utils.expectDelegate);
                     expect(response.data.data.sort((a, b) => a.rank > b.rank)).toEqual(response.data.data);
+                });
+            },
+        );
+
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET all the delegates ordered by descending productivity", async () => {
+                    const response = await utils[request]("GET", "delegates", { orderBy: "productivity:desc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    response.data.data.forEach(utils.expectDelegate);
+                    expect(response.data.data.sort((a, b) =>
+                        a.production.productivity > b.production.productivity)).toEqual(response.data.data);
+                });
+            },
+        );
+
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET all the delegates ordered by descending approval", async () => {
+                    const response = await utils[request]("GET", "delegates", { orderBy: "approval:desc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    response.data.data.forEach(utils.expectDelegate);
+                    expect(response.data.data.sort((a, b) =>
+                        a.production.approval > b.production.approval)).toEqual(response.data.data);
                 });
             },
         );

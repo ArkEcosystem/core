@@ -31,25 +31,39 @@ const show = async request => {
 };
 
 export function registerMethods(server) {
-    server.method("v1.transactions.index", index, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.query,
-                ...paginate(request),
-            }),
-    });
+    const cacheDisabled = !server.app.config.cache.enabled;
 
-    server.method("v1.transactions.show", show, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ id: request.query.id }),
-    });
+    server.method(
+        "v1.transactions.index",
+        index,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.query,
+                          ...paginate(request),
+                      }),
+              },
+    );
+
+    server.method(
+        "v1.transactions.show",
+        show,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ id: request.query.id }),
+              },
+    );
 }

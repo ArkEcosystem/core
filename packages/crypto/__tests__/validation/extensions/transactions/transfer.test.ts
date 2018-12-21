@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { constants, transactionBuilder } from "../../../../src";
+import { configManager, constants, transactionBuilder } from "../../../../src";
 import { extensions } from "../../../../src/validation/extensions";
 
 const validator = Joi.extend(extensions);
@@ -107,7 +107,7 @@ describe("Transfer Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .recipientId(address)
-            .amount(0)
+            .amount(1)
             .fee(0)
             .sign("passphrase");
         expect(validator.validate(transaction.getStruct(), validator.arkTransfer()).error).not.toBeNull();
@@ -117,5 +117,65 @@ describe("Transfer Transaction", () => {
         transaction = transactionBuilder.delegateRegistration();
         transaction.usernameAsset("delegate_name").sign("passphrase");
         expect(validator.validate(transaction.getStruct(), validator.arkTransfer()).error).not.toBeNull();
+    });
+
+    it("should be valid due to missing network byte", () => {
+        transaction
+            .recipientId(address)
+            .amount(1)
+            .fee(1)
+            .sign("passphrase");
+
+        expect(validator.validate(transaction.getStruct(), validator.arkTransfer()).error).toBeNull();
+    });
+
+    it("should be valid due to correct network byte", () => {
+        transaction
+            .recipientId(address)
+            .amount(1)
+            .fee(1)
+            .network(configManager.get("pubKeyHash"))
+            .sign("passphrase");
+
+        expect(validator.validate(transaction.getStruct(), validator.arkTransfer()).error).toBeNull();
+    });
+
+    it("should be invalid due to wrong network byte", () => {
+        transaction
+            .recipientId(address)
+            .amount(1)
+            .fee(1)
+            .network(1)
+            .sign("passphrase");
+
+        expect(validator.validate(transaction.getStruct(), validator.arkTransfer()).error).not.toBeNull();
+    });
+
+    it("should be valid after a network change", () => {
+        configManager.setFromPreset("devnet");
+
+        let transfer = transaction
+            .recipientId(address)
+            .amount(1)
+            .fee(1)
+            .network(configManager.get("pubKeyHash"))
+            .sign("passphrase")
+            .build();
+
+        expect(transfer.data.network).toBe(30);
+        expect(validator.validate(transfer.data, validator.arkTransfer()).error).toBeNull();
+
+        configManager.setFromPreset("mainnet");
+
+        transfer = transaction
+            .recipientId(address)
+            .amount(1)
+            .fee(1)
+            .network(configManager.get("pubKeyHash"))
+            .sign("passphrase")
+            .build();
+
+        expect(transfer.data.network).toBe(23);
+        expect(validator.validate(transfer.data, validator.arkTransfer()).error).toBeNull();
     });
 });

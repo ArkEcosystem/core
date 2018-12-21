@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import dns from "dns";
 import shuffle from "lodash/shuffle";
 import util from "util";
 
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 export = async hosts => {
     hosts = shuffle(hosts);

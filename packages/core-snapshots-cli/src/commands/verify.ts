@@ -1,8 +1,9 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import fs from "fs-extra";
 
 export async function verifySnapshot(options) {
-    const logger = app.resolvePlugin("logger");
+    const logger = app.resolvePlugin<AbstractLogger>("logger");
     const snapshotManager = app.resolvePlugin("snapshots");
 
     if (

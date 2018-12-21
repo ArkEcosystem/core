@@ -16,7 +16,6 @@ export abstract class TransactionBuilder {
             id: null,
             timestamp: slots.getTime(),
             version: 0x01,
-            network: configManager.get("pubKeyHash"),
         };
     }
 
@@ -131,7 +130,7 @@ export abstract class TransactionBuilder {
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network ? this.data.network.pubKeyHash : null;
+            const pubKeyHash = this.data.network || configManager.get("pubKeyHash");
             this.data.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey, pubKeyHash);
         }
 
@@ -153,7 +152,7 @@ export abstract class TransactionBuilder {
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network ? this.data.network.pubKeyHash : null;
+            const pubKeyHash = this.data.network || configManager.get("pubKeyHash");
 
             this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash);
         }
@@ -230,6 +229,7 @@ export abstract class TransactionBuilder {
             type: this.data.type,
             fee: this.data.fee,
             senderPublicKey: this.data.senderPublicKey,
+            network: this.data.network,
         };
 
         if (Array.isArray(this.data.signatures)) {
@@ -244,7 +244,7 @@ export abstract class TransactionBuilder {
      * @return {Object}
      */
     public __getSigningObject() {
-        const { data } = this;
+        const data = Object.assign({}, this.data);
 
         Object.keys(data).forEach(key => {
             if (["model", "network", "id"].includes(key)) {

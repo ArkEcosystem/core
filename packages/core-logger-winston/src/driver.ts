@@ -73,7 +73,7 @@ export class Logger extends AbstractLogger {
      * @param  {Number} figures
      * @return {void}
      */
-    public printTracker(title: string, current: number, max: number, postTitle: string, figures?: number): void {
+    public printTracker(title: string, current: number, max: number, postTitle?: string, figures?: number): void {
         const progress = (100 * current) / max;
 
         let line = "\u{1b}[0G  ";

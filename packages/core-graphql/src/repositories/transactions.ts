@@ -265,6 +265,7 @@ class TransactionsRepository extends Repository {
             )
             .from(this.query)
             .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day"))))
+            .and(this.query.fee.gte(this.transactionPool.options.dynamicFees.minFeeBroadcast))
             .group(this.query.type)
             .order('"timestamp" DESC');
 

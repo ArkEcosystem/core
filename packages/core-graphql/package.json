@@ -28,6 +28,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-logger": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "apollo-server-hapi": "^2.3.1",

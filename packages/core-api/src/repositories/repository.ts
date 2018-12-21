@@ -4,6 +4,7 @@ import snakeCase from "lodash/snakeCase";
 export class Repository {
     public database: any;
     public cache: any;
+    public transactionPool: any;
     public model: any;
     public query: any;
     public columns: string[] = [];
@@ -11,6 +12,7 @@ export class Repository {
     public constructor() {
         this.database = app.resolvePlugin("database");
         this.cache = this.database.getCache();
+        this.transactionPool = app.resolvePlugin("transactionPool");
         // @ts-ignore
         this.model = this.getModel();
         this.query = this.model.query();

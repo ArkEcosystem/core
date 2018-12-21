@@ -21,7 +21,6 @@ export const transactionBuilder = () => {
             expect(builder).toHaveProperty("data.id", null);
             expect(builder).toHaveProperty("data.timestamp");
             expect(builder).toHaveProperty("data.version", 0x01);
-            expect(builder).toHaveProperty("data.network", configManager.get("pubKeyHash"));
 
             expect(builder).toHaveProperty("data.type");
             expect(builder).toHaveProperty("data.fee");
@@ -119,12 +118,11 @@ export const transactionBuilder = () => {
             };
             crypto.getKeys = jest.fn(() => keys);
             crypto.sign = jest.fn();
-            const signingObject = builder.__getSigningObject();
 
             builder.sign("dummy pass");
 
             expect(crypto.getKeys).toHaveBeenCalledWith("dummy pass");
-            expect(crypto.sign).toHaveBeenCalledWith(signingObject, keys);
+            expect(crypto.sign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
         });
 
         it("establishes the public key of the sender", () => {
@@ -145,14 +143,13 @@ export const transactionBuilder = () => {
             };
             crypto.getKeysFromWIF = jest.fn(() => keys);
             crypto.sign = jest.fn();
-            const signingObject = builder.__getSigningObject();
 
             builder.network(23).signWithWif("dummy pass");
 
             expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("dummy pass", {
                 wif: 170,
             });
-            expect(crypto.sign).toHaveBeenCalledWith(signingObject, keys);
+            expect(crypto.sign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
         });
 
         it("establishes the public key of the sender", () => {
@@ -174,12 +171,11 @@ export const transactionBuilder = () => {
                 return keys;
             });
             crypto.secondSign = jest.fn();
-            const signingObject = builder.__getSigningObject();
 
             builder.secondSign("my very real second pass");
 
             expect(crypto.getKeys).toHaveBeenCalledWith("my very real second pass");
-            expect(crypto.secondSign).toHaveBeenCalledWith(signingObject, keys);
+            expect(crypto.secondSign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
         });
     });
 
@@ -191,12 +187,11 @@ export const transactionBuilder = () => {
                 return keys;
             });
             crypto.secondSign = jest.fn();
-            const signingObject = builder.__getSigningObject();
 
             builder.network(23).secondSignWithWif("my very real second pass");
 
             expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("my very real second pass", { wif: 170 });
-            expect(crypto.secondSign).toHaveBeenCalledWith(signingObject, keys);
+            expect(crypto.secondSign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
         });
     });
 };

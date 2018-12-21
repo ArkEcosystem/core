@@ -1,3 +1,5 @@
+import { Container } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { PostgresConnection } from "./connection";
 import { defaults } from "./defaults";
 import { migrations } from "./migrations";
@@ -11,8 +13,8 @@ export const plugin = {
     defaults,
     alias: "database",
     extends: "@arkecosystem/core-database",
-    async register(container, options) {
-        container.resolvePlugin("logger").info("Establishing Database Connection");
+    async register(container: Container, options) {
+        container.resolvePlugin<AbstractLogger>("logger").info("Establishing Database Connection");
 
         const postgres = new PostgresConnection(options);
 
@@ -21,8 +23,8 @@ export const plugin = {
 
         return databaseManager.connection();
     },
-    async deregister(container, options) {
-        container.resolvePlugin("logger").info("Closing Database Connection");
+    async deregister(container: Container, options) {
+        container.resolvePlugin<AbstractLogger>("logger").info("Closing Database Connection");
 
         return container.resolvePlugin("database").disconnect();
     },
