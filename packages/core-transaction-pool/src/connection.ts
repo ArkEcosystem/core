@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 
 import assert from "assert";
 import dayjs from "dayjs-ext";
@@ -10,7 +11,7 @@ import { Storage } from "./storage";
 
 const database = app.resolvePlugin("database");
 const emitter = app.resolvePlugin("event-emitter");
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 /**
  * Transaction pool. It uses a hybrid storage - caching the data
@@ -452,7 +453,7 @@ export class TransactionPool {
             if (senderWallet && senderWallet.canApply(transaction, errors)) {
                 senderWallet.applyTransactionToSender(transaction);
             } else {
-                logger.error("BuildWallets from pool:", errors);
+                logger.error(`BuildWallets from pool: ${JSON.stringify(errors)}`);
                 this.purgeByPublicKey(transaction.senderPublicKey);
             }
         });

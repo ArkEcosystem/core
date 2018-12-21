@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
@@ -306,7 +307,7 @@ export class TransactionGuard {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin("logger").info(
+        app.resolvePlugin<AbstractLogger>("logger").info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
         );
     }

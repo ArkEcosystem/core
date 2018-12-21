@@ -29,6 +29,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-logger": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@keyv/sqlite": "^2.0.0",

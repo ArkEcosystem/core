@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-logger": "^2.1.0",
         "@arkecosystem/core-database": "^2.1.0",
         "@arkecosystem/core-utils": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",

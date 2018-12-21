@@ -1,5 +1,6 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { models, slots } from "@arkecosystem/crypto";
 
 import delay from "delay";
@@ -7,7 +8,7 @@ import pluralize from "pluralize";
 import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
 
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 const config = app.getConfig();
 const emitter = app.resolvePlugin("event-emitter");
 const { Block } = models;

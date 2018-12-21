@@ -64,7 +64,7 @@ export abstract class AbstractLogger {
         title: string,
         current: number,
         max: number,
-        postTitle: string,
+        postTitle?: string,
         figures?: number,
     ): void;
 

@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 
 export async function rollbackSnapshot(options) {
-    const logger = app.resolvePlugin("logger");
+    const logger = app.resolvePlugin<AbstractLogger>("logger");
     const snapshotManager = app.resolvePlugin("snapshots");
 
     if (options.blockHeight === -1) {

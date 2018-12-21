@@ -1,10 +1,11 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { crypto, models } from "@arkecosystem/crypto";
 import createHash from "create-hash";
 import { camelizeKeys } from "xcase";
 
 const { Block, Transaction } = models;
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 export const verifyData = (context, data, prevData, signatureVerification) => {
     const verifyTransaction = () => {

@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { crypto, Joi, models, slots } from "@arkecosystem/crypto";
 
@@ -9,7 +10,7 @@ const { Block, Transaction } = models;
 
 const transactionPool = app.resolvePlugin("transactionPool");
 const config = app.getConfig();
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 /**
  * @type {Object}

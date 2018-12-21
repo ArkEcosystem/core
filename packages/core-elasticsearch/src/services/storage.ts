@@ -54,7 +54,6 @@ class Storage {
     /**
      * Update the specified data in the specified file.
      * @param  {String} file
-     * @param  {Object} data
      * @return {void}
      */
     public ensure(file) {
@@ -89,6 +88,7 @@ class Storage {
      * Get a value from the specified file for the specified key.
      * @param  {String} file
      * @param  {String} key
+     * @param defaultValue
      * @param  {*} key
      * @return {*}
      */

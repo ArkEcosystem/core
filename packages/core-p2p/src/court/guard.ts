@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import dayjs from "dayjs-ext";
 import head from "lodash/head";
 import sumBy from "lodash/sumBy";
@@ -10,7 +11,7 @@ import * as utils from "../utils";
 import { offences } from "./offences";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 export interface ISuspension {
     peer: any;

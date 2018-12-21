@@ -2,9 +2,10 @@ import { Bignum, models } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { queries } from "./queries";
 
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 const config = app.getConfig();
 
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
