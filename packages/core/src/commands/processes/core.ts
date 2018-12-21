@@ -35,7 +35,9 @@ export class CoreProcess extends AbstractCommand {
         pm2.start({
             name: "ark-core",
             script: "./dist/index.js",
-            args: `start --data ${this.options.data} --config ${this.options.config}`,
+            args: `start --data ${this.options.data}
+                         --config ${this.options.config}
+                         --network ${this.options.network}`,
             env: {
                 ARK_FORGER_BIP38: this.options.bip38,
                 ARK_FORGER_PASSWORD: this.options.password,

@@ -33,7 +33,9 @@ export class RelayProcess extends AbstractCommand {
         pm2.start({
             name: "ark-core-relay",
             script: "./dist/index.js",
-            args: `relay:start --data ${this.options.data} --config ${this.options.config}`,
+            args: `relay:start --data ${this.options.data}
+                               --config ${this.options.config}
+                               --network ${this.options.network}`,
         });
     }
 }

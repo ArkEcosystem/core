@@ -37,7 +37,9 @@ export class ForgerProcess extends AbstractCommand {
         pm2.start({
             name: "ark-core-forger",
             script: "./dist/index.js",
-            args: `forger --data ${this.options.data} --config ${this.options.config}`,
+            args: `forger --data ${this.options.data}
+                          --config ${this.options.config}
+                          --network ${this.options.network}`,
             env: {
                 ARK_FORGER_BIP38: this.options.forgerBip38,
                 ARK_FORGER_PASSWORD: this.options.forgerBip39,
