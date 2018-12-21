@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 -   Implement milestone hashes as peer info ([367442318d182ac23ad61e765e14f5d438ab472d])
+-   Added a `milestoneHash` identifier to use for peer banning ([367442318d182ac23ad61e765e14f5d438ab472d])
+-   Added TypeScript declarations for `core-logger` ([ef2d32182fafcec9842fddd8f1b54553ffdb27ba])
+-   Added TypeScript declarations for `core-logger-winston` ([8dffbb7eef4001cc8315199799238dd081c4db59])
+-   Added TypeScript declarations for `core-container` ([26374dfbd3deef21e53bcefdcb26f95d4eeb1739])
 
 ### Changed
 
@@ -21,6 +25,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Moved the dynamic fees configuration into `core-transaction-pool` ([9a76d4c309054d33ece288303e3ac0635f8cfd34])
 -   Periodically check for new peers instead of retrying until finding some ([e42f4c7894b7ce94c2915d844185b09bed27c171])
 -   Adjusted some banning times for peers to make network recovery smoother ([08558a3b73afe441b8c62c73d1061bc10ca21a5e])
+-   Simplified configuration by further separating network and core ([9a76d4c309054d33ece288303e3ac0635f8cfd34])
+-   Take the `minFeeBroadcast` value into account for fee statistics ([7df0e8cc051e91cd5e0622e7a8781b24b07a84bd])
 
 ### Fixed
 
@@ -30,6 +36,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Ensure that delegate searches can handle undefined values ([8c9b32353552d1c81fce2ddb45f42e12b23cb905])
 -   Mark semantically invalid versions as invalid overall ([aff9c159acdef85fa744f65abf83c1b6121fc815])
 -   Ordering of delegates via public API ([2bb00da852f790441b5597e19706ef0f4e8161bd])
+-   Handle webhooks that have no conditions ([9d06e550261fbac7babd15729bf5ef79a3a823a7])
+-   Validate the network byte on transactions ([22e04afa92f0ef80d90b676e5b49ff8974205be3])
 
 ## [2.0.15] - 2018-12-11
 
@@ -98,20 +106,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [2.0.0]: https://github.com/ArkEcosystem/core/compare/0.1.1...2.0.0
 [08558a3b73afe441b8c62c73d1061bc10ca21a5e]: https://github.com/ArkEcosystem/core/commit/08558a3b73afe441b8c62c73d1061bc10ca21a5e
 [0c2319649f9304465bfc60140c77e45fa225e77a]: https://github.com/ArkEcosystem/core/commit/0c2319649f9304465bfc60140c77e45fa225e77a
+[22e04afa92f0ef80d90b676e5b49ff8974205be3]: https://github.com/ArkEcosystem/core/commit/22e04afa92f0ef80d90b676e5b49ff8974205be3
+[26374dfbd3deef21e53bcefdcb26f95d4eeb1739]: https://github.com/ArkEcosystem/core/commit/26374dfbd3deef21e53bcefdcb26f95d4eeb1739
 [2bb00da852f790441b5597e19706ef0f4e8161bd]: https://github.com/ArkEcosystem/core/commit/2bb00da852f790441b5597e19706ef0f4e8161bd
 [35dbb99b62b5a11bb4a21ec456b9093f15ad9522]: https://github.com/ArkEcosystem/core/commit/35dbb99b62b5a11bb4a21ec456b9093f15ad9522
 [367442318d182ac23ad61e765e14f5d438ab472d]: https://github.com/ArkEcosystem/core/commit/367442318d182ac23ad61e765e14f5d438ab472d
 [3a0b19bfdd93fc4634a0f1faa922756ea715dbbf]: https://github.com/ArkEcosystem/core/commit/3a0b19bfdd93fc4634a0f1faa922756ea715dbbf
 [3d7baf961b23d5ba8757375096d15a2ea90367af]: https://github.com/ArkEcosystem/core/commit/3d7baf961b23d5ba8757375096d15a2ea90367af
 [75328312cfcb3047a3908122a82795634f0fcc79]: https://github.com/ArkEcosystem/core/commit/75328312cfcb3047a3908122a82795634f0fcc79
+[7df0e8cc051e91cd5e0622e7a8781b24b07a84bd]: https://github.com/ArkEcosystem/core/commit/7df0e8cc051e91cd5e0622e7a8781b24b07a84bd
 [81f414ae65b6cdab290cae085babba9b4366a7f9]: https://github.com/ArkEcosystem/core/commit/81f414ae65b6cdab290cae085babba9b4366a7f9
 [83a9641f2ec72b8d68c59c95c36fe8513a12e4ed]: https://github.com/ArkEcosystem/core/commit/83a9641f2ec72b8d68c59c95c36fe8513a12e4ed
 [867d9eab567d3945285f0af0392fba070bac12d5]: https://github.com/ArkEcosystem/core/commit/867d9eab567d3945285f0af0392fba070bac12d5
 [8c9b32353552d1c81fce2ddb45f42e12b23cb905]: https://github.com/ArkEcosystem/core/commit/8c9b32353552d1c81fce2ddb45f42e12b23cb905
+[8dffbb7eef4001cc8315199799238dd081c4db59]: https://github.com/ArkEcosystem/core/commit/8dffbb7eef4001cc8315199799238dd081c4db59
 [8fc955ae395e4256803d9b4081d4954ddc230987]: https://github.com/ArkEcosystem/core/commit/8fc955ae395e4256803d9b4081d4954ddc230987
 [97c25727f7a012f6db803e7191c1901098d628de]: https://github.com/ArkEcosystem/core/commit/97c25727f7a012f6db803e7191c1901098d628de
 [97c387661ae2718f986ddd06b072fc6cbcdb50f1]: https://github.com/ArkEcosystem/core/commit/97c387661ae2718f986ddd06b072fc6cbcdb50f1
 [9a76d4c309054d33ece288303e3ac0635f8cfd34]: https://github.com/ArkEcosystem/core/commit/9a76d4c309054d33ece288303e3ac0635f8cfd34
+[9d06e550261fbac7babd15729bf5ef79a3a823a7]: https://github.com/ArkEcosystem/core/commit/9d06e550261fbac7babd15729bf5ef79a3a823a7
 [9f320c4f9aa19960ba19b75a19882dfe8d56f238]: https://github.com/ArkEcosystem/core/commit/9f320c4f9aa19960ba19b75a19882dfe8d56f238
 [a3c70fb5f575c95e9c9666c581b76b992683df17]: https://github.com/ArkEcosystem/core/commit/a3c70fb5f575c95e9c9666c581b76b992683df17
 [a6a6802bfbbde6bf203c372a3a094a83b19e8693]: https://github.com/ArkEcosystem/core/commit/a6a6802bfbbde6bf203c372a3a094a83b19e8693
@@ -121,5 +134,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [c91254666922213f8a9608447ecd6b6e2ca692cb]: https://github.com/ArkEcosystem/core/commit/c91254666922213f8a9608447ecd6b6e2ca692cb
 [d0ba6564de8098dabb3839217c87db7682dadef1]: https://github.com/ArkEcosystem/core/commit/d0ba6564de8098dabb3839217c87db7682dadef1
 [e42f4c7894b7ce94c2915d844185b09bed27c171]: https://github.com/ArkEcosystem/core/commit/e42f4c7894b7ce94c2915d844185b09bed27c171
+[ef2d32182fafcec9842fddd8f1b54553ffdb27ba]: https://github.com/ArkEcosystem/core/commit/ef2d32182fafcec9842fddd8f1b54553ffdb27ba
 [f2b8ba5f36a6872ace2e2f7ea75b6fbdeb0e47fb]: https://github.com/ArkEcosystem/core/commit/f2b8ba5f36a6872ace2e2f7ea75b6fbdeb0e47fb
 [fad5a259b1b1c074e7cf35d8279371ac78a47062]: https://github.com/ArkEcosystem/core/commit/fad5a259b1b1c074e7cf35d8279371ac78a47062
