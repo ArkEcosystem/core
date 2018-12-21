@@ -3,19 +3,16 @@ import { existsSync } from "fs-extra";
 import { resolve } from "path";
 
 export class Preset {
-    private directory: string;
     private environment: object;
     private plugins: object;
 
     constructor(preset: string) {
-        this.directory = resolve(`./src/presets/${preset}`);
-
-        if (!existsSync(this.directory)) {
-            throw new Error();
+        if (!existsSync(preset)) {
+            throw new Error(`No preset found at ${preset}`);
         }
 
-        this.environment = envfile.parseFileSync(`${this.directory}/.env`);
-        this.plugins = require(`${this.directory}/plugins.js`);
+        this.environment = envfile.parseFileSync(`${preset}/env`);
+        this.plugins = require(`${preset}/plugins.js`);
     }
 
     public getEnvironment(): object {

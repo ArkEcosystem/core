@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { resolve } from "path";
 import * as pm2 from "../../pm2";
 import { buildPeerOptions } from "../../utils";
 
@@ -15,7 +16,7 @@ export class RelayProcess extends AbstractCommand {
                 },
             },
             skipPlugins: this.options.skipPlugins,
-            preset: this.options.preset,
+            preset: resolve(__dirname, `../../presets/${this.options.preset}`),
         });
 
         return app;
