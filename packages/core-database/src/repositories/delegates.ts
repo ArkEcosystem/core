@@ -25,7 +25,7 @@ export class DelegatesRepository {
     public findAll(params: { orderBy?: string } = {}) {
         const delegates = this.getLocalDelegates();
 
-        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
+        const [iteratee, order] = this.__orderBy(params);
 
         return {
             rows: limitRows(orderBy(delegates, iteratee, order as "desc" | "asc"), params),
@@ -104,5 +104,31 @@ export class DelegatesRepository {
                 productivity: delegateCalculator.calculateProductivity(wallet),
             };
         });
+    }
+
+    public __orderBy(params): string[] {
+        if (!params.orderBy) {
+            return ["rate", "asc"];
+        }
+
+        const orderBy = params.orderBy.split(":").map(p => p.toLowerCase());
+        if (orderBy.length !== 2 || ["desc", "asc"].includes(orderBy[1]) !== true) {
+            return ["rate", "asc"];
+        }
+
+        return [this.__manipulateIteratee(orderBy[0]), orderBy[1]];
+    }
+
+    public __manipulateIteratee(iteratee): any {
+        switch (iteratee) {
+            case "rank":
+                return "rate";
+            case "productivity":
+                return delegateCalculator.calculateProductivity;
+            case "approval":
+                return delegateCalculator.calculateApproval;
+            default:
+                return iteratee;
+        }
     }
 }

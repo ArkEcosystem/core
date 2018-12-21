@@ -49,6 +49,18 @@ export function buildFilterQuery(parameters, filters) {
         }
     }
 
+    if (filters.hasOwnProperty("in")) {
+        for (const elem of filters.in) {
+            if (parameters[elem]) {
+                where.push({
+                    column: elem,
+                    method: "in",
+                    value: parameters[elem],
+                });
+            }
+        }
+    }
+
     if (filters.hasOwnProperty("wildcard")) {
         for (const elem of filters.wildcard) {
             if (parameters[elem]) {

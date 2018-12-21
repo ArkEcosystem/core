@@ -1,12 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { migrations, plugin } from "@arkecosystem/core-database-postgres";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import promise from "bluebird";
 
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 import { columns } from "./utils/column-set";
 
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 
 class Database {
     public db: any;

@@ -2,8 +2,10 @@ import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import set from "lodash/set";
+import { Engine } from "../validation/engine";
 import { feeManager } from "./fee";
 
+import { EventEmitter } from "events";
 import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
 

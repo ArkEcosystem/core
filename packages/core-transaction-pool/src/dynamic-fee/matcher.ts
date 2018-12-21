@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { constants, feeManager, formatArktoshi } from "@arkecosystem/crypto";
 import camelCase from "lodash/camelCase";
 import { config as localConfig } from "../config";
@@ -31,7 +32,7 @@ export function calculateFee(arktoshiPerByte, transaction) {
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
 export function dynamicFeeMatcher(transaction) {
-    const logger = app.resolvePlugin("logger");
+    const logger = app.resolvePlugin<AbstractLogger>("logger");
 
     const fee = +transaction.fee.toFixed();
     const id = transaction.id;

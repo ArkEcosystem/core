@@ -1,3 +1,4 @@
+import { Container }  from "@arkecosystem/core-container";
 import { asValue } from "awilix";
 import { Blockchain } from "./blockchain";
 import { config } from "./config";
@@ -12,7 +13,7 @@ export const plugin = {
     pkg: require("../package.json"),
     defaults,
     alias: "blockchain",
-    async register(container, options) {
+    async register(container: Container, options) {
         const blockchain = new Blockchain(options);
 
         config.init(options);
@@ -25,7 +26,7 @@ export const plugin = {
 
         return blockchain;
     },
-    async deregister(container, options) {
+    async deregister(container: Container, options) {
         await container.resolvePlugin("blockchain").stop();
     },
 };

@@ -1,14 +1,15 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import axios from "axios";
 import * as conditions from "./conditions";
 import { database } from "./database";
 
 class WebhookManager {
     public config: any;
-    public logger: any;
+    public logger: AbstractLogger;
 
     public constructor() {
-        this.logger = app.resolvePlugin("logger");
+        this.logger = app.resolvePlugin<AbstractLogger>("logger");
     }
 
     /**

@@ -22,7 +22,8 @@
                 "multiPayment": 0,
                 "delegateResignation": 0
             }
-        }
+        },
+        "ignoreInvalidSecondSignatureField": true
     },
     {
         "height": 10800,
@@ -41,5 +42,9 @@
             "maxTransactions": 500,
             "maxPayload": 21000000
         }
+    },
+    {
+        "height": 950000,
+        "ignoreInvalidSecondSignatureField": false
     }
 ]

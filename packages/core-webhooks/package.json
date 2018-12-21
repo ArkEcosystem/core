@@ -28,6 +28,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-logger": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@types/fs-extra": "^5.0.4",
         "@types/joi": "^14.0.1",

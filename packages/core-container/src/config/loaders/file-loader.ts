@@ -2,8 +2,6 @@ import { configManager } from "@arkecosystem/crypto";
 import axios from "axios";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
 import Joi from "joi";
-import get from "lodash/get";
-import set from "lodash/set";
 import { basename, extname, resolve } from "path";
 import { schemaConfig } from "../schema";
 

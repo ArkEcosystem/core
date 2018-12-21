@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
@@ -10,7 +11,7 @@ import { Client } from "./client";
 const { Delegate, Transaction } = models;
 
 export class ForgerManager {
-    private logger: any;
+    private logger: AbstractLogger;
     private config: any;
 
     private secrets: any;
@@ -25,7 +26,7 @@ export class ForgerManager {
      * @param  {Object} options
      */
     constructor(options) {
-        this.logger = app.resolvePlugin("logger");
+        this.logger = app.resolvePlugin<AbstractLogger>("logger");
         this.config = app.getConfig();
 
         this.secrets = this.config.get("delegates.secrets");

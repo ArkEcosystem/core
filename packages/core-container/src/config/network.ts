@@ -1,6 +1,5 @@
 import { NetworkManager } from "@arkecosystem/crypto";
 import expandHomeDir from "expand-home-dir";
-import { existsSync } from "fs";
 import Joi from "joi";
 import { resolve } from "path";
 import { schemaNetwork } from "./schema";

@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { AbstractLogger } from "@arkecosystem/core-logger";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -22,7 +23,7 @@ import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin("logger");
+const logger = app.resolvePlugin<AbstractLogger>("logger");
 const emitter = app.resolvePlugin("event-emitter");
 
 class Monitor {
