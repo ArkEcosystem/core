@@ -1,11 +1,10 @@
 import { app } from "@arkecosystem/core-container";
-import { resolve } from "path";
 import * as pm2 from "../../pm2";
 import { AbstractCommand } from "../command";
 
 export class ForgerProcess extends AbstractCommand {
     public async start() {
-        await app.setUp(this.options.parent._version, this.options, {
+        return this.buildApplication(app, {
             include: [
                 "@arkecosystem/core-event-emitter",
                 "@arkecosystem/core-config",
@@ -19,11 +18,7 @@ export class ForgerProcess extends AbstractCommand {
                     password: this.options.forgerBip39 || process.env.ARK_FORGER_BIP39,
                 },
             },
-            skipPlugins: this.options.skipPlugins,
-            preset: resolve(__dirname, `../../presets/${this.options.preset}`),
         });
-
-        return app;
     }
 
     public async stop() {
