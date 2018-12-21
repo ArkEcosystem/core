@@ -17,7 +17,7 @@ import prettyMs from "pretty-ms";
 import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
 import { Peer } from "./peer";
-import networkState from "./utils/network-state";
+import { NetworkState } from "./utils/network-state";
 
 import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
@@ -448,7 +448,7 @@ class Monitor {
             await this.cleanPeers(true, true);
         }
 
-        return networkState(this, app.resolvePlugin("blockchain").getLastBlock());
+        return NetworkState.analyze();
     }
 
     /**
