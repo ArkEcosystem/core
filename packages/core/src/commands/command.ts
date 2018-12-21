@@ -10,7 +10,9 @@ export abstract class AbstractCommand {
             modifiers.preset = resolve(__dirname, `../presets/${this.options.preset}`);
         }
 
-        return app.setUp(this.options.parent._version, this.options, { ...modifiers, ...options });
+        await app.setUp(this.options.parent._version, this.options, { ...modifiers, ...options });
+
+        return app;
     }
 
     protected buildPeerOptions(options) {
