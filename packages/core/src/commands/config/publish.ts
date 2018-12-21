@@ -29,7 +29,6 @@ export class ConfigPublish extends AbstractCommand {
                 name: "config",
                 message: "Where do you want the configuration to be located?",
                 initial: this.options.config,
-                validate: value => fs.existsSync(value),
             },
             {
                 type: "confirm",
@@ -50,7 +49,7 @@ export class ConfigPublish extends AbstractCommand {
         // create .env file
 
         const coreConfigDest = resolve(expandHomeDir(response.config));
-        const coreConfigSrc = resolve(__dirname, `../../../src/config/${response.network}`);
+        const coreConfigSrc = resolve(__dirname, `../../config/${response.network}`);
 
         if (!fs.existsSync(coreConfigSrc)) {
             return spinner.fail(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
