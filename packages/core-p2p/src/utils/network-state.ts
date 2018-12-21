@@ -1,18 +1,30 @@
-/* tslint:disable:no-shadowed-variable member-ordering */
+/* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
 
 import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../config";
 import { monitor } from "../monitor";
 
+export class QuorumDetails {
+    public peersQuorum = 0;
+    public peersNoQuorum = 0;
+
+    public peersDifferentBlockId = 0;
+    public peersDifferentSlot = 0;
+    public peersForgingNotAllowed = 0;
+    public outsideMaxHeightElasticity = 0;
+}
+
 export class NetworkState {
     public nodeHeight: number;
     public lastBlockId: string;
+
     public quorum: number;
-    public peersQuorum: number;
-    public peersNoQuorum: number;
-    public overHeightQuorum: number;
-    public overHeightBlockHeaders: any[];
+    public quorumDetails: QuorumDetails;
+
+    public overHeightQuorum = 0;
+    public overHeightBlockHeader = null;
+
     public minimumNetworkReach: boolean;
     public coldStart: boolean;
 
@@ -21,10 +33,7 @@ export class NetworkState {
         this.lastBlockId = lastBlock.data.id;
 
         this.quorum = 0;
-        this.peersNoQuorum = 0;
-        this.peersQuorum = 0;
-        this.overHeightQuorum = 0;
-        this.overHeightBlockHeaders = [];
+        this.quorumDetails = new QuorumDetails();
         this.minimumNetworkReach = true;
         this.coldStart = false;
     }
@@ -46,7 +55,7 @@ export class NetworkState {
             return this.belowMinimumPeersNetwork(lastBlock);
         }
 
-        return this.fullyAnalyzedNetwork(lastBlock);
+        return this.analyzeNetwork(lastBlock);
     }
 
     private static coldStartNetwork(lastBlock): NetworkState {
@@ -70,38 +79,51 @@ export class NetworkState {
         return networkState;
     }
 
-    private static fullyAnalyzedNetwork(lastBlock): NetworkState {
+    private static analyzeNetwork(lastBlock): NetworkState {
         const networkState = new NetworkState(lastBlock);
 
         const peers = monitor.getPeers();
         const currentSlot = slots.getSlotNumber();
 
         for (const peer of peers) {
-            if (peer.state.height === lastBlock.data.height) {
-                if (
-                    peer.state.header.id === lastBlock.data.id &&
-                    peer.state.currentSlot === currentSlot &&
-                    peer.state.forgingAllowed
-                ) {
-                    networkState.peersQuorum += 1;
-                } else {
-                    networkState.peersNoQuorum += 1;
-                }
-            } else if (peer.state.height > lastBlock.data.height) {
-                networkState.peersNoQuorum += 1;
-                networkState.overHeightQuorum += 1;
-                networkState.overHeightBlockHeaders.push(peer.state.header);
-            } else if (lastBlock.data.height - peer.state.height < 3) {
-                // suppose the max network elasticity accross 3 blocks
-                networkState.peersNoQuorum += 1;
-            }
+            networkState.update(peer, currentSlot);
         }
 
         networkState.calculateQuorum();
         return networkState;
     }
 
+    private update(peer, currentSlot) {
+        if (peer.state.height === this.nodeHeight) {
+            let quorum = true;
+            if (peer.state.header.id !== this.lastBlockId) {
+                quorum = false;
+                this.quorumDetails.peersDifferentBlockId++;
+            }
+
+            if (peer.state.currentSlot !== currentSlot) {
+                quorum = false;
+                this.quorumDetails.peersDifferentSlot++;
+            }
+
+            if (!peer.state.forgingAllowed) {
+                quorum = false;
+                this.quorumDetails.peersForgingNotAllowed++;
+            }
+
+            quorum ? this.quorumDetails.peersQuorum++ : this.quorumDetails.peersNoQuorum++;
+        } else if (peer.state.height > this.nodeHeight) {
+            this.quorumDetails.peersNoQuorum++;
+            this.overHeightQuorum++;
+            this.overHeightBlockHeader = peer.state.header;
+        } else if (this.nodeHeight - peer.state.height < 3) {
+            // suppose the max network elasticity accross 3 blocks
+            this.quorumDetails.peersNoQuorum += 1;
+        }
+    }
+
     private calculateQuorum() {
-        this.quorum = this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
+        const { peersQuorum, peersNoQuorum } = this.quorumDetails;
+        this.quorum = peersQuorum / (peersQuorum + peersNoQuorum);
     }
 }
