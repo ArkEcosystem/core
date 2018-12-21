@@ -116,6 +116,19 @@ export class DelegatesRepository {
             return ["rate", "asc"];
         }
 
-        return orderBy[0] === "rank" ? ["rate", orderBy[1]] : orderBy;
+        return [this.__manipulateIteratee(orderBy[0]), orderBy[1]];
+    }
+
+    public __manipulateIteratee(iteratee): any {
+        switch (iteratee) {
+            case "rank":
+                return "rate";
+            case "productivity":
+                return delegateCalculator.calculateProductivity;
+            case "approval":
+                return delegateCalculator.calculateApproval;
+            default:
+                return iteratee;
+        }
     }
 }
