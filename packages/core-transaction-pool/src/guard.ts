@@ -162,6 +162,7 @@ export class TransactionGuard {
      * Determines valid transactions by checking rules, according to:
      * - transaction timestamp
      * - wallet balance
+     * - network if set
      * - transaction type specifics:
      *    - if recipient is on the same network
      *    - if sender already has another transaction of the same type, for types that
@@ -182,6 +183,15 @@ export class TransactionGuard {
         const errors = [];
         if (!this.pool.walletManager.canApply(transaction, errors)) {
             this.__pushError(transaction, "ERR_APPLY", JSON.stringify(errors));
+            return false;
+        }
+
+        if (transaction.network && transaction.network !== configManager.get("pubKeyHash")) {
+            this.__pushError(
+                transaction,
+                "ERR_WRONG_NETWORK",
+                `Transaction network '${transaction.network}' does not match '${configManager.get("pubKeyHash")}'`,
+            );
             return false;
         }
 

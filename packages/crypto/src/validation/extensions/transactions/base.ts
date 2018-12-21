@@ -1,4 +1,4 @@
-import { TransactionTypes } from "../../../constants";
+import { configManager } from "../../../managers";
 
 export const base = joi =>
     joi.object().keys({
@@ -11,6 +11,14 @@ export const base = joi =>
             joi.arkBlockId(),
             // @ts-ignore
             joi.number().unsafe(),
+        ),
+        network: joi.lazy(
+            () =>
+                joi
+                    .number()
+                    .only(configManager.get("pubKeyHash"))
+                    .optional(),
+            { once: false },
         ),
         version: joi
             .number()

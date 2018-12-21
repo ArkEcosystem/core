@@ -1,10 +1,11 @@
 import Joi from "joi";
+import { configManager } from "../managers";
 import { extensions } from "./extensions";
 
 export class Engine {
     public static joi: any;
 
-    public static init() {
+    public static init(): void {
         this.joi = Joi.extend(extensions);
     }
 
