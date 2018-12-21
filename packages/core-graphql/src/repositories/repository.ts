@@ -5,9 +5,11 @@ export abstract class Repository {
     public model: any;
     public query: any;
     public database: any;
-
+    public transactionPool: any;
+    
     constructor() {
         this.database = app.resolvePlugin("database");
+        this.transactionPool = app.resolvePlugin("transactionPool");
 
         this.cache = this.database.getCache();
         this.model = this.getModel();

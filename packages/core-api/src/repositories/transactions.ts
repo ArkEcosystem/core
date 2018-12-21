@@ -260,6 +260,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             .from(this.query)
             // @ts-ignore
             .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "days"))))
+            .and(this.query.fee.gte(this.transactionPool.options.dynamicFees.minFeeBroadcast))
             .group(this.query.type)
             .order('"timestamp" DESC');
 
