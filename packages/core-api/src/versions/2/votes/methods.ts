@@ -26,25 +26,39 @@ const show = async request => {
 };
 
 export function registerMethods(server) {
-    server.method("v2.votes.index", index, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.query,
-                ...paginate(request),
-            }),
-    });
+    const cacheDisabled = !server.app.config.cache.enabled;
 
-    server.method("v2.votes.show", show, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ id: request.params.id }),
-    });
+    server.method(
+        "v2.votes.index",
+        index,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.query,
+                          ...paginate(request),
+                      }),
+              },
+    );
+
+    server.method(
+        "v2.votes.show",
+        show,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ id: request.params.id }),
+              },
+    );
 }

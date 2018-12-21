@@ -69,62 +69,94 @@ const voters = async request => {
 };
 
 export function registerMethods(server) {
-    server.method("v1.delegates.index", index, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.query,
-                ...{
-                    offset: request.query.offset || 0,
-                    limit: request.query.limit || 51,
-                },
-            }),
-    });
+    const cacheDisabled = !server.app.config.cache.enabled;
 
-    server.method("v1.delegates.show", show, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                id: request.query.publicKey || request.query.username,
-            }),
-    });
+    server.method(
+        "v1.delegates.index",
+        index,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.query,
+                          ...{
+                              offset: request.query.offset || 0,
+                              limit: request.query.limit || 51,
+                          },
+                      }),
+              },
+    );
 
-    server.method("v1.delegates.count", countDelegates, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ time: +new Date() }),
-    });
+    server.method(
+        "v1.delegates.show",
+        show,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          id: request.query.publicKey || request.query.username,
+                      }),
+              },
+    );
 
-    server.method("v1.delegates.search", search, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...{ username: request.query.q },
-                ...paginate(request),
-            }),
-    });
+    server.method(
+        "v1.delegates.count",
+        countDelegates,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ time: +new Date() }),
+              },
+    );
 
-    server.method("v1.delegates.voters", voters, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ id: request.query.publicKey }),
-    });
+    server.method(
+        "v1.delegates.search",
+        search,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...{ username: request.query.q },
+                          ...paginate(request),
+                      }),
+              },
+    );
+
+    server.method(
+        "v1.delegates.voters",
+        voters,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ id: request.query.publicKey }),
+              },
+    );
 }

@@ -5,6 +5,7 @@ export const defaults = {
     host: process.env.ARK_API_HOST || "0.0.0.0",
     port: process.env.ARK_API_PORT || 4003,
     cache: {
+        enabled: true,
         /**
          * How many seconds the server will try to complete the request and cache the result.
          *

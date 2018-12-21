@@ -51,43 +51,69 @@ const publicKey = async request => {
 };
 
 export function registerMethods(server) {
-    server.method("v1.accounts.index", index, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request =>
-            generateCacheKey({
-                ...request.query,
-                ...paginate(request),
-            }),
-    });
+    const cacheDisabled = !server.app.config.cache.enabled;
 
-    server.method("v1.accounts.show", show, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ address: request.query.address }),
-    });
+    server.method(
+        "v1.accounts.index",
+        index,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request =>
+                      generateCacheKey({
+                          ...request.query,
+                          ...paginate(request),
+                      }),
+              },
+    );
 
-    server.method("v1.accounts.balance", balance, {
-        cache: {
-            expiresIn: 8 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ address: request.query.address }),
-    });
+    server.method(
+        "v1.accounts.show",
+        show,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ address: request.query.address }),
+              },
+    );
 
-    server.method("v1.accounts.publicKey", publicKey, {
-        cache: {
-            expiresIn: 600 * 1000,
-            generateTimeout: getCacheTimeout(),
-            getDecoratedValue: true,
-        },
-        generateKey: request => generateCacheKey({ address: request.query.address }),
-    });
+    server.method(
+        "v1.accounts.balance",
+        balance,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 8 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ address: request.query.address }),
+              },
+    );
+
+    server.method(
+        "v1.accounts.publicKey",
+        publicKey,
+        cacheDisabled
+            ? {}
+            : {
+                  cache: {
+                      expiresIn: 600 * 1000,
+                      generateTimeout: getCacheTimeout(),
+                      getDecoratedValue: true,
+                  },
+                  generateKey: request => generateCacheKey({ address: request.query.address }),
+              },
+    );
 }

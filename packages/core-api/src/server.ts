@@ -6,8 +6,8 @@ export class Server {
     private config: any;
     private logger: any;
 
-    private http: Hapi.Server;
-    private https: Hapi.Server;
+    private http: any;
+    private https: any;
 
     public constructor(config: any) {
         this.config = config;
@@ -32,11 +32,15 @@ export class Server {
 
         if (this.config.enabled) {
             this.http = await createServer(options);
+            this.http.app.config = this.config;
+
             this.registerPlugins("HTTP", this.http);
         }
 
         if (this.config.ssl.enabled) {
             this.https = await createSecureServer(options, null, this.config.ssl);
+            this.https.app.config = this.config;
+
             this.registerPlugins("HTTPS", this.https);
         }
     }
