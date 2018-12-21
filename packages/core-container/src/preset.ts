@@ -7,6 +7,10 @@ export class Preset {
     private plugins: object;
 
     constructor(preset: string) {
+        if (!preset) {
+            return;
+        }
+
         if (!existsSync(preset)) {
             throw new Error(`No preset found at ${preset}`);
         }
