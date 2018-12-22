@@ -18,7 +18,7 @@ describe("Models - Wallet", () => {
             const wallet = new Wallet(address);
             const balance = +(Math.random() * 1000).toFixed(8);
             wallet.balance = new Bignum(balance * ARKTOSHI);
-            expect(wallet.toString()).toBe(`${address} (${balance} ${configManager.config.client.symbol})`);
+          expect(wallet.toString()).toBe(`${address} (${configManager.config.client.symbol}${balance})`);
         });
     });
 

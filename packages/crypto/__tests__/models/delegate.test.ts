@@ -154,7 +154,7 @@ describe("Models - Delegate", () => {
                 const wallet = new Wallet(address);
                 wallet.balance = new Bignum(ARKTOSHI);
 
-                expect(wallet.toString()).toBe(`${address} (1 ${configManager.config.client.symbol})`);
+              expect(wallet.toString()).toBe(`${address} (${configManager.config.client.symbol}1)`);
             });
         });
     });
