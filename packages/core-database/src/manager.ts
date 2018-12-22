@@ -1,5 +1,7 @@
+import { ConnectionInterface } from "./interface";
+
 export class DatabaseManager {
-    public connections: { [key: string]: any };
+    public connections: { [key: string]: ConnectionInterface };
 
     /**
      * Create a new database manager instance.
@@ -14,7 +16,7 @@ export class DatabaseManager {
      * @param  {String} name
      * @return {ConnectionInterface}
      */
-    public connection(name = "default") {
+    public connection(name = "default"): ConnectionInterface {
         return this.connections[name];
     }
 
@@ -24,7 +26,7 @@ export class DatabaseManager {
      * @param  {String} name
      * @return {void}
      */
-    public async makeConnection(connection, name = "default") {
+    public async makeConnection(connection: ConnectionInterface, name = "default") {
         this.connections[name] = await connection.make();
     }
 }

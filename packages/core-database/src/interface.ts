@@ -14,40 +14,32 @@ const { Block } = models;
 const { TransactionTypes } = constants;
 
 export abstract class ConnectionInterface {
-    public config: any;
-    public logger: AbstractLogger;
-    public emitter: any;
-
-    public connection: any;
-    public blocksInCurrentRound: any[];
-    public stateStarted: boolean;
-    public restoredDatabaseIntegrity: boolean;
-    public walletManager: WalletManager;
-    public forgingDelegates: any[];
-    public wallets: WalletsRepository;
-    public delegates: DelegatesRepository;
-    protected queuedQueries: any[];
+    protected config: any;
+    protected logger: AbstractLogger;
+    protected emitter: any;
+    protected connection: any = null;
+    protected blocksInCurrentRound: any[] = null;
+    protected stateStarted: boolean = false;
+    protected restoredDatabaseIntegrity: boolean = false;
+    protected walletManager: WalletManager = null;
+    protected forgingDelegates: any[] = null;
+    protected wallets: WalletsRepository = null;
+    protected delegates: DelegatesRepository = null;
+    protected queuedQueries: any[] = null;
 
     /**
      * @constructor
      * @param {Object} options
      */
-    public constructor(public readonly options) {
+    protected constructor(public readonly options: any) {
         this.config = app.getConfig();
         this.logger = app.resolvePlugin<AbstractLogger>("logger");
         this.emitter = app.resolvePlugin("event-emitter");
 
-        this.connection = null;
-        this.blocksInCurrentRound = null;
-        this.stateStarted = false;
-        this.restoredDatabaseIntegrity = false;
-        this.walletManager = null;
-        this.wallets = null;
-        this.delegates = null;
-        this.queuedQueries = null;
-
         this.__registerListeners();
     }
+
+    public abstract async make(): Promise<ConnectionInterface>;
 
     /**
      * Get the current connection.
