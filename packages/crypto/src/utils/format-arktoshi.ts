@@ -8,7 +8,7 @@ import { configManager } from "../managers/config";
  */
 export const formatArktoshi = amount => {
     const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
-      minimumFractionDigits: (amount < 1 * ARKTOSHI ? 8 : 0),
+      minimumFractionDigits: (amount < ARKTOSHI ? 8 : 0),
         maximumFractionDigits: 8,
     });
 
