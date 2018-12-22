@@ -309,10 +309,10 @@ describe("Command Base", () => {
 
     describe("static __arktoshiToArk", () => {
         it("should give ark", () => {
-            expect(Command.__arktoshiToArk(1)).toBe("0.00000001 DѦ");
-            expect(Command.__arktoshiToArk(10000000)).toBe("0.1 DѦ");
-            expect(Command.__arktoshiToArk(100000000)).toBe("1 DѦ");
-            expect(Command.__arktoshiToArk(1000000000)).toBe("10 DѦ");
+          expect(Command.__arktoshiToArk(1)).toBe("DѦ0.00000001");
+          expect(Command.__arktoshiToArk(10000000)).toBe("DѦ0.10000000");
+          expect(Command.__arktoshiToArk(100000000)).toBe("DѦ1");
+          expect(Command.__arktoshiToArk(1000000000)).toBe("DѦ10");
         });
     });
 
