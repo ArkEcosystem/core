@@ -8,10 +8,14 @@ import { configManager } from "../managers/config";
  */
 export const formatArktoshi = amount => {
   const decimalPlaces = ARKTOSHI.toString().length - 1
-  const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
+  let localeString = (+amount / ARKTOSHI).toLocaleString("en", {
     minimumFractionDigits: decimalPlaces,
     maximumFractionDigits: decimalPlaces,
   });
+
+  if (localeString.substr(-decimalPlaces) === "0".repeat(decimalPlaces)) {
+    localeString = localeString.substr(0, localeString.length - decimalPlaces - 1)
+  }
 
   return `${configManager.config.client.symbol}${localeString}`;
 };
