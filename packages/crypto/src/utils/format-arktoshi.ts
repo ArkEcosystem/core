@@ -8,9 +8,9 @@ import { configManager } from "../managers/config";
  */
 export const formatArktoshi = amount => {
     const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 8,
         maximumFractionDigits: 8,
     });
 
-    return `${localeString} ${configManager.config.client.symbol}`;
+  return `${configManager.config.client.symbol}${localeString}`;
 };
