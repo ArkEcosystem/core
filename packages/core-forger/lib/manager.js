@@ -153,6 +153,8 @@ module.exports = class ForgerManager {
 
       await this.__forgeNewBlock(delegate, round)
 
+      console.log('==> Delays: ', delayTime / 1000)
+
       await delay(delayTime) // we will check at next slot
 
       return this.__monitor(round)

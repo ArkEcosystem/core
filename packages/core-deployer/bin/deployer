@@ -22,8 +22,8 @@ commander
   .option('--network <value>', 'Network to initially copy', 'mainnet')
   .option('--name <value>', 'Name', 'Bridgechain')
   .option('--nodeIp <value>', 'IP for node', '0.0.0.0')
-  .option('--p2pPort <value>', 'P2P API Port', 4102)
-  .option('--apiPort <value>', 'Public P2P Port', 4103)
+  .option('--p2pPort <value>', 'P2P API Port', 4002)
+  .option('--apiPort <value>', 'Public P2P Port', 4003)
   .option('--dbHost <value>', 'Database host', 'localhost')
   .option('--dbPort <value>', 'Database port', 5432)
   .option('--dbUsername <value>', 'Database username', 'node')
@@ -63,7 +63,7 @@ commander
   .option(
     '--epoch <value>',
     'Set Epoch based on time the chain was created',
-    '2017-02-21T13:00:00.000Z',
+    '2019-01-03T12:00:00.000Z',
   )
   .option(
     '--rewardHeight <value>',
