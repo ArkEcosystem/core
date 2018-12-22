@@ -3,6 +3,7 @@ const { Transaction } = models;
 
 import { app } from "@arkecosystem/core-container";
 import { AbstractLogger } from "@arkecosystem/core-logger";
+import {PostgresConnection} from "./connection";
 import { queries } from "./queries";
 
 const logger = app.resolvePlugin<AbstractLogger>("logger");
@@ -17,16 +18,11 @@ export class SPV {
     private query: any;
     private activeDelegates: [];
 
-    /**
-     * Create a new wallet builder instance.
-     * @param  {SequelizeConnection} database
-     * @return {void}
-     */
-    constructor(database) {
-        this.connection = database.connection;
-        this.models = database.models;
-        this.walletManager = database.walletManager;
-        this.query = database.query;
+    constructor(connectionInterface : PostgresConnection) {
+        this.connection = connectionInterface.connection;
+        this.models = connectionInterface.models;
+        this.walletManager = connectionInterface.walletManager;
+        this.query = connectionInterface.query;
     }
 
     /**

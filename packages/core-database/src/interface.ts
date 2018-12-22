@@ -14,18 +14,19 @@ const { Block } = models;
 const { TransactionTypes } = constants;
 
 export abstract class ConnectionInterface {
-    protected config: any;
-    protected logger: AbstractLogger;
-    protected emitter: any;
-    protected connection: any = null;
-    protected blocksInCurrentRound: any[] = null;
-    protected stateStarted: boolean = false;
-    protected restoredDatabaseIntegrity: boolean = false;
-    protected walletManager: WalletManager = null;
-    protected forgingDelegates: any[] = null;
-    protected wallets: WalletsRepository = null;
-    protected delegates: DelegatesRepository = null;
-    protected queuedQueries: any[] = null;
+    // TODO: Convert these to protected/private and provide the appropriate get/setters
+    public config: any;
+    public logger: AbstractLogger;
+    public emitter: any;
+    public connection: any = null;
+    public blocksInCurrentRound: any[] = null;
+    public stateStarted: boolean = false;
+    public restoredDatabaseIntegrity: boolean = false;
+    public walletManager: WalletManager = null;
+    public forgingDelegates: any[] = null;
+    public wallets: WalletsRepository = null;
+    public delegates: DelegatesRepository = null;
+    public queuedQueries: any[] = null;
 
     /**
      * @constructor
