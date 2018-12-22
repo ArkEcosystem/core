@@ -2,6 +2,7 @@ const { Bignum, client, crypto } = require('@phantomchain/crypto')
 const bip39 = require('bip39')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
+const XLSX = require('xlsx')
 
 module.exports = class GenesisBlockBuilder {
   /**
