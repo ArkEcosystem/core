@@ -29,34 +29,23 @@ module.exports = class GenesisBlockBuilder {
     const workbook = XLSX.readFile('data/init.xlsx')
     const sheets = workbook.SheetNames
     const items = XLSX.utils.sheet_to_json(workbook.Sheets[sheets[0]])
-    let totalPremine = 0
+    let totalPremine = new Bignum(0)
     let transactionList = []
     items.forEach(item => {
       if(parseFloat(item['phantombalance'])) {
         const transaction = transactionList.find(x => x.phantomaddress.trim() == item['phantomaddress'].trim())
         if(transaction) {
-          transaction['balance'] += parseFloat(item['phantombalance'])
+          transaction['balance'] = transaction['balance'].plus(new Bignum(item['phantombalance']))
         }
         else {
-          item['balance'] = parseFloat(item['phantombalance'])
+          item['balance'] = new Bignum(item['phantombalance'])
           transactionList.push(item)
         }
-        totalPremine += this.__getInteger(item['phantombalance'])
       }
     })
-    // let transactionL = []
-    // transactionList.map(function(item, idx) {
-    //   if(parseFloat(item['phantombalance'])) {
-    //     if(transactionL.includes(item['phantomaddress'].trim())) {
-    //       console.log(item['phantomaddress'].trim())
-    //     }
-    //     else {
-    //       transactionL.push(item['phantomaddress'].trim())
-    //     }
-    //   }
-    // })
-    // return
-
+    transactionList.forEach(item =>
+      totalPremine = totalPremine.plus((new Bignum(item['balance']).multipliedBy(100000000)).toFixed(0))
+    )
     const transactions = [
       ...this.__buildDelegateTransactions(delegates),
       this.__createTransferTransaction(
@@ -65,19 +54,19 @@ module.exports = class GenesisBlockBuilder {
         totalPremine,
       ),
     ]
-
-    let sum = 0
     transactionList.forEach(item => {
       try {
-        const transaction = this.__createTransferTransaction(genesisWallet, {address: item['phantomaddress'].trim()}, this.__getInteger(item['balance']))
-        sum += transaction.amount
+        const transaction = this.__createTransferTransaction(
+          genesisWallet,
+          { address: item['phantomaddress'].trim() },
+          (new Bignum(item['balance']).multipliedBy(100000000)).toFixed(0)
+        )
         transactions.push(transaction)
       }
       catch(err) {
         console.log({address: item['phantomaddress'].trim(), balance: item['phantombalance']})
       }
     })
-console.log(sum)
 
     const genesisBlock = this.__createGenesisBlock({
       keys: genesisWallet.keys,
@@ -89,21 +78,6 @@ console.log(sum)
       genesisWallet,
       genesisBlock,
       delegatePassphrases: delegates.map(wallet => wallet.passphrase),
-    }
-  }
-
-  /**
-   * Generate an amount from string.
-   * @return number
-   */
-  __getInteger (amount) {
-    const phantomAmount = parseFloat(amount) * 100000000;
-    const amountInteger = parseInt(phantomAmount);
-    if(phantomAmount > amountInteger) {
-      return amountInteger + 1;
-    }
-    else {
-      return amountInteger;
     }
   }
 
@@ -224,17 +198,17 @@ console.log(sum)
 
     let payloadLength = 0
     let totalFee = 0
-    let totalAmount = 0
+    let totalAmount = new Bignum(0)
     const payloadHash = createHash('sha256')
 
     transactions.forEach(transaction => {
       const bytes = crypto.getBytes(transaction)
       payloadLength += bytes.length
       totalFee += transaction.fee
-      totalAmount += transaction.amount
+      totalAmount = totalAmount.plus(transaction.amount)
       payloadHash.update(bytes)
     })
-console.log(totalAmount)
+
     const block = {
       version: 0,
       totalAmount,
@@ -328,7 +302,7 @@ console.log(totalAmount)
       }
 
       byteBuffer.writeInt(block.numberOfTransactions)
-      byteBuffer.writeLong(block.totalAmount)
+      byteBuffer.writeLong(block.totalAmount.toNumber())
       byteBuffer.writeLong(block.totalFee)
       byteBuffer.writeLong(block.reward)
 
