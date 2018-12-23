@@ -17,7 +17,7 @@ const config = app.resolvePlugin('config')
 const logger = app.resolvePlugin('logger')
 const emitter = app.resolvePlugin('event-emitter')
 
-const { roundCalculator } = require('@phantomchain/core-utils')
+const { roundCalculator, bignumify } = require('@phantomchain/core-utils')
 
 const {
   Bignum,
@@ -154,7 +154,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     }
 
     // Sum of all tx amount equals the sum of block.totalAmount
-    if (blockStats.totalAmount !== transactionStats.totalAmount) {
+    if (
+      bignumify(blockStats.totalAmount).isEqualTo(
+        bignumify(transactionStats.totalAmount),
+      )
+    ) {
       errors.push(
         `Total transaction amounts: ${
           transactionStats.totalAmount

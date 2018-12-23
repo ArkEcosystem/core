@@ -6,11 +6,7 @@
     "private": 70615956
   },
   "pubKeyHash": 55,
-<<<<<<< HEAD
   "nethash": "63b3351133e5721c199594c9d4f0e0e57adc5554216a390d3ea77c38366d01c9",
-=======
-  "nethash": "0c8ff28a19fb329fa76044c645445e9e461ab4896fa5a774cf2d19b32d581cf3",
->>>>>>> updated genesisBlock
   "wif": 170,
   "aip20": 0,
   "client": {
