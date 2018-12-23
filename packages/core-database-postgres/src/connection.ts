@@ -24,7 +24,7 @@ const { Block, Transaction } = models;
 export class PostgresConnection extends ConnectionInterface {
     public models: {};
     public query: QueryExecutor;
-    private db: any;
+    public db: any;
     private cache: Map<any, any>;
     private pgp: any;
     private spvFinished: boolean;
