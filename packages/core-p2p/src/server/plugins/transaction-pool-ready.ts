@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { TransactionPool} from "@arkecosystem/core-transaction-pool";
 import Boom from "boom";
 
 /**
@@ -15,7 +16,7 @@ const register = async (server, options) => {
                 return h.continue;
             }
 
-            if (!app.resolvePlugin("transactionPool")) {
+            if (!app.resolvePlugin<TransactionPool>("transactionPool")) {
                 return Boom.serverUnavailable("Transaction Pool not ready");
             }
 
