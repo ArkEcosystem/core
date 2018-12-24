@@ -1,5 +1,6 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { models, slots } from "@arkecosystem/crypto";
 
@@ -690,7 +691,7 @@ export class Blockchain {
      * @return {ConnectionInterface}
      */
     get database() {
-        return app.resolvePlugin("database");
+        return app.resolvePlugin<PostgresConnection>("database");
     }
 
     /**

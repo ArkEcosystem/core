@@ -1,4 +1,5 @@
-import { Container }  from "@arkecosystem/core-container";
+import { Container } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { defaults } from "./defaults";
 import { SnapshotManager } from "./manager";
 
@@ -13,6 +14,6 @@ export const plugin = {
     async register(container: Container, options) {
         const manager = new SnapshotManager(options);
 
-        return manager.make(container.resolvePlugin("database"));
+        return manager.make(container.resolvePlugin<PostgresConnection>("database"));
     },
 };

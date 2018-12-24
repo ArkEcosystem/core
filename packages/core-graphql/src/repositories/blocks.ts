@@ -1,7 +1,3 @@
-import { app } from "@arkecosystem/core-container";
-
-const database = app.resolvePlugin("database");
-
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/filter-query";
 
@@ -126,7 +122,7 @@ class BlocksRepository extends Repository {
     }
 
     public getModel() {
-        return database.models.block;
+        return this.database.models.block;
     }
 
     public __orderBy(parameters) {

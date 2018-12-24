@@ -1,8 +1,9 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
-const database = app.resolvePlugin("database");
+const database = app.resolvePlugin<PostgresConnection>("database");
 
 const index = async request => {
     const { count, rows } = await database.delegates.paginate({

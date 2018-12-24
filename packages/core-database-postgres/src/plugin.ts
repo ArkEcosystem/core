@@ -18,6 +18,7 @@ export const plugin = {
     async deregister(container: Container, options) {
         container.resolvePlugin<AbstractLogger>("logger").info("Closing Database Connection");
 
-        return container.resolvePlugin("database").disconnect();
+        const connection = container.resolvePlugin<PostgresConnection>("database");
+        return connection.disconnect();
     },
 };

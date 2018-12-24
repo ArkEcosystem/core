@@ -1,10 +1,11 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import Boom from "boom";
 import { transactionsRepository } from "../../../repositories";
 import { generateCacheKey, getCacheTimeout } from "../../utils";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const database = app.resolvePlugin("database");
+const database = app.resolvePlugin<PostgresConnection>("database");
 
 const index = async request => {
     const wallets = await database.wallets.findAll({

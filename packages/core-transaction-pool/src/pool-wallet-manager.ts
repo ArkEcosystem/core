@@ -1,12 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { constants, crypto, models } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
 const { TransactionTypes } = constants;
 
 export class PoolWalletManager extends WalletManager {
-    public database: any;
+    public database = app.resolvePlugin<PostgresConnection>("database");
 
     /**
      * Create a new pool wallet manager instance.
@@ -14,8 +15,6 @@ export class PoolWalletManager extends WalletManager {
      */
     constructor() {
         super();
-
-        this.database = app.resolvePlugin("database");
     }
 
     /**
