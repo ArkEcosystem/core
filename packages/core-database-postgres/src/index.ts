@@ -1,4 +1,5 @@
 import { Container } from "@arkecosystem/core-container";
+import { DatabaseManager } from "@arkecosystem/core-database";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { PostgresConnection } from "./connection";
 import { defaults } from "./defaults";
@@ -18,7 +19,7 @@ export const plugin = {
 
         const postgres = new PostgresConnection(options);
 
-        const databaseManager = container.resolvePlugin("databaseManager");
+        const databaseManager = container.resolvePlugin<DatabaseManager>("databaseManager");
         await databaseManager.makeConnection(postgres);
 
         return databaseManager.connection();

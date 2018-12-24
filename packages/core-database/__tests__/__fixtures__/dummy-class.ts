@@ -1,8 +1,13 @@
 // tslint:disable:no-empty
 
-import { ConnectionInterface } from "../../src/interface";
+import { ConnectionInterface } from "../../src";
 
 export class DummyConnection extends ConnectionInterface {
+
+    constructor(options: any) {
+        super(options);
+    }
+
     public async connect(): Promise<void> {}
 
     public async disconnect(): Promise<void> {}
@@ -59,5 +64,9 @@ export class DummyConnection extends ConnectionInterface {
 
     public async getTransaction(id): Promise<any> {
         return true;
+    }
+
+    public async make(): Promise<ConnectionInterface> {
+        return this;
     }
 }

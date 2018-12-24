@@ -22,12 +22,16 @@ import { camelizeColumns } from "./utils";
 const { Block, Transaction } = models;
 
 export class PostgresConnection extends ConnectionInterface {
+    public models: {};
+    public query: QueryExecutor;
     private db: any;
     private cache: Map<any, any>;
-    private models: {};
-    private query: QueryExecutor;
     private pgp: any;
     private spvFinished: boolean;
+
+    public constructor(readonly options: any) {
+        super(options);
+    }
 
     /**
      * Make the database connection instance.
