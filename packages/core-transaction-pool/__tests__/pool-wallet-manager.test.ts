@@ -1,19 +1,17 @@
+import { Container } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
+import { crypto, models } from "@arkecosystem/crypto";
+import bip39 from "bip39";
+import { PoolWalletManager } from "../src/pool-wallet-manager";
+import { setUpFull, tearDown } from "./__support__/setup";
 
+const { Block } = models;
 const { generateTransfers, generateWallets } = generators;
 const { blocks2to100, delegates } = fixtures;
 
-import { crypto, models } from "@arkecosystem/crypto";
-import bip39 from "bip39";
-
-import { setUpFull, tearDown } from "./__support__/setup";
-
-import { PoolWalletManager } from "../src/pool-wallet-manager";
-
-const { Block } = models;
-
 const arktoshi = 10 ** 8;
-let container;
+let container: Container;
 let poolWalletManager;
 let blockchain;
 
@@ -102,7 +100,9 @@ describe("applyPoolTransactionToSender", () => {
 
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
-                container.resolvePlugin("database").walletManager.findByPublicKey(transfer.senderPublicKey);
+                container
+                    .resolvePlugin<PostgresConnection>("database")
+                    .walletManager.findByPublicKey(transfer.senderPublicKey);
 
                 const errors = [];
                 if (poolWalletManager.canApply(transfer, errors)) {
@@ -118,7 +118,9 @@ describe("applyPoolTransactionToSender", () => {
                     );
                 }
 
-                container.resolvePlugin("database").walletManager.forgetByPublicKey(transfer.publicKey);
+                container
+                    .resolvePlugin<PostgresConnection>("database")
+                    .walletManager.forgetByPublicKey(transfer.publicKey);
             });
 
             expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * arktoshi);

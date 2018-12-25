@@ -1,24 +1,21 @@
 import { app } from "@arkecosystem/core-container";
 import { AbstractLogger } from "@arkecosystem/core-logger";
-import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
-
 import { roundCalculator } from "@arkecosystem/core-utils";
+import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
-import { WalletManager } from "./wallet-manager";
-
 import { DelegatesRepository } from "./repositories/delegates";
 import { WalletsRepository } from "./repositories/wallets";
+import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
 const { TransactionTypes } = constants;
 
 export abstract class ConnectionInterface {
     // TODO: Convert these to protected/private and provide the appropriate get/setters
-    public config: any;
-    public logger: AbstractLogger;
-    public emitter: any;
-    public connection: any = null;
+    public config = app.getConfig();
+    public logger = app.resolvePlugin<AbstractLogger>("logger");
+    public emitter = app.resolvePlugin("event-emitter");
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
@@ -33,22 +30,10 @@ export abstract class ConnectionInterface {
      * @param {Object} options
      */
     protected constructor(public readonly options: any) {
-        this.config = app.getConfig();
-        this.logger = app.resolvePlugin<AbstractLogger>("logger");
-        this.emitter = app.resolvePlugin("event-emitter");
-
         this.__registerListeners();
     }
 
     public abstract async make(): Promise<ConnectionInterface>;
-
-    /**
-     * Get the current connection.
-     * @return {ConnectionInterface}
-     */
-    public getConnection(): any {
-        return this.connection;
-    }
 
     /**
      * Connect to a database.

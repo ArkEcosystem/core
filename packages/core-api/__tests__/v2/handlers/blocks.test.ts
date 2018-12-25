@@ -4,10 +4,11 @@ import { utils } from "../utils";
 
 import { models } from "@arkecosystem/crypto";
 import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
-import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
-import { resetBlockchain } from "../../../../core-test-utils/src/helpers/blockchain";
+import { blocks2to100 } from "../../../../core-test-utils/src/fixtures";
+import { resetBlockchain } from "../../../../core-test-utils/src/helpers";
 
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 
 const container = app;
 const { Block } = models;
@@ -145,7 +146,7 @@ describe("API 2.0 - Blocks", () => {
                 it("should POST a search for blocks with the exact specified previousBlock", async () => {
                     // save a new block so that we can make the request with previousBlock
                     const block2 = new Block(blocks2to100[0]);
-                    const database = container.resolvePlugin("database");
+                    const database = container.resolvePlugin<PostgresConnection>("database");
                     await database.saveBlock(block2);
 
                     const response = await utils[request]("POST", "blocks/search", {

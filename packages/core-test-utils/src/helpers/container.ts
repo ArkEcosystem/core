@@ -1,9 +1,9 @@
-import { app } from "@arkecosystem/core-container";
+import { app, Container } from "@arkecosystem/core-container";
 import * as path from "path";
 import "../matchers";
 
-export async function setUpContainer(options: any): Promise<any> {
-    return app.setUp(
+export async function setUpContainer(options: any): Promise<Container> {
+    await app.setUp(
         "2.0.0",
         {
             data: options.data || "~/.ark",
@@ -13,4 +13,5 @@ export async function setUpContainer(options: any): Promise<any> {
         },
         options,
     );
+    return app;
 }

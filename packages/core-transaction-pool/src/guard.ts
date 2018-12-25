@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
@@ -241,7 +242,7 @@ export class TransactionGuard {
      * @return {void}
      */
     public async __removeForgedTransactions() {
-        const database = app.resolvePlugin("database");
+        const database = app.resolvePlugin<PostgresConnection>("database");
 
         const forgedIdsSet = await database.getForgedTransactionsIds([
             ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),

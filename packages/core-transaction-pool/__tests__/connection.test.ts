@@ -2,6 +2,7 @@
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { bignumify } from "@arkecosystem/core-utils";
 import { constants, models, slots } from "@arkecosystem/crypto";
 
@@ -18,14 +19,14 @@ const { generateTransfers } = generators;
 const { delegatesSecrets } = fixtures;
 
 let config;
-let database;
+let database: PostgresConnection;
 let connection;
 
 beforeAll(async () => {
     await setUpFull();
 
     config = app.getConfig();
-    database = app.resolvePlugin("database");
+    database = app.resolvePlugin<PostgresConnection>("database");
     connection = app.resolvePlugin("transactionPool");
 
     // Ensure no cold wallet and enough funds
@@ -430,7 +431,8 @@ describe("Connection", () => {
 
             // For some reason all genesis transactions fail signature verification, so
             // they are not loaded from the local storage and this fails otherwise.
-            const original = database.getForgedTransactionsId;
+            // TODO: Use jest.spyOn() to change behavior instead. jest.restoreAllMocks() will reset afterwards
+            const original = database.getForgedTransactionsIds;
             database.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
 
             expect(forgedTransaction instanceof Transaction).toBeTrue();

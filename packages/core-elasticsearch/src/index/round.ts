@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import first from "lodash/first";
 import last from "lodash/last";
@@ -8,7 +9,7 @@ import { Index } from "./index";
 
 const emitter = app.resolvePlugin("event-emitter");
 const logger = app.resolvePlugin<AbstractLogger>("logger");
-const database = app.resolvePlugin("database");
+const database = app.resolvePlugin<PostgresConnection>("database");
 
 class RoundIndex extends Index {
     /**

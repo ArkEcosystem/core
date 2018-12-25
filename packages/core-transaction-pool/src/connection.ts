@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 
 import assert from "assert";
@@ -9,7 +10,7 @@ import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
 
-const database = app.resolvePlugin("database");
+const database = app.resolvePlugin<PostgresConnection>("database");
 const emitter = app.resolvePlugin("event-emitter");
 const logger = app.resolvePlugin<AbstractLogger>("logger");
 

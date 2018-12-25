@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
@@ -714,7 +715,7 @@ class Monitor {
      * @return {[]String}
      */
     public async __getRecentBlockIds() {
-        return app.resolvePlugin("database").getRecentBlockIds();
+        return app.resolvePlugin<PostgresConnection>("database").getRecentBlockIds();
     }
 
     /**
