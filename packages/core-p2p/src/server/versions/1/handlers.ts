@@ -119,14 +119,22 @@ export const getTransactionsFromIds = {
             const transactionIds = request.query.ids
                 .split(",")
                 .slice(0, maxTransactions)
-                .filter(id => id.match("[0-9a-fA-F]{32}"));
+                .filter(id => id.match(/^[0-9a-fA-F]{64}/));
+
+            if (!transactionIds.length) {
+                return {
+                    success: false,
+                };
+            }
 
             const rows = await app.resolvePlugin<PostgresConnection>("database").getTransactionsFromIds(transactionIds);
 
-            // TODO: v1 compatibility patch. Add transformer and refactor later on
             const transactions = await rows.map(row => {
                 const transaction = Transaction.deserialize(row.serialized.toString("hex"));
-                transaction.blockId = row.block_id;
+                if (transaction.version === 1) {
+                	Transaction.applyV1Compatibility(transaction);
+                }
+                transaction.blockId = row.blockId;
                 transaction.senderId = crypto.getAddress(transaction.senderPublicKey);
                 return transaction;
             });
