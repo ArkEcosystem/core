@@ -1,11 +1,12 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 
 const emitter = app.resolvePlugin("event-emitter");
 const logger = app.resolvePlugin<AbstractLogger>("logger");
-const database = app.resolvePlugin("database");
+const database = app.resolvePlugin<PostgresConnection>("database");
 
 export abstract class Index {
     public chunkSize: any;

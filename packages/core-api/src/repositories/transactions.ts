@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import partition from "lodash/partition";
@@ -7,6 +6,10 @@ import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
 export class TransactionsRepository extends Repository implements IRepository {
+    constructor() {
+        super();
+    }
+
     /**
      * Get all transactions.
      * @param  {Object}  params

@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { slots } from "@arkecosystem/crypto";
 
 const config = app.getConfig();
@@ -13,7 +14,7 @@ export const current = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const database = app.resolvePlugin("database");
+        const database = app.resolvePlugin<PostgresConnection>("database");
         const blockchain = app.resolvePlugin("blockchain");
 
         const lastBlock = blockchain.getLastBlock();

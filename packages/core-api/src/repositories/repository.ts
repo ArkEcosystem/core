@@ -1,24 +1,22 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import snakeCase from "lodash/snakeCase";
+import { IRepository } from "../interfaces/repository";
 
-export class Repository {
-    public database: any;
-    public cache: any;
-    public transactionPool: any;
-    public model: any;
-    public query: any;
+export abstract class Repository implements IRepository {
+    public database = app.resolvePlugin<PostgresConnection>("database");
+    public cache = this.database.getCache();
+    public transactionPool = app.resolvePlugin("transactionPool");
+    public model = this.getModel();
+    public query = this.model.query();
     public columns: string[] = [];
 
-    public constructor() {
-        this.database = app.resolvePlugin("database");
-        this.cache = this.database.getCache();
-        this.transactionPool = app.resolvePlugin("transactionPool");
-        // @ts-ignore
-        this.model = this.getModel();
-        this.query = this.model.query();
-
+    protected constructor() {
         this.__mapColumns();
     }
+
+    // todo: Introduce a generic param to return type-safe models
+    public abstract getModel(): any;
 
     public async _find(query): Promise<any> {
         return this.database.query.oneOrNone(query.toQuery());

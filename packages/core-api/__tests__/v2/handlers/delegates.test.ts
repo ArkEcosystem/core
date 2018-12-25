@@ -8,6 +8,7 @@ import { models } from "@arkecosystem/crypto";
 const { Block } = models;
 
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 
 const delegate = {
     username: "genesis_9",
@@ -63,8 +64,9 @@ describe("API 2.0 - Delegates", () => {
                     expect(response.data.data).toBeArray();
 
                     response.data.data.forEach(utils.expectDelegate);
-                    expect(response.data.data.sort((a, b) =>
-                        a.production.productivity > b.production.productivity)).toEqual(response.data.data);
+                    expect(
+                        response.data.data.sort((a, b) => a.production.productivity > b.production.productivity),
+                    ).toEqual(response.data.data);
                 });
             },
         );
@@ -78,8 +80,9 @@ describe("API 2.0 - Delegates", () => {
                     expect(response.data.data).toBeArray();
 
                     response.data.data.forEach(utils.expectDelegate);
-                    expect(response.data.data.sort((a, b) =>
-                        a.production.approval > b.production.approval)).toEqual(response.data.data);
+                    expect(response.data.data.sort((a, b) => a.production.approval > b.production.approval)).toEqual(
+                        response.data.data,
+                    );
                 });
             },
         );
@@ -152,7 +155,7 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all blocks for a delegate by the given identifier", async () => {
                     // save a new block so that we can make the request with generatorPublicKey
                     const block2 = new Block(blocks2to100[0]);
-                    const database = app.resolvePlugin("database");
+                    const database = app.resolvePlugin<PostgresConnection>("database");
                     await database.saveBlock(block2);
 
                     const response = await utils[request](

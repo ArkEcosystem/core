@@ -1,9 +1,12 @@
-import { app } from "@arkecosystem/core-container";
 import { IRepository } from "../interfaces/repository";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
 export class BlockRepository extends Repository implements IRepository {
+    constructor() {
+        super();
+    }
+
     /**
      * Get all blocks for the given parameters.
      * @param  {Object}  parameters
@@ -115,7 +118,7 @@ export class BlockRepository extends Repository implements IRepository {
         });
     }
 
-    public getModel(): object {
+    public getModel(): any {
         return this.database.models.block;
     }
 

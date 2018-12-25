@@ -10,9 +10,9 @@ const { ARKTOSHI, TransactionTypes } = constants;
 let connectionInterface;
 let genesisBlock;
 
-import { DelegatesRepository } from "../src/repositories/delegates";
-import { WalletsRepository } from "../src/repositories/wallets";
-import { WalletManager } from "../src/wallet-manager";
+import { DelegatesRepository } from "../src";
+import { WalletsRepository } from "../src";
+import { WalletManager } from "../src";
 import { DummyConnection } from "./__fixtures__/dummy-class";
 
 beforeAll(async () => {
@@ -27,14 +27,6 @@ afterAll(async () => {
 });
 
 describe("Connection Interface", () => {
-    describe("getConnection", () => {
-        it("should return the set connection", () => {
-            connectionInterface.connection = "fake-connection";
-
-            expect(connectionInterface.getConnection()).toBe("fake-connection");
-        });
-    });
-
     describe("__calcPreviousActiveDelegates", () => {
         it("should calculate the previous delegate list", async () => {
             const walletManager = new WalletManager();

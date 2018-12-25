@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";
@@ -6,7 +7,7 @@ import sumBy from "lodash/sumBy";
 export function handler(request, h) {
     const config = app.getConfig();
     const blockchain = app.resolvePlugin("blockchain");
-    const database = app.resolvePlugin("database");
+    const database = app.resolvePlugin<PostgresConnection>("database");
 
     const formatDelegates = (delegates, lastHeight) =>
         delegates.map((delegate, index) => {

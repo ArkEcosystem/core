@@ -1,20 +1,13 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 
 export abstract class Repository {
-    public cache: any;
-    public model: any;
-    public query: any;
-    public database: any;
-    public transactionPool: any;
-    
-    constructor() {
-        this.database = app.resolvePlugin("database");
-        this.transactionPool = app.resolvePlugin("transactionPool");
+    public database = app.resolvePlugin<PostgresConnection>("database");
+    public transactionPool = app.resolvePlugin("transactionPool");
+    public cache = this.database.getCache();
+    public model = this.getModel();
+    public query = this.model.query();
 
-        this.cache = this.database.getCache();
-        this.model = this.getModel();
-        this.query = this.model.query();
-    }
     public abstract getModel(): any;
 
     public async _find(query) {

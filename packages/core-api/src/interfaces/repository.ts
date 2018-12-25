@@ -1,5 +1,3 @@
-import Hapi from "hapi";
-
 export interface IRepository {
     database: any;
     cache: any;

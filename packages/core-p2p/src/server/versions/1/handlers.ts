@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { crypto, Joi, models, slots } from "@arkecosystem/crypto";
@@ -120,7 +121,7 @@ export const getTransactionsFromIds = {
                 .slice(0, maxTransactions)
                 .filter(id => id.match("[0-9a-fA-F]{32}"));
 
-            const rows = await app.resolvePlugin("database").getTransactionsFromIds(transactionIds);
+            const rows = await app.resolvePlugin<PostgresConnection>("database").getTransactionsFromIds(transactionIds);
 
             // TODO: v1 compatibility patch. Add transformer and refactor later on
             const transactions = await rows.map(row => {
@@ -330,7 +331,7 @@ export const getBlocks = {
      */
     async handler(request, h) {
         try {
-            const database = app.resolvePlugin("database");
+            const database = app.resolvePlugin<PostgresConnection>("database");
             const blockchain = app.resolvePlugin("blockchain");
 
             const reqBlockHeight = +request.query.lastBlockHeight + 1;
