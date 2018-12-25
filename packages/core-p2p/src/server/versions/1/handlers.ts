@@ -116,6 +116,12 @@ export const getTransactionsFromIds = {
             const blockchain = app.resolvePlugin("blockchain");
             const maxTransactions = config.getMilestone(blockchain.getLastHeight()).block.maxTransactions;
 
+            if (!request.query.ids) {
+                return {
+                    success: false,
+                };
+            }
+
             const transactionIds = request.query.ids
                 .split(",")
                 .slice(0, maxTransactions)
