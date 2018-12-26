@@ -26,7 +26,7 @@ export class TransactionPool {
     public blockedByPublicKey: any;
     public mem: any;
     public storage: any;
-    private loggedAllowedSenders: any[];
+    public loggedAllowedSenders: any[];
 
     /**
      * Create a new transaction pool instance.

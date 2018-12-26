@@ -1,16 +1,14 @@
 import { app } from "@arkecosystem/core-container";
+import { TransactionPool } from "@arkecosystem/core-transaction-pool";
 import Boom from "boom";
 import Hapi from "hapi";
-import { transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
-    protected transactionPool: any;
+    protected transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 
     public constructor() {
         super();
-
-        this.transactionPool = app.resolvePlugin("transactionPool");
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {

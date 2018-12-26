@@ -3,16 +3,14 @@ import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
-import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
+import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { constants } from "@arkecosystem/crypto";
 
 export class TransactionsController extends Controller {
-    private transactionPool: any;
+    private transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 
     public constructor() {
         super();
-
-        this.transactionPool = app.resolvePlugin("transactionPool");
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
