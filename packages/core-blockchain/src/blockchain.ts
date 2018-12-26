@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { models, slots } from "@arkecosystem/crypto";
 
@@ -683,7 +684,7 @@ export class Blockchain {
      * @return {TransactionPool}
      */
     get transactionPool() {
-        return app.resolvePlugin("transactionPool");
+        return app.resolvePlugin<TransactionPool>("transactionPool");
     }
 
     /**

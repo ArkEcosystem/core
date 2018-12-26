@@ -4,8 +4,9 @@ import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { configManager, crypto, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
+import { TransactionPool } from "../src";
+import { TransactionGuard } from "../src";
 import { config as localConfig } from "../src/config";
-import { TransactionGuard } from "../src/guard";
 import { setUpFull, tearDown } from "./__support__/setup";
 
 const {
@@ -20,11 +21,11 @@ const { delegates } = fixtures;
 
 let container: Container;
 let guard;
-let transactionPool;
+let transactionPool : TransactionPool;
 
 beforeAll(async () => {
     container = await setUpFull();
-    transactionPool = container.resolvePlugin("transactionPool");
+    transactionPool = container.resolvePlugin<TransactionPool>("transactionPool");
     localConfig.init(transactionPool.options);
 });
 
