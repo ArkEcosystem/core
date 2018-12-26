@@ -125,7 +125,7 @@ export const getTransactionsFromIds = {
             const transactionIds = request.query.ids
                 .split(",")
                 .slice(0, maxTransactions)
-                .filter(id => id.match(/^[0-9a-fA-F]{64}/));
+                .filter(id => id.match(/^[0-9a-fA-F]{64}$/));
 
             if (!transactionIds.length) {
                 return {
