@@ -40,7 +40,6 @@ export const queries = {
         statistics: loadQueryFile(__dirname, "./transactions/statistics.sql"),
         forged: loadQueryFile(__dirname, "./transactions/forged.sql"),
         findById: loadQueryFile(__dirname, "./transactions/find-by-id.sql"),
-        findManyById: loadQueryFile(__dirname, "./transactions/find-many-by-id.sql"),
         deleteByBlock: loadQueryFile(__dirname, "./transactions/delete-by-block.sql"),
     },
     wallets: {
