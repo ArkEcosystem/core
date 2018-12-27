@@ -106,63 +106,6 @@ export const getCommonBlocks = {
 /**
  * @type {Object}
  */
-export const getTransactionsFromIds = {
-    /**
-     * @param  {Hapi.Request} request
-     * @param  {Hapi.Toolkit} h
-     * @return {Hapi.Response}
-     */
-    async handler(request, h) {
-        try {
-            const blockchain = app.resolvePlugin("blockchain");
-            const maxTransactions = config.getMilestone(blockchain.getLastHeight()).block.maxTransactions;
-
-            if (!request.query.ids) {
-                return {
-                    success: false,
-                };
-            }
-
-            const transactionIds = request.query.ids
-                .split(",")
-                .slice(0, maxTransactions)
-                .filter(id => id.match(/^[0-9a-fA-F]{64}$/));
-
-            if (!transactionIds.length) {
-                return {
-                    success: false,
-                };
-            }
-
-            const rows = await app.resolvePlugin<PostgresConnection>("database").getTransactionsFromIds(transactionIds);
-
-            const transactions = await rows.map(row => {
-                const transaction = Transaction.deserialize(row.serialized.toString("hex"));
-                if (transaction.version === 1) {
-                	Transaction.applyV1Compatibility(transaction);
-                }
-                transaction.blockId = row.blockId;
-                transaction.senderId = crypto.getAddress(transaction.senderPublicKey);
-                return transaction;
-            });
-
-            transactionIds.forEach((transaction, i) => {
-                transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i]);
-            });
-
-            return { success: true, transactions: transactionIds };
-        } catch (error) {
-            return h
-                .response({ success: false, message: error.message })
-                .code(500)
-                .takeover();
-        }
-    },
-};
-
-/**
- * @type {Object}
- */
 export const getTransactions = {
     /**
      * @param  {Hapi.Request} request
