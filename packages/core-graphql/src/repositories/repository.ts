@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { TransactionPool } from "@arkecosystem/core-transaction-pool";
 
 export abstract class Repository {
     public database = app.resolvePlugin<PostgresConnection>("database");
-    public transactionPool = app.resolvePlugin("transactionPool");
+    public transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
     public cache = this.database.getCache();
     public model = this.getModel();
     public query = this.model.query();

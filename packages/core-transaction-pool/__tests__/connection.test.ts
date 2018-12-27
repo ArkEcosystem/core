@@ -1,33 +1,30 @@
 /* tslint:disable:max-line-length */
-import { fixtures, generators } from "@arkecosystem/core-test-utils";
-
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { bignumify } from "@arkecosystem/core-utils";
 import { constants, models, slots } from "@arkecosystem/crypto";
-
 import delay from "delay";
-
 import randomSeed from "random-seed";
+import { TransactionPool } from "../src";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 
 const { ARKTOSHI, TransactionTypes } = constants;
 const { Transaction } = models;
-
 const { generateTransfers } = generators;
 const { delegatesSecrets } = fixtures;
 
 let config;
 let database: PostgresConnection;
-let connection;
+let connection : TransactionPool;
 
 beforeAll(async () => {
     await setUpFull();
 
     config = app.getConfig();
     database = app.resolvePlugin<PostgresConnection>("database");
-    connection = app.resolvePlugin("transactionPool");
+    connection = app.resolvePlugin<TransactionPool>("transactionPool");
 
     // Ensure no cold wallet and enough funds
     database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
