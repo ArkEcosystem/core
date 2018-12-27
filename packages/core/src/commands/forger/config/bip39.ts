@@ -36,7 +36,7 @@ export class ConfigureBIP39 extends Command {
         ]);
 
         if (response.confirm) {
-            return this.performConfiguration({ ...this.options, ...response });
+            return this.performConfiguration({ ...flags, ...response });
         }
     }
 
