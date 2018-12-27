@@ -177,43 +177,6 @@ export const postBlock = {
 
             blockchain.pushPingBlock(b.data);
 
-            if (b.headerOnly) {
-                // let missingIds = []
-                let transactions = [];
-                // if (transactionPool) {
-                //   transactions = block.transactionIds
-                //    .map(async id => await transactionPool.getTransaction(id) || id)
-                //   missingIds = transactions.filter(tx => !tx.id)
-                // } else {
-                //   missingIds = block.transactionIds.slice(0)
-                // }
-                // if (missingIds.length > 0) {
-                let peer = await monitor.getPeer(request.info.remoteAddress);
-                // only for test because it can be used for DDOS attack
-                if (!peer && process.env.NODE_ENV === "test_p2p") {
-                    peer = await monitor.getRandomPeer();
-                }
-
-                if (!peer) {
-                    return { success: false };
-                }
-
-                transactions = await peer.getTransactionsFromIds(block.transactionIds);
-                // issue on v1, using /api/ instead of /peer/
-                if (transactions.length < block.transactionIds.length) {
-                    transactions = await peer.getTransactionsFromBlock(block.id);
-                }
-
-                // reorder them correctly
-                block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id));
-                logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`);
-
-                if (block.transactions.length !== block.numberOfTransactions) {
-                    return { success: false };
-                }
-            }
-            // } else return { success: false }
-
             block.ip = request.info.remoteAddress;
             blockchain.queueBlock(block);
 
