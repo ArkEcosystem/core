@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import Command from "../command";
 
-class CoreRun extends Command {
+export class CoreRun extends Command {
     public static description = "Run the core (no daemon)";
 
     public static examples = [`$ ark core:run`];

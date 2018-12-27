@@ -1,7 +1,7 @@
 import { log } from "../../pm2";
 import Command from "../command";
 
-class CoreLog extends Command {
+export class CoreLog extends Command {
     public static description = "Show the core log";
 
     public static examples = [`$ ark core:log`];

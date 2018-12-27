@@ -2,7 +2,7 @@ import { flags } from "@oclif/command";
 import { start } from "../../pm2";
 import Command from "../command";
 
-class CoreStart extends Command {
+export class CoreStart extends Command {
     public static description = "Start the core";
 
     public static examples = [`$ ark core:start`];
