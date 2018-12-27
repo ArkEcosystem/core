@@ -151,19 +151,6 @@ export class Peer {
         }
     }
 
-    public async getTransactionsFromIds(ids) {
-        // useless since there is a bug on v1
-        const response = await this.__get(`/peer/transactionsFromIds?ids=${ids.join(",")}`);
-
-        return response.success ? response.transactions : [];
-    }
-
-    public async getTransactionsFromBlock(blockId) {
-        const response = await this.__get(`/api/transactions?blockId=${blockId}`);
-
-        return response.success ? response.transactions : [];
-    }
-
     /**
      * Download blocks from peer.
      * @param  {Number} fromBlockHeight
