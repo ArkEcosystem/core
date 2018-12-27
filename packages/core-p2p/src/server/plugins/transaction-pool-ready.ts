@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { TransactionPool} from "@arkecosystem/core-transaction-pool";
+import { TransactionPool } from "@arkecosystem/core-transaction-pool";
 import Boom from "boom";
 
 /**

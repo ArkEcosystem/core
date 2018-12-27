@@ -43,7 +43,7 @@ export function stop(processName: string) {
     });
 }
 
-export function reload(processName: string) {
+export function restart(processName: string) {
     pm2.connect(connectionError => {
         if (connectionError) {
             console.error(connectionError);

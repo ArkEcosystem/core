@@ -17,7 +17,7 @@ const { delegatesSecrets } = fixtures;
 
 let config;
 let database: PostgresConnection;
-let connection : TransactionPool;
+let connection: TransactionPool;
 
 beforeAll(async () => {
     await setUpFull();

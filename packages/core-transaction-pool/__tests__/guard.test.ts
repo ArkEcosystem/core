@@ -21,7 +21,7 @@ const { delegates } = fixtures;
 
 let container: Container;
 let guard;
-let transactionPool : TransactionPool;
+let transactionPool: TransactionPool;
 
 beforeAll(async () => {
     container = await setUpFull();
