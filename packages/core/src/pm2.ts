@@ -76,3 +76,7 @@ export function destroy(processName: string) {
         });
     });
 }
+
+export function log(processName: string) {
+    return;
+}

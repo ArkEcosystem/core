@@ -1,4 +1,4 @@
-import { Container }  from "@arkecosystem/core-container";
+import { Container } from "@arkecosystem/core-container";
 import { asValue } from "awilix";
 import { Blockchain } from "./blockchain";
 import { config } from "./config";

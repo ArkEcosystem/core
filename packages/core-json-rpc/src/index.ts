@@ -30,5 +30,5 @@ export const plugin = {
 
             return container.resolvePlugin("json-rpc").stop();
         }
-    }
+    },
 };

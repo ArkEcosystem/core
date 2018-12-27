@@ -1,17 +1,21 @@
+import { flags } from "@oclif/command";
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
 import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
+import Command from "../command";
 
-import { AbstractCommand } from "../command";
+export class ConfigPublish extends Command {
+    public static description = "Publish the configuration";
 
-export class ConfigPublish extends AbstractCommand {
-    public async handle() {
-        if (this.isInterface()) {
-            return this.performPublishment(this.options);
-        }
+    public static examples = [`$ ark config:get`];
+
+    public static flags = { config: flags.string({ char: "n", description: "..." }) };
+
+    public async run() {
+        const { flags } = this.parse(ConfigPublish);
 
         const response = await prompts([
             {
@@ -28,7 +32,7 @@ export class ConfigPublish extends AbstractCommand {
                 type: "text",
                 name: "config",
                 message: "Where do you want the configuration to be located?",
-                initial: this.options.config,
+                initial: flags.config,
             },
             {
                 type: "confirm",

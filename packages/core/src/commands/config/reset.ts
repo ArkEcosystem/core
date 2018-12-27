@@ -1,18 +1,22 @@
+import { flags } from "@oclif/command";
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
 import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
+import Command from "../command";
 import { ConfigPublish } from "./publish";
 
-import { AbstractCommand } from "../command";
+export class ConfigReset extends Command {
+    public static description = "Reset the configuration";
 
-export class ConfigReset extends AbstractCommand {
-    public async handle() {
-        if (this.isInterface()) {
-            return this.performReset();
-        }
+    public static examples = [`$ ark config:get`];
+
+    public static flags = { config: flags.string({ char: "n", description: "..." }) };
+
+    public async run() {
+        const { flags } = this.parse(ConfigReset);
 
         const response = await prompts([
             {
@@ -24,19 +28,19 @@ export class ConfigReset extends AbstractCommand {
         ]);
 
         if (response.confirm) {
-            return this.performReset();
+            return this.performReset(flags);
         }
     }
 
-    private async performReset() {
+    private async performReset(flags) {
         const spinner = ora("Removing configuration...").start();
 
-        fs.removeSync(resolve(expandHomeDir(this.options.config)));
+        fs.removeSync(resolve(expandHomeDir(flags.config)));
 
         await delay(750);
 
         spinner.succeed("Removed configuration!");
 
-        await new ConfigPublish(this.options).handle();
+        await ConfigPublish.run();
     }
 }

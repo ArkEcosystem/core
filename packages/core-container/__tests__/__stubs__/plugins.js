@@ -1,4 +1,4 @@
-const { resolve } = require("path")
+const { resolve } = require("path");
 
 module.exports = {
     [resolve(__dirname, "./plugin-a")]: {
