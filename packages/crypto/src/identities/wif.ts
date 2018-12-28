@@ -1,5 +1,5 @@
 import wif from "wif";
-import { configManager } from "../managers/config";
+import { configManager } from "../managers";
 import { Keys } from "./keys";
 
 export class WIF {

@@ -1,7 +1,7 @@
 import { transactionBuilder } from "./builder";
-import { configManager } from "./managers/config";
-import { feeManager } from "./managers/fee";
-import { NetworkManager } from "./managers/network";
+import { configManager } from "./managers";
+import { feeManager } from "./managers";
+import { NetworkManager } from "./managers";
 
 export class Client {
     /**
@@ -45,5 +45,4 @@ export class Client {
     }
 }
 
-const client = new Client();
-export { client };
+export const client = new Client();

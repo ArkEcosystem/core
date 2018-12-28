@@ -1,7 +1,6 @@
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
 import { transactionHandler } from "../handlers/transactions";
-import { configManager } from "../managers/config";
 import { Bignum, formatArktoshi } from "../utils";
 
 /**

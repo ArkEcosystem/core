@@ -1,5 +1,5 @@
 import { TransactionTypes } from "../../constants";
-import { feeManager } from "../../managers/fee";
+import { feeManager } from "../../managers";
 import { TransactionBuilder } from "./transaction";
 
 export class IPFSBuilder extends TransactionBuilder {

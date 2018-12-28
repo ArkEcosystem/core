@@ -6,8 +6,8 @@ import crypto from "crypto";
 import secp256k1 from "secp256k1";
 import wif from "wif";
 
-import { configManager } from "../managers/config";
-import { feeManager } from "../managers/fee";
+import { configManager } from "../managers";
+import { feeManager } from "../managers";
 import { Bignum } from "../utils";
 import { HashAlgorithms } from "./hash-algorithms";
 

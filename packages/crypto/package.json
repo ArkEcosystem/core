@@ -11,7 +11,8 @@
         "Joshua Noack <joshua@ark.io>"
     ],
     "license": "MIT",
-    "main": "dist/index.js",
+    "main": "dist/index",
+    "types": "dist/index",
     "browser": "dist/index.umd.js",
     "module": "dist/index.cjs.js",
     "files": [

@@ -3,10 +3,10 @@ import { createHash } from "crypto";
 import forge from "node-forge";
 import { authenticator } from "otplib";
 import wif from "wif";
-import { Bignum } from "../utils/bignum";
+import { Bignum } from "../utils";
 
 import { crypto } from "../crypto/crypto";
-import { sortTransactions } from "../utils/sort-transactions";
+import { sortTransactions } from "../utils";
 import { Block } from "./block";
 
 /**

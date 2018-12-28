@@ -1,5 +1,4 @@
 import Joi from "joi";
-import { configManager } from "../managers";
 import { extensions } from "./extensions";
 
 export class Engine {
