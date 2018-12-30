@@ -1,5 +1,5 @@
 import dayjs from "dayjs-ext";
-import { configManager } from "../managers/config";
+import { configManager } from "../managers";
 
 class Slots {
     public height: number;

@@ -1,8 +1,8 @@
 import secp256k1 from "secp256k1";
 import wif from "wif";
 
-import { HashAlgorithms } from "../crypto/hash-algorithms";
-import { configManager } from "../managers/config";
+import { HashAlgorithms } from "../crypto";
+import { configManager } from "../managers";
 
 export class Keys {
     public static fromPassphrase(passphrase, compressed = true) {

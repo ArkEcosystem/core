@@ -1,5 +1,4 @@
-import { transactionBuilder } from "./builder";
-import { client } from "./client";
+export * from "./builder";
 
 import * as constants from "./constants";
 import * as models from "./models";
@@ -11,4 +10,4 @@ export * from "./validation";
 export * from "./crypto";
 export * from "./client";
 
-export { client, models, transactionBuilder, constants };
+export { models, constants };

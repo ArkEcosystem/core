@@ -1,6 +1,6 @@
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
-import { feeManager } from "../../managers/fee";
+import { feeManager } from "../../managers";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder {

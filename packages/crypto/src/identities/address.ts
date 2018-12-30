@@ -1,6 +1,6 @@
 import bs58check from "bs58check";
-import { HashAlgorithms } from "../crypto/hash-algorithms";
-import { configManager } from "../managers/config";
+import { HashAlgorithms } from "../crypto";
+import { configManager } from "../managers";
 import { PublicKey } from "./public-key";
 
 export class Address {

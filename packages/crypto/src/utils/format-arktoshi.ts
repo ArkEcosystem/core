@@ -1,5 +1,5 @@
 import { ARKTOSHI } from "../constants";
-import { configManager } from "../managers/config";
+import { configManager } from "../managers";
 
 /**
  * Get human readable string from arktoshis

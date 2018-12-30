@@ -1,4 +1,4 @@
-import { configManager } from "../managers/config";
+import { configManager } from "../managers";
 import { Address } from "./address";
 import { Keys } from "./keys";
 

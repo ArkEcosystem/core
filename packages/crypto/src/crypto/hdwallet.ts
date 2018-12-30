@@ -1,13 +1,9 @@
 import bip32 from "bip32";
 import bip39 from "bip39";
-import { configManager } from "../managers/config";
+import { configManager } from "../managers";
 
 class HDWallet {
-    public readonly slip44: number;
-
-    constructor() {
-        this.slip44 = 111;
-    }
+    public readonly slip44 = 111;
 
     /**
      * Get root node from the given mnemonic with an optional passphrase.
