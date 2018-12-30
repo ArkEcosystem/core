@@ -97,9 +97,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildLastForgedBlocks() {
-        const blocks = await this.query.many(queries.spv.lastForgedBlocks, {
-            limit: this.activeDelegates,
-        });
+        const blocks = await this.query.many(queries.spv.lastForgedBlocks);
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
