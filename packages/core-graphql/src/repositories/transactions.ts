@@ -1,5 +1,3 @@
-import { app } from "@arkecosystem/core-container";
-
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 
@@ -7,7 +5,6 @@ import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/filter-query";
 
 const { TransactionTypes } = constants;
-const database = app.resolvePlugin("database");
 
 class TransactionsRepository extends Repository {
     /**
@@ -324,7 +321,7 @@ class TransactionsRepository extends Repository {
     }
 
     public getModel() {
-        return database.models.transaction;
+        return this.database.models.transaction;
     }
 
     /**
@@ -333,7 +330,7 @@ class TransactionsRepository extends Repository {
      * @return {Object}
      */
     public async __mapBlocksToTransactions(data) {
-        const blockQuery = database.models.block.query();
+        const blockQuery = this.database.models.block.query();
 
         // Array...
         if (Array.isArray(data)) {
@@ -423,7 +420,7 @@ class TransactionsRepository extends Repository {
      * @return {String}
      */
     public __publicKeyFromSenderId(senderId) {
-        return database.walletManager.findByAddress(senderId).publicKey;
+        return this.database.walletManager.findByAddress(senderId).publicKey;
     }
 
     public __orderBy(parameters) {

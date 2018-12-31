@@ -15,6 +15,7 @@ import { Bignum, models } from "@arkecosystem/crypto";
 import { SPV } from "./spv";
 
 import { migrations } from "./migrations";
+import { Model } from "./models";
 import { repositories } from "./repositories";
 import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
@@ -22,12 +23,16 @@ import { camelizeColumns } from "./utils";
 const { Block, Transaction } = models;
 
 export class PostgresConnection extends ConnectionInterface {
-    private db: any;
+    public models: { [key: string]: Model } = {};
+    public query: QueryExecutor;
+    public db: any;
     private cache: Map<any, any>;
-    private models: {};
-    private query: QueryExecutor;
     private pgp: any;
     private spvFinished: boolean;
+
+    public constructor(readonly options: any) {
+        super(options);
+    }
 
     /**
      * Make the database connection instance.
@@ -171,7 +176,7 @@ export class PostgresConnection extends ConnectionInterface {
      * @param  {Array} delegates
      * @return {Array}
      */
-    public async getActiveDelegates(height, delegates) {
+    public async getActiveDelegates(height, delegates?) {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;
 
@@ -503,15 +508,6 @@ export class PostgresConnection extends ConnectionInterface {
     }
 
     /**
-     * Get transactions for the given IDs.
-     * @param  {Array} ids
-     * @return {Array}
-     */
-    public async getTransactionsFromIds(ids) {
-        return this.db.transactions.findManyById(ids);
-    }
-
-    /**
      * Get forged transactions for the given IDs.
      * @param  {Array} ids
      * @return {Array}
@@ -656,8 +652,6 @@ export class PostgresConnection extends ConnectionInterface {
      * @return {void}
      */
     public async __registerModels() {
-        this.models = {};
-
         for (const [key, Value] of Object.entries(require("./models"))) {
             this.models[key.toLowerCase()] = new (Value as any)(this.pgp);
         }

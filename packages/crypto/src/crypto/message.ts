@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { configManager } from "../managers/config";
+import { configManager } from "../managers";
 import { crypto as arkCrypto } from "./crypto";
 
 const createHash = message =>

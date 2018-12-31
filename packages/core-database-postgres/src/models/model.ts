@@ -23,7 +23,7 @@ export abstract class Model {
      * Return the model & table definition.
      * @return {Object}
      */
-    public query() {
+    public query(): any {
         const { schema, columns } = this.getColumnSet();
         return sql.define({
             name: this.getTable(),
@@ -37,8 +37,8 @@ export abstract class Model {
 
     /**
      * Convert the "camelCase" keys to "snake_case".
-     * @param  {Array} v
      * @return {ColumnSet}
+     * @param columns
      */
     public createColumnSet(columns) {
         return new this.pgp.helpers.ColumnSet(columns, {

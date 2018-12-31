@@ -1,5 +1,7 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
+import { TransactionPool }  from "@arkecosystem/core-transaction-pool";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { crypto, Joi, models, slots } from "@arkecosystem/crypto";
 
@@ -8,7 +10,7 @@ import { monitor } from "../../../monitor";
 
 const { Block, Transaction } = models;
 
-const transactionPool = app.resolvePlugin("transactionPool");
+const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 const config = app.getConfig();
 const logger = app.resolvePlugin<AbstractLogger>("logger");
 
@@ -104,49 +106,6 @@ export const getCommonBlocks = {
 /**
  * @type {Object}
  */
-export const getTransactionsFromIds = {
-    /**
-     * @param  {Hapi.Request} request
-     * @param  {Hapi.Toolkit} h
-     * @return {Hapi.Response}
-     */
-    async handler(request, h) {
-        try {
-            const blockchain = app.resolvePlugin("blockchain");
-            const maxTransactions = config.getMilestone(blockchain.getLastHeight()).block.maxTransactions;
-
-            const transactionIds = request.query.ids
-                .split(",")
-                .slice(0, maxTransactions)
-                .filter(id => id.match("[0-9a-fA-F]{32}"));
-
-            const rows = await app.resolvePlugin("database").getTransactionsFromIds(transactionIds);
-
-            // TODO: v1 compatibility patch. Add transformer and refactor later on
-            const transactions = await rows.map(row => {
-                const transaction = Transaction.deserialize(row.serialized.toString("hex"));
-                transaction.blockId = row.block_id;
-                transaction.senderId = crypto.getAddress(transaction.senderPublicKey);
-                return transaction;
-            });
-
-            transactionIds.forEach((transaction, i) => {
-                transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i]);
-            });
-
-            return { success: true, transactions: transactionIds };
-        } catch (error) {
-            return h
-                .response({ success: false, message: error.message })
-                .code(500)
-                .takeover();
-        }
-    },
-};
-
-/**
- * @type {Object}
- */
 export const getTransactions = {
     /**
      * @param  {Hapi.Request} request
@@ -217,43 +176,6 @@ export const postBlock = {
             }
 
             blockchain.pushPingBlock(b.data);
-
-            if (b.headerOnly) {
-                // let missingIds = []
-                let transactions = [];
-                // if (transactionPool) {
-                //   transactions = block.transactionIds
-                //    .map(async id => await transactionPool.getTransaction(id) || id)
-                //   missingIds = transactions.filter(tx => !tx.id)
-                // } else {
-                //   missingIds = block.transactionIds.slice(0)
-                // }
-                // if (missingIds.length > 0) {
-                let peer = await monitor.getPeer(request.info.remoteAddress);
-                // only for test because it can be used for DDOS attack
-                if (!peer && process.env.NODE_ENV === "test_p2p") {
-                    peer = await monitor.getRandomPeer();
-                }
-
-                if (!peer) {
-                    return { success: false };
-                }
-
-                transactions = await peer.getTransactionsFromIds(block.transactionIds);
-                // issue on v1, using /api/ instead of /peer/
-                if (transactions.length < block.transactionIds.length) {
-                    transactions = await peer.getTransactionsFromBlock(block.id);
-                }
-
-                // reorder them correctly
-                block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id));
-                logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`);
-
-                if (block.transactions.length !== block.numberOfTransactions) {
-                    return { success: false };
-                }
-            }
-            // } else return { success: false }
 
             block.ip = request.info.remoteAddress;
             blockchain.queueBlock(block);
@@ -330,7 +252,7 @@ export const getBlocks = {
      */
     async handler(request, h) {
         try {
-            const database = app.resolvePlugin("database");
+            const database = app.resolvePlugin<PostgresConnection>("database");
             const blockchain = app.resolvePlugin("blockchain");
 
             const reqBlockHeight = +request.query.lastBlockHeight + 1;

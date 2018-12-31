@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 
 const emitter = app.resolvePlugin("event-emitter");
 
@@ -15,10 +16,11 @@ export const usernames = {
      */
     async handler(request, h) {
         const blockchain = app.resolvePlugin("blockchain");
-        const walletManager = app.resolvePlugin("database").walletManager;
+        const database = blockchain.database;
+        const walletManager = database.walletManager;
 
         const lastBlock = blockchain.getLastBlock();
-        const delegates = await blockchain.database.getActiveDelegates(lastBlock ? lastBlock.data.height + 1 : 1);
+        const delegates = await database.getActiveDelegates(lastBlock ? lastBlock.data.height + 1 : 1);
 
         const data = {};
         for (const delegate of delegates) {

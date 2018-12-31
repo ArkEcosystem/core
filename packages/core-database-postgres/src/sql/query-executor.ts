@@ -1,10 +1,12 @@
+import { PostgresConnection } from "../connection";
+
 export class QueryExecutor {
     /**
      * Create a new QueryExecutor instance.
      * @param  {[type]} connection
      * @return {QueryBuilder}
      */
-    constructor(public connection) {}
+    constructor(public connection: PostgresConnection) {}
 
     /**
      * Execute the given query and expect no results.

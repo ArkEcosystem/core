@@ -1,61 +1,39 @@
 import { app } from "@arkecosystem/core-container";
 import { AbstractLogger } from "@arkecosystem/core-logger";
-import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
-
 import { roundCalculator } from "@arkecosystem/core-utils";
+import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
-import { WalletManager } from "./wallet-manager";
-
 import { DelegatesRepository } from "./repositories/delegates";
 import { WalletsRepository } from "./repositories/wallets";
+import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
 const { TransactionTypes } = constants;
 
 export abstract class ConnectionInterface {
-    public config: any;
-    public logger: AbstractLogger;
-    public emitter: any;
-
-    public connection: any;
-    public blocksInCurrentRound: any[];
-    public stateStarted: boolean;
-    public restoredDatabaseIntegrity: boolean;
-    public walletManager: WalletManager;
-    public forgingDelegates: any[];
-    public wallets: WalletsRepository;
-    public delegates: DelegatesRepository;
-    protected queuedQueries: any[];
+    // TODO: Convert these to protected/private and provide the appropriate get/setters
+    public config = app.getConfig();
+    public logger = app.resolvePlugin<AbstractLogger>("logger");
+    public emitter = app.resolvePlugin("event-emitter");
+    public blocksInCurrentRound: any[] = null;
+    public stateStarted: boolean = false;
+    public restoredDatabaseIntegrity: boolean = false;
+    public walletManager: WalletManager = null;
+    public forgingDelegates: any[] = null;
+    public wallets: WalletsRepository = null;
+    public delegates: DelegatesRepository = null;
+    public queuedQueries: any[] = null;
 
     /**
      * @constructor
      * @param {Object} options
      */
-    public constructor(public readonly options) {
-        this.config = app.getConfig();
-        this.logger = app.resolvePlugin<AbstractLogger>("logger");
-        this.emitter = app.resolvePlugin("event-emitter");
-
-        this.connection = null;
-        this.blocksInCurrentRound = null;
-        this.stateStarted = false;
-        this.restoredDatabaseIntegrity = false;
-        this.walletManager = null;
-        this.wallets = null;
-        this.delegates = null;
-        this.queuedQueries = null;
-
+    protected constructor(public readonly options: any) {
         this.__registerListeners();
     }
 
-    /**
-     * Get the current connection.
-     * @return {ConnectionInterface}
-     */
-    public getConnection(): any {
-        return this.connection;
-    }
+    public abstract async make(): Promise<ConnectionInterface>;
 
     /**
      * Connect to a database.

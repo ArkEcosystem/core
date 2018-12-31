@@ -1,13 +1,14 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { TransactionPool } from "./connection";
+import { dynamicFeeMatcher } from "./dynamic-fee";
+import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 const { TransactionTypes } = constants;
 const { Transaction } = models;
-
-import { dynamicFeeMatcher } from "./dynamic-fee";
-import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 export class TransactionGuard {
     public transactions: any[];
@@ -16,14 +17,14 @@ export class TransactionGuard {
     public broadcast: { [key: string]: any };
     public invalid: { [key: string]: any };
     public errors: any;
-    private pool: any;
+    private pool: TransactionPool;
 
     /**
      * Create a new transaction guard instance.
      * @param  {TransactionPoolInterface} pool
      * @return {void}
      */
-    constructor(pool) {
+    constructor(pool: TransactionPool) {
         this.pool = pool;
 
         this.transactions = [];
@@ -241,7 +242,7 @@ export class TransactionGuard {
      * @return {void}
      */
     public async __removeForgedTransactions() {
-        const database = app.resolvePlugin("database");
+        const database = app.resolvePlugin<PostgresConnection>("database");
 
         const forgedIdsSet = await database.getForgedTransactionsIds([
             ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),

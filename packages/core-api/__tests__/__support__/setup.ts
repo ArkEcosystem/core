@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
 
-import { delegates } from "../../../core-test-utils/src/fixtures/testnet/delegates";
+import { delegates } from "../../../core-test-utils/src/fixtures";
 import { generateRound } from "./utils/generate-round";
 
 import { queries } from "../../../core-database-postgres/src/queries";
@@ -20,7 +21,7 @@ async function setUp() {
         ],
     });
 
-    const connection = app.resolvePlugin("database");
+    const connection = app.resolvePlugin<PostgresConnection>("database");
     await connection.db.rounds.truncate();
     await connection.buildWallets(1);
     await connection.saveWallets(true);
@@ -32,7 +33,7 @@ async function tearDown() {
 }
 
 async function calculateRanks() {
-    const connection = app.resolvePlugin("database");
+    const connection = app.resolvePlugin<PostgresConnection>("database");
 
     const rows = await connection.query.manyOrNone(queries.spv.delegatesRanks);
 

@@ -1,32 +1,30 @@
 /* tslint:disable:max-line-length */
-import { fixtures, generators } from "@arkecosystem/core-test-utils";
-
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { bignumify } from "@arkecosystem/core-utils";
 import { constants, models, slots } from "@arkecosystem/crypto";
-
 import delay from "delay";
-
 import randomSeed from "random-seed";
+import { TransactionPool } from "../src";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 
 const { ARKTOSHI, TransactionTypes } = constants;
 const { Transaction } = models;
-
 const { generateTransfers } = generators;
 const { delegatesSecrets } = fixtures;
 
 let config;
-let database;
-let connection;
+let database: PostgresConnection;
+let connection : TransactionPool;
 
 beforeAll(async () => {
     await setUpFull();
 
     config = app.getConfig();
-    database = app.resolvePlugin("database");
-    connection = app.resolvePlugin("transactionPool");
+    database = app.resolvePlugin<PostgresConnection>("database");
+    connection = app.resolvePlugin<TransactionPool>("transactionPool");
 
     // Ensure no cold wallet and enough funds
     database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
@@ -430,7 +428,8 @@ describe("Connection", () => {
 
             // For some reason all genesis transactions fail signature verification, so
             // they are not loaded from the local storage and this fails otherwise.
-            const original = database.getForgedTransactionsId;
+            // TODO: Use jest.spyOn() to change behavior instead. jest.restoreAllMocks() will reset afterwards
+            const original = database.getForgedTransactionsIds;
             database.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
 
             expect(forgedTransaction instanceof Transaction).toBeTrue();

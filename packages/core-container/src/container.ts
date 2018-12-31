@@ -250,6 +250,11 @@ export class Container {
             logger.info("Ark Core is trying to gracefully shut down to avoid data corruption :pizza:");
 
             try {
+                /* TODO: core-database-postgres has a dep on core-container. Yet we have code in core-container fetching a reference to core-database-postgres.
+                If we try to import core-database-postgres types, we create a circular dependency: core-container -> core-database-postgres -> core-container.
+                The only thing we're doing here is trying to save the wallets upon shutdown. The code can and should be moved into core-database-postgres instead
+                and leverage either the plugins `tearDown` method or the event-emitter's 'shutdown' event
+                 */
                 const database = this.resolvePlugin("database");
                 if (database) {
                     const emitter = this.resolvePlugin("event-emitter");

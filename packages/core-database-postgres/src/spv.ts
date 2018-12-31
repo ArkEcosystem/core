@@ -3,7 +3,9 @@ const { Transaction } = models;
 
 import { app } from "@arkecosystem/core-container";
 import { AbstractLogger } from "@arkecosystem/core-logger";
+import { PostgresConnection } from "./connection";
 import { queries } from "./queries";
+import { QueryExecutor } from "./sql/query-executor";
 
 const logger = app.resolvePlugin<AbstractLogger>("logger");
 const config = app.getConfig();
@@ -11,22 +13,15 @@ const config = app.getConfig();
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
 
 export class SPV {
-    private connection: any;
     private models: any;
     private walletManager: any;
-    private query: any;
+    private query: QueryExecutor;
     private activeDelegates: [];
 
-    /**
-     * Create a new wallet builder instance.
-     * @param  {SequelizeConnection} database
-     * @return {void}
-     */
-    constructor(database) {
-        this.connection = database.connection;
-        this.models = database.models;
-        this.walletManager = database.walletManager;
-        this.query = database.query;
+    constructor(connectionInterface: PostgresConnection) {
+        this.models = connectionInterface.models;
+        this.walletManager = connectionInterface.walletManager;
+        this.query = connectionInterface.query;
     }
 
     /**
@@ -102,9 +97,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildLastForgedBlocks() {
-        const blocks = await this.query.many(queries.spv.lastForgedBlocks, {
-            limit: this.activeDelegates,
-        });
+        const blocks = await this.query.many(queries.spv.lastForgedBlocks);
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
