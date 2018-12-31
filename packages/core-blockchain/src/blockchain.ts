@@ -129,7 +129,7 @@ export class BlockchainImpl implements Blockchain.Blockchain {
      * @param  {Number} nblocks
      * @return {void}
      */
-    public rebuild(nblocks) {
+    public rebuild(nblocks?: number) {
         throw new Error("Method [rebuild] not implemented!");
     }
 

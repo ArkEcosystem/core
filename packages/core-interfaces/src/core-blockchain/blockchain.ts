@@ -1,12 +1,13 @@
 import { models } from "@arkecosystem/crypto";
 import { TransactionPool } from "../core-transaction-pool";
+import { StateStorage } from "./state-storage";
 
 export interface Blockchain {
     /**
      * Get the state of the blockchain.
      * @return {StateStorage}
      */
-    readonly state: any;
+    readonly state: StateStorage;
     /**
      * Get the network (p2p) interface.
      * @return {P2PInterface}
@@ -41,7 +42,7 @@ export interface Blockchain {
      * @param  {Number} nblocks
      * @return {void}
      */
-    rebuild(nblocks: any): void;
+    rebuild(nblocks?: number): void;
     /**
      * Reset the state of the blockchain.
      * @return {void}
@@ -74,7 +75,7 @@ export interface Blockchain {
      * @param  {Number} nblocks
      * @return {void}
      */
-    removeBlocks(nblocks: any): Promise<void>;
+    removeBlocks(nblocks: number): Promise<void>;
     /**
      * Remove the top blocks from database.
      * NOTE: Only used when trying to restore database integrity.
@@ -89,7 +90,7 @@ export interface Blockchain {
      * @param  {Function} callback
      * @return {Object}
      */
-    rebuildBlock(block: any, callback: any): Promise<any>;
+    rebuildBlock(block: models.Block, callback: any): Promise<any>;
     /**
      * Process the given block.
      * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
@@ -97,27 +98,27 @@ export interface Blockchain {
      * @param  {Function} callback
      * @return {(Function|void)}
      */
-    processBlock(block: any, callback: any): Promise<any>;
+    processBlock(block: models.Block, callback: any): Promise<any>;
     /**
      * Accept a new chained block.
      * @param  {Block} block
      * @param  {Object} state
      * @return {void}
      */
-    acceptChainedBlock(block: any): Promise<void>;
+    acceptChainedBlock(block: models.Block): Promise<void>;
     /**
      * Manage a block that is out of order.
      * @param  {Block} block
      * @param  {Object} state
      * @return {void}
      */
-    manageUnchainedBlock(block: any): Promise<void>;
+    manageUnchainedBlock(block: models.Block): Promise<void>;
     /**
      * Checks if the given block contains already forged transactions.
      * @param {Block} block
      * @returns {Boolean}
      */
-    checkBlockContainsForgedTransactions(block: any): Promise<boolean>;
+    checkBlockContainsForgedTransactions(block: models.Block): Promise<boolean>;
     /**
      * Called by forger to wake up and sync with the network.
      * It clears the checkLaterTimeout if set.
@@ -131,7 +132,7 @@ export interface Blockchain {
      * @param {Block} block
      * @returns {void}
      */
-    forkBlock(block: any): void;
+    forkBlock(block: models.Block): void;
     /**
      * Get unconfirmed transactions for the specified block size.
      * @param  {Number}  blockSize
@@ -148,13 +149,13 @@ export interface Blockchain {
      * @param  {Block} [block=getLastBlock()]  block
      * @return {Boolean}
      */
-    isSynced(block?: any): boolean;
+    isSynced(block?: models.Block): boolean;
     /**
      * Determine if the blockchain is synced after a rebuild.
      * @param  {Block}  block
      * @return {Boolean}
      */
-    isRebuildSynced(block?: any): boolean;
+    isRebuildSynced(block?: models.Block): boolean;
     /**
      * Get the last block of the blockchain.
      * @return {Object}
@@ -179,12 +180,12 @@ export interface Blockchain {
      * Ping a block.
      * @return {Object}
      */
-    pingBlock(incomingBlock: any): any;
+    pingBlock(incomingBlock: models.Block): any;
     /**
      * Push ping block.
      * @return {Object}
      */
-    pushPingBlock(block: any): void;
+    pushPingBlock(block: models.Block): void;
     /**
      * Get the list of events that are available.
      * @return {Array}

@@ -1,15 +1,16 @@
-import {  Blockchain } from "@arkecosystem/core-interfaces";
+import {  Blockchain, Container } from "@arkecosystem/core-interfaces";
 import { config } from "../src";
 import { dynamicFeeMatcher } from "../src/dynamic-fee";
 import { transactions } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 
 let blockchain : Blockchain.Blockchain;
-let container;
+let container: Container.Container;
 
 beforeAll(async () => {
     container = await setUpFull();
     config.init(container.resolveOptions("transactionPool"));
+    blockchain = container.resolvePlugin<Blockchain.Blockchain>("blockchain");
 });
 
 afterAll(async () => {
@@ -18,7 +19,6 @@ afterAll(async () => {
 
 describe("static fees", () => {
     beforeAll(() => {
-        blockchain = container.resolvePlugin("blockchain");
         blockchain.getLastBlock = jest.fn(plugin => ({
             data: {
                 height: 20,
@@ -51,7 +51,6 @@ describe("static fees", () => {
 
 describe("dynamic fees", () => {
     beforeAll(() => {
-        blockchain = container.resolvePlugin("blockchain");
         blockchain.getLastBlock = jest.fn(plugin => ({
             data: {
                 height: 20,
