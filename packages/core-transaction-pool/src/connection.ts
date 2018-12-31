@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, TransactionPool} from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, TransactionPool} from "@arkecosystem/core-interfaces";
 
 import assert from "assert";
 import dayjs from "dayjs-ext";
@@ -11,7 +11,7 @@ import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
 
 const database = app.resolvePlugin<PostgresConnection>("database");
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.Logger>("logger");
 
 /**

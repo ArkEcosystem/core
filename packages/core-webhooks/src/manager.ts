@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import * as conditions from "./conditions";
 import { database } from "./database";
@@ -13,7 +13,7 @@ class WebhookManager {
      * @return {void}
      */
     public async setUp() {
-        const emitter = app.resolvePlugin("event-emitter");
+        const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
         const blockchain = app.resolvePlugin("blockchain");
 
         for (const event of blockchain.getEvents()) {

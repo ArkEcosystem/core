@@ -1,7 +1,7 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { models, slots } from "@arkecosystem/crypto";
@@ -16,7 +16,7 @@ import { Blockchain } from "./blockchain";
 
 const { Block } = models;
 const config = app.getConfig();
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.Logger>("logger");
 
 /**

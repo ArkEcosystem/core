@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
 import { execSync } from "child_process";
 import delay from "delay";
@@ -250,7 +250,7 @@ export class ContainerImpl implements Container.Container {
                  */
                 const database = this.resolvePlugin("database");
                 if (database) {
-                    const emitter = this.resolvePlugin("event-emitter");
+                    const emitter = this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
                     // Notify plugins about shutdown
                     emitter.emit("shutdown");

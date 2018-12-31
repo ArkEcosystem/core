@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.Logger>("logger");
 const database = app.resolvePlugin<PostgresConnection>("database");
 

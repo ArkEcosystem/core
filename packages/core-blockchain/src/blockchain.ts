@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, TransactionPool} from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, TransactionPool} from "@arkecosystem/core-interfaces";
 import { models, slots } from "@arkecosystem/crypto";
 
 import delay from "delay";
@@ -11,7 +11,7 @@ import { stateMachine } from "./state-machine";
 
 const logger = app.resolvePlugin<Logger.Logger>("logger");
 const config = app.getConfig();
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const { Block } = models;
 
 export class Blockchain {

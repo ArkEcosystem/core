@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { EventEmitter } from "@arkecosystem/core-interfaces";
 
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 import * as schema from "../schemas/utils";
 

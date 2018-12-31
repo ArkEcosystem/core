@@ -6,14 +6,14 @@ import pluralize from "pluralize";
 import zlib from "zlib";
 
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import * as utils from "../utils";
 import { getCodec } from "./codecs";
 import { canImportRecord, verifyData } from "./verification";
 
 const logger = app.resolvePlugin<Logger.Logger>("logger");
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 export const exportTable = async (table, options) => {
     const snapFileName = utils.getPath(table, options.meta.folder, options.codec);

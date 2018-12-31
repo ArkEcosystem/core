@@ -1,2 +1,2 @@
-import * as emitter from "eventemitter3";
-export type EventEmitter = emitter
+import EventEmitter from "eventemitter3";
+export { EventEmitter };

@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -15,7 +15,7 @@ export abstract class ConnectionInterface {
     // TODO: Convert these to protected/private and provide the appropriate get/setters
     public config = app.getConfig();
     public logger = app.resolvePlugin<Logger.Logger>("logger");
-    public emitter = app.resolvePlugin("event-emitter");
+    public emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
