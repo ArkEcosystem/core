@@ -649,13 +649,16 @@ class Monitor {
                 chosenPeers[0].state.height === lastBlock.data.height &&
                 chosenPeers[0].state.header.id !== lastBlock.data.id;
             const quota = chosenPeers.length / flatten(commonIdGroups).length;
-            if (badLastBlock && quota >= 0.66) {
-                // Rollback if last block is bad and quota high
-                logger.info(`Last block id ${lastBlock.data.id} is bad. Going to rollback. :repeat:`);
-                state = "rollback";
-            } else if (quota < 0.66) {
+            if (quota < 0.66) {
                 // or quota too low TODO: find better number
                 logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`);
+                state = "rollback";
+            } else if (badLastBlock) {
+                // Rollback if last block is bad and quota high
+                logger.info(
+                    `Last block id ${lastBlock.data.id} is bad, ` +
+                    `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
+                );
                 state = "rollback";
             }
 
@@ -676,8 +679,6 @@ class Monitor {
                         chosenPeers[0].state.header.id
                     }'.`,
                 );
-            } else {
-                logger.info(`But got enough common id quota: ${quota} :sparkles:`);
             }
         } else {
             // Under certain circumstances the headers can be missing (i.e. seed peers when starting up)
