@@ -17,6 +17,7 @@ export interface PluginConfig<T> {
 export interface Container {
 
     silentShutdown : boolean;
+    isReady: boolean;
 
     setUp(version: string, variables: any, options?: any): Promise<void>;
 

@@ -59,6 +59,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -150,6 +151,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -241,6 +243,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -320,6 +323,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -411,6 +415,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -499,6 +504,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -578,6 +584,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -669,6 +676,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
