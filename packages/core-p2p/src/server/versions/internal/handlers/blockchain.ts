@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.Logger>("logger");
 
 /**
  * @type {Object}

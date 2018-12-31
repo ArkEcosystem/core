@@ -1,5 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { config } from "./config";
 import { defaults } from "./defaults";
 import { monitor } from "./monitor";
@@ -14,7 +13,7 @@ export const plugin: Container.PluginDescriptor = {
     defaults,
     alias: "p2p",
     async register(container: Container.Container, options) {
-        container.resolvePlugin<AbstractLogger>("logger").info("Starting P2P Interface");
+        container.resolvePlugin<Logger.Logger>("logger").info("Starting P2P Interface");
 
         config.init(options);
 
@@ -25,7 +24,7 @@ export const plugin: Container.PluginDescriptor = {
         return monitor;
     },
     async deregister(container: Container.Container, options) {
-        container.resolvePlugin<AbstractLogger>("logger").info("Stopping P2P Interface");
+        container.resolvePlugin<Logger.Logger>("logger").info("Stopping P2P Interface");
 
         const p2p = container.resolvePlugin("p2p");
         p2p.dumpPeers();

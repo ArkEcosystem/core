@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
@@ -25,7 +25,7 @@ export class Peer {
     private lastPinged: dayjs.Dayjs | null;
 
     private config: any;
-    private logger: AbstractLogger;
+    private logger: Logger.Logger;
 
     private headers: {
         version: string;
@@ -44,7 +44,7 @@ export class Peer {
      * @param  {Number} port
      */
     constructor(readonly ip, readonly port) {
-        this.logger = app.resolvePlugin<AbstractLogger>("logger");
+        this.logger = app.resolvePlugin<Logger.Logger>("logger");
         this.config = app.getConfig();
 
         this.ban = new Date().getTime();

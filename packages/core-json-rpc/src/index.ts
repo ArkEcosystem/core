@@ -1,5 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 import { database } from "./server/services/database";
@@ -10,7 +9,7 @@ export const plugin : Container.PluginDescriptor = {
     defaults,
     alias: "json-rpc",
     async register(container: Container.Container, options) {
-        const logger = container.resolvePlugin<AbstractLogger>("logger");
+        const logger = container.resolvePlugin<Logger.Logger>("logger");
 
         if (!options.enabled) {
             logger.info("JSON-RPC Server is disabled :grey_exclamation:");
@@ -26,7 +25,7 @@ export const plugin : Container.PluginDescriptor = {
     },
     async deregister(container: Container.Container, options) {
         if (options.enabled) {
-            container.resolvePlugin<AbstractLogger>("logger").info("Stopping JSON-RPC Server");
+            container.resolvePlugin<Logger.Logger>("logger").info("Stopping JSON-RPC Server");
 
             return container.resolvePlugin("json-rpc").stop();
         }

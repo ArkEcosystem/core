@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { TransactionPool } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPoolImpl } from "./connection";
@@ -300,7 +299,7 @@ export class TransactionGuardImpl implements  TransactionPool.TransactionGuard {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin<AbstractLogger>("logger").info(
+        app.resolvePlugin<Logger.Logger>("logger").info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
         );
     }

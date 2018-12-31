@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { TransactionPool } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger, TransactionPool} from "@arkecosystem/core-interfaces";
 
 import assert from "assert";
 import dayjs from "dayjs-ext";
@@ -13,7 +12,7 @@ import { Storage } from "./storage";
 
 const database = app.resolvePlugin<PostgresConnection>("database");
 const emitter = app.resolvePlugin("event-emitter");
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.Logger>("logger");
 
 /**
  * Transaction pool. It uses a hybrid storage - caching the data

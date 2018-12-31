@@ -1,5 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Container, Logger } from "@arkecosystem/core-interfaces";
 import pluralize from "pluralize";
 import { defaults } from "./defaults";
 import { ForgerManager } from "./manager";
@@ -11,7 +10,7 @@ export const plugin : Container.PluginDescriptor = {
     async register(container: Container.Container, options) {
         const forgerManager = new ForgerManager(options);
         const forgers = await forgerManager.loadDelegates(options.bip38, options.password);
-        const logger = container.resolvePlugin<AbstractLogger>("logger");
+        const logger = container.resolvePlugin<Logger.Logger>("logger");
 
         if (!forgers) {
             logger.info("Forger is disabled :grey_exclamation:");
@@ -32,7 +31,7 @@ export const plugin : Container.PluginDescriptor = {
         const forger = container.resolvePlugin("forger");
 
         if (forger) {
-            container.resolvePlugin<AbstractLogger>("logger").info("Stopping Forger Manager");
+            container.resolvePlugin<Logger.Logger>("logger").info("Stopping Forger Manager");
             return forger.stop();
         }
     },

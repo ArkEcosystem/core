@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -24,7 +24,7 @@ import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.Logger>("logger");
 const emitter = app.resolvePlugin("event-emitter");
 
 class Monitor {

@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { database } from "./database";
 import { defaults } from "./defaults";
@@ -10,7 +10,7 @@ export const plugin : Container.PluginDescriptor = {
     defaults,
     alias: "webhooks",
     async register(container: Container.Container, options) {
-        const logger = container.resolvePlugin<AbstractLogger>("logger");
+        const logger = container.resolvePlugin<Logger.Logger>("logger");
 
         if (!options.enabled) {
             logger.info("Webhooks are disabled :grey_exclamation:");
@@ -30,7 +30,7 @@ export const plugin : Container.PluginDescriptor = {
     },
     async deregister(container: Container.Container, options) {
         if (options.server.enabled) {
-            container.resolvePlugin<AbstractLogger>("logger").info("Stopping Webhook API");
+            container.resolvePlugin<Logger.Logger>("logger").info("Stopping Webhook API");
 
             return container.resolvePlugin("webhooks").stop();
         }

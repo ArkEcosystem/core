@@ -6,13 +6,13 @@ import pluralize from "pluralize";
 import zlib from "zlib";
 
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 
 import * as utils from "../utils";
 import { getCodec } from "./codecs";
 import { canImportRecord, verifyData } from "./verification";
 
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.Logger>("logger");
 const emitter = app.resolvePlugin("event-emitter");
 
 export const exportTable = async (table, options) => {
