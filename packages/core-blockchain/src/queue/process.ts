@@ -10,7 +10,7 @@ const { Block } = models;
 export class ProcessQueue extends QueueInterface {
     /**
      * Create an instance of the process queue.
-     * @param  {Blockchain} blockchain
+     * @param  {BlockchainImpl} blockchain
      * @return {void}
      */
     constructor(blockchain, event) {

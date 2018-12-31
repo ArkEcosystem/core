@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -449,7 +449,7 @@ class Monitor {
             await this.cleanPeers(true, true);
         }
 
-        return networkState(this, app.resolvePlugin("blockchain").getLastBlock());
+        return networkState(this, app.resolvePlugin<Blockchain.Blockchain>("blockchain").getLastBlock());
     }
 
     /**
@@ -511,7 +511,7 @@ class Monitor {
      * @return {Promise}
      */
     public async broadcastBlock(block) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
 
         if (!blockchain) {
             logger.info(`Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`);

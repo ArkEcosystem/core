@@ -12,7 +12,7 @@ import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
 import { tickSyncTracker } from "./utils/tick-sync-tracker";
 
-import { Blockchain } from "./blockchain";
+import { BlockchainImpl } from "./blockchain";
 
 const { Block } = models;
 const config = app.getConfig();
@@ -26,10 +26,10 @@ blockchainMachine.state = stateStorage;
 
 /**
  * The blockchain actions.
- * @param  {Blockchain} blockchain
+ * @param  {BlockchainImpl} blockchain
  * @return {Object}
  */
-blockchainMachine.actionMap = (blockchain: Blockchain) => ({
+blockchainMachine.actionMap = (blockchain: BlockchainImpl) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;

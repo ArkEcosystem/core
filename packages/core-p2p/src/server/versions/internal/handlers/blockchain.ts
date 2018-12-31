@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 
 const logger = app.resolvePlugin<Logger.Logger>("logger");
 
@@ -15,7 +15,7 @@ export const sync = {
     async handler(request, h) {
         logger.debug("Blockchain sync check WAKEUP requested by forger :bed:");
 
-        app.resolvePlugin("blockchain").forceWakeup();
+        app.resolvePlugin<Blockchain.Blockchain>("blockchain").forceWakeup();
 
         return h.response(null).code(204);
     },

@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { Blockchain, Container } from "@arkecosystem/core-interfaces";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { crypto, models } from "@arkecosystem/crypto";
@@ -13,12 +13,12 @@ const { blocks2to100, delegates } = fixtures;
 const arktoshi = 10 ** 8;
 let container: Container.Container;
 let poolWalletManager;
-let blockchain;
+let blockchain : Blockchain.Blockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
     poolWalletManager = new PoolWalletManager();
-    blockchain = container.resolvePlugin("blockchain");
+    blockchain = container.resolvePlugin<Blockchain.Blockchain>("blockchain");
 });
 
 afterAll(async () => {

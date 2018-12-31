@@ -1,6 +1,6 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { Blockchain, Container } from "@arkecosystem/core-interfaces";
 import { asValue } from "awilix";
-import { Blockchain } from "./blockchain";
+import { BlockchainImpl } from "./blockchain";
 import { config } from "./config";
 import { defaults } from "./defaults";
 import { stateStorage } from "./state-storage";
@@ -14,7 +14,7 @@ export const plugin : Container.PluginDescriptor = {
     defaults,
     alias: "blockchain",
     async register(container: Container.Container, options) {
-        const blockchain = new Blockchain(options);
+        const blockchain = new BlockchainImpl(options);
 
         config.init(options);
 
@@ -27,7 +27,7 @@ export const plugin : Container.PluginDescriptor = {
         return blockchain;
     },
     async deregister(container: Container.Container, options) {
-        await container.resolvePlugin("blockchain").stop();
+        await container.resolvePlugin<Blockchain.Blockchain>("blockchain").stop();
     },
 };
 

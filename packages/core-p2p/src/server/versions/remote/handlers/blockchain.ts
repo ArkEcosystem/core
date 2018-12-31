@@ -12,6 +12,7 @@ export const emitEvent = {
      * @return {Hapi.Response}
      */
     handler: (request, h) => {
+        // TODO: Blockchain.events object shouldn't be accessed directly. Implement an 'emit' method on Blockchain
         const event = app.resolvePlugin("blockchain").events[request.params.event];
 
         request.query.param ? event(request.query.params) : event();

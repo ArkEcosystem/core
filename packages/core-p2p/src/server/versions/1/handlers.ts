@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionGuardImpl, TransactionPoolImpl} from "@arkecosystem/core-transaction-pool";
 import { crypto, Joi, models, slots } from "@arkecosystem/crypto";
 
@@ -52,7 +52,7 @@ export const getHeight = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
+        const lastBlock = app.resolvePlugin<Blockchain.Blockchain>("blockchain").getLastBlock();
 
         return {
             success: true,
@@ -78,7 +78,7 @@ export const getCommonBlocks = {
             };
         }
 
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
 
         const ids = request.query.ids
             .split(",")
@@ -126,7 +126,7 @@ export const getStatus = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
+        const lastBlock = app.resolvePlugin<Blockchain.Blockchain>("blockchain").getLastBlock();
 
         return {
             success: true,
@@ -148,7 +148,7 @@ export const postBlock = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
 
         try {
             if (!request.payload || !request.payload.block) {
@@ -252,7 +252,7 @@ export const getBlocks = {
     async handler(request, h) {
         try {
             const database = app.resolvePlugin<PostgresConnection>("database");
-            const blockchain = app.resolvePlugin("blockchain");
+            const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
 
             const reqBlockHeight = +request.query.lastBlockHeight + 1;
             let blocks = [];

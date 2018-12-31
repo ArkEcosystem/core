@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { EventEmitter } from "@arkecosystem/core-interfaces";
+import { Blockchain, EventEmitter } from "@arkecosystem/core-interfaces";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
@@ -15,7 +15,7 @@ export const usernames = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
         const database = blockchain.database;
         const walletManager = database.walletManager;
 
