@@ -1,9 +1,9 @@
-import { Container } from "@arkecosystem/core-container";
+import { Container } from "@arkecosystem/core-interfaces";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
-import { PoolWalletManager } from "../src/pool-wallet-manager";
+import { PoolWalletManager } from "../src";
 import { setUpFull, tearDown } from "./__support__/setup";
 
 const { Block } = models;
@@ -11,7 +11,7 @@ const { generateTransfers, generateWallets } = generators;
 const { blocks2to100, delegates } = fixtures;
 
 const arktoshi = 10 ** 8;
-let container: Container;
+let container: Container.Container;
 let poolWalletManager;
 let blockchain;
 

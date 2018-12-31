@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 
 import assert from "assert";
@@ -21,7 +22,7 @@ const logger = app.resolvePlugin<AbstractLogger>("logger");
  * data (everything other than add or remove transaction) are served from the
  * in-memory storage.
  */
-export class TransactionPool {
+export class TransactionPoolImpl implements TransactionPool.TransactionPool {
     public walletManager: any;
     public blockedByPublicKey: any;
     public mem: any;
@@ -36,7 +37,6 @@ export class TransactionPool {
         this.walletManager = new PoolWalletManager();
         this.blockedByPublicKey = {};
     }
-
     /**
      * Make the transaction pool instance. Load all transactions in the pool from
      * the on-disk database, saved there from a previous run.

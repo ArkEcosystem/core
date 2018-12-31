@@ -1,11 +1,11 @@
-import { Container } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Container } from "@arkecosystem/core-interfaces";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { configManager, crypto, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
-import { TransactionPool } from "../src";
-import { TransactionGuard } from "../src";
+import { TransactionPoolImpl } from "../src";
+import { TransactionGuardImpl } from "../src";
 import { config as localConfig } from "../src/config";
 import { setUpFull, tearDown } from "./__support__/setup";
 
@@ -19,13 +19,13 @@ const {
 
 const { delegates } = fixtures;
 
-let container: Container;
+let container: Container.Container;
 let guard;
-let transactionPool : TransactionPool;
+let transactionPool : TransactionPoolImpl;
 
 beforeAll(async () => {
     container = await setUpFull();
-    transactionPool = container.resolvePlugin<TransactionPool>("transactionPool");
+    transactionPool = container.resolvePlugin<TransactionPoolImpl>("transactionPool");
     localConfig.init(transactionPool.options);
 });
 
@@ -35,7 +35,7 @@ afterAll(async () => {
 
 beforeEach(() => {
     transactionPool.flush();
-    guard = new TransactionGuard(transactionPool);
+    guard = new TransactionGuardImpl(transactionPool);
 });
 
 describe("Transaction Guard", () => {
@@ -195,7 +195,7 @@ describe("Transaction Guard", () => {
             expect(+newWallet.balance).toBe(amount1);
 
             // reset guard, if not the 1st transaction will still be in this.accept and mess up
-            guard = new TransactionGuard(transactionPool);
+            guard = new TransactionGuardImpl(transactionPool);
 
             await guard.validate([votes[0], delegateRegs[0], signatures[0]]);
 

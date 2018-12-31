@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-container";
+import { Container } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { defaults } from "./defaults";
 import { blockIndex } from "./index/block";
@@ -9,11 +9,11 @@ import { startServer } from "./server";
 import { client } from "./services/client";
 import { storage } from "./services/storage";
 
-export const plugin = {
+export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "elasticsearch",
-    async register(container: Container, options) {
+    async register(container: Container.Container, options) {
         const logger = container.resolvePlugin<AbstractLogger>("logger");
 
         logger.info("[Elasticsearch] Initialising History :hourglass:");
@@ -29,7 +29,7 @@ export const plugin = {
 
         return startServer(options.server);
     },
-    async deregister(container: Container, options) {
+    async deregister(container: Container.Container, options) {
         container.resolvePlugin<AbstractLogger>("logger").info("[Elasticsearch] Stopping API :warning:");
 
         return container.resolvePlugin("elasticsearch").stop();

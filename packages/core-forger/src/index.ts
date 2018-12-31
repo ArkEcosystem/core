@@ -1,14 +1,14 @@
-import { Container } from "@arkecosystem/core-container";
+import { Container } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import pluralize from "pluralize";
 import { defaults } from "./defaults";
 import { ForgerManager } from "./manager";
 
-export const plugin = {
+export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "forger",
-    async register(container: Container, options) {
+    async register(container: Container.Container, options) {
         const forgerManager = new ForgerManager(options);
         const forgers = await forgerManager.loadDelegates(options.bip38, options.password);
         const logger = container.resolvePlugin<AbstractLogger>("logger");
@@ -28,7 +28,7 @@ export const plugin = {
 
         return forgerManager;
     },
-    async deregister(container: Container, options) {
+    async deregister(container: Container.Container, options) {
         const forger = container.resolvePlugin("forger");
 
         if (forger) {

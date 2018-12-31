@@ -1,15 +1,15 @@
-import { Container } from "@arkecosystem/core-container";
+import { Container } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { database } from "./database";
 import { defaults } from "./defaults";
 import { webhookManager } from "./manager";
 import { startServer } from "./server";
 
-export const plugin = {
+export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "webhooks",
-    async register(container: Container, options) {
+    async register(container: Container.Container, options) {
         const logger = container.resolvePlugin<AbstractLogger>("logger");
 
         if (!options.enabled) {
@@ -28,7 +28,7 @@ export const plugin = {
 
         logger.info("Webhooks API server is disabled :grey_exclamation:");
     },
-    async deregister(container: Container, options) {
+    async deregister(container: Container.Container, options) {
         if (options.server.enabled) {
             container.resolvePlugin<AbstractLogger>("logger").info("Stopping Webhook API");
 

@@ -1,4 +1,4 @@
-import { Container }  from "@arkecosystem/core-container";
+import { Container } from "@arkecosystem/core-interfaces";
 import { asValue } from "awilix";
 import { Blockchain } from "./blockchain";
 import { config } from "./config";
@@ -9,11 +9,11 @@ import { stateStorage } from "./state-storage";
  * The struct used by the plugin container.
  * @type {Object}
  */
-export const plugin = {
+export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "blockchain",
-    async register(container: Container, options) {
+    async register(container: Container.Container, options) {
         const blockchain = new Blockchain(options);
 
         config.init(options);
@@ -26,7 +26,7 @@ export const plugin = {
 
         return blockchain;
     },
-    async deregister(container: Container, options) {
+    async deregister(container: Container.Container, options) {
         await container.resolvePlugin("blockchain").stop();
     },
 };

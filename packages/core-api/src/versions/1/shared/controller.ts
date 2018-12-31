@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import Hapi from "hapi";
 import { paginate, respondWith, respondWithCache, toCollection, toResource } from "../utils";
 
@@ -8,7 +8,7 @@ export class Controller {
     protected config = app.getConfig();
     protected blockchain = app.resolvePlugin("blockchain");
     protected database = app.resolvePlugin<PostgresConnection>("database");
-    protected logger = app.resolvePlugin<AbstractLogger>("logger");
+    protected logger = app.resolvePlugin<Logger.Logger>("logger");
 
     protected paginate(request: Hapi.Request): any {
         return paginate(request);

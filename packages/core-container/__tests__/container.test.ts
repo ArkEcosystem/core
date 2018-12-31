@@ -30,7 +30,8 @@ describe("Container", () => {
     it("should add a new registration", () => {
         app.register("fake", asValue("value"));
 
-        expect(app.container.registrations.fake).toBeTruthy();
+        expect(app.has("fake")).toBeTruthy();
+        expect(app.has("unregistered")).toBeFalsy();
     });
 
     it("should resolve a registration", () => {

@@ -4,7 +4,7 @@ import * as winston from "winston";
 
 let tracker = null;
 
-export class Logger extends AbstractLogger {
+export class WinstonLogger extends AbstractLogger {
     public logger: any;
 
     /**
