@@ -119,7 +119,11 @@ export class NetworkState {
     }
 
     public toJson() {
-        return JSON.stringify(this, null, 4);
+        const data = { quorum: this.getQuorum() } as any;
+        Object.assign(data, this);
+        delete data.status;
+
+        return JSON.stringify(data, null, 2);
     }
 
     private static analyzeNetwork(lastBlock, peers: Peer[]): NetworkState {
