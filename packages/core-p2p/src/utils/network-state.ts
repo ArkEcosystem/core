@@ -7,25 +7,19 @@ import { Monitor } from "../monitor";
 import { Peer } from "../peer";
 
 class QuorumDetails {
-    public get quorum() {
-        if (process.env.ARK_ENV === "test") {
-            return 1;
-        }
-
-        return this.peersQuorum / (this.peersQuorum + this.totalNoQuorum);
-    }
-
-    public get totalNoQuorum() {
-        return this.peersNoQuorum + this.peersOverHeight + this.peersOutsideMaxHeightElasticity;
+    public getQuorum() {
+        return this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
     }
 
     /**
-     * Number of peers on same height, with same block and same slot.
+     * Number of peers on same height, with same block and same slot. Used for
+     * quorum calculation.
      */
     public peersQuorum = 0;
 
     /**
-     * Number of peers which do not meet the quorum requirements.
+     * Number of peers which do not meet the quorum requirements. Used for
+     * quorum calculation.
      */
     public peersNoQuorum = 0;
 
@@ -66,22 +60,29 @@ class QuorumDetails {
     public peersForgingNotAllowed = 0;
 }
 
+export enum NetworkStateStatus {
+    Default,
+    ColdStart,
+    BelowMinimumPeers,
+    Test,
+}
+
 export class NetworkState {
     private nodeHeight: number;
     private lastBlockId: string;
-
     private quorumDetails: QuorumDetails;
 
-    public minimumNetworkReach: boolean;
-    public coldStart: boolean;
+    public constructor(readonly status: NetworkStateStatus, lastBlock?: any) {
+        this.quorumDetails = new QuorumDetails();
 
-    private constructor(lastBlock) {
+        if (lastBlock) {
+            this.setLastBlock(lastBlock);
+        }
+    }
+
+    public setLastBlock(lastBlock) {
         this.nodeHeight = lastBlock.data.height;
         this.lastBlockId = lastBlock.data.id;
-
-        this.quorumDetails = new QuorumDetails();
-        this.minimumNetworkReach = true;
-        this.coldStart = false;
     }
 
     /**
@@ -94,16 +95,22 @@ export class NetworkState {
         const minimumNetworkReach = localConfig.get("minimumNetworkReach", 20);
 
         if (monitor.__isColdStartActive()) {
-            return this.coldStartNetwork(lastBlock);
-        } else if (peers.length < minimumNetworkReach && process.env.ARK_ENV !== "test") {
-            return this.belowMinimumPeersNetwork(lastBlock);
+            return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);
+        } else if (process.env.ARK_ENV === "test") {
+            return new NetworkState(NetworkStateStatus.Test, lastBlock);
+        } else if (peers.length < minimumNetworkReach) {
+            return new NetworkState(NetworkStateStatus.BelowMinimumPeers, lastBlock);
         }
 
-        return this.analyzeNetwork(peers, lastBlock);
+        return this.analyzeNetwork(lastBlock, peers);
     }
 
-    public get quorum() {
-        return this.quorumDetails.quorum;
+    public getQuorum() {
+        if (this.status === NetworkStateStatus.Test) {
+            return 1;
+        }
+
+        return this.quorumDetails.getQuorum();
     }
 
     public getOverHeightBlockHeaders() {
@@ -114,23 +121,8 @@ export class NetworkState {
         return JSON.stringify(this, null, 4);
     }
 
-    private static coldStartNetwork(lastBlock): NetworkState {
-        const networkState = new NetworkState(lastBlock);
-        networkState.coldStart = true;
-
-        return networkState;
-    }
-
-    private static belowMinimumPeersNetwork(lastBlock): NetworkState {
-        const networkState = new NetworkState(lastBlock);
-        networkState.minimumNetworkReach = false;
-
-        return networkState;
-    }
-
-    private static analyzeNetwork(peers: Peer[], lastBlock): NetworkState {
-        const networkState = new NetworkState(lastBlock);
-
+    private static analyzeNetwork(lastBlock, peers: Peer[]): NetworkState {
+        const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
         const currentSlot = slots.getSlotNumber();
 
         for (const peer of peers) {
@@ -140,7 +132,7 @@ export class NetworkState {
         return networkState;
     }
 
-    private update(peer: Peer, currentSlot) {
+    private update(peer: Peer, currentSlot: number) {
         if (peer.state.height === this.nodeHeight) {
             let quorum = true;
             if (peer.state.header.id !== this.lastBlockId) {
@@ -160,10 +152,12 @@ export class NetworkState {
 
             quorum ? this.quorumDetails.peersQuorum++ : this.quorumDetails.peersNoQuorum++;
         } else if (peer.state.height > this.nodeHeight) {
+            this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;
             this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;
         } else if (this.nodeHeight - peer.state.height < 3) {
             // suppose the max network elasticity accross 3 blocks
+            this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOutsideMaxHeightElasticity++;
         }
     }
