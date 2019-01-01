@@ -14,13 +14,35 @@ class QuorumDetails {
         return this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
     }
 
+    /**
+     * Number of peers on same height, with same block and same slot.
+     */
     public peersQuorum = 0;
+
+    /**
+     * Number of peers which do not meet the quorum requirements.
+     */
     public peersNoQuorum = 0;
 
+    /**
+     * Number of peers with a different last block id.
+     */
     public peersDifferentBlockId = 0;
+
+    /**
+     * Number of peers with a different slot.
+     */
     public peersDifferentSlot = 0;
+
+    /**
+     * Number of peers where forging is not allowed.
+     */
     public peersForgingNotAllowed = 0;
-    public outsideMaxHeightElasticity = 0;
+
+    /**
+     * Number of peers which are up to N blocks below `nodeHeight`
+     */
+    public peersOutsideMaxHeightElasticity = 0;
 }
 
 export class NetworkState {
@@ -114,7 +136,8 @@ export class NetworkState {
             this.overHeightBlockHeader = peer.state.header;
         } else if (this.nodeHeight - peer.state.height < 3) {
             // suppose the max network elasticity accross 3 blocks
-            this.quorumDetails.peersNoQuorum += 1;
+            this.quorumDetails.peersNoQuorum++;
+            this.quorumDetails.peersOutsideMaxHeightElasticity++;
         }
     }
 }
