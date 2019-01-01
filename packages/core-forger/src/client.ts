@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { AbstractLogger } from "@arkecosystem/core-logger";
+import { NetworkState } from "@arkecosystem/core-p2p";
 import axios from "axios";
 import delay from "delay";
 import sample from "lodash/sample";
@@ -82,15 +83,18 @@ export class Client {
 
     /**
      * Get the current network quorum.
-     * @return {Object}
+     * @return {NetworkState}
      */
-    public async getNetworkState() {
+    public async getNetworkState(): Promise<NetworkState> {
         try {
             const response = await this.__get(`${this.host}/internal/network/state`);
+            const { data } = response.data;
 
-            return response.data.data;
+            const networkState = new NetworkState(data.status);
+            Object.assign(networkState, data);
+            return networkState;
         } catch (e) {
-            return {};
+            return {} as NetworkState;
         }
     }
 

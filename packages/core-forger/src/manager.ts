@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { AbstractLogger } from "@arkecosystem/core-logger";
+import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
@@ -244,14 +245,14 @@ export class ForgerManager {
      * @param {Booolean} isAllowedToForge
      */
     public __parseNetworkState(networkState, currentForger) {
-        if (networkState.coldStart) {
+        if (networkState.status === NetworkStateStatus.ColdStart) {
             this.logger.info(
                 "Not allowed to forge during the cold start period. Check peers.json for coldStart setting.",
             );
             return false;
         }
 
-        if (!networkState.minimumNetworkReach) {
+        if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
             this.logger.info("Network reach is not sufficient to get quorum.");
             return false;
         }
@@ -285,7 +286,7 @@ export class ForgerManager {
             }
         }
 
-        if (networkState.quorum < 0.66) {
+        if (networkState.getQuorum() < 0.66) {
             this.logger.info("Fork 6 - Not enough quorum to forge next block.");
             this.logger.debug(`Network State: ${networkState.toJson()}`);
             return false;

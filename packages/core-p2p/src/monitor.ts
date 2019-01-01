@@ -23,9 +23,9 @@ import { NetworkState } from "./utils/network-state";
 import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
-const config = app.getConfig();
-const logger = app.resolvePlugin<AbstractLogger>("logger");
-const emitter = app.resolvePlugin("event-emitter");
+let config;
+let logger: AbstractLogger;
+let emitter;
 
 export class Monitor {
     public readonly peers: { [ip: string]: Peer };
@@ -58,6 +58,10 @@ export class Monitor {
      */
     public async start(options) {
         this.config = options;
+
+        config = app.getConfig();
+        logger = app.resolvePlugin<AbstractLogger>("logger");
+        emitter = app.resolvePlugin("event-emitter");
 
         await this.__checkDNSConnectivity(options.dns);
         await this.__checkNTPConnectivity(options.ntp);
