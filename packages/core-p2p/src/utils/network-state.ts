@@ -5,7 +5,15 @@ import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../config";
 import { monitor } from "../monitor";
 
-export class QuorumDetails {
+class QuorumDetails {
+    public get quorum() {
+        if (process.env.ARK_ENV === "test") {
+            return 1;
+        }
+
+        return this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
+    }
+
     public peersQuorum = 0;
     public peersNoQuorum = 0;
 
@@ -19,7 +27,6 @@ export class NetworkState {
     public nodeHeight: number;
     public lastBlockId: string;
 
-    public quorum: number;
     public quorumDetails: QuorumDetails;
 
     public overHeightQuorum = 0;
@@ -32,14 +39,13 @@ export class NetworkState {
         this.nodeHeight = lastBlock.data.height;
         this.lastBlockId = lastBlock.data.id;
 
-        this.quorum = 0;
         this.quorumDetails = new QuorumDetails();
         this.minimumNetworkReach = true;
         this.coldStart = false;
     }
 
     /**
-     * Returns the current network state. Peers are update before the call.
+     * Returns the current network state. Peers are updated before the call.
      */
     public static analyze(): NetworkState {
         const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
@@ -49,9 +55,7 @@ export class NetworkState {
 
         if (monitor.__isColdStartActive()) {
             return this.coldStartNetwork(lastBlock);
-        } else if (process.env.ARK_ENV === "test") {
-            return this.testNetwork(lastBlock);
-        } else if (peers.length < minimumNetworkReach) {
+        } else if (peers.length < minimumNetworkReach && process.env.ARK_ENV !== "test") {
             return this.belowMinimumPeersNetwork(lastBlock);
         }
 
@@ -61,13 +65,6 @@ export class NetworkState {
     private static coldStartNetwork(lastBlock): NetworkState {
         const networkState = new NetworkState(lastBlock);
         networkState.coldStart = true;
-
-        return networkState;
-    }
-
-    private static testNetwork(lastBlock): NetworkState {
-        const networkState = new NetworkState(lastBlock);
-        networkState.quorum = 1;
 
         return networkState;
     }
@@ -89,7 +86,6 @@ export class NetworkState {
             networkState.update(peer, currentSlot);
         }
 
-        networkState.calculateQuorum();
         return networkState;
     }
 
@@ -120,10 +116,5 @@ export class NetworkState {
             // suppose the max network elasticity accross 3 blocks
             this.quorumDetails.peersNoQuorum += 1;
         }
-    }
-
-    private calculateQuorum() {
-        const { peersQuorum, peersNoQuorum } = this.quorumDetails;
-        this.quorum = peersQuorum / (peersQuorum + peersNoQuorum);
     }
 }
