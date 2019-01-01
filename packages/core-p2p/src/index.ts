@@ -5,6 +5,8 @@ import { defaults } from "./defaults";
 import { monitor } from "./monitor";
 import { startServer } from "./server";
 
+export { NetworkState, NetworkStateStatus } from "./utils/network-state";
+
 /**
  * The struct used by the plugin container.
  * @type {Object}

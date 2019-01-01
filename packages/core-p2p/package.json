@@ -9,7 +9,8 @@
         "Alex Barnsley <alex@ark.io>"
     ],
     "license": "MIT",
-    "main": "dist/index.js",
+    "main": "dist/index",
+    "types": "dist/index",
     "files": [
         "dist"
     ],
