@@ -19,9 +19,9 @@ export class Peer {
     public delay: any;
     public ban: number;
     public offences: any[];
+    public state: any;
 
     private url: string;
-    private state: any;
     private lastPinged: dayjs.Dayjs | null;
 
     private config: any;

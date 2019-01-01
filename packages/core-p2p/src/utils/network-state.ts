@@ -3,7 +3,8 @@
 import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../config";
-import { monitor } from "../monitor";
+import { Monitor } from "../monitor";
+import { Peer } from "../peer";
 
 class QuorumDetails {
     public get quorum() {
@@ -86,7 +87,7 @@ export class NetworkState {
     /**
      * Returns the current network state. Peers are updated before the call.
      */
-    public static analyze(): NetworkState {
+    public static analyze(monitor: Monitor): NetworkState {
         const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
 
         const peers = monitor.getPeers();
@@ -98,7 +99,7 @@ export class NetworkState {
             return this.belowMinimumPeersNetwork(lastBlock);
         }
 
-        return this.analyzeNetwork(lastBlock);
+        return this.analyzeNetwork(peers, lastBlock);
     }
 
     public get quorum() {
@@ -127,10 +128,9 @@ export class NetworkState {
         return networkState;
     }
 
-    private static analyzeNetwork(lastBlock): NetworkState {
+    private static analyzeNetwork(peers: Peer[], lastBlock): NetworkState {
         const networkState = new NetworkState(lastBlock);
 
-        const peers = monitor.getPeers();
         const currentSlot = slots.getSlotNumber();
 
         for (const peer of peers) {
@@ -140,7 +140,7 @@ export class NetworkState {
         return networkState;
     }
 
-    private update(peer, currentSlot) {
+    private update(peer: Peer, currentSlot) {
         if (peer.state.height === this.nodeHeight) {
             let quorum = true;
             if (peer.state.header.id !== this.lastBlockId) {

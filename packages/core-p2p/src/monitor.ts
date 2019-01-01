@@ -27,8 +27,8 @@ const config = app.getConfig();
 const logger = app.resolvePlugin<AbstractLogger>("logger");
 const emitter = app.resolvePlugin("event-emitter");
 
-class Monitor {
-    public readonly peers: { [ip: string]: any };
+export class Monitor {
+    public readonly peers: { [ip: string]: Peer };
     public server: any;
     public guard: Guard;
     public config: any;
@@ -289,7 +289,7 @@ class Monitor {
      * @return {Peer[]}
      */
     public getPeers() {
-        return Object.values(this.peers);
+        return Object.values(this.peers) as Peer[];
     }
 
     /**
@@ -449,7 +449,7 @@ class Monitor {
             await this.cleanPeers(true, true);
         }
 
-        return NetworkState.analyze();
+        return NetworkState.analyze(this);
     }
 
     /**
@@ -666,7 +666,7 @@ class Monitor {
                 // Ban all rest peers
                 const peersToBan = flatten(restGroups);
                 peersToBan.forEach(peer => {
-                    peer.commonId = false;
+                    (peer as any).commonId = false;
                     this.suspendPeer(peer.ip);
                 });
 
@@ -853,5 +853,4 @@ class Monitor {
     }
 }
 
-const monitor = new Monitor();
-export { monitor };
+export const monitor = new Monitor();
