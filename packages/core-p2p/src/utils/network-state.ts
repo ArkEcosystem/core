@@ -41,6 +41,12 @@ class QuorumDetails {
     public peersBelowHeightElasticity = 0;
 
     /**
+     * Number of ignored peers (i.e height far below `nodeHeight`). Ignored peers
+     * are not used for quorum.
+     */
+    public peersQuorumIgnored = 0;
+
+    /**
      * The following properties are not mutual exclusive for a peer
      * and imply a peer is on the same `nodeHeight`.
      */
@@ -178,6 +184,9 @@ export class NetworkState {
             // suppose the max network elasticity accross 3 blocks
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersBelowHeightElasticity++;
+        } else {
+            // Peers far below own height are ignored for quorum
+            this.quorumDetails.peersQuorumIgnored++;
         }
     }
 }
