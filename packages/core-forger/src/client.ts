@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { AbstractLogger } from "@arkecosystem/core-logger";
-import { NetworkState } from "@arkecosystem/core-p2p";
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import axios from "axios";
 import delay from "delay";
 import sample from "lodash/sample";
@@ -94,7 +94,7 @@ export class Client {
             Object.assign(networkState, data);
             return networkState;
         } catch (e) {
-            return {} as NetworkState;
+            return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
 

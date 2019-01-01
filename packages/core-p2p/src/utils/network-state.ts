@@ -65,6 +65,7 @@ export enum NetworkStateStatus {
     ColdStart,
     BelowMinimumPeers,
     Test,
+    Unknown,
 }
 
 export class NetworkState {

@@ -146,6 +146,15 @@ describe("Forger Manager", () => {
             expect(canForge).toBeTrue();
         });
 
+        it("should be FALSE when unknown", async () => {
+            const networkState = new NetworkState(NetworkStateStatus.Unknown);
+            Object.assign(networkState, { getQuorum: () => 1, nodeHeight: 100, lastBlockId: "1233443" });
+
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
+
+            expect(canForge).toBeFalse();
+        });
+
         it("should be FALSE when quorum < 0.66", async () => {
             const networkState = new NetworkState(NetworkStateStatus.Default);
             Object.assign(networkState, { getQuorum: () => 0.65, nodeHeight: 100, lastBlockId: "1233443" });

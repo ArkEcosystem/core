@@ -245,6 +245,11 @@ export class ForgerManager {
      * @param {Booolean} isAllowedToForge
      */
     public __parseNetworkState(networkState, currentForger) {
+        if (networkState.status === NetworkStateStatus.Unknown) {
+            this.logger.info("Failed to get network state from client.");
+            return false;
+        }
+
         if (networkState.status === NetworkStateStatus.ColdStart) {
             this.logger.info(
                 "Not allowed to forge during the cold start period. Check peers.json for coldStart setting.",
