@@ -90,9 +90,7 @@ export class Client {
             const response = await this.__get(`${this.host}/internal/network/state`);
             const { data } = response.data;
 
-            const networkState = new NetworkState(data.status);
-            Object.assign(networkState, data);
-            return networkState;
+            return NetworkState.parse(data);
         } catch (e) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }

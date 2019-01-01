@@ -107,6 +107,19 @@ export class NetworkState {
         return this.analyzeNetwork(lastBlock, peers);
     }
 
+    public static parse(data: any): NetworkState {
+        if (!data || data.status === undefined) {
+            return new NetworkState(NetworkStateStatus.Unknown);
+        }
+
+        const networkState = new NetworkState(data.status);
+        networkState.nodeHeight = data.nodeHeight;
+        networkState.lastBlockId = data.lastBlockId;
+        Object.assign(networkState.quorumDetails, data.quorumDetails);
+
+        return networkState;
+    }
+
     public getQuorum() {
         if (this.status === NetworkStateStatus.Test) {
             return 1;
