@@ -244,34 +244,51 @@ export class ForgerManager {
      * @param {Booolean} isAllowedToForge
      */
     public __analyseNetworkState(networkState, currentForger) {
-        const badState = message => {
-            this.logger.info(message);
-            this.logger.debug(`Network State: ${JSON.stringify(networkState, null, 4)}`);
-
-            return false;
-        };
-
         if (networkState.coldStart) {
-            return badState(
+            this.logger.info(
                 "Not allowed to forge during the cold start period. Check peers.json for coldStart setting.",
             );
+            return false;
         }
 
         if (!networkState.minimumNetworkReach) {
-            return badState("Network reach is not sufficient to get quorum.");
+            this.logger.info("Network reach is not sufficient to get quorum.");
+            return false;
         }
 
-        if (
-            networkState.overHeightBlockHeader &&
-            networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey
-        ) {
-            const usernames = this.usernames[currentForger.publicKey];
+        const overHeightBlockHeaders = networkState.getOverHeightBlockHeaders();
+        if (overHeightBlockHeaders.length > 0) {
+            this.logger.info(
+                `Detected ${overHeightBlockHeaders.length} distinct overheight block ${pluralize(
+                    "header",
+                    overHeightBlockHeaders.length,
+                    true,
+                )}.`,
+            );
 
-            return badState(`Possible double forging for delegate: ${usernames} (${currentForger.publicKey}).`);
+            let possibleDoubleForge = false;
+            for (const overHeightBlockHeader of overHeightBlockHeaders) {
+                if (overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
+                    const username = this.usernames[currentForger.publicKey];
+                    this.logger.warn(
+                        `Possible double forging delegate: ${username} (${currentForger.publicKey}) - Block: ${
+                            overHeightBlockHeader.id
+                        }`,
+                    );
+                    possibleDoubleForge = true;
+                }
+            }
+
+            if (possibleDoubleForge) {
+                this.logger.debug(`Network State: ${networkState.toJson()}`);
+                return false;
+            }
         }
 
         if (networkState.quorum < 0.66) {
-            return badState("Fork 6 - Not enough quorum to forge next block.");
+            this.logger.info("Fork 6 - Not enough quorum to forge next block.");
+            this.logger.debug(`Network State: ${networkState.toJson()}`);
+            return false;
         }
 
         return true;

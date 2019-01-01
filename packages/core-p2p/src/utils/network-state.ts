@@ -15,7 +15,7 @@ class QuorumDetails {
     }
 
     public get totalNoQuorum() {
-        return this.peersNoQuorum + this.peersOverHeightQuorum + this.peersOutsideMaxHeightElasticity;
+        return this.peersNoQuorum + this.peersOverHeight + this.peersOutsideMaxHeightElasticity;
     }
 
     /**
@@ -31,12 +31,12 @@ class QuorumDetails {
     /**
      * Number of overheight peers.
      */
-    public peersOverHeightQuorum = 0;
+    public peersOverHeight = 0;
 
     /**
      * All overheight block headers grouped by id.
      */
-    public overHeightBlockHeaders = new Map<string, any>();
+    public peersOverHeightBlockHeaders: { [id: string]: any } = {};
 
     /**
      * Number of peers which are up to N (=3) blocks below `nodeHeight`.
@@ -101,8 +101,16 @@ export class NetworkState {
         return this.analyzeNetwork(lastBlock);
     }
 
-    public quorum() {
+    public get quorum() {
         return this.quorumDetails.quorum;
+    }
+
+    public getOverHeightBlockHeaders() {
+        return Object.values(this.quorumDetails.peersOverHeightBlockHeaders);
+    }
+
+    public toJson() {
+        return JSON.stringify(this, null, 4);
     }
 
     private static coldStartNetwork(lastBlock): NetworkState {
@@ -152,8 +160,8 @@ export class NetworkState {
 
             quorum ? this.quorumDetails.peersQuorum++ : this.quorumDetails.peersNoQuorum++;
         } else if (peer.state.height > this.nodeHeight) {
-            this.quorumDetails.peersOverHeightQuorum++;
-            this.quorumDetails.overHeightBlockHeaders.set(peer.state.header.id, peer.state.header);
+            this.quorumDetails.peersOverHeight++;
+            this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;
         } else if (this.nodeHeight - peer.state.height < 3) {
             // suppose the max network elasticity accross 3 blocks
             this.quorumDetails.peersOutsideMaxHeightElasticity++;
