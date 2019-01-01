@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, EventEmitter, Logger, TransactionPool} from "@arkecosystem/core-interfaces";
+import { Blockchain, EventEmitter, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { models, slots } from "@arkecosystem/crypto";
 
 import delay from "delay";
@@ -675,7 +675,7 @@ export class BlockchainImpl implements Blockchain.Blockchain {
      * @return {P2PInterface}
      */
     get p2p() {
-        return app.resolvePlugin("p2p");
+        return app.resolvePlugin<P2P.Monitor>("p2p");
     }
 
     /**

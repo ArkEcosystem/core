@@ -61,7 +61,7 @@ export class Guard {
 
     /**
      * Suspends a peer unless whitelisted.
-     * @param {Peer} peer
+     * @param {PeerImpl} peer
      */
     public suspend(peer) {
         const whitelist = this.config.get("whitelist");
@@ -90,7 +90,7 @@ export class Guard {
 
     /**
      * Remove a suspended peer.
-     * @param {Peer} peer
+     * @param {PeerImpl} peer
      * @return {void}
      */
     public async unsuspend(peer) {
@@ -122,7 +122,7 @@ export class Guard {
 
     /**
      * Determine if peer is suspended or not.
-     * @param  {Peer} peer
+     * @param  {PeerImpl} peer
      * @return {Boolean}
      */
     public isSuspended(peer) {
@@ -156,7 +156,7 @@ export class Guard {
 
     /**
      * Determine if the peer is whitelisted.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {Boolean}
      */
     public isWhitelisted(peer) {
@@ -165,7 +165,7 @@ export class Guard {
 
     /**
      * Determine if the peer is blacklisted.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {Boolean}
      */
     public isBlacklisted(peer) {
@@ -174,7 +174,7 @@ export class Guard {
 
     /**
      * Determine if the peer is within the version constraints.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {Boolean}
      */
     public isValidVersion(peer) {
@@ -188,7 +188,7 @@ export class Guard {
 
     /**
      * Determine if the peer is on the right network.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {Boolean}
      */
     public isValidNetwork(peer) {
@@ -198,7 +198,7 @@ export class Guard {
 
     /**
      * Determine if the peer is has the same milestones.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {Boolean}
      */
     public isValidMilestoneHash(peer) {
@@ -208,7 +208,7 @@ export class Guard {
 
     /**
      * Determine if the peer has a valid port.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {Boolean}
      */
     public isValidPort(peer) {
@@ -217,7 +217,7 @@ export class Guard {
 
     /**
      * Determine if the peer is localhost.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {Boolean}
      */
     public isMyself(peer) {
@@ -235,7 +235,7 @@ export class Guard {
 
     /**
      * Decide for how long the peer should be banned.
-     * @param  {Peer}  peer
+     * @param  {PeerImpl}  peer
      * @return {dayjs}
      */
     public __determineOffence(peer) {

@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -17,7 +17,7 @@ import prettyMs from "pretty-ms";
 
 import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
-import { Peer } from "./peer";
+import { PeerImpl } from "./peer";
 import networkState from "./utils/network-state";
 
 import checkDNS from "./utils/check-dns";
@@ -27,7 +27,7 @@ const config = app.getConfig();
 const logger = app.resolvePlugin<Logger.Logger>("logger");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-class Monitor {
+export class MonitorImpl implements P2P.Monitor {
     public readonly peers: { [ip: string]: any };
     public server: any;
     public guard: Guard;
@@ -126,7 +126,7 @@ class Monitor {
 
     /**
      * Accept and store a valid peer.
-     * @param  {Peer} peer
+     * @param  {PeerImpl} peer
      * @throws {Error} If invalid peer
      */
     public async acceptNewPeer(peer) {
@@ -144,7 +144,7 @@ class Monitor {
             return;
         }
 
-        const newPeer = new Peer(peer.ip, peer.port);
+        const newPeer = new PeerImpl(peer.ip, peer.port);
         newPeer.setHeaders(peer);
 
         if (this.guard.isBlacklisted(peer)) {
@@ -212,7 +212,7 @@ class Monitor {
 
     /**
      * Remove peer from monitor.
-     * @param {Peer} peer
+     * @param {PeerImpl} peer
      */
     public removePeer(peer) {
         delete this.peers[peer.ip];
@@ -265,7 +265,7 @@ class Monitor {
 
     /**
      * Suspend an existing peer.
-     * @param  {Peer} peer
+     * @param  {PeerImpl} peer
      * @return {void}
      */
     public suspendPeer(ip) {
@@ -286,7 +286,7 @@ class Monitor {
 
     /**
      * Get all available peers.
-     * @return {Peer[]}
+     * @return {PeerImpl[]}
      */
     public getPeers() {
         return Object.values(this.peers);
@@ -295,7 +295,7 @@ class Monitor {
     /**
      * Get the peer available peers.
      * @param  {String} ip
-     * @return {Peer}
+     * @return {PeerImpl}
      */
     public getPeer(ip) {
         return this.peers[ip];
@@ -318,7 +318,7 @@ class Monitor {
     /**
      * Get a random, available peer.
      * @param  {(Number|undefined)} acceptableDelay
-     * @return {Peer}
+     * @return {PeerImpl}
      */
     public getRandomPeer(acceptableDelay?, downloadSize?, failedAttempts?) {
         failedAttempts = failedAttempts === undefined ? 0 : failedAttempts;
@@ -357,7 +357,7 @@ class Monitor {
 
     /**
      * Get a random, available peer which can be used for downloading blocks.
-     * @return {Peer}
+     * @return {PeerImpl}
      */
     public async getRandomDownloadBlocksPeer(minHeight) {
         const randomPeer = this.getRandomPeer(null, 100);
@@ -381,7 +381,7 @@ class Monitor {
                 const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
-                    if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
+                    if (PeerImpl.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
                         this.addPeer(p);
                     }
                 }
@@ -762,7 +762,7 @@ class Monitor {
 
     /**
      * Add a new peer after it passes a few checks.
-     * @param  {Peer} peer
+     * @param  {PeerImpl} peer
      * @return {void}
      */
     private addPeer(peer) {
@@ -786,7 +786,7 @@ class Monitor {
             return;
         }
 
-        this.peers[peer.ip] = new Peer(peer.ip, peer.port);
+        this.peers[peer.ip] = new PeerImpl(peer.ip, peer.port);
     }
 
     /**
@@ -848,10 +848,10 @@ class Monitor {
 
         for (const peer of filteredPeers) {
             delete this.guard.suspensions[peer.ip];
-            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
+            this.peers[peer.ip] = new PeerImpl(peer.ip, peer.port);
         }
     }
 }
 
-const monitor = new Monitor();
+const monitor = new MonitorImpl();
 export { monitor };

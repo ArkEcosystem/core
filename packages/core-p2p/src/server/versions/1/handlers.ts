@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuardImpl, TransactionPoolImpl} from "@arkecosystem/core-transaction-pool";
 import { crypto, Joi, models, slots } from "@arkecosystem/crypto";
 
@@ -217,7 +217,7 @@ export const postTransactions = {
         }
 
         if (result.broadcast.length > 0) {
-            app.resolvePlugin("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+            app.resolvePlugin<P2P.Monitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
         }
 
         return {

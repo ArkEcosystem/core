@@ -2,6 +2,7 @@ import * as Blockchain from "./core-blockchain";
 import * as Container from "./core-container";
 import * as EventEmitter from "./core-event-emitter";
 import * as Logger from "./core-logger";
+import * as P2P from "./core-p2p";
 import * as TransactionPool from "./core-transaction-pool";
 import * as Shared from "./shared";
 
@@ -11,5 +12,6 @@ export {
     Blockchain,
     TransactionPool,
     Shared,
-    EventEmitter
+    EventEmitter,
+    P2P
 };

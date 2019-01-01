@@ -1,5 +1,5 @@
 /* tslint:disable:max-line-length */
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { PeerImpl } from "@arkecosystem/core-p2p/src/peer";
 import "@arkecosystem/core-test-utils";
 import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
@@ -430,7 +430,7 @@ async function __resetToHeight1() {
 
 function __mockPeer() {
     // Mocking a peer which will send blocks until height 155
-    peerMock = new Peer("1.0.0.99", 4002);
+    peerMock = new PeerImpl("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers, { status: 200 });
 
     axiosMock

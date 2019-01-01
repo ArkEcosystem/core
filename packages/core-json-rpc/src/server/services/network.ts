@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { configManager } from "@arkecosystem/crypto";
 import axios from "axios";
 import isReachable from "is-reachable";
@@ -7,7 +7,7 @@ import sample from "lodash/sample";
 
 class Network {
     public logger: Logger.Logger;
-    public p2p: any;
+    public p2p: P2P.Monitor;
     public config: any;
     public network: any;
     public client: any;
@@ -17,7 +17,7 @@ class Network {
     public async init() {
         this.logger = app.resolvePlugin<Logger.Logger>("logger");
         this.config = app.getConfig();
-        this.p2p = app.resolvePlugin("p2p");
+        this.p2p = app.resolvePlugin<P2P.Monitor>("p2p");
 
         this.network = configManager.all();
 
