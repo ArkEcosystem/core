@@ -36,9 +36,9 @@ class QuorumDetails {
 
     /**
      * Number of peers which are up to N (=3) blocks below `nodeHeight`.
-     * Meaning peers lower than `nodeHeight` - N do not count for quorum.
+     * In other words peers lower than `nodeHeight` - N are not considered for quorum.
      */
-    public peersOutsideMaxHeightElasticity = 0;
+    public peersBelowHeightElasticity = 0;
 
     /**
      * The following properties are not mutual exclusive for a peer
@@ -164,7 +164,7 @@ export class NetworkState {
         } else if (this.nodeHeight - peer.state.height < 3) {
             // suppose the max network elasticity accross 3 blocks
             this.quorumDetails.peersNoQuorum++;
-            this.quorumDetails.peersOutsideMaxHeightElasticity++;
+            this.quorumDetails.peersBelowHeightElasticity++;
         }
     }
 }
