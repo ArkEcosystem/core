@@ -135,7 +135,7 @@ export class ForgerManager {
 
             const networkState = await this.client.getNetworkState();
 
-            if (!this.__analyseNetworkState(networkState, delegate)) {
+            if (!this.__parseNetworkState(networkState, delegate)) {
                 await delay(delayTime); // we will check at next slot
 
                 return this.__monitor(round);
@@ -239,11 +239,11 @@ export class ForgerManager {
     }
 
     /**
-     * Analyses network state and decides if forging is allowed
+     * Parses the given network state and decides if forging is allowed.
      * @param {Object} networkState internal response
      * @param {Booolean} isAllowedToForge
      */
-    public __analyseNetworkState(networkState, currentForger) {
+    public __parseNetworkState(networkState, currentForger) {
         if (networkState.coldStart) {
             this.logger.info(
                 "Not allowed to forge during the cold start period. Check peers.json for coldStart setting.",

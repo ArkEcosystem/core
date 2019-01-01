@@ -135,7 +135,7 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("__analyseNetworkState", () => {
+    describe("__parseNetworkState", () => {
         it("should be TRUE when quorum > 0.66", async () => {
             const networkState = {
                 quorum: 0.9,
@@ -145,7 +145,7 @@ describe("Forger Manager", () => {
                 minimumNetworkReach: true,
                 coldStart: false,
             };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeTrue();
         });
@@ -159,7 +159,7 @@ describe("Forger Manager", () => {
                 minimumNetworkReach: true,
                 coldStart: false,
             };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
@@ -173,7 +173,7 @@ describe("Forger Manager", () => {
                 minimumNetworkReach: true,
                 coldStart: true,
             };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
@@ -187,7 +187,7 @@ describe("Forger Manager", () => {
                 minimumNetworkReach: false,
                 coldStart: false,
             };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
@@ -208,7 +208,7 @@ describe("Forger Manager", () => {
                 minimumNetworkReach: 10,
                 coldStart: false,
             };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
