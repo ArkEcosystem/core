@@ -22,6 +22,8 @@
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
         "pretest": "yarn lint && yarn build",
+        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile && yarn copy",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",

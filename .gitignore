@@ -65,3 +65,7 @@ peers_backup.json
 
 #Webstorm/Intellij
 .idea
+
+# oclif
+tmp
+oclif.manifest.json
