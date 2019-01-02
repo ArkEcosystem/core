@@ -1,7 +1,7 @@
 import { flags } from "@oclif/command";
 import { BaseCommand } from "./command";
 
-export class RelayStop extends BaseCommand {
+export class CopyrightCommand extends BaseCommand {
     public static description: string = "Stop the relay";
 
     public static examples: string[] = [

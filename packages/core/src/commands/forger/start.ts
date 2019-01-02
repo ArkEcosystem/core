@@ -3,7 +3,7 @@ import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class ForgerStart extends BaseCommand {
+export class StartCommand extends BaseCommand {
     public static description: string = "Start the forger";
 
     public static examples: string[] = [
@@ -30,7 +30,7 @@ $ ark forger:start --no-daemon
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ForgerStart);
+        const { flags } = this.parse(StartCommand);
 
         if (!flags.daemon) {
             return this.runWithoutDaemon(flags);

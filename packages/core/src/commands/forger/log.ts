@@ -2,7 +2,7 @@ import { flags } from "@oclif/command";
 import { log } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class ForgerLog extends BaseCommand {
+export class LogCommand extends BaseCommand {
     public static description: string = "Show the forger log";
 
     public static examples: string[] = [`$ ark forger:log`];
@@ -15,7 +15,7 @@ export class ForgerLog extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ForgerLog);
+        const { flags } = this.parse(LogCommand);
 
         log("ark-core-forger", flags.error as boolean);
     }

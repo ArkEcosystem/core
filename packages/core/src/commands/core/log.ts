@@ -2,7 +2,7 @@ import { flags } from "@oclif/command";
 import { log } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class CoreLog extends BaseCommand {
+export class LogCommand extends BaseCommand {
     public static description: string = "Show the core log";
 
     public static examples: string[] = [`$ ark core:log`];
@@ -14,7 +14,7 @@ export class CoreLog extends BaseCommand {
         }),
     };
     public async run(): Promise<void> {
-        const { flags } = this.parse(CoreLog);
+        const { flags } = this.parse(LogCommand);
 
         log("ark-core", flags.error as boolean);
     }

@@ -4,7 +4,7 @@ import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
 import { BaseCommand } from "../command";
 
-export class EnvList extends BaseCommand {
+export class ListCommand extends BaseCommand {
     public static description: string = "get a value from the environment";
 
     public static examples: string[] = [
@@ -18,7 +18,7 @@ $ ark env:list
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(EnvList);
+        const { flags } = this.parse(ListCommand);
 
         const envFile = `${expandHomeDir(flags.data)}/.env`;
 

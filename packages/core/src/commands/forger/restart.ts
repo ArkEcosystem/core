@@ -1,7 +1,7 @@
 import { restart } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class ForgerRestart extends BaseCommand {
+export class RestartCommand extends BaseCommand {
     public static description: string = "Restart the forger";
 
     public static examples: string[] = [

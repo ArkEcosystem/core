@@ -4,7 +4,7 @@ import fs from "fs-extra";
 import prompts from "prompts";
 import { BaseCommand } from "../../command";
 
-export class ConfigureBIP39 extends BaseCommand {
+export class BIP39Command extends BaseCommand {
     public static description: string = "Configure the forging delegate (BIP38)";
 
     public static examples: string[] = [
@@ -22,7 +22,7 @@ $ ark config:forger:bip39 --bip39="..."
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ConfigureBIP39);
+        const { flags } = this.parse(BIP39Command);
 
         if (flags.bip39) {
             return this.performConfiguration(flags);

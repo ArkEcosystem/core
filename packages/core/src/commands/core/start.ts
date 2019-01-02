@@ -3,7 +3,7 @@ import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class CoreStart extends BaseCommand {
+export class StartCommand extends BaseCommand {
     public static description: string = "Start the core";
 
     public static examples: string[] = [
@@ -49,7 +49,7 @@ $ ark core:start --no-daemon
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(CoreStart);
+        const { flags } = this.parse(StartCommand);
 
         if (!flags.daemon) {
             return this.runWithoutDaemon(flags);

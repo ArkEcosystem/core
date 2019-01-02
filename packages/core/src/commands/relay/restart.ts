@@ -1,7 +1,7 @@
 import { restart } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class RelayRestart extends BaseCommand {
+export class RestartCommand extends BaseCommand {
     public static description: string = "Restart the relay";
 
     public static examples: string[] = [

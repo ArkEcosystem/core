@@ -5,7 +5,7 @@ import { resolve } from "path";
 import prompts from "prompts";
 import { BaseCommand } from "../command";
 
-export class ConfigPublish extends BaseCommand {
+export class PublishCommand extends BaseCommand {
     public static description: string = "Publish the configuration";
 
     public static examples: string[] = [
@@ -30,7 +30,7 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ConfigPublish);
+        const { flags } = this.parse(PublishCommand);
 
         if (flags.data && flags.config && flags.network && flags.force) {
             return this.performPublishment(flags);

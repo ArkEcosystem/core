@@ -4,9 +4,9 @@ import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
 import { BaseCommand } from "../command";
-import { ConfigPublish } from "./publish";
+import { PublishCommand } from "./publish";
 
-export class ConfigReset extends BaseCommand {
+export class ResetCommand extends BaseCommand {
     public static description: string = "Reset the configuration";
 
     public static examples: string[] = [
@@ -31,7 +31,7 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ConfigReset);
+        const { flags } = this.parse(ResetCommand);
 
         if (flags.data && flags.config && flags.network && flags.force) {
             return this.performReset(flags);
@@ -61,6 +61,6 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
 
         await this.runTasks();
 
-        await ConfigPublish.run(this.flagsToStrings(flags).split(" "));
+        await PublishCommand.run(this.flagsToStrings(flags).split(" "));
     }
 }

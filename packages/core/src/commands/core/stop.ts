@@ -2,7 +2,7 @@ import { flags } from "@oclif/command";
 import { shutdown, stop } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class CoreStop extends BaseCommand {
+export class StopCommand extends BaseCommand {
     public static description: string = "Stop the core";
 
     public static examples: string[] = [
@@ -22,7 +22,7 @@ $ ark core:stop --daemon
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(CoreStop);
+        const { flags } = this.parse(StopCommand);
 
         flags.daemon ? shutdown("ark-core") : stop("ark-core");
     }

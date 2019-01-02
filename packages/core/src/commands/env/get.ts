@@ -3,7 +3,7 @@ import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
 import { BaseCommand } from "../command";
 
-export class EnvGet extends BaseCommand {
+export class GetCommand extends BaseCommand {
     public static description: string = "get a value from the environment";
 
     public static examples: string[] = [
@@ -21,7 +21,7 @@ $ ark env:get ARK_LOG_LEVEL
     ];
 
     public async run(): Promise<void> {
-        const { args, flags } = this.parse(EnvGet);
+        const { args, flags } = this.parse(GetCommand);
 
         const envFile = `${expandHomeDir(flags.data)}/.env`;
 

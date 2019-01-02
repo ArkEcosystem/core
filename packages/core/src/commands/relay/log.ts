@@ -2,7 +2,7 @@ import { flags } from "@oclif/command";
 import { log } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
 
-export class RelayLog extends BaseCommand {
+export class LogCommand extends BaseCommand {
     public static description: string = "Show the relay log";
 
     public static examples: string[] = [`$ ark relay:log`];
@@ -15,7 +15,7 @@ export class RelayLog extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(RelayLog);
+        const { flags } = this.parse(LogCommand);
 
         log("ark-core-relay", flags.error as boolean);
     }

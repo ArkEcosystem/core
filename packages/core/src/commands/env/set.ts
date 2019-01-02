@@ -4,7 +4,7 @@ import expandHomeDir from "expand-home-dir";
 import { existsSync, writeFileSync } from "fs-extra";
 import { BaseCommand } from "../command";
 
-export class EnvSet extends BaseCommand {
+export class SetCommand extends BaseCommand {
     public static description: string = "set a value in the environment";
 
     public static examples: string[] = [
@@ -27,7 +27,7 @@ $ ark env:set ARK_LOG_LEVEL info
     ];
 
     public async run(): Promise<void> {
-        const { args, flags } = this.parse(EnvSet);
+        const { args, flags } = this.parse(SetCommand);
 
         const envFile = `${expandHomeDir(flags.data)}/.env`;
 

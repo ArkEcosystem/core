@@ -7,7 +7,7 @@ import prompts from "prompts";
 import wif from "wif";
 import { BaseCommand } from "../../command";
 
-export class ConfigureBIP38 extends BaseCommand {
+export class BIP38Command extends BaseCommand {
     public static description: string = "Configure the forging delegate (BIP38)";
 
     public static examples: string[] = [
@@ -35,7 +35,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ConfigureBIP38);
+        const { flags } = this.parse(BIP38Command);
 
         if (flags.bip39 && flags.password) {
             return this.performConfiguration(flags);
