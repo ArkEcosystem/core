@@ -19,6 +19,7 @@ export abstract class BaseCommand extends Command {
         ...BaseCommand.flagsConfig,
         network: flags.string({
             description: "the name of the network that should be used",
+            options: ["mainnet", "devnet", "testnet"],
             required: true,
         }),
     };

@@ -19,16 +19,10 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
     ];
 
     public static flags = {
-        data: flags.string({
-            description: "the directory that contains the core data",
-            default: "~/.ark",
-        }),
-        config: flags.string({
-            description: "the directory that contains the core configuration",
-            default: "~/.ark/config",
-        }),
+        ...Command.flagsConfig,
         network: flags.string({
             description: "the name of the network that should be used",
+            options: ["mainnet", "devnet", "testnet"],
         }),
     };
 

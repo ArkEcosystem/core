@@ -18,6 +18,11 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
     ];
 
     public static flags = {
+        network: flags.string({
+            description: "the name of the network that should be used",
+            options: ["mainnet", "devnet", "testnet"],
+            required: true,
+        }),
         bip39: flags.string({
             char: "b",
             description: "the plain text bip39 passphrase",
