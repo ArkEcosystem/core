@@ -4,18 +4,21 @@ import expandHomeDir from "expand-home-dir";
 import { existsSync, writeFileSync } from "fs-extra";
 import { BaseCommand as Command } from "../command";
 
-export class ConfigSet extends Command {
-    public static description = "set a value in the configuration";
+export class EnvSet extends Command {
+    public static description = "set a value in the environment";
 
     public static examples = [
         `Set the log level
-$ ark config:set ARK_LOG_LEVEL info
+$ ark env:set ARK_LOG_LEVEL info
 `,
     ];
 
     public static flags = {
         ...Command.flagsConfig,
-        force: flags.boolean({ char: "f", description: "force the setting to be overwritten" }),
+        force: flags.boolean({
+            char: "f",
+            description: "force the setting to be overwritten",
+        }),
     };
 
     public static args = [
@@ -24,7 +27,7 @@ $ ark config:set ARK_LOG_LEVEL info
     ];
 
     public async run() {
-        const { args, flags } = this.parse(ConfigSet);
+        const { args, flags } = this.parse(EnvSet);
 
         const envFile = `${expandHomeDir(flags.data)}/.env`;
 

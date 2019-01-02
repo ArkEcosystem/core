@@ -97,6 +97,7 @@
         "@types/wif": "^2.0.1",
         "bip38": "^2.0.2",
         "bip39": "^2.5.0",
+        "cli-table3": "^0.5.1",
         "commander": "^2.19.0",
         "dayjs-ext": "^2.2.0",
         "envfile": "^3.0.0",
@@ -126,8 +127,8 @@
             "config": {
                 "description": "manage ark config variables"
             },
-            "config:forger": {
-                "description": "manage forger config variables"
+            "env": {
+                "description": "manage ark environment variables"
             },
             "core": {
                 "description": "manage a core instance (relay & forger)"

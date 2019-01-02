@@ -1,14 +1,15 @@
+import Table from "cli-table3";
 import envfile from "envfile";
 import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
 import { BaseCommand as Command } from "../command";
 
-export class ConfigGet extends Command {
-    public static description = "get a value from the configuration";
+export class EnvList extends Command {
+    public static description = "get a value from the environment";
 
     public static examples = [
-        `Get the log level
-$ ark config:get ARK_LOG_LEVEL
+        `List all environment variables
+$ ark env:list
 `,
     ];
 
@@ -16,10 +17,8 @@ $ ark config:get ARK_LOG_LEVEL
         ...Command.flagsConfig,
     };
 
-    public static args = [{ name: "key", required: true, hidden: false }];
-
     public async run() {
-        const { args, flags } = this.parse(ConfigGet);
+        const { flags } = this.parse(EnvList);
 
         const envFile = `${expandHomeDir(flags.data)}/.env`;
 
@@ -29,10 +28,15 @@ $ ark config:get ARK_LOG_LEVEL
 
         const env = envfile.parseFileSync(envFile);
 
-        if (!env[args.key]) {
-            throw new Error(`The "${args.key}" doesn't exist.`);
+        const table = new Table({
+            head: ["Key", "Value"],
+        });
+
+        for (const [key, value] of Object.entries(env)) {
+            // @ts-ignore
+            table.push([key, value]);
         }
 
-        console.log(env[args.key]);
+        console.log(table.toString());
     }
 }
