@@ -117,6 +117,24 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
+     * Set wakeup timeout to check the network for new blocks.
+     */
+    public setWakeUp() {
+        this.state.checkLaterTimeout = setTimeout(() => {
+            this.state.checkLaterTimeout = null;
+            return this.dispatch("WAKEUP");
+        }, 60000);
+    }
+
+    /**
+     * Reset the wakeup timeout.
+     */
+    public resetWakeUp() {
+        this.state.clearCheckLater();
+        this.setWakeUp();
+    }
+
+    /**
      * Update network status.
      * @return {void}
      */
