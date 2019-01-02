@@ -1,3 +1,4 @@
+import { flags } from "@oclif/command";
 import { log } from "../../pm2";
 import Command from "../command";
 
@@ -6,7 +7,13 @@ export class ForgerLog extends Command {
 
     public static examples = [`$ ark forger:log`];
 
+    public static flags = {
+        error: flags.boolean({ char: "e", description: "..." }),
+    };
+
     public async run() {
-        log("ark-core-relay");
+        const { flags } = this.parse(ForgerLog);
+
+        log("ark-core-forger", flags.error);
     }
 }

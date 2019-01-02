@@ -103,6 +103,7 @@
         "pm2": "^3.2.3",
         "prompts": "^2.0.0",
         "semver": "^5.6.0",
+        "tail": "^2.0.2",
         "wif": "^2.0.6"
     },
     "publishConfig": {
@@ -119,19 +120,19 @@
         "bin": "ark",
         "topics": {
             "config": {
-                "description": "..."
+                "description": "manage ark config variables"
             },
             "config:forger": {
-                "description": "..."
+                "description": "manage forger (delegate) config variables"
             },
             "core": {
-                "description": "..."
+                "description": "manage a core instance (relay & forger)"
             },
             "forger": {
-                "description": "..."
+                "description": "manage a forger instance"
             },
             "relay": {
-                "description": "..."
+                "description": "manage a relay instance"
             }
         },
         "plugins": [
@@ -139,7 +140,6 @@
             "@oclif/plugin-commands",
             "@oclif/plugin-help",
             "@oclif/plugin-not-found",
-            "@oclif/plugin-plugins",
             "@oclif/plugin-update",
             "@oclif/plugin-warn-if-update-available",
             "@oclif/plugin-which"

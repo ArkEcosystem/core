@@ -1,4 +1,5 @@
 import pm2 from "pm2";
+import { Tail } from "tail";
 
 export function start(options: any) {
     pm2.connect(connectionError => {
@@ -77,6 +78,27 @@ export function destroy(processName: string) {
     });
 }
 
-export function log(processName: string) {
-    return;
+export function log(processName: string, onlyErrors: boolean) {
+    pm2.connect(connectionError => {
+        if (connectionError) {
+            console.error(connectionError);
+            process.exit(2);
+        }
+
+        pm2.describe(processName, (deleteError, apps) => {
+            pm2.disconnect();
+
+            if (deleteError) {
+                throw deleteError;
+            }
+
+            const app = apps[0].pm2_env;
+
+            const log = new Tail(onlyErrors ? app.pm_err_log_path : app.pm_out_log_path);
+
+            log.on("line", data => console.log(data));
+
+            log.on("error", error => console.log("ERROR: ", error));
+        });
+    });
 }
