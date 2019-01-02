@@ -1,5 +1,5 @@
 import { flags } from "@oclif/command";
-import { log } from "../../pm2";
+import { log } from "../../helpers/pm2";
 import { BaseCommand as Command } from "../command";
 
 export class ForgerLog extends Command {

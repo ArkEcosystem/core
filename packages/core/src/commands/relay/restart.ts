@@ -1,4 +1,4 @@
-import { restart } from "../../pm2";
+import { restart } from "../../helpers/pm2";
 import { BaseCommand as Command } from "../command";
 
 export class RelayRestart extends Command {

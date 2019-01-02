@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
-import { start } from "../../pm2";
+import { start } from "../../helpers/pm2";
 import { BaseCommand as Command } from "../command";
 
 export class RelayStart extends Command {

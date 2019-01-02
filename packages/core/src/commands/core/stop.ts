@@ -1,5 +1,5 @@
 import { flags } from "@oclif/command";
-import { shutdown, stop } from "../../pm2";
+import { shutdown, stop } from "../../helpers/pm2";
 import { BaseCommand as Command } from "../command";
 
 export class CoreStop extends Command {
