@@ -4,7 +4,11 @@ import Command from "../command";
 export class ConfigSet extends Command {
     public static description = "Set a value in the configuration";
 
-    public static examples = [`$ ark config:set`];
+    public static examples = [
+        `Set the log level
+$ ark config:set ARK_LOG_LEVEL info
+`,
+    ];
 
     public static flags = {
         force: flags.string({ char: "f", description: "force the setting to be overwritten" }),

@@ -8,7 +8,14 @@ import Command from "../command";
 export class ConfigPublish extends Command {
     public static description = "Publish the configuration";
 
-    public static examples = [`$ ark config:publish`];
+    public static examples = [
+        `Publish the configuration for the mainnet network
+$ ark config:publish --network=mainnet
+`,
+        `Publish the configuration with custom data and config paths
+$ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
+`,
+    ];
 
     public static flags = {
         ...Command.flagsNetwork,

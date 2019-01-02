@@ -5,7 +5,32 @@ import Command from "../command";
 export class CoreRun extends Command {
     public static description = "Run the core (no daemon)";
 
-    public static examples = [`$ ark core:run`];
+    public static examples = [
+        `Run a mainnet relay
+$ ark core:run --network=mainnet
+`,
+        `Run a relay with custom data and config paths
+$ ark core:run --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
+`,
+        `Run a genesis relay
+$ ark core:run --networkStart
+`,
+        `Disable any discovery by other peers
+$ ark core:run --disableDiscovery
+`,
+        `Skip the initial discovery
+$ ark core:run --skipDiscovery
+`,
+        `Ignore the minimum network reach
+$ ark core:run --ignoreMinimumNetworkReach
+`,
+        `Start a seed
+$ ark core:run --launchMode=seed
+`,
+        `Run a relay without any public facing services
+$ ark core:run --preset=relay-minimal
+`,
+    ];
 
     public static flags = {
         ...Command.flagsNetwork,

@@ -5,7 +5,14 @@ import Command from "../command";
 export class ForgerStart extends Command {
     public static description = "Start the forger";
 
-    public static examples = [`$ ark forger:start`];
+    public static examples = [
+        `Run a forger with a bip39 passphrase
+$ ark forger:start --bip39="..."
+`,
+        `Run a forger with an encrypted bip38
+$ ark forger:start --bip38="..." --password="..."
+`,
+    ];
 
     public static flags = {
         ...Command.flagsNetwork,

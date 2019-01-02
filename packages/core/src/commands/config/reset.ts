@@ -9,7 +9,14 @@ import { ConfigPublish } from "./publish";
 export class ConfigReset extends Command {
     public static description = "Reset the configuration";
 
-    public static examples = [`$ ark config:reset`];
+    public static examples = [
+        `Reset the configuration for the mainnet network
+$ ark config:reset --network=mainnet
+`,
+        `Reset the configuration with custom data and config paths
+$ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
+`,
+    ];
 
     public static flags = {
         ...Command.flagsNetwork,

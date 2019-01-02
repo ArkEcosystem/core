@@ -114,7 +114,6 @@ export default abstract class extends Command {
         try {
             const tasks = new Listr(this.tasks);
             await tasks.run();
-            console.log("executed");
         } catch (error) {
             console.log(error);
         }
