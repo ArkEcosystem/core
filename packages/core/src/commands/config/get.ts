@@ -1,7 +1,7 @@
 import envfile from "envfile";
 import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class ConfigGet extends Command {
     public static description = "Get a value from the configuration";
@@ -16,7 +16,7 @@ $ ark config:get ARK_LOG_LEVEL
         ...Command.flagsConfig,
     };
 
-    public static args = [{ name: "key" }];
+    public static args = [{ name: "key", required: true, hidden: false }];
 
     public async run() {
         const { args, flags } = this.parse(ConfigGet);

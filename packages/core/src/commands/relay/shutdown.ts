@@ -1,5 +1,5 @@
 import { shutdown } from "../../pm2";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class RelayShutdown extends Command {
     public static description = "Delete the relay daemon";

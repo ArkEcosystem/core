@@ -2,7 +2,7 @@ import { flags } from "@oclif/command";
 import envfile from "envfile";
 import expandHomeDir from "expand-home-dir";
 import { existsSync, writeFileSync } from "fs-extra";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class ConfigSet extends Command {
     public static description = "Set a value in the configuration";
@@ -15,10 +15,13 @@ $ ark config:set ARK_LOG_LEVEL info
 
     public static flags = {
         ...Command.flagsConfig,
-        force: flags.string({ char: "f", description: "force the setting to be overwritten" }),
+        force: flags.boolean({ char: "f", description: "force the setting to be overwritten" }),
     };
 
-    public static args = [{ name: "key" }, { name: "value" }];
+    public static args = [
+        { name: "key", required: true, hidden: false },
+        { name: "value", required: true, hidden: false },
+    ];
 
     public async run() {
         const { args, flags } = this.parse(ConfigSet);

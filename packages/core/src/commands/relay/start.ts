@@ -1,5 +1,5 @@
 import { start } from "../../pm2";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class RelayStart extends Command {
     public static description = "Start the relay";

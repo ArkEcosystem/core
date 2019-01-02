@@ -6,7 +6,7 @@ import delay from "delay";
 import fs from "fs-extra";
 import prompts from "prompts";
 import wif from "wif";
-import Command from "../../command";
+import { BaseCommand as Command } from "../../command";
 
 export class ConfigureBIP38 extends Command {
     public static description = "Configure the forging delegate (BIP38)";

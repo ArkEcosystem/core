@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class CoreRun extends Command {
     public static description = "Run the core (no daemon)";

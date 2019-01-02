@@ -1,6 +1,6 @@
 import { flags } from "@oclif/command";
 import { log } from "../../pm2";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class CoreLog extends Command {
     public static description = "Show the core log";

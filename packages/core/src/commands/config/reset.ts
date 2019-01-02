@@ -4,7 +4,7 @@ import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 import { ConfigPublish } from "./publish";
 
 export class ConfigReset extends Command {

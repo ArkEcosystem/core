@@ -1,6 +1,6 @@
 import { flags } from "@oclif/command";
 import { start } from "../../pm2";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class ForgerStart extends Command {
     public static description = "Start the forger";

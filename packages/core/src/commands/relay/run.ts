@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
-import Command from "../command";
+import { BaseCommand as Command } from "../command";
 
 export class RelayRun extends Command {
     public static description = "Run the relay (no daemon)";

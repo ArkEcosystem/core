@@ -4,7 +4,7 @@ import fs from "fs-extra";
 import prompts from "prompts";
 
 import { flags } from "@oclif/command";
-import Command from "../../command";
+import { BaseCommand as Command } from "../../command";
 
 export class ConfigureBIP39 extends Command {
     public static description = "Configure the forging delegate (BIP38)";

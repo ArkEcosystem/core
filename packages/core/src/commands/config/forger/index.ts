@@ -3,7 +3,7 @@ import { ConfigureBIP38 } from "./bip38";
 import { ConfigureBIP39 } from "./bip39";
 
 import { flags } from "@oclif/command";
-import Command from "../../command";
+import { BaseCommand as Command } from "../../command";
 
 export class ForgerConfig extends Command {
     public static description = "Configure the forging delegate (BIP38)";
