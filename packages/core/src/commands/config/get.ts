@@ -4,7 +4,7 @@ import { existsSync } from "fs-extra";
 import { BaseCommand as Command } from "../command";
 
 export class ConfigGet extends Command {
-    public static description = "Get a value from the configuration";
+    public static description = "get a value from the configuration";
 
     public static examples = [
         `Get the log level

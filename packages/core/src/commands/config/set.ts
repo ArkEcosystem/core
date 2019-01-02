@@ -5,7 +5,7 @@ import { existsSync, writeFileSync } from "fs-extra";
 import { BaseCommand as Command } from "../command";
 
 export class ConfigSet extends Command {
-    public static description = "Set a value in the configuration";
+    public static description = "set a value in the configuration";
 
     public static examples = [
         `Set the log level

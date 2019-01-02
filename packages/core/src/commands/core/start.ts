@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import { start } from "../../pm2";
 import { BaseCommand as Command } from "../command";
@@ -36,10 +37,18 @@ $ ark core:start --preset=relay-minimal
         ...Command.flagsNetwork,
         ...Command.flagsBehaviour,
         ...Command.flagsForger,
+        daemon: flags.boolean({
+            char: "d",
+            description: "stop the process and daemon",
+        }),
     };
 
     public async run() {
         const { flags } = this.parse(CoreStart);
+
+        if (!flags.daemon) {
+            return this.runWithoutDaemon(flags);
+        }
 
         start({
             name: "ark-core",
@@ -48,6 +57,21 @@ $ ark core:start --preset=relay-minimal
             env: {
                 ARK_FORGER_BIP38: flags.bip38,
                 ARK_FORGER_PASSWORD: flags.password,
+            },
+        });
+    }
+
+    private async runWithoutDaemon(flags) {
+        return this.buildApplication(app, {
+            options: {
+                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                "@arkecosystem/core-blockchain": {
+                    networkStart: flags.networkStart,
+                },
+                "@arkecosystem/core-forger": {
+                    bip38: flags.bip38 || process.env.ARK_FORGER_BIP38,
+                    password: flags.password || process.env.ARK_FORGER_BIP39,
+                },
             },
         });
     }

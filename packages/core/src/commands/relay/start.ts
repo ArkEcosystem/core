@@ -1,3 +1,5 @@
+import { app } from "@arkecosystem/core-container";
+import { flags } from "@oclif/command";
 import { start } from "../../pm2";
 import { BaseCommand as Command } from "../command";
 
@@ -35,15 +37,35 @@ $ ark relay:start --preset=relay-minimal
         ...Command.flagsNetwork,
         ...Command.flagsBehaviour,
         ...Command.flagsForger,
+        daemon: flags.boolean({
+            char: "d",
+            description: "stop the process and daemon",
+        }),
     };
 
     public async run() {
         const { flags } = this.parse(RelayStart);
 
+        if (!flags.daemon) {
+            return this.runWithoutDaemon(flags);
+        }
+
         start({
             name: "ark-core-relay",
             script: "./dist/index.js",
-            args: `relay:start ${this.flagsToStrings(flags)}`,
+            args: `relay:start --daemon ${this.flagsToStrings(flags)}`,
+        });
+    }
+
+    private async runWithoutDaemon(flags) {
+        return this.buildApplication(app, {
+            exclude: ["@arkecosystem/core-forger"],
+            options: {
+                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                "@arkecosystem/core-blockchain": {
+                    networkStart: flags.networkStart,
+                },
+            },
         });
     }
 }
