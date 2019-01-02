@@ -40,6 +40,8 @@ $ ark core:start --preset=relay-minimal
         daemon: flags.boolean({
             char: "d",
             description: "stop the process and daemon",
+            default: true,
+            allowNo: true,
         }),
     };
 

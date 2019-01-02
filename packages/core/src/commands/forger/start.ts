@@ -21,6 +21,8 @@ $ ark forger:start --bip38="..." --password="..."
         daemon: flags.boolean({
             char: "d",
             description: "stop the process and daemon",
+            default: true,
+            allowNo: true,
         }),
     };
 
