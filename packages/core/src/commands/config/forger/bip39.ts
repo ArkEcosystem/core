@@ -3,18 +3,18 @@ import bip39 from "bip39";
 import delay from "delay";
 import fs from "fs-extra";
 import prompts from "prompts";
-import { BaseCommand as Command } from "../../command";
+import { BaseCommand } from "../../command";
 
-export class ConfigureBIP39 extends Command {
-    public static description = "Configure the forging delegate (BIP38)";
+export class ConfigureBIP39 extends BaseCommand {
+    public static description: string = "Configure the forging delegate (BIP38)";
 
-    public static examples = [
+    public static examples: string[] = [
         `Configure a delegate using a BIP39 passphrase
 $ ark config:forger:bip39 --bip39="..."
 `,
     ];
 
-    public static flags = {
+    public static flags: Record<string, any> = {
         bip39: flags.string({
             char: "b",
             description: "the plain text bip39 passphrase",
@@ -22,7 +22,7 @@ $ ark config:forger:bip39 --bip39="..."
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ConfigureBIP39);
 
         if (flags.bip39) {
@@ -51,32 +51,35 @@ $ ark config:forger:bip39 --bip39="..."
         }
     }
 
-    private async performConfiguration(flags) {
+    private async performConfiguration(flags): Promise<void> {
         const delegatesConfig = `${flags.config}/delegates.json`;
 
-        await this.addTask("Prepare configuration", async () => {
+        this.addTask("Prepare configuration", async () => {
             if (!fs.existsSync(delegatesConfig)) {
                 throw new Error(`Couldn't find the core configuration at ${delegatesConfig}.`);
             }
 
             await delay(500);
-        })
-            .addTask("Validate passphrase", async () => {
-                if (!bip39.validateMnemonic(flags.bip39)) {
-                    throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
-                }
+        });
 
-                await delay(500);
-            })
-            .addTask("Write BIP39 to configuration", async () => {
-                const delegates = require(delegatesConfig);
-                delegates.secrets = [flags.bip39];
-                delete delegates.bip38;
+        this.addTask("Validate passphrase", async () => {
+            if (!bip39.validateMnemonic(flags.bip39)) {
+                throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
+            }
 
-                fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+            await delay(500);
+        });
 
-                await delay(500);
-            })
-            .runTasks();
+        this.addTask("Write BIP39 to configuration", async () => {
+            const delegates = require(delegatesConfig);
+            delegates.secrets = [flags.bip39];
+            delete delegates.bip38;
+
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+
+            await delay(500);
+        });
+
+        await this.runTasks();
     }
 }

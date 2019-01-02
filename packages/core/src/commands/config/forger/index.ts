@@ -1,13 +1,13 @@
 import { flags } from "@oclif/command";
 import prompts from "prompts";
-import { BaseCommand as Command } from "../../command";
+import { BaseCommand } from "../../command";
 import { ConfigureBIP38 } from "./bip38";
 import { ConfigureBIP39 } from "./bip39";
 
-export class ForgerConfig extends Command {
-    public static description = "Configure the forging delegate (BIP38)";
+export class ForgerConfig extends BaseCommand {
+    public static description: string = "Configure the forging delegate (BIP38)";
 
-    public static examples = [
+    public static examples: string[] = [
         `Configure a delegate using an encrypted BIP38
 $ ark config:forger --method=bip38
 `,
@@ -16,12 +16,12 @@ $ ark config:forger --method=bip39
 `,
     ];
 
-    public static flags = {
-        ...Command.flagsForger,
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsForger,
         method: flags.string({ char: "m", description: "the configuration method to use (bip38 or bip39)" }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ForgerConfig);
 
         if (flags.method === "bip38") {

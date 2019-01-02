@@ -1,16 +1,16 @@
 import { restart } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class CoreRestart extends Command {
-    public static description = "Restart the core";
+export class CoreRestart extends BaseCommand {
+    public static description: string = "Restart the core";
 
-    public static examples = [
+    public static examples: string[] = [
         `Restart the core
 $ ark core:restart
 `,
     ];
 
-    public async run() {
+    public async run(): Promise<void> {
         restart("ark-core");
     }
 }

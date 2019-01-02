@@ -2,22 +2,22 @@ import Table from "cli-table3";
 import envfile from "envfile";
 import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class EnvList extends Command {
-    public static description = "get a value from the environment";
+export class EnvList extends BaseCommand {
+    public static description: string = "get a value from the environment";
 
-    public static examples = [
+    public static examples: string[] = [
         `List all environment variables
 $ ark env:list
 `,
     ];
 
-    public static flags = {
-        ...Command.flagsConfig,
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsConfig,
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(EnvList);
 
         const envFile = `${expandHomeDir(flags.data)}/.env`;
@@ -28,9 +28,7 @@ $ ark env:list
 
         const env = envfile.parseFileSync(envFile);
 
-        const table = new Table({
-            head: ["Key", "Value"],
-        });
+        const table = new Table({ chars: { mid: "", "left-mid": "", "mid-mid": "", "right-mid": "" } });
 
         for (const [key, value] of Object.entries(env)) {
             // @ts-ignore

@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class CoreStart extends Command {
-    public static description = "Start the core";
+export class CoreStart extends BaseCommand {
+    public static description: string = "Start the core";
 
-    public static examples = [
+    public static examples: string[] = [
         `Run core on mainnet
 $ ark core:start --network=mainnet
 `,
@@ -36,10 +36,10 @@ $ ark core:start --no-daemon
 `,
     ];
 
-    public static flags = {
-        ...Command.flagsNetwork,
-        ...Command.flagsBehaviour,
-        ...Command.flagsForger,
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsNetwork,
+        ...BaseCommand.flagsBehaviour,
+        ...BaseCommand.flagsForger,
         daemon: flags.boolean({
             char: "d",
             description: "stop the process and daemon",
@@ -48,7 +48,7 @@ $ ark core:start --no-daemon
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(CoreStart);
 
         if (!flags.daemon) {

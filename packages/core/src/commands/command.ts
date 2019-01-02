@@ -4,7 +4,7 @@ import { resolve } from "path";
 
 // tslint:disable-next-line:no-default-export
 export abstract class BaseCommand extends Command {
-    public static flagsConfig = {
+    public static flagsConfig: Record<string, object> = {
         data: flags.string({
             description: "the directory that contains the core data",
             default: "~/.ark",
@@ -15,7 +15,7 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
-    public static flagsNetwork = {
+    public static flagsNetwork: Record<string, object> = {
         ...BaseCommand.flagsConfig,
         network: flags.string({
             description: "the name of the network that should be used",
@@ -24,7 +24,7 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
-    public static flagsBehaviour = {
+    public static flagsBehaviour: Record<string, object> = {
         networkStart: flags.boolean({
             description: "indicate that this is the first start of seeds",
         }),
@@ -42,10 +42,11 @@ export abstract class BaseCommand extends Command {
         }),
         preset: flags.string({
             description: "the configuration preset to be used",
+            options: ["forger", "full", "relay-api", "relay-forger", "relay-minimal", "relay-rpc", "relay-webhooks"],
         }),
     };
 
-    public static flagsForger = {
+    public static flagsForger: Record<string, object> = {
         bip38: flags.string({
             description: "the encrypted bip38",
             dependsOn: ["password"],
@@ -93,7 +94,7 @@ export abstract class BaseCommand extends Command {
         return config;
     }
 
-    protected flagsToStrings(flags) {
+    protected flagsToStrings(flags: Record<string, any>): string {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {

@@ -3,13 +3,13 @@ import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 import { ConfigPublish } from "./publish";
 
-export class ConfigReset extends Command {
-    public static description = "Reset the configuration";
+export class ConfigReset extends BaseCommand {
+    public static description: string = "Reset the configuration";
 
-    public static examples = [
+    public static examples: string[] = [
         `Reset the configuration for the mainnet network
 $ ark config:reset --network=mainnet
 `,
@@ -18,8 +18,8 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
 `,
     ];
 
-    public static flags = {
-        ...Command.flagsConfig,
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsConfig,
         network: flags.string({
             description: "the name of the network that should be used",
             options: ["mainnet", "devnet", "testnet"],
@@ -30,7 +30,7 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ConfigReset);
 
         if (flags.data && flags.config && flags.network && flags.force) {
@@ -52,7 +52,7 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
         }
     }
 
-    private async performReset(flags: Record<string, any>) {
+    private async performReset(flags: Record<string, any>): Promise<void> {
         const configDir = resolve(expandHomeDir(flags.config));
 
         this.addTask("Remove configuration", async () => {

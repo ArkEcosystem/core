@@ -17,8 +17,9 @@ export function start(options: any) {
                 },
                 ...options,
             },
-            (startError, apps) => {
+            startError => {
                 pm2.disconnect();
+
                 if (startError) {
                     throw startError;
                 }
@@ -34,7 +35,7 @@ export function stop(processName: string) {
             process.exit(2);
         }
 
-        pm2.stop(processName, (stopError, apps) => {
+        pm2.stop(processName, stopError => {
             pm2.disconnect();
 
             if (stopError) {
@@ -51,7 +52,7 @@ export function restart(processName: string) {
             process.exit(2);
         }
 
-        pm2.reload(processName, (reloadError, apps) => {
+        pm2.reload(processName, reloadError => {
             pm2.disconnect();
 
             if (reloadError) {
@@ -68,7 +69,7 @@ export function shutdown(processName: string) {
             process.exit(2);
         }
 
-        pm2.delete(processName, (deleteError, apps) => {
+        pm2.delete(processName, deleteError => {
             pm2.disconnect();
 
             if (deleteError) {
@@ -85,7 +86,7 @@ export function destroy(processName: string) {
             process.exit(2);
         }
 
-        pm2.delete(processName, (deleteError, apps) => {
+        pm2.delete(processName, deleteError => {
             pm2.disconnect();
 
             if (deleteError) {

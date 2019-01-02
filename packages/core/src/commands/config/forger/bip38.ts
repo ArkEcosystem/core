@@ -6,18 +6,18 @@ import delay from "delay";
 import fs from "fs-extra";
 import prompts from "prompts";
 import wif from "wif";
-import { BaseCommand as Command } from "../../command";
+import { BaseCommand } from "../../command";
 
-export class ConfigureBIP38 extends Command {
-    public static description = "Configure the forging delegate (BIP38)";
+export class ConfigureBIP38 extends BaseCommand {
+    public static description: string = "Configure the forging delegate (BIP38)";
 
-    public static examples = [
+    public static examples: string[] = [
         `Configure a delegate using an encrypted BIP38
 $ ark config:forger:bip38 --bip39="..." --password="..."
 `,
     ];
 
-    public static flags = {
+    public static flags: Record<string, any> = {
         network: flags.string({
             description: "the name of the network that should be used",
             options: ["mainnet", "devnet", "testnet"],
@@ -35,7 +35,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ConfigureBIP38);
 
         if (flags.bip39 && flags.password) {
@@ -69,45 +69,50 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
         }
     }
 
-    private async performConfiguration(flags) {
+    private async performConfiguration(flags): Promise<void> {
         const delegatesConfig = `${flags.config}/delegates.json`;
         let decodedWIF;
 
-        await this.addTask("Prepare configuration", async () => {
+        this.addTask("Prepare configuration", async () => {
             if (!fs.existsSync(delegatesConfig)) {
                 throw new Error(`Couldn't find the core configuration at ${delegatesConfig}.`);
             }
 
             await delay(500);
-        })
-            .addTask("Validate passphrase", async () => {
-                if (!bip39.validateMnemonic(flags.bip39)) {
-                    throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
-                }
+        });
 
-                await delay(500);
-            })
-            .addTask("Prepare crypto", async () => {
-                configManager.setFromPreset(flags.network);
+        this.addTask("Validate passphrase", async () => {
+            if (!bip39.validateMnemonic(flags.bip39)) {
+                throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
+            }
 
-                await delay(500);
-            })
-            .addTask("Loading private key", async () => {
-                const keys = crypto.getKeys(flags.bip39);
-                // @ts-ignore
-                decodedWIF = wif.decode(crypto.keysToWIF(keys));
+            await delay(500);
+        });
 
-                await delay(500);
-            })
-            .addTask("Encrypt BIP38", async () => {
-                const delegates = require(delegatesConfig);
-                delegates.bip38 = bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, flags.password);
-                delegates.secrets = [];
+        this.addTask("Prepare crypto", async () => {
+            configManager.setFromPreset(flags.network);
 
-                fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+            await delay(500);
+        });
 
-                await delay(500);
-            })
-            .runTasks();
+        this.addTask("Loading private key", async () => {
+            const keys = crypto.getKeys(flags.bip39);
+            // @ts-ignore
+            decodedWIF = wif.decode(crypto.keysToWIF(keys));
+
+            await delay(500);
+        });
+
+        this.addTask("Encrypt BIP38", async () => {
+            const delegates = require(delegatesConfig);
+            delegates.bip38 = bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, flags.password);
+            delegates.secrets = [];
+
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+
+            await delay(500);
+        });
+
+        await this.runTasks();
     }
 }

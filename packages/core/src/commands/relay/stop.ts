@@ -1,11 +1,11 @@
 import { flags } from "@oclif/command";
 import { shutdown, stop } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class RelayStop extends Command {
-    public static description = "Stop the relay";
+export class RelayStop extends BaseCommand {
+    public static description: string = "Stop the relay";
 
-    public static examples = [
+    public static examples: string[] = [
         `Stop the relay
 $ ark relay:stop
 `,
@@ -14,14 +14,14 @@ $ ark relay:stop --daemon
 `,
     ];
 
-    public static flags = {
+    public static flags: Record<string, any> = {
         daemon: flags.boolean({
             char: "d",
             description: "stop the process and daemon",
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(RelayStop);
 
         flags.daemon ? shutdown("ark-core-relay") : stop("ark-core-relay");

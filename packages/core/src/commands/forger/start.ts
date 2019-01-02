@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class ForgerStart extends Command {
-    public static description = "Start the forger";
+export class ForgerStart extends BaseCommand {
+    public static description: string = "Start the forger";
 
-    public static examples = [
+    public static examples: string[] = [
         `Run a forger with a bip39 passphrase
 $ ark forger:start --bip39="..."
 `,
@@ -18,9 +18,9 @@ $ ark forger:start --no-daemon
 `,
     ];
 
-    public static flags = {
-        ...Command.flagsNetwork,
-        ...Command.flagsForger,
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsNetwork,
+        ...BaseCommand.flagsForger,
         daemon: flags.boolean({
             char: "d",
             description: "stop the process and daemon",
@@ -29,7 +29,7 @@ $ ark forger:start --no-daemon
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ForgerStart);
 
         if (!flags.daemon) {

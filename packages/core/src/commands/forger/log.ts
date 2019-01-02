@@ -1,22 +1,22 @@
 import { flags } from "@oclif/command";
 import { log } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class ForgerLog extends Command {
-    public static description = "Show the forger log";
+export class ForgerLog extends BaseCommand {
+    public static description: string = "Show the forger log";
 
-    public static examples = [`$ ark forger:log`];
+    public static examples: string[] = [`$ ark forger:log`];
 
-    public static flags = {
+    public static flags: Record<string, any> = {
         error: flags.boolean({
             char: "e",
             description: "only show error output from the daemon",
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ForgerLog);
 
-        log("ark-core-forger", flags.error);
+        log("ark-core-forger", flags.error as boolean);
     }
 }

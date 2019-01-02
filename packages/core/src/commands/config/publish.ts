@@ -4,12 +4,12 @@ import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class ConfigPublish extends Command {
-    public static description = "Publish the configuration";
+export class ConfigPublish extends BaseCommand {
+    public static description: string = "Publish the configuration";
 
-    public static examples = [
+    public static examples: string[] = [
         `Publish the configuration for the mainnet network
 $ ark config:publish --network=mainnet
 `,
@@ -18,8 +18,8 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
 `,
     ];
 
-    public static flags = {
-        ...Command.flagsConfig,
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsConfig,
         network: flags.string({
             description: "the name of the network that should be used",
             options: ["mainnet", "devnet", "testnet"],
@@ -30,7 +30,7 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ConfigPublish);
 
         if (flags.data && flags.config && flags.network && flags.force) {
@@ -74,7 +74,7 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
         }
     }
 
-    private async performPublishment(flags: Record<string, any>) {
+    private async performPublishment(flags: Record<string, any>): Promise<void> {
         const coreConfigDest = resolve(expandHomeDir(flags.config));
         const coreConfigSrc = resolve(__dirname, `../../../bin/config/${flags.network}`);
 

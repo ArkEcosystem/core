@@ -1,16 +1,16 @@
 import { restart } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class RelayRestart extends Command {
-    public static description = "Restart the relay";
+export class RelayRestart extends BaseCommand {
+    public static description: string = "Restart the relay";
 
-    public static examples = [
+    public static examples: string[] = [
         `Restart the relay
 $ ark relay:restart
 `,
     ];
 
-    public async run() {
+    public async run(): Promise<void> {
         restart("ark-core-relay");
     }
 }

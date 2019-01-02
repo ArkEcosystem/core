@@ -1,22 +1,22 @@
 import { flags } from "@oclif/command";
 import { log } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class RelayLog extends Command {
-    public static description = "Show the relay log";
+export class RelayLog extends BaseCommand {
+    public static description: string = "Show the relay log";
 
-    public static examples = [`$ ark relay:log`];
+    public static examples: string[] = [`$ ark relay:log`];
 
-    public static flags = {
+    public static flags: Record<string, any> = {
         error: flags.boolean({
             char: "e",
             description: "only show error output from the daemon",
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(RelayLog);
 
-        log("ark-core-relay", flags.error);
+        log("ark-core-relay", flags.error as boolean);
     }
 }

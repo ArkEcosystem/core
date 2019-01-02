@@ -1,11 +1,11 @@
 import { flags } from "@oclif/command";
 import { shutdown, stop } from "../../helpers/pm2";
-import { BaseCommand as Command } from "../command";
+import { BaseCommand } from "../command";
 
-export class ForgerStop extends Command {
-    public static description = "Stop the forger";
+export class ForgerStop extends BaseCommand {
+    public static description: string = "Stop the forger";
 
-    public static examples = [
+    public static examples: string[] = [
         `Stop the forger
 $ ark forger:stop
 `,
@@ -14,14 +14,14 @@ $ ark forger:stop --daemon
 `,
     ];
 
-    public static flags = {
+    public static flags: Record<string, any> = {
         daemon: flags.boolean({
             char: "d",
             description: "stop the process and daemon",
         }),
     };
 
-    public async run() {
+    public async run(): Promise<void> {
         const { flags } = this.parse(ForgerStop);
 
         flags.daemon ? shutdown("ark-core-forger") : stop("ark-core-forger");
