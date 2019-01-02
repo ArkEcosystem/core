@@ -33,7 +33,7 @@ export class StateStorage {
     public forkedBlock: any;
     public rebuild: boolean;
     public fastRebuild: boolean;
-    public checkLaterTimeout: any;
+    public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
     public networkStart: boolean;
@@ -54,7 +54,7 @@ export class StateStorage {
         this.forkedBlock = null;
         this.rebuild = true;
         this.fastRebuild = false;
-        this.checkLaterTimeout = null;
+        this.wakeUpTimeout = null;
         this.noBlockCounter = 0;
         this.p2pUpdateCounter = 0;
         this.networkStart = false;
@@ -75,10 +75,10 @@ export class StateStorage {
      * Clear check later timeout.
      * @returns {void}
      */
-    public clearCheckLater() {
-        if (this.checkLaterTimeout) {
-            clearTimeout(this.checkLaterTimeout);
-            this.checkLaterTimeout = null;
+    public clearWakeUpTimeout() {
+        if (this.wakeUpTimeout) {
+            clearTimeout(this.wakeUpTimeout);
+            this.wakeUpTimeout = null;
         }
     }
 

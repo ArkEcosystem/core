@@ -38,7 +38,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     checkLater() {
-        if (!blockchain.isStopped && !stateStorage.checkLaterTimeout) {
+        if (!blockchain.isStopped && !stateStorage.wakeUpTimeout) {
             blockchain.setWakeUp();
         }
     },

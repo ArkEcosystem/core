@@ -105,7 +105,7 @@ export class Blockchain implements blockchain.IBlockchain {
             logger.info("Stopping Blockchain Manager :chains:");
 
             this.isStopped = true;
-            this.state.clearCheckLater();
+            this.state.clearWakeUpTimeout();
 
             this.dispatch("STOP");
 
@@ -121,8 +121,8 @@ export class Blockchain implements blockchain.IBlockchain {
      * Set wakeup timeout to check the network for new blocks.
      */
     public setWakeUp() {
-        this.state.checkLaterTimeout = setTimeout(() => {
-            this.state.checkLaterTimeout = null;
+        this.state.wakeUpTimeout = setTimeout(() => {
+            this.state.wakeUpTimeout = null;
             return this.dispatch("WAKEUP");
         }, 60000);
     }
@@ -131,7 +131,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Reset the wakeup timeout.
      */
     public resetWakeUp() {
-        this.state.clearCheckLater();
+        this.state.clearWakeUpTimeout();
         this.setWakeUp();
     }
 
@@ -534,13 +534,13 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Called by forger to wake up and sync with the network.
-     * It clears the checkLaterTimeout if set.
+     * It clears the wakeUpTimeout if set.
      * @param  {Number}  blockSize
      * @param  {Boolean} forForging
      * @return {Object}
      */
     public forceWakeup() {
-        this.state.clearCheckLater();
+        this.state.clearWakeUpTimeout();
         this.dispatch("WAKEUP");
     }
 
