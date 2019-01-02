@@ -66,24 +66,6 @@ describe("API - Version 1", () => {
         });
     });
 
-    describe("GET /peer/transactionsFromIds", () => {
-        it("should be ok", async () => {
-            const response = await utils.GET("peer/transactionsFromIds", {
-                ids: "e40ce11cab82736da1cc91191716f3c1f446ca7b6a9f4f93b7120ef105ba06e8",
-            });
-
-            expect(response.status).toBe(200);
-
-            expect(response.data).toBeObject();
-
-            expect(response.data).toHaveProperty("success");
-            expect(response.data.success).toBeTrue();
-
-            expect(response.data).toHaveProperty("transactions");
-            expect(response.data.transactions).toBeArray();
-        });
-    });
-
     describe("GET /peer/height", () => {
         it("should be ok", async () => {
             const response = await utils.GET("peer/height");

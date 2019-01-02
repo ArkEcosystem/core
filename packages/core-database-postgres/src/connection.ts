@@ -508,15 +508,6 @@ export class PostgresConnection extends ConnectionInterface {
     }
 
     /**
-     * Get transactions for the given IDs.
-     * @param  {Array} ids
-     * @return {Array}
-     */
-    public async getTransactionsFromIds(ids) {
-        return this.db.transactions.findManyById(ids);
-    }
-
-    /**
      * Get forged transactions for the given IDs.
      * @param  {Array} ids
      * @return {Array}

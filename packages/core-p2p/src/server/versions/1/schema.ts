@@ -57,9 +57,6 @@ export = {
         },
         required: ["transactions"],
     },
-    getTransactionsFromIds: {
-        type: "object",
-    },
     getBlocks: {
         type: "object",
         properties: {

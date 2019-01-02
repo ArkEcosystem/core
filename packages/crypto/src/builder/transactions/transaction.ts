@@ -1,6 +1,6 @@
 import { crypto, slots } from "../../crypto";
-import { configManager } from "../../managers/config";
-import { Transaction } from "../../models/transaction";
+import { configManager } from "../../managers";
+import { Transaction } from "../../models";
 
 export abstract class TransactionBuilder {
     public data: any;

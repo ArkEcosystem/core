@@ -46,7 +46,6 @@ const startServer = async config => {
                 "/peer/status",
                 "/peer/blocks",
                 "/peer/transactions",
-                "/peer/getTransactionsFromIds",
                 "/internal/round",
                 "/internal/blocks",
                 "/internal/forgingTransactions",

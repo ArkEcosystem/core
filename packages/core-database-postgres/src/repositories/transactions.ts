@@ -15,15 +15,6 @@ export class TransactionsRepository extends Repository {
     }
 
     /**
-     * Find multiple transactionss by their IDs.
-     * @param  {Array} ids
-     * @return {Promise}
-     */
-    public async findManyById(ids) {
-        return this.db.manyOrNone(sql.findManyById, { ids });
-    }
-
-    /**
      * Find multiple transactionss by their block ID.
      * @param  {String} id
      * @return {Promise}

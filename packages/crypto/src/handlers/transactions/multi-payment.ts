@@ -1,5 +1,4 @@
 import sumBy from "lodash/sumBy";
-import { Bignum } from "../../utils/bignum";
 import { Handler } from "./handler";
 
 export class MultiPaymentHandler extends Handler {
