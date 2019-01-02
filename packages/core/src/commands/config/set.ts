@@ -33,6 +33,11 @@ $ ark config:set ARK_LOG_LEVEL info
         }
 
         const env = envfile.parseFileSync(envFile);
+
+        if (env[args.key] && !flags.force) {
+            throw new Error(`The "${args.key}" already exists. If you wish to overwrite it use the --force flag.`);
+        }
+
         env[args.key] = args.value;
 
         writeFileSync(envFile, envfile.stringifySync(env));

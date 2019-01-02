@@ -27,6 +27,12 @@ $ ark config:get ARK_LOG_LEVEL
             throw new Error(`No environment file found at ${envFile}`);
         }
 
-        console.log(envfile.parseFileSync(envFile)[args.key]);
+        const env = envfile.parseFileSync(envFile);
+
+        if (!env[args.key]) {
+            throw new Error(`The "${args.key}" doesn't exist.`);
+        }
+
+        console.log(env[args.key]);
     }
 }
