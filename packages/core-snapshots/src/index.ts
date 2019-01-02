@@ -11,7 +11,7 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "snapshots",
-    async register(container: Container.Container, options) {
+    async register(container: Container.IContainer, options) {
         const manager = new SnapshotManager(options);
 
         return manager.make(container.resolvePlugin<PostgresConnection>("database"));

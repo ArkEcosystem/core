@@ -6,7 +6,7 @@ import { database } from "./database";
 
 class WebhookManager {
     public config: any;
-    public logger = app.resolvePlugin<Logger.Logger>("logger");
+    public logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     /**
      * Set up the webhook app.
@@ -14,7 +14,7 @@ class WebhookManager {
      */
     public async setUp() {
         const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         for (const event of blockchain.getEvents()) {
             emitter.on(event, async payload => {

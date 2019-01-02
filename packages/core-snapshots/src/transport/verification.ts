@@ -5,7 +5,7 @@ import createHash from "create-hash";
 import { camelizeKeys } from "xcase";
 
 const { Block, Transaction } = models;
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const verifyData = (context, data, prevData, signatureVerification) => {
     const verifyTransaction = () => {

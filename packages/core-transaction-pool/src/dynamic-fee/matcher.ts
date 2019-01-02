@@ -32,7 +32,7 @@ export function calculateFee(arktoshiPerByte, transaction) {
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
 export function dynamicFeeMatcher(transaction) {
-    const logger = app.resolvePlugin<Logger.Logger>("logger");
+    const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     const fee = +transaction.fee.toFixed();
     const id = transaction.id;

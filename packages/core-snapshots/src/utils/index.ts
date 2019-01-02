@@ -18,7 +18,7 @@ export const getFilePath = (filename, folder) =>
     `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${filename}`;
 
 export const copySnapshot = (sourceFolder, destFolder, codec) => {
-    const logger = app.resolvePlugin<Logger.Logger>("logger");
+    const logger = app.resolvePlugin<Logger.ILogger>("logger");
     logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`);
 
     const paths = {

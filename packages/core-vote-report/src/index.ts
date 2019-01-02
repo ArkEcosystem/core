@@ -6,10 +6,10 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "vote-report",
-    async register(container: Container.Container, options) {
+    async register(container: Container.IContainer, options) {
         return startServer(options);
     },
-    async deregister(container: Container.Container, options) {
+    async deregister(container: Container.IContainer, options) {
         return container.resolvePlugin("vote-report").stop();
     },
 };

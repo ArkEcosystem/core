@@ -6,9 +6,9 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "api",
-    async register(container: Container.Container, options) {
+    async register(container: Container.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<Logger.Logger>("logger").info("Public API is disabled :grey_exclamation:");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Public API is disabled :grey_exclamation:");
 
             return false;
         }
@@ -18,9 +18,9 @@ export const plugin : Container.PluginDescriptor = {
 
         return server;
     },
-    async deregister(container: Container.Container, options) {
+    async deregister(container: Container.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<Logger.Logger>("logger").info(`Stopping Public API`);
+            container.resolvePlugin<Logger.ILogger>("logger").info(`Stopping Public API`);
 
             return container.resolvePlugin("api").stop();
         }

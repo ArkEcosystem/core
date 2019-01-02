@@ -5,7 +5,7 @@ import { crypto, models } from "@arkecosystem/crypto";
 
 export function transformTransactionLegacy(model) {
     const config = app.getConfig();
-    const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const data: any = new models.Transaction(model.serialized.toString("hex"));
 

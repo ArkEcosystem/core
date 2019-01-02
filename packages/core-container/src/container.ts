@@ -1,4 +1,4 @@
-import { Container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
 import { execSync } from "child_process";
 import delay from "delay";
@@ -7,7 +7,7 @@ import { configManager } from "./config";
 import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
 
-export class ContainerImpl implements Container.Container {
+export class Container implements container.IContainer {
     public options: any;
     public exitEvents: any;
     /**
@@ -128,7 +128,7 @@ export class ContainerImpl implements Container.Container {
      */
     public resolvePlugin<T = any>(key): T {
         try {
-            return this.container.resolve<Container.PluginConfig<T>>(key).plugin;
+            return this.container.resolve<container.PluginConfig<T>>(key).plugin;
         } catch (err) {
             return null;
         }
@@ -142,7 +142,7 @@ export class ContainerImpl implements Container.Container {
      */
     public resolveOptions(key) {
         try {
-            return this.container.resolve<Container.PluginConfig<any>>(key).options;
+            return this.container.resolve<container.PluginConfig<any>>(key).options;
         } catch (err) {
             throw err;
         }
@@ -183,7 +183,7 @@ export class ContainerImpl implements Container.Container {
     public exit(exitCode, message, error = null) {
         this.shuttingDown = true;
 
-        const logger = this.resolvePlugin<Logger.Logger>("logger");
+        const logger = this.resolvePlugin<Logger.ILogger>("logger");
         logger.error(":boom: Container force shutdown :boom:");
         logger.error(message);
 
@@ -238,7 +238,7 @@ export class ContainerImpl implements Container.Container {
 
             this.shuttingDown = true;
 
-            const logger = this.resolvePlugin<Logger.Logger>("logger");
+            const logger = this.resolvePlugin<Logger.ILogger>("logger");
             logger.suppressConsoleOutput(this.silentShutdown);
             logger.info("Ark Core is trying to gracefully shut down to avoid data corruption :pizza:");
 

@@ -14,7 +14,7 @@ function calculateApproval(delegate, height: any = null) {
     const config = app.getConfig();
 
     if (!height) {
-        height = app.resolvePlugin<Blockchain.Blockchain>("blockchain").getLastBlock().data.height;
+        height = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock().data.height;
     }
 
     const constants = config.getMilestone(height);

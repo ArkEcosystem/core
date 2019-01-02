@@ -2,11 +2,10 @@ import get from "lodash/get";
 import set from "lodash/set";
 
 export class Config {
-    private config : {};
+    private config : any;
 
     public init(options: any): void {
-        this.config = {};
-        Object.assign(console, options)
+        this.config = options;
     }
 
     public get(key: string, defaultValue: any = null): any {

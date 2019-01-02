@@ -24,10 +24,10 @@ import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-export class MonitorImpl implements P2P.Monitor {
+export class Monitor implements P2P.IMonitor {
     public peers: { [ip: string]: any };
     public server: any;
     public guard: Guard;
@@ -449,7 +449,7 @@ export class MonitorImpl implements P2P.Monitor {
             await this.cleanPeers(true, true);
         }
 
-        return networkState(this, app.resolvePlugin<Blockchain.Blockchain>("blockchain").getLastBlock());
+        return networkState(this, app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock());
     }
 
     /**
@@ -511,7 +511,7 @@ export class MonitorImpl implements P2P.Monitor {
      * @return {Promise}
      */
     public async broadcastBlock(block) {
-        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
             logger.info(`Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`);
@@ -853,5 +853,5 @@ export class MonitorImpl implements P2P.Monitor {
     }
 }
 
-const monitor = new MonitorImpl();
+const monitor = new Monitor();
 export { monitor };

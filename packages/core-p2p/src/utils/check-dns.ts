@@ -4,7 +4,7 @@ import dns from "dns";
 import shuffle from "lodash/shuffle";
 import util from "util";
 
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export = async hosts => {
     hosts = shuffle(hosts);

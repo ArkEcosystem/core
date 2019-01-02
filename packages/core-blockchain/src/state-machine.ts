@@ -12,24 +12,24 @@ import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
 import { tickSyncTracker } from "./utils/tick-sync-tracker";
 
-import { BlockchainImpl } from "./blockchain";
+import { Blockchain } from "./blockchain";
 
 const { Block } = models;
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
- * @type {StateStorage}
+ * @type {IStateStorage}
  */
 blockchainMachine.state = stateStorage;
 
 /**
  * The blockchain actions.
- * @param  {BlockchainImpl} blockchain
+ * @param  {Blockchain} blockchain
  * @return {Object}
  */
-blockchainMachine.actionMap = (blockchain: BlockchainImpl) => ({
+blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;

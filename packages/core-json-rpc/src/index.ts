@@ -8,8 +8,8 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "json-rpc",
-    async register(container: Container.Container, options) {
-        const logger = container.resolvePlugin<Logger.Logger>("logger");
+    async register(container: Container.IContainer, options) {
+        const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         if (!options.enabled) {
             logger.info("JSON-RPC Server is disabled :grey_exclamation:");
@@ -23,9 +23,9 @@ export const plugin : Container.PluginDescriptor = {
 
         return startServer(options);
     },
-    async deregister(container: Container.Container, options) {
+    async deregister(container: Container.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<Logger.Logger>("logger").info("Stopping JSON-RPC Server");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping JSON-RPC Server");
 
             return container.resolvePlugin("json-rpc").stop();
         }

@@ -5,7 +5,7 @@ export abstract class QueueInterface {
 
     /**
      * Create an instance of the process queue.
-     * @param  {BlockchainImpl} blockchain
+     * @param  {Blockchain} blockchain
      * @param  {String} event
      * @return {void}
      */

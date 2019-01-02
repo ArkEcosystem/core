@@ -4,7 +4,7 @@ import { TransactionPool } from "@arkecosystem/core-interfaces";
 
 export abstract class Repository {
     public database = app.resolvePlugin<PostgresConnection>("database");
-    public transactionPool = app.resolvePlugin<TransactionPool.TransactionPool>("transactionPool");
+    public transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
     public cache = this.database.getCache();
     public model = this.getModel();
     public query = this.model.query();

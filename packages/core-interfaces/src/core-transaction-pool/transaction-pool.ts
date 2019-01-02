@@ -11,28 +11,33 @@ export interface AddTransactionErrorDTO extends AddTransactionResponseDTO {
     message: string,
 }
 
-export interface TransactionPool {
+export interface ITransactionPool {
 
     options: any;
 
     make(): Promise<this>;
+
     /**
      * Get a driver instance.
      */
     driver(): () => any;
+
     /**
      * Disconnect from transaction pool.
      * @return {void}
      */
     disconnect(): void;
+
     /**
      * Get the number of transactions in the pool.
      */
     getPoolSize(): number;
+
     /**
      * Get the number of transactions in the pool from a specific sender\
      */
     getSenderSize(senderPublicKey: string): number;
+
     /**
      * Add many transactions to the pool.
      * @param {Array}   transactions, already transformed and verified
@@ -47,38 +52,46 @@ export interface TransactionPool {
         added: models.Transaction[];
         notAdded: AddTransactionErrorDTO[]
     };
+
     /**
      * Add a transaction to the pool.
      */
     addTransaction(transaction: models.Transaction): AddTransactionResponseDTO
+
     /**
      * Remove a transaction from the pool by transaction object.
      * @param  {Transaction} transaction
      * @return {void}
      */
     removeTransaction(transaction: models.Transaction): void;
+
     /**
      * Remove a transaction from the pool by id.
      */
     removeTransactionById(id: string, senderPublicKey?: string): void;
+
     /**
      * Get all transactions that are ready to be forged.
      */
     getTransactionsForForging(blockSize: number): models.Transaction[];
+
     /**
      * Get a transaction by transaction id.
      */
     getTransaction(id: string): models.Transaction;
+
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.
      * @return {(Array|void)} array of serialized transaction hex strings
      */
     getTransactions(start: number, size: number): string[];
+
     /**
      * Get all transactions within the specified range [start, start + size).
      * @return {Array} array of transactions IDs in the specified range
      */
     getTransactionIdsForForging(start: number, size: number): string[];
+
     /**
      * Get data from all transactions within the specified range [start, start + size).
      * Transactions are ordered by fee (highest fee first) or by
@@ -86,31 +99,38 @@ export interface TransactionPool {
      * @return {Array} array of transaction[property]
      */
     getTransactionsData(start: number, size: number, property: string): any[];
+
     /**
      * Remove all transactions from the transaction pool belonging to specific sender.
      */
     removeTransactionsForSender(senderPublicKey: string): void;
+
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
     hasExceededMaxTransactions(transaction: models.Transaction): boolean;
+
     /**
      * Flush the pool (delete all transactions from it).
      */
     flush(): void;
+
     /**
      * Checks if a transaction exists in the pool.
      */
     transactionExists(transactionId: string): any;
+
     /**
      * Check if transaction sender is blocked
      * @return {Boolean}
      */
     isSenderBlocked(senderPublicKey: string): boolean;
+
     /**
      * Blocks sender for a specified time
      */
     blockSender(senderPublicKey: string): dayjs.Dayjs;
+
     /**
      * Processes recently accepted block by the blockchain.
      * It removes block transaction from the pool and adjusts
@@ -120,6 +140,7 @@ export interface TransactionPool {
      * @return {void}
      */
     acceptChainedBlock(block: models.Block): void;
+
     /**
      * Rebuild pool manager wallets
      * Removes all the wallets from pool manager and applies transaction from pool - if any
@@ -127,17 +148,21 @@ export interface TransactionPool {
      * and validates them and apply to the pool manager.
      */
     buildWallets(): Promise<void>;
+
     purgeByPublicKey(senderPublicKey: string): void;
+
     /**
      * Purges all transactions from senders with at least one
      * invalid transaction.
      */
     purgeSendersWithInvalidTransactions(block: models.Block): void;
+
     /**
      * Purges all transactions from the block.
      * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
      */
     purgeBlock(block: models.Block): void;
+
     /**
      * Check whether a given sender has any transactions of the specified type
      * in the pool.

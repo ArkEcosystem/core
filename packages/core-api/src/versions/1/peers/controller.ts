@@ -5,12 +5,12 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
-    protected p2p: P2P.Monitor;
+    protected p2p: P2P.IMonitor;
 
     public constructor() {
         super();
 
-        this.p2p = app.resolvePlugin<P2P.Monitor>("p2p");
+        this.p2p = app.resolvePlugin<P2P.IMonitor>("p2p");
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {

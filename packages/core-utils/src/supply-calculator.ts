@@ -11,7 +11,7 @@ function calculate(height) {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
-        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
         height = blockchain ? blockchain.getLastBlock().data.height : 0;
     }
 

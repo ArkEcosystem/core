@@ -9,7 +9,7 @@ export class Client {
     public hosts: string[];
     private host: any;
     private headers: any;
-    private logger = app.resolvePlugin<Logger.Logger>("logger");
+    private logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     /**
      * Create a new client instance.

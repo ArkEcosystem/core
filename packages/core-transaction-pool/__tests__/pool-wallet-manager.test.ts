@@ -11,14 +11,14 @@ const { generateTransfers, generateWallets } = generators;
 const { blocks2to100, delegates } = fixtures;
 
 const arktoshi = 10 ** 8;
-let container: Container.Container;
+let container: Container.IContainer;
 let poolWalletManager;
-let blockchain : Blockchain.Blockchain;
+let blockchain : Blockchain.IBlockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
     poolWalletManager = new PoolWalletManager();
-    blockchain = container.resolvePlugin<Blockchain.Blockchain>("blockchain");
+    blockchain = container.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 });
 
 afterAll(async () => {

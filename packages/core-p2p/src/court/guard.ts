@@ -11,7 +11,7 @@ import * as utils from "../utils";
 import { offences } from "./offences";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export interface ISuspension {
     peer: any;
@@ -35,7 +35,7 @@ export class Guard {
 
     /**
      * Initialise a new guard.
-     * @param {Monitor} monitor
+     * @param {IMonitor} monitor
      */
     public init(monitor) {
         this.monitor = monitor;

@@ -6,8 +6,8 @@ import isReachable from "is-reachable";
 import sample from "lodash/sample";
 
 class Network {
-    public logger: Logger.Logger;
-    public p2p: P2P.Monitor;
+    public logger: Logger.ILogger;
+    public p2p: P2P.IMonitor;
     public config: any;
     public network: any;
     public client: any;
@@ -15,9 +15,9 @@ class Network {
     public server: any;
 
     public async init() {
-        this.logger = app.resolvePlugin<Logger.Logger>("logger");
+        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
         this.config = app.getConfig();
-        this.p2p = app.resolvePlugin<P2P.Monitor>("p2p");
+        this.p2p = app.resolvePlugin<P2P.IMonitor>("p2p");
 
         this.network = configManager.all();
 

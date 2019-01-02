@@ -15,7 +15,7 @@ import {
 
 export class Controller {
     protected config = app.getConfig();
-    protected blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+    protected blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     protected database = app.resolvePlugin<PostgresConnection>("database");
 
     protected paginate(request: Hapi.Request): any {

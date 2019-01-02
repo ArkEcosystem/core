@@ -30,7 +30,7 @@ const register = async (server, options) => {
     server.ext({
         type: "onPreResponse",
         async method(request, h) {
-            const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+            const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
             if (blockchain) {
                 const lastBlock = blockchain.getLastBlock();
                 if (lastBlock) {

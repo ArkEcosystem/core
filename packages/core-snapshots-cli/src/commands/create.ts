@@ -3,7 +3,7 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import fs from "fs-extra";
 
 export async function createSnapshot(options) {
-    const logger = app.resolvePlugin<Logger.Logger>("logger");
+    const logger = app.resolvePlugin<Logger.ILogger>("logger");
     const snapshotManager = app.resolvePlugin("snapshots");
 
     if (options.filename && !fs.existsSync(/*utils.getPath */ options.filename)) {

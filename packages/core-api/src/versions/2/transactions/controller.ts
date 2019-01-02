@@ -4,11 +4,11 @@ import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
-import { TransactionGuardImpl, TransactionPoolImpl } from "@arkecosystem/core-transaction-pool";
+import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { constants } from "@arkecosystem/crypto";
 
 export class TransactionsController extends Controller {
-    private transactionPool = app.resolvePlugin<TransactionPoolImpl>("transactionPool");
+    private transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 
     public constructor() {
         super();
@@ -30,12 +30,12 @@ export class TransactionsController extends Controller {
                 return Boom.serverUnavailable("Transaction pool is disabled.");
             }
 
-            const guard = new TransactionGuardImpl(this.transactionPool);
+            const guard = new TransactionGuard(this.transactionPool);
 
             const result = await guard.validate(request.payload.transactions);
 
             if (result.broadcast.length > 0) {
-                app.resolvePlugin<P2P.Monitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+                app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
             }
 
             return {

@@ -6,9 +6,9 @@ import { paginate, respondWith, respondWithCache, toCollection, toResource } fro
 
 export class Controller {
     protected config = app.getConfig();
-    protected blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+    protected blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     protected database = app.resolvePlugin<PostgresConnection>("database");
-    protected logger = app.resolvePlugin<Logger.Logger>("logger");
+    protected logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     protected paginate(request: Hapi.Request): any {
         return paginate(request);

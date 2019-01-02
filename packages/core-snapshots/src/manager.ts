@@ -4,7 +4,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import pick from "lodash/pick";
 
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 import { database } from "./db";
 import * as utils from "./utils";
 

@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { ContainerImpl } from "./container";
+import { Container as container} from "@arkecosystem/core-interfaces";
+import { Container } from "./container";
 
-const app: Container.Container = new ContainerImpl();
+const app: container.IContainer = new Container();
 export { app };

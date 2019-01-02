@@ -12,7 +12,7 @@ import * as utils from "../utils";
 import { getCodec } from "./codecs";
 import { canImportRecord, verifyData } from "./verification";
 
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 export const exportTable = async (table, options) => {

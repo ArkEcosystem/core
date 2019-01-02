@@ -6,12 +6,12 @@ export const resetBlockchain = async () => {
     // TODO: reset rounds, transactions in db...
 
     // reset to block height 1
-    const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const height = blockchain.getLastBlock().data.height;
     if (height) {
         await blockchain.removeBlocks(height - 1);
     }
 
-    const transactionPool = app.resolvePlugin<TransactionPool.TransactionPool>("transactionPool");
+    const transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
     transactionPool.flush();
 };

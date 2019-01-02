@@ -1,6 +1,7 @@
 import { models } from "@arkecosystem/crypto";
 
-export interface StateStorage {
+export interface IStateStorage {
+
     reset(): void;
 
     /**

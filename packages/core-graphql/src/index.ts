@@ -10,17 +10,17 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "graphql",
-    async register(container: Container.Container, options) {
+    async register(container: Container.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<Logger.Logger>("logger").info("GraphQL API is disabled :grey_exclamation:");
+            container.resolvePlugin<Logger.ILogger>("logger").info("GraphQL API is disabled :grey_exclamation:");
             return;
         }
 
         return startServer(options);
     },
-    async deregister(container: Container.Container, options) {
+    async deregister(container: Container.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<Logger.Logger>("logger").info("Stopping GraphQL API");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping GraphQL API");
 
             return container.resolvePlugin("graphql").stop();
         }

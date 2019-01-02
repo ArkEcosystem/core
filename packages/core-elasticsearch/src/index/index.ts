@@ -5,7 +5,7 @@ import { client } from "../services/client";
 import { storage } from "../services/storage";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const database = app.resolvePlugin<PostgresConnection>("database");
 
 export abstract class Index {

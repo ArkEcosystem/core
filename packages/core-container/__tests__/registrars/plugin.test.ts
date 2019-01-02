@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { resolve } from "path";
-import { ContainerImpl } from "../../src/container";
+import { Container } from "../../src/container";
 import { PluginRegistrar } from "../../src/registrars/plugin";
 
 const stubPluginPath = resolve(__dirname, "../__stubs__");
@@ -10,7 +10,7 @@ let instance;
 beforeEach(() => {
     process.env.ARK_PATH_CONFIG = stubPluginPath;
 
-    instance = new PluginRegistrar(new ContainerImpl());
+    instance = new PluginRegistrar(new Container());
 });
 
 describe("Plugin Registrar", () => {

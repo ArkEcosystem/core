@@ -7,7 +7,7 @@ import { queries } from "./queries";
 import { rawQuery } from "./utils";
 import { columns } from "./utils/column-set";
 
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 class Database {
     public db: any;

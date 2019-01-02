@@ -9,7 +9,7 @@ import { config } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 
 const { Block } = models;
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured with the option `state.maxLastBlocks`.

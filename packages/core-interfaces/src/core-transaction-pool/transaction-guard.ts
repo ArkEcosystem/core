@@ -13,7 +13,9 @@ export interface ValidationResultDTO {
     errors: { [key:string]: TransactionErrorDTO[] } | null
 }
 
-export interface TransactionGuard {
+export interface ITransactionGuard {
+
     validate(transactions: models.Transaction[]): Promise<ValidationResultDTO>;
+
     getBroadcastTransactions(): models.Transaction[];
 }

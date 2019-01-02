@@ -6,7 +6,7 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "error-tracker",
-    async register(container: Container.Container, options) {
+    async register(container: Container.IContainer, options) {
         Sentry.init(options);
 
         return Sentry;

@@ -40,7 +40,7 @@ export const forging = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         const height = blockchain.getLastBlock().data.height;
         const maxTransactions = config.getMilestone(height).block.maxTransactions;

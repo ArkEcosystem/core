@@ -16,7 +16,7 @@ export const current = {
      */
     async handler(request, h) {
         const database = app.resolvePlugin<PostgresConnection>("database");
-        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         const lastBlock = blockchain.getLastBlock();
 

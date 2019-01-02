@@ -12,8 +12,8 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "elasticsearch",
-    async register(container: Container.Container, options) {
-        const logger = container.resolvePlugin<Logger.Logger>("logger");
+    async register(container: Container.IContainer, options) {
+        const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         logger.info("[Elasticsearch] Initialising History :hourglass:");
         storage.ensure("history");
@@ -28,8 +28,8 @@ export const plugin : Container.PluginDescriptor = {
 
         return startServer(options.server);
     },
-    async deregister(container: Container.Container, options) {
-        container.resolvePlugin<Logger.Logger>("logger").info("[Elasticsearch] Stopping API :warning:");
+    async deregister(container: Container.IContainer, options) {
+        container.resolvePlugin<Logger.ILogger>("logger").info("[Elasticsearch] Stopping API :warning:");
 
         return container.resolvePlugin("elasticsearch").stop();
     },

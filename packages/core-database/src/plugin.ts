@@ -6,8 +6,8 @@ export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "databaseManager",
-    async register(container: Container.Container, options) {
-        container.resolvePlugin<Logger.Logger>("logger").info("Starting Database Manager");
+    async register(container: Container.IContainer, options) {
+        container.resolvePlugin<Logger.ILogger>("logger").info("Starting Database Manager");
 
         return new DatabaseManager();
     }

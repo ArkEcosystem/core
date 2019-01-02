@@ -16,7 +16,7 @@ const register = async (server, options) => {
                 return h.continue;
             }
 
-            if (!app.resolvePlugin<Blockchain.Blockchain>("blockchain")) {
+            if (!app.resolvePlugin<Blockchain.IBlockchain>("blockchain")) {
                 return Boom.serverUnavailable("Blockchain not ready");
             }
 

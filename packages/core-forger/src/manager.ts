@@ -11,7 +11,7 @@ import { Client } from "./client";
 const { Delegate, Transaction } = models;
 
 export class ForgerManager {
-    private logger = app.resolvePlugin<Logger.Logger>("logger");
+    private logger = app.resolvePlugin<Logger.ILogger>("logger");
     private config = app.getConfig();
     private secrets: any;
     private network: any;

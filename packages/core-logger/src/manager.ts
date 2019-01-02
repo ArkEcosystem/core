@@ -1,7 +1,7 @@
 import { Logger } from "@arkecosystem/core-interfaces";
 
 export class LogManager {
-    private drivers: Map<string, Logger.Logger>;
+    private drivers: Map<string, Logger.ILogger>;
 
     /**
      * Create a new manager instance.
@@ -15,7 +15,7 @@ export class LogManager {
      * @param  {String} name
      * @return {AbstractLogger}
      */
-    public driver(name: string = "default"): Logger.Logger {
+    public driver(name: string = "default"): Logger.ILogger {
         return this.drivers.get(name);
     }
 
@@ -25,7 +25,7 @@ export class LogManager {
      * @param  {String} name
      * @return {void}
      */
-    public async makeDriver(driver: Logger.Logger, name: string = "default"): Promise<void> {
+    public async makeDriver(driver: Logger.ILogger, name: string = "default"): Promise<void> {
         this.drivers.set(name, await driver.make());
     }
 }

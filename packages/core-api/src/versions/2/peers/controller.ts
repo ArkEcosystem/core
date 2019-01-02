@@ -69,7 +69,7 @@ export class PeersController extends Controller {
 
     public async suspended(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers = app.resolvePlugin<P2P.Monitor>("p2p").getSuspendedPeers();
+            const peers = app.resolvePlugin<P2P.IMonitor>("p2p").getSuspendedPeers();
 
             return super.respondWithCollection(
                 request,

@@ -3,7 +3,7 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import shuffle from "lodash/shuffle";
 import Sntp from "sntp";
 
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
  * Check if it is possible to connect to any NTP host.

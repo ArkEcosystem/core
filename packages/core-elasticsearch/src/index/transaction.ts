@@ -11,7 +11,7 @@ import { models } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const database = app.resolvePlugin<PostgresConnection>("database");
 
 class TransactionIndex extends Index {

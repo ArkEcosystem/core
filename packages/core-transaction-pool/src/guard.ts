@@ -1,29 +1,29 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Logger, TransactionPool as transanctionPool} from "@arkecosystem/core-interfaces";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { TransactionPoolImpl } from "./connection";
+import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 const { TransactionTypes } = constants;
 const { Transaction } = models;
 
-export class TransactionGuardImpl implements  TransactionPool.TransactionGuard {
+export class TransactionGuard implements  transanctionPool.ITransactionGuard {
     public transactions: models.Transaction[] = [];
     public excess: string[] = [];
     public accept: Map<string, models.Transaction> = new Map();
     public broadcast: Map<string, models.Transaction> = new Map();
     public invalid: Map<string, models.Transaction> = new Map();
-    public errors: { [key:string]: TransactionPool.TransactionErrorDTO[] } = {};
+    public errors: { [key:string]: transanctionPool.TransactionErrorDTO[] } = {};
 
     /**
      * Create a new transaction guard instance.
      * @param  {TransactionPoolInterface} pool
      * @return {void}
      */
-    constructor(private pool: TransactionPoolImpl) {
+    constructor(private pool: TransactionPool) {
     }
 
     /**
@@ -39,7 +39,7 @@ export class TransactionGuardImpl implements  TransactionPool.TransactionGuard {
      *     value=[ { type, message }, ... ]
      * }
      */
-    public async validate(transactions : models.Transaction[]): Promise<TransactionPool.ValidationResultDTO> {
+    public async validate(transactions : models.Transaction[]): Promise<transanctionPool.ValidationResultDTO> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -299,7 +299,7 @@ export class TransactionGuardImpl implements  TransactionPool.TransactionGuard {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin<Logger.Logger>("logger").info(
+        app.resolvePlugin<Logger.ILogger>("logger").info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
         );
     }

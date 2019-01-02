@@ -14,7 +14,7 @@ const { TransactionTypes } = constants;
 export abstract class ConnectionInterface {
     // TODO: Convert these to protected/private and provide the appropriate get/setters
     public config = app.getConfig();
-    public logger = app.resolvePlugin<Logger.Logger>("logger");
+    public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;

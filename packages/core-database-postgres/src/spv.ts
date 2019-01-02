@@ -7,7 +7,7 @@ import { PostgresConnection } from "./connection";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
 
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);

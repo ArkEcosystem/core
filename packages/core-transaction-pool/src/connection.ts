@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger, TransactionPool} from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, TransactionPool as transactionPool} from "@arkecosystem/core-interfaces";
 
 import assert from "assert";
 import dayjs from "dayjs-ext";
@@ -12,7 +12,7 @@ import { Storage } from "./storage";
 
 const database = app.resolvePlugin<PostgresConnection>("database");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
  * Transaction pool. It uses a hybrid storage - caching the data
@@ -21,7 +21,7 @@ const logger = app.resolvePlugin<Logger.Logger>("logger");
  * data (everything other than add or remove transaction) are served from the
  * in-memory storage.
  */
-export class TransactionPoolImpl implements TransactionPool.TransactionPool {
+export class TransactionPool implements transactionPool.ITransactionPool {
     public walletManager: any;
     public blockedByPublicKey: any;
     public mem: any;

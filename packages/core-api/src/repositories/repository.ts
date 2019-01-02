@@ -7,7 +7,7 @@ import { IRepository } from "../interfaces/repository";
 export abstract class Repository implements IRepository {
     public database = app.resolvePlugin<PostgresConnection>("database");
     public cache = this.database.getCache();
-    public transactionPool = app.resolvePlugin<TransactionPool.TransactionPool>("transactionPool");
+    public transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
     public model = this.getModel();
     public query = this.model.query();
     public columns: string[] = [];

@@ -38,7 +38,7 @@ export class PeerImpl {
     public lastPinged: dayjs.Dayjs | null;
 
     private config: any;
-    private logger: Logger.Logger;
+    private logger: Logger.ILogger;
 
     /**
      * @constructor
@@ -46,7 +46,7 @@ export class PeerImpl {
      * @param  {Number} port
      */
     constructor(public readonly ip, public readonly port) {
-        this.logger = app.resolvePlugin<Logger.Logger>("logger");
+        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
         this.config = app.getConfig();
 
         this.ban = new Date().getTime();

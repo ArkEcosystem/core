@@ -7,10 +7,10 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "forger",
-    async register(container: Container.Container, options) {
+    async register(container: Container.IContainer, options) {
         const forgerManager = new ForgerManager(options);
         const forgers = await forgerManager.loadDelegates(options.bip38, options.password);
-        const logger = container.resolvePlugin<Logger.Logger>("logger");
+        const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         if (!forgers) {
             logger.info("Forger is disabled :grey_exclamation:");
@@ -27,11 +27,11 @@ export const plugin : Container.PluginDescriptor = {
 
         return forgerManager;
     },
-    async deregister(container: Container.Container, options) {
+    async deregister(container: Container.IContainer, options) {
         const forger = container.resolvePlugin("forger");
 
         if (forger) {
-            container.resolvePlugin<Logger.Logger>("logger").info("Stopping Forger Manager");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Forger Manager");
             return forger.stop();
         }
     },

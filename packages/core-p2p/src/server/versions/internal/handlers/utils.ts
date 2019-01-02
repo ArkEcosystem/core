@@ -15,7 +15,7 @@ export const usernames = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
         const database = blockchain.database;
         const walletManager = database.walletManager;
 

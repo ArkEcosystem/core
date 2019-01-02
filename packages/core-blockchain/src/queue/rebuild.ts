@@ -4,13 +4,13 @@ import { models } from "@arkecosystem/crypto";
 import async from "async";
 import { QueueInterface } from "./interface";
 
-const logger = app.resolvePlugin<Logger.Logger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const { Block } = models;
 
 export class RebuildQueue extends QueueInterface {
     /**
      * Create an instance of the process queue.
-     * @param  {BlockchainImpl} blockchain
+     * @param  {Blockchain} blockchain
      * @return {void}
      */
     constructor(blockchain, event) {

@@ -10,7 +10,7 @@ export class Queue {
 
     /**
      * Create an instance of the queue.
-     * @param  {BlockchainImpl} blockchain
+     * @param  {Blockchain} blockchain
      * @param  {Object} events
      * @return {void}
      */

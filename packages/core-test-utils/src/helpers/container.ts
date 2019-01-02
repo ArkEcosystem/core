@@ -3,7 +3,7 @@ import { Container } from "@arkecosystem/core-interfaces";
 import * as path from "path";
 import "../matchers";
 
-export async function setUpContainer(options: any): Promise<Container.Container> {
+export async function setUpContainer(options: any): Promise<Container.IContainer> {
     await app.setUp(
         "2.0.0",
         {

@@ -7,7 +7,7 @@ import sumBy from "lodash/sumBy";
 
 export function handler(request, h) {
     const config = app.getConfig();
-    const blockchain = app.resolvePlugin<Blockchain.Blockchain>("blockchain");
+    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const database = app.resolvePlugin<PostgresConnection>("database");
 
     const formatDelegates = (delegates, lastHeight) =>

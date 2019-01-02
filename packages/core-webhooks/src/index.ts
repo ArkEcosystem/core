@@ -8,8 +8,8 @@ export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "webhooks",
-    async register(container: Container.Container, options) {
-        const logger = container.resolvePlugin<Logger.Logger>("logger");
+    async register(container: Container.IContainer, options) {
+        const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         if (!options.enabled) {
             logger.info("Webhooks are disabled :grey_exclamation:");
@@ -27,9 +27,9 @@ export const plugin : Container.PluginDescriptor = {
 
         logger.info("Webhooks API server is disabled :grey_exclamation:");
     },
-    async deregister(container: Container.Container, options) {
+    async deregister(container: Container.IContainer, options) {
         if (options.server.enabled) {
-            container.resolvePlugin<Logger.Logger>("logger").info("Stopping Webhook API");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Webhook API");
 
             return container.resolvePlugin("webhooks").stop();
         }
