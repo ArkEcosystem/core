@@ -34,8 +34,8 @@ export class PeerImpl {
     };
 
     public url: string;
-    private state: any;
-    private lastPinged: dayjs.Dayjs | null;
+    public state: any;
+    public lastPinged: dayjs.Dayjs | null;
 
     private config: any;
     private logger: Logger.Logger;
@@ -232,7 +232,7 @@ export class PeerImpl {
 
         const body = await this.__get("/peer/list");
 
-        return body.peers.filter(peer => !localConfig.get("blacklist").includes(peer.ip));
+        return body.peers.filter(peer => !localConfig.get("blacklist", []).includes(peer.ip));
     }
 
     /**

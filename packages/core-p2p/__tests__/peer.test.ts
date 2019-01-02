@@ -1,7 +1,7 @@
 import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { PeerImpl } from "../src/peer";
+import { PeerImpl } from "../dist/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
@@ -10,7 +10,7 @@ const { Block, Transaction } = models;
 let genesisBlock;
 let genesisTransaction;
 
-let peerMock;
+let peerMock: PeerImpl;
 
 beforeAll(async () => {
     await setUp();

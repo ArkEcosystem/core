@@ -28,7 +28,7 @@ const logger = app.resolvePlugin<Logger.Logger>("logger");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 export class MonitorImpl implements P2P.Monitor {
-    public readonly peers: { [ip: string]: any };
+    public peers: { [ip: string]: any };
     public server: any;
     public guard: Guard;
     public config: any;
@@ -359,12 +359,12 @@ export class MonitorImpl implements P2P.Monitor {
      * Get a random, available peer which can be used for downloading blocks.
      * @return {PeerImpl}
      */
-    public async getRandomDownloadBlocksPeer(minHeight) {
+    public async getRandomDownloadBlocksPeer() {
         const randomPeer = this.getRandomPeer(null, 100);
 
         const recentBlockIds = await this.__getRecentBlockIds();
         if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
-            return this.getRandomDownloadBlocksPeer(minHeight);
+            return this.getRandomDownloadBlocksPeer();
         }
 
         return randomPeer;
@@ -483,7 +483,7 @@ export class MonitorImpl implements P2P.Monitor {
         let randomPeer;
 
         try {
-            randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight);
+            randomPeer = await this.getRandomDownloadBlocksPeer();
         } catch (error) {
             logger.error(`Could not download blocks: ${error.message}`);
 

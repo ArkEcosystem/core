@@ -1,5 +1,4 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
 import { database } from "./database";
 import { defaults } from "./defaults";
 import { webhookManager } from "./manager";
