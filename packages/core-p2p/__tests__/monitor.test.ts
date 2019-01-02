@@ -2,12 +2,12 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { defaults } from "../dist/defaults";
-import { PeerImpl } from "../dist/peer";
+import { Peer } from "../dist/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
 
-let peerMock: PeerImpl;
+let peerMock: Peer;
 let monitor;
 
 beforeAll(async () => {
@@ -24,7 +24,7 @@ beforeEach(async () => {
 
     const initialPeersMock = {};
     ["1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"].forEach(ip => {
-        const initialPeer = new PeerImpl(ip, 4000);
+        const initialPeer = new Peer(ip, 4000);
         initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, {
             ban: 0,
         });
@@ -32,7 +32,7 @@ beforeEach(async () => {
 
     monitor.peers = initialPeersMock;
 
-    peerMock = new PeerImpl("1.0.0.99", 4000); // this peer is just here to be picked up by tests below (not added to initial peers)
+    peerMock = new Peer("1.0.0.99", 4000); // this peer is just here to be picked up by tests below (not added to initial peers)
     Object.assign(peerMock, peerMock.headers, { status: 200 });
     peerMock.nethash = "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192";
 

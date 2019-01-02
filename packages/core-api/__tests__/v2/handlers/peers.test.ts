@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PeerImpl } from "@arkecosystem/core-p2p/src/peer";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import "@arkecosystem/core-test-utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
@@ -10,7 +10,7 @@ const mockPort = 4002;
 beforeAll(async () => {
     await setUp();
 
-    const peerMock = new PeerImpl(mockAddress, mockPort);
+    const peerMock = new Peer(mockAddress, mockPort);
     peerMock.setStatus("OK");
 
     const monitor = app.resolvePlugin("p2p");

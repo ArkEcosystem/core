@@ -17,7 +17,7 @@ import prettyMs from "pretty-ms";
 
 import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
-import { PeerImpl } from "./peer";
+import { Peer } from "./peer";
 import networkState from "./utils/network-state";
 
 import checkDNS from "./utils/check-dns";
@@ -126,7 +126,7 @@ export class Monitor implements P2P.IMonitor {
 
     /**
      * Accept and store a valid peer.
-     * @param  {PeerImpl} peer
+     * @param  {Peer} peer
      * @throws {Error} If invalid peer
      */
     public async acceptNewPeer(peer) {
@@ -144,7 +144,7 @@ export class Monitor implements P2P.IMonitor {
             return;
         }
 
-        const newPeer = new PeerImpl(peer.ip, peer.port);
+        const newPeer = new Peer(peer.ip, peer.port);
         newPeer.setHeaders(peer);
 
         if (this.guard.isBlacklisted(peer)) {
@@ -212,7 +212,7 @@ export class Monitor implements P2P.IMonitor {
 
     /**
      * Remove peer from monitor.
-     * @param {PeerImpl} peer
+     * @param {Peer} peer
      */
     public removePeer(peer) {
         delete this.peers[peer.ip];
@@ -265,7 +265,7 @@ export class Monitor implements P2P.IMonitor {
 
     /**
      * Suspend an existing peer.
-     * @param  {PeerImpl} peer
+     * @param  {Peer} peer
      * @return {void}
      */
     public suspendPeer(ip) {
@@ -286,7 +286,7 @@ export class Monitor implements P2P.IMonitor {
 
     /**
      * Get all available peers.
-     * @return {PeerImpl[]}
+     * @return {Peer[]}
      */
     public getPeers() {
         return Object.values(this.peers);
@@ -295,7 +295,7 @@ export class Monitor implements P2P.IMonitor {
     /**
      * Get the peer available peers.
      * @param  {String} ip
-     * @return {PeerImpl}
+     * @return {Peer}
      */
     public getPeer(ip) {
         return this.peers[ip];
@@ -318,7 +318,7 @@ export class Monitor implements P2P.IMonitor {
     /**
      * Get a random, available peer.
      * @param  {(Number|undefined)} acceptableDelay
-     * @return {PeerImpl}
+     * @return {Peer}
      */
     public getRandomPeer(acceptableDelay?, downloadSize?, failedAttempts?) {
         failedAttempts = failedAttempts === undefined ? 0 : failedAttempts;
@@ -357,7 +357,7 @@ export class Monitor implements P2P.IMonitor {
 
     /**
      * Get a random, available peer which can be used for downloading blocks.
-     * @return {PeerImpl}
+     * @return {Peer}
      */
     public async getRandomDownloadBlocksPeer() {
         const randomPeer = this.getRandomPeer(null, 100);
@@ -381,7 +381,7 @@ export class Monitor implements P2P.IMonitor {
                 const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
-                    if (PeerImpl.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
+                    if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
                         this.addPeer(p);
                     }
                 }
@@ -762,7 +762,7 @@ export class Monitor implements P2P.IMonitor {
 
     /**
      * Add a new peer after it passes a few checks.
-     * @param  {PeerImpl} peer
+     * @param  {Peer} peer
      * @return {void}
      */
     private addPeer(peer) {
@@ -786,7 +786,7 @@ export class Monitor implements P2P.IMonitor {
             return;
         }
 
-        this.peers[peer.ip] = new PeerImpl(peer.ip, peer.port);
+        this.peers[peer.ip] = new Peer(peer.ip, peer.port);
     }
 
     /**
@@ -848,7 +848,7 @@ export class Monitor implements P2P.IMonitor {
 
         for (const peer of filteredPeers) {
             delete this.guard.suspensions[peer.ip];
-            this.peers[peer.ip] = new PeerImpl(peer.ip, peer.port);
+            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
         }
     }
 }

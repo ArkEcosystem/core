@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
-import { PeerImpl } from "@arkecosystem/core-p2p/src/peer";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { sendRequest } from "./__support__/request";
@@ -16,7 +16,7 @@ let peerMock;
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new PeerImpl("1.0.0.99", 4002);
+    peerMock = new Peer("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers, { status: "OK" });
 
     const monitor = app.resolvePlugin("p2p");

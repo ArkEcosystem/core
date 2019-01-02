@@ -5,7 +5,7 @@ import dayjs from "dayjs-ext";
 import util from "util";
 import { config as localConfig } from "./config";
 
-export class PeerImpl {
+export class Peer implements P2P.IPeer {
 
     public static isOk(peer) {
         return peer.status === 200 || peer.status === "OK";

@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PeerImpl } from "../../src/peer";
+import { Peer } from "../../src/peer";
 import dayjs from "dayjs-ext";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
@@ -26,7 +26,7 @@ beforeEach(async () => {
     guard.monitor.peers = {};
 
     // this peer is here to be ready for future use in tests (not added to initial peers)
-    peerMock = new PeerImpl("1.0.0.99", 4002);
+    peerMock = new Peer("1.0.0.99", 4002);
     peerMock.milestoneHash = "dummy-milestone";
     Object.assign(peerMock, peerMock.headers);
 });

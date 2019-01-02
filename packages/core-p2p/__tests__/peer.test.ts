@@ -1,7 +1,7 @@
 import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { PeerImpl } from "../dist/peer";
+import { Peer } from "../dist/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
@@ -10,7 +10,7 @@ const { Block, Transaction } = models;
 let genesisBlock;
 let genesisTransaction;
 
-let peerMock: PeerImpl;
+let peerMock: Peer;
 
 beforeAll(async () => {
     await setUp();
@@ -27,7 +27,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-    peerMock = new PeerImpl("1.0.0.99", 4002);
+    peerMock = new Peer("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers);
 
     axiosMock.reset(); // important: resets any existing mocking behavior
