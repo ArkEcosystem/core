@@ -25,7 +25,7 @@ const _mapToBlockData = blocks => blocks.map(block => ({ ...block.data, transact
 /**
  * Represents an in-memory storage for state machine data.
  */
-class StateStorage {
+export class StateStorage {
     public blockchain: any;
     public lastDownloadedBlock: any;
     public blockPing: any;

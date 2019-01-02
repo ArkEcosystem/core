@@ -8,6 +8,7 @@ import delay from "delay";
 import pluralize from "pluralize";
 import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
+import { StateStorage } from "./state-storage";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
@@ -684,7 +685,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the state of the blockchain.
      * @return {IStateStorage}
      */
-    get state() {
+    get state(): StateStorage {
         return stateMachine.state;
     }
 
