@@ -1,3 +1,4 @@
+import { flags } from "@oclif/command";
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
@@ -19,12 +20,27 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
     ];
 
     public static flags = {
-        ...Command.flagsNetwork,
+        data: flags.string({
+            description: "the directory that contains the core data",
+            default: "~/.ark",
+        }),
+        config: flags.string({
+            description: "the directory that contains the core configuration",
+            default: "~/.ark/config",
+        }),
+        network: flags.string({
+            description: "the name of the network that should be used",
+        }),
     };
 
     public async run() {
         const { flags } = this.parse(ConfigReset);
 
+        if (flags.data && flags.config && flags.network) {
+            return this.performReset(flags);
+        }
+
+        // Interactive CLI
         const response = await prompts([
             {
                 type: "confirm",

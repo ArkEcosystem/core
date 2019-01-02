@@ -9,7 +9,11 @@ import Command from "../../command";
 export class ConfigureBIP39 extends Command {
     public static description = "Configure the forging delegate (BIP38)";
 
-    public static examples = [`$ ark config:forger:bip38`];
+    public static examples = [
+        `Configure a delegate using a BIP39 passphrase
+$ ark config:forger:bip39 --bip39="..."
+`,
+    ];
 
     public static flags = {
         bip39: flags.string({
@@ -30,7 +34,7 @@ export class ConfigureBIP39 extends Command {
         const response = await prompts([
             {
                 type: "password",
-                name: "forgerBip39",
+                name: "bip39",
                 message: "Please enter your delegate passphrase",
                 validate: value =>
                     !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
@@ -48,8 +52,8 @@ export class ConfigureBIP39 extends Command {
         }
     }
 
-    private async performConfiguration(bip39opts) {
-        const delegatesConfig = `${bip39opts.config}/delegates.json`;
+    private async performConfiguration(flags) {
+        const delegatesConfig = `${flags.config}/delegates.json`;
 
         await this.addTask("Prepare configuration", async () => {
             if (!fs.existsSync(delegatesConfig)) {
@@ -58,9 +62,16 @@ export class ConfigureBIP39 extends Command {
 
             await delay(500);
         })
+            .addTask("Validate passphrase", async () => {
+                if (!bip39.validateMnemonic(flags.bip39)) {
+                    throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
+                }
+
+                await delay(500);
+            })
             .addTask("Write BIP39 to configuration", async () => {
                 const delegates = require(delegatesConfig);
-                delegates.secrets = [bip39opts.forgerBip39];
+                delegates.secrets = [flags.bip39];
                 delete delegates.bip38;
 
                 fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));

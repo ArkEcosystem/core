@@ -1,3 +1,4 @@
+import { flags } from "@oclif/command";
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
@@ -18,12 +19,27 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
     ];
 
     public static flags = {
-        ...Command.flagsNetwork,
+        data: flags.string({
+            description: "the directory that contains the core data",
+            default: "~/.ark",
+        }),
+        config: flags.string({
+            description: "the directory that contains the core configuration",
+            default: "~/.ark/config",
+        }),
+        network: flags.string({
+            description: "the name of the network that should be used",
+        }),
     };
 
     public async run() {
         const { flags } = this.parse(ConfigPublish);
 
+        if (flags.data && flags.config && flags.network) {
+            return this.performPublishment(flags);
+        }
+
+        // Interactive CLI
         const response = await prompts([
             {
                 type: "autocomplete",
@@ -34,6 +50,12 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
                     { title: "Development", value: "devnet" },
                     { title: "Test", value: "testnet" },
                 ],
+            },
+            {
+                type: "text",
+                name: "data",
+                message: "Where do you want the data to be located?",
+                initial: flags.data,
             },
             {
                 type: "text",

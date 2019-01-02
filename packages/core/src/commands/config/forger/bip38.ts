@@ -11,7 +11,11 @@ import Command from "../../command";
 export class ConfigureBIP38 extends Command {
     public static description = "Configure the forging delegate (BIP38)";
 
-    public static examples = [`$ ark config:forger:bip38`];
+    public static examples = [
+        `Configure a delegate using an encrypted BIP38
+$ ark config:forger:bip38 --bip39="..." --password="..."
+`,
+    ];
 
     public static flags = {
         bip39: flags.string({
@@ -71,6 +75,13 @@ export class ConfigureBIP38 extends Command {
 
             await delay(500);
         })
+            .addTask("Validate passphrase", async () => {
+                if (!bip39.validateMnemonic(flags.bip39)) {
+                    throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
+                }
+
+                await delay(500);
+            })
             .addTask("Prepare crypto", async () => {
                 configManager.setFromPreset(flags.network);
 

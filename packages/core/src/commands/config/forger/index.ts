@@ -8,7 +8,14 @@ import Command from "../../command";
 export class ForgerConfig extends Command {
     public static description = "Configure the forging delegate (BIP38)";
 
-    public static examples = [`$ ark config:forger`];
+    public static examples = [
+        `Configure a delegate using an encrypted BIP38
+$ ark config:forger --method=bip38
+`,
+        `Configure a delegate using a BIP39 passphrase
+$ ark config:forger --method=bip39
+`,
+    ];
 
     public static flags = {
         method: flags.string({ char: "m", description: "the configuration method to use (bip38 or bip39)" }),
