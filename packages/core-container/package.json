@@ -29,7 +29,6 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "^2.1.0",
-        "@arkecosystem/core-logger": "^2.1.0",
         "@arkecosystem/core-interfaces": "^2.1.0",
         "@types/fs-extra": "^5.0.4",
         "@types/hoek": "^4.1.3",
