@@ -18,9 +18,7 @@ export class ForgerStart extends Command {
         start({
             name: "ark-core-forger",
             script: "./dist/index.js",
-            args: `forger --data ${flags.data}
-                          --config ${flags.config}
-                          --network ${flags.network}`,
+            args: `forger:run ${this.flagsToStrings(flags)}`,
             env: {
                 ARK_FORGER_BIP38: flags.bip38,
                 ARK_FORGER_PASSWORD: flags.password,

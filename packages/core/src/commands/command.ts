@@ -19,28 +19,28 @@ export default abstract class extends Command {
     };
 
     public static flagsBehaviour = {
-        networkStart: flags.string({
+        networkStart: flags.boolean({
+            char: "n",
+            description: "...",
+        }),
+        disableDiscovery: flags.boolean({
             char: "d",
             description: "...",
         }),
-        disableDiscovery: flags.string({
-            char: "c",
+        skipDiscovery: flags.boolean({
+            char: "s",
             description: "...",
         }),
-        skipDiscovery: flags.string({
-            char: "n",
-            description: "...",
-        }),
-        ignoreMinimumNetworkReach: flags.string({
-            char: "n",
+        ignoreMinimumNetworkReach: flags.boolean({
+            char: "i",
             description: "...",
         }),
         launchMode: flags.string({
-            char: "n",
+            char: "l",
             description: "...",
         }),
         preset: flags.string({
-            char: "n",
+            char: "p",
             description: "...",
         }),
     };
@@ -89,5 +89,19 @@ export default abstract class extends Command {
         }
 
         return config;
+    }
+
+    protected flagsToStrings(flags) {
+        const mappedFlags = [];
+
+        for (const [key, value] of Object.entries(flags)) {
+            if (value === true) {
+                mappedFlags.push(`--${key}`);
+            } else {
+                mappedFlags.push(`--${key}=${value}`);
+            }
+        }
+
+        return mappedFlags.join(" ");
     }
 }

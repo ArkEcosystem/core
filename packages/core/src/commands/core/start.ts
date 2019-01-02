@@ -19,9 +19,7 @@ export class CoreStart extends Command {
         start({
             name: "ark-core",
             script: "./dist/index.js",
-            args: `start --data ${flags.data}
-                         --config ${flags.config}
-                         --network ${flags.network}`,
+            args: `core:run ${this.flagsToStrings(flags)}`,
             env: {
                 ARK_FORGER_BIP38: flags.bip38,
                 ARK_FORGER_PASSWORD: flags.password,

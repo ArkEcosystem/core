@@ -19,9 +19,7 @@ export class RelayStart extends Command {
         start({
             name: "ark-core-relay",
             script: "./dist/index.js",
-            args: `relay:start --data ${flags.data}
-                               --config ${flags.config}
-                               --network ${flags.network}`,
+            args: `relay:run ${this.flagsToStrings(flags)}`,
         });
     }
 }
