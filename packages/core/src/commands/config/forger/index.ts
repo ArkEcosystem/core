@@ -8,7 +8,7 @@ import Command from "../../command";
 export class ForgerConfig extends Command {
     public static description = "Configure the forging delegate (BIP38)";
 
-    public static examples = [`$ ark forger:config:bip38`];
+    public static examples = [`$ ark config:forger`];
 
     public static flags = {
         method: flags.string({ char: "m", description: "the configuration method to use (bip38 or bip39)" }),
@@ -17,6 +17,15 @@ export class ForgerConfig extends Command {
     public async run() {
         const { flags } = this.parse(ForgerConfig);
 
+        if (flags.method === "bip38") {
+            return ConfigureBIP38.run();
+        }
+
+        if (flags.method === "bip39") {
+            return ConfigureBIP39.run();
+        }
+
+        // Interactive CLI
         const response = await prompts([
             {
                 type: "select",

@@ -1,34 +1,32 @@
-import { configManager, crypto } from "@arkecosystem/crypto";
-import { flags } from "@oclif/command";
-import bip38 from "bip38";
 import bip39 from "bip39";
 import delay from "delay";
 import fs from "fs-extra";
 import prompts from "prompts";
-import wif from "wif";
+
+import { flags } from "@oclif/command";
 import Command from "../../command";
 
-export class ConfigureBIP38 extends Command {
+export class ConfigureBIP39 extends Command {
     public static description = "Configure the forging delegate (BIP38)";
 
-    public static examples = [`$ ark forger:config:bip38`];
+    public static examples = [`$ ark config:forger:bip38`];
 
     public static flags = {
-        bip38: flags.string({
+        bip39: flags.string({
             char: "b",
-            description: "the encrypted bip38",
-            required: true,
-        }),
-        password: flags.string({
-            char: "p",
-            description: "the password for the encrypted bip38",
+            description: "the plain text bip39 passphrase",
             required: true,
         }),
     };
 
     public async run() {
-        const { flags } = this.parse(ConfigureBIP38);
+        const { flags } = this.parse(ConfigureBIP39);
 
+        if (flags.bip39) {
+            return this.performConfiguration(flags);
+        }
+
+        // Interactive CLI
         const response = await prompts([
             {
                 type: "password",
@@ -36,11 +34,6 @@ export class ConfigureBIP38 extends Command {
                 message: "Please enter your delegate passphrase",
                 validate: value =>
                     !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
-            },
-            {
-                type: "password",
-                name: "forgerBip38",
-                message: "Please enter your desired BIP38 password",
             },
             {
                 type: "confirm",
@@ -55,9 +48,8 @@ export class ConfigureBIP38 extends Command {
         }
     }
 
-    private async performConfiguration(options) {
-        const delegatesConfig = `${options.config}/delegates.json`;
-        let decodedWIF;
+    private async performConfiguration(bip39opts) {
+        const delegatesConfig = `${bip39opts.config}/delegates.json`;
 
         await this.addTask("Prepare configuration", async () => {
             if (!fs.existsSync(delegatesConfig)) {
@@ -66,22 +58,10 @@ export class ConfigureBIP38 extends Command {
 
             await delay(500);
         })
-            .addTask("Prepare crypto", async () => {
-                configManager.setFromPreset(options.network);
-
-                await delay(500);
-            })
-            .addTask("Loading private key", async () => {
-                const keys = crypto.getKeys(options.forgerBip39);
-                // @ts-ignore
-                decodedWIF = wif.decode(crypto.keysToWIF(keys));
-
-                await delay(500);
-            })
-            .addTask("Encrypt BIP38", async () => {
+            .addTask("Write BIP39 to configuration", async () => {
                 const delegates = require(delegatesConfig);
-                delegates.bip38 = bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, options.forgerBip38);
-                delegates.secrets = [];
+                delegates.secrets = [bip39opts.forgerBip39];
+                delete delegates.bip38;
 
                 fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 

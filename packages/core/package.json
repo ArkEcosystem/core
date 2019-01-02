@@ -125,7 +125,7 @@
                 "description": "manage ark config variables"
             },
             "config:forger": {
-                "description": "manage forger (delegate) config variables"
+                "description": "manage forger config variables"
             },
             "core": {
                 "description": "manage a core instance (relay & forger)"
