@@ -2,7 +2,6 @@ import { configManager, crypto } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import bip38 from "bip38";
 import bip39 from "bip39";
-import delay from "delay";
 import fs from "fs-extra";
 import prompts from "prompts";
 import wif from "wif";
@@ -77,30 +76,22 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
             if (!fs.existsSync(delegatesConfig)) {
                 throw new Error(`Couldn't find the core configuration at ${delegatesConfig}.`);
             }
-
-            await delay(500);
         });
 
         this.addTask("Validate passphrase", async () => {
             if (!bip39.validateMnemonic(flags.bip39)) {
                 throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
             }
-
-            await delay(500);
         });
 
         this.addTask("Prepare crypto", async () => {
             configManager.setFromPreset(flags.network);
-
-            await delay(500);
         });
 
         this.addTask("Loading private key", async () => {
             const keys = crypto.getKeys(flags.bip39);
             // @ts-ignore
             decodedWIF = wif.decode(crypto.keysToWIF(keys));
-
-            await delay(500);
         });
 
         this.addTask("Encrypt BIP38", async () => {
@@ -109,8 +100,6 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
             delegates.secrets = [];
 
             fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
-
-            await delay(500);
         });
 
         await this.runTasks();

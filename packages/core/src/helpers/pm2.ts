@@ -1,13 +1,19 @@
 import pm2 from "pm2";
 import { Tail } from "tail";
 
-export function start(options: any) {
+function createConnection(callback) {
     pm2.connect(connectionError => {
         if (connectionError) {
             console.error(connectionError);
             process.exit(2);
         }
 
+        callback();
+    });
+}
+
+export function start(options: any) {
+    createConnection(() => {
         pm2.start(
             {
                 ...{
@@ -29,12 +35,7 @@ export function start(options: any) {
 }
 
 export function stop(processName: string) {
-    pm2.connect(connectionError => {
-        if (connectionError) {
-            console.error(connectionError);
-            process.exit(2);
-        }
-
+    createConnection(() => {
         pm2.stop(processName, stopError => {
             pm2.disconnect();
 
@@ -46,12 +47,7 @@ export function stop(processName: string) {
 }
 
 export function restart(processName: string) {
-    pm2.connect(connectionError => {
-        if (connectionError) {
-            console.error(connectionError);
-            process.exit(2);
-        }
-
+    createConnection(() => {
         pm2.reload(processName, reloadError => {
             pm2.disconnect();
 
@@ -63,12 +59,7 @@ export function restart(processName: string) {
 }
 
 export function shutdown(processName: string) {
-    pm2.connect(connectionError => {
-        if (connectionError) {
-            console.error(connectionError);
-            process.exit(2);
-        }
-
+    createConnection(() => {
         pm2.delete(processName, deleteError => {
             pm2.disconnect();
 
@@ -80,12 +71,7 @@ export function shutdown(processName: string) {
 }
 
 export function destroy(processName: string) {
-    pm2.connect(connectionError => {
-        if (connectionError) {
-            console.error(connectionError);
-            process.exit(2);
-        }
-
+    createConnection(() => {
         pm2.delete(processName, deleteError => {
             pm2.disconnect();
 
@@ -97,12 +83,7 @@ export function destroy(processName: string) {
 }
 
 export function log(processName: string, onlyErrors: boolean) {
-    pm2.connect(connectionError => {
-        if (connectionError) {
-            console.error(connectionError);
-            process.exit(2);
-        }
-
+    createConnection(() => {
         pm2.describe(processName, (deleteError, apps) => {
             pm2.disconnect();
 
@@ -113,10 +94,8 @@ export function log(processName: string, onlyErrors: boolean) {
             const app = apps[0].pm2_env;
 
             const log = new Tail(onlyErrors ? app.pm_err_log_path : app.pm_out_log_path);
-
             log.on("line", data => console.log(data));
-
-            log.on("error", error => console.log("ERROR: ", error));
+            log.on("error", error => console.error("ERROR: ", error));
         });
     });
 }

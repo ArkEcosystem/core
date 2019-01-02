@@ -1,5 +1,4 @@
 import { flags } from "@oclif/command";
-import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
 import { resolve } from "path";
@@ -84,8 +83,6 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
             }
 
             fs.ensureDirSync(coreConfigDest);
-
-            await delay(500);
         });
 
         this.addTask("Publish environment", async () => {
@@ -96,14 +93,10 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
             const coreDataDest = resolve(expandHomeDir(flags.data));
 
             fs.copySync(`${coreConfigSrc}/.env`, `${coreDataDest}/.env`);
-
-            await delay(500);
         });
 
         this.addTask("Publish configuration", async () => {
             fs.copySync(coreConfigSrc, coreConfigDest);
-
-            await delay(500);
         });
 
         await this.runTasks();

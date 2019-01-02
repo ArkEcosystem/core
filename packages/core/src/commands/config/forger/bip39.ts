@@ -1,6 +1,5 @@
 import { flags } from "@oclif/command";
 import bip39 from "bip39";
-import delay from "delay";
 import fs from "fs-extra";
 import prompts from "prompts";
 import { BaseCommand } from "../../command";
@@ -58,16 +57,12 @@ $ ark config:forger:bip39 --bip39="..."
             if (!fs.existsSync(delegatesConfig)) {
                 throw new Error(`Couldn't find the core configuration at ${delegatesConfig}.`);
             }
-
-            await delay(500);
         });
 
         this.addTask("Validate passphrase", async () => {
             if (!bip39.validateMnemonic(flags.bip39)) {
                 throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
             }
-
-            await delay(500);
         });
 
         this.addTask("Write BIP39 to configuration", async () => {
@@ -76,8 +71,6 @@ $ ark config:forger:bip39 --bip39="..."
             delete delegates.bip38;
 
             fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
-
-            await delay(500);
         });
 
         await this.runTasks();
