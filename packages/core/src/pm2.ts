@@ -61,6 +61,23 @@ export function restart(processName: string) {
     });
 }
 
+export function shutdown(processName: string) {
+    pm2.connect(connectionError => {
+        if (connectionError) {
+            console.error(connectionError);
+            process.exit(2);
+        }
+
+        pm2.delete(processName, (deleteError, apps) => {
+            pm2.disconnect();
+
+            if (deleteError) {
+                throw deleteError;
+            }
+        });
+    });
+}
+
 export function destroy(processName: string) {
     pm2.connect(connectionError => {
         if (connectionError) {
