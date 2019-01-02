@@ -1,9 +1,8 @@
+import { flags } from "@oclif/command";
 import prompts from "prompts";
+import { BaseCommand as Command } from "../../command";
 import { ConfigureBIP38 } from "./bip38";
 import { ConfigureBIP39 } from "./bip39";
-
-import { flags } from "@oclif/command";
-import { BaseCommand as Command } from "../../command";
 
 export class ForgerConfig extends Command {
     public static description = "Configure the forging delegate (BIP38)";
@@ -18,6 +17,7 @@ $ ark config:forger --method=bip39
     ];
 
     public static flags = {
+        ...Command.flagsForger,
         method: flags.string({ char: "m", description: "the configuration method to use (bip38 or bip39)" }),
     };
 
@@ -25,11 +25,11 @@ $ ark config:forger --method=bip39
         const { flags } = this.parse(ForgerConfig);
 
         if (flags.method === "bip38") {
-            return ConfigureBIP38.run();
+            return ConfigureBIP38.run(this.flagsToStrings(flags).split(" "));
         }
 
         if (flags.method === "bip39") {
-            return ConfigureBIP39.run();
+            return ConfigureBIP39.run(this.flagsToStrings(flags).split(" "));
         }
 
         // Interactive CLI
@@ -46,11 +46,11 @@ $ ark config:forger --method=bip39
         ]);
 
         if (response.method === "bip38") {
-            return ConfigureBIP38.run();
+            return ConfigureBIP38.run(this.flagsToStrings(response).split(" "));
         }
 
         if (response.method === "bip39") {
-            return ConfigureBIP39.run();
+            return ConfigureBIP39.run(this.flagsToStrings(response).split(" "));
         }
     }
 }

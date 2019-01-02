@@ -1,9 +1,8 @@
+import { flags } from "@oclif/command";
 import bip39 from "bip39";
 import delay from "delay";
 import fs from "fs-extra";
 import prompts from "prompts";
-
-import { flags } from "@oclif/command";
 import { BaseCommand as Command } from "../../command";
 
 export class ConfigureBIP39 extends Command {

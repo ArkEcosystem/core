@@ -1,5 +1,4 @@
 import { flags } from "@oclif/command";
-import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
 import { resolve } from "path";
@@ -25,12 +24,16 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
             description: "the name of the network that should be used",
             options: ["mainnet", "devnet", "testnet"],
         }),
+        force: flags.boolean({
+            char: "f",
+            description: "force the configuration to be reset",
+        }),
     };
 
     public async run() {
         const { flags } = this.parse(ConfigReset);
 
-        if (flags.data && flags.config && flags.network) {
+        if (flags.data && flags.config && flags.network && flags.force) {
             return this.performReset(flags);
         }
 
@@ -49,23 +52,15 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
         }
     }
 
-    private async performReset(flags) {
+    private async performReset(flags: Record<string, any>) {
         const configDir = resolve(expandHomeDir(flags.config));
 
-        await this.addTask("Remove configuration", async () => {
-            if (!fs.existsSync(configDir)) {
-                throw new Error(`Couldn't find the core configuration at ${configDir}.`);
-            }
-
+        this.addTask("Remove configuration", async () => {
             fs.removeSync(configDir);
+        });
 
-            await delay(500);
-        })
-            .addTask("Publish configuration", async () => {
-                await ConfigPublish.run();
+        await this.runTasks();
 
-                await delay(500);
-            })
-            .runTasks();
+        await ConfigPublish.run(this.flagsToStrings(flags).split(" "));
     }
 }

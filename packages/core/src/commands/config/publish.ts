@@ -24,12 +24,16 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
             description: "the name of the network that should be used",
             options: ["mainnet", "devnet", "testnet"],
         }),
+        force: flags.boolean({
+            char: "f",
+            description: "force the configuration to be overwritten",
+        }),
     };
 
     public async run() {
         const { flags } = this.parse(ConfigPublish);
 
-        if (flags.data && flags.config && flags.network) {
+        if (flags.data && flags.config && flags.network && flags.force) {
             return this.performPublishment(flags);
         }
 
@@ -70,11 +74,11 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
         }
     }
 
-    private async performPublishment(response) {
-        const coreConfigDest = resolve(expandHomeDir(response.config));
-        const coreConfigSrc = resolve(__dirname, `../../config/${response.network}`);
+    private async performPublishment(flags: Record<string, any>) {
+        const coreConfigDest = resolve(expandHomeDir(flags.config));
+        const coreConfigSrc = resolve(__dirname, `../../../bin/config/${flags.network}`);
 
-        await this.addTask("Prepare directories", async () => {
+        this.addTask("Prepare directories", async () => {
             if (!fs.existsSync(coreConfigSrc)) {
                 throw new Error(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
             }
@@ -82,17 +86,26 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
             fs.ensureDirSync(coreConfigDest);
 
             await delay(500);
-        })
-            .addTask("Publish environment", async () => {
-                //
+        });
 
-                await delay(500);
-            })
-            .addTask("Publish configuration", async () => {
-                fs.copySync(coreConfigSrc, coreConfigDest);
+        this.addTask("Publish environment", async () => {
+            if (!fs.existsSync(`${coreConfigSrc}/.env`)) {
+                throw new Error(`Couldn't find the environment file at ${coreConfigSrc}/.env.`);
+            }
 
-                await delay(500);
-            })
-            .runTasks();
+            const coreDataDest = resolve(expandHomeDir(flags.data));
+
+            fs.copySync(`${coreConfigSrc}/.env`, `${coreDataDest}/.env`);
+
+            await delay(500);
+        });
+
+        this.addTask("Publish configuration", async () => {
+            fs.copySync(coreConfigSrc, coreConfigDest);
+
+            await delay(500);
+        });
+
+        await this.runTasks();
     }
 }
