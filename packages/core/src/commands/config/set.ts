@@ -7,7 +7,7 @@ export class ConfigSet extends Command {
     public static examples = [`$ ark config:set`];
 
     public static flags = {
-        force: flags.string({ char: "f", description: "force the setting to be set" }),
+        force: flags.string({ char: "f", description: "force the setting to be overwritten" }),
     };
 
     public static args = [{ name: "key" }, { name: "value" }];

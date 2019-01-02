@@ -8,9 +8,11 @@ export class CoreLog extends Command {
     public static examples = [`$ ark core:log`];
 
     public static flags = {
-        error: flags.boolean({ char: "e", description: "..." }),
+        error: flags.boolean({
+            char: "e",
+            description: "only show error output from the daemon",
+        }),
     };
-
     public async run() {
         const { flags } = this.parse(CoreLog);
 

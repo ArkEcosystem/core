@@ -8,7 +8,10 @@ export class ForgerLog extends Command {
     public static examples = [`$ ark forger:log`];
 
     public static flags = {
-        error: flags.boolean({ char: "e", description: "..." }),
+        error: flags.boolean({
+            char: "e",
+            description: "only show error output from the daemon",
+        }),
     };
 
     public async run() {

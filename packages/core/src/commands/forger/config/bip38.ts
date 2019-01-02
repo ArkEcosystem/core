@@ -14,8 +14,16 @@ export class ConfigureBIP38 extends Command {
     public static examples = [`$ ark forger:config:bip38`];
 
     public static flags = {
-        bip38: flags.string({ char: "b", description: "the encrypted bip38" }),
-        password: flags.string({ char: "p", description: "the password for the encrypted bip38" }),
+        bip38: flags.string({
+            char: "b",
+            description: "the encrypted bip38",
+            required: true,
+        }),
+        password: flags.string({
+            char: "p",
+            description: "the password for the encrypted bip38",
+            required: true,
+        }),
     };
 
     public async run() {

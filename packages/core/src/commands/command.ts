@@ -7,12 +7,17 @@ export default abstract class extends Command {
     public static flagsNetwork = {
         data: flags.string({
             description: "the directory that contains the core data",
+            default: "~/.ark",
+            required: true,
         }),
         config: flags.string({
             description: "the directory that contains the core configuration",
+            default: "~/.ark/config",
+            required: true,
         }),
         network: flags.string({
             description: "the name of the network that should be used",
+            required: true,
         }),
     };
 
@@ -40,12 +45,15 @@ export default abstract class extends Command {
     public static flagsForger = {
         bip38: flags.string({
             description: "the encrypted bip38",
+            dependsOn: ["password"],
         }),
         bip39: flags.string({
             description: "the plain text bip39 passphrase",
+            exclusive: ["bip38", "password"],
         }),
         password: flags.string({
             description: "the password for the encrypted bip38",
+            dependsOn: ["bip38"],
         }),
     };
 

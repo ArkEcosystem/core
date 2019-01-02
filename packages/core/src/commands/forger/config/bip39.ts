@@ -12,7 +12,11 @@ export class ConfigureBIP39 extends Command {
     public static examples = [`$ ark forger:config:bip38`];
 
     public static flags = {
-        bip39: flags.string({ char: "b", description: "the plain text bip39 passphrase" }),
+        bip39: flags.string({
+            char: "b",
+            description: "the plain text bip39 passphrase",
+            required: true,
+        }),
     };
 
     public async run() {
