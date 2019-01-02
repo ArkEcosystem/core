@@ -2446,6 +2446,14 @@ ambi@^2.4.0:
     editions "^1.1.1"
     typechecker "^4.3.0"
 
+ambi@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/ambi/-/ambi-5.0.0.tgz#7392e8f845d0f4dec37c3ecb2ab4a6b4c68b86c9"
+  integrity sha512-NYJzHMsZU7clGY2lH11U+2PEllFDW66qnUukXYbyF8ZJ0B0CXVNfKHUvkUp+gsaNPBW8FqEFX5l64LTlUvI2pw==
+  dependencies:
+    editions "^2.1.0"
+    typechecker "^4.3.0"
+
 ammo@3.x.x:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/ammo/-/ammo-3.0.3.tgz#502aafa9d8bfca264143e226e5f322716e746b0c"
@@ -5063,6 +5071,14 @@ editions@^2.1.0:
     errlop "^1.0.3"
     semver "^5.6.0"
 
+editions@^2.1.2, editions@^2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/editions/-/editions-2.1.3.tgz#727ccf3ec2c7b12dcc652c71000f16c4824d6f7d"
+  integrity sha512-xDZyVm0A4nLgMNWVVLJvcwMjI80ShiH/27RyLiCnW1L273TcJIA25C4pwJ33AWV01OX6UriP35Xu+lH4S7HWQw==
+  dependencies:
+    errlop "^1.1.1"
+    semver "^5.6.0"
+
 editor@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/editor/-/editor-1.0.0.tgz#60c7f87bd62bcc6a894fa8ccd6afb7823a24f742"
@@ -5172,6 +5188,16 @@ envfile@^2.3.0:
     editions "^1.3.3"
     typechecker "^4.0.1"
 
+envfile@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/envfile/-/envfile-3.0.0.tgz#7724a599d025b9af34757cc4ab0092f5d3fa2b53"
+  integrity sha512-LdL/WLZutuZedarG3Knu4v4RC7kZpC+dSdv9tVj0B8q11K0T0pLczRYxhmyVpApRRXWQnz5Fldrtnu/RzbCHPA==
+  dependencies:
+    ambi "^5.0.0"
+    eachr "^3.1.0"
+    editions "^2.1.3"
+    typechecker "^4.0.1"
+
 err-code@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/err-code/-/err-code-1.1.2.tgz#06e0116d3028f6aef4806849eb0ea6a748ae6960"
@@ -5183,6 +5209,13 @@ errlop@^1.0.3:
   integrity sha512-5VTnt0yikY4LlQEfCXVSqfE6oLj1HVM4zVSvAKMnoYjL/zrb6nqiLowZS4XlG7xENfyj7lpYWvT+wfSCr6dtlA==
   dependencies:
     editions "^1.3.4"
+
+errlop@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/errlop/-/errlop-1.1.1.tgz#d9ae4c76c3e64956c5d79e6e035d6343bfd62250"
+  integrity sha512-WX7QjiPHhsny7/PQvrhS5VMizXXKoKCS3udaBp8gjlARdbn+XmK300eKBAAN0hGyRaTCtRpOaxK+xFVPUJ3zkw==
+  dependencies:
+    editions "^2.1.2"
 
 errno@^0.1.3, errno@~0.1.7:
   version "0.1.7"

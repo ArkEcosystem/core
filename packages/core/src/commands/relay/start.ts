@@ -1,4 +1,3 @@
-import { flags } from "@oclif/command";
 import { start } from "../../pm2";
 import Command from "../command";
 

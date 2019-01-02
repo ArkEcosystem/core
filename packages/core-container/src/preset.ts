@@ -1,6 +1,5 @@
 import envfile from "envfile";
 import { existsSync } from "fs-extra";
-import { resolve } from "path";
 
 export class Preset {
     private environment: object;

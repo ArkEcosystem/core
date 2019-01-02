@@ -4,6 +4,19 @@ import { resolve } from "path";
 
 // tslint:disable-next-line:no-default-export
 export default abstract class extends Command {
+    public static flagsConfig = {
+        data: flags.string({
+            description: "the directory that contains the core data",
+            default: "~/.ark",
+            required: true,
+        }),
+        config: flags.string({
+            description: "the directory that contains the core configuration",
+            default: "~/.ark/config",
+            required: true,
+        }),
+    };
+
     public static flagsNetwork = {
         data: flags.string({
             description: "the directory that contains the core data",

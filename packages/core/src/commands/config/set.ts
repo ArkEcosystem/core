@@ -1,4 +1,7 @@
 import { flags } from "@oclif/command";
+import envfile from "envfile";
+import expandHomeDir from "expand-home-dir";
+import { existsSync, writeFileSync } from "fs-extra";
 import Command from "../command";
 
 export class ConfigSet extends Command {
@@ -11,6 +14,7 @@ $ ark config:set ARK_LOG_LEVEL info
     ];
 
     public static flags = {
+        ...Command.flagsConfig,
         force: flags.string({ char: "f", description: "force the setting to be overwritten" }),
     };
 
@@ -18,5 +22,16 @@ $ ark config:set ARK_LOG_LEVEL info
 
     public async run() {
         const { args, flags } = this.parse(ConfigSet);
+
+        const envFile = `${expandHomeDir(flags.data)}/.env`;
+
+        if (!existsSync(envFile)) {
+            throw new Error(`No environment file found at ${envFile}`);
+        }
+
+        const env = envfile.parseFileSync(envFile);
+        env[args.key] = args.value;
+
+        writeFileSync(envFile, envfile.stringifySync(env));
     }
 }

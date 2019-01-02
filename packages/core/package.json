@@ -97,6 +97,7 @@
         "bip39": "^2.5.0",
         "commander": "^2.19.0",
         "dayjs-ext": "^2.2.0",
+        "envfile": "^3.0.0",
         "fs-extra": "^7.0.1",
         "latest-version": "^4.0.0",
         "listr": "^0.14.3",
