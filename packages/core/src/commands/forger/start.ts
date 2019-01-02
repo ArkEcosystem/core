@@ -13,6 +13,9 @@ $ ark forger:start --bip39="..."
         `Run a forger with an encrypted bip38
 $ ark forger:start --bip38="..." --password="..."
 `,
+        `Run a forger without a daemon
+$ ark forger:start --no-daemon
+`,
     ];
 
     public static flags = {
@@ -44,7 +47,7 @@ $ ark forger:start --bip38="..." --password="..."
         });
     }
 
-    private async runWithoutDaemon(flags) {
+    private async runWithoutDaemon(flags: Record<string, any>) {
         return this.buildApplication(app, {
             include: [
                 "@arkecosystem/core-event-emitter",

@@ -31,6 +31,9 @@ $ ark relay:start --launchMode=seed
         `Run a relay without any public facing services
 $ ark relay:start --preset=relay-minimal
 `,
+        `Run a relay without a daemon
+$ ark relay:start --no-daemon
+`,
     ];
 
     public static flags = {
@@ -59,7 +62,7 @@ $ ark relay:start --preset=relay-minimal
         });
     }
 
-    private async runWithoutDaemon(flags) {
+    private async runWithoutDaemon(flags: Record<string, any>) {
         return this.buildApplication(app, {
             exclude: ["@arkecosystem/core-forger"],
             options: {

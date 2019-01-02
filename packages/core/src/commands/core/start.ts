@@ -7,13 +7,13 @@ export class CoreStart extends Command {
     public static description = "Start the core";
 
     public static examples = [
-        `Run a mainnet relay
+        `Run core on mainnet
 $ ark core:start --network=mainnet
 `,
-        `Run a relay with custom data and config paths
+        `Run core with custom data and config paths
 $ ark core:start --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
 `,
-        `Run a genesis relay
+        `Run core as genesis
 $ ark core:start --networkStart
 `,
         `Disable any discovery by other peers
@@ -28,8 +28,11 @@ $ ark core:start --ignoreMinimumNetworkReach
         `Start a seed
 $ ark core:start --launchMode=seed
 `,
-        `Run a relay without any public facing services
+        `Run core without any public facing services
 $ ark core:start --preset=relay-minimal
+`,
+        `Run core without a daemon
+$ ark core:start --no-daemon
 `,
     ];
 
@@ -63,7 +66,7 @@ $ ark core:start --preset=relay-minimal
         });
     }
 
-    private async runWithoutDaemon(flags) {
+    private async runWithoutDaemon(flags: Record<string, any>) {
         return this.buildApplication(app, {
             options: {
                 "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
