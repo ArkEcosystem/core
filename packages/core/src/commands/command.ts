@@ -5,58 +5,46 @@ import { resolve } from "path";
 export default abstract class extends Command {
     public static flagsNetwork = {
         data: flags.string({
-            char: "d",
-            description: "...",
+            description: "the directory that contains the core data",
         }),
         config: flags.string({
-            char: "c",
-            description: "...",
+            description: "the directory that contains the core configuration",
         }),
         network: flags.string({
-            char: "n",
-            description: "...",
+            description: "the name of the network that should be used",
         }),
     };
 
     public static flagsBehaviour = {
         networkStart: flags.boolean({
-            char: "n",
-            description: "...",
+            description: "indicate that this is the first start of seeds",
         }),
         disableDiscovery: flags.boolean({
-            char: "d",
-            description: "...",
+            description: "permanently disable any peer discovery",
         }),
         skipDiscovery: flags.boolean({
-            char: "s",
-            description: "...",
+            description: "skip the initial peer discovery",
         }),
         ignoreMinimumNetworkReach: flags.boolean({
-            char: "i",
-            description: "...",
+            description: "ignore the minimum network reach on start",
         }),
         launchMode: flags.string({
-            char: "l",
-            description: "...",
+            description: "the mode the relay will be launched in (seed only at the moment)",
         }),
         preset: flags.string({
-            char: "p",
-            description: "...",
+            description: "the configuration preset to be used",
         }),
     };
 
     public static flagsForger = {
         bip38: flags.string({
-            char: "d",
-            description: "...",
+            description: "the encrypted bip38",
         }),
         bip39: flags.string({
-            char: "c",
-            description: "...",
+            description: "the plain text bip39 passphrase",
         }),
         password: flags.string({
-            char: "c",
-            description: "...",
+            description: "the password for the encrypted bip38",
         }),
     };
 

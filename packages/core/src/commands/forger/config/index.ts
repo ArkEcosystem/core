@@ -11,7 +11,7 @@ export class ForgerConfig extends Command {
     public static examples = [`$ ark forger:config:bip38`];
 
     public static flags = {
-        method: flags.string({ char: "m", description: "..." }),
+        method: flags.string({ char: "m", description: "the configuration method to use (bip38 or bip39)" }),
     };
 
     public async run() {

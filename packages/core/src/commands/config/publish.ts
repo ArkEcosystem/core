@@ -1,4 +1,3 @@
-import { flags } from "@oclif/command";
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
@@ -12,7 +11,9 @@ export class ConfigPublish extends Command {
 
     public static examples = [`$ ark config:get`];
 
-    public static flags = { config: flags.string({ char: "n", description: "..." }) };
+    public static flags = {
+        ...Command.flagsNetwork,
+    };
 
     public async run() {
         const { flags } = this.parse(ConfigPublish);
