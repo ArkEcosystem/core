@@ -1,7 +1,6 @@
 import bip39 from "bip39";
 import delay from "delay";
 import fs from "fs-extra";
-import ora from "ora";
 import prompts from "prompts";
 
 import { flags } from "@oclif/command";
@@ -41,22 +40,24 @@ export class ConfigureBIP39 extends Command {
     }
 
     private async performConfiguration(bip39opts) {
-        const spinner = ora("Configuring forger...").start();
-
         const delegatesConfig = `${bip39opts.config}/delegates.json`;
 
-        if (!fs.existsSync(delegatesConfig)) {
-            return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
-        }
+        await this.addTask("Prepare configuration", async () => {
+            if (!fs.existsSync(delegatesConfig)) {
+                throw new Error(`Couldn't find the core configuration at ${delegatesConfig}.`);
+            }
 
-        const delegates = require(delegatesConfig);
-        delegates.secrets = [bip39opts.forgerBip39];
-        delete delegates.bip38;
+            await delay(500);
+        })
+            .addTask("Write BIP39 to configuration", async () => {
+                const delegates = require(delegatesConfig);
+                delegates.secrets = [bip39opts.forgerBip39];
+                delete delegates.bip38;
 
-        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+                fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 
-        await delay(750);
-
-        spinner.succeed("Configured forger!");
+                await delay(500);
+            })
+            .runTasks();
     }
 }

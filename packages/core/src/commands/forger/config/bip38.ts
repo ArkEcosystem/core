@@ -4,7 +4,6 @@ import bip38 from "bip38";
 import bip39 from "bip39";
 import delay from "delay";
 import fs from "fs-extra";
-import ora from "ora";
 import prompts from "prompts";
 import wif from "wif";
 import Command from "../../command";
@@ -49,36 +48,37 @@ export class ConfigureBIP38 extends Command {
     }
 
     private async performConfiguration(options) {
-        const spinner = ora("Configuring forger...").start();
-
         const delegatesConfig = `${options.config}/delegates.json`;
+        let decodedWIF;
 
-        if (!fs.existsSync(delegatesConfig)) {
-            return spinner.fail(`Couldn't find the core configuration files at ${delegatesConfig}.`);
-        }
+        await this.addTask("Prepare configuration", async () => {
+            if (!fs.existsSync(delegatesConfig)) {
+                throw new Error(`Couldn't find the core configuration at ${delegatesConfig}.`);
+            }
 
-        spinner.text = "Preparing crypto...";
-        configManager.setFromPreset(options.network);
+            await delay(500);
+        })
+            .addTask("Prepare crypto", async () => {
+                configManager.setFromPreset(options.network);
 
-        await delay(750);
+                await delay(500);
+            })
+            .addTask("Loading private key", async () => {
+                const keys = crypto.getKeys(options.forgerBip39);
+                // @ts-ignore
+                decodedWIF = wif.decode(crypto.keysToWIF(keys));
 
-        spinner.text = "Loading private key...";
-        const keys = crypto.getKeys(options.forgerBip39);
-        // @ts-ignore
-        const decoded = wif.decode(crypto.keysToWIF(keys));
+                await delay(500);
+            })
+            .addTask("Encrypt BIP38", async () => {
+                const delegates = require(delegatesConfig);
+                delegates.bip38 = bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, options.forgerBip38);
+                delegates.secrets = [];
 
-        await delay(750);
+                fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
 
-        spinner.text = "Encrypting BIP38...";
-
-        const delegates = require(delegatesConfig);
-        delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, options.forgerBip38);
-        delegates.secrets = []; // remove the plain text secrets in favour of bip38
-
-        fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
-
-        await delay(750);
-
-        spinner.succeed("Configured forger!");
+                await delay(500);
+            })
+            .runTasks();
     }
 }

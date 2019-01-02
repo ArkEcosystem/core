@@ -1,7 +1,6 @@
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
-import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
 import Command from "../command";
@@ -10,7 +9,7 @@ import { ConfigPublish } from "./publish";
 export class ConfigReset extends Command {
     public static description = "Reset the configuration";
 
-    public static examples = [`$ ark config:get`];
+    public static examples = [`$ ark config:reset`];
 
     public static flags = {
         ...Command.flagsNetwork,
@@ -34,14 +33,22 @@ export class ConfigReset extends Command {
     }
 
     private async performReset(flags) {
-        const spinner = ora("Removing configuration...").start();
+        const configDir = resolve(expandHomeDir(flags.config));
 
-        fs.removeSync(resolve(expandHomeDir(flags.config)));
+        await this.addTask("Remove configuration", async () => {
+            if (!fs.existsSync(configDir)) {
+                throw new Error(`Couldn't find the core configuration at ${configDir}.`);
+            }
 
-        await delay(750);
+            fs.removeSync(configDir);
 
-        spinner.succeed("Removed configuration!");
+            await delay(500);
+        })
+            .addTask("Publish configuration", async () => {
+                await ConfigPublish.run();
 
-        await ConfigPublish.run();
+                await delay(500);
+            })
+            .runTasks();
     }
 }

@@ -1,7 +1,6 @@
 import delay from "delay";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
-import ora from "ora";
 import { resolve } from "path";
 import prompts from "prompts";
 import Command from "../command";
@@ -9,7 +8,7 @@ import Command from "../command";
 export class ConfigPublish extends Command {
     public static description = "Publish the configuration";
 
-    public static examples = [`$ ark config:get`];
+    public static examples = [`$ ark config:publish`];
 
     public static flags = {
         ...Command.flagsNetwork,
@@ -49,26 +48,28 @@ export class ConfigPublish extends Command {
     }
 
     private async performPublishment(response) {
-        const spinner = ora("Searching configuration...").start();
-
-        // create .env file
-
         const coreConfigDest = resolve(expandHomeDir(response.config));
         const coreConfigSrc = resolve(__dirname, `../../config/${response.network}`);
 
-        if (!fs.existsSync(coreConfigSrc)) {
-            return spinner.fail(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
-        }
+        await this.addTask("Prepare directories", async () => {
+            if (!fs.existsSync(coreConfigSrc)) {
+                throw new Error(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
+            }
 
-        fs.ensureDirSync(coreConfigDest);
+            fs.ensureDirSync(coreConfigDest);
 
-        await delay(750);
+            await delay(500);
+        })
+            .addTask("Publish environment", async () => {
+                //
 
-        spinner.text = "Publishing core configuration...";
-        fs.copySync(coreConfigSrc, coreConfigDest);
+                await delay(500);
+            })
+            .addTask("Publish configuration", async () => {
+                fs.copySync(coreConfigSrc, coreConfigDest);
 
-        await delay(750);
-
-        spinner.succeed("Published configuration!");
+                await delay(500);
+            })
+            .runTasks();
     }
 }

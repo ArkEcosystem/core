@@ -1,4 +1,5 @@
 import Command, { flags } from "@oclif/command";
+import Listr from "listr";
 import { resolve } from "path";
 
 // tslint:disable-next-line:no-default-export
@@ -48,6 +49,8 @@ export default abstract class extends Command {
         }),
     };
 
+    protected tasks: Array<{ title: string; task: any }> = [];
+
     protected async buildApplication(app, flags) {
         const modifiers: any = { skipPlugins: flags.skipPlugins };
 
@@ -91,5 +94,21 @@ export default abstract class extends Command {
         }
 
         return mappedFlags.join(" ");
+    }
+
+    protected addTask(title: string, task: any): this {
+        this.tasks.push({ title, task });
+
+        return this;
+    }
+
+    protected async runTasks(): Promise<void> {
+        try {
+            const tasks = new Listr(this.tasks);
+            await tasks.run();
+            console.log("executed");
+        } catch (error) {
+            console.log(error);
+        }
     }
 }
