@@ -185,7 +185,6 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
     }
 
     const publicKey = calculatePublicKey(passFactor, true);
-
     const seedBPass = crypto.scryptSync(publicKey, Buffer.concat([addressHash, ownerEntropy]), 64, {
         N: 1024,
         r: 1,
@@ -209,9 +208,10 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
 
     const seedBPart1 = xor(decipher2.read(), derivedHalf1.slice(0, 16));
     const seedB = Buffer.concat([seedBPart1, seedBPart2], 24);
+    const privateKey = secp256k1.privateKeyTweakMul(HashAlgorithms.hash256(seedB), passFactor);
 
     return {
-        privateKey: secp256k1.privateKeyTweakMul(passFactor, seedB),
+        privateKey,
         compressed,
     };
 }
