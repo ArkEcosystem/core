@@ -1,7 +1,6 @@
 import { models } from "@arkecosystem/crypto";
 
 export interface IStateStorage {
-
     reset(): void;
 
     /**
@@ -59,7 +58,7 @@ export interface IStateStorage {
     /**
      * Cache the ids of the given transactions.
      */
-    cacheTransactions(transactions: models.Transaction[]): { [key in 'added' | 'notAdded']: models.Transaction[] };
+    cacheTransactions(transactions: models.Transaction[]): { [key in "added" | "notAdded"]: models.Transaction[] };
 
     /**
      * Remove the given transaction ids from the cache.

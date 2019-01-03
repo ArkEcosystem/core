@@ -1,18 +1,17 @@
 import dayjs from "dayjs-ext";
 
-import { constants, models} from "@arkecosystem/crypto";
+import { constants, models } from "@arkecosystem/crypto";
 
 export interface AddTransactionResponseDTO {
-    success: boolean
+    success: boolean;
 }
 export interface AddTransactionErrorDTO extends AddTransactionResponseDTO {
-    transaction: models.Transaction,
-    type: string,
-    message: string,
+    transaction: models.Transaction;
+    type: string;
+    message: string;
 }
 
 export interface ITransactionPool {
-
     options: any;
 
     make(): Promise<this>;
@@ -48,15 +47,17 @@ export interface ITransactionPool {
      *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
      * }
      */
-    addTransactions(transactions: models.Transaction[]): {
+    addTransactions(
+        transactions: models.Transaction[],
+    ): {
         added: models.Transaction[];
-        notAdded: AddTransactionErrorDTO[]
+        notAdded: AddTransactionErrorDTO[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: models.Transaction): AddTransactionResponseDTO
+    addTransaction(transaction: models.Transaction): AddTransactionResponseDTO;
 
     /**
      * Remove a transaction from the pool by transaction object.

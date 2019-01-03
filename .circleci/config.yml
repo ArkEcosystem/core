@@ -46,6 +46,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -59,23 +61,22 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-vote-report
-          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
+          name: core-webhooks
+          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
       - run:
-          name: core-tester-cli
-          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
+          name: core-transaction-pool
+          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
       - run:
-          name: core-snapshots
-          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
+          name: core-logger-winston
+          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-logger
-          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
+          name: core-jest-matchers
+          command: 'cd ~/ark-core/packages/core-jest-matchers && yarn test:coverage'
       - run:
           name: core-graphql
           command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
@@ -141,6 +142,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -154,23 +157,22 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-vote-report
-          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
+          name: core-webhooks
+          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
       - run:
-          name: core-tester-cli
-          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
+          name: core-transaction-pool
+          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
       - run:
-          name: core-snapshots
-          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
+          name: core-logger-winston
+          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-logger
-          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
+          name: core-jest-matchers
+          command: 'cd ~/ark-core/packages/core-jest-matchers && yarn test:coverage'
       - run:
           name: core-graphql
           command: 'cd ~/ark-core/packages/core-graphql && yarn test:coverage'
@@ -236,6 +238,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -249,7 +253,6 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -316,6 +319,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -329,20 +334,25 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-webhooks
-          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
+          name: crypto
+          command: 'cd ~/ark-core/packages/crypto && yarn test:coverage'
       - run:
-          name: core-transaction-pool
-          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
+          name: core-utils
+          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
       - run:
-          name: core-logger-winston
-          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
+          name: core-test-utils
+          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+      - run:
+          name: core-p2p
+          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+      - run:
+          name: core-json-rpc
+          command: 'cd ~/ark-core/packages/core-json-rpc && yarn test:coverage'
       - run:
           name: core-http-utils
           command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
@@ -408,6 +418,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -421,26 +433,22 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: crypto
-          command: 'cd ~/ark-core/packages/crypto && yarn test:coverage'
+          name: core-vote-report
+          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
       - run:
-          name: core-utils
-          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+          name: core-tester-cli
+          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
       - run:
-          name: core-test-utils
-          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+          name: core-snapshots
+          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
       - run:
-          name: core-p2p
-          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
-      - run:
-          name: core-json-rpc
-          command: 'cd ~/ark-core/packages/core-json-rpc && yarn test:coverage'
+          name: core-logger
+          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
           name: core-forger
           command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
@@ -500,6 +508,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -513,7 +523,6 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -580,6 +589,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -593,20 +604,25 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: core-webhooks
-          command: 'cd ~/ark-core/packages/core-webhooks && yarn test:coverage'
+          name: crypto
+          command: 'cd ~/ark-core/packages/crypto && yarn test:coverage'
       - run:
-          name: core-transaction-pool
-          command: 'cd ~/ark-core/packages/core-transaction-pool && yarn test:coverage'
+          name: core-utils
+          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
       - run:
-          name: core-logger-winston
-          command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
+          name: core-test-utils
+          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+      - run:
+          name: core-p2p
+          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
+      - run:
+          name: core-json-rpc
+          command: 'cd ~/ark-core/packages/core-json-rpc && yarn test:coverage'
       - run:
           name: core-http-utils
           command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
@@ -672,6 +688,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -685,26 +703,22 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
-          name: crypto
-          command: 'cd ~/ark-core/packages/crypto && yarn test:coverage'
+          name: core-vote-report
+          command: 'cd ~/ark-core/packages/core-vote-report && yarn test:coverage'
       - run:
-          name: core-utils
-          command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
+          name: core-tester-cli
+          command: 'cd ~/ark-core/packages/core-tester-cli && yarn test:coverage'
       - run:
-          name: core-test-utils
-          command: 'cd ~/ark-core/packages/core-test-utils && yarn test:coverage'
+          name: core-snapshots
+          command: 'cd ~/ark-core/packages/core-snapshots && yarn test:coverage'
       - run:
-          name: core-p2p
-          command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
-      - run:
-          name: core-json-rpc
-          command: 'cd ~/ark-core/packages/core-json-rpc && yarn test:coverage'
+          name: core-logger
+          command: 'cd ~/ark-core/packages/core-logger && yarn test:coverage'
       - run:
           name: core-forger
           command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'

@@ -2,7 +2,7 @@ import get from "lodash/get";
 import set from "lodash/set";
 
 export class Config {
-    private config : any;
+    private config: any;
 
     public init(options: any): void {
         this.config = options;

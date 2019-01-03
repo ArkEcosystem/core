@@ -19,7 +19,6 @@ beforeAll(async () => {
     // wrong network config.
     genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
     genesisTransaction = new Transaction(genesisBlock.transactions[0]);
-
 });
 
 afterAll(async () => {

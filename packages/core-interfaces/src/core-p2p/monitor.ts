@@ -42,7 +42,7 @@ export interface IMonitor {
      * Get a list of all suspended peers.
      * @return {void}
      */
-    getSuspendedPeers(): { [ip: string]: any; };
+    getSuspendedPeers(): { [ip: string]: any };
 
     /**
      * Get all available peers.

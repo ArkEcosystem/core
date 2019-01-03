@@ -1,7 +1,6 @@
 import { models } from "@arkecosystem/crypto";
 
 export interface IPeer {
-
     setHeaders(headers: any): void;
 
     /**

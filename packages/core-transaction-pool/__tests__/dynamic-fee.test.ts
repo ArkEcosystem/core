@@ -1,10 +1,10 @@
-import {  Blockchain, Container } from "@arkecosystem/core-interfaces";
-import { config } from "../src";
+import { Blockchain, Container } from "@arkecosystem/core-interfaces";
 import { dynamicFeeMatcher } from "../dist/dynamic-fee";
+import { config } from "../src";
 import { transactions } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 
-let blockchain : Blockchain.IBlockchain;
+let blockchain: Blockchain.IBlockchain;
 let container: Container.IContainer;
 
 beforeAll(async () => {

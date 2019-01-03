@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger, TransactionPool as transactionPool} from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, TransactionPool as transactionPool } from "@arkecosystem/core-interfaces";
 
 import assert from "assert";
 import dayjs from "dayjs-ext";

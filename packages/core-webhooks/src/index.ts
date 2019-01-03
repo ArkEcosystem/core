@@ -4,7 +4,7 @@ import { defaults } from "./defaults";
 import { webhookManager } from "./manager";
 import { startServer } from "./server";
 
-export const plugin : Container.PluginDescriptor = {
+export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "webhooks",

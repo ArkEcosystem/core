@@ -4,7 +4,7 @@ import { TransactionPool } from "./connection";
 import { defaults } from "./defaults";
 import { transactionPoolManager } from "./manager";
 
-export const plugin : Container.PluginDescriptor = {
+export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "transactionPool",

@@ -8,7 +8,7 @@ import { startServer } from "./server";
 import { client } from "./services/client";
 import { storage } from "./services/storage";
 
-export const plugin : Container.PluginDescriptor = {
+export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "elasticsearch",

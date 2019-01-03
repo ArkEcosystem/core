@@ -10,5 +10,5 @@ export const plugin: Container.PluginDescriptor = {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting Database Manager");
 
         return new DatabaseManager();
-    }
+    },
 };

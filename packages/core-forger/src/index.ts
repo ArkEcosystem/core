@@ -3,7 +3,7 @@ import pluralize from "pluralize";
 import { defaults } from "./defaults";
 import { ForgerManager } from "./manager";
 
-export const plugin : Container.PluginDescriptor = {
+export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "forger",
