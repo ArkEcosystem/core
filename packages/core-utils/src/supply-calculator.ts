@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import { Bignum, configManager } from "@arkecosystem/crypto";
 
 /**
@@ -10,7 +11,7 @@ function calculate(height) {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
         height = blockchain ? blockchain.getLastBlock().data.height : 0;
     }
 

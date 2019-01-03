@@ -32,8 +32,8 @@ module.exports = {
         maxTransactionAge: 4036608000,
         dynamicFees: {
             minFeePool: 1000,
-            minFeeBroadcast: 1000
-        }
+            minFeeBroadcast: 1000,
+        },
     },
     "@arkecosystem/core-p2p": {
         host: process.env.ARK_P2P_HOST || "0.0.0.0",

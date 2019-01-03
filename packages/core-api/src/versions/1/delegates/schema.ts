@@ -1,5 +1,7 @@
 import { app } from "@arkecosystem/core-container";
-const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
+import { Blockchain } from "@arkecosystem/core-interfaces";
+
+const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
 export const forgingStatus: object = {
     type: "object",

@@ -3,7 +3,6 @@
 import { ConnectionInterface } from "../../src";
 
 export class DummyConnection extends ConnectionInterface {
-
     constructor(options: any) {
         super(options);
     }

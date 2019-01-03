@@ -1,5 +1,5 @@
-import { AbstractLogger } from "@arkecosystem/core-logger";
-import { createContainer } from "awilix";
+import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { createContainer, Resolver } from "awilix";
 import { execSync } from "child_process";
 import delay from "delay";
 import semver from "semver";
@@ -7,11 +7,13 @@ import { configManager } from "./config";
 import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
 
-export class Container {
-    public container: any;
+export class Container implements container.IContainer {
     public options: any;
     public exitEvents: any;
-    public silentShutdown: boolean;
+    /**
+     * May be used by CLI programs to suppress the shutdown messages.
+     */
+    public silentShutdown = false;
     public hashid: string;
     public plugins: any;
     public shuttingDown: boolean;
@@ -19,20 +21,13 @@ export class Container {
     public isReady: boolean = false;
     public variables: any;
     public config: any;
+    private container = createContainer();
 
     /**
      * Create a new container instance.
      * @constructor
      */
     constructor() {
-        this.container = createContainer();
-
-        /**
-         * May be used by CLI programs to suppress the shutdown
-         * messages.
-         */
-        this.silentShutdown = false;
-
         /**
          * The git commit hash of the repository. Used during development to
          * easily idenfity nodes based on their commit hash and version.
@@ -101,13 +96,11 @@ export class Container {
 
     /**
      * Add a new registration.
-     * @param  {string} key
-     * @return {Object}
-     * @throws {Error}
      */
-    public register(name, resolver) {
+    public register<T>(name, resolver: Resolver<T>) {
         try {
-            return this.container.register(name, resolver);
+            this.container.register(name, resolver);
+            return this;
         } catch (err) {
             throw new Error(err.message);
         }
@@ -121,7 +114,7 @@ export class Container {
      */
     public resolve<T = any>(key): T {
         try {
-            return this.container.resolve(key) as T;
+            return this.container.resolve<T>(key);
         } catch (err) {
             throw new Error(err.message);
         }
@@ -135,7 +128,7 @@ export class Container {
      */
     public resolvePlugin<T = any>(key): T {
         try {
-            return this.container.resolve(key).plugin as T;
+            return this.container.resolve<container.PluginConfig<T>>(key).plugin;
         } catch (err) {
             return null;
         }
@@ -149,7 +142,7 @@ export class Container {
      */
     public resolveOptions(key) {
         try {
-            return this.container.resolve(key).options;
+            return this.container.resolve<container.PluginConfig<any>>(key).options;
         } catch (err) {
             throw err;
         }
@@ -190,7 +183,7 @@ export class Container {
     public exit(exitCode, message, error = null) {
         this.shuttingDown = true;
 
-        const logger = this.resolvePlugin<AbstractLogger>("logger");
+        const logger = this.resolvePlugin<Logger.ILogger>("logger");
         logger.error(":boom: Container force shutdown :boom:");
         logger.error(message);
 
@@ -245,7 +238,7 @@ export class Container {
 
             this.shuttingDown = true;
 
-            const logger = this.resolvePlugin<AbstractLogger>("logger");
+            const logger = this.resolvePlugin<Logger.ILogger>("logger");
             logger.suppressConsoleOutput(this.silentShutdown);
             logger.info("Ark Core is trying to gracefully shut down to avoid data corruption :pizza:");
 
@@ -257,7 +250,7 @@ export class Container {
                  */
                 const database = this.resolvePlugin("database");
                 if (database) {
-                    const emitter = this.resolvePlugin("event-emitter");
+                    const emitter = this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
                     // Notify plugins about shutdown
                     emitter.emit("shutdown");

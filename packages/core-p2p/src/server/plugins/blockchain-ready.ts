@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 
 /**
@@ -15,7 +16,7 @@ const register = async (server, options) => {
                 return h.continue;
             }
 
-            if (!app.resolvePlugin("blockchain")) {
+            if (!app.resolvePlugin<Blockchain.IBlockchain>("blockchain")) {
                 return Boom.serverUnavailable("Blockchain not ready");
             }
 

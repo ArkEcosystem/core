@@ -1,12 +1,11 @@
 import "@arkecosystem/core-test-utils";
-
 import { asValue } from "awilix";
-
+import { Blockchain } from "../src/blockchain";
 import { setUp, tearDown } from "./__support__/setup";
 
 let stateMachine;
 let container;
-let blockchain;
+let blockchain: Blockchain;
 
 beforeAll(async () => {
     container = await setUp();

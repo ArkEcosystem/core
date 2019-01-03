@@ -1,15 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import prettyMs from "pretty-ms";
 
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 let tracker = null;
 
 export function tickSyncTracker(blockCount, count) {
     if (!tracker) {
         tracker = {
             start: new Date().getTime(),
-            networkHeight: app.resolvePlugin("p2p").getNetworkHeight(),
+            networkHeight: app.resolvePlugin<P2P.IMonitor>("p2p").getNetworkHeight(),
             blocksInitial: +count,
             blocksDownloaded: +count,
             blocksSession: 0,

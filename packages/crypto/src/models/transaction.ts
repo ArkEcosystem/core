@@ -96,13 +96,17 @@ export class Transaction {
         bb.append(transaction.senderPublicKey, "hex");
         bb.writeUint64(+new Bignum(transaction.fee).toFixed());
 
-        if (transaction.vendorField) {
-            const vf = Buffer.from(transaction.vendorField, "utf8");
-            bb.writeByte(vf.length);
-            bb.append(vf);
-        } else if (transaction.vendorFieldHex) {
-            bb.writeByte(transaction.vendorFieldHex.length / 2);
-            bb.append(transaction.vendorFieldHex, "hex");
+        if (Transaction.canHaveVendorField(transaction.type)) {
+            if (transaction.vendorField) {
+                const vf = Buffer.from(transaction.vendorField, "utf8");
+                bb.writeByte(vf.length);
+                bb.append(vf);
+            } else if (transaction.vendorFieldHex) {
+                bb.writeByte(transaction.vendorFieldHex.length / 2);
+                bb.append(transaction.vendorFieldHex, "hex");
+            } else {
+                bb.writeByte(0x00);
+            }
         } else {
             bb.writeByte(0x00);
         }
@@ -185,9 +189,14 @@ export class Transaction {
         transaction.senderPublicKey = hexString.substring(16, 16 + 33 * 2);
         transaction.fee = new Bignum(buf.readUint64(41) as any);
 
-        const vflength = buf.readInt8(41 + 8);
-        if (vflength > 0) {
-            transaction.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vflength * 2);
+        let vflength = 0;
+
+        if (Transaction.canHaveVendorField(transaction.type)) {
+            vflength = buf.readInt8(41 + 8);
+
+            if (vflength > 0) {
+                transaction.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vflength * 2);
+            }
         }
 
         const assetOffset = (41 + 8 + 1) * 2 + vflength * 2;
@@ -351,6 +360,10 @@ export class Transaction {
                 signatures = signatures.substring(mlength * 2);
             }
         }
+    }
+
+    public static canHaveVendorField(type: number): boolean {
+        return [TransactionTypes.Transfer, TransactionTypes.TimelockTransfer].includes(type);
     }
 
     public senderPublicKey: any;

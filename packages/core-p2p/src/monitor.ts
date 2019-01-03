@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -17,18 +17,18 @@ import prettyMs from "pretty-ms";
 
 import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
+import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
-import { NetworkState } from "./utils/network-state";
 
 import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
 let config;
-let logger: AbstractLogger;
-let emitter;
+let logger: Logger.ILogger;
+let emitter: EventEmitter.EventEmitter;
 
-export class Monitor {
-    public readonly peers: { [ip: string]: Peer };
+export class Monitor implements P2P.IMonitor {
+    public peers: { [ip: string]: any };
     public server: any;
     public guard: Guard;
     public config: any;
@@ -60,8 +60,8 @@ export class Monitor {
         this.config = options;
 
         config = app.getConfig();
-        logger = app.resolvePlugin<AbstractLogger>("logger");
-        emitter = app.resolvePlugin("event-emitter");
+        logger = app.resolvePlugin<Logger.ILogger>("logger");
+        emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
         await this.__checkDNSConnectivity(options.dns);
         await this.__checkNTPConnectivity(options.ntp);
@@ -363,12 +363,12 @@ export class Monitor {
      * Get a random, available peer which can be used for downloading blocks.
      * @return {Peer}
      */
-    public async getRandomDownloadBlocksPeer(minHeight) {
+    public async getRandomDownloadBlocksPeer() {
         const randomPeer = this.getRandomPeer(null, 100);
 
         const recentBlockIds = await this.__getRecentBlockIds();
         if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
-            return this.getRandomDownloadBlocksPeer(minHeight);
+            return this.getRandomDownloadBlocksPeer();
         }
 
         return randomPeer;
@@ -448,7 +448,7 @@ export class Monitor {
         return isNaN(pbft) ? 0 : pbft;
     }
 
-    public async getNetworkState() {
+    public async getNetworkState(): Promise<NetworkState> {
         if (!this.__isColdStartActive()) {
             await this.cleanPeers(true, true);
         }
@@ -487,7 +487,7 @@ export class Monitor {
         let randomPeer;
 
         try {
-            randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight);
+            randomPeer = await this.getRandomDownloadBlocksPeer();
         } catch (error) {
             logger.error(`Could not download blocks: ${error.message}`);
 
@@ -515,7 +515,7 @@ export class Monitor {
      * @return {Promise}
      */
     public async broadcastBlock(block) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
             logger.info(`Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`);
@@ -661,7 +661,7 @@ export class Monitor {
                 // Rollback if last block is bad and quota high
                 logger.info(
                     `Last block id ${lastBlock.data.id} is bad, ` +
-                    `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
+                        `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
                 );
                 state = "rollback";
             }

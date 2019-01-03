@@ -28,8 +28,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
+        "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-logger": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@keyv/sqlite": "^2.0.0",

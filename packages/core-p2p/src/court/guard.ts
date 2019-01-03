@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import dayjs from "dayjs-ext";
 import head from "lodash/head";
 import sumBy from "lodash/sumBy";
@@ -11,7 +11,7 @@ import * as utils from "../utils";
 import { offences } from "./offences";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export interface ISuspension {
     peer: any;
@@ -35,7 +35,7 @@ export class Guard {
 
     /**
      * Initialise a new guard.
-     * @param {Monitor} monitor
+     * @param {IMonitor} monitor
      */
     public init(monitor) {
         this.monitor = monitor;

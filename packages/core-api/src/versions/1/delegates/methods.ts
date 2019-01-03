@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { generateCacheKey, getCacheTimeout } from "../../utils";
+import { ServerCache } from "../../../services";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
 const database = app.resolvePlugin<PostgresConnection>("database");
@@ -70,94 +70,21 @@ const voters = async request => {
 };
 
 export function registerMethods(server) {
-    const cacheDisabled = !server.app.config.cache.enabled;
-
-    server.method(
-        "v1.delegates.index",
-        index,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...request.query,
-                          ...{
-                              offset: request.query.offset || 0,
-                              limit: request.query.limit || 51,
-                          },
-                      }),
-              },
-    );
-
-    server.method(
-        "v1.delegates.show",
-        show,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          id: request.query.publicKey || request.query.username,
-                      }),
-              },
-    );
-
-    server.method(
-        "v1.delegates.count",
-        countDelegates,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ time: +new Date() }),
-              },
-    );
-
-    server.method(
-        "v1.delegates.search",
-        search,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...{ username: request.query.q },
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v1.delegates.voters",
-        voters,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ id: request.query.publicKey }),
-              },
-    );
+    ServerCache.make(server)
+        .method("v1.delegates.index", index, 8, request => ({
+            ...request.query,
+            ...{
+                offset: request.query.offset || 0,
+                limit: request.query.limit || 51,
+            },
+        }))
+        .method("v1.delegates.show", show, 8, request => ({
+            id: request.query.publicKey || request.query.username,
+        }))
+        .method("v1.delegates.count", countDelegates, 8, request => ({ time: +new Date() }))
+        .method("v1.delegates.search", search, 8, request => ({
+            ...{ username: request.query.q },
+            ...paginate(request),
+        }))
+        .method("v1.delegates.voters", voters, 8, request => ({ id: request.query.publicKey }));
 }

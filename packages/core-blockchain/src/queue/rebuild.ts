@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 import async from "async";
 import { QueueInterface } from "./interface";
 
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const { Block } = models;
 
 export class RebuildQueue extends QueueInterface {
