@@ -114,12 +114,11 @@ function generateYAML(options) {
 }
 
 function splitPackagesByTestFiles(packages, splitNumber) {
-    const packagesWithCount = packages.filter(item => {
-        return !slowPerformance.includes(item.package)
-    })
-
     const packagesSplit = new Array(splitNumber);
-    packagesWithCount.forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
+
+    packages.filter(item => {
+        return !slowPerformance.includes(item.package)
+    }).forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
 
     return packagesSplit;
 }
