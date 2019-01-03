@@ -32,8 +32,8 @@ export class Peer implements P2P.IPeer {
         status?: any;
     };
 
-    public url: string;
     public state: any;
+    public url: string;
     public lastPinged: dayjs.Dayjs | null;
 
     private config: any;

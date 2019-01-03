@@ -31,6 +31,7 @@
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-p2p": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@types/lodash.isempty": "^4.4.4",
         "@types/lodash.sample": "^4.2.4",

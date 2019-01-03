@@ -118,7 +118,7 @@ function splitPackagesByTestFiles(packages, splitNumber) {
 
     packages.filter(item => {
         return !slowPerformance.includes(item.package)
-    }).forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
+    }).sort().forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
 
     return packagesSplit;
 }

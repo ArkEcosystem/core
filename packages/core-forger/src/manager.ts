@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
@@ -131,7 +132,7 @@ export class ForgerManager {
 
             const networkState = await this.client.getNetworkState();
 
-            if (!this.__analyseNetworkState(networkState, delegate)) {
+            if (!this.__parseNetworkState(networkState, delegate)) {
                 await delay(delayTime); // we will check at next slot
 
                 return this.__monitor(round);
@@ -235,39 +236,61 @@ export class ForgerManager {
     }
 
     /**
-     * Analyses network state and decides if forging is allowed
+     * Parses the given network state and decides if forging is allowed.
      * @param {Object} networkState internal response
      * @param {Booolean} isAllowedToForge
      */
-    public __analyseNetworkState(networkState, currentForger) {
-        const badState = message => {
-            this.logger.info(message);
-            this.logger.debug(`Network State: ${JSON.stringify(networkState, null, 4)}`);
-
+    public __parseNetworkState(networkState, currentForger) {
+        if (networkState.status === NetworkStateStatus.Unknown) {
+            this.logger.info("Failed to get network state from client.");
             return false;
-        };
+        }
 
-        if (networkState.coldStart) {
-            return badState(
+        if (networkState.status === NetworkStateStatus.ColdStart) {
+            this.logger.info(
                 "Not allowed to forge during the cold start period. Check peers.json for coldStart setting.",
             );
+            return false;
         }
 
-        if (!networkState.minimumNetworkReach) {
-            return badState("Network reach is not sufficient to get quorum.");
+        if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
+            this.logger.info("Network reach is not sufficient to get quorum.");
+            return false;
         }
 
-        if (
-            networkState.overHeightBlockHeader &&
-            networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey
-        ) {
-            const usernames = this.usernames[currentForger.publicKey];
+        const overHeightBlockHeaders = networkState.getOverHeightBlockHeaders();
+        if (overHeightBlockHeaders.length > 0) {
+            this.logger.info(
+                `Detected ${overHeightBlockHeaders.length} distinct overheight block ${pluralize(
+                    "header",
+                    overHeightBlockHeaders.length,
+                    true,
+                )}.`,
+            );
 
-            return badState(`Possible double forging for delegate: ${usernames} (${currentForger.publicKey}).`);
+            let possibleDoubleForge = false;
+            for (const overHeightBlockHeader of overHeightBlockHeaders) {
+                if (overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
+                    const username = this.usernames[currentForger.publicKey];
+                    this.logger.warn(
+                        `Possible double forging delegate: ${username} (${currentForger.publicKey}) - Block: ${
+                            overHeightBlockHeader.id
+                        }`,
+                    );
+                    possibleDoubleForge = true;
+                }
+            }
+
+            if (possibleDoubleForge) {
+                this.logger.debug(`Network State: ${networkState.toJson()}`);
+                return false;
+            }
         }
 
-        if (networkState.quorum < 0.66) {
-            return badState("Fork 6 - Not enough quorum to forge next block.");
+        if (networkState.getQuorum() < 0.66) {
+            this.logger.info("Fork 6 - Not enough quorum to forge next block.");
+            this.logger.debug(`Network State: ${networkState.toJson()}`);
+            return false;
         }
 
         return true;

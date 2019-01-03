@@ -28,6 +28,7 @@ export const timelockTransfer = transaction => {
             signatures: Engine.joi.array(),
             secondSignature: Engine.joi.string().alphanum(),
             asset: Engine.joi.object().required(),
+            vendorField: Engine.joi.string().max(64, "utf8"),
             confirmations: Engine.joi
                 .number()
                 .integer()

@@ -122,16 +122,33 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                     const trx = new Transaction(transaction);
                     if (trx.verified) {
                         const dynamicFee = dynamicFeeMatcher(trx);
-                        if (dynamicFee.enterPool) {
-                            this.accept.set(trx.id, trx);
-                        } else {
-                            this.__pushError(transaction, "ERR_LOW_FEE", "Too low fee to be accepted in the pool");
-                        }
 
-                        if (dynamicFee.broadcast) {
-                            this.broadcast.set(trx.id, trx);
+                        if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
+                            this.__pushError(
+                                transaction,
+                                "ERR_LOW_FEE",
+                                "The fee is too low to broadcast or accept the transaction",
+                            );
                         } else {
-                            this.__pushError(transaction, "ERR_LOW_FEE", "Too low fee for broadcast");
+                            if (dynamicFee.enterPool) {
+                                this.accept.set(trx.id, trx);
+                            } else {
+                                this.__pushError(
+                                    transaction,
+                                    "ERR_LOW_FEE_POOL",
+                                    "The fee is too low to accept the transaction",
+                                );
+                            }
+
+                            if (dynamicFee.broadcast) {
+                                this.broadcast.set(trx.id, trx);
+                            } else {
+                                this.__pushError(
+                                    transaction,
+                                    "ERR_LOW_FEE_BROADCAST",
+                                    "The fee is too low to broadcast the transaction",
+                                );
+                            }
                         }
                     } else {
                         this.__pushError(
