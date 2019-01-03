@@ -8,7 +8,7 @@ const config = app.getConfig();
 
 /**
  * Returns current network state. Peers are update before the call
- * @param {Monitor} monitor
+ * @param {IMonitor} monitor
  * @private {Block} lastBlock
  * @returns {Object} JSON response for the forger to assess if allowed to forge or not
  */

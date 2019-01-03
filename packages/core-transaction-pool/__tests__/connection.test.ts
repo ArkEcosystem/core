@@ -6,7 +6,7 @@ import { bignumify } from "@arkecosystem/core-utils";
 import { constants, models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import randomSeed from "random-seed";
-import { TransactionPool } from "../src";
+import { TransactionPool } from "../dist";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDown } from "./__support__/setup";
 

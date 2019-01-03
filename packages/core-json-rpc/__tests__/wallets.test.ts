@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { Peer } from "@arkecosystem/core-p2p/dist/peer";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { sendRequest } from "./__support__/request";

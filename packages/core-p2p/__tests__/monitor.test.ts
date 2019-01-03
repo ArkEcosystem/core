@@ -1,20 +1,17 @@
 /* tslint:disable:max-line-length  */
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-
-import { defaults } from "../src/defaults";
+import { defaults } from "../dist/defaults";
+import { Peer } from "../dist/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
 
+let peerMock: Peer;
 let monitor;
-let Peer;
-let peerMock;
 
 beforeAll(async () => {
     await setUp();
-
-    Peer = require("../dist/peer").Peer;
     monitor = require("../dist/monitor").monitor;
 });
 

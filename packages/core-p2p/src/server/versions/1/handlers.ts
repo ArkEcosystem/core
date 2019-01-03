@@ -1,17 +1,16 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { crypto, Joi, models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
 
-const { Block, Transaction } = models;
+const { Block } = models;
 
 const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
-const config = app.getConfig();
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
  * @type {Object}
@@ -52,7 +51,7 @@ export const getHeight = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
+        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
         return {
             success: true,
@@ -78,7 +77,7 @@ export const getCommonBlocks = {
             };
         }
 
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         const ids = request.query.ids
             .split(",")
@@ -126,7 +125,7 @@ export const getStatus = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
+        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
         return {
             success: true,
@@ -148,7 +147,7 @@ export const postBlock = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         try {
             if (!request.payload || !request.payload.block) {
@@ -217,7 +216,7 @@ export const postTransactions = {
         }
 
         if (result.broadcast.length > 0) {
-            app.resolvePlugin("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+            app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
         }
 
         return {
@@ -252,7 +251,7 @@ export const getBlocks = {
     async handler(request, h) {
         try {
             const database = app.resolvePlugin<PostgresConnection>("database");
-            const blockchain = app.resolvePlugin("blockchain");
+            const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
             const reqBlockHeight = +request.query.lastBlockHeight + 1;
             let blocks = [];

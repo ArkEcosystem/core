@@ -3,7 +3,7 @@ import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import Boom from "boom";
 import orderBy from "lodash/orderBy";
 import { blocksRepository } from "../../../repositories";
-import { generateCacheKey, getCacheTimeout } from "../../utils";
+import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const database = app.resolvePlugin<PostgresConnection>("database");
@@ -79,112 +79,24 @@ const voterBalances = async request => {
 };
 
 export function registerMethods(server) {
-    const cacheDisabled = !server.app.config.cache.enabled;
-
-    server.method(
-        "v2.delegates.index",
-        index,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...request.query,
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v2.delegates.show",
-        show,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ id: request.params.id }),
-              },
-    );
-
-    server.method(
-        "v2.delegates.search",
-        search,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 30 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...request.payload,
-                          ...request.query,
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v2.delegates.blocks",
-        blocks,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...{ id: request.params.id },
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v2.delegates.voters",
-        voters,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...{ id: request.params.id },
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v2.delegates.voterBalances",
-        voterBalances,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ id: request.params.id }),
-              },
-    );
+    ServerCache.make(server)
+        .method("v2.delegates.index", index, 8, request => ({
+            ...request.query,
+            ...paginate(request),
+        }))
+        .method("v2.delegates.show", show, 8, request => ({ id: request.params.id }))
+        .method("v2.delegates.search", search, 30, request => ({
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        }))
+        .method("v2.delegates.blocks", blocks, 8, request => ({
+            ...{ id: request.params.id },
+            ...paginate(request),
+        }))
+        .method("v2.delegates.voters", voters, 8, request => ({
+            ...{ id: request.params.id },
+            ...paginate(request),
+        }))
+        .method("v2.delegates.voterBalances", voterBalances, 8, request => ({ id: request.params.id }));
 }

@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import first from "lodash/first";
 import last from "lodash/last";
 import { client } from "../services/client";
@@ -10,8 +10,8 @@ import { Index } from "./index";
 import { models } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
-const emitter = app.resolvePlugin("event-emitter");
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const database = app.resolvePlugin<PostgresConnection>("database");
 
 class TransactionIndex extends Index {

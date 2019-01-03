@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Blockchain, EventEmitter } from "@arkecosystem/core-interfaces";
 
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 import * as schema from "../schemas/utils";
 
@@ -15,7 +15,7 @@ export const usernames = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
         const database = blockchain.database;
         const walletManager = database.walletManager;
 

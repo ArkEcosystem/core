@@ -8,9 +8,8 @@ import { asValue } from "awilix";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import delay from "delay";
-
-import { defaults } from "../src/defaults";
-
+import { Blockchain } from "../dist/blockchain";
+import { defaults } from "../dist/defaults";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
@@ -19,7 +18,7 @@ const { Block, Wallet } = models;
 let genesisBlock;
 let configManager;
 let container;
-let blockchain;
+let blockchain: Blockchain;
 let logger;
 let loggerDebugBackup;
 let peerMock;
@@ -104,7 +103,7 @@ describe("Blockchain", () => {
             const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
 
             blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2, false);
+            await blockchain.postTransactions(transactionsWithoutType2);
             const transactions = blockchain.transactionPool.getTransactions(0, 200);
 
             expect(transactions.length).toBe(transactionsWithoutType2.length);
@@ -238,7 +237,7 @@ describe("Blockchain", () => {
             const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
 
             blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2, false);
+            await blockchain.postTransactions(transactionsWithoutType2);
             const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
 
             expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);

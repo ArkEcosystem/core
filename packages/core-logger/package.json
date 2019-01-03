@@ -27,6 +27,9 @@
         "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
+    "dependencies": {
+        "@arkecosystem/core-interfaces": "^2.1.0"
+    },
     "publishConfig": {
         "access": "public"
     },

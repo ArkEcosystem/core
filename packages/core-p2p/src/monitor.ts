@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -24,11 +24,11 @@ import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin<AbstractLogger>("logger");
-const emitter = app.resolvePlugin("event-emitter");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-class Monitor {
-    public readonly peers: { [ip: string]: any };
+export class Monitor implements P2P.IMonitor {
+    public peers: { [ip: string]: any };
     public server: any;
     public guard: Guard;
     public config: any;
@@ -359,12 +359,12 @@ class Monitor {
      * Get a random, available peer which can be used for downloading blocks.
      * @return {Peer}
      */
-    public async getRandomDownloadBlocksPeer(minHeight) {
+    public async getRandomDownloadBlocksPeer() {
         const randomPeer = this.getRandomPeer(null, 100);
 
         const recentBlockIds = await this.__getRecentBlockIds();
         if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
-            return this.getRandomDownloadBlocksPeer(minHeight);
+            return this.getRandomDownloadBlocksPeer();
         }
 
         return randomPeer;
@@ -449,7 +449,7 @@ class Monitor {
             await this.cleanPeers(true, true);
         }
 
-        return networkState(this, app.resolvePlugin("blockchain").getLastBlock());
+        return networkState(this, app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock());
     }
 
     /**
@@ -483,7 +483,7 @@ class Monitor {
         let randomPeer;
 
         try {
-            randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight);
+            randomPeer = await this.getRandomDownloadBlocksPeer();
         } catch (error) {
             logger.error(`Could not download blocks: ${error.message}`);
 
@@ -511,7 +511,7 @@ class Monitor {
      * @return {Promise}
      */
     public async broadcastBlock(block) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
             logger.info(`Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`);

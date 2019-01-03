@@ -15,7 +15,7 @@ export class PluginRegistrar {
 
     /**
      * Create a new plugin manager instance.
-     * @param  {Container} container
+     * @param  {IContainer} container
      * @param  {Object} options
      */
     constructor(container, options: any = {}) {

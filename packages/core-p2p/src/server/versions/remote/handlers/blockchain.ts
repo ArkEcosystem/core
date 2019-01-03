@@ -12,6 +12,9 @@ export const emitEvent = {
      * @return {Hapi.Response}
      */
     handler: (request, h) => {
+        /* TODO: Where is this 'events' property coming from? I don't see it set anywhere in core-blockchain.
+         Leave untyped until I figure out what the proper implementation should be.
+         */
         const event = app.resolvePlugin("blockchain").events[request.params.event];
 
         request.query.param ? event(request.query.params) : event();

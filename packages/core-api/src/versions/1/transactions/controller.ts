@@ -1,11 +1,11 @@
 import { app } from "@arkecosystem/core-container";
-import { TransactionPool } from "@arkecosystem/core-transaction-pool";
+import { TransactionPool } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
-    protected transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
+    protected transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
 
     public constructor() {
         super();
@@ -35,10 +35,11 @@ export class TransactionsController extends Controller {
         try {
             const pagination = super.paginate(request);
 
-            let transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit);
-            transactions = transactions.map(transaction => ({
-                serialized: transaction,
-            }));
+            const transactions = this.transactionPool
+                .getTransactions(pagination.offset, pagination.limit)
+                .map(transaction => ({
+                    serialized: transaction,
+                }));
 
             return super.respondWith({
                 transactions: super.toCollection(request, transactions, "transaction"),

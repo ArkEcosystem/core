@@ -114,40 +114,11 @@ function generateYAML(options) {
 }
 
 function splitPackagesByTestFiles(packages, splitNumber) {
-    /* distribute test packages by test files count : start by most files package,
-     and distribute package by package in each _packagesSplit_ (not the most effective
-     distribution but simple and enough for now) */
-    const packagesWithCount = packages.map(package => ({
-        package,
-        count: countFiles(`packages/${package}/__tests__`, ".test.js"),
-    })).filter(item => {
-        return !slowPerformance.includes(item.package)
-    })
-
-    const packagesSortedByCount = packagesWithCount.sort((pkgA, pkgB) => pkgA.count > pkgB.count);
-
     const packagesSplit = new Array(splitNumber);
-    packagesSortedByCount.forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg.package].concat(packagesSplit[index % splitNumber] || [])));
+
+    packages.filter(item => {
+        return !slowPerformance.includes(item.package)
+    }).forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
 
     return packagesSplit;
-}
-
-function countFiles(startPath, filter) {
-    let count = 0;
-    if (!fs.existsSync(startPath)) {
-        return;
-    }
-
-    var files = fs.readdirSync(startPath);
-    for (let i = 0; i < files.length; i++) {
-        const filename = path.join(startPath, files[i]);
-        const stat = fs.lstatSync(filename);
-        if (stat.isDirectory()) {
-            count += countFiles(filename, filter);
-        } else if (filename.indexOf(filter) >= 0) {
-            count++;
-        }
-    }
-
-    return count;
 }

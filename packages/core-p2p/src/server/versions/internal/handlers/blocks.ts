@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import * as schema from "../schemas/blocks";
 
 /**
@@ -13,7 +14,7 @@ export const store = {
     handler: (request, h) => {
         request.payload.block.ip = request.info.remoteAddress;
 
-        app.resolvePlugin("blockchain").queueBlock(request.payload.block);
+        app.resolvePlugin<Blockchain.IBlockchain>("blockchain").queueBlock(request.payload.block);
 
         return h.response(null).code(204);
     },

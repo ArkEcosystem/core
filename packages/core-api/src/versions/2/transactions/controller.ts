@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
@@ -34,7 +35,7 @@ export class TransactionsController extends Controller {
             const result = await guard.validate(request.payload.transactions);
 
             if (result.broadcast.length > 0) {
-                app.resolvePlugin("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+                app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
             }
 
             return {

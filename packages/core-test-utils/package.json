@@ -3,7 +3,9 @@
     "description": "Test Utilities for Ark Core",
     "version": "2.1.0",
     "contributors": [
-        "Brian Faust <brian@ark.io>"
+        "Brian Faust <brian@ark.io>",
+        "Erwann Gentric <erwann@ark.io>",
+        "Joshua Noack <joshua@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
@@ -27,7 +29,9 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
+        "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-jest-matchers": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",

@@ -1,5 +1,5 @@
 import { transactionsRepository } from "../../../repositories";
-import { generateCacheKey, getCacheTimeout } from "../../utils";
+import { ServerCache } from "../../../services";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
 const index = async request => {
@@ -31,39 +31,10 @@ const show = async request => {
 };
 
 export function registerMethods(server) {
-    const cacheDisabled = !server.app.config.cache.enabled;
-
-    server.method(
-        "v1.transactions.index",
-        index,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...request.query,
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v1.transactions.show",
-        show,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ id: request.query.id }),
-              },
-    );
+    ServerCache.make(server)
+        .method("v1.transactions.index", index, 8, request => ({
+            ...request.query,
+            ...paginate(request),
+        }))
+        .method("v1.transactions.show", show, 8, request => ({ id: request.query.id }));
 }

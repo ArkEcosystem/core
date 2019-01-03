@@ -1,0 +1,39 @@
+{
+    "name": "@arkecosystem/core-interfaces",
+    "description": "Interface types for essential Ark core modules",
+    "version": "2.1.0",
+    "contributors": [
+        "François-Xavier Thoorens <fx@ark.io>",
+        "Kristjan Košič <kristjan@ark.io>",
+        "Brian Faust <brian@ark.io>",
+        "Alex Barnsley <alex@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "",
+    "types": "dist/index",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+    },
+    "dependencies": {
+        "@arkecosystem/crypto": "^2.1.0",
+        "awilix": "^4.0.1",
+        "eventemitter3": "^3.1.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    }
+}

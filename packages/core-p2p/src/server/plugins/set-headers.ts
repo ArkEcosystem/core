@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import { config as localConfig } from "../../config";
 
 const config = app.getConfig();
@@ -29,7 +30,7 @@ const register = async (server, options) => {
     server.ext({
         type: "onPreResponse",
         async method(request, h) {
-            const blockchain = app.resolvePlugin("blockchain");
+            const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
             if (blockchain) {
                 const lastBlock = blockchain.getLastBlock();
                 if (lastBlock) {
