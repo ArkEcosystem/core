@@ -1,24 +1,23 @@
 import { Resolver } from "awilix";
 
 export interface PluginDescriptor {
-    alias: string,
-    pkg: any,
-    defaults?: any,
-    extends?: string,
-    register(container: IContainer, options?: any) : Promise<any>;
+    alias: string;
+    pkg: any;
+    defaults?: any;
+    extends?: string;
+    register(container: IContainer, options?: any): Promise<any>;
     deregister?(container: IContainer, options?: any): Promise<void>;
 }
 
 export interface PluginConfig<T> {
-    name: string,
-    version: string,
-    options: {[key:string]: any},
-    plugin: T
+    name: string;
+    version: string;
+    options: { [key: string]: any };
+    plugin: T;
 }
 
 export interface IContainer {
-
-    silentShutdown : boolean;
+    silentShutdown: boolean;
 
     isReady: boolean;
 

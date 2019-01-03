@@ -162,7 +162,9 @@ export interface IBlockchain {
      * @param  {Boolean} forForging
      * @return {Object}
      */
-    getUnconfirmedTransactions(blockSize: any): {
+    getUnconfirmedTransactions(
+        blockSize: any,
+    ): {
         transactions: any[];
         poolSize: any;
         count: number;

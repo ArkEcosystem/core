@@ -9,7 +9,7 @@ import { stateStorage } from "./state-storage";
  * The struct used by the plugin container.
  * @type {Object}
  */
-export const plugin : Container.PluginDescriptor = {
+export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "blockchain",

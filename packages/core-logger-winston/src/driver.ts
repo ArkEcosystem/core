@@ -8,7 +8,7 @@ export class WinstonLogger extends AbstractLogger {
     public logger: any;
 
     constructor(readonly options) {
-        super(options)
+        super(options);
     }
 
     /**

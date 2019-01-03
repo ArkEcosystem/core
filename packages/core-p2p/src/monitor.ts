@@ -657,7 +657,7 @@ export class Monitor implements P2P.IMonitor {
                 // Rollback if last block is bad and quota high
                 logger.info(
                     `Last block id ${lastBlock.data.id} is bad, ` +
-                    `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
+                        `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
                 );
                 state = "rollback";
             }

@@ -5,8 +5,7 @@ export abstract class AbstractLogger implements Logger.ILogger {
      * Create a new logger instance.
      * @param  {Object} options
      */
-    constructor(protected options: any) {
-    }
+    constructor(protected options: any) {}
 
     /**
      * Make the logger instance.

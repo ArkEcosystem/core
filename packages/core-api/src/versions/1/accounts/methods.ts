@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { generateCacheKey, getCacheTimeout } from "../../utils";
+import { ServerCache } from "../../../services";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
 const database = app.resolvePlugin<PostgresConnection>("database");
@@ -52,69 +52,12 @@ const publicKey = async request => {
 };
 
 export function registerMethods(server) {
-    const cacheDisabled = !server.app.config.cache.enabled;
-
-    server.method(
-        "v1.accounts.index",
-        index,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...request.query,
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v1.accounts.show",
-        show,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ address: request.query.address }),
-              },
-    );
-
-    server.method(
-        "v1.accounts.balance",
-        balance,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ address: request.query.address }),
-              },
-    );
-
-    server.method(
-        "v1.accounts.publicKey",
-        publicKey,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 600 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ address: request.query.address }),
-              },
-    );
+    ServerCache.make(server)
+        .method("v1.accounts.index", index, 8, request => ({
+            ...request.query,
+            ...paginate(request),
+        }))
+        .method("v1.accounts.show", show, 8, request => ({ address: request.query.address }))
+        .method("v1.accounts.balance", balance, 8, request => ({ address: request.query.address }))
+        .method("v1.accounts.publicKey", publicKey, 600, request => ({ address: request.query.address }));
 }

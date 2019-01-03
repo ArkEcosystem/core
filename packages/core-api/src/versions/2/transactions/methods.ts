@@ -1,6 +1,6 @@
 import Boom from "boom";
 import { transactionsRepository } from "../../../repositories";
-import { generateCacheKey, getCacheTimeout } from "../../utils";
+import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const index = async request => {
@@ -33,59 +33,15 @@ const search = async request => {
 };
 
 export function registerMethods(server) {
-    const cacheDisabled = !server.app.config.cache.enabled;
-
-    server.method(
-        "v2.transactions.index",
-        index,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...request.query,
-                          ...paginate(request),
-                      }),
-              },
-    );
-
-    server.method(
-        "v2.transactions.show",
-        show,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 8 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request => generateCacheKey({ id: request.params.id }),
-              },
-    );
-
-    server.method(
-        "v2.transactions.search",
-        search,
-        cacheDisabled
-            ? {}
-            : {
-                  cache: {
-                      expiresIn: 30 * 1000,
-                      generateTimeout: getCacheTimeout(),
-                      getDecoratedValue: true,
-                  },
-                  generateKey: request =>
-                      generateCacheKey({
-                          ...request.payload,
-                          ...request.query,
-                          ...paginate(request),
-                      }),
-              },
-    );
+    ServerCache.make(server)
+        .method("v2.transactions.index", index, 8, request => ({
+            ...request.query,
+            ...paginate(request),
+        }))
+        .method("v2.transactions.show", show, 8, request => ({ id: request.params.id }))
+        .method("v2.transactions.search", search, 30, request => ({
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        }));
 }

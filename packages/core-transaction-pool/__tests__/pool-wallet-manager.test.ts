@@ -1,5 +1,5 @@
-import { Blockchain, Container } from "@arkecosystem/core-interfaces";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Blockchain, Container } from "@arkecosystem/core-interfaces";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
@@ -13,7 +13,7 @@ const { blocks2to100, delegates } = fixtures;
 const arktoshi = 10 ** 8;
 let container: Container.IContainer;
 let poolWalletManager;
-let blockchain : Blockchain.IBlockchain;
+let blockchain: Blockchain.IBlockchain;
 
 beforeAll(async () => {
     container = await setUpFull();

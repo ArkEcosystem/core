@@ -1,4 +1,4 @@
-import { Container, Logger} from "@arkecosystem/core-interfaces";
+import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 
@@ -6,7 +6,7 @@ import { startServer } from "./server";
  * The struct used by the plugin manager.
  * @type {Object}
  */
-export const plugin : Container.PluginDescriptor = {
+export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "graphql",

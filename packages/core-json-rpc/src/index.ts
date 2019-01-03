@@ -4,7 +4,7 @@ import { startServer } from "./server";
 import { database } from "./server/services/database";
 import { network } from "./server/services/network";
 
-export const plugin : Container.PluginDescriptor = {
+export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "json-rpc",
@@ -29,5 +29,5 @@ export const plugin : Container.PluginDescriptor = {
 
             return container.resolvePlugin("json-rpc").stop();
         }
-    }
+    },
 };

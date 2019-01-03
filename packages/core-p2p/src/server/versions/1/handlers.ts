@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { TransactionGuard, TransactionPool} from "@arkecosystem/core-transaction-pool";
+import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { Joi, models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
 
-const { Block} = models;
+const { Block } = models;
 
 const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");

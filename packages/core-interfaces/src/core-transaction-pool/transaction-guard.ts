@@ -1,8 +1,8 @@
 import { models } from "@arkecosystem/crypto";
 
 export interface TransactionErrorDTO {
-    type: string,
-    message: string
+    type: string;
+    message: string;
 }
 
 export interface ValidationResultDTO {
@@ -10,11 +10,10 @@ export interface ValidationResultDTO {
     broadcast: string[];
     invalid: string[];
     excess: string[];
-    errors: { [key:string]: TransactionErrorDTO[] } | null
+    errors: { [key: string]: TransactionErrorDTO[] } | null;
 }
 
 export interface ITransactionGuard {
-
     validate(transactions: models.Transaction[]): Promise<ValidationResultDTO>;
 
     getBroadcastTransactions(): models.Transaction[];

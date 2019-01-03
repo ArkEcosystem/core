@@ -1,5 +1,3 @@
-import { resolve } from "path";
-
 import { transformAccountLegacy } from "../versions/1/accounts/transformer";
 import { transformBlockLegacy } from "../versions/1/blocks/transformer";
 import { transformDelegateLegacy } from "../versions/1/delegates/transformer";
