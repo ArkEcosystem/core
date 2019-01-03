@@ -1,15 +1,15 @@
+// tslint:disable:no-bitwise
+
+import assert from "assert";
+import BigInteger from "bigi";
+import aes from "browserify-aes";
+import bs58check from "bs58check";
+import xor from "buffer-xor/inplace";
+import createHash from "create-hash";
 import crypto from "crypto";
+import ecurve from "ecurve";
 
-const aes = require("browserify-aes");
-const assert = require("assert");
-const bs58check = require("bs58check");
-const createHash = require("create-hash");
-const xor = require("buffer-xor/inplace");
-
-const ecurve = require("ecurve");
 const curve = ecurve.getCurveByName("secp256k1");
-
-const BigInteger = require("bigi");
 
 // constants
 const SCRYPT_PARAMS = {
@@ -49,20 +49,15 @@ function getAddress(d, compressed) {
     return bs58check.encode(payload);
 }
 
-function encryptRaw(buffer, compressed, passphrase, progressCallback, scryptParams) {
+function encryptRaw(buffer, compressed, passphrase) {
     if (buffer.length !== 32) {
         throw new Error("Invalid private key length");
     }
-    scryptParams = scryptParams || SCRYPT_PARAMS;
 
     const d = BigInteger.fromBuffer(buffer);
     const address = getAddress(d, compressed);
     const secret = Buffer.from(passphrase, "utf8");
     const salt = hash256(address).slice(0, 4);
-
-    const N = scryptParams.N;
-    const r = scryptParams.r;
-    const p = scryptParams.p;
 
     const scryptBuf = crypto.scryptSync(secret, salt, 64, SCRYPT_PARAMS);
     const derivedHalf1 = scryptBuf.slice(0, 32);
@@ -86,12 +81,12 @@ function encryptRaw(buffer, compressed, passphrase, progressCallback, scryptPara
     return result;
 }
 
-function encrypt(buffer, compressed, passphrase, progressCallback?, scryptParams?) {
-    return bs58check.encode(encryptRaw(buffer, compressed, passphrase, progressCallback, scryptParams));
+function encrypt(buffer, compressed, passphrase) {
+    return bs58check.encode(encryptRaw(buffer, compressed, passphrase));
 }
 
 // some of the techniques borrowed from: https://github.com/pointbiz/bitaddress.org
-function decryptRaw(buffer, passphrase, progressCallback, scryptParams) {
+function decryptRaw(buffer, passphrase) {
     // 39 bytes: 2 bytes prefix, 37 bytes payload
     if (buffer.length !== 39) {
         throw new Error("Invalid BIP38 data length");
@@ -99,12 +94,11 @@ function decryptRaw(buffer, passphrase, progressCallback, scryptParams) {
     if (buffer.readUInt8(0) !== 0x01) {
         throw new Error("Invalid BIP38 prefix");
     }
-    scryptParams = scryptParams || SCRYPT_PARAMS;
 
     // check if BIP38 EC multiply
     const type = buffer.readUInt8(1);
     if (type === 0x43) {
-        return decryptECMult(buffer, passphrase, progressCallback, scryptParams);
+        return decryptECMult(buffer, passphrase);
     }
     if (type !== 0x42) {
         throw new Error("Invalid BIP38 type");
@@ -117,10 +111,6 @@ function decryptRaw(buffer, passphrase, progressCallback, scryptParams) {
     if (!compressed && flagByte !== 0xc0) {
         throw new Error("Invalid BIP38 compression flag");
     }
-
-    const N = scryptParams.N;
-    const r = scryptParams.r;
-    const p = scryptParams.p;
 
     const salt = buffer.slice(3, 7);
     const scryptBuf = crypto.scryptSync(passphrase, salt, 64, SCRYPT_PARAMS);
@@ -147,14 +137,13 @@ function decryptRaw(buffer, passphrase, progressCallback, scryptParams) {
     };
 }
 
-function decrypt(string, passphrase, progressCallback?, scryptParams?) {
-    return decryptRaw(bs58check.decode(string), passphrase, progressCallback, scryptParams);
+function decrypt(address: string, passphrase) {
+    return decryptRaw(bs58check.decode(address), passphrase);
 }
 
-function decryptECMult(buffer, passphrase, progressCallback, scryptParams) {
+function decryptECMult(buffer, passphrase) {
     passphrase = Buffer.from(passphrase, "utf8");
     buffer = buffer.slice(1); // FIXME: we can avoid this
-    scryptParams = scryptParams || SCRYPT_PARAMS;
 
     const flag = buffer.readUInt8(1);
 
@@ -178,10 +167,6 @@ function decryptECMult(buffer, passphrase, progressCallback, scryptParams) {
 
     const encryptedPart1 = buffer.slice(14, 22); // First 8 bytes
     const encryptedPart2 = buffer.slice(22, 38); // 16 bytes
-
-    const N = scryptParams.N;
-    const r = scryptParams.r;
-    const p = scryptParams.p;
 
     const preFactor = crypto.scryptSync(passphrase, ownerSalt, 32, SCRYPT_PARAMS);
 
@@ -230,8 +215,8 @@ function decryptECMult(buffer, passphrase, progressCallback, scryptParams) {
     };
 }
 
-function verify(string) {
-    const decoded = bs58check.decodeUnsafe(string);
+function verify(address: string) {
+    const decoded = bs58check.decodeUnsafe(address);
     if (!decoded) {
         return false;
     }
