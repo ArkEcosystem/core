@@ -1,4 +1,4 @@
-import "../../../../src/matchers/transactions/types/timelock-transfer";
+import "../../../src/transactions/types/timelock-transfer";
 
 import { constants } from "@arkecosystem/crypto";
 const { TransactionTypes } = constants;
