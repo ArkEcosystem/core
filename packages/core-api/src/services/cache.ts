@@ -10,33 +10,31 @@ export class ServerCache {
     private constructor(readonly server: Hapi.Server) {}
 
     public method(name: string, method: any, expiresIn: number, argsCallback?: any): this {
-        const cacheDisabled = !this.server.app.config.cache.enabled;
+        let options = {};
 
-        this.server.method(
-            name,
-            method,
-            cacheDisabled
-                ? {}
-                : {
-                      cache: {
-                          expiresIn: expiresIn * 1000,
-                          generateTimeout: this.getCacheTimeout(),
-                          getDecoratedValue: true,
-                      },
-                      generateKey: request => this.generateCacheKey(argsCallback(request)),
-                  },
-        );
+        if (this.server.app.config.cache.enabled) {
+            options = {
+                cache: {
+                    expiresIn: expiresIn * 1000,
+                    generateTimeout: this.getCacheTimeout(),
+                    getDecoratedValue: true,
+                },
+                generateKey: request => this.generateCacheKey(argsCallback(request)),
+            };
+        }
+
+        this.server.method(name, method, options);
 
         return this;
     }
 
-    public generateCacheKey(value) {
+    private generateCacheKey(value: object): string {
         return createHash("sha256")
             .update(JSON.stringify(value))
             .digest("hex");
     }
 
-    private getCacheTimeout() {
+    private getCacheTimeout(): number | boolean {
         const { generateTimeout } = app.resolveOptions("api").cache;
 
         return JSON.parse(generateTimeout);
