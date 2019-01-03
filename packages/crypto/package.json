@@ -36,7 +36,6 @@
     },
     "dependencies": {
         "@types/bip32": "^1.0.0",
-        "@types/bip38": "^2.0.0",
         "@types/bip39": "^2.4.1",
         "@types/bytebuffer": "^5.0.37",
         "@types/create-hash": "^1.2.0",
@@ -53,7 +52,6 @@
         "@types/wif": "^2.0.1",
         "bignumber.js": "^8.0.1",
         "bip32": "^1.0.2",
-        "bip38": "^2.0.2",
         "bip39": "^2.5.0",
         "bs58check": "^2.1.2",
         "bytebuffer": "^5.0.1",
