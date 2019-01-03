@@ -9,9 +9,9 @@ import BigInteger from "bigi";
 import aes from "browserify-aes";
 import bs58check from "bs58check";
 import xor from "buffer-xor/inplace";
-import createHash from "create-hash";
 import crypto from "crypto";
 import ecurve from "ecurve";
+import { crypto as arkCrypto, HashAlgorithms } from "../crypto";
 
 const curve = ecurve.getCurveByName("secp256k1");
 
@@ -23,43 +23,13 @@ const SCRYPT_PARAMS = {
 };
 const NULL = Buffer.alloc(0);
 
-function hash160(buffer): Buffer {
-    return createHash("rmd160")
-        .update(
-            createHash("sha256")
-                .update(buffer)
-                .digest(),
-        )
-        .digest();
-}
-
-function hash256(buffer): Buffer {
-    return createHash("sha256")
-        .update(
-            createHash("sha256")
-                .update(buffer)
-                .digest(),
-        )
-        .digest();
-}
-
 export interface DecryptResult {
     privateKey: Buffer;
     compressed: boolean;
 }
 
-export function getAddress(d: Buffer, compressed: boolean): string {
-    const Q = curve.G.multiply(d).getEncoded(compressed);
-    const hash = hash160(Q);
-    const payload = Buffer.allocUnsafe(21);
-    payload.writeUInt8(0x00, 0); // XXX TODO FIXME bitcoin only??? damn you BIP38
-    hash.copy(payload, 1);
-
-    return bs58check.encode(payload);
-}
-
-export function encrypt(buffer: Buffer, compressed: boolean, passphrase: string): string {
-    return bs58check.encode(encryptRaw(buffer, compressed, passphrase));
+export function encrypt(privateKey: Buffer, compressed: boolean, passphrase: string): string {
+    return bs58check.encode(encryptRaw(privateKey, compressed, passphrase));
 }
 
 export function decrypt(address: string, passphrase): DecryptResult {
@@ -100,21 +70,21 @@ export function verify(address: string): boolean {
     return true;
 }
 
-function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Buffer {
-    if (buffer.length !== 32) {
+function encryptRaw(privateKey: Buffer, compressed: boolean, passphrase: string): Buffer {
+    if (privateKey.length !== 32) {
         throw new Error("Invalid private key length");
     }
 
-    const d = BigInteger.fromBuffer(buffer);
-    const address = getAddress(d, compressed);
+    const address = getAddressPrivate(privateKey, compressed);
+
     const secret = Buffer.from(passphrase, "utf8");
-    const salt = hash256(address).slice(0, 4);
+    const salt = HashAlgorithms.hash256(address).slice(0, 4);
 
     const scryptBuf = crypto.scryptSync(secret, salt, 64, SCRYPT_PARAMS);
     const derivedHalf1 = scryptBuf.slice(0, 32);
     const derivedHalf2 = scryptBuf.slice(32, 64);
 
-    const xorBuf = xor(derivedHalf1, buffer);
+    const xorBuf = xor(derivedHalf1, privateKey);
     const cipher = aes.createCipheriv("aes-256-ecb", derivedHalf2, NULL);
     cipher.setAutoPadding(false);
     cipher.end(xorBuf);
@@ -171,9 +141,9 @@ function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
     const privateKey = xor(derivedHalf1, plainText);
 
     // verify salt matches address
-    const d = BigInteger.fromBuffer(privateKey);
-    const address = getAddress(d, compressed);
-    const checksum = hash256(address).slice(0, 4);
+    const address = getAddressPrivate(privateKey, compressed);
+
+    const checksum = HashAlgorithms.hash256(address).slice(0, 4);
     assert.deepEqual(salt, checksum);
 
     return {
@@ -213,7 +183,7 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
     let passFactor;
     if (hasLotSeq) {
         const hashTarget = Buffer.concat([preFactor, ownerEntropy]);
-        passFactor = hash256(hashTarget);
+        passFactor = HashAlgorithms.hash256(hashTarget);
     } else {
         passFactor = preFactor;
     }
@@ -244,7 +214,7 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
 
     const seedBPart1 = xor(decipher2.read(), derivedHalf1.slice(0, 16));
     const seedB = Buffer.concat([seedBPart1, seedBPart2], 24);
-    const factorB = BigInteger.fromBuffer(hash256(seedB));
+    const factorB = BigInteger.fromBuffer(HashAlgorithms.hash256(seedB));
 
     // d = passFactor * factorB (mod n)
     const d = passInt.multiply(factorB).mod(curve.n);
@@ -253,4 +223,15 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
         privateKey: d.toBuffer(32),
         compressed,
     };
+}
+
+function getAddressPrivate(privateKey: Buffer, compressed: boolean): string {
+    const publicKey = arkCrypto.getKeysByPrivateKey(privateKey, compressed).publicKey;
+    const buffer = HashAlgorithms.hash160(Buffer.from(publicKey, "hex"));
+    const payload = Buffer.alloc(21);
+
+    payload.writeUInt8(0x00, 0);
+    buffer.copy(payload, 1);
+
+    return bs58check.encode(payload);
 }
