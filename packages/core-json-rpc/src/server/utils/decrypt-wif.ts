@@ -1,5 +1,4 @@
-import { configManager, crypto } from "@arkecosystem/crypto";
-import bip38 from "bip38";
+import { bip38, configManager, crypto } from "@arkecosystem/crypto";
 import wif from "wif";
 
 export const decryptWIF = (encryptedWif, userId, bip38password) => {
