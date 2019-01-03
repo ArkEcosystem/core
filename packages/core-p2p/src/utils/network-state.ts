@@ -9,7 +9,7 @@ import { Peer } from "../peer";
 class QuorumDetails {
     public getQuorum() {
         const quorum = this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
-        return isNaN(quorum) ? 0 : quorum;
+        return isFinite(quorum) ? quorum : 0;
     }
 
     /**
