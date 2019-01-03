@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import fs from "fs-extra";
 
 export const getPath = (table, folder, codec) => {
@@ -18,7 +18,7 @@ export const getFilePath = (filename, folder) =>
     `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${folder}/${filename}`;
 
 export const copySnapshot = (sourceFolder, destFolder, codec) => {
-    const logger = app.resolvePlugin<AbstractLogger>("logger");
+    const logger = app.resolvePlugin<Logger.ILogger>("logger");
     logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`);
 
     const paths = {

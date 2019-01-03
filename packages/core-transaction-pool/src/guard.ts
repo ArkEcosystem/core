@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger, TransactionPool as transanctionPool} from "@arkecosystem/core-interfaces";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
@@ -10,29 +10,20 @@ import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 const { TransactionTypes } = constants;
 const { Transaction } = models;
 
-export class TransactionGuard {
-    public transactions: any[];
-    public excess: any[];
-    public accept: { [key: string]: any };
-    public broadcast: { [key: string]: any };
-    public invalid: { [key: string]: any };
-    public errors: any;
-    private pool: TransactionPool;
+export class TransactionGuard implements  transanctionPool.ITransactionGuard {
+    public transactions: models.Transaction[] = [];
+    public excess: string[] = [];
+    public accept: Map<string, models.Transaction> = new Map();
+    public broadcast: Map<string, models.Transaction> = new Map();
+    public invalid: Map<string, models.Transaction> = new Map();
+    public errors: { [key:string]: transanctionPool.TransactionErrorDTO[] } = {};
 
     /**
      * Create a new transaction guard instance.
      * @param  {TransactionPoolInterface} pool
      * @return {void}
      */
-    constructor(pool: TransactionPool) {
-        this.pool = pool;
-
-        this.transactions = [];
-        this.excess = [];
-        this.accept = new Map();
-        this.broadcast = new Map();
-        this.invalid = new Map();
-        this.errors = {};
+    constructor(private pool: TransactionPool) {
     }
 
     /**
@@ -48,11 +39,11 @@ export class TransactionGuard {
      *     value=[ { type, message }, ... ]
      * }
      */
-    public async validate(transactionsJson) {
+    public async validate(transactions : models.Transaction[]): Promise<transanctionPool.ValidationResultDTO> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
-        this.transactions = this.__cacheTransactions(transactionsJson);
+        this.transactions = this.__cacheTransactions(transactions);
 
         if (this.transactions.length > 0) {
             // Filter transactions and create Transaction instances from accepted ones
@@ -97,7 +88,7 @@ export class TransactionGuard {
      * Get broadcast transactions.
      * @return {Array}
      */
-    public getBroadcastTransactions() {
+    public getBroadcastTransactions() : models.Transaction[] {
         return Array.from(this.broadcast.values());
     }
 
@@ -308,7 +299,7 @@ export class TransactionGuard {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin<AbstractLogger>("logger").info(
+        app.resolvePlugin<Logger.ILogger>("logger").info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
         );
     }

@@ -29,6 +29,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
+        "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-logger": "^2.1.0",
         "chalk": "^2.4.1",
         "colors": "^1.3.3",

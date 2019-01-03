@@ -1,14 +1,16 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
 import { config as localConfig } from "./config";
 
-export class Peer {
+export class Peer implements P2P.IPeer {
+
     public static isOk(peer) {
         return peer.status === 200 || peer.status === "OK";
     }
+
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
@@ -20,14 +22,7 @@ export class Peer {
     public ban: number;
     public offences: any[];
 
-    private url: string;
-    private state: any;
-    private lastPinged: dayjs.Dayjs | null;
-
-    private config: any;
-    private logger: AbstractLogger;
-
-    private headers: {
+    public headers: {
         version: string;
         port: number;
         nethash: number;
@@ -38,13 +33,20 @@ export class Peer {
         status?: any;
     };
 
+    public url: string;
+    public state: any;
+    public lastPinged: dayjs.Dayjs | null;
+
+    private config: any;
+    private logger: Logger.ILogger;
+
     /**
      * @constructor
      * @param  {String} ip
      * @param  {Number} port
      */
-    constructor(readonly ip, readonly port) {
-        this.logger = app.resolvePlugin<AbstractLogger>("logger");
+    constructor(public readonly ip, public readonly port) {
+        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
         this.config = app.getConfig();
 
         this.ban = new Date().getTime();
@@ -230,7 +232,7 @@ export class Peer {
 
         const body = await this.__get("/peer/list");
 
-        return body.peers.filter(peer => !localConfig.get("blacklist").includes(peer.ip));
+        return body.peers.filter(peer => !localConfig.get("blacklist", []).includes(peer.ip));
     }
 
     /**

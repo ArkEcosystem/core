@@ -1,15 +1,12 @@
 import { app } from "@arkecosystem/core-container";
+import { Peer } from "../../src/peer";
 import dayjs from "dayjs-ext";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
 import { setUp, tearDown } from "../__support__/setup";
 
 const ARK_ENV = process.env.ARK_ENV;
-
-const container = app;
-
 let guard;
-let Peer;
 let peerMock;
 
 beforeAll(async () => {
@@ -18,7 +15,6 @@ beforeAll(async () => {
     app.getConfig().set("milestoneHash", "dummy-milestone");
 
     guard = require("../../dist/court/guard").guard;
-    Peer = require("../../dist/peer").Peer;
 });
 
 afterAll(async () => {

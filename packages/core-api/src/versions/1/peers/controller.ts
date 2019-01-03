@@ -1,20 +1,21 @@
 import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
-    protected p2p: any;
+    protected p2p: P2P.IMonitor;
 
     public constructor() {
         super();
 
-        this.p2p = app.resolvePlugin("p2p");
+        this.p2p = app.resolvePlugin<P2P.IMonitor>("p2p");
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const allPeers = await this.p2p.getPeers();
+            const allPeers: any[] = await this.p2p.getPeers();
 
             if (!allPeers) {
                 return super.respondWith("No peers found", true);

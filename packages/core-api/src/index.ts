@@ -1,15 +1,14 @@
-import { Container } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { Server } from "./server";
 
-exports.plugin = {
+export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "api",
-    async register(container: Container, options) {
+    async register(container: Container.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<AbstractLogger>("logger").info("Public API is disabled :grey_exclamation:");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Public API is disabled :grey_exclamation:");
 
             return false;
         }
@@ -19,9 +18,9 @@ exports.plugin = {
 
         return server;
     },
-    async deregister(container: Container, options) {
+    async deregister(container: Container.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<AbstractLogger>("logger").info(`Stopping Public API`);
+            container.resolvePlugin<Logger.ILogger>("logger").info(`Stopping Public API`);
 
             return container.resolvePlugin("api").stop();
         }

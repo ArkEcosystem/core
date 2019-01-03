@@ -1,5 +1,4 @@
-import { Container } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Container, Logger} from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 
@@ -7,21 +6,21 @@ import { startServer } from "./server";
  * The struct used by the plugin manager.
  * @type {Object}
  */
-export const plugin = {
+export const plugin : Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "graphql",
-    async register(container: Container, options) {
+    async register(container: Container.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<AbstractLogger>("logger").info("GraphQL API is disabled :grey_exclamation:");
+            container.resolvePlugin<Logger.ILogger>("logger").info("GraphQL API is disabled :grey_exclamation:");
             return;
         }
 
         return startServer(options);
     },
-    async deregister(container: Container, options) {
+    async deregister(container: Container.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<AbstractLogger>("logger").info("Stopping GraphQL API");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping GraphQL API");
 
             return container.resolvePlugin("graphql").stop();
         }

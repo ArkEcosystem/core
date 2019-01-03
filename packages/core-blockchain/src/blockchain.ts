@@ -1,8 +1,7 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractLogger } from "@arkecosystem/core-logger";
-import { TransactionPool } from "@arkecosystem/core-transaction-pool";
+import { Blockchain as blockchain, EventEmitter, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { models, slots } from "@arkecosystem/crypto";
 
 import delay from "delay";
@@ -10,12 +9,12 @@ import pluralize from "pluralize";
 import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
 
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
-const emitter = app.resolvePlugin("event-emitter");
+const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const { Block } = models;
 
-export class Blockchain {
+export class Blockchain implements blockchain.IBlockchain {
     public isStopped: boolean;
     public options: any;
     public processQueue: ProcessQueue;
@@ -130,7 +129,7 @@ export class Blockchain {
      * @param  {Number} nblocks
      * @return {void}
      */
-    public rebuild(nblocks) {
+    public rebuild(nblocks?: number) {
         throw new Error("Method [rebuild] not implemented!");
     }
 
@@ -665,7 +664,7 @@ export class Blockchain {
 
     /**
      * Get the state of the blockchain.
-     * @return {StateStorage}
+     * @return {IStateStorage}
      */
     get state() {
         return stateMachine.state;
@@ -676,7 +675,7 @@ export class Blockchain {
      * @return {P2PInterface}
      */
     get p2p() {
-        return app.resolvePlugin("p2p");
+        return app.resolvePlugin<P2P.IMonitor>("p2p");
     }
 
     /**
@@ -684,7 +683,7 @@ export class Blockchain {
      * @return {TransactionPool}
      */
     get transactionPool() {
-        return app.resolvePlugin<TransactionPool>("transactionPool");
+        return app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
     }
 
     /**

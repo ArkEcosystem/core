@@ -1,13 +1,13 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import * as capcon from "capture-console";
 import "jest-extended";
-import { Logger } from "..";
+import { WinstonLogger } from "../src";
 
 let logger: AbstractLogger;
 let message;
 
 beforeAll(() => {
-    const driver = new Logger({
+    const driver = new WinstonLogger({
         transports: [
             {
                 constructor: "Console",

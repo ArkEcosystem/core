@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { registerMethods } from "./methods";
 import { Processor } from "./services/processor";
 
 export async function startServer(options) {
     if (options.allowRemote) {
-        app.resolvePlugin<AbstractLogger>("logger").warn(
+        app.resolvePlugin<Logger.ILogger>("logger").warn(
             "JSON-RPC server allows remote connections, this is a potential security risk :warning:",
         );
     }

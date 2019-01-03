@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 
 import Hapi from "hapi";
@@ -14,7 +15,7 @@ import {
 
 export class Controller {
     protected config = app.getConfig();
-    protected blockchain = app.resolvePlugin("blockchain");
+    protected blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     protected database = app.resolvePlugin<PostgresConnection>("database");
 
     protected paginate(request: Hapi.Request): any {

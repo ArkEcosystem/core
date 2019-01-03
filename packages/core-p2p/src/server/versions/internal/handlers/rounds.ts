@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { slots } from "@arkecosystem/crypto";
 
@@ -15,7 +16,7 @@ export const current = {
      */
     async handler(request, h) {
         const database = app.resolvePlugin<PostgresConnection>("database");
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         const lastBlock = blockchain.getLastBlock();
 

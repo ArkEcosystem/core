@@ -1,10 +1,10 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import pick from "lodash/pick";
 
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 import { database } from "./db";
 import * as utils from "./utils";
 

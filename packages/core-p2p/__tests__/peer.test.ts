@@ -1,6 +1,7 @@
 import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
+import { Peer } from "../dist/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
@@ -9,8 +10,7 @@ const { Block, Transaction } = models;
 let genesisBlock;
 let genesisTransaction;
 
-let Peer;
-let peerMock;
+let peerMock: Peer;
 
 beforeAll(async () => {
     await setUp();
@@ -20,7 +20,6 @@ beforeAll(async () => {
     genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
     genesisTransaction = new Transaction(genesisBlock.transactions[0]);
 
-    Peer = require("../dist/peer").Peer;
 });
 
 afterAll(async () => {

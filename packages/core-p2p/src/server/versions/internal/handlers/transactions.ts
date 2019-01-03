@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 import * as schema from "../schemas/transactions";
 
@@ -39,13 +40,13 @@ export const forging = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const blockchain = app.resolvePlugin("blockchain");
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         const height = blockchain.getLastBlock().data.height;
         const maxTransactions = config.getMilestone(height).block.maxTransactions;
 
         return {
-            data: blockchain.getUnconfirmedTransactions(maxTransactions, true),
+            data: blockchain.getUnconfirmedTransactions(maxTransactions),
         };
     },
 };

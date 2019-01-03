@@ -1,20 +1,18 @@
-export abstract class AbstractLogger {
-    public logger: any;
-    protected options: any;
+import { Logger } from "@arkecosystem/core-interfaces";
 
+export abstract class AbstractLogger implements Logger.ILogger {
     /**
      * Create a new logger instance.
      * @param  {Object} options
      */
-    constructor(options: any) {
-        this.options = options;
+    constructor(protected options: any) {
     }
 
     /**
      * Make the logger instance.
      * @return {Object}
      */
-    public abstract make(): AbstractLogger;
+    public abstract make(): Logger.ILogger;
 
     /**
      * Log an error message.

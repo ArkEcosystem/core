@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { configManager, constants, crypto, formatArktoshi, models } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
@@ -8,7 +8,7 @@ const { Wallet } = models;
 const { TransactionTypes } = constants;
 
 export class WalletManager {
-    public logger: AbstractLogger;
+    public logger: Logger.ILogger;
     public config: any;
 
     public networkId: number;
@@ -22,7 +22,7 @@ export class WalletManager {
      */
     constructor() {
         this.config = app.getConfig();
-        this.logger = app.resolvePlugin<AbstractLogger>("logger");
+        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
 
         this.networkId = this.config ? this.config.get("network.pubKeyHash") : 0x17;
         this.reset();

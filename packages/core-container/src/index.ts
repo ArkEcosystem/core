@@ -1,4 +1,5 @@
+import { Container as container} from "@arkecosystem/core-interfaces";
 import { Container } from "./container";
 
-const app = new Container();
-export { app, Container };
+const app: container.IContainer = new Container();
+export { app };

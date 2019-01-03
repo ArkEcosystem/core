@@ -55,8 +55,8 @@ export class PostgresConnection extends ConnectionInterface {
             await this.__registerModels();
             await super._registerRepositories();
             await super._registerWalletManager();
-
             await this.loadBlocksFromCurrentRound();
+            this.logger.debug("Connected to database.");
 
             return this;
         } catch (error) {

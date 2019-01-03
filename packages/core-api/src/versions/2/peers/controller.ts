@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
@@ -68,7 +69,7 @@ export class PeersController extends Controller {
 
     public async suspended(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers = app.resolvePlugin("p2p").getSuspendedPeers();
+            const peers = app.resolvePlugin<P2P.IMonitor>("p2p").getSuspendedPeers();
 
             return super.respondWithCollection(
                 request,

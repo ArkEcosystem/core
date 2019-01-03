@@ -4,14 +4,17 @@ import * as winston from "winston";
 
 let tracker = null;
 
-export class Logger extends AbstractLogger {
+export class WinstonLogger extends AbstractLogger {
     public logger: any;
+
+    constructor(readonly options) {
+        super(options)
+    }
 
     /**
      * Make the logger instance.
-     * @return {Winston.Logger}
      */
-    public make(): AbstractLogger {
+    public make() {
         this.logger = winston.createLogger();
 
         this.__registerTransports();

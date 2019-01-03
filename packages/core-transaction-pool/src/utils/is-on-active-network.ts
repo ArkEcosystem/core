@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { configManager } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 
-const logger = app.resolvePlugin<AbstractLogger>("logger");
+const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
  * Checks if transaction recipient is on the same network as blockchain

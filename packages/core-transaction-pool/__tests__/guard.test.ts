@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Container } from "@arkecosystem/core-interfaces";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { configManager, crypto, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
@@ -19,7 +19,7 @@ const {
 
 const { delegates } = fixtures;
 
-let container: Container;
+let container: Container.IContainer;
 let guard;
 let transactionPool : TransactionPool;
 
