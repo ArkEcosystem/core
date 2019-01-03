@@ -1,5 +1,5 @@
 import { Machine } from "xstate";
-import "../../../src/matchers/blockchain/transition";
+import "../../src/blockchain/transition";
 
 describe(".toTransition", () => {
     const machine = Machine({

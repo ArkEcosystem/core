@@ -1,4 +1,4 @@
-import "../../../../src/matchers/transactions/types/multi-signature";
+import "../../../src/transactions/types/multi-signature";
 
 import { constants } from "@arkecosystem/crypto";
 const { TransactionTypes } = constants;

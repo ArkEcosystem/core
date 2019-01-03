@@ -1,6 +1,6 @@
 import { app, Container } from "@arkecosystem/core-container";
+import "@arkecosystem/core-jest-matchers";
 import * as path from "path";
-import "../matchers";
 
 export async function setUpContainer(options: any): Promise<Container> {
     await app.setUp(

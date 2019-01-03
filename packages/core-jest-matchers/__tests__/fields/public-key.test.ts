@@ -1,4 +1,4 @@
-import "../../../src/matchers/fields/public-key";
+import "../../src/fields/public-key";
 
 describe(".toBeArkPublicKey", () => {
     test("passes when given a valid public key", () => {
