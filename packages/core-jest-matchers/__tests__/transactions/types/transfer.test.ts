@@ -1,14 +1,14 @@
-import "../../../../src/matchers/transactions/types/ipfs";
+import "../../../src/transactions/types/transfer";
 
 import { constants } from "@arkecosystem/crypto";
 const { TransactionTypes } = constants;
 
-describe(".toBeIpfsType", () => {
+describe(".toBeTransferType", () => {
     test("passes when given a valid transaction", () => {
-        expect({ type: TransactionTypes.Ipfs }).toBeIpfsType();
+        expect({ type: TransactionTypes.Transfer }).toBeTransferType();
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeIpfsType();
+        expect({ type: "invalid" }).not.toBeTransferType();
     });
 });

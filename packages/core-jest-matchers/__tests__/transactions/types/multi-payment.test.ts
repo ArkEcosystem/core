@@ -1,4 +1,4 @@
-import "../../../../src/matchers/transactions/types/multi-payment";
+import "../../../src/transactions/types/multi-payment";
 
 import { constants } from "@arkecosystem/crypto";
 const { TransactionTypes } = constants;

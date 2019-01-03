@@ -1,4 +1,4 @@
-import "../../../src/matchers/fields/address";
+import "../../src/fields/address";
 
 describe(".toBeArkAddress", () => {
     test("passes when given a valid address", () => {

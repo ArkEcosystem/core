@@ -1,4 +1,4 @@
-import "../../../src/matchers/transactions/valid";
+import "../../src/transactions/valid";
 
 const transaction = {
     version: 1,
