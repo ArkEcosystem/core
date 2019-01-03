@@ -46,7 +46,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -86,8 +85,8 @@ jobs:
           name: core-container
           command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
-          name: core-http-utils
-          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+          name: core
+          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -141,7 +140,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -181,8 +179,8 @@ jobs:
           name: core-container
           command: 'cd ~/ark-core/packages/core-container && yarn test:coverage'
       - run:
-          name: core-http-utils
-          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
+          name: core
+          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -236,7 +234,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -316,7 +313,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -344,8 +340,8 @@ jobs:
           name: core-logger-winston
           command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+          name: core-http-utils
+          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
       - run:
           name: core-event-emitter
           command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
@@ -353,8 +349,8 @@ jobs:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
       - run:
-          name: core
-          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -408,7 +404,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -427,6 +422,9 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
+          name: crypto
+          command: 'cd ~/ark-core/packages/crypto && yarn test:coverage'
+      - run:
           name: core-utils
           command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
       - run:
@@ -436,8 +434,8 @@ jobs:
           name: core-p2p
           command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
       - run:
-          name: core-jest-matchers
-          command: 'cd ~/ark-core/packages/core-jest-matchers && yarn test:coverage'
+          name: core-json-rpc
+          command: 'cd ~/ark-core/packages/core-json-rpc && yarn test:coverage'
       - run:
           name: core-forger
           command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
@@ -497,7 +495,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -577,7 +574,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -605,8 +601,8 @@ jobs:
           name: core-logger-winston
           command: 'cd ~/ark-core/packages/core-logger-winston && yarn test:coverage'
       - run:
-          name: core-api
-          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
+          name: core-http-utils
+          command: 'cd ~/ark-core/packages/core-http-utils && yarn test:coverage'
       - run:
           name: core-event-emitter
           command: 'cd ~/ark-core/packages/core-event-emitter && yarn test:coverage'
@@ -614,8 +610,8 @@ jobs:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
       - run:
-          name: core
-          command: 'cd ~/ark-core/packages/core && yarn test:coverage'
+          name: core-api
+          command: 'cd ~/ark-core/packages/core-api && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -669,7 +665,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -688,6 +683,9 @@ jobs:
           name: Create .ark/database directory
           command: mkdir -p $HOME/.ark/database
       - run:
+          name: crypto
+          command: 'cd ~/ark-core/packages/crypto && yarn test:coverage'
+      - run:
           name: core-utils
           command: 'cd ~/ark-core/packages/core-utils && yarn test:coverage'
       - run:
@@ -697,8 +695,8 @@ jobs:
           name: core-p2p
           command: 'cd ~/ark-core/packages/core-p2p && yarn test:coverage'
       - run:
-          name: core-jest-matchers
-          command: 'cd ~/ark-core/packages/core-jest-matchers && yarn test:coverage'
+          name: core-json-rpc
+          command: 'cd ~/ark-core/packages/core-json-rpc && yarn test:coverage'
       - run:
           name: core-forger
           command: 'cd ~/ark-core/packages/core-forger && yarn test:coverage'
