@@ -5,17 +5,13 @@
  */
 
 import assert from "assert";
-import BigInteger from "bigi";
 import aes from "browserify-aes";
 import bs58check from "bs58check";
 import xor from "buffer-xor/inplace";
 import crypto from "crypto";
-import ecurve from "ecurve";
+import secp256k1 from "secp256k1";
 import { crypto as arkCrypto, HashAlgorithms } from "../crypto";
 
-const curve = ecurve.getCurveByName("secp256k1");
-
-// constants
 const SCRYPT_PARAMS = {
     N: 16384, // specified by BIP38
     r: 8,
@@ -188,10 +184,9 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
         passFactor = preFactor;
     }
 
-    const passInt = BigInteger.fromBuffer(passFactor);
-    const passPoint = curve.G.multiply(passInt).getEncoded(true);
+    const publicKey = calculatePublicKey(passFactor, true);
 
-    const seedBPass = crypto.scryptSync(passPoint, Buffer.concat([addressHash, ownerEntropy]), 64, {
+    const seedBPass = crypto.scryptSync(publicKey, Buffer.concat([addressHash, ownerEntropy]), 64, {
         N: 1024,
         r: 1,
         p: 1,
@@ -214,24 +209,24 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
 
     const seedBPart1 = xor(decipher2.read(), derivedHalf1.slice(0, 16));
     const seedB = Buffer.concat([seedBPart1, seedBPart2], 24);
-    const factorB = BigInteger.fromBuffer(HashAlgorithms.hash256(seedB));
-
-    // d = passFactor * factorB (mod n)
-    const d = passInt.multiply(factorB).mod(curve.n);
 
     return {
-        privateKey: d.toBuffer(32),
+        privateKey: secp256k1.privateKeyTweakMul(passFactor, seedB),
         compressed,
     };
 }
 
 function getAddressPrivate(privateKey: Buffer, compressed: boolean): string {
-    const publicKey = arkCrypto.getKeysByPrivateKey(privateKey, compressed).publicKey;
-    const buffer = HashAlgorithms.hash160(Buffer.from(publicKey, "hex"));
+    const publicKey = calculatePublicKey(privateKey, compressed);
+    const buffer = HashAlgorithms.hash160(publicKey);
     const payload = Buffer.alloc(21);
 
     payload.writeUInt8(0x00, 0);
     buffer.copy(payload, 1);
 
     return bs58check.encode(payload);
+}
+
+function calculatePublicKey(buffer: Buffer, compressed: boolean): Buffer {
+    return Buffer.from(arkCrypto.getKeysByPrivateKey(buffer, compressed).publicKey, "hex");
 }
