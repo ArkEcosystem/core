@@ -28,12 +28,12 @@ export function encrypt(privateKey: Buffer, compressed: boolean, passphrase: str
     return bs58check.encode(encryptRaw(privateKey, compressed, passphrase));
 }
 
-export function decrypt(address: string, passphrase): DecryptResult {
-    return decryptRaw(bs58check.decode(address), passphrase);
+export function decrypt(bip38: string, passphrase): DecryptResult {
+    return decryptRaw(bs58check.decode(bip38), passphrase);
 }
 
-export function verify(address: string): boolean {
-    const decoded = bs58check.decodeUnsafe(address);
+export function verify(bip38: string): boolean {
+    const decoded = bs58check.decodeUnsafe(bip38);
     if (!decoded) {
         return false;
     }
@@ -66,12 +66,12 @@ export function verify(address: string): boolean {
     return true;
 }
 
-function encryptRaw(privateKey: Buffer, compressed: boolean, passphrase: string): Buffer {
-    if (privateKey.length !== 32) {
+function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Buffer {
+    if (buffer.length !== 32) {
         throw new Error("Invalid private key length");
     }
 
-    const address = getAddressPrivate(privateKey, compressed);
+    const address = getAddressPrivate(buffer, compressed);
 
     const secret = Buffer.from(passphrase, "utf8");
     const salt = HashAlgorithms.hash256(address).slice(0, 4);
@@ -80,7 +80,7 @@ function encryptRaw(privateKey: Buffer, compressed: boolean, passphrase: string)
     const derivedHalf1 = scryptBuf.slice(0, 32);
     const derivedHalf2 = scryptBuf.slice(32, 64);
 
-    const xorBuf = xor(derivedHalf1, privateKey);
+    const xorBuf = xor(derivedHalf1, buffer);
     const cipher = aes.createCipheriv("aes-256-ecb", derivedHalf2, NULL);
     cipher.setAutoPadding(false);
     cipher.end(xorBuf);
@@ -184,7 +184,7 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
         passFactor = preFactor;
     }
 
-    const publicKey = calculatePublicKey(passFactor, true);
+    const publicKey = getPublicKey(passFactor, true);
     const seedBPass = crypto.scryptSync(publicKey, Buffer.concat([addressHash, ownerEntropy]), 64, {
         N: 1024,
         r: 1,
@@ -217,7 +217,7 @@ function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
 }
 
 function getAddressPrivate(privateKey: Buffer, compressed: boolean): string {
-    const publicKey = calculatePublicKey(privateKey, compressed);
+    const publicKey = getPublicKey(privateKey, compressed);
     const buffer = HashAlgorithms.hash160(publicKey);
     const payload = Buffer.alloc(21);
 
@@ -227,6 +227,6 @@ function getAddressPrivate(privateKey: Buffer, compressed: boolean): string {
     return bs58check.encode(payload);
 }
 
-function calculatePublicKey(buffer: Buffer, compressed: boolean): Buffer {
+function getPublicKey(buffer: Buffer, compressed: boolean): Buffer {
     return Buffer.from(arkCrypto.getKeysByPrivateKey(buffer, compressed).publicKey, "hex");
 }
