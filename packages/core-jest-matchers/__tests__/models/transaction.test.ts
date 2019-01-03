@@ -1,4 +1,4 @@
-import "../../../src/matchers/models/transaction";
+import "../../src/models/transaction";
 
 describe(".toBeTransaction", () => {
     const transaction = {

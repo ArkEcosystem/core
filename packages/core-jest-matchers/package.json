@@ -1,6 +1,6 @@
 {
-    "name": "@arkecosystem/core-test-utils",
-    "description": "Test Utilities for Ark Core",
+    "name": "@arkecosystem/core-jest-matchers",
+    "description": "Jest matchers for Ark Core",
     "version": "2.1.0",
     "contributors": [
         "Brian Faust <brian@ark.io>",
@@ -30,7 +30,6 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-jest-matchers": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",

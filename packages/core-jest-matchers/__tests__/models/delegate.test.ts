@@ -1,4 +1,4 @@
-import "../../../src/matchers/models/delegate";
+import "../../src/models/delegate";
 
 describe(".toBeDelegate", () => {
     const delegate = {
