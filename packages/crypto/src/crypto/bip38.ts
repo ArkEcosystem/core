@@ -1,10 +1,9 @@
-// tslint:disable:no-var-requires no-bitwise variable-name
+import crypto from "crypto";
 
 const aes = require("browserify-aes");
 const assert = require("assert");
 const bs58check = require("bs58check");
 const createHash = require("create-hash");
-const scrypt = require("scryptsy");
 const xor = require("buffer-xor/inplace");
 
 const ecurve = require("ecurve");
@@ -65,7 +64,7 @@ function encryptRaw(buffer, compressed, passphrase, progressCallback, scryptPara
     const r = scryptParams.r;
     const p = scryptParams.p;
 
-    const scryptBuf = scrypt(secret, salt, N, r, p, 64, progressCallback);
+    const scryptBuf = crypto.scryptSync(secret, salt, 64, SCRYPT_PARAMS);
     const derivedHalf1 = scryptBuf.slice(0, 32);
     const derivedHalf2 = scryptBuf.slice(32, 64);
 
@@ -124,7 +123,7 @@ function decryptRaw(buffer, passphrase, progressCallback, scryptParams) {
     const p = scryptParams.p;
 
     const salt = buffer.slice(3, 7);
-    const scryptBuf = scrypt(passphrase, salt, N, r, p, 64, progressCallback);
+    const scryptBuf = crypto.scryptSync(passphrase, salt, 64, SCRYPT_PARAMS);
     const derivedHalf1 = scryptBuf.slice(0, 32);
     const derivedHalf2 = scryptBuf.slice(32, 64);
 
@@ -183,7 +182,8 @@ function decryptECMult(buffer, passphrase, progressCallback, scryptParams) {
     const N = scryptParams.N;
     const r = scryptParams.r;
     const p = scryptParams.p;
-    const preFactor = scrypt(passphrase, ownerSalt, N, r, p, 32, progressCallback);
+
+    const preFactor = crypto.scryptSync(passphrase, ownerSalt, 32, SCRYPT_PARAMS);
 
     let passFactor;
     if (hasLotSeq) {
@@ -196,7 +196,11 @@ function decryptECMult(buffer, passphrase, progressCallback, scryptParams) {
     const passInt = BigInteger.fromBuffer(passFactor);
     const passPoint = curve.G.multiply(passInt).getEncoded(true);
 
-    const seedBPass = scrypt(passPoint, Buffer.concat([addressHash, ownerEntropy]), 1024, 1, 1, 64);
+    const seedBPass = crypto.scryptSync(passPoint, Buffer.concat([addressHash, ownerEntropy]), 64, {
+        N: 1024,
+        r: 1,
+        p: 1,
+    });
     const derivedHalf1 = seedBPass.slice(0, 32);
     const derivedHalf2 = seedBPass.slice(32, 64);
 
