@@ -95,15 +95,6 @@ export interface IMonitor {
      */
     getPBFTForgingStatus(): number;
 
-    getNetworkState(): Promise<{
-        quorum: any;
-        nodeHeight: any;
-        lastBlockId: any;
-        overHeightBlockHeader: any;
-        minimumNetworkReach: any;
-        coldStart: any;
-    }>;
-
     /**
      * Refresh all peers after a fork. Peers with no common blocks are
      * suspended.

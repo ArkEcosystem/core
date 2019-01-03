@@ -17,15 +17,15 @@ import prettyMs from "pretty-ms";
 
 import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
+import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
-import networkState from "./utils/network-state";
 
 import checkDNS from "./utils/check-dns";
 import checkNTP from "./utils/check-ntp";
 
-const config = app.getConfig();
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+let config;
+let logger: Logger.ILogger;
+let emitter: EventEmitter.EventEmitter;
 
 export class Monitor implements P2P.IMonitor {
     public peers: { [ip: string]: any };
@@ -58,6 +58,10 @@ export class Monitor implements P2P.IMonitor {
      */
     public async start(options) {
         this.config = options;
+
+        config = app.getConfig();
+        logger = app.resolvePlugin<Logger.ILogger>("logger");
+        emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
         await this.__checkDNSConnectivity(options.dns);
         await this.__checkNTPConnectivity(options.ntp);
@@ -289,7 +293,7 @@ export class Monitor implements P2P.IMonitor {
      * @return {Peer[]}
      */
     public getPeers() {
-        return Object.values(this.peers);
+        return Object.values(this.peers) as Peer[];
     }
 
     /**
@@ -444,12 +448,12 @@ export class Monitor implements P2P.IMonitor {
         return isNaN(pbft) ? 0 : pbft;
     }
 
-    public async getNetworkState() {
+    public async getNetworkState(): Promise<NetworkState> {
         if (!this.__isColdStartActive()) {
             await this.cleanPeers(true, true);
         }
 
-        return networkState(this, app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock());
+        return NetworkState.analyze(this);
     }
 
     /**
@@ -666,7 +670,7 @@ export class Monitor implements P2P.IMonitor {
                 // Ban all rest peers
                 const peersToBan = flatten(restGroups);
                 peersToBan.forEach(peer => {
-                    peer.commonId = false;
+                    (peer as any).commonId = false;
                     this.suspendPeer(peer.ip);
                 });
 
@@ -853,5 +857,4 @@ export class Monitor implements P2P.IMonitor {
     }
 }
 
-const monitor = new Monitor();
-export { monitor };
+export const monitor = new Monitor();

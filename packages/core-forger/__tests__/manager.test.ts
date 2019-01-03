@@ -1,6 +1,7 @@
 import { generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Bignum, models } from "@arkecosystem/crypto";
 import { testnet } from "../../crypto/src/networks";
 import { defaults } from "../src/defaults";
@@ -135,81 +136,68 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("__analyseNetworkState", () => {
+    describe("__parseNetworkState", () => {
         it("should be TRUE when quorum > 0.66", async () => {
-            const networkState = {
-                quorum: 0.9,
-                nodeHeight: 100,
-                lastBlockId: "1233443",
-                overHeightBlockHeader: {},
-                minimumNetworkReach: true,
-                coldStart: false,
-            };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const networkState = new NetworkState(NetworkStateStatus.Default);
+            Object.assign(networkState, { getQuorum: () => 0.9, nodeHeight: 100, lastBlockId: "1233443" });
+
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeTrue();
         });
 
+        it("should be FALSE when unknown", async () => {
+            const networkState = new NetworkState(NetworkStateStatus.Unknown);
+            Object.assign(networkState, { getQuorum: () => 1, nodeHeight: 100, lastBlockId: "1233443" });
+
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
+
+            expect(canForge).toBeFalse();
+        });
+
         it("should be FALSE when quorum < 0.66", async () => {
-            const networkState = {
-                quorum: 0.65,
-                nodeHeight: 100,
-                lastBlockId: "1233443",
-                overHeightBlockHeader: {},
-                minimumNetworkReach: true,
-                coldStart: false,
-            };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const networkState = new NetworkState(NetworkStateStatus.Default);
+            Object.assign(networkState, { getQuorum: () => 0.65, nodeHeight: 100, lastBlockId: "1233443" });
+
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
 
         it("should be FALSE when coldStart is active", async () => {
-            const networkState = {
-                quorum: 1,
-                nodeHeight: 100,
-                lastBlockId: "1233443",
-                overHeightBlockHeader: {},
-                minimumNetworkReach: true,
-                coldStart: true,
-            };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const networkState = new NetworkState(NetworkStateStatus.ColdStart);
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
 
         it("should be FALSE when minimumNetworkReach is not sufficient", async () => {
-            const networkState = {
-                quorum: 1,
-                nodeHeight: 100,
-                lastBlockId: "1233443",
-                overHeightBlockHeader: {},
-                minimumNetworkReach: false,
-                coldStart: false,
-            };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+            const networkState = new NetworkState(NetworkStateStatus.BelowMinimumPeers);
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
 
         it("should be FAIL and detect possible double forging", async () => {
             forgeManager.usernames = [];
-            const overHeightBlockHeader = {
-                id: "2816806946235018296",
-                height: 2360065,
-                generatorPublicKey: "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
-            };
 
-            const networkState = {
-                quorum: 1,
+            const networkState = new NetworkState(NetworkStateStatus.Default);
+            Object.assign(networkState, {
+                getQuorum: () => 1,
                 nodeHeight: 100,
                 lastBlockId: "1233443",
-                overHeightBlockHeader,
-                minimumNetworkReach: 10,
-                coldStart: false,
-            };
-            const canForge = await forgeManager.__analyseNetworkState(networkState, delegate);
+                quorumDetails: {
+                    peersOverHeightBlockHeaders: {
+                        "2816806946235018296": {
+                            id: "2816806946235018296",
+                            height: 2360065,
+                            generatorPublicKey: "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
+                        },
+                    },
+                },
+            });
 
+            const canForge = await forgeManager.__parseNetworkState(networkState, delegate);
             expect(canForge).toBeFalse();
         });
     });
