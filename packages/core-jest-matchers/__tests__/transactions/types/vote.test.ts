@@ -1,4 +1,4 @@
-import "../../../../src/matchers/transactions/types/vote";
+import "../../../src/transactions/types/vote";
 
 import { constants } from "@arkecosystem/crypto";
 const { TransactionTypes } = constants;

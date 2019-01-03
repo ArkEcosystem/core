@@ -1,4 +1,4 @@
-import "../../../src/matchers/models/wallet";
+import "../../src/models/wallet";
 
 describe(".toBeWallet", () => {
     const wallet = {

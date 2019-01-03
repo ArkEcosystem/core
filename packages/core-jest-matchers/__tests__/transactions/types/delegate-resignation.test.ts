@@ -1,4 +1,4 @@
-import "../../../../src/matchers/transactions/types/delegate-resignation";
+import "../../../src/transactions/types/delegate-resignation";
 
 import { constants } from "@arkecosystem/crypto";
 const { TransactionTypes } = constants;

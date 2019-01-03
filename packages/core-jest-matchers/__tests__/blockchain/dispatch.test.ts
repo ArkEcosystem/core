@@ -1,4 +1,4 @@
-import "../../../src/matchers/blockchain/dispatch";
+import "../../src/blockchain/dispatch";
 
 describe(".toDispatch", () => {
     const blockchain = {
