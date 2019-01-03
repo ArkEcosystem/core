@@ -362,7 +362,7 @@ export class Transaction {
         }
     }
 
-    public static canHaveVendorField(type: number) {
+    public static canHaveVendorField(type: number): boolean {
         return [TransactionTypes.Transfer, TransactionTypes.TimelockTransfer].includes(type);
     }
 
