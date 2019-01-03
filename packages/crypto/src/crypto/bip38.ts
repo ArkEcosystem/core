@@ -23,7 +23,7 @@ const SCRYPT_PARAMS = {
 };
 const NULL = Buffer.alloc(0);
 
-function hash160(buffer) {
+function hash160(buffer): Buffer {
     return createHash("rmd160")
         .update(
             createHash("sha256")
@@ -33,7 +33,7 @@ function hash160(buffer) {
         .digest();
 }
 
-function hash256(buffer) {
+function hash256(buffer): Buffer {
     return createHash("sha256")
         .update(
             createHash("sha256")
@@ -43,7 +43,12 @@ function hash256(buffer) {
         .digest();
 }
 
-function getAddress(d, compressed) {
+export interface DecryptResult {
+    privateKey: Buffer;
+    compressed: boolean;
+}
+
+export function getAddress(d: Buffer, compressed: boolean): string {
     const Q = curve.G.multiply(d).getEncoded(compressed);
     const hash = hash160(Q);
     const payload = Buffer.allocUnsafe(21);
@@ -53,7 +58,49 @@ function getAddress(d, compressed) {
     return bs58check.encode(payload);
 }
 
-function encryptRaw(buffer, compressed, passphrase) {
+export function encrypt(buffer: Buffer, compressed: boolean, passphrase: string): string {
+    return bs58check.encode(encryptRaw(buffer, compressed, passphrase));
+}
+
+export function decrypt(address: string, passphrase): DecryptResult {
+    return decryptRaw(bs58check.decode(address), passphrase);
+}
+
+export function verify(address: string): boolean {
+    const decoded = bs58check.decodeUnsafe(address);
+    if (!decoded) {
+        return false;
+    }
+
+    if (decoded.length !== 39) {
+        return false;
+    }
+    if (decoded.readUInt8(0) !== 0x01) {
+        return false;
+    }
+
+    const type = decoded.readUInt8(1);
+    const flag = decoded.readUInt8(2);
+
+    // encrypted WIF
+    if (type === 0x42) {
+        if (flag !== 0xc0 && flag !== 0xe0) {
+            return false;
+        }
+
+        // EC mult
+    } else if (type === 0x43) {
+        if (flag & ~0x24) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Buffer {
     if (buffer.length !== 32) {
         throw new Error("Invalid private key length");
     }
@@ -85,12 +132,8 @@ function encryptRaw(buffer, compressed, passphrase) {
     return result;
 }
 
-function encrypt(buffer, compressed, passphrase) {
-    return bs58check.encode(encryptRaw(buffer, compressed, passphrase));
-}
-
 // some of the techniques borrowed from: https://github.com/pointbiz/bitaddress.org
-function decryptRaw(buffer, passphrase) {
+function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
     // 39 bytes: 2 bytes prefix, 37 bytes payload
     if (buffer.length !== 39) {
         throw new Error("Invalid BIP38 data length");
@@ -107,8 +150,6 @@ function decryptRaw(buffer, passphrase) {
     if (type !== 0x42) {
         throw new Error("Invalid BIP38 type");
     }
-
-    passphrase = Buffer.from(passphrase, "utf8");
 
     const flagByte = buffer.readUInt8(2);
     const compressed = flagByte === 0xe0;
@@ -141,12 +182,7 @@ function decryptRaw(buffer, passphrase) {
     };
 }
 
-function decrypt(address: string, passphrase) {
-    return decryptRaw(bs58check.decode(address), passphrase);
-}
-
-function decryptECMult(buffer, passphrase) {
-    passphrase = Buffer.from(passphrase, "utf8");
+function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
     buffer = buffer.slice(1); // FIXME: we can avoid this
 
     const flag = buffer.readUInt8(1);
@@ -218,39 +254,3 @@ function decryptECMult(buffer, passphrase) {
         compressed,
     };
 }
-
-function verify(address: string) {
-    const decoded = bs58check.decodeUnsafe(address);
-    if (!decoded) {
-        return false;
-    }
-
-    if (decoded.length !== 39) {
-        return false;
-    }
-    if (decoded.readUInt8(0) !== 0x01) {
-        return false;
-    }
-
-    const type = decoded.readUInt8(1);
-    const flag = decoded.readUInt8(2);
-
-    // encrypted WIF
-    if (type === 0x42) {
-        if (flag !== 0xc0 && flag !== 0xe0) {
-            return false;
-        }
-
-        // EC mult
-    } else if (type === 0x43) {
-        if (flag & ~0x24) {
-            return false;
-        }
-    } else {
-        return false;
-    }
-
-    return true;
-}
-
-export { decrypt, decryptECMult, decryptRaw, encrypt, encryptRaw, verify };
