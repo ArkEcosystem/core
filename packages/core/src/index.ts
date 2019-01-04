@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-import { configManager, crypto } from "@arkecosystem/crypto";
-import bip38 from "bip38";
+import { bip38, configManager, crypto } from "@arkecosystem/crypto";
 import app from "commander";
 import fs from "fs";
 import wif from "wif";

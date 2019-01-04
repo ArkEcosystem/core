@@ -1,8 +1,8 @@
-import bip38 from "bip38";
 import { createHash } from "crypto";
 import forge from "node-forge";
 import { authenticator } from "otplib";
 import wif from "wif";
+import * as bip38 from "../crypto/bip38";
 import { Bignum } from "../utils";
 
 import { crypto } from "../crypto/crypto";

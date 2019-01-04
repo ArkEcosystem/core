@@ -127,27 +127,15 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                             this.__pushError(
                                 transaction,
                                 "ERR_LOW_FEE",
-                                "The fee is too low to broadcast or accept the transaction",
+                                "The fee is too low to broadcast and accept the transaction",
                             );
                         } else {
                             if (dynamicFee.enterPool) {
                                 this.accept.set(trx.id, trx);
-                            } else {
-                                this.__pushError(
-                                    transaction,
-                                    "ERR_LOW_FEE_POOL",
-                                    "The fee is too low to accept the transaction",
-                                );
                             }
 
                             if (dynamicFee.broadcast) {
                                 this.broadcast.set(trx.id, trx);
-                            } else {
-                                this.__pushError(
-                                    transaction,
-                                    "ERR_LOW_FEE_BROADCAST",
-                                    "The fee is too low to broadcast the transaction",
-                                );
                             }
                         }
                     } else {
