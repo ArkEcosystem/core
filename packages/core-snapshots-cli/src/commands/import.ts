@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
+import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { EventEmitter } from "@arkecosystem/core-interfaces";
 import _cliProgress from "cli-progress";
 
 export async function importSnapshot(options) {
-    const snapshotManager = app.resolvePlugin("snapshots");
+    const snapshotManager = app.resolvePlugin<SnapshotManager>("snapshots");
     const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
     const progressBar = new _cliProgress.Bar(

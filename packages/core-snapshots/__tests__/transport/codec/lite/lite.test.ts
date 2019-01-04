@@ -1,7 +1,7 @@
 /* tslint:disable:no-console */
 
 import msgpack from "msgpack-lite";
-import { LiteCodec } from "../../../../src/transport/codecs/lite-codec";
+import { LiteCodec } from "../../../../dist/transport/codecs/lite-codec";
 import { blocks } from "../../../fixtures/blocks";
 import { transactions } from "../../../fixtures/transactions";
 

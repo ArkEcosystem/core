@@ -1,10 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import fs from "fs-extra";
 
 export async function verifySnapshot(options) {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
-    const snapshotManager = app.resolvePlugin("snapshots");
+    const snapshotManager = app.resolvePlugin<SnapshotManager>("snapshots");
 
     if (
         options.filename &&
