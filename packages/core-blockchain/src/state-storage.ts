@@ -1,7 +1,7 @@
 // tslint:disable:variable-name
 
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 import { configManager, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
@@ -25,7 +25,7 @@ const _mapToBlockData = blocks => blocks.map(block => ({ ...block.data, transact
 /**
  * Represents an in-memory storage for state machine data.
  */
-export class StateStorage {
+export class StateStorage implements Blockchain.IStateStorage {
     public blockchain: any;
     public lastDownloadedBlock: any;
     public blockPing: any;
