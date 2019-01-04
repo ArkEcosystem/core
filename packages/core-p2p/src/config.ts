@@ -1,20 +1,3 @@
-import get from "lodash/get";
-import set from "lodash/set";
+import { Shared } from "@arkecosystem/core-interfaces";
 
-class Config {
-    private config: any;
-
-    public init(options: any): void {
-        this.config = options;
-    }
-
-    public get(key: string, defaultValue: any = null): any {
-        return get(this.config, key, defaultValue);
-    }
-
-    public set(key: string, value: any): void {
-        set(this.config, key, value);
-    }
-}
-
-export const config = new Config();
+export const config = new Shared.Config();

@@ -1,38 +1,5 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { asValue } from "awilix";
-import { Blockchain } from "./blockchain";
-import { config } from "./config";
-import { defaults } from "./defaults";
-import { stateStorage } from "./state-storage";
-
-/**
- * The struct used by the plugin container.
- * @type {Object}
- */
-export const plugin: Container.PluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "blockchain",
-    async register(container: Container.IContainer, options) {
-        const blockchain = new Blockchain(options);
-
-        config.init(options);
-
-        container.register("state", asValue(stateStorage));
-
-        if (!process.env.ARK_SKIP_BLOCKCHAIN) {
-            await blockchain.start();
-        }
-
-        return blockchain;
-    },
-    async deregister(container: Container.IContainer, options) {
-        await container.resolvePlugin<Blockchain>("blockchain").stop();
-    },
-};
-
-/**
- * Access to the state.
- * @type {IStateStorage}
- */
-export { stateStorage };
+export * from "./defaults";
+export * from "./config";
+export * from "./blockchain";
+export * from "./state-storage";
+export * from "./plugin";
