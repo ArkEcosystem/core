@@ -4,8 +4,6 @@ const path = require("path");
 
 const config = require("./configTemplate.json");
 
-const slowPerformance = ['core-json-rpc', 'crypto'];
-
 generateConfig();
 
 function jason(value) {
@@ -14,40 +12,6 @@ function jason(value) {
 
 function generateConfig() {
     fs.readdir("./packages", (err, packages) => generateYAML({ packages }));
-}
-
-function createJob (name, steps, config) {
-    const job = jason(config.jobs[name]);
-
-    const testStepIndex = job.steps.findIndex(
-        step => typeof step === "object" && step.run && step.run.name === "Test",
-    );
-
-    const stepLog = jason(job.steps[9]);
-    const stepCoverage = jason(job.steps[10]);
-
-    for (i = 0; i < steps.length; i++) {
-        job.steps[testStepIndex + i] = steps[i];
-    }
-
-    job.steps.push(stepLog);
-    job.steps.push(stepCoverage);
-
-    config.jobs[name.slice(0,-1) + 'slow'] = job;
-    config.workflows.build_and_test.jobs.push(name.slice(0,-1) + 'slow');
-}
-
-function createSlowJob (name, config) {
-    const slowPerformanceSteps = slowPerformance.map(pkg => {
-        return {
-            run: {
-                name: pkg,
-                command: `cd ~/ark-core/packages/${pkg} && yarn test:coverage`,
-            },
-        };
-    });
-
-    createJob(name, slowPerformanceSteps, config)
 }
 
 function generateYAML(options) {
@@ -66,8 +30,6 @@ function generateYAML(options) {
             jason(config.jobs[name]),
             jason(config.jobs[name]),
         ];
-
-        createSlowJob(name, config)
 
         jobs.forEach((job, index) => {
             const testStepIndex = job.steps.findIndex(
@@ -116,9 +78,7 @@ function generateYAML(options) {
 function splitPackagesByTestFiles(packages, splitNumber) {
     const packagesSplit = new Array(splitNumber);
 
-    packages.filter(item => {
-        return !slowPerformance.includes(item.package)
-    }).sort().forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
+    packages.sort().forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
 
     return packagesSplit;
 }
