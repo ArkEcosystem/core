@@ -1,27 +1,22 @@
 const yaml = require("js-yaml");
 const fs = require("fs");
 const path = require("path");
+const chunk = require("lodash.chunk");
 
 const config = require("./configTemplate.json");
-
-generateConfig();
 
 function jason(value) {
     return JSON.parse(JSON.stringify(value));
 }
 
-function generateConfig() {
-    fs.readdir("./packages", (err, packages) => generateYAML({ packages }));
-}
-
-function generateYAML(options) {
+fs.readdir("./packages", (_, packages) => {
     // test split
-    const packagesSplit = splitPackagesByTestFiles(options.packages, 3);
+    const packagesSplit = chunk(packages.sort(), 10);
 
-    for(const [name, job] of Object.entries(config.jobs)) {
+    for (const [name, job] of Object.entries(config.jobs)) {
         // save cache
         const saveCacheStep = config.jobs[name].steps.find(step => typeof step === "object" && step.save_cache);
-        saveCacheStep.save_cache.paths = options.packages
+        saveCacheStep.save_cache.paths = packages
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules");
 
@@ -50,7 +45,9 @@ function generateYAML(options) {
                     };
                 })
                 .filter(pkg => {
-                    const { scripts } = require(path.resolve(__dirname, `../packages/${pkg.run.name}/package.json`));
+                    const {
+                        scripts
+                    } = require(path.resolve(__dirname, `../packages/${pkg.run.name}/package.json`));
 
                     return Object.keys(scripts).includes("test:coverage");
                 });
@@ -65,20 +62,10 @@ function generateYAML(options) {
             job.steps.push(stepLog);
             job.steps.push(stepCoverage);
 
-            config.jobs[name.slice(0,-1) + index] = job;
-            config.workflows.build_and_test.jobs.push(name.slice(0,-1) + index);
+            config.jobs[name.slice(0, -1) + index] = job;
+            config.workflows.build_and_test.jobs.push(name.slice(0, -1) + index);
         });
     }
 
-    fs.writeFile(".circleci/config.yml", yaml.safeDump(config), "utf8", err => {
-        if (err) console.error(err);
-    });
-}
-
-function splitPackagesByTestFiles(packages, splitNumber) {
-    const packagesSplit = new Array(splitNumber);
-
-    packages.sort().forEach((pkg, index) => (packagesSplit[index % splitNumber] = [pkg].concat(packagesSplit[index % splitNumber] || [])));
-
-    return packagesSplit;
-}
+    fs.writeFileSync(".circleci/config.yml", yaml.safeDump(config));
+});
