@@ -460,6 +460,13 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.state.setLastBlock(block);
 
+        // Reset wake-up timer after chaining a block, since there's no need to
+        // wake up at all if blocks arrive periodically. Only wake up when there are
+        // no new blocks.
+        if (this.state.started) {
+            this.resetWakeUp();
+        }
+
         // Ensure the lastDownloadedBlock is not behind the last accepted block.
         if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.data.height < block.data.height) {
             this.state.lastDownloadedBlock = block;
