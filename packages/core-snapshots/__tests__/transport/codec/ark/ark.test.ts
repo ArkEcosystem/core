@@ -6,7 +6,7 @@ import msgpack from "msgpack-lite";
 import { blocks } from "../../../fixtures/blocks";
 import { transactions } from "../../../fixtures/transactions";
 
-import { ArkCodec } from "../../../../src/transport/codecs/ark-codec";
+import { ArkCodec } from "../../../../dist/transport/codecs/ark-codec";
 
 const codec = new ArkCodec();
 
