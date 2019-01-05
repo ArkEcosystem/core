@@ -9,9 +9,9 @@ export interface IStateStorage {
     clear(): void;
 
     /**
-     * Clear check later timeout.
+     * Clear wakeup timeout.
      */
-    clearCheckLater(): void;
+    clearWakeUpTimeout(): void;
 
     /**
      * Get the last block.

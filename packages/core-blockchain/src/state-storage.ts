@@ -1,7 +1,7 @@
 // tslint:disable:variable-name
 
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 import { configManager, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
@@ -25,7 +25,7 @@ const _mapToBlockData = blocks => blocks.map(block => ({ ...block.data, transact
 /**
  * Represents an in-memory storage for state machine data.
  */
-class StateStorage {
+export class StateStorage implements Blockchain.IStateStorage {
     public blockchain: any;
     public lastDownloadedBlock: any;
     public blockPing: any;
@@ -33,7 +33,7 @@ class StateStorage {
     public forkedBlock: any;
     public rebuild: boolean;
     public fastRebuild: boolean;
-    public checkLaterTimeout: any;
+    public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
     public networkStart: boolean;
@@ -54,7 +54,7 @@ class StateStorage {
         this.forkedBlock = null;
         this.rebuild = true;
         this.fastRebuild = false;
-        this.checkLaterTimeout = null;
+        this.wakeUpTimeout = null;
         this.noBlockCounter = 0;
         this.p2pUpdateCounter = 0;
         this.networkStart = false;
@@ -75,10 +75,10 @@ class StateStorage {
      * Clear check later timeout.
      * @returns {void}
      */
-    public clearCheckLater() {
-        if (this.checkLaterTimeout) {
-            clearTimeout(this.checkLaterTimeout);
-            this.checkLaterTimeout = null;
+    public clearWakeUpTimeout() {
+        if (this.wakeUpTimeout) {
+            clearTimeout(this.wakeUpTimeout);
+            this.wakeUpTimeout = null;
         }
     }
 

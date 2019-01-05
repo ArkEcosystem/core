@@ -8,6 +8,7 @@ import delay from "delay";
 import pluralize from "pluralize";
 import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
+import { StateStorage } from "./state-storage";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
@@ -104,7 +105,7 @@ export class Blockchain implements blockchain.IBlockchain {
             logger.info("Stopping Blockchain Manager :chains:");
 
             this.isStopped = true;
-            this.state.clearCheckLater();
+            this.state.clearWakeUpTimeout();
 
             this.dispatch("STOP");
 
@@ -114,6 +115,24 @@ export class Blockchain implements blockchain.IBlockchain {
 
     public checkNetwork() {
         throw new Error("Method [checkNetwork] not implemented!");
+    }
+
+    /**
+     * Set wakeup timeout to check the network for new blocks.
+     */
+    public setWakeUp() {
+        this.state.wakeUpTimeout = setTimeout(() => {
+            this.state.wakeUpTimeout = null;
+            return this.dispatch("WAKEUP");
+        }, 60000);
+    }
+
+    /**
+     * Reset the wakeup timeout.
+     */
+    public resetWakeUp() {
+        this.state.clearWakeUpTimeout();
+        this.setWakeUp();
     }
 
     /**
@@ -441,6 +460,13 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.state.setLastBlock(block);
 
+        // Reset wake-up timer after chaining a block, since there's no need to
+        // wake up at all if blocks arrive periodically. Only wake up when there are
+        // no new blocks.
+        if (this.state.started) {
+            this.resetWakeUp();
+        }
+
         // Ensure the lastDownloadedBlock is not behind the last accepted block.
         if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.data.height < block.data.height) {
             this.state.lastDownloadedBlock = block;
@@ -515,13 +541,13 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Called by forger to wake up and sync with the network.
-     * It clears the checkLaterTimeout if set.
+     * It clears the wakeUpTimeout if set.
      * @param  {Number}  blockSize
      * @param  {Boolean} forForging
      * @return {Object}
      */
     public forceWakeup() {
-        this.state.clearCheckLater();
+        this.state.clearWakeUpTimeout();
         this.dispatch("WAKEUP");
     }
 
@@ -666,7 +692,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the state of the blockchain.
      * @return {IStateStorage}
      */
-    get state() {
+    get state(): StateStorage {
         return stateMachine.state;
     }
 
