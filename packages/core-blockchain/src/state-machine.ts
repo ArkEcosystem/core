@@ -319,13 +319,10 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             return;
         }
 
-        if (!blocks || blocks.length === 0) {
-            logger.info("No new block found on this peer");
+        const empty = !blocks || blocks.length === 0;
+        const chained = !empty && isChained(lastDownloadedBlock, { data: blocks[0] });
 
-            stateStorage.noBlockCounter++;
-
-            blockchain.dispatch("NOBLOCK");
-        } else {
+        if (chained) {
             logger.info(
                 `Downloaded ${blocks.length} new ${pluralize(
                     "block",
@@ -337,34 +334,25 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 )}`,
             );
 
-            // Check if first block of the downloaded blocks can be chained
-            if (isChained(lastDownloadedBlock, { data: blocks[0] })) {
-                stateStorage.noBlockCounter = 0;
-                stateStorage.p2pUpdateCounter = 0;
-                stateStorage.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
+            stateStorage.noBlockCounter = 0;
+            stateStorage.p2pUpdateCounter = 0;
+            stateStorage.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
 
-                blockchain.processQueue.push(blocks);
-
-                blockchain.dispatch("DOWNLOADED");
+            blockchain.processQueue.push(blocks);
+            blockchain.dispatch("DOWNLOADED");
+        } else {
+            if (empty) {
+                logger.info("No new block found on this peer");
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
-
-                // Reset lastDownloadedBlock to last accepted block
-                const lastAcceptedBlock = stateStorage.getLastBlock();
-                stateStorage.lastDownloadedBlock = lastAcceptedBlock;
-
-                // Fork only if the downloaded block could not be chained with the last accepted block.
-                // Otherwise simply discard the downloaded blocks by resetting the queue.
-                const shouldFork = blocks[0].height === lastAcceptedBlock.data.height + 1;
-                if (shouldFork) {
-                    blockchain.forkBlock(blocks[0]);
-                } else {
-                    // TODO: only remove blocks from last downloaded block height
-                    blockchain.processQueue.clear();
-                    blockchain.dispatch("DOWNLOADED");
-                }
             }
+
+            stateStorage.noBlockCounter++;
+            stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
+
+            blockchain.processQueue.clear();
+            blockchain.dispatch("NOBLOCK");
         }
     },
 
