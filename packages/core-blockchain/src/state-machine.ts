@@ -336,9 +336,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
-            stateStorage.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
 
-            blockchain.processQueue.push(blocks);
+            blockchain.enqueueBlocks(blocks);
             blockchain.dispatch("DOWNLOADED");
         } else {
             if (empty) {

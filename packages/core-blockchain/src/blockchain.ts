@@ -230,12 +230,18 @@ export class Blockchain implements blockchain.IBlockchain {
 
         if (this.state.started && this.state.blockchain.value === "idle") {
             this.dispatch("NEWBLOCK");
-
-            this.processQueue.push(block);
-            this.state.lastDownloadedBlock = new Block(block);
+            this.enqueueBlocks([block]);
         } else {
             logger.info(`Block disregarded because blockchain is not ready :exclamation:`);
         }
+    }
+
+    /**
+     * Enqueue blocks in process queue and set last downloaded block to last item in list.
+     */
+    public enqueueBlocks(blocks: any[]) {
+        this.processQueue.push(blocks);
+        this.state.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
     }
 
     /**
