@@ -9,6 +9,7 @@ import pluralize from "pluralize";
 import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
 import { StateStorage } from "./state-storage";
+import { isChained } from "./utils";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
@@ -16,6 +17,38 @@ const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const { Block } = models;
 
 export class Blockchain implements blockchain.IBlockchain {
+    /**
+     * Get the state of the blockchain.
+     * @return {IStateStorage}
+     */
+    get state(): StateStorage {
+        return stateMachine.state;
+    }
+
+    /**
+     * Get the network (p2p) interface.
+     * @return {P2PInterface}
+     */
+    get p2p() {
+        return app.resolvePlugin<P2P.IMonitor>("p2p");
+    }
+
+    /**
+     * Get the transaction handler.
+     * @return {TransactionPool}
+     */
+    get transactionPool() {
+        return app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+    }
+
+    /**
+     * Get the database connection.
+     * @return {ConnectionInterface}
+     */
+    get database() {
+        return app.resolvePlugin<PostgresConnection>("database");
+    }
+
     public isStopped: boolean;
     public options: any;
     public processQueue: ProcessQueue;
@@ -347,7 +380,7 @@ export class Blockchain implements blockchain.IBlockchain {
         const lastBlock = this.state.getLastBlock();
 
         if (block.verification.verified) {
-            if (this.__isChained(lastBlock, block)) {
+            if (isChained(lastBlock, block)) {
                 // save block on database
                 this.database.enqueueSaveBlock(block);
 
@@ -398,7 +431,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         try {
-            if (this.__isChained(this.state.getLastBlock(), block)) {
+            if (isChained(this.state.getLastBlock(), block)) {
                 await this.acceptChainedBlock(block);
             } else {
                 await this.manageUnchainedBlock(block);
@@ -686,52 +719,6 @@ export class Blockchain implements blockchain.IBlockchain {
             "wallet.saved",
             "wallet.created.cold",
         ];
-    }
-
-    /**
-     * Get the state of the blockchain.
-     * @return {IStateStorage}
-     */
-    get state(): StateStorage {
-        return stateMachine.state;
-    }
-
-    /**
-     * Get the network (p2p) interface.
-     * @return {P2PInterface}
-     */
-    get p2p() {
-        return app.resolvePlugin<P2P.IMonitor>("p2p");
-    }
-
-    /**
-     * Get the transaction handler.
-     * @return {TransactionPool}
-     */
-    get transactionPool() {
-        return app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
-    }
-
-    /**
-     * Get the database connection.
-     * @return {ConnectionInterface}
-     */
-    get database() {
-        return app.resolvePlugin<PostgresConnection>("database");
-    }
-
-    /**
-     * Check if the given block is in order.
-     * @param  {Block}  previousBlock
-     * @param  {Block}  nextBlock
-     * @return {Boolean}
-     */
-    public __isChained(previousBlock, nextBlock) {
-        const followsPrevious = nextBlock.data.previousBlock === previousBlock.data.id;
-        const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp;
-        const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1;
-
-        return followsPrevious && isFuture && isPlusOne;
     }
 
     /**

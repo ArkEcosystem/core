@@ -10,7 +10,7 @@ import pluralize from "pluralize";
 import { config as localConfig } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
-import { tickSyncTracker } from "./utils/tick-sync-tracker";
+import { isChained, tickSyncTracker } from "./utils";
 
 import { Blockchain } from "./blockchain";
 
@@ -337,7 +337,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 )}`,
             );
 
-            if (blockchain.__isChained(lastDownloadedBlock, { data: blocks[0] })) {
+            // Check if first block of the downloaded blocks can be chained
+            if (isChained(lastDownloadedBlock, { data: blocks[0] })) {
                 stateStorage.noBlockCounter = 0;
                 stateStorage.p2pUpdateCounter = 0;
                 stateStorage.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
