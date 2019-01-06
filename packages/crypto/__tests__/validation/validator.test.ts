@@ -77,13 +77,13 @@ describe("Validator", () => {
 
     describe("validate with Rule", () => {
         it("should be true", () => {
-            validator.validate("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN", "address" as string);
+            validator.validate("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN", "address");
 
             expect(validator.passes()).toBeTrue();
         });
 
         it("should be false", () => {
-            validator.validate("_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_", "address" as string);
+            validator.validate("_DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN_", "address");
 
             expect(validator.errors()).not.toBeEmpty();
             expect(validator.passes()).toBeFalse();
