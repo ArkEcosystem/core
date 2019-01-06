@@ -1,7 +1,7 @@
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import partition from "lodash/partition";
-import { IRepository } from "../interfaces/repository";
+import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
