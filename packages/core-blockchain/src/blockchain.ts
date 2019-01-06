@@ -452,15 +452,10 @@ export class Blockchain implements blockchain.IBlockchain {
             return callback();
         }
 
-        try {
-            // broadcast only current block
-            const blocktime = config.getMilestone(block.data.height).blocktime;
-            if (slots.getSlotNumber() * blocktime <= block.data.timestamp) {
-                this.p2p.broadcastBlock(block);
-            }
-        } catch (error) {
-            logger.warn(`Can't properly broadcast block ${block.data.height.toLocaleString()}`);
-            logger.debug(error.stack);
+        // broadcast only current block
+        const blocktime = config.getMilestone(block.data.height).blocktime;
+        if (slots.getSlotNumber() * blocktime <= block.data.timestamp) {
+            this.p2p.broadcastBlock(block);
         }
 
         return callback();
