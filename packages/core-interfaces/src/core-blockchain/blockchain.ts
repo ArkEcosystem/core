@@ -76,7 +76,7 @@ export interface IBlockchain {
      * @param  {Block} block
      * @return {void}
      */
-    queueBlock(block: models.Block): void;
+    handleIncomingBlock(block: models.Block): void;
 
     /**
      * Rollback all blocks up to the previous round.

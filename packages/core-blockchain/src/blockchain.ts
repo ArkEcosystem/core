@@ -219,7 +219,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {Block} block
      * @return {void}
      */
-    public queueBlock(block) {
+    public handleIncomingBlock(block) {
         logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
                 "transaction",

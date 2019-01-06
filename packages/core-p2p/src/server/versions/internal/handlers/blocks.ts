@@ -14,7 +14,7 @@ export const store = {
     handler: (request, h) => {
         request.payload.block.ip = request.info.remoteAddress;
 
-        app.resolvePlugin<Blockchain.IBlockchain>("blockchain").queueBlock(request.payload.block);
+        app.resolvePlugin<Blockchain.IBlockchain>("blockchain").handleIncomingBlock(request.payload.block);
 
         return h.response(null).code(204);
     },

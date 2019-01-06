@@ -114,11 +114,11 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("queueBlock", () => {
+    describe("handleIncomingBlock", () => {
         it("should be ok", async () => {
             const block = new Block(blocks101to155[54]);
 
-            await blockchain.queueBlock(blocks101to155[54]);
+            await blockchain.handleIncomingBlock(blocks101to155[54]);
 
             expect(blockchain.state.lastDownloadedBlock).toEqual(block);
         });
