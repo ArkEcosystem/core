@@ -19,18 +19,18 @@ export class Validator {
      * @return {void|Boolean}
      */
     public async validate(attributes, rules) {
-        this.__reset();
+        this.reset();
 
         if (typeof rules === "string") {
-            return this.__validateWithRule(attributes, rules);
+            return this.validateWithRule(attributes, rules);
         }
 
         if (rules instanceof Function) {
-            return this.__validateWithFunction(attributes, rules);
+            return this.validateWithFunction(attributes, rules);
         }
 
         if (rules instanceof Object) {
-            return this.__validateWithJoi(attributes, rules);
+            return this.validateWithJoi(attributes, rules);
         }
 
         return false;
@@ -79,7 +79,7 @@ export class Validator {
     /**
      * Reset any previous results.
      */
-    public __reset() {
+    private reset() {
         this.results = null;
     }
 
@@ -89,7 +89,7 @@ export class Validator {
      * @param  {String} rule
      * @return {void}
      */
-    private __validateWithRule(attributes, rules) {
+    private validateWithRule(attributes, rules) {
         const validate = this.rules[rules];
 
         if (!rules) {
@@ -105,7 +105,7 @@ export class Validator {
      * @param  {String} rule
      * @return {void}
      */
-    private __validateWithFunction(attributes, validate) {
+    private validateWithFunction(attributes, validate) {
         this.results = validate(attributes);
     }
 
@@ -115,7 +115,7 @@ export class Validator {
      * @param  {String} rule
      * @return {void}
      */
-    private __validateWithJoi(attributes, rules) {
+    private validateWithJoi(attributes, rules) {
         const { error, value } = Engine.validate(attributes, rules);
 
         this.results = {

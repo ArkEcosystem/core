@@ -3,7 +3,8 @@ import Joi from "joi";
 import { validator } from "../../src/validation";
 
 beforeEach(() => {
-    validator.__reset();
+    // reset
+    validator.validate("", null);
 });
 
 describe("Validator", () => {
