@@ -83,6 +83,7 @@ module.exports = server => {
     },
     generateKey: request =>
       generateCacheKey({
+        ...{ id: request.params.id },
         ...request.query,
         ...utils.paginate(request),
       }),
