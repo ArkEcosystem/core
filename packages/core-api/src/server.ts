@@ -1,15 +1,17 @@
 import { app } from "@arkecosystem/core-container";
 import { createSecureServer, createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import { Logger } from "@arkecosystem/core-interfaces";
 import Hapi from "hapi";
 
 export class Server {
-    private logger = app.resolvePlugin<Logger.ILogger>("logger");
+    private config: any;
+    private logger: any;
 
     private http: any;
     private https: any;
 
-    public constructor(private config: any) {
+    public constructor(config: any) {
+        this.config = config;
+        this.logger = app.resolvePlugin("logger");
     }
 
     public async start(): Promise<void> {
