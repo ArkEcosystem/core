@@ -1,4 +1,4 @@
-import { IRepository } from "../interfaces/repository";
+import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
