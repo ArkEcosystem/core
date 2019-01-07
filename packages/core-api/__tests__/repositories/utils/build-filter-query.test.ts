@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { buildFilterQuery } from "../../../src/repositories/utils/build-filter-query";
+import { buildFilterQuery } from "../../../dist/repositories/utils/build-filter-query";
 
 describe("Repository utils > buildFilterQuery", () => {
     describe("`in` filter", () => {
