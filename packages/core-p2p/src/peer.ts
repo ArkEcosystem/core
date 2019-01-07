@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
+import PeerVerifier from "./peer-verifier";
 import util from "util";
 import { config as localConfig } from "./config";
 
@@ -159,11 +160,7 @@ export class Peer implements P2P.IPeer {
      */
     public async downloadBlocks(fromBlockHeight) {
         try {
-            const response = await axios.get(`${this.url}/peer/blocks`, {
-                params: { lastBlockHeight: fromBlockHeight },
-                headers: this.headers,
-                timeout: 10000,
-            });
+            const response = await this.getPeerBlocks(fromBlockHeight);
 
             this.__parseHeaders(response);
 
@@ -205,6 +202,22 @@ export class Peer implements P2P.IPeer {
 
         if (!body) {
             throw new Error(`Peer ${this.ip} is unresponsive`);
+        }
+
+        if (!body.success) {
+            throw new Error(
+                `Erroneous response from peer ${this.ip} when trying to retrieve its status: ` +
+                JSON.stringify(body)
+            );
+        }
+
+        const peerVerifier = new PeerVerifier(this);
+
+        if (!await peerVerifier.checkState(body)) {
+            throw new Error(
+                `Peer state verification failed for peer ${this.ip}, claimed state: ` +
+                JSON.stringify(body)
+            );
         }
 
         this.lastPinged = dayjs();
@@ -332,5 +345,20 @@ export class Peer implements P2P.IPeer {
         this.status = response.status;
 
         return response;
+    }
+
+    /**
+     * GET /peer/blocks and return the raw response.
+     * The API is such that the response is supposed to contain blocks at height
+     * afterBlockHeight + 1, afterBlockHeight + 2, and so on up to some limit determined by the peer.
+     * @param  {Number} afterBlockHeight
+     * @return {(Object[]|undefined)}
+     */
+    public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
+        return axios.get(`${this.url}/peer/blocks`, {
+            params: { lastBlockHeight: afterBlockHeight },
+            headers: this.headers,
+            timeout: 10000,
+        });
     }
 }
