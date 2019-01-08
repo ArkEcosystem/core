@@ -404,13 +404,17 @@ module.exports = class ConnectionInterface {
         forgingDelegate.publicKey,
       ).username
 
-      throw new Error(
-        `Delegate ${generatorUsername} (${
-          block.data.generatorPublicKey
-        }) not allowed to forge, should be ${forgingUsername} (${
-          forgingDelegate.publicKey
-        }) :-1:`,
-      )
+      if (delegates.some(delegate => delegate.publicKey === block.data.generatorPublicKey)) {
+        throw new Error(
+          `Delegate ${generatorUsername} (${
+            block.data.generatorPublicKey
+          }) not allowed to forge, should be ${forgingUsername} (${
+            forgingDelegate.publicKey
+          }) :-1:`,
+        )
+      } else {
+        throw new Error("inactive generator");
+      }
     } else {
       logger.debug(
         `Delegate ${generatorUsername} (${

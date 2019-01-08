@@ -425,7 +425,11 @@ module.exports = class Blockchain {
 
       this.transactionPool.purgeBlock(block)
 
-      this.dispatch('FORK')
+      // Only fork when the block generator is an active delegate
+      if (error.message !== "inactive generator") {
+        this.dispatch('FORK');
+      }
+
       return callback()
     }
 
@@ -506,6 +510,8 @@ module.exports = class Blockchain {
       if (isValid) {
         this.dispatch('FORK')
       } else {
+        this.state.lastDownloadedBlock = lastBlock;
+
         logger.info(
           `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
             block.data.generatorPublicKey
