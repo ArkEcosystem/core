@@ -10,7 +10,7 @@ import pluralize from "pluralize";
 import { config as localConfig } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
-import { isChained, tickSyncTracker } from "./utils";
+import { isBlockChained, tickSyncTracker } from "./utils";
 
 import { Blockchain } from "./blockchain";
 
@@ -320,7 +320,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         const empty = !blocks || blocks.length === 0;
-        const chained = !empty && isChained(lastDownloadedBlock, { data: blocks[0] });
+        const chained = !empty && isBlockChained(lastDownloadedBlock, { data: blocks[0] });
 
         if (chained) {
             logger.info(
