@@ -20,15 +20,19 @@ export class UnchainedHandler extends BlockHandler {
     }
 
     public async execute(): Promise<BlockProcessorResult> {
-        await super.execute();
+        super.execute();
 
         this.blockchain.processQueue.clear();
 
         const status = this.checkUnchainedBlock();
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
-                // move logic here to only fork when active forger
-                this.blockchain.forkBlock(this.block);
+                const database = app.resolvePlugin("database");
+                const delegates = await database.getActiveDelegates(this.block.data.height);
+                if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {
+                    this.blockchain.forkBlock(this.block);
+                }
+
                 return BlockProcessorResult.Rejected;
             }
 

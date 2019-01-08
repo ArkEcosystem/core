@@ -46,6 +46,10 @@ export class AcceptBlockHandler extends BlockHandler {
         } catch (error) {
             logger.error(`Refused new block ${JSON.stringify(this.block.data)}`);
             logger.debug(error.stack);
+
+            this.blockchain.transactionPool.purgeBlock(this.block);
+            this.blockchain.forkBlock(this.block);
+
             return super.execute();
         }
     }

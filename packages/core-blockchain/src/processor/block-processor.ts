@@ -73,9 +73,6 @@ export class BlockProcessor {
                     }) disregarded because verification failed :scroll:`,
                 );
                 logger.warn(JSON.stringify(block.verification, null, 4));
-
-                // this.blockchain.transactionPool.purgeSendersWithInvalidTransactions(block);
-
                 return false;
             }
         }
