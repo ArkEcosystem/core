@@ -1,4 +1,1 @@
-export * from "./testnet/blocks101to155";
-export * from "./testnet/blocks2to100";
-export * from "./testnet/delegates";
-export * from "./testnet/passphrases";
+export * from "./testnet"; // export testnet by default, if we want a different one we import from its path

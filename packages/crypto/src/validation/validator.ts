@@ -15,22 +15,22 @@ export class Validator {
     /**
      * Run the validator's rules against its data.
      * @param  {*} attributes
-     * @param  {Object} rules
+     * @param  {Object|Function|String} rules
      * @return {void|Boolean}
      */
     public async validate(attributes, rules) {
-        this.__reset();
+        this.reset();
 
-        if (rules instanceof String) {
-            return this.__validateWithRule(attributes, rules);
+        if (typeof rules === "string") {
+            return this.validateWithRule(attributes, rules);
         }
 
         if (rules instanceof Function) {
-            return this.__validateWithFunction(attributes, rules);
+            return this.validateWithFunction(attributes, rules);
         }
 
         if (rules instanceof Object) {
-            return this.__validateWithJoi(attributes, rules);
+            return this.validateWithJoi(attributes, rules);
         }
 
         return false;
@@ -77,12 +77,19 @@ export class Validator {
     }
 
     /**
+     * Reset any previous results.
+     */
+    private reset() {
+        this.results = null;
+    }
+
+    /**
      * Run the validator's rules against its data using a rule.
      * @param  {*} attributes
      * @param  {String} rule
      * @return {void}
      */
-    public __validateWithRule(attributes, rules) {
+    private validateWithRule(attributes, rules) {
         const validate = this.rules[rules];
 
         if (!rules) {
@@ -98,7 +105,7 @@ export class Validator {
      * @param  {String} rule
      * @return {void}
      */
-    public __validateWithFunction(attributes, validate) {
+    private validateWithFunction(attributes, validate) {
         this.results = validate(attributes);
     }
 
@@ -108,7 +115,7 @@ export class Validator {
      * @param  {String} rule
      * @return {void}
      */
-    public __validateWithJoi(attributes, rules) {
+    private validateWithJoi(attributes, rules) {
         const { error, value } = Engine.validate(attributes, rules);
 
         this.results = {
@@ -117,13 +124,6 @@ export class Validator {
             passes: !error,
             fails: error,
         };
-    }
-
-    /**
-     * Reset any previous results.
-     */
-    public __reset() {
-        this.results = null;
     }
 }
 

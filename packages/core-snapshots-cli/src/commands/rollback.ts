@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { SnapshotManager } from "@arkecosystem/core-snapshots";
 
 export async function rollbackSnapshot(options) {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
-    const snapshotManager = app.resolvePlugin("snapshots");
+    const snapshotManager = app.resolvePlugin<SnapshotManager>("snapshots");
 
     if (options.blockHeight === -1) {
         logger.warn("Rollback height is not specified. Rolling back to last completed round.");
