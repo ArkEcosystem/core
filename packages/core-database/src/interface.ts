@@ -356,6 +356,7 @@ export abstract class ConnectionInterface {
         await this.applyRound(block.data.height);
         block.transactions.forEach(tx => this.__emitTransactionEvents(tx));
         this.emitter.emit("block.applied", block.data);
+        return true;
     }
 
     /**
