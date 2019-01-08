@@ -1,5 +1,5 @@
 import "jest-extends";
-import { isChained } from "../../src/utils";
+import { isBlockChained } from "../../src/utils";
 
 describe("isChained", () => {
     it("should be ok", () => {
@@ -21,7 +21,7 @@ describe("isChained", () => {
             },
         };
 
-        expect(isChained(previousBlock, nextBlock)).toBeTrue();
+        expect(isBlockChained(previousBlock, nextBlock)).toBeTrue();
     });
 
     it("should not be ok", () => {
@@ -43,6 +43,6 @@ describe("isChained", () => {
             },
         };
 
-        expect(isChained(previousBlock, nextBlock)).toBeFalse();
+        expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
 });
