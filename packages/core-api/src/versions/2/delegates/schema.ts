@@ -2,7 +2,7 @@ import * as Joi from "joi";
 import { pagination } from "../shared/schemas/pagination";
 
 const schemaIdentifier = Joi.string()
-    .regex(/^[a-z0-9!@$&_.]+$/)
+    .regex(/^[a-zA-Z0-9!@$&_.]+$/)
     .min(1)
     .max(66);
 
