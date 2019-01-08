@@ -4,13 +4,14 @@ import "@arkecosystem/core-jest-matchers";
 import * as path from "path";
 
 export async function setUpContainer(options: any): Promise<Container.IContainer> {
+    options.network = options.network || "testnet";
     await app.setUp(
         "2.0.0",
         {
             data: options.data || "~/.ark",
-            config: options.config ? options.config : path.resolve(__dirname, "../config/testnet"),
+            config: options.config ? options.config : path.resolve(__dirname, `../config/${options.network}`),
             token: options.token || "ark",
-            network: options.network || "testnet",
+            network: options.network,
         },
         options,
     );
