@@ -1,72 +1,62 @@
-'use strict'
-
-const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const {
+  createServer,
+  mountServer,
+  plugins,
+} = require('@arkecosystem/core-http-utils')
 
 /**
  * Creates a new hapi.js server.
  * @param  {Object} config
  * @return {Hapi.Server}
  */
-module.exports = async (config) => {
-  const baseConfig = {
+module.exports = async config => {
+  const server = await createServer({
     host: config.host,
     port: config.port,
     routes: {
       cors: true,
       validate: {
-        async failAction (request, h, err) {
-           throw err
-        }
-      }
-    }
-  }
-
-  const server = new Hapi.Server(baseConfig)
+        async failAction(request, h, err) {
+          throw err
+        },
+      },
+    },
+  })
 
   await server.register({
-    plugin: require('./plugins/whitelist'),
+    plugin: plugins.whitelist,
     options: {
-      whitelist: config.whitelist
-    }
+      whitelist: config.whitelist,
+      name: 'Webhook API',
+    },
   })
 
   await server.register({
     plugin: require('hapi-pagination'),
     options: {
       meta: {
-        baseUri: ''
+        baseUri: '',
       },
       query: {
         limit: {
-          default: config.pagination.limit
-        }
+          default: config.pagination.limit,
+        },
       },
       results: {
-        name: 'data'
+        name: 'data',
       },
       routes: {
         include: config.pagination.include,
-        exclude: ['*']
-      }
-    }
+        exclude: ['*'],
+      },
+    },
   })
 
   await server.register({
     plugin: require('./routes'),
     routes: { prefix: '/api' },
-    options: config
+    options: config,
   })
 
-  try {
-    await server.start()
-
-    logger.info(`Webhook API available and listening on ${server.info.uri}`)
-
-    return server
-  } catch (error) {
-    logger.error(error.stack)
-    // TODO no exit here?
-    process.exit(1)
-  }
+  return mountServer('Webhook API', server)
 }

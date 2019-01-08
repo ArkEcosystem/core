@@ -1,20 +1,21 @@
-'use strict'
-
 const Joi = require('joi')
+const pagination = require('./pagination')
 
 /**
  * @type {Object}
  */
 exports.index = {
   query: {
-    os: Joi.string(),
-    status: Joi.string(),
-    port: Joi.number().integer(),
-    version: Joi.string(),
-    orderBy: Joi.string(),
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  }
+    ...pagination,
+    ...{
+      ip: Joi.string().ip(),
+      os: Joi.string(),
+      status: Joi.string(),
+      port: Joi.number().port(),
+      version: Joi.string(),
+      orderBy: Joi.string(),
+    },
+  },
 }
 
 /**
@@ -22,6 +23,6 @@ exports.index = {
  */
 exports.show = {
   params: {
-    ip: Joi.string().ip()
-  }
+    ip: Joi.string().ip(),
+  },
 }

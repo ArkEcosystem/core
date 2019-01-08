@@ -1,8 +1,6 @@
 const Machine = require('xstate').Machine
 
-expect.extend({
-  toExecuteOnEntry: require('../../../lib/matchers/blockchain/execute-on-entry')
-})
+require('../../../lib/matchers/blockchain/execute-on-entry')
 
 describe('.toExecuteOnEntry', () => {
   const machine = Machine({
@@ -11,15 +9,15 @@ describe('.toExecuteOnEntry', () => {
       a: {
         onEntry: ['action-a'],
         on: {
-          START: 'b'
-        }
+          START: 'b',
+        },
       },
       b: {
         on: {
-          END: 'a'
-        }
-      }
-    }
+          END: 'a',
+        },
+      },
+    },
   })
 
   test('passes when the state machine executes all the actions when enters a state', () => {
@@ -29,6 +27,9 @@ describe('.toExecuteOnEntry', () => {
   test('fails when the state machine does not execute all the actions when enters a state', () => {
     expect(machine).not.toExecuteOnEntry({ state: 'a', actions: ['no-action'] })
     expect(machine).not.toExecuteOnEntry({ state: 'b', actions: ['action-a'] })
-    expect(machine).not.toExecuteOnEntry({ state: 'a', actions: ['action-a', 'no-action'] })
+    expect(machine).not.toExecuteOnEntry({
+      state: 'a',
+      actions: ['action-a', 'no-action'],
+    })
   })
 })

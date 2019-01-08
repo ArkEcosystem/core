@@ -1,9 +1,7 @@
-'use strict'
-
 /**
  * Check if A is greater than B.
- * @param  {Number} a
- * @param  {Number} b
+ * @param  {Number} actual
+ * @param  {Number} expected
  * @return {Boolean}
  */
-module.exports = (a, b) => (a > b)
+module.exports = (actual, expected) => actual > expected

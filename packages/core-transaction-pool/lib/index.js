@@ -1,5 +1,3 @@
-'use strict'
-
 const transactionPoolManager = require('./manager')
 
 /**
@@ -9,9 +7,9 @@ const transactionPoolManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'transactionPoolManager',
-  async register (container, options) {
+  async register(container, options) {
     return transactionPoolManager
-  }
+  },
 }
 
 /**
@@ -19,3 +17,9 @@ exports.plugin = {
  * @type {TransactionPoolInterface}
  */
 exports.TransactionPoolInterface = require('./interface')
+
+/**
+ * The guard used to handle transaction validation.
+ * @type {TransactionGuard}
+ */
+exports.TransactionGuard = require('./guard')

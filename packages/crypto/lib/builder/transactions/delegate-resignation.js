@@ -6,7 +6,7 @@ module.exports = class DelegateResignationBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.DELEGATE_RESIGNATION

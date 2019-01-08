@@ -1,10 +1,16 @@
-'use strict'
-
 const { crypto } = require('@arkecosystem/crypto')
 
-module.exports = (actual, expected) => {
+const toHaveValidSecondSignature = (actual, expected) => {
+  let verified
+  try {
+    verified = crypto.verifySecondSignature(actual, expected.publicKey)
+  } catch (e) {} // eslint-disable-line no-empty
   return {
     message: () => 'Expected value to have a valid second signature',
-    pass: crypto.verifySecondSignature(actual, expected.publicKey, expected.network)
+    pass: !!verified,
   }
 }
+
+expect.extend({
+  toHaveValidSecondSignature,
+})

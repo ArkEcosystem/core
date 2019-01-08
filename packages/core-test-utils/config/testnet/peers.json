@@ -1,0 +1,14 @@
+{
+  "minimumVersion": ">=2.0.0",
+  "minimumNetworkReach": 5,
+  "globalTimeout": 5000,
+  "coldStart": 30,
+  "whiteList": [],
+  "blackList": [],
+  "list": [
+    {
+      "ip": "0.0.0.99",
+      "port": 4000
+    }
+  ]
+}

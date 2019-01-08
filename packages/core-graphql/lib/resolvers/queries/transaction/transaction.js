@@ -1,5 +1,9 @@
-'use strict';
+const database = require('@arkecosystem/core-container').resolvePlugin(
+  'database',
+)
 
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
-
-module.exports = (_, { id }) => database.transactions.findById(id)
+/**
+ * Get a single transaction from the database
+ * @return {Transaction}
+ */
+module.exports = async (_, { id }) => database.db.transactions.findById(id)

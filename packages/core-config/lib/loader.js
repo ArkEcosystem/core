@@ -1,4 +1,4 @@
-'use strict'
+/* eslint no-await-in-loop: "off" */
 
 const axios = require('axios')
 const dirTree = require('directory-tree')
@@ -13,7 +13,7 @@ class ConfigLoader {
    * @param  {Object} options
    * @return {ConfigLoader}
    */
-  async setUp (options) {
+  async setUp(options) {
     this.options = options
     this.network = JSON.parse(process.env.ARK_NETWORK)
 
@@ -21,7 +21,7 @@ class ConfigLoader {
 
     this._validateConfig()
 
-    this.buildConstants()
+    this.configureCrypto()
 
     return this
   }
@@ -31,16 +31,16 @@ class ConfigLoader {
    * @param  {Number} height
    * @return {void}
    */
-  getConstants (height) {
+  getConstants(height) {
     return configManager.getConstants(height)
   }
 
   /**
-   * Build constants from the config.
+   * Configure the crypto package.
    * @return {void}
    */
-  buildConstants () {
-    configManager.buildConstants()
+  configureCrypto() {
+    configManager.setConfig(this.network)
   }
 
   /**
@@ -48,7 +48,7 @@ class ConfigLoader {
    * @param  {String} dest
    * @return {Promise}
    */
-  async copyFiles (dest) {
+  async copyFiles(dest) {
     if (!dest) {
       dest = `${process.env.ARK_PATH_DATA}/config`
     }
@@ -62,7 +62,7 @@ class ConfigLoader {
    * Load and bind the config.
    * @return {void}
    */
-  async __createFromDirectory () {
+  async __createFromDirectory() {
     const files = this.__getFiles()
 
     this.__createBindings(files)
@@ -75,7 +75,7 @@ class ConfigLoader {
    * @param  {Array} files
    * @return {void}
    */
-  __createBindings (files) {
+  __createBindings(files) {
     for (const [key, value] of Object.entries(files)) {
       this[key] = require(value)
     }
@@ -85,23 +85,27 @@ class ConfigLoader {
    * Get all config files.
    * @return {Object}
    */
-  __getFiles () {
+  __getFiles() {
     const basePath = path.resolve(process.env.ARK_PATH_CONFIG)
 
     if (!fs.existsSync(basePath)) {
-      throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
+      throw new Error(
+        "An invalid configuration was provided or is inaccessible due to it's security settings.",
+      )
       process.exit(1) // eslint-disable-line no-unreachable
     }
 
-    const formatName = (file) => path.basename(file.name, path.extname(file.name))
+    const formatName = file => path.basename(file.name, path.extname(file.name))
 
-    let configTree = {}
+    const configTree = {}
 
-    dirTree(basePath, { extensions: /\.js/ }).children.forEach(entry => {
-      if (entry.type === 'file') {
-        configTree[formatName(entry)] = entry.path
-      }
-    })
+    dirTree(basePath, { extensions: /\.(js|json)$/ }).children.forEach(
+      entry => {
+        if (entry.type === 'file') {
+          configTree[formatName(entry)] = entry.path
+        }
+      },
+    )
 
     return configTree
   }
@@ -111,16 +115,14 @@ class ConfigLoader {
    * @param  {String} configFile
    * @return {void}
    */
-  async __buildPeers (configFile) {
+  async __buildPeers(configFile) {
     if (!this.peers.sources) {
       return
     }
 
-    let output = require(configFile)
+    const output = require(configFile)
 
-    for (let i = this.peers.sources.length - 1; i >= 0; i--) {
-      const source = this.peers.sources[i]
-
+    for (const source of this.peers.sources) {
       // Local File...
       if (source.startsWith('/')) {
         output.list = require(source)
@@ -149,7 +151,7 @@ class ConfigLoader {
    * Validate crucial parts of the configuration.
    * @return {void}
    */
-  _validateConfig () {
+  _validateConfig() {
     try {
       ow(this.network.pubKeyHash, ow.number)
       ow(this.network.nethash, ow.string.length(64))

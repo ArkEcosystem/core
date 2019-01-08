@@ -18,14 +18,14 @@ describe('IpfsHandler', () => {
       expect(handler.canApply).toBeFunction()
     })
 
-    it('should be ok', () => {
-      expect(handler.canApply(wallet, transaction)).toBeTruthy()
+    it('should be true', () => {
+      expect(handler.canApply(wallet, transaction, [])).toBeTrue()
     })
 
-    it('should not be ok', () => {
-      transaction.senderPublicKey = 'p'.repeat(66)
+    it('should be false', () => {
+      transaction.senderPublicKey = 'a'.repeat(66)
 
-      expect(handler.canApply(wallet, transaction)).toBeFalsy()
+      expect(handler.canApply(wallet, transaction, [])).toBeFalse()
     })
   })
 

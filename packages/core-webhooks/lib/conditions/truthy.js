@@ -1,8 +1,6 @@
-'use strict'
-
 /**
  * Check if the given value is true.
- * @param  {*} value
+ * @param  {*} actual
  * @return {Boolean}
  */
-module.exports = (value) => (value === true)
+module.exports = actual => actual === true

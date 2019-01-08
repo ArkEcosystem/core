@@ -1,5 +1,3 @@
-'use strict'
-
 const LoggerInterface = require('../lib/interface')
 
 const logger = new LoggerInterface()
@@ -48,6 +46,12 @@ describe('Logger Interface', () => {
   describe('stopTracker', () => {
     it('should be a function', () => {
       expect(logger.stopTracker).toBeFunction()
+    })
+  })
+
+  describe('suppressConsoleOutput', () => {
+    it('should be a function', () => {
+      expect(logger.suppressConsoleOutput).toBeFunction()
     })
   })
 })

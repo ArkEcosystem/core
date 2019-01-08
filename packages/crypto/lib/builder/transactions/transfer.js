@@ -7,7 +7,7 @@ class TransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
-  constructor () {
+  constructor() {
     super()
 
     this.data.type = TRANSACTION_TYPES.TRANSFER
@@ -15,14 +15,14 @@ class TransferBuilder extends TransactionBuilder {
     this.data.amount = 0
     this.data.recipientId = null
     this.data.senderPublicKey = null
-    this.data.expiration = 15 // 15 blocks, 120s
+    this.data.expiration = 0
   }
 
   /**
    * Overrides the inherited method to return the additional required by this
    * @return {Object}
    */
-  getStruct () {
+  getStruct() {
     const struct = super.getStruct()
     struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId

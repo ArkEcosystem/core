@@ -1,8 +1,6 @@
-'use strict'
+const app = require('@arkecosystem/core-container')
 
-const container = require('@arkecosystem/core-container')
-const database = container.resolvePlugin('database')
-const transactionPool = container.resolvePlugin('transactionPool')
+const transactionPool = app.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
@@ -16,27 +14,18 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const { count, rows } = await database.transactions.findAllLegacy({
-      ...request.query, ...utils.paginate(request)
-    })
+  async handler(request, h) {
+    const data = await request.server.methods.v1.transactions.index(request)
 
-    if (!rows) {
-      return utils.respondWith('No transactions found', true)
-    }
-
-    return utils.respondWith({
-      transactions: utils.toCollection(request, rows, 'transaction'),
-      count
-    })
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getTransactions
-      }
-    }
-  }
+        querySchema: schema.getTransactions,
+      },
+    },
+  },
 }
 
 /**
@@ -48,24 +37,18 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    const result = await database.transactions.findById(request.query.id)
+  async handler(request, h) {
+    const data = await request.server.methods.v1.transactions.show(request)
 
-    if (!result) {
-      return utils.respondWith('No transactions found', true)
-    }
-
-    return utils.respondWith({
-      transaction: utils.toResource(request, result, 'transaction')
-    })
+    return utils.respondWithCache(data, h)
   },
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getTransaction
-      }
-    }
-  }
+        querySchema: schema.getTransaction,
+      },
+    },
+  },
 }
 
 /**
@@ -77,16 +60,21 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
+  handler(request, h) {
     const pagination = utils.paginate(request)
 
-    let transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
-    transactions = transactions.map(transaction => ({ serialized: transaction }))
+    let transactions = transactionPool.getTransactions(
+      pagination.offset,
+      pagination.limit,
+    )
+    transactions = transactions.map(transaction => ({
+      serialized: transaction,
+    }))
 
     return utils.respondWith({
-      transactions: utils.toCollection(request, transactions, 'transaction')
+      transactions: utils.toCollection(request, transactions, 'transaction'),
     })
-  }
+  },
 }
 
 /**
@@ -98,17 +86,21 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  async handler (request, h) {
-    let transaction = await transactionPool.getTransaction(request.query.id)
+  handler(request, h) {
+    const transaction = transactionPool.getTransaction(request.query.id)
 
     if (!transaction) {
       return utils.respondWith('Transaction not found', true)
     }
 
     return utils.respondWith({
-      transaction: utils.toResource(request, {
-        serialized: transaction.serialized.toString('hex')
-      }, 'transaction')
+      transaction: utils.toResource(
+        request,
+        {
+          serialized: transaction.serialized,
+        },
+        'transaction',
+      ),
     })
-  }
+  },
 }

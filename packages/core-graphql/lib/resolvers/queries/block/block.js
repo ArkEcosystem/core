@@ -1,5 +1,9 @@
-'use strict';
+const database = require('@arkecosystem/core-container').resolvePlugin(
+  'database',
+)
 
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
-
-module.exports = (_, { id }) => database.blocks.findById(id)
+/**
+ * Get a single block from the database
+ * @return {Block}
+ */
+module.exports = (_, { id }) => database.db.blocks.findById(id)

@@ -1,12 +1,12 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+# Ark Core - Blockchain
 
-# ARK Core - Blockchain Management
+<p align="center">
+    <img src="../../banner.png?sanitize=true" />
+</p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/core-blockchain
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-blockchain.html).
 
 ## Security
 

@@ -1,5 +1,3 @@
-'use strict'
-
 const emitter = require('./emitter')
 
 /**
@@ -9,7 +7,7 @@ const emitter = require('./emitter')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'event-emitter',
-  async register (container, options) {
+  async register() {
     return emitter
-  }
+  },
 }

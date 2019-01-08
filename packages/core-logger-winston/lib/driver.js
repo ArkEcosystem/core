@@ -1,8 +1,7 @@
-'use strict'
-
 const winston = require('winston')
 const { LoggerInterface } = require('@arkecosystem/core-logger')
 require('colors')
+
 let tracker = null
 
 module.exports = class Logger extends LoggerInterface {
@@ -10,15 +9,16 @@ module.exports = class Logger extends LoggerInterface {
    * Make the logger instance.
    * @return {Winston.Logger}
    */
-  make () {
-    this.driver = new (winston.Logger)()
+  make() {
+    this.driver = winston.createLogger()
 
     this.__registerTransports()
 
-    this.__registerFilters()
+    // this.__registerFilters()
 
     this.driver.printTracker = this.printTracker
     this.driver.stopTracker = this.stopTracker
+    this.driver.suppressConsoleOutput = this.suppressConsoleOutput
 
     return this.driver
   }
@@ -32,18 +32,18 @@ module.exports = class Logger extends LoggerInterface {
    * @param  {Number} figures
    * @return {void}
    */
-  printTracker (title, current, max, postTitle, figures = 0) {
-    const progress = 100 * current / max
+  printTracker(title, current, max, postTitle, figures = 0) {
+    const progress = (100 * current) / max
 
     let line = '\u{1b}[0G  '
     line += title.blue
     line += ' ['
-    line += ('='.repeat(progress / 2)).green
-    line += ' '.repeat(50 - progress / 2) + '] '
-    line += progress.toFixed(figures) + '% '
+    line += '='.repeat(Math.floor(progress / 2)).green
+    line += `${' '.repeat(Math.ceil(50 - progress / 2))}] `
+    line += `${progress.toFixed(figures)}% `
 
     if (postTitle) {
-      line += postTitle + '                     '
+      line += `${postTitle}                     `
     }
 
     process.stdout.write(line)
@@ -58,8 +58,8 @@ module.exports = class Logger extends LoggerInterface {
    * @param  {Number} max
    * @return {void}
    */
-  stopTracker (title, current, max) {
-    let progress = 100 * current / max
+  stopTracker(title, current, max) {
+    let progress = (100 * current) / max
 
     if (progress > 100) {
       progress = 100
@@ -68,9 +68,9 @@ module.exports = class Logger extends LoggerInterface {
     let line = '\u{1b}[0G  '
     line += title.blue
     line += ' ['
-    line += ('='.repeat(progress / 2)).green
-    line += ' '.repeat(50 - progress / 2) + '] '
-    line += progress.toFixed(0) + '% '
+    line += '='.repeat(progress / 2).green
+    line += `${' '.repeat(50 - progress / 2)}] `
+    line += `${progress.toFixed(0)}% `
 
     if (current === max) {
       line += '✔️'
@@ -82,27 +82,43 @@ module.exports = class Logger extends LoggerInterface {
   }
 
   /**
+   * Suppress console output.
+   * @param  {Boolean}
+   * @return {void}
+   */
+  suppressConsoleOutput(suppress) {
+    const consoleTransport = this.transports.find(t => t.name === 'console')
+    if (consoleTransport) {
+      consoleTransport.silent = suppress
+    }
+  }
+
+  /**
    * Register all transports.
    * @return {void}
    */
-  __registerTransports () {
-    Object.values(this.options.transports).forEach(transport => {
+  __registerTransports() {
+    for (const transport of Object.values(this.options.transports)) {
       if (transport.package) {
         require(transport.package)
       }
 
-      this.driver.add(winston.transports[transport.constructor], transport.options)
-    })
+      this.driver.add(
+        new winston.transports[transport.constructor](transport.options),
+      )
+    }
   }
 
   /**
    * Register all filters.
    * @return {void}
    */
-  __registerFilters () {
+  __registerFilters() {
     this.driver.filters.push((level, message, meta) => {
       if (tracker) {
-        process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
+        process.stdout.write(
+          '\u{1b}[0G                                                                                                     \u{1b}[0G',
+        )
         tracker = null
       }
 

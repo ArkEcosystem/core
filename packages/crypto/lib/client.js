@@ -8,7 +8,7 @@ class Client {
    * @constructor
    * @param {Object} config
    */
-  constructor (config) {
+  constructor(config) {
     this.setConfig(config || NetworkManager.findByName('devnet'))
   }
 
@@ -16,7 +16,7 @@ class Client {
    * Set config for client.
    * @param {Object} config
    */
-  setConfig (config) {
+  setConfig(config) {
     configManager.setConfig(config)
   }
 
@@ -24,7 +24,7 @@ class Client {
    * Get fee manager.
    * @return {FeeManager}
    */
-  getFeeManager () {
+  getFeeManager() {
     return feeManager
   }
 
@@ -32,7 +32,7 @@ class Client {
    * Get config manager.
    * @return {ConfigManager}
    */
-  getConfigManager () {
+  getConfigManager() {
     return configManager
   }
 
@@ -40,7 +40,7 @@ class Client {
    * Get transaction builder.
    * @return {TransactionBuilder}
    */
-  getBuilder () {
+  getBuilder() {
     return transactionBuilder
   }
 }

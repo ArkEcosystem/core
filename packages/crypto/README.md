@@ -1,6 +1,8 @@
-![ARK Core](banner.png)
+# Ark - Crypto
 
-# ARK - Crypto
+<p align="center">
+    <img src="./banner.png?sanitize=true" />
+</p>
 
 ## Installation
 
@@ -19,13 +21,13 @@ If you want to use the CDN version:
 Import the library in node.js:
 
 ```
-import ArkCrypto from @arkecosystem/crypto
+import ArkEcosystemCrypto from @arkecosystem/crypto
 ```
 
 Use the library:
 
 ```
-const constants = ArkCrypto.constants
+const constants = ArkEcosystemCrypto.constants
 ```
 
 ## Security

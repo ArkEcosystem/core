@@ -1,5 +1,3 @@
-'use strict'
-
 const PLUGIN_NAME = 'hapi-ajv'
 
 const fs = require('fs')
@@ -15,7 +13,7 @@ const ajv = new AJV()
  * @param  {Object} data
  * @return {(Boolean|Object)}
  */
-function validate (schema, data) {
+function validate(schema, data) {
   return ajv.validate(schema, data) ? null : ajv.errors
 }
 
@@ -26,13 +24,15 @@ function validate (schema, data) {
  * @param  {Array} errors
  * @return {Hapi.Response}
  */
-function createErrorResponse (request, h, errors) {
+function createErrorResponse(request, h, errors) {
   if (request.pre.apiVersion === 1) {
-    return h.response({
-      path: errors[0].dataPath,
-      error: errors[0].message,
-      success: false
-    }).takeover()
+    return h
+      .response({
+        path: errors[0].dataPath,
+        error: errors[0].message,
+        success: false,
+      })
+      .takeover()
   }
   return Boom.badData(errors)
 }
@@ -41,12 +41,12 @@ function createErrorResponse (request, h, errors) {
  * Register all custom validation formats
  * @return {void}
  */
-function registerCustomFormats () {
-  let directory = path.resolve(__dirname, 'formats')
+function registerCustomFormats() {
+  const directory = path.resolve(__dirname, 'formats')
 
   fs.readdirSync(directory).forEach(file => {
     if (file.indexOf('.js') !== -1) {
-      require(directory + '/' + file)(ajv)
+      require(`${directory}/${file}`)(ajv)
     }
   })
 }
@@ -84,7 +84,7 @@ const register = async (server, options) => {
       }
 
       return h.continue
-    }
+    },
   })
 }
 
@@ -95,5 +95,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: PLUGIN_NAME,
   version: '0.1.0',
-  register
+  register,
 }

@@ -6,7 +6,7 @@ const configTestnet = require('./networks/ark/testnet.json')
  * The Arktoshi base.
  * @type {Number}
  */
-exports.ARKTOSHI = Math.pow(10, 8)
+exports.ARKTOSHI = 1e8
 
 /**
  * Available transaction types.
@@ -21,7 +21,31 @@ exports.TRANSACTION_TYPES = Object.freeze({
   IPFS: 5,
   TIMELOCK_TRANSFER: 6,
   MULTI_PAYMENT: 7,
-  DELEGATE_RESIGNATION: 8
+  DELEGATE_RESIGNATION: 8,
+  toString(type) {
+    switch (type) {
+      case this.TRANSFER:
+        return 'transfer'
+      case this.SECOND_SIGNATURE:
+        return 'second signature'
+      case this.DELEGATE_REGISTRATION:
+        return 'delegate registration'
+      case this.VOTE:
+        return 'vote'
+      case this.MULTI_SIGNATURE:
+        return 'multi signature'
+      case this.IPFS:
+        return 'ipfs'
+      case this.TIMELOCK_TRANSFER:
+        return 'timelock transfer'
+      case this.MULTI_PAYMENT:
+        return 'multi payment'
+      case this.DELEGATE_RESIGNATION:
+        return 'delegate resignation'
+      default:
+        throw new Error('Invalid transaction type')
+    }
+  },
 })
 
 /**
@@ -32,6 +56,6 @@ exports.CONFIGURATIONS = Object.freeze({
   ARK: {
     MAINNET: configMainnet,
     DEVNET: configDevnet,
-    TESTNET: configTestnet
-  }
+    TESTNET: configTestnet,
+  },
 })

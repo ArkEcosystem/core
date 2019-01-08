@@ -1,31 +1,21 @@
-'use strict'
-
-const path = require('path')
-const container = require('@arkecosystem/core-container')
+const app = require('@arkecosystem/core-container')
+const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
-beforeAll(async () => {
-  await container.setUp({
-    data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core/lib/config/mainnet'),
-    token: 'ark',
-    network: 'mainnet'
-  }, {
+exports.setUp = async () => {
+  process.env.ARK_JSON_RPC_ENABLED = true
+
+  await appHelper.setUp({
     exclude: [
       '@arkecosystem/core-api',
       '@arkecosystem/core-webhooks',
       '@arkecosystem/core-graphql',
-      '@arkecosystem/core-forger'
+      '@arkecosystem/core-forger',
     ],
-    options: {
-      '@arkecosystem/core-json-rpc': {
-        enabled: true
-      }
-    }
   })
-})
+}
 
-afterAll(async () => {
-  await container.tearDown()
-})
+exports.tearDown = async () => {
+  await app.tearDown()
+}

@@ -1,14 +1,12 @@
-'use strict'
-
 /**
  * Register the "hex" validation rule.
  * @param  {AJV} ajv
  * @return {void}
  */
-module.exports = (ajv) => {
+module.exports = ajv => {
   ajv.addFormat('hex', {
     type: 'string',
-    validate: (value) => {
+    validate: value => {
       try {
         Buffer.from(value, 'hex')
 
@@ -16,6 +14,6 @@ module.exports = (ajv) => {
       } catch (e) {
         return false
       }
-    }
+    },
   })
 }

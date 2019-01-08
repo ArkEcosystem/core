@@ -1,11 +1,9 @@
-'use strict'
-
 module.exports = class LoggerInterface {
   /**
    * Create a new logger instance.
    * @param  {Object} options
    */
-  constructor (options) {
+  constructor(options) {
     this.options = options
   }
 
@@ -13,7 +11,7 @@ module.exports = class LoggerInterface {
    * Get a driver instance.
    * @return {LoggerInterface}
    */
-  driver () {
+  driver() {
     return this.driver
   }
 
@@ -22,7 +20,7 @@ module.exports = class LoggerInterface {
    * @param  {*} message
    * @return {void}
    */
-  error (message) {
+  error(message) {
     throw new Error('Method [error] not implemented!')
   }
 
@@ -31,7 +29,7 @@ module.exports = class LoggerInterface {
    * @param  {*} message
    * @return {void}
    */
-  warn (message) {
+  warn(message) {
     throw new Error('Method [warn] not implemented!')
   }
 
@@ -40,7 +38,7 @@ module.exports = class LoggerInterface {
    * @param  {*} message
    * @return {void}
    */
-  info (message) {
+  info(message) {
     throw new Error('Method [info] not implemented!')
   }
 
@@ -49,7 +47,7 @@ module.exports = class LoggerInterface {
    * @param  {*} message
    * @return {void}
    */
-  debug (message) {
+  debug(message) {
     throw new Error('Method [debug] not implemented!')
   }
 
@@ -62,7 +60,7 @@ module.exports = class LoggerInterface {
    * @param  {Number} figures
    * @return {void}
    */
-  printTracker (title, current, max, postTitle, figures = 0) {
+  printTracker(title, current, max, postTitle, figures = 0) {
     throw new Error('Method [printTracker] not implemented!')
   }
 
@@ -73,7 +71,16 @@ module.exports = class LoggerInterface {
    * @param  {Number} max
    * @return {void}
    */
-  stopTracker (title, current, max) {
+  stopTracker(title, current, max) {
     throw new Error('Method [stopTracker] not implemented!')
+  }
+
+  /**
+   * Suppress console output.
+   * @param  {Boolean}
+   * @return {void}
+   */
+  suppressConsoleOutput(suppress) {
+    throw new Error('Method [suppressConsoleOutput] not implemented!')
   }
 }
