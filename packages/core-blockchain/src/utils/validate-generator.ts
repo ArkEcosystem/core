@@ -1,8 +1,10 @@
 import { app } from "@arkecosystem/core-container";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: any): Promise<boolean> => {
     const database = app.resolvePlugin("database");
+    const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     if (database.__isException(block.data)) {
         return true;
@@ -15,7 +17,7 @@ export const validateGenerator = async (block: any): Promise<boolean> => {
     const generatorUsername = database.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
 
     if (!forgingDelegate) {
-        this.logger.debug(
+        logger.debug(
             `Could not decide if delegate ${generatorUsername} (${
                 block.data.generatorPublicKey
             }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
@@ -23,9 +25,9 @@ export const validateGenerator = async (block: any): Promise<boolean> => {
 
         return false;
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-        const forgingUsername = this.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
+        const forgingUsername = database.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
 
-        this.logger.warn(
+        logger.warn(
             `Delegate ${generatorUsername} (${
                 block.data.generatorPublicKey
             }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`,
@@ -34,7 +36,7 @@ export const validateGenerator = async (block: any): Promise<boolean> => {
         return false;
     }
 
-    this.logger.debug(
+    logger.debug(
         `Delegate ${generatorUsername} (${
             block.data.generatorPublicKey
         }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
