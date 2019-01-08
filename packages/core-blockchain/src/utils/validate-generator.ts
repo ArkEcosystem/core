@@ -22,8 +22,6 @@ export const validateGenerator = async (block: any): Promise<boolean> => {
                 block.data.generatorPublicKey
             }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
         );
-
-        return false;
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
         const forgingUsername = database.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
 

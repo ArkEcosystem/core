@@ -345,12 +345,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
+                blockchain.processQueue.clear();
             }
 
             stateStorage.noBlockCounter++;
             stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
 
-            blockchain.processQueue.clear();
             blockchain.dispatch("NOBLOCK");
         }
     },

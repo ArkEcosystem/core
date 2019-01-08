@@ -244,8 +244,12 @@ export class Blockchain {
      * Enqueue blocks in process queue and set last downloaded block to last item in list.
      */
     public enqueueBlocks(blocks: any[]) {
+        if (blocks.length === 0) {
+            return;
+        }
+
         this.processQueue.push(blocks);
-        this.state.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
+        this.state.lastDownloadedBlock = new Block(blocks.slice(-1)[0]);
     }
 
     /**
