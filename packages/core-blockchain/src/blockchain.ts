@@ -17,8 +17,7 @@ const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const { Block } = models;
 
-export class Blockchain {
-    // implements blockchain.IBlockchain {
+export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the state of the blockchain.
      * @return {IStateStorage}
