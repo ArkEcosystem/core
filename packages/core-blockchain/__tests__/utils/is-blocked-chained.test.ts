@@ -1,4 +1,5 @@
-import "jest-extends";
+import "jest-extended";
+
 import { isBlockChained } from "../../src/utils";
 
 describe("isChained", () => {
