@@ -19,7 +19,7 @@ export const generateTransaction = (
     type = type || Transfer;
     passphrase = passphrase || defaultPassphrase;
 
-    if (!["mainnet", "devnet", "testnet"].includes(network)) {
+    if (!["mainnet", "devnet", "testnet", "unitnet"].includes(network)) {
         throw new Error("Invalid network");
     }
 
