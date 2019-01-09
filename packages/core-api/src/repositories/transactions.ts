@@ -192,7 +192,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findById(id): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.equals(id));
 
@@ -209,7 +209,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findByTypeAndId(type, id): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.equals(id).and(this.query.type.equals(type)));
 
@@ -225,7 +225,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findByIds(ids): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.in(ids));
 
@@ -238,7 +238,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findWithVendorField(): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.vendor_field_hex.isNotNull());
 

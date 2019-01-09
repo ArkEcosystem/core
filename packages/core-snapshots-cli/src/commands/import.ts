@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { EventEmitter } from "@arkecosystem/core-interfaces";
+import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import _cliProgress from "cli-progress";
 
 export async function importSnapshot(options) {
