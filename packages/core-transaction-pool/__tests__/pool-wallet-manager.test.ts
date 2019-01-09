@@ -1,6 +1,7 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, Container } from "@arkecosystem/core-interfaces";
-import { fixtures, generators } from "@arkecosystem/core-test-utils";
+import { generators } from "@arkecosystem/core-test-utils";
+import { delegates, genesisBlock } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import { PoolWalletManager } from "../src";
@@ -8,7 +9,6 @@ import { setUpFull, tearDown } from "./__support__/setup";
 
 const { Block } = models;
 const { generateTransfers, generateWallets } = generators;
-const { blocks2to100, delegates } = fixtures;
 
 const arktoshi = 10 ** 8;
 let container: Container.IContainer;
@@ -39,7 +39,7 @@ describe("applyPoolTransactionToSender", () => {
             expect(+newWallet.balance).toBe(0);
 
             const amount1 = 123 * 10 ** 8;
-            const transfer = generateTransfers("testnet", delegate0.secret, newAddress, amount1, 1)[0];
+            const transfer = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1)[0];
 
             delegateWallet.applyTransactionToSender(transfer);
 
@@ -60,7 +60,7 @@ describe("applyPoolTransactionToSender", () => {
 
             const amount1 = 123 * 10 ** 8;
             const fee = 10;
-            const transfer = generateTransfers("testnet", delegate0.secret, newAddress, amount1, 1, false, fee)[0];
+            const transfer = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee)[0];
 
             delegateWallet.applyTransactionToSender(transfer);
 
@@ -72,7 +72,7 @@ describe("applyPoolTransactionToSender", () => {
             const delegate = delegates[7];
             const delegateWallet = poolWalletManager.findByPublicKey(delegate.publicKey);
 
-            const wallets = generateWallets("testnet", 4);
+            const wallets = generateWallets("unitnet", 4);
             const poolWallets = wallets.map(w => poolWalletManager.findByAddress(w.address));
 
             expect(+delegateWallet.balance).toBe(+delegate.balance);
@@ -96,7 +96,7 @@ describe("applyPoolTransactionToSender", () => {
             ];
 
             transfers.forEach(t => {
-                const transfer = generateTransfers("testnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
+                const transfer = generateTransfers("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
 
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
@@ -140,11 +140,11 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         const forgingDelegate = delegates[reward ? 2 : 3]; // use different delegate to have clean initial balance
         const generatorPublicKey = forgingDelegate.publicKey;
 
-        const wallet = generateWallets("testnet", 1)[0];
+        const wallet = generateWallets("unitnet", 1)[0];
         const transferAmount = 1234;
         const transferDelegate = delegates[4];
         const transfer = generateTransfers(
-            "testnet",
+            "unitnet",
             transferDelegate.passphrase,
             wallet.address,
             transferAmount,
@@ -153,13 +153,24 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         )[0];
 
         const totalFee = 0.1 * arktoshi;
-        const blockWithReward = Object.assign({}, blocks2to100[0], {
+        const blockWithReward = {
+            id: "17882607875259085966",
+            version: 0,
+            timestamp: 46583330,
+            height: 2,
             reward,
-            generatorPublicKey,
-            transactions: [transfer],
+            previousBlock: genesisBlock.id,
             numberOfTransactions: 1,
+            transactions: [transfer],
+            totalAmount: transfer.amount,
             totalFee,
-        });
+            payloadLength: 0,
+            payloadHash: genesisBlock.payloadHash,
+            generatorPublicKey,
+            blockSignature:
+                "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
+            createdAt: "2019-07-11T16:48:50.550Z",
+        };
         const blockWithRewardVerified = new Block(blockWithReward);
         blockWithRewardVerified.verification.verified = true;
 
