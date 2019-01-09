@@ -36,23 +36,6 @@ export class PoolWalletManager extends WalletManager {
         return this.byAddress[address];
     }
 
-    /**
-     * Checks if wallet exits in pool wallet manager
-     * Method overrides base class method from WalletManager.
-     * @param  {String} key can be publicKey or address of wallet
-     * @return {Boolean} true if exists
-     */
-    public exists(key) {
-        if (this.byPublicKey[key]) {
-            return true;
-        }
-
-        if (this.byAddress[key]) {
-            return true;
-        }
-        return false;
-    }
-
     public deleteWallet(publicKey) {
         this.forgetByPublicKey(publicKey);
         this.forgetByAddress(crypto.getAddress(publicKey, this.networkId));
