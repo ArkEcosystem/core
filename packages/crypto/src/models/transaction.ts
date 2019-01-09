@@ -10,6 +10,36 @@ import { Bignum } from "../utils";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
+
+export interface IDeserializedTransactionData {
+    version: number;
+    network: number;
+    type: TransactionTypes;
+    timestamp: any;
+    senderPublicKey: string;
+    fee: Bignum;
+
+    amount?: Bignum;
+    expiration?: number;
+    recipientId?: string;
+
+    asset?: any;
+    vendorField?: string;
+    vendorFieldHex?: string;
+
+    signature: string;
+    secondSignature?: string;
+    signSignature?: string;
+    signatures?: string[]; // Multisig
+
+    timelock: any;
+    timelockType: number;
+
+    id: string;
+    verified: boolean;
+}
+
+
 /**
  * TODO copy some parts to ArkDocs
  * @classdesc This model holds the transaction data and its serialization
@@ -35,8 +65,9 @@ const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
  *   - assets
  *   - network
  */
+
 export class Transaction {
-    public static applyV1Compatibility(deserialized) {
+    public static applyV1Compatibility(deserialized: IDeserializedTransactionData) {
         if (deserialized.secondSignature) {
             deserialized.signSignature = deserialized.secondSignature;
         }
@@ -179,8 +210,8 @@ export class Transaction {
         return bb.toBuffer();
     }
 
-    public static deserialize(hexString) {
-        const transaction: any = {};
+    public static deserialize(hexString): IDeserializedTransactionData {
+        const transaction = {} as IDeserializedTransactionData;
         const buf = ByteBuffer.fromHex(hexString, true);
         transaction.version = buf.readInt8(1);
         transaction.network = buf.readInt8(2);
@@ -189,17 +220,17 @@ export class Transaction {
         transaction.senderPublicKey = hexString.substring(16, 16 + 33 * 2);
         transaction.fee = new Bignum(buf.readUint64(41) as any);
 
-        let vflength = 0;
+        let vendorFieldLength = 0;
 
         if (Transaction.canHaveVendorField(transaction.type)) {
-            vflength = buf.readInt8(41 + 8);
+            vendorFieldLength = buf.readInt8(41 + 8);
 
-            if (vflength > 0) {
-                transaction.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vflength * 2);
+            if (vendorFieldLength > 0) {
+                transaction.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vendorFieldLength * 2);
             }
         }
 
-        const assetOffset = (41 + 8 + 1) * 2 + vflength * 2;
+        const assetOffset = (41 + 8 + 1) * 2 + vendorFieldLength * 2;
 
         if (transaction.type === TransactionTypes.Transfer) {
             transaction.amount = new Bignum(buf.readUint64(assetOffset / 2) as any);
@@ -311,7 +342,7 @@ export class Transaction {
         return transaction;
     }
 
-    public static parseSignatures(hexString, transaction, startOffset) {
+    public static parseSignatures(hexString: string, transaction: IDeserializedTransactionData, startOffset: number) {
         transaction.signature = hexString.substring(startOffset);
 
         let multioffset = 0;
@@ -440,7 +471,6 @@ export class Transaction {
 
     /*
      * Return transaction data.
-     * @return {Object}
      */
     public toJson() {
         // Convert Bignums
