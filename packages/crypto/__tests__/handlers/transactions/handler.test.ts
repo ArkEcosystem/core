@@ -1,11 +1,15 @@
 import "jest-extended";
 
 import { ARKTOSHI } from "../../../src/constants";
+import { DelegateRegistrationHandler } from "../../../src/handlers/transactions/delegate-registration";
+import { DelegateResignationHandler } from "../../../src/handlers/transactions/delegate-resignation";
 import { Handler } from "../../../src/handlers/transactions/handler";
+import { SecondSignatureHandler } from "../../../src/handlers/transactions/second-signature";
+import { TransferHandler } from "../../../src/handlers/transactions/transfer";
+import { VoteHandler } from "../../../src/handlers/transactions/vote";
 import { configManager } from "../../../src/managers";
 import { Bignum } from "../../../src/utils/bignum";
 
-let handler;
 let wallet;
 let transaction;
 let transactionWithSecondSignature;
@@ -24,8 +28,6 @@ class FakeHandler extends Handler {
 }
 
 beforeEach(() => {
-    handler = new FakeHandler();
-
     wallet = {
         address: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
         balance: new Bignum(4527654310),
@@ -61,19 +63,12 @@ beforeEach(() => {
     errors = [];
 });
 
-describe("Handler", () => {
+describe("Specific handler - fake handler tests", () => {
+    const handler = new FakeHandler();
     describe("canApply", () => {
         it("should be true", () => {
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
             expect(errors).toHaveLength(0);
-        });
-
-        it("should be false if wallet publicKey does not match tx senderPublicKey", () => {
-            transaction.senderPublicKey = "a".repeat(66);
-            const result = handler.canApply(wallet, transaction, errors);
-
-            expect(result).toBeFalse();
-            expect(errors).toContain('wallet "publicKey" does not match transaction "senderPublicKey"');
         });
 
         it("should be true even with publicKey case mismatch", () => {
@@ -81,6 +76,26 @@ describe("Handler", () => {
             wallet.publicKey = wallet.publicKey.toLowerCase();
 
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
+        });
+    });
+});
+
+describe.each([
+    ["Transfer handler", TransferHandler],
+    ["Vote handler", VoteHandler],
+    ["Delegate registration handler", DelegateRegistrationHandler],
+    ["Delegate resignation handler", DelegateResignationHandler],
+    ["Second signature handler", SecondSignatureHandler],
+    ["Fake handler", FakeHandler],
+])("Commmon handler tests - %s", (handlerDesc, TransactionHandler) => {
+    const handler = new TransactionHandler();
+    describe("canApply", () => {
+        it("should be false if wallet publicKey does not match tx senderPublicKey", () => {
+            transaction.senderPublicKey = "a".repeat(66);
+            const result = handler.canApply(wallet, transaction, errors);
+
+            expect(result).toBeFalse();
+            expect(errors).toContain('wallet "publicKey" does not match transaction "senderPublicKey"');
         });
 
         it("should be false if the transaction has a second signature but wallet does not", () => {
@@ -95,7 +110,11 @@ describe("Handler", () => {
             wallet.secondPublicKey = "invalid-public-key";
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
-            expect(errors).toContain("Failed to verify second-signature");
+            expect(errors).toContain(
+                handlerDesc === "Second signature handler"
+                    ? "Wallet already has a second signature"
+                    : "Failed to verify second-signature",
+            );
         });
 
         it("should be false if the validation fails", () => {
@@ -103,6 +122,13 @@ describe("Handler", () => {
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain('child "senderPublicKey" fails because ["senderPublicKey" is required]');
+        });
+
+        it("should be false if wallet has not enough balance", () => {
+            wallet.balance = transaction.amount.plus(transaction.fee).minus(1); // 1 arktoshi short
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toContain("Insufficient balance in the wallet");
         });
     });
 
