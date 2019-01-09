@@ -25,6 +25,6 @@ export function transformTransaction(model) {
         vendorField: data.vendorField,
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height : 0,
-        timestamp: formatTimestamp(data.timestamp),
+        timestamp: formatTimestamp(model.timestamp || data.timestamp),
     };
 }
