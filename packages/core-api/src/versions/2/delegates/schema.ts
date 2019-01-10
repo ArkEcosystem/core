@@ -1,6 +1,16 @@
 import * as Joi from "joi";
 import { pagination } from "../shared/schemas/pagination";
 
+const schemaIdentifier = Joi.string()
+    .regex(/^[a-zA-Z0-9!@$&_.]+$/)
+    .min(1)
+    .max(66);
+
+const schemaUsername = Joi.string()
+    .regex(/^[a-z0-9!@$&_.]+$/)
+    .min(1)
+    .max(20);
+
 export const index: object = {
     query: {
         ...pagination,
@@ -18,7 +28,7 @@ export const index: object = {
             vote: Joi.string()
                 .hex()
                 .length(66),
-            username: Joi.string(),
+            username: schemaUsername,
             balance: Joi.number()
                 .integer()
                 .min(0),
@@ -37,20 +47,20 @@ export const index: object = {
 
 export const show: object = {
     params: {
-        id: Joi.string(),
+        id: schemaIdentifier,
     },
 };
 
 export const search: object = {
     query: pagination,
     payload: {
-        username: Joi.string(),
+        username: schemaUsername,
     },
 };
 
 export const blocks: object = {
     params: {
-        id: Joi.string(),
+        id: schemaIdentifier,
     },
     query: {
         ...pagination,
@@ -93,7 +103,7 @@ export const blocks: object = {
 
 export const voters: object = {
     params: {
-        id: Joi.string(),
+        id: schemaIdentifier,
     },
     query: {
         ...pagination,
@@ -111,7 +121,7 @@ export const voters: object = {
             vote: Joi.string()
                 .hex()
                 .length(66),
-            username: Joi.string(),
+            username: schemaUsername,
             balance: Joi.number()
                 .integer()
                 .min(0),
@@ -130,6 +140,6 @@ export const voters: object = {
 
 export const voterBalances: object = {
     params: {
-        id: Joi.string(),
+        id: schemaIdentifier,
     },
 };

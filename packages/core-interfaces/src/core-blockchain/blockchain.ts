@@ -76,7 +76,7 @@ export interface IBlockchain {
      * @param  {Block} block
      * @return {void}
      */
-    queueBlock(block: models.Block): void;
+    handleIncomingBlock(block: models.Block): void;
 
     /**
      * Rollback all blocks up to the previous round.
@@ -116,29 +116,6 @@ export interface IBlockchain {
      * @return {(Function|void)}
      */
     processBlock(block: models.Block, callback: any): Promise<any>;
-
-    /**
-     * Accept a new chained block.
-     * @param  {Block} block
-     * @param  {Object} state
-     * @return {void}
-     */
-    acceptChainedBlock(block: models.Block): Promise<void>;
-
-    /**
-     * Manage a block that is out of order.
-     * @param  {Block} block
-     * @param  {Object} state
-     * @return {void}
-     */
-    manageUnchainedBlock(block: models.Block): Promise<void>;
-
-    /**
-     * Checks if the given block contains already forged transactions.
-     * @param {Block} block
-     * @returns {Boolean}
-     */
-    checkBlockContainsForgedTransactions(block: models.Block): Promise<boolean>;
 
     /**
      * Called by forger to wake up and sync with the network.

@@ -1,7 +1,8 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { fixtures, generators } from "@arkecosystem/core-test-utils";
+import { generators } from "@arkecosystem/core-test-utils";
+import { delegates } from "@arkecosystem/core-test-utils/src/fixtures/unitnet/delegates";
 import { bignumify } from "@arkecosystem/core-utils";
 import { constants, models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -13,7 +14,7 @@ import { setUpFull, tearDown } from "./__support__/setup";
 const { ARKTOSHI, TransactionTypes } = constants;
 const { Transaction } = models;
 const { generateTransfers } = generators;
-const { delegatesSecrets } = fixtures;
+const delegatesSecrets = delegates.map(d => d.secret);
 
 let config;
 let database: PostgresConnection;
@@ -124,7 +125,9 @@ describe("Connection", () => {
 
             const { added, notAdded } = connection.addTransactions(transactions);
             expect(notAdded[0].message).toEqual(
-                `["[PoolWalletManager] Can't apply transaction id:b163572af7598e35b4ea51e92cd1b59c8d653a50fc21358a7690777cc793cc50 from sender:AHkZLLjUdjjjJzNe1zCXqHh27bUhzg8GZw","Insufficient balance in the wallet"]`,
+                `["[PoolWalletManager] Can't apply transaction id:${
+                    mockData.dummy3.id
+                } from sender:AHkZLLjUdjjjJzNe1zCXqHh27bUhzg8GZw","Insufficient balance in the wallet"]`,
             );
             expect(connection.getPoolSize()).toBe(5);
         });
@@ -143,17 +146,11 @@ describe("Connection", () => {
             transactions[transactions.length - 1].expiration = expiration;
 
             transactions.push(new Transaction(mockData.dummy1));
-            // transactions[transactions.length - 1].type =
-            //   TransactionTypes.TimelockTransfer
 
             // Workaround: Increase balance of sender wallet to succeed
             const insufficientBalanceTx: any = new Transaction(mockData.dummyExp2);
             transactions.push(insufficientBalanceTx);
             insufficientBalanceTx.expiration = expiration;
-
-            const wallet = connection.walletManager.findByPublicKey(insufficientBalanceTx.senderPublicKey);
-
-            wallet.balance = wallet.balance.plus(insufficientBalanceTx.amount * 2);
 
             transactions.push(mockData.dummy2);
 
@@ -268,10 +265,7 @@ describe("Connection", () => {
         it("should be allowed to exceed if whitelisted", () => {
             connection.flush();
             connection.options.maxTransactionsPerSender = 5;
-            connection.options.allowedSenders = [
-                "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357",
-                "ghjk",
-            ];
+            connection.options.allowedSenders = [delegates[0].publicKey, delegates[1].publicKey];
             connection.addTransaction(mockData.dummy3);
             connection.addTransaction(mockData.dummy4);
             connection.addTransaction(mockData.dummy5);
@@ -547,9 +541,9 @@ describe("Connection", () => {
 
     describe("purgeSendersWithInvalidTransactions", () => {
         it("should purge transactions from sender when invalid", async () => {
-            const transfersA = generateTransfers("testnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
+            const transfersA = generateTransfers("unitnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
 
-            const transfersB = generateTransfers("testnet", delegatesSecrets[1], mockData.dummy1.recipientId, 1, 1);
+            const transfersB = generateTransfers("unitnet", delegatesSecrets[1], mockData.dummy1.recipientId, 1, 1);
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
@@ -575,7 +569,7 @@ describe("Connection", () => {
 
     describe("purgeBlock", () => {
         it("should purge transactions from block", async () => {
-            const transactions = generateTransfers("testnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
+            const transactions = generateTransfers("unitnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
             const block = { transactions };
 
             block.transactions.forEach(tx => connection.addTransaction(tx));

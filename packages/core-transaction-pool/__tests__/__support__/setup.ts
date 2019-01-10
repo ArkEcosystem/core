@@ -7,12 +7,14 @@ export const setUp = async () => {
     return await setUpContainer({
         exit: "@arkecosystem/core-blockchain",
         exclude: ["@arkecosystem/core-transaction-pool"],
+        network: "unitnet",
     });
 };
 
 export const setUpFull = async () => {
     return await setUpContainer({
         exit: "@arkecosystem/core-blockchain",
+        network: "unitnet",
     });
 };
 

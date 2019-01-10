@@ -28,9 +28,9 @@ export const generateTransaction = (
     }
 
     let secondPassphrase;
-    if (Array.isArray(passphrase)) {
-        secondPassphrase = passphrase[1];
-        passphrase = passphrase[0];
+    if (typeof passphrase === "object") {
+        secondPassphrase = passphrase.secondPassphrase;
+        passphrase = passphrase.passphrase;
     }
 
     client.getConfigManager().setFromPreset(network);
@@ -75,7 +75,7 @@ export const generateTransaction = (
             }
         }
 
-        if (fee) {
+        if (fee || fee === 0) {
             builder = builder.fee(fee);
         }
 
