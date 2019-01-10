@@ -10,4 +10,9 @@ export const generateVote = (
     quantity: number = 10,
     getStruct: boolean = false,
     fee?: number,
-) => generateTransaction(network, Vote, passphrase, publicKey, undefined, quantity, getStruct, fee);
+) => {
+    if (Array.isArray(passphrase)) {
+        return passphrase.map(p => generateTransaction(network, Vote, p, publicKey, undefined, 1, getStruct, fee)[0]);
+    }
+    return generateTransaction(network, Vote, passphrase, publicKey, undefined, quantity, getStruct, fee);
+};

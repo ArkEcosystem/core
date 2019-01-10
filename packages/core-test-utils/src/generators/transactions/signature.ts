@@ -9,4 +9,11 @@ export const generateSecondSignature = (
     quantity: number = 10,
     getStruct: boolean = false,
     fee?: number,
-) => generateTransaction(network, SecondSignature, passphrase, undefined, undefined, quantity, getStruct, fee);
+) => {
+    if (Array.isArray(passphrase)) {
+        return passphrase.map(
+            p => generateTransaction(network, SecondSignature, p, undefined, undefined, 1, getStruct, fee)[0],
+        );
+    }
+    return generateTransaction(network, SecondSignature, passphrase, undefined, undefined, quantity, getStruct, fee);
+};
