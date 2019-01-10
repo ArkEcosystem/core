@@ -655,7 +655,7 @@ describe("Transaction Guard", () => {
 
                 const result = await guard.validate(transfers);
 
-                expect(result.errors).toEqual(__forgedErrorMessage(transfers[0].id));
+                expect(result.errors).toEqual(forgedErrorMessage(transfers[0].id));
             });
 
             it("should not validate an already forged transaction - trying to tweak tx id", async () => {
@@ -667,7 +667,7 @@ describe("Transaction Guard", () => {
 
                 const result = await guard.validate(transfers);
 
-                expect(result.errors).toEqual(__forgedErrorMessage(realTransferId));
+                expect(result.errors).toEqual(forgedErrorMessage(realTransferId));
             });
         });
     });
