@@ -1,23 +1,21 @@
-import { createHash } from "crypto";
 import { TransactionTypes } from "../constants";
-import { crypto } from "../crypto/crypto";
+import { crypto } from "../crypto";
 import { TransactionDeserializer } from "../deserializers";
-import { configManager } from "../managers";
 import { TransactionSerializer } from "../serializers";
 import { Bignum } from "../utils";
 
-const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
+export interface ITransactionData {
+    id: string;
+    version?: number;
+    network?: number;
 
-
-export interface IDeserializedTransactionData {
-    version: number;
-    network: number;
     type: TransactionTypes;
-    timestamp: any;
+    timestamp: number;
     senderPublicKey: string;
-    fee: Bignum;
 
-    amount?: Bignum;
+    fee: Bignum | number | string;
+    amount: Bignum | number | string;
+
     expiration?: number;
     recipientId?: string;
 
@@ -28,15 +26,13 @@ export interface IDeserializedTransactionData {
     signature: string;
     secondSignature?: string;
     signSignature?: string;
-    signatures?: string[]; // Multisig
+    signatures?: string[];
 
-    timelock: any;
-    timelockType: number;
+    blockId?: string;
 
-    id: string;
-    verified: boolean;
+    timelock?: any;
+    timelockType?: number;
 }
-
 
 /**
  * TODO copy some parts to ArkDocs
@@ -64,110 +60,57 @@ export interface IDeserializedTransactionData {
  *   - network
  */
 
-export class Transaction {
-    public static applyV1Compatibility(deserialized: IDeserializedTransactionData) {
-        if (deserialized.secondSignature) {
-            deserialized.signSignature = deserialized.secondSignature;
-        }
+export class Transaction implements ITransactionData {
 
-        if (deserialized.type === TransactionTypes.Vote) {
-            deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network);
-        }
-
-        if (deserialized.vendorFieldHex) {
-            deserialized.vendorField = Buffer.from(deserialized.vendorFieldHex, "hex").toString("utf8");
-        }
-
-        if (deserialized.type === TransactionTypes.MultiSignature) {
-            deserialized.asset.multisignature.keysgroup = deserialized.asset.multisignature.keysgroup.map(k => `+${k}`);
-        }
-
-        if (
-            deserialized.type === TransactionTypes.SecondSignature ||
-            deserialized.type === TransactionTypes.MultiSignature
-        ) {
-            deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network);
-        }
-
-        if (!deserialized.id) {
-            deserialized.id = crypto.getId(deserialized);
-
-            // Apply fix for broken type 1 and 4 transactions, which were
-            // erroneously calculated with a recipient id.
-            if (transactionIdFixTable[deserialized.id]) {
-                deserialized.id = transactionIdFixTable[deserialized.id];
-            }
-        }
-
-        if (deserialized.type <= 4) {
-            deserialized.verified = crypto.verify(deserialized);
-        } else {
-            deserialized.verified = false;
-        }
+    public static serialize(transaction: ITransactionData): Buffer {
+        return TransactionSerializer.serialize(transaction)
     }
 
-    /*
-     * Return a clean transaction data from the serialized form.
-     * @return {Transaction}
-     */
-    public static fromBytes(hexString) {
-        return new Transaction(hexString);
-    }
-
-    // AIP11 serialization
-    public static serialize(transaction): any {
-        return TransactionSerializer.serialize(transaction);
-    }
-
-    public static deserialize(hexString): IDeserializedTransactionData {
+    public static deserialize(hexString: string): ITransactionData {
         return TransactionDeserializer.deserialize(hexString);
     }
-
   
     public static canHaveVendorField(type: number): boolean {
         return [TransactionTypes.Transfer, TransactionTypes.TimelockTransfer].includes(type);
     }
 
-    public senderPublicKey: any;
-    public fee: Bignum;
-    public vendorFieldHex: any;
-    public amount: Bignum;
-    public expiration: any;
-    public recipientId: any;
-    public asset: any;
-    public timelockType: number;
-    public timelock: any;
-    public verified: boolean;
-    public id: string;
-    public timestamp: any;
-    public type: any;
-    public version: any;
-    public network: any;
+    public data: ITransactionData;
     public serialized: string;
-    public data: any; // TODO: split Transaction into multiple classes
+    public verified: boolean;
 
-    constructor(data) {
+    // TODO: remove all duplicated data properties from Transaction class
+    public id: string;
+    public version: number;
+    public network: number;
+    public type: TransactionTypes;
+    public timestamp: number;
+    public senderPublicKey: string;
+    public fee: Bignum;
+    public amount: Bignum;
+    public expiration?: number;
+    public recipientId?: string;
+    public asset?: any;
+    public vendorField?: string;
+    public vendorFieldHex?: string;
+    public signature: string;
+    public secondSignature?: string;
+    public signSignature?: string;
+    public signatures?: string[];
+    public blockId?: string;
+    public timelock?: any;
+    public timelockType?: number;
+
+    constructor(data: string | ITransactionData) {
         if (typeof data === "string") {
             this.serialized = data;
         } else {
-            // @ts-ignore
             this.serialized = Transaction.serialize(data).toString("hex");
         }
-        const deserialized = Transaction.deserialize(this.serialized);
 
-        if (deserialized.version === 1) {
-            Transaction.applyV1Compatibility(deserialized);
-            this.verified = deserialized.verified;
-            delete deserialized.verified;
-        } else if (deserialized.version === 2) {
-            deserialized.id = createHash("sha256")
-                .update(Buffer.from(this.serialized, "hex"))
-                .digest()
-                .toString("hex");
+        this.data = Transaction.deserialize(this.serialized);
+        this.verified = this.data.type <= 4 && crypto.verify(this.data);
 
-            // TODO: enable AIP11 when network ready
-            this.verified = false;
-        }
+        // TODO: remove this shit
         [
             "id",
             "sequence",
@@ -190,24 +133,19 @@ export class Transaction {
             "timelock",
             "timelockType",
         ].forEach(key => {
-            this[key] = deserialized[key];
+            this[key] = this.data[key];
         }, this);
-
-        this.data = deserialized;
     }
 
     public verify() {
         return this.verified;
     }
 
-    /*
-     * Return transaction data.
-     */
     public toJson() {
         // Convert Bignums
         const data = Object.assign({}, this.data);
-        data.amount = +data.amount.toFixed();
-        data.fee = +data.fee.toFixed();
+        data.amount = +new Bignum(data.amount).toFixed();
+        data.fee = +new Bignum(data.fee).toFixed();
 
         return data;
     }

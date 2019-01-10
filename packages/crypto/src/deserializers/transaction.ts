@@ -1,51 +1,29 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../constants";
+import { crypto } from "../crypto";
+import { configManager } from "../managers";
 import { Transaction } from "../models";
+import { ITransactionData } from "../models/transaction";
 import { Bignum } from "../utils/bignum";
 
-export interface IDeserializedTransactionData {
-    version: number;
-    network: number;
-    type: TransactionTypes;
-    timestamp: any;
-    senderPublicKey: string;
-    fee: Bignum;
-
-    amount?: Bignum;
-    expiration?: number;
-    recipientId?: string;
-
-    asset?: any;
-    vendorField?: string;
-    vendorFieldHex?: string;
-
-    signature: string;
-    secondSignature?: string;
-    signSignature?: string;
-    signatures?: string[];
-
-    timelock: any;
-    timelockType: number;
-
-    id: string;
-    verified: boolean;
-}
+const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
 class TransactionDeserializer {
-    public deserialize(serializedHex: string): IDeserializedTransactionData {
-        const transaction = {} as IDeserializedTransactionData;
+    public deserialize(serializedHex: string): ITransactionData {
+        const transaction = {} as ITransactionData;
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
         this.deserializeCommon(transaction, buf);
         this.deserializeVendorField(transaction, buf);
         this.deserializeType(transaction, buf);
         this.deserializeSignatures(transaction, buf);
+        this.applyV1Compatibility(transaction);
 
         return transaction;
     }
 
-    private deserializeCommon(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeCommon(transaction: ITransactionData, buf: ByteBuffer): void {
         buf.skip(1); // Skip 0xFF marker
         transaction.version = buf.readUint8();
         transaction.network = buf.readUint8();
@@ -56,7 +34,7 @@ class TransactionDeserializer {
         transaction.amount = Bignum.ZERO;
     }
 
-    private deserializeVendorField(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeVendorField(transaction: ITransactionData, buf: ByteBuffer): void {
         if (!Transaction.canHaveVendorField(transaction.type)) {
             buf.skip(1);
             return;
@@ -68,7 +46,7 @@ class TransactionDeserializer {
         }
     }
 
-    private deserializeType(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeType(transaction: ITransactionData, buf: ByteBuffer): void {
         if (transaction.type === TransactionTypes.Transfer) {
             this.deserializeTransfer(transaction, buf);
 
@@ -101,13 +79,13 @@ class TransactionDeserializer {
         }
     }
 
-    private deserializeTransfer(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeTransfer(transaction: ITransactionData, buf: ByteBuffer): void {
         transaction.amount = new Bignum(buf.readUint64().toString());
         transaction.expiration = buf.readUint32();
         transaction.recipientId = bs58check.encode(buf.readBytes(21).toBuffer())
     }
 
-    private deserializeSecondSignature(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeSecondSignature(transaction: ITransactionData, buf: ByteBuffer): void {
         transaction.asset = {
             signature: {
                 publicKey: buf.readBytes(33).toString("hex"),
@@ -115,7 +93,7 @@ class TransactionDeserializer {
         };
     }
 
-    private deserializeDelegateRegistration(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeDelegateRegistration(transaction: ITransactionData, buf: ByteBuffer): void {
         const usernamelength = buf.readUint8();
 
         transaction.asset = {
@@ -125,7 +103,7 @@ class TransactionDeserializer {
         };
     }
 
-    private deserializeVote(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeVote(transaction: ITransactionData, buf: ByteBuffer): void {
         const votelength = buf.readUint8();
         transaction.asset = { votes: [] };
 
@@ -136,7 +114,7 @@ class TransactionDeserializer {
         }
     }
 
-    private deserializeMultiSignature(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeMultiSignature(transaction: ITransactionData, buf: ByteBuffer): void {
         transaction.asset = { multisignature: { keysgroup: [] } };
         transaction.asset.multisignature.min = buf.readUint8();
 
@@ -149,21 +127,21 @@ class TransactionDeserializer {
         }
     }
 
-    private deserializeIpfs(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeIpfs(transaction: ITransactionData, buf: ByteBuffer): void {
         const dagLength = buf.readUint8();
         transaction.asset = {
             dag: buf.readBytes(dagLength).toString("hex")
         };
     }
 
-    private deserializeTimelockTransfer(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeTimelockTransfer(transaction: ITransactionData, buf: ByteBuffer): void {
         transaction.amount = new Bignum(buf.readUint64().toString());
         transaction.timelockType = buf.readUint8();
         transaction.timelock = buf.readUint64().toNumber();
         transaction.recipientId = bs58check.encode(buf.readBytes(21));
     }
 
-    private deserializeMultiPayment(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeMultiPayment(transaction: ITransactionData, buf: ByteBuffer): void {
         const payments = []
         const total = buf.readUint8();
 
@@ -178,11 +156,11 @@ class TransactionDeserializer {
         transaction.asset = { payments };
     }
 
-    private deserializeDelegateResignation(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
+    private deserializeDelegateResignation(transaction: ITransactionData, buf: ByteBuffer): void {
         return;
     }
 
-    private deserializeSignatures(transaction: IDeserializedTransactionData, buf: ByteBuffer) {
+    private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer) {
         const currentSignatureLength = (): number => {
             buf.mark();
             const lengthHex = buf.skip(1).readBytes(1).toString("hex");
@@ -215,6 +193,41 @@ class TransactionDeserializer {
                 const multiSignature = buf.readBytes(multiSignatureLength).toString("hex");
                 transaction.signatures.push(multiSignature);
             }
+        }
+    }
+
+    private applyV1Compatibility(transaction: ITransactionData): void {
+        if (transaction.version && transaction.version !== 1) {
+            return;
+        }
+
+        if (transaction.secondSignature) {
+            transaction.signSignature = transaction.secondSignature;
+        }
+
+        if (transaction.type === TransactionTypes.Vote) {
+            transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
+        } else if (transaction.type === TransactionTypes.MultiSignature) {
+            transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => `+${k}`);
+        }
+
+        if (transaction.vendorFieldHex) {
+            transaction.vendorField = Buffer.from(transaction.vendorFieldHex, "hex").toString("utf8");
+        }
+
+        if (
+            transaction.type === TransactionTypes.SecondSignature ||
+            transaction.type === TransactionTypes.MultiSignature
+        ) {
+            transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
+        }
+
+        transaction.id = crypto.getId(transaction);
+
+        // Apply fix for broken type 1 and 4 transactions, which were
+        // erroneously calculated with a recipient id.
+        if (transactionIdFixTable[transaction.id]) {
+            transaction.id = transactionIdFixTable[transaction.id];
         }
     }
 }

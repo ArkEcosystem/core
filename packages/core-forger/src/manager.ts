@@ -210,7 +210,7 @@ export class ForgerManager {
         const response = await this.client.getTransactions();
 
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
+            ? response.transactions.map(serializedTx => new Transaction(serializedTx))
             : [];
 
         if (isEmpty(response)) {
