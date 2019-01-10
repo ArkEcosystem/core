@@ -3,16 +3,38 @@ import { createHash } from "crypto";
 import cloneDeepWith from "lodash/cloneDeepWith";
 import pluralize from "pluralize";
 import { crypto, slots } from "../crypto";
+import { BlockDeserializer } from "../deserializers";
 import { configManager } from "../managers/config";
 import { Bignum } from "../utils";
-import { Transaction } from "./transaction";
+import { ITransactionData, Transaction } from "./transaction";
 
-const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
-const toBytesHex = data => {
-    const temp = data ? new Bignum(data).toString(16) : "";
-    return "0".repeat(16 - temp.length) + temp;
-};
+
+export interface IBlockData {
+    blockSignature: string;
+    id: string;
+    idHex: string;
+    timestamp: number;
+    version: number;
+    height: number;
+    previousBlockHex: string;
+    previousBlock: string;
+    numberOfTransactions: number;
+    totalAmount: Bignum;
+    totalFee: Bignum;
+    reward: Bignum;
+    payloadLength: number;
+    payloadHash: string;
+    generatorPublicKey: string;
+
+    headerOnly: boolean;
+    serialized: any;
+
+    genesis: boolean;
+    transactions: ITransactionData[];
+    transactionIds: any;
+    verification: { verified: boolean; errors: any[] };
+}
 
 /**
  * TODO copy some parts to ArkDocs
@@ -84,6 +106,12 @@ export class Block {
         return temp.toString("hex");
     }
 
+
+    public static toBytesHex(data) {
+        const temp = data ? new Bignum(data).toString(16) : "";
+        return "0".repeat(16 - temp.length) + temp;
+    };
+
     /**
      * Get block id from already serialized buffer
      * @param  {Buffer} serialized block buffer with block-signature included
@@ -114,53 +142,8 @@ export class Block {
      * @return {Object}
      * @static
      */
-    public static deserialize(hexString, headerOnly = false) {
-        const block: any = {};
-        const buf = ByteBuffer.fromHex(hexString, true);
-        block.version = buf.readUint32(0);
-        block.timestamp = buf.readUint32(4);
-        block.height = buf.readUint32(8);
-        block.previousBlockHex = buf.slice(12, 20).toString("hex");
-        block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed();
-        block.numberOfTransactions = buf.readUint32(20);
-        block.totalAmount = new Bignum(buf.readUint64(24) as any);
-        block.totalFee = new Bignum(buf.readUint64(32) as any);
-        block.reward = new Bignum(buf.readUint64(40) as any);
-        block.payloadLength = buf.readUint32(48);
-        block.payloadHash = hexString.substring(104, 104 + 64);
-        block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2);
-
-        const length = parseInt(`0x${hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4)}`, 16) + 2;
-        block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2);
-
-        if (headerOnly) {
-            return block;
-        }
-
-        let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2;
-        block.transactions = [];
-        if (hexString.length === transactionOffset * 2) {
-            return block;
-        }
-
-        // A serialized block stores transactions like this:
-        // |L1|L2|L3|...|LN|  TX1  |    TX2    | TX3 | ... |  TXN  |
-        // Each L is 4 bytes and denotes the length in bytes of the corresponding TX.
-        const lengthOffset = transactionOffset; // Position right before L1
-        transactionOffset += block.numberOfTransactions * 4; // Position right after LN
-
-        for (let i = 0; i < block.numberOfTransactions; i++) {
-            const transactionLength = buf.readUint32(lengthOffset + i * 4);
-
-            const transaction = Transaction.deserialize(
-                buf.slice(transactionOffset, transactionOffset + transactionLength).toString("hex"),
-            );
-            block.transactions.push(transaction);
-
-            transactionOffset += transactionLength;
-        }
-
-        return block;
+    public static deserialize(hexString, headerOnly = false): IBlockData {
+        return BlockDeserializer.deserialize(hexString, headerOnly);
     }
 
     /**
@@ -195,7 +178,7 @@ export class Block {
      * @static
      */
     public static serialize(block, includeSignature = true) {
-        block.previousBlockHex = toBytesHex(block.previousBlock);
+        block.previousBlockHex = this.toBytesHex(block.previousBlock);
 
         const bb = new ByteBuffer(256, true);
         bb.writeUint32(block.version);
@@ -303,7 +286,7 @@ export class Block {
     public headerOnly: boolean;
     public serialized: any;
 
-    public data: any; // TODO: split Block into separate classes
+    public data: IBlockData;
     public genesis: boolean;
     public transactions: any;
     public transactionIds: any;

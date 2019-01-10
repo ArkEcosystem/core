@@ -29,6 +29,7 @@ export interface ITransactionData {
     signatures?: string[];
 
     blockId?: string;
+    sequence?: number;
 
     timelock?: any;
     timelockType?: number;
