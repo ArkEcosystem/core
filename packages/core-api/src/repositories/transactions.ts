@@ -486,7 +486,11 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {String}
      */
     public __publicKeyFromAddress(senderId): string {
-        return this.database.walletManager.findByAddress(senderId).publicKey;
+        if (this.database.walletManager.exists(senderId)) {
+            return this.database.walletManager.findByAddress(senderId).publicKey;
+        }
+
+        return null;
     }
 
     public __orderBy(parameters): string[] {

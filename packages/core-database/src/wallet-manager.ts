@@ -76,6 +76,22 @@ export class WalletManager {
     }
 
     /**
+     * Checks if wallet exits in wallet manager
+     * @param  {String} key can be publicKey or address of wallet
+     * @return {Boolean} true if exists
+     */
+    public exists(key) {
+        if (this.byPublicKey[key]) {
+            return true;
+        }
+
+        if (this.byAddress[key]) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Find a wallet by the given public key.
      * @param  {String} publicKey
      * @return {Wallet}
