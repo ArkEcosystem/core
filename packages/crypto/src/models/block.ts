@@ -30,7 +30,6 @@ export interface IBlockData {
     headerOnly: boolean;
     serialized: any;
 
-    genesis: boolean;
     transactions: ITransactionData[];
     transactionIds: any;
     verification: { verified: boolean; errors: any[] };
@@ -321,32 +320,14 @@ export class Block {
         }
         this.data = Block.deserialize(this.serialized);
 
-        this.data.id = Block.getId(this.data);
-        this.data.idHex = Block.getIdHex(this.data);
-
-        if (outlookTable[this.data.id]) {
-            this.data.id = outlookTable[this.data.id];
-            this.data.idHex = toBytesHex(this.data.id);
-        }
-
-        if (data.height === 1) {
-            this.genesis = true;
-            // TODO genesis block calculated id is wrong for some reason
-            this.data.id = data.id;
-            this.data.idHex = toBytesHex(this.data.id);
-            delete this.data.previousBlock;
-        }
-
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
-        let sequence = 0;
-        this.transactions = data.transactions.map(transaction => {
-            const stampedTransaction: any = new Transaction(transaction);
-            stampedTransaction.blockId = this.data.id;
-            stampedTransaction.timestamp = this.data.timestamp;
-            stampedTransaction.sequence = sequence++;
-            return stampedTransaction;
+        this.transactions = this.data.transactions.map((transaction, index) => {
+            transaction.blockId = this.data.id;
+            transaction.timestamp = this.data.timestamp;
+            transaction.sequence = index;
+            return transaction;
         });
 
         delete this.data.transactions;
@@ -417,8 +398,6 @@ export class Block {
 
         try {
             const constants = configManager.getMilestone(block.height);
-
-            // let previousBlock = null
 
             if (block.height !== 1) {
                 if (!block.previousBlock) {
@@ -530,7 +509,7 @@ export class Block {
                 result.errors.push("Payload is too large");
             }
 
-            if (!this.genesis && payloadHash.digest().toString("hex") !== block.payloadHash) {
+            if (payloadHash.digest().toString("hex") !== block.payloadHash) {
                 result.errors.push("Invalid payload hash");
             }
         } catch (error) {
