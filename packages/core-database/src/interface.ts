@@ -344,67 +344,9 @@ export abstract class ConnectionInterface {
     }
 
     /**
-     * Validate a delegate.
-     * @param  {Block} block
-     * @return {void}
-     */
-    public async validateDelegate(block) {
-        if (this.__isException(block.data)) {
-            return;
-        }
-
-        const delegates = await this.getActiveDelegates(block.data.height);
-        const slot = slots.getSlotNumber(block.data.timestamp);
-        const forgingDelegate = delegates[slot % delegates.length];
-
-        const generatorUsername = this.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
-
-        if (!forgingDelegate) {
-            this.logger.debug(
-                `Could not decide if delegate ${generatorUsername} (${
-                    block.data.generatorPublicKey
-                }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
-            );
-        } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-            const forgingUsername = this.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
-
-            throw new Error(
-                `Delegate ${generatorUsername} (${
-                    block.data.generatorPublicKey
-                }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`,
-            );
-        } else {
-            this.logger.debug(
-                `Delegate ${generatorUsername} (${
-                    block.data.generatorPublicKey
-                }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
-            );
-        }
-    }
-
-    /**
-     * Validate a forked block.
-     * @param  {Block} block
-     * @return {Boolean}
-     */
-    public async validateForkedBlock(block) {
-        try {
-            await this.validateDelegate(block);
-        } catch (error) {
-            this.logger.debug(error.stack);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Apply the given block.
-     * @param  {Block} block
-     * @return {void}
      */
-    public async applyBlock(block) {
-        await this.validateDelegate(block);
+    public async applyBlock(block: any): Promise<boolean> {
         this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
@@ -414,6 +356,7 @@ export abstract class ConnectionInterface {
         await this.applyRound(block.data.height);
         block.transactions.forEach(tx => this.__emitTransactionEvents(tx));
         this.emitter.emit("block.applied", block.data);
+        return true;
     }
 
     /**

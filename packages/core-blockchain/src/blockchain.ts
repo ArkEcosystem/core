@@ -6,9 +6,11 @@ import { models, slots } from "@arkecosystem/crypto";
 
 import delay from "delay";
 import pluralize from "pluralize";
+import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
 import { StateStorage } from "./state-storage";
+import { isBlockChained } from "./utils";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
@@ -16,12 +18,45 @@ const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const { Block } = models;
 
 export class Blockchain implements blockchain.IBlockchain {
+    /**
+     * Get the state of the blockchain.
+     * @return {IStateStorage}
+     */
+    get state(): StateStorage {
+        return stateMachine.state;
+    }
+
+    /**
+     * Get the network (p2p) interface.
+     * @return {P2PInterface}
+     */
+    get p2p() {
+        return app.resolvePlugin<P2P.IMonitor>("p2p");
+    }
+
+    /**
+     * Get the transaction handler.
+     * @return {TransactionPool}
+     */
+    get transactionPool() {
+        return app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+    }
+
+    /**
+     * Get the database connection.
+     * @return {ConnectionInterface}
+     */
+    get database() {
+        return app.resolvePlugin<PostgresConnection>("database");
+    }
+
     public isStopped: boolean;
     public options: any;
     public processQueue: ProcessQueue;
     public rebuildQueue: RebuildQueue;
     private actions: any;
     private queue: Queue;
+    private blockProcessor: BlockProcessor;
 
     /**
      * Create a new blockchain manager instance.
@@ -40,6 +75,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         this.actions = stateMachine.actionMap(this);
+        this.blockProcessor = new BlockProcessor(this);
 
         this.__registerQueue();
     }
@@ -186,7 +222,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {Block} block
      * @return {void}
      */
-    public queueBlock(block) {
+    public handleIncomingBlock(block) {
         logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
                 "transaction",
@@ -197,12 +233,22 @@ export class Blockchain implements blockchain.IBlockchain {
 
         if (this.state.started && this.state.blockchain.value === "idle") {
             this.dispatch("NEWBLOCK");
-
-            this.processQueue.push(block);
-            this.state.lastDownloadedBlock = new Block(block);
+            this.enqueueBlocks([block]);
         } else {
             logger.info(`Block disregarded because blockchain is not ready :exclamation:`);
         }
+    }
+
+    /**
+     * Enqueue blocks in process queue and set last downloaded block to last item in list.
+     */
+    public enqueueBlocks(blocks: any[]) {
+        if (blocks.length === 0) {
+            return;
+        }
+
+        this.processQueue.push(blocks);
+        this.state.lastDownloadedBlock = new Block(blocks.slice(-1)[0]);
     }
 
     /**
@@ -347,7 +393,7 @@ export class Blockchain implements blockchain.IBlockchain {
         const lastBlock = this.state.getLastBlock();
 
         if (block.verification.verified) {
-            if (this.__isChained(lastBlock, block)) {
+            if (isBlockChained(lastBlock, block)) {
                 // save block on database
                 this.database.enqueueSaveBlock(block);
 
@@ -382,169 +428,31 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Process the given block.
-     * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
-     * @param  {Function} callback
-     * @return {(Function|void)}
      */
     public async processBlock(block, callback) {
-        if (!block.verification.verified && !this.database.__isException(block.data)) {
-            logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
-            logger.warn(JSON.stringify(block.verification, null, 4));
+        const result = await this.blockProcessor.process(block);
 
-            this.transactionPool.purgeSendersWithInvalidTransactions(block);
-            this.state.lastDownloadedBlock = this.state.getLastBlock();
-            return callback();
-        }
-
-        try {
-            if (this.__isChained(this.state.getLastBlock(), block)) {
-                await this.acceptChainedBlock(block);
-            } else {
-                await this.manageUnchainedBlock(block);
-            }
-        } catch (error) {
-            logger.error(`Refused new block ${JSON.stringify(block.data)}`);
-            logger.debug(error.stack);
-
-            this.transactionPool.purgeBlock(block);
-            this.forkBlock(block);
-
-            return callback();
-        }
-
-        try {
+        if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
             // broadcast only current block
             const blocktime = config.getMilestone(block.data.height).blocktime;
             if (slots.getSlotNumber() * blocktime <= block.data.timestamp) {
                 this.p2p.broadcastBlock(block);
             }
-        } catch (error) {
-            logger.warn(`Can't properly broadcast block ${block.data.height.toLocaleString()}`);
-            logger.debug(error.stack);
         }
 
         return callback();
     }
 
     /**
-     * Accept a new chained block.
-     * @param  {Block} block
-     * @param  {Object} state
-     * @return {void}
+     * Reset the last downloaded block to last chained block.
      */
-    public async acceptChainedBlock(block) {
-        const containsForgedTransactions = await this.checkBlockContainsForgedTransactions(block);
-        if (containsForgedTransactions) {
-            this.state.lastDownloadedBlock = this.state.getLastBlock();
-            return;
-        }
-
-        await this.database.applyBlock(block);
-        await this.database.saveBlock(block);
-
-        // Check if we recovered from a fork
-        if (this.state.forkedBlock && this.state.forkedBlock.height === block.data.height) {
-            logger.info("Successfully recovered from fork :star2:");
-            this.state.forkedBlock = null;
-        }
-
-        if (this.transactionPool) {
-            try {
-                this.transactionPool.acceptChainedBlock(block);
-            } catch (error) {
-                logger.warn("Issue applying block to transaction pool");
-                logger.debug(error.stack);
-            }
-        }
-
-        this.state.setLastBlock(block);
-
-        // Reset wake-up timer after chaining a block, since there's no need to
-        // wake up at all if blocks arrive periodically. Only wake up when there are
-        // no new blocks.
-        if (this.state.started) {
-            this.resetWakeUp();
-        }
-
-        // Ensure the lastDownloadedBlock is not behind the last accepted block.
-        if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.data.height < block.data.height) {
-            this.state.lastDownloadedBlock = block;
-        }
-    }
-
-    /**
-     * Manage a block that is out of order.
-     * @param  {Block} block
-     * @param  {Object} state
-     * @return {void}
-     */
-    public async manageUnchainedBlock(block) {
-        const lastBlock = this.state.getLastBlock();
-
-        if (block.data.height > lastBlock.data.height + 1) {
-            logger.debug(
-                `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
-            );
-
-            // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
-            // it is very likely that all blocks will be disregarded at this point anyway.
-            // NOTE: This isn't really elegant, but still better than spamming the log with
-            //       useless `not ready to accept` messages.
-            if (this.processQueue.length() > 0) {
-                logger.debug(`Discarded ${this.processQueue.length()} downloaded blocks.`);
-            }
-            this.queue.clear();
-
-            this.state.lastDownloadedBlock = lastBlock;
-        } else if (block.data.height < lastBlock.data.height) {
-            logger.debug(
-                `Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`,
-            );
-        } else if (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id) {
-            logger.debug(`Block ${block.data.height.toLocaleString()} just received :chains:`);
-        } else {
-            const isValid = await this.database.validateForkedBlock(block);
-
-            if (isValid) {
-                this.forkBlock(block);
-            } else {
-                logger.info(
-                    `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
-                        block.data.generatorPublicKey
-                    } :bangbang:`,
-                );
-            }
-        }
-    }
-
-    /**
-     * Checks if the given block contains already forged transactions.
-     * @param {Block} block
-     * @returns {Boolean}
-     */
-    public async checkBlockContainsForgedTransactions(block) {
-        // Discard block if it contains already forged transactions
-        if (block.transactions.length > 0) {
-            const forgedIds = await this.database.getForgedTransactionsIds(block.transactions.map(tx => tx.id));
-            if (forgedIds.length > 0) {
-                logger.warn(
-                    `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions :scroll:`,
-                );
-                logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
-                return true;
-            }
-        }
-
-        return false;
+    public resetLastDownloadedBlock() {
+        this.state.lastDownloadedBlock = this.getLastBlock();
     }
 
     /**
      * Called by forger to wake up and sync with the network.
      * It clears the wakeUpTimeout if set.
-     * @param  {Number}  blockSize
-     * @param  {Boolean} forForging
-     * @return {Object}
      */
     public forceWakeup() {
         this.state.clearWakeUpTimeout();
@@ -686,52 +594,6 @@ export class Blockchain implements blockchain.IBlockchain {
             "wallet.saved",
             "wallet.created.cold",
         ];
-    }
-
-    /**
-     * Get the state of the blockchain.
-     * @return {IStateStorage}
-     */
-    get state(): StateStorage {
-        return stateMachine.state;
-    }
-
-    /**
-     * Get the network (p2p) interface.
-     * @return {P2PInterface}
-     */
-    get p2p() {
-        return app.resolvePlugin<P2P.IMonitor>("p2p");
-    }
-
-    /**
-     * Get the transaction handler.
-     * @return {TransactionPool}
-     */
-    get transactionPool() {
-        return app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
-    }
-
-    /**
-     * Get the database connection.
-     * @return {ConnectionInterface}
-     */
-    get database() {
-        return app.resolvePlugin<PostgresConnection>("database");
-    }
-
-    /**
-     * Check if the given block is in order.
-     * @param  {Block}  previousBlock
-     * @param  {Block}  nextBlock
-     * @return {Boolean}
-     */
-    public __isChained(previousBlock, nextBlock) {
-        const followsPrevious = nextBlock.data.previousBlock === previousBlock.data.id;
-        const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp;
-        const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1;
-
-        return followsPrevious && isFuture && isPlusOne;
     }
 
     /**

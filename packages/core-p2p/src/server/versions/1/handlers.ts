@@ -176,7 +176,7 @@ export const postBlock = {
             blockchain.pushPingBlock(b.data);
 
             block.ip = request.info.remoteAddress;
-            blockchain.queueBlock(block);
+            blockchain.handleIncomingBlock(block);
 
             return { success: true };
         } catch (error) {
