@@ -1,6 +1,4 @@
-import { Block } from "./block";
-import { Delegate } from "./delegate";
-import { Transaction } from "./transaction";
-import { Wallet } from "./wallet";
-
-export { Block, Delegate, Transaction, Wallet };
+export * from "./block";
+export * from "./transaction";
+export * from "./delegate";
+export * from "./wallet";

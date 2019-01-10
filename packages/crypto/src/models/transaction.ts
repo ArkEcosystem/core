@@ -98,6 +98,7 @@ export class Transaction implements ITransactionData {
     public signSignature?: string;
     public signatures?: string[];
     public blockId?: string;
+    public sequence?: number
     public timelock?: any;
     public timelockType?: number;
 
@@ -143,10 +144,9 @@ export class Transaction implements ITransactionData {
     }
 
     public toJson() {
-        // Convert Bignums
         const data = Object.assign({}, this.data);
-        data.amount = +new Bignum(data.amount).toFixed();
-        data.fee = +new Bignum(data.fee).toFixed();
+        data.amount = +(data.amount as Bignum).toFixed();
+        data.fee = +(data.fee as Bignum).toFixed();
 
         return data;
     }

@@ -7,7 +7,7 @@ class BlockSerializer {
 
     public serializeFull(block: IBlockData): Buffer {
         const serializedHeader = this.serialize(block);
-        const transactions = block.transactions;
+        const transactions = block.transactions || [];
 
         const buffer = new ByteBuffer(serializedHeader.length + transactions.length * 4, true)
             .append(serializedHeader)

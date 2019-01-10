@@ -36,9 +36,9 @@ describe("Models - Block", () => {
             expect(block.data.height).toBe(dummyBlock.height);
             expect(block.data.numberOfTransactions).toBe(dummyBlock.numberOfTransactions);
             expect(block.data.payloadLength).toBe(dummyBlock.payloadLength);
-            expect(block.data.reward.toFixed()).toBe(dummyBlock.reward);
+            expect((block.data.reward as Bignum).toFixed()).toBe(dummyBlock.reward);
             expect(block.data.timestamp).toBe(dummyBlock.timestamp);
-            expect(block.data.totalFee.toFixed()).toBe(dummyBlock.totalFee);
+            expect((block.data.totalFee as Bignum).toFixed()).toBe(dummyBlock.totalFee);
             expect(block.data.version).toBe(dummyBlock.version);
         });
 
@@ -205,7 +205,6 @@ describe("Models - Block", () => {
         describe("genesis block", () => {
             describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])("%s", (network, length) => {
                 const genesis = require(`@arkecosystem/core/src/config/${network}/genesisBlock.json`);
-                // @ts-ignore
                 const serialized = Block.serializeFull(genesis).toString("hex");
                 const genesisBlock = new Block(Block.deserialize(serialized));
                 expect(serialized).toHaveLength(length);

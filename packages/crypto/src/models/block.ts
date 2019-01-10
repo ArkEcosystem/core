@@ -21,9 +21,9 @@ export interface IBlockData {
     previousBlockHex: string;
     previousBlock: string;
     numberOfTransactions: number;
-    totalAmount: Bignum;
-    totalFee: Bignum;
-    reward: Bignum;
+    totalAmount: Bignum | number | string;
+    totalFee: Bignum | number | string;
+    reward: Bignum | number | string;
     payloadLength: number;
     payloadHash: string;
     generatorPublicKey: string;
@@ -31,9 +31,7 @@ export interface IBlockData {
     headerOnly: boolean;
     serialized: any;
 
-    transactions: ITransactionData[];
-    transactionIds: any;
-    verification: { verified: boolean; errors: any[] };
+    transactions: Transaction[];
 }
 
 /**
@@ -146,95 +144,10 @@ export class Block {
         return BlockSerializer.serialize(block, includeSignature);
     }
 
-    public static getBytesV1(block, includeSignature) {
-        if (includeSignature === undefined) {
-            includeSignature = block.blockSignature !== undefined;
-        }
-
-        let size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33;
-        let blockSignatureBuffer = null;
-
-        if (includeSignature) {
-            blockSignatureBuffer = Buffer.from(block.blockSignature, "hex");
-            size += blockSignatureBuffer.length;
-        }
-
-        let b;
-
-        try {
-            const bb = new ByteBuffer(size, true);
-            bb.writeInt(block.version);
-            bb.writeInt(block.timestamp);
-            bb.writeInt(block.height);
-
-            let i;
-
-            if (block.previousBlock) {
-                const pb = Buffer.from(new Bignum(block.previousBlock).toString(16), "hex");
-
-                for (i = 0; i < 8; i++) {
-                    bb.writeByte(pb[i]);
-                }
-            } else {
-                for (i = 0; i < 8; i++) {
-                    bb.writeByte(0);
-                }
-            }
-
-            bb.writeInt(block.numberOfTransactions);
-            bb.writeInt64(+block.totalAmount.toFixed());
-            bb.writeInt64(+block.totalFee.toFixed());
-            bb.writeInt64(+block.reward.toFixed());
-
-            bb.writeInt(block.payloadLength);
-
-            const payloadHashBuffer = Buffer.from(block.payloadHash, "hex");
-            for (i = 0; i < payloadHashBuffer.length; i++) {
-                bb.writeByte(payloadHashBuffer[i]);
-            }
-
-            const generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, "hex");
-            for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
-                bb.writeByte(generatorPublicKeyBuffer[i]);
-            }
-
-            if (includeSignature) {
-                for (i = 0; i < blockSignatureBuffer.length; i++) {
-                    bb.writeByte(blockSignatureBuffer[i]);
-                }
-            }
-
-            bb.flip();
-            b = bb.toBuffer();
-        } catch (e) {
-            throw e;
-        }
-
-        return b;
-    }
-    public blockSignature: string;
-    public id: string;
-    public idHex: string;
-    public timestamp: number;
-    public version: number;
-    public height: number;
-    public previousBlockHex: string;
-    public previousBlock: string;
-    public numberOfTransactions: number;
-    public totalAmount: Bignum;
-    public totalFee: Bignum;
-    public reward: Bignum;
-    public payloadLength: number;
-    public payloadHash: string;
-    public generatorPublicKey: string;
-
     public headerOnly: boolean;
-    public serialized: any;
-
+    public serialized: string;
     public data: IBlockData;
-    public genesis: boolean;
-    public transactions: any;
-    public transactionIds: any;
+    public transactions: Transaction[];
     public verification: { verified: boolean; errors: any[] };
 
     /**
@@ -246,24 +159,7 @@ export class Block {
             data = Block.deserialize(data);
         }
 
-        if (!data.transactions) {
-            data.transactions = [];
-        }
-        if (data.numberOfTransactions > 0 && data.transactions.length === data.numberOfTransactions) {
-            delete data.transactionIds;
-        }
-
-        this.headerOnly =
-            data.numberOfTransactions > 0 &&
-            data.transactionIds &&
-            data.transactionIds.length === data.numberOfTransactions;
-
-        if (this.headerOnly) {
-            this.serialized = Block.serialize(data).toString("hex");
-        } else {
-            this.serialized = Block.serializeFull(data).toString("hex");
-        }
-
+        this.serialized = Block.serializeFull(data).toString("hex");
         this.data = Block.deserialize(this.serialized);
 
         // fix on real timestamp, this is overloading transaction
@@ -277,8 +173,12 @@ export class Block {
         });
 
         delete this.data.transactions;
-        if (data.transactionIds && data.transactionIds.length > 0) {
-            this.transactionIds = data.transactionIds;
+
+        if (data.height === 1) {
+            // TODO genesis block calculated id is wrong for some reason
+            this.data.id = data.id;
+            this.data.idHex = Block.toBytesHex(this.data.id);
+            delete this.data.previousBlock;
         }
 
         this.verification = this.verify();
@@ -351,7 +251,7 @@ export class Block {
                 }
             }
 
-            if (!block.reward.isEqualTo(constants.reward)) {
+            if (!(block.reward as Bignum).isEqualTo(constants.reward)) {
                 result.errors.push(["Invalid block reward:", block.reward, "expected:", constants.reward].join(" "));
             }
 
@@ -379,76 +279,48 @@ export class Block {
 
             let size = 0;
             const payloadHash = createHash("sha256");
+            const invalidTransactions = this.transactions.filter(tx => !tx.verified);
+            if (invalidTransactions.length > 0) {
+                result.errors.push("One or more transactions are not verified:");
+                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`));
+            }
 
-            if (this.headerOnly) {
-                if (this.transactionIds.length !== block.numberOfTransactions) {
-                    result.errors.push("Invalid number of transactions");
+            if (this.transactions.length !== block.numberOfTransactions) {
+                result.errors.push("Invalid number of transactions");
+            }
+
+            if (this.transactions.length > constants.block.maxTransactions) {
+                if (block.height > 1) {
+                    result.errors.push("Transactions length is too high");
+                }
+            }
+
+            // Checking if transactions of the block adds up to block values.
+            const appliedTransactions = {};
+            let totalAmount = Bignum.ZERO;
+            let totalFee = Bignum.ZERO;
+            this.transactions.forEach(transaction => {
+                const bytes = Buffer.from(transaction.data.id, "hex");
+
+                if (appliedTransactions[transaction.data.id]) {
+                    result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
                 }
 
-                if (this.transactionIds.length > constants.block.maxTransactions) {
-                    if (block.height > 1) {
-                        result.errors.push("Transactions length is too high");
-                    }
-                }
+                appliedTransactions[transaction.data.id] = transaction.data;
 
-                // Checking if transactions of the block adds up to block values.
-                const appliedTransactions = {};
-                this.transactionIds.forEach(id => {
-                    const bytes = Buffer.from(id, "hex");
+                totalAmount = totalAmount.plus(transaction.data.amount);
+                totalFee = totalFee.plus(transaction.data.fee);
+                size += bytes.length;
 
-                    if (appliedTransactions[id]) {
-                        result.errors.push(`Encountered duplicate transaction: ${id}`);
-                    }
+                payloadHash.update(bytes);
+            });
 
-                    appliedTransactions[id] = id;
-                    size += bytes.length;
+            if (!totalAmount.isEqualTo(block.totalAmount)) {
+                result.errors.push("Invalid total amount");
+            }
 
-                    payloadHash.update(bytes);
-                });
-            } else {
-                const invalidTransactions = this.transactions.filter(tx => !tx.verified);
-                if (invalidTransactions.length > 0) {
-                    result.errors.push("One or more transactions are not verified:");
-                    invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`));
-                }
-
-                if (this.transactions.length !== block.numberOfTransactions) {
-                    result.errors.push("Invalid number of transactions");
-                }
-
-                if (this.transactions.length > constants.block.maxTransactions) {
-                    if (block.height > 1) {
-                        result.errors.push("Transactions length is too high");
-                    }
-                }
-
-                // Checking if transactions of the block adds up to block values.
-                const appliedTransactions = {};
-                let totalAmount = Bignum.ZERO;
-                let totalFee = Bignum.ZERO;
-                this.transactions.forEach(transaction => {
-                    const bytes = Buffer.from(transaction.data.id, "hex");
-
-                    if (appliedTransactions[transaction.data.id]) {
-                        result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
-                    }
-
-                    appliedTransactions[transaction.data.id] = transaction.data;
-
-                    totalAmount = totalAmount.plus(transaction.data.amount);
-                    totalFee = totalFee.plus(transaction.data.fee);
-                    size += bytes.length;
-
-                    payloadHash.update(bytes);
-                });
-
-                if (!totalAmount.isEqualTo(block.totalAmount)) {
-                    result.errors.push("Invalid total amount");
-                }
-
-                if (!totalFee.isEqualTo(block.totalFee)) {
-                    result.errors.push("Invalid total fee");
-                }
+            if (!totalFee.isEqualTo(block.totalFee)) {
+                result.errors.push("Invalid total fee");
             }
 
             if (size > constants.block.maxPayload) {
@@ -469,7 +341,7 @@ export class Block {
 
     public toJson() {
         // Convert Bignums
-        const blockData = cloneDeepWith(this.data, (value, key: string) => {
+        const blockData = cloneDeepWith(this.data, (value: any, key: string) => {
             if (["reward", "totalAmount", "totalFee"].indexOf(key) !== -1) {
                 return +value.toFixed();
             }

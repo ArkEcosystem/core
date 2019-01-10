@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { Bignum, models } from "@arkecosystem/crypto";
 import msgpack from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 const { Block, Transaction } = models;
@@ -12,9 +12,9 @@ export const blockDecode = bufferData => {
     const blockData = Block.deserialize(bufferData.toString("hex"), true);
     blockData.id = Block.getIdFromSerialized(bufferData);
 
-    blockData.totalAmount = blockData.totalAmount.toFixed();
-    blockData.totalFee = blockData.totalFee.toFixed();
-    blockData.reward = blockData.reward.toFixed();
+    blockData.totalAmount = (blockData.totalAmount as Bignum).toFixed();
+    blockData.totalFee = (blockData.totalFee as Bignum).toFixed();
+    blockData.reward = (blockData.reward as Bignum).toFixed();
 
     return decamelizeKeys(blockData);
 };
