@@ -1,6 +1,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../constants";
+import { Transaction } from "../models";
 import { Bignum } from "../utils/bignum";
 
 export interface IDeserializedTransactionData {
@@ -56,7 +57,7 @@ class TransactionDeserializer {
     }
 
     private deserializeVendorField(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
-        if (![TransactionTypes.Transfer, TransactionTypes.TimelockTransfer].includes(transaction.type)) {
+        if (!Transaction.canHaveVendorField(transaction.type)) {
             buf.skip(1);
             return;
         }
