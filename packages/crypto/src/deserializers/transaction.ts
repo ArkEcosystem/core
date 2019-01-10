@@ -1,5 +1,3 @@
-/* tslint:disable:no-bitwise */
-
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../constants";
@@ -24,7 +22,7 @@ export interface IDeserializedTransactionData {
     signature: string;
     secondSignature?: string;
     signSignature?: string;
-    signatures?: string[]; // Multisig
+    signatures?: string[];
 
     timelock: any;
     timelockType: number;
@@ -38,14 +36,10 @@ class TransactionDeserializer {
         const transaction = {} as IDeserializedTransactionData;
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
-        try {
-            this.deserializeCommon(transaction, buf);
-            this.deserializeVendorField(transaction, buf);
-            this.deserializeType(transaction, buf);
-            this.deserializeSignatures(transaction, buf);
-        } catch (ex) {
-            const aaaa = 1;
-        }
+        this.deserializeCommon(transaction, buf);
+        this.deserializeVendorField(transaction, buf);
+        this.deserializeType(transaction, buf);
+        this.deserializeSignatures(transaction, buf);
 
         return transaction;
     }
@@ -109,7 +103,7 @@ class TransactionDeserializer {
     private deserializeTransfer(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
         transaction.amount = new Bignum(buf.readUint64().toString());
         transaction.expiration = buf.readUint32();
-        transaction.recipientId = bs58check.encode(buf.readBytes(21))
+        transaction.recipientId = bs58check.encode(buf.readBytes(21).toBuffer())
     }
 
     private deserializeSecondSignature(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
@@ -121,21 +115,21 @@ class TransactionDeserializer {
     }
 
     private deserializeDelegateRegistration(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
-        const usernamelength = buf.readUint8() & 0xff;
+        const usernamelength = buf.readUint8();
 
         transaction.asset = {
             delegate: {
-                username: buf.readBytes(usernamelength).toString("hex"),
+                username: buf.readString(usernamelength),
             },
         };
     }
 
     private deserializeVote(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
-        const votelength = buf.readUint8() & 0xff;
+        const votelength = buf.readUint8();
         transaction.asset = { votes: [] };
 
         for (let i = 0; i < votelength; i++) {
-            let vote = buf.readBytes(34).toString();
+            let vote = buf.readBytes(34).toString("hex");
             vote = (vote[1] === "1" ? "+" : "-") + vote.slice(2);
             transaction.asset.votes.push(vote);
         }
@@ -143,19 +137,19 @@ class TransactionDeserializer {
 
     private deserializeMultiSignature(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
         transaction.asset = { multisignature: { keysgroup: [] } };
-        transaction.asset.multisignature.min = buf.readUint8() & 0xff;
+        transaction.asset.multisignature.min = buf.readUint8();
 
-        const num = buf.readUint8() & 0xff;
-        transaction.asset.multisignature.lifetime = buf.readUint8() & 0xff;
+        const num = buf.readUint8();
+        transaction.asset.multisignature.lifetime = buf.readUint8();
 
         for (let index = 0; index < num; index++) {
-            const key = buf.readBytes(index * 33).toString("hex");
+            const key = buf.readBytes(33).toString("hex");
             transaction.asset.multisignature.keysgroup.push(key);
         }
     }
 
     private deserializeIpfs(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
-        const dagLength = buf.readUint8() & 0xff;
+        const dagLength = buf.readUint8();
         transaction.asset = {
             dag: buf.readBytes(dagLength).toString("hex")
         };
@@ -163,14 +157,14 @@ class TransactionDeserializer {
 
     private deserializeTimelockTransfer(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
         transaction.amount = new Bignum(buf.readUint64().toString());
-        transaction.timelockType = buf.readUint8() & 0xff;
+        transaction.timelockType = buf.readUint8();
         transaction.timelock = buf.readUint64().toNumber();
         transaction.recipientId = bs58check.encode(buf.readBytes(21));
     }
 
     private deserializeMultiPayment(transaction: IDeserializedTransactionData, buf: ByteBuffer): void {
         const payments = []
-        const total = buf.readUint8() & 0xff;
+        const total = buf.readUint8();
 
         for (let j = 0; j < total; j++) {
             const payment: any = {};
@@ -202,7 +196,7 @@ class TransactionDeserializer {
             transaction.signature = buf.readBytes(signatureLength).toString("hex");
         }
 
-        const beginningMultiSignature = () => { buf.mark(); const marker = buf.readByte(1).toString(); buf.reset(); return marker === "ff"; }
+        const beginningMultiSignature = () => { buf.mark(); const marker = buf.readUint8(); buf.reset(); return marker === 255; }
 
         // Second Signature
         if (buf.remaining() && !beginningMultiSignature()) {
@@ -212,6 +206,9 @@ class TransactionDeserializer {
 
         // Multi Signatures
         if (buf.remaining() && beginningMultiSignature()) {
+            buf.skip(1);
+            transaction.signatures = [];
+
             while (buf.remaining()) {
                 const multiSignatureLength = currentSignatureLength();
                 const multiSignature = buf.readBytes(multiSignatureLength).toString("hex");
