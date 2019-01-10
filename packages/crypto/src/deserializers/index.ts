@@ -1,0 +1,1 @@
+export { transactionDeserializer as TransactionDeserializer } from "./transaction";

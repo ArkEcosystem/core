@@ -5,6 +5,7 @@ import ByteBuffer from "bytebuffer";
 import { createHash } from "crypto";
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
+import { TransactionDeserializer } from "../deserializers";
 import { configManager } from "../managers";
 import { Bignum } from "../utils";
 
