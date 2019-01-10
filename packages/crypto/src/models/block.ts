@@ -5,6 +5,7 @@ import pluralize from "pluralize";
 import { crypto, slots } from "../crypto";
 import { BlockDeserializer } from "../deserializers";
 import { configManager } from "../managers/config";
+import { BlockSerializer } from "../serializers";
 import { Bignum } from "../utils";
 import { ITransactionData, Transaction } from "./transaction";
 
@@ -65,17 +66,14 @@ export interface IBlockData {
  */
 
 export class Block {
+
     /**
      * Create block from data.
-     * @param  {Object} data
-     * @param  {Object} keys
-     * @return {Block}
-     * @static
      */
     public static create(data, keys) {
         data.generatorPublicKey = keys.publicKey;
 
-        const payloadHash: any = Block.serialize(data, false);
+        const payloadHash: Buffer = Block.serialize(data, false);
         const hash = createHash("sha256")
             .update(payloadHash)
             .digest();
@@ -86,14 +84,8 @@ export class Block {
         return new Block(data);
     }
 
-    /*
-     * Get block id
-     * @param  {Object} data
-     * @return {String}
-     * @static
-     */
     public static getIdHex(data) {
-        const payloadHash: any = Block.serialize(data, true);
+        const payloadHash: any = Block.serialize(data);
         const hash = createHash("sha256")
             .update(payloadHash)
             .digest();
@@ -104,7 +96,6 @@ export class Block {
         }
         return temp.toString("hex");
     }
-
 
     public static toBytesHex(data) {
         const temp = data ? new Bignum(data).toString(16) : "";
@@ -136,68 +127,23 @@ export class Block {
 
     /**
      * Deserialize block from hex string.
-     * @param  {String} hexString
-     * @param  {Boolean} headerOnly - deserialize onlu headers
-     * @return {Object}
-     * @static
      */
     public static deserialize(hexString, headerOnly = false): IBlockData {
         return BlockDeserializer.deserialize(hexString, headerOnly);
     }
 
     /**
-     * Serialize block.
-     * @param  {Object} data
-     * @return {Buffer}
-     * @static
+     * Serialize the given block including transactions.
      */
-    public static serializeFull(block) {
-        const serializedBlock: any = Block.serialize(block, true);
-        const transactions = block.transactions;
-
-        const buf = new ByteBuffer(serializedBlock.length + transactions.length * 4, true)
-            .append(serializedBlock)
-            .skip(transactions.length * 4);
-
-        for (let i = 0; i < transactions.length; i++) {
-            const serialized: any = Transaction.serialize(transactions[i]);
-            buf.writeUint32(serialized.length, serializedBlock.length + i * 4);
-            buf.append(serialized);
-        }
-
-        return buf.flip().toBuffer();
+    public static serializeFull(block: IBlockData) {
+        return BlockSerializer.serializeFull(block);
     }
 
     /**
-     * Serialize block
-     * TODO split this method between bufferize (as a buffer) and serialize (as hex)
-     * @param  {Object} block
-     * @param  {(Boolean|undefined)} includeSignature
-     * @return {Buffer}
-     * @static
+     * Serialize the given block without transactions.
      */
-    public static serialize(block, includeSignature = true) {
-        block.previousBlockHex = this.toBytesHex(block.previousBlock);
-
-        const bb = new ByteBuffer(256, true);
-        bb.writeUint32(block.version);
-        bb.writeUint32(block.timestamp);
-        bb.writeUint32(block.height);
-        bb.append(block.previousBlockHex, "hex");
-        bb.writeUint32(block.numberOfTransactions);
-        bb.writeUint64(+new Bignum(block.totalAmount).toFixed());
-        bb.writeUint64(+new Bignum(block.totalFee).toFixed());
-        bb.writeUint64(+new Bignum(block.reward).toFixed());
-        bb.writeUint32(block.payloadLength);
-        bb.append(block.payloadHash, "hex");
-        bb.append(block.generatorPublicKey, "hex");
-
-        if (includeSignature && block.blockSignature) {
-            bb.append(block.blockSignature, "hex");
-        }
-
-        bb.flip();
-        return bb.toBuffer();
+    public static serialize(block: IBlockData, includeSignature: boolean = true) {
+        return BlockSerializer.serialize(block, includeSignature);
     }
 
     public static getBytesV1(block, includeSignature) {
@@ -311,13 +257,13 @@ export class Block {
             data.numberOfTransactions > 0 &&
             data.transactionIds &&
             data.transactionIds.length === data.numberOfTransactions;
+
         if (this.headerOnly) {
-            // @ts-ignore
             this.serialized = Block.serialize(data).toString("hex");
         } else {
-            // @ts-ignore
             this.serialized = Block.serializeFull(data).toString("hex");
         }
+
         this.data = Block.deserialize(this.serialized);
 
         // fix on real timestamp, this is overloading transaction

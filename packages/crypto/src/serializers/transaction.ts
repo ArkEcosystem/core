@@ -15,8 +15,7 @@ class TransactionSerializer {
         this.serializeType(transaction, buffer);
         this.serializeSignatures(transaction, buffer);
 
-        buffer.flip();
-        return Buffer.from(buffer.toBuffer());
+        return Buffer.from(buffer.flip().toBuffer());
     }
 
     private serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
