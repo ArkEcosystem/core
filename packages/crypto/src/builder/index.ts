@@ -82,16 +82,4 @@ export class TransactionBuilderDirector {
     }
 }
 
-const transactionBuilder = new TransactionBuilderDirector();
-export {
-    transactionBuilder,
-    DelegateRegistrationBuilder,
-    DelegateResignationBuilder,
-    IPFSBuilder,
-    MultiPaymentBuilder,
-    MultiSignatureBuilder,
-    SecondSignatureBuilder,
-    TimelockTransferBuilder,
-    TransferBuilder,
-    VoteBuilder,
-};
+export const transactionBuilder = new TransactionBuilderDirector();
