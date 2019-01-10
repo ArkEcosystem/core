@@ -196,26 +196,29 @@ class TransactionDeserializer {
             return parseInt(lengthHex, 16) + 2;
         }
 
-        if (buf.remaining() > 0) {
-            transaction.signature = buf.readBytes(currentSignatureLength()).toString("hex");
+        // Signature
+        if (buf.remaining()) {
+            const signatureLength = currentSignatureLength();
+            transaction.signature = buf.readBytes(signatureLength).toString("hex");
         }
 
-        if (buf.remaining() > 0) {
-            const multiSignatureMarker = buf.readByte(1).toString()
-            if (multiSignatureMarker !== "ff") {
-                const secondSignatureLength = buf.readUint8();
-                transaction.secondSignature = buf.readBytes(secondSignatureLength).toString("hex");
-            } else {
+        const beginningMultiSignature = () => { buf.mark(); const marker = buf.readByte(1).toString(); buf.reset(); return marker === "ff"; }
 
-                while (buf.remaining() > 0) {
-                    const length = buf.readUint8(1);
-                    const multiSignature = buf.readBytes(length).toString("hex");
-                    transaction.signatures.push(multiSignature);
-                }
+        // Second Signature
+        if (buf.remaining() && !beginningMultiSignature()) {
+            const secondSignatureLength = currentSignatureLength();
+            transaction.secondSignature = buf.readBytes(secondSignatureLength).toString("hex");
+        }
+
+        // Multi Signatures
+        if (buf.remaining() && beginningMultiSignature()) {
+            while (buf.remaining()) {
+                const multiSignatureLength = currentSignatureLength();
+                const multiSignature = buf.readBytes(multiSignatureLength).toString("hex");
+                transaction.signatures.push(multiSignature);
             }
         }
     }
-
 }
 
 export const transactionDeserializer = new TransactionDeserializer();
