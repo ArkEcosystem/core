@@ -184,12 +184,7 @@ class Crypto {
             throw new Error("not supported yet");
         }
 
-        const bytes = this.getBytes(transaction);
-        return crypto
-            .createHash("sha256")
-            .update(bytes)
-            .digest()
-            .toString("hex");
+        return this.getHash(transaction).toString("hex");
     }
 
     /**
