@@ -48,6 +48,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -62,6 +64,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/utils/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -70,12 +73,13 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-vote-report/ ./packages/core-transaction-pool/
-            ./packages/core-snapshots-cli/ ./packages/core-logger-winston/
-            ./packages/core-http-utils/ ./packages/core-event-emitter/
-            ./packages/core-elasticsearch/ ./packages/core-database-postgres/
-            ./packages/core-config/ ./packages/core/ --detectOpenHandles
-            --runInBand --forceExit --ci --coverage | tee test_output.txt
+            ./packages/core-webhooks/ ./packages/core-transaction-pool-mem/
+            ./packages/core-test-utils/ ./packages/core-p2p/
+            ./packages/core-json-rpc/ ./packages/core-http-utils/
+            ./packages/core-event-emitter/ ./packages/core-elasticsearch/
+            ./packages/core-database-postgres/ ./packages/core-config/
+            ./packages/core-interfaces/ --detectOpenHandles --runInBand
+            --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -131,6 +135,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -145,6 +151,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/utils/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -153,11 +160,11 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/core-webhooks/ ./packages/core-transaction-pool-mem/
-            ./packages/core-test-utils/ ./packages/core-p2p/
-            ./packages/core-json-rpc/ ./packages/core-forger/
+            ./packages/crypto/ ./packages/core-utils/
+            ./packages/core-tester-cli/ ./packages/core-snapshots/
+            ./packages/core-logger/ ./packages/core-api/ ./packages/core-forger/
             ./packages/core-error-tracker-bugsnag/ ./packages/core-debugger-cli/
-            ./packages/core-container/ ./packages/core-api/ --detectOpenHandles
+            ./packages/core-container/ ./packages/core/ --detectOpenHandles
             --runInBand --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
@@ -214,6 +221,8 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-winston/node_modules
@@ -228,6 +237,7 @@ jobs:
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
+            - ./packages/utils/node_modules
             - ./node_modules
       - run:
           name: Create .ark/database directory
@@ -236,13 +246,13 @@ jobs:
           name: Test
           command: >
             ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
-            ./packages/crypto/ ./packages/core-utils/
-            ./packages/core-tester-cli/ ./packages/core-snapshots/
-            ./packages/core-logger/ ./packages/core-graphql/
-            ./packages/core-error-tracker-sentry/ ./packages/core-deployer/
-            ./packages/core-database/ ./packages/core-blockchain/
-            --detectOpenHandles --runInBand --forceExit --ci --coverage | tee
-            test_output.txt
+            ./packages/utils/ ./packages/core-vote-report/
+            ./packages/core-transaction-pool/ ./packages/core-snapshots-cli/
+            ./packages/core-logger-winston/ ./packages/core-jest-matchers/
+            ./packages/core-graphql/ ./packages/core-error-tracker-sentry/
+            ./packages/core-deployer/ ./packages/core-database/
+            ./packages/core-blockchain/ --detectOpenHandles --runInBand
+            --forceExit --ci --coverage | tee test_output.txt
       - run:
           name: Last 1000 lines of test output
           when: on_fail

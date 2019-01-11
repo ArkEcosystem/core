@@ -73,7 +73,7 @@ class TransactionsRepository extends Repository {
    */
   async findAllLegacy(parameters = {}) {
     const selectQuery = this.query
-      .select(this.query.block_id, this.query.serialized)
+      .select(this.query.block_id, this.query.serialized, this.query.timestamp)
       .from(this.query)
     const countQuery = this._makeEstimateQuery()
 
@@ -120,7 +120,7 @@ class TransactionsRepository extends Repository {
    */
   async findAllByWallet(wallet, parameters = {}) {
     const selectQuery = this.query
-      .select(this.query.block_id, this.query.serialized)
+      .select(this.query.block_id, this.query.serialized, this.query.timestamp)
       .from(this.query)
     const countQuery = this._makeEstimateQuery()
 
@@ -206,7 +206,7 @@ class TransactionsRepository extends Repository {
    */
   async findById(id) {
     const query = this.query
-      .select(this.query.block_id, this.query.serialized)
+      .select(this.query.block_id, this.query.serialized, this.query.timestamp)
       .from(this.query)
       .where(this.query.id.equals(id))
 
@@ -223,7 +223,7 @@ class TransactionsRepository extends Repository {
    */
   async findByTypeAndId(type, id) {
     const query = this.query
-      .select(this.query.block_id, this.query.serialized)
+      .select(this.query.block_id, this.query.serialized, this.query.timestamp)
       .from(this.query)
       .where(this.query.id.equals(id).and(this.query.type.equals(type)))
 
@@ -239,7 +239,7 @@ class TransactionsRepository extends Repository {
    */
   async findByIds(ids) {
     const query = this.query
-      .select(this.query.block_id, this.query.serialized)
+      .select(this.query.block_id, this.query.serialized, this.query.timestamp)
       .from(this.query)
       .where(this.query.id.in(ids))
 
@@ -252,7 +252,7 @@ class TransactionsRepository extends Repository {
    */
   async findWithVendorField() {
     const query = this.query
-      .select(this.query.block_id, this.query.serialized)
+      .select(this.query.block_id, this.query.serialized, this.query.timestamp)
       .from(this.query)
       .where(this.query.vendor_field_hex.isNotNull())
 

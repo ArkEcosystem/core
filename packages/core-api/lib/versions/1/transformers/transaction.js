@@ -20,7 +20,7 @@ module.exports = model => {
     id: data.id,
     blockid: model.blockId,
     type: data.type,
-    timestamp: data.timestamp,
+    timestamp: model.timestamp || data.timestamp,
     amount: +bignumify(data.amount).toFixed(),
     fee: +bignumify(data.fee).toFixed(),
     recipientId: data.recipientId,
