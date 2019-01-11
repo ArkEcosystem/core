@@ -3,6 +3,7 @@ import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import genesisBlockTestnet from "@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json";
 import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../src/blockchain";
+import { BlockProcessor } from "../../src/processor";
 import { setUpFull, tearDown } from "../__support__/setup";
 
 const { Block } = models;
@@ -11,16 +12,16 @@ const { generateTransfers } = generators;
 
 let app;
 let blockchain: Blockchain;
-let blockProcessor;
+let blockProcessor: BlockProcessor;
 
 beforeAll(async () => {
     app = await setUpFull();
     blockchain = app.resolvePlugin("blockchain");
 
     // using require here because if we import before app is set up, it ends up with some undefined references
-    const { BlockProcessor } = require("../../src/processor");
+    const Processor = require("../../src/processor").BlockProcessor;
 
-    blockProcessor = new BlockProcessor(blockchain);
+    blockProcessor = new Processor(blockchain);
 
     await blockchain.removeBlocks(blockchain.getLastHeight() - 1);
 });
@@ -81,7 +82,8 @@ describe("Block processor", () => {
                 const blockVerified = new Block(block);
                 blockVerified.verification.verified = true;
 
-                const handler = await blockProcessor.getHandler(blockVerified);
+                // Accessing private function
+                const handler = await (blockProcessor as any).getHandler(blockVerified);
                 expect(handler instanceof AlreadyForgedHandler).toBeTrue();
 
                 const result = await blockProcessor.process(blockVerified);
@@ -109,7 +111,8 @@ describe("Block processor", () => {
                 const blockVerified = new Block(block);
                 blockVerified.verification.verified = true;
 
-                const handler = await blockProcessor.getHandler(blockVerified);
+                // Accessing private function
+                const handler = await (blockProcessor as any).getHandler(blockVerified);
                 expect(handler instanceof AlreadyForgedHandler).toBeTrue();
 
                 const result = await blockProcessor.process(blockVerified);

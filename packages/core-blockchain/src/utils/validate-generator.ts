@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
+import { models, slots } from "@arkecosystem/crypto";
 
-export const validateGenerator = async (block: any): Promise<boolean> => {
+export const validateGenerator = async (block: models.Block): Promise<boolean> => {
     const database = app.resolvePlugin("database");
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 

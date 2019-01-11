@@ -13,6 +13,8 @@ export interface BlockVerification {
     errors: string[]
 }
 
+export interface IBlock { data: IBlockData }
+
 export interface IBlockData {
     id?: string;
     idHex?: string;
@@ -32,7 +34,7 @@ export interface IBlockData {
 
     blockSignature?: string;
     serialized?: string;
-    transactions: ITransactionData[];
+    transactions?: ITransactionData[];
 }
 
 /**
@@ -64,7 +66,7 @@ export interface IBlockData {
  * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
  */
 
-export class Block {
+export class Block implements IBlock {
     /**
      * Create block from data.
      */
@@ -148,7 +150,7 @@ export class Block {
     public transactions: Transaction[];
     public verification: BlockVerification;
 
-    constructor(data: IBlockData) {
+    constructor(data: IBlockData | string) {
         if (typeof data === "string") {
             data = Block.deserialize(data); 
         }

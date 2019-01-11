@@ -26,7 +26,7 @@ const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable
  */
 export class StateStorage implements Blockchain.IStateStorage {
     public blockchain: any;
-    public lastDownloadedBlock: { data: models.IBlockData };
+    public lastDownloadedBlock: models.IBlock | null;
     public blockPing: any;
     public started: boolean;
     public forkedBlock: models.Block | null;

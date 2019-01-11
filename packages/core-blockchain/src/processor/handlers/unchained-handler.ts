@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
@@ -15,7 +16,7 @@ enum UnchainedBlockStatus {
 }
 
 export class UnchainedHandler extends BlockHandler {
-    public constructor(protected blockchain: Blockchain, protected block: any, private isValidGenerator: boolean) {
+    public constructor(protected blockchain: Blockchain, protected block: models.Block, private isValidGenerator: boolean) {
         super(blockchain, block);
     }
 

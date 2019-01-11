@@ -267,7 +267,7 @@ describe("Blockchain", () => {
                             timestamp: slots.getTime(),
                             height: genesisBlock.height,
                         },
-                    }),
+                    } as models.IBlock),
                 ).toBeTrue();
             });
         });
@@ -295,7 +295,7 @@ describe("Blockchain", () => {
                             timestamp: slots.getTime() - 3600 * 24 * 6,
                             height: blocks101to155[52].height,
                         },
-                    }),
+                    } as models.IBlock),
                 ).toBeTrue();
             });
         });
