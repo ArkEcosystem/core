@@ -14,7 +14,7 @@ export class AcceptBlockHandler extends BlockHandler {
             await database.saveBlock(this.block);
 
             // Check if we recovered from a fork
-            if (state.forkedBlock && state.forkedBlock.height === this.block.data.height) {
+            if (state.forkedBlock && state.forkedBlock.data.height === this.block.data.height) {
                 logger.info("Successfully recovered from fork :star2:");
                 state.forkedBlock = null;
             }
