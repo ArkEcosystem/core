@@ -8,16 +8,19 @@ import { BlockSerializer } from "../serializers";
 import { Bignum } from "../utils";
 import { ITransactionData, Transaction } from "./transaction";
 
-
+export interface BlockVerification {
+    verified: boolean,
+    errors: string[]
+}
 
 export interface IBlockData {
     blockSignature: string;
     id: string;
-    idHex: string;
+    idHex?: string;
     timestamp: number;
     version: number;
     height: number;
-    previousBlockHex: string;
+    previousBlockHex?: string;
     previousBlock: string;
     numberOfTransactions: number;
     totalAmount: Bignum | number | string;
@@ -27,10 +30,8 @@ export interface IBlockData {
     payloadHash: string;
     generatorPublicKey: string;
 
-    headerOnly: boolean;
-    serialized: any;
-
-    transactions: Transaction[];
+    serialized?: string;
+    transactions: ITransactionData[];
 }
 
 /**
@@ -63,11 +64,10 @@ export interface IBlockData {
  */
 
 export class Block {
-
     /**
      * Create block from data.
      */
-    public static create(data, keys) {
+    public static create(data, keys): Block {
         data.generatorPublicKey = keys.publicKey;
 
         const payloadHash: Buffer = Block.serialize(data, false);
@@ -79,47 +79,6 @@ export class Block {
         data.id = Block.getId(data);
 
         return new Block(data);
-    }
-
-    public static getIdHex(data) {
-        const payloadHash: any = Block.serialize(data);
-        const hash = createHash("sha256")
-            .update(payloadHash)
-            .digest();
-        const temp = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            temp[i] = hash[7 - i];
-        }
-        return temp.toString("hex");
-    }
-
-    public static toBytesHex(data) {
-        const temp = data ? new Bignum(data).toString(16) : "";
-        return "0".repeat(16 - temp.length) + temp;
-    };
-
-    /**
-     * Get block id from already serialized buffer
-     * @param  {Buffer} serialized block buffer with block-signature included
-     * @return {String}
-     * @static
-     */
-    public static getIdFromSerialized(serializedBuffer) {
-        const hash = createHash("sha256")
-            .update(serializedBuffer)
-            .digest();
-        const temp = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            temp[i] = hash[7 - i];
-        }
-        return new Bignum(temp.toString("hex"), 16).toFixed();
-    }
-
-    public static getId(data) {
-        const idHex = Block.getIdHex(data);
-        return new Bignum(idHex, 16).toFixed();
     }
 
     /**
@@ -143,29 +102,62 @@ export class Block {
         return BlockSerializer.serialize(block, includeSignature);
     }
 
+    public static getIdHex(data): string {
+        const payloadHash: any = Block.serialize(data);
+        const hash = createHash("sha256")
+            .update(payloadHash)
+            .digest();
+        const temp = Buffer.alloc(8);
+
+        for (let i = 0; i < 8; i++) {
+            temp[i] = hash[7 - i];
+        }
+        return temp.toString("hex");
+    }
+
+    public static toBytesHex(data): string {
+        const temp = data ? new Bignum(data).toString(16) : "";
+        return "0".repeat(16 - temp.length) + temp;
+    }
+
+    /**
+     * Get block id from already serialized buffer
+     */
+    public static getIdFromSerialized(serializedBuffer: Buffer): string {
+        const hash = createHash("sha256")
+            .update(serializedBuffer)
+            .digest();
+        const temp = Buffer.alloc(8);
+
+        for (let i = 0; i < 8; i++) {
+            temp[i] = hash[7 - i];
+        }
+        return new Bignum(temp.toString("hex"), 16).toFixed();
+    }
+
+    public static getId(data): string {
+        const idHex = Block.getIdHex(data);
+        return new Bignum(idHex, 16).toFixed();
+    }
+
+
     public headerOnly: boolean;
     public serialized: string;
     public data: IBlockData;
     public transactions: Transaction[];
-    public verification: { verified: boolean; errors: any[] };
+    public verification: BlockVerification;
 
-    /**
-     * @constructor
-     * @param {Object} data - The data of the block
-     */
-    constructor(data) {
+    constructor(data: IBlockData) {
         if (typeof data === "string") {
-            data = Block.deserialize(data);
+            data = Block.deserialize(data); 
         }
 
         this.serialized = Block.serializeFull(data).toString("hex");
         this.data = Block.deserialize(this.serialized);
 
+        // TODO genesis block calculated id is wrong for some reason
         if (data.height === 1) {
-            // TODO genesis block calculated id is wrong for some reason
-            this.data.id = data.id;
-            this.data.idHex = Block.toBytesHex(this.data.id);
-            delete this.data.previousBlock;
+            this.applyGenesisBlockFix(data);
         }
 
         // fix on real timestamp, this is overloading transaction
@@ -175,7 +167,7 @@ export class Block {
             transaction.blockId = this.data.id;
             transaction.timestamp = this.data.timestamp;
             transaction.sequence = index;
-            return transaction;
+            return transaction as Transaction;
         });
 
         delete this.data.transactions;
@@ -197,9 +189,8 @@ export class Block {
 
     /**
      * Return block as string.
-     * @return {String}
      */
-    public toString() {
+    public toString(): string {
         return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${pluralize(
             "transaction",
             this.data.numberOfTransactions,
@@ -209,9 +200,8 @@ export class Block {
 
     /**
      * Get header from block.
-     * @return {Object} The block data, without the transactions
      */
-    public getHeader() {
+    public getHeader(): IBlockData {
         const header = Object.assign({}, this.data);
         delete header.transactions;
         return header;
@@ -219,9 +209,8 @@ export class Block {
 
     /**
      * Verify signature associated with this block.
-     * @return {Boolean}
      */
-    public verifySignature() {
+    public verifySignature(): boolean {
         const bytes: any = Block.serialize(this.data, false);
         const hash = createHash("sha256")
             .update(bytes)
@@ -230,13 +219,27 @@ export class Block {
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
+    public toJson(): any {
+        // Convert Bignums
+        const blockData = cloneDeepWith(this.data, (value: any, key: string) => {
+            if (["reward", "totalAmount", "totalFee"].indexOf(key) !== -1) {
+                return +value.toFixed();
+            }
+
+            return value;
+        });
+
+        return Object.assign(blockData, {
+            transactions: this.transactions.map(transaction => transaction.toJson()),
+        });
+    }
+
     /**
      * Verify this block.
-     * @return {Object}
      */
-    public verify() {
+    private verify(): BlockVerification {
         const block = this.data;
-        const result = {
+        const result: BlockVerification = {
             verified: false,
             errors: [],
         };
@@ -338,18 +341,9 @@ export class Block {
         return result;
     }
 
-    public toJson() {
-        // Convert Bignums
-        const blockData = cloneDeepWith(this.data, (value: any, key: string) => {
-            if (["reward", "totalAmount", "totalFee"].indexOf(key) !== -1) {
-                return +value.toFixed();
-            }
-
-            return value;
-        });
-
-        return Object.assign(blockData, {
-            transactions: this.transactions.map(transaction => transaction.toJson()),
-        });
+    private applyGenesisBlockFix(data: IBlockData): void {
+        this.data.id = data.id;
+        this.data.idHex = Block.toBytesHex(this.data.id);
+        delete this.data.previousBlock;
     }
 }

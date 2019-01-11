@@ -6,8 +6,10 @@ import { Bignum } from "../utils";
 class BlockSerializer {
 
     public serializeFull(block: IBlockData): Buffer {
-        const serializedHeader = this.serialize(block);
         const transactions = block.transactions || [];
+        block.numberOfTransactions = transactions.length;
+
+        const serializedHeader = this.serialize(block);
 
         const buffer = new ByteBuffer(serializedHeader.length + transactions.length * 4, true)
             .append(serializedHeader)
@@ -32,12 +34,6 @@ class BlockSerializer {
         }
 
         return Buffer.from(buffer.flip().toBuffer());
-    }
-
-    public create(block: IBlockData, keys): Block {
-
-
-        return new Block(block);
     }
 
     private serializeHeader(block: IBlockData, buffer: ByteBuffer): any {

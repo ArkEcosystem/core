@@ -58,7 +58,7 @@ describe("Models - Block", () => {
     describe("getHeader", () => {
         it("returns the block data without the transactions", () => {
             // Ignore the verification for testing purposes
-            jest.spyOn(Block.prototype, "verify").mockImplementation(() => ({ verified: true }));
+            jest.spyOn(Block.prototype as any, "verify").mockImplementation(() => ({ verified: true }));
 
             const data2 = { ...data };
             const header = new Block(data2).getHeader();
