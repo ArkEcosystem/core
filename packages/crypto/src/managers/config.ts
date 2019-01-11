@@ -75,11 +75,9 @@ export class ConfigManager {
 
     /**
      * Get specific config value.
-     * @param  {String} key
-     * @return {*}
      */
-    public get(key) {
-        return get(this.config, key);
+    public get<T = any>(key): T {
+        return get(this.config, key) as T;
     }
 
     /**

@@ -14,9 +14,9 @@ export interface BlockVerification {
 }
 
 export interface IBlockData {
-    blockSignature: string;
-    id: string;
+    id?: string;
     idHex?: string;
+
     timestamp: number;
     version: number;
     height: number;
@@ -30,6 +30,7 @@ export interface IBlockData {
     payloadHash: string;
     generatorPublicKey: string;
 
+    blockSignature?: string;
     serialized?: string;
     transactions: ITransactionData[];
 }

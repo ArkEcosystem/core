@@ -5,7 +5,6 @@ import { TransactionSerializer } from "../serializers";
 import { Bignum } from "../utils";
 
 export interface ITransactionData {
-    id: string;
     version?: number;
     network?: number;
 
@@ -23,7 +22,8 @@ export interface ITransactionData {
     vendorField?: string;
     vendorFieldHex?: string;
 
-    signature: string;
+    id?: string;
+    signature?: string;
     secondSignature?: string;
     signSignature?: string;
     signatures?: string[];
@@ -112,7 +112,7 @@ export class Transaction implements ITransactionData {
         this.data = Transaction.deserialize(this.serialized);
         this.verified = this.data.type <= 4 && crypto.verify(this.data);
 
-        // TODO: remove this shit
+        // TODO: remove this
         [
             "id",
             "sequence",

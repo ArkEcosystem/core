@@ -2,6 +2,7 @@ import "jest-extended";
 import { TransactionTypes } from "../../src/constants";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
+import { ITransactionData } from "../../src/models";
 
 const networkMainnet = configManager.getPreset("mainnet");
 const networkDevnet = configManager.getPreset("devnet");
@@ -139,7 +140,7 @@ describe("crypto.js", () => {
 
     describe("getFee", () => {
         it("should return 10000000", () => {
-            const fee = crypto.getFee({ type: TransactionTypes.Transfer });
+            const fee = crypto.getFee({ type: TransactionTypes.Transfer } as ITransactionData);
             expect(fee).toBeNumber();
             expect(fee).toBe(10000000);
         });
