@@ -3,14 +3,16 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 
 jest.setTimeout(60000);
 
-export const setUp = async () => {
-    await setUpContainer({
+export const setUpFull = async () =>
+    setUpContainer({
+        exit: "@arkecosystem/core-blockchain",
+    });
+
+export const setUp = async () =>
+    setUpContainer({
         exit: "@arkecosystem/core-p2p",
         exclude: ["@arkecosystem/core-blockchain"],
     });
-
-    return app;
-};
 
 export const tearDown = async () => {
     await app.tearDown();

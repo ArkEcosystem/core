@@ -1,8 +1,8 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Container } from "@arkecosystem/core-interfaces";
 import { generators } from "@arkecosystem/core-test-utils";
-import { delegates, wallets, wallets2ndSig } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
-import { configManager, crypto, slots } from "@arkecosystem/crypto";
+import { delegates, genesisBlock, wallets, wallets2ndSig } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
+import { configManager, crypto, models, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
 import { TransactionPool } from "../src";
@@ -10,6 +10,7 @@ import { TransactionGuard } from "../src";
 import { config as localConfig } from "../src/config";
 import { setUpFull, tearDown } from "./__support__/setup";
 
+const { Block } = models;
 const {
     generateDelegateRegistration,
     generateSecondSignature,
@@ -21,10 +22,12 @@ const {
 let container: Container.IContainer;
 let guard;
 let transactionPool: TransactionPool;
+let blockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
     transactionPool = container.resolvePlugin<TransactionPool>("transactionPool");
+    blockchain = container.resolvePlugin("blockchain");
     localConfig.init(transactionPool.options);
 });
 
@@ -606,6 +609,65 @@ describe("Transaction Guard", () => {
                 expect(result.invalid).toEqual(modifiedTransactions.map(transaction => transaction.id));
                 expect(result.accept).toEqual([]);
                 expect(result.broadcast).toEqual([]);
+            });
+        });
+
+        describe("Transaction replay shouldn't pass validation", () => {
+            afterEach(async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1)); // resets to height 1
+
+            const addBlock = async transactions => {
+                // makes blockchain accept a new block with the transactions specified
+                const block = {
+                    id: "17882607875259085966",
+                    version: 0,
+                    timestamp: 46583330,
+                    height: 2,
+                    reward: 0,
+                    previousBlock: genesisBlock.id,
+                    numberOfTransactions: 1,
+                    transactions,
+                    totalAmount: transactions.reduce((acc, curr) => acc + curr.amount),
+                    totalFee: transactions.reduce((acc, curr) => acc + curr.fee),
+                    payloadLength: 0,
+                    payloadHash: genesisBlock.payloadHash,
+                    generatorPublicKey: delegates[0].publicKey,
+                    blockSignature:
+                        "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
+                    createdAt: "2019-07-11T16:48:50.550Z",
+                };
+                const blockVerified = new Block(block);
+                blockVerified.verification.verified = true;
+
+                await blockchain.processBlock(blockVerified, () => null);
+            };
+            const forgedErrorMessage = id => ({
+                [id]: [
+                    {
+                        message: "Already forged.",
+                        type: "ERR_FORGED",
+                    },
+                ],
+            });
+
+            it("should not validate an already forged transaction", async () => {
+                const transfers = generateTransfers("unitnet", wallets[0].passphrase, wallets[1].address, 11, 1, true);
+                await addBlock(transfers);
+
+                const result = await guard.validate(transfers);
+
+                expect(result.errors).toEqual(forgedErrorMessage(transfers[0].id));
+            });
+
+            it("should not validate an already forged transaction - trying to tweak tx id", async () => {
+                const transfers = generateTransfers("unitnet", wallets[0].passphrase, wallets[1].address, 11, 1, true);
+                await addBlock(transfers);
+
+                const realTransferId = transfers[0].id;
+                transfers[0].id = "123456";
+
+                const result = await guard.validate(transfers);
+
+                expect(result.errors).toEqual(forgedErrorMessage(realTransferId));
             });
         });
     });
