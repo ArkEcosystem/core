@@ -165,7 +165,7 @@ export interface IBlockchain {
      * Get the last block of the blockchain.
      * @return {Object}
      */
-    getLastBlock(): any;
+    getLastBlock(): models.Block;
 
     /**
      * Get the last height of the blockchain.
@@ -177,7 +177,7 @@ export interface IBlockchain {
      * Get the last downloaded block of the blockchain.
      * @return {Object}
      */
-    getLastDownloadedBlock(): any;
+    getLastDownloadedBlock(): { data: models.IBlockData } ;
 
     /**
      * Get the block ping.
@@ -189,13 +189,13 @@ export interface IBlockchain {
      * Ping a block.
      * @return {Object}
      */
-    pingBlock(incomingBlock: models.Block): any;
+    pingBlock(incomingBlock: models.IBlockData): any;
 
     /**
      * Push ping block.
      * @return {Object}
      */
-    pushPingBlock(block: models.Block): void;
+    pushPingBlock(block: models.IBlockData): void;
 
     /**
      * Get the list of events that are available.

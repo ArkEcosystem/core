@@ -139,7 +139,7 @@ export class Transaction implements ITransactionData {
         }, this);
     }
 
-    public verify() {
+    public verify(): boolean {
         return this.verified;
     }
 

@@ -20,7 +20,7 @@ export class LoaderController extends Controller {
             return super.respondWith({
                 loaded: this.blockchain.isSynced(),
                 now: lastBlock ? lastBlock.data.height : 0,
-                blocksCount: this.blockchain.p2p.getNetworkHeight() - lastBlock ? lastBlock.data.height : 0,
+                blocksCount: this.blockchain.p2p.getNetworkHeight() - (lastBlock ? lastBlock.data.height : 0),
             });
         } catch (error) {
             return Boom.badImplementation(error);

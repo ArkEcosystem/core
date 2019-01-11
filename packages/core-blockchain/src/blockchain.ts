@@ -547,7 +547,6 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Get the block ping.
-     * @return {Object}
      */
     public getBlockPing() {
         return this.state.blockPing;
@@ -555,17 +554,15 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Ping a block.
-     * @return {Object}
      */
-    public pingBlock(incomingBlock) {
+    public pingBlock(incomingBlock: models.IBlockData): boolean {
         return this.state.pingBlock(incomingBlock);
     }
 
     /**
      * Push ping block.
-     * @return {Object}
      */
-    public pushPingBlock(block) {
+    public pushPingBlock(block: models.IBlockData) {
         this.state.pushPingBlock(block);
     }
 

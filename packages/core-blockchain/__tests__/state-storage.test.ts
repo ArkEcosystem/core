@@ -106,7 +106,7 @@ describe("State Storage", () => {
                 stateStorage.setLastBlock(blocks[i]);
             }
 
-            const lastBlocksData = stateStorage.getLastBlocksData().toArray();
+            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as models.IBlockData[];
             expect(lastBlocksData).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
@@ -176,7 +176,7 @@ describe("State Storage", () => {
 
     describe("cacheTransactions", () => {
         it("should add transaction id", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as models.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
@@ -184,11 +184,11 @@ describe("State Storage", () => {
         });
 
         it("should not add duplicate transaction ids", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as models.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
-            expect(stateStorage.cacheTransactions([{ id: "1" }])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as models.ITransactionData])).toEqual({
                 added: [],
                 notAdded: [{ id: "1" }],
             });
@@ -209,7 +209,7 @@ describe("State Storage", () => {
             expect(stateStorage.getCachedTransactionIds()).toHaveLength(10000);
             expect(stateStorage.getCachedTransactionIds()[0]).toEqual("0");
 
-            expect(stateStorage.cacheTransactions([{ id: "10000" }])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "10000" } as any])).toEqual({
                 added: [{ id: "10000" }],
                 notAdded: [],
             });
