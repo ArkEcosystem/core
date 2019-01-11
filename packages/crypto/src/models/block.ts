@@ -1,4 +1,3 @@
-import ByteBuffer from "bytebuffer";
 import { createHash } from "crypto";
 import cloneDeepWith from "lodash/cloneDeepWith";
 import pluralize from "pluralize";
@@ -162,6 +161,13 @@ export class Block {
         this.serialized = Block.serializeFull(data).toString("hex");
         this.data = Block.deserialize(this.serialized);
 
+        if (data.height === 1) {
+            // TODO genesis block calculated id is wrong for some reason
+            this.data.id = data.id;
+            this.data.idHex = Block.toBytesHex(this.data.id);
+            delete this.data.previousBlock;
+        }
+
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
@@ -173,13 +179,6 @@ export class Block {
         });
 
         delete this.data.transactions;
-
-        if (data.height === 1) {
-            // TODO genesis block calculated id is wrong for some reason
-            this.data.id = data.id;
-            this.data.idHex = Block.toBytesHex(this.data.id);
-            delete this.data.previousBlock;
-        }
 
         this.verification = this.verify();
 
