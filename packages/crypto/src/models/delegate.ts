@@ -5,7 +5,8 @@ import wif from "wif";
 import * as bip38 from "../crypto/bip38";
 import { Bignum } from "../utils";
 
-import { crypto, KeyPair } from "../crypto/crypto";
+import { crypto } from "../crypto/crypto";
+import { KeyPair } from "../identities";
 import { INetwork } from "../networks";
 import { sortTransactions } from "../utils";
 import { Block, IBlockData } from "./block";

@@ -4,22 +4,15 @@ import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import crypto from "crypto";
 import secp256k1 from "secp256k1";
-import wif from "wif";
 
+import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { configManager } from "../managers";
 import { feeManager } from "../managers";
 import { ITransactionData } from "../models";
 import { INetwork } from "../networks";
 import { Bignum } from "../utils";
-import { HashAlgorithms } from "./hash-algorithms";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
-
-export interface KeyPair {
-    publicKey: string,
-    privateKey: string,
-    compressed: boolean
-}
 
 class Crypto {
     /**
@@ -295,8 +288,7 @@ class Crypto {
      * Get keys from secret.
      */
     public getKeys(secret: string, compressed: boolean = true): KeyPair {
-        const privateKey = HashAlgorithms.sha256(Buffer.from(secret, "utf8"));
-        return this.getKeysByPrivateKey(privateKey, compressed);
+        return Keys.fromPassphrase(secret, compressed);
     }
 
     /**
@@ -304,107 +296,42 @@ class Crypto {
      */
     public getKeysByPrivateKey(privateKey: Buffer | string, compressed: boolean = true): KeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
-
-        const publicKey = secp256k1.publicKeyCreate(privateKey, compressed);
-        const keyPair = {
-            publicKey: publicKey.toString("hex"),
-            privateKey: privateKey.toString("hex"),
-            compressed,
-        };
-
-        return keyPair;
+        return Keys.fromPrivateKey(privateKey, compressed);
     }
 
     /**
      * Get keys from WIF key.
      */
-    public getKeysFromWIF(wifKey: string, network?: any): KeyPair {
-        if (!network) {
-            network = configManager.all();
-        }
-
-        // @ts-ignore
-        const decoded = wif.decode(wifKey);
-        const version = decoded.version;
-
-        if (version !== network.wif) {
-            throw new Error("Invalid network version");
-        }
-
-        const privateKey = decoded.privateKey;
-        const publicKey = secp256k1.publicKeyCreate(privateKey, decoded.compressed);
-
-        const keyPair = {
-            publicKey: publicKey.toString("hex"),
-            privateKey: privateKey.toString("hex"),
-            compressed: decoded.compressed,
-        };
-
-        return keyPair;
+    public getKeysFromWIF(wifKey: string, network?: INetwork): KeyPair {
+        return Keys.fromWIF(wifKey, network);
     }
 
     /**
      * Get WIF key from keys
      */
     public keysToWIF(keys: KeyPair, network?: INetwork): string {
-        if (!network) {
-            network = configManager.all() as INetwork;
-        }
-
-        return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);
+        return WIF.fromKeys(keys, network);
     }
 
     /**
      * Get address from public key.
      */
     public getAddress(publicKey: string, networkVersion?: number): string {
-        const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
-        if (!pubKeyRegex.test(publicKey)) {
-            throw new Error(`publicKey '${publicKey}' is invalid`);
-        }
-
-        if (!networkVersion) {
-            networkVersion = configManager.get<number>("pubKeyHash");
-        }
-
-        const buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
-        const payload = Buffer.alloc(21);
-
-        payload.writeUInt8(networkVersion, 0);
-        buffer.copy(payload, 1);
-
-        return bs58check.encode(payload);
+        return Address.fromPublicKey(publicKey, networkVersion);
     }
 
     /**
      * Validate address.
      */
     public validateAddress(address: string, networkVersion?: number): boolean {
-        if (!networkVersion) {
-            networkVersion = configManager.get<number>("pubKeyHash");
-        }
-
-        try {
-            const decode = bs58check.decode(address);
-            return decode[0] === networkVersion;
-        } catch (e) {
-            return false;
-        }
+        return Address.validate(address, networkVersion);
     }
 
     /**
      * Validate public key.
      */
     public validatePublicKey(address: string, networkVersion?: number): boolean {
-        if (!networkVersion) {
-            networkVersion = configManager.get<number>("pubKeyHash");
-        }
-
-        try {
-            return this.getAddress(address, networkVersion).length === 34;
-        } catch (e) {
-            return false;
-        }
+        return PublicKey.validate(address, networkVersion);
     }
 }
 

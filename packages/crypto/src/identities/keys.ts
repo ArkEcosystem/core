@@ -2,9 +2,14 @@ import secp256k1 from "secp256k1";
 import wif from "wif";
 
 import { HashAlgorithms } from "../crypto";
-import { KeyPair } from "../crypto/crypto";
 import { configManager } from "../managers";
 import { INetwork } from "../networks";
+
+export interface KeyPair {
+    publicKey: string,
+    privateKey: string,
+    compressed: boolean
+}
 
 export class Keys {
     public static fromPassphrase(passphrase: string, compressed: boolean = true): KeyPair {

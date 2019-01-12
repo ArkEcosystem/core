@@ -48,6 +48,6 @@ export class Message {
     }
 
     private static createHash(message: string): Buffer {
-        return HashAlgorithms.sha256(Buffer.from(message, "utf-8"))
+        return HashAlgorithms.sha256(message)
     }
 }
