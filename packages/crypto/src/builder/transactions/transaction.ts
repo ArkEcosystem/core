@@ -1,6 +1,7 @@
 import { crypto, slots } from "../../crypto";
 import { configManager } from "../../managers";
 import { Transaction } from "../../models";
+import { INetwork } from "../../networks";
 
 export abstract class TransactionBuilder {
     public data: any;
@@ -141,14 +142,11 @@ export abstract class TransactionBuilder {
 
     /**
      * Sign transaction using wif.
-     * @param  {String} wif
-     * @param  {String} networkWif - value associated with network
-     * @return {TransactionBuilder}
      */
-    public signWithWif(wif, networkWif?) {
+    public signWithWif(wif: string, networkWif?: number): TransactionBuilder {
         const keys = crypto.getKeysFromWIF(wif, {
             wif: networkWif || configManager.get("wif"),
-        });
+        } as INetwork);
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
@@ -187,7 +185,7 @@ export abstract class TransactionBuilder {
         if (wif) {
             const keys = crypto.getKeysFromWIF(wif, {
                 wif: networkWif || configManager.get("wif"),
-            });
+            } as INetwork);
             // TODO sign or second?
             this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys);
         }
