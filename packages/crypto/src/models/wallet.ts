@@ -30,18 +30,18 @@ export class Wallet {
     public address: string;
     public publicKey: string | null;
     public secondPublicKey: string | null;
-    public balance: any;
-    public vote: any;
+    public balance: Bignum;
+    public vote: string;
     public voted: boolean;
     public username: string | null;
     public lastBlock: any;
-    public voteBalance: any;
+    public voteBalance: Bignum;
     public multisignature: string | null;
     public dirty: boolean;
     public producedBlocks: number;
     public missedBlocks: number;
-    public forgedFees: any;
-    public forgedRewards: any;
+    public forgedFees: Bignum;
+    public forgedRewards: Bignum;
 
     constructor(address: string) {
         this.address = address;
