@@ -4,11 +4,11 @@ import { configManager } from "../managers";
 import { PublicKey } from "./public-key";
 
 export class Address {
-    public static fromPassphrase(passphrase, networkVersion?: any) {
+    public static fromPassphrase(passphrase, networkVersion?: number): string {
         return Address.fromPublicKey(PublicKey.fromPassphrase(passphrase), networkVersion);
     }
 
-    public static fromPublicKey(publicKey, networkVersion?: any) {
+    public static fromPublicKey(publicKey, networkVersion?: number): string {
         const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
         if (!pubKeyRegex.test(publicKey)) {
             throw new Error(`publicKey '${publicKey}' is invalid`);
@@ -27,11 +27,11 @@ export class Address {
         return bs58check.encode(payload);
     }
 
-    public static fromPrivateKey(privateKey, networkVersion?: any) {
+    public static fromPrivateKey(privateKey, networkVersion?: number): string {
         return Address.fromPublicKey(privateKey.publicKey, networkVersion);
     }
 
-    public static validate(address, networkVersion?: any) {
+    public static validate(address, networkVersion?: number): boolean {
         if (!networkVersion) {
             networkVersion = configManager.get("pubKeyHash");
         }
