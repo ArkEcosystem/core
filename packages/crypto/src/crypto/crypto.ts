@@ -2,7 +2,6 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import crypto from "crypto";
 import secp256k1 from "secp256k1";
 
 import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
@@ -11,6 +10,7 @@ import { feeManager } from "../managers";
 import { ITransactionData } from "../models";
 import { INetwork } from "../networks";
 import { Bignum } from "../utils";
+import { HashAlgorithms } from "./hash-algorithms";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -189,10 +189,7 @@ class Crypto {
         }
 
         const bytes = this.getBytes(transaction, skipSignature, skipSecondSignature);
-        return crypto
-            .createHash("sha256")
-            .update(bytes)
-            .digest();
+        return HashAlgorithms.sha256(bytes);
     }
 
     /**
@@ -335,5 +332,4 @@ class Crypto {
     }
 }
 
-const arkCrypto = new Crypto();
-export { arkCrypto as crypto };
+export const crypto = new Crypto();
