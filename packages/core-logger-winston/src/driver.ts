@@ -15,8 +15,7 @@ export class WinstonLogger extends AbstractLogger {
      * Make the logger instance.
      */
     public make() {
-        const { level } = this.options;
-        this.logger = winston.createLogger({ level });
+        this.logger = winston.createLogger();
 
         this.registerTransports();
 
@@ -134,7 +133,9 @@ export class WinstonLogger extends AbstractLogger {
     public suppressConsoleOutput(suppress: boolean): void {
         const consoleTransport = this.logger.transports.find(t => t.name === "console");
 
-        consoleTransport.silent = suppress;
+        if (consoleTransport) {
+            consoleTransport.silent = suppress;
+        }
     }
 
     /**
