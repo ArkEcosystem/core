@@ -76,9 +76,8 @@ describe(".toHaveValidSecondSignature", () => {
     test("fails when given an invalid transaction", () => {
         transaction.secondSignature = "invalid";
         transaction.signSignature = "invalid";
-
-        expect(transaction).not.toHaveValidSecondSignature({
-            publicKey: wallets[1].publicKey,
-        });
+        expect(expect(transaction).toHaveValidSecondSignature).toThrowError(
+            "Expected value to have a valid second signature",
+        );
     });
 });
