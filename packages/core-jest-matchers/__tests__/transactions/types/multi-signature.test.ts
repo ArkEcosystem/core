@@ -11,6 +11,8 @@ describe(".toBeMultiSignatureType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeMultiSignatureType();
+        expect(expect({ type: "invalid" }).toBeMultiSignatureType).toThrowError(
+            "Expected value to be a valid MultiSignature transaction.",
+        );
     });
 });
