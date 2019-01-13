@@ -80,4 +80,12 @@ describe(".toHaveValidSecondSignature", () => {
             "Expected value to have a valid second signature",
         );
     });
+
+    test("fails when it does not match", () => {
+        transaction.secondSignature = "invalid";
+        transaction.signSignature = "invalid";
+        expect(transaction).not.toHaveValidSecondSignature({
+            publicKey: wallets[1].publicKey,
+        });
+    });
 });
