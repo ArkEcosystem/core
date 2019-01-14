@@ -168,6 +168,14 @@ module.exports = class Blockchain {
       )} from ${block.ip}`,
     )
 
+    const currentSlot = slots.getSlotNumber();
+    const blockSlot = slots.getSlotNumber(block.timestamp);
+
+    if (blockSlot > currentSlot) {
+      logger.info(`Block disregarded because the block takes a future slot.`)
+      return;
+    }
+
     if (
       this.state.started &&
       this.state.blockchain.value === 'idle' &&
@@ -425,7 +433,11 @@ module.exports = class Blockchain {
 
       this.transactionPool.purgeBlock(block)
 
-      this.dispatch('FORK')
+      // Only fork when the block generator is an active delegate
+      if (error.message !== "inactive generator") {
+        this.dispatch('FORK');
+      }
+
       return callback()
     }
 
@@ -506,6 +518,8 @@ module.exports = class Blockchain {
       if (isValid) {
         this.dispatch('FORK')
       } else {
+        this.state.lastDownloadedBlock = lastBlock;
+
         logger.info(
           `Forked block disregarded because it is not allowed to forge. Caused by delegate: ${
             block.data.generatorPublicKey
@@ -699,10 +713,13 @@ module.exports = class Blockchain {
   __isChained(previousBlock, nextBlock) {
     const followsPrevious =
       nextBlock.data.previousBlock === previousBlock.data.id
-    const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp
     const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1
 
-    return followsPrevious && isFuture && isPlusOne
+    const previousSlot = slots.getSlotNumber(previousBlock.data.timestamp);
+    const nextSlot = slots.getSlotNumber(nextBlock.data.timestamp);
+    const isAfterLastSlot = previousSlot < nextSlot;
+
+    return followsPrevious && isPlusOne && isAfterLastSlot
   }
 
   /**
