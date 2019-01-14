@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length no-empty */
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
+import { IMultiSignatureAsset } from "@arkecosystem/crypto/dist/models";
 import genesisBlockTestnet from "../../core-test-utils/src/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
 import { setUp, tearDown } from "./__support__/setup";
@@ -342,9 +343,9 @@ describe("Wallet Manager", () => {
 
         it("should not be removed if wallet.multisignature is set", async () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.multisignature = "multisignature";
+            wallet.multisignature = {} as IMultiSignatureAsset;
 
-            expect(wallet.multisignature).toBe("multisignature");
+            expect(wallet.multisignature).toEqual({});
             expect(walletManager.__canBePurged(wallet)).toBeFalse();
         });
 
@@ -392,7 +393,7 @@ describe("Wallet Manager", () => {
         it("should not be purged if wallet.multisignature is set", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
-            wallet1.multisignature = "dummy-1-multisignature";
+            wallet1.multisignature = {} as IMultiSignatureAsset;
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);
