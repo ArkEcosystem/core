@@ -31,17 +31,17 @@ describe("Multi Payment Transaction", () => {
 
     describe("addPayment", () => {
         it("should add new payments", () => {
-            builder.addPayment("address", "amount");
-            builder.addPayment("address", "amount");
-            builder.addPayment("address", "amount");
+            builder.addPayment("address", 1);
+            builder.addPayment("address", 2);
+            builder.addPayment("address", 3);
 
             expect(builder.data.payments).toEqual({
                 address1: "address",
                 address2: "address",
                 address3: "address",
-                amount1: "amount",
-                amount2: "amount",
-                amount3: "amount",
+                amount1: 1,
+                amount2: 2,
+                amount3: 3,
             });
         });
     });

@@ -41,7 +41,7 @@ describe("IPFS Transaction", () => {
         const paddedHex = hex.padStart(128, "0");
 
         builder.data.ipfsHash = data;
-        builder.vendorField(0);
+        builder.vendorField("");
         expect(builder.data.vendorFieldHex).toBe(paddedHex);
     });
 });

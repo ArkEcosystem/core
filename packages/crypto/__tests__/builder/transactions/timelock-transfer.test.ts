@@ -26,9 +26,9 @@ describe("Timelock Transfer Transaction", () => {
 
     describe("timelock", () => {
         it("establishes the time-lock & time-lock type", () => {
-            builder.timelock("time lock", "time lock type");
-            expect(builder.data.timelock).toBe("time lock");
-            expect(builder.data.timelockType).toBe("time lock type");
+            builder.timelock(2000, 0);
+            expect(builder.data.timelock).toBe(2000);
+            expect(builder.data.timelockType).toBe(0);
         });
     });
 
