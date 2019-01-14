@@ -11,6 +11,8 @@ describe(".toBeSecondSignatureType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeSecondSignatureType();
+        expect(expect({ type: "invalid" }).toBeSecondSignatureType).toThrowError(
+            "Expected value to be a valid SecondSignature transaction.",
+        );
     });
 });

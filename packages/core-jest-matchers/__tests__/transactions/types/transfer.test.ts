@@ -9,6 +9,8 @@ describe(".toBeTransferType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeTransferType();
+        expect(expect({ type: "invalid" }).toBeTransferType).toThrowError(
+            "Expected value to be a valid Transfer transaction.",
+        );
     });
 });
