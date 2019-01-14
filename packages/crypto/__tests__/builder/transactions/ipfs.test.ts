@@ -1,20 +1,18 @@
 import "jest-extended";
-import { client as ark } from "../../../src/client";
-import { TransactionTypes } from "../../../src/constants";
-import { feeManager } from "../../../src/managers/fee";
+import { IPFSBuilder } from "../../../dist/builder";
+import { client as ark } from "../../../dist/client";
+import { TransactionTypes } from "../../../dist/constants";
+import { feeManager } from "../../../dist/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder;
+let builder : IPFSBuilder;
 
 beforeEach(() => {
     builder = ark.getBuilder().ipfs();
-
-    // @ts-ignore
-    global.builder = builder;
 });
 
 describe("IPFS Transaction", () => {
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Ipfs);
@@ -29,25 +27,21 @@ describe("IPFS Transaction", () => {
         expect(builder).not.toHaveProperty("data.ipfsHash");
     });
 
-    describe("ipfsHash", () => {
-        it("establishes the IPFS hash", () => {
-            builder.ipfsHash("zyx");
-            expect(builder.data.ipfsHash).toBe("zyx");
-        });
+    it("establishes the IPFS hash", () => {
+        builder.ipfsHash("zyx");
+        expect(builder.data.ipfsHash).toBe("zyx");
     });
 
-    describe("vendorField", () => {
-        // TODO This is test is OK, but the Subject Under Test might be wrong,
-        // so it is better to not assume that this is the desired behaviour
-        it("should generate and set the vendorFieldHex", () => {
-            const data = "hash";
-            // @ts-ignore
-            const hex: any = Buffer.from(data, 0).toString("hex");
-            const paddedHex = hex.padStart(128, "0");
+    // TODO This is test is OK, but the Subject Under Test might be wrong,
+    // so it is better to not assume that this is the desired behaviour
+    it("should generate and set the vendorFieldHex", () => {
+        const data = "hash";
+        // @ts-ignore
+        const hex: any = Buffer.from(data, 0).toString("hex");
+        const paddedHex = hex.padStart(128, "0");
 
-            builder.data.ipfsHash = data;
-            builder.vendorField(0);
-            expect(builder.data.vendorFieldHex).toBe(paddedHex);
-        });
+        builder.data.ipfsHash = data;
+        builder.vendorField(0);
+        expect(builder.data.vendorFieldHex).toBe(paddedHex);
     });
 });
