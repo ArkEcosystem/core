@@ -3,7 +3,7 @@ import { crypto } from "../crypto/crypto";
 import { transactionHandler } from "../handlers/transactions";
 import { Bignum, formatArktoshi } from "../utils";
 import { IBlockData } from "./block";
-import { ITransactionData } from "./transaction";
+import { IMultiSignatureAsset, ITransactionData } from "./transaction";
 
 /**
  * TODO copy some parts to ArkDocs
@@ -36,7 +36,7 @@ export class Wallet {
     public username: string | null;
     public lastBlock: any;
     public voteBalance: Bignum;
-    public multisignature: string | null;
+    public multisignature?: IMultiSignatureAsset;
     public dirty: boolean;
     public producedBlocks: number;
     public missedBlocks: number;
@@ -148,7 +148,7 @@ export class Wallet {
     /**
      * Verify multi-signatures for the wallet.
      */
-    public verifySignatures(transaction: ITransactionData, multisignature: any): boolean {
+    public verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean {
         if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
             return false;
         }

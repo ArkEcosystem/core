@@ -1,6 +1,6 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
-import { ITransactionData } from "../../models";
+import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
@@ -13,7 +13,7 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         this.data.amount = 0;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
-        this.data.asset = { multisignature: {} };
+        this.data.asset = { multisignature: {} } as ITransactionAsset;
 
         this.signWithSenderAsRecipient = true;
     }
@@ -21,7 +21,7 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
     /**
      * Establish the multi-signature on the asset and updates the fee.
      */
-    public multiSignatureAsset(multiSignature): MultiSignatureBuilder {
+    public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
         this.data.asset.multisignature = multiSignature;
         this.data.fee = (multiSignature.keysgroup.length + 1) * feeManager.get(TransactionTypes.MultiSignature);
 

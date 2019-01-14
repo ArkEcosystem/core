@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { feeManager } from "../../managers";
-import { ITransactionData } from "../../models";
+import { ITransactionAsset, ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {
@@ -14,7 +14,7 @@ export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBu
         this.data.amount = 0;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
-        this.data.asset = { signature: {} };
+        this.data.asset = { signature: {} } as ITransactionAsset;
     }
 
     /**

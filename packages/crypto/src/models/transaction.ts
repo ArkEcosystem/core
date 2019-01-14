@@ -4,6 +4,28 @@ import { TransactionDeserializer } from "../deserializers";
 import { TransactionSerializer } from "../serializers";
 import { Bignum } from "../utils";
 
+export interface ITransactionAsset {
+    signature?: {
+        publicKey: string
+    },
+    delegate?: {
+        username: string,
+        publicKey?: string
+    },
+    votes?: string[],
+    multisignature?: IMultiSignatureAsset,
+    ipfs?: {
+        dag: string
+    }
+    payments?: any,
+}
+
+export interface IMultiSignatureAsset {
+    min: number,
+    keysgroup: string[],
+    lifetime: number
+}
+
 export interface ITransactionData {
     version?: number;
     network?: number;
@@ -18,7 +40,7 @@ export interface ITransactionData {
     expiration?: number;
     recipientId?: string;
 
-    asset?: any;
+    asset?: ITransactionAsset;
     vendorField?: string;
     vendorFieldHex?: string;
 

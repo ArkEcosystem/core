@@ -4,7 +4,7 @@ import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
-import { ITransactionData } from "../models/transaction";
+import { IMultiSignatureAsset, ITransactionData } from "../models/transaction";
 import { Bignum } from "../utils/bignum";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
@@ -116,7 +116,7 @@ class TransactionDeserializer {
     }
 
     private deserializeMultiSignature(transaction: ITransactionData, buf: ByteBuffer): void {
-        transaction.asset = { multisignature: { keysgroup: [] } };
+        transaction.asset = { multisignature: { keysgroup: [] } as IMultiSignatureAsset };
         transaction.asset.multisignature.min = buf.readUint8();
 
         const num = buf.readUint8();
@@ -130,7 +130,7 @@ class TransactionDeserializer {
 
     private deserializeIpfs(transaction: ITransactionData, buf: ByteBuffer): void {
         const dagLength = buf.readUint8();
-        transaction.asset = {
+        transaction.asset.ipfs = {
             dag: buf.readBytes(dagLength).toString("hex")
         };
     }
