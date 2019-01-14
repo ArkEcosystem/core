@@ -13,8 +13,6 @@ export class FeeManager {
 
     /**
      * Get fee value based on type.
-     * @param  {Number} type
-     * @return {Number}
      */
     public get(type: TransactionTypes): number {
         return this.fees[type];

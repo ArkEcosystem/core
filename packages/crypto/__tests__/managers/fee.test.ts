@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { TransactionTypes } from "../../src/constants";
 import { feeManager } from "../../src/managers/fee";
+import { ITransactionData } from "../../src/models";
 
 describe("Fee Manager", () => {
     it("should be instantiated", () => {
@@ -19,10 +20,10 @@ describe("Fee Manager", () => {
             type: TransactionTypes.MultiSignature,
             asset: {
                 multisignature: {
-                    keysgroup: [1, 2, 3],
+                    keysgroup: ["1", "2", "3"]
                 },
             },
-        };
+        } as ITransactionData;
 
         feeManager.set(TransactionTypes.MultiSignature, 1);
 
