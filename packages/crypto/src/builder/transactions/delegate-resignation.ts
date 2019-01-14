@@ -3,9 +3,7 @@ import { feeManager } from "../../managers";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateResignationBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+
     constructor() {
         super();
 

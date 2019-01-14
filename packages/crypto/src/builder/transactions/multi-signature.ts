@@ -1,11 +1,10 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
+import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+
     constructor() {
         super();
 
@@ -21,21 +20,15 @@ export class MultiSignatureBuilder extends TransactionBuilder {
 
     /**
      * Establish the multi-signature on the asset and updates the fee.
-     * @param  {Object} multiSignature { keysgroup, lifetime, min }
-     * @return {MultiSignatureBuilder}
      */
-    public multiSignatureAsset(multiSignature) {
+    public multiSignatureAsset(multiSignature): MultiSignatureBuilder {
         this.data.asset.multisignature = multiSignature;
         this.data.fee = (multiSignature.keysgroup.length + 1) * feeManager.get(TransactionTypes.MultiSignature);
 
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this.
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;

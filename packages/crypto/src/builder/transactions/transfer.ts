@@ -1,11 +1,10 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
+import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class TransferBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+
     constructor() {
         super();
 
@@ -17,11 +16,7 @@ export class TransferBuilder extends TransactionBuilder {
         this.data.expiration = 0;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;

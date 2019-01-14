@@ -1,12 +1,11 @@
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { feeManager } from "../../managers";
+import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+
     constructor() {
         super();
 
@@ -21,19 +20,16 @@ export class SecondSignatureBuilder extends TransactionBuilder {
     /**
      * Establish the signature on the asset, which is the one that would be that
      * would be register on the blockchain, when creating a second passphrase.
-     * @param {String} secondPassphrase
-     * @return {SecondSignatureBuilder}
      */
-    public signatureAsset(secondPassphrase) {
+    public signatureAsset(secondPassphrase: string): SecondSignatureBuilder {
         this.data.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey;
         return this;
     }
 
     /**
      * Overrides the inherited method to return the additional required by this.
-     * @return {Object}
      */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;

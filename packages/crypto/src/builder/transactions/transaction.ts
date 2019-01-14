@@ -1,59 +1,49 @@
 import { crypto, slots } from "../../crypto";
 import { configManager } from "../../managers";
-import { Transaction } from "../../models";
+import { ITransactionData, Transaction } from "../../models";
 import { INetwork } from "../../networks";
 
 export abstract class TransactionBuilder {
-    public data: any;
+    public data: ITransactionData;
     public model: any;
 
     protected signWithSenderAsRecipient: boolean = false;
 
-    /**
-     * @constructor
-     */
     constructor() {
         this.data = {
             id: null,
             timestamp: slots.getTime(),
             version: 0x01,
-        };
+        } as ITransactionData;
     }
 
     /**
      * Build a new Transaction instance.
-     * @return {Transaction}
      */
-    public build(data: any = {}) {
+    public build(data: Partial<ITransactionData> = {}): Transaction {
         return new Transaction({ ...this.data, ...data });
     }
 
     /**
      * Set transaction version.
-     * @param {Number} version
-     * @return {TransactionBuilder}
      */
-    public version(version) {
+    public version(version: number): TransactionBuilder {
         this.data.version = version;
         return this;
     }
 
     /**
      * Set transaction network.
-     * @param {Number} network
-     * @return {TransactionBuilder}
      */
-    public network(network) {
+    public network(network: number): TransactionBuilder {
         this.data.network = network;
         return this;
     }
 
     /**
      * Set transaction fee.
-     * @param {Number} fee
-     * @return {TransactionBuilder}
      */
-    public fee(fee) {
+    public fee(fee: number): TransactionBuilder {
         if (fee !== null) {
             this.data.fee = fee;
         }
@@ -63,40 +53,33 @@ export abstract class TransactionBuilder {
 
     /**
      * Set amount to transfer.
-     * @param  {Number} amount
      * @return {TransactionBuilder}
      */
-    public amount(amount) {
+    public amount(amount: number): TransactionBuilder {
         this.data.amount = amount;
         return this;
     }
 
     /**
      * Set recipient id.
-     * @param  {String} recipientId
-     * @return {TransactionBuilder}
      */
-    public recipientId(recipientId) {
+    public recipientId(recipientId: string): TransactionBuilder {
         this.data.recipientId = recipientId;
         return this;
     }
 
     /**
      * Set sender public key.
-     * @param  {String} publicKey
-     * @return {TransactionBuilder}
      */
-    public senderPublicKey(publicKey) {
+    public senderPublicKey(publicKey: string): TransactionBuilder {
         this.data.senderPublicKey = publicKey;
         return this;
     }
 
     /**
      * Set vendor field.
-     * @param  {String} vendorField
-     * @return {TransactionBuilder}
      */
-    public vendorField(vendorField) {
+    public vendorField(vendorField: string): TransactionBuilder {
         if (vendorField && Buffer.from(vendorField).length <= 64) {
             this.data.vendorField = vendorField;
         }
@@ -105,28 +88,9 @@ export abstract class TransactionBuilder {
     }
 
     /**
-     * Verify the transaction.
-     * @return {Boolean}
-     */
-    public verify() {
-        return crypto.verify(this.data);
-    }
-
-    /**
-     * Serialize the transaction.
-     * TODO @deprecated when a Transaction model is returned
-     * @return {Buffer}
-     */
-    public serialize() {
-        return this.model.serialize(this.getStruct());
-    }
-
-    /**
      * Sign transaction using passphrase.
-     * @param  {String} passphrase
-     * @return {TransactionBuilder}
      */
-    public sign(passphrase) {
+    public sign(passphrase: string): TransactionBuilder {
         const keys = crypto.getKeys(passphrase);
         this.data.senderPublicKey = keys.publicKey;
 
@@ -162,10 +126,8 @@ export abstract class TransactionBuilder {
 
     /**
      * Sign transaction with second passphrase.
-     * @param  {String} secondPassphrase
-     * @return {TransactionBuilder}
      */
-    public secondSign(secondPassphrase) {
+    public secondSign(secondPassphrase: string): TransactionBuilder {
         if (secondPassphrase) {
             const keys = crypto.getKeys(secondPassphrase);
             // TODO sign or second?
@@ -177,11 +139,8 @@ export abstract class TransactionBuilder {
 
     /**
      * Sign transaction with wif.
-     * @param  {String} wif
-     * @param  {String} networkWif - value associated with network
-     * @return {TransactionBuilder}
      */
-    public secondSignWithWif(wif, networkWif) {
+    public secondSignWithWif(wif: string, networkWif?: number): TransactionBuilder {
         if (wif) {
             const keys = crypto.getKeysFromWIF(wif, {
                 wif: networkWif || configManager.get("wif"),
@@ -195,10 +154,8 @@ export abstract class TransactionBuilder {
 
     /**
      * Sign transaction for multi-signature wallets.
-     * @param {String} passphrase
-     * @return {TransactionBuilder}
      */
-    public multiSignatureSign(passphrase) {
+    public multiSignatureSign(passphrase: string): TransactionBuilder {
         const keys = crypto.getKeys(passphrase);
         if (!this.data.signatures) {
             this.data.signatures = [];
@@ -206,6 +163,22 @@ export abstract class TransactionBuilder {
         this.data.signatures.push(crypto.sign(this.__getSigningObject(), keys));
 
         return this;
+    }
+
+    /**
+     * Verify the transaction.
+     */
+    public verify(): boolean {
+        return crypto.verify(this.data);
+    }
+
+    /**
+     * Serialize the transaction.
+     * TODO @deprecated when a Transaction model is returned
+     * @return {Buffer}
+     */
+    public serialize() {
+        return this.model.serialize(this.getStruct());
     }
 
     /**
@@ -217,7 +190,7 @@ export abstract class TransactionBuilder {
             throw new Error("The transaction is not signed yet");
         }
 
-        const struct: any = {
+        const struct = {
             // hex: crypto.getBytes(this).toString('hex'), // v2
             id: crypto.getId(this.data).toString(),
             signature: this.data.signature,
@@ -228,7 +201,7 @@ export abstract class TransactionBuilder {
             fee: this.data.fee,
             senderPublicKey: this.data.senderPublicKey,
             network: this.data.network,
-        };
+        } as ITransactionData;
 
         if (Array.isArray(this.data.signatures)) {
             struct.signatures = this.data.signatures;
@@ -239,10 +212,9 @@ export abstract class TransactionBuilder {
 
     /**
      * Get a valid object used to sign a transaction.
-     * @return {Object}
      */
-    public __getSigningObject() {
-        const data = Object.assign({}, this.data);
+    public __getSigningObject(): ITransactionData {
+        const data = Object.assign({}, this.data) as ITransactionData;
 
         Object.keys(data).forEach(key => {
             if (["model", "network", "id"].includes(key)) {

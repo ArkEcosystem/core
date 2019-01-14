@@ -33,6 +33,9 @@ export interface ITransactionData {
 
     timelock?: any;
     timelockType?: number;
+
+    ipfsHash?: string;
+    payments?: { [key: string]: any };
 }
 
 /**

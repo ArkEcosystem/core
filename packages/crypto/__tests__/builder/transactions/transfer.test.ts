@@ -1,11 +1,12 @@
 import "jest-extended";
+import { TransferBuilder } from "../../../src/builder/transactions/transfer";
 import { client as ark } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder;
+let builder: TransferBuilder;
 
 beforeEach(() => {
     builder = ark.getBuilder().transfer();

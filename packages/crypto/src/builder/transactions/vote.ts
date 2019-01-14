@@ -1,11 +1,10 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
+import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class VoteBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+
     constructor() {
         super();
 
@@ -21,19 +20,13 @@ export class VoteBuilder extends TransactionBuilder {
 
     /**
      * Establish the votes on the asset.
-     * @param  {Array} votes
-     * @return {VoteBuilder}
      */
-    public votesAsset(votes) {
+    public votesAsset(votes: string[]): VoteBuilder {
         this.data.asset.votes = votes;
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;

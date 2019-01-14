@@ -1,12 +1,11 @@
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { feeManager } from "../../managers";
+import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateRegistrationBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+
     constructor() {
         super();
 
@@ -20,31 +19,22 @@ export class DelegateRegistrationBuilder extends TransactionBuilder {
 
     /**
      * Establish the delegate username on the asset.
-     * @param  {String} username
-     * @return {DelegateRegistrationBuilder}
      */
-    public usernameAsset(username) {
+    public usernameAsset(username: string): DelegateRegistrationBuilder {
         this.data.asset.delegate.username = username;
         return this;
     }
 
     /**
      * Overrides the inherited `sign` method to include the public key of the new delegate.
-     * @param  {String}   passphrase
-     * @return {DelegateRegistrationBuilder}
-     * TODO rename to `assetDelegate` and merge with username ?
      */
-    public sign(passphrase) {
+    public sign(passphrase: string): DelegateRegistrationBuilder {
         this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey;
         super.sign(passphrase);
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this type of transaction.
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
