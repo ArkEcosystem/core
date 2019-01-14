@@ -14,9 +14,9 @@ export class WIF {
         return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);
     }
 
-    public static fromKeys(keys: KeyPair, network?: INetwork): string {
+    public static fromKeys(keys: KeyPair, network?: { wif: number }): string {
         if (!network) {
-            network = configManager.all() as INetwork;
+            network = configManager.all();
         }
 
         return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);

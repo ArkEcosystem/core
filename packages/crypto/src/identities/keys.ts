@@ -30,7 +30,7 @@ export class Keys {
         return keyPair;
     }
 
-    public static fromWIF(wifKey: string, network?: INetwork): KeyPair {
+    public static fromWIF(wifKey: string, network?: { wif: number }): KeyPair {
         if (!network) {
             network = configManager.all();
         }

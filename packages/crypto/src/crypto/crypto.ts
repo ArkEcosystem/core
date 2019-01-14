@@ -299,14 +299,14 @@ class Crypto {
     /**
      * Get keys from WIF key.
      */
-    public getKeysFromWIF(wifKey: string, network?: INetwork): KeyPair {
+    public getKeysFromWIF(wifKey: string, network?: { wif: number }): KeyPair {
         return Keys.fromWIF(wifKey, network);
     }
 
     /**
      * Get WIF key from keys
      */
-    public keysToWIF(keys: KeyPair, network?: INetwork): string {
+    public keysToWIF(keys: KeyPair, network?: { wif: number }): string {
         return WIF.fromKeys(keys, network);
     }
 
