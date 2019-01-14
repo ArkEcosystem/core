@@ -10,9 +10,6 @@ let builder: DelegateRegistrationBuilder
 
 beforeEach(() => {
     builder = ark.getBuilder().delegateRegistration();
-
-    // @ts-ignore
-    global.builder = builder;
 });
 
 describe("Delegate Registration Transaction", () => {
@@ -33,7 +30,7 @@ describe("Delegate Registration Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateRegistration);

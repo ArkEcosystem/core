@@ -10,9 +10,6 @@ let builder: MultiSignatureBuilder
 
 beforeEach(() => {
     builder = ark.getBuilder().multiSignature();
-
-    // @ts-ignore
-    global.builder = builder;
 });
 
 describe("Multi Signature Transaction", () => {
@@ -37,7 +34,7 @@ describe("Multi Signature Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);

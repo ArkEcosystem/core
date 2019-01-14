@@ -10,9 +10,6 @@ let builder: TransferBuilder;
 
 beforeEach(() => {
     builder = ark.getBuilder().transfer();
-
-    // @ts-ignore
-    global.builder = builder;
 });
 
 describe("Transfer Transaction", () => {
@@ -85,7 +82,7 @@ describe("Transfer Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Transfer);

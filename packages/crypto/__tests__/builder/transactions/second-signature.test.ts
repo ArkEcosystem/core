@@ -10,9 +10,6 @@ let builder: SecondSignatureBuilder
 
 beforeEach(() => {
     builder = ark.getBuilder().secondSignature();
-
-    // @ts-ignore
-    global.builder = builder;
 });
 
 describe("Second Signature Transaction", () => {
@@ -24,7 +21,7 @@ describe("Second Signature Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.SecondSignature);

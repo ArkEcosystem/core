@@ -8,8 +8,7 @@ import { TimelockTransferBuilder } from "./transactions/timelock-transfer";
 import { TransferBuilder } from "./transactions/transfer";
 import { VoteBuilder } from "./transactions/vote";
 
-export class TransactionBuilderDirector {
-
+export class TransactionBuilderFactory {
     /**
      * Create new transfer transaction type.
      */
@@ -74,4 +73,4 @@ export class TransactionBuilderDirector {
     }
 }
 
-export const transactionBuilder = new TransactionBuilderDirector();
+export const transactionBuilder = new TransactionBuilderFactory();

@@ -10,9 +10,6 @@ let builder: VoteBuilder;
 
 beforeEach(() => {
     builder = ark.getBuilder().vote();
-
-    // @ts-ignore
-    global.builder = builder;
 });
 
 describe("Vote Transaction", () => {
@@ -35,7 +32,7 @@ describe("Vote Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Vote);

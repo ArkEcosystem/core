@@ -9,6 +9,8 @@ describe(".toBeMultiPaymentType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeMultiPaymentType();
+        expect(expect({ type: "invalid" }).toBeMultiPaymentType).toThrowError(
+            "Expected value to be a valid MultiPayment transaction.",
+        );
     });
 });
