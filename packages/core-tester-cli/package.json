@@ -12,7 +12,7 @@
         "dist"
     ],
     "bin": {
-        "ark:tester": "node ./dist/index.js"
+        "core:tester": "node ./dist/index.js"
     },
     "scripts": {
         "start": "node ./dist/index.js",

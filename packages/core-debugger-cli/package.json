@@ -11,7 +11,7 @@
         "dist"
     ],
     "bin": {
-        "ark:debugger": "./bin/debugger"
+        "core:debugger": "./bin/debugger"
     },
     "scripts": {
         "start": "./bin/debugger",

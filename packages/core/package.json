@@ -14,10 +14,10 @@
         "dist"
     ],
     "bin": {
-        "ark:start": "node ./dist/index.js start",
-        "ark:relay": "node ./dist/index.js relay",
-        "ark:forger": "node ./dist/index.js forger",
-        "ark:snapshot": "node ./dist/index.js snapshot"
+        "core:start": "node ./dist/index.js start",
+        "core:relay": "node ./dist/index.js relay",
+        "core:forger": "node ./dist/index.js forger",
+        "core:snapshot": "node ./dist/index.js snapshot"
     },
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",

@@ -1,7 +1,7 @@
 export const block = joi => ({
-    name: "arkBlock",
+    name: "block",
     base: joi.object().keys({
-        id: joi.arkBlockId().required(),
+        id: joi.blockId().required(),
         idHex: joi.string().hex(),
         version: joi
             .number()
@@ -12,7 +12,7 @@ export const block = joi => ({
             .integer()
             .min(0)
             .required(),
-        previousBlock: joi.arkBlockId().required(),
+        previousBlock: joi.blockId().required(),
         previousBlockHex: joi.string().hex(),
         height: joi
             .number()
@@ -58,6 +58,6 @@ export const block = joi => ({
             .string()
             .hex()
             .required(),
-        transactions: joi.arkTransactionArray(),
+        transactions: joi.transactionArray(),
     }),
 });

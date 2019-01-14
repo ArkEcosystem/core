@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const secondSignature = joi => ({
-    name: "arkSecondSignature",
+    name: "secondSignature",
     base: transaction(joi).append({
         type: joi
             .number()
@@ -17,7 +17,7 @@ export const secondSignature = joi => ({
             .object({
                 signature: joi
                     .object({
-                        publicKey: joi.arkPublicKey().required(),
+                        publicKey: joi.publicKey().required(),
                     })
                     .required(),
             })

@@ -10,7 +10,7 @@ export const delegateRegistration = transaction => {
                 .alphanum()
                 .required(),
             // @ts-ignore
-            blockid: Engine.joi.alternatives().try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
+            blockid: Engine.joi.alternatives().try(Engine.joi.blockId(), Engine.joi.number().unsafe()),
             type: Engine.joi.number().valid(TransactionTypes.DelegateRegistration),
             timestamp: Engine.joi
                 .number()
@@ -32,9 +32,9 @@ export const delegateRegistration = transaction => {
                     .positive()
                     .required(),
             ),
-            senderId: Engine.joi.arkAddress(),
+            senderId: Engine.joi.address(),
             recipientId: Engine.joi.empty(),
-            senderPublicKey: Engine.joi.arkPublicKey().required(),
+            senderPublicKey: Engine.joi.publicKey().required(),
             signature: Engine.joi
                 .string()
                 .alphanum()
@@ -45,8 +45,8 @@ export const delegateRegistration = transaction => {
                 .object({
                     delegate: Engine.joi
                         .object({
-                            username: Engine.joi.arkUsername().required(),
-                            publicKey: Engine.joi.arkPublicKey(),
+                            username: Engine.joi.delegateUsername().required(),
+                            publicKey: Engine.joi.publicKey(),
                         })
                         .required(),
                 })

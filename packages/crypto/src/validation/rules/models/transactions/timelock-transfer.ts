@@ -10,7 +10,7 @@ export const timelockTransfer = transaction => {
                 .alphanum()
                 .required(),
             // @ts-ignore
-            blockid: Engine.joi.alternatives().try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
+            blockid: Engine.joi.alternatives().try(Engine.joi.blockId(), Engine.joi.number().unsafe()),
             type: Engine.joi.number().valid(TransactionTypes.TimelockTransfer),
             timestamp: Engine.joi
                 .number()
@@ -19,8 +19,8 @@ export const timelockTransfer = transaction => {
                 .required(),
             amount: Engine.joi.alternatives().try(Engine.joi.bignumber(), Engine.joi.number().integer()),
             fee: Engine.joi.alternatives().try(Engine.joi.bignumber(), Engine.joi.number().integer()),
-            senderId: Engine.joi.arkAddress(),
-            senderPublicKey: Engine.joi.arkPublicKey().required(),
+            senderId: Engine.joi.address(),
+            senderPublicKey: Engine.joi.publicKey().required(),
             signature: Engine.joi
                 .string()
                 .alphanum()
