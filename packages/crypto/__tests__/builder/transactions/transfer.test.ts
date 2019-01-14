@@ -1,17 +1,15 @@
 import "jest-extended";
-import { client as ark } from "../../../src/client";
-import { TransactionTypes } from "../../../src/constants";
-import { crypto } from "../../../src/crypto";
-import { feeManager } from "../../../src/managers/fee";
+import { TransactionBuilder } from "../../../dist/builder/transactions/transaction";
+import { client as ark } from "../../../dist/client";
+import { TransactionTypes } from "../../../dist/constants";
+import { crypto } from "../../../dist/crypto";
+import { feeManager } from "../../../dist/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder;
+let builder : TransactionBuilder;
 
 beforeEach(() => {
     builder = ark.getBuilder().transfer();
-
-    // @ts-ignore
-    global.builder = builder;
 });
 
 describe("Transfer Transaction", () => {
@@ -84,7 +82,7 @@ describe("Transfer Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Transfer);
