@@ -215,7 +215,7 @@ export class PluginRegistrar {
         const files = ["plugins.js", "plugins.json"];
 
         for (const file of files) {
-            const configPath = resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${file}`));
+            const configPath = resolve(expandHomeDir(`${process.env.CORE_PATH_CONFIG}/${file}`));
 
             if (existsSync(configPath)) {
                 this.pluginsConfigPath = configPath;

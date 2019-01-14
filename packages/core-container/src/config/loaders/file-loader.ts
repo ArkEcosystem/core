@@ -48,7 +48,7 @@ class FileLoader {
      * @return {Object}
      */
     private getFiles(): Record<string, string> {
-        const basePath = resolve(process.env.ARK_PATH_CONFIG);
+        const basePath = resolve(process.env.CORE_PATH_CONFIG);
 
         if (!existsSync(basePath)) {
             throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");

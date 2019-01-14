@@ -1,6 +1,6 @@
 export const defaults = {
-    apiKey: process.env.ARK_ERROR_TRACKER_BUGSNAG_API_KEY,
+    apiKey: process.env.CORE_ERROR_TRACKER_BUGSNAG_API_KEY,
     metaData: {
-        network: process.env.ARK_NETWORK_NAME,
+        network: process.env.CORE_NETWORK_NAME,
     },
 };
