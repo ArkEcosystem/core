@@ -8,7 +8,7 @@ import { TimelockTransferBuilder } from "./transactions/timelock-transfer";
 import { TransferBuilder } from "./transactions/transfer";
 import { VoteBuilder } from "./transactions/vote";
 
-export class TransactionBuilderDirector {
+export class TransactionBuilderFactory {
     /**
      * Create new delegate transaction type.
      * @return {DelegateRegistrationBuilder}
@@ -82,7 +82,7 @@ export class TransactionBuilderDirector {
     }
 }
 
-const transactionBuilder = new TransactionBuilderDirector();
+const transactionBuilder = new TransactionBuilderFactory();
 export {
     transactionBuilder,
     DelegateRegistrationBuilder,
