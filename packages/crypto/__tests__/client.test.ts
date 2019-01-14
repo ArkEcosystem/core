@@ -1,8 +1,8 @@
 import "jest-extended";
-import { client } from "../src/client";
+import { client, Client } from "../dist/client";
 
 describe("Client", () => {
     it("should be instantiated", () => {
-        expect(client).toBeObject();
+        expect(client).toBeInstanceOf(Client);
     });
 });

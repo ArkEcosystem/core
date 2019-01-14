@@ -11,6 +11,8 @@ describe(".toBeTimelockTransferType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeTimelockTransferType();
+        expect(expect({ type: "invalid" }).toBeTimelockTransferType).toThrowError(
+            "Expected value to be a valid TimelockTransfer transaction.",
+        );
     });
 });

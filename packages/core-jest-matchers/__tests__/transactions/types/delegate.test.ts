@@ -11,6 +11,8 @@ describe(".toBeDelegateType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeDelegateType();
+        expect(expect({ type: "invalid" }).toBeDelegateType).toThrowError(
+            "Expected value to be a valid DELEGATE transaction.",
+        );
     });
 });

@@ -11,6 +11,8 @@ describe(".toBeDelegateResignationType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeDelegateResignationType();
+        expect(expect({ type: "invalid" }).toBeDelegateResignationType).toThrowError(
+            "Expected value to be a valid DelegateResignation transaction.",
+        );
     });
 });

@@ -9,6 +9,6 @@ describe(".toBeVoteType", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ type: "invalid" }).not.toBeVoteType();
+        expect(expect({ type: "invalid" }).toBeVoteType).toThrowError("Expected value to be a valid VOTE transaction.");
     });
 });

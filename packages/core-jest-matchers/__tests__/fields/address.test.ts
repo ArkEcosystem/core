@@ -6,6 +6,6 @@ describe(".toBeAddress", () => {
     });
 
     test("fails when not given a valid address", () => {
-        expect("invalid-address").not.toBeAddress();
+        expect(expect("invalid-address").toBeAddress).toThrowError("Expected value to be a valid address");
     });
 });

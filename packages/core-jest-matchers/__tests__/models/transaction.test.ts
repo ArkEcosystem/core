@@ -23,6 +23,6 @@ describe(".toBeTransaction", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        expect({ fake: "news" }).not.toBeTransaction();
+        expect(expect({ fake: "news" }).toBeTransaction).toThrowError("Expected value to be a valid transaction");
     });
 });

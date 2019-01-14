@@ -12,6 +12,8 @@ const { generateTransfers } = generators;
 let app;
 let blockchain: Blockchain;
 let blockProcessor;
+let handlers;
+let BlockProcessorResult;
 
 beforeAll(async () => {
     app = await setUpFull();
@@ -22,48 +24,59 @@ beforeAll(async () => {
 
     blockProcessor = new BlockProcessor(blockchain);
 
-    await blockchain.removeBlocks(blockchain.getLastHeight() - 1);
+    BlockProcessorResult = require("../../src/processor").BlockProcessorResult;
+    handlers = require("../../src/processor/handlers");
 });
 
 afterAll(async () => {
     await tearDown();
 });
 
+const resetBlocks = async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1); // reset to block height 1
+
+beforeEach(resetBlocks);
+afterEach(resetBlocks);
+
 describe("Block processor", () => {
+    const blockTemplate = {
+        id: "17882607875259085966",
+        version: 0,
+        timestamp: 46583330,
+        height: 2,
+        reward: 0,
+        previousBlock: genesisBlockTestnet.id,
+        numberOfTransactions: 1,
+        transactions: [],
+        totalAmount: 0,
+        totalFee: 0,
+        payloadLength: 0,
+        payloadHash: genesisBlockTestnet.payloadHash,
+        generatorPublicKey: delegates[0].publicKey,
+        blockSignature:
+            "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
+        createdAt: "2019-07-11T16:48:50.550Z",
+    };
+
     describe("process", () => {
+        const getBlock = transactions =>
+            Object.assign({}, blockTemplate, {
+                transactions,
+                totalAmount: transactions.reduce((acc, curr) => acc + curr.amount, 0),
+                totalFee: transactions.reduce((acc, curr) => acc + curr.fee, 0),
+                numberOfTransactions: transactions.length,
+            });
+        const processBlock = async transactions => {
+            const block = getBlock(transactions);
+            const blockVerified = new Block(block);
+            blockVerified.verification.verified = true;
+
+            await blockchain.processBlock(blockVerified, () => null);
+
+            return Object.assign(block, { id: blockVerified.data.id });
+        };
+
         describe("should not accept replay transactions", () => {
-            afterEach(async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1)); // reset to block height 1
-
-            const addBlock = async transactions => {
-                const block = {
-                    id: "17882607875259085966",
-                    version: 0,
-                    timestamp: 46583330,
-                    height: 2,
-                    reward: 0,
-                    previousBlock: genesisBlockTestnet.id,
-                    numberOfTransactions: 1,
-                    transactions,
-                    totalAmount: transactions.reduce((acc, curr) => acc + curr.amount),
-                    totalFee: transactions.reduce((acc, curr) => acc + curr.fee),
-                    payloadLength: 0,
-                    payloadHash: genesisBlockTestnet.payloadHash,
-                    generatorPublicKey: delegates[0].publicKey,
-                    blockSignature:
-                        "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
-                    createdAt: "2019-07-11T16:48:50.550Z",
-                };
-                const blockVerified = new Block(block);
-                blockVerified.verification.verified = true;
-
-                await blockchain.processBlock(blockVerified, () => null);
-
-                return Object.assign(block, { id: blockVerified.data.id });
-            };
-
             it("should not validate an already forged transaction", async () => {
-                const { AlreadyForgedHandler } = require("../../src/processor/handlers/already-forged-handler");
-                const { BlockProcessorResult } = require("../../src/processor");
                 const transfers = generateTransfers(
                     "unitnet",
                     delegates[0].passphrase,
@@ -72,7 +85,7 @@ describe("Block processor", () => {
                     1,
                     true,
                 );
-                const block = await addBlock(transfers);
+                const block = await processBlock(transfers);
                 block.height = 3;
                 block.previousBlock = block.id;
                 block.id = "17882607875259085967";
@@ -82,15 +95,13 @@ describe("Block processor", () => {
                 blockVerified.verification.verified = true;
 
                 const handler = await blockProcessor.getHandler(blockVerified);
-                expect(handler instanceof AlreadyForgedHandler).toBeTrue();
+                expect(handler instanceof handlers.AlreadyForgedHandler).toBeTrue();
 
                 const result = await blockProcessor.process(blockVerified);
                 expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             });
 
             it("should not validate an already forged transaction - trying to tweak the tx id", async () => {
-                const { AlreadyForgedHandler } = require("../../src/processor/handlers/already-forged-handler");
-                const { BlockProcessorResult } = require("../../src/processor");
                 const transfers = generateTransfers(
                     "unitnet",
                     delegates[0].passphrase,
@@ -99,7 +110,7 @@ describe("Block processor", () => {
                     1,
                     true,
                 );
-                const block = await addBlock(transfers);
+                const block = await processBlock(transfers);
                 block.height = 3;
                 block.previousBlock = block.id;
                 block.id = "17882607875259085967";
@@ -110,9 +121,134 @@ describe("Block processor", () => {
                 blockVerified.verification.verified = true;
 
                 const handler = await blockProcessor.getHandler(blockVerified);
-                expect(handler instanceof AlreadyForgedHandler).toBeTrue();
+                expect(handler instanceof handlers.AlreadyForgedHandler).toBeTrue();
 
                 const result = await blockProcessor.process(blockVerified);
+                expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
+            });
+        });
+
+        describe("lastDownloadedBlock", () => {
+            it.each([
+                "AlreadyForgedHandler",
+                "InvalidGeneratorHandler",
+                "UnchainedHandler",
+                "VerificationFailedHandler",
+            ])(
+                "should not increment lastDownloadedBlock or lastBlock when processing block fails with %s",
+                async handler => {
+                    const lastBlock = blockchain.getLastBlock();
+                    const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
+                    const blockToProcess = new Block(blockTemplate);
+
+                    const getHanderBackup = blockProcessor.getHandler; // save for restoring afterwards
+                    blockProcessor.getHandler = jest.fn(() => new handlers[handler](blockchain, blockToProcess));
+
+                    await blockProcessor.process(blockToProcess);
+
+                    expect(blockchain.getLastBlock()).toEqual(lastBlock);
+                    expect(blockchain.getLastDownloadedBlock()).toEqual(lastDownloadedBlock);
+
+                    blockProcessor.getHandler = getHanderBackup; // restore original function
+                },
+            );
+        });
+
+        describe("Forging delegates", () => {
+            it("should use InvalidGeneratorHandler if forging delegate is invalid", async () => {
+                const database = app.resolvePlugin("database");
+                const getActiveDelegatesBackup = database.getActiveDelegates; // save for restoring afterwards
+                database.getActiveDelegates = jest.fn(() => [delegates[50]]);
+
+                const blockVerified = new Block(getBlock([]));
+                blockVerified.verification.verified = true;
+
+                const handler = await blockProcessor.getHandler(blockVerified);
+                expect(handler instanceof handlers.InvalidGeneratorHandler).toBeTrue();
+
+                const result = await blockProcessor.process(blockVerified);
+                expect(result).toBe(BlockProcessorResult.Rejected);
+
+                database.getActiveDelegates = getActiveDelegatesBackup; // restore the original function
+            });
+        });
+
+        describe("Unchained blocks", () => {
+            it("should 'discard but broadcast' when same block comes again", async () => {
+                /* We process a valid block then try processing the same block again.
+                    Should detect as "double-forging" and reject the duplicate block. */
+                const blockVerified = new Block(getBlock([]));
+                blockVerified.verification.verified = true;
+
+                // accept a valid first block
+                const accepted = await blockProcessor.process(blockVerified);
+                expect(accepted).toBe(BlockProcessorResult.Accepted);
+
+                // get handler on same block, should be handled by UnchainedHandler
+                const handler = await blockProcessor.getHandler(blockVerified);
+                expect(handler instanceof handlers.UnchainedHandler).toBeTrue();
+
+                // if we try to process the block, it should be discarded but broadcasted
+                const rejected = await blockProcessor.process(blockVerified);
+                expect(rejected).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
+            });
+
+            it("should reject a double-forging block", async () => {
+                /* We process a valid block then try processing the same block again.
+                    Should detect as "double-forging" and reject the duplicate block. */
+                const blockVerified = new Block(getBlock([]));
+                blockVerified.verification.verified = true;
+
+                // accept a valid first block
+                const accepted = await blockProcessor.process(blockVerified);
+                expect(accepted).toBe(BlockProcessorResult.Accepted);
+
+                // new block for double-forging : same height different id
+                const blockDoubleForging = new Block(getBlock([]));
+                blockDoubleForging.verification.verified = true;
+                blockDoubleForging.data.id = "123456";
+
+                // get handler on the "new" block, should be handled by UnchainedHandler
+                const handler = await blockProcessor.getHandler(blockDoubleForging);
+                expect(handler instanceof handlers.UnchainedHandler).toBeTrue();
+
+                // if we try to process the block, it should be rejected
+                const rejected = await blockProcessor.process(blockDoubleForging);
+                expect(rejected).toBe(BlockProcessorResult.Rejected);
+            });
+
+            it("should 'discard but broadcast' a block higher than current height + 1", async () => {
+                const blockVerified = new Block(getBlock([]));
+                blockVerified.verification.verified = true;
+                blockVerified.data.height = 3;
+
+                const handler = await blockProcessor.getHandler(blockVerified);
+                expect(handler instanceof handlers.UnchainedHandler).toBeTrue();
+
+                const result = await blockProcessor.process(blockVerified);
+                expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
+            });
+
+            it("should 'discard but broadcast' a block lower than current height", async () => {
+                const blockVerified = new Block(getBlock([]));
+                blockVerified.verification.verified = true;
+
+                // accept a valid first block
+                const accepted = await blockProcessor.process(blockVerified);
+                expect(accepted).toBe(BlockProcessorResult.Accepted);
+
+                // new block with height < current
+                const blockLowerHeight = new Block(getBlock([]));
+                blockLowerHeight.verification.verified = true;
+                blockLowerHeight.data.id = "123456";
+                blockLowerHeight.data.height = 1;
+
+                // get handler on the "new" block, should be handled by UnchainedHandler
+                const handler = await blockProcessor.getHandler(blockLowerHeight);
+                expect(handler instanceof handlers.UnchainedHandler).toBeTrue();
+
+                // if we try to process the block, it should be 'discarded but can be broadcasted'
+                const result = await blockProcessor.process(blockLowerHeight);
                 expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             });
         });
