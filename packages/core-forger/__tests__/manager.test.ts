@@ -62,7 +62,7 @@ describe("Forger Manager", () => {
 
             forgeManager.usernames = [];
 
-            const del = new Delegate("a secret", testnet);
+            const del = new Delegate("a secret", testnet.network);
             const round = {
                 lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
                 timestamp: 1,
