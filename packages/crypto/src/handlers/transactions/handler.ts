@@ -72,8 +72,6 @@ export abstract class Handler {
         }
     }
 
-    public abstract apply(wallet: Wallet, transaction: ITransactionData): void;
-
     /**
      * Remove this wallet as the sender of a transaction.
      */
@@ -89,8 +87,6 @@ export abstract class Handler {
             wallet.dirty = true;
         }
     }
-
-    public abstract revert(wallet: Wallet, transaction: ITransactionData): void;
 
     /**
      * Add transaction balance to this wallet.
@@ -111,4 +107,8 @@ export abstract class Handler {
             wallet.dirty = true;
         }
     }
+
+    protected abstract apply(wallet: Wallet, transaction: ITransactionData): void;
+
+    protected abstract revert(wallet: Wallet, transaction: ITransactionData): void;
 }

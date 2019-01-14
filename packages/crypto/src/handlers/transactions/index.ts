@@ -36,13 +36,6 @@ class TransactionHandler {
     }
 
     /**
-     * Apply the transaction.
-     */
-    public apply(wallet: Wallet, transaction: ITransactionData): void {
-        return this.getHandler(transaction).apply(wallet, transaction);
-    }
-
-    /**
      * Associate this wallet as the sender of a transaction.
      */
     public applyTransactionToSender(wallet: Wallet, transaction: ITransactionData): void {
@@ -54,16 +47,6 @@ class TransactionHandler {
      */
     public applyTransactionToRecipient(wallet: Wallet, transaction: ITransactionData): void {
         this.getHandler(transaction).applyTransactionToRecipient(wallet, transaction);
-    }
-
-    /**
-     * [revert description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @return {void}
-     */
-    public revert(wallet: Wallet, transaction: ITransactionData) {
-        this.getHandler(transaction).revert(wallet, transaction);
     }
 
     /**

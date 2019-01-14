@@ -97,7 +97,7 @@ describe("VoteHandler", () => {
             it("should be ok", () => {
                 expect(wallet.vote).toBeNull();
 
-                handler.apply(wallet, voteTransaction);
+                handler.applyTransactionToSender(wallet, voteTransaction);
 
                 expect(wallet.vote).not.toBeNull();
             });
@@ -107,7 +107,7 @@ describe("VoteHandler", () => {
 
                 expect(wallet.vote).not.toBeNull();
 
-                handler.apply(wallet, voteTransaction);
+                handler.applyTransactionToSender(wallet, voteTransaction);
 
                 expect(wallet.vote).not.toBeNull();
             });
@@ -119,7 +119,7 @@ describe("VoteHandler", () => {
 
                 expect(wallet.vote).not.toBeNull();
 
-                handler.apply(wallet, unvoteTransaction);
+                handler.applyTransactionToSender(wallet, unvoteTransaction);
 
                 expect(wallet.vote).toBeNull();
             });
@@ -133,7 +133,7 @@ describe("VoteHandler", () => {
 
                 expect(wallet.vote).not.toBeNull();
 
-                handler.revert(wallet, voteTransaction);
+                handler.revertTransactionForSender(wallet, voteTransaction);
 
                 expect(wallet.vote).toBeNull();
             });
@@ -143,7 +143,7 @@ describe("VoteHandler", () => {
             it("should add the vote to the wallet", () => {
                 expect(wallet.vote).toBeNull();
 
-                handler.revert(wallet, unvoteTransaction);
+                handler.revertTransactionForSender(wallet, unvoteTransaction);
 
                 expect(wallet.vote).toBe("02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af");
             });

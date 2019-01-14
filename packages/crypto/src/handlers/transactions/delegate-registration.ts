@@ -22,14 +22,14 @@ export class DelegateRegistrationHandler extends Handler {
     /**
      * Apply the transaction to the wallet.
      */
-    public apply(wallet: Wallet, transaction: ITransactionData): void {
+    protected apply(wallet: Wallet, transaction: ITransactionData): void {
         wallet.username = transaction.asset.delegate.username;
     }
 
     /**
      * Revert the transaction from the wallet.
      */
-    public revert(wallet: Wallet, transaction: ITransactionData): void {
+    protected revert(wallet: Wallet, transaction: ITransactionData): void {
         wallet.username = null;
     }
 }

@@ -12,14 +12,14 @@ export class IpfsHandler extends Handler {
     /**
      * Apply the transaction to the wallet.
      */
-    public apply(wallet: Wallet, transaction: ITransactionData): void {
+    protected apply(wallet: Wallet, transaction: ITransactionData): void {
         //
     }
 
     /**
      * Revert the transaction from the wallet.
      */
-    public revert(wallet: Wallet, transaction: ITransactionData): void {
+    protected revert(wallet: Wallet, transaction: ITransactionData): void {
         //
     }
 }

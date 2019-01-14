@@ -31,7 +31,7 @@ export class VoteHandler extends Handler {
     /**
      * Apply the transaction to the wallet.
      */
-    public apply(wallet: Wallet, transaction: ITransactionData): void {
+    protected apply(wallet: Wallet, transaction: ITransactionData): void {
         const vote = transaction.asset.votes[0];
 
         if (vote.startsWith("+")) {
@@ -46,7 +46,7 @@ export class VoteHandler extends Handler {
     /**
      * Revert the transaction from the wallet.
      */
-    public revert(wallet: Wallet, transaction: ITransactionData): void {
+    protected revert(wallet: Wallet, transaction: ITransactionData): void {
         const vote = transaction.asset.votes[0];
 
         if (vote.startsWith("+")) {
