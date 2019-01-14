@@ -1,22 +1,19 @@
 import get from "lodash/get";
 import * as networks from "../networks";
+import { NetworkName } from "./config";
 
 export class NetworkManager {
     /**
      * Get all network types.
-     * @return {Object}
      */
-    public static getAll() {
+    public static getAll(): any {
         return networks;
     }
 
     /**
-     * Find network by token and name.
-     * @param  {String} name
-     * @param  {String} [token=ark]
-     * @return {Object}
+     * Find network by name.
      */
-    public static findByName(name) {
+    public static findByName(name: NetworkName): any {
         return get(networks, name.toLowerCase());
     }
 }

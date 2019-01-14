@@ -38,10 +38,8 @@ class Config {
 
     /**
      * Get constants for the specified height.
-     * @param  {Number} height
-     * @return {void}
      */
-    public getMilestone(height: number): void {
+    public getMilestone(height: number): any {
         return crypto.getMilestone(height);
     }
 

@@ -261,7 +261,7 @@ class TransactionsRepository extends Repository {
                 this.query.timestamp.max("timestamp"),
             )
             .from(this.query)
-            .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day"))))
+            .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day").valueOf())))
             .and(this.query.fee.gte(this.transactionPool.options.dynamicFees.minFeeBroadcast))
             .group(this.query.type)
             .order('"timestamp" DESC');
