@@ -4,7 +4,7 @@ import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class SecondSignatureBuilder extends TransactionBuilder {
+export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {
 
     constructor() {
         super();
@@ -35,5 +35,9 @@ export class SecondSignatureBuilder extends TransactionBuilder {
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;
         return struct;
+    }
+
+    protected instance(): SecondSignatureBuilder {
+        return this;
     }
 }

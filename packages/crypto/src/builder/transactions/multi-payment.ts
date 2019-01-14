@@ -3,7 +3,7 @@ import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class MultiPaymentBuilder extends TransactionBuilder {
+export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
 
     constructor() {
         super();
@@ -37,5 +37,9 @@ export class MultiPaymentBuilder extends TransactionBuilder {
         struct.vendorFieldHex = this.data.vendorFieldHex;
 
         return Object.assign(struct, this.data.payments);
+    }
+
+    protected instance(): MultiPaymentBuilder {
+        return this;
     }
 }

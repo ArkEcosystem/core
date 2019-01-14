@@ -4,7 +4,7 @@ import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class DelegateRegistrationBuilder extends TransactionBuilder {
+export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegistrationBuilder> {
 
     constructor() {
         super();
@@ -40,5 +40,9 @@ export class DelegateRegistrationBuilder extends TransactionBuilder {
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;
         return struct;
+    }
+
+    protected instance(): DelegateRegistrationBuilder {
+        return this;
     }
 }

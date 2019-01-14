@@ -3,7 +3,7 @@ import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class IPFSBuilder extends TransactionBuilder {
+export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
 
     constructor() {
         super();
@@ -49,5 +49,9 @@ export class IPFSBuilder extends TransactionBuilder {
         struct.vendorFieldHex = this.data.vendorFieldHex;
         struct.asset = this.data.asset;
         return struct;
+    }
+
+    protected instance(): IPFSBuilder {
+        return this;
     }
 }

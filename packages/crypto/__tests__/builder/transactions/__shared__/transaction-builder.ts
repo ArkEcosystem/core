@@ -1,6 +1,5 @@
 import { TransactionBuilder } from "../../../../src/builder/transactions/transaction";
 import { crypto, slots } from "../../../../src/crypto";
-import { configManager } from "../../../../src/managers/config";
 import { Transaction } from "../../../../src/models/transaction";
 import { Bignum } from "../../../../src/utils/bignum";
 
@@ -122,7 +121,7 @@ export const transactionBuilder = () => {
             builder.sign("dummy pass");
 
             expect(crypto.getKeys).toHaveBeenCalledWith("dummy pass");
-            expect(crypto.sign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+            expect(crypto.sign).toHaveBeenCalledWith(builder.getSigningObject(), keys);
         });
 
         it("establishes the public key of the sender", () => {
@@ -149,7 +148,7 @@ export const transactionBuilder = () => {
             expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("dummy pass", {
                 wif: 170,
             });
-            expect(crypto.sign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+            expect(crypto.sign).toHaveBeenCalledWith(builder.getSigningObject(), keys);
         });
 
         it("establishes the public key of the sender", () => {
@@ -175,7 +174,7 @@ export const transactionBuilder = () => {
             builder.secondSign("my very real second pass");
 
             expect(crypto.getKeys).toHaveBeenCalledWith("my very real second pass");
-            expect(crypto.secondSign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+            expect(crypto.secondSign).toHaveBeenCalledWith(builder.getSigningObject(), keys);
         });
     });
 
@@ -191,7 +190,7 @@ export const transactionBuilder = () => {
             builder.network(23).secondSignWithWif("my very real second pass");
 
             expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("my very real second pass", { wif: 170 });
-            expect(crypto.secondSign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+            expect(crypto.secondSign).toHaveBeenCalledWith(builder.getSigningObject(), keys);
         });
     });
 };

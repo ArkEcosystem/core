@@ -3,7 +3,7 @@ import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class VoteBuilder extends TransactionBuilder {
+export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
 
     constructor() {
         super();
@@ -32,5 +32,9 @@ export class VoteBuilder extends TransactionBuilder {
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;
         return struct;
+    }
+
+    protected instance(): VoteBuilder {
+        return this;
     }
 }

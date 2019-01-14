@@ -3,7 +3,7 @@ import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class TimelockTransferBuilder extends TransactionBuilder {
+export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransferBuilder> {
 
     constructor() {
         super();
@@ -35,5 +35,9 @@ export class TimelockTransferBuilder extends TransactionBuilder {
         struct.timelock = this.data.timelock;
         struct.timelockType = this.data.timelockType;
         return struct;
+    }
+
+    protected instance(): TimelockTransferBuilder {
+        return this;
     }
 }

@@ -3,7 +3,7 @@ import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class TransferBuilder extends TransactionBuilder {
+export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
 
     constructor() {
         super();
@@ -24,5 +24,9 @@ export class TransferBuilder extends TransactionBuilder {
         struct.vendorField = this.data.vendorField;
         // struct.vendorFieldHex = this.vendorFieldHex // v2
         return struct;
+    }
+
+    protected instance(): TransferBuilder {
+        return this;
     }
 }
