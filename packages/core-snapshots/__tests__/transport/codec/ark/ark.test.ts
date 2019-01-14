@@ -24,6 +24,7 @@ describe("Ark codec testing", () => {
 
         // removing helper property
         delete decoded.previous_block_hex;
+        delete decoded.id_hex;
 
         expect(decoded).toEqual(blocks[1]);
         console.timeEnd("singleblock");
@@ -42,6 +43,7 @@ describe("Ark codec testing", () => {
 
             // removing helper property
             delete decoded.previous_block_hex;
+            delete decoded.id_hex;
 
             expect(block).toEqual(decoded);
         }

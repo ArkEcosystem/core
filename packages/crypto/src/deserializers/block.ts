@@ -1,11 +1,7 @@
-import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../constants";
-import { crypto } from "../crypto";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
 import { Block, IBlockData } from "../models/block";
-import { ITransactionData } from "../models/transaction";
 import { Bignum } from "../utils/bignum";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
