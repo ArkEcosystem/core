@@ -48,7 +48,7 @@ describe("Transfer Transaction", () => {
                 .fee(10)
                 .network(network);
 
-            const passphraseTransaction = ark.getBuilder().transfer();
+            const passphraseTransaction = client.getBuilder().transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
             wifTransaction.signWithWif(wif, 170);
@@ -72,7 +72,7 @@ describe("Transfer Transaction", () => {
                 .network(network)
                 .sign(passphrase);
 
-            const passphraseTransaction = ark.getBuilder().transfer();
+            const passphraseTransaction = client.getBuilder().transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
             wifTransaction.secondSignWithWif(wif, 170);
