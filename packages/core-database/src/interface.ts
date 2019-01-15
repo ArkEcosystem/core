@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
+import { constants, crypto, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
 import { DelegatesRepository } from "./repositories/delegates";
@@ -447,17 +447,6 @@ export abstract class ConnectionInterface {
     public _registerRepositories() {
         this.wallets = new WalletsRepository(this);
         this.delegates = new DelegatesRepository(this);
-    }
-
-    /**
-     * Determine if the given block is an exception.
-     * @param  {Object} block
-     * @return {Boolean}
-     */
-    public __isException(block) {
-        const exceptions: any = configManager.get("exceptions.blocks");
-
-        return Array.isArray(exceptions) ? exceptions.includes(block.id) : false;
     }
 
     /**

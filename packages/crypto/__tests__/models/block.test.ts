@@ -4,7 +4,7 @@ import ByteBuffer from "bytebuffer";
 import { configManager } from "../../src";
 import { Block } from "../../src/models/block";
 import { Bignum } from "../../src/utils/bignum";
-import { dummyBlock } from "./fixtures/block";
+import { dummyBlock, dummyBlock2 } from "./fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -36,9 +36,9 @@ describe("Models - Block", () => {
             expect(block.data.height).toBe(dummyBlock.height);
             expect(block.data.numberOfTransactions).toBe(dummyBlock.numberOfTransactions);
             expect(block.data.payloadLength).toBe(dummyBlock.payloadLength);
-            expect(block.data.reward.toFixed()).toBe(dummyBlock.reward);
+            expect((block.data.reward as Bignum).toFixed()).toBe(dummyBlock.reward);
             expect(block.data.timestamp).toBe(dummyBlock.timestamp);
-            expect(block.data.totalFee.toFixed()).toBe(dummyBlock.totalFee);
+            expect((block.data.totalFee as Bignum).toFixed()).toBe(dummyBlock.totalFee);
             expect(block.data.version).toBe(dummyBlock.version);
         });
 
@@ -53,12 +53,50 @@ describe("Models - Block", () => {
 
             expect(block.verification.verified).toBeFalse();
         });
+
+        it("should construct the block (header only)", () => {
+            const block = new Block(dummyBlock2.serialized);
+            const actual = block.toJson();
+
+            expect(actual.version).toBe(dummyBlock2.data.version);
+            expect(actual.timestamp).toBe(dummyBlock2.data.timestamp);
+            expect(actual.height).toBe(dummyBlock2.data.height);
+            expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
+            expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
+            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
+            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
+            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
+            expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
+            expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
+            expect(actual.blockSignature).toBe(dummyBlock2.data.blockSignature);
+            expect(actual.transactions).toBeEmpty();
+        });
+
+        it("should construct the block (full)", () => {
+            const block = new Block(dummyBlock2.serializedFull);
+            const actual = block.toJson();
+
+            expect(actual.version).toBe(dummyBlock2.data.version);
+            expect(actual.timestamp).toBe(dummyBlock2.data.timestamp);
+            expect(actual.height).toBe(dummyBlock2.data.height);
+            expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
+            expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
+            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
+            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
+            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
+            expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
+            expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
+            expect(actual.blockSignature).toBe(dummyBlock2.data.blockSignature);
+            expect(actual.transactions).toHaveLength(7);
+        });
     });
 
     describe("getHeader", () => {
         it("returns the block data without the transactions", () => {
             // Ignore the verification for testing purposes
-            jest.spyOn(Block.prototype, "verify").mockImplementation(() => ({ verified: true }));
+            jest.spyOn(Block.prototype as any, "verify").mockImplementation(() => ({ verified: true }));
 
             const data2 = { ...data };
             const header = new Block(data2).getHeader();
@@ -205,7 +243,6 @@ describe("Models - Block", () => {
         describe("genesis block", () => {
             describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])("%s", (network, length) => {
                 const genesis = require(`@arkecosystem/core/src/config/${network}/genesisBlock.json`);
-                // @ts-ignore
                 const serialized = Block.serializeFull(genesis).toString("hex");
                 const genesisBlock = new Block(Block.deserialize(serialized));
                 expect(serialized).toHaveLength(length);

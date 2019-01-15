@@ -127,5 +127,4 @@ export class Validator {
     }
 }
 
-const validator = new Validator();
-export { validator };
+export const validator = new Validator();

@@ -1,18 +1,42 @@
-import ByteBuffer from "bytebuffer";
 import { createHash } from "crypto";
-import cloneDeepWith from "lodash/cloneDeepWith";
 import pluralize from "pluralize";
 import { crypto, slots } from "../crypto";
+import { BlockDeserializer } from "../deserializers";
 import { configManager } from "../managers/config";
+import { BlockSerializer } from "../serializers";
 import { Bignum } from "../utils";
-import { Transaction } from "./transaction";
+import { ITransactionData, Transaction } from "./transaction";
 
-const { outlookTable } = configManager.getPreset("mainnet").exceptions;
+export interface BlockVerification {
+    verified: boolean;
+    errors: string[];
+}
 
-const toBytesHex = data => {
-    const temp = data ? new Bignum(data).toString(16) : "";
-    return "0".repeat(16 - temp.length) + temp;
-};
+export interface IBlock {
+    data: IBlockData;
+}
+
+export interface IBlockData {
+    id?: string;
+    idHex?: string;
+
+    timestamp: number;
+    version: number;
+    height: number;
+    previousBlockHex?: string;
+    previousBlock: string;
+    numberOfTransactions: number;
+    totalAmount: Bignum | number | string;
+    totalFee: Bignum | number | string;
+    reward: Bignum | number | string;
+    payloadLength: number;
+    payloadHash: string;
+    generatorPublicKey: string;
+
+    blockSignature?: string;
+    serialized?: string;
+    transactions?: ITransactionData[];
+}
 
 /**
  * TODO copy some parts to ArkDocs
@@ -43,18 +67,14 @@ const toBytesHex = data => {
  * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
  */
 
-export class Block {
+export class Block implements IBlock {
     /**
      * Create block from data.
-     * @param  {Object} data
-     * @param  {Object} keys
-     * @return {Block}
-     * @static
      */
-    public static create(data, keys) {
+    public static create(data, keys): Block {
         data.generatorPublicKey = keys.publicKey;
 
-        const payloadHash: any = Block.serialize(data, false);
+        const payloadHash: Buffer = Block.serialize(data, false);
         const hash = createHash("sha256")
             .update(payloadHash)
             .digest();
@@ -65,14 +85,29 @@ export class Block {
         return new Block(data);
     }
 
-    /*
-     * Get block id
-     * @param  {Object} data
-     * @return {String}
-     * @static
+    /**
+     * Deserialize block from hex string.
      */
-    public static getIdHex(data) {
-        const payloadHash: any = Block.serialize(data, true);
+    public static deserialize(hexString, headerOnly = false): IBlockData {
+        return BlockDeserializer.deserialize(hexString, headerOnly);
+    }
+
+    /**
+     * Serialize the given block including transactions.
+     */
+    public static serializeFull(block: IBlockData) {
+        return BlockSerializer.serializeFull(block);
+    }
+
+    /**
+     * Serialize the given block without transactions.
+     */
+    public static serialize(block: IBlockData, includeSignature: boolean = true) {
+        return BlockSerializer.serialize(block, includeSignature);
+    }
+
+    public static getIdHex(data): string {
+        const payloadHash: any = Block.serialize(data);
         const hash = createHash("sha256")
             .update(payloadHash)
             .digest();
@@ -84,13 +119,15 @@ export class Block {
         return temp.toString("hex");
     }
 
+    public static toBytesHex(data): string {
+        const temp = data ? new Bignum(data).toString(16) : "";
+        return "0".repeat(16 - temp.length) + temp;
+    }
+
     /**
      * Get block id from already serialized buffer
-     * @param  {Buffer} serialized block buffer with block-signature included
-     * @return {String}
-     * @static
      */
-    public static getIdFromSerialized(serializedBuffer) {
+    public static getIdFromSerialized(serializedBuffer: Buffer): string {
         const hash = createHash("sha256")
             .update(serializedBuffer)
             .digest();
@@ -102,274 +139,43 @@ export class Block {
         return new Bignum(temp.toString("hex"), 16).toFixed();
     }
 
-    public static getId(data) {
+    public static getId(data): string {
         const idHex = Block.getIdHex(data);
         return new Bignum(idHex, 16).toFixed();
     }
 
-    /**
-     * Deserialize block from hex string.
-     * @param  {String} hexString
-     * @param  {Boolean} headerOnly - deserialize onlu headers
-     * @return {Object}
-     * @static
-     */
-    public static deserialize(hexString, headerOnly = false) {
-        const block: any = {};
-        const buf = ByteBuffer.fromHex(hexString, true);
-        block.version = buf.readUint32(0);
-        block.timestamp = buf.readUint32(4);
-        block.height = buf.readUint32(8);
-        block.previousBlockHex = buf.slice(12, 20).toString("hex");
-        block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed();
-        block.numberOfTransactions = buf.readUint32(20);
-        block.totalAmount = new Bignum(buf.readUint64(24) as any);
-        block.totalFee = new Bignum(buf.readUint64(32) as any);
-        block.reward = new Bignum(buf.readUint64(40) as any);
-        block.payloadLength = buf.readUint32(48);
-        block.payloadHash = hexString.substring(104, 104 + 64);
-        block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2);
+    public serialized: string;
+    public data: IBlockData;
+    public transactions: Transaction[];
+    public verification: BlockVerification;
 
-        const length = parseInt(`0x${hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4)}`, 16) + 2;
-        block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2);
-
-        if (headerOnly) {
-            return block;
-        }
-
-        let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2;
-        block.transactions = [];
-        if (hexString.length === transactionOffset * 2) {
-            return block;
-        }
-
-        // A serialized block stores transactions like this:
-        // |L1|L2|L3|...|LN|  TX1  |    TX2    | TX3 | ... |  TXN  |
-        // Each L is 4 bytes and denotes the length in bytes of the corresponding TX.
-        const lengthOffset = transactionOffset; // Position right before L1
-        transactionOffset += block.numberOfTransactions * 4; // Position right after LN
-
-        for (let i = 0; i < block.numberOfTransactions; i++) {
-            const transactionLength = buf.readUint32(lengthOffset + i * 4);
-
-            const transaction = Transaction.deserialize(
-                buf.slice(transactionOffset, transactionOffset + transactionLength).toString("hex"),
-            );
-            block.transactions.push(transaction);
-
-            transactionOffset += transactionLength;
-        }
-
-        return block;
-    }
-
-    /**
-     * Serialize block.
-     * @param  {Object} data
-     * @return {Buffer}
-     * @static
-     */
-    public static serializeFull(block) {
-        const serializedBlock: any = Block.serialize(block, true);
-        const transactions = block.transactions;
-
-        const buf = new ByteBuffer(serializedBlock.length + transactions.length * 4, true)
-            .append(serializedBlock)
-            .skip(transactions.length * 4);
-
-        for (let i = 0; i < transactions.length; i++) {
-            const serialized: any = Transaction.serialize(transactions[i]);
-            buf.writeUint32(serialized.length, serializedBlock.length + i * 4);
-            buf.append(serialized);
-        }
-
-        return buf.flip().toBuffer();
-    }
-
-    /**
-     * Serialize block
-     * TODO split this method between bufferize (as a buffer) and serialize (as hex)
-     * @param  {Object} block
-     * @param  {(Boolean|undefined)} includeSignature
-     * @return {Buffer}
-     * @static
-     */
-    public static serialize(block, includeSignature = true) {
-        block.previousBlockHex = toBytesHex(block.previousBlock);
-
-        const bb = new ByteBuffer(256, true);
-        bb.writeUint32(block.version);
-        bb.writeUint32(block.timestamp);
-        bb.writeUint32(block.height);
-        bb.append(block.previousBlockHex, "hex");
-        bb.writeUint32(block.numberOfTransactions);
-        bb.writeUint64(+new Bignum(block.totalAmount).toFixed());
-        bb.writeUint64(+new Bignum(block.totalFee).toFixed());
-        bb.writeUint64(+new Bignum(block.reward).toFixed());
-        bb.writeUint32(block.payloadLength);
-        bb.append(block.payloadHash, "hex");
-        bb.append(block.generatorPublicKey, "hex");
-
-        if (includeSignature && block.blockSignature) {
-            bb.append(block.blockSignature, "hex");
-        }
-
-        bb.flip();
-        return bb.toBuffer();
-    }
-
-    public static getBytesV1(block, includeSignature) {
-        if (includeSignature === undefined) {
-            includeSignature = block.blockSignature !== undefined;
-        }
-
-        let size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33;
-        let blockSignatureBuffer = null;
-
-        if (includeSignature) {
-            blockSignatureBuffer = Buffer.from(block.blockSignature, "hex");
-            size += blockSignatureBuffer.length;
-        }
-
-        let b;
-
-        try {
-            const bb = new ByteBuffer(size, true);
-            bb.writeInt(block.version);
-            bb.writeInt(block.timestamp);
-            bb.writeInt(block.height);
-
-            let i;
-
-            if (block.previousBlock) {
-                const pb = Buffer.from(new Bignum(block.previousBlock).toString(16), "hex");
-
-                for (i = 0; i < 8; i++) {
-                    bb.writeByte(pb[i]);
-                }
-            } else {
-                for (i = 0; i < 8; i++) {
-                    bb.writeByte(0);
-                }
-            }
-
-            bb.writeInt(block.numberOfTransactions);
-            bb.writeInt64(+block.totalAmount.toFixed());
-            bb.writeInt64(+block.totalFee.toFixed());
-            bb.writeInt64(+block.reward.toFixed());
-
-            bb.writeInt(block.payloadLength);
-
-            const payloadHashBuffer = Buffer.from(block.payloadHash, "hex");
-            for (i = 0; i < payloadHashBuffer.length; i++) {
-                bb.writeByte(payloadHashBuffer[i]);
-            }
-
-            const generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, "hex");
-            for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
-                bb.writeByte(generatorPublicKeyBuffer[i]);
-            }
-
-            if (includeSignature) {
-                for (i = 0; i < blockSignatureBuffer.length; i++) {
-                    bb.writeByte(blockSignatureBuffer[i]);
-                }
-            }
-
-            bb.flip();
-            b = bb.toBuffer();
-        } catch (e) {
-            throw e;
-        }
-
-        return b;
-    }
-    public blockSignature: string;
-    public id: string;
-    public idHex: string;
-    public timestamp: number;
-    public version: number;
-    public height: number;
-    public previousBlockHex: string;
-    public previousBlock: string;
-    public numberOfTransactions: number;
-    public totalAmount: Bignum;
-    public totalFee: Bignum;
-    public reward: Bignum;
-    public payloadLength: number;
-    public payloadHash: string;
-    public generatorPublicKey: string;
-
-    public headerOnly: boolean;
-    public serialized: any;
-
-    public data: any; // TODO: split Block into separate classes
-    public genesis: boolean;
-    public transactions: any;
-    public transactionIds: any;
-    public verification: { verified: boolean; errors: any[] };
-
-    /**
-     * @constructor
-     * @param {Object} data - The data of the block
-     */
-    constructor(data) {
+    constructor(data: IBlockData | string) {
         if (typeof data === "string") {
             data = Block.deserialize(data);
         }
 
-        if (!data.transactions) {
-            data.transactions = [];
-        }
-        if (data.numberOfTransactions > 0 && data.transactions.length === data.numberOfTransactions) {
-            delete data.transactionIds;
-        }
-
-        this.headerOnly =
-            data.numberOfTransactions > 0 &&
-            data.transactionIds &&
-            data.transactionIds.length === data.numberOfTransactions;
-        if (this.headerOnly) {
-            // @ts-ignore
-            this.serialized = Block.serialize(data).toString("hex");
-        } else {
-            // @ts-ignore
-            this.serialized = Block.serializeFull(data).toString("hex");
-        }
+        this.serialized = Block.serializeFull(data).toString("hex");
         this.data = Block.deserialize(this.serialized);
 
-        this.data.id = Block.getId(this.data);
-        this.data.idHex = Block.getIdHex(this.data);
-
-        if (outlookTable[this.data.id]) {
-            this.data.id = outlookTable[this.data.id];
-            this.data.idHex = toBytesHex(this.data.id);
-        }
-
+        // TODO genesis block calculated id is wrong for some reason
         if (data.height === 1) {
-            this.genesis = true;
-            // TODO genesis block calculated id is wrong for some reason
-            this.data.id = data.id;
-            this.data.idHex = toBytesHex(this.data.id);
-            delete this.data.previousBlock;
+            this.applyGenesisBlockFix(data);
         }
 
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
-        let sequence = 0;
-        this.transactions = data.transactions.map(transaction => {
-            const stampedTransaction: any = new Transaction(transaction);
-            stampedTransaction.blockId = this.data.id;
-            stampedTransaction.timestamp = this.data.timestamp;
-            stampedTransaction.sequence = sequence++;
-            return stampedTransaction;
-        });
+        const { transactions } = this.data;
+        this.transactions = transactions
+            ? transactions.map((transaction, index) => {
+                  transaction.blockId = this.data.id;
+                  transaction.timestamp = this.data.timestamp;
+                  transaction.sequence = index;
+                  return transaction as Transaction;
+              })
+            : [];
 
         delete this.data.transactions;
-        if (data.transactionIds && data.transactionIds.length > 0) {
-            this.transactionIds = data.transactionIds;
-        }
 
         this.verification = this.verify();
 
@@ -388,9 +194,8 @@ export class Block {
 
     /**
      * Return block as string.
-     * @return {String}
      */
-    public toString() {
+    public toString(): string {
         return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${pluralize(
             "transaction",
             this.data.numberOfTransactions,
@@ -400,9 +205,8 @@ export class Block {
 
     /**
      * Get header from block.
-     * @return {Object} The block data, without the transactions
      */
-    public getHeader() {
+    public getHeader(): IBlockData {
         const header = Object.assign({}, this.data);
         delete header.transactions;
         return header;
@@ -410,9 +214,8 @@ export class Block {
 
     /**
      * Verify signature associated with this block.
-     * @return {Boolean}
      */
-    public verifySignature() {
+    public verifySignature(): boolean {
         const bytes: any = Block.serialize(this.data, false);
         const hash = createHash("sha256")
             .update(bytes)
@@ -421,13 +224,22 @@ export class Block {
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
+    public toJson(): any {
+        const blockData = Object.assign({}, this.data) as IBlockData;
+        ["reward", "totalAmount", "totalFee"].forEach((key: string) => {
+            blockData[key] = +(blockData[key] as Bignum).toFixed();
+        });
+
+        blockData.transactions = this.transactions.map(transaction => transaction.toJson());
+        return blockData;
+    }
+
     /**
      * Verify this block.
-     * @return {Object}
      */
-    public verify() {
+    private verify(): BlockVerification {
         const block = this.data;
-        const result = {
+        const result: BlockVerification = {
             verified: false,
             errors: [],
         };
@@ -435,15 +247,13 @@ export class Block {
         try {
             const constants = configManager.getMilestone(block.height);
 
-            // let previousBlock = null
-
             if (block.height !== 1) {
                 if (!block.previousBlock) {
                     result.errors.push("Invalid previous block");
                 }
             }
 
-            if (!block.reward.isEqualTo(constants.reward)) {
+            if (!(block.reward as Bignum).isEqualTo(constants.reward)) {
                 result.errors.push(["Invalid block reward:", block.reward, "expected:", constants.reward].join(" "));
             }
 
@@ -471,83 +281,55 @@ export class Block {
 
             let size = 0;
             const payloadHash = createHash("sha256");
+            const invalidTransactions = this.transactions.filter(tx => !tx.verified);
+            if (invalidTransactions.length > 0) {
+                result.errors.push("One or more transactions are not verified:");
+                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`));
+            }
 
-            if (this.headerOnly) {
-                if (this.transactionIds.length !== block.numberOfTransactions) {
-                    result.errors.push("Invalid number of transactions");
+            if (this.transactions.length !== block.numberOfTransactions) {
+                result.errors.push("Invalid number of transactions");
+            }
+
+            if (this.transactions.length > constants.block.maxTransactions) {
+                if (block.height > 1) {
+                    result.errors.push("Transactions length is too high");
+                }
+            }
+
+            // Checking if transactions of the block adds up to block values.
+            const appliedTransactions = {};
+            let totalAmount = Bignum.ZERO;
+            let totalFee = Bignum.ZERO;
+            this.transactions.forEach(transaction => {
+                const bytes = Buffer.from(transaction.data.id, "hex");
+
+                if (appliedTransactions[transaction.data.id]) {
+                    result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
                 }
 
-                if (this.transactionIds.length > constants.block.maxTransactions) {
-                    if (block.height > 1) {
-                        result.errors.push("Transactions length is too high");
-                    }
-                }
+                appliedTransactions[transaction.data.id] = transaction.data;
 
-                // Checking if transactions of the block adds up to block values.
-                const appliedTransactions = {};
-                this.transactionIds.forEach(id => {
-                    const bytes = Buffer.from(id, "hex");
+                totalAmount = totalAmount.plus(transaction.data.amount);
+                totalFee = totalFee.plus(transaction.data.fee);
+                size += bytes.length;
 
-                    if (appliedTransactions[id]) {
-                        result.errors.push(`Encountered duplicate transaction: ${id}`);
-                    }
+                payloadHash.update(bytes);
+            });
 
-                    appliedTransactions[id] = id;
-                    size += bytes.length;
+            if (!totalAmount.isEqualTo(block.totalAmount)) {
+                result.errors.push("Invalid total amount");
+            }
 
-                    payloadHash.update(bytes);
-                });
-            } else {
-                const invalidTransactions = this.transactions.filter(tx => !tx.verified);
-                if (invalidTransactions.length > 0) {
-                    result.errors.push("One or more transactions are not verified:");
-                    invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`));
-                }
-
-                if (this.transactions.length !== block.numberOfTransactions) {
-                    result.errors.push("Invalid number of transactions");
-                }
-
-                if (this.transactions.length > constants.block.maxTransactions) {
-                    if (block.height > 1) {
-                        result.errors.push("Transactions length is too high");
-                    }
-                }
-
-                // Checking if transactions of the block adds up to block values.
-                const appliedTransactions = {};
-                let totalAmount = Bignum.ZERO;
-                let totalFee = Bignum.ZERO;
-                this.transactions.forEach(transaction => {
-                    const bytes = Buffer.from(transaction.data.id, "hex");
-
-                    if (appliedTransactions[transaction.data.id]) {
-                        result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
-                    }
-
-                    appliedTransactions[transaction.data.id] = transaction.data;
-
-                    totalAmount = totalAmount.plus(transaction.data.amount);
-                    totalFee = totalFee.plus(transaction.data.fee);
-                    size += bytes.length;
-
-                    payloadHash.update(bytes);
-                });
-
-                if (!totalAmount.isEqualTo(block.totalAmount)) {
-                    result.errors.push("Invalid total amount");
-                }
-
-                if (!totalFee.isEqualTo(block.totalFee)) {
-                    result.errors.push("Invalid total fee");
-                }
+            if (!totalFee.isEqualTo(block.totalFee)) {
+                result.errors.push("Invalid total fee");
             }
 
             if (size > constants.block.maxPayload) {
                 result.errors.push("Payload is too large");
             }
 
-            if (!this.genesis && payloadHash.digest().toString("hex") !== block.payloadHash) {
+            if (payloadHash.digest().toString("hex") !== block.payloadHash) {
                 result.errors.push("Invalid payload hash");
             }
         } catch (error) {
@@ -559,18 +341,9 @@ export class Block {
         return result;
     }
 
-    public toJson() {
-        // Convert Bignums
-        const blockData = cloneDeepWith(this.data, (value, key: string) => {
-            if (["reward", "totalAmount", "totalFee"].indexOf(key) !== -1) {
-                return +value.toFixed();
-            }
-
-            return value;
-        });
-
-        return Object.assign(blockData, {
-            transactions: this.transactions.map(transaction => transaction.toJson()),
-        });
+    private applyGenesisBlockFix(data: IBlockData): void {
+        this.data.id = data.id;
+        this.data.idHex = Block.toBytesHex(this.data.id);
+        delete this.data.previousBlock;
     }
 }

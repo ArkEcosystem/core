@@ -1,19 +1,16 @@
 import async from "async";
+import { Blockchain } from "../blockchain";
 
 export abstract class QueueInterface {
     protected queue: async;
 
     /**
      * Create an instance of the process queue.
-     * @param  {Blockchain} blockchain
-     * @param  {String} event
-     * @return {void}
      */
-    constructor(readonly blockchain, readonly event) {}
+    constructor(readonly blockchain: Blockchain, readonly event: string) {}
 
     /**
      * Drain the queue.
-     * @return {void}
      */
     public drain() {
         this.queue.drain = () => this.blockchain.dispatch(this.event);

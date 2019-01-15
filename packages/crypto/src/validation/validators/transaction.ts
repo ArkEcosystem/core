@@ -22,5 +22,4 @@ export class TransactionValidator {
     }
 }
 
-const transactionValidator = new TransactionValidator();
-export { transactionValidator };
+export const transactionValidator = new TransactionValidator();

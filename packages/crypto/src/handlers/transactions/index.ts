@@ -1,7 +1,8 @@
 import { TransactionTypes } from "../../constants";
-
+import { ITransactionData, Wallet } from "../../models";
 import { DelegateRegistrationHandler } from "./delegate-registration";
 import { DelegateResignationHandler } from "./delegate-resignation";
+import { Handler } from "./handler";
 import { IpfsHandler } from "./ipfs";
 import { MultiPaymentHandler } from "./multi-payment";
 import { MultiSignatureHandler } from "./multi-signature";
@@ -10,11 +11,9 @@ import { TimelockTransferHandler } from "./timelock-transfer";
 import { TransferHandler } from "./transfer";
 import { VoteHandler } from "./vote";
 
-export class TransactionHandler {
-    public handlers: { [x: number]: any };
-    /**
-     * [constructor description]
-     */
+class TransactionHandler {
+    public handlers: { [x in TransactionTypes]: typeof Handler };
+
     constructor() {
         this.handlers = {
             [TransactionTypes.Transfer]: TransferHandler,
@@ -30,84 +29,43 @@ export class TransactionHandler {
     }
 
     /**
-     * [canApply description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @param {Array} errors
-     * @return {Boolean}
+     * Check if the transaction can be applied to the wallet.
      */
-    public canApply(wallet, transaction, errors) {
+    public canApply(wallet: Wallet, transaction: ITransactionData, errors: string[]): boolean {
         return this.getHandler(transaction).canApply(wallet, transaction, errors);
     }
 
     /**
-     * [apply description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @return {void}
+     * Associate this wallet as the sender of a transaction.
      */
-    public apply(wallet, transaction) {
-        return this.getHandler(transaction).apply(wallet, transaction);
+    public applyTransactionToSender(wallet: Wallet, transaction: ITransactionData): void {
+        this.getHandler(transaction).applyTransactionToSender(wallet, transaction);
     }
 
     /**
-     * [applyTransactionToSender description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @return {void}
+     * Add transaction balance to this wallet.
      */
-    public applyTransactionToSender(wallet, transaction) {
-        return this.getHandler(transaction).applyTransactionToSender(wallet, transaction);
+    public applyTransactionToRecipient(wallet: Wallet, transaction: ITransactionData): void {
+        this.getHandler(transaction).applyTransactionToRecipient(wallet, transaction);
     }
 
     /**
-     * [applyTransactionToRecipient description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @return {void}
+     * Remove this wallet as the sender of a transaction.
      */
-    public applyTransactionToRecipient(wallet, transaction) {
-        return this.getHandler(transaction).applyTransactionToRecipient(wallet, transaction);
+    public revertTransactionForSender(wallet: Wallet, transaction: ITransactionData): void {
+        this.getHandler(transaction).revertTransactionForSender(wallet, transaction);
     }
 
     /**
-     * [revert description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @return {void}
+     * Remove transaction balance from this wallet.
      */
-    public revert(wallet, transaction) {
-        return this.getHandler(transaction).revert(wallet, transaction);
+    public revertTransactionForRecipient(wallet: Wallet, transaction: ITransactionData): void {
+        this.getHandler(transaction).revertTransactionForRecipient(wallet, transaction);
     }
 
-    /**
-     * [revertTransactionForSender description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @return {void}
-     */
-    public revertTransactionForSender(wallet, transaction) {
-        return this.getHandler(transaction).revertTransactionForSender(wallet, transaction);
-    }
-
-    /**
-     * [revertTransactionForRecipient description]
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @return {void}
-     */
-    public revertTransactionForRecipient(wallet, transaction) {
-        return this.getHandler(transaction).revertTransactionForRecipient(wallet, transaction);
-    }
-
-    /**
-     * [getHandler description]
-     * @param {Transaction} transaction
-     */
-    private getHandler(transaction: any) {
-        return new this.handlers[transaction.type]();
+    private getHandler(transaction: ITransactionData): Handler {
+        return new (this.handlers[transaction.type] as any)();
     }
 }
 
-const transactionHandler = new TransactionHandler();
-export { transactionHandler };
+export const transactionHandler = new TransactionHandler();

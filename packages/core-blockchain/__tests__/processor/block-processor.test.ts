@@ -3,6 +3,8 @@ import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import genesisBlockTestnet from "@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json";
 import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../src/blockchain";
+import { BlockProcessor, BlockProcessorResult } from "../../src/processor";
+import * as handlers from "../../src/processor/handlers";
 import { setUpFull, tearDown } from "../__support__/setup";
 
 const { Block } = models;
@@ -11,21 +13,12 @@ const { generateTransfers } = generators;
 
 let app;
 let blockchain: Blockchain;
-let blockProcessor;
-let handlers;
-let BlockProcessorResult;
+let blockProcessor: BlockProcessor;
 
 beforeAll(async () => {
     app = await setUpFull();
     blockchain = app.resolvePlugin("blockchain");
-
-    // using require here because if we import before app is set up, it ends up with some undefined references
-    const { BlockProcessor } = require("../../src/processor");
-
     blockProcessor = new BlockProcessor(blockchain);
-
-    BlockProcessorResult = require("../../src/processor").BlockProcessorResult;
-    handlers = require("../../src/processor/handlers");
 });
 
 afterAll(async () => {

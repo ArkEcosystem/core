@@ -1,9 +1,9 @@
 import "jest-extended";
-import { DelegateRegistrationBuilder } from "../../../dist/builder";
-import { client } from "../../../dist/client";
-import { TransactionTypes } from "../../../dist/constants";
-import { crypto } from "../../../dist/crypto/crypto";
-import { feeManager } from "../../../dist/managers/fee";
+import { DelegateRegistrationBuilder } from "../../../src/builder/transactions/delegate-registration";
+import { client } from "../../../src/client";
+import { TransactionTypes } from "../../../src/constants";
+import { crypto } from "../../../src/crypto/crypto";
+import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: DelegateRegistrationBuilder;
@@ -80,10 +80,6 @@ describe("Delegate Registration Transaction", () => {
                 builder.sign("any pass");
             });
 
-            // NOTE: V2
-            it.skip("generates and returns the bytes as hex", () => {
-                expect(builder.getStruct().hex).toBe(crypto.getBytes(builder.data).toString("hex"));
-            });
             it("returns the id", () => {
                 expect(builder.getStruct().id).toBe(
                     // @ts-ignore

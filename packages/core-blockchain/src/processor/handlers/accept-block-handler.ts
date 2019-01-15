@@ -1,9 +1,5 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export class AcceptBlockHandler extends BlockHandler {
     public async execute(): Promise<BlockProcessorResult> {
@@ -14,8 +10,8 @@ export class AcceptBlockHandler extends BlockHandler {
             await database.saveBlock(this.block);
 
             // Check if we recovered from a fork
-            if (state.forkedBlock && state.forkedBlock.height === this.block.data.height) {
-                logger.info("Successfully recovered from fork :star2:");
+            if (state.forkedBlock && state.forkedBlock.data.height === this.block.data.height) {
+                this.logger.info("Successfully recovered from fork :star2:");
                 state.forkedBlock = null;
             }
 
@@ -23,8 +19,8 @@ export class AcceptBlockHandler extends BlockHandler {
                 try {
                     transactionPool.acceptChainedBlock(this.block);
                 } catch (error) {
-                    logger.warn("Issue applying block to transaction pool");
-                    logger.debug(error.stack);
+                    this.logger.warn("Issue applying block to transaction pool");
+                    this.logger.debug(error.stack);
                 }
             }
 
@@ -44,8 +40,8 @@ export class AcceptBlockHandler extends BlockHandler {
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
-            logger.error(`Refused new block ${JSON.stringify(this.block.data)}`);
-            logger.debug(error.stack);
+            this.logger.error(`Refused new block ${JSON.stringify(this.block.data)}`);
+            this.logger.debug(error.stack);
 
             this.blockchain.transactionPool.purgeBlock(this.block);
             this.blockchain.forkBlock(this.block);

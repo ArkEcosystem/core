@@ -167,7 +167,7 @@ describe("MultiSignatureHandler", () => {
 
             expect(wallet.multisignature).toBeNull();
 
-            handler.apply(wallet, transaction);
+            handler.applyTransactionToSender(wallet, transaction);
 
             expect(wallet.multisignature).toEqual(transaction.asset.multisignature);
         });
@@ -175,7 +175,7 @@ describe("MultiSignatureHandler", () => {
 
     describe("revert", () => {
         it("should be ok", () => {
-            handler.revert(wallet, transaction);
+            handler.revertTransactionForSender(wallet, transaction);
 
             expect(wallet.multisignature).toBeNull();
         });

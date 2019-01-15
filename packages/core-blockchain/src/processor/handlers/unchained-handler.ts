@@ -1,10 +1,8 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 enum UnchainedBlockStatus {
     NotReadyToAcceptNewHeight,
@@ -15,7 +13,11 @@ enum UnchainedBlockStatus {
 }
 
 export class UnchainedHandler extends BlockHandler {
-    public constructor(protected blockchain: Blockchain, protected block: any, private isValidGenerator: boolean) {
+    public constructor(
+        protected blockchain: Blockchain,
+        protected block: models.Block,
+        private isValidGenerator: boolean,
+    ) {
         super(blockchain, block);
     }
 
@@ -49,7 +51,7 @@ export class UnchainedHandler extends BlockHandler {
     private checkUnchainedBlock(): UnchainedBlockStatus {
         const lastBlock = this.blockchain.getLastBlock();
         if (this.block.data.height > lastBlock.data.height + 1) {
-            logger.debug(
+            this.logger.debug(
                 `Blockchain not ready to accept new block at height ${this.block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
             );
 
@@ -58,26 +60,26 @@ export class UnchainedHandler extends BlockHandler {
             // NOTE: This isn't really elegant, but still better than spamming the log with
             //       useless `not ready to accept` messages.
             if (this.blockchain.processQueue.length() > 0) {
-                logger.debug(`Discarded ${this.blockchain.processQueue.length()} downloaded blocks.`);
+                this.logger.debug(`Discarded ${this.blockchain.processQueue.length()} downloaded blocks.`);
             }
 
             return UnchainedBlockStatus.NotReadyToAcceptNewHeight;
         } else if (this.block.data.height < lastBlock.data.height) {
-            logger.debug(
+            this.logger.debug(
                 `Block ${this.block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`,
             );
 
             return UnchainedBlockStatus.AlreadyInBlockchain;
         } else if (this.block.data.height === lastBlock.data.height && this.block.data.id === lastBlock.data.id) {
-            logger.debug(`Block ${this.block.data.height.toLocaleString()} just received :chains:`);
+            this.logger.debug(`Block ${this.block.data.height.toLocaleString()} just received :chains:`);
             return UnchainedBlockStatus.EqualToLastBlock;
         } else {
             if (this.isValidGenerator) {
-                logger.warn(`Detect double forging by ${this.block.data.generatorPublicKey} :chains:`);
+                this.logger.warn(`Detect double forging by ${this.block.data.generatorPublicKey} :chains:`);
                 return UnchainedBlockStatus.DoubleForging;
             }
 
-            logger.info(
+            this.logger.info(
                 `Forked block disregarded because it is not allowed to be forged. Caused by delegate: ${
                     this.block.data.generatorPublicKey
                 } :bangbang:`,
