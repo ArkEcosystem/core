@@ -91,7 +91,6 @@ class Slots {
 
     /**
      * Get the next slot number.
-     * @return {Number}
      */
     public getNextSlot(): number {
         return this.getSlotNumber() + 1;
