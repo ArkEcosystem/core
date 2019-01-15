@@ -9,11 +9,13 @@ let message;
 
 beforeAll(() => {
     const driver = new WinstonLogger({
-        level: "debug",
         transports: [
             {
                 constructor: "Console",
-                package: "@arkecosystem/core-logger-winston/__tests__/__fixtures__/transport",
+                package: "winston/lib/winston/transports/console",
+                options: {
+                    level: "debug",
+                },
             },
             {
                 constructor: "File",
