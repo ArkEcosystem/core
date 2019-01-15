@@ -1,5 +1,4 @@
 import { createHash } from "crypto";
-import cloneDeepWith from "lodash/cloneDeepWith";
 import pluralize from "pluralize";
 import { crypto, slots } from "../crypto";
 import { BlockDeserializer } from "../deserializers";
@@ -9,11 +8,13 @@ import { Bignum } from "../utils";
 import { ITransactionData, Transaction } from "./transaction";
 
 export interface BlockVerification {
-    verified: boolean,
-    errors: string[]
+    verified: boolean;
+    errors: string[];
 }
 
-export interface IBlock { data: IBlockData }
+export interface IBlock {
+    data: IBlockData;
+}
 
 export interface IBlockData {
     id?: string;
@@ -143,7 +144,6 @@ export class Block implements IBlock {
         return new Bignum(idHex, 16).toFixed();
     }
 
-
     public headerOnly: boolean;
     public serialized: string;
     public data: IBlockData;
@@ -152,7 +152,7 @@ export class Block implements IBlock {
 
     constructor(data: IBlockData | string) {
         if (typeof data === "string") {
-            data = Block.deserialize(data); 
+            data = Block.deserialize(data);
         }
 
         this.serialized = Block.serializeFull(data).toString("hex");
@@ -223,18 +223,13 @@ export class Block implements IBlock {
     }
 
     public toJson(): any {
-        // Convert Bignums
-        const blockData = cloneDeepWith(this.data, (value: any, key: string) => {
-            if (["reward", "totalAmount", "totalFee"].indexOf(key) !== -1) {
-                return +value.toFixed();
-            }
-
-            return value;
+        const blockData = Object.assign({}, this.data) as IBlockData;
+        ["reward", "totalAmount", "totalFee"].forEach((key: string) => {
+            blockData[key] = +(blockData[key] as Bignum).toFixed();
         });
 
-        return Object.assign(blockData, {
-            transactions: this.transactions.map(transaction => transaction.toJson()),
-        });
+        blockData.transactions = this.transactions.map(transaction => transaction.toJson());
+        return blockData;
     }
 
     /**

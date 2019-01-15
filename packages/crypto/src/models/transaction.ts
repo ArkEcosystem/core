@@ -6,24 +6,24 @@ import { Bignum } from "../utils";
 
 export interface ITransactionAsset {
     signature?: {
-        publicKey: string
-    },
+        publicKey: string;
+    };
     delegate?: {
-        username: string,
-        publicKey?: string
-    },
-    votes?: string[],
-    multisignature?: IMultiSignatureAsset,
+        username: string;
+        publicKey?: string;
+    };
+    votes?: string[];
+    multisignature?: IMultiSignatureAsset;
     ipfs?: {
-        dag: string
-    }
-    payments?: any,
+        dag: string;
+    };
+    payments?: any;
 }
 
 export interface IMultiSignatureAsset {
-    min: number,
-    keysgroup: string[],
-    lifetime: number
+    min: number;
+    keysgroup: string[];
+    lifetime: number;
 }
 
 export interface ITransactionData {
@@ -87,15 +87,14 @@ export interface ITransactionData {
  */
 
 export class Transaction implements ITransactionData {
-
     public static serialize(transaction: ITransactionData): Buffer {
-        return TransactionSerializer.serialize(transaction)
+        return TransactionSerializer.serialize(transaction);
     }
 
     public static deserialize(hexString: string): ITransactionData {
         return TransactionDeserializer.deserialize(hexString);
     }
-  
+
     public static canHaveVendorField(type: number): boolean {
         return [TransactionTypes.Transfer, TransactionTypes.TimelockTransfer].includes(type);
     }
@@ -123,7 +122,7 @@ export class Transaction implements ITransactionData {
     public signSignature?: string;
     public signatures?: string[];
     public blockId?: string;
-    public sequence?: number
+    public sequence?: number;
     public timelock?: any;
     public timelockType?: number;
 
@@ -168,7 +167,7 @@ export class Transaction implements ITransactionData {
         return this.verified;
     }
 
-    public toJson() {
+    public toJson(): any {
         const data = Object.assign({}, this.data);
         data.amount = +(data.amount as Bignum).toFixed();
         data.fee = +(data.fee as Bignum).toFixed();
