@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { models } from "@arkecosystem/crypto";
+import { isException, models } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
 import { isBlockChained } from "../utils/is-block-chained";
 import { validateGenerator } from "../utils/validate-generator";
@@ -63,7 +63,7 @@ export class BlockProcessor {
     private verifyBlock(block: models.Block): boolean {
         const verified = block.verification.verified;
         if (!verified) {
-            if (this.blockchain.database.__isException(block.data)) {
+            if (isException(block.data)) {
                 this.logger.warn(
                     `Block ${block.data.height.toLocaleString()} (${
                         block.data.id

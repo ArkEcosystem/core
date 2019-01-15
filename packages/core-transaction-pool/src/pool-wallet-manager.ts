@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { constants, crypto, models } from "@arkecosystem/crypto";
+import { constants, crypto, isException, models } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
 const { TransactionTypes } = constants;
@@ -85,7 +85,7 @@ export class PoolWalletManager extends WalletManager {
             );
 
             errors.push(`Can't apply transaction ${transaction.id}: delegate ${asset.votes[0]} does not exist.`);
-        } else if (this.__isException(transaction)) {
+        } else if (isException(transaction)) {
             this.logger.warn(
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );

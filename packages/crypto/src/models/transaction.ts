@@ -2,7 +2,7 @@ import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto";
 import { TransactionDeserializer } from "../deserializers";
 import { TransactionSerializer } from "../serializers";
-import { Bignum } from "../utils";
+import { Bignum, isException } from "../utils";
 
 export interface ITransactionAsset {
     signature?: {
@@ -134,7 +134,7 @@ export class Transaction implements ITransactionData {
         }
 
         this.data = Transaction.deserialize(this.serialized);
-        this.verified = this.data.type <= 4 && crypto.verify(this.data);
+        this.verified = (this.data.type <= 4 && crypto.verify(this.data)) || isException(this.data);
 
         // TODO: remove this
         [
