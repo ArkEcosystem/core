@@ -265,12 +265,14 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         const newHeight = previousRound * maxDelegates;
-        const blocksToRemove = await this.database.getBlocks(newHeight, height - newHeight - 1);
+        // If the current chain height is H and we will be removing blocks [N, H],
+        // then auxBlocks[] will contain blocks [N - 1, H - 1].
+        const auxBlocks = await this.database.getBlocks(newHeight, height - newHeight);
         const deleteLastBlock = async () => {
             const lastBlock = this.state.getLastBlock();
             await this.database.enqueueDeleteBlock(lastBlock);
 
-            const newLastBlock = new Block(blocksToRemove.pop());
+            const newLastBlock = new Block(auxBlocks.pop());
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock;
@@ -305,9 +307,11 @@ export class Blockchain implements blockchain.IBlockchain {
     public async removeBlocks(nblocks) {
         this.clearAndStopQueue();
 
-        const blocksToRemove = await this.database.getBlocks(
+        // If the current chain height is H and we will be removing blocks [N, H],
+        // then auxBlocks[] will contain blocks [N - 1, H - 1].
+        const auxBlocks = await this.database.getBlocks(
             this.state.getLastBlock().data.height - nblocks,
-            nblocks - 1,
+            nblocks,
         );
 
         const revertLastBlock = async () => {
@@ -322,7 +326,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = new Block(blocksToRemove.pop());
+            const newLastBlock = new Block(auxBlocks.pop());
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock;

@@ -531,12 +531,16 @@ export class PostgresConnection extends ConnectionInterface {
     public async getBlocks(offset, limit) {
         let blocks = [];
 
+        // The functions below return matches in the range [start, end], including both ends.
+        const start = offset;
+        const end = offset + limit - 1;
+
         if (app.has("state")) {
-            blocks = app.resolve("state").getLastBlocksByHeight(offset, offset + limit);
+            blocks = app.resolve("state").getLastBlocksByHeight(start, end);
         }
 
         if (blocks.length !== limit) {
-            blocks = await this.db.blocks.heightRange(offset, offset + limit);
+            blocks = await this.db.blocks.heightRange(start, end);
 
             await this.loadTransactionsForBlocks(blocks);
         }
