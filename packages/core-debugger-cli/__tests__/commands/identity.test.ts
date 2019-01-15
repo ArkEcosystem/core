@@ -49,4 +49,8 @@ describe("Commands - Identity", () => {
             }),
         ).toEqual(expected);
     });
+
+    it("should not return anything for empty input", () => {
+        expect(identity({})).toEqual(undefined);
+    });
 });
