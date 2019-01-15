@@ -1,8 +1,8 @@
+import { isString } from "@arkecosystem/utils";
 import { asValue } from "awilix";
 import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs";
 import Hoek from "hoek";
-import isString from "lodash/isString";
 import { dirname, resolve } from "path";
 import semver from "semver";
 

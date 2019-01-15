@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { head, sumBy } from "@arkecosystem/utils";
 import dayjs from "dayjs-ext";
-import head from "lodash/head";
-import sumBy from "lodash/sumBy";
 import prettyMs from "pretty-ms";
 import semver from "semver";
 

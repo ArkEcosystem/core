@@ -1,5 +1,5 @@
+import { get } from "@arkecosystem/utils";
 import { ensureFileSync, existsSync, readFileSync, writeFileSync } from "fs-extra";
-import get from "lodash/get";
 
 class Storage {
     private base: string;

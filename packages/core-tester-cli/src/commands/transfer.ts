@@ -1,6 +1,6 @@
 import { Bignum, client, crypto } from "@arkecosystem/crypto";
+import { uniq } from "@arkecosystem/utils";
 import delay from "delay";
-import unique from "lodash/uniq";
 import pluralize from "pluralize";
 import { logger } from "../utils";
 import { Command } from "./command";
@@ -230,7 +230,7 @@ export class Transfer extends Command {
             }
 
             const dataLength = postResponse[key].length;
-            const uniqueLength = unique(postResponse[key]).length;
+            const uniqueLength = uniq(postResponse[key]).length;
             if (dataLength !== uniqueLength) {
                 logger.error(`Response data for '${key}' has ${dataLength - uniqueLength} duplicate transaction ids`);
                 successfulTest = false;

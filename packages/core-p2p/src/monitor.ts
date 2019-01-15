@@ -4,14 +4,10 @@ import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
+import { flatten, groupBy, sample, shuffle, take } from "@arkecosystem/utils";
 import dayjs from "dayjs-ext";
 import delay from "delay";
 import fs from "fs";
-import flatten from "lodash/flatten";
-import groupBy from "lodash/groupBy";
-import sample from "lodash/sample";
-import shuffle from "lodash/shuffle";
-import take from "lodash/take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 

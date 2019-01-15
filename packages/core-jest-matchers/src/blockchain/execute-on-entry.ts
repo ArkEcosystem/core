@@ -1,6 +1,4 @@
-import get from "lodash/get";
-import isEqual from "lodash/isEqual";
-import sortBy from "lodash/sortBy";
+import { get, isEqual, sortBy } from "@arkecosystem/utils";
 
 export {};
 
@@ -23,12 +21,12 @@ expect.extend({
             path = `${slugs[0]}.states.${slugs[1]}`;
         }
 
-        const state = get(machine.states, path);
+        const state: any = get(machine.states, path);
 
         const actions = transition.actions.map(action => `"${action}"`).join(", ");
 
         return {
-            // FIXME isNot is necessary to write the right message
+            // FIXME: isNot is necessary to write the right message
             // @see https://facebook.github.io/jest/docs/en/expect.html#expectextendmatchers
             message: () =>
                 `Expected machine to ${this.isNot ? "not " : ""} call actions ${actions} on state "${

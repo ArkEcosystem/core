@@ -1,6 +1,5 @@
 import { configManager as crypto, HashAlgorithms } from "@arkecosystem/crypto";
-import get from "lodash/get";
-import set from "lodash/set";
+import { get, set } from "@arkecosystem/utils";
 import { fileLoader, RemoteLoader } from "./loaders";
 import { Network } from "./network";
 

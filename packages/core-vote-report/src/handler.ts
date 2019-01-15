@@ -3,7 +3,7 @@ import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
-import sumBy from "lodash/sumBy";
+import { sumBy } from "@arkecosystem/utils";
 
 export function handler(request, h) {
     const config = app.getConfig();

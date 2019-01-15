@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { sample } from "@arkecosystem/utils";
 import axios from "axios";
 import delay from "delay";
-import sample from "lodash/sample";
 import { URL } from "url";
 
 export class Client {

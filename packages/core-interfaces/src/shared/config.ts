@@ -1,5 +1,4 @@
-import get from "lodash/get";
-import set from "lodash/set";
+import { get, set } from "@arkecosystem/utils";
 
 export class Config {
     private config: any;

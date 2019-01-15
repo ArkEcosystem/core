@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { constants, feeManager, formatArktoshi } from "@arkecosystem/crypto";
-import camelCase from "lodash/camelCase";
+import { camelCase } from "@arkecosystem/utils";
 import { config as localConfig } from "../config";
 
 /**

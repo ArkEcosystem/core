@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import first from "lodash/first";
-import last from "lodash/last";
+import { head, last } from "@arkecosystem/utils";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";
@@ -50,7 +49,7 @@ class TransactionIndex extends Index {
 
             const blockIds = rows.map(row => row.blockId);
             logger.info(
-                `[Elasticsearch] Indexing transactions from block ${first(blockIds)} to ${last(
+                `[Elasticsearch] Indexing transactions from block ${head(blockIds)} to ${last(
                     blockIds,
                 )} :card_index_dividers:`,
             );

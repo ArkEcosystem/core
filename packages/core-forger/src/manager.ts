@@ -2,9 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { models, slots } from "@arkecosystem/crypto";
+import { isEmpty, uniq } from "@arkecosystem/utils";
 import delay from "delay";
-import isEmpty from "lodash/isEmpty";
-import uniq from "lodash/uniq";
 import pluralize from "pluralize";
 
 import { Client } from "./client";

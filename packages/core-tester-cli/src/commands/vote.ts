@@ -1,5 +1,5 @@
 import { client } from "@arkecosystem/crypto";
-import sample from "lodash/sample";
+import { sample } from "@arkecosystem/utils";
 import pluralize from "pluralize";
 import { logger } from "../utils";
 import { Command } from "./command";

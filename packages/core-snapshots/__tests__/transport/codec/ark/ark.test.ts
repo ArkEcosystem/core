@@ -1,12 +1,12 @@
 /* tslint:disable:no-console */
 
-import pick from "lodash/pick";
+import { pick } from "@arkecosystem/utils";
 import msgpack from "msgpack-lite";
 
 import { blocks } from "../../../fixtures/blocks";
 import { transactions } from "../../../fixtures/transactions";
 
-import { ArkCodec } from "../../../../dist/transport/codecs/ark-codec";
+import { ArkCodec } from "../../../../src/transport/codecs/ark-codec";
 
 const codec = new ArkCodec();
 

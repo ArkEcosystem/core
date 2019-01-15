@@ -1,5 +1,5 @@
 import { delegateCalculator } from "@arkecosystem/core-utils";
-import orderBy from "lodash/orderBy";
+import { orderBy } from "@arkecosystem/utils";
 import limitRows from "./utils/limit-rows";
 
 export class DelegatesRepository {
@@ -28,7 +28,7 @@ export class DelegatesRepository {
         const [iteratee, order] = this.__orderBy(params);
 
         return {
-            rows: limitRows(orderBy(delegates, iteratee, order as "desc" | "asc"), params),
+            rows: limitRows(orderBy(delegates, [iteratee], [order as "desc" | "asc"]), params),
             count: delegates.length,
         };
     }

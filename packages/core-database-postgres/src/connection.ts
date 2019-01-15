@@ -1,6 +1,6 @@
+import { chunk } from "@arkecosystem/utils";
 import crypto from "crypto";
 import fs from "fs";
-import chunk from "lodash/chunk";
 import path from "path";
 import pgPromise from "pg-promise";
 import pluralize from "pluralize";

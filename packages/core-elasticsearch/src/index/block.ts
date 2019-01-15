@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import first from "lodash/first";
-import last from "lodash/last";
+import { head, last } from "@arkecosystem/utils";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";
@@ -40,7 +39,7 @@ class BlockIndex extends Index {
 
             const heights = rows.map(row => row.height);
             logger.info(
-                `[Elasticsearch] Indexing blocks from height ${first(heights)} to ${last(
+                `[Elasticsearch] Indexing blocks from height ${head(heights)} to ${last(
                     heights,
                 )} :card_index_dividers:`,
             );
