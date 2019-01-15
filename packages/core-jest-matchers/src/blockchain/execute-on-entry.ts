@@ -1,5 +1,4 @@
-import { get, isEqual } from "@arkecosystem/utils";
-import { sortBy } from "@arkecosystem/utils";
+import { get, isEqual, sortBy } from "@arkecosystem/utils";
 
 export {};
 
