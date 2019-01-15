@@ -81,6 +81,9 @@ jobs:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
       - run:
+          name: core-database-postgres
+          command: 'cd ~/ark-core/packages/core-database-postgres && yarn test:coverage'
+      - run:
           name: core-debugger-cli
           command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
       - run:
@@ -170,6 +173,9 @@ jobs:
       - run:
           name: core-database
           command: 'cd ~/ark-core/packages/core-database && yarn test:coverage'
+      - run:
+          name: core-database-postgres
+          command: 'cd ~/ark-core/packages/core-database-postgres && yarn test:coverage'
       - run:
           name: core-debugger-cli
           command: 'cd ~/ark-core/packages/core-debugger-cli && yarn test:coverage'
