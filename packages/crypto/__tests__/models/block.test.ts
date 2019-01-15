@@ -4,7 +4,7 @@ import ByteBuffer from "bytebuffer";
 import { configManager } from "../../src";
 import { Block } from "../../src/models/block";
 import { Bignum } from "../../src/utils/bignum";
-import { dummyBlock } from "./fixtures/block";
+import { dummyBlock, dummyBlock2 } from "./fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -52,6 +52,44 @@ describe("Models - Block", () => {
             const block = new Block(data);
 
             expect(block.verification.verified).toBeFalse();
+        });
+
+        it("should construct the block (header only)", () => {
+            const block = new Block(dummyBlock2.serialized);
+            const actual = block.toJson();
+
+            expect(actual.version).toBe(dummyBlock2.data.version);
+            expect(actual.timestamp).toBe(dummyBlock2.data.timestamp);
+            expect(actual.height).toBe(dummyBlock2.data.height);
+            expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
+            expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
+            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
+            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
+            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
+            expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
+            expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
+            expect(actual.blockSignature).toBe(dummyBlock2.data.blockSignature);
+            expect(actual.transactions).toBeEmpty();
+        });
+
+        it("should construct the block (full)", () => {
+            const block = new Block(dummyBlock2.serializedFull);
+            const actual = block.toJson();
+
+            expect(actual.version).toBe(dummyBlock2.data.version);
+            expect(actual.timestamp).toBe(dummyBlock2.data.timestamp);
+            expect(actual.height).toBe(dummyBlock2.data.height);
+            expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
+            expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
+            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
+            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
+            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
+            expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
+            expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
+            expect(actual.blockSignature).toBe(dummyBlock2.data.blockSignature);
+            expect(actual.transactions).toHaveLength(7);
         });
     });
 

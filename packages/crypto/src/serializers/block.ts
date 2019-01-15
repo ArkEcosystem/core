@@ -4,10 +4,9 @@ import { Block, IBlockData } from "../models/block";
 import { Bignum } from "../utils";
 
 class BlockSerializer {
-
     public serializeFull(block: IBlockData): Buffer {
         const transactions = block.transactions || [];
-        block.numberOfTransactions = transactions.length;
+        block.numberOfTransactions = block.numberOfTransactions || transactions.length;
 
         const serializedHeader = this.serialize(block);
 

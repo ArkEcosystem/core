@@ -7,13 +7,13 @@ import { Bignum } from "../utils/bignum";
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
 class BlockDeserializer {
-
     public deserialize(serializedHex: string, headerOnly: boolean = false): IBlockData {
-        const block= {} as IBlockData;
+        const block = { transactions: [] } as IBlockData;
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
         this.deserializeHeader(block, buf);
 
+        headerOnly = headerOnly || buf.remaining() === 0;
         if (!headerOnly) {
             this.deserializeTransactions(block, buf);
         }
@@ -45,11 +45,14 @@ class BlockDeserializer {
 
         const signatureLength = (): number => {
             buf.mark();
-            const lengthHex = buf.skip(1).readBytes(1).toString("hex");
+            const lengthHex = buf
+                .skip(1)
+                .readBytes(1)
+                .toString("hex");
             buf.reset();
 
             return parseInt(lengthHex, 16) + 2;
-        }
+        };
 
         block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
     }
@@ -58,16 +61,15 @@ class BlockDeserializer {
         const transactionLengths = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
-            transactionLengths.push(buf.readUint32())
+            transactionLengths.push(buf.readUint32());
         }
 
-        block.transactions = [];
         transactionLengths.forEach(length => {
-            const serializedHex = buf.readBytes(length).toString("hex")
+            const serializedHex = buf.readBytes(length).toString("hex");
             const transaction = new Transaction(serializedHex);
             block.transactions.push(transaction);
-        })
-     }
+        });
+    }
 }
 
 export const blockDeserializer = new BlockDeserializer();
