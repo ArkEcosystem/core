@@ -144,7 +144,6 @@ export class Block implements IBlock {
         return new Bignum(idHex, 16).toFixed();
     }
 
-    public headerOnly: boolean;
     public serialized: string;
     public data: IBlockData;
     public transactions: Transaction[];
@@ -166,12 +165,15 @@ export class Block implements IBlock {
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
-        this.transactions = this.data.transactions.map((transaction, index) => {
-            transaction.blockId = this.data.id;
-            transaction.timestamp = this.data.timestamp;
-            transaction.sequence = index;
-            return transaction as Transaction;
-        });
+        const { transactions } = this.data;
+        this.transactions = transactions
+            ? transactions.map((transaction, index) => {
+                  transaction.blockId = this.data.id;
+                  transaction.timestamp = this.data.timestamp;
+                  transaction.sequence = index;
+                  return transaction as Transaction;
+              })
+            : [];
 
         delete this.data.transactions;
 

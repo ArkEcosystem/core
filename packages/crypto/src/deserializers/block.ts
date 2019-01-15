@@ -8,7 +8,7 @@ const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
 class BlockDeserializer {
     public deserialize(serializedHex: string, headerOnly: boolean = false): IBlockData {
-        const block = { transactions: [] } as IBlockData;
+        const block = {} as IBlockData;
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
         this.deserializeHeader(block, buf);
@@ -64,6 +64,7 @@ class BlockDeserializer {
             transactionLengths.push(buf.readUint32());
         }
 
+        block.transactions = [];
         transactionLengths.forEach(length => {
             const serializedHex = buf.readBytes(length).toString("hex");
             const transaction = new Transaction(serializedHex);
