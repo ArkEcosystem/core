@@ -1,5 +1,5 @@
+import { get } from "@arkecosystem/utils";
 import Joi from "joi";
-import get from "lodash/get";
 import { network } from "./network";
 
 export class Processor {

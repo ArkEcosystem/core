@@ -35,6 +35,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
+        "@arkecosystem/utils": "^0.1.4",
         "@types/bip32": "^1.0.0",
         "@types/bip39": "^2.4.1",
         "@types/bytebuffer": "^5.0.37",
@@ -42,8 +43,6 @@
         "@types/deepmerge": "^2.2.0",
         "@types/joi": "^14.0.1",
         "@types/lodash.camelcase": "^4.3.4",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.set": "^4.3.4",
         "@types/lodash.sumby": "^4.6.4",
         "@types/otplib": "^7.0.0",
         "@types/pluralize": "^0.0.29",
@@ -59,8 +58,6 @@
         "deepmerge": "^3.0.0",
         "joi": "^14.3.0",
         "lodash.camelcase": "^4.3.0",
-        "lodash.get": "^4.4.2",
-        "lodash.set": "^4.3.2",
         "lodash.sumby": "^4.6.0",
         "node-forge": "^0.7.6",
         "otplib": "^10.0.1",

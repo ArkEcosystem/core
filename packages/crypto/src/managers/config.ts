@@ -1,16 +1,15 @@
+import { get, set } from "@arkecosystem/utils";
 import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
-import get from "lodash/get";
-import set from "lodash/set";
 import { feeManager } from "./fee";
 
 import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
 
 interface IMilestone {
-    index: number
-    data: { [ key: string]: any }
-};
+    index: number;
+    data: { [key: string]: any };
+}
 
 export type NetworkName = keyof typeof networks;
 

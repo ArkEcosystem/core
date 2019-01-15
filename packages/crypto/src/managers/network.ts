@@ -1,4 +1,4 @@
-import get from "lodash/get";
+import { get } from "@arkecosystem/utils";
 import * as networks from "../networks";
 import { NetworkName } from "./config";
 
