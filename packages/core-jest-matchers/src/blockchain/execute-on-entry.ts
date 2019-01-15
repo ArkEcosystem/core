@@ -22,7 +22,7 @@ expect.extend({
             path = `${slugs[0]}.states.${slugs[1]}`;
         }
 
-        const state = get(machine.states, path);
+        const state: any = get(machine.states, path);
 
         const actions = transition.actions.map(action => `"${action}"`).join(", ");
 

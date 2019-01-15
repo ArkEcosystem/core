@@ -1,8 +1,8 @@
+import { fill } from "@arkecosystem/utils";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import clipboardy from "clipboardy";
 import "jest-extended";
-import fill from "lodash/fill";
 import { Command } from "../../src/commands/command";
 import { Transfer } from "../../src/commands/transfer";
 import { logger } from "../../src/utils";

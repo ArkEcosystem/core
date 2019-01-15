@@ -20,7 +20,7 @@ export class Processor {
         const { method, params, id } = payload;
 
         try {
-            const targetMethod = get(server.methods, method);
+            const targetMethod: any = get(server.methods, method);
 
             if (!targetMethod) {
                 return this.__createErrorResponse(id, -32601, "The method does not exist / is not available.");

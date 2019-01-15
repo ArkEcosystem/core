@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import pick from "lodash/pick";
+import { pick } from "@arkecosystem/utils";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 import { database } from "./db";
