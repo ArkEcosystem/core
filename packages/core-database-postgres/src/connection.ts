@@ -549,6 +549,49 @@ export class PostgresConnection extends ConnectionInterface {
     }
 
     /**
+     * Get the blocks at the given heights.
+     * The transactions for those blocks will not be loaded like in `getBlocks()`.
+     * @param  {Array} heights array of arbitrary block heights
+     * @return {Array} array for the corresponding blocks; if some of the requested
+     * blocks do not exist in our chain (requested height is larger than the height
+     * of our blockchain), then that element will be `undefined` in the resulting array
+     * @throws Error
+     */
+    public async getBlocksByHeight(heights: Array<number>) {
+        const blocks = [];
+
+        // Map of height -> index in heights[], e.g.
+        // toGetFromDB[6000000] == 5 if
+        // heights[5] == 6000000
+        // In this map we only store a subset of the heights - the ones we could not retrieve
+        // from app/state and need to get from the database.
+        const toGetFromDB = {};
+
+        const hasState = app.has("state")
+
+        for (const [i, height] of heights.entries()) {
+            if (hasState) {
+                blocks[i] = app.resolve("state").getLastBlocksByHeight(height, height)[0];
+            }
+
+            if (blocks[i] === undefined) {
+                toGetFromDB[height] = i;
+            }
+        }
+
+        const heightsToGetFromDB = Object.keys(toGetFromDB)
+        if (heightsToGetFromDB.length > 0) {
+            for (const blockFromDB of await this.db.blocks.findByHeight(heightsToGetFromDB)) {
+                const h = blockFromDB.height;
+                const i = toGetFromDB[h];
+                blocks[i] = blockFromDB;
+            }
+        }
+
+        return blocks;
+    }
+
+    /**
      * Get top count blocks ordered by height DESC.
      * NOTE: Only used when trying to restore database integrity. The returned blocks may be unchained.
      * @param  {Number} count

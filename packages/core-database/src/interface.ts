@@ -164,6 +164,17 @@ export abstract class ConnectionInterface {
     public abstract async getBlocks(offset, limit): Promise<any[]>;
 
     /**
+     * Get the blocks at the given heights.
+     * The transactions for those blocks will not be loaded like in `getBlocks()`.
+     * @param  {Array} heights array of arbitrary block heights
+     * @return {Array} array for the corresponding blocks, if some of the requested
+     * blocks do not exist in our chain (requested height is larger than the height
+     * of our blockchain), then that element will be `null` in the resulting array
+     * @throws Error
+     */
+    public abstract async getBlocksByHeight(heights: Array<number>): Promise<any[]>;
+
+    /**
      * Get top count blocks ordered by height DESC.
      * NOTE: Only used when trying to restore database integrity.
      * The returned blocks may be unchained.
