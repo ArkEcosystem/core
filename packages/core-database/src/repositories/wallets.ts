@@ -1,5 +1,5 @@
 import { Bignum } from "@arkecosystem/crypto";
-import orderBy from "lodash/orderBy";
+import { orderBy } from "@arkecosystem/utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 
@@ -29,7 +29,7 @@ export class WalletsRepository {
         const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
 
         return {
-            rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
+            rows: limitRows(orderBy(wallets, [iteratee], [order as "desc" | "asc"]), params),
             count: wallets.length,
         };
     }
