@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { models } from "@arkecosystem/crypto";
 import { isBlockChained } from "../../src/utils";
 
 describe("isChained", () => {
@@ -11,7 +12,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        };
+        } as models.IBlock;
 
         const nextBlock = {
             data: {
@@ -20,7 +21,7 @@ describe("isChained", () => {
                 height: 2,
                 previousBlock: "1",
             },
-        };
+        }  as models.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeTrue();
     });
@@ -33,7 +34,7 @@ describe("isChained", () => {
                 height: 2,
                 previousBlock: null,
             },
-        };
+        } as models.IBlock;
 
         const nextBlock = {
             data: {
@@ -42,7 +43,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: "1",
             },
-        };
+        } as models.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });

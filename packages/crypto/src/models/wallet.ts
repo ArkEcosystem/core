@@ -2,6 +2,8 @@ import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
 import { transactionHandler } from "../handlers/transactions";
 import { Bignum, formatArktoshi } from "../utils";
+import { IBlockData } from "./block";
+import { IMultiSignatureAsset, ITransactionData } from "./transaction";
 
 /**
  * TODO copy some parts to ArkDocs
@@ -25,27 +27,23 @@ import { Bignum, formatArktoshi } from "../utils";
  *   - dirty
  */
 export class Wallet {
-    public address: any;
-    public publicKey: any;
-    public secondPublicKey: any;
-    public balance: any;
-    public vote: any;
+    public address: string;
+    public publicKey: string | null;
+    public secondPublicKey: string | null;
+    public balance: Bignum;
+    public vote: string;
     public voted: boolean;
-    public username: any;
+    public username: string | null;
     public lastBlock: any;
-    public voteBalance: any;
-    public multisignature: any;
+    public voteBalance: Bignum;
+    public multisignature?: IMultiSignatureAsset;
     public dirty: boolean;
     public producedBlocks: number;
     public missedBlocks: number;
-    public forgedFees: any;
-    public forgedRewards: any;
+    public forgedFees: Bignum;
+    public forgedRewards: Bignum;
 
-    /**
-     * @constructor
-     * @param  {String} address
-     */
-    constructor(address) {
+    constructor(address: string) {
         this.address = address;
         this.publicKey = null;
         this.secondPublicKey = null;
@@ -65,70 +63,43 @@ export class Wallet {
 
     /**
      * Check if can apply a transaction to the wallet.
-     * @param  {Transaction} transaction
-     * @param {Array} errors
-     * @return {Boolean}
      */
-    public canApply(transaction, errors) {
+    public canApply(transaction: ITransactionData, errors: any[]): boolean {
         return transactionHandler.canApply(this, transaction, errors);
     }
 
     /**
-     * Apply the specified transaction to this wallet.
-     * @param  {Transaction} transaction
-     * @return {Boolean}
-     */
-    public apply(transaction) {
-        return transactionHandler.apply(this, transaction);
-    }
-
-    /**
-     * Revert the specified transaction from this wallet.
-     * @param  {Transaction} transaction
-     * @return {Boolean}
-     */
-    public revert(transaction) {
-        return transactionHandler.revert(this, transaction);
-    }
-
-    /**
      * Associate this wallet as the sender of a transaction.
-     * @param {Transaction} transaction
      */
-    public applyTransactionToSender(transaction) {
+    public applyTransactionToSender(transaction: ITransactionData): void {
         return transactionHandler.applyTransactionToSender(this, transaction);
     }
 
     /**
      * Remove this wallet as the sender of a transaction.
-     * @param {Transaction} transaction
      */
-    public revertTransactionForSender(transaction) {
+    public revertTransactionForSender(transaction: ITransactionData): void {
         return transactionHandler.revertTransactionForSender(this, transaction);
     }
 
     /**
      * Add transaction balance to this wallet.
-     * @param {Transaction} transaction
      */
-    public applyTransactionToRecipient(transaction) {
+    public applyTransactionToRecipient(transaction: ITransactionData): void {
         return transactionHandler.applyTransactionToRecipient(this, transaction);
     }
 
     /**
      * Remove transaction balance from this wallet.
-     * @param {Transaction} transaction
      */
-    public revertTransactionForRecipient(transaction) {
+    public revertTransactionForRecipient(transaction: ITransactionData): void {
         return transactionHandler.revertTransactionForRecipient(this, transaction);
     }
 
     /**
      * Add block data to this wallet.
-     * @param {Block} block
-     * @returns {Boolean}
      */
-    public applyBlock(block) {
+    public applyBlock(block: IBlockData): boolean {
         this.dirty = true;
 
         if (
@@ -150,9 +121,8 @@ export class Wallet {
 
     /**
      * Remove block data from this wallet.
-     * @param {Block} block
      */
-    public revertBlock(block) {
+    public revertBlock(block: IBlockData): boolean {
         this.dirty = true;
 
         if (
@@ -176,24 +146,9 @@ export class Wallet {
     }
 
     /**
-     * Verify the wallet.
-     * @param  {Transaction} transaction
-     * @param  {String}      signature
-     * @param  {String}      publicKey
-     * @return {Boolean}
-     */
-    public verify(transaction, signature, publicKey) {
-        const hash = crypto.getHash(transaction, true, true);
-        return crypto.verifyHash(hash, signature, publicKey);
-    }
-
-    /**
      * Verify multi-signatures for the wallet.
-     * @param  {Transaction}    transaction
-     * @param  {MultiSignature} multisignature
-     * @return {Boolean}
      */
-    public verifySignatures(transaction, multisignature) {
+    public verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean {
         if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
             return false;
         }
@@ -205,7 +160,7 @@ export class Wallet {
 
         let valid = 0;
         for (const publicKey of keysgroup) {
-            const signature = this.__verifyTransactionSignatures(transaction, signatures, publicKey);
+            const signature = this.verifyTransactionSignatures(transaction, signatures, publicKey);
             if (signature) {
                 signatures.splice(signatures.indexOf(signature), 1);
                 valid++;
@@ -220,10 +175,8 @@ export class Wallet {
 
     /**
      * Audit the specified transaction.
-     * @param  {Transaction} transaction
-     * @return {[type]}
      */
-    public auditApply(transaction) {
+    public auditApply(transaction: ITransactionData): any[] {
         const audit = [];
 
         if (this.multisignature) {
@@ -309,26 +262,29 @@ export class Wallet {
 
     /**
      * Get formatted wallet address and balance as string.
-     * @return {String}
      */
-    public toString() {
+    public toString(): string {
         return `${this.address} (${formatArktoshi(this.balance)})`;
     }
 
     /**
      * Goes through signatures to check if public key matches. Can also remove valid signatures.
-     * @param  {Transaction} transaction
-     * @param  {String[]} signatures
-     * @param  {String} publicKey
-     * @return {Boolean}
      */
-    public __verifyTransactionSignatures(transaction, signatures, publicKey) {
+    private verifyTransactionSignatures(transaction: ITransactionData, signatures: string[], publicKey: string): string | null {
         for (const signature of signatures) {
             if (this.verify(transaction, signature, publicKey)) {
                 return signature;
             }
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * Verify the wallet.
+     */
+    private verify(transaction: ITransactionData, signature: string, publicKey: string): boolean {
+        const hash = crypto.getHash(transaction, true, true);
+        return crypto.verifyHash(hash, signature, publicKey);
     }
 }

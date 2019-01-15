@@ -2,12 +2,13 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import crypto from "crypto";
 import secp256k1 from "secp256k1";
-import wif from "wif";
 
+import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { configManager } from "../managers";
 import { feeManager } from "../managers";
+import { ITransactionData } from "../models";
+import { INetwork } from "../networks";
 import { Bignum } from "../utils";
 import { HashAlgorithms } from "./hash-algorithms";
 
@@ -16,21 +17,15 @@ const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 class Crypto {
     /**
      * Get transaction fee.
-     * @param  {Transaction} transaction
-     * @return {Number}
      */
-    public getFee(transaction) {
+    public getFee(transaction: ITransactionData): number {
         return feeManager.get(transaction.type);
     }
 
     /**
      * Get the byte representation of the transaction.
-     * @param  {Transaction} transaction
-     * @param  {Boolean} skipSignature
-     * @param  {Boolean} skipSecondSignature
-     * @return {String}
      */
-    public getBytes(transaction, skipSignature = false, skipSecondSignature = false) {
+    public getBytes(transaction: ITransactionData, skipSignature: boolean = false, skipSecondSignature: boolean = false): Buffer {
         if (transaction.version && transaction.version !== 1) {
             throw new Error("not supported yet");
         }
@@ -176,50 +171,31 @@ class Crypto {
 
     /**
      * Get transaction id.
-     * @param  {Transaction} transaction
-     * @return {String}
      */
-    public getId(transaction) {
+    public getId(transaction: ITransactionData): string {
         if (transaction.version && transaction.version !== 1) {
             throw new Error("not supported yet");
         }
 
-        const bytes = this.getBytes(transaction);
-        return crypto
-            .createHash("sha256")
-            .update(bytes)
-            .digest()
-            .toString("hex");
-
-        // TODO: Enable AIP11 id here
+        return this.getHash(transaction).toString("hex");
     }
 
     /**
      * Get transaction hash.
-     * @param  {Transaction} transaction
-     * @return {Buffer}
      */
-    public getHash(transaction, skipSignature = false, skipSecondSignature = false) {
+    public getHash(transaction: ITransactionData, skipSignature: boolean = false, skipSecondSignature: boolean = false): Buffer {
         if (transaction.version && transaction.version !== 1) {
             throw new Error("not supported yet");
         }
 
         const bytes = this.getBytes(transaction, skipSignature, skipSecondSignature);
-        return crypto
-            .createHash("sha256")
-            .update(bytes)
-            .digest();
-
-        // TODO: Enable AIP11 id here
+        return HashAlgorithms.sha256(bytes);
     }
 
     /**
      * Sign transaction.
-     * @param  {Transaction} transaction
-     * @param  {Object}      keys
-     * @return {Object}
      */
-    public sign(transaction, keys) {
+    public sign(transaction: ITransactionData, keys: KeyPair): string {
         let hash;
         if (!transaction.version || transaction.version === 1) {
             hash = this.getHash(transaction, true, true);
@@ -238,11 +214,8 @@ class Crypto {
 
     /**
      * Sign transaction with second signature.
-     * @param  {Transaction} transaction
-     * @param  {Object}      keys
-     * @return {Object}
      */
-    public secondSign(transaction, keys) {
+    public secondSign(transaction: ITransactionData, keys: KeyPair): string {
         const hash = this.getHash(transaction, false, true);
         const signature = this.signHash(hash, keys);
 
@@ -255,21 +228,16 @@ class Crypto {
 
     /**
      * Sign a hash
-     * @param  {Buffer} hash
-     * @param  {Object} keys
-     * @return {String}
      */
-    public signHash(hash, keys) {
+    public signHash(hash: Buffer, keys: KeyPair): string {
         const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, "hex"));
         return secp256k1.signatureExport(signature).toString("hex");
     }
 
     /**
      * Verify transaction on the network.
-     * @param  {Transaction}        transaction
-     * @return {Boolean}
      */
-    public verify(transaction) {
+    public verify(transaction: ITransactionData): boolean {
         if (transaction.version && transaction.version !== 1) {
             // TODO: enable AIP11 when ready here
             return false;
@@ -285,11 +253,8 @@ class Crypto {
 
     /**
      * Verify second signature for transaction.
-     * @param  {Transaction}        transaction
-     * @param  {String}             publicKey
-     * @return {Boolean}
      */
-    public verifySecondSignature(transaction, publicKey) {
+    public verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
         let hash;
         let secondSignature;
         if (transaction.version && transaction.version !== 1) {
@@ -309,12 +274,8 @@ class Crypto {
 
     /**
      * Verify the hash.
-     * @param  {Buffer} hash
-     * @param  {(Buffer|String)} signature
-     * @param  {(Buffer|String)} publicKey
-     * @return {Boolean}
      */
-    public verifyHash(hash, signature, publicKey) {
+    public verifyHash(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
         signature = signature instanceof Buffer ? signature : Buffer.from(signature, "hex");
         publicKey = publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, "hex");
         return secp256k1.verify(hash, secp256k1.signatureImport(signature), publicKey);
@@ -322,141 +283,53 @@ class Crypto {
 
     /**
      * Get keys from secret.
-     * @param  {String} secret
-     * @param  {boolean} compressed
-     * @return {Object}
      */
-    public getKeys(secret, compressed = true) {
-        const privateKey = HashAlgorithms.sha256(Buffer.from(secret, "utf8"));
-        return this.getKeysByPrivateKey(privateKey, compressed);
+    public getKeys(secret: string, compressed: boolean = true): KeyPair {
+        return Keys.fromPassphrase(secret, compressed);
     }
 
     /**
      * Get keys from a private key.
-     * @param  {String|Buffer} privateKey
-     * @param  {boolean} compressed
-     * @return {Object}
      */
-    public getKeysByPrivateKey(privateKey, compressed = true) {
+    public getKeysByPrivateKey(privateKey: Buffer | string, compressed: boolean = true): KeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
-
-        const publicKey = secp256k1.publicKeyCreate(privateKey, compressed);
-        const keyPair = {
-            publicKey: publicKey.toString("hex"),
-            privateKey: privateKey.toString("hex"),
-            compressed,
-        };
-
-        return keyPair;
+        return Keys.fromPrivateKey(privateKey, compressed);
     }
 
     /**
      * Get keys from WIF key.
-     * @param  {String} wifKey
-     * @param  {Object} network
-     * @return {Object}
      */
-    public getKeysFromWIF(wifKey, network?: any) {
-        if (!network) {
-            network = configManager.all();
-        }
-
-        // @ts-ignore
-        const decoded = wif.decode(wifKey);
-        const version = decoded.version;
-
-        if (version !== network.wif) {
-            throw new Error("Invalid network version");
-        }
-
-        const privateKey = decoded.privateKey;
-        const publicKey = secp256k1.publicKeyCreate(privateKey, decoded.compressed);
-
-        const keyPair = {
-            publicKey: publicKey.toString("hex"),
-            privateKey: privateKey.toString("hex"),
-            compressed: decoded.compressed,
-        };
-
-        return keyPair;
+    public getKeysFromWIF(wifKey: string, network?: { wif: number }): KeyPair {
+        return Keys.fromWIF(wifKey, network);
     }
 
     /**
      * Get WIF key from keys
-     * @param {Object} keys
-     * @param {(Object|undefined)} network
-     * @returns {String}
      */
-    public keysToWIF(keys, network?: any) {
-        if (!network) {
-            network = configManager.all();
-        }
-
-        return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);
+    public keysToWIF(keys: KeyPair, network?: { wif: number }): string {
+        return WIF.fromKeys(keys, network);
     }
 
     /**
      * Get address from public key.
-     * @param  {String}             publicKey
-     * @param  {(Number|undefined)} networkVersion
-     * @return {String}
      */
-    public getAddress(publicKey, networkVersion?) {
-        const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
-        if (!pubKeyRegex.test(publicKey)) {
-            throw new Error(`publicKey '${publicKey}' is invalid`);
-        }
-
-        if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
-        }
-
-        const buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
-        const payload = Buffer.alloc(21);
-
-        payload.writeUInt8(networkVersion, 0);
-        buffer.copy(payload, 1);
-
-        return bs58check.encode(payload);
+    public getAddress(publicKey: string, networkVersion?: number): string {
+        return Address.fromPublicKey(publicKey, networkVersion);
     }
 
     /**
      * Validate address.
-     * @param  {String}             address
-     * @param  {(Number|undefined)} networkVersion
-     * @return {Boolean}
      */
-    public validateAddress(address, networkVersion?: any) {
-        if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
-        }
-
-        try {
-            const decode = bs58check.decode(address);
-            return decode[0] === networkVersion;
-        } catch (e) {
-            return false;
-        }
+    public validateAddress(address: string, networkVersion?: number): boolean {
+        return Address.validate(address, networkVersion);
     }
 
     /**
      * Validate public key.
-     * @param  {String}             address
-     * @param  {(Number|undefined)} networkVersion
-     * @return {Boolean}
      */
-    public validatePublicKey(address, networkVersion?: any) {
-        if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
-        }
-
-        try {
-            return this.getAddress(address, networkVersion).length === 34;
-        } catch (e) {
-            return false;
-        }
+    public validatePublicKey(address: string, networkVersion?: number): boolean {
+        return PublicKey.validate(address, networkVersion);
     }
 }
 
-const arkCrypto = new Crypto();
-export { arkCrypto as crypto };
+export const crypto = new Crypto();

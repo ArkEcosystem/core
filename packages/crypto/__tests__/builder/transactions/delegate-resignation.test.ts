@@ -1,8 +1,8 @@
 import "jest-extended";
-import { DelegateResignationBuilder } from "../../../dist/builder";
-import { client as ark } from "../../../dist/client";
-import { TransactionTypes } from "../../../dist/constants";
-import { feeManager } from "../../../dist/managers/fee";
+import { DelegateResignationBuilder } from "../../../src/builder/transactions/delegate-resignation";
+import { client as ark } from "../../../src/client";
+import { TransactionTypes } from "../../../src/constants";
+import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder : DelegateResignationBuilder;

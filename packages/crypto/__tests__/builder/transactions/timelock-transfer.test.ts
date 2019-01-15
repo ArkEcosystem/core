@@ -1,8 +1,8 @@
 import "jest-extended";
-import { TimelockTransferBuilder } from "../../../dist/builder";
-import { client as ark } from "../../../dist/client";
-import { TransactionTypes } from "../../../dist/constants";
-import { feeManager } from "../../../dist/managers/fee";
+import { TimelockTransferBuilder } from "../../../src/builder/transactions/timelock-transfer";
+import { client as ark } from "../../../src/client";
+import { TransactionTypes } from "../../../src/constants";
+import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder : TimelockTransferBuilder;
@@ -26,9 +26,9 @@ describe("Timelock Transfer Transaction", () => {
 
     describe("timelock", () => {
         it("establishes the time-lock & time-lock type", () => {
-            builder.timelock("time lock", "time lock type");
-            expect(builder.data.timelock).toBe("time lock");
-            expect(builder.data.timelockType).toBe("time lock type");
+            builder.timelock(2000, 0);
+            expect(builder.data.timelock).toBe(2000);
+            expect(builder.data.timelockType).toBe(0);
         });
     });
 

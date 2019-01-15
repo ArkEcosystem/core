@@ -1,11 +1,10 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
+import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class MultiSignatureBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
+
     constructor() {
         super();
 
@@ -14,33 +13,31 @@ export class MultiSignatureBuilder extends TransactionBuilder {
         this.data.amount = 0;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
-        this.data.asset = { multisignature: {} };
+        this.data.asset = { multisignature: {} } as ITransactionAsset;
 
         this.signWithSenderAsRecipient = true;
     }
 
     /**
      * Establish the multi-signature on the asset and updates the fee.
-     * @param  {Object} multiSignature { keysgroup, lifetime, min }
-     * @return {MultiSignatureBuilder}
      */
-    public multiSignatureAsset(multiSignature) {
+    public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
         this.data.asset.multisignature = multiSignature;
         this.data.fee = (multiSignature.keysgroup.length + 1) * feeManager.get(TransactionTypes.MultiSignature);
 
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this.
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;
 
         return struct;
+    }
+
+    protected instance(): MultiSignatureBuilder {
+        return this;
     }
 }

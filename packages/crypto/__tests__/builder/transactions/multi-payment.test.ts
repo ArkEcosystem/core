@@ -1,8 +1,8 @@
 import "jest-extended";
-import { MultiPaymentBuilder } from "../../../dist/builder";
-import { client as ark } from "../../../dist/client";
-import { TransactionTypes } from "../../../dist/constants";
-import { feeManager } from "../../../dist/managers/fee";
+import { MultiPaymentBuilder } from "../../../src/builder/transactions/multi-payment";
+import { client as ark } from "../../../src/client";
+import { TransactionTypes } from "../../../src/constants";
+import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiPaymentBuilder;
@@ -31,17 +31,17 @@ describe("Multi Payment Transaction", () => {
 
     describe("addPayment", () => {
         it("should add new payments", () => {
-            builder.addPayment("address", "amount");
-            builder.addPayment("address", "amount");
-            builder.addPayment("address", "amount");
+            builder.addPayment("address", 1);
+            builder.addPayment("address", 2);
+            builder.addPayment("address", 3);
 
             expect(builder.data.payments).toEqual({
                 address1: "address",
                 address2: "address",
                 address3: "address",
-                amount1: "amount",
-                amount2: "amount",
-                amount3: "amount",
+                amount1: 1,
+                amount2: 2,
+                amount3: 3,
             });
         });
     });

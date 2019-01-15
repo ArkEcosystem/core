@@ -1,9 +1,9 @@
+import { ITransactionData } from "../models";
+
 /**
  * Sort transactions by type, then id.
- * @param  {Transaction[]} transactions
- * @return {Transaction[]}
  */
-export const sortTransactions = transactions =>
+export const sortTransactions = (transactions: ITransactionData[]): ITransactionData[] =>
     transactions.sort((a, b) => {
         if (a.type < b.type) {
             return -1;

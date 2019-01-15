@@ -3,14 +3,21 @@ import wif from "wif";
 
 import { HashAlgorithms } from "../crypto";
 import { configManager } from "../managers";
+import { INetwork } from "../networks";
+
+export interface KeyPair {
+    publicKey: string,
+    privateKey: string,
+    compressed: boolean
+}
 
 export class Keys {
-    public static fromPassphrase(passphrase, compressed = true) {
+    public static fromPassphrase(passphrase: string, compressed: boolean = true): KeyPair {
         const privateKey = HashAlgorithms.sha256(Buffer.from(passphrase, "utf8"));
         return Keys.fromPrivateKey(privateKey, compressed);
     }
 
-    public static fromPrivateKey(privateKey, compressed = true) {
+    public static fromPrivateKey(privateKey: Buffer | string, compressed: boolean = true): KeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
 
         const publicKey = secp256k1.publicKeyCreate(privateKey, compressed);
@@ -23,7 +30,7 @@ export class Keys {
         return keyPair;
     }
 
-    public static fromWIF(wifKey, network?: any) {
+    public static fromWIF(wifKey: string, network?: { wif: number }): KeyPair {
         if (!network) {
             network = configManager.all();
         }

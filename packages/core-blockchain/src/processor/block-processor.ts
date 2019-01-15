@@ -2,6 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { isException, models } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
 import { isBlockChained } from "../utils/is-block-chained";
 import { validateGenerator } from "../utils/validate-generator";
@@ -15,8 +16,6 @@ import {
     VerificationFailedHandler,
 } from "./handlers";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
 export enum BlockProcessorResult {
     Accepted,
     DiscardedButCanBeBroadcasted,
@@ -24,14 +23,18 @@ export enum BlockProcessorResult {
 }
 
 export class BlockProcessor {
-    public constructor(private blockchain: Blockchain) {}
+    private logger: Logger.ILogger;
 
-    public async process(block: any): Promise<BlockProcessorResult> {
+    public constructor(private blockchain: Blockchain) {
+        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
+    }
+
+    public async process(block: models.Block): Promise<BlockProcessorResult> {
         const handler = await this.getHandler(block);
         return handler.execute();
     }
 
-    private async getHandler(block): Promise<BlockHandler> {
+    public async getHandler(block: models.Block): Promise<BlockHandler> {
         if (!this.verifyBlock(block)) {
             return new VerificationFailedHandler(this.blockchain, block);
         }
@@ -57,22 +60,22 @@ export class BlockProcessor {
     /**
      * Checks if the given block is verified or an exception.
      */
-    private verifyBlock(block: any): boolean {
+    private verifyBlock(block: models.Block): boolean {
         const verified = block.verification.verified;
         if (!verified) {
-            if (this.blockchain.database.__isException(block.data)) {
-                logger.warn(
+            if (isException(block.data)) {
+                this.logger.warn(
                     `Block ${block.data.height.toLocaleString()} (${
                         block.data.id
                     }) verification failed, but accepting because it is an exception.`,
                 );
             } else {
-                logger.warn(
+                this.logger.warn(
                     `Block ${block.data.height.toLocaleString()} (${
                         block.data.id
                     }) disregarded because verification failed :scroll:`,
                 );
-                logger.warn(JSON.stringify(block.verification, null, 4));
+                this.logger.warn(JSON.stringify(block.verification, null, 4));
                 return false;
             }
         }
@@ -83,16 +86,16 @@ export class BlockProcessor {
     /**
      * Checks if the given block contains an already forged transaction.
      */
-    private async checkBlockContainsForgedTransactions(block): Promise<boolean> {
+    private async checkBlockContainsForgedTransactions(block: models.Block): Promise<boolean> {
         if (block.transactions.length > 0) {
             const forgedIds = await this.blockchain.database.getForgedTransactionsIds(
                 block.transactions.map(tx => tx.id),
             );
             if (forgedIds.length > 0) {
-                logger.warn(
+                this.logger.warn(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions :scroll:`,
                 );
-                logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
+                this.logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
                 return true;
             }
         }

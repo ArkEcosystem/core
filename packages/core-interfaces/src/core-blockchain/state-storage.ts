@@ -31,52 +31,46 @@ export interface IStateStorage {
     getLastBlocks(): models.Block[];
 
     /**
-     * Get the last blocks data.
-     * @returns {Seq}
-     */
-    getLastBlocksData(): any;
-
-    /**
      * Get the last block ids.
      * @returns {Array}
      */
-    getLastBlockIds(): number[];
+    getLastBlockIds(): string[];
 
     /**
      * Get last blocks in the given height range in ascending order.
      * @param {Number} start
      * @param {Number} end
      */
-    getLastBlocksByHeight(start: number, end?: number): models.Block[];
+    getLastBlocksByHeight(start: number, end?: number): models.IBlockData[];
 
     /**
      * Get common blocks for the given IDs.
      * @returns {Array}
      */
-    getCommonBlocks(ids: string[]): any;
+    getCommonBlocks(ids: string[]): models.IBlockData[];
 
     /**
      * Cache the ids of the given transactions.
      */
-    cacheTransactions(transactions: models.Transaction[]): { [key in "added" | "notAdded"]: models.Transaction[] };
+    cacheTransactions(transactions: models.ITransactionData[]): { [key in "added" | "notAdded"]: models.ITransactionData[] };
 
     /**
      * Remove the given transaction ids from the cache.
      */
-    removeCachedTransactionIds(transactionIds: number[]): void;
+    removeCachedTransactionIds(transactionIds: string[]): void;
 
     /**
      * Get cached transaction ids.
      */
-    getCachedTransactionIds(): number[];
+    getCachedTransactionIds(): string[];
 
     /**
      * Ping a block.
      */
-    pingBlock(incomingBlock: models.Block): boolean;
+    pingBlock(incomingBlock: models.IBlockData): boolean;
 
     /**
      * Push ping block
      */
-    pushPingBlock(block: models.Block): void;
+    pushPingBlock(block: models.IBlockData): void;
 }

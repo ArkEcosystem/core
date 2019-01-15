@@ -1,56 +1,32 @@
 import { TransactionTypes } from "../constants";
+import { ITransactionData } from "../models";
 
 export class FeeManager {
-    public fees: {};
-    /**
-     * @constructor
-     */
-    constructor() {
-        this.fees = {};
-    }
+    public fees: { [key in TransactionTypes]?: number } = {};
 
     /**
      * Set fee value based on type.
-     * @param {Number} type
-     * @param {Number} value
      */
-    public set(type, value) {
-        if (!this.__validType(type)) {
-            throw new Error("Invalid transaction type.");
-        }
-
+    public set(type: TransactionTypes, value: number) {
         this.fees[type] = value;
     }
 
     /**
      * Get fee value based on type.
-     * @param  {Number} type
-     * @return {Number}
      */
-    public get(type) {
+    public get(type: TransactionTypes): number {
         return this.fees[type];
     }
 
     /**
      * Get fee value based on type.
-     * @param  {Transaction} transaction
-     * @return {Number}
      */
-    public getForTransaction(transaction) {
+    public getForTransaction(transaction: ITransactionData): number {
         if (transaction.type === TransactionTypes.MultiSignature) {
             return this.fees[transaction.type] * (transaction.asset.multisignature.keysgroup.length + 1);
         }
 
         return this.fees[transaction.type];
-    }
-
-    /**
-     * Ensure fee type is valid.
-     * @param  {Number} type
-     * @return {Boolean}
-     */
-    public __validType(type) {
-        return Object.values(TransactionTypes).indexOf(type) > -1;
     }
 }
 

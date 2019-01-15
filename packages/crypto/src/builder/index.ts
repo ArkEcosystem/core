@@ -10,88 +10,67 @@ import { VoteBuilder } from "./transactions/vote";
 
 export class TransactionBuilderFactory {
     /**
-     * Create new delegate transaction type.
-     * @return {DelegateRegistrationBuilder}
-     */
-    public delegateRegistration() {
-        return new DelegateRegistrationBuilder();
-    }
-
-    /**
-     * Create new delegate resignation transaction type.
-     * @return {DelegateResignationBuilder}
-     */
-    public delegateResignation() {
-        return new DelegateResignationBuilder();
-    }
-
-    /**
-     * Create new IPFS transaction type.
-     * @return {IPFSBuilder}
-     */
-    public ipfs() {
-        return new IPFSBuilder();
-    }
-
-    /**
-     * Create new multi-payment transaction type.
-     * @return {MultiPaymentBuilder}
-     */
-    public multiPayment() {
-        return new MultiPaymentBuilder();
-    }
-
-    /**
-     * Create new multi-signature transaction type.
-     * @return {MultiSignatureBuilder}
-     */
-    public multiSignature() {
-        return new MultiSignatureBuilder();
-    }
-
-    /**
-     * Create new second signature transaction type.
-     * @return {SecondSignatureBuilder}
-     */
-    public secondSignature() {
-        return new SecondSignatureBuilder();
-    }
-
-    /**
-     * Create new timelock transfer transaction type.
-     * @return {TimelockTransferBuilder}
-     */
-    public timelockTransfer() {
-        return new TimelockTransferBuilder();
-    }
-
-    /**
      * Create new transfer transaction type.
-     * @return {TransferBuilder}
      */
-    public transfer() {
+    public transfer(): TransferBuilder {
         return new TransferBuilder();
     }
 
     /**
-     * Create new vote transaction type.
-     * @return {VoteBuilder}
+     * Create new second signature transaction type.
      */
-    public vote() {
+    public secondSignature(): SecondSignatureBuilder {
+        return new SecondSignatureBuilder();
+    }
+
+    /**
+     * Create new delegate transaction type.
+     */
+    public delegateRegistration(): DelegateRegistrationBuilder {
+        return new DelegateRegistrationBuilder();
+    }
+
+    /**
+     * Create new vote transaction type.
+     */
+    public vote(): VoteBuilder {
         return new VoteBuilder();
+    }
+
+    /**
+     * Create new multi-signature transaction type.
+     */
+    public multiSignature(): MultiSignatureBuilder {
+        return new MultiSignatureBuilder();
+    }
+
+    /**
+     * Create new IPFS transaction type.
+     */
+    public ipfs(): IPFSBuilder {
+        return new IPFSBuilder();
+    }
+
+    /**
+     * Create new timelock transfer transaction type.
+     */
+    public timelockTransfer(): TimelockTransferBuilder {
+        return new TimelockTransferBuilder();
+    }
+
+    /**
+     * Create new multi-payment transaction type.
+     */
+    public multiPayment(): MultiPaymentBuilder {
+        return new MultiPaymentBuilder();
+    }
+
+    /**
+     * Create new delegate resignation transaction type.
+     */
+    public delegateResignation(): DelegateResignationBuilder {
+        return new DelegateResignationBuilder();
     }
 }
 
-const transactionBuilder = new TransactionBuilderFactory();
-export {
-    transactionBuilder,
-    DelegateRegistrationBuilder,
-    DelegateResignationBuilder,
-    IPFSBuilder,
-    MultiPaymentBuilder,
-    MultiSignatureBuilder,
-    SecondSignatureBuilder,
-    TimelockTransferBuilder,
-    TransferBuilder,
-    VoteBuilder,
-};
+export const transactionBuilder = new TransactionBuilderFactory();

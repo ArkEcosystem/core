@@ -1,11 +1,10 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
+import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class MultiPaymentBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
+
     constructor() {
         super();
 
@@ -17,11 +16,8 @@ export class MultiPaymentBuilder extends TransactionBuilder {
 
     /**
      * Add payment to the multipayment collection.
-     * @param {String} address
-     * @param {Number} amount
-     * @return {MultiPaymentBuilder}
      */
-    public addPayment(address, amount) {
+    public addPayment(address: string, amount: number): MultiPaymentBuilder {
         const paymentsCount = Object.keys(this.data.payments).length / 2;
 
         if (paymentsCount >= 2258) {
@@ -35,15 +31,15 @@ export class MultiPaymentBuilder extends TransactionBuilder {
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this.
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.senderPublicKey = this.data.senderPublicKey;
         struct.vendorFieldHex = this.data.vendorFieldHex;
 
         return Object.assign(struct, this.data.payments);
+    }
+
+    protected instance(): MultiPaymentBuilder {
+        return this;
     }
 }

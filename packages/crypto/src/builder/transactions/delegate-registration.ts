@@ -1,12 +1,11 @@
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { feeManager } from "../../managers";
+import { ITransactionAsset, ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class DelegateRegistrationBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegistrationBuilder> {
+
     constructor() {
         super();
 
@@ -15,40 +14,35 @@ export class DelegateRegistrationBuilder extends TransactionBuilder {
         this.data.amount = 0;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
-        this.data.asset = { delegate: {} };
+        this.data.asset = { delegate: {} } as ITransactionAsset;
     }
 
     /**
      * Establish the delegate username on the asset.
-     * @param  {String} username
-     * @return {DelegateRegistrationBuilder}
      */
-    public usernameAsset(username) {
+    public usernameAsset(username: string): DelegateRegistrationBuilder {
         this.data.asset.delegate.username = username;
         return this;
     }
 
     /**
      * Overrides the inherited `sign` method to include the public key of the new delegate.
-     * @param  {String}   passphrase
-     * @return {DelegateRegistrationBuilder}
-     * TODO rename to `assetDelegate` and merge with username ?
      */
-    public sign(passphrase) {
+    public sign(passphrase: string): DelegateRegistrationBuilder {
         this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey;
         super.sign(passphrase);
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this type of transaction.
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;
         return struct;
+    }
+
+    protected instance(): DelegateRegistrationBuilder {
+        return this;
     }
 }

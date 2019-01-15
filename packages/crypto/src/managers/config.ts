@@ -7,11 +7,18 @@ import { feeManager } from "./fee";
 import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
 
+interface IMilestone {
+    index: number
+    data: { [ key: string]: any }
+};
+
+export type NetworkName = keyof typeof networks;
+
 export class ConfigManager {
     public config: any;
-    public height: any;
-    public milestone: any;
+    public milestone: IMilestone;
     public milestones: any;
+    private height: number;
 
     /**
      * @constructor
@@ -24,7 +31,7 @@ export class ConfigManager {
      * Set config data.
      * @param {Object} config
      */
-    public setConfig(config) {
+    public setConfig(config: any) {
         this.config = {};
 
         // Map the config.network values to the root
@@ -41,24 +48,20 @@ export class ConfigManager {
 
     /**
      * Set the configuration based on a preset.
-     * @param {String} network
      */
-    public setFromPreset(network: string) {
+    public setFromPreset(network: NetworkName) {
         this.setConfig(this.getPreset(network));
     }
 
     /**
      * Get the configuration for a preset.
-     * @param {String} network
-     * @return {Object}
      */
-    public getPreset(network: string) {
+    public getPreset(network: NetworkName) {
         return networks[network.toLowerCase()];
     }
 
     /**
      * Get all config data.
-     * @return {Object}
      */
     public all() {
         return this.config;
@@ -66,44 +69,36 @@ export class ConfigManager {
 
     /**
      * Set individual config value.
-     * @param {String} key
-     * @param {*}      value
      */
-    public set(key, value) {
+    public set(key: string, value: any) {
         set(this.config, key, value);
     }
 
     /**
      * Get specific config value.
-     * @param  {String} key
-     * @return {*}
      */
-    public get(key) {
-        return get(this.config, key);
+    public get<T = any>(key): T {
+        return get(this.config, key) as T;
     }
 
     /**
      * Set config manager height.
-     * @param {Number} value
      */
-    public setHeight(value) {
+    public setHeight(value: number): void {
         this.height = value;
     }
 
     /**
      * Get config manager height.
-     * @return {Number}
      */
-    public getHeight() {
+    public getHeight(): number {
         return this.height;
     }
 
     /**
      * Get all config constants based on height.
-     * @param  {(Number|undefined)} height
-     * @return {*}
      */
-    public getMilestone(height?) {
+    public getMilestone(height?: number): { [key: string]: any } {
         if (!height && this.height) {
             height = this.height;
         }
@@ -131,7 +126,7 @@ export class ConfigManager {
     /**
      * Build constant data based on active heights.
      */
-    private buildConstants() {
+    private buildConstants(): void {
         this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
         this.milestone = {
             index: 0,
@@ -149,7 +144,7 @@ export class ConfigManager {
     /**
      * Build fees from config constants.
      */
-    private buildFees() {
+    private buildFees(): void {
         for (const type of Object.keys(TransactionTypes)) {
             feeManager.set(TransactionTypes[type], this.getMilestone().fees.staticFees[camelCase(type)]);
         }

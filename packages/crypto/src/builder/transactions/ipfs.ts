@@ -1,11 +1,10 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
+import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
-export class IPFSBuilder extends TransactionBuilder {
-    /**
-     * @constructor
-     */
+export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
+
     constructor() {
         super();
 
@@ -19,20 +18,17 @@ export class IPFSBuilder extends TransactionBuilder {
 
     /**
      * Set the IPFS hash.
-     * @param  {String} ipfsHash
-     * @return {IPFSBuilder}
      */
-    public ipfsHash(ipfsHash) {
+    public ipfsHash(ipfsHash: string): IPFSBuilder {
         this.data.ipfsHash = ipfsHash;
         return this;
     }
 
     /**
      * Set vendor field from hash.
-     * @param  {String} type TODO is it necessary?
-     * @return {IPFSBuilder}
+     * TODO: revise
      */
-    public vendorField(type) {
+    public vendorField(type: string): IPFSBuilder {
         this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString("hex");
 
         while (this.data.vendorFieldHex.length < 128) {
@@ -47,15 +43,15 @@ export class IPFSBuilder extends TransactionBuilder {
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this.
-     * @return {Object}
-     */
-    public getStruct() {
+    public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
         struct.vendorFieldHex = this.data.vendorFieldHex;
         struct.asset = this.data.asset;
         return struct;
+    }
+
+    protected instance(): IPFSBuilder {
+        return this;
     }
 }

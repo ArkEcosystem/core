@@ -1,47 +1,55 @@
 import "jest-extended";
 
-import { DelegateRegistrationBuilder, DelegateResignationBuilder, IPFSBuilder, MultiPaymentBuilder,
-    MultiSignatureBuilder, SecondSignatureBuilder, TimelockTransferBuilder, transactionBuilder as transactionBuilderFactory,
-    TransactionBuilderFactory, TransferBuilder, VoteBuilder } from "../../dist/builder";
+import { DelegateRegistrationBuilder } from "../../src/builder/transactions/delegate-registration";
+import { DelegateResignationBuilder } from "../../src/builder/transactions/delegate-resignation";
+import { IPFSBuilder } from "../../src/builder/transactions/ipfs";
+import { MultiPaymentBuilder } from "../../src/builder/transactions/multi-payment"
+import { MultiSignatureBuilder } from "../../src/builder/transactions/multi-signature";
+import { SecondSignatureBuilder } from "../../src/builder/transactions/second-signature";
+import { TimelockTransferBuilder } from "../../src/builder/transactions/timelock-transfer"
+import { TransferBuilder } from "../../src/builder/transactions/transfer";
+import { VoteBuilder } from "../../src/builder/transactions/vote"
+
+import { transactionBuilder, TransactionBuilderFactory } from "../../src/builder";
 
 describe("Transaction Builder Factory", () => {
     it("should be instantiated", () => {
-        expect(transactionBuilderFactory).toBeInstanceOf(TransactionBuilderFactory);
+        expect(transactionBuilder).toBeInstanceOf(TransactionBuilderFactory);
     });
 
     it('should create DelegateRegistrationBuilder', () => {
-        expect(transactionBuilderFactory.delegateRegistration()).toBeInstanceOf(DelegateRegistrationBuilder);
+        expect(transactionBuilder.delegateRegistration()).toBeInstanceOf(DelegateRegistrationBuilder);
     });
 
     it('should create DelegateResignationBuilder', () => {
-        expect(transactionBuilderFactory.delegateResignation()).toBeInstanceOf(DelegateResignationBuilder);
+        expect(transactionBuilder.delegateResignation()).toBeInstanceOf(DelegateResignationBuilder);
     });
 
     it('should create IPFSBuilder', () => {
-        expect(transactionBuilderFactory.ipfs()).toBeInstanceOf(IPFSBuilder);
+        expect(transactionBuilder.ipfs()).toBeInstanceOf(IPFSBuilder);
     });
 
     it('should create MultiPaymentBuilder', () => {
-        expect(transactionBuilderFactory.multiPayment()).toBeInstanceOf(MultiPaymentBuilder);
+        expect(transactionBuilder.multiPayment()).toBeInstanceOf(MultiPaymentBuilder);
     });
 
     it('should create MultiSignatureBuilder', () => {
-        expect(transactionBuilderFactory.multiSignature()).toBeInstanceOf(MultiSignatureBuilder);
+        expect(transactionBuilder.multiSignature()).toBeInstanceOf(MultiSignatureBuilder);
     });
 
     it('should create SecondSignatureBuilder', () => {
-        expect(transactionBuilderFactory.secondSignature()).toBeInstanceOf(SecondSignatureBuilder);
+        expect(transactionBuilder.secondSignature()).toBeInstanceOf(SecondSignatureBuilder);
     });
 
     it('should create TimelockTransferBuilder', () => {
-        expect(transactionBuilderFactory.timelockTransfer()).toBeInstanceOf(TimelockTransferBuilder);
+        expect(transactionBuilder.timelockTransfer()).toBeInstanceOf(TimelockTransferBuilder);
     });
 
     it('should create TransferBuilder', () => {
-        expect(transactionBuilderFactory.transfer()).toBeInstanceOf(TransferBuilder);
+        expect(transactionBuilder.transfer()).toBeInstanceOf(TransferBuilder);
     });
 
     it('should create VoteBuilder', () => {
-        expect(transactionBuilderFactory.vote()).toBeInstanceOf(VoteBuilder);
+        expect(transactionBuilder.vote()).toBeInstanceOf(VoteBuilder);
     });
 });

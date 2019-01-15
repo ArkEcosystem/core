@@ -65,7 +65,7 @@ describe("SecondSignatureHandler", () => {
         it("should apply second signature registration", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
 
-            handler.apply(wallet, transaction);
+            handler.applyTransactionToSender(wallet, transaction);
 
             expect(wallet.secondPublicKey).toBe("02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8");
         });
@@ -74,7 +74,7 @@ describe("SecondSignatureHandler", () => {
             expect(handler.canApply(wallet, transaction, errors)).toBeTrue();
             expect(errors).toBeEmpty();
 
-            handler.apply(wallet, transaction);
+            handler.applyTransactionToSender(wallet, transaction);
 
             expect(wallet.secondPublicKey).toBe("02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8");
 
@@ -89,11 +89,11 @@ describe("SecondSignatureHandler", () => {
 
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
 
-            handler.apply(wallet, transaction);
+            handler.applyTransactionToSender(wallet, transaction);
 
             expect(wallet.secondPublicKey).toBe("02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8");
 
-            handler.revert(wallet, transaction);
+            handler.revertTransactionForSender(wallet, transaction);
 
             expect(wallet.secondPublicKey).toBeUndefined();
         });

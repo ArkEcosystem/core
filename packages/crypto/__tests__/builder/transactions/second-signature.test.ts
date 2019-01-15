@@ -1,12 +1,12 @@
 import "jest-extended";
-import { SecondSignatureBuilder } from "../../../dist/builder";
-import { client as ark } from "../../../dist/client";
-import { TransactionTypes } from "../../../dist/constants";
-import { crypto } from "../../../dist/crypto/crypto";
-import { feeManager } from "../../../dist/managers/fee";
+import { SecondSignatureBuilder } from "../../../src/builder/transactions/second-signature";
+import { client as ark } from "../../../src/client";
+import { TransactionTypes } from "../../../src/constants";
+import { crypto } from "../../../src/crypto/crypto";
+import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder : SecondSignatureBuilder;
+let builder: SecondSignatureBuilder
 
 beforeEach(() => {
     builder = ark.getBuilder().secondSignature();

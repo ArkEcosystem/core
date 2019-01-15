@@ -1,59 +1,53 @@
-import crypto from "crypto";
 import { configManager } from "../managers";
-import { crypto as arkCrypto } from "./crypto";
+import { INetwork } from "../networks";
+import { crypto } from "./crypto";
+import { HashAlgorithms } from "./hash-algorithms";
 
-const createHash = message =>
-    crypto
-        .createHash("sha256")
-        .update(Buffer.from(message, "utf-8"))
-        .digest();
+export interface IMessage {
+    readonly publicKey: string,
+    readonly signature: string,
+    readonly message: string
+}
 
 export class Message {
     /**
      * Sign the given message.
-     * @param  {String} message
-     * @param  {String} passphrase
-     * @return {Object}
      */
-    public static sign(message, passphrase) {
-        const keys = arkCrypto.getKeys(passphrase);
+    public static sign(message: string, passphrase: string): IMessage {
+        const keys = crypto.getKeys(passphrase);
 
         return {
             publicKey: keys.publicKey,
-            signature: arkCrypto.signHash(createHash(message), keys),
+            signature: crypto.signHash(this.createHash(message), keys),
             message,
         };
     }
 
     /**
      * Sign the given message using a WIF.
-     * @param  {String} message
-     * @param  {String} wif
-     * @param  {Object} network
-     * @return {Object}
      */
-    public static signWithWif(message, wif, network?: any) {
+    public static signWithWif(message: string, wif: string, network?: INetwork): IMessage {
         if (!network) {
             network = configManager.all();
         }
 
-        const keys = arkCrypto.getKeysFromWIF(wif, network);
+        const keys = crypto.getKeysFromWIF(wif, network);
 
         return {
             publicKey: keys.publicKey,
-            signature: arkCrypto.signHash(createHash(message), keys),
+            signature: crypto.signHash(this.createHash(message), keys),
             message,
         };
     }
 
     /**
      * Verify the given message.
-     * @param  {String} options.message
-     * @param  {String} options.publicKey
-     * @param  {String} options.signature
-     * @return {Boolean}
      */
-    public static verify({ message, publicKey, signature }) {
-        return arkCrypto.verifyHash(createHash(message), signature, publicKey);
+    public static verify({ message, publicKey, signature }: IMessage): boolean {
+        return crypto.verifyHash(this.createHash(message), signature, publicKey);
+    }
+
+    private static createHash(message: string): Buffer {
+        return HashAlgorithms.sha256(message)
     }
 }

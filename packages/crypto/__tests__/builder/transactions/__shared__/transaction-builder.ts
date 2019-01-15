@@ -1,9 +1,9 @@
-import { TransactionBuilder } from "../../../../dist/builder/transactions/transaction";
-import { crypto, slots } from "../../../../dist/crypto";
-import { Transaction } from "../../../../dist/models/transaction";
-import { Bignum } from "../../../../dist/utils/bignum";
+import { TransactionBuilder } from "../../../../src/builder/transactions/transaction";
+import { crypto, slots } from "../../../../src/crypto";
+import { Transaction } from "../../../../src/models/transaction";
+import { Bignum } from "../../../../src/utils/bignum";
 
-export const transactionBuilder = (provider: () => TransactionBuilder) => {
+export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
 
     describe('TransactionBuilder', () => {
 
@@ -130,7 +130,7 @@ export const transactionBuilder = (provider: () => TransactionBuilder) => {
                 builder.sign("dummy pass");
 
                 expect(crypto.getKeys).toHaveBeenCalledWith("dummy pass");
-                expect(crypto.sign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+                expect(crypto.sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
 
             it("establishes the public key of the sender", () => {
@@ -159,7 +159,7 @@ export const transactionBuilder = (provider: () => TransactionBuilder) => {
                 expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("dummy pass", {
                     wif: 170,
                 });
-                expect(crypto.sign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+                expect(crypto.sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
 
             it("establishes the public key of the sender", () => {
@@ -187,7 +187,7 @@ export const transactionBuilder = (provider: () => TransactionBuilder) => {
                 builder.secondSign("my very real second pass");
 
                 expect(crypto.getKeys).toHaveBeenCalledWith("my very real second pass");
-                expect(crypto.secondSign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+                expect(crypto.secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
         });
 
@@ -204,7 +204,7 @@ export const transactionBuilder = (provider: () => TransactionBuilder) => {
                 builder.network(23).secondSignWithWif("my very real second pass", null);
 
                 expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("my very real second pass", { wif: 170 });
-                expect(crypto.secondSign).toHaveBeenCalledWith(builder.__getSigningObject(), keys);
+                expect(crypto.secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
         });
     });

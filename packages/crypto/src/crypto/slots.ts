@@ -12,35 +12,29 @@ class Slots {
 
     /**
      * Get the height we are currently at.
-     * @return {Number}
      */
-    public getHeight() {
+    public getHeight(): number {
         return this.height;
     }
 
     /**
      * Set the height we are currently at.
-     * @param  {Number} height
-     * @return {void}
      */
-    public setHeight(height) {
+    public setHeight(height: number): void {
         this.height = height;
     }
 
     /**
      * Reset the height to the initial value.
-     * @return {void}
      */
-    public resetHeight() {
+    public resetHeight(): void {
         this.height = 1;
     }
 
     /**
      * Get epoch time relative to beginning epoch time.
-     * @param  {Number} time
-     * @return {Number}
      */
-    public getEpochTime(time?: any) {
+    public getEpochTime(time?: number): number {
         if (time === undefined) {
             time = dayjs().valueOf();
         }
@@ -52,27 +46,22 @@ class Slots {
 
     /**
      * Get beginning epoch time.
-     * @return {Moment}
      */
-    public beginEpochTime() {
+    public beginEpochTime(): dayjs.Dayjs {
         return dayjs(this.getMilestone("epoch")).utc();
     }
 
     /**
      * Get epoch time relative to beginning epoch time.
-     * @param  {Number} time
-     * @return {Number}
      */
-    public getTime(time?) {
+    public getTime(time?: number): number {
         return this.getEpochTime(time);
     }
 
     /**
      * Get real time from relative epoch time.
-     * @param  {Number} epochTime
-     * @return {Number}
      */
-    public getRealTime(epochTime) {
+    public getRealTime(epochTime: number): number {
         if (epochTime === undefined) {
             epochTime = this.getTime();
         }
@@ -84,10 +73,8 @@ class Slots {
 
     /**
      * Get the current slot number.
-     * @param  {Number} epochTime
-     * @return {Number}
      */
-    public getSlotNumber(epochTime?) {
+    public getSlotNumber(epochTime?: number): number {
         if (epochTime === undefined) {
             epochTime = this.getTime();
         }
@@ -97,10 +84,8 @@ class Slots {
 
     /**
      * Get the current slot time.
-     * @param  {Number} slot
-     * @return {Number}
      */
-    public getSlotTime(slot) {
+    public getSlotTime(slot: number): number {
         return slot * this.getMilestone("blocktime");
     }
 
@@ -108,25 +93,21 @@ class Slots {
      * Get the next slot number.
      * @return {Number}
      */
-    public getNextSlot() {
+    public getNextSlot(): number {
         return this.getSlotNumber() + 1;
     }
 
     /**
      * Get the last slot number.
-     * @param  {Number} nextSlot
-     * @return {Number}
      */
-    public getLastSlot(nextSlot) {
+    public getLastSlot(nextSlot: number): number {
         return nextSlot + this.getMilestone("activeDelegates");
     }
 
     /**
      * Checks if forging is allowed
-     * @param  {Number} epochTime
-     * @return {Boolean}
      */
-    public isForgingAllowed(epochTime?: any) {
+    public isForgingAllowed(epochTime?: number): boolean {
         if (epochTime === undefined) {
             epochTime = this.getTime();
         }
@@ -138,13 +119,10 @@ class Slots {
 
     /**
      * Get constant from height 1.
-     * @param  {String} key
-     * @return {*}
      */
-    private getMilestone(key) {
+    private getMilestone(key: string): any {
         return configManager.getMilestone(this.height)[key];
     }
 }
 
-const slots = new Slots();
-export { slots };
+export const slots = new Slots();

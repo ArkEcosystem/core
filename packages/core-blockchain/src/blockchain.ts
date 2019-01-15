@@ -429,7 +429,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlock(block, callback) {
+    public async processBlock(block: models.Block, callback) {
         const result = await this.blockProcessor.process(block);
 
         if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
@@ -461,10 +461,8 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Fork the chain at the given block.
-     * @param {Block} block
-     * @returns {void}
      */
-    public forkBlock(block) {
+    public forkBlock(block: models.Block): void {
         this.state.forkedBlock = block;
 
         this.dispatch("FORK");
@@ -488,10 +486,8 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Determine if the blockchain is synced.
-     * @param  {Block} [block=getLastBlock()]  block
-     * @return {Boolean}
      */
-    public isSynced(block?) {
+    public isSynced(block?: models.IBlock): boolean {
         if (!this.p2p.hasPeers()) {
             return true;
         }
@@ -503,10 +499,8 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Determine if the blockchain is synced after a rebuild.
-     * @param  {Block}  block
-     * @return {Boolean}
      */
-    public isRebuildSynced(block?) {
+    public isRebuildSynced(block?: models.IBlock): boolean {
         if (!this.p2p.hasPeers()) {
             return true;
         }
@@ -523,31 +517,27 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Get the last block of the blockchain.
-     * @return {Object}
      */
-    public getLastBlock(): any {
+    public getLastBlock(): models.Block {
         return this.state.getLastBlock();
     }
 
     /**
      * Get the last height of the blockchain.
-     * @return {Object}
      */
-    public getLastHeight() {
+    public getLastHeight(): number {
         return this.state.getLastBlock().data.height;
     }
 
     /**
      * Get the last downloaded block of the blockchain.
-     * @return {Object}
      */
-    public getLastDownloadedBlock() {
+    public getLastDownloadedBlock(): { data: models.IBlockData } {
         return this.state.lastDownloadedBlock;
     }
 
     /**
      * Get the block ping.
-     * @return {Object}
      */
     public getBlockPing() {
         return this.state.blockPing;
@@ -555,17 +545,15 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Ping a block.
-     * @return {Object}
      */
-    public pingBlock(incomingBlock) {
+    public pingBlock(incomingBlock: models.IBlockData): boolean {
         return this.state.pingBlock(incomingBlock);
     }
 
     /**
      * Push ping block.
-     * @return {Object}
      */
-    public pushPingBlock(block) {
+    public pushPingBlock(block: models.IBlockData) {
         this.state.pushPingBlock(block);
     }
 

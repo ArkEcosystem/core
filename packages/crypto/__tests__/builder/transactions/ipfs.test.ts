@@ -1,8 +1,8 @@
 import "jest-extended";
-import { IPFSBuilder } from "../../../dist/builder";
-import { client as ark } from "../../../dist/client";
-import { TransactionTypes } from "../../../dist/constants";
-import { feeManager } from "../../../dist/managers/fee";
+import { IPFSBuilder } from "../../../src/builder/transactions/ipfs";
+import { client as ark } from "../../../src/client";
+import { TransactionTypes } from "../../../src/constants";
+import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder : IPFSBuilder;
@@ -41,7 +41,7 @@ describe("IPFS Transaction", () => {
         const paddedHex = hex.padStart(128, "0");
 
         builder.data.ipfsHash = data;
-        builder.vendorField(0);
+        builder.vendorField("");
         expect(builder.data.vendorFieldHex).toBe(paddedHex);
     });
 });

@@ -1,12 +1,12 @@
 import "jest-extended";
-import { TransactionBuilder } from "../../../dist/builder/transactions/transaction";
-import { client as ark } from "../../../dist/client";
-import { TransactionTypes } from "../../../dist/constants";
-import { crypto } from "../../../dist/crypto";
-import { feeManager } from "../../../dist/managers/fee";
+import { TransferBuilder } from "../../../src/builder/transactions/transfer";
+import { client as ark } from "../../../src/client";
+import { TransactionTypes } from "../../../src/constants";
+import { crypto } from "../../../src/crypto";
+import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder : TransactionBuilder;
+let builder: TransferBuilder;
 
 beforeEach(() => {
     builder = ark.getBuilder().transfer();

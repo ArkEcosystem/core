@@ -62,7 +62,7 @@ describe("Forger Manager", () => {
 
             forgeManager.usernames = [];
 
-            const del = new Delegate("a secret", testnet);
+            const del = new Delegate("a secret", testnet.network);
             const round = {
                 lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
                 timestamp: 1,
@@ -74,7 +74,7 @@ describe("Forger Manager", () => {
             expect(forgeManager.client.broadcast).toHaveBeenCalledWith(
                 expect.objectContaining({
                     height: round.lastBlock.height + 1,
-                    reward: new Bignum(round.reward),
+                    reward: round.reward,
                 }),
             );
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("block.forged", expect.any(Object));

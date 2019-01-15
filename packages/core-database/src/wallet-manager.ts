@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { configManager, constants, crypto, formatArktoshi, models } from "@arkecosystem/crypto";
+import { constants, crypto, formatArktoshi, isException, models } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const { Wallet } = models;
@@ -446,7 +446,7 @@ export class WalletManager {
         }
 
         // handle exceptions / verify that we can apply the transaction to the sender
-        if (this.__isException(data)) {
+        if (isException(data)) {
             this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
         } else if (!sender.canApply(data, errors)) {
             this.logger.error(
@@ -568,16 +568,5 @@ export class WalletManager {
      */
     public __canBePurged(wallet) {
         return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
-    }
-
-    /**
-     * Determine if the given transaction is an exception.
-     * @param  {Object} transaction
-     * @return {Boolean}
-     */
-    public __isException(transaction) {
-        const exceptions: any = configManager.get("exceptions.transactions");
-
-        return Array.isArray(exceptions) ? exceptions.includes(transaction.id) : false;
     }
 }

@@ -1,14 +1,64 @@
-/* tslint:disable:no-bitwise */
-
-import bs58check from "bs58check";
-import ByteBuffer from "bytebuffer";
-import { createHash } from "crypto";
 import { TransactionTypes } from "../constants";
-import { crypto } from "../crypto/crypto";
-import { configManager } from "../managers";
-import { Bignum } from "../utils";
+import { crypto } from "../crypto";
+import { TransactionDeserializer } from "../deserializers";
+import { TransactionSerializer } from "../serializers";
+import { Bignum, isException } from "../utils";
 
-const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
+export interface ITransactionAsset {
+    signature?: {
+        publicKey: string;
+    };
+    delegate?: {
+        username: string;
+        publicKey?: string;
+    };
+    votes?: string[];
+    multisignature?: IMultiSignatureAsset;
+    ipfs?: {
+        dag: string;
+    };
+    payments?: any;
+}
+
+export interface IMultiSignatureAsset {
+    min: number;
+    keysgroup: string[];
+    lifetime: number;
+}
+
+export interface ITransactionData {
+    version?: number;
+    network?: number;
+
+    type: TransactionTypes;
+    timestamp: number;
+    senderPublicKey: string;
+
+    fee: Bignum | number | string;
+    amount: Bignum | number | string;
+
+    expiration?: number;
+    recipientId?: string;
+
+    asset?: ITransactionAsset;
+    vendorField?: string;
+    vendorFieldHex?: string;
+
+    id?: string;
+    signature?: string;
+    secondSignature?: string;
+    signSignature?: string;
+    signatures?: string[];
+
+    blockId?: string;
+    sequence?: number;
+
+    timelock?: any;
+    timelockType?: number;
+
+    ipfsHash?: string;
+    payments?: { [key: string]: any };
+}
 
 /**
  * TODO copy some parts to ArkDocs
@@ -35,377 +85,58 @@ const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
  *   - assets
  *   - network
  */
-export class Transaction {
-    public static applyV1Compatibility(deserialized) {
-        if (deserialized.secondSignature) {
-            deserialized.signSignature = deserialized.secondSignature;
-        }
 
-        if (deserialized.type === TransactionTypes.Vote) {
-            deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network);
-        }
-
-        if (deserialized.vendorFieldHex) {
-            deserialized.vendorField = Buffer.from(deserialized.vendorFieldHex, "hex").toString("utf8");
-        }
-
-        if (deserialized.type === TransactionTypes.MultiSignature) {
-            deserialized.asset.multisignature.keysgroup = deserialized.asset.multisignature.keysgroup.map(k => `+${k}`);
-        }
-
-        if (
-            deserialized.type === TransactionTypes.SecondSignature ||
-            deserialized.type === TransactionTypes.MultiSignature
-        ) {
-            deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network);
-        }
-
-        if (!deserialized.id) {
-            deserialized.id = crypto.getId(deserialized);
-
-            // Apply fix for broken type 1 and 4 transactions, which were
-            // erroneously calculated with a recipient id.
-            if (transactionIdFixTable[deserialized.id]) {
-                deserialized.id = transactionIdFixTable[deserialized.id];
-            }
-        }
-
-        if (deserialized.type <= 4) {
-            deserialized.verified = crypto.verify(deserialized);
-        } else {
-            deserialized.verified = false;
-        }
+export class Transaction implements ITransactionData {
+    public static serialize(transaction: ITransactionData): Buffer {
+        return TransactionSerializer.serialize(transaction);
     }
 
-    /*
-     * Return a clean transaction data from the serialized form.
-     * @return {Transaction}
-     */
-    public static fromBytes(hexString) {
-        return new Transaction(hexString);
-    }
-
-    // AIP11 serialization
-    public static serialize(transaction): any {
-        const bb = new ByteBuffer(512, true);
-        bb.writeByte(0xff); // fill, to disambiguate from v1
-        bb.writeByte(transaction.version || 0x01); // version
-        bb.writeByte(transaction.network || configManager.get("pubKeyHash")); // ark = 0x17, devnet = 0x30
-        bb.writeByte(transaction.type);
-        bb.writeUint32(transaction.timestamp);
-        bb.append(transaction.senderPublicKey, "hex");
-        bb.writeUint64(+new Bignum(transaction.fee).toFixed());
-
-        if (Transaction.canHaveVendorField(transaction.type)) {
-            if (transaction.vendorField) {
-                const vf = Buffer.from(transaction.vendorField, "utf8");
-                bb.writeByte(vf.length);
-                bb.append(vf);
-            } else if (transaction.vendorFieldHex) {
-                bb.writeByte(transaction.vendorFieldHex.length / 2);
-                bb.append(transaction.vendorFieldHex, "hex");
-            } else {
-                bb.writeByte(0x00);
-            }
-        } else {
-            bb.writeByte(0x00);
-        }
-
-        if (transaction.type === TransactionTypes.Transfer) {
-            bb.writeUint64(+new Bignum(transaction.amount).toFixed());
-            bb.writeUint32(transaction.expiration || 0);
-            bb.append(bs58check.decode(transaction.recipientId));
-        } else if (transaction.type === TransactionTypes.Vote) {
-            const voteBytes = transaction.asset.votes
-                .map(vote => (vote[0] === "+" ? "01" : "00") + vote.slice(1))
-                .join("");
-            bb.writeByte(transaction.asset.votes.length);
-            bb.append(voteBytes, "hex");
-        } else if (transaction.type === TransactionTypes.SecondSignature) {
-            bb.append(transaction.asset.signature.publicKey, "hex");
-        } else if (transaction.type === TransactionTypes.DelegateRegistration) {
-            const delegateBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
-            bb.writeByte(delegateBytes.length);
-            bb.append(delegateBytes, "hex");
-        } else if (transaction.type === TransactionTypes.MultiSignature) {
-            let joined = null;
-
-            if (!transaction.version || transaction.version === 1) {
-                joined = transaction.asset.multisignature.keysgroup.map(k => (k[0] === "+" ? k.slice(1) : k)).join("");
-            } else {
-                joined = transaction.asset.multisignature.keysgroup.join("");
-            }
-
-            const keysgroupBuffer = Buffer.from(joined, "hex");
-            bb.writeByte(transaction.asset.multisignature.min);
-            bb.writeByte(transaction.asset.multisignature.keysgroup.length);
-            bb.writeByte(transaction.asset.multisignature.lifetime);
-            bb.append(keysgroupBuffer, "hex");
-        } else if (transaction.type === TransactionTypes.Ipfs) {
-            bb.writeByte(transaction.asset.ipfs.dag.length / 2);
-            bb.append(transaction.asset.ipfs.dag, "hex");
-        } else if (transaction.type === TransactionTypes.TimelockTransfer) {
-            bb.writeUint64(+transaction.amount.toFixed());
-            bb.writeByte(transaction.timelockType);
-            bb.writeUint32(transaction.timelock);
-            bb.append(bs58check.decode(transaction.recipientId));
-        } else if (transaction.type === TransactionTypes.MultiPayment) {
-            bb.writeUint32(transaction.asset.payments.length);
-            transaction.asset.payments.forEach(p => {
-                bb.writeUint64(p.amount);
-                bb.append(bs58check.decode(p.recipientId));
-            });
-        } else if (transaction.type === TransactionTypes.DelegateResignation) {
-            // delegate resignation - empty payload
-        }
-
-        if (transaction.signature) {
-            bb.append(transaction.signature, "hex");
-        }
-
-        if (transaction.secondSignature) {
-            bb.append(transaction.secondSignature, "hex");
-        } else if (transaction.signSignature) {
-            bb.append(transaction.signSignature, "hex");
-        }
-
-        if (transaction.signatures) {
-            bb.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
-            bb.append(transaction.signatures.join(""), "hex");
-        }
-
-        bb.flip();
-
-        return bb.toBuffer();
-    }
-
-    public static deserialize(hexString) {
-        const transaction: any = {};
-        const buf = ByteBuffer.fromHex(hexString, true);
-        transaction.version = buf.readInt8(1);
-        transaction.network = buf.readInt8(2);
-        transaction.type = buf.readInt8(3);
-        transaction.timestamp = buf.readUint32(4);
-        transaction.senderPublicKey = hexString.substring(16, 16 + 33 * 2);
-        transaction.fee = new Bignum(buf.readUint64(41) as any);
-
-        let vflength = 0;
-
-        if (Transaction.canHaveVendorField(transaction.type)) {
-            vflength = buf.readInt8(41 + 8);
-
-            if (vflength > 0) {
-                transaction.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vflength * 2);
-            }
-        }
-
-        const assetOffset = (41 + 8 + 1) * 2 + vflength * 2;
-
-        if (transaction.type === TransactionTypes.Transfer) {
-            transaction.amount = new Bignum(buf.readUint64(assetOffset / 2) as any);
-            transaction.expiration = buf.readUint32(assetOffset / 2 + 8);
-            transaction.recipientId = bs58check.encode(
-                buf.buffer.slice(assetOffset / 2 + 12, assetOffset / 2 + 12 + 21),
-            );
-
-            Transaction.parseSignatures(hexString, transaction, assetOffset + (21 + 12) * 2);
-        }
-
-        if (transaction.type === TransactionTypes.Vote) {
-            const votelength = buf.readInt8(assetOffset / 2) & 0xff;
-            transaction.asset = { votes: [] };
-
-            let vote;
-            for (let i = 0; i < votelength; i++) {
-                vote = hexString.substring(assetOffset + 2 + i * 2 * 34, assetOffset + 2 + (i + 1) * 2 * 34);
-                vote = (vote[1] === "1" ? "+" : "-") + vote.slice(2);
-                transaction.asset.votes.push(vote);
-            }
-
-            Transaction.parseSignatures(hexString, transaction, assetOffset + 2 + votelength * 34 * 2);
-        }
-
-        if (transaction.type === TransactionTypes.SecondSignature) {
-            transaction.asset = {
-                signature: {
-                    publicKey: hexString.substring(assetOffset, assetOffset + 66),
-                },
-            };
-
-            Transaction.parseSignatures(hexString, transaction, assetOffset + 66);
-        }
-
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
-            const usernamelength = buf.readInt8(assetOffset / 2) & 0xff;
-
-            transaction.asset = {
-                delegate: {
-                    username: buf.slice(assetOffset / 2 + 1, assetOffset / 2 + 1 + usernamelength).toString("utf8"),
-                },
-            };
-
-            Transaction.parseSignatures(hexString, transaction, assetOffset + (usernamelength + 1) * 2);
-        }
-
-        if (transaction.type === TransactionTypes.MultiSignature) {
-            transaction.asset = { multisignature: { keysgroup: [] } };
-            transaction.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff;
-
-            const num = buf.readInt8(assetOffset / 2 + 1) & 0xff;
-            transaction.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff;
-
-            for (let index = 0; index < num; index++) {
-                const key = hexString.slice(assetOffset + 6 + index * 66, assetOffset + 6 + (index + 1) * 66);
-                transaction.asset.multisignature.keysgroup.push(key);
-            }
-            Transaction.parseSignatures(hexString, transaction, assetOffset + 6 + num * 66);
-        }
-
-        if (transaction.type === TransactionTypes.Ipfs) {
-            transaction.asset = {};
-
-            const l = buf.readInt8(assetOffset / 2) & 0xff;
-            transaction.asset.dag = hexString.substring(assetOffset + 2, assetOffset + 2 + l * 2);
-            Transaction.parseSignatures(hexString, transaction, assetOffset + 2 + l * 2);
-        }
-
-        if (transaction.type === TransactionTypes.TimelockTransfer) {
-            transaction.amount = new Bignum(buf.readUint64(assetOffset / 2) as any);
-            transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff;
-            transaction.timelock = buf.readUint64(assetOffset / 2 + 9).toNumber();
-            transaction.recipientId = bs58check.encode(
-                buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21),
-            );
-
-            Transaction.parseSignatures(hexString, transaction, assetOffset + (21 + 13) * 2);
-        }
-
-        if (transaction.type === TransactionTypes.MultiPayment) {
-            transaction.asset = { payments: [] };
-
-            const total = buf.readInt8(assetOffset / 2) & 0xff;
-            let offset = assetOffset / 2 + 1;
-
-            for (let j = 0; j < total; j++) {
-                const payment: any = {};
-                payment.amount = new Bignum(buf.readUint64(offset) as any);
-                payment.recipientId = bs58check.encode(buf.buffer.slice(offset + 1, offset + 1 + 21));
-                transaction.asset.payments.push(payment);
-                offset += 22;
-            }
-
-            transaction.amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Bignum.ZERO);
-
-            Transaction.parseSignatures(hexString, transaction, offset * 2);
-        }
-
-        if (transaction.type === TransactionTypes.DelegateResignation) {
-            Transaction.parseSignatures(hexString, transaction, assetOffset);
-        }
-
-        if (!transaction.amount) {
-            // this is needed for computation over the blockchain
-            transaction.amount = Bignum.ZERO;
-        }
-
-        return transaction;
-    }
-
-    public static parseSignatures(hexString, transaction, startOffset) {
-        transaction.signature = hexString.substring(startOffset);
-
-        let multioffset = 0;
-
-        if (transaction.signature.length === 0) {
-            delete transaction.signature;
-        } else {
-            const length1 = parseInt(`0x${transaction.signature.substring(2, 4)}`, 16) + 2;
-            transaction.signature = hexString.substring(startOffset, startOffset + length1 * 2);
-            multioffset += length1 * 2;
-            transaction.secondSignature = hexString.substring(startOffset + length1 * 2);
-
-            if (transaction.secondSignature.length === 0) {
-                delete transaction.secondSignature;
-            } else if (transaction.secondSignature.slice(0, 2) === "ff") {
-                // start of multisign
-                delete transaction.secondSignature;
-            } else {
-                const length2 = parseInt(`0x${transaction.secondSignature.substring(2, 4)}`, 16) + 2;
-                transaction.secondSignature = transaction.secondSignature.substring(0, length2 * 2);
-                multioffset += length2 * 2;
-            }
-
-            let signatures = hexString.substring(startOffset + multioffset);
-            if (!signatures.length) {
-                return;
-            }
-
-            if (signatures.slice(0, 2) !== "ff") {
-                return;
-            }
-
-            signatures = signatures.slice(2);
-            transaction.signatures = [];
-
-            let moreSignatures = true;
-            while (moreSignatures) {
-                const mlength = parseInt(`0x${signatures.substring(2, 4)}`, 16) + 2;
-
-                if (mlength > 0) {
-                    transaction.signatures.push(signatures.substring(0, mlength * 2));
-                } else {
-                    moreSignatures = false;
-                }
-
-                signatures = signatures.substring(mlength * 2);
-            }
-        }
+    public static deserialize(hexString: string): ITransactionData {
+        return TransactionDeserializer.deserialize(hexString);
     }
 
     public static canHaveVendorField(type: number): boolean {
         return [TransactionTypes.Transfer, TransactionTypes.TimelockTransfer].includes(type);
     }
 
-    public senderPublicKey: any;
-    public fee: Bignum;
-    public vendorFieldHex: any;
-    public amount: Bignum;
-    public expiration: any;
-    public recipientId: any;
-    public asset: any;
-    public timelockType: number;
-    public timelock: any;
-    public verified: boolean;
-    public id: string;
-    public timestamp: any;
-    public type: any;
-    public version: any;
-    public network: any;
+    public data: ITransactionData;
     public serialized: string;
-    public data: any; // TODO: split Transaction into multiple classes
+    public verified: boolean;
 
-    constructor(data) {
+    // TODO: remove all duplicated data properties from Transaction class
+    public id: string;
+    public version: number;
+    public network: number;
+    public type: TransactionTypes;
+    public timestamp: number;
+    public senderPublicKey: string;
+    public fee: Bignum;
+    public amount: Bignum;
+    public expiration?: number;
+    public recipientId?: string;
+    public asset?: any;
+    public vendorField?: string;
+    public vendorFieldHex?: string;
+    public signature: string;
+    public secondSignature?: string;
+    public signSignature?: string;
+    public signatures?: string[];
+    public blockId?: string;
+    public sequence?: number;
+    public timelock?: any;
+    public timelockType?: number;
+
+    constructor(data: string | ITransactionData) {
         if (typeof data === "string") {
             this.serialized = data;
         } else {
-            // @ts-ignore
             this.serialized = Transaction.serialize(data).toString("hex");
         }
-        const deserialized = Transaction.deserialize(this.serialized);
 
-        if (deserialized.version === 1) {
-            Transaction.applyV1Compatibility(deserialized);
-            this.verified = deserialized.verified;
-            delete deserialized.verified;
-        } else if (deserialized.version === 2) {
-            deserialized.id = createHash("sha256")
-                .update(Buffer.from(this.serialized, "hex"))
-                .digest()
-                .toString("hex");
+        this.data = Transaction.deserialize(this.serialized);
+        this.verified = (this.data.type <= 4 && crypto.verify(this.data)) || isException(this.data);
 
-            // TODO: enable AIP11 when network ready
-            this.verified = false;
-        }
+        // TODO: remove this
         [
             "id",
             "sequence",
@@ -428,25 +159,18 @@ export class Transaction {
             "timelock",
             "timelockType",
         ].forEach(key => {
-            this[key] = deserialized[key];
+            this[key] = this.data[key];
         }, this);
-
-        this.data = deserialized;
     }
 
-    public verify() {
+    public verify(): boolean {
         return this.verified;
     }
 
-    /*
-     * Return transaction data.
-     * @return {Object}
-     */
-    public toJson() {
-        // Convert Bignums
+    public toJson(): any {
         const data = Object.assign({}, this.data);
-        data.amount = +data.amount.toFixed();
-        data.fee = +data.fee.toFixed();
+        data.amount = +(data.amount as Bignum).toFixed();
+        data.fee = +(data.fee as Bignum).toFixed();
 
         return data;
     }

@@ -8,29 +8,28 @@ import immutable from "immutable";
 import { config } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 
-const { Block } = models;
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured with the option `state.maxLastBlocks`.
-let _lastBlocks: any = immutable.OrderedMap<number, typeof Block>();
+let _lastBlocks: immutable.OrderedMap<number, models.Block> = immutable.OrderedMap<number, models.Block>();
 
 // Stores the last n incoming transaction ids. The amount of transaction ids
 // can be configred with the option `state.maxLastTransactionIds`.
-let _cachedTransactionIds = immutable.OrderedSet();
+let _cachedTransactionIds: immutable.OrderedSet<string> = immutable.OrderedSet();
 
 // Map Block instances to block data.
-const _mapToBlockData = blocks => blocks.map(block => ({ ...block.data, transactions: block.transactions }));
+const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable.Seq<number, models.IBlockData> => blocks.map(block => ({ ...block.data, transactions: block.transactions }));
 
 /**
  * Represents an in-memory storage for state machine data.
  */
 export class StateStorage implements Blockchain.IStateStorage {
     public blockchain: any;
-    public lastDownloadedBlock: any;
+    public lastDownloadedBlock: models.IBlock | null;
     public blockPing: any;
     public started: boolean;
-    public forkedBlock: any;
+    public forkedBlock: models.Block | null;
     public rebuild: boolean;
     public fastRebuild: boolean;
     public wakeUpTimeout: any;
@@ -44,9 +43,8 @@ export class StateStorage implements Blockchain.IStateStorage {
 
     /**
      * Resets the state.
-     * @returns {void}
      */
-    public reset() {
+    public reset(): void {
         this.blockchain = blockchainMachine.initialState;
         this.lastDownloadedBlock = null;
         this.blockPing = null;
@@ -64,18 +62,16 @@ export class StateStorage implements Blockchain.IStateStorage {
 
     /**
      * Clear last blocks.
-     * @returns {void}
      */
-    public clear() {
+    public clear(): void {
         _lastBlocks = _lastBlocks.clear();
         _cachedTransactionIds = _cachedTransactionIds.clear();
     }
 
     /**
      * Clear check later timeout.
-     * @returns {void}
      */
-    public clearWakeUpTimeout() {
+    public clearWakeUpTimeout(): void {
         if (this.wakeUpTimeout) {
             clearTimeout(this.wakeUpTimeout);
             this.wakeUpTimeout = null;
@@ -84,20 +80,18 @@ export class StateStorage implements Blockchain.IStateStorage {
 
     /**
      * Get the last block.
-     * @returns {Block|null}
      */
-    public getLastBlock(): any {
+    public getLastBlock(): models.Block | null {
         return _lastBlocks.last() || null;
     }
 
     /**
      * Sets the last block.
-     * @returns {void}
      */
-    public setLastBlock(block) {
+    public setLastBlock(block: models.Block): void {
         // Only keep blocks which are below the new block height (i.e. rollback)
-        if (_lastBlocks.last() && _lastBlocks.last().data.height !== block.data.height - 1) {
-            assert(block.data.height - 1 <= _lastBlocks.last().data.height);
+        if (_lastBlocks.last() && _lastBlocks.last<models.Block>().data.height !== block.data.height - 1) {
+            assert(block.data.height - 1 <= _lastBlocks.last<models.Block>().data.height);
             _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height);
         }
 
@@ -106,15 +100,14 @@ export class StateStorage implements Blockchain.IStateStorage {
 
         // Delete oldest block if size exceeds the maximum
         if (_lastBlocks.size > config.get("state.maxLastBlocks")) {
-            _lastBlocks = _lastBlocks.delete(_lastBlocks.first().data.height);
+            _lastBlocks = _lastBlocks.delete(_lastBlocks.first<models.Block>().data.height);
         }
     }
 
     /**
      * Get the last blocks.
-     * @returns {Array}
      */
-    public getLastBlocks() {
+    public getLastBlocks(): models.Block[] {
         return _lastBlocks
             .valueSeq()
             .reverse()
@@ -123,17 +116,15 @@ export class StateStorage implements Blockchain.IStateStorage {
 
     /**
      * Get the last blocks data.
-     * @returns {Seq}
      */
-    public getLastBlocksData() {
+    public getLastBlocksData(): immutable.Seq<number, models.IBlockData> {
         return _mapToBlockData(_lastBlocks.valueSeq().reverse());
     }
 
     /**
      * Get the last block ids.
-     * @returns {Array}
      */
-    public getLastBlockIds() {
+    public getLastBlockIds(): string[] {
         return _lastBlocks
             .valueSeq()
             .reverse()
@@ -146,33 +137,27 @@ export class StateStorage implements Blockchain.IStateStorage {
      * @param {Number} start
      * @param {Number} end
      */
-    public getLastBlocksByHeight(start, end?) {
+    public getLastBlocksByHeight(start, end?): models.IBlockData[] {
         end = end || start;
 
         const blocks = _lastBlocks.valueSeq().filter(block => block.data.height >= start && block.data.height <= end);
 
-        return _mapToBlockData(blocks).toArray();
+        return _mapToBlockData(blocks).toArray() as models.IBlockData[];
     }
 
     /**
      * Get common blocks for the given IDs.
-     * @returns {Array}
      */
-    public getCommonBlocks(ids) {
+    public getCommonBlocks(ids): models.IBlockData[] {
         return this.getLastBlocksData()
             .filter(block => ids.includes(block.id))
-            .toArray();
+            .toArray() as models.IBlockData[];
     }
 
     /**
      * Cache the ids of the given transactions.
-     * @param {Array} transactions
-     * @return Object {
-     *  added: array of added transactions,
-     *  notAdded: array of previously added transactions
-     * }
      */
-    public cacheTransactions(transactions) {
+    public cacheTransactions(transactions: models.ITransactionData[]): { added: models.ITransactionData[], notAdded: models.ITransactionData[] } {
         const notAdded = [];
         const added = transactions.filter(tx => {
             if (_cachedTransactionIds.has(tx.id)) {
@@ -197,27 +182,22 @@ export class StateStorage implements Blockchain.IStateStorage {
 
     /**
      * Remove the given transaction ids from the cache.
-     * @param {Array} transactionIds
-     * @returns {void}
      */
-    public removeCachedTransactionIds(transactionIds) {
+    public removeCachedTransactionIds(transactionIds: string[]): void {
         _cachedTransactionIds = _cachedTransactionIds.subtract(transactionIds);
     }
 
     /**
      * Get cached transaction ids.
-     * @returns {Array}
      */
-    public getCachedTransactionIds() {
+    public getCachedTransactionIds(): string[] {
         return _cachedTransactionIds.toArray();
     }
 
     /**
      * Ping a block.
-     * @param {Block} incomingBlock
-     * @returns {Boolean}
      */
-    public pingBlock(incomingBlock) {
+    public pingBlock(incomingBlock: models.IBlockData): boolean {
         if (!this.blockPing) {
             return false;
         }
@@ -233,11 +213,9 @@ export class StateStorage implements Blockchain.IStateStorage {
     }
 
     /**
-     * Push ping block
-     * @param {Block} block
-     * @returns {void}
+     * Push ping block.
      */
-    public pushPingBlock(block) {
+    public pushPingBlock(block: models.IBlockData) {
         // logging for stats about network health
         if (this.blockPing) {
             logger.info(
