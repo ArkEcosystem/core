@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { TransactionPool } from "@arkecosystem/core-interfaces";
-import snakeCase from "lodash/snakeCase";
+import { snakeCase } from "@arkecosystem/utils";
 import { IRepository } from "../interfaces";
 
 export abstract class Repository implements IRepository {

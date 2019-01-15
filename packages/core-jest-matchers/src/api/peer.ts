@@ -1,4 +1,4 @@
-import isEqual from "lodash/isEqual";
+import { isEqual } from "@arkecosystem/utils";
 import sortBy from "lodash/sortBy";
 
 export {};

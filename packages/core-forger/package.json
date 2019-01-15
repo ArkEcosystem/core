@@ -34,13 +34,11 @@
         "@arkecosystem/core-p2p": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@arkecosystem/utils": "^0.1.4",
-        "@types/lodash.isempty": "^4.4.4",
         "@types/lodash.sample": "^4.2.4",
         "@types/lodash.uniq": "^4.5.4",
         "@types/pluralize": "^0.0.29",
         "axios": "^0.18.0",
         "delay": "^4.1.0",
-        "lodash.isempty": "^4.4.0",
         "lodash.sample": "^4.2.1",
         "lodash.uniq": "^4.5.0",
         "pluralize": "^7.0.0"

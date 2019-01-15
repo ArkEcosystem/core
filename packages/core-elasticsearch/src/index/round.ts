@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import first from "lodash/first";
-import last from "lodash/last";
+import { first, last } from "@arkecosystem/utils";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";

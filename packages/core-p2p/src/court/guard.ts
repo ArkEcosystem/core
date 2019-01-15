@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { first, sumBy } from "@arkecosystem/utils";
 import dayjs from "dayjs-ext";
-import head from "lodash/head";
-import sumBy from "lodash/sumBy";
 import prettyMs from "pretty-ms";
 import semver from "semver";
 
@@ -70,7 +69,7 @@ export class Guard {
         }
 
         if (peer.offences.length > 0) {
-            if (dayjs().isAfter((head(peer.offences) as any).until)) {
+            if (dayjs().isAfter((first(peer.offences) as any).until)) {
                 peer.offences = [];
             }
         }

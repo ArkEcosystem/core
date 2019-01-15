@@ -1,6 +1,6 @@
 import { constants, slots } from "@arkecosystem/crypto";
+import { partition } from "@arkecosystem/utils";
 import dayjs from "dayjs-ext";
-import partition from "lodash/partition";
 import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
@@ -263,7 +263,15 @@ export class TransactionsRepository extends Repository implements IRepository {
                 this.query.timestamp.max("timestamp"),
             )
             .from(this.query)
-            .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day").valueOf())))
+            .where(
+                this.query.timestamp.gte(
+                    slots.getTime(
+                        dayjs()
+                            .subtract(30, "day")
+                            .valueOf(),
+                    ),
+                ),
+            )
             .and(this.query.fee.gte(this.transactionPool.options.dynamicFees.minFeeBroadcast))
             .group(this.query.type)
             .order('"timestamp" DESC');

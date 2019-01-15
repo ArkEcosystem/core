@@ -1,4 +1,4 @@
-import sumBy from "lodash/sumBy";
+import { sumBy } from "@arkecosystem/utils";
 import { ITransactionData, Wallet } from "../../models";
 import { Handler } from "./handler";
 
