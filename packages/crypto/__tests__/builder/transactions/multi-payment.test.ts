@@ -5,14 +5,14 @@ import { TransactionTypes } from "../../../src/constants";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder : MultiPaymentBuilder;
+let builder: MultiPaymentBuilder;
 
 beforeEach(() => {
     builder = ark.getBuilder().multiPayment();
 });
 
 describe("Multi Payment Transaction", () => {
-    transactionBuilder( () => builder);
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiPayment);
