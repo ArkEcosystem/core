@@ -26,22 +26,19 @@ export class Environment {
     private exportPaths() {
         const allowedKeys = ["data", "config", "cache", "log", "temp"];
 
-        const createPathVariables = values => {
-            for (const [key, value] of Object.entries(values)) {
-                if (allowedKeys.includes(key)) {
-                    process.env[`CORE_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
+        const createPathVariables = values =>
+            allowedKeys.forEach(key => {
+                if (values[key]) {
+                    process.env[`CORE_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(values[key]));
 
                     ensureDirSync(process.env[`CORE_PATH_${key.toUpperCase()}`]);
                 }
-            }
-        };
+            });
 
-        if (this.variables.token) {
-            createPathVariables(envPaths(this.variables.token, { suffix: "core" }));
-        } else if (this.variables.data && this.variables.config) {
+        createPathVariables(envPaths(this.variables.token, { suffix: "core" }));
+
+        if (this.variables.data && this.variables.config) {
             createPathVariables(this.variables);
-        } else {
-            throw new Error("Neither a token nor config and data path were found. Please provide them and try again.");
         }
     }
 
