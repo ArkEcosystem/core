@@ -1,8 +1,8 @@
 import { NetworkManager } from "@arkecosystem/crypto";
+import envPaths from "env-paths";
 import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
 import { resolve } from "path";
-
 export class Environment {
     /**
      * Create a new environment instance.
@@ -24,12 +24,24 @@ export class Environment {
      * @return {void}
      */
     private exportPaths() {
-        const allowedKeys = ["config", "data"];
+        const allowedKeys = ["data", "config", "cache", "log", "temp"];
 
-        for (const [key, value] of Object.entries(this.variables)) {
-            if (allowedKeys.includes(key)) {
-                process.env[`ARK_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
+        const createPathVariables = values => {
+            for (const [key, value] of Object.entries(values)) {
+                if (allowedKeys.includes(key)) {
+                    process.env[`ARK_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
+                }
             }
+        };
+
+        if (this.variables.token) {
+            createPathVariables(envPaths(this.variables.token));
+            return;
+        } else if (this.variables.token) {
+            createPathVariables(this.variables);
+            return;
+        } else {
+            throw new Error("Neither a token nor config and data path were found. Please provide them and try again.");
         }
     }
 

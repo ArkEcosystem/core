@@ -15,8 +15,9 @@ function registerCommand(name: string, description: string): any {
     return app
         .command(name)
         .description(description)
-        .option("-d, --data <data>", "data directory", "~/.ark")
-        .option("-c, --config <config>", "core config", "~/.ark/config")
+        .option("-d, --data <data>", "data directory")
+        .option("-c, --config <config>", "core config")
+        .option("-t, --token <token>", "token name")
         .option("-n, --network <network>", "token network")
         .option("-r, --remote <remote>", "remote peer for config")
         .option("--network-start", "force genesis network start", false)

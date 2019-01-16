@@ -4725,6 +4725,11 @@ enhanced-resolve@^4.0.0, enhanced-resolve@^4.1.0:
     memory-fs "^0.4.0"
     tapable "^1.0.0"
 
+env-paths@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/env-paths/-/env-paths-2.0.0.tgz#5a71723f3df7ca98113541f6fa972184f2c9611d"
+  integrity sha512-13VpSqOO91W3MskXxWJ8x+Y33RKaPT53/HviPp8QcMmEbAJaPFEm8BmMpxCHroJ5rGADqr34Zl6zosBt3F+xAA==
+
 env-variable@0.0.x:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/env-variable/-/env-variable-0.0.5.tgz#913dd830bef11e96a039c038d4130604eba37f88"
