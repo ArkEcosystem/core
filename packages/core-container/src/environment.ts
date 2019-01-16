@@ -35,7 +35,7 @@ export class Environment {
         };
 
         if (this.variables.token) {
-            createPathVariables(envPaths(this.variables.token));
+            createPathVariables(envPaths(this.variables.token, { suffix: "core" }));
         } else if (this.variables.data && this.variables.config) {
             createPathVariables(this.variables);
         } else {
