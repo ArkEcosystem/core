@@ -1,8 +1,8 @@
-import { NetworkManager } from "@arkecosystem/crypto";
 import envPaths from "env-paths";
 import expandHomeDir from "expand-home-dir";
-import { existsSync } from "fs-extra";
+import { ensureDirSync, existsSync } from "fs-extra";
 import { resolve } from "path";
+
 export class Environment {
     /**
      * Create a new environment instance.
@@ -30,6 +30,8 @@ export class Environment {
             for (const [key, value] of Object.entries(values)) {
                 if (allowedKeys.includes(key)) {
                     process.env[`ARK_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
+
+                    ensureDirSync(process.env[`ARK_PATH_${key.toUpperCase()}`]);
                 }
             }
         };
@@ -53,7 +55,7 @@ export class Environment {
             return;
         }
 
-        const envPath = expandHomeDir(`${process.env.ARK_PATH_DATA}/.env`);
+        const envPath = expandHomeDir(`${process.env.ARK_PATH_CONFIG}/.env`);
 
         if (existsSync(envPath)) {
             const env = require("envfile").parseFileSync(envPath);
