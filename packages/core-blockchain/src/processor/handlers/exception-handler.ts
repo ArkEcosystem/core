@@ -8,8 +8,7 @@ export class ExceptionHandler extends BlockHandler {
         // block bypasses all other checks.
         const forgedBlock = await this.blockchain.database.getBlock(this.block.data.id);
         if (forgedBlock) {
-            super.execute();
-            return BlockProcessorResult.Rejected;
+            return super.execute();
         }
 
         this.logger.warn(
