@@ -19,7 +19,8 @@ let _lastBlocks: immutable.OrderedMap<number, models.Block> = immutable.OrderedM
 let _cachedTransactionIds: immutable.OrderedSet<string> = immutable.OrderedSet();
 
 // Map Block instances to block data.
-const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable.Seq<number, models.IBlockData> => blocks.map(block => ({ ...block.data, transactions: block.transactions }));
+const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable.Seq<number, models.IBlockData> =>
+    blocks.map(block => ({ ...block.data, transactions: block.transactions }));
 
 /**
  * Represents an in-memory storage for state machine data.
@@ -150,7 +151,7 @@ export class StateStorage implements Blockchain.IStateStorage {
      */
     public getCommonBlocks(ids): models.IBlockData[] {
         const idsHash = {};
-        ids.forEach(id => idsHash[id] = true);
+        ids.forEach(id => (idsHash[id] = true));
         return this.getLastBlocksData()
             .filter(block => idsHash[block.id])
             .toArray() as models.IBlockData[];
@@ -159,7 +160,9 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Cache the ids of the given transactions.
      */
-    public cacheTransactions(transactions: models.ITransactionData[]): { added: models.ITransactionData[], notAdded: models.ITransactionData[] } {
+    public cacheTransactions(
+        transactions: models.ITransactionData[],
+    ): { added: models.ITransactionData[]; notAdded: models.ITransactionData[] } {
         const notAdded = [];
         const added = transactions.filter(tx => {
             if (_cachedTransactionIds.has(tx.id)) {

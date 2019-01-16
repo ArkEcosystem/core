@@ -4,7 +4,6 @@ import { ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
-
     constructor() {
         super();
 

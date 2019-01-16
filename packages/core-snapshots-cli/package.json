@@ -11,7 +11,7 @@
         "dist"
     ],
     "bin": {
-        "ark:snapshot": "node ./dist/index.js"
+        "core:snapshot": "node ./dist/index.js"
     },
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",

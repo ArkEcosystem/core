@@ -29,9 +29,9 @@ export class Environment {
         const createPathVariables = values => {
             for (const [key, value] of Object.entries(values)) {
                 if (allowedKeys.includes(key)) {
-                    process.env[`ARK_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
+                    process.env[`CORE_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
 
-                    ensureDirSync(process.env[`ARK_PATH_${key.toUpperCase()}`]);
+                    ensureDirSync(process.env[`CORE_PATH_${key.toUpperCase()}`]);
                 }
             }
         };
@@ -55,7 +55,7 @@ export class Environment {
             return;
         }
 
-        const envPath = expandHomeDir(`${process.env.ARK_PATH_CONFIG}/.env`);
+        const envPath = expandHomeDir(`${process.env.CORE_PATH_DATA}/.env`);
 
         if (existsSync(envPath)) {
             const env = require("envfile").parseFileSync(envPath);

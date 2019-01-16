@@ -52,7 +52,9 @@ export interface IStateStorage {
     /**
      * Cache the ids of the given transactions.
      */
-    cacheTransactions(transactions: models.ITransactionData[]): { [key in "added" | "notAdded"]: models.ITransactionData[] };
+    cacheTransactions(
+        transactions: models.ITransactionData[],
+    ): { [key in "added" | "notAdded"]: models.ITransactionData[] };
 
     /**
      * Remove the given transaction ids from the cache.

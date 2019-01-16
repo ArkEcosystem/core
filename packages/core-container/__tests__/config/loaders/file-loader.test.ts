@@ -17,11 +17,11 @@ const stubConfig = {
 };
 
 beforeEach(() => {
-    process.env.ARK_PATH_CONFIG = stubConfigPath;
+    process.env.CORE_PATH_CONFIG = stubConfigPath;
 });
 
 afterEach(() => {
-    delete process.env.ARK_PATH_CONFIG;
+    delete process.env.CORE_PATH_CONFIG;
 });
 
 describe("File Loader", () => {

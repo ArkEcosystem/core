@@ -13,7 +13,6 @@ import { Block, IBlockData } from "./block";
 import { Transaction } from "./transaction";
 
 export class Delegate {
-
     /**
      * BIP38 encrypt passphrase.
      */

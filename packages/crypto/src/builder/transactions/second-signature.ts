@@ -5,7 +5,6 @@ import { ITransactionAsset, ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {
-
     constructor() {
         super();
 

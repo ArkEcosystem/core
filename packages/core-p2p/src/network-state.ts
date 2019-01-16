@@ -103,7 +103,7 @@ export class NetworkState {
 
         if (monitor.__isColdStartActive()) {
             return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);
-        } else if (process.env.ARK_ENV === "test") {
+        } else if (process.env.CORE_ENV === "test") {
             return new NetworkState(NetworkStateStatus.Test, lastBlock);
         } else if (peers.length < minimumNetworkReach) {
             return new NetworkState(NetworkStateStatus.BelowMinimumPeers, lastBlock);

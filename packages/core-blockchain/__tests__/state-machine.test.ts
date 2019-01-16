@@ -10,7 +10,7 @@ let blockchain: Blockchain;
 beforeAll(async () => {
     container = await setUp();
 
-    process.env.ARK_SKIP_BLOCKCHAIN = "true";
+    process.env.CORE_SKIP_BLOCKCHAIN = "true";
 
     // Manually register the blockchain
     const plugin = require("../src").plugin;
@@ -40,7 +40,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-    process.env.ARK_SKIP_BLOCKCHAIN = "false";
+    process.env.CORE_SKIP_BLOCKCHAIN = "false";
     blockchain.resetState();
 });
 

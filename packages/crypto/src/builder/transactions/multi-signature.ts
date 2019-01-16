@@ -4,7 +4,6 @@ import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../..
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
-
     constructor() {
         super();
 

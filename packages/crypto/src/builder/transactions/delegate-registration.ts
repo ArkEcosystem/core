@@ -5,7 +5,6 @@ import { ITransactionAsset, ITransactionData } from "../../models";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegistrationBuilder> {
-
     constructor() {
         super();
 

@@ -44,37 +44,27 @@ class TransactionSerializer {
         } else {
             buffer.writeByte(0x00);
         }
-
     }
 
     private serializeType(transaction: ITransactionData, buffer: ByteBuffer): void {
         if (transaction.type === TransactionTypes.Transfer) {
             this.serializeTransfer(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.SecondSignature) {
             this.serializeSecondSignature(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.DelegateRegistration) {
             this.serializeDelegateRegistration(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.Vote) {
             this.serializeVote(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.MultiSignature) {
             this.serializeMultiSignature(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.Ipfs) {
             this.serializeIpfs(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.TimelockTransfer) {
             this.serializeTimelockTransfer(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.MultiPayment) {
             this.serializeMultiPayment(transaction, buffer);
-
         } else if (transaction.type === TransactionTypes.DelegateResignation) {
             this.serializeDelegateResignation(transaction, buffer);
-
         } else {
             throw new Error(`Type ${transaction.type} not supported.`);
         }
@@ -97,9 +87,7 @@ class TransactionSerializer {
     }
 
     private serializeVote(transaction: ITransactionData, buffer: ByteBuffer): void {
-        const voteBytes = transaction.asset.votes
-            .map(vote => (vote[0] === "+" ? "01" : "00") + vote.slice(1))
-            .join("");
+        const voteBytes = transaction.asset.votes.map(vote => (vote[0] === "+" ? "01" : "00") + vote.slice(1)).join("");
         buffer.writeByte(transaction.asset.votes.length);
         buffer.append(voteBytes, "hex");
     }
@@ -160,7 +148,6 @@ class TransactionSerializer {
             buffer.append(transaction.signatures.join(""), "hex");
         }
     }
-
 }
 
 export const transactionSerializer = new TransactionSerializer();

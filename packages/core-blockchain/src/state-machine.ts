@@ -96,7 +96,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             event = "SYNCED";
         }
 
-        if (process.env.ARK_ENV === "test") {
+        if (process.env.CORE_ENV === "test") {
             event = "TEST";
         }
 

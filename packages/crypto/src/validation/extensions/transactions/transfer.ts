@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const transfer = joi => ({
-    name: "arkTransfer",
+    name: "transfer",
     base: transaction(joi).append({
         type: joi
             .number()

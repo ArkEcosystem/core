@@ -26,9 +26,9 @@ export async function startForger(options, version) {
         ],
         options: {
             "@arkecosystem/core-forger": {
-                bip38: options.bip38 || process.env.ARK_FORGER_BIP38,
+                bip38: options.bip38 || process.env.CORE_FORGER_BIP38,
                 address: options.address,
-                password: options.password || process.env.ARK_FORGER_PASSWORD,
+                password: options.password || process.env.CORE_FORGER_PASSWORD,
             },
         },
         skipPlugins: options.skipPlugins,
@@ -45,9 +45,9 @@ export async function startRelayAndForger(options, version) {
                 networkStart: options.networkStart,
             },
             "@arkecosystem/core-forger": {
-                bip38: options.bip38 || process.env.ARK_FORGER_BIP38,
+                bip38: options.bip38 || process.env.CORE_FORGER_BIP38,
                 address: options.address,
-                password: options.password || process.env.ARK_FORGER_PASSWORD,
+                password: options.password || process.env.CORE_FORGER_PASSWORD,
             },
         },
         skipPlugins: options.skipPlugins,

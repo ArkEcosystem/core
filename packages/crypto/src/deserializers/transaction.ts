@@ -30,7 +30,7 @@ class TransactionDeserializer {
         transaction.network = buf.readUint8();
         transaction.type = buf.readUint8();
         transaction.timestamp = buf.readUint32();
-        transaction.senderPublicKey = buf.readBytes(33).toString("hex");// serializedHex.substring(16, 16 + 33 * 2);
+        transaction.senderPublicKey = buf.readBytes(33).toString("hex"); // serializedHex.substring(16, 16 + 33 * 2);
         transaction.fee = new Bignum(buf.readUint64().toString());
         transaction.amount = Bignum.ZERO;
     }
@@ -50,31 +50,22 @@ class TransactionDeserializer {
     private deserializeType(transaction: ITransactionData, buf: ByteBuffer): void {
         if (transaction.type === TransactionTypes.Transfer) {
             this.deserializeTransfer(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.SecondSignature) {
             this.deserializeSecondSignature(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.DelegateRegistration) {
             this.deserializeDelegateRegistration(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.Vote) {
             this.deserializeVote(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.MultiSignature) {
             this.deserializeMultiSignature(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.Ipfs) {
             this.deserializeIpfs(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.TimelockTransfer) {
             this.deserializeTimelockTransfer(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.MultiPayment) {
             this.deserializeMultiPayment(transaction, buf);
-
         } else if (transaction.type === TransactionTypes.DelegateResignation) {
             this.deserializeDelegateResignation(transaction, buf);
-
         } else {
             throw new Error(`Type ${transaction.type} not supported.`);
         }
@@ -83,7 +74,7 @@ class TransactionDeserializer {
     private deserializeTransfer(transaction: ITransactionData, buf: ByteBuffer): void {
         transaction.amount = new Bignum(buf.readUint64().toString());
         transaction.expiration = buf.readUint32();
-        transaction.recipientId = bs58check.encode(buf.readBytes(21).toBuffer())
+        transaction.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
     }
 
     private deserializeSecondSignature(transaction: ITransactionData, buf: ByteBuffer): void {
@@ -131,7 +122,7 @@ class TransactionDeserializer {
     private deserializeIpfs(transaction: ITransactionData, buf: ByteBuffer): void {
         const dagLength = buf.readUint8();
         transaction.asset.ipfs = {
-            dag: buf.readBytes(dagLength).toString("hex")
+            dag: buf.readBytes(dagLength).toString("hex"),
         };
     }
 
@@ -143,7 +134,7 @@ class TransactionDeserializer {
     }
 
     private deserializeMultiPayment(transaction: ITransactionData, buf: ByteBuffer): void {
-        const payments = []
+        const payments = [];
         const total = buf.readUint8();
 
         for (let j = 0; j < total; j++) {
@@ -164,11 +155,14 @@ class TransactionDeserializer {
     private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer) {
         const currentSignatureLength = (): number => {
             buf.mark();
-            const lengthHex = buf.skip(1).readBytes(1).toString("hex");
+            const lengthHex = buf
+                .skip(1)
+                .readBytes(1)
+                .toString("hex");
             buf.reset();
 
             return parseInt(lengthHex, 16) + 2;
-        }
+        };
 
         // Signature
         if (buf.remaining()) {
@@ -176,7 +170,12 @@ class TransactionDeserializer {
             transaction.signature = buf.readBytes(signatureLength).toString("hex");
         }
 
-        const beginningMultiSignature = () => { buf.mark(); const marker = buf.readUint8(); buf.reset(); return marker === 255; }
+        const beginningMultiSignature = () => {
+            buf.mark();
+            const marker = buf.readUint8();
+            buf.reset();
+            return marker === 255;
+        };
 
         // Second Signature
         if (buf.remaining() && !beginningMultiSignature()) {

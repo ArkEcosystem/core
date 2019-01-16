@@ -1,6 +1,6 @@
 export const defaults = {
-    dsn: process.env.ARK_ERROR_TRACKER_SENTRY_DSN,
+    dsn: process.env.CORE_ERROR_TRACKER_SENTRY_DSN,
     debug: true,
     attachStacktrace: true,
-    environment: process.env.ARK_NETWORK_NAME,
+    environment: process.env.CORE_NETWORK_NAME,
 };

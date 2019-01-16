@@ -124,11 +124,11 @@ export class Blockchain implements blockchain.IBlockchain {
             this.stop();
         });
 
-        if (skipStartedCheck || process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK) {
+        if (skipStartedCheck || process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK) {
             return true;
         }
 
-        // TODO: this state needs to be set after state.getLastBlock() is available if ARK_ENV=test
+        // TODO: this state needs to be set after state.getLastBlock() is available if CORE_ENV=test
         while (!this.state.started && !this.isStopped) {
             await delay(1000);
         }

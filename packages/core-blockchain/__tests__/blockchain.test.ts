@@ -78,7 +78,7 @@ describe("Blockchain", () => {
 
     describe("start", () => {
         it("should be ok", async () => {
-            process.env.ARK_SKIP_BLOCKCHAIN = "false";
+            process.env.CORE_SKIP_BLOCKCHAIN = "false";
 
             const started = await blockchain.start(true);
 
@@ -368,8 +368,8 @@ describe("Blockchain", () => {
 });
 
 async function __start() {
-    process.env.ARK_SKIP_BLOCKCHAIN = "false";
-    process.env.ARK_ENV = "false";
+    process.env.CORE_SKIP_BLOCKCHAIN = "false";
+    process.env.CORE_ENV = "false";
 
     const plugin = require("../src").plugin;
 
