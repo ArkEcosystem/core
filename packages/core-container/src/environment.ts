@@ -36,10 +36,8 @@ export class Environment {
 
         if (this.variables.token) {
             createPathVariables(envPaths(this.variables.token));
-            return;
-        } else if (this.variables.token) {
+        } else if (this.variables.data && this.variables.config) {
             createPathVariables(this.variables);
-            return;
         } else {
             throw new Error("Neither a token nor config and data path were found. Please provide them and try again.");
         }

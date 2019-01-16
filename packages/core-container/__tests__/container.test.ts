@@ -17,7 +17,7 @@ beforeEach(async () => {
         {
             data: "fake-path",
             config: resolve(__dirname, "../../core/src/config/testnet"),
-            token: "ark",
+            // token: "ark",
             network: "testnet",
         },
         {
