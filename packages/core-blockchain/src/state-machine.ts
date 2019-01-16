@@ -4,7 +4,7 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { models, slots } from "@arkecosystem/crypto";
+import { isException, models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { config as localConfig } from "./config";
@@ -320,7 +320,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         const empty = !blocks || blocks.length === 0;
-        const chained = !empty && isBlockChained(lastDownloadedBlock, { data: blocks[0] });
+        const chained = !empty && (isBlockChained(lastDownloadedBlock, { data: blocks[0] }) || isException(blocks[0]));
 
         if (chained) {
             logger.info(

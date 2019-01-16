@@ -8,7 +8,6 @@ import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { configManager } from "../managers";
 import { feeManager } from "../managers";
 import { ITransactionData } from "../models";
-import { INetwork } from "../networks";
 import { Bignum } from "../utils";
 import { HashAlgorithms } from "./hash-algorithms";
 
