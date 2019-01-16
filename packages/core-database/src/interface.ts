@@ -162,6 +162,7 @@ export abstract class ConnectionInterface {
      * @throws Error
      */
     public abstract async getBlocks(offset, limit): Promise<any[]>;
+
     /**
      * Get top count blocks ordered by height DESC.
      * NOTE: Only used when trying to restore database integrity.
@@ -418,7 +419,7 @@ export abstract class ConnectionInterface {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         height = round * maxDelegates + 1;
 
-        const blocks = await this.getBlocks(height - maxDelegates, maxDelegates - 1);
+        const blocks = await this.getBlocks(height - maxDelegates, maxDelegates);
         return blocks.map(b => new Block(b));
     }
 
