@@ -18,13 +18,6 @@ describe("Conditions - between", () => {
                 max: 2,
             }),
         ).toBeFalse();
-
-        expect(
-            between(1, {
-                min: 2,
-                max: 3,
-            }),
-        ).toBeFalse();
     });
 });
 
