@@ -25,15 +25,20 @@ export class Environment {
      */
     private exportPaths() {
         const allowedKeys = ["data", "config", "cache", "log", "temp"];
+        const optionalKeys = ["cache", "log", "temp"];
 
         const createPathVariables = values => {
-            for (const [key, value] of Object.entries(values)) {
-                if (allowedKeys.includes(key)) {
-                    process.env[`CORE_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
+            allowedKeys.forEach(key => {
+                let value = values[key];
 
-                    ensureDirSync(process.env[`CORE_PATH_${key.toUpperCase()}`]);
+                if (optionalKeys.includes(key) && !value) {
+                    value = process.env.CORE_PATH_DATA;
                 }
-            }
+
+                process.env[`CORE_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
+
+                ensureDirSync(process.env[`CORE_PATH_${key.toUpperCase()}`]);
+            });
         };
 
         if (this.variables.token) {
