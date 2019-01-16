@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { isException, models } from "@arkecosystem/crypto";
+import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
 import { isBlockChained } from "../utils/is-block-chained";
 import { validateGenerator } from "../utils/validate-generator";
@@ -11,6 +11,7 @@ import {
     AcceptBlockHandler,
     AlreadyForgedHandler,
     BlockHandler,
+    ExceptionHandler,
     InvalidGeneratorHandler,
     UnchainedHandler,
     VerificationFailedHandler,
@@ -35,6 +36,10 @@ export class BlockProcessor {
     }
 
     public async getHandler(block: models.Block): Promise<BlockHandler> {
+        if (block.isException) {
+            return new ExceptionHandler(this.blockchain, block);
+        }
+
         if (!this.verifyBlock(block)) {
             return new VerificationFailedHandler(this.blockchain, block);
         }
@@ -63,21 +68,13 @@ export class BlockProcessor {
     private verifyBlock(block: models.Block): boolean {
         const verified = block.verification.verified;
         if (!verified) {
-            if (isException(block.data)) {
-                this.logger.warn(
-                    `Block ${block.data.height.toLocaleString()} (${
-                        block.data.id
-                    }) verification failed, but accepting because it is an exception.`,
-                );
-            } else {
-                this.logger.warn(
-                    `Block ${block.data.height.toLocaleString()} (${
-                        block.data.id
-                    }) disregarded because verification failed :scroll:`,
-                );
-                this.logger.warn(JSON.stringify(block.verification, null, 4));
-                return false;
-            }
+            this.logger.warn(
+                `Block ${block.data.height.toLocaleString()} (${
+                    block.data.id
+                }) disregarded because verification failed :scroll:`,
+            );
+            this.logger.warn(JSON.stringify(block.verification, null, 4));
+            return false;
         }
 
         return true;

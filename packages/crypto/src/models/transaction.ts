@@ -126,6 +126,8 @@ export class Transaction implements ITransactionData {
     public timelock?: any;
     public timelockType?: number;
 
+    public isException?: boolean;
+
     constructor(data: string | ITransactionData) {
         if (typeof data === "string") {
             this.serialized = data;
@@ -134,7 +136,10 @@ export class Transaction implements ITransactionData {
         }
 
         this.data = Transaction.deserialize(this.serialized);
-        this.verified = (this.data.type <= 4 && crypto.verify(this.data)) || isException(this.data);
+        this.verified = this.data.type <= 4 && crypto.verify(this.data);
+
+        // Mark Transaction as exception if id is whitelisted.
+        this.isException = isException(this.data);
 
         // TODO: remove this
         [
@@ -164,7 +169,7 @@ export class Transaction implements ITransactionData {
     }
 
     public verify(): boolean {
-        return this.verified;
+        return this.verified || this.isException;
     }
 
     public toJson(): any {

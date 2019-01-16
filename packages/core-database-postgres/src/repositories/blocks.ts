@@ -11,7 +11,7 @@ export class BlocksRepository extends Repository {
      * @return {Promise}
      */
     public async findById(id) {
-        return this.db.one(sql.findById, { id });
+        return this.db.oneOrNone(sql.findById, { id });
     }
 
     /**

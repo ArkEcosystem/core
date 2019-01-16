@@ -4,7 +4,7 @@ import { crypto, slots } from "../crypto";
 import { BlockDeserializer } from "../deserializers";
 import { configManager } from "../managers/config";
 import { BlockSerializer } from "../serializers";
-import { Bignum } from "../utils";
+import { Bignum, isException } from "../utils";
 import { ITransactionData, Transaction } from "./transaction";
 
 export interface BlockVerification {
@@ -148,6 +148,7 @@ export class Block implements IBlock {
     public data: IBlockData;
     public transactions: Transaction[];
     public verification: BlockVerification;
+    public isException?: boolean;
 
     constructor(data: IBlockData | string) {
         if (typeof data === "string") {
@@ -178,6 +179,9 @@ export class Block implements IBlock {
         delete this.data.transactions;
 
         this.verification = this.verify();
+
+        // Mark Block as exception if id is whitelisted
+        this.isException = isException(this.data);
 
         // order of transactions messed up in mainnet V1
         // TODO: move this to network constants exception using block ids
