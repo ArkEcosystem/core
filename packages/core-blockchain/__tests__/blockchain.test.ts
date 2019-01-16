@@ -258,7 +258,7 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("handleIncommingBlock", () => {
+    describe("handleIncomingBlock", () => {
         it("should be ok", () => {
             const dispatch = blockchain.dispatch;
             const enqueueBlocks = blockchain.enqueueBlocks;
