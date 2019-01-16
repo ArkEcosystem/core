@@ -20,7 +20,7 @@ describe("Fee Manager", () => {
             type: TransactionTypes.MultiSignature,
             asset: {
                 multisignature: {
-                    keysgroup: ["1", "2", "3"]
+                    keysgroup: ["1", "2", "3"],
                 },
             },
         } as ITransactionData;

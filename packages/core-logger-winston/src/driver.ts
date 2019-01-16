@@ -17,7 +17,7 @@ export class WinstonLogger extends AbstractLogger {
     public make() {
         this.logger = winston.createLogger();
 
-        this.__registerTransports();
+        this.registerTransports();
 
         return this;
     }
@@ -116,7 +116,7 @@ export class WinstonLogger extends AbstractLogger {
         line += `${" ".repeat(50 - progress / 2)}] `;
         line += `${progress.toFixed(0)}% `;
 
-        if (current === max) {
+        if (progress === max) {
             line += "✔️";
         }
 
@@ -142,7 +142,7 @@ export class WinstonLogger extends AbstractLogger {
      * Register all transports.
      * @return {void}
      */
-    public __registerTransports(): void {
+    private registerTransports(): void {
         for (const transport of Object.values(this.options.transports)) {
             // @ts-ignore
             if (transport.package) {

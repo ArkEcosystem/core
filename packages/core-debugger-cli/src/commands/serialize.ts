@@ -4,7 +4,7 @@ import { handleOutput } from "../utils";
 function serialize(opts) {
     const { Block, Transaction } = models;
 
-    const serialized: any  =
+    const serialized: any =
         opts.type === "transaction"
             ? Transaction.serialize(JSON.parse(opts.data))
             : Block[opts.full ? "serializeFull" : "serialize"](JSON.parse(opts.data));

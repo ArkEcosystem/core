@@ -30,7 +30,7 @@ export const config = {
 export const network = {
     handler(request, h) {
         return {
-            data: require(`${process.env.ARK_PATH_CONFIG}/network.json`),
+            data: require(`${process.env.CORE_PATH_CONFIG}/network.json`),
         };
     },
 };
@@ -38,7 +38,7 @@ export const network = {
 export const exceptions = {
     handler(request, h) {
         return {
-            data: require(`${process.env.ARK_PATH_CONFIG}/exceptions.json`),
+            data: require(`${process.env.CORE_PATH_CONFIG}/exceptions.json`),
         };
     },
 };
@@ -46,7 +46,7 @@ export const exceptions = {
 export const milestones = {
     handler(request, h) {
         return {
-            data: require(`${process.env.ARK_PATH_CONFIG}/milestones.json`),
+            data: require(`${process.env.CORE_PATH_CONFIG}/milestones.json`),
         };
     },
 };
@@ -54,7 +54,7 @@ export const milestones = {
 export const genesisBlock = {
     handler(request, h) {
         return {
-            data: require(`${process.env.ARK_PATH_CONFIG}/genesisBlock.json`),
+            data: require(`${process.env.CORE_PATH_CONFIG}/genesisBlock.json`),
         };
     },
 };
@@ -62,14 +62,14 @@ export const genesisBlock = {
 export const peers = {
     handler(request, h) {
         return {
-            data: require(`${process.env.ARK_PATH_CONFIG}/peers.json`),
+            data: require(`${process.env.CORE_PATH_CONFIG}/peers.json`),
         };
     },
 };
 
 export const delegates = {
     handler(request, h) {
-        const data = require(`${process.env.ARK_PATH_CONFIG}/delegates.json`);
+        const data = require(`${process.env.CORE_PATH_CONFIG}/delegates.json`);
         data.secrets = [];
         delete data.bip38;
 

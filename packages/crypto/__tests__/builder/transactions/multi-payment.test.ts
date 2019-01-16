@@ -1,6 +1,6 @@
 import "jest-extended";
 import { MultiPaymentBuilder } from "../../../src/builder/transactions/multi-payment";
-import { client as ark } from "../../../src/client";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -8,7 +8,7 @@ import { transactionBuilder } from "./__shared__/transaction-builder";
 let builder: MultiPaymentBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().multiPayment();
+    builder = client.getBuilder().multiPayment();
 });
 
 describe("Multi Payment Transaction", () => {

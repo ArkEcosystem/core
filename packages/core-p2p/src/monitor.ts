@@ -96,7 +96,7 @@ export class Monitor implements P2P.IMonitor {
      * @return {Promise}
      */
     public async updateNetworkStatus(networkStart: boolean = false) {
-        if (process.env.ARK_ENV === "test" || process.env.NODE_ENV === "test") {
+        if (process.env.CORE_ENV === "test" || process.env.NODE_ENV === "test") {
             return;
         }
 
@@ -143,7 +143,7 @@ export class Monitor implements P2P.IMonitor {
             this.guard.isSuspended(peer) ||
             this.guard.isMyself(peer) ||
             this.pendingPeers[peer.ip] ||
-            process.env.ARK_ENV === "test"
+            process.env.CORE_ENV === "test"
         ) {
             return;
         }
@@ -709,7 +709,7 @@ export class Monitor implements P2P.IMonitor {
         }));
 
         try {
-            fs.writeFileSync(`${process.env.ARK_PATH_CONFIG}/peers_backup.json`, JSON.stringify(peers, null, 2));
+            fs.writeFileSync(`${process.env.CORE_PATH_CONFIG}/peers_backup.json`, JSON.stringify(peers, null, 2));
         } catch (err) {
             logger.error(`Failed to dump the peer list because of "${err.message}"`);
         }

@@ -8,7 +8,7 @@ export const base = joi =>
             .required(),
         blockid: joi.alternatives().try(
             // TODO: remove in 2.1
-            joi.arkBlockId(),
+            joi.blockId(),
             // @ts-ignore
             joi.number().unsafe(),
         ),
@@ -51,9 +51,9 @@ export const base = joi =>
                     .positive(),
             )
             .required(),
-        senderId: joi.arkAddress(), // TODO: remove in 2.1
-        recipientId: joi.arkAddress().required(),
-        senderPublicKey: joi.arkPublicKey().required(),
+        senderId: joi.address(), // TODO: remove in 2.1
+        recipientId: joi.address().required(),
+        senderPublicKey: joi.publicKey().required(),
         signature: joi
             .string()
             .alphanum()

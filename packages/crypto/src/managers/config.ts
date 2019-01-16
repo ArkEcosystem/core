@@ -8,9 +8,9 @@ import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
 
 interface IMilestone {
-    index: number
-    data: { [ key: string]: any }
-};
+    index: number;
+    data: { [key: string]: any };
+}
 
 export type NetworkName = keyof typeof networks;
 

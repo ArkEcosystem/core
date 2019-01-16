@@ -5,7 +5,7 @@ jest.setTimeout(60000);
 
 export async function setUp() {
     // @ts-ignore
-    process.env.ARK_JSON_RPC_ENABLED = true;
+    process.env.CORE_JSON_RPC_ENABLED = true;
 
     return setUpContainer({
         exclude: ["@arkecosystem/core-webhooks", "@arkecosystem/core-graphql", "@arkecosystem/core-forger"],

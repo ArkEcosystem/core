@@ -7,7 +7,7 @@ import { startServer } from "../../src/server";
 jest.setTimeout(60000);
 
 async function setUp() {
-    process.env.ARK_WEBHOOKS_ENABLED = "true";
+    process.env.CORE_WEBHOOKS_ENABLED = "true";
 
     await setUpContainer({
         exclude: ["@arkecosystem/core-api", "@arkecosystem/core-graphql", "@arkecosystem/core-forger"],
@@ -15,16 +15,16 @@ async function setUp() {
 
     await database.setUp({
         dialect: "sqlite",
-        storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
-        logging: process.env.ARK_DB_LOGGING,
+        storage: `${process.env.CORE_PATH_DATA}/database/webhooks.sqlite`,
+        logging: process.env.CORE_DB_LOGGING,
     });
 
     await webhookManager.setUp();
 
     await startServer({
         enabled: false,
-        host: process.env.ARK_WEBHOOKS_HOST || "0.0.0.0",
-        port: process.env.ARK_WEBHOOKS_PORT || 4004,
+        host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
+        port: process.env.CORE_WEBHOOKS_PORT || 4004,
         whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
         pagination: {
             limit: 100,

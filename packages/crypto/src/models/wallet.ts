@@ -270,7 +270,11 @@ export class Wallet {
     /**
      * Goes through signatures to check if public key matches. Can also remove valid signatures.
      */
-    private verifyTransactionSignatures(transaction: ITransactionData, signatures: string[], publicKey: string): string | null {
+    private verifyTransactionSignatures(
+        transaction: ITransactionData,
+        signatures: string[],
+        publicKey: string,
+    ): string | null {
         for (const signature of signatures) {
             if (this.verify(transaction, signature, publicKey)) {
                 return signature;

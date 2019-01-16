@@ -124,11 +124,11 @@ export class Blockchain implements blockchain.IBlockchain {
             this.stop();
         });
 
-        if (skipStartedCheck || process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK) {
+        if (skipStartedCheck || process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK) {
             return true;
         }
 
-        // TODO: this state needs to be set after state.getLastBlock() is available if ARK_ENV=test
+        // TODO: this state needs to be set after state.getLastBlock() is available if CORE_ENV=test
         while (!this.state.started && !this.isStopped) {
             await delay(1000);
         }
@@ -230,6 +230,13 @@ export class Blockchain implements blockchain.IBlockchain {
                 true,
             )} from ${block.ip}`,
         );
+
+        const currentSlot = slots.getSlotNumber();
+        const receivedSlot = slots.getSlotNumber(block.timestamp);
+        if (receivedSlot > currentSlot) {
+            logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
+            return;
+        }
 
         if (this.state.started && this.state.blockchain.value === "idle") {
             this.dispatch("NEWBLOCK");

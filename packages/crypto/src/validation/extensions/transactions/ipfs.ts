@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const ipfs = joi => ({
-    name: "arkIpfs",
+    name: "ipfs",
     base: transaction(joi).append({
         type: joi
             .number()

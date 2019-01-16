@@ -1,7 +1,7 @@
 import { Engine } from "../engine";
 
 export const username = attributes => {
-    const { error, value } = Engine.validate(attributes, Engine.joi.arkUsername());
+    const { error, value } = Engine.validate(attributes, Engine.joi.delegateUsername());
 
     return {
         data: value,

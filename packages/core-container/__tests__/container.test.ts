@@ -17,7 +17,7 @@ beforeEach(async () => {
         {
             data: "fake-path",
             config: resolve(__dirname, "../../core/src/config/testnet"),
-            token: "ark",
+            // token: "ark",
             network: "testnet",
         },
         {
@@ -81,6 +81,6 @@ describe("Container", () => {
     });
 
     it("should resolve and export paths", () => {
-        expect(process.env.ARK_PATH_DATA).toEqual(resolve("fake-path"));
+        expect(process.env.CORE_PATH_DATA).toEqual(resolve("fake-path"));
     });
 });

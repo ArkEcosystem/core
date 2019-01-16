@@ -5,7 +5,7 @@ import { defaults } from "../../src/defaults";
 import { Peer } from "../../src/peer";
 import { setUp, tearDown } from "../__support__/setup";
 
-const ARK_ENV = process.env.ARK_ENV;
+const CORE_ENV = process.env.CORE_ENV;
 let guard;
 let peerMock;
 
@@ -34,18 +34,18 @@ beforeEach(async () => {
 describe("Guard", () => {
     describe("isSuspended", () => {
         it("should return true", async () => {
-            process.env.ARK_ENV = "false";
+            process.env.CORE_ENV = "false";
             await guard.monitor.acceptNewPeer(peerMock);
-            process.env.ARK_ENV = ARK_ENV;
+            process.env.CORE_ENV = CORE_ENV;
 
             expect(guard.isSuspended(peerMock)).toBe(true);
         });
 
         it("should return false because passed", async () => {
-            process.env.ARK_ENV = "false";
+            process.env.CORE_ENV = "false";
             await guard.monitor.acceptNewPeer(peerMock);
             guard.suspensions[peerMock.ip].until = dayjs().subtract(1, "minute");
-            process.env.ARK_ENV = ARK_ENV;
+            process.env.CORE_ENV = CORE_ENV;
 
             expect(guard.isSuspended(peerMock)).toBe(false);
         });

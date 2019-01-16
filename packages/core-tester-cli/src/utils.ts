@@ -2,7 +2,7 @@ import axios from "axios";
 import pino from "pino";
 
 const logger = pino({
-    name: "ark-tester-cli",
+    name: "core-tester-cli",
     safe: true,
     prettyPrint: true,
 });

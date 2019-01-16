@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const vote = joi => ({
-    name: "arkVote",
+    name: "vote",
     base: transaction(joi).append({
         type: joi
             .number()
@@ -27,7 +27,7 @@ export const vote = joi => ({
             })
             .required(),
         recipientId: joi
-            .arkAddress()
+            .address()
             .allow(null)
             .optional(),
     }),

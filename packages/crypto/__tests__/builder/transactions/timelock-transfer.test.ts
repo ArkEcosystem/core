@@ -1,14 +1,14 @@
 import "jest-extended";
 import { TimelockTransferBuilder } from "../../../src/builder/transactions/timelock-transfer";
-import { client as ark } from "../../../src/client";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder : TimelockTransferBuilder;
+let builder: TimelockTransferBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().timelockTransfer();
+    builder = client.getBuilder().timelockTransfer();
 });
 
 describe("Timelock Transfer Transaction", () => {
