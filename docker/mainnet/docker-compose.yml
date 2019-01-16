@@ -6,7 +6,7 @@ services:
 
   postgres:
     image: "postgres:alpine"
-    container_name: ark-mainnet-postgres
+    container_name: core-mainnet-postgres
     ports:
       - '127.0.0.1:5432:5432'
     volumes:
@@ -14,7 +14,7 @@ services:
     environment:
      POSTGRES_PASSWORD: password
      POSTGRES_DB: core_mainnet
-     POSTGRES_USER: ark
+     POSTGRES_USER: core
 
 volumes:
   postgres:
