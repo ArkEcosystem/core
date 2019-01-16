@@ -18,7 +18,7 @@ export const defaults = {
                 format: formatter(false),
                 filename:
                     process.env.CORE_LOG_FILE ||
-                    `${process.env.CORE_PATH_DATA}/logs/core/${process.env.CORE_NETWORK_NAME}/%DATE%.log`,
+                    `${process.env.CORE_PATH_LOG}/${process.env.CORE_NETWORK_NAME}/%DATE%.log`,
                 datePattern: "YYYY-MM-DD",
                 zippedArchive: true,
                 maxSize: "100m",

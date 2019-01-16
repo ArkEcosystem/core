@@ -10,7 +10,7 @@ export async function setUpContainer(options: any): Promise<Container.IContainer
         {
             data: options.data || "~/.core",
             config: options.config ? options.config : path.resolve(__dirname, `../config/${options.network}`),
-            token: options.token || "ark",
+            // token: options.token || "ark",
             network: options.network,
         },
         options,

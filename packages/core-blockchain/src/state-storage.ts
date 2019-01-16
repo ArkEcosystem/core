@@ -151,7 +151,7 @@ export class StateStorage implements Blockchain.IStateStorage {
      */
     public getCommonBlocks(ids): models.IBlockData[] {
         const idsHash = {};
-        ids.forEach(id => idsHash[id] = true);
+        ids.forEach(id => (idsHash[id] = true));
         return this.getLastBlocksData()
             .filter(block => idsHash[block.id])
             .toArray() as models.IBlockData[];
