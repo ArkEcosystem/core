@@ -52,6 +52,9 @@
         "preset": "../../jest-preset.json"
     },
     "devDependencies": {
+        "@types/hapi": "^17.8.2",
+        "@types/inert": "^5.1.2",
+        "@types/vision": "^5.3.5",
         "axios": "^0.18.0"
     }
 }

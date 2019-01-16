@@ -58,5 +58,8 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
+    },
+    "devDependencies": {
+        "@types/pg-query-stream": "^1.0.2"
     }
 }

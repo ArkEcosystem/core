@@ -43,7 +43,8 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0"
+        "@arkecosystem/core-test-utils": "^2.1.0",
+        "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
         "access": "public"

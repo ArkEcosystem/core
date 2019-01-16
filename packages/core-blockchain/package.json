@@ -48,6 +48,9 @@
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.1.0",
         "@arkecosystem/core-test-utils": "^2.1.0",
+        "@types/async": "^2.0.50",
+        "@types/pluralize": "^0.0.29",
+        "@types/pretty-ms": "^4.0.0",
         "axios": "^0.18.0",
         "axios-mock-adapter": "^1.15.0"
     },
