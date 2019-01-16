@@ -258,6 +258,48 @@ describe("Blockchain", () => {
         });
     });
 
+    describe("handleIncomingBlock", () => {
+        it("should be ok", () => {
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: slots.getEpochTime(),
+            };
+
+            blockchain.handleIncomingBlock(block);
+
+            expect(blockchain.dispatch).toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        });
+
+        it("should not handle block from future slot", () => {
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: slots.getSlotTime(slots.getNextSlot()),
+            };
+
+            blockchain.handleIncomingBlock(block);
+
+            expect(blockchain.dispatch).not.toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).not.toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        });
+    });
+
     describe("isSynced", () => {
         describe("with a block param", () => {
             it("should be ok", () => {

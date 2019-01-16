@@ -231,6 +231,13 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from ${block.ip}`,
         );
 
+        const currentSlot = slots.getSlotNumber();
+        const receivedSlot = slots.getSlotNumber(block.timestamp);
+        if (receivedSlot > currentSlot) {
+            logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
+            return;
+        }
+
         if (this.state.started && this.state.blockchain.value === "idle") {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);

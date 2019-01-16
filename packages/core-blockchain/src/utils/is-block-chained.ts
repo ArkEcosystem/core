@@ -1,9 +1,12 @@
-import { models } from "@arkecosystem/crypto";
+import { models, slots } from "@arkecosystem/crypto";
 
 export const isBlockChained = (previousBlock: models.IBlock, nextBlock: models.IBlock): boolean => {
     const followsPrevious = nextBlock.data.previousBlock === previousBlock.data.id;
-    const isFuture = nextBlock.data.timestamp > previousBlock.data.timestamp;
     const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1;
 
-    return followsPrevious && isFuture && isPlusOne;
+    const previousSlot = slots.getSlotNumber(previousBlock.data.timestamp);
+    const nextSlot = slots.getSlotNumber(nextBlock.data.timestamp);
+    const isAfterPreviousSlot = previousSlot < nextSlot;
+
+    return followsPrevious && isPlusOne && isAfterPreviousSlot;
 };
