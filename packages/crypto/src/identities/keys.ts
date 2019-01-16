@@ -6,9 +6,9 @@ import { configManager } from "../managers";
 import { INetwork } from "../networks";
 
 export interface KeyPair {
-    publicKey: string,
-    privateKey: string,
-    compressed: boolean
+    publicKey: string;
+    privateKey: string;
+    compressed: boolean;
 }
 
 export class Keys {

@@ -2,7 +2,7 @@
     "version": 2,
     "jobs": {
         "test-node10-0": {
-            "working_directory": "~/ark-core",
+            "working_directory": "~/core",
             "docker": [
                 {
                     "image": "circleci/node:10-browsers"
@@ -11,8 +11,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "ark_development",
-                        "POSTGRES_USER": "ark"
+                        "POSTGRES_DB": "core_development",
+                        "POSTGRES_USER": "core"
                     }
                 }
             ],
@@ -55,8 +55,8 @@
                 },
                 {
                     "run": {
-                        "name": "Create .ark/database directory",
-                        "command": "mkdir -p $HOME/.ark/database"
+                        "name": "Create .core/database directory",
+                        "command": "mkdir -p $HOME/.core/database"
                     }
                 },
                 {
@@ -81,7 +81,7 @@
             ]
         },
         "test-node11-0": {
-            "working_directory": "~/ark-core",
+            "working_directory": "~/core",
             "docker": [
                 {
                     "image": "circleci/node:11-browsers"
@@ -90,8 +90,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "ark_development",
-                        "POSTGRES_USER": "ark"
+                        "POSTGRES_DB": "core_development",
+                        "POSTGRES_USER": "core"
                     }
                 }
             ],
@@ -134,8 +134,8 @@
                 },
                 {
                     "run": {
-                        "name": "Create .ark/database directory",
-                        "command": "mkdir -p $HOME/.ark/database"
+                        "name": "Create .core/database directory",
+                        "command": "mkdir -p $HOME/.core/database"
                     }
                 },
                 {

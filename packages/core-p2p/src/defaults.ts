@@ -1,6 +1,6 @@
 export const defaults = {
-    host: process.env.ARK_P2P_HOST || "0.0.0.0",
-    port: process.env.ARK_P2P_PORT || 4002,
+    host: process.env.CORE_P2P_HOST || "0.0.0.0",
+    port: process.env.CORE_P2P_PORT || 4002,
     /**
      * The minimum peer version we expect
      */

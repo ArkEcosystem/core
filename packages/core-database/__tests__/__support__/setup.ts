@@ -5,7 +5,7 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 export const setUp = async () => {
     jest.setTimeout(60000);
 
-    process.env.ARK_SKIP_BLOCKCHAIN = "true";
+    process.env.CORE_SKIP_BLOCKCHAIN = "true";
 
     await setUpContainer({
         exit: "@arkecosystem/core-blockchain",

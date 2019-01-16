@@ -4,9 +4,9 @@ import { crypto } from "./crypto";
 import { HashAlgorithms } from "./hash-algorithms";
 
 export interface IMessage {
-    readonly publicKey: string,
-    readonly signature: string,
-    readonly message: string
+    readonly publicKey: string;
+    readonly signature: string;
+    readonly message: string;
 }
 
 export class Message {
@@ -48,6 +48,6 @@ export class Message {
     }
 
     private static createHash(message: string): Buffer {
-        return HashAlgorithms.sha256(message)
+        return HashAlgorithms.sha256(message);
     }
 }

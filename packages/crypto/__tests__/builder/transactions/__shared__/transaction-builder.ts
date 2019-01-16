@@ -4,11 +4,8 @@ import { Transaction } from "../../../../src/models/transaction";
 import { Bignum } from "../../../../src/utils/bignum";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
-
-    describe('TransactionBuilder', () => {
-
+    describe("TransactionBuilder", () => {
         describe("inherits = require(TransactionBuilder", () => {
-
             it("should have the essential properties", () => {
                 const builder = provider();
 
@@ -21,7 +18,6 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             });
 
             describe("builder", () => {
-
                 let timestamp;
                 let data;
 
@@ -208,5 +204,4 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             });
         });
     });
-
 };

@@ -5,7 +5,7 @@ export const defaults = {
         console: {
             constructor: "Console",
             options: {
-                level: process.env.ARK_LOG_LEVEL || "debug",
+                level: process.env.CORE_LOG_LEVEL || "debug",
                 format: formatter(true),
                 stderrLevels: ["error", "warn"],
             },
@@ -14,11 +14,11 @@ export const defaults = {
             package: "winston-daily-rotate-file",
             constructor: "DailyRotateFile",
             options: {
-                level: process.env.ARK_LOG_LEVEL || "debug",
+                level: process.env.CORE_LOG_LEVEL || "debug",
                 format: formatter(false),
                 filename:
-                    process.env.ARK_LOG_FILE ||
-                    `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
+                    process.env.CORE_LOG_FILE ||
+                    `${process.env.CORE_PATH_DATA}/logs/core/${process.env.CORE_NETWORK_NAME}/%DATE%.log`,
                 datePattern: "YYYY-MM-DD",
                 zippedArchive: true,
                 maxSize: "100m",

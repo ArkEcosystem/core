@@ -6,9 +6,9 @@ import msgpack from "msgpack-lite";
 import { blocks } from "../../../fixtures/blocks";
 import { transactions } from "../../../fixtures/transactions";
 
-import { ArkCodec } from "../../../../dist/transport/codecs/ark-codec";
+import { CoreCodec } from "../../../../dist/transport/codecs/core-codec";
 
-const codec = new ArkCodec();
+const codec = new CoreCodec();
 
 beforeAll(async () => {
     transactions.forEach((transaction: any) => {

@@ -1,15 +1,15 @@
 import "jest-extended";
 import { DelegateRegistrationBuilder } from "../../../src/builder/transactions/delegate-registration";
-import { client as ark } from "../../../src/client";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto/crypto";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder: DelegateRegistrationBuilder
+let builder: DelegateRegistrationBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().delegateRegistration();
+    builder = client.getBuilder().delegateRegistration();
 });
 
 describe("Delegate Registration Transaction", () => {

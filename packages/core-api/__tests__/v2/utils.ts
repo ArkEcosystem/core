@@ -20,7 +20,7 @@ class Helpers {
     public async requestWithAcceptHeader(method, path, params = {}) {
         const url = `http://localhost:4003/api/${path}`;
         const headers = {
-            Accept: "application/vnd.ark.core-api.v2+json",
+            Accept: "application/vnd.core-api.v2+json",
             "Content-Type": "application/json",
         };
 

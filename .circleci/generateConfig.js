@@ -40,7 +40,7 @@ fs.readdir("./packages", (_, packages) => {
                     return {
                         run: {
                             name,
-                            command: `cd ~/ark-core/packages/${name} && yarn test:coverage`,
+                            command: `cd ~/core/packages/${name} && yarn test:coverage`,
                         },
                     };
                 })

@@ -246,7 +246,7 @@ export class PostgresConnection extends ConnectionInterface {
     public async buildWallets(height) {
         this.walletManager.reset();
 
-        const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`;
+        const spvPath = `${process.env.CORE_PATH_DATA}/spv.json`;
 
         if (fs.existsSync(spvPath)) {
             (fs as any).removeSync(spvPath);

@@ -1,14 +1,14 @@
 import "jest-extended";
 import { DelegateResignationBuilder } from "../../../src/builder/transactions/delegate-resignation";
-import { client as ark } from "../../../src/client";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder : DelegateResignationBuilder;
+let builder: DelegateResignationBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().delegateResignation();
+    builder = client.getBuilder().delegateResignation();
 });
 
 describe("Delegate Resignation Transaction", () => {

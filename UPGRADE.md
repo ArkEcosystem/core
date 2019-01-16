@@ -10,8 +10,8 @@ Upgrading in general is as simple as updating your installation through the comm
 running `git pull` inside the installation directory. In a big application however there may
 be more things to consider, which are explained in the following.
 
-> Note: This document assumes you have Core installed inside the `~/ark-core` directory
-> with your configuration being located at `~/.ark/config`. If you are using different locations
+> Note: This document assumes you have Core installed inside the `~/core` directory
+> with your configuration being located at `~/.core/config`. If you are using different locations
 > you will need to adjust those inside the examples which can be found below.
 
 > Tip: Upgrading a complex software project always comes at the risk of breaking something, so make sure you have a backup **(you should be doing this anyway)**.
@@ -30,7 +30,7 @@ asked to update, press `Y` to perform the update and restart your relay and forg
 
 Another way to upgrade is to run the latest stable release through the `master` branch:
 
-    cd ~/ark-core
+    cd ~/core
     git reset --hard
     git fetch && git pull
     git checkout master
@@ -40,7 +40,7 @@ Another way to upgrade is to run the latest stable release through the `master` 
 
 Another way to upgrade is to change to a specific version, for example to version 2.0.10 (replace this with the version you want):
 
-    cd ~/ark-core
+    cd ~/core
     git reset --hard
     git fetch && git pull
     git checkout tags/2.0.10
@@ -64,13 +64,13 @@ See the following notes on which changes to consider when upgrading from one ver
 
 ### Upgrade from Core 2.0.\* to 2.1.0
 
--   Remove `"@arkecosystem/core-config": {},` from the `~/.ark/config/plugins.js` file.
+-   Remove `"@arkecosystem/core-config": {},` from the `~/.core/config/plugins.js` file.
 
--   Rename `@arkecosystem/core-transaction-pool-mem` to `@arkecosystem/core-transaction-pool` in the `~/.ark/config/plugins.js` file.
+-   Rename `@arkecosystem/core-transaction-pool-mem` to `@arkecosystem/core-transaction-pool` in the `~/.core/config/plugins.js` file.
 
--   Remove the `~/.ark/config/network.json` file.
+-   Remove the `~/.core/config/network.json` file.
 
--   If you have been using custom dynamic fees open the `~/.ark/config/plugins.js` file and locate the `@arkecosystem/core-transaction-pool` plugin. Add below code to it and enter your desired values.
+-   If you have been using custom dynamic fees open the `~/.core/config/plugins.js` file and locate the `@arkecosystem/core-transaction-pool` plugin. Add below code to it and enter your desired values.
 
     ```js
     dynamicFees: {

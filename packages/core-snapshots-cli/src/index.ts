@@ -14,8 +14,8 @@ const registerCommand = (name, description) => {
     return cli
         .command(name)
         .description(description)
-        .option("-d, --data <data>", "data directory", "~/.ark")
-        .option("-c, --config <config>", "network config", "~/.ark/config")
+        .option("-d, --data <data>", "data directory", "~/.core")
+        .option("-c, --config <config>", "network config", "~/.core/config")
         .option("-t, --token <token>", "token name", "ark")
         .option("-n, --network <network>", "token network")
         .option("--skip-compression", "skip gzip compression", false)

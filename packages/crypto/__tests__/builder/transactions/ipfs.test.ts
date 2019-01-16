@@ -1,14 +1,14 @@
 import "jest-extended";
 import { IPFSBuilder } from "../../../src/builder/transactions/ipfs";
-import { client as ark } from "../../../src/client";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder : IPFSBuilder;
+let builder: IPFSBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().ipfs();
+    builder = client.getBuilder().ipfs();
 });
 
 describe("IPFS Transaction", () => {
