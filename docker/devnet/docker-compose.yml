@@ -10,18 +10,18 @@ services:
       - 'postgres:/var/lib/postgresql/data'
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: ark_devnet
+     POSTGRES_DB: core_devnet
      POSTGRES_USER: ark
 
-  ark-core:
+  core:
     build: .
-    image: ark-core
+    image: core
     container_name: ark-devnet-core
     ports:
      - "4002:4002"
      - "4003:4003"
     volumes:
-     - ark-core:/ark-core
+     - core:/core
     tty: true
     privileged: true
     links:
@@ -36,7 +36,7 @@ services:
 
 volumes:
   postgres:
-  ark-core:
+  core:
     driver_opts:
       type: none
       device: $PWD/../../

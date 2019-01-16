@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const timelockTransfer = joi => ({
-    name: "arkTimelockTransfer",
+    name: "timelockTransfer",
     base: transaction(joi).append({
         type: joi
             .number()

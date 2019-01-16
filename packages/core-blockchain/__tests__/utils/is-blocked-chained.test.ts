@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { models } from "@arkecosystem/crypto";
+import { models, slots } from "@arkecosystem/crypto";
 import { isBlockChained } from "../../src/utils";
 
 describe("isChained", () => {
@@ -8,7 +8,7 @@ describe("isChained", () => {
         const previousBlock = {
             data: {
                 id: "1",
-                timestamp: 1,
+                timestamp: slots.getSlotTime(0),
                 height: 1,
                 previousBlock: null,
             },
@@ -17,20 +17,20 @@ describe("isChained", () => {
         const nextBlock = {
             data: {
                 id: "2",
-                timestamp: 2,
+                timestamp: slots.getSlotTime(1),
                 height: 2,
                 previousBlock: "1",
             },
-        }  as models.IBlock;
+        } as models.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeTrue();
     });
 
-    it("should not be ok", () => {
+    it("should not chain when previous block does not match", () => {
         const previousBlock = {
             data: {
                 id: "2",
-                timestamp: 2,
+                timestamp: slots.getSlotTime(0),
                 height: 2,
                 previousBlock: null,
             },
@@ -39,8 +39,74 @@ describe("isChained", () => {
         const nextBlock = {
             data: {
                 id: "1",
-                timestamp: 1,
+                timestamp: slots.getSlotTime(1),
+                height: 3,
+                previousBlock: "1",
+            },
+        } as models.IBlock;
+
+        expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
+    });
+
+    it("should not chain when next height is not plus 1", () => {
+        const previousBlock = {
+            data: {
+                id: "1",
+                timestamp: slots.getSlotTime(0),
                 height: 1,
+                previousBlock: null,
+            },
+        } as models.IBlock;
+
+        const nextBlock = {
+            data: {
+                id: "2",
+                timestamp: slots.getSlotTime(1),
+                height: 3,
+                previousBlock: "1",
+            },
+        } as models.IBlock;
+
+        expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
+    });
+
+    it("should not chain when same slot", () => {
+        const previousBlock = {
+            data: {
+                id: "1",
+                timestamp: slots.getSlotTime(0),
+                height: 1,
+                previousBlock: null,
+            },
+        } as models.IBlock;
+
+        const nextBlock = {
+            data: {
+                id: "2",
+                timestamp: slots.getSlotTime(0),
+                height: 3,
+                previousBlock: "1",
+            },
+        } as models.IBlock;
+
+        expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
+    });
+
+    it("should not chain when lower slot", () => {
+        const previousBlock = {
+            data: {
+                id: "1",
+                timestamp: slots.getSlotTime(1),
+                height: 1,
+                previousBlock: null,
+            },
+        } as models.IBlock;
+
+        const nextBlock = {
+            data: {
+                id: "2",
+                timestamp: slots.getSlotTime(0),
+                height: 3,
                 previousBlock: "1",
             },
         } as models.IBlock;

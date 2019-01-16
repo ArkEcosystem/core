@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const delegateRegistration = joi => ({
-    name: "arkDelegateRegistration",
+    name: "delegateRegistration",
     base: transaction(joi).append({
         type: joi
             .number()
@@ -16,8 +16,8 @@ export const delegateRegistration = joi => ({
             .object({
                 delegate: joi
                     .object({
-                        username: joi.arkUsername().required(),
-                        publicKey: joi.arkPublicKey(),
+                        username: joi.delegateUsername().required(),
+                        publicKey: joi.publicKey(),
                     })
                     .required(),
             })

@@ -92,7 +92,7 @@ export class RemoteLoader {
     }
 
     private configureDatabase(network) {
-        const command = spawnSync("createdb", [`ark_${network.name}`]);
+        const command = spawnSync("createdb", [`core_${network.name}`]);
 
         if (command.stderr.length > 0) {
             // tslint:disable-next-line:no-console

@@ -124,11 +124,11 @@ export class Blockchain implements blockchain.IBlockchain {
             this.stop();
         });
 
-        if (skipStartedCheck || process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK) {
+        if (skipStartedCheck || process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK) {
             return true;
         }
 
-        // TODO: this state needs to be set after state.getLastBlock() is available if ARK_ENV=test
+        // TODO: this state needs to be set after state.getLastBlock() is available if CORE_ENV=test
         while (!this.state.started && !this.isStopped) {
             await delay(1000);
         }
@@ -231,6 +231,13 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from ${block.ip}`,
         );
 
+        const currentSlot = slots.getSlotNumber();
+        const receivedSlot = slots.getSlotNumber(block.timestamp);
+        if (receivedSlot > currentSlot) {
+            logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
+            return;
+        }
+
         if (this.state.started && this.state.blockchain.value === "idle") {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
@@ -265,7 +272,9 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         const newHeight = previousRound * maxDelegates;
-        const blocksToRemove = await this.database.getBlocks(newHeight, height - newHeight - 1);
+        // If the current chain height is H and we will be removing blocks [N, H],
+        // then blocksToRemove[] will contain blocks [N - 1, H - 1].
+        const blocksToRemove = await this.database.getBlocks(newHeight, height - newHeight);
         const deleteLastBlock = async () => {
             const lastBlock = this.state.getLastBlock();
             await this.database.enqueueDeleteBlock(lastBlock);
@@ -305,10 +314,9 @@ export class Blockchain implements blockchain.IBlockchain {
     public async removeBlocks(nblocks) {
         this.clearAndStopQueue();
 
-        const blocksToRemove = await this.database.getBlocks(
-            this.state.getLastBlock().data.height - nblocks,
-            nblocks - 1,
-        );
+        // If the current chain height is H and we will be removing blocks [N, H],
+        // then blocksToRemove[] will contain blocks [N - 1, H - 1].
+        const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks);
 
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable

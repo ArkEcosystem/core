@@ -8,7 +8,6 @@ import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { configManager } from "../managers";
 import { feeManager } from "../managers";
 import { ITransactionData } from "../models";
-import { INetwork } from "../networks";
 import { Bignum } from "../utils";
 import { HashAlgorithms } from "./hash-algorithms";
 
@@ -25,7 +24,11 @@ class Crypto {
     /**
      * Get the byte representation of the transaction.
      */
-    public getBytes(transaction: ITransactionData, skipSignature: boolean = false, skipSecondSignature: boolean = false): Buffer {
+    public getBytes(
+        transaction: ITransactionData,
+        skipSignature: boolean = false,
+        skipSecondSignature: boolean = false,
+    ): Buffer {
         if (transaction.version && transaction.version !== 1) {
             throw new Error("not supported yet");
         }
@@ -183,7 +186,11 @@ class Crypto {
     /**
      * Get transaction hash.
      */
-    public getHash(transaction: ITransactionData, skipSignature: boolean = false, skipSecondSignature: boolean = false): Buffer {
+    public getHash(
+        transaction: ITransactionData,
+        skipSignature: boolean = false,
+        skipSecondSignature: boolean = false,
+    ): Buffer {
         if (transaction.version && transaction.version !== 1) {
             throw new Error("not supported yet");
         }

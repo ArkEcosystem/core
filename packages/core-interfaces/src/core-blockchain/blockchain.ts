@@ -177,7 +177,7 @@ export interface IBlockchain {
      * Get the last downloaded block of the blockchain.
      * @return {Object}
      */
-    getLastDownloadedBlock(): { data: models.IBlockData } ;
+    getLastDownloadedBlock(): { data: models.IBlockData };
 
     /**
      * Get the block ping.

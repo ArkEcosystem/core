@@ -1,8 +1,8 @@
-import Bignumber from "bignumber.js";
+import BigNumber from "bignumber.js";
 
 export const bignumber = joi => ({
     name: "bignumber",
-    base: joi.object().type(Bignumber),
+    base: joi.object().type(BigNumber),
     language: {
         min: "is lower than minimum",
         only: "is different from allowed value",

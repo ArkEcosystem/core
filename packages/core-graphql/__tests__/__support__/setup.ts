@@ -4,7 +4,7 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 jest.setTimeout(60000);
 
 export const setUp = async () => {
-    process.env.ARK_GRAPHQL_ENABLED = "true";
+    process.env.CORE_GRAPHQL_ENABLED = "true";
 
     await setUpContainer({
         exclude: ["@arkecosystem/core-api", "@arkecosystem/core-forger"],

@@ -306,9 +306,7 @@ describe("Connection", () => {
             }
 
             for (const i of [0, 1]) {
-                const retrieved = connection
-                    .getTransactions(i, 1)
-                    .map(serializedTx => new Transaction(serializedTx));
+                const retrieved = connection.getTransactions(i, 1).map(serializedTx => new Transaction(serializedTx));
 
                 expect(retrieved.length).toBe(1);
                 expect(retrieved[0]).toBeObject();

@@ -25,7 +25,7 @@ class Network {
 
         this.client = axios.create({
             headers: {
-                Accept: "application/vnd.ark.core-api.v2+json",
+                Accept: "application/vnd.core-api.v2+json",
                 "Content-Type": "application/json",
             },
             timeout: 3000,

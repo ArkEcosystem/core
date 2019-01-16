@@ -1,6 +1,6 @@
-import { NetworkManager } from "@arkecosystem/crypto";
+import envPaths from "env-paths";
 import expandHomeDir from "expand-home-dir";
-import { existsSync } from "fs-extra";
+import { ensureDirSync, existsSync } from "fs-extra";
 import { resolve } from "path";
 
 export class Environment {
@@ -24,12 +24,21 @@ export class Environment {
      * @return {void}
      */
     private exportPaths() {
-        const allowedKeys = ["config", "data"];
+        const allowedKeys = ["data", "config", "cache", "log", "temp"];
 
-        for (const [key, value] of Object.entries(this.variables)) {
-            if (allowedKeys.includes(key)) {
-                process.env[`ARK_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(value));
-            }
+        const createPathVariables = values =>
+            allowedKeys.forEach(key => {
+                if (values[key]) {
+                    process.env[`CORE_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(values[key]));
+
+                    ensureDirSync(process.env[`CORE_PATH_${key.toUpperCase()}`]);
+                }
+            });
+
+        createPathVariables(envPaths(this.variables.token, { suffix: "core" }));
+
+        if (this.variables.data && this.variables.config) {
+            createPathVariables(this.variables);
         }
     }
 
@@ -43,7 +52,7 @@ export class Environment {
             return;
         }
 
-        const envPath = expandHomeDir(`${process.env.ARK_PATH_DATA}/.env`);
+        const envPath = expandHomeDir(`${process.env.CORE_PATH_DATA}/.env`);
 
         if (existsSync(envPath)) {
             const env = require("envfile").parseFileSync(envPath);

@@ -14,7 +14,7 @@ class Config {
 
         const network = Network.setUp(opts);
 
-        const { config, files } = await fileLoader.setUp(network);
+        const { files } = await fileLoader.setUp(network);
 
         this.config = files;
 

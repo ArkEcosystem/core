@@ -78,7 +78,7 @@ describe("Blockchain", () => {
 
     describe("start", () => {
         it("should be ok", async () => {
-            process.env.ARK_SKIP_BLOCKCHAIN = "false";
+            process.env.CORE_SKIP_BLOCKCHAIN = "false";
 
             const started = await blockchain.start(true);
 
@@ -258,6 +258,48 @@ describe("Blockchain", () => {
         });
     });
 
+    describe("handleIncomingBlock", () => {
+        it("should be ok", () => {
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: slots.getEpochTime(),
+            };
+
+            blockchain.handleIncomingBlock(block);
+
+            expect(blockchain.dispatch).toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        });
+
+        it("should not handle block from future slot", () => {
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: slots.getSlotTime(slots.getNextSlot()),
+            };
+
+            blockchain.handleIncomingBlock(block);
+
+            expect(blockchain.dispatch).not.toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).not.toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        });
+    });
+
     describe("isSynced", () => {
         describe("with a block param", () => {
             it("should be ok", () => {
@@ -326,8 +368,8 @@ describe("Blockchain", () => {
 });
 
 async function __start() {
-    process.env.ARK_SKIP_BLOCKCHAIN = "false";
-    process.env.ARK_ENV = "false";
+    process.env.CORE_SKIP_BLOCKCHAIN = "false";
+    process.env.CORE_ENV = "false";
 
     const plugin = require("../src").plugin;
 

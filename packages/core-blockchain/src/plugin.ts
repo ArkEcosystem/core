@@ -20,7 +20,7 @@ export const plugin: Container.PluginDescriptor = {
 
         container.register("state", asValue(stateStorage));
 
-        if (!process.env.ARK_SKIP_BLOCKCHAIN) {
+        if (!process.env.CORE_SKIP_BLOCKCHAIN) {
             await blockchain.start();
         }
 

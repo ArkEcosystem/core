@@ -1,7 +1,7 @@
 import { Engine } from "../engine";
 
 export const address = attributes => {
-    const { error, value } = Engine.validate(attributes, Engine.joi.arkAddress());
+    const { error, value } = Engine.validate(attributes, Engine.joi.address());
 
     return {
         data: value,

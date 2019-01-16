@@ -5,6 +5,6 @@ import { Joi } from "@arkecosystem/crypto";
  */
 export const store = {
     payload: {
-        block: Joi.arkBlock().options({ stripUnknown: true }),
+        block: Joi.block().options({ stripUnknown: true }),
     },
 };

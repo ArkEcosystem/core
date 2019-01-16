@@ -6,13 +6,13 @@ declare global {
     namespace jest {
         // tslint:disable-next-line:interface-name
         interface Matchers<R> {
-            toBeArkAddress(): R;
+            toBeAddress(): R;
         }
     }
 }
 
 expect.extend({
-    toBeArkAddress: (received, argument) => {
+    toBeAddress: (received, argument) => {
         return {
             message: () => "Expected value to be a valid address",
             pass: crypto.validateAddress(received, argument),

@@ -8,7 +8,7 @@ export async function setUpContainer(options: any): Promise<Container.IContainer
     await app.setUp(
         "2.0.0",
         {
-            data: options.data || "~/.ark",
+            data: options.data || "~/.core",
             config: options.config ? options.config : path.resolve(__dirname, `../config/${options.network}`),
             token: options.token || "ark",
             network: options.network,
