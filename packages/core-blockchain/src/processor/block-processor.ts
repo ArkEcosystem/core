@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { models } from "@arkecosystem/crypto";
+import { isException, models } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
 import { isBlockChained } from "../utils/is-block-chained";
 import { validateGenerator } from "../utils/validate-generator";
@@ -36,7 +36,7 @@ export class BlockProcessor {
     }
 
     public async getHandler(block: models.Block): Promise<BlockHandler> {
-        if (block.isException) {
+        if (isException(block.data)) {
             return new ExceptionHandler(this.blockchain, block);
         }
 
