@@ -13,22 +13,22 @@ export class PeersController extends Controller {
             // @ts-ignore
             result = request.query.os
                 ? // @ts-ignore
-                  result.filter(peer => peer.os === request.query.os)
+                  result.filter(peer => peer.os === (request.query as any).os)
                 : result;
             // @ts-ignore
             result = request.query.status
                 ? // @ts-ignore
-                  result.filter(peer => peer.status === request.query.status)
+                  result.filter(peer => peer.status === (request.query as any).status)
                 : result;
             // @ts-ignore
             result = request.query.port
                 ? // @ts-ignore
-                  result.filter(peer => peer.port === request.query.port)
+                  result.filter(peer => peer.port === (request.query as any).port)
                 : result;
             // @ts-ignore
             result = request.query.version
                 ? // @ts-ignore
-                  result.filter(peer => peer.version === request.query.version)
+                  result.filter(peer => peer.version === (request.query as any).version)
                 : result;
             // @ts-ignore
             result = result.slice(0, request.query.limit || 100);

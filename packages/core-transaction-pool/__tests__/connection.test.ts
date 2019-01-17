@@ -9,7 +9,7 @@ import delay from "delay";
 import randomSeed from "random-seed";
 import { TransactionPool } from "../dist";
 import { transactions as mockData } from "./__fixtures__/transactions";
-import { setUpFull, tearDown } from "./__support__/setup";
+import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { ARKTOSHI, TransactionTypes } = constants;
 const { Transaction } = models;
@@ -39,7 +39,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await tearDown();
+    await tearDownFull();
 });
 
 beforeEach(() => {
@@ -504,7 +504,7 @@ describe("Connection", () => {
 
             // We use a predictable random number calculator in order to get
             // a deterministic test.
-            const rand = randomSeed.create(0);
+            const rand = randomSeed.create("0");
 
             const allTransactions = [];
             for (let i = 0; i < nAdd; i++) {

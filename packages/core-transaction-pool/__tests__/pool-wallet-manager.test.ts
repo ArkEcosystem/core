@@ -4,25 +4,27 @@ import { generators } from "@arkecosystem/core-test-utils";
 import { delegates, genesisBlock } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
-import { PoolWalletManager } from "../src";
-import { setUpFull, tearDown } from "./__support__/setup";
+import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { Block } = models;
 const { generateTransfers, generateWallets } = generators;
 
 const arktoshi = 10 ** 8;
 let container: Container.IContainer;
+let PoolWalletManager;
 let poolWalletManager;
 let blockchain: Blockchain.IBlockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
+
+    PoolWalletManager = require("../src").PoolWalletManager;
     poolWalletManager = new PoolWalletManager();
     blockchain = container.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 });
 
 afterAll(async () => {
-    await tearDown();
+    await tearDownFull();
 });
 
 describe("applyPoolTransactionToSender", () => {

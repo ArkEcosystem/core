@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import genesisBlock from "@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json";
 import { models } from "@arkecosystem/crypto";
+import genesisBlock from "../../core-test-utils/src/config/testnet/genesisBlock.json";
 import { PostgresConnection } from "../src/connection";
 import { setUp, tearDown } from "./__support__/setup";
 
