@@ -10,7 +10,7 @@ export const defaults = {
     maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     allowedSenders: [],
     maxTransactionsPerRequest: process.env.CORE_TRANSACTION_POOL_MAX_PER_REQUEST || 40,
-    maxTransactionAge: 2700,
+    maxTransactionAge: 21600,
     dynamicFees: {
         enabled: true,
         minFeePool: 3000,
