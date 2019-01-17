@@ -16,6 +16,7 @@ export async function startServer(options) {
         port: options.port,
     });
 
+    // @ts-ignore
     server.app.schemas = {};
 
     if (!options.allowRemote) {
