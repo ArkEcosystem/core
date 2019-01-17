@@ -504,7 +504,7 @@ describe("Connection", () => {
 
             // We use a predictable random number calculator in order to get
             // a deterministic test.
-            const rand = randomSeed.create(0);
+            const rand = randomSeed.create("0");
 
             const allTransactions = [];
             for (let i = 0; i < nAdd; i++) {

@@ -12,6 +12,7 @@ export class ServerCache {
     public method(name: string, method: any, expiresIn: number, argsCallback?: any): this {
         let options = {};
 
+        // @ts-ignore
         if (this.server.app.config.cache.enabled) {
             options = {
                 cache: {

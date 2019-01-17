@@ -39,6 +39,8 @@
         "winston-daily-rotate-file": "^3.5.1"
     },
     "devDependencies": {
+        "@types/capture-console": "^1.0.0",
+        "@types/node-emoji": "^1.8.0",
         "capture-console": "^1.0.1"
     },
     "publishConfig": {

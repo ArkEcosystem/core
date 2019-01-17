@@ -45,7 +45,8 @@
         "umzug": "^2.2.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0"
+        "@arkecosystem/core-test-utils": "^2.1.0",
+        "@types/boom": "^7.2.1"
     },
     "publishConfig": {
         "access": "public"

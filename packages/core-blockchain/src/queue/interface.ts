@@ -2,7 +2,7 @@ import async from "async";
 import { Blockchain } from "../blockchain";
 
 export abstract class QueueInterface {
-    protected queue: async;
+    protected queue: any;
 
     /**
      * Create an instance of the process queue.
