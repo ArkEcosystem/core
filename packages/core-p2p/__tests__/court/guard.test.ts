@@ -14,7 +14,7 @@ beforeAll(async () => {
 
     app.getConfig().set("milestoneHash", "dummy-milestone");
 
-    guard = require("../../dist/court/guard").guard;
+    guard = require("../../src/court/guard").guard;
 });
 
 afterAll(async () => {
@@ -114,7 +114,7 @@ describe("Guard", () => {
         const dummy = {
             nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
             milestoneHash: "dummy-milestone",
-            version: "2.0.0",
+            version: "2.1.0",
             status: 200,
             state: {},
         };

@@ -1,7 +1,7 @@
 import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { Peer } from "../dist/peer";
+import { Peer } from "../src/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
