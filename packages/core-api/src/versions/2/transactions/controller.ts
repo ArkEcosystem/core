@@ -16,6 +16,7 @@ export class TransactionsController extends Controller {
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v2.transactions.index(request);
 
             return super.respondWithCache(data, h);
@@ -32,7 +33,7 @@ export class TransactionsController extends Controller {
 
             const guard = new TransactionGuard(this.transactionPool);
 
-            const result = await guard.validate(request.payload.transactions);
+            const result = await guard.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
                 app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
@@ -54,6 +55,7 @@ export class TransactionsController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v2.transactions.show(request);
 
             return super.respondWithCache(data, h);
@@ -110,6 +112,7 @@ export class TransactionsController extends Controller {
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v2.transactions.search(request);
 
             return super.respondWithCache(data, h);

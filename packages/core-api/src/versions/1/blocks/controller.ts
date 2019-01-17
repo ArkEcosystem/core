@@ -6,6 +6,7 @@ import { Controller } from "../shared/controller";
 export class BlocksController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.blocks.index(request);
 
             return super.respondWithCache(data, h);
@@ -16,6 +17,7 @@ export class BlocksController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.blocks.show(request);
 
             return super.respondWithCache(data, h);

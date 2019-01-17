@@ -13,6 +13,7 @@ export class TransactionsController extends Controller {
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.transactions.index(request);
 
             return super.respondWithCache(data, h);
@@ -23,6 +24,7 @@ export class TransactionsController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.transactions.show(request);
 
             return super.respondWithCache(data, h);
