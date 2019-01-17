@@ -5,7 +5,7 @@ import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../src/blockchain";
 import { BlockProcessor, BlockProcessorResult } from "../../src/processor";
 import * as handlers from "../../src/processor/handlers";
-import { setUpFull, tearDown } from "../__support__/setup";
+import { setUpFull, tearDownFull } from "../__support__/setup";
 
 const { Block } = models;
 const { delegates } = fixtures;
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await tearDown();
+    await tearDownFull();
 });
 
 const resetBlocks = async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1); // reset to block height 1
