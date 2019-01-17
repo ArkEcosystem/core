@@ -43,6 +43,7 @@
         "boom": "^7.3.0",
         "bs58check": "^2.1.2",
         "dayjs-ext": "^2.2.0",
+        "delay": "^4.1.0",
         "hapi-api-version": "^2.1.0",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
         "hapi-rate-limit": "^3.0.0",

@@ -1,6 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
+import delay from "delay";
+import { registerWithContainer, setUpContainer } from "../../../core-test-utils/src/helpers/container";
+import { plugin } from "../../src/plugin";
 
 import { delegates } from "../../../core-test-utils/src/fixtures";
 import { generateRound } from "./utils/generate-round";
@@ -8,6 +10,13 @@ import { generateRound } from "./utils/generate-round";
 import { queries } from "../../../core-database-postgres/src/queries";
 
 const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
+
+const options = {
+    enabled: true,
+    host: "0.0.0.0",
+    port: 4003,
+    whitelist: ["*"],
+};
 
 async function setUp() {
     jest.setTimeout(60000);
@@ -18,6 +27,7 @@ async function setUp() {
             "@arkecosystem/core-graphql",
             "@arkecosystem/core-forger",
             "@arkecosystem/core-json-rpc",
+            "@arkecosystem/core-api",
         ],
     });
 
@@ -26,10 +36,15 @@ async function setUp() {
     await connection.buildWallets(1);
     await connection.saveWallets(true);
     await connection.saveRound(round);
+
+    await registerWithContainer(plugin, options);
+    await delay(1000); // give some more time for api server to be up
 }
 
 async function tearDown() {
     await app.tearDown();
+
+    await plugin.deregister(app, options);
 }
 
 async function calculateRanks() {

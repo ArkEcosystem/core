@@ -27,14 +27,14 @@ beforeAll(async done => {
     // wrong network config.
     genesisBlock = new Block(genesisBlockTestnet);
 
-    const { WalletManager } = require("../dist/wallet-manager");
+    const { WalletManager } = require("../src/wallet-manager");
     walletManager = new WalletManager();
 
     done();
 });
 
 beforeEach(() => {
-    const { WalletManager } = require("../dist/wallet-manager");
+    const { WalletManager } = require("../src/wallet-manager");
     walletManager = new WalletManager();
 });
 
