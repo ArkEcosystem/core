@@ -21,7 +21,7 @@ class Network {
 
         this.network = configManager.all();
 
-        this.__loadRemotePeers();
+        this.loadRemotePeers();
 
         this.client = axios.create({
             headers: {
@@ -33,7 +33,7 @@ class Network {
     }
 
     public setServer() {
-        this.server = this.__getRandomPeer();
+        this.server = this.getRandomPeer();
     }
 
     public async sendRequest(url, params = {}) {
@@ -41,7 +41,7 @@ class Network {
             this.setServer();
         }
 
-        const peer = await this.__selectResponsivePeer(this.server);
+        const peer = await this.selectResponsivePeer(this.server);
         const uri = `http://${peer.ip}:${peer.port}/api/${url}`;
 
         try {
@@ -80,7 +80,7 @@ class Network {
                 this.peers.splice(index, 1);
 
                 if (!this.peers.length) {
-                    this.__loadRemotePeers();
+                    this.loadRemotePeers();
                 }
 
                 return this.connect();
@@ -92,13 +92,13 @@ class Network {
         }
     }
 
-    public __getRandomPeer() {
-        this.__loadRemotePeers();
+    private getRandomPeer() {
+        this.loadRemotePeers();
 
         return sample(this.peers);
     }
 
-    public __loadRemotePeers() {
+    private loadRemotePeers() {
         this.peers =
             this.network.name === "testnet"
                 ? [{ ip: "127.0.0.1", port: app.resolveOptions("api").port }]
@@ -110,13 +110,13 @@ class Network {
         }
     }
 
-    public async __selectResponsivePeer(peer) {
+    private async selectResponsivePeer(peer) {
         const reachable = await isReachable(`${peer.ip}:${peer.port}`);
 
         if (!reachable) {
             this.logger.warn(`${peer} is unresponsive. Choosing new peer.`);
 
-            return this.__selectResponsivePeer(this.__getRandomPeer());
+            return this.selectResponsivePeer(this.getRandomPeer());
         }
 
         return peer;
