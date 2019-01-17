@@ -16,7 +16,8 @@
         "snyk": "./node_modules/.bin/snyk protect",
         "version": "cross-env-shell ./scripts/version.sh",
         "release": "cross-env-shell ./scripts/release.sh",
-        "updates": "yarn lerna run updates"
+        "updates": "yarn lerna run updates",
+        "generateDocker": "node ./scripts/docker/generate-docker.js"
     },
     "devDependencies": {
         "@babel/core": "^7.2.2",
