@@ -1,14 +1,11 @@
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Container } from "@arkecosystem/core-interfaces";
 import { generators } from "@arkecosystem/core-test-utils";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
 import { configManager, crypto, models, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
-import { TransactionPool } from "../src";
-import { TransactionGuard } from "../src";
 import { config as localConfig } from "../src/config";
-import { setUpFull, tearDown } from "./__support__/setup";
+import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { Block } = models;
 const {
@@ -19,20 +16,25 @@ const {
     generateWallets,
 } = generators;
 
+let TransactionGuard;
+
 let container: Container.IContainer;
 let guard;
-let transactionPool: TransactionPool;
+let transactionPool;
 let blockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
-    transactionPool = container.resolvePlugin<TransactionPool>("transactionPool");
+
+    TransactionGuard = require("../src").TransactionGuard;
+
+    transactionPool = container.resolvePlugin("transactionPool");
     blockchain = container.resolvePlugin("blockchain");
     localConfig.init(transactionPool.options);
 });
 
 afterAll(async () => {
-    await tearDown();
+    await tearDownFull();
 });
 
 beforeEach(() => {
@@ -182,9 +184,7 @@ describe("Transaction Guard", () => {
             const allTransactions = [...transfers, ...votes, ...delegateRegs, ...signatures];
 
             allTransactions.forEach(transaction => {
-                container
-                    .resolvePlugin<PostgresConnection>("database")
-                    .walletManager.findByPublicKey(transaction.senderPublicKey);
+                container.resolvePlugin("database").walletManager.findByPublicKey(transaction.senderPublicKey);
             });
 
             // first validate the 1st transfer so that new wallet is updated with the amount
@@ -216,7 +216,7 @@ describe("Transaction Guard", () => {
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
             // Make sure it is not considered a cold wallet
-            container.resolvePlugin<PostgresConnection>("database").walletManager.reindex(newWallet);
+            container.resolvePlugin("database").walletManager.reindex(newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance);
             expect(+newWallet.balance).toBe(0);
@@ -808,7 +808,7 @@ describe("Transaction Guard", () => {
 
     describe("__removeForgedTransactions", () => {
         it("should remove forged transactions", async () => {
-            const database = container.resolvePlugin<PostgresConnection>("database");
+            const database = container.resolvePlugin("database");
             const getForgedTransactionsIds = database.getForgedTransactionsIds;
 
             const transfers = generateTransfers("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
