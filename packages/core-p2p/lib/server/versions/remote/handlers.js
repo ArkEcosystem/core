@@ -1,6 +1,4 @@
-'use strict'
-
-const container = require('@phantomcore/core-container')
+const container = require('@phantomchain/core-container')
 
 /**
  * Respond with a blockchain event.
@@ -16,11 +14,13 @@ exports.sendBlockchainEvent = {
     const blockchain = container.resolvePlugin('blockchain')
 
     if (!blockchain[request.params.event]) {
-      return h.response({
-        success: false,
-        event: request.params.event,
-        message: 'No such event'
-      }).code(500)
+      return h
+        .response({
+          success: false,
+          event: request.params.event,
+          message: 'No such event',
+        })
+        .code(500)
     }
 
     const event = blockchain[request.params.event]
@@ -31,7 +31,7 @@ exports.sendBlockchainEvent = {
 
     return {
       success: true,
-      event: request.params.event
+      event: request.params.event,
     }
-  }
+  },
 }

@@ -1,7 +1,5 @@
-'use strict'
-
 const mm = require('micromatch')
-const logger = require('@phantomcore/core-container').resolvePlugin('logger')
+const logger = require('@phantomchain/core-container').resolvePlugin('logger')
 
 /**
  * The register method used by hapi.js.
@@ -14,7 +12,7 @@ const register = async (server, options) => {
 
   server.ext({
     type: 'onRequest',
-    async method (request, h) {
+    async method(request, h) {
       let remoteAddress = request.info.remoteAddress
 
       if (remoteAddress.startsWith('::ffff:')) {
@@ -39,10 +37,15 @@ const register = async (server, options) => {
         }
       }
 
-      logger.warn(`${remoteAddress} tried to access the JSON-RPC without being whitelisted :warning:`)
+      logger.warn(
+        `${remoteAddress} tried to access the JSON-RPC without being whitelisted :warning:`,
+      )
 
-      return h.response().code(403).takeover()
-    }
+      return h
+        .response()
+        .code(403)
+        .takeover()
+    },
   })
 }
 
@@ -53,5 +56,5 @@ const register = async (server, options) => {
 exports.plugin = {
   name: 'json-rpc-whitelist',
   version: '0.1.0',
-  register
+  register,
 }

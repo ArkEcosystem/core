@@ -4,7 +4,7 @@ const feeManager = require('./fee')
 const dynamicFeeManager = require('./dynamic-fee')
 
 const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../constants')
-const defaultConfig = require('../networks/phantom/devnet.json')
+const defaultConfig = require('../networks/phantom/mainnet.json')
 
 class ConfigManager {
   /**

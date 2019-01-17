@@ -80,7 +80,7 @@ describe('API 1.0 - Blocks', () => {
 
       expect(response.data.nethash).toBeString()
 
-      const container = require('@phantomcore/core-container')
+      const container = require('@phantomchain/core-container')
       const config = container.resolvePlugin('config')
 
       expect(response.data.nethash).toBe(config.network.nethash)

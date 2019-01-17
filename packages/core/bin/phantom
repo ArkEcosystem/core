@@ -79,7 +79,7 @@ app
       console.error('Missing or invalid delegates config path')
       process.exit(1)
     }
-    const { configManager, crypto } = require('@phantomcore/crypto')
+    const { configManager, crypto } = require('@phantomchain/crypto')
     configManager.setFromPreset(options.token, options.network)
 
     const keys = crypto.getKeys(options.secret)

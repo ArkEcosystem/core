@@ -1,5 +1,5 @@
 const bip39 = require('bip39')
-const { client, crypto } = require('@phantomcore/crypto')
+const { client, crypto } = require('@phantomchain/crypto')
 
 module.exports = (network, quantity = 10) => {
   network = network || 'testnet'

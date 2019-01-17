@@ -1,4 +1,4 @@
-const { MULTI_SIGNATURE } = require('@phantomcore/crypto').constants
+const { MULTI_SIGNATURE } = require('@phantomchain/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/multi-signature')
 

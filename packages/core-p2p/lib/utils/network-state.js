@@ -2,7 +2,7 @@ const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 
-const { slots } = require('@phantomcore/crypto')
+const { slots } = require('@phantomchain/crypto')
 
 /**
  * Returns current network state. Peers are update before the call

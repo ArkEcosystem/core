@@ -1,7 +1,7 @@
-'use strict'
-const container = require('@phantomcore/core-container')
+const container = require('@phantomchain/core-container')
 const bs58check = require('bs58check')
-const { configManager } = require('@phantomcore/crypto')
+const { configManager } = require('@phantomchain/crypto')
+
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
 
@@ -11,12 +11,10 @@ module.exports = {
    * @param {Transaction}
    * @return {Boolean}
    */
-  canApplyToBlockchain: transaction => {
-    return database
-      .walletManager
+  canApplyToBlockchain: transaction =>
+    database.walletManager
       .getWalletByPublicKey(transaction.senderPublicKey)
-      .canApply(transaction)
-  },
+      .canApply(transaction),
 
   /**
    * Checks if transaction recipient is on the same network as blockchain
@@ -24,14 +22,20 @@ module.exports = {
    * @return {Boolean}
    */
   isRecipientOnActiveNetwork: transaction => {
-    const recipientPrefix = bs58check.decode(transaction.recipientId).readUInt8(0)
+    const recipientPrefix = bs58check
+      .decode(transaction.recipientId)
+      .readUInt8(0)
 
     if (recipientPrefix === configManager.get('pubKeyHash')) {
       return true
     }
 
-    logger.error(`Recipient ${transaction.recipientId} in not on the same network: ${configManager.get('pubKeyHash')}`)
+    logger.error(
+      `Recipient ${
+        transaction.recipientId
+      } in not on the same network: ${configManager.get('pubKeyHash')}`,
+    )
 
     return false
-  }
+  },
 }

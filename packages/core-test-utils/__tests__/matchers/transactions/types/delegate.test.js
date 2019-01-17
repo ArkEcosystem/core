@@ -1,4 +1,4 @@
-const { DELEGATE } = require('@phantomcore/crypto').constants
+const { DELEGATE } = require('@phantomchain/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/delegate')
 

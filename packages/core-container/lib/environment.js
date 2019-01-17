@@ -1,7 +1,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
-const { NetworkManager } = require('@phantomcore/crypto')
+const { NetworkManager } = require('@phantomchain/crypto')
 
 module.exports = class Environment {
   /**

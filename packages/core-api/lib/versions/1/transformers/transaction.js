@@ -6,7 +6,7 @@ const app = require('@phantomchain/core-container')
 const config = app.resolvePlugin('config')
 const blockchain = app.resolvePlugin('blockchain')
 
-const { Transaction } = require('@phantomcore/crypto').models
+const { Transaction } = require('@phantomchain/crypto').models
 
 /**
  * Turns a "transaction" object into a generic object.

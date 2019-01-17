@@ -1,8 +1,7 @@
-'use strict'
-
 const moment = require('moment')
 const semver = require('semver')
-const container = require('@phantomcore/core-container')
+const container = require('@phantomchain/core-container')
+
 const logger = container.resolvePlugin('logger')
 const isMyself = require('./utils/is-myself')
 
@@ -10,7 +9,7 @@ class Guard {
   /**
    * Create a new guard instance.
    */
-  constructor () {
+  constructor() {
     this.suspensions = {}
   }
 
@@ -18,7 +17,7 @@ class Guard {
    * Initialise a new guard.
    * @param {Monitor} monitor
    */
-  init (monitor) {
+  init(monitor) {
     this.monitor = monitor
     this.config = monitor.config.peers
 
@@ -29,7 +28,7 @@ class Guard {
    * Get a list of all suspended peers.
    * @return {Object}
    */
-  all () {
+  all() {
     return this.suspensions
   }
 
@@ -37,7 +36,7 @@ class Guard {
    * Get the suspended peer for the give IP.
    * @return {Object}
    */
-  get (ip) {
+  get(ip) {
     return this.suspensions[ip]
   }
 
@@ -45,22 +44,25 @@ class Guard {
    * Suspends a peer unless whitelisted.
    * @param {Peer} peer
    */
-  suspend (peer) {
+  suspend(peer) {
     if (this.config.whiteList && this.config.whiteList.includes(peer.ip)) {
       return
     }
 
-    const until = moment().add(this.monitor.manager.config.suspendMinutes, 'minutes')
+    const until = moment().add(
+      this.monitor.manager.config.suspendMinutes,
+      'minutes',
+    )
 
     this.suspensions[peer.ip] = {
       peer,
       until,
-      untilHuman: until.format('h [hrs], m [min]')
+      untilHuman: until.format('h [hrs], m [min]'),
     }
 
     delete this.monitor.peers[peer.ip]
 
-    logger.debug(`Suspended ${peer.ip} for ` + this.get(peer.ip).untilHuman)
+    logger.debug(`Suspended ${peer.ip} for ${this.get(peer.ip).untilHuman}`)
   }
 
   /**
@@ -68,14 +70,15 @@ class Guard {
    * @param  {Peer} peer
    * @return {Boolean}
    */
-  isSuspended (peer) {
+  isSuspended(peer) {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
-      logger.debug(`${peer.ip} still suspended for ` + suspendedPeer.untilHuman)
+      logger.debug(`${peer.ip} still suspended for ${suspendedPeer.untilHuman}`)
 
       return true
-    } else if (suspendedPeer) {
+    }
+    if (suspendedPeer) {
       delete this.suspensions[peer.ip]
     }
 
@@ -87,7 +90,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isWhitelisted (peer) {
+  isWhitelisted(peer) {
     return this.config.whiteList.includes(peer.ip)
   }
 
@@ -96,7 +99,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isBlacklisted (peer) {
+  isBlacklisted(peer) {
     return this.config.blackList.includes(peer.ip)
   }
 
@@ -105,7 +108,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isValidVersion (peer) {
+  isValidVersion(peer) {
     return semver.satisfies(peer.version, this.config.minimumVersion)
   }
 
@@ -114,7 +117,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isValidPort (peer) {
+  isValidPort(peer) {
     return peer.port === container.resolveOptions('p2p').port
   }
 
@@ -123,7 +126,7 @@ class Guard {
    * @param  {Peer}  peer
    * @return {Boolean}
    */
-  isMyself (peer) {
+  isMyself(peer) {
     return isMyself(peer.ip)
   }
 }

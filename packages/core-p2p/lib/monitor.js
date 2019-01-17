@@ -11,7 +11,7 @@ const shuffle = require('lodash/shuffle')
 const take = require('lodash/take')
 const pluralize = require('pluralize')
 
-const { slots } = require('@phantomcore/crypto')
+const { slots } = require('@phantomchain/crypto')
 
 const app = require('@phantomchain/core-container')
 
@@ -128,9 +128,9 @@ class Monitor {
     let nextRunDelaySeconds = 600
 
     if (!this.__hasMinimumPeers()) {
-      this.__populateSeedPeers();
-      nextRunDelaySeconds = 5;
-      logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
+      this.__populateSeedPeers()
+      nextRunDelaySeconds = 5
+      logger.info(`Couldn't find enough peers. Falling back to seed peers.`)
     }
 
     this.__scheduleUpdateNetworkStatus(nextRunDelaySeconds)
@@ -387,6 +387,7 @@ class Monitor {
   async discoverPeers() {
     const shuffledPeers = shuffle(this.getPeers())
 
+    /* eslint-disable no-await-in-loop */
     for (const peer of shuffledPeers) {
       try {
         const hisPeers = await peer.getPeers()
@@ -401,9 +402,10 @@ class Monitor {
       }
 
       if (this.__hasMinimumPeers()) {
-        return;
+        return
       }
     }
+    /* eslint-enable no-await-in-loop */
   }
 
   /**
@@ -871,7 +873,7 @@ class Monitor {
    */
   __populateSeedPeers() {
     if (!config.peers.list) {
-      app.forceExit("No seed peers defined in peers.json :interrobang:")
+      app.forceExit('No seed peers defined in peers.json :interrobang:')
     }
 
     let peers = config.peers.list.map(peer => {
@@ -884,7 +886,10 @@ class Monitor {
     }
 
     const filteredPeers = Object.values(peers).filter(
-      peer => !this.guard.isMyself(peer) || !this.guard.isValidPort(peer) || !this.guard.isValid
+      peer =>
+        !this.guard.isMyself(peer) ||
+        !this.guard.isValidPort(peer) ||
+        !this.guard.isValid,
     )
 
     for (const peer of filteredPeers) {

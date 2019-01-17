@@ -5,7 +5,7 @@ const dirTree = require('directory-tree')
 const fs = require('fs-extra')
 const ow = require('ow')
 const path = require('path')
-const { configManager } = require('@phantomcore/crypto')
+const { configManager } = require('@phantomchain/crypto')
 
 class ConfigLoader {
   /**

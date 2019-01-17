@@ -9,7 +9,7 @@ class Client {
    * @param {Object} config
    */
   constructor(config) {
-    this.setConfig(config || NetworkManager.findByName('devnet'))
+    this.setConfig(config || NetworkManager.findByName('mainnet'))
   }
 
   /**

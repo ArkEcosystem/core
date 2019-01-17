@@ -40,7 +40,7 @@ module.exports = {
   '@phantomchain/core-blockchain': {
     fastRebuild: false,
   },
-  '@phantomcore/core-api': {
+  '@phantomchain/core-api': {
     enabled: true,
     host: process.env.PHANTOM_API_HOST || '0.0.0.0',
     port: process.env.PHANTOM_API_PORT || 4003,

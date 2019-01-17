@@ -1,5 +1,5 @@
 const winston = require('winston')
-const { LoggerInterface } = require('@phantomcore/core-logger')
+const { LoggerInterface } = require('@phantomchain/core-logger')
 require('colors')
 
 let tracker = null

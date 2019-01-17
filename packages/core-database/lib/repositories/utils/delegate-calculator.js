@@ -1,6 +1,4 @@
-'use strict'
-
-const config = require('@phantomcore/core-container').resolvePlugin('config')
+const config = require('@phantomchain/core-container').resolvePlugin('config')
 
 /**
  * Calculate the approval for the given delegate.
@@ -10,7 +8,9 @@ const config = require('@phantomcore/core-container').resolvePlugin('config')
  */
 exports.calculateApproval = (delegate, height) => {
   const constants = config.getConstants(height)
-  const totalSupply = config.genesisBlock.totalAmount + (height - constants.height) * constants.reward
+  const totalSupply =
+    config.genesisBlock.totalAmount +
+    (height - constants.height) * constants.reward
 
   return ((delegate.balance / totalSupply) * 100).toFixed(2)
 }
@@ -25,5 +25,9 @@ exports.calculateProductivity = delegate => {
     return (0).toFixed(2)
   }
 
-  return (100 - (delegate.missedBlocks / ((delegate.producedBlocks + delegate.missedBlocks) / 100))).toFixed(2)
+  return (
+    100 -
+    delegate.missedBlocks /
+      ((delegate.producedBlocks + delegate.missedBlocks) / 100)
+  ).toFixed(2)
 }

@@ -1,4 +1,4 @@
-const { vote } = require('@phantomcore/crypto').constants
+const { vote } = require('@phantomchain/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/vote')
 

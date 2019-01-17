@@ -1,4 +1,4 @@
-const { SECOND_SIGNATURE } = require('@phantomcore/crypto').constants
+const { SECOND_SIGNATURE } = require('@phantomchain/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/second-signature')
 

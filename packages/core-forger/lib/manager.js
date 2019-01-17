@@ -7,8 +7,8 @@ const app = require('@phantomchain/core-container')
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')
 
-const { slots } = require('@phantomcore/crypto')
-const { Delegate, Transaction } = require('@phantomcore/crypto').models
+const { slots } = require('@phantomchain/crypto')
+const { Delegate, Transaction } = require('@phantomchain/crypto').models
 
 const isEmpty = require('lodash/isEmpty')
 const uniq = require('lodash/uniq')

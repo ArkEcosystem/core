@@ -3,8 +3,8 @@ const app = require('@phantomchain/core-container')
 const config = app.resolvePlugin('config')
 const blockchain = app.resolvePlugin('blockchain')
 
-const { crypto } = require('@phantomcore/crypto')
-const { Transaction } = require('@phantomcore/crypto').models
+const { crypto } = require('@phantomchain/crypto')
+const { Transaction } = require('@phantomchain/crypto').models
 
 const { bignumify, formatTimestamp } = require('@phantomchain/core-utils')
 

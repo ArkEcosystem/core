@@ -274,12 +274,12 @@ const plugins = {}
 for (let plugin in pluginsOriginal) {
   plugins[plugin] = {}
 }
-plugins['@phantomcore/core-p2p'] = {
+plugins['@phantomchain/core-p2p'] = {
   host: options.nodeIp,
   port: options.p2pPort,
   whitelist: ['127.0.0.1', '192.168.*'],
 }
-plugins['@phantomcore/core-api'] = {
+plugins['@phantomchain/core-api'] = {
   enabled: true,
   host: options.nodeIp,
   port: options.apiPort,

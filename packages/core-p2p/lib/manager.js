@@ -1,6 +1,4 @@
-'use strict'
-
-const logger = require('@phantomcore/core-container').resolvePlugin('logger')
+const logger = require('@phantomchain/core-container').resolvePlugin('logger')
 
 const checkDNS = require('./utils/check-dns')
 const checkNTP = require('./utils/check-ntp')
@@ -12,7 +10,7 @@ module.exports = class PeerManager {
    * @constructor
    * @param  {Object} config
    */
-  constructor (config) {
+  constructor(config) {
     this.config = config
     this.monitor = new Monitor(this)
   }
@@ -21,7 +19,7 @@ module.exports = class PeerManager {
    * Start P2P interface.
    * @param {Boolean} networkStart
    */
-  async start () {
+  async start() {
     await this.__checkDNSConnectivity()
     await this.__checkNTPConnectivity()
 
@@ -35,7 +33,7 @@ module.exports = class PeerManager {
   /**
    * Shutdown P2P interface.
    */
-  async stop () {
+  async stop() {
     return this.api.stop()
   }
 
@@ -43,7 +41,7 @@ module.exports = class PeerManager {
    * Update network status.
    * @return {Promise}
    */
-  async updateNetworkStatus () {
+  async updateNetworkStatus() {
     await this.monitor.updateNetworkStatus()
   }
 
@@ -52,7 +50,7 @@ module.exports = class PeerManager {
    * @param  {Number}   fromBlockHeight
    * @return {Object[]}
    */
-  downloadBlocks (fromBlockHeight) {
+  downloadBlocks(fromBlockHeight) {
     return this.monitor.downloadBlocks(fromBlockHeight)
   }
 
@@ -60,7 +58,7 @@ module.exports = class PeerManager {
    * Broadcast block to all peers.
    * @param {Block} block
    */
-  async broadcastBlock (block) {
+  async broadcastBlock(block) {
     await this.monitor.broadcastBlock(block)
   }
 
@@ -68,7 +66,7 @@ module.exports = class PeerManager {
    * Broadcast transactions to peers.
    * @param {Transaction[]} transactions
    */
-  broadcastTransactions (transactions) {
+  broadcastTransactions(transactions) {
     return this.monitor.broadcastTransactions(transactions)
   }
 
@@ -77,7 +75,7 @@ module.exports = class PeerManager {
    * @param  {Peer}    peer
    * @return {Promise}
    */
-  acceptNewPeer (peer) {
+  acceptNewPeer(peer) {
     return this.monitor.acceptNewPeer(peer)
   }
 
@@ -86,7 +84,7 @@ module.exports = class PeerManager {
    * @param  {Peer}    peer
    * @return {Promise}
    */
-  banPeer (ip) {
+  banPeer(ip) {
     return this.monitor.banPeer(ip)
   }
 
@@ -94,7 +92,7 @@ module.exports = class PeerManager {
    * Get peers.
    * @return {Peer[]}
    */
-  getPeers () {
+  getPeers() {
     return this.monitor.getPeers()
   }
 
@@ -102,7 +100,7 @@ module.exports = class PeerManager {
    * Get the peer for the given IP address.
    * @return {Peer}
    */
-  getPeer (ip) {
+  getPeer(ip) {
     return this.monitor.getPeer(ip)
   }
 
@@ -110,7 +108,7 @@ module.exports = class PeerManager {
    * Get a random peer.
    * @return {Peer}
    */
-  getRandomPeer () {
+  getRandomPeer() {
     return this.monitor.getRandomPeer()
   }
 
@@ -118,7 +116,7 @@ module.exports = class PeerManager {
    * Get a list of all suspended peers.
    * @return {Object}
    */
-  getSuspendedPeers () {
+  getSuspendedPeers() {
     return this.monitor.getSuspendedPeers()
   }
 
@@ -126,7 +124,7 @@ module.exports = class PeerManager {
    * Get the peer monitor.
    * @return {Object}
    */
-  getMonitor () {
+  getMonitor() {
     return this.monitor
   }
 
@@ -134,11 +132,11 @@ module.exports = class PeerManager {
    * Get network height.
    * @return {Number}
    */
-  getNetworkHeight () {
+  getNetworkHeight() {
     return this.monitor.getNetworkHeight()
   }
 
-  async getNetworkState () {
+  async getNetworkState() {
     return this.monitor.getNetworkState()
   }
 
@@ -146,7 +144,7 @@ module.exports = class PeerManager {
    * Check if the node can connect to any DNS host.
    * @return {void}
    */
-  async __checkDNSConnectivity () {
+  async __checkDNSConnectivity() {
     try {
       const host = await checkDNS(this.config.dns)
 
@@ -160,13 +158,15 @@ module.exports = class PeerManager {
    * Check if the node can connect to any NTP host.
    * @return {void}
    */
-  async __checkNTPConnectivity () {
+  async __checkNTPConnectivity() {
     try {
       const { host, time } = await checkNTP(this.config.ntp)
 
       logger.info(`Your NTP connectivity has been verified by ${host}`)
 
-      logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
+      logger.info(
+        `Local clock is off by ${parseInt(time.t)}ms from NTP :alarm_clock:`,
+      )
     } catch (error) {
       logger.error(error.message)
     }

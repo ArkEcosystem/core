@@ -1,7 +1,7 @@
 const Boom = require('boom')
 
-const { TRANSACTION_TYPES } = require('@phantomcore/crypto').constants
-const { TransactionGuard } = require('@phantomcore/core-transaction-pool')
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
+const { TransactionGuard } = require('@phantomchain/core-transaction-pool')
 
 const app = require('@phantomchain/core-container')
 

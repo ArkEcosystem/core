@@ -1,6 +1,6 @@
 const async = require('async')
-const logger = require('@phantomcore/core-container').resolvePlugin('logger')
-const { Block } = require('@phantomcore/crypto').models
+const logger = require('@phantomchain/core-container').resolvePlugin('logger')
+const { Block } = require('@phantomchain/crypto').models
 const QueueInterface = require('./interface')
 
 module.exports = class ProcessQueue extends QueueInterface {

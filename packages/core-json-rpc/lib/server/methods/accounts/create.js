@@ -1,17 +1,17 @@
 const Joi = require('joi')
-const phantom = require('@phantomcore/crypto')
+const phantom = require('@phantomchain/crypto')
 
 module.exports = {
   name: 'accounts.create',
-  async method (params) {
+  async method(params) {
     const account = phantom.crypto.getKeys(params.passphrase)
 
     return {
       publicKey: account.publicKey,
-      address: phantom.crypto.getAddress(account.publicKey)
+      address: phantom.crypto.getAddress(account.publicKey),
     }
   },
   schema: {
-    passphrase: Joi.string().required()
-  }
+    passphrase: Joi.string().required(),
+  },
 }
