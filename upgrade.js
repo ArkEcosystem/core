@@ -75,6 +75,9 @@ for (const value of Object.values(paths)) {
 fs.removeSync(`${paths.config.old}/peers_backup.json`);
 fs.removeSync(`${paths.config.old}/network.json`);
 fs.removeSync(`${paths.config.old}/genesisBlock.json`);
+fs.removeSync(`${paths.config.new}/peers_backup.json`);
+fs.removeSync(`${paths.config.new}/network.json`);
+fs.removeSync(`${paths.config.new}/genesisBlock.json`);
 
 // Ensure that all files core needs exist
 const requiredFiles = [
