@@ -6,15 +6,15 @@ services:
 
   postgres:
     image: "postgres:alpine"
-    container_name: core-mainnet-postgres
+    container_name: {token}-development-postgres
     ports:
       - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: core_mainnet
-     POSTGRES_USER: core
+     POSTGRES_DB: {token}_development
+     POSTGRES_USER: {token}
 
 volumes:
   postgres:

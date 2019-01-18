@@ -3,22 +3,22 @@ services:
 
   postgres:
     image: "postgres:alpine"
-    container_name: core-testnet-postgres
+    container_name: {token}-devnet-postgres
     ports:
       - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: core_testnet
-     POSTGRES_USER: core
+     POSTGRES_DB: {token}_devnet
+     POSTGRES_USER: {token}
 
   core:
     build: .
     image: core
-    container_name: core-testnet-core
+    container_name: {token}-devnet-core
     ports:
-     - "4000:4000"
+     - "4002:4002"
      - "4003:4003"
     volumes:
      - core:/core

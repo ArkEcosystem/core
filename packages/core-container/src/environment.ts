@@ -47,6 +47,8 @@ export class Environment {
      * @return {void}
      */
     private exportVariables() {
+        process.env.CORE_TOKEN = this.variables.token;
+
         // Don't pollute the test environment!
         if (process.env.NODE_ENV === "test") {
             return;

@@ -2,6 +2,9 @@ version: 2
 jobs:
   test-node10-0:
     working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_development
+      CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
@@ -95,6 +98,9 @@ jobs:
           command: ./node_modules/.bin/codecov
   test-node11-0:
     working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_development
+      CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
@@ -188,6 +194,9 @@ jobs:
           command: ./node_modules/.bin/codecov
   test-node10-1:
     working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_development
+      CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
@@ -287,6 +296,9 @@ jobs:
           command: ./node_modules/.bin/codecov
   test-node10-2:
     working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_development
+      CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
@@ -383,6 +395,9 @@ jobs:
           command: ./node_modules/.bin/codecov
   test-node11-1:
     working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_development
+      CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
@@ -482,6 +497,9 @@ jobs:
           command: ./node_modules/.bin/codecov
   test-node11-2:
     working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_development
+      CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
