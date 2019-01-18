@@ -85,7 +85,7 @@ const requiredFiles = [
     `${paths.config.new}/.env`,
     `${paths.config.new}/delegates.json`,
     `${paths.config.new}/peers.json`,
-    `${paths.config.new}/plugins.json`,
+    `${paths.config.new}/plugins.js`,
 ];
 
 for (const file of requiredFiles) {
@@ -103,7 +103,7 @@ const { error } = Joi.validate({
     delegates: require(`${paths.config.new}/delegates.json`),
     peers: require(`${paths.config.new}/peers.json`),
     peers_backup: require(`${paths.config.new}/peers_backup.json`),
-    plugins: require(`${paths.config.new}/plugins.json`),
+    plugins: require(`${paths.config.new}/plugins.js`),
     genesisBlock: require(`${paths.config.new}/genesisBlock.json`),
 }, Joi.object({
     delegates: Joi.object({
