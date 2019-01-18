@@ -1,5 +1,8 @@
 const envPaths = require("env-paths");
 const expandHomeDir = require('expand-home-dir');
+const fs = require('fs-extra');
+
+// TODO: kill & delete all pm2 processes
 
 // Paths
 const corePaths = envPaths("ark", { suffix: "core" });
@@ -17,23 +20,20 @@ const paths = {
         old: expandHomeDir('~/.ark/config'),
         new: corePaths.config,
     },
-    data: {
-        old: expandHomeDir('~/.ark'),
-        new: corePaths.data,
-    },
     log: {
         old: expandHomeDir('~/.ark/logs'),
         new: corePaths.log,
     },
-    temp: {
-        old: expandHomeDir('~/.ark/temp'),
-        new: corePaths.temp,
+    data: {
+        old: expandHomeDir('~/.ark'),
+        new: corePaths.data,
     },
 }
 
-// TODO: move config directory
-// TODO: move .env file directory
-// TODO: move database directory
-// TODO: move logs directory
+// Move files & directories
+for (const value of Object.values(paths)) {
+    fs.moveSync(value.old, value.new)
+}
+
 // TODO: update configuration files
 // TODO: validate configuration files
