@@ -96,7 +96,13 @@ for (const file of requiredFiles) {
     }
 }
 
-// TODO: update configuration files
+// Update configuration files
+const configDelegates = require(`${paths.config.new}/delegates.json`)
+
+delete configDelegates.dynamicFee
+delete configDelegates.dynamicFees
+
+fs.writeFileSync(`${paths.config.new}/delegates.json`, JSON.stringify(configDelegates, null, 4));
 
 // Validate configuration files
 const { error } = Joi.validate({
