@@ -34,7 +34,7 @@ module.exports = {
   },
   '@phantomchain/core-p2p': {
     host: process.env.PHANTOM_P2P_HOST || '0.0.0.0',
-    port: process.env.PHANTOM_P2P_PORT || 4001,
+    port: process.env.PHANTOM_P2P_PORT || 4002,
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
   },
   '@phantomchain/core-blockchain': {
@@ -61,7 +61,7 @@ module.exports = {
     port: process.env.PHANTOM_GRAPHQL_PORT || 4005,
   },
   '@phantomchain/core-forger': {
-    hosts: [`http://127.0.0.1:${process.env.PHANTOM_P2P_PORT || 4001}`],
+    hosts: [`http://127.0.0.1:${process.env.PHANTOM_P2P_PORT || 4002}`],
   },
   '@phantomchain/core-json-rpc': {
     enabled: process.env.PHANTOM_JSON_RPC_ENABLED,

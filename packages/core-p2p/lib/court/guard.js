@@ -177,7 +177,10 @@ class Guard {
    */
   isValidNetwork(peer) {
     const nethash = peer.nethash || (peer.headers && peer.headers.nethash)
-    return nethash === config.network.nethash
+    return (
+      (!nethash && peer.version <= '2.0.0') ||
+      nethash === config.network.nethash
+    )
   }
 
   /**

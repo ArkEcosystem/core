@@ -54,8 +54,8 @@ module.exports = class Peer {
     const data = {
       ip: this.ip,
       port: +this.port,
-      nethash: this.nethash,
-      version: this.version,
+      nethash: this.nethash || this.headers.nethash,
+      version: this.version || this.headers.version,
       os: this.os,
       status: this.status,
       height: this.state.height,
