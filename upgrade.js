@@ -1,4 +1,4 @@
-const envPaths = require("env-paths");
+const envPaths = require('env-paths');
 const expandHomeDir = require('expand-home-dir');
 const fs = require('fs-extra');
 const Joi = require('Joi');
@@ -28,8 +28,8 @@ deletePM2('core-relay');
 deletePM2('core-forger');
 
 // Paths
-const corePaths = envPaths("ark", {
-    suffix: "core"
+const corePaths = envPaths('ark', {
+    suffix: 'core'
 });
 
 const paths = {
@@ -97,12 +97,20 @@ for (const file of requiredFiles) {
 }
 
 // Update configuration files
-const configDelegates = require(`${paths.config.new}/delegates.json`)
-
+let configDelegates = require(`${paths.config.new}/delegates.json`)
 delete configDelegates.dynamicFee
 delete configDelegates.dynamicFees
-
 fs.writeFileSync(`${paths.config.new}/delegates.json`, JSON.stringify(configDelegates, null, 4));
+
+// Update environment file
+let configEnv = fs.readFileSync(`${paths.config.new}/.env`);
+configEnv = configEnv.replace('ARK_', 'CORE_');
+fs.writeFileSync(`${paths.config.new}/.env`, configEnv);
+
+// Update environment file
+let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`);
+configPlugins = configPlugins.replace('ARK_', 'CORE_');
+fs.writeFileSync(`${paths.config.new}/plugins.js`, configEnv);
 
 // Validate configuration files
 const { error } = Joi.validate({
