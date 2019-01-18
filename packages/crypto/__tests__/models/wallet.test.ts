@@ -1,10 +1,12 @@
 import "jest-extended";
 
-import { ARKTOSHI } from "../../src/constants";
+import { ARKTOSHI, TransactionTypes } from "../../src/constants";
 import { configManager } from "../../src/managers/config";
 import { Wallet } from "../../src/models/wallet";
 import { Bignum } from "../../src/utils/bignum";
 
+import { generators } from "@arkecosystem/core-test-utils";
+const { generateTransfers, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
 import { devnet } from "../../src/networks";
 import { multiTransaction } from "./fixtures/multi-transaction";
 
@@ -86,6 +88,251 @@ describe("Models - Wallet", () => {
             expect(testWallet.forgedRewards).toEqual(originalWallet.forgedRewards);
             expect(testWallet.lastBlock).toBe(originalWallet.lastBlock);
             expect(testWallet.dirty).toBeTrue();
+        });
+    });
+
+    describe("revert block", () => {
+        const walletInit = {
+            balance: new Bignum(1000 * ARKTOSHI),
+            forgedFees: new Bignum(10 * ARKTOSHI),
+            forgedRewards: new Bignum(50 * ARKTOSHI),
+            producedBlocks: 1,
+            dirty: false,
+            lastBlock: { id: 1234856 },
+            publicKey: "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
+            address: "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
+        };
+        const block = {
+            id: 1,
+            generatorPublicKey: walletInit.publicKey,
+            reward: new Bignum(2 * ARKTOSHI),
+            totalFee: new Bignum(1 * ARKTOSHI),
+        };
+        let testWallet;
+
+        beforeEach(() => {
+            testWallet = new Wallet(walletInit.address);
+            testWallet = Object.assign(testWallet, walletInit);
+        });
+
+        it("should revert block if generator public key matches the wallet public key", () => {
+            const success = testWallet.revertBlock(block);
+
+            expect(success).toBeTrue();
+            expect(testWallet.balance).toEqual(walletInit.balance.minus(block.reward).minus(block.totalFee));
+            expect(testWallet.producedBlocks).toBe(walletInit.producedBlocks - 1);
+            expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
+            expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
+            expect(testWallet.lastBlock).toBeNull();
+            expect(testWallet.dirty).toBeTrue();
+        });
+
+        it("should revert block if generator public key matches the wallet address", () => {
+            testWallet.publicKey = undefined;
+            const success = testWallet.revertBlock(block);
+
+            expect(success).toBeTrue();
+            expect(testWallet.balance).toEqual(walletInit.balance.minus(block.reward).minus(block.totalFee));
+            expect(testWallet.producedBlocks).toBe(walletInit.producedBlocks - 1);
+            expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
+            expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
+            expect(testWallet.lastBlock).toBeNull();
+            expect(testWallet.dirty).toBeTrue();
+        });
+
+        it("should not revert block if generator public key doesn't match the wallet address / publicKey", () => {
+            const invalidWallet = Object.assign({}, walletInit, { publicKey: undefined, address: undefined });
+            testWallet = Object.assign(testWallet, invalidWallet);
+            const success = testWallet.revertBlock(block);
+
+            expect(success).toBeFalse();
+            for (const key of Object.keys(invalidWallet)) {
+                expect(testWallet[key]).toBe(invalidWallet[key]);
+            }
+        });
+    });
+
+    describe("audit transaction - auditApply", () => {
+        const walletInit = {
+            balance: new Bignum(1000 * ARKTOSHI),
+            forgedFees: new Bignum(10 * ARKTOSHI),
+            forgedRewards: new Bignum(50 * ARKTOSHI),
+            producedBlocks: 1,
+            dirty: false,
+            lastBlock: { id: 1234856 },
+            publicKey: "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
+            address: "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
+        };
+        let testWallet;
+
+        const generateTransactionType = (type, asset = {}) => {
+            // use 2nd signature as a base
+            const transaction = generateSecondSignature("devnet", "super secret passphrase", 1, true)[0];
+            return Object.assign(transaction, { type, asset });
+        };
+
+        beforeEach(() => {
+            testWallet = new Wallet(walletInit.address);
+            testWallet = Object.assign(testWallet, walletInit);
+        });
+
+        it("should return correct audit data for Transfer type", () => {
+            const transaction = generateTransfers(
+                "devnet",
+                "super secret passphrase",
+                "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
+                ARKTOSHI,
+                1,
+                true,
+            )[0];
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": true },
+                { Transfer: true },
+            ]);
+        });
+
+        it("should return correct audit data for 2nd signature type", () => {
+            const transaction = generateSecondSignature("devnet", "super secret passphrase", 1, true)[0];
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": true },
+                { "Second public key": null },
+            ]);
+        });
+
+        it("should return correct audit data for delegate registration type", () => {
+            const transaction = generateDelegateRegistration("devnet", "super secret passphrase", 1, true)[0];
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": true },
+                { "Current username": null },
+                { "New username": transaction.asset.delegate.username },
+            ]);
+        });
+
+        it("should return correct audit data for vote type", () => {
+            const transaction = generateVote(
+                "devnet",
+                "super secret passphrase",
+                "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
+                1,
+                true,
+            )[0];
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": true },
+                { "Current vote": null },
+                { "New vote": transaction.asset.votes[0] },
+            ]);
+        });
+
+        it("should return correct audit data for multisignature type", () => {
+            const asset = {
+                multisignature: {
+                    keysgroup: ["first", "second", "third"],
+                    min: 2,
+                    lifetime: 1000,
+                },
+            };
+            const transaction = generateTransactionType(TransactionTypes.MultiSignature, asset);
+            transaction.signatures = [];
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": false },
+                { "Multisignature not yet registered": true },
+                { "Multisignature enough keys": true },
+                { "Multisignature all keys signed": false },
+                { "Multisignature verification": false },
+            ]);
+        });
+
+        it("should return correct audit data for ipfs type", () => {
+            const transaction = generateTransactionType(TransactionTypes.Ipfs);
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": false },
+                { IPFS: true },
+            ]);
+        });
+
+        it("should return correct audit data for timelock type", () => {
+            const transaction = generateTransactionType(TransactionTypes.TimelockTransfer);
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": false },
+                { Timelock: true },
+            ]);
+        });
+
+        it("should return correct audit data for multipayment type", () => {
+            const asset = {
+                payments: [{ amount: new Bignum(10) }, { amount: new Bignum(20) }],
+            };
+            const transaction = generateTransactionType(TransactionTypes.MultiPayment, asset);
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": false },
+                { "Multipayment remaining amount": new Bignum(30) },
+            ]);
+        });
+
+        it("should return correct audit data for delegate resignation type", () => {
+            const transaction = generateTransactionType(TransactionTypes.DelegateResignation);
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": false },
+                { "Resignate Delegate": null },
+            ]);
+        });
+
+        it("should return correct audit data for unknown type", () => {
+            const transaction = generateTransactionType(99);
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": false },
+                { "Unknown Type": true },
+            ]);
         });
     });
 });
