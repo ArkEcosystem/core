@@ -709,7 +709,7 @@ export class Monitor implements P2P.IMonitor {
         }));
 
         try {
-            fs.writeFileSync(`${process.env.CORE_PATH_CONFIG}/peers_backup.json`, JSON.stringify(peers, null, 2));
+            fs.writeFileSync(`${process.env.CORE_PATH_CACHE}/peers_backup.json`, JSON.stringify(peers, null, 2));
         } catch (err) {
             logger.error(`Failed to dump the peer list because of "${err.message}"`);
         }
