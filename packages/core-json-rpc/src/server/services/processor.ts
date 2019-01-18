@@ -14,7 +14,7 @@ export class Processor {
         });
 
         if (error) {
-            return this.__createErrorResponse(payload ? payload.id : null, -32600, error);
+            return this.createErrorResponse(payload ? payload.id : null, -32600, error);
         }
 
         const { method, params, id } = payload;
@@ -23,7 +23,7 @@ export class Processor {
             const targetMethod = get(server.methods, method);
 
             if (!targetMethod) {
-                return this.__createErrorResponse(id, -32601, "The method does not exist / is not available.");
+                return this.createErrorResponse(id, -32601, "The method does not exist / is not available.");
             }
 
             const schema = server.app.schemas[method];
@@ -33,7 +33,7 @@ export class Processor {
                 const { error } = Joi.validate(params, schema);
 
                 if (error) {
-                    return this.__createErrorResponse(id, -32602, error);
+                    return this.createErrorResponse(id, -32602, error);
                 }
             }
 
@@ -42,10 +42,10 @@ export class Processor {
             const result = await targetMethod(params);
 
             return result.isBoom
-                ? this.__createErrorResponse(id, result.output.statusCode, result.output.payload)
-                : this.__createSuccessResponse(id, result);
+                ? this.createErrorResponse(id, result.output.statusCode, result.output.payload)
+                : this.createSuccessResponse(id, result);
         } catch (error) {
-            return this.__createErrorResponse(id, -32603, error);
+            return this.createErrorResponse(id, -32603, error);
         }
     }
 
@@ -61,7 +61,7 @@ export class Processor {
         return results;
     }
 
-    public __createSuccessResponse(id, result) {
+    private createSuccessResponse(id, result) {
         return {
             jsonrpc: "2.0",
             id,
@@ -69,7 +69,7 @@ export class Processor {
         };
     }
 
-    public __createErrorResponse(id, code, error) {
+    private createErrorResponse(id, code, error) {
         return {
             jsonrpc: "2.0",
             id,
