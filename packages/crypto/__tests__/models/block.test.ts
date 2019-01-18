@@ -1,8 +1,13 @@
 import "jest-extended";
 
+import { generators } from "@arkecosystem/core-test-utils";
+const { generateTransfers } = generators;
+
 import ByteBuffer from "bytebuffer";
 import { configManager } from "../../src";
-import { Block } from "../../src/models/block";
+import { slots } from "../../src/crypto";
+import { Block, Delegate } from "../../src/models";
+import { testnet } from "../../src/networks";
 import { Bignum } from "../../src/utils/bignum";
 import { dummyBlock, dummyBlock2 } from "./fixtures/block";
 
@@ -52,6 +57,58 @@ describe("Models - Block", () => {
             const block = new Block(data);
 
             expect(block.verification.verified).toBeFalse();
+        });
+
+        it("should fail to verify a block with no previous block", () => {
+            const deserializeFunction = Block.deserialize;
+            jest.spyOn(Block, "deserialize").mockImplementation(ser => {
+                const deser = deserializeFunction(ser);
+                return Object.assign(deser, { previousBlock: undefined });
+            });
+            const block = new Block(dummyBlock);
+
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toEqual(["Invalid previous block", "Failed to verify block signature"]);
+
+            jest.resetAllMocks();
+        });
+
+        it("should fail to verify a block with incorrect timestamp", () => {
+            jest.spyOn(slots, "getSlotNumber").mockImplementation(timestamp => (timestamp ? 2 : 0));
+            const block = new Block(dummyBlock);
+
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toEqual(["Invalid block timestamp"]);
+
+            jest.resetAllMocks();
+        });
+
+        it("should fail to verify a block with too much transactions", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 2,
+                },
+                reward: new Bignum(0),
+            };
+            const transactions = generateTransfers(
+                "testnet",
+                "super cool passphrase",
+                "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",
+                10,
+                210,
+                true,
+            );
+
+            const blockForged = delegate.forge(transactions, optionsDefault);
+
+            const block = new Block(blockForged.toJson());
+
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toEqual(["Transactions length is too high"]);
         });
 
         it("should construct the block (header only)", () => {
@@ -239,6 +296,14 @@ describe("Models - Block", () => {
         });
     });
 
+    describe("getIdFromSerialized", () => {
+        it("should get the id from serialized buffer", () => {
+            const serialized = Block.serialize(data);
+
+            expect(Block.getIdFromSerialized(serialized)).toBe(data.id);
+        });
+    });
+
     describe("serializeFull", () => {
         describe("genesis block", () => {
             describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])("%s", (network, length) => {
@@ -409,6 +474,18 @@ describe("Models - Block", () => {
                 const blk2 = new Block(mock2);
                 expect(blk2.data.id).not.toBe(mock2.id);
             });
+        });
+    });
+
+    describe("toString", () => {
+        it("should return the block as a string", () => {
+            const block = new Block(dummyBlock);
+
+            expect(block.toString()).toBe(
+                `${dummyBlock.id}, height: ${dummyBlock.height.toLocaleString()}, ${
+                    dummyBlock.numberOfTransactions
+                } transactions, verified: true, errors: `,
+            );
         });
     });
 });
