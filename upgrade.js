@@ -32,6 +32,8 @@ const paths = {
 
 // Move files & directories
 for (const value of Object.values(paths)) {
+    fs.moveSensureDirSyncync(value.new)
+
     fs.moveSync(value.old, value.new)
 }
 
