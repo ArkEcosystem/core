@@ -32,9 +32,11 @@ const paths = {
 
 // Move files & directories
 for (const value of Object.values(paths)) {
-    fs.moveSensureDirSyncync(value.new)
+    if (fs.existsSync(value.old)) {
+        fs.ensureDirSync(value.new)
 
-    fs.moveSync(value.old, value.new)
+        fs.moveSync(value.old, value.new)
+    }
 }
 
 // TODO: update configuration files
