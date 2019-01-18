@@ -144,11 +144,9 @@ export class Delegate {
      * Perform OTP encryption.
      */
     private encryptData(content: string, password: string): string {
-        // @ts-ignore
         const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize);
         const cipher = forge.cipher.createCipher("AES-CBC", derivedKey);
         cipher.start({ iv: forge.util.decode64(this.otp) });
-        // @ts-ignore
         cipher.update(forge.util.createBuffer(content));
         cipher.finish();
 
@@ -159,11 +157,9 @@ export class Delegate {
      * Perform OTP decryption.
      */
     private decryptData(cipherText: string, password: string): string {
-        // @ts-ignore
         const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize);
         const decipher = forge.cipher.createDecipher("AES-CBC", derivedKey);
         decipher.start({ iv: forge.util.decode64(this.otp) });
-        // @ts-ignore
         decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));
         decipher.finish();
 

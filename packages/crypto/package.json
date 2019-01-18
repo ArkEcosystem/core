@@ -45,6 +45,7 @@
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.set": "^4.3.4",
         "@types/lodash.sumby": "^4.6.4",
+        "@types/node-forge": "^0.7.11",
         "@types/otplib": "^7.0.0",
         "@types/pluralize": "^0.0.29",
         "@types/secp256k1": "^3.5.0",
@@ -79,7 +80,6 @@
         "preset": "../../jest-preset.json"
     },
     "devDependencies": {
-        "@types/node-forge": "^0.7.10",
         "@types/webpack-merge": "^4.1.3",
         "@types/webpack-node-externals": "^1.6.3"
     }
