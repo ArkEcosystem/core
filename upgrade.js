@@ -48,6 +48,10 @@ const paths = {
         old: expandHomeDir('~/.ark/logs'),
         new: corePaths.log,
     },
+    temp: {
+        old: expandHomeDir('~/.ark/temp'),
+        new: corePaths.temp,
+    },
     data: {
         old: expandHomeDir('~/.ark'),
         new: corePaths.data,
@@ -72,6 +76,21 @@ fs.removeSync(`${paths.config.old}/peers_backup.json`);
 fs.removeSync(`${paths.config.old}/network.json`);
 fs.removeSync(`${paths.config.old}/genesisBlock.json`);
 
-// TODO: ensure all files core needs exist
+// Ensure that all files core needs exist
+const requiredFiles = [
+    `${paths.config.new}/.env`,
+    `${paths.config.new}/delegates.json`,
+    `${paths.config.new}/peers.json`,
+    `${paths.config.new}/plugins.json`,
+];
+
+for (const file of requiredFiles) {
+    if (!fs.existsSync(file)) {
+        console.error(`File ${file} does not exist.`);
+
+        // TODO: copy or create file or directory if it doesn't exist
+    }
+}
+
 // TODO: update configuration files
 // TODO: validate configuration files
