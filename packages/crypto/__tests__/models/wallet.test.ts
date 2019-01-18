@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { ARKTOSHI, TransactionTypes } from "../../src/constants";
+import { transactionHandler } from "../../src/handlers/transactions";
 import { configManager } from "../../src/managers/config";
 import { Wallet } from "../../src/models/wallet";
 import { Bignum } from "../../src/utils/bignum";
@@ -149,6 +150,34 @@ describe("Models - Wallet", () => {
             for (const key of Object.keys(invalidWallet)) {
                 expect(testWallet[key]).toBe(invalidWallet[key]);
             }
+        });
+    });
+
+    describe("calling transactionHandler canApply, applyTransaction, revertTransaction", () => {
+        const mockBackup = {
+            canApply: transactionHandler.canApply,
+            applyTransactionToSender: transactionHandler.applyTransactionToSender,
+            revertTransactionForSender: transactionHandler.revertTransactionForSender,
+            applyTransactionToRecipient: transactionHandler.applyTransactionToRecipient,
+            revertTransactionForRecipient: transactionHandler.revertTransactionForRecipient,
+        };
+        let testWallet;
+
+        beforeEach(() => {
+            Object.assign(transactionHandler, mockBackup);
+            testWallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+        });
+
+        afterAll(() => {
+            Object.assign(transactionHandler, mockBackup);
+        });
+
+        it.each(Object.keys(mockBackup))("should call transactionHandler %s with correct parameters", fn => {
+            transactionHandler[fn] = jest.fn();
+            const transaction = { id: 123456 };
+            const params = fn === "canApply" ? [transaction, []] : [transaction];
+            testWallet[fn](...params);
+            expect(transactionHandler[fn]).toHaveBeenCalledWith(testWallet, ...params);
         });
     });
 
@@ -333,6 +362,63 @@ describe("Models - Wallet", () => {
                 { "Signature validation": false },
                 { "Unknown Type": true },
             ]);
+        });
+
+        describe("when wallet has multisignature", () => {
+            it("should return correct audit data for Transfer type", () => {
+                const transaction = generateTransfers(
+                    "devnet",
+                    "super secret passphrase",
+                    "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
+                    ARKTOSHI,
+                    1,
+                    true,
+                )[0];
+                testWallet.multisignature = {
+                    keysgroup: [
+                        "+02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d",
+                        "+02a7442df1f6cbef57d84c9c0eff248f9af48370384987de90bdcebd000feccdb6",
+                        "+037a9458c87080768f79c4320941fdc64c9fe580673f17358125b93e80bd0b1d27",
+                    ],
+                    min: 2,
+                };
+                transaction.signatures = [
+                    "3044022022fb3b1d48d9e4905ab566949d637f0832dd0ab6f2cb67a620496e23e83a86d902203182ad967d22db258f97f9fab6d3856c29738ae745eb2f40eb5d472722b794b9",
+                    "3045022100aef482ecaea6ecaf8e6f86bd7ac474458e657614b3eb9e440789549d1ea85f6002205c75763411e0febb7d11a7ccf7cb826fc11ddbe3722b73f77e22e9f0919e179d",
+                    "3045022100e1dff5c0a4289ffee8caa79fd25fe86f0ded4daaeb9f25e123ea327b01fdb9710220476da4d177652fe4a375e414089ce8c86800bcc4ca6ce0b6d974ef98d8c9d4cf",
+                ];
+                const audit = testWallet.auditApply(transaction);
+
+                expect(audit).toEqual([{ Mutisignature: false }, { Transfer: true }]);
+            });
+        });
+
+        describe("when wallet has 2nd public key", () => {
+            it("should return correct audit data for Transfer type", () => {
+                const transaction = generateTransfers(
+                    "devnet",
+                    {
+                        passphrase: "super secret passphrase",
+                        secondPassphrase: "super secret secondpassphrase",
+                    },
+                    "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
+                    ARKTOSHI,
+                    1,
+                    true,
+                )[0];
+                testWallet.secondPublicKey = "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d";
+
+                const audit = testWallet.auditApply(transaction);
+
+                expect(audit).toEqual([
+                    {
+                        "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                    },
+                    { "Signature validation": true },
+                    { "Second Signature Verification": false },
+                    { Transfer: true },
+                ]);
+            });
         });
     });
 });
