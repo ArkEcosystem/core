@@ -19,7 +19,7 @@ function deletePM2(name) {
             }
         });
     });
-}
+};
 
 deletePM2('ark-core-relay');
 deletePM2('ark-core-forger');
@@ -52,18 +52,26 @@ const paths = {
         old: expandHomeDir('~/.ark'),
         new: corePaths.data,
     },
-}
+};
 
 // Move files & directories
 for (const value of Object.values(paths)) {
     if (fs.existsSync(value.old)) {
-        fs.ensureDirSync(value.new)
+        fs.ensureDirSync(value.new);
 
         fs.moveSync(value.old, value.new, {
             overwrite: true
         });
+
+        fs.removeSync(value.old);
     }
 }
 
+// Remove old or temp files
+fs.removeSync(`${paths.config.old}/peers_backup.json`);
+fs.removeSync(`${paths.config.old}/network.json`);
+fs.removeSync(`${paths.config.old}/genesisBlock.json`);
+
+// TODO: ensure all files core needs exist
 // TODO: update configuration files
 // TODO: validate configuration files
