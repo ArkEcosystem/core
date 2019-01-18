@@ -1,6 +1,7 @@
 const envPaths = require("env-paths");
 const expandHomeDir = require('expand-home-dir');
 const fs = require('fs-extra');
+const Joi = require('Joi');
 const pm2 = require('pm2');
 
 // Delete all pm2 processes created by commander
@@ -74,10 +75,10 @@ for (const value of Object.values(paths)) {
 // Remove old or temp files
 fs.removeSync(`${paths.config.old}/peers_backup.json`);
 fs.removeSync(`${paths.config.old}/network.json`);
-fs.removeSync(`${paths.config.old}/genesisBlock.json`);
+// fs.removeSync(`${paths.config.old}/genesisBlock.json`);
 fs.removeSync(`${paths.config.new}/peers_backup.json`);
 fs.removeSync(`${paths.config.new}/network.json`);
-fs.removeSync(`${paths.config.new}/genesisBlock.json`);
+// fs.removeSync(`${paths.config.new}/genesisBlock.json`);
 
 // Ensure that all files core needs exist
 const requiredFiles = [
@@ -96,4 +97,25 @@ for (const file of requiredFiles) {
 }
 
 // TODO: update configuration files
-// TODO: validate configuration files
+
+// Validate configuration files
+const { error } = Joi.validate({
+    delegates: require(`${paths.config.new}/delegates.json`),
+    peers: require(`${paths.config.new}/peers.json`),
+    peers_backup: require(`${paths.config.new}/peers_backup.json`),
+    plugins: require(`${paths.config.new}/plugins.json`),
+    genesisBlock: require(`${paths.config.new}/genesisBlock.json`),
+}, Joi.object({
+    delegates: Joi.object({
+        secrets: Joi.array().items(Joi.string()),
+        bip38: Joi.string(),
+    }),
+    peers: Joi.object().required(),
+    peers_backup: Joi.array().items(Joi.object()),
+    plugins: Joi.object().required(),
+    genesisBlock: Joi.object().required(),
+}).unknown());
+
+if (error) {
+    console.log(error);
+}
