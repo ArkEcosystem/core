@@ -5,7 +5,7 @@ const Joi = require('Joi');
 const pm2 = require('pm2');
 
 // Delete all pm2 processes created by commander
-function deletePM2(name) {
+function deletePM2(processName) {
     pm2.connect(connectionError => {
         if (connectionError) {
             console.error(connectionError);
