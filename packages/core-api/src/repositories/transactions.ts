@@ -1,7 +1,7 @@
 import { constants, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import partition from "lodash/partition";
-import { IRepository } from "../interfaces/repository";
+import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
@@ -64,8 +64,9 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {Object}
      */
     public async findAllLegacy(parameters: any = {}): Promise<any> {
-        const selectQuery = this.query.select(this.query.block_id, this.query.serialized).from(this.query);
-        const countQuery = this._makeEstimateQuery();
+        const selectQuery = this.query
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .from(this.query);
 
         if (parameters.senderId) {
             parameters.senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
@@ -107,8 +108,9 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {Object}
      */
     public async findAllByWallet(wallet, parameters: any = {}): Promise<any> {
-        const selectQuery = this.query.select(this.query.block_id, this.query.serialized).from(this.query);
-        const countQuery = this._makeEstimateQuery();
+        const selectQuery = this.query
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .from(this.query);
 
         const applyConditions = queries => {
             for (const item of queries) {
@@ -192,7 +194,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findById(id): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.equals(id));
 
@@ -209,7 +211,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findByTypeAndId(type, id): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.equals(id).and(this.query.type.equals(type)));
 
@@ -225,7 +227,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findByIds(ids): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.in(ids));
 
@@ -238,7 +240,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findWithVendorField(): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized)
+            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.vendor_field_hex.isNotNull());
 
@@ -261,8 +263,15 @@ export class TransactionsRepository extends Repository implements IRepository {
                 this.query.timestamp.max("timestamp"),
             )
             .from(this.query)
-            // @ts-ignore
-            .where(this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "days"))))
+            .where(
+                this.query.timestamp.gte(
+                    slots.getTime(
+                        dayjs()
+                            .subtract(30, "day")
+                            .valueOf(),
+                    ),
+                ),
+            )
             .and(this.query.fee.gte(this.transactionPool.options.dynamicFees.minFeeBroadcast))
             .group(this.query.type)
             .order('"timestamp" DESC');
@@ -484,7 +493,11 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {String}
      */
     public __publicKeyFromAddress(senderId): string {
-        return this.database.walletManager.findByAddress(senderId).publicKey;
+        if (this.database.walletManager.exists(senderId)) {
+            return this.database.walletManager.findByAddress(senderId).publicKey;
+        }
+
+        return null;
     }
 
     public __orderBy(parameters): string[] {

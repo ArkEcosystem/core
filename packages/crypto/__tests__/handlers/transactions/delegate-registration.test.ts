@@ -59,7 +59,7 @@ describe("DelegateRegistrationHandler", () => {
 
     describe("apply", () => {
         it("should set username", () => {
-            handler.apply(wallet, transaction);
+            handler.applyTransactionToSender(wallet, transaction);
 
             expect(wallet.username).toBe("dummy");
         });
@@ -67,7 +67,7 @@ describe("DelegateRegistrationHandler", () => {
 
     describe("revert", () => {
         it("should unset username", () => {
-            handler.revert(wallet, transaction);
+            handler.revertTransactionForSender(wallet, transaction);
 
             expect(wallet.username).toBeNull();
         });

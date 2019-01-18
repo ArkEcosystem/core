@@ -60,8 +60,8 @@ $ ark core:start --no-daemon
             script: "./dist/index.js",
             args: `core:start ${this.flagsToStrings(flags)}`,
             env: {
-                ARK_FORGER_BIP38: flags.bip38,
-                ARK_FORGER_PASSWORD: flags.password,
+                CORE_FORGER_BIP38: flags.bip38,
+                CORE_FORGER_PASSWORD: flags.password,
             },
         });
     }
@@ -74,8 +74,8 @@ $ ark core:start --no-daemon
                     networkStart: flags.networkStart,
                 },
                 "@arkecosystem/core-forger": {
-                    bip38: flags.bip38 || process.env.ARK_FORGER_BIP38,
-                    password: flags.password || process.env.ARK_FORGER_BIP39,
+                    bip38: flags.bip38 || process.env.CORE_FORGER_BIP38,
+                    password: flags.password || process.env.CORE_FORGER_BIP39,
                 },
             },
         });

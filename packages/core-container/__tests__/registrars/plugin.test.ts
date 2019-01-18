@@ -10,7 +10,7 @@ const resolveStubPath = value => resolve(stubPluginPath, value);
 
 let instance;
 beforeEach(() => {
-    process.env.ARK_PATH_CONFIG = stubPluginPath;
+    process.env.CORE_PATH_CONFIG = stubPluginPath;
 
     const container = new Container();
     container.config = {

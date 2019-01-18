@@ -2,9 +2,10 @@ import "jest-extended";
 
 import { ARKTOSHI } from "../../src/constants";
 import { configManager } from "../../src/managers/config";
+import { ITransactionData } from "../../src/models";
 import { Delegate } from "../../src/models/delegate";
 import { Wallet } from "../../src/models/wallet";
-import { testnet } from "../../src/networks";
+import { INetwork, testnet } from "../../src/networks";
 import { Bignum } from "../../src/utils/bignum";
 import { sortTransactions } from "../../src/utils/sort-transactions";
 
@@ -53,7 +54,7 @@ describe("Models - Delegate", () => {
 
         it("should fail with invalid data", () => {
             expect(() => {
-                Delegate.encryptPassphrase(dummy.plainPassphrase, {}, "bip38-password");
+                Delegate.encryptPassphrase(dummy.plainPassphrase, {} as INetwork, "bip38-password");
             }).toThrow();
         });
     });
@@ -140,8 +141,8 @@ describe("Models - Delegate", () => {
 
     describe("sortTransactions", () => {
         it("returns the transactions ordered by type and id", () => {
-            const ordered = [{ type: 1, id: 2 }, { type: 1, id: 8 }, { type: 2, id: 5 }, { type: 2, id: 9 }];
-            const unordered = [ordered[3], ordered[2], ordered[1], ordered[0]];
+            const ordered = [{ type: 1, id: "2" }, { type: 1, id: "8" }, { type: 2, id: "5" }, { type: 2, id: "9" }];
+            const unordered = [ordered[3], ordered[2], ordered[1], ordered[0]] as ITransactionData[];
 
             expect(sortTransactions(unordered)).toEqual(ordered);
         });

@@ -1,20 +1,18 @@
 import "jest-extended";
-import { client as ark } from "../../../src/client";
+import { TimelockTransferBuilder } from "../../../src/builder/transactions/timelock-transfer";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder;
+let builder: TimelockTransferBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().timelockTransfer();
-
-    // @ts-ignore
-    global.builder = builder;
+    builder = client.getBuilder().timelockTransfer();
 });
 
 describe("Timelock Transfer Transaction", () => {
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.TimelockTransfer);
@@ -27,14 +25,10 @@ describe("Timelock Transfer Transaction", () => {
     });
 
     describe("timelock", () => {
-        it("establishes the time lock", () => {
-            builder.timelock("time lock");
-            expect(builder.data.timelock).toBe("time lock");
-        });
-
-        it("establishes the time lock type", () => {
-            builder.timelock(null, "time lock type");
-            expect(builder.data.timelockType).toBe("time lock type");
+        it("establishes the time-lock & time-lock type", () => {
+            builder.timelock(2000, 0);
+            expect(builder.data.timelock).toBe(2000);
+            expect(builder.data.timelockType).toBe(0);
         });
     });
 

@@ -10,7 +10,7 @@ export const vote = transaction => {
                 .alphanum()
                 .required(),
             // @ts-ignore
-            blockid: Engine.joi.alternatives().try(Engine.joi.arkBlockId(), Engine.joi.number().unsafe()),
+            blockid: Engine.joi.alternatives().try(Engine.joi.blockId(), Engine.joi.number().unsafe()),
             type: Engine.joi.number().valid(TransactionTypes.Vote),
             timestamp: Engine.joi
                 .number()
@@ -26,9 +26,9 @@ export const vote = transaction => {
                     .positive()
                     .required(),
             ),
-            senderId: Engine.joi.arkAddress(),
-            recipientId: Engine.joi.arkAddress().required(),
-            senderPublicKey: Engine.joi.arkPublicKey().required(),
+            senderId: Engine.joi.address(),
+            recipientId: Engine.joi.address().required(),
+            senderPublicKey: Engine.joi.publicKey().required(),
             signature: Engine.joi
                 .string()
                 .alphanum()

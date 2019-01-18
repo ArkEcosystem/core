@@ -5,6 +5,7 @@ import { Controller } from "../shared/controller";
 export class AccountsController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.accounts.index(request);
 
             return super.respondWithCache(data, h);
@@ -15,6 +16,7 @@ export class AccountsController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.accounts.show(request);
 
             return super.respondWithCache(data, h);
@@ -25,6 +27,7 @@ export class AccountsController extends Controller {
 
     public async balance(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.accounts.balance(request);
 
             return super.respondWithCache(data, h);
@@ -35,6 +38,7 @@ export class AccountsController extends Controller {
 
     public async publicKey(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // @ts-ignore
             const data = await request.server.methods.v1.accounts.publicKey(request);
 
             return super.respondWithCache(data, h);

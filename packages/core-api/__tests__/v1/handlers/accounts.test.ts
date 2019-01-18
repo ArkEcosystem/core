@@ -29,6 +29,20 @@ describe("API 1.0 - Wallets", () => {
 
             utils.expectWallet(response.data.account);
         });
+
+        it("should not return an empty wallet", async () => {
+            // create a cold wallet in memory with the given senderId
+            const createCold = await utils.request("GET", "transactions", {
+                senderId: "AbhUUMJBw1dZJiZMxKBhHsdXMMafcMaPNG",
+            });
+            expect(createCold).toBeSuccessfulResponse();
+            expect(createCold.data.transactions).toBeEmpty();
+
+            // attempt to retrieve the cold wallet
+            const response = await utils.request("GET", "accounts", { address: "AbhUUMJBw1dZJiZMxKBhHsdXMMafcMaPNG" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.error).toBe("Account not found");
+        });
     });
 
     describe("GET api/accounts/getBalance?address", () => {

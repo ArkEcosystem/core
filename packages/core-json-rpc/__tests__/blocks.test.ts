@@ -45,6 +45,14 @@ describe("Blocks", () => {
 
             expect(response.data.result.id).toBeString();
         });
+
+        it("should not find the latest block", async () => {
+            axiosMock.onGet(/.*\/api\/blocks/).reply(() => [404, null, peerMock.headers]);
+
+            const response = await sendRequest("blocks.latest");
+
+            expect(response.data.error.message).toBe("Latest block could not be found.");
+        });
     });
 
     describe("POST blocks.info", () => {

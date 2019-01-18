@@ -1,12 +1,11 @@
 import { ARKTOSHI } from "../constants";
 import { configManager } from "../managers";
+import { Bignum } from "./bignum";
 
 /**
  * Get human readable string from arktoshis
- * @param  {Number|String|Bignum} amount
- * @return {String}
  */
-export const formatArktoshi = amount => {
+export const formatArktoshi = (amount: Bignum | number | string): string => {
     const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,

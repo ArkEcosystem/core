@@ -1,17 +1,13 @@
-import assert from "assert";
 import { crypto } from "../../crypto";
 import { configManager } from "../../managers";
+import { ITransactionData, Wallet } from "../../models";
 import { transactionValidator } from "../../validation";
 
 export abstract class Handler {
     /**
      * Check if the transaction can be applied to the wallet.
-     * @param  {Wallet} wallet
-     * @param  {Transaction} transaction
-     * @param {Array} errors
-     * @return {Boolean}
      */
-    public canApply(wallet, transaction, errors: string[]) {
+    public canApply(wallet: Wallet, transaction: ITransactionData, errors: string[]): boolean {
         const validationResult = transactionValidator.validate(transaction);
 
         if (validationResult.fails) {
@@ -62,11 +58,8 @@ export abstract class Handler {
 
     /**
      * Associate this wallet as the sender of a transaction.
-     * @param {Wallet} wallet
-     * @param {Transaction} transaction
-     * @return {void}
      */
-    public applyTransactionToSender(wallet, transaction) {
+    public applyTransactionToSender(wallet: Wallet, transaction: ITransactionData): void {
         if (
             transaction.senderPublicKey.toLowerCase() === wallet.publicKey.toLowerCase() ||
             crypto.getAddress(transaction.senderPublicKey) === wallet.address
@@ -79,15 +72,10 @@ export abstract class Handler {
         }
     }
 
-    public abstract apply(wallet: any, transaction: any): any;
-
     /**
      * Remove this wallet as the sender of a transaction.
-     * @param {Wallet} wallet
-     * @param {Transaction} transaction
-     * @return {void}
      */
-    public revertTransactionForSender(wallet, transaction) {
+    public revertTransactionForSender(wallet: Wallet, transaction: ITransactionData): void {
         if (
             transaction.senderPublicKey.toLowerCase() === wallet.publicKey.toLowerCase() ||
             crypto.getAddress(transaction.senderPublicKey) === wallet.address
@@ -100,15 +88,10 @@ export abstract class Handler {
         }
     }
 
-    public abstract revert(wallet: any, transaction: any): any;
-
     /**
      * Add transaction balance to this wallet.
-     * @param {Wallet} wallet
-     * @param {Transaction} transaction
-     * @return {void}
      */
-    public applyTransactionToRecipient(wallet, transaction) {
+    public applyTransactionToRecipient(wallet: Wallet, transaction: ITransactionData): void {
         if (transaction.recipientId === wallet.address) {
             wallet.balance = wallet.balance.plus(transaction.amount);
             wallet.dirty = true;
@@ -117,14 +100,15 @@ export abstract class Handler {
 
     /**
      * Remove transaction balance from this wallet.
-     * @param {Wallet} wallet
-     * @param {Transaction} transaction
-     * @return {void}
      */
-    public revertTransactionForRecipient(wallet, transaction) {
+    public revertTransactionForRecipient(wallet: Wallet, transaction: ITransactionData): void {
         if (transaction.recipientId === wallet.address) {
             wallet.balance = wallet.balance.minus(transaction.amount);
             wallet.dirty = true;
         }
     }
+
+    protected abstract apply(wallet: Wallet, transaction: ITransactionData): void;
+
+    protected abstract revert(wallet: Wallet, transaction: ITransactionData): void;
 }

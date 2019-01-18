@@ -17,6 +17,7 @@ import { transactionInfo } from "./transactions/info";
 
 export function registerMethods(server: Hapi.Server) {
     const registerMethod = method => {
+        // @ts-ignore
         server.app.schemas[method.name] = method.schema;
 
         delete method.schema;

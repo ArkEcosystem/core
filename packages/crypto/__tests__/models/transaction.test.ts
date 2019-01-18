@@ -96,7 +96,7 @@ describe("Models - Transaction", () => {
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const ser = Transaction.serialize(transaction.data).toString("hex");
-                    const newTransaction = Transaction.fromBytes(ser);
+                    const newTransaction = new Transaction(ser);
                     expect(newTransaction.data).toEqual(transaction.data);
                     expect(newTransaction.verified).toBeTrue();
                 });
@@ -104,7 +104,7 @@ describe("Models - Transaction", () => {
 
         it("should create a transaction", () => {
             const hex = Transaction.serialize(transactionData).toString("hex");
-            const transaction = Transaction.fromBytes(hex);
+            const transaction = new Transaction(hex);
             expect(transaction).toBeInstanceOf(Transaction);
 
             // We can't compare the data directly, since the created instance uses Bignums.

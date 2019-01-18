@@ -1,12 +1,10 @@
 /**
  * The Arktoshi base.
- * @type {Number}
  */
-export const ARKTOSHI = 1e8;
+export const ARKTOSHI: number = 1e8;
 
 /**
  * Available transaction types.
- * @type {Object}
  */
 
 export enum TransactionTypes {

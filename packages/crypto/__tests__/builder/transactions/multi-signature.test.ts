@@ -1,17 +1,15 @@
 import "jest-extended";
-import { client as ark } from "../../../src/client";
+import { MultiSignatureBuilder } from "../../../src/builder/transactions/multi-signature";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto/crypto";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder;
+let builder: MultiSignatureBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().multiSignature();
-
-    // @ts-ignore
-    global.builder = builder;
+    builder = client.getBuilder().multiSignature();
 });
 
 describe("Multi Signature Transaction", () => {
@@ -36,7 +34,7 @@ describe("Multi Signature Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);

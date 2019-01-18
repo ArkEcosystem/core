@@ -7,9 +7,7 @@ function verify(opts) {
     const deserialized =
         opts.type === "transaction" ? new Transaction(opts.data) : new Block(Block.deserialize(opts.data));
 
-    const result: any = deserialized.verify();
-    const output = opts.type === "transaction" ? result : result.verified;
-
+    const output = deserialized instanceof Transaction ? deserialized.verify() : deserialized.verification.verified;
     return handleOutput(opts, output);
 }
 

@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../constants";
 import { base as transaction } from "./base";
 
 export const multiSignature = joi => ({
-    name: "arkMultiSignature",
+    name: "multiSignature",
     base: transaction(joi).append({
         type: joi
             .number()

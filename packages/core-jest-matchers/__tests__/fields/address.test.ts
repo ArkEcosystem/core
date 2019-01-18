@@ -1,11 +1,11 @@
 import "../../src/fields/address";
 
-describe(".toBeArkAddress", () => {
+describe(".toBeAddress", () => {
     test("passes when given a valid address", () => {
-        expect("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN").toBeArkAddress();
+        expect("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN").toBeAddress();
     });
 
     test("fails when not given a valid address", () => {
-        expect("invalid-address").not.toBeArkAddress();
+        expect(expect("invalid-address").toBeAddress).toThrowError("Expected value to be a valid address");
     });
 });

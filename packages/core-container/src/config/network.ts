@@ -17,7 +17,7 @@ export class Network {
             config = NetworkManager.findByName(opts.network);
         } else {
             try {
-                const networkPath = resolve(expandHomeDir(process.env.ARK_PATH_CONFIG));
+                const networkPath = resolve(expandHomeDir(process.env.CORE_PATH_CONFIG));
 
                 config = {
                     exceptions: require(`${networkPath}/exceptions`),
@@ -40,7 +40,7 @@ export class Network {
             );
         }
 
-        process.env.ARK_NETWORK_NAME = config.network.name;
+        process.env.CORE_NETWORK_NAME = config.network.name;
 
         return config;
     }

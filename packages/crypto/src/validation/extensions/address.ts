@@ -1,5 +1,5 @@
 export const address = joi => ({
-    name: "arkAddress",
+    name: "address",
     base: joi
         .string()
         .alphanum()

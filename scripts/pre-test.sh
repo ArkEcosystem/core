@@ -2,4 +2,4 @@
 
 yarn lint
 yarn build
-rm -rf ~/.ark/database
+rm -rf ~/.core/database

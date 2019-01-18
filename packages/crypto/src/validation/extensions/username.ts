@@ -1,5 +1,5 @@
 export const username = joi => ({
-    name: "arkUsername",
+    name: "delegateUsername",
     base: joi
         .string()
         .regex(/^[a-z0-9!@$&_.]+$/)

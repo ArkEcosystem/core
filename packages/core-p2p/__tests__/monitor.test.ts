@@ -1,8 +1,8 @@
 /* tslint:disable:max-line-length  */
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { defaults } from "../dist/defaults";
-import { Peer } from "../dist/peer";
+import { defaults } from "../src/defaults";
+import { Peer } from "../src/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
@@ -12,7 +12,7 @@ let monitor;
 
 beforeAll(async () => {
     await setUp();
-    monitor = require("../dist/monitor").monitor;
+    monitor = require("../src/monitor").monitor;
 });
 
 afterAll(async () => {
@@ -53,13 +53,13 @@ describe("Monitor", () => {
     describe("acceptNewPeer", () => {
         it("should be ok", async () => {
             axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
-            process.env.ARK_ENV = "false";
+            process.env.CORE_ENV = "false";
 
             await monitor.acceptNewPeer(peerMock);
 
             expect(monitor.peers[peerMock.ip]).toBeObject();
 
-            process.env.ARK_ENV = "test";
+            process.env.CORE_ENV = "test";
         });
     });
 

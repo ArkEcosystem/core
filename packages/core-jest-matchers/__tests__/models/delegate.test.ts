@@ -12,6 +12,6 @@ describe(".toBeDelegate", () => {
     });
 
     test("fails when given an invalid delegate", () => {
-        expect({ fake: "news" }).not.toBeDelegate();
+        expect(expect({ fake: "news" }).toBeDelegate).toThrowError("Expected value to be a valid delegate");
     });
 });

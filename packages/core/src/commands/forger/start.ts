@@ -41,8 +41,8 @@ $ ark forger:start --no-daemon
             script: "./dist/index.js",
             args: `forger:run ${this.flagsToStrings(flags)}`,
             env: {
-                ARK_FORGER_BIP38: flags.bip38,
-                ARK_FORGER_PASSWORD: flags.password,
+                CORE_FORGER_BIP38: flags.bip38,
+                CORE_FORGER_PASSWORD: flags.password,
             },
         });
     }

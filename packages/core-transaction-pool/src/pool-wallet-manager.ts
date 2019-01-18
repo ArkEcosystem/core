@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { constants, crypto, models } from "@arkecosystem/crypto";
+import { constants, crypto, isException, models } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
 const { TransactionTypes } = constants;
@@ -34,23 +34,6 @@ export class PoolWalletManager extends WalletManager {
         }
 
         return this.byAddress[address];
-    }
-
-    /**
-     * Checks if wallet exits in pool wallet manager
-     * Method overrides base class method from WalletManager.
-     * @param  {String} key can be publicKey or address of wallet
-     * @return {Boolean} true if exists
-     */
-    public exists(key) {
-        if (this.byPublicKey[key]) {
-            return true;
-        }
-
-        if (this.byAddress[key]) {
-            return true;
-        }
-        return false;
     }
 
     public deleteWallet(publicKey) {
@@ -102,7 +85,7 @@ export class PoolWalletManager extends WalletManager {
             );
 
             errors.push(`Can't apply transaction ${transaction.id}: delegate ${asset.votes[0]} does not exist.`);
-        } else if (this.__isException(transaction)) {
+        } else if (isException(transaction)) {
             this.logger.warn(
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );

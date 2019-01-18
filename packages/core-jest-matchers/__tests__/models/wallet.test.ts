@@ -11,6 +11,6 @@ describe(".toBeWallet", () => {
     });
 
     test("fails when given an invalid wallet", () => {
-        expect({ fake: "news" }).not.toBeWallet();
+        expect(expect({ fake: "news" }).toBeWallet).toThrowError("Expected value to be a valid wallet");
     });
 });

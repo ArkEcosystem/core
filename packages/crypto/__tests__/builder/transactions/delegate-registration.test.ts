@@ -1,17 +1,15 @@
 import "jest-extended";
-import { client as ark } from "../../../src/client";
+import { DelegateRegistrationBuilder } from "../../../src/builder/transactions/delegate-registration";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto/crypto";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder;
+let builder: DelegateRegistrationBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().delegateRegistration();
-
-    // @ts-ignore
-    global.builder = builder;
+    builder = client.getBuilder().delegateRegistration();
 });
 
 describe("Delegate Registration Transaction", () => {
@@ -32,7 +30,7 @@ describe("Delegate Registration Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateRegistration);
@@ -82,10 +80,6 @@ describe("Delegate Registration Transaction", () => {
                 builder.sign("any pass");
             });
 
-            // NOTE: V2
-            it.skip("generates and returns the bytes as hex", () => {
-                expect(builder.getStruct().hex).toBe(crypto.getBytes(builder.data).toString("hex"));
-            });
             it("returns the id", () => {
                 expect(builder.getStruct().id).toBe(
                     // @ts-ignore

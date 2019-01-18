@@ -5,7 +5,7 @@ import { defaults } from "../../src/defaults";
 import { Peer } from "../../src/peer";
 import { setUp, tearDown } from "../__support__/setup";
 
-const ARK_ENV = process.env.ARK_ENV;
+const CORE_ENV = process.env.CORE_ENV;
 let guard;
 let peerMock;
 
@@ -14,7 +14,7 @@ beforeAll(async () => {
 
     app.getConfig().set("milestoneHash", "dummy-milestone");
 
-    guard = require("../../dist/court/guard").guard;
+    guard = require("../../src/court/guard").guard;
 });
 
 afterAll(async () => {
@@ -34,18 +34,18 @@ beforeEach(async () => {
 describe("Guard", () => {
     describe("isSuspended", () => {
         it("should return true", async () => {
-            process.env.ARK_ENV = "false";
+            process.env.CORE_ENV = "false";
             await guard.monitor.acceptNewPeer(peerMock);
-            process.env.ARK_ENV = ARK_ENV;
+            process.env.CORE_ENV = CORE_ENV;
 
             expect(guard.isSuspended(peerMock)).toBe(true);
         });
 
         it("should return false because passed", async () => {
-            process.env.ARK_ENV = "false";
+            process.env.CORE_ENV = "false";
             await guard.monitor.acceptNewPeer(peerMock);
             guard.suspensions[peerMock.ip].until = dayjs().subtract(1, "minute");
-            process.env.ARK_ENV = ARK_ENV;
+            process.env.CORE_ENV = CORE_ENV;
 
             expect(guard.isSuspended(peerMock)).toBe(false);
         });
@@ -114,7 +114,7 @@ describe("Guard", () => {
         const dummy = {
             nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
             milestoneHash: "dummy-milestone",
-            version: "2.0.0",
+            version: "2.1.0",
             status: 200,
             state: {},
         };

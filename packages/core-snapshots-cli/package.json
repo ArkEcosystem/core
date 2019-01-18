@@ -11,7 +11,7 @@
         "dist"
     ],
     "bin": {
-        "ark:snapshot": "node ./dist/index.js"
+        "core:snapshot": "node ./dist/index.js"
     },
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
@@ -44,6 +44,7 @@
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-snapshots": "^2.1.0",
         "@types/boom": "^7.2.1",
         "@types/cli-progress": "^1.8.0",
         "@types/fs-extra": "^5.0.4",

@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Client } from "../src/client";
@@ -12,7 +13,7 @@ jest.setTimeout(30000);
 
 const host = `http://127.0.0.1:4000`;
 
-let client;
+let client: Client;
 
 beforeAll(async () => {
     await setUp();
@@ -94,7 +95,7 @@ describe("Client", () => {
     describe("getNetworkState", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
-                const expectedResponse = { foo: "bar" };
+                const expectedResponse = new NetworkState(NetworkStateStatus.Test);
                 mockAxios.onGet(`${host}/internal/network/state`).reply(200, { data: expectedResponse });
 
                 await client.__chooseHost();

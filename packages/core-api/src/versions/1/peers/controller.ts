@@ -31,22 +31,22 @@ export class PeersController extends Controller {
             // @ts-ignore
             peers = request.query.os
                 ? // @ts-ignore
-                  allPeers.filter(peer => peer.os === request.query.os)
+                  allPeers.filter(peer => peer.os === (request.query as any).os)
                 : peers;
             // @ts-ignore
             peers = request.query.status
                 ? // @ts-ignore
-                  allPeers.filter(peer => peer.status === request.query.status)
+                  allPeers.filter(peer => peer.status === (request.query as any).status)
                 : peers;
             // @ts-ignore
             peers = request.query.port
                 ? // @ts-ignore
-                  allPeers.filter(peer => peer.port === request.query.port)
+                  allPeers.filter(peer => peer.port === (request.query as any).port)
                 : peers;
             // @ts-ignore
             peers = request.query.version
                 ? // @ts-ignore
-                  allPeers.filter(peer => peer.version === request.query.version)
+                  allPeers.filter(peer => peer.version === (request.query as any).version)
                 : peers;
             // @ts-ignore
             peers = peers.slice(0, request.query.limit || 100);
@@ -80,7 +80,7 @@ export class PeersController extends Controller {
 
             const peer = peers.find(
                 // @ts-ignore
-                elem => elem.ip === request.query.ip && +elem.port === +request.query.port,
+                elem => elem.ip === (request.query as any).ip && +elem.port === +request.query.port,
             );
 
             if (!peer) {

@@ -8,7 +8,7 @@ export class GetCommand extends BaseCommand {
 
     public static examples: string[] = [
         `Get the log level
-$ ark env:get ARK_LOG_LEVEL
+$ ark env:get CORE_LOG_LEVEL
 `,
     ];
 

@@ -76,7 +76,7 @@ export interface IBlockchain {
      * @param  {Block} block
      * @return {void}
      */
-    queueBlock(block: models.Block): void;
+    handleIncomingBlock(block: models.Block): void;
 
     /**
      * Rollback all blocks up to the previous round.
@@ -116,29 +116,6 @@ export interface IBlockchain {
      * @return {(Function|void)}
      */
     processBlock(block: models.Block, callback: any): Promise<any>;
-
-    /**
-     * Accept a new chained block.
-     * @param  {Block} block
-     * @param  {Object} state
-     * @return {void}
-     */
-    acceptChainedBlock(block: models.Block): Promise<void>;
-
-    /**
-     * Manage a block that is out of order.
-     * @param  {Block} block
-     * @param  {Object} state
-     * @return {void}
-     */
-    manageUnchainedBlock(block: models.Block): Promise<void>;
-
-    /**
-     * Checks if the given block contains already forged transactions.
-     * @param {Block} block
-     * @returns {Boolean}
-     */
-    checkBlockContainsForgedTransactions(block: models.Block): Promise<boolean>;
 
     /**
      * Called by forger to wake up and sync with the network.
@@ -188,7 +165,7 @@ export interface IBlockchain {
      * Get the last block of the blockchain.
      * @return {Object}
      */
-    getLastBlock(): any;
+    getLastBlock(): models.Block;
 
     /**
      * Get the last height of the blockchain.
@@ -200,7 +177,7 @@ export interface IBlockchain {
      * Get the last downloaded block of the blockchain.
      * @return {Object}
      */
-    getLastDownloadedBlock(): any;
+    getLastDownloadedBlock(): { data: models.IBlockData };
 
     /**
      * Get the block ping.
@@ -212,13 +189,13 @@ export interface IBlockchain {
      * Ping a block.
      * @return {Object}
      */
-    pingBlock(incomingBlock: models.Block): any;
+    pingBlock(incomingBlock: models.IBlockData): any;
 
     /**
      * Push ping block.
      * @return {Object}
      */
-    pushPingBlock(block: models.Block): void;
+    pushPingBlock(block: models.IBlockData): void;
 
     /**
      * Get the list of events that are available.

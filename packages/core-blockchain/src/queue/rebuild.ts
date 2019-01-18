@@ -2,26 +2,24 @@ import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 import async from "async";
+import { Blockchain } from "../blockchain";
 import { QueueInterface } from "./interface";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const { Block } = models;
 
 export class RebuildQueue extends QueueInterface {
     /**
      * Create an instance of the process queue.
-     * @param  {Blockchain} blockchain
-     * @return {void}
      */
-    constructor(blockchain, event) {
+    constructor(readonly blockchain: Blockchain, readonly event: string) {
         super(blockchain, event);
 
-        this.queue = async.queue((block, cb) => {
+        this.queue = async.queue((block: models.IBlockData, cb) => {
             if (this.queue.paused) {
                 return cb();
             }
             try {
-                return blockchain.rebuildBlock(new Block(block), cb);
+                return blockchain.rebuildBlock(new models.Block(block), cb);
             } catch (error) {
                 logger.error(`Failed to rebuild block in RebuildQueue: ${block.height.toLocaleString()}`);
                 return cb();

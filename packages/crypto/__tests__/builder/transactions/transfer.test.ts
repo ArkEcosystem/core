@@ -1,17 +1,15 @@
 import "jest-extended";
-import { client as ark } from "../../../src/client";
+import { TransferBuilder } from "../../../src/builder/transactions/transfer";
+import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto";
 import { feeManager } from "../../../src/managers/fee";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-let builder;
+let builder: TransferBuilder;
 
 beforeEach(() => {
-    builder = ark.getBuilder().transfer();
-
-    // @ts-ignore
-    global.builder = builder;
+    builder = client.getBuilder().transfer();
 });
 
 describe("Transfer Transaction", () => {
@@ -50,7 +48,7 @@ describe("Transfer Transaction", () => {
                 .fee(10)
                 .network(network);
 
-            const passphraseTransaction = ark.getBuilder().transfer();
+            const passphraseTransaction = client.getBuilder().transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
             wifTransaction.signWithWif(wif, 170);
@@ -74,7 +72,7 @@ describe("Transfer Transaction", () => {
                 .network(network)
                 .sign(passphrase);
 
-            const passphraseTransaction = ark.getBuilder().transfer();
+            const passphraseTransaction = client.getBuilder().transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
             wifTransaction.secondSignWithWif(wif, 170);
@@ -84,7 +82,7 @@ describe("Transfer Transaction", () => {
         });
     });
 
-    transactionBuilder();
+    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Transfer);

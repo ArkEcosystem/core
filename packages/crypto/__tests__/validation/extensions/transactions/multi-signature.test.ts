@@ -35,24 +35,24 @@ describe("Multi Signature Transaction", () => {
         multiSignatureAsset.min = 3;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).toBeNull();
     });
 
     it("should be valid with 3 public keys", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).toBeNull();
     });
 
     it("should be valid with lifetime of 10", () => {
         multiSignatureAsset.lifetime = 10;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).toBeNull();
     });
 
     it("should be invalid due to no transaction as object", () => {
-        expect(validator.validate("test", validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate("test", validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to non-zero amount", () => {
@@ -61,7 +61,7 @@ describe("Multi Signature Transaction", () => {
             .amount(10 * constants.ARKTOSHI)
             .sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to zero fee", () => {
@@ -70,42 +70,42 @@ describe("Multi Signature Transaction", () => {
             .fee(0)
             .sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to min too low", () => {
         multiSignatureAsset.min = 0;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to min too high", () => {
         multiSignatureAsset.min = multiSignatureAsset.keysgroup.length + 1;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to lifetime too low", () => {
         multiSignatureAsset.lifetime = 0;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to lifetime too high", () => {
         multiSignatureAsset.lifetime = 100;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to no public keys", () => {
         multiSignatureAsset.keysgroup = [];
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to too many public keys", () => {
@@ -118,45 +118,45 @@ describe("Multi Signature Transaction", () => {
         }
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, values);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to duplicate public keys", () => {
         multiSignatureAsset.keysgroup = [publicKey, publicKey];
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to no signatures", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to not enough signatures", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases.slice(1));
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to too many signatures", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, ["wrong passphrase", ...passphrases]);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it('should be invalid due to no "+" for publicKeys', () => {
         multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1));
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it('should be invalid due to having "-" for publicKeys', () => {
         multiSignatureAsset.keysgroup = keysGroup.map(value => `-${value.slice(1)}`);
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
     });
 
     it("should be invalid due to wrong keysgroup type", () => {
@@ -164,13 +164,13 @@ describe("Multi Signature Transaction", () => {
             multiSignatureAsset.keysgroup = publicKey;
             transaction.multiSignatureAsset(publicKey).sign("passphrase");
             signTransaction(transaction, passphrases);
-            expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).error).not.toBeNull();
+            expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();
         } catch (error) {}
     });
 
     it("should be invalid due to wrong transaction type", () => {
         transaction = transactionBuilder.delegateRegistration();
         transaction.usernameAsset("delegate_name").sign("passphrase");
-        expect(validator.validate(transaction.getStruct(), validator.arkMultiSignature()).errors).not.toBeNull();
+        expect(validator.validate(transaction.getStruct(), validator.multiSignature()).errors).not.toBeNull();
     });
 });

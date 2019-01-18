@@ -7,7 +7,8 @@
         "Brian Faust <brian@ark.io>"
     ],
     "license": "MIT",
-    "main": "dist/index.js",
+    "main": "dist/index",
+    "types": "dist/index",
     "files": [
         "dist"
     ],
@@ -20,11 +21,11 @@
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env ARK_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
+        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
+        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
+        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
@@ -42,6 +43,7 @@
         "boom": "^7.3.0",
         "bs58check": "^2.1.2",
         "dayjs-ext": "^2.2.0",
+        "delay": "^4.1.0",
         "hapi-api-version": "^2.1.0",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
         "hapi-rate-limit": "^3.0.0",
@@ -53,6 +55,9 @@
     },
     "devDependencies": {
         "@arkecosystem/core-test-utils": "^2.1.0",
+        "@types/boom": "^7.2.1",
+        "@types/ip": "^1.1.0",
+        "@types/joi": "^14.0.1",
         "axios": "^0.18.0"
     },
     "publishConfig": {

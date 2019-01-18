@@ -176,7 +176,7 @@ export const postBlock = {
             blockchain.pushPingBlock(b.data);
 
             block.ip = request.info.remoteAddress;
-            blockchain.queueBlock(block);
+            blockchain.handleIncomingBlock(block);
 
             return { success: true };
         } catch (error) {
@@ -230,7 +230,7 @@ export const postTransactions = {
         },
         validate: {
             payload: {
-                transactions: Joi.arkTransactionArray()
+                transactions: Joi.transactionArray()
                     .min(1)
                     .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
                     .options({ stripUnknown: true }),

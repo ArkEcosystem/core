@@ -24,6 +24,6 @@ describe(".toBeValidTransaction", () => {
 
     test("fails when given an invalid transaction", () => {
         transaction.fee = "invalid" as any;
-        expect(transaction).not.toBeValidTransaction();
+        expect(expect(transaction).toBeValidTransaction).toThrowError("Expected value to be a valid transaction");
     });
 });

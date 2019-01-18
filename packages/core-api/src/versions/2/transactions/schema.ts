@@ -45,7 +45,7 @@ export const index: object = {
 
 export const store: object = {
     payload: {
-        transactions: Joi.arkTransactionArray()
+        transactions: Joi.transactionArray()
             .min(1)
             .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
             .options({ stripUnknown: true }),

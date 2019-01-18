@@ -10,16 +10,12 @@ export const blockTransactions = {
             orderBy: "timestamp:desc",
         });
 
-        if (!response) {
-            return Boom.notFound(`Block ${params.id} could not be found.`);
-        }
-
         return response
             ? {
                   count: response.meta.totalCount,
                   data: response.data,
               }
-            : {};
+            : Boom.notFound(`Block ${params.id} could not be found.`);
     },
     schema: {
         id: Joi.number()
