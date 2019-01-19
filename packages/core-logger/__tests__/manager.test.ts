@@ -1,5 +1,6 @@
 import "jest-extended";
 import { AbstractLogger, LogManager } from "../src";
+import { plugin } from "../src/plugin";
 import { Logger } from "./__stubs__/logger";
 
 const manager = new LogManager();
@@ -10,6 +11,7 @@ describe("Config Manager", () => {
             await manager.makeDriver(new Logger({}));
 
             expect(manager.driver()).toBeInstanceOf(AbstractLogger);
+            expect(await plugin.register()).toBeInstanceOf(LogManager);
         });
     });
 });
