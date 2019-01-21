@@ -70,7 +70,7 @@ describe("Models - Block", () => {
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toEqual(["Invalid previous block", "Failed to verify block signature"]);
 
-            jest.resetAllMocks();
+            jest.restoreAllMocks();
         });
 
         it("should fail to verify a block with incorrect timestamp", () => {
@@ -80,7 +80,7 @@ describe("Models - Block", () => {
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toEqual(["Invalid block timestamp"]);
 
-            jest.resetAllMocks();
+            jest.restoreAllMocks();
         });
 
         it("should fail to verify a block with too much transactions", () => {
@@ -170,6 +170,8 @@ describe("Models - Block", () => {
             });
 
             expect(header).not.toHaveProperty("transactions");
+
+            jest.restoreAllMocks();
         });
     });
 
