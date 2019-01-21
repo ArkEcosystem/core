@@ -53,28 +53,28 @@ const main = async () => {
 
     const paths = {
         core: {
-            old: corePath,
+            old: expandHomeDir(corePath),
             new: expandHomeDir('~/core'),
         },
         cache: {
-            old: `${coreData}/database`,
-            new: corePaths.cache,
+            old: expandHomeDir(`${coreData}/database`),
+            new: expandHomeDir(corePaths.cache),
         },
         config: {
-            old: `${coreData}/config`,
-            new: corePaths.config,
+            old: expandHomeDir(`${coreData}/config`),
+            new: expandHomeDir(corePaths.config),
         },
         log: {
-            old: `${coreData}/logs`,
-            new: corePaths.log,
+            old: expandHomeDir(`${coreData}/logs`),
+            new: expandHomeDir(corePaths.log),
         },
         temp: {
-            old: `${coreData}/temp`,
-            new: corePaths.temp,
+            old: expandHomeDir(`${coreData}/temp`),
+            new: expandHomeDir(corePaths.temp),
         },
         data: {
-            old: coreData,
-            new: corePaths.data,
+            old: expandHomeDir(coreData,
+            new: expandHomeDir(corePaths.data),
         },
     };
 
