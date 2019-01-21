@@ -101,6 +101,8 @@ const main = async () => {
             });
 
             fs.removeSync(value.old);
+        } else {
+            console.error(`Folder ${value.old} does not exist.`);
         }
     }
 
@@ -117,7 +119,7 @@ const main = async () => {
     const requiredFiles = [
         {
             copy: `${paths.config.new}/.env`,
-            original: `${paths.core.new}/.env`,
+            original: null, // NOTE: this should never happen
         }, {
             copy: `${paths.config.new}/delegates.json`,
             original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/delegates.json`,
