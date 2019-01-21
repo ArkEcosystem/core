@@ -123,18 +123,16 @@ export class Wallet {
      * Remove block data from this wallet.
      */
     public revertBlock(block: IBlockData): boolean {
-        this.dirty = true;
-
         if (
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address
         ) {
+            this.dirty = true;
             this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
             // update stats
             this.forgedFees = this.forgedFees.minus(block.totalFee);
             this.forgedRewards = this.forgedRewards.minus(block.reward);
-            this.lastBlock = block;
             this.producedBlocks--;
 
             // TODO: get it back from database?
@@ -243,10 +241,6 @@ export class Wallet {
         if (transaction.type === TransactionTypes.MultiPayment) {
             const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Bignum.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
-        }
-
-        if (transaction.type === TransactionTypes.DelegateResignation) {
-            audit.push({ "Resignate Delegate": this.username });
         }
 
         if (transaction.type === TransactionTypes.DelegateResignation) {
