@@ -1,6 +1,6 @@
 import Boom from "boom";
 import { monitor } from "../../monitor";
-import isWhitelisted from "../../utils/is-whitelist";
+import { isWhitelisted } from "../../utils";
 
 /**
  * The register method used by hapi.js.

@@ -20,8 +20,7 @@ import { guard, Guard } from "./court";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
 
-import checkDNS from "./utils/check-dns";
-import checkNTP from "./utils/check-ntp";
+import { checkDNS, checkNTP, restorePeers } from "./utils";
 
 let config;
 let logger: Logger.ILogger;

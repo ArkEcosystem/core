@@ -2,10 +2,8 @@ import os from "os";
 
 /**
  * Checks if IP belongs to local computer (all network interfaces are checked)
- * @param {String} ipAddress to check
- * @returns {Boolean} true/false
  */
-export = (ipAddress: string) => {
+export const isMyself = (ipAddress: string): boolean => {
     if (!ipAddress) {
         return false;
     }

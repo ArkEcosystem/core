@@ -6,7 +6,7 @@ import util from "util";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-export = async hosts => {
+export const checkDNS = async hosts => {
     hosts = shuffle(hosts);
 
     const lookupService = util.promisify(dns.lookupService);

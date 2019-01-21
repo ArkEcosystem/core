@@ -11,7 +11,7 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
  * @param {Number} [timeout = 1000]
  * @return {Promise}
  */
-export = (hosts, timeout = 1000): any => {
+export const checkNTP = (hosts, timeout = 1000): any => {
     hosts = shuffle(hosts);
 
     return new Promise(async (resolve, reject) => {
