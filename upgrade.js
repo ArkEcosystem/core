@@ -26,7 +26,8 @@ function deletePM2(processName) {
 const main = async () => {
     const {
         corePath,
-        coreData
+        coreData,
+        coreNetwork
     } = await prompts([{
         type: 'text',
         name: 'corePath',
@@ -39,10 +40,22 @@ const main = async () => {
         initial: expandHomeDir('~/.ark'),
         message: 'Where is the configuration located at?',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
+    }, {
+        type: 'text',
+        name: 'coreNetwork',
+        message: 'What network are you on?',
+        choices: [
+            { title: 'mainnet', value: 'mainnet' },
+            { title: 'devnet', value: 'devnet' },
+            { title: 'testnet', value: 'testnet' }
+        ],
     }]);
 
+    deletePM2('ark-core');
     deletePM2('ark-core-relay');
     deletePM2('ark-core-forger');
+
+    deletePM2('core');
     deletePM2('core-relay');
     deletePM2('core-forger');
 
@@ -58,23 +71,23 @@ const main = async () => {
         },
         cache: {
             old: expandHomeDir(`${coreData}/database`),
-            new: expandHomeDir(corePaths.cache),
+            new: corePaths.cache,
         },
         config: {
             old: expandHomeDir(`${coreData}/config`),
-            new: expandHomeDir(corePaths.config),
+            new: corePaths.config,
         },
         log: {
             old: expandHomeDir(`${coreData}/logs`),
-            new: expandHomeDir(corePaths.log),
+            new: corePaths.log,
         },
         temp: {
             old: expandHomeDir(`${coreData}/temp`),
-            new: expandHomeDir(corePaths.temp),
+            new: corePaths.temp,
         },
         data: {
-            old: expandHomeDir(coreData,
-            new: expandHomeDir(corePaths.data),
+            old: expandHomeDir(coreData),
+            new: corePaths.data,
         },
     };
 
@@ -97,21 +110,35 @@ const main = async () => {
     // fs.removeSync(`${paths.config.old}/genesisBlock.json`);
     fs.removeSync(`${paths.config.new}/peers_backup.json`);
     fs.removeSync(`${paths.config.new}/network.json`);
+    fs.removeSync(paths.data.old);
     // fs.removeSync(`${paths.config.new}/genesisBlock.json`);
 
     // Ensure that all files core needs exist
     const requiredFiles = [
-        `${paths.config.new}/.env`,
-        `${paths.config.new}/delegates.json`,
-        `${paths.config.new}/peers.json`,
-        `${paths.config.new}/plugins.js`,
+        {
+            copy: `${paths.config.new}/.env`,
+            original: `${paths.core.new}/.env`,
+        }, {
+            copy: `${paths.config.new}/delegates.json`,
+            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/delegates.json`,
+        }, {
+            copy: `${paths.config.new}/peers.json`,
+            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/peers.json`,
+        }, {
+            copy: `${paths.config.new}/plugins.js`,
+            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/plugins.js`,
+        }
     ];
 
     for (const file of requiredFiles) {
-        if (!fs.existsSync(file)) {
-            console.error(`File ${file} does not exist.`);
+        if (!fs.existsSync(file.copy)) {
+            console.error(`File ${file.copy} does not exist.`);
 
-            // TODO: copy or create file or directory if it doesn't exist
+            if (fs.existsSync(file.original)) {
+                fs.copySync(file.original, file.copy);
+            } else {
+                console.error(`Original ${file.original} does not exist.`);
+            }
         }
     }
 
