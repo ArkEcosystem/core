@@ -67,6 +67,7 @@ export class Monitor implements P2P.IMonitor {
 
         this.guard = guard.init(this);
 
+        restorePeers();
         this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
@@ -708,7 +709,7 @@ export class Monitor implements P2P.IMonitor {
         }));
 
         try {
-            fs.writeFileSync(`${process.env.CORE_PATH_CONFIG}/peers_backup.json`, JSON.stringify(peers, null, 2));
+            fs.writeFileSync(`${process.env.CORE_PATH_CACHE}/peers.json`, JSON.stringify(peers, null, 2));
         } catch (err) {
             logger.error(`Failed to dump the peer list because of "${err.message}"`);
         }
@@ -841,8 +842,8 @@ export class Monitor implements P2P.IMonitor {
             return peer;
         });
 
-        if (config.get("peers_backup")) {
-            peers = { ...peers, ...config.get("peers_backup") };
+        if (config.get("peers")) {
+            peers = { ...peers, ...config.get("peers") };
         }
 
         const filteredPeers: any[] = Object.values(peers).filter(
