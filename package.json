@@ -4,6 +4,7 @@
     "description": "The packages that make up the Ark Core",
     "scripts": {
         "lerna": "./node_modules/lerna/cli.js",
+        "upgrade": "node ./upgrade.js",
         "setup": "yarn && yarn clean && yarn bootstrap && yarn build",
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",

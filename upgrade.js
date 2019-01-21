@@ -107,10 +107,12 @@ let configEnv = fs.readFileSync(`${paths.config.new}/.env`);
 configEnv = configEnv.replace('ARK_', 'CORE_');
 fs.writeFileSync(`${paths.config.new}/.env`, configEnv);
 
-// Update environment file
+// Update plugins file
 let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`);
 configPlugins = configPlugins.replace('ARK_', 'CORE_');
 fs.writeFileSync(`${paths.config.new}/plugins.js`, configEnv);
+
+// TODO: turn plugins.js into plugins.json
 
 // Validate configuration files
 const { error } = Joi.validate({
