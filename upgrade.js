@@ -1,8 +1,9 @@
 const envPaths = require('env-paths');
 const expandHomeDir = require('expand-home-dir');
 const fs = require('fs-extra');
-const Joi = require('Joi');
+const Joi = require('joi');
 const pm2 = require('pm2');
+const prompts = require('prompts');
 
 // Delete all pm2 processes created by commander
 function deletePM2(processName) {
@@ -22,116 +23,137 @@ function deletePM2(processName) {
     });
 };
 
-deletePM2('ark-core-relay');
-deletePM2('ark-core-forger');
-deletePM2('core-relay');
-deletePM2('core-forger');
+const main = async () => {
+    const {
+        corePath,
+        coreData
+    } = await prompts([{
+        type: 'text',
+        name: 'corePath',
+        initial: expandHomeDir('~/ark-core'),
+        message: 'Where is the installation located at?',
+        validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
+    }, {
+        type: 'text',
+        name: 'coreData',
+        initial: expandHomeDir('~/.ark'),
+        message: 'Where is the configuration located at?',
+        validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
+    }]);
 
-// Paths
-const corePaths = envPaths('ark', {
-    suffix: 'core'
-});
+    deletePM2('ark-core-relay');
+    deletePM2('ark-core-forger');
+    deletePM2('core-relay');
+    deletePM2('core-forger');
 
-const paths = {
-    core: {
-        old: expandHomeDir('~/ark-core'),
-        new: expandHomeDir('~/core'),
-    },
-    cache: {
-        old: expandHomeDir('~/.ark/database'),
-        new: corePaths.cache,
-    },
-    config: {
-        old: expandHomeDir('~/.ark/config'),
-        new: corePaths.config,
-    },
-    log: {
-        old: expandHomeDir('~/.ark/logs'),
-        new: corePaths.log,
-    },
-    temp: {
-        old: expandHomeDir('~/.ark/temp'),
-        new: corePaths.temp,
-    },
-    data: {
-        old: expandHomeDir('~/.ark'),
-        new: corePaths.data,
-    },
-};
+    // Paths
+    const corePaths = envPaths('ark', {
+        suffix: 'core'
+    });
 
-// Move files & directories
-for (const value of Object.values(paths)) {
-    if (fs.existsSync(value.old)) {
-        fs.ensureDirSync(value.new);
+    const paths = {
+        core: {
+            old: corePath,
+            new: expandHomeDir('~/core'),
+        },
+        cache: {
+            old: `${coreData}/database`,
+            new: corePaths.cache,
+        },
+        config: {
+            old: `${coreData}/config`,
+            new: corePaths.config,
+        },
+        log: {
+            old: `${coreData}/logs`,
+            new: corePaths.log,
+        },
+        temp: {
+            old: `${coreData}/temp`,
+            new: corePaths.temp,
+        },
+        data: {
+            old: coreData,
+            new: corePaths.data,
+        },
+    };
 
-        fs.moveSync(value.old, value.new, {
-            overwrite: true
-        });
+    // Move files & directories
+    for (const value of Object.values(paths)) {
+        if (fs.existsSync(value.old)) {
+            fs.ensureDirSync(value.new);
 
-        fs.removeSync(value.old);
+            fs.moveSync(value.old, value.new, {
+                overwrite: true
+            });
+
+            fs.removeSync(value.old);
+        }
+    }
+
+    // Remove old or temp files
+    fs.removeSync(`${paths.config.old}/peers_backup.json`);
+    fs.removeSync(`${paths.config.old}/network.json`);
+    // fs.removeSync(`${paths.config.old}/genesisBlock.json`);
+    fs.removeSync(`${paths.config.new}/peers_backup.json`);
+    fs.removeSync(`${paths.config.new}/network.json`);
+    // fs.removeSync(`${paths.config.new}/genesisBlock.json`);
+
+    // Ensure that all files core needs exist
+    const requiredFiles = [
+        `${paths.config.new}/.env`,
+        `${paths.config.new}/delegates.json`,
+        `${paths.config.new}/peers.json`,
+        `${paths.config.new}/plugins.js`,
+    ];
+
+    for (const file of requiredFiles) {
+        if (!fs.existsSync(file)) {
+            console.error(`File ${file} does not exist.`);
+
+            // TODO: copy or create file or directory if it doesn't exist
+        }
+    }
+
+    // Update configuration files
+    let configDelegates = require(`${paths.config.new}/delegates.json`)
+    delete configDelegates.dynamicFee
+    delete configDelegates.dynamicFees
+    fs.writeFileSync(`${paths.config.new}/delegates.json`, JSON.stringify(configDelegates, null, 4));
+
+    // Update environment file
+    let configEnv = fs.readFileSync(`${paths.config.new}/.env`);
+    configEnv = configEnv.replace('ARK_', 'CORE_');
+    fs.writeFileSync(`${paths.config.new}/.env`, configEnv);
+
+    // Update plugins file
+    let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`);
+    configPlugins = configPlugins.replace('ARK_', 'CORE_');
+    fs.writeFileSync(`${paths.config.new}/plugins.js`, configEnv);
+
+    // TODO: turn plugins.js into plugins.json
+
+    // Validate configuration files
+    const { error } = Joi.validate({
+        delegates: require(`${paths.config.new}/delegates.json`),
+        peers: require(`${paths.config.new}/peers.json`),
+        peers_backup: require(`${paths.config.new}/peers_backup.json`),
+        plugins: require(`${paths.config.new}/plugins.js`),
+        genesisBlock: require(`${paths.config.new}/genesisBlock.json`),
+    }, Joi.object({
+        delegates: Joi.object({
+            secrets: Joi.array().items(Joi.string()),
+            bip38: Joi.string(),
+        }),
+        peers: Joi.object().required(),
+        peers_backup: Joi.array().items(Joi.object()),
+        plugins: Joi.object().required(),
+        genesisBlock: Joi.object().required(),
+    }).unknown());
+
+    if (error) {
+        console.log(error);
     }
 }
 
-// Remove old or temp files
-fs.removeSync(`${paths.config.old}/peers_backup.json`);
-fs.removeSync(`${paths.config.old}/network.json`);
-// fs.removeSync(`${paths.config.old}/genesisBlock.json`);
-fs.removeSync(`${paths.config.new}/peers_backup.json`);
-fs.removeSync(`${paths.config.new}/network.json`);
-// fs.removeSync(`${paths.config.new}/genesisBlock.json`);
-
-// Ensure that all files core needs exist
-const requiredFiles = [
-    `${paths.config.new}/.env`,
-    `${paths.config.new}/delegates.json`,
-    `${paths.config.new}/peers.json`,
-    `${paths.config.new}/plugins.js`,
-];
-
-for (const file of requiredFiles) {
-    if (!fs.existsSync(file)) {
-        console.error(`File ${file} does not exist.`);
-
-        // TODO: copy or create file or directory if it doesn't exist
-    }
-}
-
-// Update configuration files
-let configDelegates = require(`${paths.config.new}/delegates.json`)
-delete configDelegates.dynamicFee
-delete configDelegates.dynamicFees
-fs.writeFileSync(`${paths.config.new}/delegates.json`, JSON.stringify(configDelegates, null, 4));
-
-// Update environment file
-let configEnv = fs.readFileSync(`${paths.config.new}/.env`);
-configEnv = configEnv.replace('ARK_', 'CORE_');
-fs.writeFileSync(`${paths.config.new}/.env`, configEnv);
-
-// Update plugins file
-let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`);
-configPlugins = configPlugins.replace('ARK_', 'CORE_');
-fs.writeFileSync(`${paths.config.new}/plugins.js`, configEnv);
-
-// TODO: turn plugins.js into plugins.json
-
-// Validate configuration files
-const { error } = Joi.validate({
-    delegates: require(`${paths.config.new}/delegates.json`),
-    peers: require(`${paths.config.new}/peers.json`),
-    peers_backup: require(`${paths.config.new}/peers_backup.json`),
-    plugins: require(`${paths.config.new}/plugins.js`),
-    genesisBlock: require(`${paths.config.new}/genesisBlock.json`),
-}, Joi.object({
-    delegates: Joi.object({
-        secrets: Joi.array().items(Joi.string()),
-        bip38: Joi.string(),
-    }),
-    peers: Joi.object().required(),
-    peers_backup: Joi.array().items(Joi.object()),
-    plugins: Joi.object().required(),
-    genesisBlock: Joi.object().required(),
-}).unknown());
-
-if (error) {
-    console.log(error);
-}
+main()
