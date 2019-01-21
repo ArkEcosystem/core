@@ -111,6 +111,64 @@ describe("Models - Block", () => {
             expect(block.verification.errors).toEqual(["Transactions length is too high"]);
         });
 
+        it("should fail to verify a block with duplicate transactions", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 2,
+                },
+                reward: new Bignum(0),
+            };
+            const transactions = generateTransfers(
+                "testnet",
+                "super cool passphrase",
+                "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",
+                10,
+                1,
+                true,
+            );
+
+            const blockForged = delegate.forge([transactions[0], transactions[0]], optionsDefault);
+
+            const block = new Block(blockForged.toJson());
+
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toEqual([`Encountered duplicate transaction: ${transactions[0].id}`]);
+        });
+
+        it("should fail to verify a block with too large payload", () => {
+            jest.spyOn(configManager, "getMilestone").mockImplementation(height => ({
+                block: {
+                    version: 0,
+                    maxTransactions: 200,
+                    maxPayload: 0,
+                },
+                reward: 200000000,
+            }));
+            const block = new Block(dummyBlock);
+
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toEqual(["Payload is too large"]);
+
+            jest.restoreAllMocks();
+        });
+
+        it("should fail to verify a block if error is thrown", () => {
+            const errorMessage = "Very very, very bad error";
+            jest.spyOn(configManager, "getMilestone").mockImplementation(height => {
+                throw errorMessage;
+            });
+            const block = new Block(dummyBlock);
+
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toEqual([errorMessage]);
+
+            jest.restoreAllMocks();
+        });
+
         it("should construct the block (header only)", () => {
             const block = new Block(dummyBlock2.serialized);
             const actual = block.toJson();
