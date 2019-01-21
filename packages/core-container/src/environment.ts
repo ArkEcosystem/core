@@ -37,7 +37,7 @@ export class Environment {
 
         createPathVariables(envPaths(this.variables.token, { suffix: "core" }));
 
-        if (this.variables.data && this.variables.config) {
+        if (this.variables.data || this.variables.config) {
             createPathVariables(this.variables);
         }
     }
