@@ -135,10 +135,8 @@ const main = async () => {
 
     for (const file of requiredFiles) {
         if (!fs.existsSync(file.copy)) {
-            console.error(`File ${file.copy} does not exist.`);
-
             if (fs.existsSync(file.original)) {
-                console.error(`Copying ${file.original} to ${file.copy}.`);
+                console.error(`Copying ${file.original} to ${file.copy} because it is missing.`);
 
                 fs.copySync(file.original, file.copy);
             } else {
