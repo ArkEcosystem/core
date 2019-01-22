@@ -145,6 +145,7 @@ class Helpers {
         expect(wallet).toHaveProperty("publicKey");
         expect(wallet).toHaveProperty("balance");
         expect(wallet).toHaveProperty("isDelegate");
+        expect(wallet).toHaveProperty("vote");
     }
 
     public async createTransaction() {
