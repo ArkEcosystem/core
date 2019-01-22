@@ -168,7 +168,6 @@ const main = async () => {
     const { error } = Joi.validate({
         delegates: require(`${paths.config.new}/delegates.json`),
         peers: require(`${paths.config.new}/peers.json`),
-        peers_backup: require(`${paths.config.new}/peers_backup.json`),
         plugins: require(`${paths.config.new}/plugins.js`),
         genesisBlock: require(`${paths.config.new}/genesisBlock.json`),
     }, Joi.object({
@@ -177,7 +176,6 @@ const main = async () => {
             bip38: Joi.string(),
         }),
         peers: Joi.object().required(),
-        peers_backup: Joi.array().items(Joi.object()),
         plugins: Joi.object().required(),
         genesisBlock: Joi.object().required(),
     }).unknown());
