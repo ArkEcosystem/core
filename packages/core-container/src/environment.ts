@@ -26,18 +26,24 @@ export class Environment {
     private exportPaths() {
         const allowedKeys = ["data", "config", "cache", "log", "temp"];
 
-        const createPathVariables = values =>
+        const createPathVariables = (values, namespace?) =>
             allowedKeys.forEach(key => {
                 if (values[key]) {
-                    process.env[`CORE_PATH_${key.toUpperCase()}`] = resolve(expandHomeDir(values[key]));
+                    const name = `CORE_PATH_${key.toUpperCase()}`;
+                    let path = resolve(expandHomeDir(values[key]));
 
-                    ensureDirSync(process.env[`CORE_PATH_${key.toUpperCase()}`]);
+                    if (namespace) {
+                        path += `/${this.variables.network}`;
+                    }
+
+                    process.env[name] = path;
+                    ensureDirSync(path);
                 }
             });
 
-        createPathVariables(envPaths(this.variables.token, { suffix: "core" }));
+        createPathVariables(envPaths(this.variables.token, { suffix: "core" }), this.variables.network);
 
-        if (this.variables.data && this.variables.config) {
+        if (this.variables.data || this.variables.config) {
             createPathVariables(this.variables);
         }
     }
