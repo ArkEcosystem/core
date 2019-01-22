@@ -94,6 +94,8 @@ const main = async () => {
     // Move files & directories
     for (const value of Object.values(paths)) {
         if (fs.existsSync(value.old)) {
+            console.error(`Moving ${value.old} to ${value.new}.`);
+
             fs.ensureDirSync(value.new);
 
             fs.moveSync(value.old, value.new, {
@@ -139,6 +141,8 @@ const main = async () => {
             console.error(`File ${file.copy} does not exist.`);
 
             if (fs.existsSync(file.original)) {
+                console.error(`Copying ${file.original} to ${file.copy}.`);
+
                 fs.copySync(file.original, file.copy);
             } else {
                 console.error(`Original ${file.original} does not exist.`);
