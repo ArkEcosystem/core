@@ -67,7 +67,9 @@ export class Monitor implements P2P.IMonitor {
 
         this.guard = guard.init(this);
 
-        restorePeers();
+        const cachedPeers = restorePeers();
+        localConfig.set("peers", cachedPeers);
+
         this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
@@ -842,8 +844,8 @@ export class Monitor implements P2P.IMonitor {
             return peer;
         });
 
-        if (config.get("peers")) {
-            peers = { ...peers, ...config.get("peers") };
+        if (localConfig.get("peers")) {
+            peers = { ...peers, ...localConfig.get("peers") };
         }
 
         const filteredPeers: any[] = Object.values(peers).filter(
