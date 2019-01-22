@@ -149,14 +149,6 @@ const main = async () => {
     console.log('Update environment configuration');
     fs.writeFileSync(`${paths.config.new}/.env`, envCurrent.replace('ARK_', 'CORE_'));
 
-    // // Update plugins file
-    // console.log('Update plugins configuration');
-    // let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
-    // configPlugins = configPlugins.replace('ARK_', 'CORE_');
-    // fs.writeFileSync(`${paths.config.new}/plugins.js`, configPlugins);
-
-    // TODO: turn plugins.js into plugins.json
-
     // Validate configuration files
     console.log('Validating configuration');
     const { error } = Joi.validate({
