@@ -4,7 +4,6 @@
     "description": "The packages that make up the Ark Core",
     "scripts": {
         "lerna": "./node_modules/lerna/cli.js",
-        "upgrade": "node ./upgrade.js",
         "setup": "yarn && yarn clean && yarn bootstrap && yarn build",
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
@@ -15,6 +14,7 @@
         "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
         "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "snyk": "./node_modules/.bin/snyk protect",
+        "upgrade": "cross-env-shell ./scripts/upgrade.sh",
         "version": "cross-env-shell ./scripts/version.sh",
         "release": "cross-env-shell ./scripts/release.sh",
         "updates": "yarn lerna run updates",
@@ -53,7 +53,6 @@
         "lerna": "^3.6.0",
         "lint-staged": "^8.1.0",
         "npm-check-updates": "^2.15.0",
-        "pm2": "^3.2.9",
         "prettier": "^1.15.3",
         "prompts": "^2.0.1",
         "regenerator-runtime": "^0.13.1",

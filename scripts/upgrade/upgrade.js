@@ -2,26 +2,7 @@ const envPaths = require('env-paths');
 const expandHomeDir = require('expand-home-dir');
 const fs = require('fs-extra');
 const Joi = require('joi');
-const pm2 = require('pm2');
 const prompts = require('prompts');
-
-// Delete all pm2 processes created by commander
-function deletePM2(processName) {
-    pm2.connect(connectionError => {
-        if (connectionError) {
-            console.error(connectionError);
-            process.exit(2);
-        }
-
-        pm2.delete(processName, deleteError => {
-            pm2.disconnect();
-
-            if (deleteError) {
-                throw deleteError;
-            }
-        });
-    });
-};
 
 const main = async () => {
     const {
@@ -50,14 +31,6 @@ const main = async () => {
             { title: 'testnet', value: 'testnet' }
         ],
     }]);
-
-    deletePM2('ark-core');
-    deletePM2('ark-core-relay');
-    deletePM2('ark-core-forger');
-
-    deletePM2('core');
-    deletePM2('core-relay');
-    deletePM2('core-forger');
 
     // Paths
     const corePaths = envPaths('ark', {
