@@ -70,10 +70,15 @@ const main = async () => {
     }
 
     // Ensure we copy the .env file
-    if (fs.existsSync(`${paths.data.old}/.env`)) {
-        fs.copySync(`${paths.data.old}/.env`, `${paths.config.new}/.env`);
+    const envOld = `${paths.data.old}/.env`;
+    const envNew = `${paths.config.new}/.env`;
 
-        fs.removeSync(`${paths.data.old}/.env`);
+    if (fs.existsSync(envOld)) {
+        console.log(`Copying ${envOld} to ${envNew}.`);
+
+        fs.copySync(envOld, envNew);
+
+        fs.removeSync(envOld);
     } else {
         console.log(`The ${paths.data.old}/.env file does not exist.`)
         process.exit(1);
@@ -142,18 +147,21 @@ const main = async () => {
         }
     }
 
-    // Update configuration files
+    // Update delegate configuration
+    console.log('Update delegate configuration');
     let configDelegates = require(`${paths.config.new}/delegates.json`)
     delete configDelegates.dynamicFee
     delete configDelegates.dynamicFees
     fs.writeFileSync(`${paths.config.new}/delegates.json`, JSON.stringify(configDelegates, null, 4));
 
     // Update environment file
+    console.log('Update environment configuration');
     let configEnv = fs.readFileSync(`${paths.config.new}/.env`).toString();
     configEnv = configEnv.replace('ARK_', 'CORE_');
     fs.writeFileSync(`${paths.config.new}/.env`, configEnv);
 
     // Update plugins file
+    console.log('Update plugins configuration');
     let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
     configPlugins = configPlugins.replace('ARK_', 'CORE_');
     fs.writeFileSync(`${paths.config.new}/plugins.js`, configEnv);
@@ -161,6 +169,7 @@ const main = async () => {
     // TODO: turn plugins.js into plugins.json
 
     // Validate configuration files
+    console.log('Validating configuration');
     const { error } = Joi.validate({
         delegates: require(`${paths.config.new}/delegates.json`),
         peers: require(`${paths.config.new}/peers.json`),
@@ -181,6 +190,7 @@ const main = async () => {
     }
 
     // Clean up
+    console.log('Performing clean up');
     for (const value of Object.values(paths)) {
         if (fs.existsSync(value.old)) {
             fs.removeSync(value.old);
