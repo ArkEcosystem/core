@@ -71,23 +71,23 @@ const main = async () => {
         },
         cache: {
             old: expandHomeDir(`${coreData}/database`),
-            new: corePaths.cache,
+            new: `${corePaths.cache}/${coreNetwork}`,
         },
         config: {
             old: expandHomeDir(`${coreData}/config`),
-            new: corePaths.config,
+            new: `${corePaths.config}/${coreNetwork}`,
         },
         log: {
             old: expandHomeDir(`${coreData}/logs`),
-            new: corePaths.log,
+            new: `${corePaths.log}/${coreNetwork}`,
         },
         temp: {
             old: expandHomeDir(`${coreData}/temp`),
-            new: corePaths.temp,
+            new: `${corePaths.temp}/${coreNetwork}`,
         },
         data: {
             old: expandHomeDir(coreData),
-            new: corePaths.data,
+            new: `${corePaths.data}/${coreNetwork}`,
         },
     };
 
@@ -107,18 +107,15 @@ const main = async () => {
     }
 
     // Move database files
-    fs.moveSync(`${paths.cache.new}/json-rpc.sqlite`, `${paths.data.new}/${coreNetwork}/json-rpc.sqlite`);
-    fs.moveSync(`${paths.cache.new}/transaction-pool.sqlite`, `${paths.data.new}/${coreNetwork}/transaction-pool.sqlite`);
-    fs.moveSync(`${paths.cache.new}/webhooks.sqlite`, `${paths.data.new}/${coreNetwork}/webhooks.sqlite`);
+    fs.moveSync(`${paths.cache.new}/json-rpc.sqlite`, `${paths.data.new}/json-rpc.sqlite`);
+    fs.moveSync(`${paths.cache.new}/transaction-pool.sqlite`, `${paths.data.new}/transaction-pool.sqlite`);
+    fs.moveSync(`${paths.cache.new}/webhooks.sqlite`, `${paths.data.new}/webhooks.sqlite`);
 
     // Remove old or temp files
     fs.removeSync(`${paths.config.old}/peers_backup.json`);
     fs.removeSync(`${paths.config.old}/network.json`);
-    // fs.removeSync(`${paths.config.old}/genesisBlock.json`);
     fs.removeSync(`${paths.config.new}/peers_backup.json`);
     fs.removeSync(`${paths.config.new}/network.json`);
-    fs.removeSync(paths.data.old);
-    // fs.removeSync(`${paths.config.new}/genesisBlock.json`);
 
     // Ensure that all files core needs exist
     const requiredFiles = [
