@@ -16,9 +16,7 @@ export const defaults = {
             options: {
                 level: process.env.CORE_LOG_LEVEL || "debug",
                 format: formatter(false),
-                filename:
-                    process.env.CORE_LOG_FILE ||
-                    `${process.env.CORE_PATH_LOG}/${process.env.CORE_NETWORK_NAME}/%DATE%.log`,
+                filename: process.env.CORE_LOG_FILE || `${process.env.CORE_PATH_LOG}/%DATE%.log`,
                 datePattern: "YYYY-MM-DD",
                 zippedArchive: true,
                 maxSize: "100m",
