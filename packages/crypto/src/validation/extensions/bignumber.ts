@@ -34,5 +34,27 @@ export const bignumber = joi => ({
                 return value;
             },
         },
+        {
+            name: "integer",
+            params: {},
+            validate(params, value, state, options) {
+                if (!value.isInteger()) {
+                    return this.createError("bignumber.integer", { v: value }, state, options);
+                }
+
+                return value;
+            },
+        },
+        {
+            name: "positive",
+            params: {},
+            validate(params, value, state, options) {
+                if (!value.isPositive() || value.isZero()) {
+                    return this.createError("bignumber.positive", { v: value }, state, options);
+                }
+
+                return value;
+            },
+        },
     ],
 });
