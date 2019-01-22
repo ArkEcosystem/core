@@ -70,19 +70,12 @@ const main = async () => {
     }
 
     // Ensure we copy the .env file
-    const envOld = `${paths.data.old}/.env`;
-    const envNew = `${paths.config.new}/.env`;
-
-    if (fs.existsSync(envOld)) {
-        console.log(`Copying ${envOld} to ${envNew}.`);
-
-        fs.copySync(envOld, envNew);
-
-        fs.removeSync(envOld);
-    } else {
+    if (!fs.existsSync(`${paths.data.old}/.env`)) {
         console.log(`The ${paths.data.old}/.env file does not exist.`)
         process.exit(1);
     }
+
+    const envCurrent = fs.readFileSync(`${paths.data.old}/.env`).toString();
 
     // Move files & directories
     for (const value of Object.values(paths)) {
@@ -154,15 +147,13 @@ const main = async () => {
 
     // Update environment file
     console.log('Update environment configuration');
-    let configEnv = fs.readFileSync(`${paths.config.new}/.env`).toString();
-    configEnv = configEnv.replace('ARK_', 'CORE_');
-    fs.writeFileSync(`${paths.config.new}/.env`, configEnv);
+    fs.writeFileSync(`${paths.config.new}/.env`, envCurrent.replace('ARK_', 'CORE_'));
 
-    // Update plugins file
-    console.log('Update plugins configuration');
-    let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
-    configPlugins = configPlugins.replace('ARK_', 'CORE_');
-    fs.writeFileSync(`${paths.config.new}/plugins.js`, configEnv);
+    // // Update plugins file
+    // console.log('Update plugins configuration');
+    // let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
+    // configPlugins = configPlugins.replace('ARK_', 'CORE_');
+    // fs.writeFileSync(`${paths.config.new}/plugins.js`, configPlugins);
 
     // TODO: turn plugins.js into plugins.json
 
