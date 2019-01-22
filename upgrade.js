@@ -109,9 +109,17 @@ const main = async () => {
     }
 
     // Move database files
-    fs.moveSync(`${paths.cache.new}/json-rpc.sqlite`, `${paths.data.new}/json-rpc.sqlite`);
-    fs.moveSync(`${paths.cache.new}/transaction-pool.sqlite`, `${paths.data.new}/transaction-pool.sqlite`);
-    fs.moveSync(`${paths.cache.new}/webhooks.sqlite`, `${paths.data.new}/webhooks.sqlite`);
+    if (fs.existsSync(`${paths.cache.new}/json-rpc.sqlite`)) {
+        fs.moveSync(`${paths.cache.new}/json-rpc.sqlite`, `${paths.data.new}/json-rpc.sqlite`);
+    }
+
+    if (fs.existsSync(`${paths.cache.new}/transaction-pool.sqlite`)) {
+        fs.moveSync(`${paths.cache.new}/transaction-pool.sqlite`, `${paths.data.new}/transaction-pool.sqlite`);
+    }
+
+    if (fs.existsSync(`${paths.cache.new}/webhooks.sqlite`)) {
+        fs.moveSync(`${paths.cache.new}/webhooks.sqlite`, `${paths.data.new}/webhooks.sqlite`);
+    }
 
     // Remove old or temp files
     fs.removeSync(`${paths.config.old}/peers_backup.json`);
