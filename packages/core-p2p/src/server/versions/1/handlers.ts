@@ -180,7 +180,10 @@ export const postBlock = {
 
             return { success: true };
         } catch (error) {
-            logger.error(error);
+            //  Only write the error to the log if the error object is not empty
+            if(!!Object.keys(error).length) {
+                logger.error(error);
+            }
             return { success: false };
         }
     },
