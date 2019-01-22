@@ -91,6 +91,18 @@ const main = async () => {
         },
     };
 
+    // Ensure we copy the .env file
+    if (fs.existsSync(`${paths.data.old}/.env`)) {
+        fs.ensureDirSync(paths.config.new);
+
+        fs.moveSync(`${paths.data.old}/.env`, `${paths.config.new}/.env`);
+
+        fs.removeSync(`${paths.data.old}/.env`);
+    } else {
+        console.log('The .env file ')
+        process.exit(1);
+    }
+
     // Move files & directories
     for (const value of Object.values(paths)) {
         if (fs.existsSync(value.old)) {
