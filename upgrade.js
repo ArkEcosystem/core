@@ -91,11 +91,14 @@ const main = async () => {
         },
     };
 
+    // Create directories
+    for (const value of Object.values(paths)) {
+        fs.ensureDirSync(value.new);
+    }
+
     // Ensure we copy the .env file
     if (fs.existsSync(`${paths.data.old}/.env`)) {
-        fs.ensureDirSync(paths.config.new);
-
-        fs.moveSync(`${paths.data.old}/.env`, `${paths.config.new}/.env`);
+        fs.copySync(`${paths.data.old}/.env`, `${paths.config.new}/.env`);
 
         fs.removeSync(`${paths.data.old}/.env`);
     } else {
@@ -108,13 +111,22 @@ const main = async () => {
         if (fs.existsSync(value.old)) {
             console.error(`Moving ${value.old} to ${value.new}.`);
 
-            fs.ensureDirSync(value.new);
+            fs.moveSync(value.old, value.new, {
+                overwrite: true
+            });
+        } else {
+            console.error(`Folder ${value.old} does not exist.`);
+        }
+    }
+
+    // Move files & directories
+    for (const value of Object.values(paths)) {
+        if (fs.existsSync(value.old)) {
+            console.error(`Moving ${value.old} to ${value.new}.`);
 
             fs.moveSync(value.old, value.new, {
                 overwrite: true
             });
-
-            fs.removeSync(value.old);
         } else {
             console.error(`Folder ${value.old} does not exist.`);
         }
@@ -177,12 +189,12 @@ const main = async () => {
     fs.writeFileSync(`${paths.config.new}/delegates.json`, JSON.stringify(configDelegates, null, 4));
 
     // Update environment file
-    let configEnv = fs.readFileSync(`${paths.config.new}/.env`);
+    let configEnv = fs.readFileSync(`${paths.config.new}/.env`).toString();
     configEnv = configEnv.replace('ARK_', 'CORE_');
     fs.writeFileSync(`${paths.config.new}/.env`, configEnv);
 
     // Update plugins file
-    let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`);
+    let configPlugins = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
     configPlugins = configPlugins.replace('ARK_', 'CORE_');
     fs.writeFileSync(`${paths.config.new}/plugins.js`, configEnv);
 
@@ -206,6 +218,13 @@ const main = async () => {
 
     if (error) {
         console.log(error);
+    }
+
+    // Clean up
+    for (const value of Object.values(paths)) {
+        if (fs.existsSync(value.old)) {
+            fs.removeSync(value.old);
+        }
     }
 }
 
