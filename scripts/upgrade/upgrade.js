@@ -112,9 +112,6 @@ const main = async () => {
     // Ensure that all files core needs exist
     const requiredFiles = [
         {
-            copy: `${paths.config.new}/.env`,
-            original: null, // NOTE: this should never happen
-        }, {
             copy: `${paths.config.new}/delegates.json`,
             original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/delegates.json`,
         }, {
