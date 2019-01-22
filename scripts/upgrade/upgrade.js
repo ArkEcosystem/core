@@ -95,8 +95,8 @@ const main = async () => {
         fs.moveSync(`${paths.cache.new}/json-rpc.sqlite`, `${paths.data.new}/json-rpc.sqlite`);
     }
 
-    if (fs.existsSync(`${paths.cache.new}/transaction-pool.sqlite`)) {
-        fs.moveSync(`${paths.cache.new}/transaction-pool.sqlite`, `${paths.data.new}/transaction-pool.sqlite`);
+    if (fs.existsSync(`${paths.cache.new}/transaction-pool-${coreNetwork}.sqlite`)) {
+        fs.moveSync(`${paths.cache.new}/transaction-pool-${coreNetwork}.sqlite`, `${paths.data.new}/transaction-pool.sqlite`);
     }
 
     if (fs.existsSync(`${paths.cache.new}/webhooks.sqlite`)) {
