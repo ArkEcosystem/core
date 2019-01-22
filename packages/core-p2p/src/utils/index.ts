@@ -1,6 +1,5 @@
-import checkDns from "./check-dns";
-import checkNtp from "./check-ntp";
-import isMyself from "./is-myself";
-import isWhitelist from "./is-whitelist";
-
-export { checkDns, checkNtp, isMyself, isWhitelist };
+export { checkDNS } from "./check-dns";
+export { checkNTP } from "./check-ntp";
+export { isMyself } from "./is-myself";
+export { isWhitelisted } from "./is-whitelisted";
+export { restorePeers } from "./restore-peers";

@@ -1,5 +1,5 @@
 import os from "os";
-import isMyself from "../../src/utils/is-myself";
+import { isMyself } from "../../src/utils";
 
 describe("isMyself", () => {
     it("should be ok for localhost addresses", () => {
