@@ -8,4 +8,4 @@ pm2 stop core
 pm2 stop core-relay
 pm2 stop core-forger
 
-node ./upgrade/upgrade.js
+node ./scripts/upgrade/upgrade.js

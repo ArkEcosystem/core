@@ -75,7 +75,7 @@ const main = async () => {
 
         fs.removeSync(`${paths.data.old}/.env`);
     } else {
-        console.log('The .env file ')
+        console.log(`The ${paths.data.old}/.env file does not exist.`)
         process.exit(1);
     }
 
