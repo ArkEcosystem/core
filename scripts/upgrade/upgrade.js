@@ -123,6 +123,9 @@ const main = async () => {
         }, {
             copy: `${paths.config.new}/plugins.js`,
             original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/plugins.js`,
+        }, {
+            copy: `${paths.config.new}/genesisBlock.js`,
+            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/genesisBlock.js`,
         }
     ];
 
