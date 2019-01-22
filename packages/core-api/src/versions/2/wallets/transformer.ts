@@ -8,5 +8,6 @@ export function transformWallet(model) {
         secondPublicKey: model.secondPublicKey,
         balance: +bignumify(model.balance).toFixed(),
         isDelegate: !!model.username,
+        vote: model.vote,
     };
 }
