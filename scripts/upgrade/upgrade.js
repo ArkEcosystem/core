@@ -92,19 +92,6 @@ const main = async () => {
         }
     }
 
-    // Move files & directories
-    for (const value of Object.values(paths)) {
-        if (fs.existsSync(value.old)) {
-            console.error(`Moving ${value.old} to ${value.new}.`);
-
-            fs.moveSync(value.old, value.new, {
-                overwrite: true
-            });
-        } else {
-            console.error(`Folder ${value.old} does not exist.`);
-        }
-    }
-
     // Move database files
     if (fs.existsSync(`${paths.cache.new}/json-rpc.sqlite`)) {
         fs.moveSync(`${paths.cache.new}/json-rpc.sqlite`, `${paths.data.new}/json-rpc.sqlite`);
