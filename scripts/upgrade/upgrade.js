@@ -3,6 +3,7 @@ const expandHomeDir = require('expand-home-dir');
 const fs = require('fs-extra');
 const Joi = require('joi');
 const prompts = require('prompts');
+const { EOL } = require('os');
 
 const main = async () => {
     const {
@@ -72,23 +73,23 @@ const main = async () => {
         const commanderContents = fs.readFileSync(commanderEnv).toString();
 
         if (!commanderContents.includes('CORE_PATH_DATA')) {
-            fs.appendFileSync(commanderEnv, `CORE_PATH_DATA=${paths.data.new}\r\n`);
+            fs.appendFileSync(commanderEnv, `CORE_PATH_DATA=${paths.data.new}${EOL}`);
         }
 
         if (!commanderContents.includes('CORE_PATH_CONFIG')) {
-            fs.appendFileSync(commanderEnv, `CORE_PATH_CONFIG=${paths.config.new}\r\n`);
+            fs.appendFileSync(commanderEnv, `CORE_PATH_CONFIG=${paths.config.new}${EOL}`);
         }
 
         if (!commanderContents.includes('CORE_PATH_CACHE')) {
-            fs.appendFileSync(commanderEnv, `CORE_PATH_CACHE=${paths.cache.new}\r\n`);
+            fs.appendFileSync(commanderEnv, `CORE_PATH_CACHE=${paths.cache.new}${EOL}`);
         }
 
         if (!commanderContents.includes('CORE_PATH_LOG')) {
-            fs.appendFileSync(commanderEnv, `CORE_PATH_LOG=${paths.log.new}\r\n`);
+            fs.appendFileSync(commanderEnv, `CORE_PATH_LOG=${paths.log.new}${EOL}`);
         }
 
         if (!commanderContents.includes('CORE_PATH_TEMP')) {
-            fs.appendFileSync(commanderEnv, `CORE_PATH_TEMP=${paths.temp.new}\r\n`);
+            fs.appendFileSync(commanderEnv, `CORE_PATH_TEMP=${paths.temp.new}${EOL}`);
         }
 
         const env = require("envfile").parseFileSync(commanderEnv);
@@ -96,7 +97,7 @@ const main = async () => {
 
         let envOutput = '';
         for(const [key, value] of Object.entries(env)) {
-            envOutput += `${key}="${value}"\r\n`;
+            envOutput += `${key}=${value}${EOL}`;
         }
 
         fs.writeFileSync(commanderEnv, envOutput);
