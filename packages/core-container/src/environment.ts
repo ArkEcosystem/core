@@ -70,7 +70,7 @@ export class Environment {
             return;
         }
 
-        const envPath = expandHomeDir(`${process.env.CORE_PATH_DATA}/.env`);
+        const envPath = expandHomeDir(`${process.env.CORE_PATH_CONFIG}/.env`);
 
         if (existsSync(envPath)) {
             this.merge(envfile.parseFileSync(envPath));

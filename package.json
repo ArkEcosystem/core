@@ -14,10 +14,11 @@
         "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
         "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "snyk": "./node_modules/.bin/snyk protect",
+        "upgrade": "cross-env-shell ./scripts/upgrade.sh",
         "version": "cross-env-shell ./scripts/version.sh",
         "release": "cross-env-shell ./scripts/release.sh",
         "updates": "yarn lerna run updates",
-        "generateDocker": "node ./scripts/docker/generate-docker.js",
+        "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"
     },
     "devDependencies": {
@@ -55,6 +56,7 @@
         "lint-staged": "^8.1.0",
         "npm-check-updates": "^2.15.0",
         "prettier": "^1.15.3",
+        "prompts": "^2.0.1",
         "regenerator-runtime": "^0.13.1",
         "request-promise": "^4.2.2",
         "rimraf": "^2.6.2",

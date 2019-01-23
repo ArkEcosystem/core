@@ -2,7 +2,7 @@ export const defaults = {
     enabled: process.env.CORE_WEBHOOKS_ENABLED,
     database: {
         dialect: "sqlite",
-        storage: `${process.env.CORE_PATH_DATA}/database/webhooks.sqlite`,
+        storage: `${process.env.CORE_PATH_DATA}/webhooks.sqlite`,
         logging: process.env.CORE_DB_LOGGING,
     },
     server: {

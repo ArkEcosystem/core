@@ -1,7 +1,7 @@
 export const defaults = {
     enabled: !process.env.CORE_TRANSACTION_POOL_DISABLED,
     syncInterval: 512,
-    storage: `${process.env.CORE_PATH_CACHE}/transaction-pool.sqlite`,
+    storage: `${process.env.CORE_PATH_DATA}/transaction-pool.sqlite`,
     // When the pool contains that many transactions, then a new transaction is
     // only accepted if its fee is higher than the transaction with the lowest
     // fee in the pool. In this case the transaction with the lowest fee is removed
