@@ -18,7 +18,7 @@
         "version": "cross-env-shell ./scripts/version.sh",
         "release": "cross-env-shell ./scripts/release.sh",
         "updates": "yarn lerna run updates",
-        "docker": "node ./scripts/docker/generate-docker.js"
+        "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"
     },
     "devDependencies": {
