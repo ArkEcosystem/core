@@ -5,7 +5,7 @@ export const defaults = {
     allowRemote: false,
     whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     database: {
-        uri: process.env.CORE_JSON_RPC_DATABASE || `sqlite://${process.env.CORE_PATH_DATA}/database/json-rpc.sqlite`,
+        uri: process.env.CORE_JSON_RPC_DATABASE || `sqlite://${process.env.CORE_PATH_DATA}/json-rpc.sqlite`,
         options: {},
     },
 };
