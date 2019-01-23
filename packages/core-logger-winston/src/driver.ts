@@ -1,5 +1,7 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import "colors";
+import isEmpty from "lodash/isEmpty";
+import { inspect } from "util";
 import * as winston from "winston";
 
 let tracker = null;
@@ -24,47 +26,47 @@ export class WinstonLogger extends AbstractLogger {
 
     /**
      * Log an error message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public error(message: string): void {
-        this.logger.error(message);
+    public error(message: any): void {
+        this.createLog("error", message);
     }
 
     /**
      * Log a warning message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public warn(message: string): void {
-        this.logger.warn(message);
+    public warn(message: any): void {
+        this.createLog("warn", message);
     }
 
     /**
      * Log an info message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public info(message: string): void {
-        this.logger.info(message);
+    public info(message: any): void {
+        this.createLog("info", message);
     }
 
     /**
      * Log a debug message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public debug(message: string): void {
-        this.logger.debug(message);
+    public debug(message: any): void {
+        this.createLog("debug", message);
     }
 
     /**
      * Log a verbose message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public verbose(message: string): void {
-        this.logger.verbose(message);
+    public verbose(message: any): void {
+        this.createLog("verbose", message);
     }
 
     /**
@@ -155,5 +157,23 @@ export class WinstonLogger extends AbstractLogger {
                 new winston.transports[transport.constructor](transport.options),
             );
         }
+    }
+
+    /**
+     * Log a message with the given method.
+     * @param  {String} method
+     * @param  {*} message
+     * @return {void}
+     */
+    private createLog(method: string, message: any): void {
+        if (isEmpty(message)) {
+            return;
+        }
+
+        if (typeof message !== "string") {
+            message = inspect(message, { depth: 1 });
+        }
+
+        this.logger[method](message);
     }
 }
