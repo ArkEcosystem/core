@@ -90,7 +90,7 @@ const main = async () => {
         }
     }
 
-    // Move database files
+    // Move files
     if (fs.existsSync(`${paths.cache.new}/json-rpc.sqlite`)) {
         fs.moveSync(`${paths.cache.new}/json-rpc.sqlite`, `${paths.data.new}/json-rpc.sqlite`);
     }
@@ -101,6 +101,10 @@ const main = async () => {
 
     if (fs.existsSync(`${paths.cache.new}/webhooks.sqlite`)) {
         fs.moveSync(`${paths.cache.new}/webhooks.sqlite`, `${paths.data.new}/webhooks.sqlite`);
+    }
+
+    if (fs.existsSync(`${corePaths.log}/core/${coreNetwork}`)) {
+        fs.moveSync(`${corePaths.log}/core/${coreNetwork}`, `${paths.log.new}/${coreNetwork}`);
     }
 
     // Remove old or temp files
