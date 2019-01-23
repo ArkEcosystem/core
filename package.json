@@ -17,11 +17,13 @@
         "version": "cross-env-shell ./scripts/version.sh",
         "release": "cross-env-shell ./scripts/release.sh",
         "updates": "yarn lerna run updates",
-        "generateDocker": "node ./scripts/docker/generate-docker.js"
+        "generateDocker": "node ./scripts/docker/generate-docker.js",
+        "bench": "node benchmark/index.js"
     },
     "devDependencies": {
         "@babel/core": "^7.2.2",
         "@babel/preset-env": "^7.2.0",
+        "@faustbrian/benchmarker": "^0.1.2",
         "@sindresorhus/tsconfig": "^0.1.1",
         "@types/babel__core": "^7.0.4",
         "@types/body-parser": "^1.17.0",
