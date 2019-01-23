@@ -9,3 +9,5 @@ pm2 stop core-relay > /dev/null 2>&1
 pm2 stop core-forger > /dev/null 2>&1
 
 node ./scripts/upgrade/upgrade.js
+
+yarn setup
