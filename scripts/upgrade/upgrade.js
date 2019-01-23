@@ -22,9 +22,10 @@ const main = async () => {
         message: 'Where is the configuration located at?',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
     }, {
-        type: 'text',
+        type: 'select',
         name: 'coreNetwork',
         message: 'What network are you on?',
+        validate: value => ['mainnet', 'devnet', 'testnet'].includes(value) ? true : `${value} is not a valid network.`,
         choices: [
             { title: 'mainnet', value: 'mainnet' },
             { title: 'devnet', value: 'devnet' },
@@ -63,6 +64,33 @@ const main = async () => {
             new: `${corePaths.data}/${coreNetwork}`,
         },
     };
+
+    // update commander file if present
+    const commanderEnv = expandHomeDir('~/.commander')
+
+    if (fs.existsSync(commanderEnv)) {
+        const commanderContents = fs.readFileSync(commanderEnv).toString();
+
+        if (!commanderContents.includes('CORE_PATH_DATA')) {
+            fs.appendFileSync(commanderEnv, `CORE_PATH_DATA=${paths.data.new}\r\n`);
+        }
+
+        if (!commanderContents.includes('CORE_PATH_CONFIG')) {
+            fs.appendFileSync(commanderEnv, `CORE_PATH_CONFIG=${paths.config.new}\r\n`);
+        }
+
+        if (!commanderContents.includes('CORE_PATH_CACHE')) {
+            fs.appendFileSync(commanderEnv, `CORE_PATH_CACHE=${paths.cache.new}\r\n`);
+        }
+
+        if (!commanderContents.includes('CORE_PATH_LOG')) {
+            fs.appendFileSync(commanderEnv, `CORE_PATH_LOG=${paths.log.new}\r\n`);
+        }
+
+        if (!commanderContents.includes('CORE_PATH_TEMP')) {
+            fs.appendFileSync(commanderEnv, `CORE_PATH_TEMP=${paths.temp.new}\r\n`);
+        }
+    }
 
     // Create directories
     for (const value of Object.values(paths)) {
