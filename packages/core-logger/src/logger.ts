@@ -15,38 +15,38 @@ export abstract class AbstractLogger implements Logger.ILogger {
 
     /**
      * Log an error message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public abstract error(message: string): void;
+    public abstract error(message: any): void;
 
     /**
      * Log a warning message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public abstract warn(message: string): void;
+    public abstract warn(message: any): void;
 
     /**
      * Log an info message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public abstract info(message: string): void;
+    public abstract info(message: any): void;
 
     /**
      * Log a debug message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public abstract debug(message: string): void;
+    public abstract debug(message: any): void;
 
     /**
      * Log a verbose message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    public abstract verbose(message: string): void;
+    public abstract verbose(message: any): void;
 
     /**
      * Print the progress tracker.

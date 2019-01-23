@@ -13,19 +13,19 @@ export const plugin: Container.PluginDescriptor = {
         await logManager.makeDriver(new WinstonLogger(options));
 
         const driver = logManager.driver();
-        driver.debug(`Data Directory   => ${process.env.CORE_PATH_DATA}`);
+        driver.debug(`Data Directory => ${process.env.CORE_PATH_DATA}`);
         driver.debug(`Config Directory => ${process.env.CORE_PATH_CONFIG}`);
 
         if (process.env.CORE_PATH_CACHE) {
-            driver.debug(`Cache Directory  => ${process.env.CORE_PATH_CACHE}`);
+            driver.debug(`Cache Directory => ${process.env.CORE_PATH_CACHE}`);
         }
 
         if (process.env.CORE_PATH_LOG) {
-            driver.debug(`Log Directory  => ${process.env.CORE_PATH_LOG}`);
+            driver.debug(`Log Directory => ${process.env.CORE_PATH_LOG}`);
         }
 
         if (process.env.CORE_PATH_TEMP) {
-            driver.debug(`Temp Directory  => ${process.env.CORE_PATH_TEMP}`);
+            driver.debug(`Temp Directory => ${process.env.CORE_PATH_TEMP}`);
         }
 
         return driver;

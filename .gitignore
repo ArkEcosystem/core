@@ -62,6 +62,7 @@ packages/**/dist/
 
 # Random
 peers_backup.json
+docker
 
 #Webstorm/Intellij
 .idea

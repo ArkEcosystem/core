@@ -17,22 +17,32 @@ export const ipfs = transaction => {
                 .integer()
                 .min(0)
                 .required(),
-            amount: Engine.joi.alternatives().try(
-                Engine.joi.bignumber(),
-                Engine.joi
-                    .number()
-                    .integer()
-                    .min(0)
-                    .required(),
-            ),
-            fee: Engine.joi.alternatives().try(
-                Engine.joi.bignumber(),
-                Engine.joi
-                    .number()
-                    .integer()
-                    .min(0)
-                    .required(),
-            ),
+            amount: Engine.joi
+                .alternatives()
+                .try(
+                    Engine.joi
+                        .bignumber()
+                        .integer()
+                        .min(0),
+                    Engine.joi
+                        .number()
+                        .integer()
+                        .min(0),
+                )
+                .required(),
+            fee: Engine.joi
+                .alternatives()
+                .try(
+                    Engine.joi
+                        .bignumber()
+                        .integer()
+                        .positive(),
+                    Engine.joi
+                        .number()
+                        .integer()
+                        .positive(),
+                )
+                .required(),
             senderId: Engine.joi.address(),
             senderPublicKey: Engine.joi.publicKey().required(),
             signature: Engine.joi

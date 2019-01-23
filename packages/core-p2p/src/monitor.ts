@@ -20,8 +20,7 @@ import { guard, Guard } from "./court";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
 
-import checkDNS from "./utils/check-dns";
-import checkNTP from "./utils/check-ntp";
+import { checkDNS, checkNTP, restorePeers } from "./utils";
 
 let config;
 let logger: Logger.ILogger;
@@ -67,6 +66,9 @@ export class Monitor implements P2P.IMonitor {
         await this.__checkNTPConnectivity(options.ntp);
 
         this.guard = guard.init(this);
+
+        const cachedPeers = restorePeers();
+        localConfig.set("peers", cachedPeers);
 
         this.populateSeedPeers();
 
@@ -709,7 +711,7 @@ export class Monitor implements P2P.IMonitor {
         }));
 
         try {
-            fs.writeFileSync(`${process.env.CORE_PATH_CONFIG}/peers_backup.json`, JSON.stringify(peers, null, 2));
+            fs.writeFileSync(`${process.env.CORE_PATH_CACHE}/peers.json`, JSON.stringify(peers, null, 2));
         } catch (err) {
             logger.error(`Failed to dump the peer list because of "${err.message}"`);
         }
@@ -842,8 +844,8 @@ export class Monitor implements P2P.IMonitor {
             return peer;
         });
 
-        if (config.get("peers_backup")) {
-            peers = { ...peers, ...config.get("peers_backup") };
+        if (localConfig.get("peers")) {
+            peers = { ...peers, ...localConfig.get("peers") };
         }
 
         const filteredPeers: any[] = Object.values(peers).filter(

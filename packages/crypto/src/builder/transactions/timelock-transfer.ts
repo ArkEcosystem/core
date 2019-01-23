@@ -14,6 +14,7 @@ export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransfer
         this.data.senderPublicKey = null;
         this.data.timelockType = 0x00;
         this.data.timelock = null;
+        this.data.asset = {};
     }
 
     /**
@@ -30,6 +31,7 @@ export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransfer
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.vendorFieldHex = this.data.vendorFieldHex;
+        struct.vendorField = this.data.vendorField;
         struct.asset = this.data.asset;
         struct.timelock = this.data.timelock;
         struct.timelockType = this.data.timelockType;
