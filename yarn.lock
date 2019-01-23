@@ -4016,6 +4016,11 @@ codecov@^3.1.0:
     request "^2.87.0"
     urlgrey "^0.4.4"
 
+coercer@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/coercer/-/coercer-1.1.2.tgz#eaea4459511f73f9f36ade04a98107ce75824b70"
+  integrity sha1-6upEWVEfc/nzat4EqYEHznWCS3A=
+
 collection-visit@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/collection-visit/-/collection-visit-1.0.0.tgz#4bc0373c164bc3291b4d368c829cf1a80a59dca0"

@@ -1,4 +1,5 @@
 import { asValue } from "awilix";
+import coercer from "coercer";
 import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs";
 import Hoek from "hoek";
@@ -23,7 +24,7 @@ export class PluginRegistrar {
         this.container = container;
         this.plugins = this.__loadPlugins();
         this.resolvedPlugins = [];
-        this.options = this.__castOptions(options);
+        this.options = coercer(options);
         this.deregister = [];
     }
 
@@ -133,29 +134,7 @@ export class PluginRegistrar {
             options = Hoek.applyToDefaults(options, this.options.options[name]);
         }
 
-        return this.__castOptions(options);
-    }
-
-    /**
-     * When the env is used to overwrite options, we get strings even if we
-     * expect a number. This is in most cases not desired and leads to side-
-     * effects. Here is assumed all numeric strings except blacklisted ones
-     * should be treated as numbers.
-     * @param {Object} options
-     * @return {Object} options
-     */
-    public __castOptions(options) {
-        const blacklist: any = [];
-        const regex = new RegExp(/^\d+$/);
-
-        Object.keys(options).forEach(key => {
-            const value = options[key];
-            if (isString(value) && !blacklist.includes(key) && regex.test(value)) {
-                options[key] = +value;
-            }
-        });
-
-        return options;
+        return coercer(options);
     }
 
     /**
