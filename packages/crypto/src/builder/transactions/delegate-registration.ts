@@ -24,14 +24,6 @@ export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegi
         return this;
     }
 
-    /**
-     * Overrides the inherited `sign` method to include the public key of the new delegate.
-     */
-    public sign(passphrase: string): DelegateRegistrationBuilder {
-        super.sign(passphrase);
-        return this;
-    }
-
     public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;
