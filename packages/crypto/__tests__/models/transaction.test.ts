@@ -4,7 +4,7 @@ import { transactionBuilder as builder } from "../../src/builder";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
 import { Transaction } from "../../src/models/transaction";
-import { transaction as transactionData } from "./fixtures/transaction";
+import { transaction as transactionData } from "../fixtures/transaction";
 
 import { devnet } from "../../src/networks";
 

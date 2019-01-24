@@ -42,7 +42,7 @@ describe("Engine", () => {
                 },
             };
             const result = Engine.validate("", "");
-            expect(result).toEqual({ value: null, error: undefined });
+            expect(result.error).toBeDefined();
         });
     });
 });

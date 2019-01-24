@@ -9,7 +9,7 @@ import { Bignum } from "../../src/utils/bignum";
 import { generators } from "@arkecosystem/core-test-utils";
 const { generateTransfers, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
 import { devnet } from "../../src/networks";
-import { multiTransaction } from "./fixtures/multi-transaction";
+import { multiTransaction } from "../fixtures/multi-transaction";
 
 describe("Models - Wallet", () => {
     beforeEach(() => configManager.setConfig(devnet));
