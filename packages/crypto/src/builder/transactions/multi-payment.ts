@@ -1,6 +1,7 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
+import { Bignum } from "../../utils";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
@@ -11,22 +12,25 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.fee = feeManager.get(TransactionTypes.MultiPayment);
         this.data.payments = {};
         this.data.vendorFieldHex = null;
-        this.data.asset = {};
+        this.data.asset = {
+            payments: [],
+        };
+        this.data.amount = new Bignum(0);
     }
 
     /**
      * Add payment to the multipayment collection.
      */
-    public addPayment(address: string, amount: number): MultiPaymentBuilder {
-        const paymentsCount = Object.keys(this.data.payments).length / 2;
-
-        if (paymentsCount >= 2258) {
+    public addPayment(recipientId: string, amount: number): MultiPaymentBuilder {
+        if (this.data.asset.payments.length >= 2258) {
             throw new Error("A maximum of 2259 outputs is allowed");
         }
 
-        const key = paymentsCount + 1;
-        this.data.payments[`address${key}`] = address;
-        this.data.payments[`amount${key}`] = amount;
+        this.data.asset.payments.push({
+            amount: new Bignum(amount),
+            recipientId,
+        });
+        this.data.amount = (this.data.amount as Bignum).plus(amount);
 
         return this;
     }
@@ -38,7 +42,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         struct.amount = this.data.amount;
         struct.asset = this.data.asset;
 
-        return Object.assign(struct, this.data.payments);
+        return struct;
     }
 
     protected instance(): MultiPaymentBuilder {

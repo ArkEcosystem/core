@@ -8,12 +8,12 @@ import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: DelegateRegistrationBuilder;
 
-beforeEach(() => {
-    builder = client.getBuilder().delegateRegistration();
-});
-
 describe("Delegate Registration Transaction", () => {
     describe("verify", () => {
+        beforeEach(() => {
+            builder = client.getBuilder().delegateRegistration();
+        });
+
         it("should be valid with a signature", () => {
             const actual = builder.usernameAsset("homer").sign("dummy passphrase");
 
@@ -30,49 +30,46 @@ describe("Delegate Registration Transaction", () => {
         });
     });
 
-    transactionBuilder(() => builder);
+    describe("properties", () => {
+        beforeEach(() => {
+            builder = client.getBuilder().delegateRegistration();
+        });
 
-    it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateRegistration);
-        expect(builder).toHaveProperty("data.amount", 0);
-        expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.DelegateRegistration));
-        expect(builder).toHaveProperty("data.recipientId", null);
-        expect(builder).toHaveProperty("data.senderPublicKey", null);
-        expect(builder).toHaveProperty("data.asset", { delegate: {} });
-    });
+        it("should have its specific properties", () => {
+            expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateRegistration);
+            expect(builder).toHaveProperty("data.amount", 0);
+            expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.DelegateRegistration));
+            expect(builder).toHaveProperty("data.recipientId", null);
+            expect(builder).toHaveProperty("data.senderPublicKey", null);
+            expect(builder).toHaveProperty("data.asset", { delegate: {} });
+        });
 
-    it("should not have the username yet", () => {
-        expect(builder).not.toHaveProperty("data.username");
+        it("should not have the username yet", () => {
+            expect(builder).not.toHaveProperty("data.username");
+        });
     });
 
     describe("usernameAsset", () => {
+        beforeEach(() => {
+            builder = client.getBuilder().delegateRegistration();
+        });
         it("establishes the username of the asset", () => {
             builder.usernameAsset("homer");
             expect(builder.data.asset.delegate.username).toBe("homer");
         });
     });
 
-    describe("sign", () => {
-        it("establishes the public key of the delegate (on the asset property)", () => {
-            crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }));
-            crypto.sign = jest.fn(() => "signature");
-            builder.sign("bad pass");
-            expect(builder.data.asset.delegate.publicKey).toBe("bad pass public key");
-        });
-    });
-
     // FIXME problems with ark-js V1
     describe("getStruct", () => {
         beforeEach(() => {
-            builder = builder.usernameAsset("homer");
+            builder = client
+                .getBuilder()
+                .delegateRegistration()
+                .usernameAsset("homer");
         });
+
         it("should fail if the transaction is not signed", () => {
-            try {
-                expect(() => builder.getStruct()).toThrow(/transaction.*sign/);
-                expect("fail").toBe("this should fail when no error is thrown");
-            } catch (error) {
-                expect(() => builder.sign("example pass").getStruct()).not.toThrow();
-            }
+            expect(() => builder.getStruct()).toThrow(/transaction.*sign/);
         });
 
         describe("when is signed", () => {

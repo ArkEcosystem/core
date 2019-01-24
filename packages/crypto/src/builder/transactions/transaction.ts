@@ -185,7 +185,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             signature: this.data.signature,
             signSignature: this.data.signSignature,
             timestamp: this.data.timestamp,
-
+            version: this.data.version,
             type: this.data.type,
             fee: this.data.fee,
             senderPublicKey: this.data.senderPublicKey,
