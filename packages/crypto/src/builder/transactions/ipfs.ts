@@ -42,6 +42,16 @@ export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
         return this;
     }
 
+    public dag(dag: string): IPFSBuilder {
+        this.data.asset = {
+            ipfs: {
+                dag,
+            },
+        };
+
+        return this;
+    }
+
     public getStruct(): ITransactionData {
         const struct = super.getStruct();
         struct.amount = this.data.amount;

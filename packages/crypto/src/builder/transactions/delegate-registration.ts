@@ -28,7 +28,6 @@ export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegi
      * Overrides the inherited `sign` method to include the public key of the new delegate.
      */
     public sign(passphrase: string): DelegateRegistrationBuilder {
-        this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey;
         super.sign(passphrase);
         return this;
     }
