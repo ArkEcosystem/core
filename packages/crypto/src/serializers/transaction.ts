@@ -116,14 +116,14 @@ class TransactionSerializer {
     private serializeTimelockTransfer(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeUint64(+new Bignum(transaction.amount).toFixed());
         buffer.writeByte(transaction.timelockType);
-        buffer.writeUint32(transaction.timelock);
+        buffer.writeUint64(transaction.timelock);
         buffer.append(bs58check.decode(transaction.recipientId));
     }
 
     private serializeMultiPayment(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeUint32(transaction.asset.payments.length);
         transaction.asset.payments.forEach(p => {
-            buffer.writeUint64(p.amount);
+            buffer.writeUint64(+new Bignum(p.amount).toFixed());
             buffer.append(bs58check.decode(p.recipientId));
         });
     }
