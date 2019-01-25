@@ -118,6 +118,19 @@ paragraph ()
 DEB=$(which apt-get)
 RPM=$(which yum)
 
+yarn_install ()
+{
+    heading "Installing node.js dependencies..."
+
+    yarn global add pm2
+    pm2 install pm2-logrotate
+    pm2 set pm2-logrotate:max_size 500M
+    pm2 set pm2-logrotate:compress true
+    pm2 set pm2-logrotate:retain 7
+
+    success "Installed node.js dependencies!"
+}
+
 rpm_install ()
 {
     # -----------------------------------
@@ -223,15 +236,7 @@ rpm_install ()
     # NODE.JS DEPENDENCIES
     # -----------------------------------
 
-    heading "Installing node.js dependencies..."
-
-    yarn global add pm2
-    pm2 install pm2-logrotate
-    pm2 set pm2-logrotate:max_size 500M
-    pm2 set pm2-logrotate:compress true
-    pm2 set pm2-logrotate:retain 7
-
-    success "Installed node.js dependencies!"
+    yarn_install
 
     # -----------------------------------
     # SYSTEM UPDATES
@@ -365,15 +370,7 @@ deb_install ()
     # NODE.JS DEPENDENCIES
     # -----------------------------------
 
-    heading "Installing node.js dependencies..."
-
-    yarn global add pm2
-    pm2 install pm2-logrotate
-    pm2 set pm2-logrotate:max_size 500M
-    pm2 set pm2-logrotate:compress true
-    pm2 set pm2-logrotate:retain 7
-
-    success "Installed node.js dependencies!"
+    yarn_install
 
     # -----------------------------------
     # SYSTEM UPDATES
