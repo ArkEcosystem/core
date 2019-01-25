@@ -13,25 +13,39 @@ describe("Transaction serializer / deserializer", () => {
     };
 
     describe("ser/deserialize - transfer", () => {
-        it("should ser/deserialize giving back original fields", () => {
-            const transfer = client
-                .getBuilder()
-                .transfer()
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(10000)
-                .fee(50000000)
-                .vendorField("yo")
-                .version(1)
-                .network(30)
-                .sign("dummy passphrase")
-                .getStruct();
+        const transfer = client
+            .getBuilder()
+            .transfer()
+            .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+            .amount(10000)
+            .fee(50000000)
+            .vendorField("yo")
+            .version(1)
+            .network(30)
+            .sign("dummy passphrase")
+            .getStruct();
 
+        it("should ser/deserialize giving back original fields", () => {
             const serialized = TransactionSerializer.serialize(transfer).toString("hex");
             const deserialized = TransactionDeserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, transfer);
 
             expect(deserialized.vendorField).toBe(transfer.vendorField);
+            expect(deserialized.recipientId).toBe(transfer.recipientId);
+        });
+
+        it("should ser/deserialize giving back original fields - with vendorFieldHex", () => {
+            delete transfer.vendorField;
+            const vendorField = "cool vendor field";
+            transfer.vendorFieldHex = new Buffer(vendorField).toString("hex");
+
+            const serialized = TransactionSerializer.serialize(transfer).toString("hex");
+            const deserialized = TransactionDeserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, transfer);
+
+            expect(deserialized.vendorField).toBe(vendorField);
             expect(deserialized.recipientId).toBe(transfer.recipientId);
         });
     });
@@ -99,24 +113,39 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("ser/deserialize - multi signature", () => {
+        const multiSignature = client
+            .getBuilder()
+            .multiSignature()
+            .multiSignatureAsset({
+                keysgroup: [
+                    "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
+                    "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
+                ],
+                lifetime: 72,
+                min: 2,
+            })
+            .version(1)
+            .network(30)
+            .sign("dummy passphrase")
+            .multiSignatureSign("multi passphrase 1")
+            .multiSignatureSign("multi passphrase 2")
+            .getStruct();
+
         it("should ser/deserialize giving back original fields", () => {
-            const multiSignature = client
-                .getBuilder()
-                .multiSignature()
-                .multiSignatureAsset({
-                    keysgroup: [
-                        "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                        "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-                    ],
-                    lifetime: 72,
-                    min: 2,
-                })
-                .version(1)
-                .network(30)
-                .sign("dummy passphrase")
-                .multiSignatureSign("multi passphrase 1")
-                .multiSignatureSign("multi passphrase 2")
-                .getStruct();
+            const serialized = TransactionSerializer.serialize(multiSignature).toString("hex");
+            const deserialized = TransactionDeserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, multiSignature);
+
+            expect(deserialized.asset).toEqual(multiSignature.asset);
+        });
+
+        it("should ser/deserialize giving back original fields - v2 keysgroup", () => {
+            multiSignature.asset.multisignature.keysgroup = [
+                "0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
+                "03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
+            ];
+            multiSignature.version = 2;
 
             const serialized = TransactionSerializer.serialize(multiSignature).toString("hex");
             const deserialized = TransactionDeserializer.deserialize(serialized);
