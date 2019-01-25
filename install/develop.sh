@@ -131,12 +131,8 @@ yarn_install ()
     success "Installed node.js dependencies!"
 }
 
-rpm_install ()
+locale_config()
 {
-    # -----------------------------------
-    # RPMSET SYSTEM LOCALE
-    # -----------------------------------
-
     if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
         if ! $(grep -E "(en_US.UTF-8)" "$HOME/.bashrc"); then
             # Setting the bashrc locale
@@ -151,7 +147,13 @@ rpm_install ()
         fi
     else
         # Install en_US.UTF-8 Locale
-        sudo localedef -c -i en_US -f UTF-8 en_US.UTF-8
+        if [[ ! -z $DEB ]]; then
+            sudo locale-gen en_US.UTF-8
+            sudo update-locale LANG=en_US.UTF-8
+        elif [[ ! -z $RPM ]]; then
+            sudo localedef -c -i en_US -f UTF-8 en_US.UTF-8
+        fi
+
         # Setting the current shell locale
         export LC_ALL="en_US.UTF-8"
         export LANG="en_US.UTF-8"
@@ -162,6 +164,15 @@ rpm_install ()
         echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
         echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
     fi
+}
+
+rpm_install ()
+{
+    # -----------------------------------
+    # RPMSET SYSTEM LOCALE
+    # -----------------------------------
+
+    locale_config
 
     # -----------------------------------
     # SYSTEM DEPENDENCIES
@@ -248,14 +259,6 @@ rpm_install ()
     sudo yum clean
 
     success "Installed system updates!"
-
-    # -----------------------------------
-    # TODO: SETUP POSTGRES USER/PASS/DB
-    # -----------------------------------
-
-    # -----------------------------------
-    # TODO: INSTALL @ARKECOSYSTEM/CORE
-    # -----------------------------------
 }
 
 deb_install ()
@@ -264,33 +267,7 @@ deb_install ()
     # SET SYSTEM LOCALE
     # -----------------------------------
 
-    if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
-        if ! $(grep -E "(en_US.UTF-8)" "$HOME/.bashrc"); then
-            # Setting the bashrc locale
-            echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-            echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-            echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
-
-            # Setting the current shell locale
-            export LC_ALL="en_US.UTF-8"
-            export LANG="en_US.UTF-8"
-            export LANGUAGE="en_US.UTF-8"
-        fi
-    else
-        # Install en_US.UTF-8 Locale
-        sudo locale-gen en_US.UTF-8
-        sudo update-locale LANG=en_US.UTF-8
-
-        # Setting the current shell locale
-        export LC_ALL="en_US.UTF-8"
-        export LANG="en_US.UTF-8"
-        export LANGUAGE="en_US.UTF-8"
-
-        # Setting the bashrc locale
-        echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
-    fi
+    locale_config
 
     # -----------------------------------
     # SYSTEM DEPENDENCIES
@@ -385,24 +362,24 @@ deb_install ()
     sudo apt-get autoclean -yq
 
     success "Installed system updates!"
-
-    # -----------------------------------
-    # TODO: SETUP POSTGRES USER/PASS/DB
-    # -----------------------------------
-
-    # -----------------------------------
-    # TODO: INSTALL @ARKECOSYSTEM/CORE
-    # -----------------------------------
 }
+
+# -----------------------------------
+# TODO: SETUP POSTGRES USER/PASS/DB
+# -----------------------------------
+
+# -----------------------------------
+# TODO: INSTALL @ARKECOSYSTEM/CORE
+# -----------------------------------
 
 if [[ ! -z $DEB ]]; then
     heading "No RPM package structure detected"
     success "Running install for Debian derivate"
-   deb_install
+    deb_install
 elif [[ ! -z $RPM ]]; then
     heading "No DEB package structure detected"
     success "Running install for RedHat derivate"
-   rpm_install
+    rpm_install
 else
     heading "Not supported system"
    exit 1;
