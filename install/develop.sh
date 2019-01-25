@@ -118,183 +118,180 @@ paragraph ()
 DEB=$(which apt-get)
 RPM=$(which yum)
 
-locale_config()
-{
-    if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
-        if ! $(grep -E "(en_US.UTF-8)" "$HOME/.bashrc"); then
-            # Setting the bashrc locale
-            echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-            echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-            echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
-
-            # Setting the current shell locale
-            export LC_ALL="en_US.UTF-8"
-            export LANG="en_US.UTF-8"
-            export LANGUAGE="en_US.UTF-8"
-        fi
-    else
-        # Install en_US.UTF-8 Locale
-        if [[ ! -z $DEB ]]; then
-            sudo locale-gen en_US.UTF-8
-            sudo update-locale LANG=en_US.UTF-8
-        elif [[ ! -z $RPM ]]; then
-            sudo localedef -c -i en_US -f UTF-8 en_US.UTF-8
-        fi
+if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
+    if ! $(grep -E "(en_US.UTF-8)" "$HOME/.bashrc"); then
+        # Setting the bashrc locale
+        echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
+        echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
+        echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
 
         # Setting the current shell locale
         export LC_ALL="en_US.UTF-8"
         export LANG="en_US.UTF-8"
         export LANGUAGE="en_US.UTF-8"
-
-        # Setting the bashrc locale
-        echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
-        echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
     fi
-}
-
-system_deps()
-{
-    heading "Installing system dependencies..."
-
+else
+    # Install en_US.UTF-8 Locale
     if [[ ! -z $DEB ]]; then
-        sudo apt-get update
-        sudo apt-get install -y git curl apt-transport-https update-notifier
+        sudo locale-gen en_US.UTF-8
+        sudo update-locale LANG=en_US.UTF-8
     elif [[ ! -z $RPM ]]; then
-        sudo yum update -y
-        sudo yum install git curl epel-release -y
+        sudo localedef -c -i en_US -f UTF-8 en_US.UTF-8
     fi
 
-    success "Installed system dependencies!"
-}
+    # Setting the current shell locale
+    export LC_ALL="en_US.UTF-8"
+    export LANG="en_US.UTF-8"
+    export LANGUAGE="en_US.UTF-8"
 
-nodejs_install()
-{
-    heading "Installing node.js & npm..."
+    # Setting the bashrc locale
+    echo "export LC_ALL=en_US.UTF-8" >> "$HOME/.bashrc"
+    echo "export LANG=en_US.UTF-8" >> "$HOME/.bashrc"
+    echo "export LANGUAGE=en_US.UTF-8" >> "$HOME/.bashrc"
+fi
 
-    sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
-    sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
+heading "Installing system dependencies..."
 
-    if [[ ! -z $DEB ]]; then
-        sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-        (echo "deb https://deb.nodesource.com/node_10.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-        sudo apt-get update
-        sudo apt-get install nodejs -y
-    elif [[ ! -z $RPM ]]; then
-        sudo yum install gcc-c++ make -y
-        curl -sL https://rpm.nodesource.com/setup_10.x | sudo -E bash - > /dev/null 2>&1
-    fi
+if [[ ! -z $DEB ]]; then
+    sudo apt-get update
+    sudo apt-get install -y git curl apt-transport-https update-notifier
+elif [[ ! -z $RPM ]]; then
+    sudo yum update -y
+    sudo yum install git curl epel-release -y
+fi
 
-    success "Installed node.js & npm!"
-}
+success "Installed system dependencies!"
 
-yarn_install()
-{
-    heading "Installing Yarn..."
+heading "Installing node.js & npm..."
 
-    if [[ ! -z $DEB ]]; then
-        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-        (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
+sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
+sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
-        sudo apt-get update
-        sudo apt-get install -y yarn
-    elif [[ ! -z $RPM ]]; then
-        curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-        sudo yum install yarn -y
-    fi
+if [[ ! -z $DEB ]]; then
+    sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
+    (echo "deb https://deb.nodesource.com/node_10.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+    sudo apt-get update
+    sudo apt-get install nodejs -y
+elif [[ ! -z $RPM ]]; then
+    sudo yum install gcc-c++ make -y
+    curl -sL https://rpm.nodesource.com/setup_10.x | sudo -E bash - > /dev/null 2>&1
+fi
 
-    success "Installed Yarn!"
-}
+success "Installed node.js & npm!"
 
-program_deps()
-{
-    heading "Installing program dependencies..."
+heading "Installing Yarn..."
 
-    if [[ ! -z $DEB ]]; then
-        sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq -y
-    elif [[ ! -z $RPM ]]; then
-        sudo yum groupinstall "Development Tools" -y -q
-        sudo yum install postgresql-devel jq -y -q
-    fi
-    
-    success "Installed program dependencies!"
-}
+if [[ ! -z $DEB ]]; then
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
 
-psql_install()
-{
-    heading "Installing PostgreSQL..."
+    sudo apt-get update
+    sudo apt-get install -y yarn
+elif [[ ! -z $RPM ]]; then
+    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+    sudo yum install yarn -y
+fi
 
-    if [[ ! -z $DEB ]]; then
-        sudo apt-get update
-        sudo apt-get install postgresql postgresql-contrib -y
-    elif [[ ! -z $RPM ]]; then
-        sudo yum install postgresql postgresql-contrib -y
-    fi
+success "Installed Yarn!"
 
-    success "Installed PostgreSQL!"
-}
+heading "Installing program dependencies..."
 
-ntp_install()
-{
-    heading "Installing NTP..."
+if [[ ! -z $DEB ]]; then
+    sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq -y
+elif [[ ! -z $RPM ]]; then
+    sudo yum groupinstall "Development Tools" -y -q
+    sudo yum install postgresql-devel jq -y -q
+fi
 
-    sudo timedatectl set-ntp off # disable the default systemd timesyncd service
+success "Installed program dependencies!"
 
-    if [[ ! -z $DEB ]]; then
-        sudo apt-get install ntp -yyq
-    elif [[ ! -z $RPM ]]; then
-        sudo yum install ntp -y -q
-    fi
+heading "Installing PostgreSQL..."
 
-    sudo ntpd -gq
+if [[ ! -z $DEB ]]; then
+    sudo apt-get update
+    sudo apt-get install postgresql postgresql-contrib -y
+elif [[ ! -z $RPM ]]; then
+    sudo yum install postgresql postgresql-contrib -y
+fi
 
-    success "Installed NTP!"
-}
+success "Installed PostgreSQL!"
 
-pm2_install()
-{
-    heading "Installing node.js dependencies..."
+heading "Installing NTP..."
 
-    yarn global add pm2
-    pm2 install pm2-logrotate
-    pm2 set pm2-logrotate:max_size 500M
-    pm2 set pm2-logrotate:compress true
-    pm2 set pm2-logrotate:retain 7
+sudo timedatectl set-ntp off # disable the default systemd timesyncd service
 
-    success "Installed node.js dependencies!"
-}
+if [[ ! -z $DEB ]]; then
+    sudo apt-get install ntp -yyq
+elif [[ ! -z $RPM ]]; then
+    sudo yum install ntp -y -q
+fi
 
-system_updates()
-{
-    heading "Installing system updates..."
+sudo ntpd -gq
 
-    if [[ ! -z $DEB ]]; then
-        sudo apt-get update
-        sudo apt-get upgrade -yqq
-        sudo apt-get dist-upgrade -yq
-        sudo apt-get autoremove -yyq
-        sudo apt-get autoclean -yq
-    elif [[ ! -z $RPM ]]; then
-        sudo yum update
-        sudo yum clean
-    fi
+success "Installed NTP!"
 
-    success "Installed system updates!"
-}
+heading "Installing node.js dependencies..."
 
-locale_config
-system_deps
-nodejs_install
-yarn_install
-program_deps
-psql_install
-ntp_install
-pm2_install
-system_updates
+yarn global add pm2
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 500M
+pm2 set pm2-logrotate:compress true
+pm2 set pm2-logrotate:retain 7
+
+success "Installed node.js dependencies!"
+
+heading "Installing system updates..."
+
+if [[ ! -z $DEB ]]; then
+    sudo apt-get update
+    sudo apt-get upgrade -yqq
+    sudo apt-get dist-upgrade -yq
+    sudo apt-get autoremove -yyq
+    sudo apt-get autoclean -yq
+elif [[ ! -z $RPM ]]; then
+    sudo yum update
+    sudo yum clean
+fi
+
+success "Installed system updates!"
 
 # -----------------------------------
-# TODO: SETUP POSTGRES USER/PASS/DB
+# SETUP POSTGRES USER/PASS/DB
 # -----------------------------------
+
+read -p "Would you like to configure the database? [y/N]: " choice
+
+if [[ "$choice" =~ ^(yes|y|Y) ]]; then
+    read -p "Enter the database username: " databaseUsername
+    read -p "Enter the database password: " databasePassword
+    read -p "Enter the database name: " databaseName
+
+    userExists=$(sudo -u postgres psql -c "SELECT * FROM pg_user WHERE username = '${databaseUsername}'" | grep -c "1 row")
+
+    if [[ $userExists == 1 ]]; then
+        read -p "The database user ${databaseUsername} already exists, do you want to overwrite it? [y/N]: " choice
+
+        if [[ "$choice" =~ ^(yes|y|Y) ]]; then
+            sudo -u postgres psql -c "DROP USER ${databaseUsername}"
+            sudo -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
+        fi
+    else
+        sudo -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
+    fi
+
+    databaseExists=$(psql -l | grep "${databaseName}" | wc -l)
+
+    if [[ $databaseExists == 1 ]]; then
+        read -p "The database ${databaseName} already exists, do you want to overwrite it? [y/N]: " choice
+
+        if [[ "$choice" =~ ^(yes|y|Y) ]]; then
+            dropdb "${databaseName}"
+            createdb "${databaseName}"
+        fi
+    else
+        createdb "${databaseName}"
+    fi
+fi
 
 # -----------------------------------
 # TODO: INSTALL @ARKECOSYSTEM/CORE
