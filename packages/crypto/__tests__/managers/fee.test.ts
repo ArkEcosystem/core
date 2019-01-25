@@ -15,6 +15,16 @@ describe("Fee Manager", () => {
         expect(feeManager.get(TransactionTypes.Transfer)).toEqual(1);
     });
 
+    it("should get transaction fee", () => {
+        const transaction = {
+            type: TransactionTypes.Transfer,
+        } as ITransactionData;
+
+        feeManager.set(TransactionTypes.Transfer, 111);
+
+        expect(feeManager.getForTransaction(transaction)).toEqual(111);
+    });
+
     it("should get multisignature fee (keysgroup length + 1)", () => {
         const transaction = {
             type: TransactionTypes.MultiSignature,
