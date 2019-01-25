@@ -18,6 +18,7 @@ describe("Delegate Registration Transaction", () => {
             const actual = builder.usernameAsset("homer").sign("dummy passphrase");
 
             expect(actual.build().verify()).toBeTrue();
+            expect(actual.verify()).toBeTrue();
         });
 
         it("should be valid with a second signature", () => {
@@ -27,6 +28,7 @@ describe("Delegate Registration Transaction", () => {
                 .secondSign("dummy passphrase");
 
             expect(actual.build().verify()).toBeTrue();
+            expect(actual.verify()).toBeTrue();
         });
     });
 

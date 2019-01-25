@@ -18,6 +18,7 @@ describe("Second Signature Transaction", () => {
             const actual = builder.signatureAsset("signature").sign("dummy passphrase");
 
             expect(actual.build().verify()).toBeTrue();
+            expect(actual.verify()).toBeTrue();
         });
     });
 

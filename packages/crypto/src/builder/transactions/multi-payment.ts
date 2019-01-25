@@ -23,7 +23,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
      */
     public addPayment(recipientId: string, amount: number): MultiPaymentBuilder {
         if (this.data.asset.payments.length >= 2258) {
-            throw new Error("A maximum of 2259 outputs is allowed");
+            throw new Error("A maximum of 2258 outputs is allowed");
         }
 
         this.data.asset.payments.push({
