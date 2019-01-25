@@ -263,6 +263,16 @@ describe("crypto.js", () => {
 
             expect(crypto.verifySecondSignature(transactionWithoutSignature, keys2.publicKey)).toBeFalse();
         });
+
+        it("should call this.getHash without parameters skipSignature and skipSecondSignature if transaction.version != 1", () => {
+            const transactionV2 = Object.assign({}, transaction, { version: 2 });
+            delete transactionV2.secondSignature;
+            delete transactionV2.signSignature;
+            const getHashMock = jest.spyOn(crypto, "getHash").mockImplementation(() => "");
+
+            crypto.verifySecondSignature(transactionV2, keys2.publicKey);
+            expect(getHashMock).toHaveBeenLastCalledWith(transactionV2);
+        });
     });
 
     describe("getKeys", () => {
@@ -285,6 +295,19 @@ describe("crypto.js", () => {
             // @ts-ignore
             const address = crypto.getAddress(keys.publicKey.toString("hex"));
             expect(address).toBe("DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub");
+        });
+    });
+
+    describe("getKeysByPrivateKey", () => {
+        it("should get keys from private key", () => {
+            const expectedKeys = {
+                publicKey: "03d04acca0ad922998d258438cc453ce50222b0e761ae9a499ead6a11f3a44b70b",
+                privateKey: "c13bcd9a3dd64cabb27fcf2f4a471d35ffc3c114bb1278de745e6ff82a72eda8",
+                compressed: true,
+            };
+            const keys = crypto.getKeysByPrivateKey(expectedKeys.privateKey);
+
+            expect(keys).toEqual(expectedKeys);
         });
     });
 

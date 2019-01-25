@@ -99,6 +99,17 @@ describe("HDWallet", () => {
                 "b6f84081b674cf1f765ac182aaabd94d944c367d214263d1f7f3102d1cec98d5",
             );
         });
+
+        it("should throw if keys are not compressed", () => {
+            const keys = {
+                publicKey: "",
+                privateKey: "b6f84081b674cf1f765ac182aaabd94d944c367d214263d1f7f3102d1cec98d5",
+                compressed: false,
+            };
+
+            const chainCode = Buffer.from("2bbe729fab21bf8bca70763caf7fe85752726a363b494dea7a65e51e2d423d7b", "hex");
+            expect(() => HDWallet.fromKeys(keys, chainCode)).toThrow("BIP32 only allows compressed keys.");
+        });
     });
 
     describe("deriveSlip44", () => {
