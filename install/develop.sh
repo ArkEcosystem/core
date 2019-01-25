@@ -118,19 +118,6 @@ paragraph ()
 DEB=$(which apt-get)
 RPM=$(which yum)
 
-yarn_install ()
-{
-    heading "Installing node.js dependencies..."
-
-    yarn global add pm2
-    pm2 install pm2-logrotate
-    pm2 set pm2-logrotate:max_size 500M
-    pm2 set pm2-logrotate:compress true
-    pm2 set pm2-logrotate:retain 7
-
-    success "Installed node.js dependencies!"
-}
-
 locale_config()
 {
     if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
@@ -166,203 +153,144 @@ locale_config()
     fi
 }
 
-rpm_install ()
+system_deps()
 {
-    # -----------------------------------
-    # RPMSET SYSTEM LOCALE
-    # -----------------------------------
-
-    locale_config
-
-    # -----------------------------------
-    # SYSTEM DEPENDENCIES
-    # -----------------------------------
-
     heading "Installing system dependencies..."
 
-    sudo yum update -y
-    sudo yum install git curl epel-release -y
+    if [[ ! -z $DEB ]]; then
+        sudo apt-get update
+        sudo apt-get install -y git curl apt-transport-https update-notifier
+    elif [[ ! -z $RPM ]]; then
+        sudo yum update -y
+        sudo yum install git curl epel-release -y
+    fi
 
     success "Installed system dependencies!"
+}
 
-    # -----------------------------------
-    # INSTALL NODE.JS/NPM
-    # -----------------------------------
-
+nodejs_install()
+{
     heading "Installing node.js & npm..."
 
     sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
     sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
-    sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_10.x | sudo -E bash - > /dev/null 2>&1
+    if [[ ! -z $DEB ]]; then
+        sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
+        (echo "deb https://deb.nodesource.com/node_10.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+        sudo apt-get update
+        sudo apt-get install nodejs -y
+    elif [[ ! -z $RPM ]]; then
+        sudo yum install gcc-c++ make -y
+        curl -sL https://rpm.nodesource.com/setup_10.x | sudo -E bash - > /dev/null 2>&1
+    fi
 
     success "Installed node.js & npm!"
-
-    # -----------------------------------
-    # INSTALL YARN
-    # -----------------------------------
-
-    heading "Installing Yarn..."
-
-    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-    sudo yum install yarn -y
-
-    success "Installed Yarn!"
-
-    # -----------------------------------
-    # PROGRAM DEPENDENCIES
-    # -----------------------------------
-
-    heading "Installing program dependencies..."
-
-    sudo yum groupinstall "Development Tools" -y -q
-    sudo yum install postgresql-devel jq -y -q
-
-    success "Installed program dependencies!"
-
-    # -----------------------------------
-    # INSTALL POSTGRESQL
-    # -----------------------------------
-
-    heading "Installing PostgreSQL..."
-
-    sudo yum install postgresql postgresql-contrib -y
-
-    success "Installed PostgreSQL!"
-
-    # -----------------------------------
-    # INSTALL NTPD
-    # -----------------------------------
-
-    heading "Installing NTP..."
-
-    sudo timedatectl set-ntp off # disable the default systemd timesyncd service
-    sudo yum install ntp -y -q
-    sudo ntpd -gq
-
-    success "Installed NTP!"
-
-    # -----------------------------------
-    # NODE.JS DEPENDENCIES
-    # -----------------------------------
-
-    yarn_install
-
-    # -----------------------------------
-    # SYSTEM UPDATES
-    # -----------------------------------
-
-    heading "Installing system updates..."
-
-    sudo yum update
-    sudo yum clean
-
-    success "Installed system updates!"
 }
 
-deb_install ()
+yarn_install()
 {
-    # -----------------------------------
-    # SET SYSTEM LOCALE
-    # -----------------------------------
-
-    locale_config
-
-    # -----------------------------------
-    # SYSTEM DEPENDENCIES
-    # -----------------------------------
-
-    heading "Installing system dependencies..."
-
-    sudo apt-get update
-    sudo apt-get install -y git curl apt-transport-https update-notifier
-
-    success "Installed system dependencies!"
-
-    # -----------------------------------
-    # INSTALL NODE.JS/NPM
-    # -----------------------------------
-
-    heading "Installing node.js & npm..."
-
-    sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
-    sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
-
-    sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    (echo "deb https://deb.nodesource.com/node_10.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-    sudo apt-get update
-    sudo apt-get install nodejs -y
-
-    success "Installed node.js & npm!"
-
-    # -----------------------------------
-    # INSTALL YARN
-    # -----------------------------------
-
     heading "Installing Yarn..."
 
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
+    if [[ ! -z $DEB ]]; then
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+        (echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list)
 
-    sudo apt-get update
-    sudo apt-get install -y yarn
+        sudo apt-get update
+        sudo apt-get install -y yarn
+    elif [[ ! -z $RPM ]]; then
+        curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+        sudo yum install yarn -y
+    fi
 
     success "Installed Yarn!"
+}
 
-    # -----------------------------------
-    # PROGRAM DEPENDENCIES
-    # -----------------------------------
-
+program_deps()
+{
     heading "Installing program dependencies..."
 
-    sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq -y
-
+    if [[ ! -z $DEB ]]; then
+        sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq -y
+    elif [[ ! -z $RPM ]]; then
+        sudo yum groupinstall "Development Tools" -y -q
+        sudo yum install postgresql-devel jq -y -q
+    fi
+    
     success "Installed program dependencies!"
+}
 
-    # -----------------------------------
-    # INSTALL POSTGRESQL
-    # -----------------------------------
-
+psql_install()
+{
     heading "Installing PostgreSQL..."
 
-    sudo apt-get update
-    sudo apt-get install postgresql postgresql-contrib -y
+    if [[ ! -z $DEB ]]; then
+        sudo apt-get update
+        sudo apt-get install postgresql postgresql-contrib -y
+    elif [[ ! -z $RPM ]]; then
+        sudo yum install postgresql postgresql-contrib -y
+    fi
 
     success "Installed PostgreSQL!"
+}
 
-    # -----------------------------------
-    # INSTALL NTPD
-    # -----------------------------------
-
+ntp_install()
+{
     heading "Installing NTP..."
 
     sudo timedatectl set-ntp off # disable the default systemd timesyncd service
-    sudo apt-get install ntp -yyq
+
+    if [[ ! -z $DEB ]]; then
+        sudo apt-get install ntp -yyq
+    elif [[ ! -z $RPM ]]; then
+        sudo yum install ntp -y -q
+    fi
+
     sudo ntpd -gq
 
     success "Installed NTP!"
+}
 
-    # -----------------------------------
-    # NODE.JS DEPENDENCIES
-    # -----------------------------------
+pm2_install()
+{
+    heading "Installing node.js dependencies..."
 
-    yarn_install
+    yarn global add pm2
+    pm2 install pm2-logrotate
+    pm2 set pm2-logrotate:max_size 500M
+    pm2 set pm2-logrotate:compress true
+    pm2 set pm2-logrotate:retain 7
 
-    # -----------------------------------
-    # SYSTEM UPDATES
-    # -----------------------------------
+    success "Installed node.js dependencies!"
+}
 
+system_updates()
+{
     heading "Installing system updates..."
 
-    sudo apt-get update
-    sudo apt-get upgrade -yqq
-    sudo apt-get dist-upgrade -yq
-    sudo apt-get autoremove -yyq
-    sudo apt-get autoclean -yq
+    if [[ ! -z $DEB ]]; then
+        sudo apt-get update
+        sudo apt-get upgrade -yqq
+        sudo apt-get dist-upgrade -yq
+        sudo apt-get autoremove -yyq
+        sudo apt-get autoclean -yq
+    elif [[ ! -z $RPM ]]; then
+        sudo yum update
+        sudo yum clean
+    fi
 
     success "Installed system updates!"
 }
+
+locale_config
+system_deps
+nodejs_install
+yarn_install
+program_deps
+psql_install
+ntp_install
+pm2_install
+system_updates
 
 # -----------------------------------
 # TODO: SETUP POSTGRES USER/PASS/DB
