@@ -118,6 +118,15 @@ paragraph ()
 DEB=$(which apt-get)
 RPM=$(which yum)
 
+if [[ ! -z $DEB ]]; then
+    success "Running install for Debian derivate"
+elif [[ ! -z $RPM ]]; then
+    success "Running install for RedHat derivate"
+else
+    heading "Not supported system"
+    exit 1;
+fi
+
 if [[ $(locale -a | grep ^en_US.UTF-8) ]] || [[ $(locale -a | grep ^en_US.utf8) ]]; then
     if ! $(grep -E "(en_US.UTF-8)" "$HOME/.bashrc"); then
         # Setting the bashrc locale
@@ -294,18 +303,7 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
 fi
 
 # -----------------------------------
-# TODO: INSTALL @ARKECOSYSTEM/CORE
+# SETUP @ARKECOSYSTEM/CORE
 # -----------------------------------
 
-if [[ ! -z $DEB ]]; then
-    heading "No RPM package structure detected"
-    success "Running install for Debian derivate"
-    deb_install
-elif [[ ! -z $RPM ]]; then
-    heading "No DEB package structure detected"
-    success "Running install for RedHat derivate"
-    rpm_install
-else
-    heading "Not supported system"
-   exit 1;
-fi
+yarn setup
