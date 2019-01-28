@@ -224,7 +224,8 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get install postgresql postgresql-contrib -y
 elif [[ ! -z $RPM ]]; then
     sudo yum install postgresql-server postgresql-contrib -y
-	    if [[ "$SYS" == "SystemV" ]]; then
+    
+    if [[ "$SYS" == "SystemV" ]]; then
         sudo service postgresql initdb
         sudo service postgresql start
     else
@@ -323,10 +324,12 @@ fi
 # -----------------------------------
 
 cd "$HOME"
+
 if [ -d "core" ]; then
    heading "Removing existing folder..."
    rm -rf core
 fi
+
 git clone https://github.com/ArkEcosystem/core.git -b develop
 cd core
 yarn setup
