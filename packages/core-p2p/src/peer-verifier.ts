@@ -254,11 +254,9 @@ export default class PeerVerifier {
             ourBlocksHeights.forEach(h => assert.strictEqual(typeof probesIdByHeight[h], 'string'));
 
             const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(', ');
+            const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;
 
-            this.logger.debug(
-                `${this.logPrefix} probe for common blocks in range ` +
-                `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`
-            );
+            this.logger.debug(`${this.logPrefix} probe for common blocks in range ${rangePrint}`);
 
             const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById));
 
@@ -266,10 +264,7 @@ export default class PeerVerifier {
                 if (highestCommonBlockHeight === null) {
                     // This is the first iteration and no common blocks, including at
                     // height 1 (the genesis block).
-                    this.logger.info(
-                        `${this.logPrefix} failure: could not find common blocks, ` +
-                        `even the genesis block is different.`
-                    )
+                    this.logger.info(`${this.logPrefix} failure: could not find common blocks in range ${rangePrint}`)
                     return null;
                 } else {
                     // No common blocks, the result from the previous iteration is the
