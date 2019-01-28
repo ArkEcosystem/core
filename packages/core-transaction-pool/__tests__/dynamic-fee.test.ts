@@ -1,5 +1,5 @@
 import { Blockchain, Container } from "@arkecosystem/core-interfaces";
-import { dynamicFeeMatcher } from "../src/dynamic-fee";
+import { calculateFee, dynamicFeeMatcher } from "../src/dynamic-fee";
 import { transactions } from "./__fixtures__/transactions";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
@@ -82,5 +82,25 @@ describe("dynamic fees", () => {
     it("should not allow transactions with too low fee to enter the pool", () => {
         expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2).enterPool).toBeFalse();
         expect(dynamicFeeMatcher(transactions.dynamicFeeZero).enterPool).toBeFalse();
+    });
+});
+
+describe("calculateFee", () => {
+    it("should correctly calculate the transaction fee based on transaction size and addonBytes", () => {
+        config.set("dynamicFees.addonBytes", {
+            transfer: 137,
+        });
+        expect(calculateFee(3, transactions.dummy1)).toBe((137 + transactions.dummy1.serialized.length / 2) * 3);
+        expect(calculateFee(6, transactions.dummy1)).toBe((137 + transactions.dummy1.serialized.length / 2) * 6);
+
+        config.set("dynamicFees.addonBytes", {
+            transfer: 0,
+        });
+        expect(calculateFee(9, transactions.dummy1)).toBe((transactions.dummy1.serialized.length / 2) * 9);
+    });
+
+    it("should default arktoshiPerByte to 1 if value provided is <= 0", () => {
+        expect(calculateFee(-50, transactions.dummy1)).toBe(calculateFee(1, transactions.dummy1));
+        expect(calculateFee(0, transactions.dummy1)).toBe(calculateFee(1, transactions.dummy1));
     });
 });
