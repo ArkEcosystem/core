@@ -113,6 +113,7 @@ export class Container implements container.IContainer {
      * @throws {Error}
      */
     public resolve<T = any>(key): T {
+
         try {
             return this.container.resolve<T>(key);
         } catch (err) {

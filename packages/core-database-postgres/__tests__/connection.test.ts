@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { models } from "@arkecosystem/crypto";
 import genesisBlock from "../../core-test-utils/src/config/testnet/genesisBlock.json";
-import { PostgresConnection } from "../src/connection";
+import { PostgresConnection } from "../src/connection.ts";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block } = models;

@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, Blockchain } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { constants, crypto, models } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -11,7 +11,13 @@ import { WalletManager } from "./wallet-manager";
 const { Block } = models;
 const { TransactionTypes } = constants;
 
-export abstract class ConnectionInterface {
+export interface PROVIDERS {
+    walletManagerProvider: () => WalletManager,
+    walletRepositoryProvider: (connection: DatabaseConnection) => WalletsRepository,
+    delegateRepositoryProvider: (connection: DatabaseConnection) => DelegatesRepository
+}
+
+export abstract class DatabaseConnection {
     // TODO: Convert these to protected/private and provide the appropriate get/setters
     public config = app.getConfig();
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -25,15 +31,16 @@ export abstract class ConnectionInterface {
     public delegates: DelegatesRepository = null;
     public queuedQueries: any[] = null;
 
-    /**
-     * @constructor
-     * @param {Object} options
-     */
-    protected constructor(public readonly options: any) {
-        this.__registerListeners();
+    protected constructor(private readonly providers: PROVIDERS,
+                          public readonly options: any) {
+        this.registerListeners();
     }
 
-    public abstract async make(): Promise<ConnectionInterface>;
+    public async make(): Promise<DatabaseConnection> {
+        this.registerWalletManager();
+        this.registerRepositories();
+        return this;
+    }
 
     /**
      * Connect to a database.
@@ -186,6 +193,7 @@ export abstract class ConnectionInterface {
      * @throws Error
      */
     public abstract async saveRound(activeDelegates): Promise<void>;
+
     /**
      * Delete the given round.
      * @param  {Number} round
@@ -206,13 +214,12 @@ export abstract class ConnectionInterface {
      * @return {void]}
      */
     public async loadBlocksFromCurrentRound() {
-        this.blocksInCurrentRound = await this.__getBlocksForRound();
+        this.blocksInCurrentRound = await this.getBlocksForRound();
     }
 
     /**
      * Update delegate statistics in memory.
      * NOTE: must be called before saving new round of delegates
-     * @param  {Block} block
      * @param  {Array} delegates
      * @return {void}
      */
@@ -235,7 +242,7 @@ export abstract class ConnectionInterface {
                     this.logger.debug(
                         `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
                             wallet.missedBlocks
-                        }`,
+                            }`,
                     );
                     wallet.dirty = true;
                     this.emitter.emit("forger.missing", {
@@ -318,7 +325,7 @@ export abstract class ConnectionInterface {
      */
     public async __calcPreviousActiveDelegates(round) {
         // TODO: cache the blocks of the last X rounds
-        this.blocksInCurrentRound = await this.__getBlocksForRound(round);
+        this.blocksInCurrentRound = await this.getBlocksForRound(round);
 
         // Create temp wallet manager from all delegates
         const tempWalletManager = new WalletManager();
@@ -355,7 +362,7 @@ export abstract class ConnectionInterface {
         }
 
         await this.applyRound(block.data.height);
-        block.transactions.forEach(tx => this.__emitTransactionEvents(tx));
+        block.transactions.forEach(tx => this.emitTransactionEvents(tx));
         this.emitter.emit("block.applied", block.data);
         return true;
     }
@@ -399,10 +406,10 @@ export abstract class ConnectionInterface {
      * @param  {number} round
      * @return {[]Block}
      */
-    public async __getBlocksForRound(round?) {
+    public async getBlocksForRound(round?: number) {
         let lastBlock;
         if (app.has("state")) {
-            lastBlock = app.resolve("state").getLastBlock();
+            lastBlock = app.resolve<Blockchain.IStateStorage>("state").getLastBlock();
         } else {
             lastBlock = await this.getLastBlock();
         }
@@ -424,30 +431,30 @@ export abstract class ConnectionInterface {
     }
 
     /**
-     * Register event listeners.
-     * @return {void}
-     */
-    public __registerListeners() {
-        this.emitter.on("state:started", () => {
-            this.stateStarted = true;
-        });
-    }
-
-    /**
      * Register the wallet app.
      * @return {void}
      */
-    public _registerWalletManager() {
-        this.walletManager = new WalletManager();
+    protected registerWalletManager() {
+        this.walletManager = this.providers.walletManagerProvider();
     }
 
     /**
      * Register the wallet and delegate repositories.
      * @return {void}
      */
-    public _registerRepositories() {
-        this.wallets = new WalletsRepository(this);
-        this.delegates = new DelegatesRepository(this);
+    protected registerRepositories() {
+        this.wallets = this.providers.walletRepositoryProvider(this);
+        this.delegates = this.providers.delegateRepositoryProvider(this);
+    }
+
+    /**
+     * Register event listeners.
+     * @return {void}
+     */
+    private registerListeners() {
+        this.emitter.on("state:started", () => {
+            this.stateStarted = true;
+        });
     }
 
     /**
@@ -455,7 +462,7 @@ export abstract class ConnectionInterface {
      * @param  {Object} transaction
      * @return {void}
      */
-    private __emitTransactionEvents(transaction) {
+    private emitTransactionEvents(transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
         if (transaction.type === TransactionTypes.DelegateRegistration) {

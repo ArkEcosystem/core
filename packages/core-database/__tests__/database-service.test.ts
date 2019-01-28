@@ -1,32 +1,127 @@
-import "jest-extended";
-
+import { Container, Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { Bignum, constants, models, transactionBuilder } from "@arkecosystem/crypto";
+import "jest-extended";
+import { DatabaseService} from "../src";
+import { WalletManager } from "../src";
+import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
+import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
 
 const { ARKTOSHI, TransactionTypes } = constants;
 
-let connectionInterface;
-let genesisBlock;
+let connection : Database.IDatabaseConnection;
+let databaseService : DatabaseService;
+let walletManager : Database.IWalletManager;
+let genesisBlock : models.Block;
+let container: Container.IContainer;
+let emitter : EventEmitter.EventEmitter;
 
-import { DelegatesRepository } from "../src";
-import { WalletsRepository } from "../src";
-import { WalletManager } from "../src";
-import { DummyConnection } from "./__fixtures__/dummy-class";
 
 beforeAll(async () => {
-    await setUp();
-
-    connectionInterface = new DummyConnection({});
+    container = await setUp();
+    emitter = container.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
+    connection = new DatabaseConnectionStub();
+    walletManager = new WalletManager();
 });
 
 afterAll(async () => {
     await tearDown();
 });
 
-describe("Connection Interface", () => {
+beforeEach(()=> {
+    jest.restoreAllMocks()
+});
+
+function createService() {
+    return new DatabaseService({}, connection, walletManager, null, null);
+}
+
+describe('Database Service', () => {
+    it('should listen for emitter events during constructor', () => {
+        jest.spyOn(emitter, 'on');
+        jest.spyOn(emitter, 'once');
+
+        databaseService = createService();
+
+
+        expect(emitter.on).toHaveBeenCalledWith('state:started', expect.toBeFunction());
+        expect(emitter.on).toHaveBeenCalledWith('wallet.created.cold', expect.toBeFunction());
+        expect(emitter.once).toHaveBeenCalledWith('shutdown', expect.toBeFunction());
+    });
+
+    describe('applyBlock', () => {
+        it('should applyBlock', async () => {
+            jest.spyOn(walletManager, 'applyBlock').mockImplementation( (block) => block );
+            jest.spyOn(emitter, 'emit');
+
+
+            databaseService = createService();
+            jest.spyOn(databaseService, 'applyRound').mockImplementation(() => null); // test applyRound logic separately
+
+            await databaseService.applyBlock(genesisBlock);
+
+
+            expect(walletManager.applyBlock).toHaveBeenCalledWith(genesisBlock);
+            expect(emitter.emit).toHaveBeenCalledWith('block.applied', genesisBlock.data);
+            genesisBlock.transactions.forEach(tx => expect(emitter.emit).toHaveBeenCalledWith('transaction.applied', tx.data));
+        })
+    });
+
+    describe('getBlocksForRound', () => {
+        it('should fetch blocks using lastBlock in state-storage', async() => {
+            const stateStorageStub = new StateStorageStub();
+            jest.spyOn(stateStorageStub, 'getLastBlock').mockReturnValue(null);
+            jest.spyOn(container, 'has').mockReturnValue(true);
+            jest.spyOn(container, 'resolve').mockReturnValue(stateStorageStub);
+
+            databaseService = createService();
+            jest.spyOn(databaseService, 'getLastBlock').mockReturnValue(null);
+
+
+            const blocks = await databaseService.getBlocksForRound();
+
+
+            expect(blocks).toBeEmpty();
+            expect(stateStorageStub.getLastBlock).toHaveBeenCalled();
+            expect(databaseService.getLastBlock).not.toHaveBeenCalled();
+
+        });
+
+        it('should fetch blocks using lastBlock in database', async () => {
+            jest.spyOn(container, 'has').mockReturnValue(false);
+
+            databaseService = createService();
+            jest.spyOn(databaseService, 'getLastBlock').mockReturnValue(null);
+
+
+            const blocks = await databaseService.getBlocksForRound();
+
+
+            expect(blocks).toBeEmpty();
+            expect(databaseService.getLastBlock).toHaveBeenCalled();
+        });
+
+        it('should fetch blocks from lastBlock height', async () => {
+            databaseService = createService();
+
+            jest.spyOn(databaseService, 'getLastBlock').mockReturnValue(genesisBlock);
+            jest.spyOn(databaseService, 'getBlocks').mockReturnValue([]);
+            jest.spyOn(container, 'has').mockReturnValue(false);
+
+
+            const blocks = await databaseService.getBlocksForRound();
+
+
+            expect(blocks).toBeEmpty();
+            expect(databaseService.getBlocks).toHaveBeenCalledWith(1, container.getConfig().getMilestone(genesisBlock.data.height).activeDelegates);
+        })
+    });
+
+    /* TOOD: Testing a method that's private. This needs a replacement by testing a public method instead
+
     describe("__calcPreviousActiveDelegates", () => {
         it("should calculate the previous delegate list", async () => {
             const walletManager = new WalletManager();
@@ -37,7 +132,7 @@ describe("Connection Interface", () => {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
                     wallet.username = Transaction.deserialize(
-                        transaction.serialized.toString("hex"),
+                        transaction.serialized.toString(),
                     ).asset.delegate.username;
                     walletManager.reindex(wallet);
                 }
@@ -121,27 +216,5 @@ describe("Connection Interface", () => {
                 expect(restoredDelegatesRound2[i].publicKey).toBe(delegatesRound2[i].publicKey);
             }
         });
-    });
-
-    describe("_registerWalletManager", () => {
-        it("should register the wallet manager", () => {
-            expect(connectionInterface.walletManager).toBeNull();
-
-            connectionInterface._registerWalletManager();
-
-            expect(connectionInterface.walletManager).toBeInstanceOf(WalletManager);
-        });
-    });
-
-    describe("_registerRepositories", () => {
-        it("should register the repositories", async () => {
-            expect(connectionInterface.wallets).toBeNull();
-            expect(connectionInterface.delegates).toBeNull();
-
-            connectionInterface._registerRepositories();
-
-            expect(connectionInterface.wallets).toBeInstanceOf(WalletsRepository);
-            expect(connectionInterface.delegates).toBeInstanceOf(DelegatesRepository);
-        });
-    });
+    });*/
 });

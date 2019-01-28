@@ -271,19 +271,6 @@ export class PostgresConnection extends ConnectionInterface {
 
         return false;
     }
-
-    /**
-     * Load all wallets from database.
-     * @return {Array}
-     */
-    public async loadWallets() {
-        const wallets = await this.db.wallets.all();
-
-        this.walletManager.index(wallets);
-
-        return this.walletManager.all();
-    }
-
     /**
      * Commit wallets from the memory.
      * @param  {Boolean} force
@@ -606,19 +593,6 @@ export class PostgresConnection extends ConnectionInterface {
 
         return blocks;
     }
-
-    /**
-     * Get the headers of blocks for the given offset and limit.
-     * @param  {Number} offset
-     * @param  {Number} limit
-     * @return {Array}
-     */
-    public async getBlockHeaders(offset, limit) {
-        const blocks = await this.db.blocks.headers(offset, offset + limit);
-
-        return blocks.map(block => Block.serialize(block));
-    }
-
     /**
      * Get the cache object
      * @return {Cache}

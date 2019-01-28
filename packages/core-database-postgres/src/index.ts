@@ -1,4 +1,4 @@
-export * from "./connection";
+export * from "./connection.ts";
 export * from "./migrations";
 export * from "./spv";
 export * from "./models";

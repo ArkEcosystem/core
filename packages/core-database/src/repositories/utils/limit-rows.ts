@@ -1,10 +1,8 @@
+import { Database } from "@arkecosystem/core-interfaces";
 /**
  * Return some rows by an offset and a limit.
- * @param  {Array} rows
- * @param  {Object} params
- * @return {Array}
  */
-export = (rows, params) => {
+export = <T>(rows: T[], params: Database.IParameters) => {
     if (params.offset || params.limit) {
         const offset = params.offset || 0;
         const limit = params.limit ? offset + params.limit : rows.length;
