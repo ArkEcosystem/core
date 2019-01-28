@@ -695,7 +695,7 @@ describe("Transaction Guard", () => {
 
     describe("getBroadcastTransactions", () => {
         it("should return broadcast transaction", async () => {
-            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
+            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
 
             await guard.validate(transactions);
             expect(guard.getBroadcastTransactions()).toEqual(transactions);
