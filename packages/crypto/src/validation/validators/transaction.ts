@@ -1,18 +1,18 @@
-import { Engine } from "../engine";
 import { transactions } from "../extensions/transactions";
+import { Validator } from "../validator";
 
 export class TransactionValidator {
     public rules: any;
 
     constructor() {
         this.rules = Object.keys(transactions).reduce((rules, type) => {
-            rules[type] = transactions[type](Engine.joi).base;
+            rules[type] = transactions[type](Validator.joi).base;
             return rules;
         }, {});
     }
 
     public validate(transaction) {
-        const { value, error } = Engine.validate(transaction, this.rules[transaction.type], { allowUnknown: true });
+        const { value, error } = Validator.validate(transaction, this.rules[transaction.type], { allowUnknown: true });
         return {
             data: value,
             errors: error ? error.details : null,

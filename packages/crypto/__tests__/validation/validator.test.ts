@@ -1,12 +1,12 @@
 import "jest-extended";
 import Joi from "joi";
 import { Bignum } from "../../dist";
-import { Engine } from "../../src/validation/engine";
+import { Validator } from "../../src/validation/validator";
 
-describe("Engine", () => {
+describe("Validator", () => {
     describe("validate", () => {
         it("should validate a simple number", async () => {
-            Engine.init();
+            Validator.init();
 
             const schema = {
                 a: Joi.number(),
@@ -16,32 +16,32 @@ describe("Engine", () => {
                 a: 123,
             };
 
-            const result = await Engine.validate(value, schema);
+            const result = await Validator.validate(value, schema);
             expect(result).toEqual(value);
         });
 
         it("should validate using extended schemas", async () => {
-            Engine.init();
+            Validator.init();
 
             const schema = {
-                a: Engine.joi.bignumber(),
+                a: Validator.joi.bignumber(),
             };
 
             const value = {
                 a: new Bignum(12),
             };
 
-            const result = await Engine.validate(value, schema);
+            const result = await Validator.validate(value, schema);
             expect(result).toEqual(value);
         });
 
         it("should return an error if an error was thrown", () => {
-            Engine.joi = {
+            Validator.joi = {
                 validate: () => {
                     throw new Error("erreur");
                 },
             };
-            const result = Engine.validate("", "");
+            const result = Validator.validate("", "");
             expect(result.error).toBeDefined();
         });
     });

@@ -1,7 +1,7 @@
 import Joi from "joi";
 import { extensions } from "./extensions";
 
-export class Engine {
+export class Validator {
     public static joi: any;
 
     public static init(): void {
@@ -26,4 +26,4 @@ export class Engine {
     }
 }
 
-Engine.init();
+Validator.init();

@@ -34,7 +34,10 @@ export const base = joi =>
         amount: joi
             .alternatives()
             .try(
-                joi.bignumber(),
+                joi
+                    .bignumber()
+                    .integer()
+                    .positive(),
                 joi
                     .number()
                     .integer()
@@ -44,7 +47,10 @@ export const base = joi =>
         fee: joi
             .alternatives()
             .try(
-                joi.bignumber().min(1),
+                joi
+                    .bignumber()
+                    .integer()
+                    .positive(),
                 joi
                     .number()
                     .integer()
