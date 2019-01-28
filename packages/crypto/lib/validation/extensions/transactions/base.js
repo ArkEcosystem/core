@@ -25,7 +25,10 @@ module.exports = joi =>
     amount: joi
       .alternatives()
       .try(
-        joi.bignumber(),
+        joi
+          .bignumber()
+          .integer()
+          .positive(),
         joi
           .number()
           .integer()
@@ -35,7 +38,10 @@ module.exports = joi =>
     fee: joi
       .alternatives()
       .try(
-        joi.bignumber().min(1),
+        joi
+          .number()
+          .integer()
+          .positive(),
         joi
           .number()
           .integer()
