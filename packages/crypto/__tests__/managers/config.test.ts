@@ -53,6 +53,11 @@ describe("Configuration", () => {
         expect(configManager.getMilestone(21600)).toEqual(devnet.milestones[2]);
     });
 
+    it("should get milestone for this.height if height is not provided as parameter", () => {
+        configManager.setHeight(21600);
+        expect(configManager.getMilestone()).toEqual(devnet.milestones[2]);
+    });
+
     it("should set the height", () => {
         configManager.setHeight(21600);
 

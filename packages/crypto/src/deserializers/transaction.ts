@@ -121,8 +121,10 @@ class TransactionDeserializer {
 
     private deserializeIpfs(transaction: ITransactionData, buf: ByteBuffer): void {
         const dagLength = buf.readUint8();
-        transaction.asset.ipfs = {
-            dag: buf.readBytes(dagLength).toString("hex"),
+        transaction.asset = {
+            ipfs: {
+                dag: buf.readBytes(dagLength).toString("hex"),
+            },
         };
     }
 
@@ -130,17 +132,17 @@ class TransactionDeserializer {
         transaction.amount = new Bignum(buf.readUint64().toString());
         transaction.timelockType = buf.readUint8();
         transaction.timelock = buf.readUint64().toNumber();
-        transaction.recipientId = bs58check.encode(buf.readBytes(21));
+        transaction.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
     }
 
     private deserializeMultiPayment(transaction: ITransactionData, buf: ByteBuffer): void {
         const payments = [];
-        const total = buf.readUint8();
+        const total = buf.readUint32();
 
         for (let j = 0; j < total; j++) {
             const payment: any = {};
             payment.amount = new Bignum(buf.readUint64().toString());
-            payment.recipientId = bs58check.encode(buf.readBytes(21));
+            payment.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
             payments.push(payment);
         }
 

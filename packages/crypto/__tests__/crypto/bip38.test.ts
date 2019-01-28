@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import bs58check from "bs58check";
+import ByteBuffer from "bytebuffer";
 import wif from "wif";
 import { bip38 } from "../../src/crypto";
 
@@ -24,6 +25,27 @@ describe("BIP38", () => {
                 }
             });
         });
+
+        it("should throw if compression flag is different than 0xe0 0xc0", () => {
+            jest.spyOn(bs58check, "decode").mockImplementation(() => {
+                const byteBuffer = new ByteBuffer(512, true);
+                byteBuffer.writeUint8(0x01);
+                byteBuffer.writeUint8(0x42); // type
+                byteBuffer.writeUint8(0x01); // flag
+
+                const buffer: any = Buffer.from(byteBuffer.flip().toBuffer());
+                // force length to be 39
+                Object.defineProperty(buffer, "length", {
+                    get: jest.fn(() => 39),
+                    set: jest.fn(),
+                });
+                return buffer;
+            });
+
+            expect(() => bip38.decrypt("", "")).toThrow("Invalid BIP38 compression flag");
+
+            jest.restoreAllMocks();
+        });
     });
 
     describe("encrypt", () => {
@@ -38,6 +60,14 @@ describe("BIP38", () => {
                 expect(actual).toEqual(fixture.bip38);
             });
         });
+
+        it("should throw if private key buffer length is different than 32", () => {
+            const byteBuffer = new ByteBuffer(512, true);
+            byteBuffer.writeUint8(0x01);
+            const buffer = Buffer.from(byteBuffer.toBuffer());
+
+            expect(() => bip38.encrypt(buffer, true, "")).toThrow("Invalid private key length");
+        });
     });
 
     describe("verify", () => {
@@ -51,6 +81,46 @@ describe("BIP38", () => {
             it(`should not verify '${fixture.description}'`, () => {
                 expect(bip38.verify(fixture.base58)).toBeFalse();
             });
+        });
+
+        it("should return false if encrypted WIF flag is different than 0xc0 0xe0", () => {
+            jest.spyOn(bs58check, "decodeUnsafe").mockImplementation(() => {
+                const byteBuffer = new ByteBuffer(512, true);
+                byteBuffer.writeUint8(0x01);
+                byteBuffer.writeUint8(0x42); // type
+                byteBuffer.writeUint8(0x01); // flag
+
+                const buffer: any = Buffer.from(byteBuffer.flip().toBuffer());
+                Object.defineProperty(buffer, "length", {
+                    get: jest.fn(() => 39),
+                    set: jest.fn(),
+                });
+                return buffer;
+            });
+
+            expect(bip38.verify("yo")).toBeFalse();
+
+            jest.restoreAllMocks();
+        });
+
+        it("should return false if encrypted EC mult flag is different than 0x24", () => {
+            jest.spyOn(bs58check, "decodeUnsafe").mockImplementation(() => {
+                const byteBuffer = new ByteBuffer(512, true);
+                byteBuffer.writeUint8(0x01);
+                byteBuffer.writeUint8(0x43); // type
+                byteBuffer.writeUint8(0x01); // flag
+
+                const buffer: any = Buffer.from(byteBuffer.flip().toBuffer());
+                Object.defineProperty(buffer, "length", {
+                    get: jest.fn(() => 39),
+                    set: jest.fn(),
+                });
+                return buffer;
+            });
+
+            expect(bip38.verify("yo")).toBeFalse();
+
+            jest.restoreAllMocks();
         });
     });
 });

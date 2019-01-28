@@ -77,6 +77,12 @@ describe("Specific handler - fake handler tests", () => {
 
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
         });
+
+        it("should be true if the transaction has a second signature but wallet does not, when ignoreInvalidSecondSignatureField=true", () => {
+            configManager.getMilestone().ignoreInvalidSecondSignatureField = true;
+
+            expect(handler.canApply(wallet, transactionWithSecondSignature, errors)).toBeTrue();
+        });
     });
 });
 

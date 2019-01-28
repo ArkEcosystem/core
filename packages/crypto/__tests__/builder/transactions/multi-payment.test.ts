@@ -3,6 +3,7 @@ import { MultiPaymentBuilder } from "../../../src/builder/transactions/multi-pay
 import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { feeManager } from "../../../src/managers/fee";
+import { Bignum } from "../../../src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiPaymentBuilder;
@@ -17,7 +18,7 @@ describe("Multi Payment Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiPayment);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.MultiPayment));
-        expect(builder).toHaveProperty("data.payments", {});
+        expect(builder).toHaveProperty("data.asset.payments", []);
         expect(builder).toHaveProperty("data.vendorFieldHex", null);
     });
 
@@ -35,14 +36,26 @@ describe("Multi Payment Transaction", () => {
             builder.addPayment("address", 2);
             builder.addPayment("address", 3);
 
-            expect(builder.data.payments).toEqual({
-                address1: "address",
-                address2: "address",
-                address3: "address",
-                amount1: 1,
-                amount2: 2,
-                amount3: 3,
-            });
+            expect(builder.data.asset.payments).toEqual([
+                {
+                    amount: new Bignum(1),
+                    recipientId: "address",
+                },
+                {
+                    amount: new Bignum(2),
+                    recipientId: "address",
+                },
+                {
+                    amount: new Bignum(3),
+                    recipientId: "address",
+                },
+            ]);
+        });
+
+        it("should throw if we want to add more payments than max authorized", () => {
+            builder.data.asset.payments = new Array(2258);
+
+            expect(() => builder.addPayment("address", 2)).toThrow("A maximum of 2258 outputs is allowed");
         });
     });
 });

@@ -94,12 +94,10 @@ describe("crypto.js", () => {
                 "00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
             );
         });
-    });
 
-    describe("getHash", () => {
-        it("should return Buffer and Buffer most be 32 bytes length", () => {
+        it("should throw for unsupported version", () => {
             const transaction = {
-                version: 1,
+                version: 110,
                 type: 0,
                 amount: 1000,
                 fee: 2000,
@@ -109,32 +107,62 @@ describe("crypto.js", () => {
                 senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
                 signature:
                     "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                signSignature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "13987348420913138422",
             };
 
+            expect(() => crypto.getBytes(transaction)).toThrow("not supported yet");
+        });
+    });
+
+    describe("getHash", () => {
+        const transaction = {
+            version: 1,
+            type: 0,
+            amount: 1000,
+            fee: 2000,
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+            signature:
+                "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+        };
+
+        it("should return Buffer and Buffer most be 32 bytes length", () => {
             const result = crypto.getHash(transaction);
             expect(result).toBeObject();
             expect(result).toHaveLength(32);
             expect(result.toString("hex")).toBe("952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea");
         });
+
+        it("should throw for unsupported versions", () => {
+            expect(() => crypto.getHash(Object.assign({}, transaction, { version: 110 }))).toThrow("not supported yet");
+        });
     });
 
     describe("getId", () => {
-        it("should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea", () => {
-            const transaction = {
-                type: 0,
-                amount: 1000,
-                fee: 2000,
-                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-                timestamp: 141738,
-                asset: {},
-                senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
-                signature:
-                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-            };
+        const transaction = {
+            type: 0,
+            amount: 1000,
+            fee: 2000,
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+            signature:
+                "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+        };
 
+        it("should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea", () => {
             const id = crypto.getId(transaction); // old id
             expect(id).toBeString();
             expect(id).toBe("952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea");
+        });
+
+        it("should throw for unsupported version", () => {
+            expect(() => crypto.getId(Object.assign({}, transaction, { version: 110 }))).toThrow("not supported yet");
         });
     });
 
@@ -147,22 +175,103 @@ describe("crypto.js", () => {
     });
 
     describe("sign", () => {
+        const keys = crypto.getKeys("secret");
+        const transaction = {
+            type: 0,
+            amount: 1000,
+            fee: 2000,
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: keys.publicKey,
+        };
+
         it("should return a valid signature", () => {
-            const keys = crypto.getKeys("secret");
-            const transaction = {
-                type: 0,
-                amount: 1000,
-                fee: 2000,
-                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-                timestamp: 141738,
-                asset: {},
-                senderPublicKey: keys.publicKey,
-            };
             const signature = crypto.sign(transaction, keys);
             // @ts-ignore
             expect(signature.toString("hex")).toBe(
                 "3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe",
             );
+        });
+
+        it("should throw for unsupported versions", () => {
+            expect(() => {
+                crypto.sign(Object.assign({}, transaction, { version: 110 }), keys);
+            }).toThrow("not supported yet");
+        });
+    });
+
+    describe("verify", () => {
+        const keys = crypto.getKeys("secret");
+        const transaction: any = {
+            type: 0,
+            amount: 1000,
+            fee: 2000,
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: keys.publicKey,
+        };
+        const signature = crypto.sign(transaction, keys);
+
+        const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+
+        it("should return true on a valid signature", () => {
+            expect(crypto.verify(transaction)).toBeTrue();
+        });
+
+        it("should return false on an invalid signature", () => {
+            expect(crypto.verify(Object.assign({}, transaction, { senderPublicKey: otherPublicKey }))).toBeFalse();
+        });
+
+        it("should return false on a missing signature", () => {
+            const transactionWithoutSignature = Object.assign({}, transaction);
+            delete transactionWithoutSignature.signature;
+
+            expect(crypto.verify(transactionWithoutSignature)).toBeFalse();
+        });
+    });
+
+    describe("verifySecondSignature", () => {
+        const keys1 = crypto.getKeys("secret");
+        const keys2 = crypto.getKeys("secret too");
+        const transaction: any = {
+            type: 0,
+            amount: 1000,
+            fee: 2000,
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: keys1.publicKey,
+        };
+        const secondSignature = crypto.secondSign(transaction, keys2);
+        transaction.signSignature = secondSignature;
+        const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+
+        it("should return true on a valid signature", () => {
+            expect(crypto.verifySecondSignature(transaction, keys2.publicKey)).toBeTrue();
+        });
+
+        it("should return false on an invalid second signature", () => {
+            expect(crypto.verifySecondSignature(transaction, otherPublicKey)).toBeFalse();
+        });
+
+        it("should return false on a missing second signature", () => {
+            const transactionWithoutSignature = Object.assign({}, transaction);
+            delete transactionWithoutSignature.secondSignature;
+            delete transactionWithoutSignature.signSignature;
+
+            expect(crypto.verifySecondSignature(transactionWithoutSignature, keys2.publicKey)).toBeFalse();
+        });
+
+        it("should call this.getHash without parameters skipSignature and skipSecondSignature if transaction.version != 1", () => {
+            const transactionV2 = Object.assign({}, transaction, { version: 2 });
+            delete transactionV2.secondSignature;
+            delete transactionV2.signSignature;
+            const getHashMock = jest.spyOn(crypto, "getHash").mockImplementation(() => "");
+
+            crypto.verifySecondSignature(transactionV2, keys2.publicKey);
+            expect(getHashMock).toHaveBeenLastCalledWith(transactionV2);
         });
     });
 
@@ -186,6 +295,19 @@ describe("crypto.js", () => {
             // @ts-ignore
             const address = crypto.getAddress(keys.publicKey.toString("hex"));
             expect(address).toBe("DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub");
+        });
+    });
+
+    describe("getKeysByPrivateKey", () => {
+        it("should get keys from private key", () => {
+            const expectedKeys = {
+                publicKey: "03d04acca0ad922998d258438cc453ce50222b0e761ae9a499ead6a11f3a44b70b",
+                privateKey: "c13bcd9a3dd64cabb27fcf2f4a471d35ffc3c114bb1278de745e6ff82a72eda8",
+                compressed: true,
+            };
+            const keys = crypto.getKeysByPrivateKey(expectedKeys.privateKey);
+
+            expect(keys).toEqual(expectedKeys);
         });
     });
 
@@ -311,6 +433,24 @@ describe("crypto.js", () => {
             configManager.setConfig(networkDevnet);
 
             expect(crypto.validateAddress("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN")).toBeTrue();
+        });
+    });
+
+    describe("validate public key on different networks", () => {
+        it("should validate MAINNET public keys", () => {
+            configManager.setConfig(networkMainnet);
+
+            expect(
+                crypto.validatePublicKey("02b54f00d9de5a3ace28913fe78a15afcfe242926e94d9b517d06d2705b261f992"),
+            ).toBeTrue();
+        });
+
+        it("should validate DEVNET public keys", () => {
+            configManager.setConfig(networkDevnet);
+
+            expect(
+                crypto.validatePublicKey("03b906102928cf97c6ddeb59cefb0e1e02105a22ab1acc3b4906214a16d494db0a"),
+            ).toBeTrue();
         });
     });
 });

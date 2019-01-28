@@ -59,8 +59,14 @@ describe("Slots", () => {
     });
 
     describe("getRealTime", () => {
-        it("return return real time", () => {
+        it("return real time", () => {
             expect(slots.getRealTime(10)).toBe(1490101210000);
+        });
+
+        it("should call this.getTime when called without time", () => {
+            const getTime = jest.spyOn(slots, "getTime");
+            slots.getRealTime(undefined);
+            expect(getTime).toHaveBeenCalledTimes(1);
         });
     });
 

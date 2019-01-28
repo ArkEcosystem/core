@@ -20,6 +20,7 @@ describe("Vote Transaction", () => {
                 .sign("dummy passphrase");
 
             expect(actual.build().verify()).toBeTrue();
+            expect(actual.verify()).toBeTrue();
         });
 
         it("should be valid with a second signature", () => {
@@ -29,6 +30,7 @@ describe("Vote Transaction", () => {
                 .secondSign("dummy passphrase");
 
             expect(actual.build().verify()).toBeTrue();
+            expect(actual.verify()).toBeTrue();
         });
     });
 

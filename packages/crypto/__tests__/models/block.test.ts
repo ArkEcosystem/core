@@ -9,7 +9,7 @@ import { slots } from "../../src/crypto";
 import { Block, Delegate } from "../../src/models";
 import { testnet } from "../../src/networks";
 import { Bignum } from "../../src/utils/bignum";
-import { dummyBlock, dummyBlock2 } from "./fixtures/block";
+import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 

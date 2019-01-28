@@ -125,6 +125,14 @@ describe("MultiSignatureHandler", () => {
             expect(errors).toEqual(["Failed to verify multi-signatures"]);
         });
 
+        it("should be false if failure to verify signatures in asset", () => {
+            wallet.verifySignatures = jest.fn(() => false);
+            delete wallet.multisignature;
+
+            expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
+            expect(errors).toEqual(["Failed to verify multi-signatures"]);
+        });
+
         it("should be false if the number of keys is less than minimum", () => {
             delete wallet.multisignature;
 
