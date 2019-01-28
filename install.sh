@@ -118,6 +118,9 @@ paragraph ()
 DEB=$(which apt-get)
 RPM=$(which yum)
 
+# Detect SystemV / SystemD
+SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
+
 if [[ ! -z $DEB ]]; then
     success "Running install for Debian derivate"
 elif [[ ! -z $RPM ]]; then
@@ -220,14 +223,22 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get update
     sudo apt-get install postgresql postgresql-contrib -y
 elif [[ ! -z $RPM ]]; then
-    sudo yum install postgresql postgresql-contrib -y
+    sudo yum install postgresql-server postgresql-contrib -y
+    
+    if [[ "$SYS" == "SystemV" ]]; then
+        sudo service postgresql initdb
+        sudo service postgresql start
+    else
+        sudo postgresql-setup initdb
+        sudo systemctl start postgresql
+    fi
 fi
 
 success "Installed PostgreSQL!"
 
 heading "Installing NTP..."
 
-sudo timedatectl set-ntp off # disable the default systemd timesyncd service
+sudo timedatectl set-ntp off > /dev/null 2>&1 # disable the default systemd timesyncd service
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get install ntp -yyq
@@ -275,30 +286,36 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
     read -p "Enter the database password: " databasePassword
     read -p "Enter the database name: " databaseName
 
-    userExists=$(sudo -u postgres psql -c "SELECT * FROM pg_user WHERE username = '${databaseUsername}'" | grep -c "1 row")
+    userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
+    databaseExists=$(sudo -i -u postgres psql -l | grep "${databaseName}" | wc -l)
 
     if [[ $userExists == 1 ]]; then
         read -p "The database user ${databaseUsername} already exists, do you want to overwrite it? [y/N]: " choice
 
         if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-            sudo -u postgres psql -c "DROP USER ${databaseUsername}"
-            sudo -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
+            if [[ $databaseExists == 1 ]]; then
+                sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO postgres;"
+            fi
+            sudo -i -u postgres psql -c "DROP USER ${databaseUsername}"
+            sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
+        elif [[ "$choice" =~ ^(no|n|N) ]]; then
+            exit 1;
         fi
     else
-        sudo -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
+        sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
     fi
-
-    databaseExists=$(psql -l | grep "${databaseName}" | wc -l)
 
     if [[ $databaseExists == 1 ]]; then
         read -p "The database ${databaseName} already exists, do you want to overwrite it? [y/N]: " choice
 
         if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-            dropdb "${databaseName}"
-            createdb "${databaseName}"
+            sudo -i -u postgres psql -c "DROP DATABASE ${databaseName};"
+            sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
+        elif [[ "$choice" =~ ^(no|n|N) ]]; then
+            sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO ${databaseUsername};"
         fi
     else
-        createdb "${databaseName}"
+        sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
     fi
 fi
 
@@ -307,6 +324,13 @@ fi
 # -----------------------------------
 
 cd "$HOME"
+
+if [ -d "core" ]; then
+   heading "Removing existing folder..."
+   rm -rf core
+fi
+
 git clone https://github.com/ArkEcosystem/core.git -b develop
 cd core
 yarn setup
+
