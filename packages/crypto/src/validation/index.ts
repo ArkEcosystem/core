@@ -1,6 +1,5 @@
-export { validator } from "./validator";
 export { transactionValidator } from "./validators/transaction";
 
-import { Engine } from "./engine";
+import { Validator } from "./validator";
 
-export const Joi = Engine.joi;
+export const Joi = Validator.joi;
