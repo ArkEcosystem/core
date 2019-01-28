@@ -14,13 +14,13 @@ const main = async () => {
         type: 'text',
         name: 'corePath',
         initial: expandHomeDir('~/ark-core'),
-        message: 'Where is the installation located at?',
+        message: 'Where is the installation located at? [press ENTER to use default]',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
     }, {
         type: 'text',
         name: 'coreData',
         initial: expandHomeDir('~/.ark'),
-        message: 'Where is the configuration located at?',
+        message: 'Where is the configuration located at? [press ENTER to use default]',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
     }, {
         type: 'select',
