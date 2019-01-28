@@ -192,6 +192,13 @@ const main = async () => {
     console.log('Update environment configuration');
     fs.writeFileSync(`${paths.config.new}/.env`, envCurrent.replace('ARK_', 'CORE_'));
 
+    // Update plugins file
+    console.log('Update plugins configuration');
+    let pluginContents = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
+    pluginContents = pluginContents.replace('@arkecosystem/core-transaction-pool-mem', '@arkecosystem/core-transaction-pool');
+    pluginContents = pluginContents.replace('"@arkecosystem/core-config": {},', '');
+    fs.writeFileSync(`${paths.config.new}/plugins.js`, pluginContents);
+
     // Validate configuration files
     console.log('Validating configuration');
     const { error } = Joi.validate({
