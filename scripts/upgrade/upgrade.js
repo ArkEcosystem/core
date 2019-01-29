@@ -14,13 +14,13 @@ const main = async () => {
         type: 'text',
         name: 'corePath',
         initial: expandHomeDir('~/ark-core'),
-        message: 'Where is the installation located at?',
+        message: 'Where is the installation located at? [press ENTER to use default]',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
     }, {
         type: 'text',
         name: 'coreData',
         initial: expandHomeDir('~/.ark'),
-        message: 'Where is the configuration located at?',
+        message: 'Where is the configuration located at? [press ENTER to use default]',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
     }, {
         type: 'select',
@@ -191,6 +191,13 @@ const main = async () => {
     // Update environment file
     console.log('Update environment configuration');
     fs.writeFileSync(`${paths.config.new}/.env`, envCurrent.replace('ARK_', 'CORE_'));
+
+    // Update plugins file
+    console.log('Update plugins configuration');
+    let pluginContents = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
+    pluginContents = pluginContents.replace('@arkecosystem/core-transaction-pool-mem', '@arkecosystem/core-transaction-pool');
+    pluginContents = pluginContents.replace('"@arkecosystem/core-config": {},', '');
+    fs.writeFileSync(`${paths.config.new}/plugins.js`, pluginContents);
 
     // Validate configuration files
     console.log('Validating configuration');
