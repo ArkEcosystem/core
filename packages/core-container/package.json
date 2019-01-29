@@ -36,7 +36,7 @@
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.set": "^4.3.4",
         "@types/semver": "^5.5.0",
-        "awilix": "^4.0.1",
+        "awilix": "^4.2.0",
         "axios": "^0.18.0",
         "delay": "^4.1.0",
         "env-paths": "^2.0.0",
