@@ -56,7 +56,7 @@ beforeEach(() => {
     errors = [];
 });
 
-describe("MultiPaymentHandler", () => {
+describe.skip("MultiPaymentHandler", () => {
     describe("canApply", () => {
         it("should be true", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();

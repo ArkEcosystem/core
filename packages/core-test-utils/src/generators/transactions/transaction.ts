@@ -9,7 +9,7 @@ export const generateTransaction = (
     network,
     type,
     passphrase,
-    addressOrPublicKey,
+    addressOrPublicKeyOrUsername,
     amount: number = 2,
     quantity: number = 10,
     getStruct: boolean = false,
@@ -40,12 +40,12 @@ export const generateTransaction = (
         let builder: any = client.getBuilder();
         switch (type) {
             case Transfer: {
-                if (!addressOrPublicKey) {
-                    addressOrPublicKey = crypto.getAddress(crypto.getKeys(passphrase).publicKey);
+                if (!addressOrPublicKeyOrUsername) {
+                    addressOrPublicKeyOrUsername = crypto.getAddress(crypto.getKeys(passphrase).publicKey);
                 }
                 builder = builder
                     .transfer()
-                    .recipientId(addressOrPublicKey)
+                    .recipientId(addressOrPublicKeyOrUsername)
                     .amount(amount)
                     .vendorField(`Test Transaction ${i + 1}`);
                 break;
@@ -55,19 +55,21 @@ export const generateTransaction = (
                 break;
             }
             case DelegateRegistration: {
-                const username = superheroes
-                    .random()
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]/g, "_")
-                    .substring(0, 20);
+                const username =
+                    addressOrPublicKeyOrUsername ||
+                    superheroes
+                        .random()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]/g, "_")
+                        .substring(0, 20);
                 builder = builder.delegateRegistration().usernameAsset(username);
                 break;
             }
             case Vote: {
-                if (!addressOrPublicKey) {
-                    addressOrPublicKey = crypto.getKeys(passphrase).publicKey;
+                if (!addressOrPublicKeyOrUsername) {
+                    addressOrPublicKeyOrUsername = crypto.getKeys(passphrase).publicKey;
                 }
-                builder = builder.vote().votesAsset([`+${addressOrPublicKey}`]);
+                builder = builder.vote().votesAsset([`+${addressOrPublicKeyOrUsername}`]);
                 break;
             }
             default: {
