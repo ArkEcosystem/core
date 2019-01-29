@@ -287,7 +287,7 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
     read -p "Enter the database name: " databaseName
 
     userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
-    databaseExists=$(sudo -i -u postgres psql -l | grep "${databaseName}" | wc -l)
+    databaseExists=$(sudo -i -u postgres psql -l | grep "^ ${databaseName}" | wc -l)
 
     if [[ $userExists == 1 ]]; then
         read -p "The database user ${databaseUsername} already exists, do you want to overwrite it? [y/N]: " choice
@@ -299,7 +299,7 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
             sudo -i -u postgres psql -c "DROP USER ${databaseUsername}"
             sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
         elif [[ "$choice" =~ ^(no|n|N) ]]; then
-            exit 1;
+            continue;
         fi
     else
         sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
