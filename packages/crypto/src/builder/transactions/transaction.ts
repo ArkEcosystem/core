@@ -181,7 +181,6 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         }
 
         const struct = {
-            // hex: crypto.getBytes(this).toString('hex'), // v2
             id: crypto.getId(this.data).toString(),
             signature: this.data.signature,
             signSignature: this.data.signSignature,

@@ -1,6 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { client } from "../../src/client";
 import { TransactionDeserializer } from "../../src/deserializers";
+import { TransactionVersionError } from "../../src/errors";
 import { TransactionSerializer } from "../../src/serializers";
 import { Bignum } from "../../src/utils";
 
@@ -298,4 +299,111 @@ describe("Transaction serializer / deserializer", () => {
             );
         });
     });
+
+    describe("getBytesV1", () => {
+        let bytes = null;
+
+        // it('should return Buffer of simply transaction and buffer must be 292 length', () => {
+        //   const transaction = {
+        //     type: 0,
+        //     amount: 1000,
+        //     fee: 2000,
+        //     recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
+        //     timestamp: 141738,
+        //     asset: {},
+        //     senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
+        //     signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
+        //   }
+
+        //   bytes = crypto.getBytes(transaction)
+        //   expect(bytes).toBeObject()
+        //   expect(bytes.toString('hex') + transaction.signature).toHaveLength(292)
+        // })
+
+        it("should return Buffer of simply transaction and buffer must be 202 length", () => {
+            const transaction = {
+                type: 0,
+                amount: 1000,
+                fee: 2000,
+                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+                timestamp: 141738,
+                asset: {},
+                senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "13987348420913138422",
+            };
+
+            bytes = TransactionSerializer.getBytesV1(transaction);
+            expect(bytes).toBeObject();
+            expect(bytes.length).toBe(202);
+            expect(bytes.toString("hex")).toBe(
+                "00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+            );
+        });
+
+        // it('should return Buffer of transaction with second signature and buffer must be 420 length', () => {
+        //   const transaction = {
+        //     type: 0,
+        //     amount: 1000,
+        //     fee: 2000,
+        //     recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
+        //     timestamp: 141738,
+        //     asset: {},
+        //     senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
+        //     signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a',
+        //     signSignature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
+        //   }
+
+        //   bytes = crypto.getBytes(transaction)
+        //   expect(bytes).toBeObject()
+        //   expect(bytes.toString('hex') + transaction.signature + transaction.signSignature).toHaveLength(420)
+        // })
+
+        it("should return Buffer of transaction with second signature and buffer must be 266 length", () => {
+            const transaction = {
+                version: 1,
+                type: 0,
+                amount: 1000,
+                fee: 2000,
+                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+                timestamp: 141738,
+                asset: {},
+                senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                signSignature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "13987348420913138422",
+            };
+
+            bytes = TransactionSerializer.getBytesV1(transaction);
+            expect(bytes).toBeObject();
+            expect(bytes.length).toBe(266);
+            expect(bytes.toString("hex")).toBe(
+                "00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+            );
+        });
+
+        it("should throw for unsupported version", () => {
+            const transaction = {
+                version: 110,
+                type: 0,
+                amount: 1000,
+                fee: 2000,
+                recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+                timestamp: 141738,
+                asset: {},
+                senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                signSignature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "13987348420913138422",
+            };
+
+            expect(() => TransactionSerializer.getBytesV1(transaction)).toThrow(TransactionVersionError);
+        });
+    });
+
 });
