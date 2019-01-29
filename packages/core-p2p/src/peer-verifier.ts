@@ -33,7 +33,7 @@ export default class PeerVerifier {
      *   This means the peer is ahead of us, on the same chain. No fork.
      *   We verify: his blocks that have height > our height.
      *
-     * 2. Peer height > our height and our highest block is not port of the peer's chain.
+     * 2. Peer height > our height and our highest block is not part of the peer's chain.
      *   This means that the peer is on a different, higher chain. It has forked before our
      *   latest block.
      *   We verify: the first few of the peer's blocks after the fork (up to the round end).
