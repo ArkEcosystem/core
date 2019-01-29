@@ -38,7 +38,7 @@
         "@types/lodash.isequal": "^4.5.3",
         "@types/lodash.isstring": "^4.0.4",
         "@types/lodash.sortby": "^4.7.4",
-        "awilix": "^4.0.1",
+        "awilix": "^4.2.0",
         "bip39": "^2.5.0",
         "lodash.get": "^4.4.2",
         "lodash.isequal": "^4.5.0",

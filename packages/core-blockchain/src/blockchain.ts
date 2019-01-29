@@ -316,10 +316,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         // If the current chain height is H and we will be removing blocks [N, H],
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
-        const blocksToRemove = await this.database.getBlocks(
-            this.state.getLastBlock().data.height - nblocks,
-            nblocks,
-        );
+        const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks);
 
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable
