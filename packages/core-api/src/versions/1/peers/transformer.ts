@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Peer } from "@arkecosystem/core-p2p";
 
 export function transformPeerLegacy(model) {
     const config = app.getConfig();
@@ -8,7 +9,7 @@ export function transformPeerLegacy(model) {
         port: model.port,
         version: model.version,
         height: model.height,
-        status: model.status,
+        status: Peer.isOk(model) ? "OK" : "ERROR",
         os: model.os,
         delay: model.delay,
     };
