@@ -1,6 +1,6 @@
 import assert from "assert";
+import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 import { ConnectionInterface } from "@arkecosystem/core-database";
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Peer } from './peer';
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { app } from "@arkecosystem/core-container";
@@ -8,12 +8,14 @@ import { models } from "@arkecosystem/crypto";
 import { roundCalculator } from "@arkecosystem/core-utils";
 
 export default class PeerVerifier {
+    private blockchain: Blockchain.IBlockchain;
     private database: ConnectionInterface;
     private logPrefix: string;
     private logger: Logger.ILogger;
     private peer: any;
 
     public constructor (peer: Peer) {
+        this.blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
         this.database = app.resolvePlugin<PostgresConnection>("database");
         this.logPrefix = `Peer verify ${peer.ip}:`;
         this.logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -29,28 +31,28 @@ export default class PeerVerifier {
      *
      * We distinguish 6 different cases with respect to our chain and peer's chain:
      *
-     * 1. Peer height > our height and our highest block is part of the peer's chain.
+     * Case1. Peer height > our height and our highest block is part of the peer's chain.
      *   This means the peer is ahead of us, on the same chain. No fork.
      *   We verify: his blocks that have height > our height.
      *
-     * 2. Peer height > our height and our highest block is not part of the peer's chain.
+     * Case2. Peer height > our height and our highest block is not part of the peer's chain.
      *   This means that the peer is on a different, higher chain. It has forked before our
      *   latest block.
      *   We verify: the first few of the peer's blocks after the fork (up to the round end).
      *
-     * 3. Peer height == our height and our latest blocks are the same.
+     * Case3. Peer height == our height and our latest blocks are the same.
      *   This means that our chains are the same.
      *   We verify: nothing.
      *
-     * 4. Peer height == our height and our latest blocks differ.
+     * Case4. Peer height == our height and our latest blocks differ.
      *   This means that we are on a different chains with equal height. A fork has occurred.
      *   We verify: same as 2.
      *
-     * 5. Peer height < our height and peer's latest block is part of our chain.
+     * Case5. Peer height < our height and peer's latest block is part of our chain.
      *   This means that the peer is on the same chain as us, just lagging behind.
      *   We verify: nothing.
      *
-     * 6. Peer height < our height and peer's latest block is not part of our chain.
+     * Case6. Peer height < our height and peer's latest block is not part of our chain.
      *   This means that we have forked and the peer's chain is lower.
      *   We verify: same as 2.
      *
@@ -67,7 +69,7 @@ export default class PeerVerifier {
         const ourHeight: number = await this.ourHeight();
 
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
-            // Case 3. and 5.
+            // Case3 and Case5
             return true;
         }
 
@@ -76,7 +78,11 @@ export default class PeerVerifier {
             return false;
         }
 
-        if (!await this.verifyPeerBlocks(highestCommonBlockHeight + 1)) {
+        // If the peer is on the same chain as us, but ahead (not on a fork), then advance
+        // our chain with his blocks (Case1).
+        const includeHisBlocksInOurChain = highestCommonBlockHeight === ourHeight;
+
+        if (!await this.verifyPeerBlocks(highestCommonBlockHeight + 1, includeHisBlocksInOurChain)) {
             return false;
         }
 
@@ -359,9 +365,11 @@ export default class PeerVerifier {
     /**
      * Verify the blocks of the peer's chain that are in the range [height, last block in round].
      * @param {Number} height verify blocks at and after this height
+     * @param {Boolean} includeHisBlocksInOurChain indicates whether we should advance our
+     * chain with the peer's blocks should they pass validation
      * @return {Boolean} true if the blocks are legit (signed by the appropriate delegates)
      */
-    private async verifyPeerBlocks(height: number): Promise<boolean> {
+    private async verifyPeerBlocks(height: number, includeHisBlocksInOurChain: boolean): Promise<boolean> {
         const round = roundCalculator.calculateRound(height);
         const lastBlockHeightInRound = round.round * round.maxDelegates;
 
@@ -382,8 +390,34 @@ export default class PeerVerifier {
             }
             assert(hisBlocksByHeight[h] !== undefined);
 
-            if (!this.verifyPeerBlock(hisBlocksByHeight[h], h, delegates)) {
+            const hisBlockJson = hisBlocksByHeight[h];
+
+            const hisBlockObj = await this.verifyPeerBlock(hisBlockJson, h, delegates);
+            if (hisBlockObj === null) {
                 return false;
+            }
+
+            if (includeHisBlocksInOurChain) {
+                // XXX this code is the same as
+                // packages/core-p2p/src/server/versions/1/handlers.ts:postBlock
+
+                /* XXX this.blockchain is null here
+                if (this.blockchain.pingBlock(hisBlockJson)) {
+                    continue;
+                }
+
+                const lastDownloadedBlock = this.blockchain.getLastDownloadedBlock();
+
+                if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== hisBlockJson.height) {
+                    continue;
+                }
+
+                this.blockchain.pushPingBlock(hisBlockObj.data);
+
+                hisBlockJson.ip = this.peer.ip;
+
+                this.blockchain.handleIncomingBlock(hisBlockJson);
+                */
             }
         }
 
@@ -471,12 +505,12 @@ export default class PeerVerifier {
      * @param {Number} expectedHeight the given block must be at this height
      * @param {Object} delegatesByPublicKey a map of { publicKey: delegate, ... }, one of these
      * delegates must have signed the block
-     * @return {Boolean} true if the block is legit (signed by the appropriate delegate)
+     * @return {Block|null} set if the block is legit (signed by the appropriate delegate), null otherwise
      */
     private async verifyPeerBlock(
         blockData: models.IBlockData,
         expectedHeight: number,
-        delegatesByPublicKey: any[]): Promise<boolean> {
+        delegatesByPublicKey: any[]): Promise<models.Block> {
         // XXX would this verify that:
         // - the signature corresponds to the payload
         // - the signature was made with the private key that corresponds to generatorPublicKey
@@ -489,7 +523,7 @@ export default class PeerVerifier {
                 `${this.logPrefix} failure: asked for block at height ${expectedHeight}, ` +
                 `but got a block with height ${height} instead`
             );
-            return false;
+            return null;
         }
 
         if (delegatesByPublicKey[block.data.generatorPublicKey]) {
@@ -497,7 +531,7 @@ export default class PeerVerifier {
                 `${this.logPrefix} successfully verified block at height ${height}, signed by ` +
                 block.data.generatorPublicKey
             );
-            return true;
+            return block;
         }
 
         this.logger.info(
@@ -506,6 +540,6 @@ export default class PeerVerifier {
             JSON.stringify(Object.values(delegatesByPublicKey))
         );
 
-        return false;
+        return null;
     }
 }
