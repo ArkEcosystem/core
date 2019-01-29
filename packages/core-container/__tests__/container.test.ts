@@ -1,86 +1,114 @@
+import { asValue, AwilixContainer } from "awilix";
 import "jest-extended";
 
-import { asValue } from "awilix";
-import { resolve } from "path";
-import { app } from "../src";
+import { Container } from "../src/container";
+import { EntryDoesNotExist, InvalidType } from "../src/errors";
 
-const dummyPlugin = {
-    name: "dummy",
-    version: "0.1.0",
-    plugin: { key: "value" },
-    options: { key: "value" },
-};
+class DummyClass {
+    private ping;
 
-beforeEach(async () => {
-    await app.setUp(
-        "2.0.0",
-        {
-            data: "fake-path",
-            config: resolve(__dirname, "../../core/src/config/testnet"),
-            token: "ark",
-            network: "testnet",
-        },
-        {
-            skipPlugins: true,
-        },
-    );
+    constructor({ ping }) {
+        this.ping = ping;
+    }
+
+    public pong() {
+        return this.ping;
+    }
+}
+
+const dummyFunction = ({ ping }) => ping;
+
+let container;
+beforeEach(() => {
+    container = new Container();
 });
 
 describe("Container", () => {
-    it("should add a new registration", () => {
-        app.register("fake", asValue("value"));
+    describe("resolve", () => {
+        it("should resolve the given name", () => {
+            container.bind("name", "value");
 
-        expect(app.has("fake")).toBeTruthy();
-        expect(app.has("unregistered")).toBeFalsy();
+            expect(container.resolve("name")).toBe("value");
+        });
+
+        it("should throw an exception if a registration cannot be resolved", () => {
+            expect(() => {
+                container.resolve("name");
+            }).toThrowError(EntryDoesNotExist);
+        });
     });
 
-    it("should resolve a registration", () => {
-        app.register("fake", asValue("value"));
+    describe("bind", () => {
+        it("should be bound if it is a class", () => {
+            container.bind("key", "value");
 
-        expect(app.resolve("fake")).toBe("value");
+            expect(container.resolve("key")).toBe("value");
+        });
     });
 
-    it("should resolve a plugin", () => {
-        app.register("fake", asValue(dummyPlugin));
+    describe("shared", () => {
+        describe("class", () => {
+            it("should be bound if it is a class", () => {
+                container.shared("key", DummyClass);
 
-        expect(app.resolvePlugin("fake")).toEqual(dummyPlugin.plugin);
+                expect(container.has("key")).toBeTrue();
+            });
+
+            it("should not be bound if it is not a class", () => {
+                expect(() => {
+                    container.shared("key", "dummy-value");
+                }).toThrowError(InvalidType);
+            });
+        });
+
+        describe("function", () => {
+            it("should be bound if it is a function", () => {
+                container.shared("key", dummyFunction);
+
+                expect(container.has("key")).toBeTrue();
+            });
+
+            it("should not be bound if it is not a function", () => {
+                expect(() => {
+                    container.shared("key", "dummy-value");
+                }).toThrowError(InvalidType);
+            });
+        });
     });
 
-    it("should resolve the options of a plugin", () => {
-        app.register("fake", asValue(dummyPlugin));
+    describe("alias", () => {
+        it("should create an alias", () => {
+            container.bind("name", "value");
 
-        expect(app.resolveOptions("fake")).toEqual(dummyPlugin.options);
+            container.alias("name", "alias");
+
+            expect(container.has("alias")).toBeTrue();
+        });
     });
 
-    it("should determine if a registration exists", () => {
-        app.register("fake", asValue("value"));
+    describe("has", () => {
+        it("should not be an alias", () => {
+            expect(container.has("name")).toBeFalse();
+        });
 
-        expect(app.has("fake")).toBeTrue();
+        it("should be an alias", () => {
+            container.bind("name", "alias");
+
+            expect(container.has("name")).toBeTrue();
+        });
     });
 
-    it("should determine if a registration exists", () => {
-        app.register("fake", asValue("value"));
+    describe("call", () => {
+        it("should create an instance", () => {
+            container.bind("ping", "pong");
 
-        expect(app.has("fake")).toBeTrue();
-    });
+            expect(container.call(DummyClass).pong()).toBe("pong");
+        });
 
-    it("should get the hashid", () => {
-        expect(app.getHashid()).toBeString();
-    });
+        it("should call the function", () => {
+            container.bind("ping", "pong");
 
-    it("should get the version", () => {
-        expect(app.getVersion()).toBe("2.0.0");
-    });
-
-    it("should set the version", () => {
-        expect(app.getVersion()).toBe("2.0.0");
-
-        app.setVersion("3.0.0");
-
-        expect(app.getVersion()).toBe("3.0.0");
-    });
-
-    it("should resolve and export paths", () => {
-        expect(process.env.CORE_PATH_DATA).toEqual(resolve("fake-path"));
+            expect(container.call(dummyFunction)).toBe("pong");
+        });
     });
 });
