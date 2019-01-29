@@ -511,10 +511,18 @@ export default class PeerVerifier {
         blockData: models.IBlockData,
         expectedHeight: number,
         delegatesByPublicKey: any[]): Promise<models.Block> {
+        const block = new models.Block(blockData);
+
         // XXX would this verify that:
         // - the signature corresponds to the payload
         // - the signature was made with the private key that corresponds to generatorPublicKey
-        const block = new models.Block(blockData);
+        if (!block.verification.verified) {
+            this.logger.info(
+                `${this.logPrefix} failure: peer's block at height ${expectedHeight} does not ` +
+                `pass crypto-validation`
+            );
+            return null;
+        }
 
         const height = block.data.height;
 
