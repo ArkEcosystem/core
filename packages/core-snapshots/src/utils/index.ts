@@ -8,14 +8,11 @@ export const getPath = (table, folder, codec) => {
 };
 
 export const writeMetaFile = snapshotInfo => {
-    const path = `${process.env.CORE_PATH_DATA}/snapshots/${process.env.CORE_NETWORK_NAME}/${
-        snapshotInfo.folder
-    }/meta.json`;
+    const path = `${process.env.CORE_PATH_DATA}/snapshots/${snapshotInfo.folder}/meta.json`;
     fs.writeFileSync(path, JSON.stringify(snapshotInfo), "utf8");
 };
 
-export const getFilePath = (filename, folder) =>
-    `${process.env.CORE_PATH_DATA}/snapshots/${process.env.CORE_NETWORK_NAME}/${folder}/${filename}`;
+export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
 
 export const copySnapshot = (sourceFolder, destFolder, codec) => {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
