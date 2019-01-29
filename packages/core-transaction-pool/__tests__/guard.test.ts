@@ -915,6 +915,37 @@ describe("Transaction Guard", () => {
 
             jest.restoreAllMocks();
         });
+
+        it("should not validate unsupported transaction types", async () => {
+            jest.spyOn(guard.pool.walletManager, "canApply").mockImplementation(() => true);
+
+            // use a random transaction as a base - then play with type
+            const baseTransaction = generateDelegateRegistration("unitnet", wallets[11].passphrase, 1)[0];
+
+            for (const transactionType of [
+                constants.TransactionTypes.MultiSignature,
+                constants.TransactionTypes.Ipfs,
+                constants.TransactionTypes.TimelockTransfer,
+                constants.TransactionTypes.MultiPayment,
+                constants.TransactionTypes.DelegateResignation,
+                99,
+            ]) {
+                baseTransaction.type = transactionType;
+                baseTransaction.id = transactionType;
+
+                expect(guard.__validateTransaction(baseTransaction)).toBeFalse();
+                expect(guard.errors[baseTransaction.id]).toEqual([
+                    {
+                        type: "ERR_UNSUPPORTED",
+                        message: `Invalidating transaction of unsupported type '${
+                            constants.TransactionTypes[transactionType]
+                        }'`,
+                    },
+                ]);
+            }
+
+            jest.restoreAllMocks();
+        });
     });
 
     describe("__removeForgedTransactions", () => {
