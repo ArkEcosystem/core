@@ -122,7 +122,7 @@ class BlocksRepository extends Repository {
     }
 
     public getModel() {
-        return this.database.models.block;
+        return (this.databaseService.connection as any).models.block;
     }
 
     public __orderBy(parameters) {

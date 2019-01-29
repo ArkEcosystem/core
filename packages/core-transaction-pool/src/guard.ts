@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, TransactionPool as transactionPool } from "@arkecosystem/core-interfaces";
+import { Database, Logger, TransactionPool as transactionPool } from "@arkecosystem/core-interfaces";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
@@ -237,9 +236,9 @@ export class TransactionGuard implements transactionPool.ITransactionGuard {
      * @return {void}
      */
     public async __removeForgedTransactions() {
-        const database = app.resolvePlugin<PostgresConnection>("database");
+        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-        const forgedIdsSet = await database.getForgedTransactionsIds([
+        const forgedIdsSet = await databaseService.getForgedTransactionsIds([
             ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
         ]);
 

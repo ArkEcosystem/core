@@ -119,7 +119,7 @@ export class BlockRepository extends Repository implements IRepository {
     }
 
     public getModel(): any {
-        return this.database.models.block;
+        return (this.databaseService.connection as any).models.block;
     }
 
     public __orderBy(parameters): string[] {

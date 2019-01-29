@@ -23,9 +23,9 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     public roundsRepository: Database.IRoundsRepository;
     public transactionsRepository: Database.ITransactionsRepository;
     public walletsRepository: Database.IWalletsRepository;
+    public pgp: any;
     private migrationsRepository;
     private cache: Map<any, any>;
-    private pgp: any;
     private queuedQueries: any[];
 
 

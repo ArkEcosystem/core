@@ -1,8 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -722,7 +721,7 @@ export class Monitor implements P2P.IMonitor {
      * @return {[]String}
      */
     public async __getRecentBlockIds() {
-        return app.resolvePlugin<PostgresConnection>("database").getRecentBlockIds();
+        return app.resolvePlugin<Database.IDatabaseService>("database").getRecentBlockIds();
     }
 
     /**

@@ -38,4 +38,6 @@ export interface IWalletManager {
     applyTransaction(transaction: models.Transaction): models.Transaction;
 
     revertTransaction(transaction: models.Transaction): any;
+
+    isDelegate(publicKey: string): boolean;
 }

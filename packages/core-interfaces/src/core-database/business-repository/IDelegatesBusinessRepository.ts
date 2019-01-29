@@ -5,7 +5,7 @@ export interface IDelegatesBusinessRepository {
 
     getLocalDelegates(): models.Wallet[];
 
-    findAll(params: IParameters): { count: number, rows: models.Wallet[] }
+    findAll(params?: IParameters): { count: number, rows: models.Wallet[] }
 
     search<T extends IParameters>(params: T): { count: number, rows: models.Wallet[] }
 

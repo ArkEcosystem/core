@@ -24,6 +24,8 @@ export interface IDatabaseService {
 
     cache: Map<any, any>;
 
+    restoredDatabaseIntegrity: boolean;
+
     verifyBlockchain(): Promise<{ valid: boolean, errors: any[] }>;
 
     getActiveDelegates(height: number, delegates?: any[]): Promise<any[]>;

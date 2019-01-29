@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import { generators } from "@arkecosystem/core-test-utils";
 import { delegates } from "@arkecosystem/core-test-utils/src/fixtures/unitnet/delegates";
 import { bignumify } from "@arkecosystem/core-utils";
@@ -17,19 +17,19 @@ const { generateTransfers } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 
 let config;
-let database: PostgresConnection;
+let databaseService: Database.IDatabaseService;
 let connection: TransactionPool;
 
 beforeAll(async () => {
     await setUpFull();
 
     config = app.getConfig();
-    database = app.resolvePlugin<PostgresConnection>("database");
+    databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     connection = app.resolvePlugin<TransactionPool>("transactionPool");
 
     // Ensure no cold wallet and enough funds
-    database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
-    database.walletManager.findByPublicKey(
+    databaseService.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
+    databaseService.walletManager.findByPublicKey(
         "0310c283aac7b35b4ae6fab201d36e8322c3408331149982e16013a5bcb917081c",
     ).balance = bignumify(200 * 1e8);
 
@@ -155,7 +155,7 @@ describe("Connection", () => {
             transactions.push(mockData.dummy2);
 
             // Ensure no cold wallets
-            transactions.forEach(tx => database.walletManager.findByPublicKey(tx.senderPublicKey));
+            transactions.forEach(tx => databaseService.walletManager.findByPublicKey(tx.senderPublicKey));
 
             const { added, notAdded } = connection.addTransactions(transactions);
             expect(added).toHaveLength(4);
@@ -409,7 +409,7 @@ describe("Connection", () => {
         it("remove forged when starting", async () => {
             expect(connection.getPoolSize()).toBe(0);
 
-            const block = await database.getLastBlock();
+            const block = await databaseService.getLastBlock();
 
             // XXX This accesses directly block.transactions which is not even
             // documented in packages/crypto/src/models/block.js
@@ -421,8 +421,8 @@ describe("Connection", () => {
             // For some reason all genesis transactions fail signature verification, so
             // they are not loaded from the local storage and this fails otherwise.
             // TODO: Use jest.spyOn() to change behavior instead. jest.restoreAllMocks() will reset afterwards
-            const original = database.getForgedTransactionsIds;
-            database.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
+            const original = databaseService.getForgedTransactionsIds;
+            databaseService.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
 
             expect(forgedTransaction instanceof Transaction).toBeTrue();
 
@@ -446,7 +446,7 @@ describe("Connection", () => {
 
             connection.flush();
 
-            database.getForgedTransactionsIds = original;
+            databaseService.getForgedTransactionsIds = original;
         });
     });
 

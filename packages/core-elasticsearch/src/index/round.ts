@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import first from "lodash/first";
 import last from "lodash/last";
 import { client } from "../services/client";
@@ -9,7 +8,7 @@ import { Index } from "./index";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const database = app.resolvePlugin<PostgresConnection>("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 class RoundIndex extends Index {
     /**
@@ -32,7 +31,7 @@ class RoundIndex extends Index {
                 .limit(this.chunkSize)
                 .offset(this.chunkSize * i);
 
-            const rows = await database.query.manyOrNone(query.toQuery());
+            const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 
             if (!rows.length) {
                 continue;

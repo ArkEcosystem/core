@@ -423,7 +423,7 @@ export class WalletManager implements Database.IWalletManager {
 
             // NOTE: We use the vote public key, because vote transactions
             // have the same sender and recipient
-        } else if (type === TransactionTypes.Vote && !this.__isDelegate(asset.votes[0].slice(1))) {
+        } else if (type === TransactionTypes.Vote && !this.isDelegate(asset.votes[0].slice(1))) {
             this.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
             throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
         } else if (type === TransactionTypes.SecondSignature) {
@@ -536,7 +536,7 @@ export class WalletManager implements Database.IWalletManager {
      * Checks if a given publicKey is a registered delegate
      * @param {String} publicKey
      */
-    public __isDelegate(publicKey) {
+    public isDelegate(publicKey: string) {
         const delegateWallet = this.byPublicKey[publicKey];
 
         if (delegateWallet && delegateWallet.username) {
