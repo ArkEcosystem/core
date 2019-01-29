@@ -1,9 +1,9 @@
 import { Container } from "@arkecosystem/core-interfaces";
 import { generators } from "@arkecosystem/core-test-utils";
-import { delegates, genesisBlock, wallets, wallets2ndSig } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
-import { configManager, crypto, models, slots } from "@arkecosystem/crypto";
+import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
+import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../core-test-utils/src/fixtures/unitnet";
 import { config as localConfig } from "../src/config";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
@@ -672,6 +672,36 @@ describe("Transaction Guard", () => {
         });
     });
 
+    describe("__cacheTransactions", () => {
+        it("should add transactions to cache", () => {
+            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
+            expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
+        });
+
+        it("should not add a transaction already in cache and add it as an error", () => {
+            const transactions = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
+            expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
+            expect(guard.__cacheTransactions([transactions[0]])).toEqual([]);
+            expect(guard.errors).toEqual({
+                [transactions[0].id]: [
+                    {
+                        message: "Already in cache.",
+                        type: "ERR_DUPLICATE",
+                    },
+                ],
+            });
+        });
+    });
+
+    describe("getBroadcastTransactions", () => {
+        it("should return broadcast transaction", async () => {
+            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
+
+            await guard.validate(transactions);
+            expect(guard.getBroadcastTransactions()).toEqual(transactions);
+        });
+    });
+
     describe("__filterAndTransformTransactions", () => {
         it("should reject duplicate transactions", () => {
             const transactionExists = guard.pool.transactionExists;
@@ -803,6 +833,118 @@ describe("Transaction Guard", () => {
 
             guard.pool.transactionExists = transactionExists;
             guard.pool.walletManager.canApply = canApply;
+        });
+
+        it("should not accept transaction if pool hasExceededMaxTransactions and add it to excess", () => {
+            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
+
+            jest.spyOn(guard.pool, "hasExceededMaxTransactions").mockImplementationOnce(tx => true);
+
+            guard.__filterAndTransformTransactions(transactions);
+
+            expect(guard.excess).toEqual([transactions[0].id]);
+            expect(guard.accept).toEqual(new Map());
+            expect(guard.broadcast).toEqual(new Map());
+        });
+
+        it("should push a ERR_UNKNOWN error if something threw in validated transaction block", () => {
+            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
+
+            // use guard.accept.set() call to introduce a throw
+            jest.spyOn(guard.accept, "set").mockImplementationOnce(() => {
+                throw new Error("hey");
+            });
+
+            guard.__filterAndTransformTransactions(transactions);
+
+            expect(guard.accept).toEqual(new Map());
+            expect(guard.broadcast).toEqual(new Map());
+            expect(guard.errors[transactions[0].id]).toEqual([
+                {
+                    message: `hey`,
+                    type: "ERR_UNKNOWN",
+                },
+            ]);
+        });
+    });
+
+    describe("__validateTransaction", () => {
+        it("should not validate when recipient is not on the same network", async () => {
+            const transactions = generateTransfers(
+                "unitnet",
+                wallets[10].passphrase,
+                "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
+                35,
+                1,
+            );
+
+            expect(guard.__validateTransaction(transactions[0])).toBeFalse();
+            expect(guard.errors).toEqual({
+                [transactions[0].id]: [
+                    {
+                        type: "ERR_INVALID_RECIPIENT",
+                        message: `Recipient ${
+                            transactions[0].recipientId
+                        } is not on the same network: ${configManager.get("pubKeyHash")}`,
+                    },
+                ],
+            });
+        });
+
+        it("should not validate when sender has same type transactions in the pool (only for 2nd sig, delegate registration, vote)", async () => {
+            jest.spyOn(guard.pool.walletManager, "canApply").mockImplementation(() => true);
+            const votes = [
+                generateVote("unitnet", wallets[10].passphrase, delegates[0].publicKey, 1)[0],
+                generateVote("unitnet", wallets[10].passphrase, delegates[1].publicKey, 1)[0],
+            ];
+            const delegateRegs = generateDelegateRegistration("unitnet", wallets[11].passphrase, 2);
+            const signatures = generateSecondSignature("unitnet", wallets[12].passphrase, 2);
+
+            for (const transactions of [votes, delegateRegs, signatures]) {
+                await guard.validate([transactions[0]]);
+                expect(guard.__validateTransaction(transactions[1])).toBeFalse();
+                expect(guard.errors[transactions[1].id]).toEqual([
+                    {
+                        type: "ERR_PENDING",
+                        message:
+                            `Sender ${transactions[1].senderPublicKey} already has a transaction of type ` +
+                            `'${constants.TransactionTypes[transactions[1].type]}' in the pool`,
+                    },
+                ]);
+            }
+
+            jest.restoreAllMocks();
+        });
+
+        it("should not validate unsupported transaction types", async () => {
+            jest.spyOn(guard.pool.walletManager, "canApply").mockImplementation(() => true);
+
+            // use a random transaction as a base - then play with type
+            const baseTransaction = generateDelegateRegistration("unitnet", wallets[11].passphrase, 1)[0];
+
+            for (const transactionType of [
+                constants.TransactionTypes.MultiSignature,
+                constants.TransactionTypes.Ipfs,
+                constants.TransactionTypes.TimelockTransfer,
+                constants.TransactionTypes.MultiPayment,
+                constants.TransactionTypes.DelegateResignation,
+                99,
+            ]) {
+                baseTransaction.type = transactionType;
+                baseTransaction.id = transactionType;
+
+                expect(guard.__validateTransaction(baseTransaction)).toBeFalse();
+                expect(guard.errors[baseTransaction.id]).toEqual([
+                    {
+                        type: "ERR_UNSUPPORTED",
+                        message: `Invalidating transaction of unsupported type '${
+                            constants.TransactionTypes[transactionType]
+                        }'`,
+                    },
+                ]);
+            }
+
+            jest.restoreAllMocks();
         });
     });
 
