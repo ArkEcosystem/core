@@ -414,7 +414,11 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                 }
             }
 
-            if (senderWallet.balance === 0 && this.getSenderSize(senderPublicKey) === 0) {
+            if (
+                senderWallet &&
+                this.walletManager.__canBePurged(senderWallet) &&
+                this.getSenderSize(senderPublicKey) === 0
+            ) {
                 this.walletManager.deleteWallet(senderPublicKey);
             }
         }
