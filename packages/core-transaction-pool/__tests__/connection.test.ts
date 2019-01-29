@@ -1,18 +1,19 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { generators } from "@arkecosystem/core-test-utils";
-import { delegates } from "@arkecosystem/core-test-utils/src/fixtures/unitnet/delegates";
 import { bignumify } from "@arkecosystem/core-utils";
-import { constants, models, slots } from "@arkecosystem/crypto";
+import { Bignum, constants, models, slots } from "@arkecosystem/crypto";
+import dayjs from "dayjs-ext";
 import delay from "delay";
 import randomSeed from "random-seed";
+import { generators } from "../../core-test-utils";
+import { block2, delegates } from "../../core-test-utils/src/fixtures/unitnet";
 import { TransactionPool } from "../dist";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { ARKTOSHI, TransactionTypes } = constants;
-const { Transaction } = models;
+const { Block, Transaction } = models;
 const { generateTransfers } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 
@@ -95,6 +96,56 @@ describe("Connection", () => {
             connection.addTransaction(mockData.dummy1);
 
             expect(connection.getPoolSize()).toBe(1);
+        });
+
+        it("should return error when adding 1 more transaction than maxTransactionsInPool", () => {
+            expect(connection.getPoolSize()).toBe(0);
+
+            connection.addTransactions([mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4]);
+
+            expect(connection.getPoolSize()).toBe(4);
+
+            const maxTransactionsInPoolOrig = connection.options.maxTransactionsInPool;
+            connection.options.maxTransactionsInPool = 4;
+
+            expect(connection.addTransaction(mockData.dummy5)).toEqual({
+                transaction: mockData.dummy5,
+                type: "ERR_POOL_FULL",
+                message:
+                    `Pool is full (has 4 transactions) and this transaction's fee ` +
+                    `${mockData.dummy5.fee.toFixed()} is not higher than the lowest fee already in pool 10000000`,
+                success: false,
+            });
+
+            connection.options.maxTransactionsInPool = maxTransactionsInPoolOrig;
+        });
+
+        it("should replace lowest fee transaction when adding 1 more transaction than maxTransactionsInPool", () => {
+            expect(connection.getPoolSize()).toBe(0);
+
+            connection.addTransactions([
+                mockData.dummy1,
+                mockData.dummy2,
+                mockData.dummy3,
+                mockData.dynamicFeeNormalDummy1,
+            ]);
+
+            expect(connection.getPoolSize()).toBe(4);
+
+            const maxTransactionsInPoolOrig = connection.options.maxTransactionsInPool;
+            connection.options.maxTransactionsInPool = 4;
+
+            expect(connection.addTransaction(mockData.dummy5)).toEqual({
+                success: true,
+            });
+            expect(connection.getTransactionIdsForForging(0, 10)).toEqual([
+                mockData.dummy1.id,
+                mockData.dummy2.id,
+                mockData.dummy3.id,
+                mockData.dummy5.id,
+            ]);
+
+            connection.options.maxTransactionsInPool = maxTransactionsInPoolOrig;
         });
     });
 
@@ -336,6 +387,17 @@ describe("Connection", () => {
         });
     });
 
+    describe("getTransactionsForForging", () => {
+        it("should return an array of transactions serialized", () => {
+            const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4];
+            connection.addTransactions(transactions);
+
+            const transactionsForForging = connection.getTransactionsForForging(4);
+
+            expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized));
+        });
+    });
+
     describe("flush", () => {
         it("should flush the pool", () => {
             connection.addTransaction(mockData.dummy1);
@@ -345,6 +407,149 @@ describe("Connection", () => {
             connection.flush();
 
             expect(connection.getPoolSize()).toBe(0);
+        });
+    });
+
+    describe("isSenderBlocked", () => {
+        it("should return false if sender is not blocked", () => {
+            const publicKey = "thisPublicKeyIsNotBlocked";
+            expect(connection.isSenderBlocked(publicKey)).toBeFalse();
+        });
+
+        it("should return true if sender is blocked", () => {
+            const publicKey = "thisPublicKeyIsBlocked";
+            connection.blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
+            expect(connection.isSenderBlocked(publicKey)).toBeTrue();
+        });
+
+        it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
+            const publicKey = "thisPublicKeyIsNotBlockedAnymore";
+            connection.blockedByPublicKey[publicKey] = dayjs().add(1, "second");
+            await delay(1100);
+            expect(connection.isSenderBlocked(publicKey)).toBeFalse();
+            expect(connection.blockedByPublicKey[publicKey]).toBeUndefined();
+        });
+    });
+
+    describe("blockSender", () => {
+        it("should block sender for 1 hour", () => {
+            const publicKey = "publicKeyToBlock";
+            const plus1HourBefore = dayjs().add(1, "hour");
+
+            const blockReleaseTime = connection.blockSender(publicKey);
+
+            const plus1HourAfter = dayjs().add(1, "hour");
+            expect(connection.blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
+            expect(blockReleaseTime >= plus1HourBefore).toBeTrue();
+            expect(blockReleaseTime <= plus1HourAfter).toBeTrue();
+        });
+    });
+
+    describe("acceptChainedBlock", () => {
+        beforeEach(() => connection.walletManager.reset());
+        afterEach(() => connection.walletManager.reset());
+
+        it("should update wallet when accepting a chained block", () => {
+            const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
+            const balanceBefore = senderRecipientWallet.balance;
+
+            connection.acceptChainedBlock(new Block(block2));
+
+            expect(+senderRecipientWallet.balance).toBe(balanceBefore - block2.totalFee);
+        });
+
+        it("should remove transaction from pool if it's in the chained block", () => {
+            const transaction0 = new Transaction(block2.transactions[0]);
+            connection.addTransaction(transaction0);
+
+            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+
+            connection.acceptChainedBlock(new Block(block2));
+
+            expect(connection.getTransactions(0, 10)).toEqual([]);
+        });
+
+        it("should purge and block sender if canApply() failed for a transaction in the chained block", () => {
+            const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
+            senderRecipientWallet.balance = new Bignum(10); // not enough funds for transactions in block
+
+            expect(connection.walletManager.all()).toEqual([senderRecipientWallet]);
+
+            // canApply should fail because wallet has not enough funds
+            connection.acceptChainedBlock(new Block(block2));
+
+            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.isSenderBlocked(block2.transactions[0].senderPublicKey)).toBeTrue();
+        });
+
+        it("should delete wallet of transaction sender if its balance is down to zero", () => {
+            const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
+            senderRecipientWallet.balance = new Bignum(block2.totalFee); // exactly enough funds for transactions in block
+
+            expect(connection.walletManager.all()).toEqual([senderRecipientWallet]);
+
+            connection.acceptChainedBlock(new Block(block2));
+
+            expect(connection.walletManager.all()).toEqual([]);
+        });
+    });
+
+    describe("buildWallets", () => {
+        beforeEach(() => connection.walletManager.reset());
+        afterEach(() => connection.walletManager.reset());
+
+        it("should build wallets from transactions in the pool", async () => {
+            const transaction0 = new Transaction(block2.transactions[0]);
+            connection.addTransaction(transaction0);
+
+            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+
+            connection.walletManager.reset();
+
+            expect(connection.walletManager.all()).toEqual([]);
+
+            await connection.buildWallets();
+
+            const allWallets = connection.walletManager.all();
+            expect(allWallets).toHaveLength(1);
+            expect(allWallets[0].publicKey).toBe(transaction0.senderPublicKey);
+        });
+
+        it("should handle getTransaction() not finding transaction", async () => {
+            const transaction0 = new Transaction(block2.transactions[0]);
+            connection.addTransaction(transaction0);
+
+            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+
+            connection.walletManager.reset();
+
+            expect(connection.walletManager.all()).toEqual([]);
+
+            jest.spyOn(connection, "getTransaction").mockImplementationOnce(id => undefined);
+
+            await connection.buildWallets();
+
+            expect(connection.walletManager.all()).toEqual([]);
+        });
+
+        it("should not apply transaction to wallet if canApply() failed", async () => {
+            const transaction0 = new Transaction(block2.transactions[0]);
+            connection.addTransaction(transaction0);
+            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+
+            connection.walletManager.reset();
+            expect(connection.walletManager.all()).toEqual([]);
+
+            const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
+            senderRecipientWallet.balance = new Bignum(10); // not enough funds for transactions in block
+
+            jest.spyOn(connection.walletManager, "findByPublicKey").mockImplementationOnce(
+                publicKey => senderRecipientWallet,
+            );
+
+            await connection.buildWallets();
+
+            expect(connection.walletManager.all()).toEqual([]); // canApply() failed, wallet was purged
         });
     });
 
@@ -576,6 +781,12 @@ describe("Connection", () => {
 
             connection.purgeBlock(block);
             expect(connection.getPoolSize()).toBe(0);
+        });
+    });
+
+    describe("driver", () => {
+        it("should get the driver instance", async () => {
+            expect(connection.driver()).toBe(connection.driver);
         });
     });
 });
