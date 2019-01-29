@@ -6,7 +6,7 @@ import util from "util";
 import { config as localConfig } from "./config";
 
 export class Peer implements P2P.IPeer {
-    public static isOk(peer) {
+    public static isOk(peer): boolean {
         return peer.status === 200 || peer.status === "OK";
     }
 
@@ -232,7 +232,7 @@ export class Peer implements P2P.IPeer {
         const body = await this.__get("/peer/list");
 
         const blacklisted = {};
-        localConfig.get("blacklist", []).forEach(ipaddr => blacklisted[ipaddr] = true);
+        localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
         return body.peers.filter(peer => !blacklisted[peer.ip]);
     }
 
