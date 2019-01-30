@@ -42,7 +42,6 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-kernel": "^2.1.0",
         "@arkecosystem/core-snapshots": "^2.1.0",
         "@types/boom": "^7.2.1",

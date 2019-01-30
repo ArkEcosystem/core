@@ -28,7 +28,6 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@types/fs-extra": "^5.0.4",
         "@types/hoek": "^4.1.3",
