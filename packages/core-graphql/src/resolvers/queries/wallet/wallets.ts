@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-kernel";
 import { formatOrderBy } from "../../../helpers";
 
-const database = app.resolvePlugin("database");
+const database = app.resolve("database");
 
 /**
  * Get multiple wallets from the database

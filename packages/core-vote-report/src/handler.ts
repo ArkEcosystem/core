@@ -1,5 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { app } from "@arkecosystem/core-kernel";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
@@ -7,8 +7,7 @@ import sumBy from "lodash/sumBy";
 
 export function handler(request, h) {
     const config = app.getConfig();
-    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    const database = app.resolvePlugin<PostgresConnection>("database");
+    const database = app.resolve<PostgresConnection>("database");
 
     const formatDelegates = (delegates, lastHeight) =>
         delegates.map((delegate, index) => {
@@ -42,7 +41,7 @@ export function handler(request, h) {
             };
         });
 
-    const lastBlock = blockchain.getLastBlock();
+    const lastBlock = app.blockchain.getLastBlock();
     const constants = config.getMilestone(lastBlock.data.height);
     // @ts-ignore
     const delegateRows = request.server.app.config.delegateRows;

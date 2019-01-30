@@ -21,7 +21,7 @@ class Helpers {
 
     public async request(method, path, params = {}) {
         const url = `http://localhost:4002/${path}`;
-        const server = app.resolvePlugin("p2p").server;
+        const server = app.resolve("p2p").server;
 
         return ApiHelpers.request(server, method, url, this.headers, params);
     }

@@ -1,8 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
@@ -15,7 +14,6 @@ import take from "lodash/take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
-import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
@@ -23,10 +21,9 @@ import { Peer } from "./peer";
 import { checkDNS, checkNTP, restorePeers } from "./utils";
 
 let config;
-let logger: Logger.ILogger;
-let emitter: EventEmitter.EventEmitter;
+let emitter: Contracts.EventEmitter.EventEmitter;
 
-export class Monitor implements P2P.IMonitor {
+export class Monitor implements Contracts.P2P.IMonitor {
     public peers: { [ip: string]: any };
     public server: any;
     public guard: Guard;
@@ -59,8 +56,7 @@ export class Monitor implements P2P.IMonitor {
         this.config = options;
 
         config = app.getConfig();
-        logger = app.resolvePlugin<Logger.ILogger>("logger");
-        emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+        emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
 
         await this.__checkDNSConnectivity(options.dns);
         await this.__checkNTPConnectivity(options.ntp);
@@ -73,17 +69,17 @@ export class Monitor implements P2P.IMonitor {
         this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
-            logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
+            app.logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
         } else {
             await this.updateNetworkStatus(options.networkStart);
 
             for (const [version, peers] of Object.entries(groupBy(this.peers, "version"))) {
-                logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
+                app.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
             }
 
             if (config.get("network.name") !== "mainnet") {
                 for (const [hashid, peers] of Object.entries(groupBy(this.peers, "hashid"))) {
-                    logger.info(`Discovered ${pluralize("peer", peers.length, true)} on commit ${hashid}.`);
+                    app.logger.info(`Discovered ${pluralize("peer", peers.length, true)} on commit ${hashid}.`);
                 }
             }
         }
@@ -103,12 +99,12 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (networkStart) {
-            logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
+            app.logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
             return;
         }
 
         if (this.config.disableDiscovery) {
-            logger.warn("Skipped peer discovery because the relay is in non-discovery mode.");
+            app.logger.warn("Skipped peer discovery because the relay is in non-discovery mode.");
             return;
         }
 
@@ -116,7 +112,7 @@ export class Monitor implements P2P.IMonitor {
             await this.discoverPeers();
             await this.cleanPeers();
         } catch (error) {
-            logger.error(`Network Status: ${error.message}`);
+            app.logger.error(`Network Status: ${error.message}`);
         }
 
         let nextRunDelaySeconds = 600;
@@ -124,7 +120,7 @@ export class Monitor implements P2P.IMonitor {
         if (!this.hasMinimumPeers()) {
             this.populateSeedPeers();
             nextRunDelaySeconds = 5;
-            logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
+            app.logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
 
         this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
@@ -137,7 +133,7 @@ export class Monitor implements P2P.IMonitor {
      */
     public async acceptNewPeer(peer) {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
-            logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
+            app.logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return;
         }
 
@@ -154,7 +150,7 @@ export class Monitor implements P2P.IMonitor {
         newPeer.setHeaders(peer);
 
         if (this.guard.isBlacklisted(peer)) {
-            logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`);
+            app.logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`);
 
             return this.guard.suspend(newPeer);
         }
@@ -162,7 +158,7 @@ export class Monitor implements P2P.IMonitor {
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
             const minimumVersion: string = localConfig.get("minimumVersion");
 
-            logger.debug(
+            app.logger.debug(
                 `Rejected peer ${
                     peer.ip
                 } as it doesn't meet the minimum version requirements. Expected: ${minimumVersion} - Received: ${
@@ -174,7 +170,7 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (!this.guard.isValidNetwork(peer)) {
-            logger.debug(
+            app.logger.debug(
                 `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${config.get(
                     "network.nethash",
                 )} - Received: ${peer.nethash}`,
@@ -184,7 +180,7 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (!this.guard.isValidMilestoneHash(newPeer)) {
-            logger.debug(
+            app.logger.debug(
                 `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${config.get(
                     "milestoneHash",
                 )} - Received: ${peer.milestoneHash}`,
@@ -204,11 +200,11 @@ export class Monitor implements P2P.IMonitor {
 
             this.peers[peer.ip] = newPeer;
 
-            logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            app.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
 
             emitter.emit("peer.added", newPeer);
         } catch (error) {
-            logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`);
+            app.logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`);
 
             this.guard.suspend(newPeer);
         } finally {
@@ -237,7 +233,7 @@ export class Monitor implements P2P.IMonitor {
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
 
-        logger.info(`Checking ${max} peers :telescope:`);
+        app.logger.info(`Checking ${max} peers :telescope:`);
         await Promise.all(
             keys.map(async ip => {
                 const peer = this.getPeer(ip);
@@ -245,13 +241,13 @@ export class Monitor implements P2P.IMonitor {
                     await peer.ping(pingDelay, forcePing);
 
                     if (this.initializing) {
-                        logger.printTracker("Peers Discovery", ++count, max);
+                        app.logger.printTracker("Peers Discovery", ++count, max);
                     }
                 } catch (error) {
                     unresponsivePeers++;
 
                     const formattedDelay = prettyMs(pingDelay, { verbose: true });
-                    logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`);
+                    app.logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`);
                     emitter.emit("peer.removed", peer);
 
                     this.removePeer(peer);
@@ -262,10 +258,10 @@ export class Monitor implements P2P.IMonitor {
         );
 
         if (this.initializing) {
-            logger.stopTracker("Peers Discovery", max, max);
-            logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
-            logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
-            logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`);
+            app.logger.stopTracker("Peers Discovery", max, max);
+            app.logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
+            app.logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
+            app.logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`);
         }
     }
 
@@ -309,7 +305,7 @@ export class Monitor implements P2P.IMonitor {
 
     public async peerHasCommonBlocks(peer, blockIds) {
         if (!this.guard.isMyself(peer) && !(await peer.hasCommonBlocks(blockIds))) {
-            logger.error(`Could not get common block for ${peer.ip}`);
+            app.logger.error(`Could not get common block for ${peer.ip}`);
 
             peer.commonBlocks = false;
 
@@ -464,7 +460,7 @@ export class Monitor implements P2P.IMonitor {
      * @return {void}
      */
     public async refreshPeersAfterFork() {
-        logger.info(`Refreshing ${this.getPeers().length} peers after fork.`);
+        app.logger.info(`Refreshing ${this.getPeers().length} peers after fork.`);
 
         // Reset all peers, except peers banned because of causing a fork.
         await this.guard.resetSuspendedPeers();
@@ -491,12 +487,12 @@ export class Monitor implements P2P.IMonitor {
         try {
             randomPeer = await this.getRandomDownloadBlocksPeer();
         } catch (error) {
-            logger.error(`Could not download blocks: ${error.message}`);
+            app.logger.error(`Could not download blocks: ${error.message}`);
 
             return [];
         }
         try {
-            logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`);
+            app.logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`);
 
             const blocks = await randomPeer.downloadBlocks(fromBlockHeight);
             blocks.forEach(block => {
@@ -505,7 +501,7 @@ export class Monitor implements P2P.IMonitor {
 
             return blocks;
         } catch (error) {
-            logger.error(`Could not download blocks: ${error.message}`);
+            app.logger.error(`Could not download blocks: ${error.message}`);
 
             return this.downloadBlocks(fromBlockHeight);
         }
@@ -517,14 +513,14 @@ export class Monitor implements P2P.IMonitor {
      * @return {Promise}
      */
     public async broadcastBlock(block) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-
-        if (!blockchain) {
-            logger.info(`Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`);
+        if (!app.blockchain) {
+            app.logger.info(
+                `Skipping broadcast of block ${block.data.height.toLocaleString()} as app.blockchain is not ready`,
+            );
             return;
         }
 
-        let blockPing = blockchain.getBlockPing();
+        let blockPing = app.blockchain.getBlockPing();
         let peers = this.getPeers();
 
         if (blockPing && blockPing.block.id === block.data.id) {
@@ -536,7 +532,7 @@ export class Monitor implements P2P.IMonitor {
             if (diff < 500 && proba > 0) {
                 await delay(500 - diff);
 
-                blockPing = blockchain.getBlockPing();
+                blockPing = app.blockchain.getBlockPing();
 
                 // got aleady a new block, no broadcast
                 if (blockPing.block.id !== block.data.id) {
@@ -550,7 +546,7 @@ export class Monitor implements P2P.IMonitor {
             peers = peers.filter(p => Math.random() < proba);
         }
 
-        logger.info(
+        app.logger.info(
             `Broadcasting block ${block.data.height.toLocaleString()} to ${pluralize("peer", peers.length, true)}`,
         );
 
@@ -564,7 +560,7 @@ export class Monitor implements P2P.IMonitor {
     public async broadcastTransactions(transactions) {
         const peers = take(shuffle(this.getPeers()), localConfig.get("maxPeersBroadcast"));
 
-        logger.debug(
+        app.logger.debug(
             `Broadcasting ${pluralize("transaction", transactions.length, true)} to ${pluralize(
                 "peer",
                 peers.length,
@@ -619,7 +615,7 @@ export class Monitor implements P2P.IMonitor {
         // Do nothing if majority of peers are lagging behind
         if (commonHeightGroups.length > 1) {
             if (lastBlock.data.height > peersMostCommonHeight[0].state.height) {
-                logger.info(
+                app.logger.info(
                     `${pluralize(
                         "peer",
                         peersMostCommonHeight.length,
@@ -640,10 +636,10 @@ export class Monitor implements P2P.IMonitor {
             const restGroups = commonIdGroups.slice(1);
 
             if (restGroups.some(group => group.length === chosenPeers.length)) {
-                logger.warn("Peers are evenly split at same height with different block ids. :zap:");
+                app.logger.warn("Peers are evenly split at same height with different block ids. :zap:");
             }
 
-            logger.info(
+            app.logger.info(
                 `Detected peers at the same height ${peersMostCommonHeight[0].state.height.toLocaleString()} with different block ids: ${JSON.stringify(
                     Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`),
                     null,
@@ -657,11 +653,11 @@ export class Monitor implements P2P.IMonitor {
             const quota = chosenPeers.length / flatten(commonIdGroups).length;
             if (quota < 0.66) {
                 // or quota too low TODO: find better number
-                logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`);
+                app.logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`);
                 state = "rollback";
             } else if (badLastBlock) {
                 // Rollback if last block is bad and quota high
-                logger.info(
+                app.logger.info(
                     `Last block id ${lastBlock.data.id} is bad, ` +
                         `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
                 );
@@ -676,7 +672,7 @@ export class Monitor implements P2P.IMonitor {
                     this.suspendPeer(peer.ip);
                 });
 
-                logger.debug(
+                app.logger.debug(
                     `Banned ${pluralize(
                         "peer",
                         peersToBan.length,
@@ -689,7 +685,7 @@ export class Monitor implements P2P.IMonitor {
         } else {
             // Under certain circumstances the headers can be missing (i.e. seed peers when starting up)
             const commonHeader = peersMostCommonHeight[0].state.header;
-            logger.info(
+            app.logger.info(
                 `All peers at most common height ${peersMostCommonHeight[0].state.height.toLocaleString()} share the same block id${
                     commonHeader ? ` '${commonHeader.id}'` : ""
                 }. :pray:`,
@@ -713,7 +709,7 @@ export class Monitor implements P2P.IMonitor {
         try {
             fs.writeFileSync(`${process.env.CORE_PATH_CACHE}/peers.json`, JSON.stringify(peers, null, 2));
         } catch (err) {
-            logger.error(`Failed to dump the peer list because of "${err.message}"`);
+            app.logger.error(`Failed to dump the peer list because of "${err.message}"`);
         }
     }
 
@@ -722,7 +718,7 @@ export class Monitor implements P2P.IMonitor {
      * @return {[]String}
      */
     public async __getRecentBlockIds() {
-        return app.resolvePlugin<PostgresConnection>("database").getRecentBlockIds();
+        return app.resolve<PostgresConnection>("database").getRecentBlockIds();
     }
 
     /**
@@ -742,9 +738,9 @@ export class Monitor implements P2P.IMonitor {
         try {
             const host = await checkDNS(options);
 
-            logger.info(`Your network connectivity has been verified by ${host}`);
+            app.logger.info(`Your network connectivity has been verified by ${host}`);
         } catch (error) {
-            logger.error(error.message);
+            app.logger.error(error.message);
         }
     }
 
@@ -756,13 +752,13 @@ export class Monitor implements P2P.IMonitor {
         try {
             const { host, time } = await checkNTP(options);
 
-            logger.info(`Your NTP connectivity has been verified by ${host}`);
+            app.logger.info(`Your NTP connectivity has been verified by ${host}`);
 
-            logger.info(
+            app.logger.info(
                 `Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP :alarm_clock:`,
             );
         } catch (error) {
-            logger.error(error.message);
+            app.logger.error(error.message);
         }
     }
 
@@ -820,7 +816,7 @@ export class Monitor implements P2P.IMonitor {
      */
     private hasMinimumPeers() {
         if (this.config.ignoreMinimumNetworkReach) {
-            logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
+            app.logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
 
             return true;
         }
@@ -836,11 +832,11 @@ export class Monitor implements P2P.IMonitor {
         const peerList = config.get("peers.list");
 
         if (!peerList) {
-            app.forceExit("No seed peers defined in peers.json :interrobang:");
+            // app.terminate("No seed peers defined in peers.json :interrobang:");
         }
 
         let peers = peerList.map(peer => {
-            peer.version = app.getVersion();
+            peer.version = app.version();
             return peer;
         });
 

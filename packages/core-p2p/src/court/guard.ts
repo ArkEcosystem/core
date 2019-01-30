@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import dayjs from "dayjs-ext";
 import head from "lodash/head";
@@ -11,7 +10,6 @@ import * as utils from "../utils";
 import { offences } from "./offences";
 
 const config = app.getConfig();
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export interface ISuspension {
     peer: any;
@@ -116,7 +114,7 @@ export class Guard {
      * @return {void}
      */
     public async resetSuspendedPeers() {
-        logger.info("Clearing suspended peers.");
+        app.logger.info("Clearing suspended peers.");
         await Promise.all(Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)));
     }
 
@@ -135,7 +133,7 @@ export class Guard {
                 // @ts-ignore
                 const untilDiff = suspendedPeer.until.diff(dayjs());
 
-                logger.debug(
+                app.logger.debug(
                     `${peer.ip} still suspended for ${prettyMs(untilDiff, {
                         verbose: true,
                     })} because of "${suspendedPeer.reason}".`,
@@ -320,7 +318,7 @@ export class Guard {
         // @ts-ignore
         const untilDiff = until.diff(dayjs());
 
-        logger.debug(
+        app.logger.debug(
             `Suspended ${peer.ip} for ${prettyMs(untilDiff, {
                 verbose: true,
             })} because of "${offence.reason}"`,

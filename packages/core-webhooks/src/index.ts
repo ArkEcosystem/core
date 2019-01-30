@@ -1,4 +1,4 @@
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Support } from "@arkecosystem/core-kernel";
 import { database } from "./database";
 import { defaults } from "./defaults";
@@ -10,7 +10,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Register any application services.
      */
     public async register(): Promise<void> {
-        const logger = this.app.resolve<Logger.ILogger>("logger");
+        const logger = this.app.logger;
 
         if (!this.opts.enabled) {
             logger.info("Webhooks are disabled :grey_exclamation:");
@@ -34,7 +34,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      */
     public async dispose(): Promise<void> {
         if (this.opts.server.enabled) {
-            this.app.resolve<Logger.ILogger>("logger").info("Stopping Webhook API");
+            this.app.logger.info("Stopping Webhook API");
 
             return this.app.resolve("webhooks").stop();
         }

@@ -3,6 +3,7 @@ import camelCase from "lodash/camelCase";
 import { join } from "path";
 import * as Bootstrappers from "./bootstrap";
 import { Container } from "./container";
+import { Blockchain, EventEmitter, Logger, P2P, TransactionPool } from "./contracts";
 import { DirectoryNotFound } from "./errors";
 
 export class Application extends Container {
@@ -26,6 +27,41 @@ export class Application extends Container {
         this.registerServiceProviders();
 
         this.bootstrapped = true;
+    }
+
+    /**
+     * Get an instance of the application logger.
+     */
+    public get logger(): Logger.ILogger {
+        return this.resolve<Logger.ILogger>("logger");
+    }
+
+    /**
+     * Get an instance of the application blockchain.
+     */
+    public get blockchain(): Blockchain.IBlockchain {
+        return this.resolve<Blockchain.IBlockchain>("blockchain");
+    }
+
+    /**
+     * Get an instance of the application p2p layer.
+     */
+    public get p2p(): P2P.IMonitor {
+        return this.resolve<P2P.IMonitor>("p2p");
+    }
+
+    /**
+     * Get an instance of the application transaction pool.
+     */
+    public get transactionPool(): TransactionPool.ITransactionPool {
+        return this.resolve<TransactionPool.ITransactionPool>("transactionPool");
+    }
+
+    /**
+     * Get an instance of the application emitter.
+     */
+    public get emitter(): EventEmitter.EventEmitter {
+        return this.resolve<EventEmitter.EventEmitter>("event-emitter");
     }
 
     /**

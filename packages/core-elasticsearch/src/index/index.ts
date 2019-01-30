@@ -1,12 +1,10 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const database = app.resolvePlugin<PostgresConnection>("database");
+const emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
+const database = app.resolve<PostgresConnection>("database");
 
 export abstract class Index {
     public chunkSize: any;
@@ -22,13 +20,13 @@ export abstract class Index {
      * @return {void}
      */
     public setUp(chunkSize) {
-        logger.info(`[Elasticsearch] Initialising ${this.getType()} index :scroll:`);
+        app.logger.info(`[Elasticsearch] Initialising ${this.getType()} index :scroll:`);
         this.chunkSize = chunkSize;
 
-        logger.info(`[Elasticsearch] Initialising ${this.getType()} listener :radio:`);
+        app.logger.info(`[Elasticsearch] Initialising ${this.getType()} listener :radio:`);
         this.listen();
 
-        logger.info(`[Elasticsearch] Indexing ${this.getIndex()} :bookmark:`);
+        app.logger.info(`[Elasticsearch] Indexing ${this.getIndex()} :bookmark:`);
         this.index();
     }
 
@@ -46,7 +44,7 @@ export abstract class Index {
                     await this._create(doc);
                 }
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                app.logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
             }
         });
     }
@@ -65,7 +63,7 @@ export abstract class Index {
                     await this._delete(doc);
                 }
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                app.logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
             }
         });
     }
@@ -85,7 +83,7 @@ export abstract class Index {
      * @return {Promise}
      */
     public _create(doc) {
-        logger.info(`[Elasticsearch] Creating ${this.getType()} with ID ${doc.id}`);
+        app.logger.info(`[Elasticsearch] Creating ${this.getType()} with ID ${doc.id}`);
 
         if (this.getType() === "block") {
             storage.update("history", { lastBlock: doc.height });
@@ -102,7 +100,7 @@ export abstract class Index {
      * @return {Promise}
      */
     public _delete(doc) {
-        logger.info(`[Elasticsearch] Deleting ${this.getType()} with ID ${doc.id}`);
+        app.logger.info(`[Elasticsearch] Deleting ${this.getType()} with ID ${doc.id}`);
 
         return client.delete(this._getReadQuery(doc));
     }

@@ -18,7 +18,7 @@ export const transactionPayload = {
                     return h.continue;
                 }
 
-                const transactionPool = app.resolveOptions("transactionPool");
+                const transactionPool = app.config("transactionPool");
 
                 if (!transactionPool) {
                     return h.continue;

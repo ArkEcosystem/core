@@ -1,5 +1,4 @@
 import { DatabaseManager } from "@arkecosystem/core-database";
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Support } from "@arkecosystem/core-kernel";
 import { PostgresConnection } from "./connection";
 import { defaults } from "./defaults";
@@ -9,7 +8,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Register any application services.
      */
     public async register(): Promise<void> {
-        this.app.resolve<Logger.ILogger>("logger").info("Establishing Database Connection");
+        this.app.logger.info("Establishing Database Connection");
 
         const databaseManager = this.app.resolve<DatabaseManager>("databaseManager");
 
@@ -22,7 +21,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Dispose any application services.
      */
     public async dispose(): Promise<void> {
-        this.app.resolve<Logger.ILogger>("logger").info("Closing Database Connection");
+        this.app.logger.info("Closing Database Connection");
 
         return this.app.resolve<PostgresConnection>(this.getAlias()).disconnect();
     }

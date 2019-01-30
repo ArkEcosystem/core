@@ -1,11 +1,10 @@
-import { TransactionPool } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
-    protected transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+    protected transactionPool = app.resolve<Contracts.TransactionPool.ITransactionPool>("transactionPool");
 
     public constructor() {
         super();

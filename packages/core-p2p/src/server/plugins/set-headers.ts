@@ -1,6 +1,4 @@
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
-import { config as localConfig } from "../../config";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 const config = app.getConfig();
 
@@ -14,7 +12,7 @@ const register = async (server, options) => {
     const headers = {
         nethash: config.get("network.nethash"),
         milestoneHash: config.get("milestoneHash"),
-        version: app.getVersion(),
+        version: app.version(),
         port: localConfig.get("port"),
         os: require("os").platform(),
         height: null,
@@ -30,9 +28,8 @@ const register = async (server, options) => {
     server.ext({
         type: "onPreResponse",
         async method(request, h) {
-            const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-            if (blockchain) {
-                const lastBlock = blockchain.getLastBlock();
+            if (app.blockchain) {
+                const lastBlock = app.blockchain.getLastBlock();
                 if (lastBlock) {
                     headers.height = lastBlock.data.height;
                 }

@@ -1,10 +1,7 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import path from "path";
 import { QueryFile } from "pg-promise";
 
 import { app } from "@arkecosystem/core-kernel";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const loadQueryFile = (directory, file) => {
     const fullPath = path.join(directory, file);
@@ -19,7 +16,7 @@ export const loadQueryFile = (directory, file) => {
     const query = new QueryFile(fullPath, options);
 
     if (query.error) {
-        logger.error(query.error.toString());
+        app.logger.error(query.error.toString());
     }
 
     return query;

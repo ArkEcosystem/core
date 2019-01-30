@@ -1,6 +1,5 @@
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
-import { Bignum, configManager } from "@arkecosystem/crypto";
+import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Bignum } from "@arkecosystem/crypto";
 
 /**
  * Calculate the total supply at the given height
@@ -11,8 +10,7 @@ function calculate(height) {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-        height = blockchain ? blockchain.getLastBlock().data.height : 0;
+        height = app.blockchain ? app.blockchain.getLastBlock().data.height : 0;
     }
 
     if (height === 0 || milestones.length === 0) {

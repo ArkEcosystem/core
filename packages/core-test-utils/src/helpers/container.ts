@@ -1,4 +1,3 @@
-import { Container } from "@arkecosystem/core-interfaces";
 import "@arkecosystem/core-jest-matchers";
 import { app } from "@arkecosystem/core-kernel";
 import { asValue } from "awilix";

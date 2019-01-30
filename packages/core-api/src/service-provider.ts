@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Support } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { Server } from "./server";
@@ -9,7 +8,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         if (!this.opts.enabled) {
-            this.app.resolve<Logger.ILogger>("logger").info("Public API is disabled :grey_exclamation:");
+            this.app.logger.info("Public API is disabled :grey_exclamation:");
             return;
         }
 
@@ -24,7 +23,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      */
     public async dispose(): Promise<void> {
         if (this.opts.enabled) {
-            this.app.resolve<Logger.ILogger>("logger").info(`Stopping Public API`);
+            this.app.logger.info(`Stopping Public API`);
 
             await this.app.resolve<Server>(this.getAlias()).stop();
         }

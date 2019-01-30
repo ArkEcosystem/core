@@ -5,15 +5,11 @@ import QueryStream from "pg-query-stream";
 import pluralize from "pluralize";
 import zlib from "zlib";
 
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 
 import * as utils from "../utils";
 import { getCodec } from "./codecs";
 import { canImportRecord, verifyData } from "./verification";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 export const exportTable = async (table, options) => {
     const snapFileName = utils.getPath(table, options.meta.folder, options.codec);
@@ -21,7 +17,7 @@ export const exportTable = async (table, options) => {
     const gzip = zlib.createGzip();
     await fs.ensureFile(snapFileName);
 
-    logger.info(
+    app.logger.info(
         `Starting to export table ${table} to folder ${options.meta.folder}, codec: ${
             options.codec
         }, append:${!!options.blocks}, skipCompression: ${options.meta.skipCompression}`,
@@ -41,7 +37,7 @@ export const exportTable = async (table, options) => {
                 .pipe(gzip)
                 .pipe(snapshotWriteStream);
         });
-        logger.info(
+        app.logger.info(
             `Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`,
         );
 
@@ -51,7 +47,7 @@ export const exportTable = async (table, options) => {
             endHeight: options.meta.endHeight,
         };
     } catch (error) {
-        app.forceExit("Error while exporting data via query stream", error);
+        // app.terminate("Error while exporting data via query stream", error);
         return null;
     }
 };
@@ -61,7 +57,7 @@ export const importTable = async (table, options) => {
     const codec = getCodec(options.codec);
     const gunzip = zlib.createGunzip();
     const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {});
-    logger.info(
+    app.logger.info(
         `Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}, skipCompression: ${
             options.meta.skipCompression
         }`,
@@ -80,18 +76,18 @@ export const importTable = async (table, options) => {
     const saveData = async data => {
         if (data && data.length > 0) {
             const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table));
-            emitter.emit("progress", { value: counter, table });
+            app.emitter.emit("progress", { value: counter, table });
             values = [];
             return options.database.db.none(insert);
         }
     };
 
-    emitter.emit("start", { count: options.meta[table].count });
+    app.emitter.emit("start", { count: options.meta[table].count });
     // @ts-ignore
     for await (const record of readStream) {
         counter++;
         if (!verifyData(table, record, prevData, options.signatureVerification)) {
-            app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`);
+            // app.terminate(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`);
         }
         if (canImportRecord(table, record, options.lastBlock)) {
             values.push(record);
@@ -106,7 +102,7 @@ export const importTable = async (table, options) => {
     if (values.length > 0) {
         await saveData(values);
     }
-    emitter.emit("complete");
+    app.emitter.emit("complete");
 };
 
 export const verifyTable = async (table, options) => {
@@ -121,18 +117,18 @@ export const verifyTable = async (table, options) => {
               .pipe(gunzip)
               .pipe(decodeStream);
 
-    logger.info(`Starting to verify snapshot file ${sourceFile}`);
+    app.logger.info(`Starting to verify snapshot file ${sourceFile}`);
     let prevData = null;
 
     decodeStream.on("data", data => {
         if (!verifyData(table, data, prevData, options.signatureVerification)) {
-            app.forceExit(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`);
+            // app.terminate(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`);
         }
         prevData = data;
     });
 
     readStream.on("finish", () => {
-        logger.info(`Snapshot file ${sourceFile} succesfully verified  :+1:`);
+        app.logger.info(`Snapshot file ${sourceFile} succesfully verified  :+1:`);
     });
 };
 
@@ -144,7 +140,7 @@ export const backupTransactionsToJSON = async (snapFileName, query, database) =>
 
     try {
         const data = await database.db.stream(qs, s => s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream));
-        logger.info(
+        app.logger.info(
             `${pluralize(
                 "transaction",
                 data.processed,
@@ -153,6 +149,6 @@ export const backupTransactionsToJSON = async (snapFileName, query, database) =>
         );
         return data;
     } catch (error) {
-        app.forceExit("Error while exporting data via query stream", error);
+        // app.terminate("Error while exporting data via query stream", error);
     }
 };

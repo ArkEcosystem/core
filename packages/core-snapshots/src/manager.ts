@@ -1,10 +1,8 @@
 /* tslint:disable:max-line-length */
 
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import pick from "lodash/pick";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 import { database } from "./db";
 import * as utils from "./utils";
 
@@ -24,7 +22,7 @@ export class SnapshotManager {
         const params = await this.__init(options, true);
 
         if (params.skipExportWhenNoChange) {
-            logger.info(`Skipping export of snapshot, because ${params.meta.folder} is already up to date.`);
+            app.logger.info(`Skipping export of snapshot, because ${params.meta.folder} is already up to date.`);
             return;
         }
 
@@ -51,14 +49,14 @@ export class SnapshotManager {
         await importTable("transactions", params);
 
         const lastBlock = await this.database.getLastBlock();
-        logger.info(
+        app.logger.info(
             `Import from folder ${
                 params.meta.folder
             } completed. Last block in database: ${lastBlock.height.toLocaleString()} :+1:`,
         );
         if (!params.skipRestartRound) {
             const newLastBlock = await this.database.rollbackChain(lastBlock.height);
-            logger.info(
+            app.logger.info(
                 `Rolling back chain to last finished round with last block height ${newLastBlock.height.toLocaleString()}`,
             );
         }
@@ -85,9 +83,9 @@ export class SnapshotManager {
 
         const rollBackHeight = height === -1 ? lastBlock.height : height;
         if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
-            app.forceExit(
-                `Specified rollback block height: ${rollBackHeight.toLocaleString()} is not valid. Current database height: ${lastBlock.height.toLocaleString()}. Exiting.`,
-            );
+            // app.terminate(
+            //     `Specified rollback block height: ${rollBackHeight.toLocaleString()} is not valid. Current database height: ${lastBlock.height.toLocaleString()}. Exiting.`,
+            // );
         }
 
         if (height) {
@@ -101,7 +99,7 @@ export class SnapshotManager {
         }
 
         const newLastBlock = await this.database.rollbackChain(rollBackHeight);
-        logger.info(
+        app.logger.info(
             `Rolling back chain to last finished round ${(
                 newLastBlock.height / maxDelegates
             ).toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
@@ -134,7 +132,7 @@ export class SnapshotManager {
 
         if (exportAction) {
             if (!lastBlock) {
-                app.forceExit("Database is empty. Export not possible.");
+                // app.terminate("Database is empty. Export not possible.");
             }
             params.meta = utils.setSnapshotInfo(params, lastBlock);
             params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight);

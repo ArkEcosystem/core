@@ -13,13 +13,13 @@ beforeAll(async () => {
     const peerMock = new Peer(mockAddress, mockPort);
     peerMock.setStatus("OK");
 
-    const monitor = app.resolvePlugin("p2p");
+    const monitor = app.resolve("p2p");
     monitor.peers = {};
     monitor.peers[peerMock.ip] = peerMock;
 });
 
 afterAll(async () => {
-    const monitor = app.resolvePlugin("p2p");
+    const monitor = app.resolve("p2p");
     monitor.peers = {};
 
     await tearDown();

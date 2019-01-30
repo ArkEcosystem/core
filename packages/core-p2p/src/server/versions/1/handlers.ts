@@ -1,16 +1,12 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
-import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
+import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { Joi, models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
 
 const { Block } = models;
-
-const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
  * @type {Object}
@@ -51,7 +47,7 @@ export const getHeight = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+        const lastBlock = app.blockchain.getLastBlock();
 
         return {
             success: true,
@@ -77,20 +73,18 @@ export const getCommonBlocks = {
             };
         }
 
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-
         const ids = request.query.ids
             .split(",")
             .slice(0, 9)
             .filter(id => id.match(/^\d+$/));
 
         try {
-            const commonBlocks = await blockchain.database.getCommonBlocks(ids);
+            const commonBlocks = await app.blockchain.database.getCommonBlocks(ids);
 
             return {
                 success: true,
                 common: commonBlocks.length ? commonBlocks[0] : null,
-                lastBlockHeight: blockchain.getLastBlock().data.height,
+                lastBlockHeight: app.blockchain.getLastBlock().data.height,
             };
         } catch (error) {
             return h
@@ -125,7 +119,7 @@ export const getStatus = {
      * @return {Hapi.Response}
      */
     handler(request, h) {
-        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+        const lastBlock = app.blockchain.getLastBlock();
 
         return {
             success: true,
@@ -147,8 +141,6 @@ export const postBlock = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-
         try {
             if (!request.payload || !request.payload.block) {
                 return { success: false };
@@ -156,11 +148,11 @@ export const postBlock = {
 
             const block = request.payload.block;
 
-            if (blockchain.pingBlock(block)) {
+            if (app.blockchain.pingBlock(block)) {
                 return { success: true };
             }
             // already got it?
-            const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
+            const lastDownloadedBlock = app.blockchain.getLastDownloadedBlock();
 
             // Are we ready to get it?
             if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
@@ -173,14 +165,14 @@ export const postBlock = {
                 return { success: false };
             }
 
-            blockchain.pushPingBlock(b.data);
+            app.blockchain.pushPingBlock(b.data);
 
             block.ip = request.info.remoteAddress;
-            blockchain.handleIncomingBlock(block);
+            app.blockchain.handleIncomingBlock(block);
 
             return { success: true };
         } catch (error) {
-            logger.error(error);
+            app.logger.error(error);
             return { success: false };
         }
     },
@@ -196,14 +188,14 @@ export const postTransactions = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        if (!transactionPool) {
+        if (!app.transactionPool) {
             return {
                 success: false,
                 message: "Transaction pool not available",
             };
         }
 
-        const guard = new TransactionGuard(transactionPool);
+        const guard = new TransactionGuard(app.transactionPool);
 
         const result = await guard.validate(request.payload.transactions);
 
@@ -216,7 +208,7 @@ export const postTransactions = {
         }
 
         if (result.broadcast.length > 0) {
-            app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+            app.p2p.broadcastTransactions(guard.getBroadcastTransactions());
         }
 
         return {
@@ -232,7 +224,7 @@ export const postTransactions = {
             payload: {
                 transactions: Joi.transactionArray()
                     .min(1)
-                    .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
+                    .max(app.config("transactionPool").maxTransactionsPerRequest)
                     .options({ stripUnknown: true }),
             },
         },
@@ -250,19 +242,18 @@ export const getBlocks = {
      */
     async handler(request, h) {
         try {
-            const database = app.resolvePlugin<PostgresConnection>("database");
-            const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+            const database = app.resolve<PostgresConnection>("database");
 
             const reqBlockHeight = +request.query.lastBlockHeight + 1;
             let blocks = [];
 
             if (!request.query.lastBlockHeight || isNaN(reqBlockHeight)) {
-                blocks.push(blockchain.getLastBlock());
+                blocks.push(app.blockchain.getLastBlock());
             } else {
                 blocks = await database.getBlocks(reqBlockHeight, 400);
             }
 
-            logger.info(
+            app.logger.info(
                 `${request.info.remoteAddress} has downloaded ${pluralize(
                     "block",
                     blocks.length,
@@ -272,7 +263,7 @@ export const getBlocks = {
 
             return { success: true, blocks: blocks || [] };
         } catch (error) {
-            logger.error(error.stack);
+            app.logger.error(error.stack);
 
             return h.response({ success: false, error }).code(500);
         }

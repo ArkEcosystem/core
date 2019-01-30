@@ -1,4 +1,4 @@
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { app } from "@arkecosystem/core-kernel";
 import { Bignum } from "@arkecosystem/crypto";
 
@@ -14,7 +14,7 @@ function calculateApproval(delegate, height: any = null) {
     const config = app.getConfig();
 
     if (!height) {
-        height = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock().data.height;
+        height = app.blockchain.getLastBlock().data.height;
     }
 
     const constants = config.getMilestone(height);

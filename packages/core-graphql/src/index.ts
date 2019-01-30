@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Support } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
@@ -9,7 +8,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         if (!this.opts.enabled) {
-            this.app.resolve<Logger.ILogger>("logger").info("GraphQL API is disabled :grey_exclamation:");
+            this.app.logger.info("GraphQL API is disabled :grey_exclamation:");
             return;
         }
 
@@ -21,7 +20,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      */
     public async dispose(): Promise<void> {
         if (this.opts.enabled) {
-            this.app.resolve<Logger.ILogger>("logger").info("Stopping GraphQL API");
+            this.app.logger.info("Stopping GraphQL API");
 
             return this.app.resolve("graphql").stop();
         }

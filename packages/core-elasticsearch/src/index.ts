@@ -1,4 +1,3 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { Support } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { blockIndex } from "./index/block";
@@ -14,7 +13,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Register any application services.
      */
     public async register(): Promise<void> {
-        const logger = this.app.resolve<Logger.ILogger>("logger");
+        const logger = this.app.logger;
 
         logger.info("[Elasticsearch] Initialising History :hourglass:");
         storage.ensure("history");
@@ -34,9 +33,16 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Dispose any application services.
      */
     public async dispose(): Promise<void> {
-        this.app.resolve<Logger.ILogger>("logger").info("[Elasticsearch] Stopping API :warning:");
+        this.app.logger.info("[Elasticsearch] Stopping API :warning:");
 
         return this.app.resolve("elasticsearch").stop();
+    }
+
+    /**
+     * The default options of the plugin.
+     */
+    public getDefaults(): Record<string, any> {
+        return defaults;
     }
 
     /**

@@ -1,10 +1,8 @@
-import { Container } from "@arkecosystem/core-interfaces";
 import { generators } from "@arkecosystem/core-test-utils";
 import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../core-test-utils/src/fixtures/unitnet";
-import { config as localConfig } from "../src/config";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { Block } = models;
@@ -18,7 +16,6 @@ const {
 
 let TransactionGuard;
 
-let container: Container.IContainer;
 let guard;
 let transactionPool;
 let blockchain;
@@ -28,8 +25,8 @@ beforeAll(async () => {
 
     TransactionGuard = require("../src").TransactionGuard;
 
-    transactionPool = container.resolvePlugin("transactionPool");
-    blockchain = container.resolvePlugin("blockchain");
+    transactionPool = container.resolve("transactionPool");
+    blockchain = container.resolve("blockchain");
     localConfig.init(transactionPool.options);
 });
 
@@ -184,7 +181,7 @@ describe("Transaction Guard", () => {
             const allTransactions = [...transfers, ...votes, ...delegateRegs, ...signatures];
 
             allTransactions.forEach(transaction => {
-                container.resolvePlugin("database").walletManager.findByPublicKey(transaction.senderPublicKey);
+                container.resolve("database").walletManager.findByPublicKey(transaction.senderPublicKey);
             });
 
             // first validate the 1st transfer so that new wallet is updated with the amount
@@ -216,7 +213,7 @@ describe("Transaction Guard", () => {
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
             // Make sure it is not considered a cold wallet
-            container.resolvePlugin("database").walletManager.reindex(newWallet);
+            container.resolve("database").walletManager.reindex(newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance);
             expect(+newWallet.balance).toBe(0);
@@ -950,7 +947,7 @@ describe("Transaction Guard", () => {
 
     describe("__removeForgedTransactions", () => {
         it("should remove forged transactions", async () => {
-            const database = container.resolvePlugin("database");
+            const database = container.resolve("database");
             const getForgedTransactionsIds = database.getForgedTransactionsIds;
 
             const transfers = generateTransfers("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);

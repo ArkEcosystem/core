@@ -1,5 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, Container } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { generators } from "@arkecosystem/core-test-utils";
 import { delegates, genesisBlock, wallets } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
 import { crypto, models } from "@arkecosystem/crypto";
@@ -10,17 +10,16 @@ const { Block } = models;
 const { generateTransfers, generateWallets, generateDelegateRegistration, generateVote } = generators;
 
 const arktoshi = 10 ** 8;
-let container: Container.IContainer;
 let PoolWalletManager;
 let poolWalletManager;
-let blockchain: Blockchain.IBlockchain;
+let blockchain: Contracts.Blockchain.IBlockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
 
     PoolWalletManager = require("../src").PoolWalletManager;
     poolWalletManager = new PoolWalletManager();
-    blockchain = container.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    blockchain = container.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
 });
 
 afterAll(async () => {
@@ -123,7 +122,7 @@ describe("applyPoolTransactionToSender", () => {
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
                 container
-                    .resolvePlugin<PostgresConnection>("database")
+                    .resolve<PostgresConnection>("database")
                     .walletManager.findByPublicKey(transfer.senderPublicKey);
 
                 const errors = [];
@@ -140,9 +139,7 @@ describe("applyPoolTransactionToSender", () => {
                     );
                 }
 
-                container
-                    .resolvePlugin<PostgresConnection>("database")
-                    .walletManager.forgetByPublicKey(transfer.publicKey);
+                container.resolve<PostgresConnection>("database").walletManager.forgetByPublicKey(transfer.publicKey);
             });
 
             expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * arktoshi);

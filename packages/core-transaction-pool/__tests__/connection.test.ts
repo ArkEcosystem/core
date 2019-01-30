@@ -25,8 +25,8 @@ beforeAll(async () => {
     await setUpFull();
 
     config = app.getConfig();
-    database = app.resolvePlugin<PostgresConnection>("database");
-    connection = app.resolvePlugin<TransactionPool>("transactionPool");
+    database = app.resolve<PostgresConnection>("database");
+    connection = app.resolve<TransactionPool>("transactionPool");
 
     // Ensure no cold wallet and enough funds
     database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");

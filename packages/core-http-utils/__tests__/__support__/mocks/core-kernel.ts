@@ -1,7 +1,7 @@
 jest.mock("@arkecosystem/core-kernel", () => {
     return {
         app: {
-            resolvePlugin: name => {
+            resolve: name => {
                 if (name === "logger") {
                     return {
                         info: jest.fn(),

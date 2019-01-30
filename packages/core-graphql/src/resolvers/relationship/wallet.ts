@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-kernel";
 import { formatOrderBy, unserializeTransactions } from "../../helpers";
 
-const database = app.resolvePlugin("database");
+const database = app.resolve("database");
 
 /**
  * Useful and common database operations with wallet data.

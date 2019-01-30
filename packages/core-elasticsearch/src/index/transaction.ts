@@ -1,6 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import first from "lodash/first";
 import last from "lodash/last";
 import { client } from "../services/client";
@@ -10,9 +9,8 @@ import { Index } from "./index";
 import { models } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const database = app.resolvePlugin<PostgresConnection>("database");
+const emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
+const database = app.resolve<PostgresConnection>("database");
 
 class TransactionIndex extends Index {
     /**
@@ -49,7 +47,7 @@ class TransactionIndex extends Index {
             });
 
             const blockIds = rows.map(row => row.blockId);
-            logger.info(
+            app.logger.info(
                 `[Elasticsearch] Indexing transactions from block ${first(blockIds)} to ${last(
                     blockIds,
                 )} :card_index_dividers:`,
@@ -62,7 +60,7 @@ class TransactionIndex extends Index {
                     lastTransaction: last(rows.map(row => row.timestamp)),
                 });
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                app.logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
             }
         }
     }

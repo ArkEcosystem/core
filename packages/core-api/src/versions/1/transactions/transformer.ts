@@ -1,11 +1,9 @@
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { bignumify } from "@arkecosystem/core-utils";
 import { crypto, models } from "@arkecosystem/crypto";
 
 export function transformTransactionLegacy(model) {
     const config = app.getConfig();
-    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const data: any = new models.Transaction(model.serialized.toString("hex"));
 
@@ -24,6 +22,6 @@ export function transformTransactionLegacy(model) {
         signSignature: data.signSignature,
         signatures: data.signatures,
         asset: data.asset || {},
-        confirmations: model.block ? blockchain.getLastBlock().data.height - model.block.height : 0,
+        confirmations: model.block ? app.blockchain.getLastBlock().data.height - model.block.height : 0,
     };
 }

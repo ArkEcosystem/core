@@ -13,7 +13,7 @@ jest.mock("@arkecosystem/core-kernel", () => {
                     },
                 };
             },
-            resolvePlugin: name => {
+            resolve: name => {
                 if (name === "config") {
                     return {
                         getMilestone: () => ({

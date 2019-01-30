@@ -1,5 +1,4 @@
-import { P2P } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
@@ -8,7 +7,7 @@ import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transactio
 import { constants } from "@arkecosystem/crypto";
 
 export class TransactionsController extends Controller {
-    private transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
+    private transactionPool = app.resolve<TransactionPool>("transactionPool");
 
     public constructor() {
         super();
@@ -36,7 +35,7 @@ export class TransactionsController extends Controller {
             const result = await guard.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
-                app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+                app.p2p.broadcastTransactions(guard.getBroadcastTransactions());
             }
 
             return {

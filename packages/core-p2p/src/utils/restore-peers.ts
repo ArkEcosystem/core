@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { existsSync, readFileSync } from "fs";
 import Joi from "joi";
@@ -25,10 +24,7 @@ export const restorePeers = (): any[] => {
     const { value, error } = Joi.validate(peers, schema);
 
     if (error) {
-        const logger = app.resolvePlugin<Logger.ILogger>("logger");
-        if (logger) {
-            logger.warn("Ignoring corrupt peers from cache.");
-        }
+        app.logger.warn("Ignoring corrupt peers from cache.");
         return [];
     }
 

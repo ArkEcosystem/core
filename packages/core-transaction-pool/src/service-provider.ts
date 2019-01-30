@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Support } from "@arkecosystem/core-kernel";
 import { config } from "./config";
 import { TransactionPool } from "./connection";
@@ -12,7 +11,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         config.init(this.opts);
 
-        this.app.resolve<Logger.ILogger>("logger").info("Connecting to transaction pool");
+        this.app.logger.info("Connecting to transaction pool");
 
         await transactionPoolManager.makeConnection(new TransactionPool(this.opts));
 
@@ -23,7 +22,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Dispose any application services.
      */
     public async dispose(): Promise<void> {
-        this.app.resolve<Logger.ILogger>("logger").info("Disconnecting from transaction pool");
+        this.app.logger.info("Disconnecting from transaction pool");
 
         this.app.resolve(this.getAlias()).disconnect();
     }

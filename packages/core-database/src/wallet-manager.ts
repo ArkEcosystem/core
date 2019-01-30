@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { constants, crypto, formatArktoshi, isException, models } from "@arkecosystem/crypto";
@@ -8,7 +7,6 @@ const { Wallet } = models;
 const { TransactionTypes } = constants;
 
 export class WalletManager {
-    public logger: Logger.ILogger;
     public config: any;
 
     public networkId: number;
@@ -22,7 +20,6 @@ export class WalletManager {
      */
     constructor() {
         this.config = app.getConfig();
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
 
         this.networkId = this.config ? this.config.get("network.pubKeyHash") : 0x17;
         this.reset();
@@ -270,7 +267,7 @@ export class WalletManager {
             const values: any[] = Array.from(set.values());
             if (delegates.includes(values[0])) {
                 const mapped = values.map(v => `${v.username} (${v.publicKey})`);
-                this.logger.warn(
+                app.logger.warn(
                     `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatArktoshi(
                         voteBalance,
                     )}`,
@@ -278,7 +275,7 @@ export class WalletManager {
             }
         }
 
-        this.logger.debug(`Loaded ${delegates.length} active ${pluralize("delegate", delegates.length)}`);
+        app.logger.debug(`Loaded ${delegates.length} active ${pluralize("delegate", delegates.length)}`);
 
         return delegates;
     }
@@ -329,10 +326,10 @@ export class WalletManager {
 
                 this.reindex(delegate);
             } else {
-                this.logger.debug(`Delegate by address: ${this.byAddress[generator]}`);
+                app.logger.debug(`Delegate by address: ${this.byAddress[generator]}`);
 
                 if (this.byAddress[generator]) {
-                    this.logger.info("This look like a bug, please report :bug:");
+                    app.logger.info("This look like a bug, please report :bug:");
                 }
 
                 throw new Error(`Could not find delegate with publicKey ${generatorPublicKey}`);
@@ -358,7 +355,7 @@ export class WalletManager {
                 votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase);
             }
         } catch (error) {
-            this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
+            app.logger.error("Failed to apply all transactions in block - reverting previous transactions");
             // Revert the applied transactions from last to first
             for (let i = appliedTransactions.length - 1; i >= 0; i--) {
                 this.revertTransaction(appliedTransactions[i]);
@@ -380,9 +377,9 @@ export class WalletManager {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
-            app.forceExit(
-                `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`,
-            );
+            // app.terminate(
+            //     `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`,
+            // );
         }
 
         const revertedTransactions = [];
@@ -406,7 +403,7 @@ export class WalletManager {
                 votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease);
             }
         } catch (error) {
-            this.logger.error(error.stack);
+            app.logger.error(error.stack);
 
             revertedTransactions.reverse().forEach(transaction => this.applyTransaction(transaction));
 
@@ -429,7 +426,7 @@ export class WalletManager {
 
         // specific verifications / adjustments depending on transaction type
         if (type === TransactionTypes.DelegateRegistration && this.byUsername[asset.delegate.username.toLowerCase()]) {
-            this.logger.error(
+            app.logger.error(
                 `Can't apply transaction ${
                     data.id
                 }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
@@ -439,7 +436,7 @@ export class WalletManager {
             // NOTE: We use the vote public key, because vote transactions
             // have the same sender and recipient
         } else if (type === TransactionTypes.Vote && !this.__isDelegate(asset.votes[0].slice(1))) {
-            this.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
+            app.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
             throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
         } else if (type === TransactionTypes.SecondSignature) {
             data.recipientId = "";
@@ -447,12 +444,12 @@ export class WalletManager {
 
         // handle exceptions / verify that we can apply the transaction to the sender
         if (isException(data)) {
-            this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
+            app.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
         } else if (!sender.canApply(data, errors)) {
-            this.logger.error(
+            app.logger.error(
                 `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${JSON.stringify(errors)}`,
             );
-            this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
+            app.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
             throw new Error(`Can't apply transaction ${data.id}`);
         }
 

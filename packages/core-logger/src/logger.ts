@@ -1,6 +1,6 @@
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 
-export abstract class AbstractLogger implements Logger.ILogger {
+export abstract class AbstractLogger implements Contracts.Logger.ILogger {
     /**
      * Create a new logger instance.
      * @param  {Object} options
@@ -11,7 +11,7 @@ export abstract class AbstractLogger implements Logger.ILogger {
      * Make the logger instance.
      * @return {Object}
      */
-    public abstract make(): Logger.ILogger;
+    public abstract make(): Contracts.Logger.ILogger;
 
     /**
      * Log an error message.

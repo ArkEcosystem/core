@@ -1,6 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
@@ -10,13 +9,13 @@ import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 const { TransactionTypes } = constants;
 const { Transaction } = models;
 
-export class TransactionGuard implements transanctionPool.ITransactionGuard {
+export class TransactionGuard implements Contracts.TransactionPool.ITransactionGuard {
     public transactions: models.Transaction[] = [];
     public excess: string[] = [];
     public accept: Map<string, models.Transaction> = new Map();
     public broadcast: Map<string, models.Transaction> = new Map();
     public invalid: Map<string, models.Transaction> = new Map();
-    public errors: { [key: string]: transanctionPool.TransactionErrorDTO[] } = {};
+    public errors: { [key: string]: Contracts.TransactionPool.TransactionErrorDTO[] } = {};
 
     /**
      * Create a new transaction guard instance.
@@ -38,7 +37,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      *     value=[ { type, message }, ... ]
      * }
      */
-    public async validate(transactions: models.Transaction[]): Promise<transanctionPool.ValidationResultDTO> {
+    public async validate(transactions: models.Transaction[]): Promise<Contracts.TransactionPool.ValidationResultDTO> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -237,7 +236,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * @return {void}
      */
     public async __removeForgedTransactions() {
-        const database = app.resolvePlugin<PostgresConnection>("database");
+        const database = app.resolve<PostgresConnection>("database");
 
         const forgedIdsSet = await database.getForgedTransactionsIds([
             ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
@@ -303,8 +302,6 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin<Logger.ILogger>("logger").info(
-            `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
-        );
+        app.logger.info(`Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }
 }

@@ -1,13 +1,11 @@
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { configManager } from "@arkecosystem/crypto";
 import axios from "axios";
 import isReachable from "is-reachable";
 import sample from "lodash/sample";
 
 class Network {
-    public logger: Logger.ILogger;
-    public p2p: P2P.IMonitor;
+    public p2p: Contracts.P2P.IMonitor;
     public config: any;
     public network: any;
     public client: any;
@@ -15,9 +13,8 @@ class Network {
     public server: any;
 
     public async init() {
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
         this.config = app.getConfig();
-        this.p2p = app.resolvePlugin<P2P.IMonitor>("p2p");
+        this.p2p = app.p2p;
 
         this.network = configManager.all();
 
@@ -45,13 +42,13 @@ class Network {
         const uri = `http://${peer.ip}:${peer.port}/api/${url}`;
 
         try {
-            this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
+            app.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
             const response = await this.client.get(uri, { params });
 
             return response.data;
         } catch (error) {
-            this.logger.error(error.message);
+            app.logger.error(error.message);
         }
     }
 
@@ -63,14 +60,14 @@ class Network {
 
     public async connect(): Promise<any> {
         if (this.server) {
-            // this.logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
+            // app.logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
             return true;
         }
 
         this.setServer();
 
         try {
-            const peerPort = app.resolveOptions("p2p").port;
+            const peerPort = app.config("p2p").port;
             const response = await axios.get(`http://${this.server.ip}:${peerPort}/config`);
 
             const plugin = response.data.data.plugins["@arkecosystem/core-api"];
@@ -100,12 +97,10 @@ class Network {
 
     private loadRemotePeers() {
         this.peers =
-            this.network.name === "testnet"
-                ? [{ ip: "127.0.0.1", port: app.resolveOptions("api").port }]
-                : this.p2p.getPeers();
+            this.network.name === "testnet" ? [{ ip: "127.0.0.1", port: app.config("api").port }] : this.p2p.getPeers();
 
         if (!this.peers.length) {
-            this.logger.error("No peers found. Shutting down...");
+            app.logger.error("No peers found. Shutting down...");
             process.exit();
         }
     }
@@ -114,7 +109,7 @@ class Network {
         const reachable = await isReachable(`${peer.ip}:${peer.port}`);
 
         if (!reachable) {
-            this.logger.warn(`${peer} is unresponsive. Choosing new peer.`);
+            app.logger.warn(`${peer} is unresponsive. Choosing new peer.`);
 
             return this.selectResponsivePeer(this.getRandomPeer());
         }

@@ -1,5 +1,6 @@
-import { AwilixContainer, Resolver } from "awilix";
+import { AwilixContainer } from "awilix";
 import { boolean } from "joi";
+import { ILogger } from "../core-logger";
 
 export interface IContainer {
     /**

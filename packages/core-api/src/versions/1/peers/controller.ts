@@ -1,16 +1,16 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { app } from "@arkecosystem/core-kernel";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
-    protected p2p: P2P.IMonitor;
+    protected p2p: Contracts.P2P.IMonitor;
 
     public constructor() {
         super();
 
-        this.p2p = app.resolvePlugin<P2P.IMonitor>("p2p");
+        this.p2p = app.p2p;
     }
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -102,7 +102,7 @@ export class PeersController extends Controller {
     public async version(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWith({
-                version: app.getVersion(),
+                version: app.version(),
             });
         } catch (error) {
             return Boom.badImplementation(error);

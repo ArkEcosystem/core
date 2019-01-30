@@ -1,7 +1,4 @@
-import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
  * @type {Object}
@@ -13,9 +10,9 @@ export const sync = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        logger.debug("Blockchain sync check WAKEUP requested by forger :bed:");
+        app.logger.debug("Blockchain sync check WAKEUP requested by forger :bed:");
 
-        app.resolvePlugin<Blockchain.IBlockchain>("blockchain").forceWakeup();
+        app.blockchain.forceWakeup();
 
         return h.response(null).code(204);
     },

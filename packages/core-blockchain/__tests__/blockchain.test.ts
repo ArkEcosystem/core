@@ -27,7 +27,7 @@ beforeAll(async () => {
     container = await setUp();
 
     // Backup logger.debug function as we are going to mock it in the test suite
-    logger = container.resolvePlugin("logger");
+    logger = container.resolve("logger");
     loggerDebugBackup = logger.debug;
 
     // Mock peer responses so that we can have blocks
@@ -388,7 +388,7 @@ async function __start() {
         }),
     );
 
-    const p2p = container.resolvePlugin("p2p");
+    const p2p = container.resolve("p2p");
     await p2p.acceptNewPeer(peerMock);
 
     await __resetToHeight1();

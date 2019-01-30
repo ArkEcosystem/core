@@ -17,7 +17,7 @@ let blockProcessor: BlockProcessor;
 
 beforeAll(async () => {
     app = await setUpFull();
-    blockchain = app.resolvePlugin("blockchain");
+    blockchain = app.resolve("blockchain");
     blockProcessor = new BlockProcessor(blockchain);
 });
 
@@ -149,7 +149,7 @@ describe("Block processor", () => {
 
         describe("Forging delegates", () => {
             it("should use InvalidGeneratorHandler if forging delegate is invalid", async () => {
-                const database = app.resolvePlugin("database");
+                const database = app.resolve("database");
                 const getActiveDelegatesBackup = database.getActiveDelegates; // save for restoring afterwards
                 database.getActiveDelegates = jest.fn(() => [delegates[50]]);
 

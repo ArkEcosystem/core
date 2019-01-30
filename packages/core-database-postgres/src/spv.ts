@@ -1,13 +1,11 @@
 import { Bignum, models } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { PostgresConnection } from "./connection";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
 
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
@@ -32,33 +30,33 @@ export class SPV {
     public async build(height) {
         this.activeDelegates = config.getMilestone(height).activeDelegates;
 
-        logger.printTracker("SPV", 1, 8, "Received Transactions");
+        app.logger.printTracker("SPV", 1, 8, "Received Transactions");
         await this.__buildReceivedTransactions();
 
-        logger.printTracker("SPV", 2, 8, "Block Rewards");
+        app.logger.printTracker("SPV", 2, 8, "Block Rewards");
         await this.__buildBlockRewards();
 
-        logger.printTracker("SPV", 3, 8, "Last Forged Blocks");
+        app.logger.printTracker("SPV", 3, 8, "Last Forged Blocks");
         await this.__buildLastForgedBlocks();
 
-        logger.printTracker("SPV", 4, 8, "Sent Transactions");
+        app.logger.printTracker("SPV", 4, 8, "Sent Transactions");
         await this.__buildSentTransactions();
 
-        logger.printTracker("SPV", 5, 8, "Second Signatures");
+        app.logger.printTracker("SPV", 5, 8, "Second Signatures");
         await this.__buildSecondSignatures();
 
-        logger.printTracker("SPV", 6, 8, "Votes");
+        app.logger.printTracker("SPV", 6, 8, "Votes");
         await this.__buildVotes();
 
-        logger.printTracker("SPV", 7, 8, "Delegates");
+        app.logger.printTracker("SPV", 7, 8, "Delegates");
         await this.__buildDelegates();
 
-        logger.printTracker("SPV", 8, 8, "MultiSignatures");
+        app.logger.printTracker("SPV", 8, 8, "MultiSignatures");
         await this.__buildMultisignatures();
 
-        logger.stopTracker("SPV", 8, 8);
-        logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`);
-        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`);
+        app.logger.stopTracker("SPV", 8, 8);
+        app.logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`);
+        app.logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`);
 
         return this.__verifyWalletsConsistency();
     }
@@ -75,7 +73,7 @@ export class SPV {
 
             wallet
                 ? (wallet.balance = new Bignum(transaction.amount))
-                : logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
+                : app.logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
         }
     }
 
@@ -117,7 +115,7 @@ export class SPV {
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
 
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
-                logger.warn(`Negative balance: ${wallet}`);
+                app.logger.warn(`Negative balance: ${wallet}`);
             }
         }
     }
@@ -241,13 +239,15 @@ export class SPV {
             for (const dbWallet of dbWallets) {
                 if (dbWallet.balance < 0 && !this.isGenesis(dbWallet)) {
                     detectedInconsistency = true;
-                    logger.warn(`Wallet '${dbWallet.address}' has a negative balance of '${dbWallet.balance}'`);
+                    app.logger.warn(`Wallet '${dbWallet.address}' has a negative balance of '${dbWallet.balance}'`);
                     break;
                 }
 
                 if (dbWallet.voteBalance < 0) {
                     detectedInconsistency = true;
-                    logger.warn(`Wallet ${dbWallet.address} has a negative vote balance of '${dbWallet.voteBalance}'`);
+                    app.logger.warn(
+                        `Wallet ${dbWallet.address} has a negative vote balance of '${dbWallet.voteBalance}'`,
+                    );
                     break;
                 }
 

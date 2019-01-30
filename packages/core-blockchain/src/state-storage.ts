@@ -1,14 +1,12 @@
 // tslint:disable:variable-name
 
-import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { configManager, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
-import { config } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const logger = app.resolve<Contracts.Logger.ILogger>("logger");
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured with the option `state.maxLastBlocks`.
@@ -25,7 +23,7 @@ const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable
 /**
  * Represents an in-memory storage for state machine data.
  */
-export class StateStorage implements Blockchain.IStateStorage {
+export class StateStorage implements Contracts.Blockchain.IStateStorage {
     public blockchain: any;
     public lastDownloadedBlock: models.IBlock | null;
     public blockPing: any;

@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { models, slots } from "@arkecosystem/crypto";
@@ -12,7 +11,6 @@ import { Client } from "./client";
 const { Delegate, Transaction } = models;
 
 export class ForgerManager {
-    private logger = app.resolvePlugin<Logger.ILogger>("logger");
     private config = app.getConfig();
     private secrets: any;
     private network: any;
@@ -39,7 +37,7 @@ export class ForgerManager {
      */
     public async loadDelegates(bip38, password) {
         if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
-            this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
+            app.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
             return;
         }
 
@@ -47,7 +45,7 @@ export class ForgerManager {
         this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, password));
 
         if (bip38) {
-            this.logger.info("BIP38 Delegate loaded");
+            app.logger.info("BIP38 Delegate loaded");
 
             this.delegates.push(new Delegate(bip38, this.network, password));
         }
@@ -58,7 +56,7 @@ export class ForgerManager {
             delegate => `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`,
         );
 
-        this.logger.debug(`Loaded ${pluralize("delegate", delegates.length, true)}: ${delegates.join(", ")}`);
+        app.logger.debug(`Loaded ${pluralize("delegate", delegates.length, true)}: ${delegates.join(", ")}`);
 
         return this.delegates;
     }
@@ -102,7 +100,7 @@ export class ForgerManager {
             const delayTime = +this.config.getMilestone(round.lastBlock.height).blocktime * 1000 - 2000;
 
             if (!round.canForge) {
-                // this.logger.debug('Block already forged in current slot')
+                // app.logger.debug('Block already forged in current slot')
                 // technically it is possible to compute doing shennanigan with arkjs.slots lib
 
                 await delay(200); // basically looping until we lock at beginning of next slot
@@ -113,13 +111,13 @@ export class ForgerManager {
             const delegate = this.__isDelegateActivated(round.currentForger.publicKey);
 
             if (!delegate) {
-                // this.logger.debug(`Current forging delegate ${
+                // app.logger.debug(`Current forging delegate ${
                 //  round.currentForger.publicKey
                 // } is not configured on this node.`)
 
                 if (this.__isDelegateActivated(round.nextForger.publicKey)) {
                     const username = this.usernames[round.nextForger.publicKey];
-                    this.logger.info(
+                    app.logger.info(
                         `Next forging delegate ${username} (${round.nextForger.publicKey}) is active on this node.`,
                     );
                     await this.client.syncCheck();
@@ -146,7 +144,7 @@ export class ForgerManager {
         } catch (error) {
             // README: The Blockchain is not ready, monitor until it is instead of crashing.
             if (error.response && error.response.status === 503) {
-                this.logger.warn(`Blockchain not ready - ${error.response.status} ${error.response.statusText}`);
+                app.logger.warn(`Blockchain not ready - ${error.response.status} ${error.response.statusText}`);
 
                 await delay(2000);
 
@@ -154,10 +152,10 @@ export class ForgerManager {
             }
 
             // README: The Blockchain is ready but an action still failed.
-            this.logger.error(`Forging failed: ${error.message} :bangbang:`);
+            app.logger.error(`Forging failed: ${error.message} :bangbang:`);
 
             if (!isEmpty(round)) {
-                this.logger.info(
+                app.logger.info(
                     `Round: ${round.current.toLocaleString()}, height: ${round.lastBlock.height.toLocaleString()}`,
                 );
             }
@@ -195,7 +193,7 @@ export class ForgerManager {
         const block = await delegate.forge(transactions, blockOptions);
 
         const username = this.usernames[delegate.publicKey];
-        this.logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`);
+        app.logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`);
 
         await this.client.broadcast(block.toJson());
 
@@ -214,9 +212,9 @@ export class ForgerManager {
             : [];
 
         if (isEmpty(response)) {
-            this.logger.error("Could not get unconfirmed transactions from transaction pool.");
+            app.logger.error("Could not get unconfirmed transactions from transaction pool.");
         } else {
-            this.logger.debug(
+            app.logger.debug(
                 `Received ${pluralize("transaction", transactions.length, true)} from the pool containing ${
                     response.poolSize
                 } :money_with_wings:`,
@@ -242,25 +240,25 @@ export class ForgerManager {
      */
     public __parseNetworkState(networkState, currentForger) {
         if (networkState.status === NetworkStateStatus.Unknown) {
-            this.logger.info("Failed to get network state from client.");
+            app.logger.info("Failed to get network state from client.");
             return false;
         }
 
         if (networkState.status === NetworkStateStatus.ColdStart) {
-            this.logger.info(
+            app.logger.info(
                 "Not allowed to forge during the cold start period. Check peers.json for coldStart setting.",
             );
             return false;
         }
 
         if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
-            this.logger.info("Network reach is not sufficient to get quorum.");
+            app.logger.info("Network reach is not sufficient to get quorum.");
             return false;
         }
 
         const overHeightBlockHeaders = networkState.getOverHeightBlockHeaders();
         if (overHeightBlockHeaders.length > 0) {
-            this.logger.info(
+            app.logger.info(
                 `Detected ${overHeightBlockHeaders.length} distinct overheight block ${pluralize(
                     "header",
                     overHeightBlockHeaders.length,
@@ -272,7 +270,7 @@ export class ForgerManager {
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
                 if (overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
                     const username = this.usernames[currentForger.publicKey];
-                    this.logger.warn(
+                    app.logger.warn(
                         `Possible double forging delegate: ${username} (${currentForger.publicKey}) - Block: ${
                             overHeightBlockHeader.id
                         }`,
@@ -282,14 +280,14 @@ export class ForgerManager {
             }
 
             if (possibleDoubleForge) {
-                this.logger.debug(`Network State: ${networkState.toJson()}`);
+                app.logger.debug(`Network State: ${networkState.toJson()}`);
                 return false;
             }
         }
 
         if (networkState.getQuorum() < 0.66) {
-            this.logger.info("Fork 6 - Not enough quorum to forge next block.");
-            this.logger.debug(`Network State: ${networkState.toJson()}`);
+            app.logger.info("Fork 6 - Not enough quorum to forge next block.");
+            app.logger.debug(`Network State: ${networkState.toJson()}`);
             return false;
         }
 

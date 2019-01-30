@@ -1,14 +1,12 @@
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
 import { crypto, models } from "@arkecosystem/crypto";
 
 export function transformTransaction(model) {
     const config = app.getConfig();
-    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const data: any = new models.Transaction(model.serialized.toString("hex"));
-    const lastBlock = blockchain.getLastBlock();
+    const lastBlock = app.blockchain.getLastBlock();
 
     return {
         id: data.id,

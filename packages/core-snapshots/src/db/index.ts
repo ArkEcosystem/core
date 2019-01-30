@@ -1,13 +1,10 @@
 import { migrations, plugin } from "@arkecosystem/core-database-postgres";
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import promise from "bluebird";
 
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 import { columns } from "./utils/column-set";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 class Database {
     public db: any;
@@ -22,7 +19,7 @@ class Database {
             this.pgp = connection.pgp;
             this.__createColumnSets();
             this.isSharedConnection = true;
-            logger.info("Snapshots: reusing core-database-postgres connection from running core");
+            app.logger.info("Snapshots: reusing core-database-postgres connection from running core");
             return this;
         }
 
@@ -36,11 +33,11 @@ class Database {
             this.db = pgp(options);
             this.__createColumnSets();
             await this.__runMigrations();
-            logger.info("Snapshots: Database connected");
+            app.logger.info("Snapshots: Database connected");
             this.isSharedConnection = false;
             return this;
         } catch (error) {
-            app.forceExit("Error while connecting to postgres", error);
+            // app.terminate("Error while connecting to postgres", error);
             return null;
         }
     }
@@ -55,7 +52,7 @@ class Database {
 
     public async truncateChain() {
         const tables = ["wallets", "rounds", "transactions", "blocks"];
-        logger.info("Truncating tables: wallets, rounds, transactions, blocks");
+        app.logger.info("Truncating tables: wallets, rounds, transactions, blocks");
         try {
             for (const table of tables) {
                 await this.db.none(queries.truncate(table));
@@ -63,7 +60,7 @@ class Database {
 
             return this.getLastBlock();
         } catch (error) {
-            app.forceExit("Truncate chain error", error);
+            // app.terminate("Truncate chain error", error);
         }
     }
 
@@ -88,7 +85,7 @@ class Database {
                 ]);
             }
         } catch (error) {
-            logger.error(error);
+            app.logger.error(error);
         }
 
         return this.getLastBlock();
@@ -99,9 +96,9 @@ class Database {
         const endBlock = await this.getBlockByHeight(endHeight);
 
         if (!startBlock || !endBlock) {
-            app.forceExit(
-                "Wrong input height parameters for building export queries. Blocks at height not found in db.",
-            );
+            // app.terminate(
+            //     "Wrong input height parameters for building export queries. Blocks at height not found in db.",
+            // );
         }
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {
@@ -134,7 +131,7 @@ class Database {
 
     public close() {
         if (!this.isSharedConnection) {
-            logger.debug("Closing snapshots-cli database connection");
+            app.logger.debug("Closing snapshots-cli database connection");
             this.db.$pool.end();
             this.pgp.end();
         }

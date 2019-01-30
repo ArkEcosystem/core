@@ -3,7 +3,7 @@ import { app } from "@arkecosystem/core-kernel";
 import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
 
 export function transformBlock(model) {
-    const database = app.resolvePlugin<PostgresConnection>("database");
+    const database = app.resolve<PostgresConnection>("database");
     const generator = database.walletManager.findByPublicKey(model.generatorPublicKey);
 
     model.reward = bignumify(model.reward);

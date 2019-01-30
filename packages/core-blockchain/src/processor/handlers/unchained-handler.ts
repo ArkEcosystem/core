@@ -29,7 +29,7 @@ export class UnchainedHandler extends BlockHandler {
         const status = this.checkUnchainedBlock();
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
-                const database = app.resolvePlugin("database");
+                const database = app.resolve("database");
                 const delegates = await database.getActiveDelegates(this.block.data.height);
                 if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {
                     this.blockchain.forkBlock(this.block);

@@ -5,5 +5,5 @@ import { app } from "@arkecosystem/core-kernel";
  * @return {Transaction}
  */
 export async function transaction(_, { id }) {
-    return app.resolvePlugin("database").db.transactions.findById(id);
+    return app.resolve("database").db.transactions.findById(id);
 }

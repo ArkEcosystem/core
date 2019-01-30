@@ -1,4 +1,3 @@
-// import { Container as container } from "@arkecosystem/core-interfaces";
 import { Application } from "./application";
 import * as Contracts from "./contracts";
 import * as Support from "./support";

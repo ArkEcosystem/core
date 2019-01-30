@@ -1,5 +1,4 @@
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { constants, crypto, models } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -14,8 +13,7 @@ const { TransactionTypes } = constants;
 export abstract class ConnectionInterface {
     // TODO: Convert these to protected/private and provide the appropriate get/setters
     public config = app.getConfig();
-    public logger = app.resolvePlugin<Logger.ILogger>("logger");
-    public emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    public emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
@@ -221,7 +219,7 @@ export abstract class ConnectionInterface {
             return;
         }
 
-        this.logger.debug("Updating delegate statistics");
+        app.logger.debug("Updating delegate statistics");
 
         try {
             delegates.forEach(delegate => {
@@ -232,7 +230,7 @@ export abstract class ConnectionInterface {
 
                 if (producedBlocks.length === 0) {
                     wallet.missedBlocks++;
-                    this.logger.debug(
+                    app.logger.debug(
                         `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
                             wallet.missedBlocks
                         }`,
@@ -244,7 +242,7 @@ export abstract class ConnectionInterface {
                 }
             });
         } catch (error) {
-            this.logger.error(error.stack);
+            app.logger.error(error.stack);
         }
     }
 
@@ -267,7 +265,7 @@ export abstract class ConnectionInterface {
                 this.forgingDelegates.length === 0 ||
                 (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
             ) {
-                this.logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
+                app.logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
 
                 try {
                     this.updateDelegateStats(height, this.forgingDelegates);
@@ -282,7 +280,7 @@ export abstract class ConnectionInterface {
                     throw error;
                 }
             } else {
-                this.logger.warn(
+                app.logger.warn(
                     // tslint:disable-next-line:max-line-length
                     `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
                 );
@@ -299,7 +297,7 @@ export abstract class ConnectionInterface {
         const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
         if (nextRound === round + 1 && height >= maxDelegates) {
-            this.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
+            app.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
 
             const delegates = await this.__calcPreviousActiveDelegates(round);
             this.forgingDelegates = await this.getActiveDelegates(height, delegates);

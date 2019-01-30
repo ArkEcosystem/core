@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import fs from "fs-extra";
 
@@ -15,8 +14,7 @@ export const writeMetaFile = snapshotInfo => {
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
 
 export const copySnapshot = (sourceFolder, destFolder, codec) => {
-    const logger = app.resolvePlugin<Logger.ILogger>("logger");
-    logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`);
+    app.logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`);
 
     const paths = {
         source: {
@@ -33,7 +31,7 @@ export const copySnapshot = (sourceFolder, destFolder, codec) => {
     fs.ensureFileSync(paths.dest.transactions);
 
     if (!fs.existsSync(paths.source.blocks) || !fs.existsSync(paths.source.transactions)) {
-        app.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`);
+        // app.terminate(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`);
     }
 
     fs.copyFileSync(paths.source.blocks, paths.dest.blocks);
@@ -73,7 +71,7 @@ export const getSnapshotInfo = folder => {
 export const readMetaJSON = folder => {
     const metaFileInfo = this.getFilePath("meta.json", folder);
     if (!fs.existsSync(metaFileInfo)) {
-        app.forceExit("Meta file meta.json not found. Exiting :bomb:");
+        // app.terminate("Meta file meta.json not found. Exiting :bomb:");
     }
 
     return fs.readJSONSync(metaFileInfo);

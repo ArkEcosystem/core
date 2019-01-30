@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import dns from "dns";
 import shuffle from "lodash/shuffle";
@@ -15,8 +14,7 @@ export const checkDNS = async hosts => {
 
             return Promise.resolve(hosts[i]);
         } catch (err) {
-            const logger = app.resolvePlugin<Logger.ILogger>("logger");
-            logger.error(err.message);
+            app.logger.error(err.message);
         }
     }
 

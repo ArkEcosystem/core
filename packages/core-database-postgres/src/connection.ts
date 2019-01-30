@@ -60,7 +60,7 @@ export class PostgresConnection extends ConnectionInterface {
 
             return this;
         } catch (error) {
-            app.forceExit("Unable to connect to the database!", error);
+            // app.terminate("Unable to connect to the database!", error);
         }
 
         return null;

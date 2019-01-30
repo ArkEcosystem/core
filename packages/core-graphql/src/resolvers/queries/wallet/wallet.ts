@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-kernel";
 
-const database = app.resolvePlugin("database");
+const database = app.resolve("database");
 
 /**
  * Get a single wallet from the database

@@ -1,9 +1,9 @@
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { app } from "@arkecosystem/core-kernel";
 import { bignumify } from "@arkecosystem/core-utils";
 
 export function transformBlockLegacy(model) {
-    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+    const lastBlock = app.blockchain.getLastBlock();
 
     return {
         id: model.id,

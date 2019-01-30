@@ -1,12 +1,10 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { client } from "../services/client";
 import { Index } from "./index";
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const database = app.resolvePlugin<PostgresConnection>("database");
+const emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
+const database = app.resolve<PostgresConnection>("database");
 
 class WalletIndex extends Index {
     /**
@@ -33,7 +31,7 @@ class WalletIndex extends Index {
                 continue;
             }
 
-            logger.info(`[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`);
+            app.logger.info(`[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`);
 
             try {
                 rows.forEach(row => {
@@ -42,7 +40,7 @@ class WalletIndex extends Index {
 
                 await client.bulk(this._buildBulkUpsert(rows));
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                app.logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
             }
         }
     }

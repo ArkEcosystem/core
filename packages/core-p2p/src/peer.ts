@@ -1,11 +1,9 @@
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
-import { config as localConfig } from "./config";
 
-export class Peer implements P2P.IPeer {
+export class Peer implements Contracts.P2P.IPeer {
     public static isOk(peer): boolean {
         return peer.status === 200 || peer.status === "OK";
     }
@@ -37,7 +35,6 @@ export class Peer implements P2P.IPeer {
     public lastPinged: dayjs.Dayjs | null;
 
     private config: any;
-    private logger: Logger.ILogger;
 
     /**
      * @constructor
@@ -45,7 +42,6 @@ export class Peer implements P2P.IPeer {
      * @param  {Number} port
      */
     constructor(public readonly ip, public readonly port) {
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
         this.config = app.getConfig();
 
         this.ban = new Date().getTime();
@@ -55,7 +51,7 @@ export class Peer implements P2P.IPeer {
         this.lastPinged = null;
 
         this.headers = {
-            version: app.getVersion(),
+            version: app.version(),
             port: localConfig.get("port"),
             nethash: this.config.get("network.nethash"),
             milestoneHash: this.config.get("milestoneHash"),
@@ -176,7 +172,7 @@ export class Peer implements P2P.IPeer {
 
             return blocks;
         } catch (error) {
-            this.logger.debug(
+            app.logger.debug(
                 `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
                     depth: 1,
                 })}`,
@@ -225,7 +221,7 @@ export class Peer implements P2P.IPeer {
      * @return {Object[]}
      */
     public async getPeers() {
-        this.logger.info(`Fetching a fresh peer list from ${this.url}`);
+        app.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
         await this.ping(2000);
 
@@ -251,7 +247,7 @@ export class Peer implements P2P.IPeer {
 
             return body && body.success && body.common;
         } catch (error) {
-            this.logger.error(`Could not determine common blocks with ${this.ip}: ${error}`);
+            app.logger.error(`Could not determine common blocks with ${this.ip}: ${error}`);
         }
 
         return false;
@@ -280,7 +276,7 @@ export class Peer implements P2P.IPeer {
         } catch (error) {
             this.delay = -1;
 
-            this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
+            app.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
             if (error.response) {
                 this.__parseHeaders(error.response);
@@ -303,7 +299,7 @@ export class Peer implements P2P.IPeer {
 
             return response.data;
         } catch (error) {
-            this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
+            app.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
             if (error.response) {
                 this.__parseHeaders(error.response);

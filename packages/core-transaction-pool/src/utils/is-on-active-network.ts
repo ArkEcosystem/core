@@ -1,9 +1,7 @@
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { app } from "@arkecosystem/core-kernel";
 import { configManager } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
  * Checks if transaction recipient is on the same network as blockchain
@@ -17,7 +15,9 @@ export function isRecipientOnActiveNetwork(transaction) {
         return true;
     }
 
-    logger.error(`Recipient ${transaction.recipientId} is not on the same network: ${configManager.get("pubKeyHash")}`);
+    app.resolve<Contracts.Logger.ILogger>("logger").error(
+        `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get("pubKeyHash")}`,
+    );
 
     return false;
 }

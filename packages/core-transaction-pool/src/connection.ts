@@ -1,6 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger, TransactionPool as transactionPool } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 import assert from "assert";
 import dayjs from "dayjs-ext";
@@ -10,9 +9,8 @@ import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
 
-const database = app.resolvePlugin<PostgresConnection>("database");
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const database = app.resolve<PostgresConnection>("database");
+const emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
 
 /**
  * Transaction pool. It uses a hybrid storage - caching the data
@@ -21,7 +19,7 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
  * data (everything other than add or remove transaction) are served from the
  * in-memory storage.
  */
-export class TransactionPool implements transactionPool.ITransactionPool {
+export class TransactionPool implements Contracts.TransactionPool.ITransactionPool {
     public walletManager: any;
     public blockedByPublicKey: any;
     public mem: any;
@@ -135,7 +133,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      */
     public addTransaction(transaction) {
         if (this.transactionExists(transaction.id)) {
-            logger.debug(
+            app.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
                     `in the pool, id: ${transaction.id}`,
             );
@@ -295,7 +293,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
         if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
-                logger.debug(
+                app.logger.debug(
                     `Transaction pool: allowing sender public key: ${
                         transaction.senderPublicKey
                     } (listed in options.allowedSenders), thus skipping throttling.`,
@@ -366,7 +364,9 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
-        logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`);
+        app.logger.warn(
+            `Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`,
+        );
 
         return blockReleaseTime;
     }
@@ -406,7 +406,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
 
-                    logger.error(
+                    app.logger.error(
                         `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
                             data.id
                         } due to ${JSON.stringify(errors)}. Possible double spending attack :bomb:`,
@@ -457,15 +457,15 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             if (senderWallet && senderWallet.canApply(transaction, errors)) {
                 senderWallet.applyTransactionToSender(transaction);
             } else {
-                logger.error(`BuildWallets from pool: ${JSON.stringify(errors)}`);
+                app.logger.error(`BuildWallets from pool: ${JSON.stringify(errors)}`);
                 this.purgeByPublicKey(transaction.senderPublicKey);
             }
         });
-        logger.info("Transaction Pool Manager build wallets complete");
+        app.logger.info("Transaction Pool Manager build wallets complete");
     }
 
     public purgeByPublicKey(senderPublicKey) {
-        logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
+        app.logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
 
         this.removeTransactionsForSender(senderPublicKey);
 

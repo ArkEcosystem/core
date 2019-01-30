@@ -23,7 +23,7 @@ export const whitelist = {
                     }
                 }
 
-                app.resolvePlugin("logger").warn(
+                app.resolve("logger").warn(
                     `${remoteAddress} tried to access the ${options.name} without being whitelisted :warning:`,
                 );
 

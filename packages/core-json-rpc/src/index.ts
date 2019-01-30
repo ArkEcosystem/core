@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Support } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
@@ -10,7 +9,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Register any application services.
      */
     public async register(): Promise<void> {
-        const logger = this.app.resolve<Logger.ILogger>("logger");
+        const logger = this.app.logger;
 
         if (!this.opts.enabled) {
             logger.info("JSON-RPC Server is disabled :grey_exclamation:");
@@ -30,7 +29,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      */
     public async dispose(): Promise<void> {
         if (this.opts.enabled) {
-            this.app.resolve<Logger.ILogger>("logger").info("Stopping JSON-RPC Server");
+            this.app.logger.info("Stopping JSON-RPC Server");
 
             return this.app.resolve("json-rpc").stop();
         }

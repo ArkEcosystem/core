@@ -32,7 +32,7 @@ class Database {
             await this.__runMigrations();
             this.__registerModels();
         } catch (error) {
-            app.forceExit("Unable to connect to the database!", error);
+            // app.terminate("Unable to connect to the database!", error);
         }
     }
 

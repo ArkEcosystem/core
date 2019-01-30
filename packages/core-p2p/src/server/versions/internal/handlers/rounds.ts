@@ -1,5 +1,4 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { slots } from "@arkecosystem/crypto";
 
@@ -15,10 +14,9 @@ export const current = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const database = app.resolvePlugin<PostgresConnection>("database");
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+        const database = app.resolve<PostgresConnection>("database");
 
-        const lastBlock = blockchain.getLastBlock();
+        const lastBlock = app.blockchain.getLastBlock();
 
         const height = lastBlock.data.height + 1;
         const maxActive = config.getMilestone(height).activeDelegates;

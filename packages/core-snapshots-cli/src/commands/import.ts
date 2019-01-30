@@ -1,11 +1,9 @@
-import { EventEmitter } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import _cliProgress from "cli-progress";
 
 export async function importSnapshot(options) {
-    const snapshotManager = app.resolvePlugin<SnapshotManager>("snapshots");
-    const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    const snapshotManager = app.resolve<SnapshotManager>("snapshots");
 
     const progressBar = new _cliProgress.Bar(
         {
@@ -14,15 +12,15 @@ export async function importSnapshot(options) {
         _cliProgress.Presets.shades_classic,
     );
 
-    emitter.on("start", data => {
+    app.emitter.on("start", data => {
         progressBar.start(data.count, 1);
     });
 
-    emitter.on("progress", data => {
+    app.emitter.on("progress", data => {
         progressBar.update(data.value);
     });
 
-    emitter.on("complete", data => {
+    app.emitter.on("complete", data => {
         progressBar.stop();
     });
 

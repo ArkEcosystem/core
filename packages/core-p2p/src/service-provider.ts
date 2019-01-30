@@ -1,6 +1,4 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Support } from "@arkecosystem/core-kernel";
-import { config } from "./config";
 import { defaults } from "./defaults";
 import { monitor, Monitor } from "./monitor";
 import { startServer } from "./server";
@@ -10,9 +8,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Register any application services.
      */
     public async register(): Promise<void> {
-        this.app.resolve<Logger.ILogger>("logger").info("Starting P2P Interface");
-
-        config.init(this.opts);
+        this.app.logger.info("Starting P2P Interface");
 
         monitor.server = await startServer(this.opts);
 
@@ -25,7 +21,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Dispose any application services.
      */
     public async dispose(): Promise<void> {
-        this.app.resolve<Logger.ILogger>("logger").info("Stopping P2P Interface");
+        this.app.logger.info("Stopping P2P Interface");
 
         const p2p = this.app.resolve<Monitor>(this.getAlias());
         p2p.dumpPeers();

@@ -10,7 +10,7 @@ let connection;
 
 beforeAll(async () => {
     await setUp();
-    connection = app.resolvePlugin<PostgresConnection>("database");
+    connection = app.resolve<PostgresConnection>("database");
 });
 
 afterAll(async () => {

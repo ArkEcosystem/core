@@ -1,7 +1,4 @@
-import { Blockchain, EventEmitter } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
-
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 import * as schema from "../schemas/utils";
 
@@ -15,11 +12,10 @@ export const usernames = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-        const database = blockchain.database;
+        const database = app.blockchain.database;
         const walletManager = database.walletManager;
 
-        const lastBlock = blockchain.getLastBlock();
+        const lastBlock = app.blockchain.getLastBlock();
         const delegates = await database.getActiveDelegates(lastBlock ? lastBlock.data.height + 1 : 1);
 
         const data = {};
@@ -42,7 +38,7 @@ export const emitEvent = {
      * @return {Hapi.Response}
      */
     handler: (request, h) => {
-        emitter.emit(request.payload.event, request.payload.body);
+        app.emitter.emit(request.payload.event, request.payload.body);
 
         return h.response(null).code(204);
     },

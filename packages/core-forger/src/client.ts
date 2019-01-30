@@ -1,4 +1,3 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import axios from "axios";
@@ -10,7 +9,6 @@ export class Client {
     public hosts: string[];
     private host: any;
     private headers: any;
-    private logger: Logger.ILogger;
 
     /**
      * Create a new client instance.
@@ -18,7 +16,6 @@ export class Client {
      */
     constructor(hosts) {
         this.hosts = Array.isArray(hosts) ? hosts : [hosts];
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
 
         const { port } = new URL(this.hosts[0]);
 
@@ -27,7 +24,7 @@ export class Client {
         }
 
         this.headers = {
-            version: app.getVersion(),
+            version: app.version(),
             port,
             nethash: app.getConfig().get("network.nethash"),
             "x-auth": "forger",
@@ -41,7 +38,7 @@ export class Client {
      * @return {Object}
      */
     public async broadcast(block) {
-        this.logger.debug(
+        app.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
             } transactions to ${this.host} :package:`,
@@ -56,12 +53,12 @@ export class Client {
     public async syncCheck() {
         await this.__chooseHost();
 
-        this.logger.debug(`Sending wake-up check to relay node ${this.host}`);
+        app.logger.debug(`Sending wake-up check to relay node ${this.host}`);
 
         try {
             await this.__get(`${this.host}/internal/blockchain/sync`);
         } catch (error) {
-            this.logger.error(`Could not sync check: ${error.message}`);
+            app.logger.error(`Could not sync check: ${error.message}`);
         }
     }
 
@@ -142,13 +139,13 @@ export class Client {
         const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.includes(allowedHost)));
 
         if (!host) {
-            return this.logger.error("Was unable to find any local hosts.");
+            return app.logger.error("Was unable to find any local hosts.");
         }
 
         try {
             await this.__post(`${host}/internal/utils/events`, { event, body });
         } catch (error) {
-            this.logger.error(`Failed to emit "${event}" to "${host}"`);
+            app.logger.error(`Failed to emit "${event}" to "${host}"`);
         }
     }
 
@@ -164,7 +161,7 @@ export class Client {
 
             this.host = host;
         } catch (error) {
-            this.logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`);
+            app.logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`);
 
             if (wait > 0) {
                 await delay(wait);

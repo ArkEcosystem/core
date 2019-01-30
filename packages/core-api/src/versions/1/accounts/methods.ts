@@ -3,7 +3,7 @@ import { app } from "@arkecosystem/core-kernel";
 import { ServerCache } from "../../../services";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
-const database = app.resolvePlugin<PostgresConnection>("database");
+const database = app.resolve<PostgresConnection>("database");
 
 const index = async request => {
     const { rows } = await database.wallets.findAll({

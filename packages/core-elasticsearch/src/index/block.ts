@@ -1,15 +1,13 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import first from "lodash/first";
 import last from "lodash/last";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const database = app.resolvePlugin<PostgresConnection>("database");
+const emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
+const database = app.resolve<PostgresConnection>("database");
 
 class BlockIndex extends Index {
     /**
@@ -39,7 +37,7 @@ class BlockIndex extends Index {
             }
 
             const heights = rows.map(row => row.height);
-            logger.info(
+            app.logger.info(
                 `[Elasticsearch] Indexing blocks from height ${first(heights)} to ${last(
                     heights,
                 )} :card_index_dividers:`,
@@ -52,7 +50,7 @@ class BlockIndex extends Index {
                     lastBlock: last(heights),
                 });
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                app.logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
             }
         }
     }

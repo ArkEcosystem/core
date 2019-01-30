@@ -6,7 +6,7 @@ import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const database = app.resolvePlugin<PostgresConnection>("database");
+const database = app.resolve<PostgresConnection>("database");
 
 const index = async request => {
     const delegates = await database.delegates.paginate({

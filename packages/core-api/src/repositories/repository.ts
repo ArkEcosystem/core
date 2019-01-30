@@ -1,13 +1,12 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { TransactionPool } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import snakeCase from "lodash/snakeCase";
 import { IRepository } from "../interfaces";
 
 export abstract class Repository implements IRepository {
-    public database = app.resolvePlugin<PostgresConnection>("database");
+    public database = app.resolve<PostgresConnection>("database");
     public cache = this.database.getCache();
-    public transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+    public transactionPool = app.resolve<Contracts.TransactionPool.ITransactionPool>("transactionPool");
     public model = this.getModel();
     public query = this.model.query();
     public columns: string[] = [];

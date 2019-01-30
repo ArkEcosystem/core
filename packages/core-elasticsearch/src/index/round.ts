@@ -1,15 +1,13 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import first from "lodash/first";
 import last from "lodash/last";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const database = app.resolvePlugin<PostgresConnection>("database");
+const emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
+const database = app.resolve<PostgresConnection>("database");
 
 class RoundIndex extends Index {
     /**
@@ -39,7 +37,7 @@ class RoundIndex extends Index {
             }
 
             const roundIds = rows.map(row => row.round);
-            logger.info(
+            app.logger.info(
                 `[Elasticsearch] Indexing rounds from ${first(roundIds)} to ${last(roundIds)} :card_index_dividers:`,
             );
 
@@ -50,7 +48,7 @@ class RoundIndex extends Index {
                     lastRound: last(roundIds),
                 });
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                app.logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
             }
         }
     }

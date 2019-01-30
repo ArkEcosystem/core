@@ -1,11 +1,8 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-kernel";
 import { models } from "@arkecosystem/crypto";
 import async from "async";
 import { Blockchain } from "../blockchain";
 import { QueueInterface } from "./interface";
-
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export class RebuildQueue extends QueueInterface {
     /**
@@ -21,7 +18,7 @@ export class RebuildQueue extends QueueInterface {
             try {
                 return blockchain.rebuildBlock(new models.Block(block), cb);
             } catch (error) {
-                logger.error(`Failed to rebuild block in RebuildQueue: ${block.height.toLocaleString()}`);
+                app.logger.error(`Failed to rebuild block in RebuildQueue: ${block.height.toLocaleString()}`);
                 return cb();
             }
         }, 1);

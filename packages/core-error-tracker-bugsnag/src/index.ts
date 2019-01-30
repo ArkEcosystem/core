@@ -7,7 +7,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
      * Register any application services.
      */
     public async register(): Promise<void> {
-        this.app.bind(this.getAlias(), bugsnag(this.opts));
+        this.app.bind(this.getAlias(), bugsnag(this.opts as any));
     }
 
     /**

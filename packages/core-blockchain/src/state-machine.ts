@@ -1,7 +1,6 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { app } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { isException, models, slots } from "@arkecosystem/crypto";
@@ -16,8 +15,8 @@ import { Blockchain } from "./blockchain";
 
 const { Block } = models;
 const config = app.getConfig();
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const emitter = app.resolve<Contracts.EventEmitter.EventEmitter>("event-emitter");
+const logger = app.resolve<Contracts.Logger.ILogger>("logger");
 
 /**
  * @type {IStateStorage}
@@ -152,7 +151,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     exitApp() {
-        app.forceExit("Failed to startup blockchain. Exiting Ark Core! :rotating_light:");
+        // app.terminate("Failed to startup blockchain. Exiting Ark Core! :rotating_light:");
     },
 
     async init() {
@@ -415,5 +414,4 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 });
 
-const stateMachine = blockchainMachine;
-export { stateMachine };
+export const stateMachine = blockchainMachine;

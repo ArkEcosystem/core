@@ -5,5 +5,5 @@ import { app } from "@arkecosystem/core-kernel";
  * @return {Block}
  */
 export async function block(_, { id }) {
-    return app.resolvePlugin("database").db.blocks.findById(id);
+    return app.resolve("database").db.blocks.findById(id);
 }
