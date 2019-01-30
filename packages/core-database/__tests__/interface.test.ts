@@ -127,7 +127,7 @@ describe("Connection Interface", () => {
         it("should register the wallet manager", () => {
             expect(connectionInterface.walletManager).toBeNull();
 
-            connectionInterface._registerWalletManager();
+            connectionInterface.registerWalletManager();
 
             expect(connectionInterface.walletManager).toBeInstanceOf(WalletManager);
         });
@@ -138,7 +138,7 @@ describe("Connection Interface", () => {
             expect(connectionInterface.wallets).toBeNull();
             expect(connectionInterface.delegates).toBeNull();
 
-            connectionInterface._registerRepositories();
+            connectionInterface.registerRepositories();
 
             expect(connectionInterface.wallets).toBeInstanceOf(WalletsRepository);
             expect(connectionInterface.delegates).toBeInstanceOf(DelegatesRepository);

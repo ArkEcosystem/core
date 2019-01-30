@@ -53,8 +53,8 @@ export class PostgresConnection extends ConnectionInterface {
             await this.registerQueryExecutor();
             await this.runMigrations();
             await this.registerModels();
-            await super._registerRepositories();
-            await super._registerWalletManager();
+            await super.registerRepositories();
+            await super.registerWalletManager();
             await this.loadBlocksFromCurrentRound();
             this.logger.debug("Connected to database.");
 
