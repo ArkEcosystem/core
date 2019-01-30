@@ -146,6 +146,12 @@ const main = async () => {
         fs.moveSync(`${corePaths.log}/core/${coreNetwork}`, `${paths.log.new}/${coreNetwork}`);
     }
 
+    if (fs.existsSync(`${paths.data.new}/snapshots/${coreNetwork}`)) {
+        fs.moveSync(`${paths.data.new}/snapshots/${coreNetwork}`, `${paths.data.new}/snapshots.tmp`)
+        fs.rmdirSync(`${paths.data.new}/snapshots`)
+        fs.renameSync(`${paths.data.new}/snapshots.tmp`, `${paths.data.new}/snapshots`)
+    }
+
     // Remove old or temp files
     fs.removeSync(`${paths.config.old}/peers_backup.json`);
     fs.removeSync(`${paths.config.old}/network.json`);

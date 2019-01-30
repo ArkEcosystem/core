@@ -6,7 +6,7 @@ import util from "util";
 import { config as localConfig } from "./config";
 
 export class Peer implements P2P.IPeer {
-    public static isOk(peer) {
+    public static isOk(peer): boolean {
         return peer.status === 200 || peer.status === "OK";
     }
 

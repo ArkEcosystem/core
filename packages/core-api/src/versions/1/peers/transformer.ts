@@ -8,7 +8,7 @@ export function transformPeerLegacy(model) {
         port: model.port,
         version: model.version,
         height: model.height,
-        status: model.status,
+        status: [200, "OK"].includes(model.status) ? "OK" : "ERROR",
         os: model.os,
         delay: model.delay,
     };
