@@ -54,7 +54,7 @@ export interface IDatabaseService {
 
     getBlocks(offset: number, limit: number): Promise<any[]>;
 
-    getTopBlocks(count): Promise<models.Block[]>;
+    getTopBlocks(count): Promise<any[]>;
 
     getRecentBlockIds(): Promise<string[]>;
 

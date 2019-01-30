@@ -378,11 +378,11 @@ export class Blockchain implements blockchain.IBlockchain {
         const blocks = await this.database.getTopBlocks(count);
 
         logger.info(
-            `Removing ${pluralize("block", blocks.length, true)} from height ${blocks[0].data.height.toLocaleString()}`,
+            `Removing ${pluralize("block", blocks.length, true)} from height ${(blocks[0] as any).height.toLocaleString()}`,
         );
 
         for (let block of blocks) {
-            block = new Block(block.data);
+            block = new Block(block);
 
             this.database.enqueueDeleteRound(block.data.height);
             this.database.enqueueDeleteBlock(block);

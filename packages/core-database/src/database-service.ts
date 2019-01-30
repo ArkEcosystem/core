@@ -114,7 +114,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async deleteRound(round: number) {
-        await this.connection.roundsRepository.delete(round.toString());
+        await this.connection.roundsRepository.delete(round);
     }
 
     public enqueueDeleteBlock(block: models.Block) {
@@ -139,7 +139,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates || delegates.length === 0) {
-            delegates = await this.connection.roundsRepository.findById(round.toString());
+            delegates = await this.connection.roundsRepository.findById(round);
         }
 
         const seedSource = round.toString();
@@ -283,7 +283,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return blocks;
     }
 
-    public getTransaction(id: string): Promise<object> {
+    public async getTransaction(id: string) {
         return this.connection.transactionsRepository.findById(id);
     }
 

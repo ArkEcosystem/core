@@ -32,7 +32,7 @@ export interface IBlocksRepository extends IRepository {
      * Get the most recently created blocks ids from the database.
      * @return {Promise}
      */
-    recent(count: number): Promise<number[]>;
+    recent(count: number): Promise<any[]>;
 
     /**
      * Get statistics about all blocks from the database.
@@ -40,7 +40,8 @@ export interface IBlocksRepository extends IRepository {
     statistics(): Promise<{
         numberOfTransactions: number,
         totalFee: Bignum,
-        totalAmount: Bignum
+        totalAmount: Bignum,
+        count: number
     }>;
 
     /**

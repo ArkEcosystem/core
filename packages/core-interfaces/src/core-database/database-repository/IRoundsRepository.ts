@@ -4,10 +4,10 @@ export interface IRoundsRepository extends IRepository {
     /**
      * Find a round by its ID.
      */
-    findById(id: string): Promise<any>;
+    findById(id: number): Promise<any>;
 
     /**
      * Delete the round from the database.
      */
-    delete(id: string): Promise<any>;
+    delete(id: number): Promise<any>;
 }

@@ -9,6 +9,7 @@ import pgPromise from "pg-promise";
 import { migrations } from "./migrations";
 import { Model } from "./models";
 import { repositories } from "./repositories";
+import { MigrationsRepository } from "./repositories/migrations";
 import { SPV } from "./spv";
 import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
@@ -24,7 +25,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     public transactionsRepository: Database.ITransactionsRepository;
     public walletsRepository: Database.IWalletsRepository;
     public pgp: any;
-    private migrationsRepository;
+    private migrationsRepository : MigrationsRepository;
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
@@ -93,7 +94,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
     public async deleteBlock(block: models.Block) {
         try {
-            const queries = [this.db.transactions.deleteByBlock(block.data.id), this.db.blocks.delete(block.data.id)];
+            const queries = [this.transactionsRepository.deleteByBlockId(block.data.id), this.blocksRepository.delete(block.data.id)];
 
             await this.db.tx(t => t.batch(queries));
         } catch (error) {
@@ -118,7 +119,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     }
 
     public enqueueDeleteBlock(block: models.Block): any {
-        const queries = [this.db.transactions.deleteByBlock(block.data.id), this.db.blocks.delete(block.data.id)];
+        const queries = [this.transactionsRepository.deleteByBlockId(block.data.id), this.blocksRepository.delete(block.data.id)];
 
         this.enqueueQueries(queries);
     }
@@ -127,15 +128,15 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
         if (nextRound === round + 1 && height >= maxDelegates) {
-            this.enqueueQueries([this.db.rounds.delete(nextRound)]);
+            this.enqueueQueries([this.roundsRepository.delete(nextRound)]);
         }
     }
 
     public enqueueSaveBlock(block: models.Block): any {
-        const queries = [this.db.blocks.create(block.data)];
+        const queries = [this.blocksRepository.insert(block.data)];
 
         if (block.transactions.length > 0) {
-            queries.push(this.db.transactions.create(block.transactions));
+            queries.push(this.transactionsRepository.insert(block.transactions));
         }
 
         this.enqueueQueries(queries);
@@ -153,10 +154,11 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
         try {
             await this.connect();
+            this.exposeRepositories();
             await this.registerQueryExecutor();
             await this.runMigrations();
             await this.registerModels();
-            this.exposeRepositories();
+
             // await this.loadBlocksFromCurrentRound();
             this.logger.debug("Connected to database.");
 
@@ -170,10 +172,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
     public async saveBlock(block: models.Block) {
         try {
-            const queries = [this.db.blocks.create(block.data)];
+            const queries = [this.blocksRepository.insert(block.data)];
 
             if (block.transactions.length > 0) {
-                queries.push(this.db.transactions.create(block.transactions));
+                queries.push(this.transactionsRepository.insert(block.transactions));
             }
 
             await this.db.tx(t => t.batch(queries));
@@ -185,10 +187,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     public async saveWallets(wallets: any[], force?: boolean) {
         if (force) {
             // all wallets to be updated, performance is better without upsert
-            await this.db.wallets.truncate();
+            await this.walletsRepository.truncate();
 
             try {
-                const chunks = chunk(wallets, 5000).map(c => this.db.wallets.create(c));
+                const chunks = chunk(wallets, 5000).map(c => this.walletsRepository.insert(c)); // this 5000 figure should be configurable...
                 await this.db.tx(t => t.batch(chunks));
             } catch (error) {
                 this.logger.error(error.stack);
@@ -198,7 +200,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             // so it is safe to perform the costly UPSERT non-blocking during round change only:
             // 'await saveWallets(false)' -> 'saveWallets(false)'
             try {
-                const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallet));
+                const queries = wallets.map(wallet => this.walletsRepository.updateOrCreate(wallet));
                 await this.db.tx(t => t.batch(queries));
             } catch (error) {
                 this.logger.error(error.stack);
@@ -218,14 +220,14 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             if (name === "20180304100000-create-migrations-table") {
                 await this.query.none(migration);
             } else {
-                const row = await this.db.migrations.findByName(name);
+                const row = await this.migrationsRepository.findByName(name);
 
                 if (row === null) {
                     this.logger.debug(`Migrating ${name}`);
 
                     await this.query.none(migration);
 
-                    await this.db.migrations.create({ name });
+                    await this.migrationsRepository.insert({ name });
                 }
             }
         }
