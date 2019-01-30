@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { registerWithContainer, setUpContainer } from "../../../core-test-utils/src/helpers/container";
 
 jest.setTimeout(60000);

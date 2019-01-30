@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { LogManager } from "@arkecosystem/core-logger";
 import { defaults } from "./defaults";
 import { WinstonLogger } from "./driver";

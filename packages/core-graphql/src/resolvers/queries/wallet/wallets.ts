@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { formatOrderBy } from "../../../helpers";
 
 const database = app.resolvePlugin("database");

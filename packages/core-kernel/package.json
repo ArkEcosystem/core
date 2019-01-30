@@ -1,5 +1,5 @@
 {
-    "name": "@arkecosystem/core-container",
+    "name": "@arkecosystem/core-kernel",
     "description": "Container for Ark Core",
     "version": "2.1.0",
     "contributors": [

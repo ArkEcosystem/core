@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-kernel";
 import Boom from "boom";
 import { transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";

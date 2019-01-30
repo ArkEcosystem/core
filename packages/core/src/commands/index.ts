@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { buildPeerOptions } from "../utils";
 
 export async function startRelay(options, version) {

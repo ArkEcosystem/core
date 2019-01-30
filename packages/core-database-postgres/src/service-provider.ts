@@ -1,6 +1,6 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
 import { DatabaseManager } from "@arkecosystem/core-database";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { PostgresConnection } from "./connection";
 import { defaults } from "./defaults";
 

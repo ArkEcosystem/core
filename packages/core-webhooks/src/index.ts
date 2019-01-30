@@ -1,5 +1,5 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
 import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { database } from "./database";
 import { defaults } from "./defaults";
 import { webhookManager } from "./manager";

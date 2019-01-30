@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import bugsnag from "@bugsnag/js";
 import { defaults } from "./defaults";
 

@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { models, slots } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: models.Block): Promise<boolean> => {

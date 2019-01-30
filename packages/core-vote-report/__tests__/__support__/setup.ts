@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
 import { defaults } from "../../src/defaults";
 import { startServer } from "../../src/server";

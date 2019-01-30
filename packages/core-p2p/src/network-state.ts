@@ -1,5 +1,5 @@
 /* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "./config";
 import { Monitor } from "./monitor";

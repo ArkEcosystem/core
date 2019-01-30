@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { configManager } from "@arkecosystem/crypto";
 import axios from "axios";
 import isReachable from "is-reachable";

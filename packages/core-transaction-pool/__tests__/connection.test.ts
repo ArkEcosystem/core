@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-kernel";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";

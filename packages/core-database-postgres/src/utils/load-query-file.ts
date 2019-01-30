@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import path from "path";
 import { QueryFile } from "pg-promise";
 

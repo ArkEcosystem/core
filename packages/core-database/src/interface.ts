@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { constants, crypto, models } from "@arkecosystem/crypto";
 import assert from "assert";

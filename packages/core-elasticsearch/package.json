@@ -23,7 +23,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-kernel": "^2.1.0",
         "@arkecosystem/core-database-postgres": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",

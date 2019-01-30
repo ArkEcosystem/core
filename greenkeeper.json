@@ -5,7 +5,7 @@
                 "package.json",
                 "packages/core-api/package.json",
                 "packages/core-blockchain/package.json",
-                "packages/core-container/package.json",
+                "packages/core-kernel/package.json",
                 "packages/core-database-postgres/package.json",
                 "packages/core-database/package.json",
                 "packages/core-debugger-cli/package.json",

@@ -1,6 +1,6 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";

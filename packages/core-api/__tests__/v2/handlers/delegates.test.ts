@@ -7,8 +7,8 @@ import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/b
 import { models } from "@arkecosystem/crypto";
 const { Block } = models;
 
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-kernel";
 
 const delegate = {
     username: "genesis_9",

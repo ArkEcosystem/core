@@ -7,8 +7,8 @@ import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesis
 import { blocks2to100 } from "../../../../core-test-utils/src/fixtures";
 import { resetBlockchain } from "../../../../core-test-utils/src/helpers";
 
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-kernel";
 
 const container = app;
 const { Block } = models;

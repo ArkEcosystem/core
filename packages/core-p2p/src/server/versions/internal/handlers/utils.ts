@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 

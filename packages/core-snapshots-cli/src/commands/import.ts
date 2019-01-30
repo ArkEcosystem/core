@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { EventEmitter } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import _cliProgress from "cli-progress";
 

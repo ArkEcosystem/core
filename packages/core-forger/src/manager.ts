@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";

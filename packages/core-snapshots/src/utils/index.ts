@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import fs from "fs-extra";
 
 export const getPath = (table, folder, codec) => {

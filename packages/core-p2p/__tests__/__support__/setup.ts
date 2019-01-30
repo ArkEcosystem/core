@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import delay from "delay";
 import { registerWithContainer, setUpContainer } from "../../../core-test-utils/src/helpers/container";
 

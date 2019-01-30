@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain as blockchain, EventEmitter, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { models, slots } from "@arkecosystem/crypto";
 
 import delay from "delay";

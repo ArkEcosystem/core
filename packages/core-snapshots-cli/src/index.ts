@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import cli from "commander";
 import { createSnapshot, importSnapshot, rollbackSnapshot, truncateSnapshot, verifySnapshot } from "./commands";
 import * as utils from "./utils";

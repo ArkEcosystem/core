@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import prettyMs from "pretty-ms";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");

@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-kernel";
 import delay from "delay";
 import { registerWithContainer, setUpContainer } from "../../../core-test-utils/src/helpers/container";
 import { plugin } from "../../src/plugin";

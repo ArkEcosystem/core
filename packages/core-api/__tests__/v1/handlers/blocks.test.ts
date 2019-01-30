@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import "@arkecosystem/core-test-utils";
 import genesisBlock from "../../../../core-test-utils/src/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../../__support__/setup";

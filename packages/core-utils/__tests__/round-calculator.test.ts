@@ -1,6 +1,6 @@
-import "./__support__/mocks/core-container";
+import "./__support__/mocks/core-kernel";
 
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import "jest-extended";
 import { calculateRound, isNewRound } from "../src/round-calculator";
 

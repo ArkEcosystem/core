@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { ApiHelpers } from "@arkecosystem/core-test-utils/src/helpers/api";
 
 class Helpers {

@@ -1,8 +1,8 @@
 /* tslint:disable:max-line-length */
 
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";

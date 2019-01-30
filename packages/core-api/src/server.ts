@@ -1,6 +1,6 @@
-import { app } from "@arkecosystem/core-container";
 import { createSecureServer, createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import Hapi from "hapi";
 
 export class Server {

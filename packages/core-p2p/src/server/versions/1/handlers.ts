@@ -1,6 +1,6 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { Joi, models, slots } from "@arkecosystem/crypto";
 

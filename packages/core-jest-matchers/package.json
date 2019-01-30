@@ -29,7 +29,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-kernel": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",

@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import "jest-extended";
 import { calculate } from "../src/supply-calculator";
 

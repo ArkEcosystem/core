@@ -1,4 +1,4 @@
-import "./__support__/mocks/core-container-calculator";
+import "./__support__/mocks/core-kernel-calculator";
 
 import { Bignum, models } from "@arkecosystem/crypto";
 import "jest-extended";

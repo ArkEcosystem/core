@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import Sentry from "@sentry/node";
 import { defaults } from "./defaults";
 

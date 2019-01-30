@@ -1,6 +1,6 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 
 export abstract class Repository {
     public database = app.resolvePlugin<PostgresConnection>("database");

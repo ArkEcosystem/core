@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 
 const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 

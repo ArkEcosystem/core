@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { LogManager } from "./manager";
 
 export class ServiceProvider extends AbstractServiceProvider {

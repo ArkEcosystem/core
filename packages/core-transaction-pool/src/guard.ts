@@ -1,6 +1,6 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";

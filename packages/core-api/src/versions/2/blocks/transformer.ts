@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-kernel";
 import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
 
 export function transformBlock(model) {

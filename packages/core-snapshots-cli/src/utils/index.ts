@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 
 export const setUpLite = async options => {
     process.env.CORE_SKIP_BLOCKCHAIN = "true";

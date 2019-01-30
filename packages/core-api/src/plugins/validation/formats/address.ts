@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import * as bs58check from "bs58check";
 
 export function registerAddressFormat(ajv) {

@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { Bignum } from "@arkecosystem/crypto";
 
 const BignumMod = Bignum.clone({ DECIMAL_PLACES: 2 });

@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Added a `milestoneHash` identifier to use for peer banning ([367442318d182ac23ad61e765e14f5d438ab472d])
 -   Added TypeScript declarations for `core-logger` ([ef2d32182fafcec9842fddd8f1b54553ffdb27ba])
 -   Added TypeScript declarations for `core-logger-winston` ([8dffbb7eef4001cc8315199799238dd081c4db59])
--   Added TypeScript declarations for `core-container` ([26374dfbd3deef21e53bcefdcb26f95d4eeb1739])
+-   Added TypeScript declarations for `core-kernel` ([26374dfbd3deef21e53bcefdcb26f95d4eeb1739])
 -   Added TypeScript declarations for `core-database` ([6466030d5bc08f40e6bdc8252d368520a2186c36], [c5a235b72e6f43c8ad768daddf26c1dea107a389])
 -   Added TypeScript declarations for `core-transaction-pool` ([f8c4796d00290a294f53394ae6ebdc5d64377eac])
 -   Added TypeScript declarations for `core-blockchain` ([12a6aa7cda7a5bb1d75448f09fe0305bced2cf75])

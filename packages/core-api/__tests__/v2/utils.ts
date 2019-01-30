@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
 import axios from "axios";
 import "jest-extended";

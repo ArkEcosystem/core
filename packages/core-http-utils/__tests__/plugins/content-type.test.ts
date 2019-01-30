@@ -1,4 +1,4 @@
-import "../__support__/mocks/core-container";
+import "../__support__/mocks/core-kernel";
 
 import axios from "axios";
 import { contentType } from "../../src/plugins/content-type";

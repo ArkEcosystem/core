@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { crypto, models } from "@arkecosystem/crypto";
 import createHash from "create-hash";
 import { camelizeKeys } from "xcase";

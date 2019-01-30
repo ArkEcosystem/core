@@ -1,4 +1,4 @@
-jest.mock("@arkecosystem/core-container", () => {
+jest.mock("@arkecosystem/core-kernel", () => {
     return {
         app: {
             resolvePlugin: name => {

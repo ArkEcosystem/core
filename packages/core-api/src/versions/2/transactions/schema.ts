@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { Joi } from "@arkecosystem/crypto";
 import { pagination } from "../shared/schemas/pagination";
 

@@ -67,7 +67,7 @@
     "dependencies": {
         "@arkecosystem/core-api": "^2.1.0",
         "@arkecosystem/core-blockchain": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-kernel": "^2.1.0",
         "@arkecosystem/core-database-postgres": "^2.1.0",
         "@arkecosystem/core-forger": "^2.1.0",
         "@arkecosystem/core-graphql": "^2.1.0",

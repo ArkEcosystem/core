@@ -1,6 +1,6 @@
-import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-kernel";
 import { constants, crypto, isException, models } from "@arkecosystem/crypto";
 
 const { Wallet } = models;

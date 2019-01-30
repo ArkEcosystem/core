@@ -1,5 +1,5 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { config } from "./config";
 import { TransactionPool } from "./connection";
 import { defaults } from "./defaults";

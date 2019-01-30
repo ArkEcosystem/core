@@ -1,6 +1,6 @@
-import { app } from "@arkecosystem/core-container";
 import { Container } from "@arkecosystem/core-interfaces";
 import "@arkecosystem/core-jest-matchers";
+import { app } from "@arkecosystem/core-kernel";
 import { asValue } from "awilix";
 import isString from "lodash/isString";
 import * as path from "path";
@@ -20,7 +20,7 @@ export async function setUpContainer(options: any): Promise<Container.IContainer
     return app;
 }
 
-// copied from core-container registrars/plugin and slightly modified
+// copied from core-kernel registrars/plugin and slightly modified
 export async function registerWithContainer(plugin, options = {}) {
     if (!plugin.register) {
         return;
@@ -47,7 +47,7 @@ export async function registerWithContainer(plugin, options = {}) {
     return pluginRegistered;
 }
 
-// copied from core-container registrars/plugin and slightly modified
+// copied from core-kernel registrars/plugin and slightly modified
 function applyToDefaults(name, defaults, options) {
     if (defaults) {
         options = Object.assign(defaults, options);
@@ -56,7 +56,7 @@ function applyToDefaults(name, defaults, options) {
     return castOptions(options);
 }
 
-// copied from core-container registrars/plugin
+// copied from core-kernel registrars/plugin
 function castOptions(options) {
     const blacklist: any = [];
     const regex = new RegExp(/^\d+$/);

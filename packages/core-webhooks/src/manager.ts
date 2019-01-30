@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import axios from "axios";
 import * as conditions from "./conditions";
 import { database } from "./database";

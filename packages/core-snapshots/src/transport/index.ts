@@ -5,8 +5,8 @@ import QueryStream from "pg-query-stream";
 import pluralize from "pluralize";
 import zlib from "zlib";
 
-import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 
 import * as utils from "../utils";
 import { getCodec } from "./codecs";

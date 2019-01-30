@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 
 export function transformPeerLegacy(model) {
     const config = app.getConfig();

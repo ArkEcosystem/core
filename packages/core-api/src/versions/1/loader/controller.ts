@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import Boom from "boom";
 import Hapi from "hapi";
 import { transactionsRepository } from "../../../repositories";

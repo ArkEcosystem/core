@@ -1,7 +1,7 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
-import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { isException, models, slots } from "@arkecosystem/crypto";

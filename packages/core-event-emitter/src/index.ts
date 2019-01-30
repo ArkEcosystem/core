@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-container";
+import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import EventEmitter from "eventemitter3";
 
 export class ServiceProvider extends AbstractServiceProvider {

@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-kernel";
 import { bignumify } from "@arkecosystem/core-utils";
 
 export function transformBlockLegacy(model) {

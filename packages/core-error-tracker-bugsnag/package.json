@@ -23,7 +23,7 @@
     },
     "dependencies": {
         "@bugsnag/js": "^5.0.2",
-        "@arkecosystem/core-container": "^2.1.0"
+        "@arkecosystem/core-kernel": "^2.1.0"
     },
     "publishConfig": {
         "access": "public"
