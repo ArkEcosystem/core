@@ -106,7 +106,7 @@ describe("Plugin Registrar", () => {
                 notANumber: "0.0.0.0",
             };
 
-            instance.__castOptions(options);
+            instance.castOptions(options);
             expect(options.number).toEqual(1);
             expect(options.notANumber).toEqual("0.0.0.0");
         });

@@ -47,7 +47,7 @@ export class SecondSignature extends Command {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.arktoshiToArk(transaction.fee)})`,
             );
         });
 

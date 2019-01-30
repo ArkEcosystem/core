@@ -74,10 +74,7 @@ export class PoolWalletManager extends WalletManager {
 
             errors.push(`Can't apply transaction ${transaction.id}: delegate name already taken.`);
             // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
-        } else if (
-            type === TransactionTypes.Vote &&
-            !this.database.walletManager.__isDelegate(asset.votes[0].slice(1))
-        ) {
+        } else if (type === TransactionTypes.Vote && !this.database.walletManager.isDelegate(asset.votes[0].slice(1))) {
             this.logger.error(
                 `[PoolWalletManager] Can't apply vote transaction: delegate ${
                     asset.votes[0]

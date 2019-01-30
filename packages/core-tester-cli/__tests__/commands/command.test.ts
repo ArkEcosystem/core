@@ -243,7 +243,7 @@ describe("Command Base", () => {
                 secondPassphrase: "test_secondPassphrase",
             };
 
-            command.__applyConfig();
+            command.applyConfig();
 
             expect(command.config.baseUrl).toBe("http://baseUrl");
             expect(command.config.apiPort).toBe(1234);
@@ -268,7 +268,7 @@ describe("Command Base", () => {
                 },
             });
 
-            await command.__loadConstants();
+            await command.loadConstants();
 
             expect(command.config.constants).toContainAllEntries([
                 ["testConstant", true as any],
@@ -292,27 +292,27 @@ describe("Command Base", () => {
                 },
             });
 
-            await command.__loadNetworkConfig();
+            await command.loadNetworkConfig();
 
             expect(command.config.network).toContainAllEntries([["testConfig", true as any], ["testConfig2", "test"]]);
         });
     });
 
-    describe("static __arkToArktoshi", () => {
+    describe("static arkToArktoshi", () => {
         it("should give arktoshi", () => {
-            expect(Command.__arkToArktoshi(0.00000001).toString()).toBe("1");
-            expect(Command.__arkToArktoshi(0.1).toString()).toBe("10000000");
-            expect(Command.__arkToArktoshi(1).toString()).toBe("100000000");
-            expect(Command.__arkToArktoshi(10).toString()).toBe("1000000000");
+            expect(Command.arkToArktoshi(0.00000001).toString()).toBe("1");
+            expect(Command.arkToArktoshi(0.1).toString()).toBe("10000000");
+            expect(Command.arkToArktoshi(1).toString()).toBe("100000000");
+            expect(Command.arkToArktoshi(10).toString()).toBe("1000000000");
         });
     });
 
-    describe("static __arktoshiToArk", () => {
+    describe("static arktoshiToArk", () => {
         it("should give ark", () => {
-            expect(Command.__arktoshiToArk(1)).toBe("0.00000001 DѦ");
-            expect(Command.__arktoshiToArk(10000000)).toBe("0.1 DѦ");
-            expect(Command.__arktoshiToArk(100000000)).toBe("1 DѦ");
-            expect(Command.__arktoshiToArk(1000000000)).toBe("10 DѦ");
+            expect(Command.arktoshiToArk(1)).toBe("0.00000001 DѦ");
+            expect(Command.arktoshiToArk(10000000)).toBe("0.1 DѦ");
+            expect(Command.arktoshiToArk(100000000)).toBe("1 DѦ");
+            expect(Command.arktoshiToArk(1000000000)).toBe("10 DѦ");
         });
     });
 
@@ -324,7 +324,7 @@ describe("Command Base", () => {
             process.exit = jest.fn();
             logger.error = jest.fn();
             const message = "__problemSendingTransactions message";
-            command.__problemSendingTransactions({
+            command.problemSendingTransactions({
                 message,
             });
             expect(logger.error).toHaveBeenCalledTimes(1);

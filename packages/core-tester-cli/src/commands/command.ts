@@ -38,7 +38,7 @@ export abstract class Command {
      * @param  {Number} ark
      * @return {Bignum}
      */
-    public static __arkToArktoshi(ark) {
+    public static arkToArktoshi(ark) {
         return bignumify(ark * 1e8);
     }
 
@@ -47,7 +47,7 @@ export abstract class Command {
      * @param  {Bignum} arktoshi
      * @return {String}
      */
-    public static __arktoshiToArk(arktoshi) {
+    public static arktoshiToArk(arktoshi) {
         return formatArktoshi(arktoshi);
     }
 
@@ -58,9 +58,9 @@ export abstract class Command {
      */
     public static async initialize(command, options) {
         command.options = options;
-        command.__applyConfig();
-        await command.__loadConstants();
-        await command.__loadNetworkConfig();
+        command.applyConfig();
+        await command.loadConstants();
+        await command.loadNetworkConfig();
 
         return command;
     }

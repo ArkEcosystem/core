@@ -122,7 +122,7 @@ describe("Guard", () => {
         it('should return a 1 year suspension for "Blacklisted"', () => {
             guard.config.set("blacklist", ["dummy-ip-addr"]);
 
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
                 milestoneHash: "dummy-milestone",
                 ip: "dummy-ip-addr",
@@ -135,7 +135,7 @@ describe("Guard", () => {
         });
 
         it('should return a 5 minutes suspension for "No Common Blocks"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 ...{
                     commonBlocks: false,
@@ -147,7 +147,7 @@ describe("Guard", () => {
         });
 
         it('should return a 5 minute suspension for "Invalid Version"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
                 milestoneHash: "dummy-milestone",
                 version: "1.0.0",
@@ -160,7 +160,7 @@ describe("Guard", () => {
         });
 
         it('should return a 5 minute suspension for "Invalid Milestones"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 milestoneHash: "wrong-milestone",
             });
@@ -172,7 +172,7 @@ describe("Guard", () => {
         it('should return a 10 minutes suspension for "Node is not at height"', () => {
             guard.monitor.getNetworkHeight = jest.fn(() => 154);
 
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 state: {
                     height: 1,
@@ -184,7 +184,7 @@ describe("Guard", () => {
         });
 
         it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 ...{ status: 201 },
             });
@@ -194,7 +194,7 @@ describe("Guard", () => {
         });
 
         it('should return a 2 minutes suspension for "Timeout"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 ...{ delay: -1 },
             });
@@ -204,7 +204,7 @@ describe("Guard", () => {
         });
 
         it('should return a 1 minutes suspension for "High Latency"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 ...{ delay: 3000 },
             });
@@ -214,7 +214,7 @@ describe("Guard", () => {
         });
 
         it('should return a 30 seconds suspension for "Blockchain not ready"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 ...{ status: 503 },
             });
@@ -224,7 +224,7 @@ describe("Guard", () => {
         });
 
         it('should return a 60 seconds suspension for "Rate limit exceeded"', () => {
-            const { until, reason } = guard.__determineOffence({
+            const { until, reason } = guard.determineOffence({
                 ...dummy,
                 ...{ status: 429 },
             });
@@ -234,7 +234,7 @@ describe("Guard", () => {
         });
 
         it('should return a 10 minutes suspension for "Unknown"', () => {
-            const { until, reason } = guard.__determineOffence(dummy);
+            const { until, reason } = guard.determineOffence(dummy);
 
             expect(reason).toBe("Unknown");
             expect(convertToMinutes(until)).toBe(10);
@@ -243,7 +243,7 @@ describe("Guard", () => {
 
     describe("__determinePunishment", () => {
         it("should be true if the threshold is met", () => {
-            const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER);
+            const actual = guard.determinePunishment({}, offences.REPEAT_OFFENDER);
 
             expect(actual).toHaveProperty("until");
             expect(actual.until).toBeObject();

@@ -63,7 +63,7 @@ export class DelegateRegistration extends Command {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.arktoshiToArk(
                     transaction.fee,
                 )}, username: ${wallet.username})`,
             );

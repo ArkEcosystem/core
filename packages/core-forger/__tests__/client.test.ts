@@ -57,7 +57,7 @@ describe("Client", () => {
                     return [200, true];
                 });
 
-                await client.__chooseHost();
+                await client.chooseHost();
 
                 const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
                 expect(wasBroadcasted).toBeTruthy();
@@ -84,7 +84,7 @@ describe("Client", () => {
                 const expectedResponse = { foo: "bar" };
                 mockAxios.onGet(`${host}/internal/transactions/forging`).reply(200, { data: expectedResponse });
 
-                await client.__chooseHost();
+                await client.chooseHost();
                 const response = await client.getTransactions();
 
                 expect(response).toEqual(expectedResponse);
@@ -98,7 +98,7 @@ describe("Client", () => {
                 const expectedResponse = new NetworkState(NetworkStateStatus.Test);
                 mockAxios.onGet(`${host}/internal/network/state`).reply(200, { data: expectedResponse });
 
-                await client.__chooseHost();
+                await client.chooseHost();
                 const response = await client.getNetworkState();
 
                 expect(response).toEqual(expectedResponse);
@@ -137,7 +137,7 @@ describe("Client", () => {
                 return [200];
             });
 
-            await client.__chooseHost();
+            await client.chooseHost();
             await client.emitEvent("foo", "bar");
 
             expect(axios.post).toHaveBeenCalledWith(

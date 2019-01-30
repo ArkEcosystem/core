@@ -455,7 +455,7 @@ export abstract class ConnectionInterface {
      * @param  {Object} transaction
      * @return {void}
      */
-    private __emitTransactionEvents(transaction) {
+    private emitTransactionEvents(transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
         if (transaction.type === TransactionTypes.DelegateRegistration) {

@@ -416,7 +416,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
             if (
                 senderWallet &&
-                this.walletManager.__canBePurged(senderWallet) &&
+                this.walletManager.canBePurged(senderWallet) &&
                 this.getSenderSize(senderPublicKey) === 0
             ) {
                 this.walletManager.deleteWallet(senderPublicKey);
@@ -559,7 +559,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * Remove all transactions from the pool that have expired.
      * @return {void}
      */
-    private __purgeExpired() {
+    private purgeExpired() {
         for (const transaction of this.mem.getExpired(this.options.maxTransactionAge)) {
             emitter.emit("transaction.expired", transaction.data);
 

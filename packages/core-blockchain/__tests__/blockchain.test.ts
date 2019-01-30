@@ -358,7 +358,7 @@ describe("Blockchain", () => {
 
     describe("__registerQueue", () => {
         it("should be ok", () => {
-            blockchain.__registerQueue();
+            blockchain.registerQueue();
 
             expect(blockchain).toHaveProperty("queue");
             expect(blockchain).toHaveProperty("processQueue");

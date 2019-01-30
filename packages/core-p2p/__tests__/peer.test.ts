@@ -194,7 +194,7 @@ describe("Peer", () => {
                 version: "version",
             };
 
-            await peerMock.__parseHeaders({ headers });
+            await peerMock.parseHeaders({ headers });
 
             expect(peerMock.nethash).toBe(headers.nethash);
             expect(peerMock.os).toBe(headers.os);

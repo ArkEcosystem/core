@@ -277,7 +277,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
     /**
      * Adds a transaction to the errors object. The transaction id is mapped to an
      * array of errors. There may be multiple errors associated with a transaction in
-     * which case __pushError is called multiple times.
+     * which case pushError is called multiple times.
      * @param {Transaction} transaction
      * @param {String} type
      * @param {String} message

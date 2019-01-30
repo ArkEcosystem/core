@@ -39,7 +39,7 @@ describe.skip("Remote Loader", () => {
 
             axiosMock.onGet("http://127.0.0.1:4002/config/network").reply(() => [404, {}]);
 
-            await testSubject.__configureNetwork();
+            await testSubject.configureNetwork();
 
             expect(mockExit).toHaveBeenCalledWith(1);
         });
@@ -52,7 +52,7 @@ describe.skip("Remote Loader", () => {
                 },
             ]);
 
-            await testSubject.__configureNetwork();
+            await testSubject.configureNetwork();
 
             expect(existsSync(`${configDir}/network.json`)).toBeTrue();
         });
@@ -62,7 +62,7 @@ describe.skip("Remote Loader", () => {
         it("should not be OK", async () => {
             axiosMock.onGet("http://127.0.0.1:4002/config/genesis-block").reply(() => [404, {}]);
 
-            await expect(testSubject.__configureGenesisBlock()).rejects.toThrowError();
+            await expect(testSubject.configureGenesisBlock()).rejects.toThrowError();
         });
 
         it("should be OK", async () => {
@@ -73,7 +73,7 @@ describe.skip("Remote Loader", () => {
                 },
             ]);
 
-            await testSubject.__configureGenesisBlock();
+            await testSubject.configureGenesisBlock();
 
             expect(existsSync(`${configDir}/genesisBlock.json`)).toBeTrue();
         });
@@ -85,7 +85,7 @@ describe.skip("Remote Loader", () => {
 
             axiosMock.onGet("http://127.0.0.1:4002/config/peers").reply(() => [404, {}]);
 
-            await testSubject.__configurePeers();
+            await testSubject.configurePeers();
 
             expect(mockExit).toHaveBeenCalledWith(1);
         });
@@ -98,7 +98,7 @@ describe.skip("Remote Loader", () => {
                 },
             ]);
 
-            await testSubject.__configurePeers();
+            await testSubject.configurePeers();
 
             expect(existsSync(`${configDir}/peers.json`)).toBeTrue();
         });
@@ -110,7 +110,7 @@ describe.skip("Remote Loader", () => {
 
             axiosMock.onGet("http://127.0.0.1:4002/config/delegates").reply(() => [404, {}]);
 
-            await testSubject.__configureDelegates();
+            await testSubject.configureDelegates();
 
             expect(mockExit).toHaveBeenCalledWith(1);
         });
@@ -123,7 +123,7 @@ describe.skip("Remote Loader", () => {
                 },
             ]);
 
-            await testSubject.__configureDelegates();
+            await testSubject.configureDelegates();
 
             expect(existsSync(`${configDir}/delegates.json`)).toBeTrue();
         });
@@ -131,7 +131,7 @@ describe.skip("Remote Loader", () => {
 
     describe("__configurePlugins", () => {
         it("should be OK", async () => {
-            await testSubject.__configurePlugins({ name: "devnet" });
+            await testSubject.configurePlugins({ name: "devnet" });
 
             expect(existsSync(`${configDir}/plugins.js`)).toBeTrue();
         });

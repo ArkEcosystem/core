@@ -674,7 +674,7 @@ export class PostgresConnection extends ConnectionInterface {
      * @return {void}
      */
     protected registerListeners() {
-        super.__registerListeners();
+        super.registerListeners();
 
         this.emitter.on("wallet.created.cold", async coldWallet => {
             try {

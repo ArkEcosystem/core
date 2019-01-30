@@ -195,7 +195,7 @@ describe("Wallet Manager", () => {
                 walletManager.reindex(sender);
                 walletManager.reindex(recipient);
 
-                walletManager.__isDelegate = jest.fn(() => true); // for vote transaction
+                walletManager.isDelegate = jest.fn(() => true); // for vote transaction
             });
 
             it("should apply the transaction to the sender & recipient", async () => {
@@ -330,7 +330,7 @@ describe("Wallet Manager", () => {
         it("should be removed if all criteria are satisfied", async () => {
             const wallet = new Wallet(walletData1.address);
 
-            expect(walletManager.__canBePurged(wallet)).toBeTrue();
+            expect(walletManager.canBePurged(wallet)).toBeTrue();
         });
 
         it("should not be removed if wallet.secondPublicKey is set", async () => {
@@ -338,7 +338,7 @@ describe("Wallet Manager", () => {
             wallet.secondPublicKey = "secondPublicKey";
 
             expect(wallet.secondPublicKey).toBe("secondPublicKey");
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
+            expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
 
         it("should not be removed if wallet.multisignature is set", async () => {
@@ -346,7 +346,7 @@ describe("Wallet Manager", () => {
             wallet.multisignature = {} as IMultiSignatureAsset;
 
             expect(wallet.multisignature).toEqual({});
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
+            expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
 
         it("should not be removed if wallet.username is set", async () => {
@@ -354,7 +354,7 @@ describe("Wallet Manager", () => {
             wallet.username = "username";
 
             expect(wallet.username).toBe("username");
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
+            expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
     });
 

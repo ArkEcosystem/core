@@ -44,7 +44,7 @@ describe("Commands - Vote", () => {
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: Vote.__arkToArktoshi(opts.voteFee),
+                        fee: Vote.arkToArktoshi(opts.voteFee),
                         asset: {
                             votes: [`+${expectedDelegate}`],
                         },
@@ -80,7 +80,7 @@ describe("Commands - Vote", () => {
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: Vote.__arkToArktoshi(opts.voteFee),
+                        fee: Vote.arkToArktoshi(opts.voteFee),
                         asset: {
                             votes: [`+${expectedDelegate}`],
                         },

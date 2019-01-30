@@ -101,7 +101,7 @@ export class NetworkState {
         const peers = monitor.getPeers();
         const minimumNetworkReach = localConfig.get("minimumNetworkReach", 20);
 
-        if (monitor.__isColdStartActive()) {
+        if (monitor.isColdStartActive()) {
             return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);
         } else if (process.env.CORE_ENV === "test") {
             return new NetworkState(NetworkStateStatus.Test, lastBlock);

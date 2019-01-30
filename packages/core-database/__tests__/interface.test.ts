@@ -103,7 +103,7 @@ describe("Connection Interface", () => {
             }
 
             const connection = new DummyConnection({});
-            connection.__getBlocksForRound = jest.fn(async () => blocksInRound);
+            connection.getBlocksForRound = jest.fn(async () => blocksInRound);
             connection.walletManager = walletManager;
 
             // Necessary for revertRound to not blow up.
@@ -114,7 +114,7 @@ describe("Connection Interface", () => {
             });
 
             // Finally recalculate the round 2 list and compare against the original list
-            const restoredDelegatesRound2 = await connection.__calcPreviousActiveDelegates(2);
+            const restoredDelegatesRound2 = await connection.calcPreviousActiveDelegates(2);
 
             for (let i = 0; i < restoredDelegatesRound2.length; i++) {
                 expect(restoredDelegatesRound2[i].rate).toBe(i + 1);
