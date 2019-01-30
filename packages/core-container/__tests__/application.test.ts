@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { resolve } from "path";
 import { Application } from "../src/application";
 
 const config = {
@@ -8,11 +9,11 @@ const config = {
     token: "ark",
     network: "dummy",
     paths: {
-        data: "./data",
-        config: "./config",
-        cache: "./cache",
-        log: "./log",
-        temp: "./temp",
+        data: resolve(__dirname, "./__fixtures__/data"),
+        config: resolve(__dirname, "./__fixtures__/config"),
+        cache: resolve(__dirname, "./__fixtures__/cache"),
+        log: resolve(__dirname, "./__fixtures__/log"),
+        temp: resolve(__dirname, "./__fixtures__/temp"),
     },
 };
 
@@ -20,62 +21,66 @@ let app: Application;
 beforeEach(() => {
     app = new Application();
 
-    app.bootstrapWith(config);
+    app.bootstrap(config);
 });
 
 describe("Application", () => {
+    it("should be booted", () => {
+        expect(app.has("event-emitter")).toBeTrue();
+    });
+
     it("version", () => {
         expect(app.version()).toBeString();
     });
 
     it("dataPath", () => {
-        expect(app.dataPath()).toBe("./data");
+        expect(app.dataPath()).toBe(config.paths.data);
     });
 
     it("useDataPath", () => {
-        app.useDataPath("dummy");
+        app.useDataPath(config.paths.data);
 
-        expect(app.dataPath()).toBe("dummy");
+        expect(app.dataPath()).toBe(config.paths.data);
     });
 
     it("configPath", () => {
-        expect(app.configPath()).toBe("./config");
+        expect(app.configPath()).toBe(config.paths.config);
     });
 
     it("useConfigPath", () => {
-        app.useConfigPath("dummy");
+        app.useConfigPath(config.paths.config);
 
-        expect(app.configPath()).toBe("dummy");
+        expect(app.configPath()).toBe(config.paths.config);
     });
 
     it("cachePath", () => {
-        expect(app.cachePath()).toBe("./cache");
+        expect(app.cachePath()).toBe(config.paths.cache);
     });
 
     it("useCachePath", () => {
-        app.useCachePath("dummy");
+        app.useCachePath(config.paths.cache);
 
-        expect(app.cachePath()).toBe("dummy");
+        expect(app.cachePath()).toBe(config.paths.cache);
     });
 
     it("logPath", () => {
-        expect(app.logPath()).toBe("./log");
+        expect(app.logPath()).toBe(config.paths.log);
     });
 
     it("useLogPath", () => {
-        app.useLogPath("dummy");
+        app.useLogPath(config.paths.log);
 
-        expect(app.logPath()).toBe("dummy");
+        expect(app.logPath()).toBe(config.paths.log);
     });
 
     it("tempPath", () => {
-        expect(app.tempPath()).toBe("./temp");
+        expect(app.tempPath()).toBe(config.paths.temp);
     });
 
     it("useTempPath", () => {
-        app.useTempPath("dummy");
+        app.useTempPath(config.paths.temp);
 
-        expect(app.tempPath()).toBe("dummy");
+        expect(app.tempPath()).toBe(config.paths.temp);
     });
 
     describe("isProduction", () => {

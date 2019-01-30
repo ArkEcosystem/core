@@ -1,21 +1,32 @@
 import { AbstractServiceProvider } from "@arkecosystem/core-container";
-import { Container } from "@arkecosystem/core-interfaces";
+import { Blockchain } from "./blockchain";
+import { config } from "./config";
 import { defaults } from "./defaults";
-import { startServer } from "./server";
+import { stateStorage } from "./state-storage";
 
 export class ServiceProvider extends AbstractServiceProvider {
     /**
      * Register any application services.
      */
     public async register(): Promise<void> {
-        this.app.bind(this.getAlias(), await startServer(this.opts));
+        const blockchain = new Blockchain(this.opts);
+
+        config.init(this.opts);
+
+        this.app.bind("state", stateStorage);
+
+        if (!process.env.CORE_SKIP_BLOCKCHAIN) {
+            await blockchain.start();
+        }
+
+        this.app.bind(this.getAlias(), blockchain);
     }
 
     /**
      * Dispose any application services.
      */
     public async dispose(): Promise<void> {
-        return this.app.resolve(this.getAlias()).stop();
+        await this.app.resolve<Blockchain>(this.getAlias()).stop();
     }
 
     /**

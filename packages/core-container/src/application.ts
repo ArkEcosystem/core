@@ -1,11 +1,13 @@
-import { existsSync, writeFileSync } from "fs";
-import { removeSync } from "fs-extra";
+import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import camelCase from "lodash/camelCase";
-import semver from "semver";
+import { join } from "path";
+import * as Bootstrappers from "./bootstrap";
 import { Container } from "./container";
-import { DirectoryNotFound, InvalidVersion } from "./errors";
+import { DirectoryNotFound } from "./errors";
 
 export class Application extends Container {
+    public config: Map<string, any>;
+
     /**
      * Indicates if the application has been bootstrapped.
      */
@@ -17,14 +19,18 @@ export class Application extends Container {
     private namespace: string;
 
     /**
-     * Boot the application.
+     * Boot the application's service providers.
      */
-    public bootstrapWith(config: Record<string, any>): void {
-        this.bindEnvironment(config);
-
-        this.bindNamespace();
+    public bootstrap(config: Record<string, any>): void {
+        this.config = new Map<string, any>(Object.entries(config));
 
         this.bindPathsInContainer(config.paths);
+
+        this.registerBindings();
+
+        this.registerNamespace();
+
+        this.registerServiceProviders();
 
         this.bootstrapped = true;
     }
@@ -61,7 +67,7 @@ export class Application extends Container {
      * Get the path to the data directory.
      */
     public dataPath(path: string = ""): string {
-        return this.getPath("data").concat(path);
+        return join(this.getPath("data"), path);
     }
 
     /**
@@ -75,7 +81,7 @@ export class Application extends Container {
      * Get the path to the config directory.
      */
     public configPath(path: string = ""): string {
-        return this.getPath("config").concat(path);
+        return join(this.getPath("config"), path);
     }
 
     /**
@@ -89,7 +95,7 @@ export class Application extends Container {
      * Get the path to the cache directory.
      */
     public cachePath(path: string = ""): string {
-        return this.getPath("cache").concat(path);
+        return join(this.getPath("cache"), path);
     }
 
     /**
@@ -103,7 +109,7 @@ export class Application extends Container {
      * Get the path to the log directory.
      */
     public logPath(path: string = ""): string {
-        return this.getPath("log").concat(path);
+        return join(this.getPath("log"), path);
     }
 
     /**
@@ -117,7 +123,7 @@ export class Application extends Container {
      * Get the path to the temp directory.
      */
     public tempPath(path: string = ""): string {
-        return this.getPath("temp").concat(path);
+        return join(this.getPath("temp"), path);
     }
 
     /**
@@ -225,26 +231,22 @@ export class Application extends Container {
     }
 
     /**
-     * Bind all of the application environment in the container.
+     * Register the basic bindings into the container.
      */
-    private bindEnvironment(config: Record<string, any>): void {
-        this.bind("app.env", config.env);
+    private registerBindings(): void {
+        this.bind("app.env", this.config.get("env"));
 
-        this.bind("app.token", config.token);
+        this.bind("app.token", this.config.get("token"));
 
-        this.bind("app.network", config.network);
+        this.bind("app.network", this.config.get("network"));
 
-        if (!semver.valid(config.version)) {
-            throw new InvalidVersion(config.version);
-        }
-
-        this.bind("app.version", config.version);
+        this.bind("app.version", this.config.get("version"));
     }
 
     /**
-     * Bind the application namespace in the container.
+     * Register the aplication namespace into the container.
      */
-    private bindNamespace(): void {
+    private registerNamespace(): void {
         const token = this.token();
         const network = this.network();
 
@@ -255,6 +257,13 @@ export class Application extends Container {
         this.namespace = `${token}/${network}`;
 
         this.bind("app.namespace", this.namespace);
+    }
+
+    /**
+     * Register all of the base service providers.
+     */
+    private registerServiceProviders(): void {
+        Object.values(Bootstrappers).forEach((Bootstrapper: any) => new Bootstrapper().bootstrap(this));
     }
 
     /**

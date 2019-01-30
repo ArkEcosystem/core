@@ -1,14 +1,18 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { AbstractServiceProvider } from "@arkecosystem/core-container";
 import Sentry from "@sentry/node";
 import { defaults } from "./defaults";
 
-export const plugin: Container.PluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "error-tracker",
-    async register(container: Container.IContainer, options) {
-        Sentry.init(options);
+export class ServiceProvider extends AbstractServiceProvider {
+    /**
+     * Register any application services.
+     */
+    public async register(): Promise<void> {
+        Sentry.init(this.opts);
 
-        return Sentry;
-    },
-};
+        this.app.bind(this.getAlias(), Sentry);
+    }
+
+    public getAlias(): string {
+        return "error-tracker";
+    }
+}

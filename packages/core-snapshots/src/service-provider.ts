@@ -1,21 +1,16 @@
 import { AbstractServiceProvider } from "@arkecosystem/core-container";
-import { Container } from "@arkecosystem/core-interfaces";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { defaults } from "./defaults";
-import { startServer } from "./server";
+import { SnapshotManager } from "./manager";
 
 export class ServiceProvider extends AbstractServiceProvider {
     /**
      * Register any application services.
      */
     public async register(): Promise<void> {
-        this.app.bind(this.getAlias(), await startServer(this.opts));
-    }
+        const manager = new SnapshotManager(this.opts);
 
-    /**
-     * Dispose any application services.
-     */
-    public async dispose(): Promise<void> {
-        return this.app.resolve(this.getAlias()).stop();
+        this.app.bind(this.getAlias(), manager.make(this.app.resolve<PostgresConnection>("database")));
     }
 
     /**

@@ -50,6 +50,9 @@
         "pluralize": "^7.0.0",
         "xcase": "^2.0.1"
     },
+    "devDependencies": {
+        "@types/pg-query-stream": "^1.0.2"
+    },
     "publishConfig": {
         "access": "public"
     },
@@ -59,7 +62,7 @@
     "jest": {
         "preset": "../../jest-preset.json"
     },
-    "devDependencies": {
-        "@types/pg-query-stream": "^1.0.2"
+    "core": {
+        "alias": "snapshots"
     }
 }

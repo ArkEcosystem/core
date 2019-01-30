@@ -56,5 +56,8 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
+    },
+    "core": {
+        "alias": "webhooks"
     }
 }

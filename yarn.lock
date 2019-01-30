@@ -3787,14 +3787,6 @@ catbox-memory@3.x.x:
     boom "7.x.x"
     hoek "6.x.x"
 
-catbox-memory@4.x.x:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/catbox-memory/-/catbox-memory-4.0.1.tgz#3371ae0dd91bbf5d9dd88dcab5332470354cbd1f"
-  integrity sha512-ZmqNiLsYCIu9qvBJ/MQbznDV2bFH5gFiH67TgIJgSSffJFtTXArT+MM3AvJQlby9NSkLHOX4eH/uuUqnch/Ldw==
-  dependencies:
-    boom "7.x.x"
-    hoek "6.x.x"
-
 catbox@10.x.x:
   version "10.0.5"
   resolved "https://registry.yarnpkg.com/catbox/-/catbox-10.0.5.tgz#53915f0558d14e679bf10c90f6a9f79af99147b7"
@@ -6348,30 +6340,6 @@ hapi@^17.1.1, hapi@^17.8.1:
     teamwork "3.x.x"
     topo "3.x.x"
 
-hapi@^18.0.0:
-  version "18.0.0"
-  resolved "https://registry.yarnpkg.com/hapi/-/hapi-18.0.0.tgz#97dcc248432baa3d32eb9d9542dec028d8271e1a"
-  integrity sha512-Yv68jeoHww6W88gQsvBfZil139Ho/CTMH75+GADuREIET/4bo60yhp+MoVc3lHjMR5hIEYl7HC6wxGzbmGBLQg==
-  dependencies:
-    accept "3.x.x"
-    ammo "3.x.x"
-    boom "7.x.x"
-    bounce "1.x.x"
-    call "5.x.x"
-    catbox "10.x.x"
-    catbox-memory "4.x.x"
-    heavy "6.x.x"
-    hoek "6.x.x"
-    joi "14.x.x"
-    mimos "4.x.x"
-    podium "3.x.x"
-    shot "4.x.x"
-    somever "2.x.x"
-    statehood "6.x.x"
-    subtext "6.x.x"
-    teamwork "3.x.x"
-    topo "3.x.x"
-
 har-schema@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/har-schema/-/har-schema-2.0.0.tgz#a94c2224ebcac04782a0d9035521f24735b7ec92"
@@ -7830,6 +7798,14 @@ js-yaml@^3.12.0, js-yaml@^3.7.0, js-yaml@^3.9.0:
   version "3.12.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.0.tgz#eaed656ec8344f10f527c6bfa1b6e2244de167d1"
   integrity sha512-PIt2cnwmPfL4hKNwqeiuz4bKfnzHTBv6HyVgjahA6mPLwPDzjDWrplJBMjHUFxku/N3FlmrbyPclad+I+4mJ3A==
+  dependencies:
+    argparse "^1.0.7"
+    esprima "^4.0.0"
+
+js-yaml@^3.12.1:
+  version "3.12.1"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.1.tgz#295c8632a18a23e054cf5c9d3cecafe678167600"
+  integrity sha512-um46hB9wNOKlwkHgiuyEVAybXBjwFUV0Z/RaHJblRd9DXltue9FTYvzCr9ErQrK9Adz5MU4gHWVaNUfdmrC8qA==
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"

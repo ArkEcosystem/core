@@ -1,3 +1,4 @@
+import { AbstractServiceProvider } from "@arkecosystem/core-container";
 import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { blockIndex } from "./index/block";
@@ -8,29 +9,37 @@ import { startServer } from "./server";
 import { client } from "./services/client";
 import { storage } from "./services/storage";
 
-export const plugin: Container.PluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "elasticsearch",
-    async register(container: Container.IContainer, options) {
-        const logger = container.resolvePlugin<Logger.ILogger>("logger");
+export class ServiceProvider extends AbstractServiceProvider {
+    /**
+     * Register any application services.
+     */
+    public async register(): Promise<void> {
+        const logger = this.app.resolve<Logger.ILogger>("logger");
 
         logger.info("[Elasticsearch] Initialising History :hourglass:");
         storage.ensure("history");
 
         logger.info("[Elasticsearch] Initialising Client :joystick:");
-        await client.setUp(options.client);
+        await client.setUp(this.opts.client);
 
-        blockIndex.setUp(options.chunkSize);
-        transactionIndex.setUp(options.chunkSize);
-        walletIndex.setUp(options.chunkSize);
-        roundIndex.setUp(options.chunkSize);
+        blockIndex.setUp(this.opts.chunkSize);
+        transactionIndex.setUp(this.opts.chunkSize);
+        walletIndex.setUp(this.opts.chunkSize);
+        roundIndex.setUp(this.opts.chunkSize);
 
-        return startServer(options.server);
-    },
-    async deregister(container: Container.IContainer, options) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("[Elasticsearch] Stopping API :warning:");
+        return startServer(this.opts.server);
+    }
 
-        return container.resolvePlugin("elasticsearch").stop();
-    },
-};
+    /**
+     * Dispose any application services.
+     */
+    public async dispose(): Promise<void> {
+        this.app.resolve<Logger.ILogger>("logger").info("[Elasticsearch] Stopping API :warning:");
+
+        return this.app.resolve("elasticsearch").stop();
+    }
+
+    public getAlias(): string {
+        return "elasticsearch";
+    }
+}

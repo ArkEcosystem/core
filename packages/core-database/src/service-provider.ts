@@ -1,21 +1,16 @@
 import { AbstractServiceProvider } from "@arkecosystem/core-container";
-import { Container } from "@arkecosystem/core-interfaces";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
-import { startServer } from "./server";
+import { DatabaseManager } from "./manager";
 
 export class ServiceProvider extends AbstractServiceProvider {
     /**
      * Register any application services.
      */
     public async register(): Promise<void> {
-        this.app.bind(this.getAlias(), await startServer(this.opts));
-    }
+        this.app.resolve<Logger.ILogger>("logger").info("Starting Database Manager");
 
-    /**
-     * Dispose any application services.
-     */
-    public async dispose(): Promise<void> {
-        return this.app.resolve(this.getAlias()).stop();
+        this.app.bind(this.getAlias(), new DatabaseManager());
     }
 
     /**

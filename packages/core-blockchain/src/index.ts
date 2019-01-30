@@ -2,4 +2,4 @@ export * from "./defaults";
 export * from "./config";
 export * from "./blockchain";
 export * from "./state-storage";
-export * from "./plugin";
+export * from "./service-provider";

@@ -54,5 +54,8 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
+    },
+    "core": {
+        "alias": "databaseManager"
     }
 }

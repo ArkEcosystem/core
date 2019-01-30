@@ -1,3 +1,3 @@
 export * from "./defaults";
 export * from "./manager";
-export * from "./plugin";
+export * from "./service-provider";

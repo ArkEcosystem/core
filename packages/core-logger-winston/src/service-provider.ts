@@ -1,16 +1,15 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { AbstractServiceProvider } from "@arkecosystem/core-container";
 import { LogManager } from "@arkecosystem/core-logger";
 import { defaults } from "./defaults";
 import { WinstonLogger } from "./driver";
 
-export const plugin: Container.PluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "logger",
-    extends: "@arkecosystem/core-logger",
-    async register(container: Container.IContainer, options) {
-        const logManager: LogManager = container.resolvePlugin("logManager");
-        await logManager.makeDriver(new WinstonLogger(options));
+export class ServiceProvider extends AbstractServiceProvider {
+    /**
+     * Register any application services.
+     */
+    public async register(): Promise<void> {
+        const logManager: LogManager = this.app.resolve("logManager");
+        await logManager.makeDriver(new WinstonLogger(this.opts));
 
         const driver = logManager.driver();
         driver.debug(`Data Directory => ${process.env.CORE_PATH_DATA}`);
@@ -28,6 +27,13 @@ export const plugin: Container.PluginDescriptor = {
             driver.debug(`Temp Directory => ${process.env.CORE_PATH_TEMP}`);
         }
 
-        return driver;
-    },
-};
+        this.app.bind(this.getAlias(), driver);
+    }
+
+    /**
+     * The default options of the plugin.
+     */
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+}

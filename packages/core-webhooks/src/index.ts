@@ -1,37 +1,42 @@
+import { AbstractServiceProvider } from "@arkecosystem/core-container";
 import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { database } from "./database";
 import { defaults } from "./defaults";
 import { webhookManager } from "./manager";
 import { startServer } from "./server";
 
-export const plugin: Container.PluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "webhooks",
-    async register(container: Container.IContainer, options) {
-        const logger = container.resolvePlugin<Logger.ILogger>("logger");
+export class ServiceProvider extends AbstractServiceProvider {
+    /**
+     * Register any application services.
+     */
+    public async register(): Promise<void> {
+        const logger = this.app.resolve<Logger.ILogger>("logger");
 
-        if (!options.enabled) {
+        if (!this.opts.enabled) {
             logger.info("Webhooks are disabled :grey_exclamation:");
 
             return;
         }
 
-        await database.setUp(options.database);
+        await database.setUp(this.opts.database);
 
         await webhookManager.setUp();
 
-        if (options.server.enabled) {
-            return startServer(options.server);
+        if (this.opts.server.enabled) {
+            return startServer(this.opts.server);
         }
 
         logger.info("Webhooks API server is disabled :grey_exclamation:");
-    },
-    async deregister(container: Container.IContainer, options) {
-        if (options.server.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Webhook API");
+    }
 
-            return container.resolvePlugin("webhooks").stop();
+    /**
+     * Dispose any application services.
+     */
+    public async dispose(): Promise<void> {
+        if (this.opts.server.enabled) {
+            this.app.resolve<Logger.ILogger>("logger").info("Stopping Webhook API");
+
+            return this.app.resolve("webhooks").stop();
         }
-    },
-};
+    }
+}

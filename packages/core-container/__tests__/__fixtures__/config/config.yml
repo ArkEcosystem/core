@@ -1,0 +1,7 @@
+providers:
+    # Core Service Providers
+    "@arkecosystem/core-event-emitter":
+        username: "username"
+        password: "password"
+    # Additional Service Providers
+    # Third-Party Service Providers

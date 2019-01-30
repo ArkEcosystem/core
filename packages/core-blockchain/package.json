@@ -37,7 +37,6 @@
         "@arkecosystem/crypto": "^2.1.0",
         "@types/lodash.get": "^4.4.4",
         "async": "^2.6.1",
-        "awilix": "^4.2.0",
         "delay": "^4.1.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
@@ -62,5 +61,8 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
+    },
+    "core": {
+        "alias": "blockchain"
     }
 }
