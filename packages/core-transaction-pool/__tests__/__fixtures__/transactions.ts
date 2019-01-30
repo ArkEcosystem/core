@@ -9,9 +9,19 @@ export const transactions = {
         "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
-    dummy2: generateTransfers("unitnet", delegates[0].passphrase, "DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8", 10000000, 1)[0],
+    dummy2: generateTransfers(
+        "unitnet",
+        delegates[0].passphrase,
+        "DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8",
+        10000000,
+        1,
+        false,
+        10000000,
+    )[0],
 
     dummy3: generateTransfers(
         "unitnet",
@@ -19,6 +29,8 @@ export const transactions = {
         "ANqvJEMZcmUpcKBC8xiP1TntVkJeuZ3Lw3",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dummy4: generateTransfers(
@@ -27,6 +39,8 @@ export const transactions = {
         "AJ5eV59hu4xrbRCpoP3of7fEYWUteSVa8k",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dummy5: generateTransfers(
@@ -35,6 +49,8 @@ export const transactions = {
         "ASvC1E9hMLfANTi63S2gUMvr7rVZYJBj3u",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dummy6: generateTransfers(
@@ -43,6 +59,8 @@ export const transactions = {
         "Ac8utEr7XRebWRvArSBnbVoxbq6bXftAmL",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dummy7: generateTransfers(
@@ -51,6 +69,8 @@ export const transactions = {
         "ANWEaVfvAh3VTyZNYcuFESUum1XBmAvAdj",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dummy8: generateTransfers(
@@ -59,6 +79,8 @@ export const transactions = {
         "ALsZS24Dn4HYXwed5kAC5fKyB9BFzdmcSx",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dummy9: generateTransfers(
@@ -67,6 +89,8 @@ export const transactions = {
         "ANuaLhRuBJhTcHao7kTfDcfsewLQGr7x5G",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dummy10: generateTransfers(
@@ -75,6 +99,8 @@ export const transactions = {
         "DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8",
         200000000,
         1,
+        false,
+        10000000,
     )[0],
 
     dynamicFeeNormalDummy1: generateTransfers(
