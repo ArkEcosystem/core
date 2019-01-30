@@ -1,11 +1,11 @@
 import { Logger } from "@arkecosystem/core-interfaces";
-import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 import { database } from "./server/services/database";
 import { network } from "./server/services/network";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends Support.AbstractServiceProvider {
     /**
      * Register any application services.
      */

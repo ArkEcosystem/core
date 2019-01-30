@@ -1,6 +1,6 @@
-import { AbstractServiceProvider } from "../../src";
+import { Support } from "../../src";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends Support.AbstractServiceProvider {
     /**
      * Register any application services.
      */

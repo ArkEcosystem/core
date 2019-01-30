@@ -1,5 +1,5 @@
 // import * as Joi from "joi";
-import { Application } from "./application";
+import { Application } from "../application";
 
 export abstract class AbstractServiceProvider {
     /**

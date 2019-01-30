@@ -1,11 +1,11 @@
 import { Logger } from "@arkecosystem/core-interfaces";
-import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import { config } from "./config";
 import { TransactionPool } from "./connection";
 import { defaults } from "./defaults";
 import { transactionPoolManager } from "./manager";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends Support.AbstractServiceProvider {
     /**
      * Register any application services.
      */

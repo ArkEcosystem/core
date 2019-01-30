@@ -1,5 +1,5 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
-import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { blockIndex } from "./index/block";
 import { roundIndex } from "./index/round";
@@ -9,7 +9,7 @@ import { startServer } from "./server";
 import { client } from "./services/client";
 import { storage } from "./services/storage";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends Support.AbstractServiceProvider {
     /**
      * Register any application services.
      */

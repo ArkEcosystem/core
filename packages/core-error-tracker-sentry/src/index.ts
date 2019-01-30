@@ -1,8 +1,8 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import Sentry from "@sentry/node";
 import { defaults } from "./defaults";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends Support.AbstractServiceProvider {
     /**
      * Register any application services.
      */

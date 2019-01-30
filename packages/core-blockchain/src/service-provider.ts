@@ -1,10 +1,10 @@
-import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import { Blockchain } from "./blockchain";
 import { config } from "./config";
 import { defaults } from "./defaults";
 import { stateStorage } from "./state-storage";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends Support.AbstractServiceProvider {
     /**
      * Register any application services.
      */

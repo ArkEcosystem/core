@@ -1,10 +1,10 @@
 import { DatabaseManager } from "@arkecosystem/core-database";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import { PostgresConnection } from "./connection";
 import { defaults } from "./defaults";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends Support.AbstractServiceProvider {
     /**
      * Register any application services.
      */

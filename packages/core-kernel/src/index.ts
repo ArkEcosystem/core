@@ -1,8 +1,8 @@
 // import { Container as container } from "@arkecosystem/core-interfaces";
 import { Application } from "./application";
-export * from "./service-provider";
-export * from "./contracts";
+import * as Contracts from "./contracts";
+import * as Support from "./support";
 
 const app: Application = new Application();
 
-export { app };
+export { app, Contracts, Support };

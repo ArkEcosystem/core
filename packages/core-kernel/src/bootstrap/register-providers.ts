@@ -1,6 +1,6 @@
 import semver from "semver";
 import { Kernel } from "../contracts";
-import { AbstractServiceProvider } from "../service-provider";
+import { AbstractServiceProvider } from "../support/service-provider";
 
 export class RegisterProviders {
     /**
