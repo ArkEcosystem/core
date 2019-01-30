@@ -26,25 +26,25 @@ export class MemPoolTransaction {
      */
     constructor(transaction, sequence?) {
         assert(transaction instanceof Transaction);
-        this._transaction = transaction;
+        this.transaction = transaction;
 
         if (sequence !== undefined) {
             assert(Number.isInteger(sequence));
-            this._sequence = sequence;
+            this.sequence = sequence;
         }
     }
 
     get transaction() {
-        return this._transaction;
+        return this.transaction;
     }
 
     get sequence() {
-        return this._sequence;
+        return this.sequence;
     }
 
     set sequence(seq) {
-        assert.strictEqual(this._sequence, undefined);
-        this._sequence = seq;
+        assert.strictEqual(this.sequence, undefined);
+        this.sequence = seq;
     }
 
     /**
@@ -54,7 +54,7 @@ export class MemPoolTransaction {
      * @return {Number} expiration time or null if the transaction does not expire
      */
     public expireAt(maxTransactionAge) {
-        const t = this._transaction;
+        const t = this.transaction;
 
         if (t.expiration > 0) {
             return t.expiration;

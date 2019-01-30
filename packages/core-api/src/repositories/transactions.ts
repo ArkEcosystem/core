@@ -19,7 +19,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const selectQuery = this.query.select().from(this.query);
 
         if (parameters.senderId) {
-            const senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
+            const senderPublicKey = this.publicKeyFromAddress(parameters.senderId);
 
             if (!senderPublicKey) {
                 return { rows: [], count: 0 };
@@ -28,7 +28,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             parameters.senderPublicKey = senderPublicKey;
         }
 
-        const conditions = Object.entries(this._formatConditions(parameters));
+        const conditions = Object.entries(this.formatConditions(parameters));
 
         if (conditions.length) {
             const first = conditions.shift();
@@ -47,13 +47,13 @@ export class TransactionsRepository extends Repository implements IRepository {
             selectQuery.or(this.query.recipient_id.equals(owner.address));
         }
 
-        const results = await this._findManyWithCount(selectQuery, {
+        const results = await this.findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
 
-        results.rows = await this.__mapBlocksToTransactions(results.rows);
+        results.rows = await this.mapBlocksToTransactions(results.rows);
 
         return results;
     }
@@ -69,11 +69,11 @@ export class TransactionsRepository extends Repository implements IRepository {
             .from(this.query);
 
         if (parameters.senderId) {
-            parameters.senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
+            parameters.senderPublicKey = this.publicKeyFromAddress(parameters.senderId);
         }
 
         const applyConditions = queries => {
-            const conditions = Object.entries(this._formatConditions(parameters));
+            const conditions = Object.entries(this.formatConditions(parameters));
 
             if (conditions.length) {
                 const first = conditions.shift();
@@ -90,13 +90,13 @@ export class TransactionsRepository extends Repository implements IRepository {
 
         applyConditions([selectQuery]);
 
-        const results = await this._findManyWithCount(selectQuery, {
+        const results = await this.findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
 
-        results.rows = await this.__mapBlocksToTransactions(results.rows);
+        results.rows = await this.mapBlocksToTransactions(results.rows);
 
         return results;
     }
@@ -122,13 +122,13 @@ export class TransactionsRepository extends Repository implements IRepository {
 
         applyConditions([selectQuery]);
 
-        const results = await this._findManyWithCount(selectQuery, {
+        const results = await this.findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
 
-        results.rows = await this.__mapBlocksToTransactions(results.rows);
+        results.rows = await this.mapBlocksToTransactions(results.rows);
 
         return results;
     }
@@ -198,9 +198,9 @@ export class TransactionsRepository extends Repository implements IRepository {
             .from(this.query)
             .where(this.query.id.equals(id));
 
-        const transaction = await this._find(query);
+        const transaction = await this.find(query);
 
-        return this.__mapBlocksToTransactions(transaction);
+        return this.mapBlocksToTransactions(transaction);
     }
 
     /**
@@ -215,9 +215,9 @@ export class TransactionsRepository extends Repository implements IRepository {
             .from(this.query)
             .where(this.query.id.equals(id).and(this.query.type.equals(type)));
 
-        const transaction = await this._find(query);
+        const transaction = await this.find(query);
 
-        return this.__mapBlocksToTransactions(transaction);
+        return this.mapBlocksToTransactions(transaction);
     }
 
     /**
@@ -231,7 +231,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             .from(this.query)
             .where(this.query.id.in(ids));
 
-        return this._findMany(query);
+        return this.findMany(query);
     }
 
     /**
@@ -244,9 +244,9 @@ export class TransactionsRepository extends Repository implements IRepository {
             .from(this.query)
             .where(this.query.vendor_field_hex.isNotNull());
 
-        const transactions = await this._findMany(query);
+        const transactions = await this.findMany(query);
 
-        return this.__mapBlocksToTransactions(transactions);
+        return this.mapBlocksToTransactions(transactions);
     }
 
     /**
@@ -276,7 +276,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             .group(this.query.type)
             .order('"timestamp" DESC');
 
-        return this._findMany(query);
+        return this.findMany(query);
     }
 
     /**
@@ -316,7 +316,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         };
 
         if (parameters.senderId) {
-            const senderPublicKey = this.__publicKeyFromAddress(parameters.senderId);
+            const senderPublicKey = this.publicKeyFromAddress(parameters.senderId);
 
             if (senderPublicKey) {
                 parameters.senderPublicKey = senderPublicKey;
@@ -341,12 +341,12 @@ export class TransactionsRepository extends Repository implements IRepository {
             if (!parameters.senderPublicKey) {
                 filters.in.push("sender_public_key");
                 parameters.senderPublicKey = parameters.addresses.map(address => {
-                    return this.__publicKeyFromAddress(address);
+                    return this.publicKeyFromAddress(address);
                 });
             }
         }
 
-        const conditions = buildFilterQuery(this._formatConditions(parameters), filters);
+        const conditions = buildFilterQuery(this.formatConditions(parameters), filters);
 
         /*
          * Searching by `addresses` could create queries:
@@ -382,13 +382,13 @@ export class TransactionsRepository extends Repository implements IRepository {
             }
         }
 
-        const results = await this._findManyWithCount(selectQuery, {
+        const results = await this.findManyWithCount(selectQuery, {
             limit: parameters.limit || 100,
             offset: parameters.offset || 0,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
 
-        results.rows = await this.__mapBlocksToTransactions(results.rows);
+        results.rows = await this.mapBlocksToTransactions(results.rows);
 
         return results;
     }
@@ -411,7 +411,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             const missingFromCache = [];
 
             for (let i = 0; i < data.length; i++) {
-                const cachedBlock = this.__getBlockCache(data[i].blockId);
+                const cachedBlock = this.getBlockCache(data[i].blockId);
 
                 if (cachedBlock) {
                     data[i].block = cachedBlock;
@@ -431,13 +431,13 @@ export class TransactionsRepository extends Repository implements IRepository {
                     .where(blockQuery.id.in(missingFromCache.map(d => d.blockId)))
                     .group(blockQuery.id);
 
-                const blocks = await this._findMany(query);
+                const blocks = await this.findMany(query);
 
                 for (const missing of missingFromCache) {
                     const block = blocks.find(item => item.id === missing.blockId);
                     if (block) {
                         data[missing.index].block = block;
-                        this.__setBlockCache(block);
+                        this.setBlockCache(block);
                     }
                 }
             }
@@ -447,7 +447,7 @@ export class TransactionsRepository extends Repository implements IRepository {
 
         // Object...
         if (data) {
-            const cachedBlock = this.__getBlockCache(data.blockId);
+            const cachedBlock = this.getBlockCache(data.blockId);
 
             if (cachedBlock) {
                 data.block = cachedBlock;
@@ -457,9 +457,9 @@ export class TransactionsRepository extends Repository implements IRepository {
                     .from(blockQuery)
                     .where(blockQuery.id.equals(data.blockId));
 
-                data.block = await this._find(query);
+                data.block = await this.find(query);
 
-                this.__setBlockCache(data.block);
+                this.setBlockCache(data.block);
             }
         }
 
@@ -471,7 +471,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param  {String} blockId
      * @return {Object|null}
      */
-    public __getBlockCache(blockId): any {
+    protected getBlockCache(blockId): any {
         const height = this.cache.get(`heights:${blockId}`);
 
         return height ? { height, id: blockId } : null;
@@ -483,7 +483,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param  {String} block.id
      * @param  {Number} block.height
      */
-    public __setBlockCache({ id, height }): void {
+    protected setBlockCache({ id, height }): void {
         this.cache.set(`heights:${id}`, height);
     }
 
@@ -492,7 +492,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param {String} senderId
      * @return {String}
      */
-    public __publicKeyFromAddress(senderId): string {
+    protected publicKeyFromAddress(senderId): string {
         if (this.database.walletManager.exists(senderId)) {
             return this.database.walletManager.findByAddress(senderId).publicKey;
         }
@@ -500,7 +500,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         return null;
     }
 
-    public __orderBy(parameters): string[] {
+    protected orderBy(parameters): string[] {
         return parameters.orderBy ? parameters.orderBy.split(":").map(p => p.toLowerCase()) : ["timestamp", "desc"];
     }
 }

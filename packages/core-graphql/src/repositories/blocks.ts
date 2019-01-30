@@ -9,10 +9,10 @@ class BlocksRepository extends Repository {
      */
     public async findAll(parameters: any = {}) {
         const selectQuery = this.query.select().from(this.query);
-        const countQuery = this._makeEstimateQuery();
+        const countQuery = this.makeEstimateQuery();
 
         const applyConditions = queries => {
-            const conditions = Object.entries(this._formatConditions(parameters));
+            const conditions = Object.entries(this.formatConditions(parameters));
 
             if (conditions.length) {
                 const first = conditions.shift();
@@ -29,10 +29,10 @@ class BlocksRepository extends Repository {
 
         applyConditions([selectQuery, countQuery]);
 
-        return this._findManyWithCount(selectQuery, countQuery, {
+        return this.findManyWithCount(selectQuery, countQuery, {
             limit: parameters.limit || 100,
             offset: parameters.offset || 0,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
     }
 
@@ -57,7 +57,7 @@ class BlocksRepository extends Repository {
             .from(this.query)
             .where(this.query.id.equals(id));
 
-        return this._find(query);
+        return this.find(query);
     }
 
     /**
@@ -73,7 +73,7 @@ class BlocksRepository extends Repository {
             .where(this.query.generator_public_key.equals(generatorPublicKey))
             .order(this.query.height.desc);
 
-        return this._find(query);
+        return this.find(query);
     }
 
     /**
@@ -83,10 +83,10 @@ class BlocksRepository extends Repository {
      */
     public async search(parameters) {
         const selectQuery = this.query.select().from(this.query);
-        const countQuery = this._makeEstimateQuery();
+        const countQuery = this.makeEstimateQuery();
 
         const applyConditions = queries => {
-            const conditions = buildFilterQuery(this._formatConditions(parameters), {
+            const conditions = buildFilterQuery(this.formatConditions(parameters), {
                 exact: ["id", "version", "previous_block", "payload_hash", "generator_public_key", "block_signature"],
                 between: [
                     "timestamp",
@@ -114,10 +114,10 @@ class BlocksRepository extends Repository {
 
         applyConditions([selectQuery, countQuery]);
 
-        return this._findManyWithCount(selectQuery, countQuery, {
+        return this.findManyWithCount(selectQuery, countQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
     }
 
@@ -125,7 +125,7 @@ class BlocksRepository extends Repository {
         return this.database.models.block;
     }
 
-    public __orderBy(parameters) {
+    protected orderBy(parameters) {
         return parameters.orderBy ? parameters.orderBy.split(":").map(p => p.toLowerCase()) : ["height", "desc"];
     }
 }

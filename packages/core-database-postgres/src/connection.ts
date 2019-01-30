@@ -50,9 +50,9 @@ export class PostgresConnection extends ConnectionInterface {
 
         try {
             await this.connect();
-            await this.__registerQueryExecutor();
-            await this.__runMigrations();
-            await this.__registerModels();
+            await this.registerQueryExecutor();
+            await this.runMigrations();
+            await this.registerModels();
             await super._registerRepositories();
             await super._registerWalletManager();
             await this.loadBlocksFromCurrentRound();
@@ -262,7 +262,7 @@ export class PostgresConnection extends ConnectionInterface {
 
             this.spvFinished = true;
 
-            await this.__registerListeners();
+            await this.registerListeners();
 
             return success;
         } catch (error) {
@@ -665,7 +665,7 @@ export class PostgresConnection extends ConnectionInterface {
      * Register the query builder.
      * @return {void}
      */
-    public __registerQueryExecutor() {
+    protected registerQueryExecutor() {
         this.query = new QueryExecutor(this);
     }
 
@@ -673,7 +673,7 @@ export class PostgresConnection extends ConnectionInterface {
      * Register event listeners.
      * @return {void}
      */
-    public __registerListeners() {
+    protected registerListeners() {
         super.__registerListeners();
 
         this.emitter.on("wallet.created.cold", async coldWallet => {

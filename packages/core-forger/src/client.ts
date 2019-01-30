@@ -47,19 +47,19 @@ export class Client {
             } transactions to ${this.host} :package:`,
         );
 
-        return this.__post(`${this.host}/internal/blocks`, { block });
+        return this.post(`${this.host}/internal/blocks`, { block });
     }
 
     /**
      * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
      */
     public async syncCheck() {
-        await this.__chooseHost();
+        await this.chooseHost();
 
         this.logger.debug(`Sending wake-up check to relay node ${this.host}`);
 
         try {
-            await this.__get(`${this.host}/internal/blockchain/sync`);
+            await this.get(`${this.host}/internal/blockchain/sync`);
         } catch (error) {
             this.logger.error(`Could not sync check: ${error.message}`);
         }
@@ -71,9 +71,9 @@ export class Client {
      */
     public async getRound() {
         try {
-            await this.__chooseHost();
+            await this.chooseHost();
 
-            const response = await this.__get(`${this.host}/internal/rounds/current`);
+            const response = await this.get(`${this.host}/internal/rounds/current`);
 
             return response.data.data;
         } catch (e) {
@@ -87,7 +87,7 @@ export class Client {
      */
     public async getNetworkState(): Promise<NetworkState> {
         try {
-            const response = await this.__get(`${this.host}/internal/network/state`);
+            const response = await this.get(`${this.host}/internal/network/state`);
             const { data } = response.data;
 
             return NetworkState.parse(data);
@@ -102,7 +102,7 @@ export class Client {
      */
     public async getTransactions() {
         try {
-            const response = await this.__get(`${this.host}/internal/transactions/forging`);
+            const response = await this.get(`${this.host}/internal/transactions/forging`);
 
             return response.data.data;
         } catch (e) {
@@ -115,10 +115,10 @@ export class Client {
      * @return {Object}
      */
     public async getUsernames(wait = 0) {
-        await this.__chooseHost(wait);
+        await this.chooseHost(wait);
 
         try {
-            const response = await this.__get(`${this.host}/internal/utils/usernames`);
+            const response = await this.get(`${this.host}/internal/utils/usernames`);
 
             return response.data.data;
         } catch (e) {
@@ -146,7 +146,7 @@ export class Client {
         }
 
         try {
-            await this.__post(`${host}/internal/utils/events`, { event, body });
+            await this.post(`${host}/internal/utils/events`, { event, body });
         } catch (error) {
             this.logger.error(`Failed to emit "${event}" to "${host}"`);
         }
@@ -160,7 +160,7 @@ export class Client {
         const host = sample(this.hosts);
 
         try {
-            await this.__get(`${host}/peer/status`);
+            await this.get(`${host}/peer/status`);
 
             this.host = host;
         } catch (error) {
@@ -170,7 +170,7 @@ export class Client {
                 await delay(wait);
             }
 
-            await this.__chooseHost(wait);
+            await this.chooseHost(wait);
         }
     }
 

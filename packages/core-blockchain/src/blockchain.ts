@@ -77,7 +77,7 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.__registerQueue();
+        this.registerQueue();
     }
 
     /**
@@ -316,10 +316,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         // If the current chain height is H and we will be removing blocks [N, H],
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
-        const blocksToRemove = await this.database.getBlocks(
-            this.state.getLastBlock().data.height - nblocks,
-            nblocks,
-        );
+        const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks);
 
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable
@@ -599,7 +596,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Register the block queue.
      * @return {void}
      */
-    public __registerQueue() {
+    protected registerQueue() {
         this.queue = new Queue(this, {
             process: "PROCESSFINISHED",
             rebuild: "REBUILDFINISHED",

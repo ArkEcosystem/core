@@ -13,7 +13,7 @@ export abstract class Repository implements IRepository {
     public columns: string[] = [];
 
     protected constructor() {
-        this.__mapColumns();
+        this.mapColumns();
     }
 
     // todo: Introduce a generic param to return type-safe models
@@ -37,14 +37,14 @@ export abstract class Repository implements IRepository {
 
         if (!offsetIsSet && !limitIsSet) {
             // tslint:disable-next-line:no-shadowed-variable
-            const rows = await this._findMany(selectQuery);
+            const rows = await this.findMany(selectQuery);
 
             return { rows, count: rows.length };
         }
 
         selectQuery.offset(offset).limit(limit);
 
-        const rows = await this._findMany(selectQuery);
+        const rows = await this.findMany(selectQuery);
 
         if (rows.length < limit) {
             return { rows, count: offset + rows.length };
@@ -72,15 +72,27 @@ export abstract class Repository implements IRepository {
         return { rows, count: Math.max(count, rows.length) };
     }
 
-    public _makeCountQuery(): Promise<any> {
+    protected mapColumns(): void {
+        this.columns = [];
+
+        for (const column of this.model.getColumnSet().columns) {
+            this.columns.push(column.name);
+
+            if (column.prop) {
+                this.columns.push(column.prop);
+            }
+        }
+    }
+
+    private makeCountQuery(): Promise<any> {
         return this.query.select("count(*) AS count").from(this.query);
     }
 
-    public _makeEstimateQuery(): Promise<any> {
+    private makeEstimateQuery(): Promise<any> {
         return this.query.select("count(*) AS count").from(`${this.model.getTable()} TABLESAMPLE SYSTEM (100)`);
     }
 
-    public _formatConditions(parameters): any {
+    private formatConditions(parameters): any {
         const columns = this.model.getColumnSet().columns.map(column => ({
             name: column.name,
             prop: column.prop || column.name,
@@ -95,17 +107,5 @@ export abstract class Repository implements IRepository {
 
                 return items;
             }, {});
-    }
-
-    public __mapColumns(): void {
-        this.columns = [];
-
-        for (const column of this.model.getColumnSet().columns) {
-            this.columns.push(column.name);
-
-            if (column.prop) {
-                this.columns.push(column.prop);
-            }
-        }
     }
 }

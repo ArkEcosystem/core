@@ -33,34 +33,34 @@ export class SPV {
         this.activeDelegates = config.getMilestone(height).activeDelegates;
 
         logger.printTracker("SPV", 1, 8, "Received Transactions");
-        await this.__buildReceivedTransactions();
+        await this.buildReceivedTransactions();
 
         logger.printTracker("SPV", 2, 8, "Block Rewards");
-        await this.__buildBlockRewards();
+        await this.buildBlockRewards();
 
         logger.printTracker("SPV", 3, 8, "Last Forged Blocks");
-        await this.__buildLastForgedBlocks();
+        await this.buildLastForgedBlocks();
 
         logger.printTracker("SPV", 4, 8, "Sent Transactions");
-        await this.__buildSentTransactions();
+        await this.buildSentTransactions();
 
         logger.printTracker("SPV", 5, 8, "Second Signatures");
-        await this.__buildSecondSignatures();
+        await this.buildSecondSignatures();
 
         logger.printTracker("SPV", 6, 8, "Votes");
-        await this.__buildVotes();
+        await this.buildVotes();
 
         logger.printTracker("SPV", 7, 8, "Delegates");
-        await this.__buildDelegates();
+        await this.buildDelegates();
 
         logger.printTracker("SPV", 8, 8, "MultiSignatures");
-        await this.__buildMultisignatures();
+        await this.buildMultisignatures();
 
         logger.stopTracker("SPV", 8, 8);
         logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`);
         logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`);
 
-        return this.__verifyWalletsConsistency();
+        return this.verifyWalletsConsistency();
     }
 
     /**

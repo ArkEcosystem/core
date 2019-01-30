@@ -15,7 +15,7 @@ export class BlockRepository extends Repository implements IRepository {
     public async findAll(parameters: any = {}): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
-        const conditions = Object.entries(this._formatConditions(parameters));
+        const conditions = Object.entries(this.formatConditions(parameters));
 
         if (conditions.length) {
             const first = conditions.shift();
@@ -27,10 +27,10 @@ export class BlockRepository extends Repository implements IRepository {
             }
         }
 
-        return this._findManyWithCount(selectQuery, {
+        return this.findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
     }
 
@@ -61,7 +61,7 @@ export class BlockRepository extends Repository implements IRepository {
             query.or(this.query.height.equals(height));
         }
 
-        return this._find(query);
+        return this.find(query);
     }
 
     /**
@@ -77,7 +77,7 @@ export class BlockRepository extends Repository implements IRepository {
             .where(this.query.generator_public_key.equals(generatorPublicKey))
             .order(this.query.height.desc);
 
-        return this._find(query);
+        return this.find(query);
     }
 
     /**
@@ -88,7 +88,7 @@ export class BlockRepository extends Repository implements IRepository {
     public async search(parameters): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
-        const conditions = buildFilterQuery(this._formatConditions(parameters), {
+        const conditions = buildFilterQuery(this.formatConditions(parameters), {
             exact: ["id", "version", "previous_block", "payload_hash", "generator_public_key", "block_signature"],
             between: [
                 "timestamp",
@@ -111,10 +111,10 @@ export class BlockRepository extends Repository implements IRepository {
             }
         }
 
-        return this._findManyWithCount(selectQuery, {
+        return this.findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.orderBy(parameters),
         });
     }
 
@@ -122,7 +122,7 @@ export class BlockRepository extends Repository implements IRepository {
         return this.database.models.block;
     }
 
-    public __orderBy(parameters): string[] {
+    protected orderBy(parameters): string[] {
         if (!parameters.orderBy) {
             return ["height", "desc"];
         }

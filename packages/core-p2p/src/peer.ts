@@ -118,7 +118,7 @@ export class Peer implements P2P.IPeer {
      * @return {(Object|undefined)}
      */
     public async postBlock(block) {
-        return this.__post(
+        return this.post(
             "/peer/blocks",
             { block },
             {
@@ -135,7 +135,7 @@ export class Peer implements P2P.IPeer {
      */
     public async postTransactions(transactions) {
         try {
-            const response = await this.__post(
+            const response = await this.post(
                 "/peer/transactions",
                 {
                     transactions,
@@ -165,7 +165,7 @@ export class Peer implements P2P.IPeer {
                 timeout: 10000,
             });
 
-            this.__parseHeaders(response);
+            this.parseHeaders(response);
 
             const { blocks } = response.data;
             const size = blocks.length;
@@ -201,7 +201,7 @@ export class Peer implements P2P.IPeer {
             return;
         }
 
-        const body = await this.__get("/peer/status", delay || localConfig.get("globalTimeout"));
+        const body = await this.get("/peer/status", delay || localConfig.get("globalTimeout"));
 
         if (!body) {
             throw new Error(`Peer ${this.ip} is unresponsive`);
@@ -229,7 +229,7 @@ export class Peer implements P2P.IPeer {
 
         await this.ping(2000);
 
-        const body = await this.__get("/peer/list");
+        const body = await this.get("/peer/list");
 
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
@@ -247,7 +247,7 @@ export class Peer implements P2P.IPeer {
             if (ids.length === 1) {
                 url += ",";
             }
-            const body = await this.__get(url);
+            const body = await this.get(url);
 
             return body && body.success && body.common;
         } catch (error) {
@@ -274,7 +274,7 @@ export class Peer implements P2P.IPeer {
 
             this.delay = new Date().getTime() - temp;
 
-            this.__parseHeaders(response);
+            this.parseHeaders(response);
 
             return response.data;
         } catch (error) {
@@ -283,7 +283,7 @@ export class Peer implements P2P.IPeer {
             this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
             if (error.response) {
-                this.__parseHeaders(error.response);
+                this.parseHeaders(error.response);
             }
         }
     }
@@ -299,14 +299,14 @@ export class Peer implements P2P.IPeer {
         try {
             const response = await axios.post(`${this.url}${endpoint}`, body, headers);
 
-            this.__parseHeaders(response);
+            this.parseHeaders(response);
 
             return response.data;
         } catch (error) {
             this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
             if (error.response) {
-                this.__parseHeaders(error.response);
+                this.parseHeaders(error.response);
             }
         }
     }
@@ -316,7 +316,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Object} response
      * @return {Object}
      */
-    public __parseHeaders(response) {
+    protected parseHeaders(response) {
         ["nethash", "os", "version", "hashid"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });

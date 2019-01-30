@@ -15,7 +15,7 @@ export class QueryExecutor {
      * @return {Promise}
      */
     public async none(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "none");
+        return this.executeQueryFile(query, parameters, "none");
     }
 
     /**
@@ -25,7 +25,7 @@ export class QueryExecutor {
      * @return {Promise}
      */
     public async one(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "one");
+        return this.executeQueryFile(query, parameters, "one");
     }
 
     /**
@@ -35,7 +35,7 @@ export class QueryExecutor {
      * @return {Promise}
      */
     public async oneOrNone(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "oneOrNone");
+        return this.executeQueryFile(query, parameters, "oneOrNone");
     }
 
     /**
@@ -45,7 +45,7 @@ export class QueryExecutor {
      * @return {Promise}
      */
     public async many(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "many");
+        return this.executeQueryFile(query, parameters, "many");
     }
 
     /**
@@ -55,7 +55,7 @@ export class QueryExecutor {
      * @return {Promise}
      */
     public async manyOrNone(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "manyOrNone");
+        return this.executeQueryFile(query, parameters, "manyOrNone");
     }
 
     /**
@@ -65,7 +65,7 @@ export class QueryExecutor {
      * @return {Promise}
      */
     public async any(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "any");
+        return this.executeQueryFile(query, parameters, "any");
     }
 
     /**

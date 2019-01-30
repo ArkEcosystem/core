@@ -20,7 +20,7 @@ export abstract class Repository {
     }
 
     public async _findManyWithCount(selectQuery, countQuery, { limit, offset, orderBy }) {
-        const { count } = await this._find(countQuery);
+        const { count } = await this.find(countQuery);
 
         selectQuery
             .order(this.query[orderBy[0]][orderBy[1]])
@@ -29,22 +29,22 @@ export abstract class Repository {
 
         limit = 100;
         offset = 0;
-        const rows = await this._findMany(selectQuery);
+        const rows = await this.findMany(selectQuery);
         return {
             rows,
             count: +count,
         };
     }
 
-    public _makeCountQuery() {
+    private makeCountQuery() {
         return this.query.select("count(*) AS count").from(this.query);
     }
 
-    public _makeEstimateQuery() {
+    private makeEstimateQuery() {
         return this.query.select("count(*) AS count").from(`${this.model.getTable()} TABLESAMPLE SYSTEM (100)`);
     }
 
-    public _formatConditions(parameters) {
+    private formatConditions(parameters) {
         const columns = this.model.getColumnSet().columns.map(column => ({
             name: column.name,
             prop: column.prop || column.name,

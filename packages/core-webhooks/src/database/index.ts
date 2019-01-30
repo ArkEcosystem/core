@@ -29,8 +29,8 @@ class Database {
 
         try {
             await this.connection.authenticate();
-            await this.__runMigrations();
-            this.__registerModels();
+            await this.runMigrations();
+            this.registerModels();
         } catch (error) {
             app.forceExit("Unable to connect to the database!", error);
         }
@@ -130,7 +130,7 @@ class Database {
      * Register all models.
      * @return {void}
      */
-    public __registerModels() {
+    protected registerModels() {
         this.model = this.connection.define(
             "webhook",
             {

@@ -62,8 +62,8 @@ export class Monitor implements P2P.IMonitor {
         logger = app.resolvePlugin<Logger.ILogger>("logger");
         emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-        await this.__checkDNSConnectivity(options.dns);
-        await this.__checkNTPConnectivity(options.ntp);
+        await this.checkDNSConnectivity(options.dns);
+        await this.checkNTPConnectivity(options.ntp);
 
         this.guard = guard.init(this);
 
@@ -368,7 +368,7 @@ export class Monitor implements P2P.IMonitor {
     public async getRandomDownloadBlocksPeer() {
         const randomPeer = this.getRandomPeer(null, 100);
 
-        const recentBlockIds = await this.__getRecentBlockIds();
+        const recentBlockIds = await this.getRecentBlockIds();
         if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
             return this.getRandomDownloadBlocksPeer();
         }
@@ -451,7 +451,7 @@ export class Monitor implements P2P.IMonitor {
     }
 
     public async getNetworkState(): Promise<NetworkState> {
-        if (!this.__isColdStartActive()) {
+        if (!this.isColdStartActive()) {
             await this.cleanPeers(true, true);
         }
 
@@ -475,7 +475,7 @@ export class Monitor implements P2P.IMonitor {
             this.suspendPeer(forkedBlock.ip);
         }
 
-        const recentBlockIds = await this.__getRecentBlockIds();
+        const recentBlockIds = await this.getRecentBlockIds();
 
         await Promise.all(this.getPeers().map(peer => this.peerHasCommonBlocks(peer, recentBlockIds)));
     }
@@ -598,7 +598,7 @@ export class Monitor implements P2P.IMonitor {
      */
     public async updatePeersOnMissingBlocks() {
         // First ping all peers to get updated heights and remove unresponsive ones.
-        if (!this.__isColdStartActive()) {
+        if (!this.isColdStartActive()) {
             await this.cleanPeers(true);
         }
 
@@ -726,15 +726,6 @@ export class Monitor implements P2P.IMonitor {
     }
 
     /**
-     * Determines if coldstart is still active.
-     * We need this for the network to start, so we dont forge, while
-     * not all peers are up, or the network is not active
-     */
-    public __isColdStartActive() {
-        return this.coldStartPeriod.isAfter(dayjs());
-    }
-
-    /**
      * Check if the node can connect to any DNS host.
      * @return {void}
      */
@@ -764,6 +755,15 @@ export class Monitor implements P2P.IMonitor {
         } catch (error) {
             logger.error(error.message);
         }
+    }
+
+    /**
+     * Determines if coldstart is still active.
+     * We need this for the network to start, so we dont forge, while
+     * not all peers are up, or the network is not active
+     */
+    protected isColdStartActive() {
+        return this.coldStartPeriod.isAfter(dayjs());
     }
 
     /**

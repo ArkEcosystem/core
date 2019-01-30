@@ -21,9 +21,9 @@ export class PluginRegistrar {
      */
     constructor(container, options: any = {}) {
         this.container = container;
-        this.plugins = this.__loadPlugins();
+        this.plugins = this.loadPlugins();
         this.resolvedPlugins = [];
-        this.options = this.__castOptions(options);
+        this.options = this.castOptions(options);
         this.deregister = [];
     }
 
@@ -58,7 +58,7 @@ export class PluginRegistrar {
      * @return {void}
      */
     public async register(name, options = {}) {
-        if (!this.__shouldBeRegistered(name)) {
+        if (!this.shouldBeRegistered(name)) {
             return;
         }
 
@@ -66,7 +66,7 @@ export class PluginRegistrar {
             options = Hoek.applyToDefaults(this.plugins[name], options);
         }
 
-        return this.__registerWithContainer(name, options);
+        return this.registerWithContainer(name, options);
     }
 
     /**
@@ -76,14 +76,14 @@ export class PluginRegistrar {
      * @return {void}
      */
     public async __registerWithContainer(plugin, options = {}) {
-        const item: any = this.__resolve(plugin);
+        const item: any = this.resolve(plugin);
 
         if (!item.plugin.register) {
             return;
         }
 
         if (item.plugin.extends) {
-            await this.__registerWithContainer(item.plugin.extends);
+            await this.registerWithContainer(item.plugin.extends);
         }
 
         const name = item.plugin.name || item.plugin.pkg.name;
@@ -98,7 +98,7 @@ export class PluginRegistrar {
             );
         }
 
-        options = this.__applyToDefaults(name, defaults, options);
+        options = this.applyToDefaults(name, defaults, options);
 
         plugin = await item.plugin.register(this.container, options || {});
         this.container.register(
@@ -124,7 +124,7 @@ export class PluginRegistrar {
      * @param  {Object} options
      * @return {Object}
      */
-    public __applyToDefaults(name, defaults, options) {
+    protected applyToDefaults(name, defaults, options) {
         if (defaults) {
             options = Hoek.applyToDefaults(defaults, options);
         }
@@ -133,7 +133,7 @@ export class PluginRegistrar {
             options = Hoek.applyToDefaults(options, this.options.options[name]);
         }
 
-        return this.__castOptions(options);
+        return this.castOptions(options);
     }
 
     /**
@@ -144,7 +144,7 @@ export class PluginRegistrar {
      * @param {Object} options
      * @return {Object} options
      */
-    public __castOptions(options) {
+    protected castOptions(options) {
         const blacklist: any = [];
         const regex = new RegExp(/^\d+$/);
 
@@ -163,7 +163,7 @@ export class PluginRegistrar {
      * @param  {(String|Object)} plugin - plugin name or path, or object
      * @return {Object}
      */
-    public __resolve(plugin) {
+    protected resolve(plugin) {
         let item: any = {};
 
         if (isString(plugin)) {
@@ -193,7 +193,7 @@ export class PluginRegistrar {
      * @param  {String} name
      * @return {Boolean}
      */
-    public __shouldBeRegistered(name) {
+    protected shouldBeRegistered(name) {
         let register = true;
 
         if (this.options.include) {
@@ -211,7 +211,7 @@ export class PluginRegistrar {
      * Load plugins from any of the available files (plugins.js or plugins.json).
      * @return {[Object|void]}
      */
-    public __loadPlugins() {
+    protected loadPlugins() {
         const files = ["plugins.js", "plugins.json"];
 
         for (const file of files) {

@@ -17,12 +17,12 @@ class BlockIndex extends Index {
      * @return {void}
      */
     public async index() {
-        const { count } = await this.__count();
+        const { count } = await this.count();
 
         const queries = Math.ceil(count / this.chunkSize);
 
         for (let i = 0; i < queries; i++) {
-            const modelQuery = this.__createQuery();
+            const modelQuery = this.createQuery();
 
             const query = modelQuery
                 .select()
@@ -46,7 +46,7 @@ class BlockIndex extends Index {
             );
 
             try {
-                await client.bulk(this._buildBulkUpsert(rows));
+                await client.bulk(this.buildBulkUpsert(rows));
 
                 storage.update("history", {
                     lastBlock: last(heights),
@@ -62,10 +62,10 @@ class BlockIndex extends Index {
      * @return {void}
      */
     public listen() {
-        this._registerCreateListener("block.applied");
-        // this._registerCreateListener('block.forged')
+        this.registerCreateListener("block.applied");
+        // this.registerCreateListener('block.forged')
 
-        this._registerDeleteListener("block.reverted");
+        this.registerDeleteListener("block.reverted");
     }
 
     /**

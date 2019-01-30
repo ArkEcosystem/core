@@ -250,33 +250,6 @@ export abstract class Command {
     }
 
     /**
-     * Apply options to config.
-     * @return {void}
-     */
-    public __applyConfig() {
-        this.config = { ...config };
-        if (this.options.baseUrl) {
-            this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, "");
-        }
-
-        if (this.options.apiPort) {
-            this.config.apiPort = this.options.apiPort;
-        }
-
-        if (this.options.p2pPort) {
-            this.config.p2pPort = this.options.p2pPort;
-        }
-
-        if (this.options.passphrase) {
-            this.config.passphrase = this.options.passphrase;
-        }
-
-        if (this.options.secondPassphrase) {
-            this.config.secondPassphrase = this.options.secondPassphrase;
-        }
-    }
-
-    /**
      * Load constants from API and apply to config.
      * @return {void}
      */
@@ -303,11 +276,38 @@ export abstract class Command {
     }
 
     /**
+     * Apply options to config.
+     * @return {void}
+     */
+    protected applyConfig() {
+        this.config = { ...config };
+        if (this.options.baseUrl) {
+            this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, "");
+        }
+
+        if (this.options.apiPort) {
+            this.config.apiPort = this.options.apiPort;
+        }
+
+        if (this.options.p2pPort) {
+            this.config.p2pPort = this.options.p2pPort;
+        }
+
+        if (this.options.passphrase) {
+            this.config.passphrase = this.options.passphrase;
+        }
+
+        if (this.options.secondPassphrase) {
+            this.config.secondPassphrase = this.options.secondPassphrase;
+        }
+    }
+
+    /**
      * Quit command and output error when problem sending transactions.
      * @param  {Error} error
      * @return {void}
      */
-    public __problemSendingTransactions(error) {
+    protected problemSendingTransactions(error) {
         const message = error.response ? error.response.data.message : error.message;
         logger.error(`There was a problem sending transactions: ${message}`);
         process.exit(1);

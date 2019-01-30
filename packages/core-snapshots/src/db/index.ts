@@ -20,7 +20,7 @@ class Database {
         if (connection) {
             this.db = connection.db;
             this.pgp = connection.pgp;
-            this.__createColumnSets();
+            this.createColumnSets();
             this.isSharedConnection = true;
             logger.info("Snapshots: reusing core-database-postgres connection from running core");
             return this;
@@ -34,8 +34,8 @@ class Database {
             options.idleTimeoutMillis = 100;
 
             this.db = pgp(options);
-            this.__createColumnSets();
-            await this.__runMigrations();
+            this.createColumnSets();
+            await this.runMigrations();
             logger.info("Snapshots: Database connected");
             this.isSharedConnection = false;
             return this;
@@ -140,17 +140,17 @@ class Database {
         }
     }
 
-    public __createColumnSets() {
-        this.blocksColumnSet = new this.pgp.helpers.ColumnSet(columns.blocks, {
-            table: "blocks",
-        });
-        this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: "transactions" });
-    }
-
     public async __runMigrations() {
         for (const migration of migrations) {
             await this.db.none(migration);
         }
+    }
+
+    protected createColumnSets() {
+        this.blocksColumnSet = new this.pgp.helpers.ColumnSet(columns.blocks, {
+            table: "blocks",
+        });
+        this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: "transactions" });
     }
 }
 

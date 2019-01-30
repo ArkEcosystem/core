@@ -70,19 +70,19 @@ export class Transfer extends Command {
 
         try {
             if (!this.options.floodAttempts) {
-                const successfulTest = await this.__performRun(runOptions, 1);
+                const successfulTest = await this.performRun(runOptions, 1);
                 if (
                     successfulTest &&
                     !this.options.skipSecondRun &&
                     !this.options.skipValidation &&
                     !this.options.skipTesting
                 ) {
-                    await this.__performRun(runOptions, 2, false, true);
+                    await this.performRun(runOptions, 2, false, true);
                 }
             } else {
                 const attempts = this.options.floodAttempts;
                 for (let i = attempts; i > 0; i--) {
-                    await this.__performRun(runOptions, attempts - i + 1, i !== 1, i !== attempts);
+                    await this.performRun(runOptions, attempts - i + 1, i !== 1, i !== attempts);
                 }
             }
         } catch (error) {
@@ -94,8 +94,8 @@ export class Transfer extends Command {
             return true;
         }
 
-        await this.__testVendorField(wallets);
-        await this.__testEmptyVendorField(wallets);
+        await this.testVendorField(wallets);
+        await this.testEmptyVendorField(wallets);
 
         return true;
     }
@@ -167,12 +167,12 @@ export class Transfer extends Command {
     public async __performRun(runOptions, runNumber = 1, skipWait = false, isSubsequentRun = false) {
         if (skipWait) {
             runOptions.skipValidation = true;
-            this.__sendTransactionsWithResults(runOptions, isSubsequentRun);
+            this.sendTransactionsWithResults(runOptions, isSubsequentRun);
 
             return true;
         }
 
-        if (await this.__sendTransactionsWithResults(runOptions, isSubsequentRun)) {
+        if (await this.sendTransactionsWithResults(runOptions, isSubsequentRun)) {
             logger.info(`All transactions have been received and forged for run ${runNumber}!`);
 
             return true;
@@ -306,7 +306,7 @@ export class Transfer extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
@@ -335,7 +335,7 @@ export class Transfer extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 }

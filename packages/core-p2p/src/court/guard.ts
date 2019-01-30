@@ -75,7 +75,7 @@ export class Guard {
             }
         }
 
-        const offence = this.__determineOffence(peer);
+        const offence = this.determineOffence(peer);
 
         peer.offences.push(offence);
 
@@ -238,60 +238,60 @@ export class Guard {
      * @param  {Peer}  peer
      * @return {dayjs}
      */
-    public __determineOffence(peer) {
+    protected determineOffence(peer) {
         if (this.isBlacklisted(peer)) {
-            return this.__determinePunishment(peer, offences.BLACKLISTED);
+            return this.determinePunishment(peer, offences.BLACKLISTED);
         }
 
         const state = app.resolve("state");
         if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-            return this.__determinePunishment(peer, offences.FORK);
+            return this.determinePunishment(peer, offences.FORK);
         }
 
         if (peer.commonBlocks === false) {
             delete peer.commonBlocks;
 
-            return this.__determinePunishment(peer, offences.NO_COMMON_BLOCKS);
+            return this.determinePunishment(peer, offences.NO_COMMON_BLOCKS);
         }
 
         if (peer.commonId === false) {
             delete peer.commonId;
 
-            return this.__determinePunishment(peer, offences.NO_COMMON_ID);
+            return this.determinePunishment(peer, offences.NO_COMMON_ID);
         }
 
         // NOTE: We check this extra because a response can still succeed if
         // it returns any codes that are not 4xx or 5xx.
         if (peer.status === 503) {
-            return this.__determinePunishment(peer, offences.BLOCKCHAIN_NOT_READY);
+            return this.determinePunishment(peer, offences.BLOCKCHAIN_NOT_READY);
         }
 
         if (peer.status === 429) {
-            return this.__determinePunishment(peer, offences.TOO_MANY_REQUESTS);
+            return this.determinePunishment(peer, offences.TOO_MANY_REQUESTS);
         }
 
         if (peer.status && peer.status !== 200) {
-            return this.__determinePunishment(peer, offences.INVALID_STATUS);
+            return this.determinePunishment(peer, offences.INVALID_STATUS);
         }
 
         if (peer.delay === -1) {
-            return this.__determinePunishment(peer, offences.TIMEOUT);
+            return this.determinePunishment(peer, offences.TIMEOUT);
         }
 
         if (peer.delay > 2000) {
-            return this.__determinePunishment(peer, offences.HIGH_LATENCY);
+            return this.determinePunishment(peer, offences.HIGH_LATENCY);
         }
 
         if (!this.isValidNetwork(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_NETWORK);
+            return this.determinePunishment(peer, offences.INVALID_NETWORK);
         }
 
         if (!this.isValidVersion(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_VERSION);
+            return this.determinePunishment(peer, offences.INVALID_VERSION);
         }
 
         if (!this.isValidMilestoneHash(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_MILESTONE_HASH);
+            return this.determinePunishment(peer, offences.INVALID_MILESTONE_HASH);
         }
 
         // NOTE: Suspending this peer only means that we no longer
@@ -299,10 +299,10 @@ export class Guard {
         const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height);
 
         if (heightDifference >= 153) {
-            return this.__determinePunishment(peer, offences.INVALID_HEIGHT);
+            return this.determinePunishment(peer, offences.INVALID_HEIGHT);
         }
 
-        return this.__determinePunishment(peer, offences.UNKNOWN);
+        return this.determinePunishment(peer, offences.UNKNOWN);
     }
 
     /**
@@ -311,7 +311,7 @@ export class Guard {
      * @param  {Object} offence
      * @return {Object}
      */
-    public __determinePunishment(peer, offence) {
+    protected determinePunishment(peer, offence) {
         if (this.isRepeatOffender(peer)) {
             offence = offences.REPEAT_OFFENDER;
         }

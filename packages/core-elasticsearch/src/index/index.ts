@@ -32,18 +32,30 @@ export abstract class Index {
         this.index();
     }
 
+    protected createQuery() {
+        return database.models[this.getType()].query();
+    }
+
+    protected count() {
+        const modelQuery = this.createQuery();
+
+        const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
+
+        return database.query.one(query.toQuery());
+    }
+
     /**
      * Register a new "CREATE" operation listener.
      * @param  {String} event
      * @return {void}
      */
-    public _registerCreateListener(event) {
+    private registerCreateListener(event) {
         emitter.on(event, async doc => {
             try {
-                const exists = await this._exists(doc);
+                const exists = await this.exists(doc);
 
                 if (!exists) {
-                    await this._create(doc);
+                    await this.create(doc);
                 }
             } catch (error) {
                 logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
@@ -56,13 +68,13 @@ export abstract class Index {
      * @param  {String} event
      * @return {void}
      */
-    public _registerDeleteListener(event) {
+    private registerDeleteListener(event) {
         emitter.on(event, async doc => {
             try {
-                const exists = await this._exists(doc);
+                const exists = await this.exists(doc);
 
                 if (exists) {
-                    await this._delete(doc);
+                    await this.delete(doc);
                 }
             } catch (error) {
                 logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
@@ -75,8 +87,8 @@ export abstract class Index {
      * @param  {String} doc
      * @return {Promise}
      */
-    public _exists(doc) {
-        return client.exists(this._getReadQuery(doc));
+    private exists(doc) {
+        return client.exists(this.getReadQuery(doc));
     }
 
     /**
@@ -84,7 +96,7 @@ export abstract class Index {
      * @param  {String} doc
      * @return {Promise}
      */
-    public _create(doc) {
+    private create(doc) {
         logger.info(`[Elasticsearch] Creating ${this.getType()} with ID ${doc.id}`);
 
         if (this.getType() === "block") {
@@ -93,7 +105,7 @@ export abstract class Index {
             storage.update("history", { lastTransaction: doc.timestamp });
         }
 
-        return client.create(this._getWriteQuery(doc));
+        return client.create(this.getWriteQuery(doc));
     }
 
     /**
@@ -101,10 +113,10 @@ export abstract class Index {
      * @param  {String} doc
      * @return {Promise}
      */
-    public _delete(doc) {
+    private delete(doc) {
         logger.info(`[Elasticsearch] Deleting ${this.getType()} with ID ${doc.id}`);
 
-        return client.delete(this._getReadQuery(doc));
+        return client.delete(this.getReadQuery(doc));
     }
 
     /**
@@ -112,7 +124,7 @@ export abstract class Index {
      * @param  {String} doc
      * @return {Object}
      */
-    public _getWriteQuery(doc) {
+    private getWriteQuery(doc) {
         return {
             index: this.getIndex(),
             type: this.getType(),
@@ -126,7 +138,7 @@ export abstract class Index {
      * @param  {String} doc
      * @return {Object}
      */
-    public _getReadQuery(doc) {
+    private getReadQuery(doc) {
         return {
             index: this.getIndex(),
             type: this.getType(),
@@ -139,7 +151,7 @@ export abstract class Index {
      * @param  {String} doc
      * @return {Object}
      */
-    public _getUpsertQuery(doc) {
+    private getUpsertQuery(doc) {
         return {
             action: {
                 update: {
@@ -160,27 +172,15 @@ export abstract class Index {
      * @param  {Array} items
      * @return {Object}
      */
-    public _buildBulkUpsert(items) {
+    private buildBulkUpsert(items) {
         const actions = [];
 
         items.forEach(item => {
-            const query = this._getUpsertQuery(item);
+            const query = this.getUpsertQuery(item);
             actions.push(query.action);
             actions.push(query.document);
         });
 
         return actions;
-    }
-
-    public __createQuery() {
-        return database.models[this.getType()].query();
-    }
-
-    public __count() {
-        const modelQuery = this.__createQuery();
-
-        const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
-
-        return database.query.one(query.toQuery());
     }
 }

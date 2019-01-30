@@ -21,7 +21,7 @@ export class SnapshotManager {
     }
 
     public async exportData(options) {
-        const params = await this.__init(options, true);
+        const params = await this.init(options, true);
 
         if (params.skipExportWhenNoChange) {
             logger.info(`Skipping export of snapshot, because ${params.meta.folder} is already up to date.`);
@@ -41,7 +41,7 @@ export class SnapshotManager {
     }
 
     public async importData(options) {
-        const params = await this.__init(options);
+        const params = await this.init(options);
 
         if (params.truncate) {
             params.lastBlock = await this.database.truncateChain();
@@ -67,7 +67,7 @@ export class SnapshotManager {
     }
 
     public async verifyData(options) {
-        const params = await this.__init(options);
+        const params = await this.init(options);
 
         await Promise.all([verifyTable("blocks", params), verifyTable("transactions", params)]);
     }

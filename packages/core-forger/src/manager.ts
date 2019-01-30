@@ -52,7 +52,7 @@ export class ForgerManager {
             this.delegates.push(new Delegate(bip38, this.network, password));
         }
 
-        await this.__loadUsernames(2000);
+        await this.loadUsernames(2000);
 
         const delegates = this.delegates.map(
             delegate => `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`,
@@ -74,7 +74,7 @@ export class ForgerManager {
             await delay(100);
         }
 
-        return this.__monitor(null);
+        return this.monitor(null);
     }
 
     /**
@@ -96,7 +96,7 @@ export class ForgerManager {
                 return false;
             }
 
-            await this.__loadUsernames();
+            await this.loadUsernames();
 
             round = await this.client.getRound();
             const delayTime = +this.config.getMilestone(round.lastBlock.height).blocktime * 1000 - 2000;
@@ -107,17 +107,17 @@ export class ForgerManager {
 
                 await delay(200); // basically looping until we lock at beginning of next slot
 
-                return this.__monitor(round);
+                return this.monitor(round);
             }
 
-            const delegate = this.__isDelegateActivated(round.currentForger.publicKey);
+            const delegate = this.isDelegateActivated(round.currentForger.publicKey);
 
             if (!delegate) {
                 // this.logger.debug(`Current forging delegate ${
                 //  round.currentForger.publicKey
                 // } is not configured on this node.`)
 
-                if (this.__isDelegateActivated(round.nextForger.publicKey)) {
+                if (this.isDelegateActivated(round.nextForger.publicKey)) {
                     const username = this.usernames[round.nextForger.publicKey];
                     this.logger.info(
                         `Next forging delegate ${username} (${round.nextForger.publicKey}) is active on this node.`,
@@ -127,22 +127,22 @@ export class ForgerManager {
 
                 await delay(delayTime); // we will check at next slot
 
-                return this.__monitor(round);
+                return this.monitor(round);
             }
 
             const networkState = await this.client.getNetworkState();
 
-            if (!this.__parseNetworkState(networkState, delegate)) {
+            if (!this.parseNetworkState(networkState, delegate)) {
                 await delay(delayTime); // we will check at next slot
 
-                return this.__monitor(round);
+                return this.monitor(round);
             }
 
-            await this.__forgeNewBlock(delegate, round);
+            await this.forgeNewBlock(delegate, round);
 
             await delay(delayTime); // we will check at next slot
 
-            return this.__monitor(round);
+            return this.monitor(round);
         } catch (error) {
             // README: The Blockchain is not ready, monitor until it is instead of crashing.
             if (error.response && error.response.status === 503) {
@@ -150,7 +150,7 @@ export class ForgerManager {
 
                 await delay(2000);
 
-                return this.__monitor(round);
+                return this.monitor(round);
             }
 
             // README: The Blockchain is ready but an action still failed.
@@ -166,7 +166,7 @@ export class ForgerManager {
 
             this.client.emitEvent("forger.failed", error.message);
 
-            return this.__monitor(round);
+            return this.monitor(round);
         }
     }
 
@@ -184,7 +184,7 @@ export class ForgerManager {
         //
         // this.client.emitEvent('forger.started', delegate.publicKey)
 
-        const transactions = await this.__getTransactionsForForging();
+        const transactions = await this.getTransactionsForForging();
 
         const blockOptions = {
             previousBlock: round.lastBlock,
@@ -227,11 +227,19 @@ export class ForgerManager {
     }
 
     /**
+     * Get a list of all active delegate usernames.
+     * @return {Object}
+     */
+    public async __loadUsernames(wait = 0) {
+        this.usernames = await this.client.getUsernames(wait);
+    }
+
+    /**
      * Checks if delegate public key is in the loaded (active) delegates list
      * @param  {Object} PublicKey
      * @return {Object}
      */
-    public __isDelegateActivated(queryPublicKey) {
+    protected isDelegateActivated(queryPublicKey) {
         return this.delegates.find(delegate => delegate.publicKey === queryPublicKey);
     }
 
@@ -240,7 +248,7 @@ export class ForgerManager {
      * @param {Object} networkState internal response
      * @param {Booolean} isAllowedToForge
      */
-    public __parseNetworkState(networkState, currentForger) {
+    protected parseNetworkState(networkState, currentForger) {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client.");
             return false;
@@ -294,13 +302,5 @@ export class ForgerManager {
         }
 
         return true;
-    }
-
-    /**
-     * Get a list of all active delegate usernames.
-     * @return {Object}
-     */
-    public async __loadUsernames(wait = 0) {
-        this.usernames = await this.client.getUsernames(wait);
     }
 }

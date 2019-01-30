@@ -25,7 +25,7 @@ export class DelegatesRepository {
     public findAll(params: { orderBy?: string } = {}) {
         const delegates = this.getLocalDelegates();
 
-        const [iteratee, order] = this.__orderBy(params);
+        const [iteratee, order] = this.orderBy(params);
 
         return {
             rows: limitRows(orderBy(delegates, iteratee, order as "desc" | "asc"), params),
@@ -106,7 +106,7 @@ export class DelegatesRepository {
         });
     }
 
-    public __orderBy(params): string[] {
+    protected orderBy(params): string[] {
         if (!params.orderBy) {
             return ["rate", "asc"];
         }
@@ -116,10 +116,10 @@ export class DelegatesRepository {
             return ["rate", "asc"];
         }
 
-        return [this.__manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
+        return [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
     }
 
-    public __manipulateIteratee(iteratee): any {
+    protected manipulateIteratee(iteratee): any {
         switch (iteratee) {
             case "rank":
                 return "rate";

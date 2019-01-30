@@ -17,12 +17,12 @@ class RoundIndex extends Index {
      * @return {void}
      */
     public async index() {
-        const { count } = await this.__count();
+        const { count } = await this.count();
 
         const queries = Math.ceil(count / this.chunkSize);
 
         for (let i = 0; i < queries; i++) {
-            const modelQuery = this.__createQuery();
+            const modelQuery = this.createQuery();
 
             const query = modelQuery
                 .select()
@@ -44,7 +44,7 @@ class RoundIndex extends Index {
             );
 
             try {
-                await client.bulk(this._buildBulkUpsert(rows));
+                await client.bulk(this.buildBulkUpsert(rows));
 
                 storage.update("history", {
                     lastRound: last(roundIds),

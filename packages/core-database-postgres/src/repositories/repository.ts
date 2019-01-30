@@ -40,7 +40,7 @@ export abstract class Repository {
      * @return {Promise}
      */
     public async create(item) {
-        return this.db.none(this.__insertQuery(item));
+        return this.db.none(this.insertQuery(item));
     }
 
     /**
@@ -49,7 +49,7 @@ export abstract class Repository {
      * @return {Promise}
      */
     public async update(item) {
-        return this.db.none(this.__updateQuery(item));
+        return this.db.none(this.updateQuery(item));
     }
 
     /**
@@ -57,7 +57,7 @@ export abstract class Repository {
      * @param  {Array|Object} data
      * @return {String}
      */
-    public __insertQuery(data) {
+    protected insertQuery(data) {
         return this.pgp.helpers.insert(data, this.model.getColumnSet());
     }
 
@@ -66,7 +66,7 @@ export abstract class Repository {
      * @param  {Array|Object} data
      * @return {String}
      */
-    public __updateQuery(data) {
+    protected updateQuery(data) {
         return this.pgp.helpers.update(data, this.model.getColumnSet());
     }
 }

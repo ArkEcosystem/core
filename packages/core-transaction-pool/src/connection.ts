@@ -49,7 +49,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         const all = this.storage.loadAll();
         all.forEach(t => this.mem.add(t, this.options.maxTransactionAge, true));
 
-        this.__purgeExpired();
+        this.purgeExpired();
 
         // Remove transactions that were forged while we were offline.
         const allIds = all.map(memPoolTransaction => memPoolTransaction.transaction.id);
@@ -74,7 +74,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @return {void}
      */
     public disconnect() {
-        this.__syncToPersistentStorage();
+        this.syncToPersistentStorage();
         this.storage.close();
     }
 
@@ -83,7 +83,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @return {Number}
      */
     public getPoolSize() {
-        this.__purgeExpired();
+        this.purgeExpired();
 
         return this.mem.getSize();
     }
@@ -94,7 +94,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @returns {Number}
      */
     public getSenderSize(senderPublicKey) {
-        this.__purgeExpired();
+        this.purgeExpired();
 
         return this.mem.getBySender(senderPublicKey).size;
     }
@@ -140,7 +140,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                     `in the pool, id: ${transaction.id}`,
             );
 
-            return this.__createError(transaction, "ERR_ALREADY_IN_POOL", "Already in pool");
+            return this.createError(transaction, "ERR_ALREADY_IN_POOL", "Already in pool");
         }
 
         const poolSize = this.mem.getSize();
@@ -155,7 +155,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                 this.walletManager.revertTransactionForSender(lowest);
                 this.mem.remove(lowest.id, lowest.senderPublicKey);
             } else {
-                return this.__createError(
+                return this.createError(
                     transaction,
                     "ERR_POOL_FULL",
                     `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
@@ -177,10 +177,10 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             // Remove tx again from the pool
             this.mem.remove(transaction.id);
 
-            return this.__createError(transaction, "ERR_APPLY", JSON.stringify(errors));
+            return this.createError(transaction, "ERR_APPLY", JSON.stringify(errors));
         }
 
-        this.__syncToPersistentStorageIfNecessary();
+        this.syncToPersistentStorageIfNecessary();
         return { success: true };
     }
 
@@ -202,7 +202,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     public removeTransactionById(id, senderPublicKey?) {
         this.mem.remove(id, senderPublicKey);
 
-        this.__syncToPersistentStorageIfNecessary();
+        this.syncToPersistentStorageIfNecessary();
     }
 
     /**
@@ -220,7 +220,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @return {(Transaction|undefined)}
      */
     public getTransaction(id) {
-        this.__purgeExpired();
+        this.purgeExpired();
 
         return this.mem.getTransactionById(id);
     }
@@ -255,7 +255,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @return {Array} array of transaction[property]
      */
     public getTransactionsData(start, size, property) {
-        this.__purgeExpired();
+        this.purgeExpired();
 
         const data = [];
 
@@ -291,7 +291,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @return {Boolean} true if exceeded
      */
     public hasExceededMaxTransactions(transaction) {
-        this.__purgeExpired();
+        this.purgeExpired();
 
         if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
@@ -333,7 +333,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             return false;
         }
 
-        this.__purgeExpired();
+        this.purgeExpired();
 
         return this.mem.transactionExists(transactionId);
     }
@@ -506,7 +506,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @return {Boolean} true if exist
      */
     public senderHasTransactionsOfType(senderPublicKey, transactionType) {
-        this.__purgeExpired();
+        this.purgeExpired();
 
         for (const memPoolTransaction of this.mem.getBySender(senderPublicKey)) {
             if (memPoolTransaction.transaction.type === transactionType) {
@@ -522,16 +522,16 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * many changes have been accumulated in-memory.
      * @return {void}
      */
-    public __syncToPersistentStorageIfNecessary() {
+    protected syncToPersistentStorageIfNecessary() {
         if (this.options.syncInterval <= this.mem.getNumberOfDirty()) {
-            this.__syncToPersistentStorage();
+            this.syncToPersistentStorage();
         }
     }
 
     /**
      * Sync the in-memory storage to the persistent (on-disk) storage.
      */
-    public __syncToPersistentStorage() {
+    protected syncToPersistentStorage() {
         const added = this.mem.getDirtyAddedAndForget();
         this.storage.bulkAdd(added);
 
@@ -546,7 +546,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @param {String} message
      * @return {Object}
      */
-    public __createError(transaction, type, message) {
+    protected createError(transaction, type, message) {
         return {
             transaction,
             type,
@@ -565,7 +565,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
             this.walletManager.revertTransactionForSender(transaction);
             this.mem.remove(transaction.id, transaction.senderPublicKey);
-            this.__syncToPersistentStorageIfNecessary();
+            this.syncToPersistentStorageIfNecessary();
         }
     }
 }

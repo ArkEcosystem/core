@@ -303,7 +303,7 @@ export class WalletManager {
      */
     public purgeEmptyNonDelegates() {
         Object.values(this.byPublicKey).forEach(wallet => {
-            if (this.__canBePurged(wallet)) {
+            if (this.canBePurged(wallet)) {
                 delete this.byPublicKey[wallet.publicKey];
                 delete this.byAddress[wallet.address];
             }
@@ -438,7 +438,7 @@ export class WalletManager {
 
             // NOTE: We use the vote public key, because vote transactions
             // have the same sender and recipient
-        } else if (type === TransactionTypes.Vote && !this.__isDelegate(asset.votes[0].slice(1))) {
+        } else if (type === TransactionTypes.Vote && !this.isDelegate(asset.votes[0].slice(1))) {
             this.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
             throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
         } else if (type === TransactionTypes.SecondSignature) {
@@ -466,9 +466,59 @@ export class WalletManager {
             recipient.applyTransactionToRecipient(data);
         }
 
-        this._updateVoteBalances(sender, recipient, data);
+        this.updateVoteBalances(sender, recipient, data);
 
         return transaction;
+    }
+
+    /**
+     * Remove the given transaction from a delegate.
+     * @param  {Transaction} transaction
+     * @return {Transaction}
+     */
+    public revertTransaction(transaction) {
+        const { type, data } = transaction;
+        const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
+        const recipient = this.byAddress[data.recipientId];
+
+        sender.revertTransactionForSender(data);
+
+        // removing the wallet from the delegates index
+        if (type === TransactionTypes.DelegateRegistration) {
+            delete this.byUsername[data.asset.delegate.username];
+        }
+
+        if (recipient && type === TransactionTypes.Transfer) {
+            recipient.revertTransactionForRecipient(data);
+        }
+
+        // Revert vote balance updates
+        this.updateVoteBalances(sender, recipient, data, true);
+
+        return data;
+    }
+
+    /**
+     * Checks if a given publicKey is a registered delegate
+     * @param {String} publicKey
+     */
+    protected isDelegate(publicKey) {
+        const delegateWallet = this.byPublicKey[publicKey];
+
+        if (delegateWallet && delegateWallet.username) {
+            return !!this.byUsername[delegateWallet.username];
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if the wallet can be removed from memory.
+     * @param  {Object} wallet
+     * @return {Boolean}
+     */
+    protected canBePurged(wallet) {
+        return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
     }
 
     /**
@@ -487,7 +537,7 @@ export class WalletManager {
      * @param  {Boolean} revert
      * @return {Transaction}
      */
-    public _updateVoteBalances(sender, recipient, transaction, revert = false) {
+    private updateVoteBalances(sender, recipient, transaction, revert = false) {
         // TODO: multipayment?
         if (transaction.type !== TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate
@@ -518,55 +568,5 @@ export class WalletManager {
                     : delegate.voteBalance.minus(sender.balance.plus(transaction.fee));
             }
         }
-    }
-
-    /**
-     * Remove the given transaction from a delegate.
-     * @param  {Transaction} transaction
-     * @return {Transaction}
-     */
-    public revertTransaction(transaction) {
-        const { type, data } = transaction;
-        const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
-        const recipient = this.byAddress[data.recipientId];
-
-        sender.revertTransactionForSender(data);
-
-        // removing the wallet from the delegates index
-        if (type === TransactionTypes.DelegateRegistration) {
-            delete this.byUsername[data.asset.delegate.username];
-        }
-
-        if (recipient && type === TransactionTypes.Transfer) {
-            recipient.revertTransactionForRecipient(data);
-        }
-
-        // Revert vote balance updates
-        this._updateVoteBalances(sender, recipient, data, true);
-
-        return data;
-    }
-
-    /**
-     * Checks if a given publicKey is a registered delegate
-     * @param {String} publicKey
-     */
-    public __isDelegate(publicKey) {
-        const delegateWallet = this.byPublicKey[publicKey];
-
-        if (delegateWallet && delegateWallet.username) {
-            return !!this.byUsername[delegateWallet.username];
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine if the wallet can be removed from memory.
-     * @param  {Object} wallet
-     * @return {Boolean}
-     */
-    public __canBePurged(wallet) {
-        return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
     }
 }

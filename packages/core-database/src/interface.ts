@@ -30,7 +30,7 @@ export abstract class ConnectionInterface {
      * @param {Object} options
      */
     protected constructor(public readonly options: any) {
-        this.__registerListeners();
+        this.registerListeners();
     }
 
     public abstract async make(): Promise<ConnectionInterface>;
@@ -206,7 +206,7 @@ export abstract class ConnectionInterface {
      * @return {void]}
      */
     public async loadBlocksFromCurrentRound() {
-        this.blocksInCurrentRound = await this.__getBlocksForRound();
+        this.blocksInCurrentRound = await this.getBlocksForRound();
     }
 
     /**
@@ -301,7 +301,7 @@ export abstract class ConnectionInterface {
         if (nextRound === round + 1 && height >= maxDelegates) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
 
-            const delegates = await this.__calcPreviousActiveDelegates(round);
+            const delegates = await this.calcPreviousActiveDelegates(round);
             this.forgingDelegates = await this.getActiveDelegates(height, delegates);
 
             await this.deleteRound(nextRound);
@@ -318,7 +318,7 @@ export abstract class ConnectionInterface {
      */
     public async __calcPreviousActiveDelegates(round) {
         // TODO: cache the blocks of the last X rounds
-        this.blocksInCurrentRound = await this.__getBlocksForRound(round);
+        this.blocksInCurrentRound = await this.getBlocksForRound(round);
 
         // Create temp wallet manager from all delegates
         const tempWalletManager = new WalletManager();
@@ -355,7 +355,7 @@ export abstract class ConnectionInterface {
         }
 
         await this.applyRound(block.data.height);
-        block.transactions.forEach(tx => this.__emitTransactionEvents(tx));
+        block.transactions.forEach(tx => this.emitTransactionEvents(tx));
         this.emitter.emit("block.applied", block.data);
         return true;
     }
@@ -427,7 +427,7 @@ export abstract class ConnectionInterface {
      * Register event listeners.
      * @return {void}
      */
-    public __registerListeners() {
+    protected registerListeners() {
         this.emitter.on("state:started", () => {
             this.stateStarted = true;
         });
@@ -437,7 +437,7 @@ export abstract class ConnectionInterface {
      * Register the wallet app.
      * @return {void}
      */
-    public _registerWalletManager() {
+    private registerWalletManager() {
         this.walletManager = new WalletManager();
     }
 
@@ -445,7 +445,7 @@ export abstract class ConnectionInterface {
      * Register the wallet and delegate repositories.
      * @return {void}
      */
-    public _registerRepositories() {
+    private registerRepositories() {
         this.wallets = new WalletsRepository(this);
         this.delegates = new DelegatesRepository(this);
     }

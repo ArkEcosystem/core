@@ -20,12 +20,12 @@ class TransactionIndex extends Index {
      * @return {void}
      */
     public async index() {
-        const { count } = await this.__count();
+        const { count } = await this.count();
 
         const queries = Math.ceil(count / this.chunkSize);
 
         for (let i = 0; i < queries; i++) {
-            const modelQuery = this.__createQuery();
+            const modelQuery = this.createQuery();
 
             const query = modelQuery
                 .select(modelQuery.block_id, modelQuery.serialized)
@@ -56,7 +56,7 @@ class TransactionIndex extends Index {
             );
 
             try {
-                await client.bulk(this._buildBulkUpsert(rows));
+                await client.bulk(this.buildBulkUpsert(rows));
 
                 storage.update("history", {
                     lastTransaction: last(rows.map(row => row.timestamp)),
@@ -72,11 +72,11 @@ class TransactionIndex extends Index {
      * @return {void}
      */
     public listen() {
-        this._registerCreateListener("transaction.applied");
-        this._registerCreateListener("transaction.forged");
+        this.registerCreateListener("transaction.applied");
+        this.registerCreateListener("transaction.forged");
 
-        this._registerDeleteListener("transaction.expired");
-        this._registerDeleteListener("transaction.reverted");
+        this.registerDeleteListener("transaction.expired");
+        this.registerDeleteListener("transaction.reverted");
     }
 
     /**

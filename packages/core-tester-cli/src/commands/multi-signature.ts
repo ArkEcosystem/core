@@ -74,12 +74,12 @@ export class MultiSignature extends Command {
             return;
         }
 
-        await this.__testSendWithSignatures(transfer, wallets, approvalWallets);
-        await this.__testSendWithMinSignatures(transfer, wallets, approvalWallets, min);
-        await this.__testSendWithBelowMinSignatures(transfer, wallets, approvalWallets, min);
-        await this.__testSendWithoutSignatures(transfer, wallets);
-        await this.__testSendWithEmptySignatures(transfer, wallets);
-        await this.__testNewMultiSignatureRegistration(wallets, approvalWallets, publicKeys, min);
+        await this.testSendWithSignatures(transfer, wallets, approvalWallets);
+        await this.testSendWithMinSignatures(transfer, wallets, approvalWallets, min);
+        await this.testSendWithBelowMinSignatures(transfer, wallets, approvalWallets, min);
+        await this.testSendWithoutSignatures(transfer, wallets);
+        await this.testSendWithEmptySignatures(transfer, wallets);
+        await this.testNewMultiSignatureRegistration(wallets, approvalWallets, publicKeys, min);
     }
 
     /**
@@ -150,7 +150,7 @@ export class MultiSignature extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
@@ -182,7 +182,7 @@ export class MultiSignature extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
@@ -222,7 +222,7 @@ export class MultiSignature extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
@@ -253,7 +253,7 @@ export class MultiSignature extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
@@ -287,7 +287,7 @@ export class MultiSignature extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
@@ -320,7 +320,7 @@ export class MultiSignature extends Command {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 }
