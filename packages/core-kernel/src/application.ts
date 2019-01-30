@@ -6,25 +6,18 @@ import { Container } from "./container";
 import { DirectoryNotFound } from "./errors";
 
 export class Application extends Container {
-    public config: Map<string, any>;
-
     /**
      * Indicates if the application has been bootstrapped.
      */
     private bootstrapped: boolean = false;
 
     /**
-     * The application namespace.
-     */
-    private namespace: string;
-
-    /**
      * Boot the application's service providers.
      */
     public bootstrap(config: Record<string, any>): void {
-        this.config = new Map<string, any>(Object.entries(config));
+        this.bindConfiguration(config);
 
-        this.bindPathsInContainer(config.paths);
+        this.bindPathsInContainer();
 
         this.registerBindings();
 
@@ -33,6 +26,17 @@ export class Application extends Container {
         this.registerServiceProviders();
 
         this.bootstrapped = true;
+    }
+
+    /**
+     * Get or set the specified configuration value.
+     */
+    public config<T = any>(key: string, value?: T): T {
+        if (value) {
+            this.resolve("config").set(key, value);
+        }
+
+        return this.resolve("config").get(key);
     }
 
     /**
@@ -178,7 +182,7 @@ export class Application extends Container {
     /**
      * Determine if the application has been bootstrapped.
      */
-    public isBootstrapped() {
+    public isBootstrapped(): boolean {
         return this.bootstrapped;
     }
 
@@ -231,20 +235,33 @@ export class Application extends Container {
     }
 
     /**
-     * Register the basic bindings into the container.
+     * Set the specified configuration values.
      */
-    private registerBindings(): void {
-        this.bind("app.env", this.config.get("env"));
+    private bindConfiguration(config: Record<string, any>): void {
+        const repository = new Map<string, any>();
 
-        this.bind("app.token", this.config.get("token"));
+        for (const [key, value] of Object.entries(config)) {
+            repository.set(key, value);
+        }
 
-        this.bind("app.network", this.config.get("network"));
-
-        this.bind("app.version", this.config.get("version"));
+        this.bind("config", repository);
     }
 
     /**
-     * Register the aplication namespace into the container.
+     * Register the basic bindings into the container.
+     */
+    private registerBindings(): void {
+        this.bind("app.env", this.config("env"));
+
+        this.bind("app.token", this.config("token"));
+
+        this.bind("app.network", this.config("network"));
+
+        this.bind("app.version", this.config("version"));
+    }
+
+    /**
+     * Register the application namespace into the container.
      */
     private registerNamespace(): void {
         const token = this.token();
@@ -254,13 +271,11 @@ export class Application extends Container {
             throw new Error("Unable to detect application token or network.");
         }
 
-        this.namespace = `${token}/${network}`;
-
-        this.bind("app.namespace", this.namespace);
+        this.bind("app.namespace", `${token}/${network}`);
     }
 
     /**
-     * Register all of the base service providers.
+     * Register the application service providers.
      */
     private registerServiceProviders(): void {
         Object.values(Bootstrappers).forEach((Bootstrapper: any) => new Bootstrapper().bootstrap(this));
@@ -269,8 +284,8 @@ export class Application extends Container {
     /**
      * Bind all of the application paths in the container.
      */
-    private bindPathsInContainer(paths: Record<string, string>): void {
-        for (const [type, path] of Object.entries(paths)) {
+    private bindPathsInContainer(): void {
+        for (const [type, path] of Object.entries(this.config("paths"))) {
             this[camelCase(`use_${type}_path`)](path);
 
             this.bind(`path.${type}`, path);

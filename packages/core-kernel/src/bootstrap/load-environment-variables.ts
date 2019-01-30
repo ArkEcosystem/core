@@ -1,10 +1,11 @@
 import { parseFileSync } from "envfile";
+import { Kernel } from "../contracts";
 
 export class LoadEnvironmentVariables {
     /**
      * Bootstrap the given application.
      */
-    public bootstrap(app): void {
+    public bootstrap(app: Kernel.IApplication): void {
         try {
             const config = parseFileSync(app.environmentFile());
 

@@ -17,8 +17,11 @@ export class ServiceProvider extends AbstractServiceProvider {
 
     public getManifest(): Record<string, any> {
         return {
-            name: "api",
+            name: "@dummy/core-api",
             version: "1.0.0",
+            core: {
+                alias: "api",
+            },
         };
     }
 }

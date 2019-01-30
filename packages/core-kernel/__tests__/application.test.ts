@@ -29,6 +29,14 @@ describe("Application", () => {
         expect(app.has("event-emitter")).toBeTrue();
     });
 
+    it("config", () => {
+        expect(app.config<string>("key")).toBeUndefined();
+
+        app.config("key", "value");
+
+        expect(app.config<string>("key")).toBe("value");
+    });
+
     it("version", () => {
         expect(app.version()).toBeString();
     });

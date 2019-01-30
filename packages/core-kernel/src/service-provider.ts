@@ -3,12 +3,12 @@ import { Application } from "./application";
 
 export abstract class AbstractServiceProvider {
     /**
-     *
+     * The application implementation.
      */
     protected app: Application;
 
     /**
-     *
+     * The service provider options.
      */
     protected opts: Record<string, any>;
 
@@ -35,9 +35,7 @@ export abstract class AbstractServiceProvider {
     /**
      * The manifest of the plugin.
      */
-    public getManifest(): Record<string, any> {
-        return require("../package.json");
-    }
+    public abstract getManifest(): Record<string, any>;
 
     /**
      * The name of the plugin.
@@ -70,6 +68,13 @@ export abstract class AbstractServiceProvider {
      */
     public getDefaults(): Record<string, any> {
         return null;
+    }
+
+    /**
+     * Get the services provided by the provider.
+     */
+    public provides(): string[] {
+        return [this.getAlias()];
     }
 
     /**
