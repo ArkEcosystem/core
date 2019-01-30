@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { database } from "./database";
 import { defaults } from "./defaults";
@@ -38,5 +38,19 @@ export class ServiceProvider extends AbstractServiceProvider {
 
             return this.app.resolve("webhooks").stop();
         }
+    }
+
+    /**
+     * The default options of the plugin.
+     */
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+
+    /**
+     * The manifest of the plugin.
+     */
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
     }
 }

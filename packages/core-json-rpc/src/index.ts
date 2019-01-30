@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
@@ -36,7 +36,17 @@ export class ServiceProvider extends AbstractServiceProvider {
         }
     }
 
-    public getAlias(): string {
-        return "json-rpc";
+    /**
+     * The default options of the plugin.
+     */
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+
+    /**
+     * The manifest of the plugin.
+     */
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
     }
 }

@@ -1,4 +1,3 @@
-import { Container } from "@arkecosystem/core-interfaces";
 import { AbstractServiceProvider } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
@@ -23,5 +22,12 @@ export class ServiceProvider extends AbstractServiceProvider {
      */
     public getDefaults(): Record<string, any> {
         return defaults;
+    }
+
+    /**
+     * The manifest of the plugin.
+     */
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
     }
 }

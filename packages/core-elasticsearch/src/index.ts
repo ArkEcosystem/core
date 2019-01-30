@@ -39,7 +39,10 @@ export class ServiceProvider extends AbstractServiceProvider {
         return this.app.resolve("elasticsearch").stop();
     }
 
-    public getAlias(): string {
-        return "elasticsearch";
+    /**
+     * The manifest of the plugin.
+     */
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
     }
 }

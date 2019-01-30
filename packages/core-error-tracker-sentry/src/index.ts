@@ -12,7 +12,17 @@ export class ServiceProvider extends AbstractServiceProvider {
         this.app.bind(this.getAlias(), Sentry);
     }
 
-    public getAlias(): string {
-        return "error-tracker";
+    /**
+     * The default options of the plugin.
+     */
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+
+    /**
+     * The manifest of the plugin.
+     */
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
     }
 }

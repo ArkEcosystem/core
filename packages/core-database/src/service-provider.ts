@@ -11,4 +11,11 @@ export class ServiceProvider extends AbstractServiceProvider {
 
         this.app.bind(this.getAlias(), new DatabaseManager());
     }
+
+    /**
+     * The manifest of the plugin.
+     */
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
+    }
 }
