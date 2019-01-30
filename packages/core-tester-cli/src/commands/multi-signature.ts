@@ -136,7 +136,7 @@ export class MultiSignature extends Command {
      * @param  {Object[]} [approvalWallets=[]]
      * @return {void}
      */
-    public async __testSendWithSignatures(transfer, wallets, approvalWallets = []) {
+    public async testSendWithSignatures(transfer, wallets, approvalWallets = []) {
         logger.info("Sending transactions with signatures");
 
         const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets, approvalWallets);
@@ -162,7 +162,7 @@ export class MultiSignature extends Command {
      * @param  {Number} [min=2]
      * @return {void}
      */
-    public async __testSendWithMinSignatures(transfer, wallets, approvalWallets = [], min = 2) {
+    public async testSendWithMinSignatures(transfer, wallets, approvalWallets = [], min = 2) {
         logger.info(
             `Sending transactions with ${min} (min) of ${pluralize("signature", approvalWallets.length, true)}`,
         );
@@ -194,7 +194,7 @@ export class MultiSignature extends Command {
      * @param  {Number} [min=2]
      * @return {void}
      */
-    public async __testSendWithBelowMinSignatures(transfer, wallets, approvalWallets = [], min = 2) {
+    public async testSendWithBelowMinSignatures(transfer, wallets, approvalWallets = [], min = 2) {
         const max = min - 1;
         logger.info(
             `Sending transactions with ${max} (below min) of ${pluralize("signature", approvalWallets.length, true)}`,
@@ -232,7 +232,7 @@ export class MultiSignature extends Command {
      * @param  {Object[]} wallets
      * @return {void}
      */
-    public async __testSendWithoutSignatures(transfer, wallets) {
+    public async testSendWithoutSignatures(transfer, wallets) {
         logger.info("Sending transactions without signatures");
 
         const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets);
@@ -263,7 +263,7 @@ export class MultiSignature extends Command {
      * @param  {Object[]} wallets
      * @return {void}
      */
-    public async __testSendWithEmptySignatures(transfer, wallets) {
+    public async testSendWithEmptySignatures(transfer, wallets) {
         logger.info("Sending transactions with empty signatures");
 
         const transactions = transfer.generateTransactions(Command.__arkToArktoshi(2), wallets);
@@ -299,7 +299,7 @@ export class MultiSignature extends Command {
      * @param  {Number} [min=2]
      * @return {void}
      */
-    public async __testNewMultiSignatureRegistration(wallets, approvalWallets = [], publicKeys = [], min = 2) {
+    public async testNewMultiSignatureRegistration(wallets, approvalWallets = [], publicKeys = [], min = 2) {
         logger.info("Sending transactions to re-register multi-signature");
 
         const transactions = this.generateTransactions(wallets, approvalWallets, publicKeys, min);

@@ -78,7 +78,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * Remove already forged transactions.
      * @return {void}
      */
-    public async __removeForgedTransactions() {
+    public async removeForgedTransactions() {
         const database = app.resolvePlugin<PostgresConnection>("database");
 
         const forgedIdsSet = await database.getForgedTransactionsIds([

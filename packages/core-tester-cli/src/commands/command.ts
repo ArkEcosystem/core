@@ -253,7 +253,7 @@ export abstract class Command {
      * Load constants from API and apply to config.
      * @return {void}
      */
-    public async __loadConstants() {
+    public async loadConstants() {
         try {
             this.config.constants = (await request(this.config).get("/api/v2/node/configuration")).data.constants;
         } catch (error) {
@@ -266,7 +266,7 @@ export abstract class Command {
      * Load network from API and apply to config.
      * @return {void}
      */
-    public async __loadNetworkConfig() {
+    public async loadNetworkConfig() {
         try {
             this.config.network = (await request(this.config).get("/config", true)).data.network;
         } catch (error) {

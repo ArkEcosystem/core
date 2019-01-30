@@ -140,7 +140,7 @@ class Database {
         }
     }
 
-    public async __runMigrations() {
+    public async runMigrations() {
         for (const migration of migrations) {
             await this.db.none(migration);
         }

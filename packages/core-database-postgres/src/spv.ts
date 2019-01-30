@@ -67,7 +67,7 @@ export class SPV {
      * Load and apply received transactions to wallets.
      * @return {void}
      */
-    public async __buildReceivedTransactions() {
+    public async buildReceivedTransactions() {
         const transactions = await this.query.many(queries.spv.receivedTransactions);
 
         for (const transaction of transactions) {
@@ -83,7 +83,7 @@ export class SPV {
      * Load and apply block rewards to wallets.
      * @return {void}
      */
-    public async __buildBlockRewards() {
+    public async buildBlockRewards() {
         const blocks = await this.query.many(queries.spv.blockRewards);
 
         for (const block of blocks) {
@@ -96,7 +96,7 @@ export class SPV {
      * Load and apply last forged blocks to wallets.
      * @return {void}
      */
-    public async __buildLastForgedBlocks() {
+    public async buildLastForgedBlocks() {
         const blocks = await this.query.many(queries.spv.lastForgedBlocks);
 
         for (const block of blocks) {
@@ -109,7 +109,7 @@ export class SPV {
      * Load and apply sent transactions to wallets.
      * @return {void}
      */
-    public async __buildSentTransactions() {
+    public async buildSentTransactions() {
         const transactions = await this.query.many(queries.spv.sentTransactions);
 
         for (const transaction of transactions) {
@@ -134,7 +134,7 @@ export class SPV {
      * Load and apply second signature transactions to wallets.
      * @return {void}
      */
-    public async __buildSecondSignatures() {
+    public async buildSecondSignatures() {
         const transactions = await this.query.manyOrNone(queries.spv.secondSignatures);
 
         for (const transaction of transactions) {
@@ -149,7 +149,7 @@ export class SPV {
      * Load and apply votes to wallets.
      * @return {void}
      */
-    public async __buildVotes() {
+    public async buildVotes() {
         const transactions = await this.query.manyOrNone(queries.spv.votes);
 
         for (const transaction of transactions) {
@@ -176,7 +176,7 @@ export class SPV {
      * Load and apply delegate usernames to wallets.
      * @return {void}
      */
-    public async __buildDelegates() {
+    public async buildDelegates() {
         // Register...
         const transactions = await this.query.manyOrNone(queries.spv.delegates);
 
@@ -210,7 +210,7 @@ export class SPV {
      * Load and apply multisignatures to wallets.
      * @return {void}
      */
-    public async __buildMultisignatures() {
+    public async buildMultisignatures() {
         const transactions = await this.query.manyOrNone(queries.spv.multiSignatures);
 
         for (const transaction of transactions) {
@@ -230,7 +230,7 @@ export class SPV {
      * NOTE: This is faster than rebuilding the entire table from scratch each time.
      * @returns {Boolean}
      */
-    public async __verifyWalletsConsistency() {
+    public async verifyWalletsConsistency() {
         const dbWallets = await this.query.manyOrNone(queries.wallets.all);
         const inMemoryWallets = this.walletManager.allByPublicKey();
 

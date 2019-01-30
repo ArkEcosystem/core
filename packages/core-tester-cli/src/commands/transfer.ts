@@ -164,7 +164,7 @@ export class Transfer extends Command {
      * @param  {Boolean} [isSubsequentRun=false]
      * @return {Boolean}
      */
-    public async __performRun(runOptions, runNumber = 1, skipWait = false, isSubsequentRun = false) {
+    public async performRun(runOptions, runNumber = 1, skipWait = false, isSubsequentRun = false) {
         if (skipWait) {
             runOptions.skipValidation = true;
             this.sendTransactionsWithResults(runOptions, isSubsequentRun);
@@ -189,7 +189,7 @@ export class Transfer extends Command {
      * @param  {Boolean} isSubsequentRun
      * @return {Boolean}
      */
-    public async __sendTransactionsWithResults(runOptions, isSubsequentRun) {
+    public async sendTransactionsWithResults(runOptions, isSubsequentRun) {
         let successfulTest = true;
 
         let postResponse;
@@ -282,7 +282,7 @@ export class Transfer extends Command {
      * @param  {Object[]} wallets
      * @return {void}
      */
-    public async __testVendorField(wallets) {
+    public async testVendorField(wallets) {
         logger.info("Testing VendorField value is set correctly");
 
         const transactions = this.generateTransactions(
@@ -315,7 +315,7 @@ export class Transfer extends Command {
      * @param  {Object[]} wallets
      * @return {void}
      */
-    public async __testEmptyVendorField(wallets) {
+    public async testEmptyVendorField(wallets) {
         logger.info("Testing empty VendorField value");
 
         const transactions = this.generateTransactions(Command.__arkToArktoshi(2), wallets, null, null, null);

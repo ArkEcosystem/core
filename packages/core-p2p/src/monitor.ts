@@ -721,7 +721,7 @@ export class Monitor implements P2P.IMonitor {
      * Get last 10 block IDs from database.
      * @return {[]String}
      */
-    public async __getRecentBlockIds() {
+    public async getRecentBlockIds() {
         return app.resolvePlugin<PostgresConnection>("database").getRecentBlockIds();
     }
 
@@ -729,7 +729,7 @@ export class Monitor implements P2P.IMonitor {
      * Check if the node can connect to any DNS host.
      * @return {void}
      */
-    public async __checkDNSConnectivity(options) {
+    public async checkDNSConnectivity(options) {
         try {
             const host = await checkDNS(options);
 
@@ -743,7 +743,7 @@ export class Monitor implements P2P.IMonitor {
      * Check if the node can connect to any NTP host.
      * @return {void}
      */
-    public async __checkNTPConnectivity(options) {
+    public async checkNTPConnectivity(options) {
         try {
             const { host, time } = await checkNTP(options);
 

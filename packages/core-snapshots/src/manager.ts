@@ -115,7 +115,7 @@ export class SnapshotManager {
      * @param  {JSONObject} from commander or util function {blocks, codec, truncate, signatureVerify, skipRestartRound, start, end}
      * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
      */
-    public async __init(options, exportAction = false) {
+    public async init(options, exportAction = false) {
         const params: any = pick(options, [
             "truncate",
             "signatureVerify",

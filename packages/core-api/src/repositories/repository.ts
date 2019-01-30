@@ -19,15 +19,15 @@ export abstract class Repository implements IRepository {
     // todo: Introduce a generic param to return type-safe models
     public abstract getModel(): any;
 
-    public async _find(query): Promise<any> {
+    public async find(query): Promise<any> {
         return this.database.query.oneOrNone(query.toQuery());
     }
 
-    public async _findMany(query): Promise<any> {
+    public async findMany(query): Promise<any> {
         return this.database.query.manyOrNone(query.toQuery());
     }
 
-    public async _findManyWithCount(selectQuery, { limit, offset, orderBy }): Promise<any> {
+    public async findManyWithCount(selectQuery, { limit, offset, orderBy }): Promise<any> {
         if (this.columns.includes(orderBy[0])) {
             selectQuery.order(this.query[snakeCase(orderBy[0])][orderBy[1]]);
         }

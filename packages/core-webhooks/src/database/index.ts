@@ -111,7 +111,7 @@ class Database {
      * Run all migrations.
      * @return {Boolean}
      */
-    public async __runMigrations() {
+    public async runMigrations() {
         const umzug = new Umzug({
             storage: "sequelize",
             storageOptions: {

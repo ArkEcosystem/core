@@ -75,7 +75,7 @@ export class QueryExecutor {
      * @param  {String} method
      * @return {QueryBuilder}
      */
-    public async __executeQueryFile(query, parameters, method) {
+    public async executeQueryFile(query, parameters, method) {
         return this.connection.db[method](query, parameters);
     }
 }

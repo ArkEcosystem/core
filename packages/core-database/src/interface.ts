@@ -316,7 +316,7 @@ export abstract class ConnectionInterface {
      * which are then used to restore the original order.
      * @param {Number} round
      */
-    public async __calcPreviousActiveDelegates(round) {
+    public async calcPreviousActiveDelegates(round) {
         // TODO: cache the blocks of the last X rounds
         this.blocksInCurrentRound = await this.getBlocksForRound(round);
 
@@ -399,7 +399,7 @@ export abstract class ConnectionInterface {
      * @param  {number} round
      * @return {[]Block}
      */
-    public async __getBlocksForRound(round?) {
+    public async getBlocksForRound(round?) {
         let lastBlock;
         if (app.has("state")) {
             lastBlock = app.resolve("state").getLastBlock();

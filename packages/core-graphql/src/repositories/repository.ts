@@ -11,15 +11,15 @@ export abstract class Repository {
 
     public abstract getModel(): any;
 
-    public async _find(query) {
+    public async find(query) {
         return this.database.query.oneOrNone(query.toQuery());
     }
 
-    public async _findMany(query) {
+    public async findMany(query) {
         return this.database.query.manyOrNone(query.toQuery());
     }
 
-    public async _findManyWithCount(selectQuery, countQuery, { limit, offset, orderBy }) {
+    public async findManyWithCount(selectQuery, countQuery, { limit, offset, orderBy }) {
         const { count } = await this.find(countQuery);
 
         selectQuery

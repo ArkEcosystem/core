@@ -631,7 +631,7 @@ export class PostgresConnection extends ConnectionInterface {
      * Run all migrations.
      * @return {void}
      */
-    public async __runMigrations() {
+    public async runMigrations() {
         for (const migration of migrations) {
             const { name } = path.parse(migration.file);
 
@@ -655,7 +655,7 @@ export class PostgresConnection extends ConnectionInterface {
      * Register all models.
      * @return {void}
      */
-    public async __registerModels() {
+    public async registerModels() {
         for (const [key, Value] of Object.entries(require("./models"))) {
             this.models[key.toLowerCase()] = new (Value as any)(this.pgp);
         }

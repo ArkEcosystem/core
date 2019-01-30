@@ -75,7 +75,7 @@ export class PluginRegistrar {
      * @param  {Object} options
      * @return {void}
      */
-    public async __registerWithContainer(plugin, options = {}) {
+    public async registerWithContainer(plugin, options = {}) {
         const item: any = this.resolve(plugin);
 
         if (!item.plugin.register) {

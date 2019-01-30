@@ -402,7 +402,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param  {Array|Object} data
      * @return {Object}
      */
-    public async __mapBlocksToTransactions(data): Promise<any> {
+    public async mapBlocksToTransactions(data): Promise<any> {
         const blockQuery = this.database.models.block.query();
 
         // Array...

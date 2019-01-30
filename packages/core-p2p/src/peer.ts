@@ -263,7 +263,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Number} [timeout=10000]
      * @return {(Object|undefined)}
      */
-    public async __get(endpoint, timeout?) {
+    public async get(endpoint, timeout?) {
         const temp = new Date().getTime();
 
         try {
@@ -295,7 +295,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Object} headers
      * @return {(Object|undefined)}
      */
-    public async __post(endpoint, body, headers) {
+    public async post(endpoint, body, headers) {
         try {
             const response = await axios.post(`${this.url}${endpoint}`, body, headers);
 

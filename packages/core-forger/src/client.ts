@@ -156,7 +156,7 @@ export class Client {
      * Chose a responsive host.
      * @return {void}
      */
-    public async __chooseHost(wait = 0) {
+    public async chooseHost(wait = 0) {
         const host = sample(this.hosts);
 
         try {
@@ -174,11 +174,11 @@ export class Client {
         }
     }
 
-    public async __get(url) {
+    public async get(url) {
         return axios.get(url, { headers: this.headers, timeout: 2000 });
     }
 
-    public async __post(url, body) {
+    public async post(url, body) {
         return axios.post(url, body, { headers: this.headers, timeout: 2000 });
     }
 }

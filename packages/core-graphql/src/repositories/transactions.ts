@@ -337,7 +337,7 @@ class TransactionsRepository extends Repository {
      * @param  {Array|Object} data
      * @return {Object}
      */
-    public async __mapBlocksToTransactions(data) {
+    public async mapBlocksToTransactions(data) {
         const blockQuery = this.database.models.block.query();
 
         // Array...

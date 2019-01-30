@@ -90,7 +90,7 @@ export class ForgerManager {
      * @param  {Object} round
      * @return {Function}
      */
-    public async __monitor(round): Promise<any> {
+    public async monitor(round): Promise<any> {
         try {
             if (this.isStopped) {
                 return false;
@@ -175,7 +175,7 @@ export class ForgerManager {
      * @param {Object} delegate
      * @param {Object} round
      */
-    public async __forgeNewBlock(delegate, round) {
+    public async forgeNewBlock(delegate, round) {
         // TODO: Disabled for now as this could cause a delay in forging that
         // results in missing a block which we want to avoid.
         //
@@ -206,7 +206,7 @@ export class ForgerManager {
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async __getTransactionsForForging() {
+    public async getTransactionsForForging() {
         const response = await this.client.getTransactions();
 
         const transactions = response.transactions
@@ -230,7 +230,7 @@ export class ForgerManager {
      * Get a list of all active delegate usernames.
      * @return {Object}
      */
-    public async __loadUsernames(wait = 0) {
+    public async loadUsernames(wait = 0) {
         this.usernames = await this.client.getUsernames(wait);
     }
 
