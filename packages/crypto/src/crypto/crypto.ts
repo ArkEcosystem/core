@@ -2,7 +2,7 @@ import secp256k1 from "secp256k1";
 import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { feeManager } from "../managers";
 import { ITransactionData } from "../models";
-import { TransactionSerializer } from "../serializers";
+import { ISerializeOptions } from "../serializers/transaction";
 import { HashAlgorithms } from "./hash-algorithms";
 
 class Crypto {
@@ -23,12 +23,8 @@ class Crypto {
     /**
      * Get transaction hash.
      */
-    public getHash(
-        transaction: ITransactionData,
-        skipSignature: boolean = false,
-        skipSecondSignature: boolean = false,
-    ): Buffer {
-        const bytes = TransactionSerializer.getBytesV1(transaction, skipSignature, skipSecondSignature);
+    public getHash(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
+        const bytes = this.getTransactionBytes(transaction, options);
         return HashAlgorithms.sha256(bytes);
     }
 
@@ -36,13 +32,7 @@ class Crypto {
      * Sign transaction.
      */
     public sign(transaction: ITransactionData, keys: KeyPair): string {
-        let hash;
-        if (!transaction.version || transaction.version === 1) {
-            hash = this.getHash(transaction, true, true);
-        } else {
-            hash = this.getHash(transaction, false, false);
-        }
-
+        const hash = this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         const signature = this.signHash(hash, keys);
 
         if (!transaction.signature) {
@@ -56,7 +46,7 @@ class Crypto {
      * Sign transaction with second signature.
      */
     public secondSign(transaction: ITransactionData, keys: KeyPair): string {
-        const hash = this.getHash(transaction, false, true);
+        const hash = this.getHash(transaction, { excludeSecondSignature: true });
         const signature = this.signHash(hash, keys);
 
         if (!transaction.secondSignature) {
@@ -87,7 +77,7 @@ class Crypto {
             return false;
         }
 
-        const hash = this.getHash(transaction, true, true);
+        const hash = this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         return this.verifyHash(hash, transaction.signature, transaction.senderPublicKey);
     }
 
@@ -95,20 +85,14 @@ class Crypto {
      * Verify second signature for transaction.
      */
     public verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
-        let hash;
-        let secondSignature;
-        if (transaction.version && transaction.version !== 1) {
-            hash = this.getHash(transaction);
-            secondSignature = transaction.secondSignature;
-        } else {
-            hash = this.getHash(transaction, false, true);
-            secondSignature = transaction.signSignature;
-        }
-
+        // tslint:disable-next-line:prefer-const
+        let { secondSignature, signSignature } = transaction;
+        secondSignature = secondSignature || signSignature;
         if (!secondSignature) {
             return false;
         }
 
+        const hash = this.getHash(transaction, { excludeSecondSignature: true });
         return this.verifyHash(hash, secondSignature, publicKey);
     }
 
@@ -169,6 +153,13 @@ class Crypto {
      */
     public validatePublicKey(address: string, networkVersion?: number): boolean {
         return PublicKey.validate(address, networkVersion);
+    }
+
+    /**
+     * Dynamically loads the transaction serializer and calls getBytes to prevent a circular reference.
+     */
+    private getTransactionBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
+        return require("../serializers").TransactionSerializer.getBytes(transaction, options);
     }
 }
 

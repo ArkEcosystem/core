@@ -163,14 +163,12 @@ describe("crypto.ts", () => {
             expect(crypto.verifySecondSignature(transactionWithoutSignature, keys2.publicKey)).toBeFalse();
         });
 
-        it("should call this.getHash without parameters skipSignature and skipSecondSignature if transaction.version != 1", () => {
+        it("should fail this.getHash for transaction version > 1", () => {
             const transactionV2 = Object.assign({}, transaction, { version: 2 });
-            delete transactionV2.secondSignature;
-            delete transactionV2.signSignature;
-            const getHashMock = jest.spyOn(crypto, "getHash").mockImplementation(() => "");
 
-            crypto.verifySecondSignature(transactionV2, keys2.publicKey);
-            expect(getHashMock).toHaveBeenLastCalledWith(transactionV2);
+            expect(() => crypto.verifySecondSignature(transactionV2, keys2.publicKey)).toThrow(
+                TransactionVersionError
+            );
         });
     });
 
@@ -191,8 +189,7 @@ describe("crypto.ts", () => {
 
         it("should return address", () => {
             const keys = crypto.getKeys("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
-            // @ts-ignore
-            const address = crypto.getAddress(keys.publicKey.toString("hex"));
+            const address = crypto.getAddress(keys.publicKey);
             expect(address).toBe("DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub");
         });
     });

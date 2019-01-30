@@ -282,7 +282,7 @@ export class Wallet {
      * Verify the wallet.
      */
     private verify(transaction: ITransactionData, signature: string, publicKey: string): boolean {
-        const hash = crypto.getHash(transaction, true, true);
+        const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         return crypto.verifyHash(hash, signature, publicKey);
     }
 }

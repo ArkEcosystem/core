@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import ByteBuffer from "bytebuffer";
 import { client } from "../../src/client";
 import { TransactionDeserializer } from "../../src/deserializers";
@@ -334,7 +336,7 @@ describe("Transaction serializer / deserializer", () => {
                 id: "13987348420913138422",
             };
 
-            bytes = TransactionSerializer.getBytesV1(transaction);
+            bytes = TransactionSerializer.getBytes(transaction);
             expect(bytes).toBeObject();
             expect(bytes.length).toBe(202);
             expect(bytes.toString("hex")).toBe(
@@ -377,7 +379,7 @@ describe("Transaction serializer / deserializer", () => {
                 id: "13987348420913138422",
             };
 
-            bytes = TransactionSerializer.getBytesV1(transaction);
+            bytes = TransactionSerializer.getBytes(transaction);
             expect(bytes).toBeObject();
             expect(bytes.length).toBe(266);
             expect(bytes.toString("hex")).toBe(
@@ -402,7 +404,7 @@ describe("Transaction serializer / deserializer", () => {
                 id: "13987348420913138422",
             };
 
-            expect(() => TransactionSerializer.getBytesV1(transaction)).toThrow(TransactionVersionError);
+            expect(() => TransactionSerializer.getBytes(transaction)).toThrow(TransactionVersionError);
         });
     });
 

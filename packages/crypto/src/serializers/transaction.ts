@@ -5,22 +5,47 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../constants";
 import { TransactionTypeError, TransactionVersionError } from "../errors";
 import { configManager } from "../managers";
-import { Transaction } from "../models";
-import { ITransactionData } from "../models/transaction";
+import { ITransactionData, Transaction } from "../models";
 import { Bignum } from "../utils";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
+export interface ISerializeOptions {
+    excludeSignature?: boolean;
+    excludeSecondSignature?: boolean;
+}
+
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
-class TransactionSerializer {
+export class TransactionSerializer {
+    public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
+        const version = transaction.version || 1;
+
+        switch (version) {
+            case 1:
+                return this.getBytesV1(transaction, options);
+            default:
+                throw new TransactionVersionError(version);
+        }
+    }
+
+    /**
+     * Serializes the given transaction according to AIP11.
+     */
+    public static serialize(transaction: ITransactionData): Buffer {
+        const buffer = new ByteBuffer(512, true);
+
+        this.serializeCommon(transaction, buffer);
+        this.serializeVendorField(transaction, buffer);
+        this.serializeType(transaction, buffer);
+        this.serializeSignatures(transaction, buffer);
+
+        return Buffer.from(buffer.flip().toBuffer());
+    }
+
     /**
      * Serializes the given transaction prior to AIP11 (legacy).
      */
-    public getBytesV1(transaction: ITransactionData, skipSignature?: boolean, skipSecondSignature?: boolean): Buffer {
-        if (transaction.version && transaction.version !== 1) {
-            throw new TransactionVersionError(transaction.version);
-        }
-
+    private static getBytesV1(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
         let assetSize = 0;
         let assetBytes = null;
 
@@ -135,14 +160,14 @@ class TransactionSerializer {
             }
         }
 
-        if (!skipSignature && transaction.signature) {
+        if (!options.excludeSignature && transaction.signature) {
             const signatureBuffer = Buffer.from(transaction.signature, "hex");
             for (const byte of signatureBuffer) {
                 bb.writeByte(byte);
             }
         }
 
-        if (!skipSecondSignature && transaction.signSignature) {
+        if (!options.excludeSecondSignature && transaction.signSignature) {
             const signSignatureBuffer = Buffer.from(transaction.signSignature, "hex");
             for (const byte of signSignatureBuffer) {
                 bb.writeByte(byte);
@@ -160,21 +185,7 @@ class TransactionSerializer {
         return Buffer.from(buffer);
     }
 
-    /**
-     * Serializes the given transaction according to AIP11.
-     */
-    public serialize(transaction: ITransactionData): Buffer {
-        const buffer = new ByteBuffer(512, true);
-
-        this.serializeCommon(transaction, buffer);
-        this.serializeVendorField(transaction, buffer);
-        this.serializeType(transaction, buffer);
-        this.serializeSignatures(transaction, buffer);
-
-        return Buffer.from(buffer.flip().toBuffer());
-    }
-
-    private serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeByte(0xff); // fill, to disambiguate from v1
         buffer.writeByte(transaction.version || 0x01); // version
         buffer.writeByte(transaction.network || configManager.get("pubKeyHash")); // ark = 0x17, devnet = 0x30
@@ -184,7 +195,7 @@ class TransactionSerializer {
         buffer.writeUint64(+new Bignum(transaction.fee).toFixed());
     }
 
-    private serializeVendorField(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeVendorField(transaction: ITransactionData, buffer: ByteBuffer): void {
         if (Transaction.canHaveVendorField(transaction.type)) {
             if (transaction.vendorField) {
                 const vf = Buffer.from(transaction.vendorField, "utf8");
@@ -201,7 +212,7 @@ class TransactionSerializer {
         }
     }
 
-    private serializeType(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeType(transaction: ITransactionData, buffer: ByteBuffer): void {
         if (transaction.type === TransactionTypes.Transfer) {
             this.serializeTransfer(transaction, buffer);
         } else if (transaction.type === TransactionTypes.SecondSignature) {
@@ -225,29 +236,29 @@ class TransactionSerializer {
         }
     }
 
-    private serializeTransfer(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeTransfer(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeUint64(+new Bignum(transaction.amount).toFixed());
         buffer.writeUint32(transaction.expiration || 0);
         buffer.append(bs58check.decode(transaction.recipientId));
     }
 
-    private serializeSecondSignature(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeSecondSignature(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.append(transaction.asset.signature.publicKey, "hex");
     }
 
-    private serializeDelegateRegistration(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeDelegateRegistration(transaction: ITransactionData, buffer: ByteBuffer): void {
         const delegateBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
         buffer.writeByte(delegateBytes.length);
         buffer.append(delegateBytes, "hex");
     }
 
-    private serializeVote(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeVote(transaction: ITransactionData, buffer: ByteBuffer): void {
         const voteBytes = transaction.asset.votes.map(vote => (vote[0] === "+" ? "01" : "00") + vote.slice(1)).join("");
         buffer.writeByte(transaction.asset.votes.length);
         buffer.append(voteBytes, "hex");
     }
 
-    private serializeMultiSignature(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeMultiSignature(transaction: ITransactionData, buffer: ByteBuffer): void {
         let joined = null;
 
         if (!transaction.version || transaction.version === 1) {
@@ -263,19 +274,19 @@ class TransactionSerializer {
         buffer.append(keysgroupBuffer, "hex");
     }
 
-    private serializeIpfs(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeIpfs(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeByte(transaction.asset.ipfs.dag.length / 2);
         buffer.append(transaction.asset.ipfs.dag, "hex");
     }
 
-    private serializeTimelockTransfer(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeTimelockTransfer(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeUint64(+new Bignum(transaction.amount).toFixed());
         buffer.writeByte(transaction.timelockType);
         buffer.writeUint64(transaction.timelock);
         buffer.append(bs58check.decode(transaction.recipientId));
     }
 
-    private serializeMultiPayment(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeMultiPayment(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeUint32(transaction.asset.payments.length);
         transaction.asset.payments.forEach(p => {
             buffer.writeUint64(+new Bignum(p.amount).toFixed());
@@ -283,11 +294,11 @@ class TransactionSerializer {
         });
     }
 
-    private serializeDelegateResignation(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeDelegateResignation(transaction: ITransactionData, buffer: ByteBuffer): void {
         return;
     }
 
-    private serializeSignatures(transaction: ITransactionData, buffer: ByteBuffer): void {
+    private static serializeSignatures(transaction: ITransactionData, buffer: ByteBuffer): void {
         if (transaction.signature) {
             buffer.append(transaction.signature, "hex");
         }
@@ -304,5 +315,3 @@ class TransactionSerializer {
         }
     }
 }
-
-export const transactionSerializer = new TransactionSerializer();
