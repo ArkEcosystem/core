@@ -48,7 +48,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-kernel/node_modules
@@ -144,7 +143,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-kernel/node_modules
@@ -240,7 +238,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-kernel/node_modules
@@ -287,6 +284,9 @@ jobs:
       - run:
           name: core-p2p
           command: 'cd ~/core/packages/core-p2p && yarn test:coverage'
+      - run:
+          name: core-snapshots
+          command: 'cd ~/core/packages/core-snapshots && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -342,7 +342,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-kernel/node_modules
@@ -362,9 +361,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-snapshots
-          command: 'cd ~/core/packages/core-snapshots && yarn test:coverage'
       - run:
           name: core-test-utils
           command: 'cd ~/core/packages/core-test-utils && yarn test:coverage'
@@ -441,7 +437,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-kernel/node_modules
@@ -488,6 +483,9 @@ jobs:
       - run:
           name: core-p2p
           command: 'cd ~/core/packages/core-p2p && yarn test:coverage'
+      - run:
+          name: core-snapshots
+          command: 'cd ~/core/packages/core-snapshots && yarn test:coverage'
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -543,7 +541,6 @@ jobs:
             - ./packages/core-forger/node_modules
             - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-kernel/node_modules
@@ -563,9 +560,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-snapshots
-          command: 'cd ~/core/packages/core-snapshots && yarn test:coverage'
       - run:
           name: core-test-utils
           command: 'cd ~/core/packages/core-test-utils && yarn test:coverage'
