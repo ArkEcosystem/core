@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
-import PeerVerifier from "./peer-verifier";
 import util from "util";
 import { config as localConfig } from "./config";
+import { PeerVerifier } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
     public static isOk(peer): boolean {

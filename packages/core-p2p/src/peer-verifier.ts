@@ -1,44 +1,16 @@
-import assert from "assert";
-import { ConnectionInterface } from "@arkecosystem/core-database";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { Peer } from './peer';
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { app } from "@arkecosystem/core-container";
-import { models } from "@arkecosystem/crypto";
+import { ConnectionInterface } from "@arkecosystem/core-database";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-
-/**
- * A cache of verified blocks' ids. A block is verified if it is connected to a chain
- * in which all blocks (including that one) are signed by the corresponding delegates.
- * This is a map of { id1: true, id2: true, ... } for quick checking if a block with
- * the given id is verified.
- */
-class VerifiedBlocks {
-    // Use a Set because it preserves insertion order, so that we can delete the oldest
-    // entries when we are full.
-    private blocks: Set<string>;
-    private maxBlocksToRemember = 16384;
-
-    constructor () {
-        this.blocks = new Set();
-    }
-
-    public add(id: string) {
-        if (this.blocks.size >= this.maxBlocksToRemember) {
-            const oldest = this.blocks.values().next().value;
-            this.blocks.delete(oldest);
-        }
-        this.blocks.add(id);
-    }
-
-    public has(id: string) {
-        return this.blocks.has(id);
-    }
-}
+import { models } from "@arkecosystem/crypto";
+import assert from "assert";
+import { Peer } from './peer';
+import { VerifiedBlocks } from './verified-blocks';
 
 const verifiedBlocks = new VerifiedBlocks();
 
-export default class PeerVerifier {
+export class PeerVerifier {
     private database: ConnectionInterface;
     private logPrefix: string;
     private logger: Logger.ILogger;
@@ -125,7 +97,9 @@ export default class PeerVerifier {
         if (typeof claimedState === 'object' &&
             typeof claimedState.header === 'object' &&
             Number.isInteger(claimedState.header.height) &&
-            claimedState.header.height > 0) {
+            claimedState.header.height > 0 &&
+            typeof claimedState.header.id === 'string' &&
+            claimedState.header.id.length > 0) {
 
             return false;
         }
@@ -204,8 +178,8 @@ export default class PeerVerifier {
         this.logger.info(
             `${this.logPrefix} peer's latest block ` +
             `(height=${claimedHeight}, id=${claimedState.header.id}), is different than the ` +
-            `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has a ` +
-            `shorter and different chain.`
+            `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
+            (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) + ` different chain.`
         );
 
         return false;
@@ -252,7 +226,7 @@ export default class PeerVerifier {
          * @return {Object} intervals boundaries
          */
         const calcProbes = (lo: number, hi: number): object => {
-            assert(lo < hi, `${lo} < ${hi}`);
+            assert(lo <= hi, `${lo} <= ${hi}`);
             const diff = hi - lo;
             const p = {};
             for (let i = 0; i < nAry + 1; i++) {
