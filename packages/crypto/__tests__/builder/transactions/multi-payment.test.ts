@@ -2,6 +2,7 @@ import "jest-extended";
 import { MultiPaymentBuilder } from "../../../src/builder/transactions/multi-payment";
 import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
+import { MaximumPaymentCountExceededError } from "../../../src/errors";
 import { feeManager } from "../../../src/managers/fee";
 import { Bignum } from "../../../src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -55,7 +56,7 @@ describe("Multi Payment Transaction", () => {
         it("should throw if we want to add more payments than max authorized", () => {
             builder.data.asset.payments = new Array(2258);
 
-            expect(() => builder.addPayment("address", 2)).toThrow("A maximum of 2258 outputs is allowed");
+            expect(() => builder.addPayment("address", 2)).toThrow(MaximumPaymentCountExceededError);
         });
     });
 });

@@ -1,7 +1,7 @@
 import "jest-extended";
 import { TransactionTypes } from "../../src/constants";
 import { crypto } from "../../src/crypto/crypto";
-import { InvalidTransactionVersionError } from "../../src/errors";
+import { InvalidPublicKeyError, InvalidTransactionVersionError } from "../../src/errors";
 import { configManager } from "../../src/managers/config";
 import { ITransactionData } from "../../src/models";
 
@@ -422,7 +422,7 @@ describe("crypto.js", () => {
         it("should throw an error if the publicKey is invalid", () => {
             const invalidKeys = ["invalid", "a".repeat(65), "a".repeat(67), "z".repeat(66)];
             for (const invalidKey of invalidKeys) {
-                expect(() => crypto.getAddress(invalidKey)).toThrow(new Error(`publicKey '${invalidKey}' is invalid`));
+                expect(() => crypto.getAddress(invalidKey)).toThrow(InvalidPublicKeyError);
             }
         });
     });
