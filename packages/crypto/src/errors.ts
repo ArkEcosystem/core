@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 
-export class ExtendableError extends Error {
+export class CryptoError extends Error {
     constructor(message: string) {
         super(message);
 
@@ -17,8 +17,6 @@ export class ExtendableError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
-
-export class CryptoError extends ExtendableError {}
 
 export class InvalidBip38CompressionError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
