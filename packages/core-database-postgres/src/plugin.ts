@@ -19,9 +19,13 @@ export const plugin: Container.PluginDescriptor = {
         const databaseManager = container.resolvePlugin<DatabaseManager>("databaseManager");
 
         const connection = await databaseManager.makeConnection(new PostgresConnection(options, walletManager));
+
         let databaseService: DatabaseService;
         const databaseServiceProvider = () => databaseService;
         databaseService = new DatabaseService(options, connection, walletManager, new WalletsRepository(databaseServiceProvider), new DelegatesRepository(databaseServiceProvider));
+
+        await databaseService.init();
+
         return databaseService
     },
     async deregister(container: Container.IContainer, options) {

@@ -36,7 +36,7 @@ export interface IDatabaseService {
 
     saveBlock(block: models.Block): Promise<void>;
 
-    // TODO: These methods are exposing database terminology on the business layer, not good design
+    // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
     enqueueSaveBlock(block: models.Block): void;
 
@@ -65,6 +65,8 @@ export interface IDatabaseService {
     getTransaction(id: string): Promise<any>;
 
     getForgedTransactionsIds(ids: string[]): Promise<string[]>;
+
+    init(): Promise<void>;
 
     loadBlocksFromCurrentRound(): Promise<void>;
 

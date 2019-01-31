@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
 import fs from "fs";
@@ -25,6 +25,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     public transactionsRepository: Database.ITransactionsRepository;
     public walletsRepository: Database.IWalletsRepository;
     public pgp: any;
+    private emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private migrationsRepository : MigrationsRepository;
     private cache: Map<any, any>;
     private queuedQueries: any[];
@@ -75,6 +76,8 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     }
 
     public async connect() {
+
+        this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
         const initialization = {
             receive(data, result, e) {
                 camelizeColumns(pgp, data);
@@ -105,6 +108,9 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     }
 
     public async disconnect() {
+        this.logger.debug("Disconnecting from database");
+        this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
+
         try {
             await this.commitQueuedQueries();
             this.cache.clear();
@@ -113,9 +119,9 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             this.logger.warn(error.message);
         }
 
-        this.logger.debug("Disconnecting from database");
-
-        return this.pgp.end();
+        await this.pgp.end();
+        this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
+        this.logger.debug("Disconnected from database");
     }
 
     public enqueueDeleteBlock(block: models.Block): any {
@@ -158,9 +164,8 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             await this.registerQueryExecutor();
             await this.runMigrations();
             await this.registerModels();
-
-            // await this.loadBlocksFromCurrentRound();
             this.logger.debug("Connected to database.");
+            this.emitter.emit(Database.DatabaseEvents.POST_CONNECT);
 
             return this;
         } catch (error) {

@@ -44,6 +44,10 @@ export class DatabaseService implements Database.IDatabaseService {
         this.registerListeners();
     }
 
+    public async init() {
+        await this.loadBlocksFromCurrentRound();
+    }
+
     public async applyBlock(block: models.Block) {
         this.walletManager.applyBlock(block);
 
