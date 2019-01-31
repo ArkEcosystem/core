@@ -7,11 +7,9 @@ export abstract class BaseCommand extends Command {
     public static flagsConfig: Record<string, object> = {
         data: flags.string({
             description: "the directory that contains the core data",
-            default: "~/.ark",
         }),
         config: flags.string({
             description: "the directory that contains the core configuration",
-            default: "~/.ark/config",
         }),
     };
 

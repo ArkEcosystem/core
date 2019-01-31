@@ -146,8 +146,7 @@
             "@oclif/plugin-help",
             "@oclif/plugin-not-found",
             "@oclif/plugin-update",
-            "@oclif/plugin-warn-if-update-available",
-            "@oclif/plugin-which"
+            "@oclif/plugin-warn-if-update-available"
         ]
     }
 }
