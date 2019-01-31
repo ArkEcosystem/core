@@ -1,4 +1,4 @@
-import { process } from "ipaddr.js";
+import { parse, process } from "ipaddr.js";
 import os from "os";
 
 /**
@@ -33,11 +33,19 @@ const sanitizeRemoteAddress = (ip: string): string | null => {
 };
 
 const isLocalHost = (ip: string): boolean => {
-    const interfaces = os.networkInterfaces();
+    try {
+        const parsed = parse(ip);
+        if (parsed.range() === "loopback") {
+            return true;
+        }
 
-    return (
-        ip.startsWith("127.") ||
-        ip.startsWith("0.") ||
-        Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ip))
-    );
+        if (ip.startsWith("0")) {
+            return true;
+        }
+
+        const interfaces = os.networkInterfaces();
+        return Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ip));
+    } catch (error) {
+        return false;
+    }
 };

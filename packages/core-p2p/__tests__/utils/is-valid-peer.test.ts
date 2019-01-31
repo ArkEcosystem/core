@@ -13,6 +13,10 @@ describe("isValidPeer", () => {
         expect(isValidPeer(peer)).toBeFalse();
     });
 
+    it("should not be ok for 0.0.0.0", () => {
+        expect(isValidPeer({ ip: "0.0.0.0" })).toBeFalse();
+    });
+
     it("should not be ok for ::1", () => {
         const peer = { ip: "::1" };
         expect(isValidPeer(peer)).toBeFalse();
