@@ -11,7 +11,7 @@ export const isValidPeer = (peer: { ip: string; status?: string | number }): boo
         return false;
     }
 
-    if (isMyself(peer.ip)) {
+    if (isLocalHost(peer.ip)) {
         return false;
     }
 
@@ -24,9 +24,6 @@ export const isValidPeer = (peer: { ip: string; status?: string | number }): boo
     return true;
 };
 
-/**
- * Sanitizes the given ip and returns it sanitized ip on success or null on failure.
- */
 const sanitizeRemoteAddress = (ip: string): string | null => {
     try {
         return process(ip).toString();
@@ -35,12 +32,12 @@ const sanitizeRemoteAddress = (ip: string): string | null => {
     }
 };
 
-const isMyself = (ipAddress: string): boolean => {
+const isLocalHost = (ip: string): boolean => {
     const interfaces = os.networkInterfaces();
 
     return (
-        ipAddress.startsWith("127.") ||
-        ipAddress.startsWith("0.") ||
-        Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ipAddress))
+        ip.startsWith("127.") ||
+        ip.startsWith("0.") ||
+        Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ip))
     );
 };
