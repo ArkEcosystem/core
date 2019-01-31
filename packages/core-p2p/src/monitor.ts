@@ -20,7 +20,7 @@ import { guard, Guard } from "./court";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
 
-import { checkDNS, checkNTP, restorePeers } from "./utils";
+import { checkDNS, checkNTP, parseRemoteAddress, restorePeers } from "./utils";
 
 let config;
 let logger: Logger.ILogger;
@@ -138,6 +138,10 @@ export class Monitor implements P2P.IMonitor {
     public async acceptNewPeer(peer) {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
             logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
+            return;
+        }
+
+        if (!parseRemoteAddress(peer)) {
             return;
         }
 
@@ -848,9 +852,25 @@ export class Monitor implements P2P.IMonitor {
             peers = { ...peers, ...localConfig.get("peers") };
         }
 
-        const filteredPeers: any[] = Object.values(peers).filter(
-            peer => !this.guard.isMyself(peer) && this.guard.isValidPort(peer) && this.guard.isValidVersion(peer),
-        );
+        const filteredPeers: any[] = Object.values(peers).filter((peer: any) => {
+            if (!parseRemoteAddress(peer)) {
+                return false;
+            }
+
+            if (this.guard.isMyself(peer)) {
+                return false;
+            }
+
+            if (!this.guard.isValidPort(peer)) {
+                return false;
+            }
+
+            if (!this.guard.isValidVersion(peer)) {
+                return false;
+            }
+
+            return true;
+        });
 
         for (const peer of filteredPeers) {
             delete this.guard.suspensions[peer.ip];
