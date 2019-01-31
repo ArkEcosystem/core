@@ -216,15 +216,6 @@ export class Guard {
     }
 
     /**
-     * Determine if the peer is localhost.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isMyself(peer) {
-        return utils.isMyself(peer.ip);
-    }
-
-    /**
      * Decide if the given peer is a repeat offender.
      * @param  {Object}  peer
      * @return {Boolean}

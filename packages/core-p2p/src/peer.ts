@@ -7,10 +7,6 @@ import { config as localConfig } from "./config";
 import { PeerVerifier } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
-    public static isOk(peer): boolean {
-        return peer.status === 200 || peer.status === "OK";
-    }
-
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
