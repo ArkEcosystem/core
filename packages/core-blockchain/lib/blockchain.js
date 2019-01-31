@@ -512,6 +512,10 @@ module.exports = class Blockchain {
       logger.debug(
         `Block ${block.data.height.toLocaleString()} just received :chains:`,
       )
+    } else if (block.data.timestamp < lastBlock.data.timestamp) {
+      logger.debug(
+        `Block ${block.data.height.toLocaleString()} disregarded because it has a lower timestamp than the last block :bangbang:`
+      )
     } else {
       const isValid = await this.database.validateForkedBlock(block)
 

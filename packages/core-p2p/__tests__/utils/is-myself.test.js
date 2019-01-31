@@ -12,6 +12,10 @@ describe('isMyself', () => {
     expect(isMyself('192.167.22.1')).toBeFalse()
   })
 
+  it('should be ok for non-quad-dotted localhost addresses', () => {
+    expect(isMyself('2130706433')).toBeTrue()
+  })
+
   it('should be ok for LAN addresses', () => {
     const interfaces = os.networkInterfaces()
     const addresses = []
