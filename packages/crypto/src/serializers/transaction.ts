@@ -1,6 +1,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../constants";
+import { InvalidTransactionTypeError } from "../errors";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
 import { ITransactionData } from "../models/transaction";
@@ -66,7 +67,7 @@ class TransactionSerializer {
         } else if (transaction.type === TransactionTypes.DelegateResignation) {
             this.serializeDelegateResignation(transaction, buffer);
         } else {
-            throw new Error(`Type ${transaction.type} not supported.`);
+            throw new InvalidTransactionTypeError(transaction.type);
         }
     }
 

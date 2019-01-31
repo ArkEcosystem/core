@@ -11,6 +11,13 @@ import xor from "buffer-xor/inplace";
 import crypto from "crypto";
 import secp256k1 from "secp256k1";
 import { crypto as arkCrypto, HashAlgorithms } from "../crypto";
+import {
+    InvalidBip38CompressionError,
+    InvalidBip38LengthError,
+    InvalidBip38PrefixError,
+    InvalidBip38TypeError,
+    InvalidPrivateKeyLengthError,
+} from "../errors";
 
 const SCRYPT_PARAMS = {
     N: 16384, // specified by BIP38
@@ -68,7 +75,7 @@ export function verify(bip38: string): boolean {
 
 function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Buffer {
     if (buffer.length !== 32) {
-        throw new Error("Invalid private key length");
+        throw new InvalidPrivateKeyLengthError();
     }
 
     const address = getAddressPrivate(buffer, compressed);
@@ -102,10 +109,10 @@ function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Bu
 function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
     // 39 bytes: 2 bytes prefix, 37 bytes payload
     if (buffer.length !== 39) {
-        throw new Error("Invalid BIP38 data length");
+        throw new InvalidBip38LengthError();
     }
     if (buffer.readUInt8(0) !== 0x01) {
-        throw new Error("Invalid BIP38 prefix");
+        throw new InvalidBip38PrefixError();
     }
 
     // check if BIP38 EC multiply
@@ -114,13 +121,13 @@ function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
         return decryptECMult(buffer, passphrase);
     }
     if (type !== 0x42) {
-        throw new Error("Invalid BIP38 type");
+        throw new InvalidBip38TypeError();
     }
 
     const flagByte = buffer.readUInt8(2);
     const compressed = flagByte === 0xe0;
     if (!compressed && flagByte !== 0xc0) {
-        throw new Error("Invalid BIP38 compression flag");
+        throw new InvalidBip38CompressionError();
     }
 
     const salt = buffer.slice(3, 7);

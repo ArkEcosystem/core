@@ -1,6 +1,7 @@
 import "jest-extended";
 import { TransactionTypes } from "../../src/constants";
 import { crypto } from "../../src/crypto/crypto";
+import { InvalidTransactionVersionError } from "../../src/errors";
 import { configManager } from "../../src/managers/config";
 import { ITransactionData } from "../../src/models";
 
@@ -112,7 +113,7 @@ describe("crypto.js", () => {
                 id: "13987348420913138422",
             };
 
-            expect(() => crypto.getBytes(transaction)).toThrow("not supported yet");
+            expect(() => crypto.getBytes(transaction)).toThrow(InvalidTransactionVersionError);
         });
     });
 
@@ -138,7 +139,9 @@ describe("crypto.js", () => {
         });
 
         it("should throw for unsupported versions", () => {
-            expect(() => crypto.getHash(Object.assign({}, transaction, { version: 110 }))).toThrow("not supported yet");
+            expect(() => crypto.getHash(Object.assign({}, transaction, { version: 110 }))).toThrow(
+                InvalidTransactionVersionError,
+            );
         });
     });
 
@@ -162,7 +165,9 @@ describe("crypto.js", () => {
         });
 
         it("should throw for unsupported version", () => {
-            expect(() => crypto.getId(Object.assign({}, transaction, { version: 110 }))).toThrow("not supported yet");
+            expect(() => crypto.getId(Object.assign({}, transaction, { version: 110 }))).toThrow(
+                InvalidTransactionVersionError,
+            );
         });
     });
 
@@ -197,7 +202,7 @@ describe("crypto.js", () => {
         it("should throw for unsupported versions", () => {
             expect(() => {
                 crypto.sign(Object.assign({}, transaction, { version: 110 }), keys);
-            }).toThrow("not supported yet");
+            }).toThrow(InvalidTransactionVersionError);
         });
     });
 
