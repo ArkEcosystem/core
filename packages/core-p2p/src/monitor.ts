@@ -232,7 +232,6 @@ export class Monitor implements P2P.IMonitor {
      */
     public async cleanPeers(fast = false, forcePing = false) {
         const keys = Object.keys(this.peers);
-        let count = 0;
         let unresponsivePeers = 0;
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
@@ -243,10 +242,6 @@ export class Monitor implements P2P.IMonitor {
                 const peer = this.getPeer(ip);
                 try {
                     await peer.ping(pingDelay, forcePing);
-
-                    if (this.initializing) {
-                        logger.printTracker("Peers Discovery", ++count, max);
-                    }
                 } catch (error) {
                     unresponsivePeers++;
 
@@ -262,7 +257,6 @@ export class Monitor implements P2P.IMonitor {
         );
 
         if (this.initializing) {
-            logger.stopTracker("Peers Discovery", max, max);
             logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
             logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
             logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`);

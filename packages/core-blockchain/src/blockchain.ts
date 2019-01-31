@@ -293,7 +293,8 @@ export class Blockchain implements blockchain.IBlockchain {
         while (this.state.getLastBlock().data.height >= newHeight + 1) {
             const removalBlockId = this.state.getLastBlock().data.id;
             const removalBlockHeight = this.state.getLastBlock().data.height.toLocaleString();
-            logger.printTracker("Removing block", count++, max, `ID: ${removalBlockId}, height: ${removalBlockHeight}`);
+
+            logger.info(`Removing block ${count++} of ${max} - ID: ${removalBlockId}, height: ${removalBlockHeight}`);
 
             await deleteLastBlock();
         }
@@ -301,7 +302,7 @@ export class Blockchain implements blockchain.IBlockchain {
         // Commit delete blocks
         await this.database.commitQueuedQueries();
 
-        logger.stopTracker(`${pluralize("block", max, true)} removed`, count, max);
+        logger.info(`Removed ${count} ${pluralize("block", max, true)}`);
 
         await this.database.deleteRound(previousRound + 1);
     }
@@ -316,10 +317,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         // If the current chain height is H and we will be removing blocks [N, H],
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
-        const blocksToRemove = await this.database.getBlocks(
-            this.state.getLastBlock().data.height - nblocks,
-            nblocks,
-        );
+        const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks);
 
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable

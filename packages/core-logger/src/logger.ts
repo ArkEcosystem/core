@@ -49,32 +49,6 @@ export abstract class AbstractLogger implements Logger.ILogger {
     public abstract verbose(message: any): void;
 
     /**
-     * Print the progress tracker.
-     * @param  {String} title
-     * @param  {Number} current
-     * @param  {Number} max
-     * @param  {String} postTitle
-     * @param  {Number} figures
-     * @return {void}
-     */
-    public abstract printTracker(
-        title: string,
-        current: number,
-        max: number,
-        postTitle?: string,
-        figures?: number,
-    ): void;
-
-    /**
-     * Stop the progress tracker.
-     * @param  {String} title
-     * @param  {Number} current
-     * @param  {Number} max
-     * @return {void}
-     */
-    public abstract stopTracker(title: string, current: number, max: number): void;
-
-    /**
      * Suppress console output.
      * @param  {Boolean}
      * @return {void}

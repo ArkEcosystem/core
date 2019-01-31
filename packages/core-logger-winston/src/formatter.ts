@@ -5,7 +5,7 @@ import { format } from "winston";
 
 const { colorize, combine, timestamp, printf } = format;
 
-const formatter = (colorOutput: boolean = true, makeReadable: boolean = true) =>
+const formatter = (colorOutput: boolean = true) =>
     combine(
         colorize(),
         timestamp(),
@@ -38,10 +38,7 @@ const formatter = (colorOutput: boolean = true, makeReadable: boolean = true) =>
 
             const dateTime = dayjs(info.timestamp).format("YYYY-MM-DD HH:mm:ss");
 
-            const dateTimeAndLevel = `[${dateTime}][${level}]:`;
-            const lineSpacer = makeReadable ? " ".repeat(Math.abs(dateTimeAndLevel.length - 50) + 1) : "";
-
-            return `[${dateTime}][${level}]${lineSpacer}: ${message}`;
+            return `[${dateTime}][${level}]: ${message}`;
         }),
     );
 
