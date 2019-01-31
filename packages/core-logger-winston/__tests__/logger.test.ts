@@ -82,31 +82,6 @@ describe("Logger", () => {
         });
     });
 
-    describe("printTracker", () => {
-        it("should print the tracker", () => {
-            logger.printTracker("test_title", 50, 100, "done");
-            logger.printTracker("second_tracker", 0, 100, null);
-
-            expect(message).toMatch(/test_title/);
-            expect(message).toMatch(/=========================/);
-            expect(message).toMatch(/50/);
-            expect(message).toMatch(/done/);
-            message = null;
-        });
-    });
-
-    describe("stopTracker", () => {
-        it("should stop the tracker", () => {
-            logger.stopTracker("test_title", 50, 100);
-            logger.stopTracker("second_tracker", 101, 100);
-
-            expect(message).toMatch(/test_title/);
-            expect(message).toMatch(/=========================/);
-            expect(message).toMatch(/100/);
-            message = null;
-        });
-    });
-
     describe("suppressConsoleOutput", () => {
         it("should suppress console output", () => {
             logger.suppressConsoleOutput(true);
