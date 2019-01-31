@@ -69,7 +69,9 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
     }
 
     private async performConfiguration(flags): Promise<void> {
-        const delegatesConfig = `${flags.config}/delegates.json`;
+        const { config } = this.getPaths(flags.token, flags.network);
+
+        const delegatesConfig = `${config}/delegates.json`;
         let decodedWIF;
 
         this.addTask("Prepare configuration", async () => {
