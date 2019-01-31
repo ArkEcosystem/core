@@ -2,8 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
 import { BaseCommand } from "../command";
+import { AbstractStartCommand } from "../shared/start";
 
-export class StartCommand extends BaseCommand {
+export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the relay";
 
     public static examples: string[] = [
@@ -48,13 +49,11 @@ $ ark relay:start --no-daemon
         }),
     };
 
-    public async run(): Promise<void> {
-        const { flags } = this.parse(StartCommand);
+    public getClass() {
+        return StartCommand;
+    }
 
-        if (!flags.daemon) {
-            return this.runWithoutDaemon(flags);
-        }
-
+    protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
         start({
             name: `${flags.token}-core-relay`,
             script: "./dist/index.js",
@@ -62,8 +61,8 @@ $ ark relay:start --no-daemon
         });
     }
 
-    private async runWithoutDaemon(flags: Record<string, any>) {
-        return this.buildApplication(app, {
+    protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
+        await this.buildApplication(app, {
             exclude: ["@arkecosystem/core-forger"],
             options: {
                 "@arkecosystem/core-p2p": this.buildPeerOptions(flags),

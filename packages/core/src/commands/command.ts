@@ -66,7 +66,7 @@ export abstract class BaseCommand extends Command {
 
     protected tasks: Array<{ title: string; task: any }> = [];
 
-    protected async buildApplication(app, flags) {
+    protected async buildApplication(app, flags: Record<string, any>) {
         const modifiers: any = { skipPlugins: flags.skipPlugins };
 
         if (flags.preset) {
