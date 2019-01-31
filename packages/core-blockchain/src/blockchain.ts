@@ -302,7 +302,7 @@ export class Blockchain implements blockchain.IBlockchain {
         // Commit delete blocks
         await this.database.commitQueuedQueries();
 
-        logger.info(`Removed ${count} ${pluralize("block", max, true)} removed`);
+        logger.info(`Removed ${count} ${pluralize("block", max, true)}`);
 
         await this.database.deleteRound(previousRound + 1);
     }
