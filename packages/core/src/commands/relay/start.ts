@@ -56,7 +56,7 @@ $ ark relay:start --no-daemon
         }
 
         start({
-            name: "ark-core-relay",
+            name: `${flags.token}-core-relay`,
             script: "./dist/index.js",
             args: `relay:start --daemon ${this.flagsToStrings(flags)}`,
         });

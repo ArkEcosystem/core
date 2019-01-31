@@ -14,6 +14,7 @@ $ ark env:set CORE_LOG_LEVEL info
     ];
 
     public static flags: Record<string, any> = {
+        ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsConfig,
         force: flags.boolean({
             char: "f",
@@ -29,7 +30,8 @@ $ ark env:set CORE_LOG_LEVEL info
     public async run(): Promise<void> {
         const { args, flags } = this.parse(SetCommand);
 
-        const envFile = `${expandHomeDir(flags.data)}/.env`;
+        const { config } = this.getPaths(flags.token, flags.network);
+        const envFile = `${config}/.env`;
 
         if (!existsSync(envFile)) {
             throw new Error(`No environment file found at ${envFile}`);

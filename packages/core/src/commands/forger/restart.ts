@@ -10,7 +10,13 @@ $ ark forger:restart
 `,
     ];
 
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsNetwork,
+    };
+
     public async run(): Promise<void> {
-        restart("ark-core-forger");
+        const { flags } = this.parse(RestartCommand);
+
+        restart(`${flags.token}-core-forger`);
     }
 }

@@ -1,29 +1,22 @@
-import { flags } from "@oclif/command";
-import { shutdown, stop } from "../../helpers/pm2";
-import { BaseCommand } from "../command";
+import { AbstractStopCommand } from "../shared/stop";
 
-export class StopCommand extends BaseCommand {
+export class StopCommand extends AbstractStopCommand {
     public static description: string = "Stop the relay";
 
     public static examples: string[] = [
         `Stop the relay
 $ ark relay:stop
 `,
-        `Stop the relay and daemon
+        `Stop the relay daemon
 $ ark relay:stop --daemon
 `,
     ];
 
-    public static flags: Record<string, any> = {
-        daemon: flags.boolean({
-            char: "d",
-            description: "stop the process and daemon",
-        }),
-    };
+    public getClass() {
+        return StopCommand;
+    }
 
-    public async run(): Promise<void> {
-        const { flags } = this.parse(StopCommand);
-
-        flags.daemon ? shutdown("ark-core-relay") : stop("ark-core-relay");
+    public getSuffix(): string {
+        return "core-relay";
     }
 }

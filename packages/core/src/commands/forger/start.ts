@@ -37,7 +37,7 @@ $ ark forger:start --no-daemon
         }
 
         start({
-            name: "ark-core-forger",
+            name: `${flags.token}-core-forger`,
             script: "./dist/index.js",
             args: `forger:run ${this.flagsToStrings(flags)}`,
             env: {

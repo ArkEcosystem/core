@@ -10,7 +10,13 @@ $ ark relay:restart
 `,
     ];
 
+    public static flags: Record<string, any> = {
+        ...BaseCommand.flagsNetwork,
+    };
+
     public async run(): Promise<void> {
-        restart("ark-core-relay");
+        const { flags } = this.parse(RestartCommand);
+
+        restart(`${flags.token}-core-relay`);
     }
 }

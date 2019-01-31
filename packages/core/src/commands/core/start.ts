@@ -56,7 +56,7 @@ $ ark core:start --no-daemon
         }
 
         start({
-            name: "ark-core",
+            name: `${flags.token}-core`,
             script: "./dist/index.js",
             args: `core:start ${this.flagsToStrings(flags)}`,
             env: {

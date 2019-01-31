@@ -14,13 +14,15 @@ $ ark env:list
     ];
 
     public static flags: Record<string, any> = {
-        ...BaseCommand.flagsConfig,
+        ...BaseCommand.flagsNetwork,
+        ...BaseCommand.flagsNetwork,
     };
 
     public async run(): Promise<void> {
         const { flags } = this.parse(ListCommand);
 
-        const envFile = `${expandHomeDir(flags.data)}/.env`;
+        const { config } = this.getPaths(flags.token, flags.network);
+        const envFile = `${config}/.env`;
 
         if (!existsSync(envFile)) {
             throw new Error(`No environment file found at ${envFile}`);
