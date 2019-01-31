@@ -41,7 +41,7 @@ export class Keys {
         const version = decoded.version;
 
         if (version !== network.wif) {
-            throw new InvalidNetworkVersionError();
+            throw new InvalidNetworkVersionError(network.wif, version);
         }
 
         const privateKey = decoded.privateKey;

@@ -21,67 +21,67 @@ export class ExtendableError extends Error {
 export class CryptoError extends ExtendableError {}
 
 export class InvalidBip38CompressionError extends CryptoError {
-    constructor() {
-        super("Invalid BIP38 compression flag");
+    constructor(expected: string | number, given: string | number) {
+        super(`Expected flag to be ${expected}, but got ${given}.`);
     }
 }
 
 export class InvalidBip38LengthError extends CryptoError {
-    constructor() {
-        super("Invalid BIP38 data length");
+    constructor(expected: string | number, given: string | number) {
+        super(`Expected length to be ${expected}, but got ${given}.`);
     }
 }
 
 export class InvalidBip38PrefixError extends CryptoError {
-    constructor() {
-        super("Invalid BIP38 prefix");
+    constructor(expected: string | number, given: string | number) {
+        super(`Expected prefix to be ${expected}, but got ${given}.`);
     }
 }
 
 export class InvalidBip38TypeError extends CryptoError {
-    constructor() {
-        super("Invalid BIP38 type");
+    constructor(expected: string | number, given: string | number) {
+        super(`Expected type to be ${expected}, but got ${given}.`);
     }
 }
 
 export class InvalidNetworkVersionError extends CryptoError {
-    constructor() {
-        super("Invalid network version");
+    constructor(expected: string | number, given: string | number) {
+        super(`Expected version to be ${expected}, but got ${given}.`);
     }
 }
 
 export class InvalidPrivateKeyLengthError extends CryptoError {
-    constructor() {
-        super("Invalid private key length");
+    constructor(expected: string | number, given: string | number) {
+        super(`Expected length to be ${expected}, but got ${given}.`);
     }
 }
 
 export class InvalidPublicKeyError extends CryptoError {
-    constructor(value: string) {
-        super(`publicKey '${value}' is invalid`);
+    constructor(given: string) {
+        super(`Expected ${given} to be a valid public key.`);
     }
 }
 
 export class InvalidTransactionTypeError extends CryptoError {
-    constructor(value: string) {
-        super(`Type ${value} not supported.`);
+    constructor(given: string) {
+        super(`Type ${given} not supported.`);
     }
 }
 
 export class InvalidTransactionVersionError extends CryptoError {
-    constructor(value: number) {
-        super(`Version ${value} not supported.`);
+    constructor(given: number) {
+        super(`Version ${given} not supported.`);
     }
 }
 
-export class MaximumPaymentsCountExceededError extends CryptoError {
-    constructor() {
-        super("A maximum of 2258 outputs is allowed");
+export class MaximumPaymentCountExceededError extends CryptoError {
+    constructor(given: number) {
+        super(`Expected a maximum of 2258 payments, but got ${given}.`);
     }
 }
 
 export class MissingTransactionSignatureError extends CryptoError {
     constructor() {
-        super("The transaction is not signed yet");
+        super(`Expected the transaction to be signed.`);
     }
 }

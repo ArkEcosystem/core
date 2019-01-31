@@ -75,7 +75,7 @@ export function verify(bip38: string): boolean {
 
 function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Buffer {
     if (buffer.length !== 32) {
-        throw new InvalidPrivateKeyLengthError();
+        throw new InvalidPrivateKeyLengthError(32, buffer.length);
     }
 
     const address = getAddressPrivate(buffer, compressed);
@@ -109,10 +109,10 @@ function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Bu
 function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
     // 39 bytes: 2 bytes prefix, 37 bytes payload
     if (buffer.length !== 39) {
-        throw new InvalidBip38LengthError();
+        throw new InvalidBip38LengthError(39, buffer.length);
     }
     if (buffer.readUInt8(0) !== 0x01) {
-        throw new InvalidBip38PrefixError();
+        throw new InvalidBip38PrefixError(0x01, buffer.readUInt8(0));
     }
 
     // check if BIP38 EC multiply
@@ -121,13 +121,13 @@ function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
         return decryptECMult(buffer, passphrase);
     }
     if (type !== 0x42) {
-        throw new InvalidBip38TypeError();
+        throw new InvalidBip38TypeError(0x42, type);
     }
 
     const flagByte = buffer.readUInt8(2);
     const compressed = flagByte === 0xe0;
     if (!compressed && flagByte !== 0xc0) {
-        throw new InvalidBip38CompressionError();
+        throw new InvalidBip38CompressionError(0xc0, flagByte);
     }
 
     const salt = buffer.slice(3, 7);
