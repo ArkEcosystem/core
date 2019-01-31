@@ -42,7 +42,7 @@ $ ark core:start --no-daemon
         ...BaseCommand.flagsForger,
         daemon: flags.boolean({
             char: "d",
-            description: "stop the process and daemon",
+            description: "start the process as a daemon",
             default: true,
             allowNo: true,
         }),
