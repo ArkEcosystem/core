@@ -1,4 +1,6 @@
 import "jest-extended";
+
+import os from "os";
 import { isValidPeer } from "../../src/utils";
 
 describe("isValidPeer", () => {
@@ -29,7 +31,22 @@ describe("isValidPeer", () => {
         expect(isValidPeer({ ip: "5.196.105.32", status: 400 })).toBeFalse();
     });
 
+    it("should not be ok for LAN addresses", () => {
+        const interfaces = os.networkInterfaces();
+        const addresses = [];
+
+        // getting local addresses
+        Object.keys(interfaces).forEach(ifname => {
+            interfaces[ifname].some(iface => (addresses as any).push(iface.address));
+        });
+
+        addresses.forEach(ipAddress => {
+            expect(isValidPeer({ ip: ipAddress })).toBeFalse();
+        });
+    });
+
     it("should be ok", () => {
+        expect(isValidPeer({ ip: "192.168.178.0" })).toBeTrue();
         expect(isValidPeer({ ip: "5.196.105.32" })).toBeTrue();
         expect(isValidPeer({ ip: "5.196.105.32", status: 200 })).toBeTrue();
         expect(isValidPeer({ ip: "5.196.105.32", status: "OK" })).toBeTrue();
