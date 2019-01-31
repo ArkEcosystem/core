@@ -14,13 +14,13 @@ const main = async () => {
         type: 'text',
         name: 'corePath',
         initial: expandHomeDir('~/ark-core'),
-        message: 'Where is the installation located at?',
+        message: 'Where is the installation located at? [press ENTER to use default]',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
     }, {
         type: 'text',
         name: 'coreData',
         initial: expandHomeDir('~/.ark'),
-        message: 'Where is the configuration located at?',
+        message: 'Where is the configuration located at? [press ENTER to use default]',
         validate: value => fs.existsSync(value) ? true : `${value} does not exist.`
     }, {
         type: 'select',
@@ -146,6 +146,12 @@ const main = async () => {
         fs.moveSync(`${corePaths.log}/core/${coreNetwork}`, `${paths.log.new}/${coreNetwork}`);
     }
 
+    if (fs.existsSync(`${paths.data.new}/snapshots/${coreNetwork}`)) {
+        fs.moveSync(`${paths.data.new}/snapshots/${coreNetwork}`, `${paths.data.new}/snapshots.tmp`)
+        fs.rmdirSync(`${paths.data.new}/snapshots`)
+        fs.renameSync(`${paths.data.new}/snapshots.tmp`, `${paths.data.new}/snapshots`)
+    }
+
     // Remove old or temp files
     fs.removeSync(`${paths.config.old}/peers_backup.json`);
     fs.removeSync(`${paths.config.old}/network.json`);
@@ -190,7 +196,15 @@ const main = async () => {
 
     // Update environment file
     console.log('Update environment configuration');
-    fs.writeFileSync(`${paths.config.new}/.env`, envCurrent.replace('ARK_', 'CORE_'));
+    fs.writeFileSync(`${paths.config.new}/.env`, envCurrent.replace(new RegExp('ARK_', 'g'), 'CORE_'));
+
+    // Update plugins file
+    console.log('Update plugins configuration');
+    let pluginContents = fs.readFileSync(`${paths.config.new}/plugins.js`).toString();
+    pluginContents = pluginContents.replace('@arkecosystem/core-transaction-pool-mem', '@arkecosystem/core-transaction-pool');
+    pluginContents = pluginContents.replace('"@arkecosystem/core-config": {},', '');
+    pluginContents = pluginContents.replace(new RegExp('ARK_', 'g'), 'CORE_');
+    fs.writeFileSync(`${paths.config.new}/plugins.js`, pluginContents);
 
     // Validate configuration files
     console.log('Validating configuration');
