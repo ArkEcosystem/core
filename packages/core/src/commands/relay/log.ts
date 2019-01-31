@@ -1,5 +1,3 @@
-import { flags } from "@oclif/command";
-import { log } from "../../helpers/pm2";
 import { AbstractLogCommand } from "../shared/log";
 
 export class LogCommand extends AbstractLogCommand {

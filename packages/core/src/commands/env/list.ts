@@ -21,8 +21,7 @@ $ ark env:list
         const { flags } = this.parse(ListCommand);
 
         // @ts-ignore
-        const { config } = this.getPaths(flags.token, flags.network);
-        const envFile = `${config}/.env`;
+        const envFile = `${this.getPaths(flags.token, flags.network).config}/.env`;
 
         if (!existsSync(envFile)) {
             throw new Error(`No environment file found at ${envFile}`);
