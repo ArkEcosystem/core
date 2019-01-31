@@ -1,7 +1,7 @@
 import { flags } from "@oclif/command";
 import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
-import { resolve } from "path";
+import { join, resolve } from "path";
 import prompts from "prompts";
 import { BaseCommand } from "../command";
 
@@ -11,9 +11,6 @@ export class PublishCommand extends BaseCommand {
     public static examples: string[] = [
         `Publish the configuration for the mainnet network
 $ ark config:publish --network=mainnet
-`,
-        `Publish the configuration with custom data and config paths
-$ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
 `,
     ];
 
@@ -49,18 +46,6 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
                 ],
             },
             {
-                type: "text",
-                name: "data",
-                message: "Where do you want the data to be located?",
-                initial: flags.data,
-            },
-            {
-                type: "text",
-                name: "config",
-                message: "Where do you want the configuration to be located?",
-                initial: flags.config,
-            },
-            {
                 type: "confirm",
                 name: "confirm",
                 message: "Can you confirm?",
@@ -74,7 +59,9 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
     }
 
     private async performPublishment(flags: Record<string, any>): Promise<void> {
-        const coreConfigDest = resolve(expandHomeDir(flags.config));
+        const corePaths = this.getPaths(flags.token, flags.network);
+
+        const coreConfigDest = corePaths.config;
         const coreConfigSrc = resolve(__dirname, `../../../bin/config/${flags.network}`);
 
         this.addTask("Prepare directories", async () => {
@@ -90,9 +77,7 @@ $ ark config:publish --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
                 throw new Error(`Couldn't find the environment file at ${coreConfigSrc}/.env.`);
             }
 
-            const coreDataDest = resolve(expandHomeDir(flags.data));
-
-            fs.copySync(`${coreConfigSrc}/.env`, `${coreDataDest}/.env`);
+            fs.copySync(`${coreConfigSrc}/.env`, `${coreConfigDest}/.env`);
         });
 
         this.addTask("Publish configuration", async () => {

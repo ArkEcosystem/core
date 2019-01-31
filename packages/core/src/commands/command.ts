@@ -1,8 +1,8 @@
 import Command, { flags } from "@oclif/command";
+import envPaths from "env-paths";
 import Listr from "listr";
 import { resolve } from "path";
 
-// tslint:disable-next-line:no-default-export
 export abstract class BaseCommand extends Command {
     public static flagsConfig: Record<string, object> = {
         data: flags.string({
@@ -15,6 +15,11 @@ export abstract class BaseCommand extends Command {
 
     public static flagsNetwork: Record<string, object> = {
         ...BaseCommand.flagsConfig,
+        token: flags.string({
+            description: "the name of the token that should be used",
+            default: "ark",
+            required: true,
+        }),
         network: flags.string({
             description: "the name of the network that should be used",
             options: ["mainnet", "devnet", "testnet"],
@@ -96,11 +101,7 @@ export abstract class BaseCommand extends Command {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {
-            if (value === true) {
-                mappedFlags.push(`--${key}`);
-            } else {
-                mappedFlags.push(`--${key}=${value}`);
-            }
+            mappedFlags.push(value === true ? `--${key}` : `--${key}=${value}`);
         }
 
         return mappedFlags.join(" ");
@@ -119,5 +120,15 @@ export abstract class BaseCommand extends Command {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    protected getPaths(token: string, network: string): envPaths.Paths {
+        const paths: envPaths.Paths = envPaths(token, { suffix: "core" });
+
+        for (const [key, value] of Object.entries(paths)) {
+            paths[key] = `${value}/${network}`;
+        }
+
+        return paths;
     }
 }

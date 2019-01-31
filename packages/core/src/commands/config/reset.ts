@@ -13,9 +13,6 @@ export class ResetCommand extends BaseCommand {
         `Reset the configuration for the mainnet network
 $ ark config:reset --network=mainnet
 `,
-        `Reset the configuration with custom data and config paths
-$ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
-`,
     ];
 
     public static flags: Record<string, any> = {
@@ -53,10 +50,10 @@ $ ark config:reset --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
     }
 
     private async performReset(flags: Record<string, any>): Promise<void> {
-        const configDir = resolve(expandHomeDir(flags.config));
+        const { config } = this.getPaths(flags.token, flags.network);
 
         this.addTask("Remove configuration", async () => {
-            fs.removeSync(configDir);
+            fs.removeSync(config);
         });
 
         await this.runTasks();
