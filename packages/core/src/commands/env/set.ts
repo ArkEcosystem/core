@@ -30,6 +30,7 @@ $ ark env:set CORE_LOG_LEVEL info
     public async run(): Promise<void> {
         const { args, flags } = this.parse(SetCommand);
 
+        // @ts-ignore
         const { config } = this.getPaths(flags.token, flags.network);
         const envFile = `${config}/.env`;
 

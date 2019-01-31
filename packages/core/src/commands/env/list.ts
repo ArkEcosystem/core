@@ -15,12 +15,12 @@ $ ark env:list
 
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsNetwork,
     };
 
     public async run(): Promise<void> {
         const { flags } = this.parse(ListCommand);
 
+        // @ts-ignore
         const { config } = this.getPaths(flags.token, flags.network);
         const envFile = `${config}/.env`;
 

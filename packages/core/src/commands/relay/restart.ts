@@ -1,7 +1,6 @@
-import { restart } from "../../helpers/pm2";
-import { BaseCommand } from "../command";
+import { AbstractRestartCommand } from "../shared/restart";
 
-export class RestartCommand extends BaseCommand {
+export class RestartCommand extends AbstractRestartCommand {
     public static description: string = "Restart the relay";
 
     public static examples: string[] = [
@@ -10,13 +9,11 @@ $ ark relay:restart
 `,
     ];
 
-    public static flags: Record<string, any> = {
-        ...BaseCommand.flagsNetwork,
-    };
+    public getClass() {
+        return RestartCommand;
+    }
 
-    public async run(): Promise<void> {
-        const { flags } = this.parse(RestartCommand);
-
-        restart(`${flags.token}-core-relay`);
+    public getSuffix(): string {
+        return "core-relay";
     }
 }
