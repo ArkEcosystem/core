@@ -4,8 +4,6 @@ import isEmpty from "lodash/isEmpty";
 import { inspect } from "util";
 import * as winston from "winston";
 
-const tracker = null;
-
 export class WinstonLogger extends AbstractLogger {
     public logger: any;
 
