@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import os from "os";
 import { isMyself } from "../../src/utils";
 

@@ -20,7 +20,7 @@ import { guard, Guard } from "./court";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
 
-import { checkDNS, checkNTP, parseRemoteAddress, restorePeers } from "./utils";
+import { checkDNS, checkNTP, isValidPeer, restorePeers } from "./utils";
 
 let config;
 let logger: Logger.ILogger;
@@ -141,13 +141,9 @@ export class Monitor implements P2P.IMonitor {
             return;
         }
 
-        if (!parseRemoteAddress(peer)) {
-            return;
-        }
-
         if (
+            !isValidPeer(peer) ||
             this.guard.isSuspended(peer) ||
-            this.guard.isMyself(peer) ||
             this.pendingPeers[peer.ip] ||
             process.env.CORE_ENV === "test"
         ) {
@@ -312,7 +308,7 @@ export class Monitor implements P2P.IMonitor {
     }
 
     public async peerHasCommonBlocks(peer, blockIds) {
-        if (!this.guard.isMyself(peer) && !(await peer.hasCommonBlocks(blockIds))) {
+        if (!(await peer.hasCommonBlocks(blockIds))) {
             logger.error(`Could not get common block for ${peer.ip}`);
 
             peer.commonBlocks = false;
@@ -391,7 +387,7 @@ export class Monitor implements P2P.IMonitor {
                 const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
-                    if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
+                    if (isValidPeer(p) && !this.getPeer(p.ip)) {
                         this.addPeer(p);
                     }
                 }
@@ -853,11 +849,7 @@ export class Monitor implements P2P.IMonitor {
         }
 
         const filteredPeers: any[] = Object.values(peers).filter((peer: any) => {
-            if (!parseRemoteAddress(peer)) {
-                return false;
-            }
-
-            if (this.guard.isMyself(peer)) {
+            if (!isValidPeer(peer)) {
                 return false;
             }
 

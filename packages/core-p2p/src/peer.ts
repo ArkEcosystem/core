@@ -4,17 +4,8 @@ import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
 import { config as localConfig } from "./config";
-import { parseRemoteAddress } from "./utils";
 
 export class Peer implements P2P.IPeer {
-    public static isOk(peer): boolean {
-        if (!parseRemoteAddress(peer)) {
-            return false;
-        }
-
-        return peer.status === 200 || peer.status === "OK";
-    }
-
     public downloadSize: any;
     public hashid: string;
     public nethash: any;

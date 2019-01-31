@@ -9,7 +9,7 @@ describe("parseRemoteAddress", () => {
     it("should be ok for ::ffff:127.0.0.1", () => {
         const peer = { ip: "::ffff:127.0.0.1" };
         expect(parseRemoteAddress(peer)).toBeTrue();
-        expect(peer.ip).toBe("::ffff:7f00:1");
+        expect(peer.ip).toBe("127.0.0.1");
     });
 
     it("should be normalize non-quad-dotted addresses", () => {
