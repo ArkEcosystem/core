@@ -66,10 +66,6 @@ See the following notes on which changes to consider when upgrading from one ver
 
 -   Run `yarn run upgrade` from the root of the repository.
 
--   Remove `"@arkecosystem/core-config": {},` from the `~/.config/ark-core/<network>/plugins.js` file.
-
--   Rename `@arkecosystem/core-transaction-pool-mem` to `@arkecosystem/core-transaction-pool` in the `~/.config/ark-core/<network>/plugins.js` file.
-
 -   If you have been using custom dynamic fees open the `~/.config/ark-core/<network>/plugins.js` file and locate the `@arkecosystem/core-transaction-pool` plugin. Add below code to it and enter your desired values.
 
     ```js
@@ -92,3 +88,7 @@ See the following notes on which changes to consider when upgrading from one ver
     ```
 
 **Once all these changes have been made you will need to restart your relay and forger _(if you are a delegate)_ for these changes to take effect.**
+
+_If you've been running your relay and forger manually you need to change `packages/core/bin/ark` to `packages/core/dist/index.js` to ensure that the JavaScript files are executed that the TypeScript Compiler created._
+
+_Also make sure that you are no longer passing in the `--data` and `--config` flags so core can pick up the system paths. Those flags are only intended for development or custom setups._
