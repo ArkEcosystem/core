@@ -33,11 +33,9 @@ export class VoteCommand extends BaseCommand {
 
         const wallets = this.generateWallets();
 
-        await TransferCommand.run({
-            wallets,
-            amount: 2,
-            skipTesting: true,
-        });
+        for (const wallet of wallets) {
+            await TransferCommand.run(["--recipient", wallet.address, "--amount", 2 as any, "--skip-testing"]);
+        }
 
         let delegate = this.options.delegate;
         if (!delegate) {
@@ -57,7 +55,7 @@ export class VoteCommand extends BaseCommand {
             const transaction = client
                 .getBuilder()
                 .vote()
-                .fee(BaseCommand.parseFee(this.options.voteFee))
+                .fee(this.parseFee(this.options.voteFee))
                 .votesAsset([`+${delegate}`])
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -66,9 +64,7 @@ export class VoteCommand extends BaseCommand {
 
             transactions.push(transaction);
 
-            logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${BaseCommand.__arktoshiToArk(transaction.fee)})`,
-            );
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(transaction.fee)})`);
         });
 
         if (this.options.copy) {

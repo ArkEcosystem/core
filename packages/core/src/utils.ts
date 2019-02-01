@@ -1,4 +1,3 @@
-
 export function buildPeerOptions(options) {
     const config = {
         networkStart: options.networkStart,

@@ -49,53 +49,15 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
-    /**
-     * Parse fee based on input.
-     * @param  {(String|Number)} fee
-     * @return {Bignum}
-     */
-    public static parseFee(fee): Bignum {
-        if (typeof fee === "string" && fee.indexOf("-") !== -1) {
-            const feeRange = fee.split("-").map(
-                f =>
-                    +bignumify(f)
-                        .times(1e8)
-                        .toFixed(),
-            );
-            if (feeRange[1] < feeRange[0]) {
-                return bignumify(feeRange[0]);
-            }
-
-            return bignumify(Math.floor(Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0]));
-        }
-
-        return bignumify(fee).times(1e8);
-    }
-
-    /**
-     * Convert ARK to Arktoshi.
-     * @param  {Number} ark
-     * @return {Bignum}
-     */
-    public static __arkToArktoshi(ark) {
-        return bignumify(ark * 1e8);
-    }
-
-    /**
-     * Convert Arktoshi to ARK.
-     * @param  {Bignum} arktoshi
-     * @return {String}
-     */
-    public static __arktoshiToArk(arktoshi) {
-        return formatArktoshi(arktoshi);
-    }
+    public options: any;
+    public config: any;
 
     /**
      * Init new instance of command.
      * @param  {Object} options
      * @return {*}
      */
-    public static async initialize(command, options) {
+    public async initialize(command, options) {
         command.options = options;
         command.__applyConfig();
         await command.__loadConstants();
@@ -103,9 +65,6 @@ export abstract class BaseCommand extends Command {
 
         return command;
     }
-
-    public options: any;
-    public config: any;
 
     /**
      * Copy transactions to clipboard.
@@ -282,10 +241,77 @@ export abstract class BaseCommand extends Command {
     }
 
     /**
+     * Load constants from API and apply to config.
+     * @return {void}
+     */
+    public async loadConstants() {
+        try {
+            this.config.constants = (await request(this.config).get("/api/v2/node/configuration")).data.constants;
+        } catch (error) {
+            logger.error("Failed to get constants: ", error.message);
+            process.exit(1);
+        }
+    }
+
+    /**
+     * Load network from API and apply to config.
+     * @return {void}
+     */
+    public async loadNetworkConfig() {
+        try {
+            this.config.network = (await request(this.config).get("/config", true)).data.network;
+        } catch (error) {
+            logger.error("Failed to get network config: ", error.message);
+            process.exit(1);
+        }
+    }
+
+    /**
+     * Parse fee based on input.
+     * @param  {(String|Number)} fee
+     * @return {Bignum}
+     */
+    protected parseFee(fee): Bignum {
+        if (typeof fee === "string" && fee.indexOf("-") !== -1) {
+            const feeRange = fee.split("-").map(
+                f =>
+                    +bignumify(f)
+                        .times(1e8)
+                        .toFixed(),
+            );
+            if (feeRange[1] < feeRange[0]) {
+                return bignumify(feeRange[0]);
+            }
+
+            return bignumify(Math.floor(Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0]));
+        }
+
+        return bignumify(fee).times(1e8);
+    }
+
+    /**
+     * Convert ARK to Arktoshi.
+     * @param  {Number} ark
+     * @return {Bignum}
+     */
+    protected arkToArktoshi(ark) {
+        return bignumify(ark * 1e8);
+    }
+
+    /**
+     * Convert Arktoshi to ARK.
+     * @param  {Bignum} arktoshi
+     * @return {String}
+     */
+    protected arktoshiToArk(arktoshi) {
+        return formatArktoshi(arktoshi);
+    }
+
+    /**
      * Apply options to config.
      * @return {void}
      */
-    public __applyConfig() {
+    protected applyConfig() {
         this.config = { ...config };
         if (this.options.baseUrl) {
             this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, "");
@@ -309,37 +335,11 @@ export abstract class BaseCommand extends Command {
     }
 
     /**
-     * Load constants from API and apply to config.
-     * @return {void}
-     */
-    public async __loadConstants() {
-        try {
-            this.config.constants = (await request(this.config).get("/api/v2/node/configuration")).data.constants;
-        } catch (error) {
-            logger.error("Failed to get constants: ", error.message);
-            process.exit(1);
-        }
-    }
-
-    /**
-     * Load network from API and apply to config.
-     * @return {void}
-     */
-    public async __loadNetworkConfig() {
-        try {
-            this.config.network = (await request(this.config).get("/config", true)).data.network;
-        } catch (error) {
-            logger.error("Failed to get network config: ", error.message);
-            process.exit(1);
-        }
-    }
-
-    /**
      * Quit command and output error when problem sending transactions.
      * @param  {Error} error
      * @return {void}
      */
-    public __problemSendingTransactions(error) {
+    protected problemSendingTransactions(error) {
         const message = error.response ? error.response.data.message : error.message;
         logger.error(`There was a problem sending transactions: ${message}`);
         process.exit(1);

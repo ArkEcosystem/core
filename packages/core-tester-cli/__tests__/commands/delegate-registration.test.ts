@@ -46,7 +46,7 @@ describe("Commands - Delegate Registration", () => {
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: DelegateRegistration.__arkToArktoshi(opts.delegateFee),
+                        fee: DelegateRegistration.arkToArktoshi(opts.delegateFee),
                         asset: {
                             delegate: {
                                 username: expectedDelegateName,

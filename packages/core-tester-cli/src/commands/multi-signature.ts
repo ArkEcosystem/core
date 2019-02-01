@@ -2,7 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import take from "lodash/take";
 import pluralize from "pluralize";
-import { logger } from "../utils";
+import { generateTransactions, logger } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -49,11 +49,15 @@ export class MultiSignatureCommand extends BaseCommand {
         const testCosts = this.options.skipTests ? 1 : 2;
         const wallets = this.generateWallets();
 
-        await TransferCommand.run({
-            wallets,
-            amount: (publicKeys.length + 1) * 5 + testCosts,
-            skipTesting: true,
-        });
+        for (const wallet of wallets) {
+            await TransferCommand.run([
+                "--recipient",
+                wallet.address,
+                "--amount",
+                (publicKeys.length + 1) * 5 + testCosts,
+                "--skip-testing",
+            ]);
+        }
 
         const transactions = this.generateTransactions(wallets, approvalWallets, publicKeys, min);
 
@@ -95,12 +99,12 @@ export class MultiSignatureCommand extends BaseCommand {
             return;
         }
 
-        await this.__testSendWithSignatures(transfer, wallets, approvalWallets);
-        await this.__testSendWithMinSignatures(transfer, wallets, approvalWallets, min);
-        await this.__testSendWithBelowMinSignatures(transfer, wallets, approvalWallets, min);
-        await this.__testSendWithoutSignatures(transfer, wallets);
-        await this.__testSendWithEmptySignatures(transfer, wallets);
-        await this.__testNewMultiSignatureRegistration(wallets, approvalWallets, publicKeys, min);
+        await this.testSendWithSignatures(wallets, approvalWallets);
+        await this.testSendWithMinSignatures(wallets, approvalWallets, min);
+        await this.testSendWithBelowMinSignatures(wallets, approvalWallets, min);
+        await this.testSendWithoutSignatures(wallets);
+        await this.testSendWithEmptySignatures(wallets);
+        await this.testNewMultiSignatureRegistration(wallets, approvalWallets, publicKeys, min);
     }
 
     /**
@@ -118,7 +122,7 @@ export class MultiSignatureCommand extends BaseCommand {
             const builder = client.getBuilder().multiSignature();
 
             builder
-                .fee(BaseCommand.parseFee(this.options.multisigFee))
+                .fee(this.parseFee(this.options.multisigFee))
                 .multiSignatureAsset({
                     lifetime: this.options.lifetime,
                     keysgroup: publicKeys,
@@ -142,9 +146,7 @@ export class MultiSignatureCommand extends BaseCommand {
 
             if (log) {
                 logger.info(
-                    `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${BaseCommand.__arktoshiToArk(
-                        transaction.fee,
-                    )})`,
+                    `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(transaction.fee)})`,
                 );
             }
         });
@@ -154,15 +156,14 @@ export class MultiSignatureCommand extends BaseCommand {
 
     /**
      * Send transactions with approver signatures.
-     * @param  {TransferCommand} transfer
      * @param  {Object[]} wallets
      * @param  {Object[]} [approvalWallets=[]]
      * @return {void}
      */
-    public async __testSendWithSignatures(transfer, wallets, approvalWallets = []) {
+    public async testSendWithSignatures(wallets, approvalWallets = []) {
         logger.info("Sending transactions with signatures");
 
-        const transactions = transfer.generateTransactions(BaseCommand.__arkToArktoshi(2), wallets, approvalWallets);
+        const transactions = generateTransactions(this.arkToArktoshi(2), wallets, approvalWallets);
 
         try {
             await this.sendTransactions(transactions);
@@ -173,28 +174,23 @@ export class MultiSignatureCommand extends BaseCommand {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
     /**
      * Send transactions with min approver signatures.
-     * @param  {TransferCommand} transfer
      * @param  {Object[]} wallets
      * @param  {Object[]} [approvalWallets=[]]
      * @param  {Number} [min=2]
      * @return {void}
      */
-    public async __testSendWithMinSignatures(transfer, wallets, approvalWallets = [], min = 2) {
+    public async testSendWithMinSignatures(wallets, approvalWallets = [], min = 2) {
         logger.info(
             `Sending transactions with ${min} (min) of ${pluralize("signature", approvalWallets.length, true)}`,
         );
 
-        const transactions = transfer.generateTransactions(
-            BaseCommand.__arkToArktoshi(2),
-            wallets,
-            take(approvalWallets, min),
-        );
+        const transactions = generateTransactions(this.arkToArktoshi(2), wallets, take(approvalWallets, min));
 
         try {
             await this.sendTransactions(transactions);
@@ -205,29 +201,24 @@ export class MultiSignatureCommand extends BaseCommand {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
     /**
      * Send transactions with below min approver signatures.
-     * @param  {TransferCommand} transfer
      * @param  {Object[]} wallets
      * @param  {Object[]} [approvalWallets=[]]
      * @param  {Number} [min=2]
      * @return {void}
      */
-    public async __testSendWithBelowMinSignatures(transfer, wallets, approvalWallets = [], min = 2) {
+    public async testSendWithBelowMinSignatures(wallets, approvalWallets = [], min = 2) {
         const max = min - 1;
         logger.info(
             `Sending transactions with ${max} (below min) of ${pluralize("signature", approvalWallets.length, true)}`,
         );
 
-        const transactions = transfer.generateTransactions(
-            BaseCommand.__arkToArktoshi(2),
-            wallets,
-            take(approvalWallets, max),
-        );
+        const transactions = generateTransactions(this.arkToArktoshi(2), wallets, take(approvalWallets, max));
 
         try {
             await this.sendTransactions(transactions);
@@ -245,20 +236,19 @@ export class MultiSignatureCommand extends BaseCommand {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
     /**
      * Send transactions without approver signatures.
-     * @param  {TransferCommand} transfer
      * @param  {Object[]} wallets
      * @return {void}
      */
-    public async __testSendWithoutSignatures(transfer, wallets) {
+    public async testSendWithoutSignatures(wallets) {
         logger.info("Sending transactions without signatures");
 
-        const transactions = transfer.generateTransactions(BaseCommand.__arkToArktoshi(2), wallets);
+        const transactions = generateTransactions(this.arkToArktoshi(2), wallets);
 
         try {
             await this.sendTransactions(transactions);
@@ -276,20 +266,19 @@ export class MultiSignatureCommand extends BaseCommand {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
     /**
      * Send transactions with empty approver signatures.
-     * @param  {TransferCommand} transfer
      * @param  {Object[]} wallets
      * @return {void}
      */
-    public async __testSendWithEmptySignatures(transfer, wallets) {
+    public async testSendWithEmptySignatures(wallets) {
         logger.info("Sending transactions with empty signatures");
 
-        const transactions = transfer.generateTransactions(BaseCommand.__arkToArktoshi(2), wallets);
+        const transactions = generateTransactions(this.arkToArktoshi(2), wallets);
         for (const transaction of transactions) {
             transaction.data.signatures = [];
         }
@@ -310,7 +299,7 @@ export class MultiSignatureCommand extends BaseCommand {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 
@@ -322,7 +311,7 @@ export class MultiSignatureCommand extends BaseCommand {
      * @param  {Number} [min=2]
      * @return {void}
      */
-    public async __testNewMultiSignatureRegistration(wallets, approvalWallets = [], publicKeys = [], min = 2) {
+    public async testNewMultiSignatureRegistration(wallets, approvalWallets = [], publicKeys = [], min = 2) {
         logger.info("Sending transactions to re-register multi-signature");
 
         const transactions = this.generateTransactions(wallets, approvalWallets, publicKeys, min);
@@ -343,7 +332,7 @@ export class MultiSignatureCommand extends BaseCommand {
                 }
             }
         } catch (error) {
-            this.__problemSendingTransactions(error);
+            this.problemSendingTransactions(error);
         }
     }
 }

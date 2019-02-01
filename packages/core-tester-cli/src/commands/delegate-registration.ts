@@ -29,11 +29,15 @@ export class DelegateRegistrationCommand extends BaseCommand {
 
         const wallets = this.generateWallets();
 
-        await TransferCommand.run({
-            wallets,
-            amount: this.options.amount || 25,
-            skipTesting: true,
-        });
+        for (const wallet of wallets) {
+            await TransferCommand.run([
+                "--recipient",
+                wallet.address,
+                "--amount",
+                this.options.amount || 25,
+                "--skip-testing",
+            ]);
+        }
 
         const delegates = await this.getDelegates();
 
@@ -59,7 +63,7 @@ export class DelegateRegistrationCommand extends BaseCommand {
             const transaction = client
                 .getBuilder()
                 .delegateRegistration()
-                .fee(BaseCommand.parseFee(this.options.delegateFee))
+                .fee(this.parseFee(this.options.delegateFee))
                 .usernameAsset(wallet.username)
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -69,7 +73,7 @@ export class DelegateRegistrationCommand extends BaseCommand {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${BaseCommand.__arktoshiToArk(
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(
                     transaction.fee,
                 )}, username: ${wallet.username})`,
             );

@@ -28,11 +28,15 @@ export class SecondSignatureCommand extends BaseCommand {
 
         const wallets = this.generateWallets();
 
-        await TransferCommand.run({
-            wallets,
-            amount: this.options.amount || 5,
-            skipTesting: true,
-        });
+        for (const wallet of wallets) {
+            await TransferCommand.run([
+                "--recipient",
+                wallet.address,
+                "--amount",
+                this.options.amount || 5,
+                "--skip-testing",
+            ]);
+        }
 
         logger.info(`Sending ${this.options.number} second signature ${pluralize("transaction", this.options.number)}`);
 
@@ -42,7 +46,7 @@ export class SecondSignatureCommand extends BaseCommand {
             const transaction = client
                 .getBuilder()
                 .secondSignature()
-                .fee(BaseCommand.parseFee(this.options.signatureFee))
+                .fee(this.parseFee(this.options.signatureFee))
                 .signatureAsset(wallet.secondPassphrase)
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -52,9 +56,7 @@ export class SecondSignatureCommand extends BaseCommand {
             wallet.secondPublicKey = transaction.asset.signature.publicKey;
             transactions.push(transaction);
 
-            logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${BaseCommand.__arktoshiToArk(transaction.fee)})`,
-            );
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(transaction.fee)})`);
         });
 
         if (this.options.copy) {

@@ -24,6 +24,5 @@ export const plugin: Container.PluginDescriptor = {
 
             await container.resolvePlugin<Server>("api").stop();
         }
-
     },
 };
