@@ -142,7 +142,7 @@ Closed security vulnerabilities:
 
 ### Changed
 
--   Increase cache generation timeout and make it configurable ([#1645], [1646])
+-   Increase cache generation timeout and make it configurable ([#1645], [#1646])
 
 ## [2.0.1] - 2018-12-05
 
