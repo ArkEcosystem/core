@@ -26,10 +26,7 @@ export class VoteCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(VoteCommand);
-
-        this.options = flags;
+        this.initialize(VoteCommand);
 
         const wallets = this.generateWallets();
 

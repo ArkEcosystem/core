@@ -37,10 +37,7 @@ export class MultiSignatureCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(MultiSignatureCommand);
-
-        this.options = flags;
+        this.initialize(MultiSignatureCommand);
 
         const approvalWallets = this.generateWallets(this.options.quantity);
         const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`);

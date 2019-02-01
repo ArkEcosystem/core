@@ -57,13 +57,16 @@ export abstract class BaseCommand extends Command {
      * @param  {Object} options
      * @return {*}
      */
-    public async initialize(command, options) {
-        command.options = options;
-        command.__applyConfig();
-        await command.__loadConstants();
-        await command.__loadNetworkConfig();
+    public async initialize(command): Promise<any> {
+        // tslint:disable-next-line:no-shadowed-variable
+        const { flags } = this.parse(command);
 
-        return command;
+        this.options = flags;
+        this.applyConfig();
+        await this.loadConstants();
+        await this.loadNetworkConfig();
+
+        return { flags };
     }
 
     /**

@@ -21,10 +21,7 @@ export class SecondSignatureCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(SecondSignatureCommand);
-
-        this.options = flags;
+        this.initialize(SecondSignatureCommand);
 
         const wallets = this.generateWallets();
 

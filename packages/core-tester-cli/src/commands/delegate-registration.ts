@@ -22,10 +22,7 @@ export class DelegateRegistrationCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(DelegateRegistrationCommand);
-
-        this.options = flags;
+        this.initialize(DelegateRegistrationCommand);
 
         const wallets = this.generateWallets();
 
