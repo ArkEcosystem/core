@@ -6,7 +6,7 @@ import _cliProgress from "cli-progress";
 import { setUpLite } from "../utils";
 import { BaseCommand } from "./command";
 
-export class ImportCommand extends BaseCommand {
+export class RestoreCommand extends BaseCommand {
     public static description: string = "import data from specified snapshot";
 
     public static flags = {
@@ -31,7 +31,7 @@ export class ImportCommand extends BaseCommand {
 
     public async run(): Promise<void> {
         // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(ImportCommand);
+        const { flags } = this.parse(RestoreCommand);
 
         await setUpLite(flags);
 
