@@ -216,15 +216,6 @@ export class Guard {
     }
 
     /**
-     * Determine if the peer is localhost.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isMyself(peer) {
-        return utils.isMyself(peer.ip);
-    }
-
-    /**
      * Decide if the given peer is a repeat offender.
      * @param  {Object}  peer
      * @return {Boolean}
@@ -243,9 +234,11 @@ export class Guard {
             return this.__determinePunishment(peer, offences.BLACKLISTED);
         }
 
-        const state = app.resolve("state");
-        if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-            return this.__determinePunishment(peer, offences.FORK);
+        if (app.has("state")) {
+            const state = app.resolve("state");
+            if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
+                return this.__determinePunishment(peer, offences.FORK);
+            }
         }
 
         if (peer.commonBlocks === false) {

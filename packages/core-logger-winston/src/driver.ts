@@ -4,8 +4,6 @@ import isEmpty from "lodash/isEmpty";
 import { inspect } from "util";
 import * as winston from "winston";
 
-let tracker = null;
-
 export class WinstonLogger extends AbstractLogger {
     public logger: any;
 
@@ -67,64 +65,6 @@ export class WinstonLogger extends AbstractLogger {
      */
     public verbose(message: any): void {
         this.createLog("verbose", message);
-    }
-
-    /**
-     * Print the progress tracker.
-     * @param  {String} title
-     * @param  {Number} current
-     * @param  {Number} max
-     * @param  {String} postTitle
-     * @param  {Number} figures
-     * @return {void}
-     */
-    public printTracker(title: string, current: number, max: number, postTitle?: string, figures?: number): void {
-        const progress = (100 * current) / max;
-
-        let line = "\u{1b}[0G  ";
-        line += title.blue;
-        line += " [";
-        line += "=".repeat(Math.floor(progress / 2)).green;
-        line += `${" ".repeat(Math.ceil(50 - progress / 2))}] `;
-        line += `${progress.toFixed(figures || 0)}% `;
-
-        if (postTitle) {
-            line += `${postTitle}                     `;
-        }
-
-        process.stdout.write(line);
-
-        tracker = line;
-    }
-
-    /**
-     * Stop the progress tracker.
-     * @param  {String} title
-     * @param  {Number} current
-     * @param  {Number} max
-     * @return {void}
-     */
-    public stopTracker(title: string, current: number, max: number): void {
-        let progress = (100 * current) / max;
-
-        if (progress > 100) {
-            progress = 100;
-        }
-
-        let line = "\u{1b}[0G  ";
-        line += title.blue;
-        line += " [";
-        line += "=".repeat(progress / 2).green;
-        line += `${" ".repeat(50 - progress / 2)}] `;
-        line += `${progress.toFixed(0)}% `;
-
-        if (progress === max) {
-            line += "✔️";
-        }
-
-        line += "                                                     \n";
-        process.stdout.write(line);
-        tracker = null;
     }
 
     /**

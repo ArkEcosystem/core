@@ -10,6 +10,7 @@ enum UnchainedBlockStatus {
     EqualToLastBlock,
     GeneratorMismatch,
     DoubleForging,
+    InvalidTimestamp,
 }
 
 export class UnchainedHandler extends BlockHandler {
@@ -38,7 +39,8 @@ export class UnchainedHandler extends BlockHandler {
                 return BlockProcessorResult.Rejected;
             }
 
-            case UnchainedBlockStatus.GeneratorMismatch: {
+            case UnchainedBlockStatus.GeneratorMismatch:
+            case UnchainedBlockStatus.InvalidTimestamp: {
                 return BlockProcessorResult.Rejected;
             }
 
@@ -73,6 +75,11 @@ export class UnchainedHandler extends BlockHandler {
         } else if (this.block.data.height === lastBlock.data.height && this.block.data.id === lastBlock.data.id) {
             this.logger.debug(`Block ${this.block.data.height.toLocaleString()} just received :chains:`);
             return UnchainedBlockStatus.EqualToLastBlock;
+        } else if (this.block.data.timestamp < lastBlock.data.timestamp) {
+            this.logger.debug(
+                `Block ${this.block.data.height.toLocaleString()} disregarded, because the timestamp is lower than the previous timestamp.`,
+            );
+            return UnchainedBlockStatus.InvalidTimestamp;
         } else {
             if (this.isValidGenerator) {
                 this.logger.warn(`Detect double forging by ${this.block.data.generatorPublicKey} :chains:`);
