@@ -20,7 +20,7 @@ export class DumpCommand extends BaseCommand {
         }),
         end: flags.integer({
             description: "end network height to export",
-            default: 1,
+            default: -1,
         }),
         codec: flags.string({
             description: "codec name, default is msg-lite binary",
