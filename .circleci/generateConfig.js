@@ -14,7 +14,7 @@ fs.readdir("./packages", (_, packages) => {
     const packagesSplit = chunk(packages.sort(), 10);
 
     const tables = ["rounds", "blocks", "transactions", "wallets"]
-    const resetSqlCommand = `psql -h localhost -U core -d core_development -c '${tables.map(t => `delete from ${t} where true`).join(";")}'`
+    const resetSqlCommand = `psql -h localhost -U core -d core_development -c '${tables.map(t => `drop table if exists ${t}`).join(";")}'`
 
     for (const [name, job] of Object.entries(config.jobs)) {
         // save cache
