@@ -30,8 +30,8 @@
                 },
                 {
                     "run": {
-                        "name": "Install xsel",
-                        "command": "sudo apt-get install -q xsel"
+                        "name": "Install xsel & postgresql-client",
+                        "command": "sudo apt-get install -q xsel postgresql-client"
                     }
                 },
                 {
@@ -113,8 +113,8 @@
                 },
                 {
                     "run": {
-                        "name": "Install xsel",
-                        "command": "sudo apt-get install -q xsel"
+                        "name": "Install xsel & postgresql-client",
+                        "command": "sudo apt-get install -q xsel postgresql-client"
                     }
                 },
                 {

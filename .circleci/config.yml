@@ -20,8 +20,8 @@ jobs:
             sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
             contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
       - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
       - run:
           name: Generate cache key
           command: >-
@@ -144,8 +144,8 @@ jobs:
             sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
             contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
       - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
       - run:
           name: Generate cache key
           command: >-
@@ -268,8 +268,8 @@ jobs:
             sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
             contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
       - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
       - run:
           name: Generate cache key
           command: >-
@@ -406,8 +406,8 @@ jobs:
             sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
             contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
       - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
       - run:
           name: Generate cache key
           command: >-
@@ -537,8 +537,8 @@ jobs:
             sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
             contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
       - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
       - run:
           name: Generate cache key
           command: >-
@@ -675,8 +675,8 @@ jobs:
             sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
             contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
       - run:
-          name: Install xsel
-          command: sudo apt-get install -q xsel
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
       - run:
           name: Generate cache key
           command: >-
