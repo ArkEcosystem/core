@@ -13,6 +13,9 @@ fs.readdir("./packages", (_, packages) => {
     // test split
     const packagesSplit = chunk(packages.sort(), 10);
 
+    const tables = ["rounds", "blocks", "transactions", "wallets"]
+    const resetSqlCommand = `psql -h localhost -U core -d core_development -c '${tables.map(t => `delete from ${t} where true`).join(";")}'`
+
     for (const [name, job] of Object.entries(config.jobs)) {
         // save cache
         const saveCacheStep = config.jobs[name].steps.find(step => typeof step === "object" && step.save_cache);
@@ -40,7 +43,7 @@ fs.readdir("./packages", (_, packages) => {
                     return {
                         run: {
                             name,
-                            command: `cd ~/core/packages/${name} && yarn test:coverage`,
+                            command: `${resetSqlCommand} && cd ~/core/packages/${name} && yarn test:coverage`,
                         },
                     };
                 })

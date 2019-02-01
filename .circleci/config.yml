@@ -70,25 +70,53 @@ jobs:
           command: mkdir -p $HOME/.core/database
       - run:
           name: core
-          command: 'cd ~/core/packages/core && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core && yarn test:coverage
       - run:
           name: core-api
-          command: 'cd ~/core/packages/core-api && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-api && yarn test:coverage
       - run:
           name: core-blockchain
-          command: 'cd ~/core/packages/core-blockchain && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-blockchain && yarn test:coverage
       - run:
           name: core-container
-          command: 'cd ~/core/packages/core-container && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-container && yarn test:coverage
       - run:
           name: core-database
-          command: 'cd ~/core/packages/core-database && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-database && yarn test:coverage
       - run:
           name: core-database-postgres
-          command: 'cd ~/core/packages/core-database-postgres && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-database-postgres && yarn test:coverage
       - run:
           name: core-debugger-cli
-          command: 'cd ~/core/packages/core-debugger-cli && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-debugger-cli && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -166,25 +194,53 @@ jobs:
           command: mkdir -p $HOME/.core/database
       - run:
           name: core
-          command: 'cd ~/core/packages/core && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core && yarn test:coverage
       - run:
           name: core-api
-          command: 'cd ~/core/packages/core-api && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-api && yarn test:coverage
       - run:
           name: core-blockchain
-          command: 'cd ~/core/packages/core-blockchain && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-blockchain && yarn test:coverage
       - run:
           name: core-container
-          command: 'cd ~/core/packages/core-container && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-container && yarn test:coverage
       - run:
           name: core-database
-          command: 'cd ~/core/packages/core-database && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-database && yarn test:coverage
       - run:
           name: core-database-postgres
-          command: 'cd ~/core/packages/core-database-postgres && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-database-postgres && yarn test:coverage
       - run:
           name: core-debugger-cli
-          command: 'cd ~/core/packages/core-debugger-cli && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-debugger-cli && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -262,31 +318,67 @@ jobs:
           command: mkdir -p $HOME/.core/database
       - run:
           name: core-event-emitter
-          command: 'cd ~/core/packages/core-event-emitter && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
-          command: 'cd ~/core/packages/core-forger && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-forger && yarn test:coverage
       - run:
           name: core-graphql
-          command: 'cd ~/core/packages/core-graphql && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-graphql && yarn test:coverage
       - run:
           name: core-http-utils
-          command: 'cd ~/core/packages/core-http-utils && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-http-utils && yarn test:coverage
       - run:
           name: core-jest-matchers
-          command: 'cd ~/core/packages/core-jest-matchers && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-jest-matchers && yarn test:coverage
       - run:
           name: core-json-rpc
-          command: 'cd ~/core/packages/core-json-rpc && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-json-rpc && yarn test:coverage
       - run:
           name: core-logger
-          command: 'cd ~/core/packages/core-logger && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-logger && yarn test:coverage
       - run:
           name: core-logger-winston
-          command: 'cd ~/core/packages/core-logger-winston && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-logger-winston && yarn test:coverage
       - run:
           name: core-p2p
-          command: 'cd ~/core/packages/core-p2p && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-p2p && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -364,28 +456,60 @@ jobs:
           command: mkdir -p $HOME/.core/database
       - run:
           name: core-snapshots
-          command: 'cd ~/core/packages/core-snapshots && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
-          command: 'cd ~/core/packages/core-test-utils && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-test-utils && yarn test:coverage
       - run:
           name: core-tester-cli
-          command: 'cd ~/core/packages/core-tester-cli && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-tester-cli && yarn test:coverage
       - run:
           name: core-transaction-pool
-          command: 'cd ~/core/packages/core-transaction-pool && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-transaction-pool && yarn test:coverage
       - run:
           name: core-utils
-          command: 'cd ~/core/packages/core-utils && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-utils && yarn test:coverage
       - run:
           name: core-vote-report
-          command: 'cd ~/core/packages/core-vote-report && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-vote-report && yarn test:coverage
       - run:
           name: core-webhooks
-          command: 'cd ~/core/packages/core-webhooks && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-webhooks && yarn test:coverage
       - run:
           name: crypto
-          command: 'cd ~/core/packages/crypto && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/crypto && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -463,31 +587,67 @@ jobs:
           command: mkdir -p $HOME/.core/database
       - run:
           name: core-event-emitter
-          command: 'cd ~/core/packages/core-event-emitter && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
-          command: 'cd ~/core/packages/core-forger && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-forger && yarn test:coverage
       - run:
           name: core-graphql
-          command: 'cd ~/core/packages/core-graphql && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-graphql && yarn test:coverage
       - run:
           name: core-http-utils
-          command: 'cd ~/core/packages/core-http-utils && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-http-utils && yarn test:coverage
       - run:
           name: core-jest-matchers
-          command: 'cd ~/core/packages/core-jest-matchers && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-jest-matchers && yarn test:coverage
       - run:
           name: core-json-rpc
-          command: 'cd ~/core/packages/core-json-rpc && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-json-rpc && yarn test:coverage
       - run:
           name: core-logger
-          command: 'cd ~/core/packages/core-logger && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-logger && yarn test:coverage
       - run:
           name: core-logger-winston
-          command: 'cd ~/core/packages/core-logger-winston && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-logger-winston && yarn test:coverage
       - run:
           name: core-p2p
-          command: 'cd ~/core/packages/core-p2p && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-p2p && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -565,28 +725,60 @@ jobs:
           command: mkdir -p $HOME/.core/database
       - run:
           name: core-snapshots
-          command: 'cd ~/core/packages/core-snapshots && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
-          command: 'cd ~/core/packages/core-test-utils && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-test-utils && yarn test:coverage
       - run:
           name: core-tester-cli
-          command: 'cd ~/core/packages/core-tester-cli && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-tester-cli && yarn test:coverage
       - run:
           name: core-transaction-pool
-          command: 'cd ~/core/packages/core-transaction-pool && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-transaction-pool && yarn test:coverage
       - run:
           name: core-utils
-          command: 'cd ~/core/packages/core-utils && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-utils && yarn test:coverage
       - run:
           name: core-vote-report
-          command: 'cd ~/core/packages/core-vote-report && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-vote-report && yarn test:coverage
       - run:
           name: core-webhooks
-          command: 'cd ~/core/packages/core-webhooks && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/core-webhooks && yarn test:coverage
       - run:
           name: crypto
-          command: 'cd ~/core/packages/crypto && yarn test:coverage'
+          command: >-
+            psql -h localhost -U core -d core_development -c 'delete from rounds
+            where true;delete from blocks where true;delete from transactions
+            where true;delete from wallets where true' && cd
+            ~/core/packages/crypto && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
