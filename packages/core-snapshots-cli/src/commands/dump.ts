@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import { setUpLite } from "../utils";
 import { BaseCommand } from "./command";
 
-export class CreateCommand extends BaseCommand {
+export class DumpCommand extends BaseCommand {
     public static description: string = "create a full snapshot of the database";
 
     public static flags = {
@@ -29,7 +29,7 @@ export class CreateCommand extends BaseCommand {
 
     public async run(): Promise<void> {
         // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(CreateCommand);
+        const { flags } = this.parse(DumpCommand);
 
         await setUpLite(flags);
 
