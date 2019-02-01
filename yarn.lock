@@ -1303,6 +1303,14 @@
     debug "^4.1.0"
     semver "^5.6.0"
 
+"@oclif/config@^1.12.4":
+  version "1.12.4"
+  resolved "https://registry.yarnpkg.com/@oclif/config/-/config-1.12.4.tgz#664f7f43c79a5b6674c35d1fd4a98c596c8a8630"
+  integrity sha512-lZR5Qs9NEbQ9PsOZN0nALMBisTTa53ajRsyuhMwSQtDP8B7jISqWS9czYRfn9eYA+/xWgcjwRILCHuJFtdEuTA==
+  dependencies:
+    debug "^4.1.1"
+    tslib "^1.9.3"
+
 "@oclif/errors@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@oclif/errors/-/errors-1.2.2.tgz#9d8f269b15f13d70aa93316fed7bebc24688edc2"
@@ -4725,6 +4733,13 @@ debug@^4.0.1, debug@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.0.tgz#373687bffa678b38b1cd91f861b63850035ddc87"
   integrity sha512-heNPJUJIqC+xB6ayLAMHaIrmN9HKa7aQO8MGqKpvCA+uJYVcvR6l5kgdrhRuwPFHU7P5/A1w0BjByPHwpfTDKg==
+  dependencies:
+    ms "^2.1.1"
+
+debug@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
+  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
   dependencies:
     ms "^2.1.1"
 
