@@ -50,7 +50,6 @@
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",
-        "commander": "^2.19.0",
         "delay": "^4.1.0",
         "lodash.fill": "^3.4.0",
         "pino": "^5.10.1",
