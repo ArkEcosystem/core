@@ -25,14 +25,6 @@ export class Logger extends AbstractLogger {
         //
     }
 
-    public printTracker(title: string, current: number, max: number, postTitle: string, figures: number): void {
-        //
-    }
-
-    public stopTracker(title: string, current: number, max: number): void {
-        //
-    }
-
     public suppressConsoleOutput(suppress: boolean): void {
         //
     }

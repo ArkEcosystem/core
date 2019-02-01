@@ -19,7 +19,7 @@ import { guard, Guard } from "./court";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
 
-import { checkDNS, checkNTP, restorePeers } from "./utils";
+import { checkDNS, checkNTP, isValidPeer, restorePeers } from "./utils";
 
 let config;
 let logger: Logger.ILogger;
@@ -141,8 +141,8 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (
+            !isValidPeer(peer) ||
             this.guard.isSuspended(peer) ||
-            this.guard.isMyself(peer) ||
             this.pendingPeers[peer.ip] ||
             process.env.CORE_ENV === "test"
         ) {
@@ -231,7 +231,6 @@ export class Monitor implements P2P.IMonitor {
      */
     public async cleanPeers(fast = false, forcePing = false) {
         const keys = Object.keys(this.peers);
-        let count = 0;
         let unresponsivePeers = 0;
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
@@ -242,10 +241,6 @@ export class Monitor implements P2P.IMonitor {
                 const peer = this.getPeer(ip);
                 try {
                     await peer.ping(pingDelay, forcePing);
-
-                    if (this.initializing) {
-                        logger.printTracker("Peers Discovery", ++count, max);
-                    }
                 } catch (error) {
                     unresponsivePeers++;
 
@@ -261,7 +256,6 @@ export class Monitor implements P2P.IMonitor {
         );
 
         if (this.initializing) {
-            logger.stopTracker("Peers Discovery", max, max);
             logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
             logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
             logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`);
@@ -307,7 +301,7 @@ export class Monitor implements P2P.IMonitor {
     }
 
     public async peerHasCommonBlocks(peer, blockIds) {
-        if (!this.guard.isMyself(peer) && !(await peer.hasCommonBlocks(blockIds))) {
+        if (!(await peer.hasCommonBlocks(blockIds))) {
             logger.error(`Could not get common block for ${peer.ip}`);
 
             peer.commonBlocks = false;
@@ -386,7 +380,7 @@ export class Monitor implements P2P.IMonitor {
                 const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
-                    if (Peer.isOk(p) && !this.getPeer(p.ip) && !this.guard.isMyself(p)) {
+                    if (isValidPeer(p) && !this.getPeer(p.ip)) {
                         this.addPeer(p);
                     }
                 }
@@ -847,9 +841,21 @@ export class Monitor implements P2P.IMonitor {
             peers = { ...peers, ...localConfig.get("peers") };
         }
 
-        const filteredPeers: any[] = Object.values(peers).filter(
-            peer => !this.guard.isMyself(peer) && this.guard.isValidPort(peer) && this.guard.isValidVersion(peer),
-        );
+        const filteredPeers: any[] = Object.values(peers).filter((peer: any) => {
+            if (!isValidPeer(peer)) {
+                return false;
+            }
+
+            if (!this.guard.isValidPort(peer)) {
+                return false;
+            }
+
+            if (!this.guard.isValidVersion(peer)) {
+                return false;
+            }
+
+            return true;
+        });
 
         for (const peer of filteredPeers) {
             delete this.guard.suspensions[peer.ip];

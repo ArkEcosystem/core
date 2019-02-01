@@ -41,26 +41,6 @@ export interface ILogger {
     verbose(message: string): void;
 
     /**
-     * Print the progress tracker.
-     * @param  {String} title
-     * @param  {Number} current
-     * @param  {Number} max
-     * @param  {String} postTitle
-     * @param  {Number} figures
-     * @return {void}
-     */
-    printTracker(title: string, current: number, max: number, postTitle?: string, figures?: number): void;
-
-    /**
-     * Stop the progress tracker.
-     * @param  {String} title
-     * @param  {Number} current
-     * @param  {Number} max
-     * @return {void}
-     */
-    stopTracker(title: string, current: number, max: number): void;
-
-    /**
      * Suppress console output.
      * @param  {Boolean}
      * @return {void}
