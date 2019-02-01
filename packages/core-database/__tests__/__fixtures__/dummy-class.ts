@@ -19,6 +19,10 @@ export class DummyConnection extends ConnectionInterface {
         return [];
     }
 
+    public async getBlocksByHeight(heights: Array<number>) {
+        return [];
+    }
+
     public async buildWallets(height): Promise<boolean> {
         return true;
     }
