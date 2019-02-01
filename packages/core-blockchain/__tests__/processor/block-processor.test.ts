@@ -5,6 +5,7 @@ import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../src/blockchain";
 import { BlockProcessor, BlockProcessorResult } from "../../src/processor";
 import * as handlers from "../../src/processor/handlers";
+import { ExceptionHandler, VerificationFailedHandler } from "../../src/processor/handlers";
 import { setUpFull, tearDownFull } from "../__support__/setup";
 
 const { Block } = models;
@@ -244,6 +245,26 @@ describe("Block processor", () => {
                 const result = await blockProcessor.process(blockLowerHeight);
                 expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             });
+        });
+    });
+
+    describe("getHandler", () => {
+        it("should return ExceptionHandler if block is an exception", async () => {
+            const exceptionBlock = new Block(blockTemplate);
+            exceptionBlock.data.id = "998877";
+
+            const configManager = app.getConfig();
+
+            configManager.set("exceptions.blocks", ["998877"]);
+
+            expect(await blockProcessor.getHandler(exceptionBlock)).toBeInstanceOf(ExceptionHandler);
+        });
+
+        it("should return VerificationFailedHandler if block failed verification", async () => {
+            const failedVerifBlock = new Block(blockTemplate);
+            failedVerifBlock.verification.verified = false;
+
+            expect(await blockProcessor.getHandler(failedVerifBlock)).toBeInstanceOf(VerificationFailedHandler);
         });
     });
 });
