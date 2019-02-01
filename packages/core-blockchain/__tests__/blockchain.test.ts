@@ -369,6 +369,7 @@ describe("Blockchain", () => {
 
 async function __start() {
     process.env.CORE_SKIP_BLOCKCHAIN = "false";
+    process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
     process.env.CORE_ENV = "false";
 
     const plugin = require("../src").plugin;

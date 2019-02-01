@@ -207,13 +207,15 @@ export class Peer implements P2P.IPeer {
             );
         }
 
-        const peerVerifier = new PeerVerifier(this);
+        if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
+            const peerVerifier = new PeerVerifier(this);
 
-        if (!await peerVerifier.checkState(body)) {
-            throw new Error(
-                `Peer state verification failed for peer ${this.ip}, claimed state: ` +
-                JSON.stringify(body)
-            );
+            if (!await peerVerifier.checkState(body)) {
+                throw new Error(
+                    `Peer state verification failed for peer ${this.ip}, claimed state: ` +
+                    JSON.stringify(body)
+                );
+            }
         }
 
         this.lastPinged = dayjs();
