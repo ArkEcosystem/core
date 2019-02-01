@@ -51,6 +51,26 @@ describe("Block processor", () => {
         createdAt: "2019-07-11T16:48:50.550Z",
     };
 
+    describe("getHandler", () => {
+        it("should return ExceptionHandler if block is an exception", async () => {
+            const exceptionBlock = new Block(blockTemplate);
+            exceptionBlock.data.id = "998877";
+
+            const configManager = app.getConfig();
+
+            configManager.set("exceptions.blocks", ["998877"]);
+
+            expect(await blockProcessor.getHandler(exceptionBlock)).toBeInstanceOf(ExceptionHandler);
+        });
+
+        it("should return VerificationFailedHandler if block failed verification", async () => {
+            const failedVerifBlock = new Block(blockTemplate);
+            failedVerifBlock.verification.verified = false;
+
+            expect(await blockProcessor.getHandler(failedVerifBlock)).toBeInstanceOf(VerificationFailedHandler);
+        });
+    });
+
     describe("process", () => {
         const getBlock = transactions =>
             Object.assign({}, blockTemplate, {
@@ -245,26 +265,6 @@ describe("Block processor", () => {
                 const result = await blockProcessor.process(blockLowerHeight);
                 expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             });
-        });
-    });
-
-    describe("getHandler", () => {
-        it("should return ExceptionHandler if block is an exception", async () => {
-            const exceptionBlock = new Block(blockTemplate);
-            exceptionBlock.data.id = "998877";
-
-            const configManager = app.getConfig();
-
-            configManager.set("exceptions.blocks", ["998877"]);
-
-            expect(await blockProcessor.getHandler(exceptionBlock)).toBeInstanceOf(ExceptionHandler);
-        });
-
-        it("should return VerificationFailedHandler if block failed verification", async () => {
-            const failedVerifBlock = new Block(blockTemplate);
-            failedVerifBlock.verification.verified = false;
-
-            expect(await blockProcessor.getHandler(failedVerifBlock)).toBeInstanceOf(VerificationFailedHandler);
         });
     });
 });
