@@ -77,42 +77,63 @@
         "verify": [
             {
                 "description": "Invalid base58",
-                "exception": "Invalid checksum",
+                "error": {
+                    "type": "Error",
+                    "message": "Invalid checksum"
+                },
                 "base58": "6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5marXXXX"
             },
             {
                 "description": "Length > 39",
-                "exception": "Invalid BIP38 data length",
+                "error": {
+                    "type": "Bip38LengthError",
+                    "message": "Expected length to be 39, but got 40."
+                },
                 "hex": "0142c000000000000000000000000000000000000000000000000000000000000000000000000000",
                 "base58": "QmxDezFMDL7ExfYmsETsQXAtBbw5YE1CDyA8pm1AGpMpVVUpsVy1yXv4VTL"
             },
             {
                 "description": "Length < 39",
-                "exception": "Invalid BIP38 data length",
+                "error": {
+                    "type": "Bip38LengthError",
+                    "message": "Expected length to be 39, but got 38."
+                },
                 "hex": "0142c00000000000000000000000000000000000000000000000000000000000000000000000",
                 "base58": "2DnNxWcx4Prn8wmjbkvtYGDALsq8BMWxQ33KnXkeH8vrxE41psDLXRmK3"
             },
             {
                 "description": "prefix !== 0x01",
-                "exception": "Invalid BIP38 prefix",
+                "error": {
+                    "type": "Bip38PrefixError",
+                    "message": "Expected prefix to be 1, but got 2."
+                },
                 "hex": "0242c0000000000000000000000000000000000000000000000000000000000000000000000000",
                 "base58": "AfE1YY4Wr2FLAENaH9PVaLRdyk714V4rhwiJMSGyQCGFB3rhGDCs2R7c4s"
             },
             {
                 "description": "flag !== 0xc0 && flag !== 0xe0",
-                "exception": "Invalid BIP38 type",
+                "error": {
+                    "type": "Bip38TypeError",
+                    "message": "Expected type to be 66, but got 1."
+                },
                 "hex": "0101ff000000000000000000000000000000000000000000000000000000000000000000000000",
                 "base58": "5JjnYkbFBmUnhGeDMVhR7aSitLToe1odEfXDBeg4RMK6JmAm9g7rkm7qY3"
             },
             {
                 "description": "EC Mult: ~(flag & 0x24)",
-                "exception": "Invalid BIP38 type",
+                "error": {
+                    "type": "Bip38TypeError",
+                    "message": "Expected type to be 66, but got 1."
+                },
                 "hex": "0101db000000000000000000000000000000000000000000000000000000000000000000000000",
                 "base58": "5JbtdQFKSemRTqMuWrJgSfzE8AX2jdz1KiZuMmuUcv9iXha1s6UarQTciW"
             },
             {
                 "description": "EC Mult: ~(flag & 0x24)",
-                "exception": "Invalid BIP38 type",
+                "error": {
+                    "type": "Bip38TypeError",
+                    "message": "Expected type to be 66, but got 1."
+                },
                 "hex": "010135000000000000000000000000000000000000000000000000000000000000000000000000",
                 "base58": "5HyV7HSYdHUgLf7w36mxMHDPH9muTgUYHEj6cEogKMuV7ae8VRM3VEg56w"
             }

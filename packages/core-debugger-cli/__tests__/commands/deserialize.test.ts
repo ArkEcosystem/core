@@ -1,18 +1,13 @@
 import "jest-extended";
 
-import { deserialize } from "../../src/commands/deserialize";
+import { DeserializeCommand } from "../../src/commands/deserialize";
 
 describe("Commands - Deserialize", () => {
     const fixtureBlock = require("../__fixtures__/block.json");
     const fixtureTransaction = require("../__fixtures__/transaction.json");
 
-    it("should deserialize a block (not-full)", () => {
-        const actual = JSON.parse(
-            deserialize({
-                data: fixtureBlock.serialized,
-                type: "block",
-            }),
-        );
+    it("should deserialize a block (not-full)", async () => {
+        const actual = JSON.parse(await DeserializeCommand.run(["--data", fixtureBlock.serialized, "--type", "block"]));
 
         expect(actual.data.version).toBe(fixtureBlock.data.version);
         expect(actual.data.timestamp).toBe(fixtureBlock.data.timestamp);
@@ -28,12 +23,9 @@ describe("Commands - Deserialize", () => {
         expect(actual.data.blockSignature).toBe(fixtureBlock.data.blockSignature);
     });
 
-    it("should deserialize a block (full)", () => {
+    it("should deserialize a block (full)", async () => {
         const actual = JSON.parse(
-            deserialize({
-                data: fixtureBlock.serializedFull,
-                type: "block",
-            }),
+            await DeserializeCommand.run(["--data", fixtureBlock.serializedFull, "--type", "block"]),
         );
 
         expect(actual.data.version).toBe(fixtureBlock.data.version);
@@ -51,12 +43,9 @@ describe("Commands - Deserialize", () => {
         expect(actual.transactions).toHaveLength(7);
     });
 
-    it("should deserialize a transaction", () => {
+    it("should deserialize a transaction", async () => {
         const actual = JSON.parse(
-            deserialize({
-                data: fixtureTransaction.serialized,
-                type: "transaction",
-            }),
+            await DeserializeCommand.run(["--data", fixtureTransaction.serialized, "--type", "transaction"]),
         );
 
         expect(actual.type).toBe(fixtureTransaction.data.type);

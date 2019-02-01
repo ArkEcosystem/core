@@ -41,6 +41,7 @@
     },
     "devDependencies": {
         "@types/capture-console": "^1.0.0",
+        "@types/lodash.isempty": "^4.4.4",
         "@types/node-emoji": "^1.8.0",
         "capture-console": "^1.0.1"
     },
