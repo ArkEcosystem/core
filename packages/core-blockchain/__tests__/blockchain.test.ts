@@ -445,9 +445,21 @@ function __mockPeer() {
 
         return [200, { status: 200, success: true, blocks }, peerMock.headers];
     });
-    axiosMock
-        .onGet(/.*\/peer\/status/)
-        .reply(() => [200, { status: 200, success: true, height: 155 }, peerMock.headers]);
+    axiosMock.onGet(/.*\/peer\/status/).reply(
+        () => [
+            200,
+            {
+                header: {
+                    height: 1,
+                    id: genesisBlock.data.id
+                },
+                height: 155,
+                status: 200,
+                success: true
+            },
+            peerMock.headers
+        ]
+    );
     axiosMock.onGet(/.*\/peer\/list/).reply(() => [
         200,
         {
