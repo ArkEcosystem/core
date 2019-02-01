@@ -33,6 +33,5 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
-    },
-    "devDependencies": {}
+    }
 }
