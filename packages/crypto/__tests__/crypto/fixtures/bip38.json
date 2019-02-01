@@ -86,7 +86,7 @@
             {
                 "description": "Length > 39",
                 "error": {
-                    "type": "InvalidBip38LengthError",
+                    "type": "Bip38LengthError",
                     "message": "Expected length to be 39, but got 40."
                 },
                 "hex": "0142c000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -95,7 +95,7 @@
             {
                 "description": "Length < 39",
                 "error": {
-                    "type": "InvalidBip38LengthError",
+                    "type": "Bip38LengthError",
                     "message": "Expected length to be 39, but got 38."
                 },
                 "hex": "0142c00000000000000000000000000000000000000000000000000000000000000000000000",
@@ -104,7 +104,7 @@
             {
                 "description": "prefix !== 0x01",
                 "error": {
-                    "type": "InvalidBip38PrefixError",
+                    "type": "Bip38PrefixError",
                     "message": "Expected prefix to be 1, but got 2."
                 },
                 "hex": "0242c0000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -113,7 +113,7 @@
             {
                 "description": "flag !== 0xc0 && flag !== 0xe0",
                 "error": {
-                    "type": "InvalidBip38TypeError",
+                    "type": "Bip38TypeError",
                     "message": "Expected type to be 66, but got 1."
                 },
                 "hex": "0101ff000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -122,7 +122,7 @@
             {
                 "description": "EC Mult: ~(flag & 0x24)",
                 "error": {
-                    "type": "InvalidBip38TypeError",
+                    "type": "Bip38TypeError",
                     "message": "Expected type to be 66, but got 1."
                 },
                 "hex": "0101db000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -131,7 +131,7 @@
             {
                 "description": "EC Mult: ~(flag & 0x24)",
                 "error": {
-                    "type": "InvalidBip38TypeError",
+                    "type": "Bip38TypeError",
                     "message": "Expected type to be 66, but got 1."
                 },
                 "hex": "010135000000000000000000000000000000000000000000000000000000000000000000000000",

@@ -6,7 +6,7 @@ import { configManager } from "../../src/managers/config";
 import { Transaction } from "../../src/models/transaction";
 import { transaction as transactionData } from "../fixtures/transaction";
 
-import { InvalidTransactionTypeError } from "../../src/errors";
+import { TransactionTypeError } from "../../src/errors";
 import { devnet } from "../../src/networks";
 
 const createRandomTx = type => {
@@ -81,7 +81,7 @@ const createRandomTx = type => {
             break;
         }
         default: {
-            throw new InvalidTransactionTypeError(type);
+            throw new TransactionTypeError(type);
         }
     }
 

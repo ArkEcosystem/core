@@ -2,7 +2,7 @@ import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto";
-import { InvalidTransactionTypeError } from "../errors";
+import { TransactionTypeError } from "../errors";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
 import { IMultiSignatureAsset, ITransactionData } from "../models/transaction";
@@ -68,7 +68,7 @@ class TransactionDeserializer {
         } else if (transaction.type === TransactionTypes.DelegateResignation) {
             this.deserializeDelegateResignation(transaction, buf);
         } else {
-            throw new InvalidTransactionTypeError(transaction.type);
+            throw new TransactionTypeError(transaction.type);
         }
     }
 

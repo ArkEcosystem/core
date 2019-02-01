@@ -2,7 +2,7 @@ import secp256k1 from "secp256k1";
 import wif from "wif";
 
 import { HashAlgorithms } from "../crypto";
-import { InvalidNetworkVersionError } from "../errors";
+import { NetworkVersionError } from "../errors";
 import { configManager } from "../managers";
 import { INetwork } from "../networks";
 
@@ -41,7 +41,7 @@ export class Keys {
         const version = decoded.version;
 
         if (version !== network.wif) {
-            throw new InvalidNetworkVersionError(network.wif, version);
+            throw new NetworkVersionError(network.wif, version);
         }
 
         const privateKey = decoded.privateKey;

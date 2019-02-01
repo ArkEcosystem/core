@@ -18,55 +18,55 @@ export class CryptoError extends Error {
     }
 }
 
-export class InvalidBip38CompressionError extends CryptoError {
+export class Bip38CompressionError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected flag to be ${expected}, but got ${given}.`);
     }
 }
 
-export class InvalidBip38LengthError extends CryptoError {
+export class Bip38LengthError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected length to be ${expected}, but got ${given}.`);
     }
 }
 
-export class InvalidBip38PrefixError extends CryptoError {
+export class Bip38PrefixError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected prefix to be ${expected}, but got ${given}.`);
     }
 }
 
-export class InvalidBip38TypeError extends CryptoError {
+export class Bip38TypeError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected type to be ${expected}, but got ${given}.`);
     }
 }
 
-export class InvalidNetworkVersionError extends CryptoError {
+export class NetworkVersionError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected version to be ${expected}, but got ${given}.`);
     }
 }
 
-export class InvalidPrivateKeyLengthError extends CryptoError {
+export class PrivateKeyLengthError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected length to be ${expected}, but got ${given}.`);
     }
 }
 
-export class InvalidPublicKeyError extends CryptoError {
+export class PublicKeyError extends CryptoError {
     constructor(given: string) {
         super(`Expected ${given} to be a valid public key.`);
     }
 }
 
-export class InvalidTransactionTypeError extends CryptoError {
+export class TransactionTypeError extends CryptoError {
     constructor(given: string) {
         super(`Type ${given} not supported.`);
     }
 }
 
-export class InvalidTransactionVersionError extends CryptoError {
+export class TransactionVersionError extends CryptoError {
     constructor(given: number) {
         super(`Version ${given} not supported.`);
     }

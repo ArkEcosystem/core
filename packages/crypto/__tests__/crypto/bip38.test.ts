@@ -44,7 +44,7 @@ describe("BIP38", () => {
                 return buffer;
             });
 
-            expect(() => bip38.decrypt("", "")).toThrow(errors.InvalidBip38CompressionError);
+            expect(() => bip38.decrypt("", "")).toThrow(errors.Bip38CompressionError);
 
             jest.restoreAllMocks();
         });
@@ -68,7 +68,7 @@ describe("BIP38", () => {
             byteBuffer.writeUint8(0x01);
             const buffer = Buffer.from(byteBuffer.toBuffer());
 
-            expect(() => bip38.encrypt(buffer, true, "")).toThrow(errors.InvalidPrivateKeyLengthError);
+            expect(() => bip38.encrypt(buffer, true, "")).toThrow(errors.PrivateKeyLengthError);
         });
     });
 

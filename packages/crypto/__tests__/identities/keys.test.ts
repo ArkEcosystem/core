@@ -1,7 +1,7 @@
 import "jest-extended";
 import wif from "wif";
 
-import { InvalidNetworkVersionError } from "../../src/errors";
+import { NetworkVersionError } from "../../src/errors";
 import { Address } from "../../src/identities/address";
 import { Keys } from "../../src/identities/keys";
 import { data, passphrase } from "./fixture.json";
@@ -73,7 +73,7 @@ describe("Identities - Keys", () => {
 
             expect(() => {
                 Keys.fromWIF("invalid");
-            }).toThrow(InvalidNetworkVersionError);
+            }).toThrow(NetworkVersionError);
         });
     });
 });
