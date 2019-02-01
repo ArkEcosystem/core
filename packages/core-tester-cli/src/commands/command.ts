@@ -1,5 +1,6 @@
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, crypto, formatArktoshi } from "@arkecosystem/crypto";
+import Command, { flags } from "@oclif/command";
 import bip39 from "bip39";
 import clipboardy from "clipboardy";
 import delay from "delay";
@@ -9,7 +10,45 @@ import pluralize from "pluralize";
 import { config } from "../config";
 import { logger, paginate, request } from "../utils";
 
-export abstract class Command {
+export abstract class BaseCommand extends Command {
+    public static flags = {
+        number: flags.integer({
+            description: "number of wallets",
+            default: 10,
+        }),
+        amount: flags.integer({
+            description: "initial wallet token amount",
+            default: 2,
+        }),
+        transferFee: flags.integer({
+            description: "transfer fee",
+            default: 0.1,
+        }),
+        baseUrl: flags.string({
+            description: "base api url",
+        }),
+        apiPort: flags.integer({
+            description: "base api port",
+            default: 4003,
+        }),
+        p2pPort: flags.integer({
+            description: "base p2p port",
+            default: 4002,
+        }),
+        passphrase: flags.string({
+            description: "passphrase of initial wallet",
+        }),
+        secondPassphrase: flags.string({
+            description: "second passphrase of initial wallet",
+        }),
+        skipValidation: flags.boolean({
+            description: "skip transaction validations",
+        }),
+        copy: flags.boolean({
+            description: "copy the transactions to the clipboard",
+        }),
+    };
+
     /**
      * Parse fee based on input.
      * @param  {(String|Number)} fee
@@ -67,13 +106,6 @@ export abstract class Command {
 
     public options: any;
     public config: any;
-
-    /**
-     * Run command.
-     * @param  {Object} options Used to pass options to TransferCommand
-     * @throws Method [run] not implemented!
-     */
-    public abstract async run(options);
 
     /**
      * Copy transactions to clipboard.

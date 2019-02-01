@@ -1,29 +1,39 @@
 import { client } from "@arkecosystem/crypto";
+import { flags } from "@oclif/command";
 import sample from "lodash/sample";
 import pluralize from "pluralize";
 import { logger } from "../utils";
-import { Command } from "./command";
-import { Transfer } from "./transfer";
+import { BaseCommand } from "./command";
+import { TransferCommand } from "./transfer";
 
-export class Vote extends Command {
-    /**
-     * Init new instance of command.
-     * @param  {Object} options
-     * @return {*}
-     */
-    public static async init(options) {
-        return this.initialize(new this(), options);
-    }
+export class VoteCommand extends BaseCommand {
+    public static description: string = "create multiple votes for a delegate";
+
+    public static flags = {
+        ...BaseCommand.flags,
+        delegate: flags.string({
+            description: "delegate public key",
+            required: true,
+        }),
+        voteFee: flags.integer({
+            description: "vote fee",
+            default: 1,
+        }),
+    };
 
     /**
      * Run vote command.
      * @return {void}
      */
-    public async run() {
+    public async run(): Promise<void> {
+        // tslint:disable-next-line:no-shadowed-variable
+        const { flags } = this.parse(VoteCommand);
+
+        this.options = flags;
+
         const wallets = this.generateWallets();
 
-        const transfer = await Transfer.init(this.options);
-        await transfer.run({
+        await TransferCommand.run({
             wallets,
             amount: 2,
             skipTesting: true,
@@ -47,7 +57,7 @@ export class Vote extends Command {
             const transaction = client
                 .getBuilder()
                 .vote()
-                .fee(Command.parseFee(this.options.voteFee))
+                .fee(BaseCommand.parseFee(this.options.voteFee))
                 .votesAsset([`+${delegate}`])
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -57,7 +67,7 @@ export class Vote extends Command {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${BaseCommand.__arktoshiToArk(transaction.fee)})`,
             );
         });
 

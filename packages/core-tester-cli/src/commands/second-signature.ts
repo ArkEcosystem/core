@@ -1,28 +1,34 @@
 import { client } from "@arkecosystem/crypto";
+import { flags } from "@oclif/command";
 import pluralize from "pluralize";
 import { logger } from "../utils";
-import { Command } from "./command";
-import { Transfer } from "./transfer";
+import { BaseCommand } from "./command";
+import { TransferCommand } from "./transfer";
 
-export class SecondSignature extends Command {
-    /**
-     * Init new instance of command.
-     * @param  {Object} options
-     * @return {*}
-     */
-    public static async init(options) {
-        return this.initialize(new this(), options);
-    }
+export class SecondSignatureCommand extends BaseCommand {
+    public static description: string = "create wallets with second signature";
+
+    public static flags = {
+        ...BaseCommand.flags,
+        signatureFee: flags.integer({
+            description: "second signature fee",
+            default: 5,
+        }),
+    };
 
     /**
      * Run second-signature command.
      * @return {void}
      */
-    public async run() {
+    public async run(): Promise<void> {
+        // tslint:disable-next-line:no-shadowed-variable
+        const { flags } = this.parse(SecondSignatureCommand);
+
+        this.options = flags;
+
         const wallets = this.generateWallets();
 
-        const transfer = await Transfer.init(this.options);
-        await transfer.run({
+        await TransferCommand.run({
             wallets,
             amount: this.options.amount || 5,
             skipTesting: true,
@@ -36,7 +42,7 @@ export class SecondSignature extends Command {
             const transaction = client
                 .getBuilder()
                 .secondSignature()
-                .fee(Command.parseFee(this.options.signatureFee))
+                .fee(BaseCommand.parseFee(this.options.signatureFee))
                 .signatureAsset(wallet.secondPassphrase)
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -47,7 +53,7 @@ export class SecondSignature extends Command {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${BaseCommand.__arktoshiToArk(transaction.fee)})`,
             );
         });
 
