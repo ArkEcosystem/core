@@ -34,12 +34,6 @@ export class CreateCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        // if (flags.filename && !fs.existsSync(flags.filename)) {
-        //     app.resolvePlugin<Logger.ILogger>("logger").error(`Appending not possible. Existing snapshot ${flags.filename} not found. Exiting...`);
-
-        //     throw new Error(`Appending not possible. Existing snapshot ${flags.filename} not found. Exiting...`);
-        // }
-
         await app.resolvePlugin<SnapshotManager>("snapshots").exportData(flags);
     }
 }

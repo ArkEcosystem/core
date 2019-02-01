@@ -10,7 +10,7 @@ export class RollbackCommand extends BaseCommand {
 
     public static flags = {
         ...BaseCommand.flags,
-        blockHeight: flags.integer({
+        height: flags.integer({
             description: "block network height number to rollback",
             default: -1,
         }),
@@ -24,14 +24,12 @@ export class RollbackCommand extends BaseCommand {
 
         const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-        if (flags.blockHeight === -1) {
+        if (flags.height === -1) {
             logger.warn("Rollback height is not specified. Rolling back to last completed round.");
         }
 
-        logger.info(
-            `Starting the process of blockchain rollback to block height of ${flags.blockHeight.toLocaleString()}`,
-        );
+        logger.info(`Starting the process of blockchain rollback to block height of ${flags.height.toLocaleString()}`);
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").rollbackChain(flags.blockHeight);
+        await app.resolvePlugin<SnapshotManager>("snapshots").rollbackChain(flags.height);
     }
 }

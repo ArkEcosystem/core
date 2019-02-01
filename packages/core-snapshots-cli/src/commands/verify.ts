@@ -29,13 +29,6 @@ export class VerifyCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        // if (flags.filename && !fs.existsSync(`${process.env.CORE_PATH_DATA}/snapshots/${flags.filename}`)) {
-        //     const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
-        //     logger.error(`Verify not possible. Snapshot ${flags.filename} not found.`);
-        //     logger.info("Use -f parameter with just the filename and not the full path.");
-        // }
-
         await app.resolvePlugin<SnapshotManager>("snapshots").verifyData(flags);
     }
 }
