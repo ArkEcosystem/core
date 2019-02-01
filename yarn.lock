@@ -1782,6 +1782,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/is-reachable@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/is-reachable/-/is-reachable-3.0.0.tgz#3203aa585cd5d3a4c1339bc857f4de06c4a18aff"
+  integrity sha512-rCl0PxFRPqwnKnWOO+6YdfnIIEsqahrEQjBfKR31C6E5oC4MY2U9W6VvXl090ZBYoCEY2wtqrBQaZn0UBGY85g==
+
 "@types/jest@^23.3.10":
   version "23.3.10"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.10.tgz#4897974cc317bf99d4fe6af1efa15957fa9c94de"
