@@ -13,7 +13,6 @@ export class VerifyCommand extends BaseCommand {
         ...BaseCommand.flags,
         blocks: flags.string({
             description: "blocks to verify, corelates to folder name",
-            required: true,
         }),
         codec: flags.string({
             description: "codec name, default is msg-lite binary",

@@ -13,7 +13,6 @@ export class CreateCommand extends BaseCommand {
         ...BaseCommand.flags,
         blocks: flags.string({
             description: "blocks to append to, correlates to folder name",
-            required: true,
         }),
         start: flags.integer({
             description: "start network height to export",
