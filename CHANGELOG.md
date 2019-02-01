@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Added TypeScript declarations for `core-logger` ([#1833])
 -   Added TypeScript declarations for `core-logger-winston` ([#1887])
 -   Added TypeScript declarations for `core-container` ([#1891])
--   Added TypeScript declarations for `core-database` ([#1901], [1905])
+-   Added TypeScript declarations for `core-database` ([#1901], [#1905])
 -   Added TypeScript declarations for `core-transaction-pool` ([#1906])
 -   Added TypeScript declarations for `core-blockchain` ([#1943])
 -   Added TypeScript declarations for `core-snapshots` ([#1947])
@@ -142,7 +142,7 @@ Closed security vulnerabilities:
 
 ### Changed
 
--   Increase cache generation timeout and make it configurable ([#1645], [1646])
+-   Increase cache generation timeout and make it configurable ([#1645], [#1646])
 
 ## [2.0.1] - 2018-12-05
 
