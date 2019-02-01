@@ -234,9 +234,11 @@ export class Guard {
             return this.__determinePunishment(peer, offences.BLACKLISTED);
         }
 
-        const state = app.resolve("state");
-        if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-            return this.__determinePunishment(peer, offences.FORK);
+        if (app.has("state")) {
+            const state = app.resolve("state");
+            if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
+                return this.__determinePunishment(peer, offences.FORK);
+            }
         }
 
         if (peer.commonBlocks === false) {
