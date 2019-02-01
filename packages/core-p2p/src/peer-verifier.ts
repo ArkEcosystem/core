@@ -2,13 +2,16 @@ import { app } from "@arkecosystem/core-container";
 import { ConnectionInterface } from "@arkecosystem/core-database";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { CappedSet, roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
 import assert from "assert";
 import { Peer } from './peer';
-import { VerifiedBlocks } from './verified-blocks';
 
-const verifiedBlocks = new VerifiedBlocks();
+/**
+ * A cache of verified blocks' ids. A block is verified if it is connected to a chain
+ * in which all blocks (including that one) are signed by the corresponding delegates.
+ */
+const verifiedBlocks = new CappedSet();
 
 export class PeerVerifier {
     private database: ConnectionInterface;
