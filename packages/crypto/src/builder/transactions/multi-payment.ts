@@ -1,4 +1,5 @@
 import { TransactionTypes } from "../../constants";
+import { MaximumPaymentCountExceededError } from "../../errors";
 import { feeManager } from "../../managers";
 import { ITransactionData } from "../../models";
 import { Bignum } from "../../utils";
@@ -23,7 +24,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
      */
     public addPayment(recipientId: string, amount: number): MultiPaymentBuilder {
         if (this.data.asset.payments.length >= 2258) {
-            throw new Error("A maximum of 2258 outputs is allowed");
+            throw new MaximumPaymentCountExceededError(this.data.asset.payments.length);
         }
 
         this.data.asset.payments.push({

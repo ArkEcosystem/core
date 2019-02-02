@@ -1,4 +1,5 @@
 import { crypto, slots } from "../../crypto";
+import { MissingTransactionSignatureError } from "../../errors";
 import { configManager } from "../../managers";
 import { ITransactionData, Transaction } from "../../models";
 import { INetwork } from "../../networks";
@@ -176,7 +177,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
      */
     public getStruct(): ITransactionData {
         if (!this.data.senderPublicKey || !this.data.signature) {
-            throw new Error("The transaction is not signed yet");
+            throw new MissingTransactionSignatureError();
         }
 
         const struct = {

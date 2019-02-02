@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { PublicKeyError } from "../../src/errors";
 import { Address } from "../../src/identities/address";
 import { Keys } from "../../src/identities/keys";
 import { data, passphrase } from "./fixture.json";
@@ -19,7 +20,7 @@ describe("Identities - Address", () => {
         it("should fail with an invalid public key", () => {
             expect(() => {
                 Address.fromPublicKey("invalid");
-            }).toThrow(`publicKey 'invalid' is invalid`);
+            }).toThrow(PublicKeyError);
         });
     });
 

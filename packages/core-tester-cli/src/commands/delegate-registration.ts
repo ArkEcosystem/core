@@ -1,42 +1,50 @@
 import { client } from "@arkecosystem/crypto";
+import { flags } from "@oclif/command";
 import pluralize from "pluralize";
 import superheroes from "superheroes";
-import { logger } from "../utils";
-import { Command } from "./command";
-import { Transfer } from "./transfer";
+import { customFlags } from "../flags";
+import { arktoshiToArk, logger, parseFee } from "../utils";
+import { BaseCommand } from "./command";
+import { TransferCommand } from "./transfer";
 
-export class DelegateRegistration extends Command {
-    /**
-     * Init new instance of command.
-     * @param  {Object} options
-     * @return {*}
-     */
-    public static async init(options) {
-        return this.initialize(new this(), options);
-    }
+export class DelegateRegistrationCommand extends BaseCommand {
+    public static description: string = "create multiple delegates";
+
+    public static flags = {
+        ...BaseCommand.flags,
+        delegateFee: customFlags.number({
+            description: "delegate registration fee",
+            default: 25,
+        }),
+    };
 
     /**
      * Run delegate-registration command.
      * @return {void}
      */
-    public async run() {
+    public async run(): Promise<void> {
+        await this.initialize(DelegateRegistrationCommand);
+
         const wallets = this.generateWallets();
 
-        const transfer = await Transfer.init(this.options);
-        await transfer.run({
-            wallets,
-            amount: this.options.amount || 25,
-            skipTesting: true,
-        });
+        for (const wallet of wallets) {
+            await TransferCommand.run([
+                "--amount",
+                String(this.options.amount || 25),
+                "--recipient",
+                wallet.address,
+                "--skipTesting",
+            ]);
+        }
 
         const delegates = await this.getDelegates();
 
-        logger.info(
+        logger.error(
             `Sending ${this.options.number} delegate registration ${pluralize("transaction", this.options.number)}`,
         );
 
         if (!this.options.skipValidation) {
-            logger.info(`Starting delegate count: ${delegates.length}`);
+            logger.error(`Starting delegate count: ${delegates.length}`);
         }
 
         const transactions = [];
@@ -53,7 +61,7 @@ export class DelegateRegistration extends Command {
             const transaction = client
                 .getBuilder()
                 .delegateRegistration()
-                .fee(Command.parseFee(this.options.delegateFee))
+                .fee(parseFee(this.options.delegateFee))
                 .usernameAsset(wallet.username)
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -63,9 +71,9 @@ export class DelegateRegistration extends Command {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${Command.__arktoshiToArk(
-                    transaction.fee,
-                )}, username: ${wallet.username})`,
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.fee)}, username: ${
+                    wallet.username
+                })`,
             );
         });
 
