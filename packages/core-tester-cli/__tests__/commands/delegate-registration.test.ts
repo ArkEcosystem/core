@@ -1,15 +1,14 @@
+import "jest-extended";
+
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import "jest-extended";
 import superheroes from "superheroes";
-import { DelegateRegistration } from "../../src/commands/delegate-registration";
+import { DelegateRegistrationCommand } from "../../src/commands/delegate-registration";
+import { arkToArktoshi } from "../../src/utils";
+import { toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
 
-const defaultOpts = {
-    skipTesting: true,
-    skipValidation: true,
-};
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
     mockAxios.onGet("http://localhost:4003/api/v2/node/configuration").reply(200, { data: { constants: {} } });
@@ -25,11 +24,10 @@ afterEach(() => {
 describe("Commands - Delegate Registration", () => {
     it("should register as delegate", async () => {
         const opts = {
-            ...defaultOpts,
             delegateFee: 1,
             number: 1,
         };
-        const command = await DelegateRegistration.init(opts);
+
         const expectedDelegateName = "mr_bojangles";
         // call to delegates/{publicKey}/voters returns zero delegates
         mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200, {
@@ -38,15 +36,18 @@ describe("Commands - Delegate Registration", () => {
         });
         jest.spyOn(superheroes, "random").mockImplementation(() => expectedDelegateName);
 
-        await command.run();
+        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
+
+        const flags = toFlags(opts);
+        await DelegateRegistrationCommand.run(flags);
 
         expect(axios.post).toHaveBeenNthCalledWith(
-            2,
+            4,
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: DelegateRegistration.__arkToArktoshi(opts.delegateFee),
+                        fee: arkToArktoshi(opts.delegateFee),
                         asset: {
                             delegate: {
                                 username: expectedDelegateName,

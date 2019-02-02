@@ -5,6 +5,7 @@ import ByteBuffer from "bytebuffer";
 import wif from "wif";
 import { bip38 } from "../../src/crypto";
 
+import * as errors from "../../src/errors";
 import fixtures from "./fixtures/bip38.json";
 
 describe("BIP38", () => {
@@ -21,7 +22,8 @@ describe("BIP38", () => {
                 try {
                     bip38.decrypt(fixture.base58, "foobar");
                 } catch (error) {
-                    expect(error.message).toEqual(fixture.exception);
+                    expect(error).toBeInstanceOf(errors[fixture.error.type] || Error);
+                    expect(error.message).toEqual(fixture.error.message);
                 }
             });
         });
@@ -42,7 +44,7 @@ describe("BIP38", () => {
                 return buffer;
             });
 
-            expect(() => bip38.decrypt("", "")).toThrow("Invalid BIP38 compression flag");
+            expect(() => bip38.decrypt("", "")).toThrow(errors.Bip38CompressionError);
 
             jest.restoreAllMocks();
         });
@@ -66,7 +68,7 @@ describe("BIP38", () => {
             byteBuffer.writeUint8(0x01);
             const buffer = Buffer.from(byteBuffer.toBuffer());
 
-            expect(() => bip38.encrypt(buffer, true, "")).toThrow("Invalid private key length");
+            expect(() => bip38.encrypt(buffer, true, "")).toThrow(errors.PrivateKeyLengthError);
         });
     });
 

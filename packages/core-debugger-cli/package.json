@@ -8,15 +8,19 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist"
+        "/bin",
+        "/dist",
+        "/oclif.manifest.json"
     ],
     "bin": {
-        "core:debugger": "./bin/debugger"
+        "debugger": "./bin/run"
     },
     "scripts": {
-        "start": "./bin/debugger",
+        "debugger": "./bin/run",
         "prepublishOnly": "yarn test && yarn build",
         "pretest": "yarn lint && yarn build",
+        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
@@ -32,9 +36,12 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "^2.1.0",
+        "@oclif/command": "^1.5.8",
+        "@oclif/config": "^1.12.4",
+        "@oclif/plugin-help": "^2.1.6",
+        "@oclif/plugin-not-found": "^1.2.2",
         "@types/clipboardy": "^1.1.0",
-        "clipboardy": "^1.2.3",
-        "commander": "^2.19.0"
+        "clipboardy": "^1.2.3"
     },
     "publishConfig": {
         "access": "public"
@@ -44,5 +51,13 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
+    },
+    "oclif": {
+        "commands": "./dist/commands",
+        "bin": "debugger",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-not-found"
+        ]
     }
 }
