@@ -2,6 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import pluralize from "pluralize";
 import superheroes from "superheroes";
+import { customFlags } from "../flags";
 import { arktoshiToArk, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
@@ -11,7 +12,7 @@ export class DelegateRegistrationCommand extends BaseCommand {
 
     public static flags = {
         ...BaseCommand.flags,
-        delegateFee: flags.integer({
+        delegateFee: customFlags.number({
             description: "delegate registration fee",
             default: 25,
         }),

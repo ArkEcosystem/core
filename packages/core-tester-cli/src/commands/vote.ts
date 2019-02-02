@@ -2,6 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import sample from "lodash/sample";
 import pluralize from "pluralize";
+import { customFlags } from "../flags";
 import { arktoshiToArk, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
@@ -14,7 +15,7 @@ export class VoteCommand extends BaseCommand {
         delegate: flags.string({
             description: "delegate public key",
         }),
-        voteFee: flags.integer({
+        voteFee: customFlags.number({
             description: "vote fee",
             default: 1,
         }),

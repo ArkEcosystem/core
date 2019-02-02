@@ -2,6 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import take from "lodash/take";
 import pluralize from "pluralize";
+import { customFlags } from "../flags";
 import { arkToArktoshi, arktoshiToArk, generateTransactions, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
@@ -11,7 +12,7 @@ export class MultiSignatureCommand extends BaseCommand {
 
     public static flags = {
         ...BaseCommand.flags,
-        multisigFee: flags.integer({
+        multisigFee: customFlags.number({
             description: "multisig fee",
             default: 5,
         }),

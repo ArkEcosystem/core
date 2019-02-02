@@ -1,6 +1,7 @@
 import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import pluralize from "pluralize";
+import { customFlags } from "../flags";
 import { arktoshiToArk, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
@@ -10,7 +11,7 @@ export class SecondSignatureCommand extends BaseCommand {
 
     public static flags = {
         ...BaseCommand.flags,
-        signatureFee: flags.integer({
+        signatureFee: customFlags.number({
             description: "second signature fee",
             default: 5,
         }),

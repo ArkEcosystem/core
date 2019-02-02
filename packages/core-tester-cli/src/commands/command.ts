@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import pluralize from "pluralize";
 import { config } from "../config";
+import { customFlags } from "../flags";
 import { logger, paginate, request } from "../utils";
 
 export abstract class BaseCommand extends Command {
@@ -16,11 +17,11 @@ export abstract class BaseCommand extends Command {
             description: "number of wallets",
             default: 10,
         }),
-        amount: flags.integer({
+        amount: customFlags.number({
             description: "initial wallet token amount",
             default: 2,
         }),
-        transferFee: flags.integer({
+        transferFee: customFlags.number({
             description: "transfer fee",
             default: 0.1,
         }),
