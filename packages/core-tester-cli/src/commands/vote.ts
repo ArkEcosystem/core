@@ -2,7 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import sample from "lodash/sample";
 import pluralize from "pluralize";
-import { logger } from "../utils";
+import { arktoshiToArk, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -13,7 +13,6 @@ export class VoteCommand extends BaseCommand {
         ...BaseCommand.flags,
         delegate: flags.string({
             description: "delegate public key",
-            required: true,
         }),
         voteFee: flags.integer({
             description: "vote fee",
@@ -26,12 +25,12 @@ export class VoteCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        this.initialize(VoteCommand);
+        await this.initialize(VoteCommand);
 
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
-            await TransferCommand.run(["--recipient", wallet.address, "--amount", 2 as any, "--skip-testing"]);
+            await TransferCommand.run(["--recipient", wallet.address, "--amount", String(2), "--skipTesting"]);
         }
 
         let delegate = this.options.delegate;
@@ -52,7 +51,7 @@ export class VoteCommand extends BaseCommand {
             const transaction = client
                 .getBuilder()
                 .vote()
-                .fee(this.parseFee(this.options.voteFee))
+                .fee(parseFee(this.options.voteFee))
                 .votesAsset([`+${delegate}`])
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -61,7 +60,7 @@ export class VoteCommand extends BaseCommand {
 
             transactions.push(transaction);
 
-            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(transaction.fee)})`);
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.fee)})`);
         });
 
         if (this.options.copy) {

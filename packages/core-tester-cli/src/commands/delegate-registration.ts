@@ -2,7 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import pluralize from "pluralize";
 import superheroes from "superheroes";
-import { logger } from "../utils";
+import { arktoshiToArk, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -22,28 +22,28 @@ export class DelegateRegistrationCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        this.initialize(DelegateRegistrationCommand);
+        await this.initialize(DelegateRegistrationCommand);
 
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
             await TransferCommand.run([
+                "--amount",
+                String(this.options.amount || 25),
                 "--recipient",
                 wallet.address,
-                "--amount",
-                this.options.amount || 25,
-                "--skip-testing",
+                "--skipTesting",
             ]);
         }
 
         const delegates = await this.getDelegates();
 
-        logger.info(
+        logger.error(
             `Sending ${this.options.number} delegate registration ${pluralize("transaction", this.options.number)}`,
         );
 
         if (!this.options.skipValidation) {
-            logger.info(`Starting delegate count: ${delegates.length}`);
+            logger.error(`Starting delegate count: ${delegates.length}`);
         }
 
         const transactions = [];
@@ -60,7 +60,7 @@ export class DelegateRegistrationCommand extends BaseCommand {
             const transaction = client
                 .getBuilder()
                 .delegateRegistration()
-                .fee(this.parseFee(this.options.delegateFee))
+                .fee(parseFee(this.options.delegateFee))
                 .usernameAsset(wallet.username)
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -70,9 +70,9 @@ export class DelegateRegistrationCommand extends BaseCommand {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(
-                    transaction.fee,
-                )}, username: ${wallet.username})`,
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.fee)}, username: ${
+                    wallet.username
+                })`,
             );
         });
 

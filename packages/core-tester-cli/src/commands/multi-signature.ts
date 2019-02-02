@@ -2,7 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import take from "lodash/take";
 import pluralize from "pluralize";
-import { generateTransactions, logger } from "../utils";
+import { arkToArktoshi, arktoshiToArk, generateTransactions, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -52,7 +52,7 @@ export class MultiSignatureCommand extends BaseCommand {
                 wallet.address,
                 "--amount",
                 (publicKeys.length + 1) * 5 + testCosts,
-                "--skip-testing",
+                "--skipTesting",
             ]);
         }
 
@@ -119,7 +119,7 @@ export class MultiSignatureCommand extends BaseCommand {
             const builder = client.getBuilder().multiSignature();
 
             builder
-                .fee(this.parseFee(this.options.multisigFee))
+                .fee(parseFee(this.options.multisigFee))
                 .multiSignatureAsset({
                     lifetime: this.options.lifetime,
                     keysgroup: publicKeys,
@@ -142,9 +142,7 @@ export class MultiSignatureCommand extends BaseCommand {
             transactions.push(transaction);
 
             if (log) {
-                logger.info(
-                    `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(transaction.fee)})`,
-                );
+                logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.fee)})`);
             }
         });
 
@@ -160,7 +158,10 @@ export class MultiSignatureCommand extends BaseCommand {
     public async testSendWithSignatures(wallets, approvalWallets = []) {
         logger.info("Sending transactions with signatures");
 
-        const transactions = generateTransactions(this.arkToArktoshi(2), wallets, approvalWallets);
+        const transactions = generateTransactions(arkToArktoshi(2), wallets, approvalWallets, {
+            config: this.config,
+            ...this.options,
+        });
 
         try {
             await this.sendTransactions(transactions);
@@ -187,7 +188,10 @@ export class MultiSignatureCommand extends BaseCommand {
             `Sending transactions with ${min} (min) of ${pluralize("signature", approvalWallets.length, true)}`,
         );
 
-        const transactions = generateTransactions(this.arkToArktoshi(2), wallets, take(approvalWallets, min));
+        const transactions = generateTransactions(arkToArktoshi(2), wallets, take(approvalWallets, min), {
+            config: this.config,
+            ...this.options,
+        });
 
         try {
             await this.sendTransactions(transactions);
@@ -215,7 +219,10 @@ export class MultiSignatureCommand extends BaseCommand {
             `Sending transactions with ${max} (below min) of ${pluralize("signature", approvalWallets.length, true)}`,
         );
 
-        const transactions = generateTransactions(this.arkToArktoshi(2), wallets, take(approvalWallets, max));
+        const transactions = generateTransactions(arkToArktoshi(2), wallets, take(approvalWallets, max), {
+            config: this.config,
+            ...this.options,
+        });
 
         try {
             await this.sendTransactions(transactions);
@@ -245,7 +252,10 @@ export class MultiSignatureCommand extends BaseCommand {
     public async testSendWithoutSignatures(wallets) {
         logger.info("Sending transactions without signatures");
 
-        const transactions = generateTransactions(this.arkToArktoshi(2), wallets);
+        const transactions = generateTransactions(arkToArktoshi(2), wallets, [], {
+            config: this.config,
+            ...this.options,
+        });
 
         try {
             await this.sendTransactions(transactions);
@@ -275,7 +285,10 @@ export class MultiSignatureCommand extends BaseCommand {
     public async testSendWithEmptySignatures(wallets) {
         logger.info("Sending transactions with empty signatures");
 
-        const transactions = generateTransactions(this.arkToArktoshi(2), wallets);
+        const transactions = generateTransactions(arkToArktoshi(2), wallets, [], {
+            config: this.config,
+            ...this.options,
+        });
         for (const transaction of transactions) {
             transaction.data.signatures = [];
         }

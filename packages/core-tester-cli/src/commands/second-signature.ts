@@ -1,7 +1,7 @@
 import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import pluralize from "pluralize";
-import { logger } from "../utils";
+import { arktoshiToArk, logger, parseFee } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -21,7 +21,7 @@ export class SecondSignatureCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        this.initialize(SecondSignatureCommand);
+        await this.initialize(SecondSignatureCommand);
 
         const wallets = this.generateWallets();
 
@@ -30,8 +30,8 @@ export class SecondSignatureCommand extends BaseCommand {
                 "--recipient",
                 wallet.address,
                 "--amount",
-                this.options.amount || 5,
-                "--skip-testing",
+                String(this.options.amount || 5),
+                "--skipTesting",
             ]);
         }
 
@@ -43,7 +43,7 @@ export class SecondSignatureCommand extends BaseCommand {
             const transaction = client
                 .getBuilder()
                 .secondSignature()
-                .fee(this.parseFee(this.options.signatureFee))
+                .fee(parseFee(this.options.signatureFee))
                 .signatureAsset(wallet.secondPassphrase)
                 .network(this.config.network.version)
                 .sign(wallet.passphrase)
@@ -53,7 +53,7 @@ export class SecondSignatureCommand extends BaseCommand {
             wallet.secondPublicKey = transaction.asset.signature.publicKey;
             transactions.push(transaction);
 
-            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${this.arktoshiToArk(transaction.fee)})`);
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.fee)})`);
         });
 
         if (this.options.copy) {

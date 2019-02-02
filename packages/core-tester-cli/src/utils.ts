@@ -1,4 +1,5 @@
-import { client } from "@arkecosystem/crypto";
+import { bignumify } from "@arkecosystem/core-utils";
+import { Bignum, client, formatArktoshi } from "@arkecosystem/crypto";
 import axios from "axios";
 import pino from "pino";
 
@@ -51,36 +52,33 @@ export async function paginate(config, endpoint) {
 
 /**
  * Generate batch of transactions based on wallets.
- * @param  {Bignum}  transactionAmount
- * @param  {Object[]}  wallets
- * @param  {Object[]}  [approvalWallets=[]]
- * @param  {Boolean}  [overridePassphrase=false]
- * @param  {String}  [vendorField]
- * @param  {Boolean} [log=true]
- * @return {Object[]}
  */
 export function generateTransactions(
-    transactionAmount,
-    wallets,
-    approvalWallets = [],
-    overridePassphrase = false,
-    vendorField = null,
-    log = true,
+    amountPerTransaction: any,
+    wallets: any[],
+    approvalWallets: any[],
+    options: {
+        config: any;
+        overridePassphrase?: false;
+        vendorField?: string;
+        log?: boolean;
+        [key: string]: any;
+    },
 ) {
     const transactions = [];
     wallets.forEach((wallet, i) => {
         const builder = client.getBuilder().transfer();
         // noinspection JSCheckFunctionSignatures
         builder
-            .fee(this.parseFee(this.options.transferFee))
-            .recipientId(this.options.recipient || wallet.address)
-            .network(this.config.network.version)
-            .amount(transactionAmount)
-            .vendorField(vendorField === undefined ? `Transaction ${i + 1}` : vendorField)
-            .sign(overridePassphrase ? this.config.passphrase : wallet.passphrase);
+            .fee(this.parseFee(options.transferFee))
+            .recipientId(options.recipient || wallet.address)
+            .network(options.config.network.version)
+            .amount(amountPerTransaction)
+            .vendorField(options.vendorField === undefined ? `Transaction ${i + 1}` : options.vendorField)
+            .sign(options.overridePassphrase ? options.config.passphrase : wallet.passphrase);
 
-        if (wallet.secondPassphrase || this.config.secondPassphrase) {
-            builder.secondSign(wallet.secondPassphrase || this.config.secondPassphrase);
+        if (wallet.secondPassphrase || options.config.secondPassphrase) {
+            builder.secondSign(wallet.secondPassphrase || options.config.secondPassphrase);
         }
 
         if (approvalWallets) {
@@ -92,7 +90,7 @@ export function generateTransactions(
         const transaction = builder.build();
         transactions.push(transaction);
 
-        if (log) {
+        if (options.log) {
             logger.info(
                 `${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${this.arktoshiToArk(transaction.fee)})`,
             );
@@ -100,4 +98,45 @@ export function generateTransactions(
     });
 
     return transactions;
+}
+
+/**
+ * Parse fee based on input.
+ * @param  {(String|Number)} fee
+ * @return {Bignum}
+ */
+export function parseFee(fee): Bignum {
+    if (typeof fee === "string" && fee.indexOf("-") !== -1) {
+        const feeRange = fee.split("-").map(
+            f =>
+                +bignumify(f)
+                    .times(1e8)
+                    .toFixed(),
+        );
+        if (feeRange[1] < feeRange[0]) {
+            return bignumify(feeRange[0]);
+        }
+
+        return bignumify(Math.floor(Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0]));
+    }
+
+    return bignumify(fee).times(1e8);
+}
+
+/**
+ * Convert ARK to Arktoshi.
+ * @param  {Number} ark
+ * @return {Bignum}
+ */
+export function arkToArktoshi(ark) {
+    return bignumify(ark * 1e8);
+}
+
+/**
+ * Convert Arktoshi to ARK.
+ * @param  {Bignum} arktoshi
+ * @return {String}
+ */
+export function arktoshiToArk(arktoshi) {
+    return formatArktoshi(arktoshi);
 }

@@ -1,9 +1,9 @@
-import { Bignum, client, crypto } from "@arkecosystem/crypto";
+import { Bignum, crypto } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import delay from "delay";
 import unique from "lodash/uniq";
 import pluralize from "pluralize";
-import { generateTransactions, logger } from "../utils";
+import { arkToArktoshi, arktoshiToArk, generateTransactions, logger } from "../utils";
 import { BaseCommand } from "./command";
 
 export class TransferCommand extends BaseCommand {
@@ -33,7 +33,7 @@ export class TransferCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        this.initialize(TransferCommand);
+        await this.initialize(TransferCommand);
 
         const primaryAddress = crypto.getAddress(
             crypto.getKeys(this.config.passphrase).publicKey,
@@ -50,11 +50,11 @@ export class TransferCommand extends BaseCommand {
         const walletBalance = await this.getWalletBalance(primaryAddress);
 
         if (!this.options.skipValidation) {
-            logger.info(`Sender starting balance: ${this.arktoshiToArk(walletBalance)}`);
+            logger.info(`Sender starting balance: ${arktoshiToArk(walletBalance)}`);
         }
 
         let totalDeductions = Bignum.ZERO;
-        const transactionAmount = this.arkToArktoshi(this.options.amount || 2);
+        const transactionAmount = arkToArktoshi(this.options.amount || 2);
 
         const transactions = this.generateTransactions(transactionAmount, wallets, null, true);
         for (const transaction of transactions) {
@@ -68,7 +68,7 @@ export class TransferCommand extends BaseCommand {
 
         const expectedSenderBalance = new Bignum(walletBalance).minus(totalDeductions);
         if (!this.options.skipValidation) {
-            logger.info(`Sender expected ending balance: ${this.arktoshiToArk(expectedSenderBalance)}`);
+            logger.info(`Sender expected ending balance: ${arktoshiToArk(expectedSenderBalance)}`);
         }
 
         const runOptions = {
@@ -130,14 +130,13 @@ export class TransferCommand extends BaseCommand {
         vendorField = null,
         log = true,
     ) {
-        return generateTransactions(
-            transactionAmount,
-            wallets,
-            approvalWallets,
+        return generateTransactions(transactionAmount, wallets, approvalWallets, {
+            ...this.options,
+            config: this.config,
             overridePassphrase,
-            vendorField || this.options.smartBridge,
+            vendorField: vendorField || this.options.smartBridge,
             log,
-        );
+        });
     }
 
     /**
@@ -194,7 +193,7 @@ export class TransferCommand extends BaseCommand {
             return true;
         }
 
-        if (!isSubsequentRun && !postResponse.accept.length) {
+        if (!isSubsequentRun && (!postResponse.accept || !postResponse.accept.length)) {
             return false;
         }
 
@@ -239,9 +238,9 @@ export class TransferCommand extends BaseCommand {
             if (!walletBalance.isEqualTo(runOptions.expectedSenderBalance)) {
                 successfulTest = false;
                 logger.error(
-                    `Sender balance incorrect: '${this.arktoshiToArk(
-                        walletBalance,
-                    )}' but should be '${this.arktoshiToArk(runOptions.expectedSenderBalance)}'`,
+                    `Sender balance incorrect: '${arktoshiToArk(walletBalance)}' but should be '${arktoshiToArk(
+                        runOptions.expectedSenderBalance,
+                    )}'`,
                 );
             }
         }
@@ -251,9 +250,9 @@ export class TransferCommand extends BaseCommand {
             if (!balance.isEqualTo(runOptions.transactionAmount)) {
                 successfulTest = false;
                 logger.error(
-                    `Incorrect destination balance for ${wallet.address}. Should be '${this.arktoshiToArk(
+                    `Incorrect destination balance for ${wallet.address}. Should be '${arktoshiToArk(
                         runOptions.transactionAmount,
-                    )}' but is '${this.arktoshiToArk(balance)}'`,
+                    )}' but is '${arktoshiToArk(balance)}'`,
                 );
             }
         }
@@ -269,13 +268,7 @@ export class TransferCommand extends BaseCommand {
     public async testVendorField(wallets) {
         logger.info("Testing VendorField value is set correctly");
 
-        const transactions = this.generateTransactions(
-            this.arkToArktoshi(2),
-            wallets,
-            null,
-            null,
-            "Testing VendorField",
-        );
+        const transactions = this.generateTransactions(arkToArktoshi(2), wallets, null, null, "Testing VendorField");
 
         try {
             await this.sendTransactions(transactions);
@@ -284,8 +277,7 @@ export class TransferCommand extends BaseCommand {
                 const tx = await this.getTransaction(transaction.id);
                 if (!tx) {
                     logger.error(`Transaction '${transaction.id}' should be on the blockchain`);
-                }
-                if (tx.vendorField !== "Testing VendorField") {
+                } else if (tx.vendorField !== "Testing VendorField") {
                     logger.error(`Transaction '${transaction.id}' does not have correct vendorField value`);
                 }
             }
@@ -302,7 +294,7 @@ export class TransferCommand extends BaseCommand {
     public async testEmptyVendorField(wallets) {
         logger.info("Testing empty VendorField value");
 
-        const transactions = this.generateTransactions(this.arkToArktoshi(2), wallets, null, null, null);
+        const transactions = this.generateTransactions(arkToArktoshi(2), wallets, null, null, null);
 
         try {
             await this.sendTransactions(transactions);
@@ -311,8 +303,7 @@ export class TransferCommand extends BaseCommand {
                 const tx = await this.getTransaction(transaction.id);
                 if (!tx) {
                     logger.error(`Transaction '${transaction.id}' should be on the blockchain`);
-                }
-                if (tx.vendorField) {
+                } else if (tx.vendorField) {
                     logger.error(
                         `Transaction '${transaction.id}' should not have vendorField value '${tx.vendorField}'`,
                     );
