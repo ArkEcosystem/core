@@ -13,9 +13,8 @@ export class TransferCommand extends BaseCommand {
         ...BaseCommand.flags,
         recipient: flags.string({
             description: "recipient address",
-            required: true,
         }),
-        flood: flags.integer({
+        floodAttempts: flags.integer({
             description: "flood node with same transactions",
             default: 0,
         }),
