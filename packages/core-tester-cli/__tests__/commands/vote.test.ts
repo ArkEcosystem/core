@@ -1,14 +1,13 @@
+import "jest-extended";
+
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import "jest-extended";
-import { Vote } from "../../src/commands/vote";
+import { VoteCommand } from "../../src/commands/vote";
+import { arkToArktoshi } from "../../src/utils";
+import { toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
 
-const defaultOpts = {
-    skipTesting: true,
-    skipValidation: true,
-};
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
     mockAxios.onGet("http://localhost:4003/api/v2/node/configuration").reply(200, { data: { constants: {} } });
@@ -27,24 +26,24 @@ describe("Commands - Vote", () => {
     it("should vote for specified delegate", async () => {
         const expectedDelegate = "03f294777f7376e970b2bd4805b4a90c8449b5935d530bdb566d02800ac44a4c00";
         const opts = {
-            ...defaultOpts,
             number: 1,
             voteFee: 1,
             delegate: expectedDelegate,
         };
-        const command = await Vote.init(opts);
+
         mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates.*/).reply(200);
         mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
 
-        await command.run();
+        const flags = toFlags(opts);
+        await VoteCommand.run(flags);
 
         expect(axios.post).toHaveBeenNthCalledWith(
-            2,
+            4,
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: Vote.__arkToArktoshi(opts.voteFee),
+                        fee: arkToArktoshi(opts.voteFee),
                         asset: {
                             votes: [`+${expectedDelegate}`],
                         },
@@ -58,12 +57,10 @@ describe("Commands - Vote", () => {
     it("should vote random delegate if non specified", async () => {
         const expectedDelegate = "03f294777f7376e970b2bd4805b4a90c8449b5935d530bdb566d02800ac44a4c00";
         const opts = {
-            ...defaultOpts,
             number: 1,
             voteFee: 1,
-            delegate: null,
         };
-        const command = await Vote.init(opts);
+
         mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
         mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates\/.*/).reply(200); // call to delegates/{publicKey}/voters
         // call to /delegates
@@ -72,15 +69,16 @@ describe("Commands - Vote", () => {
             data: [{ publicKey: expectedDelegate }],
         });
 
-        await command.run();
+        const flags = toFlags(opts);
+        await VoteCommand.run(flags);
 
         expect(axios.post).toHaveBeenNthCalledWith(
-            2,
+            4,
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: Vote.__arkToArktoshi(opts.voteFee),
+                        fee: arkToArktoshi(opts.voteFee),
                         asset: {
                             votes: [`+${expectedDelegate}`],
                         },
