@@ -26,7 +26,7 @@ export interface ITransactionsRepository extends IRepository {
     /**
      * Get all of the forged transaction ids from the database.
      */
-    forged(ids: string[]): Promise<string[]>;
+    forged(ids: string[]): Promise<any[]>;
 
     /**
      * Get statistics about all transactions from the database.

@@ -237,7 +237,8 @@ export class DatabaseService implements Database.IDatabaseService {
             return [];
         }
 
-        return await this.connection.transactionsRepository.forged(ids);
+        const txs = await this.connection.transactionsRepository.forged(ids);
+        return txs.map(tx => tx.id);
     }
 
     public async getLastBlock() {

@@ -64,7 +64,7 @@ export interface IDatabaseService {
 
     getTransaction(id: string): Promise<any>;
 
-    getForgedTransactionsIds(ids: string[]): Promise<string[]>;
+    getForgedTransactionsIds(ids: string[]): Promise<any[]>;
 
     init(): Promise<void>;
 

@@ -89,8 +89,8 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll();
-            expect(count).toBe(genesisBlock.transactions.length);
-            expect(rows).toHaveLength(genesisBlock.transactions.length);
+            expect(count).toBe(52);
+            expect(rows).toHaveLength(52);
         });
 
         it("should be ok with params", () => {
@@ -98,7 +98,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10, limit: 10 });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
 
@@ -107,7 +107,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ limit: 10 });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
 
@@ -116,7 +116,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 0, limit: 12 });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(12);
         });
 
@@ -125,7 +125,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10 });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(42);
         });
     });
@@ -210,7 +210,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            expect(repository.count()).toBe(genesisBlock.transactions.length);
+            expect(repository.count()).toBe(52);
         });
     });
 

@@ -81,8 +81,8 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll();
-            expect(count).toBe(genesisBlock.transactions.length);
-            expect(rows).toHaveLength(genesisBlock.transactions.length);
+            expect(count).toBe(52);
+            expect(rows).toHaveLength(52);
             expect(rows.sort((a, b) => a.rate < b.rate)).toEqual(rows);
         });
 
@@ -91,7 +91,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10, limit: 10, orderBy: "rate:desc" });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(10);
             expect(rows.sort((a, b) => a.rate > b.rate)).toEqual(rows);
         });
@@ -101,7 +101,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ limit: 10 });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
 
@@ -110,7 +110,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 0, limit: 12 });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(12);
         });
 
@@ -119,7 +119,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10 });
-            expect(count).toBe(genesisBlock.transactions.length);
+            expect(count).toBe(52);
             expect(rows).toHaveLength(42);
         });
     });
@@ -143,8 +143,8 @@ describe("Delegate Repository", () => {
             it("should search that username contains the string", () => {
                 const { count, rows } = repository.search({ username: "username" });
 
-                expect(count).toBe(genesisBlock.transactions.length);
-                expect(rows).toHaveLength(genesisBlock.transactions.length);
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(52);
             });
 
             describe('when a username is "undefined"', () => {
@@ -178,7 +178,7 @@ describe("Delegate Repository", () => {
                     offset: 10,
                     limit: 10,
                 });
-                expect(count).toBe(genesisBlock.transactions.length);
+                expect(count).toBe(52);
                 expect(rows).toHaveLength(10);
             });
 
@@ -187,7 +187,7 @@ describe("Delegate Repository", () => {
                     username: "username",
                     limit: 10,
                 });
-                expect(count).toBe(genesisBlock.transactions.length);
+                expect(count).toBe(52);
                 expect(rows).toHaveLength(10);
             });
 
@@ -197,7 +197,7 @@ describe("Delegate Repository", () => {
                     offset: 0,
                     limit: 12,
                 });
-                expect(count).toBe(genesisBlock.transactions.length);
+                expect(count).toBe(52);
                 expect(rows).toHaveLength(12);
             });
 
@@ -206,7 +206,7 @@ describe("Delegate Repository", () => {
                     username: "username",
                     offset: 10,
                 });
-                expect(count).toBe(genesisBlock.transactions.length);
+                expect(count).toBe(52);
                 expect(rows).toHaveLength(42);
             });
         });
@@ -215,8 +215,8 @@ describe("Delegate Repository", () => {
             it("should return all results", () => {
                 const { count, rows } = repository.search({});
 
-                expect(count).toBe(genesisBlock.transactions.length);
-                expect(rows).toHaveLength(genesisBlock.transactions.length);
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(52);
             });
 
             describe('when a username is "undefined"', () => {
@@ -225,8 +225,8 @@ describe("Delegate Repository", () => {
                     walletManager.allByAddress()[0].username = "undefined";
 
                     const { count, rows } = repository.search({});
-                    expect(count).toBe(genesisBlock.transactions.length);
-                    expect(rows).toHaveLength(genesisBlock.transactions.length);
+                    expect(count).toBe(52);
+                    expect(rows).toHaveLength(52);
                 });
             });
         });
