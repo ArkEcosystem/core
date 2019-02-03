@@ -1,5 +1,6 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, crypto, formatArktoshi } from "@arkecosystem/crypto";
+import { Bignum, crypto } from "@arkecosystem/crypto";
+import Command, { flags } from "@oclif/command";
 import bip39 from "bip39";
 import clipboardy from "clipboardy";
 import delay from "delay";
@@ -7,73 +8,70 @@ import fs from "fs";
 import path from "path";
 import pluralize from "pluralize";
 import { config } from "../config";
+import { customFlags } from "../flags";
 import { logger, paginate, request } from "../utils";
 
-export abstract class Command {
-    /**
-     * Parse fee based on input.
-     * @param  {(String|Number)} fee
-     * @return {Bignum}
-     */
-    public static parseFee(fee): Bignum {
-        if (typeof fee === "string" && fee.indexOf("-") !== -1) {
-            const feeRange = fee.split("-").map(
-                f =>
-                    +bignumify(f)
-                        .times(1e8)
-                        .toFixed(),
-            );
-            if (feeRange[1] < feeRange[0]) {
-                return bignumify(feeRange[0]);
-            }
+export abstract class BaseCommand extends Command {
+    public static flags = {
+        number: flags.integer({
+            description: "number of wallets",
+            default: 10,
+        }),
+        amount: customFlags.number({
+            description: "initial wallet token amount",
+            default: 2,
+        }),
+        transferFee: customFlags.number({
+            description: "transfer fee",
+            default: 0.1,
+        }),
+        baseUrl: flags.string({
+            description: "base api url",
+        }),
+        apiPort: flags.integer({
+            description: "base api port",
+            default: 4003,
+        }),
+        p2pPort: flags.integer({
+            description: "base p2p port",
+            default: 4002,
+        }),
+        passphrase: flags.string({
+            description: "passphrase of initial wallet",
+        }),
+        secondPassphrase: flags.string({
+            description: "second passphrase of initial wallet",
+        }),
+        skipValidation: flags.boolean({
+            description: "skip transaction validations",
+        }),
+        skipTesting: flags.boolean({
+            description: "skip testing",
+        }),
+        copy: flags.boolean({
+            description: "copy the transactions to the clipboard",
+        }),
+    };
 
-            return bignumify(Math.floor(Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0]));
-        }
-
-        return bignumify(fee).times(1e8);
-    }
-
-    /**
-     * Convert ARK to Arktoshi.
-     * @param  {Number} ark
-     * @return {Bignum}
-     */
-    public static __arkToArktoshi(ark) {
-        return bignumify(ark * 1e8);
-    }
-
-    /**
-     * Convert Arktoshi to ARK.
-     * @param  {Bignum} arktoshi
-     * @return {String}
-     */
-    public static __arktoshiToArk(arktoshi) {
-        return formatArktoshi(arktoshi);
-    }
+    public options: any;
+    public config: any;
 
     /**
      * Init new instance of command.
      * @param  {Object} options
      * @return {*}
      */
-    public static async initialize(command, options) {
-        command.options = options;
-        command.__applyConfig();
-        await command.__loadConstants();
-        await command.__loadNetworkConfig();
+    public async initialize(command): Promise<any> {
+        // tslint:disable-next-line:no-shadowed-variable
+        const { flags } = this.parse(command);
 
-        return command;
+        this.options = flags;
+        this.applyConfig();
+        await this.loadConstants();
+        await this.loadNetworkConfig();
+
+        return { flags };
     }
-
-    public options: any;
-    public config: any;
-
-    /**
-     * Run command.
-     * @param  {Object} options Used to pass options to TransferCommand
-     * @throws Method [run] not implemented!
-     */
-    public abstract async run(options);
 
     /**
      * Copy transactions to clipboard.
@@ -131,17 +129,6 @@ export abstract class Command {
             const message = error.response ? error.response.data.message : error.message;
             throw new Error(`Could not get delegates: ${message}`);
         }
-    }
-
-    /**
-     * Determine how long to wait for transactions to process.
-     * @param  {Object[]} transactions
-     * @return {Number}
-     */
-    public getTransactionDelaySeconds(transactions) {
-        const waitPerBlock = Math.round(this.config.constants.blocktime / 10) * 20;
-
-        return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions);
     }
 
     /**
@@ -250,11 +237,38 @@ export abstract class Command {
     }
 
     /**
+     * Load constants from API and apply to config.
+     * @return {void}
+     */
+    public async loadConstants() {
+        try {
+            this.config.constants = (await request(this.config).get("/api/v2/node/configuration")).data.constants;
+        } catch (error) {
+            logger.error("Failed to get constants: ", error.message);
+            process.exit(1);
+        }
+    }
+
+    /**
+     * Load network from API and apply to config.
+     * @return {void}
+     */
+    public async loadNetworkConfig() {
+        try {
+            this.config.network = (await request(this.config).get("/config", true)).data.network;
+        } catch (error) {
+            logger.error("Failed to get network config: ", error.message);
+            process.exit(1);
+        }
+    }
+
+    /**
      * Apply options to config.
      * @return {void}
      */
-    public __applyConfig() {
+    protected applyConfig() {
         this.config = { ...config };
+
         if (this.options.baseUrl) {
             this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, "");
         }
@@ -263,7 +277,7 @@ export abstract class Command {
             this.config.apiPort = this.options.apiPort;
         }
 
-        if (this.options.p2pPort) {
+        if (this.options.p2pPort && process.env.NODE_ENV !== "test") {
             this.config.p2pPort = this.options.p2pPort;
         }
 
@@ -277,39 +291,28 @@ export abstract class Command {
     }
 
     /**
-     * Load constants from API and apply to config.
-     * @return {void}
-     */
-    public async __loadConstants() {
-        try {
-            this.config.constants = (await request(this.config).get("/api/v2/node/configuration")).data.constants;
-        } catch (error) {
-            logger.error("Failed to get constants: ", error.message);
-            process.exit(1);
-        }
-    }
-
-    /**
-     * Load network from API and apply to config.
-     * @return {void}
-     */
-    public async __loadNetworkConfig() {
-        try {
-            this.config.network = (await request(this.config).get("/config", true)).data.network;
-        } catch (error) {
-            logger.error("Failed to get network config: ", error.message);
-            process.exit(1);
-        }
-    }
-
-    /**
      * Quit command and output error when problem sending transactions.
      * @param  {Error} error
      * @return {void}
      */
-    public __problemSendingTransactions(error) {
+    protected problemSendingTransactions(error) {
         const message = error.response ? error.response.data.message : error.message;
         logger.error(`There was a problem sending transactions: ${message}`);
         process.exit(1);
+    }
+
+    /**
+     * Determine how long to wait for transactions to process.
+     * @param  {Object[]} transactions
+     * @return {Number}
+     */
+    protected getTransactionDelaySeconds(transactions) {
+        if (process.env.NODE_ENV === "test") {
+            return 0;
+        }
+
+        const waitPerBlock = Math.round(this.config.constants.blocktime / 10) * 20;
+
+        return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions);
     }
 }

@@ -10,6 +10,7 @@ export const schemaNetwork = Joi.object({
         outlookTable: Joi.object(),
         transactionIdFixTable: Joi.object(),
     }).default({ exceptions: {} }),
+    genesisBlock: Joi.object().required(),
     network: Joi.object({
         name: Joi.string().required(),
         messagePrefix: Joi.string().required(),
@@ -46,5 +47,4 @@ export const schemaConfig = Joi.object({
     }),
     peers: Joi.object().required(),
     plugins: Joi.object().required(),
-    genesisBlock: Joi.object().required(),
 }).unknown();

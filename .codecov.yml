@@ -1,5 +1,11 @@
 ignore:
-  - "packages/core-tester-cli/**/*"
-  - "packages/**/src/index.ts"
   - "packages/**/src/defaults.ts"
+  - "packages/**/src/index.ts"
   - "packages/**/src/plugin.ts"
+  - "packages/core-error-tracker-bugsnag/**/*"
+  - "packages/core-error-tracker-sentry/**/*"
+  - "packages/core-logger-winston/src/formatter.ts"
+  - "packages/core-snapshots-cli/**/*"
+  - "packages/core-test-utils/src/fixtures/**/*"
+  - "packages/core-tester-cli/**/*"
+  - "packages/core-webhooks/src/database/migrations/**/*"

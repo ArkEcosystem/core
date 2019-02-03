@@ -9,8 +9,7 @@ export class Server {
     private http: any;
     private https: any;
 
-    public constructor(private config: any) {
-    }
+    public constructor(private config: any) {}
 
     public async start(): Promise<void> {
         const options = {
