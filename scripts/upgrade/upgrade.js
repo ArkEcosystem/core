@@ -153,8 +153,10 @@ const main = async () => {
     }
 
     // Remove old or temp files
+    fs.removeSync(`${paths.config.old}/genesisBlock.json`);
     fs.removeSync(`${paths.config.old}/peers_backup.json`);
     fs.removeSync(`${paths.config.old}/network.json`);
+    fs.removeSync(`${paths.config.new}/genesisBlock.json`);
     fs.removeSync(`${paths.config.new}/peers_backup.json`);
     fs.removeSync(`${paths.config.new}/network.json`);
 
@@ -212,7 +214,6 @@ const main = async () => {
         delegates: require(`${paths.config.new}/delegates.json`),
         peers: require(`${paths.config.new}/peers.json`),
         plugins: require(`${paths.config.new}/plugins.js`),
-        genesisBlock: require(`${paths.config.new}/genesisBlock.json`),
     }, Joi.object({
         delegates: Joi.object({
             secrets: Joi.array().items(Joi.string()),
@@ -220,7 +221,6 @@ const main = async () => {
         }),
         peers: Joi.object().required(),
         plugins: Joi.object().required(),
-        genesisBlock: Joi.object().required(),
     }).unknown());
 
     if (error) {

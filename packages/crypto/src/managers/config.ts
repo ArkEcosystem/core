@@ -41,6 +41,7 @@ export class ConfigManager {
 
         this.config.exceptions = config.exceptions;
         this.config.milestones = config.milestones;
+        this.config.genesisBlock = config.genesisBlock;
 
         this.buildConstants();
         this.buildFees();
