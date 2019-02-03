@@ -1,8 +1,6 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import { generators } from "@arkecosystem/core-test-utils";
-import { delegates } from "@arkecosystem/core-test-utils/src/fixtures/unitnet/delegates";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";

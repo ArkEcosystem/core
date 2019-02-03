@@ -50,7 +50,7 @@ export class PoolWalletManager extends WalletManager {
     public canApply(transaction, errors) {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
-        if (!this.databaseService.walletManager.findByPublicKey(transaction.senderPublicKey)){
+        if (!this.databaseService.walletManager.findByPublicKey(transaction.senderPublicKey)) {
             const senderAddress = crypto.getAddress(transaction.senderPublicKey, this.networkId);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
@@ -76,7 +76,7 @@ export class PoolWalletManager extends WalletManager {
             // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
         } else if (
             type === TransactionTypes.Vote &&
-            !(this.databaseService.walletManager as any).__isDelegate(asset.votes[0].slice(1))
+            !this.databaseService.walletManager.isDelegate(asset.votes[0].slice(1))
         ) {
             this.logger.error(
                 `[PoolWalletManager] Can't apply vote transaction: delegate ${
