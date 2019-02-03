@@ -1,4 +1,4 @@
-import { IRepository } from "./IRepository";
+import { IRepository } from "./repository";
 
 export interface IWalletsRepository extends IRepository {
     /**

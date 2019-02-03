@@ -1,4 +1,4 @@
-import { IRepository } from "./IRepository";
+import { IRepository } from "./repository";
 
 export interface IRoundsRepository extends IRepository {
     /**

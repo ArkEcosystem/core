@@ -1,5 +1,5 @@
 import { models } from "@arkecosystem/crypto";
-import { IParameters } from "./IParameters";
+import { IParameters } from "./parameters";
 
 export interface IDelegatesBusinessRepository {
 
