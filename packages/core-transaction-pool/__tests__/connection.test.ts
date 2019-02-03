@@ -473,12 +473,12 @@ describe("Connection", () => {
             const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
             senderRecipientWallet.balance = new Bignum(10); // not enough funds for transactions in block
 
-            expect(connection.walletManager.all()).toEqual([senderRecipientWallet]);
+            expect(connection.walletManager.allByAddress()).toEqual([senderRecipientWallet]);
 
             // canApply should fail because wallet has not enough funds
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
             expect(connection.isSenderBlocked(block2.transactions[0].senderPublicKey)).toBeTrue();
         });
 
@@ -486,11 +486,11 @@ describe("Connection", () => {
             const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
             senderRecipientWallet.balance = new Bignum(block2.totalFee); // exactly enough funds for transactions in block
 
-            expect(connection.walletManager.all()).toEqual([senderRecipientWallet]);
+            expect(connection.walletManager.allByAddress()).toEqual([senderRecipientWallet]);
 
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
         });
     });
 
@@ -506,11 +506,11 @@ describe("Connection", () => {
 
             connection.walletManager.reset();
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
 
             await connection.buildWallets();
 
-            const allWallets = connection.walletManager.all();
+            const allWallets = connection.walletManager.allByAddress();
             expect(allWallets).toHaveLength(1);
             expect(allWallets[0].publicKey).toBe(transaction0.senderPublicKey);
         });
@@ -523,13 +523,13 @@ describe("Connection", () => {
 
             connection.walletManager.reset();
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
 
             jest.spyOn(connection, "getTransaction").mockImplementationOnce(id => undefined);
 
             await connection.buildWallets();
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
         });
 
         it("should not apply transaction to wallet if canApply() failed", async () => {
@@ -538,7 +538,7 @@ describe("Connection", () => {
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
 
             const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
             senderRecipientWallet.balance = new Bignum(10); // not enough funds for transactions in block
@@ -549,7 +549,7 @@ describe("Connection", () => {
 
             await connection.buildWallets();
 
-            expect(connection.walletManager.all()).toEqual([]); // canApply() failed, wallet was purged
+            expect(connection.walletManager.allByAddress()).toEqual([]); // canApply() failed, wallet was purged
         });
     });
 

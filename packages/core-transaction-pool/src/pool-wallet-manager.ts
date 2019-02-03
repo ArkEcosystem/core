@@ -50,7 +50,7 @@ export class PoolWalletManager extends WalletManager {
     public canApply(transaction, errors) {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
-        if (!this.databaseService.walletManager.findByPublicKey(transaction.senderPublicKey)) {
+        if (!this.databaseService.walletManager.exists(transaction.senderPublicKey)) {
             const senderAddress = crypto.getAddress(transaction.senderPublicKey, this.networkId);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {

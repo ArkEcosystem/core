@@ -25,14 +25,6 @@ export class WalletManager implements Database.IWalletManager {
         this.reset();
     }
 
-    /**
-     * Get all wallets by address.
-     * @return {Array}
-     */
-    public all() {
-        return Object.values(this.byAddress);
-    }
-
     public allByAddress(): models.Wallet[] {
         return Object.values(this.byAddress);
     }
