@@ -36,15 +36,6 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
     }
 
     /**
-     * Paginate all delegates.
-     * @param  {Object} params
-     * @return {Object}
-     */
-    public paginate(params) {
-        return this.findAll(params);
-    }
-
-    /**
      * Search all delegates.
      * TODO Currently it searches by username only
      * @param  {Object} [params]

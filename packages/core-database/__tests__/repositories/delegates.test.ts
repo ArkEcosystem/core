@@ -1,8 +1,9 @@
+import { Database } from "@arkecosystem/core-interfaces";
+import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
-
-import { delegateCalculator } from "@arkecosystem/core-utils";
-import { DelegatesRepository } from "../../src/repositories/delegates";
+import { DatabaseService, WalletsRepository } from "../../src";
+import { DelegatesRepository } from "../../src";
 import { setUp, tearDown } from "../__support__/setup";
 
 const { ARKTOSHI } = constants;
@@ -10,7 +11,10 @@ const { Block } = models;
 
 let genesisBlock;
 let repository;
-let walletManager;
+
+let walletsRepository : Database.IWalletsBusinessRepository;
+let walletManager: Database.IWalletManager;
+let databaseService: Database.IDatabaseService;
 
 beforeAll(async done => {
     await setUp();
@@ -32,9 +36,9 @@ beforeEach(async done => {
     const { WalletManager } = require("../../src/wallet-manager");
     walletManager = new WalletManager();
 
-    repository = new DelegatesRepository({
-        walletManager,
-    });
+    repository = new DelegatesRepository(() => databaseService);
+    walletsRepository = new WalletsRepository(() => databaseService);
+    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository);
 
     done();
 });
@@ -62,10 +66,12 @@ describe("Delegate Repository", () => {
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
         it("should return the local wallets of the connection that are delegates", () => {
-            repository.connection.walletManager.all = jest.fn(() => wallets);
+            jest.spyOn(walletManager, 'allByAddress').mockReturnValue(wallets);
 
-            expect(repository.getLocalDelegates()).toEqual(expect.arrayContaining(delegates));
-            expect(repository.connection.walletManager.all).toHaveBeenCalled();
+            const actualDelegates = repository.getLocalDelegates();
+
+            expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
+            expect(walletManager.allByAddress).toHaveBeenCalled();
         });
     });
 
@@ -75,8 +81,8 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll();
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(52);
+            expect(count).toBe(genesisBlock.transactions.length);
+            expect(rows).toHaveLength(genesisBlock.transactions.length);
             expect(rows.sort((a, b) => a.rate < b.rate)).toEqual(rows);
         });
 
@@ -85,7 +91,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10, limit: 10, orderBy: "rate:desc" });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(10);
             expect(rows.sort((a, b) => a.rate > b.rate)).toEqual(rows);
         });
@@ -95,7 +101,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ limit: 10 });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(10);
         });
 
@@ -104,7 +110,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 0, limit: 12 });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(12);
         });
 
@@ -113,56 +119,7 @@ describe("Delegate Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10 });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(42);
-        });
-    });
-
-    describe("paginate", () => {
-        it("should be ok without params", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.paginate();
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(52);
-            expect(rows.sort((a, b) => a.rate < b.rate)).toEqual(rows);
-        });
-
-        it("should be ok with params", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.paginate({ offset: 10, limit: 10, orderBy: "rate:desc" });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(10);
-            expect(rows.sort((a, b) => a.rate > b.rate)).toEqual(rows);
-        });
-
-        it("should be ok with params (no offset)", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.paginate({ limit: 10 });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(10);
-        });
-
-        it("should be ok with params (offset = 0)", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.paginate({ offset: 0, limit: 12 });
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(12);
-        });
-
-        it("should be ok with params (no limit)", () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const { count, rows } = repository.paginate({ offset: 10 });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(42);
         });
     });
@@ -186,15 +143,14 @@ describe("Delegate Repository", () => {
             it("should search that username contains the string", () => {
                 const { count, rows } = repository.search({ username: "username" });
 
-                expect(count).toBe(52);
-                expect(rows).toHaveLength(52);
+                expect(count).toBe(genesisBlock.transactions.length);
+                expect(rows).toHaveLength(genesisBlock.transactions.length);
             });
 
             describe('when a username is "undefined"', () => {
                 it("should return it", () => {
                     // Index a wallet with username "undefined"
-                    const address = Object.keys(walletManager.byAddress)[0];
-                    walletManager.byAddress[address].username = "undefined";
+                    walletManager.allByAddress()[0].username = 'undefined';
 
                     const username = "undefined";
                     const { count, rows } = repository.search({ username });
@@ -222,7 +178,7 @@ describe("Delegate Repository", () => {
                     offset: 10,
                     limit: 10,
                 });
-                expect(count).toBe(52);
+                expect(count).toBe(genesisBlock.transactions.length);
                 expect(rows).toHaveLength(10);
             });
 
@@ -231,7 +187,7 @@ describe("Delegate Repository", () => {
                     username: "username",
                     limit: 10,
                 });
-                expect(count).toBe(52);
+                expect(count).toBe(genesisBlock.transactions.length);
                 expect(rows).toHaveLength(10);
             });
 
@@ -241,7 +197,7 @@ describe("Delegate Repository", () => {
                     offset: 0,
                     limit: 12,
                 });
-                expect(count).toBe(52);
+                expect(count).toBe(genesisBlock.transactions.length);
                 expect(rows).toHaveLength(12);
             });
 
@@ -250,7 +206,7 @@ describe("Delegate Repository", () => {
                     username: "username",
                     offset: 10,
                 });
-                expect(count).toBe(52);
+                expect(count).toBe(genesisBlock.transactions.length);
                 expect(rows).toHaveLength(42);
             });
         });
@@ -259,19 +215,18 @@ describe("Delegate Repository", () => {
             it("should return all results", () => {
                 const { count, rows } = repository.search({});
 
-                expect(count).toBe(52);
-                expect(rows).toHaveLength(52);
+                expect(count).toBe(genesisBlock.transactions.length);
+                expect(rows).toHaveLength(genesisBlock.transactions.length);
             });
 
             describe('when a username is "undefined"', () => {
                 it("should return all results", () => {
                     // Index a wallet with username "undefined"
-                    const address = Object.keys(walletManager.byAddress)[0];
-                    walletManager.byAddress[address].username = "undefined";
+                    walletManager.allByAddress()[0].username = "undefined";
 
                     const { count, rows } = repository.search({});
-                    expect(count).toBe(52);
-                    expect(rows).toHaveLength(52);
+                    expect(count).toBe(genesisBlock.transactions.length);
+                    expect(rows).toHaveLength(genesisBlock.transactions.length);
                 });
             });
         });
@@ -303,7 +258,7 @@ describe("Delegate Repository", () => {
     });
 
     describe("getActiveAtHeight", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
@@ -316,12 +271,10 @@ describe("Delegate Repository", () => {
             };
             const height = 1;
 
-            repository.connection.getActiveDelegates = jest.fn(() => [delegate]);
-            repository.connection.wallets = {
-                findById: jest.fn(() => delegate),
-            };
+            jest.spyOn(databaseService, 'getActiveDelegates').mockReturnValue([delegate]);
+            jest.spyOn(walletsRepository, 'findById').mockReturnValue(delegate);
 
-            const results = repository.getActiveAtHeight(height);
+            const results = await repository.getActiveAtHeight(height);
 
             expect(results).toBeArray();
             expect(results[0].username).toBeString();

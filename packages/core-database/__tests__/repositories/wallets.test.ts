@@ -1,17 +1,19 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { Bignum, crypto, models } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../__support__/setup";
 
-import { WalletsRepository } from "../../src/repositories/wallets";
+import { DatabaseService, WalletsRepository } from "../../src";
 
-const { Block } = models;
+const { Block, Wallet } = models;
 
 let genesisBlock;
 let genesisSenders;
 let repository;
-let walletManager;
+let walletManager: Database.IWalletManager;
+let databaseService: Database.IDatabaseService;
 
 beforeAll(async done => {
     await setUp();
@@ -34,9 +36,9 @@ beforeEach(async done => {
     const { WalletManager } = require("../../src/wallet-manager");
     walletManager = new WalletManager();
 
-    repository = new WalletsRepository({
-        walletManager,
-    });
+    repository = new WalletsRepository(() => databaseService);
+
+    databaseService = new DatabaseService(null, null, walletManager, repository, null);
 
     done();
 });
@@ -73,9 +75,11 @@ function generateFullWallets() {
 describe("Wallet Repository", () => {
     describe("all", () => {
         it("should return the local wallets of the connection", () => {
-            repository.connection.walletManager.all = jest.fn();
+            jest.spyOn(walletManager, 'allByAddress').mockReturnValue(null);
+
             repository.all();
-            expect(repository.connection.walletManager.all).toHaveBeenCalled();
+
+            expect(walletManager.allByAddress).toHaveBeenCalled();
         });
     });
 
@@ -85,8 +89,8 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll();
-            expect(count).toBe(52);
-            expect(rows).toHaveLength(52);
+            expect(count).toBe(genesisBlock.transactions.length);
+            expect(rows).toHaveLength(genesisBlock.transactions.length);
         });
 
         it("should be ok with params", () => {
@@ -94,7 +98,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10, limit: 10 });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(10);
         });
 
@@ -103,7 +107,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ limit: 10 });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(10);
         });
 
@@ -112,7 +116,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 0, limit: 12 });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(12);
         });
 
@@ -121,7 +125,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const { count, rows } = repository.findAll({ offset: 10 });
-            expect(count).toBe(52);
+            expect(count).toBe(genesisBlock.transactions.length);
             expect(rows).toHaveLength(42);
         });
     });
@@ -206,15 +210,22 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            expect(repository.count()).toBe(52);
+            expect(repository.count()).toBe(genesisBlock.transactions.length);
         });
     });
 
     describe("top", () => {
+
         beforeEach(() => {
-            walletManager.reindex({ address: "dummy-1", balance: new Bignum(1000) });
-            walletManager.reindex({ address: "dummy-2", balance: new Bignum(2000) });
-            walletManager.reindex({ address: "dummy-3", balance: new Bignum(3000) });
+            [
+                { address: 'dummy-1', balance: new Bignum(1000) },
+                { address: 'dummy-2', balance: new Bignum(2000) },
+                { address: 'dummy-3', balance: new Bignum(3000) },
+            ].forEach(o => {
+                const wallet = new Wallet(o.address);
+                wallet.balance = o.balance;
+                walletManager.reindex(wallet);
+            });
         });
 
         it("should be ok without params", () => {
