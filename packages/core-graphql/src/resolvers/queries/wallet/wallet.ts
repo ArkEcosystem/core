@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 
-const database = app.resolvePlugin("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 /**
  * Get a single wallet from the database
@@ -8,5 +9,5 @@ const database = app.resolvePlugin("database");
  */
 export async function wallet(_, args: any) {
     const param = args.address || args.publicKey || args.username;
-    return database.wallets.findById(param);
+    return databaseService.wallets.findById(param);
 }
