@@ -120,11 +120,11 @@ describe('Database Service', () => {
         })
     });
 
-    /* TOOD: Testing a method that's private. This needs a replacement by testing a public method instead
+    /* TODO: Testing a method that's private. This needs a replacement by testing a public method instead */
 
-    describe("__calcPreviousActiveDelegates", () => {
+    describe("calcPreviousActiveDelegates", () => {
         it("should calculate the previous delegate list", async () => {
-            const walletManager = new WalletManager();
+            walletManager = new WalletManager();
             const initialHeight = 52;
 
             // Create delegates
@@ -166,7 +166,8 @@ describe('Database Service', () => {
                     .build();
 
                 // Vote for itself
-                walletManager.byPublicKey[delegatesRound2[i].publicKey].vote = delegatesRound2[i].publicKey;
+                walletManager.findByPublicKey(delegatesRound2[i].publicKey).vote = delegatesRound2[i].publicKey;
+                // walletManager.byPublicKey[delegatesRound2[i].publicKey].vote = delegatesRound2[i].publicKey;
 
                 const block = Block.create(
                     {
@@ -197,24 +198,24 @@ describe('Database Service', () => {
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
             }
 
-            const connection = new DummyConnection({});
-            connection.__getBlocksForRound = jest.fn(async () => blocksInRound);
-            connection.walletManager = walletManager;
+
+            jest.spyOn(databaseService, 'getBlocksForRound').mockReturnValue(blocksInRound);
+            databaseService.walletManager = walletManager;
 
             // Necessary for revertRound to not blow up.
             walletManager.allByUsername = jest.fn(() => {
-                const usernames = Object.values(walletManager.byUsername);
+                const usernames = Object.values((walletManager as any).byUsername);
                 usernames.push(sender);
                 return usernames;
             });
 
             // Finally recalculate the round 2 list and compare against the original list
-            const restoredDelegatesRound2 = await connection.__calcPreviousActiveDelegates(2);
+            const restoredDelegatesRound2 = await (databaseService as any).calcPreviousActiveDelegates(2);
 
             for (let i = 0; i < restoredDelegatesRound2.length; i++) {
                 expect(restoredDelegatesRound2[i].rate).toBe(i + 1);
                 expect(restoredDelegatesRound2[i].publicKey).toBe(delegatesRound2[i].publicKey);
             }
         });
-    });*/
+    });
 });

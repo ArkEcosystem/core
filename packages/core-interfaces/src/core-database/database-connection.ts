@@ -22,8 +22,8 @@ export interface IDatabaseConnection {
 
     buildWallets(height: number) : Promise<boolean>;
 
-    /* We have these methods on the connection since they rely on transactions, which is a DB implementation specific detail
-       Keep database specific details away from the service layer
+    /* We have these methods on the connection since they rely on transactions, which is a DB specific detail
+       Keep DB specifics away from the service layer
      */
     saveWallets(wallets: any[], force?: boolean) : Promise<void>;
 
