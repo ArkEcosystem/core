@@ -23,6 +23,8 @@ export interface IWalletManager {
 
     findByUsername(username: string): models.Wallet;
 
+    index(wallets: models.Wallet[]): void;
+
     reindex(wallet: models.Wallet): void;
 
     clear(): void;
@@ -40,4 +42,20 @@ export interface IWalletManager {
     revertTransaction(transaction: models.Transaction): any;
 
     isDelegate(publicKey: string): boolean;
+
+    canBePurged(wallet: models.Wallet): boolean;
+
+    forgetByAddress(address: string): void;
+
+    forgetByPublicKey( publicKey: string): void;
+
+    forgetByUsername(username: string): void;
+
+    setByAddress(address: string, wallet: models.Wallet): void;
+
+    setByPublicKey(publicKey: string, wallet: models.Wallet): void;
+
+    setByUsername(username: string, wallet: models.Wallet): void;
+
+    purgeEmptyNonDelegates(): void;
 }

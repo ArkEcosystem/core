@@ -105,7 +105,6 @@ export class WalletManager implements Database.IWalletManager {
      * Set wallet by address.
      * @param {String} address
      * @param {Wallet} wallet
-     * @param {void}
      */
     public setByAddress(address, wallet) {
         this.byAddress[address] = wallet;
@@ -115,7 +114,6 @@ export class WalletManager implements Database.IWalletManager {
      * Set wallet by publicKey.
      * @param {String} publicKey
      * @param {Wallet} wallet
-     * @param {void}
      */
     public setByPublicKey(publicKey, wallet) {
         this.byPublicKey[publicKey] = wallet;
@@ -125,7 +123,6 @@ export class WalletManager implements Database.IWalletManager {
      * Set wallet by username.
      * @param {String} username
      * @param {Wallet} wallet
-     * @param {void}
      */
     public setByUsername(username, wallet) {
         this.byUsername[username] = wallet;
@@ -134,7 +131,6 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Remove wallet by address.
      * @param {String} address
-     * @param {void}
      */
     public forgetByAddress(address) {
         delete this.byAddress[address];
@@ -143,7 +139,6 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Remove wallet by publicKey.
      * @param {String} publicKey
-     * @param {void}
      */
     public forgetByPublicKey(publicKey) {
         delete this.byPublicKey[publicKey];
@@ -152,7 +147,6 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Remove wallet by username.
      * @param {String} username
-     * @param {void}
      */
     public forgetByUsername(username) {
         delete this.byUsername[username];
@@ -288,7 +282,7 @@ export class WalletManager implements Database.IWalletManager {
      */
     public purgeEmptyNonDelegates() {
         Object.values(this.byPublicKey).forEach(wallet => {
-            if (this.__canBePurged(wallet)) {
+            if (this.canBePurged(wallet)) {
                 delete this.byPublicKey[wallet.publicKey];
                 delete this.byAddress[wallet.address];
             }
@@ -551,7 +545,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Object} wallet
      * @return {Boolean}
      */
-    public __canBePurged(wallet) {
+    public canBePurged(wallet) {
         return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
     }
 

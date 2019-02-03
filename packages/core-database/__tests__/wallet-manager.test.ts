@@ -1,4 +1,5 @@
 /* tslint:disable:max-line-length no-empty */
+import { Database } from "@arkecosystem/core-interfaces";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset } from "@arkecosystem/crypto/dist/models";
@@ -18,7 +19,7 @@ const walletData1 = wallets[0];
 const walletData2 = wallets[1];
 
 let genesisBlock;
-let walletManager;
+let walletManager : Database.IWalletManager;
 
 beforeAll(async done => {
     await setUp();
@@ -50,10 +51,10 @@ describe("Wallet Manager", () => {
             const wallet = new Wallet(walletData1.address);
 
             walletManager.reindex(wallet);
-            expect(walletManager.all()).toEqual([wallet]);
+            expect(walletManager.allByAddress()).toEqual([wallet]);
 
             walletManager.reset();
-            expect(walletManager.all()).toEqual([]);
+            expect(walletManager.allByAddress()).toEqual([]);
         });
     });
 
@@ -61,10 +62,10 @@ describe("Wallet Manager", () => {
         it("should index the wallets", () => {
             const wallet = new Wallet(walletData1.address);
 
-            expect(walletManager.all()).toEqual([]);
+            expect(walletManager.allByAddress()).toEqual([]);
 
             walletManager.reindex(wallet);
-            expect(walletManager.all()).toEqual([wallet]);
+            expect(walletManager.allByAddress()).toEqual([wallet]);
         });
     });
 
@@ -85,9 +86,9 @@ describe("Wallet Manager", () => {
 
         beforeEach(() => {
             delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey };
-            walletManager.findByPublicKey = jest.fn(() => delegateMock);
-            walletManager.applyTransaction = jest.fn();
-            walletManager.revertTransaction = jest.fn();
+            jest.spyOn(walletManager, 'findByPublicKey').mockReturnValue(delegateMock);
+            jest.spyOn(walletManager, 'applyTransaction').mockImplementation();
+            jest.spyOn(walletManager, 'revertTransaction').mockImplementation();
 
             const { data } = block;
             data.transactions = [];
@@ -103,7 +104,7 @@ describe("Wallet Manager", () => {
             await walletManager.applyBlock(block2);
 
             block2.transactions.forEach((transaction, i) => {
-                expect(walletManager.applyTransaction.mock.calls[i][0]).toBe(block2.transactions[i]);
+                expect(walletManager.applyTransaction).toHaveBeenNthCalledWith(i+1, block2.transactions[i])
             });
         });
 
@@ -115,8 +116,8 @@ describe("Wallet Manager", () => {
 
         describe("when 1 transaction fails while applying it", () => {
             it("should revert sequentially (from last to first) all the transactions of the block", async () => {
-                walletManager.applyTransaction = jest.fn(transaction => {
-                    if (transaction === block2.transactions[2]) {
+                jest.spyOn(walletManager, 'applyTransaction').mockImplementation( (tx) => {
+                    if (tx === block2.transactions[2]) {
                         throw new Error("Fake error");
                     }
                 });
@@ -129,14 +130,14 @@ describe("Wallet Manager", () => {
                     expect(null).toBe("this should fail if no error is thrown");
                 } catch (error) {
                     expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
-                    block2.transactions.slice(0, 1).forEach((transaction, i) => {
-                        expect(walletManager.revertTransaction.mock.calls[1 - i][0]).toEqual(block2.transactions[i]);
+                    block2.transactions.slice(0, 1).forEach((transaction, i, total) => {
+                        expect(walletManager.revertTransaction).toHaveBeenNthCalledWith(total.length+1 - i, block2.transactions[i]);
                     });
                 }
             });
 
             it("throws the Error", async () => {
-                walletManager.applyTransaction = jest.fn(transaction => {
+                walletManager.applyTransaction = jest.fn(tx => {
                     throw new Error("Fake error");
                 });
 
@@ -177,7 +178,7 @@ describe("Wallet Manager", () => {
         const vote = generateVote("testnet", Math.random().toString(36), walletData2.publicKey, 1)[0];
         describe.each`
             type          | transaction    | amount               | balanceSuccess               | balanceFail
-            ${"transfer"} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(1 * ARKTOSHI)}  | ${Bignum.ONE}
+            ${"transfer"} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(ARKTOSHI)}  | ${Bignum.ONE}
             ${"delegate"} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * ARKTOSHI)} | ${Bignum.ONE}
             ${"2nd sign"} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * ARKTOSHI)} | ${Bignum.ONE}
             ${"vote"}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * ARKTOSHI)}  | ${Bignum.ONE}
@@ -195,7 +196,7 @@ describe("Wallet Manager", () => {
                 walletManager.reindex(sender);
                 walletManager.reindex(recipient);
 
-                walletManager.__isDelegate = jest.fn(() => true); // for vote transaction
+                jest.spyOn(walletManager, 'isDelegate').mockReturnValue(true);
             });
 
             it("should apply the transaction to the sender & recipient", async () => {
@@ -237,7 +238,7 @@ describe("Wallet Manager", () => {
         it("should revert the transaction from the sender & recipient", async () => {
             const transaction = new Transaction({
                 type: TransactionTypes.Transfer,
-                amount: 245098000000000,
+                amount: new Bignum(245098000000000),
                 fee: 0,
                 recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",
                 timestamp: 0,
@@ -250,7 +251,7 @@ describe("Wallet Manager", () => {
 
             const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
             const recipient = walletManager.findByAddress(transaction.data.recipientId);
-            recipient.balance = transaction.data.amount;
+            recipient.balance = new Bignum(transaction.data.amount);
 
             expect(sender.balance).toEqual(Bignum.ZERO);
             expect(recipient.balance).toEqual(transaction.data.amount);
@@ -263,13 +264,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("findByAddress", () => {
-        it("should index it by address", () => {
-            const wallet = new Wallet(walletData1.address);
-
-            walletManager.reindex(wallet);
-            expect(walletManager.byAddress[wallet.address]).toBe(wallet);
-        });
-
         it("should return it by address", () => {
             const wallet = new Wallet(walletData1.address);
 
@@ -279,14 +273,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("findByPublicKey", () => {
-        it("should index it by publicKey", () => {
-            const wallet = new Wallet(walletData1.address);
-            wallet.publicKey = walletData1.publicKey;
-
-            walletManager.reindex(wallet);
-            expect(walletManager.byPublicKey[wallet.publicKey]).toBe(wallet);
-        });
-
         it("should return it by publicKey", () => {
             const wallet = new Wallet(walletData1.address);
             wallet.publicKey = "dummy-public-key";
@@ -297,14 +283,6 @@ describe("Wallet Manager", () => {
     });
 
     describe("findByUsername", () => {
-        it("should index it by username", () => {
-            const wallet = new Wallet(walletData1.address);
-            wallet.username = "dummy-username";
-
-            walletManager.reindex(wallet);
-            expect(walletManager.byUsername[wallet.username]).toBe(wallet);
-        });
-
         it("should return it by username", () => {
             const wallet = new Wallet(walletData1.address);
             wallet.username = "dummy-username";
@@ -322,15 +300,15 @@ describe("Wallet Manager", () => {
             const wallet2 = new Wallet(walletData2.address);
             walletManager.reindex(wallet2);
 
-            expect(walletManager.all()).toEqual([wallet1, wallet2]);
+            expect(walletManager.allByAddress()).toEqual([wallet1, wallet2]);
         });
     });
 
-    describe("__canBePurged", () => {
+    describe("canBePurged", () => {
         it("should be removed if all criteria are satisfied", async () => {
             const wallet = new Wallet(walletData1.address);
 
-            expect(walletManager.__canBePurged(wallet)).toBeTrue();
+            expect(walletManager.canBePurged(wallet)).toBeTrue();
         });
 
         it("should not be removed if wallet.secondPublicKey is set", async () => {
@@ -338,7 +316,7 @@ describe("Wallet Manager", () => {
             wallet.secondPublicKey = "secondPublicKey";
 
             expect(wallet.secondPublicKey).toBe("secondPublicKey");
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
+            expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
 
         it("should not be removed if wallet.multisignature is set", async () => {
@@ -346,7 +324,7 @@ describe("Wallet Manager", () => {
             wallet.multisignature = {} as IMultiSignatureAsset;
 
             expect(wallet.multisignature).toEqual({});
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
+            expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
 
         it("should not be removed if wallet.username is set", async () => {
@@ -354,7 +332,7 @@ describe("Wallet Manager", () => {
             wallet.username = "username";
 
             expect(wallet.username).toBe("username");
-            expect(walletManager.__canBePurged(wallet)).toBeFalse();
+            expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
     });
 
@@ -371,7 +349,7 @@ describe("Wallet Manager", () => {
 
             walletManager.purgeEmptyNonDelegates();
 
-            expect(walletManager.all()).toEqual([wallet2]);
+            expect(walletManager.allByAddress()).toEqual([wallet2]);
         });
 
         it("should not be purged if wallet.secondPublicKey is set", async () => {
@@ -387,7 +365,7 @@ describe("Wallet Manager", () => {
 
             walletManager.purgeEmptyNonDelegates();
 
-            expect(walletManager.all()).toEqual([wallet1, wallet2]);
+            expect(walletManager.allByAddress()).toEqual([wallet1, wallet2]);
         });
 
         it("should not be purged if wallet.multisignature is set", async () => {
@@ -403,7 +381,7 @@ describe("Wallet Manager", () => {
 
             walletManager.purgeEmptyNonDelegates();
 
-            expect(walletManager.all()).toEqual([wallet1, wallet2]);
+            expect(walletManager.allByAddress()).toEqual([wallet1, wallet2]);
         });
 
         it("should not be purged if wallet.username is set", async () => {
@@ -419,7 +397,7 @@ describe("Wallet Manager", () => {
 
             walletManager.purgeEmptyNonDelegates();
 
-            expect(walletManager.all()).toEqual([wallet1, wallet2]);
+            expect(walletManager.allByAddress()).toEqual([wallet1, wallet2]);
         });
     });
 
@@ -427,19 +405,15 @@ describe("Wallet Manager", () => {
         it("should update vote balance of delegates", async () => {
             for (let i = 0; i < 5; i++) {
                 const delegateKey = i.toString().repeat(66);
-                const delegate = {
-                    address: crypto.getAddress(delegateKey),
-                    publicKey: delegateKey,
-                    username: `delegate${i}`,
-                    voteBalance: Bignum.ZERO,
-                };
+                const delegate = new Wallet(crypto.getAddress(delegateKey));
+                delegate.publicKey = delegateKey;
+                delegate.username = `delegate${i}`;
+                delegate.voteBalance = Bignum.ZERO;
 
-                const voter = {
-                    address: crypto.getAddress((i + 5).toString().repeat(66)),
-                    balance: new Bignum((i + 1) * 1000 * ARKTOSHI),
-                    publicKey: `v${delegateKey}`,
-                    vote: delegateKey,
-                };
+                const voter = new Wallet(crypto.getAddress((i + 5).toString().repeat(66)));
+                voter.balance = new Bignum((i + 1) * 1000 * ARKTOSHI);
+                voter.publicKey = `v${delegateKey}`;
+                voter.vote = delegateKey;
 
                 walletManager.index([delegate, voter]);
             }

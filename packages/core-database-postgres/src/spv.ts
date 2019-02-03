@@ -46,8 +46,8 @@ export class SPV {
         logger.info("SPV Step 8 of 8: MultiSignatures");
         await this.__buildMultisignatures();
 
-        logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`);
-        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`);
+        logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`);
+        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
         return this.__verifyWalletsConsistency();
     }

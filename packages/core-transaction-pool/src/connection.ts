@@ -415,7 +415,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
             if (
                 senderWallet &&
-                this.walletManager.__canBePurged(senderWallet) &&
+                this.walletManager.canBePurged(senderWallet) &&
                 this.getSenderSize(senderPublicKey) === 0
             ) {
                 this.walletManager.deleteWallet(senderPublicKey);
