@@ -14,7 +14,7 @@ beforeEach(() => {
 
 describe("Multi Signature Transaction", () => {
     describe("verify", () => {
-        it("should be valid with a signature", () => {
+        it.skip("should be valid with a signature", () => {
             const actual = builder
                 .multiSignatureAsset({
                     keysgroup: [
