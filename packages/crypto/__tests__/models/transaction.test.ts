@@ -93,7 +93,7 @@ describe("Models - Transaction", () => {
 
     describe("static fromBytes", () => {
         it("should verify all transactions", () => {
-            [0, 1, 2, 3, 4]
+            [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const ser = Transaction.serialize(transaction.data).toString("hex");
@@ -116,7 +116,7 @@ describe("Models - Transaction", () => {
 
     describe("static deserialize", () => {
         it("should match transaction id", () => {
-            [0, 1, 2, 3, 4]
+            [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const originalId = transaction.data.id;
@@ -224,7 +224,7 @@ describe("Models - Transaction", () => {
     });
 
     it("Signatures are verified", () => {
-        [0, 1, 2, 3, 4]
+        [0, 1, 2, 3]
             .map(type => createRandomTx(type))
             .forEach(transaction => expect(crypto.verify(transaction)).toBeTrue());
     });
