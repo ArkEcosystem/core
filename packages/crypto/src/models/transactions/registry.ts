@@ -1,40 +1,45 @@
 import { TransactionTypes } from "../../constants";
-import { TransactionAlreadyRegisteredError, TransactionTypeNotRegisteredError } from "../../errors";
-import { AbstractTransaction, Transaction, TransferTransaction } from "./transaction";
+import {
+    NotImplementedError,
+    TransactionAlreadyRegisteredError,
+    TransactionTypeNotRegisteredError,
+} from "../../errors";
+import { AbstractTransaction, TransferTransaction } from "./types";
 
 type TransactionConstructor = typeof AbstractTransaction;
 
 class TransactionRegistry {
-    private static readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
-    private static readonly customTypes = new Map<number, TransactionConstructor>();
+    private readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
+    private readonly customTypes = new Map<number, TransactionConstructor>();
 
     constructor() {
         this.registerCoreType(TransferTransaction);
-    }
-
-    public registerCustomTransactionType(transtransaction: Transaction): void {
-        throw new Error("Not implemented");
-    }
-
-    public unregisterCustomTransactionType(transaction: number): void {
-        throw new Error("Not implemented");
+        // TODO: register remaining core types.
     }
 
     public get(type: TransactionTypes): typeof AbstractTransaction {
-        if (TransactionRegistry.coreTypes.has(type)) {
-            return TransactionRegistry.coreTypes.get(type);
+        if (this.coreTypes.has(type)) {
+            return this.coreTypes.get(type);
         }
 
         throw new TransactionTypeNotRegisteredError(type);
     }
 
-    private registerCoreType(constructor: typeof AbstractTransaction) {
+    public registerCustomTransactionType(constructor: TransactionConstructor): void {
+        throw new NotImplementedError();
+    }
+
+    public unregisterCustomTransactionType(constructor: TransactionConstructor): void {
+        throw new NotImplementedError();
+    }
+
+    private registerCoreType(constructor: TransactionConstructor) {
         const type = constructor.getType();
-        if (TransactionRegistry.coreTypes.has(type)) {
+        if (this.coreTypes.has(type)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }
 
-        TransactionRegistry.coreTypes.set(type, constructor);
+        this.coreTypes.set(type, constructor);
     }
 }
 

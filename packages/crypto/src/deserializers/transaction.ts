@@ -5,7 +5,12 @@ import { crypto } from "../crypto";
 import { TransactionTypeError } from "../errors";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
-import { IMultiSignatureAsset, ITransactionData } from "../models/transactions/transaction";
+import {
+    AbstractTransaction,
+    IMultiSignatureAsset,
+    ITransactionData,
+    TransactionRegistry,
+} from "../models/transactions";
 import { Bignum } from "../utils/bignum";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
@@ -49,6 +54,13 @@ class TransactionDeserializer {
     }
 
     private deserializeType(transaction: ITransactionData, buf: ByteBuffer): void {
+        // Ugh, cant create instance of abstract class
+        /* 
+        const TransactionClass = TransactionRegistry.get(transaction.type);
+        const y = new (TransactionClass as any)() as AbstractTransaction;
+        return y.deserialize(transaction, buf);
+        */
+
         if (transaction.type === TransactionTypes.Transfer) {
             this.deserializeTransfer(transaction, buf);
         } else if (transaction.type === TransactionTypes.SecondSignature) {

@@ -48,6 +48,12 @@ export class NetworkVersionError extends CryptoError {
     }
 }
 
+export class NotImplementedError extends CryptoError {
+    constructor() {
+        super(`Not implemented.`);
+    }
+}
+
 export class PrivateKeyLengthError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected length to be ${expected}, but got ${given}.`);

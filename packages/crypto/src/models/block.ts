@@ -5,7 +5,7 @@ import { BlockDeserializer } from "../deserializers";
 import { configManager } from "../managers/config";
 import { BlockSerializer } from "../serializers";
 import { Bignum } from "../utils";
-import { ITransactionData, Transaction } from "./transactions/transaction";
+import { ITransactionData, Transaction } from "./transactions";
 
 export interface BlockVerification {
     verified: boolean;
