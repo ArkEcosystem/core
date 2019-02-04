@@ -18,7 +18,7 @@ if [ -f .config/ark-core/devnet/.env ]; then
     sed -i 's/ARK_/CORE_/g' .config/ark-core/devnet/.env
 fi
 
-if [ -f .config/ark-core/devnet/plugins.js]; then
+if [ -f .config/ark-core/devnet/plugins.js ]; then
     sed -i 's/ARK_/CORE_/g' .config/ark-core/devnet/plugins.js
 fi
 
@@ -30,4 +30,5 @@ if [ -f .config/ark-core/mainnet/plugins.js ]; then
     sed -i 's/ARK_/CORE_/g' .config/ark-core/mainnet/plugins.js
 fi
 
+cd ~/ark-core
 yarn setup
