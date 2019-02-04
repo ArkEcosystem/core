@@ -17,7 +17,7 @@ describe("Configuration", () => {
 
         expect(configManager.all()).toContainAllKeys([
             ...Object.keys(mainnet.network),
-            ...["milestones", "exceptions"],
+            ...["milestones", "exceptions", "genesisBlock"],
         ]);
     });
 

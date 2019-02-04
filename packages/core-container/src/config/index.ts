@@ -53,6 +53,7 @@ class Config {
         this.config.network = crypto.all();
         this.config.exceptions = crypto.get("exceptions");
         this.config.milestones = crypto.get("milestones");
+        this.config.genesisBlock = crypto.get("genesisBlock");
 
         // Calculate milestone hash
         const milestonesBuffer = Buffer.from(JSON.stringify(this.config.milestones));
