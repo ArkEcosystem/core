@@ -90,15 +90,7 @@ const main = async () => {
             fs.appendFileSync(commanderEnv, `CORE_PATH_TEMP=${paths.temp.new}${EOL}`);
         }
 
-        const env = require("envfile").parseFileSync(commanderEnv);
-        env.CORE_DIR = env.CORE_DIR.replace('ark-core', 'core');
-
-        let envOutput = '';
-        for(const [key, value] of Object.entries(env)) {
-            envOutput += `${key}=${value}${EOL}`;
-        }
-
-        fs.writeFileSync(commanderEnv, envOutput);
+        fs.writeFileSync(commanderEnv, commanderContents);
     }
 
     // Create directories
