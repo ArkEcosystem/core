@@ -6,7 +6,7 @@ const prompts = require('prompts');
 const { EOL } = require('os');
 
 const main = async () => {
-    const {
+    let {
         corePath,
         coreData,
         coreNetwork
@@ -39,11 +39,9 @@ const main = async () => {
         suffix: 'core'
     });
 
+    corePath = expandHomeDir(corePath);
+
     const paths = {
-        core: {
-            old: expandHomeDir(corePath),
-            new: expandHomeDir('~/core'),
-        },
         cache: {
             old: expandHomeDir(`${coreData}/database`),
             new: `${corePaths.cache}/${coreNetwork}`,
@@ -164,13 +162,13 @@ const main = async () => {
     const requiredFiles = [
         {
             copy: `${paths.config.new}/delegates.json`,
-            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/delegates.json`,
+            original: `${corePath}/packages/core/src/config/${coreNetwork}/delegates.json`,
         }, {
             copy: `${paths.config.new}/peers.json`,
-            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/peers.json`,
+            original: `${corePath}/packages/core/src/config/${coreNetwork}/peers.json`,
         }, {
             copy: `${paths.config.new}/plugins.js`,
-            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/plugins.js`,
+            original: `${corePath}/packages/core/src/config/${coreNetwork}/plugins.js`,
         },
     ];
 
