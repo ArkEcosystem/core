@@ -134,7 +134,7 @@ export class Transaction implements ITransactionData {
         }
 
         this.data = Transaction.deserialize(this.serialized);
-        this.verified = (this.data.type <= 4 && crypto.verify(this.data)) || isException(this.data);
+        this.verified = (this.data.type < 4 && crypto.verify(this.data)) || isException(this.data);
 
         // TODO: remove this
         [

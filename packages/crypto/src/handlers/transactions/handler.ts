@@ -16,10 +16,7 @@ export abstract class Handler {
         }
 
         if (wallet.multisignature) {
-            if (!wallet.verifySignatures(transaction, wallet.multisignature)) {
-                errors.push("Failed to verify multi-signatures");
-                return false;
-            }
+            return false;
         }
 
         if (
