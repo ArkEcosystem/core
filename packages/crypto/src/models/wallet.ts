@@ -3,7 +3,7 @@ import { crypto } from "../crypto/crypto";
 import { transactionHandler } from "../handlers/transactions";
 import { Bignum, formatArktoshi } from "../utils";
 import { IBlockData } from "./block";
-import { IMultiSignatureAsset, ITransactionData } from "./transaction";
+import { IMultiSignatureAsset, ITransactionData } from "./transactions/transaction";
 
 /**
  * TODO copy some parts to ArkDocs

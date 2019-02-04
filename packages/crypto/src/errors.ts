@@ -72,6 +72,18 @@ export class TransactionVersionError extends CryptoError {
     }
 }
 
+export class TransactionTypeNotImplementedError extends CryptoError {
+    constructor() {
+        super(`Transaction type must be implemented in subclass.`);
+    }
+}
+
+export class TransactionAlreadyRegisteredError extends CryptoError {
+    constructor(name: string) {
+        super(`Transaction type ${name} is already registered.`);
+    }
+}
+
 export class MaximumPaymentCountExceededError extends CryptoError {
     constructor(given: number) {
         super(`Expected a maximum of 2258 payments, but got ${given}.`);

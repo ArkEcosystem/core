@@ -1,8 +1,9 @@
-import { TransactionTypes } from "../constants";
-import { crypto } from "../crypto";
-import { TransactionDeserializer } from "../deserializers";
-import { TransactionSerializer } from "../serializers";
-import { Bignum, isException } from "../utils";
+import { TransactionTypes } from "../../constants";
+import { crypto } from "../../crypto";
+import { TransactionDeserializer } from "../../deserializers";
+import { TransactionTypeNotImplementedError } from "../../errors";
+import { TransactionSerializer } from "../../serializers";
+import { Bignum, isException } from "../../utils";
 
 export interface ITransactionAsset {
     signature?: {
@@ -60,6 +61,40 @@ export interface ITransactionData {
     payments?: { [key: string]: any };
 }
 
+export abstract class AbstractTransaction {
+    public static getType(): TransactionTypes {
+        throw new TransactionTypeNotImplementedError();
+    }
+
+    public data: ITransactionData;
+
+    public abstract serialize(): Buffer;
+
+    public abstract deserialize(): void;
+
+    protected hasVendorField(): boolean {
+        return false;
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+export class TransferTransaction extends AbstractTransaction {
+    public static getType(): TransactionTypes {
+        return TransactionTypes.Transfer;
+    }
+
+    public serialize(): Buffer {
+        throw new Error("Method not implemented.");
+    }
+    public deserialize(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    protected hasVendorField(): boolean {
+        return true;
+    }
+}
+
 /**
  * TODO copy some parts to ArkDocs
  * @classdesc This model holds the transaction data and its serialization
@@ -86,6 +121,7 @@ export interface ITransactionData {
  *   - network
  */
 
+// tslint:disable-next-line:max-classes-per-file
 export class Transaction implements ITransactionData {
     public static serialize(transaction: ITransactionData): Buffer {
         return TransactionSerializer.serialize(transaction);

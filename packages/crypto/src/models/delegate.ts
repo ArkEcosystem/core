@@ -10,7 +10,7 @@ import { KeyPair } from "../identities";
 import { INetwork } from "../networks";
 import { sortTransactions } from "../utils";
 import { Block, IBlockData } from "./block";
-import { Transaction } from "./transaction";
+import { Transaction } from "./transactions/transaction";
 
 export class Delegate {
     /**

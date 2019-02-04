@@ -5,7 +5,7 @@ import { crypto } from "../crypto";
 import { TransactionTypeError } from "../errors";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
-import { IMultiSignatureAsset, ITransactionData } from "../models/transaction";
+import { IMultiSignatureAsset, ITransactionData } from "../models/transactions/transaction";
 import { Bignum } from "../utils/bignum";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
