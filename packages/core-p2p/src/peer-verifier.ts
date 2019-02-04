@@ -7,17 +7,17 @@ import { models } from "@arkecosystem/crypto";
 import assert from "assert";
 import { Peer } from './peer';
 
-/**
- * A cache of verified blocks' ids. A block is verified if it is connected to a chain
- * in which all blocks (including that one) are signed by the corresponding delegates.
- */
-const verifiedBlocks = new CappedSet();
-
 export class PeerVerifier {
     private database: ConnectionInterface;
     private logPrefix: string;
     private logger: Logger.ILogger;
     private peer: any;
+
+    /**
+     * A cache of verified blocks' ids. A block is verified if it is connected to a chain
+     * in which all blocks (including that one) are signed by the corresponding delegates.
+     */
+    private static readonly verifiedBlocks = new CappedSet();
 
     public constructor (peer: Peer) {
         this.database = app.resolvePlugin<PostgresConnection>("database");
@@ -486,7 +486,7 @@ export class PeerVerifier {
         expectedHeight: number,
         delegatesByPublicKey: any[]): Promise<boolean> {
 
-        if (verifiedBlocks.has(blockData.id)) {
+        if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
             this.logger.debug(
                 `${this.logPrefix} accepting block at height ${blockData.height}, already ` +
                 `successfully verified before`
@@ -524,7 +524,7 @@ export class PeerVerifier {
                 block.data.generatorPublicKey
             );
 
-            verifiedBlocks.add(block.data.id);
+            PeerVerifier.verifiedBlocks.add(block.data.id);
 
             return true;
         }
