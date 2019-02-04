@@ -501,7 +501,7 @@ export class TransactionsRepository extends Repository implements IRepository {
     }
 
     public __orderBy(selectQuery, parameters): string[] {
-        selectQuery.order(this.query.sequence.asc);
+        selectQuery.order(this.query.sequence.desc);
 
         return parameters.orderBy ? parameters.orderBy.split(":").map(p => p.toLowerCase()) : ["timestamp", "desc"];
     }
