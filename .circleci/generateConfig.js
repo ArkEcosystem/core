@@ -13,8 +13,7 @@ fs.readdir("./packages", (_, packages) => {
     // test split
     const packagesSplit = chunk(packages.sort(), 10);
 
-    const tables = ["rounds", "blocks", "transactions", "wallets"]
-    const resetSqlCommand = `psql -h localhost -U core -d core_development -c '${tables.map(t => `drop table if exists ${t}`).join(";")}'`
+    const resetSqlCommand = "cd ~/core/.circleci && ./rebuild-db.sh"
 
     for (const [name, job] of Object.entries(config.jobs)) {
         // save cache

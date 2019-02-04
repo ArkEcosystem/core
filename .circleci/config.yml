@@ -71,51 +71,37 @@ jobs:
       - run:
           name: core
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
-            ~/core/packages/core && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/core &&
+            yarn test:coverage
       - run:
           name: core-api
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-api && yarn test:coverage
       - run:
           name: core-blockchain
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-blockchain && yarn test:coverage
       - run:
           name: core-container
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-container && yarn test:coverage
       - run:
           name: core-database
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-database && yarn test:coverage
       - run:
           name: core-database-postgres
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-database-postgres && yarn test:coverage
       - run:
           name: core-debugger-cli
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-debugger-cli && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
@@ -195,51 +181,37 @@ jobs:
       - run:
           name: core
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
-            ~/core/packages/core && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/core &&
+            yarn test:coverage
       - run:
           name: core-api
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-api && yarn test:coverage
       - run:
           name: core-blockchain
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-blockchain && yarn test:coverage
       - run:
           name: core-container
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-container && yarn test:coverage
       - run:
           name: core-database
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-database && yarn test:coverage
       - run:
           name: core-database-postgres
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-database-postgres && yarn test:coverage
       - run:
           name: core-debugger-cli
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-debugger-cli && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
@@ -319,65 +291,47 @@ jobs:
       - run:
           name: core-event-emitter
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-forger && yarn test:coverage
       - run:
           name: core-graphql
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-graphql && yarn test:coverage
       - run:
           name: core-http-utils
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-http-utils && yarn test:coverage
       - run:
           name: core-jest-matchers
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-jest-matchers && yarn test:coverage
       - run:
           name: core-json-rpc
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-json-rpc && yarn test:coverage
       - run:
           name: core-logger
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-logger && yarn test:coverage
       - run:
           name: core-logger-winston
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-logger-winston && yarn test:coverage
       - run:
           name: core-p2p
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-p2p && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
@@ -457,59 +411,43 @@ jobs:
       - run:
           name: core-snapshots
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-test-utils && yarn test:coverage
       - run:
           name: core-tester-cli
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-tester-cli && yarn test:coverage
       - run:
           name: core-transaction-pool
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-transaction-pool && yarn test:coverage
       - run:
           name: core-utils
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-utils && yarn test:coverage
       - run:
           name: core-vote-report
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-vote-report && yarn test:coverage
       - run:
           name: core-webhooks
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-webhooks && yarn test:coverage
       - run:
           name: crypto
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
-            ~/core/packages/crypto && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/crypto
+            && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -588,65 +526,47 @@ jobs:
       - run:
           name: core-event-emitter
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-forger && yarn test:coverage
       - run:
           name: core-graphql
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-graphql && yarn test:coverage
       - run:
           name: core-http-utils
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-http-utils && yarn test:coverage
       - run:
           name: core-jest-matchers
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-jest-matchers && yarn test:coverage
       - run:
           name: core-json-rpc
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-json-rpc && yarn test:coverage
       - run:
           name: core-logger
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-logger && yarn test:coverage
       - run:
           name: core-logger-winston
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-logger-winston && yarn test:coverage
       - run:
           name: core-p2p
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-p2p && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
@@ -726,59 +646,43 @@ jobs:
       - run:
           name: core-snapshots
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-test-utils && yarn test:coverage
       - run:
           name: core-tester-cli
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-tester-cli && yarn test:coverage
       - run:
           name: core-transaction-pool
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-transaction-pool && yarn test:coverage
       - run:
           name: core-utils
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-utils && yarn test:coverage
       - run:
           name: core-vote-report
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-vote-report && yarn test:coverage
       - run:
           name: core-webhooks
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-webhooks && yarn test:coverage
       - run:
           name: crypto
           command: >-
-            psql -h localhost -U core -d core_development -c 'drop table if
-            exists rounds;drop table if exists blocks;drop table if exists
-            transactions;drop table if exists wallets' && cd
-            ~/core/packages/crypto && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/crypto
+            && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
