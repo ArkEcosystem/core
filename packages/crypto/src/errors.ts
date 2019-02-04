@@ -78,6 +78,12 @@ export class TransactionTypeNotImplementedError extends CryptoError {
     }
 }
 
+export class TransactionTypeNotRegisteredError extends CryptoError {
+    constructor(given: number) {
+        super(`Transaction type ${given} is not registered.`);
+    }
+}
+
 export class TransactionAlreadyRegisteredError extends CryptoError {
     constructor(name: string) {
         super(`Transaction type ${name} is already registered.`);

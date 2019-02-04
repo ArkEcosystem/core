@@ -1,18 +1,31 @@
 import { TransactionTypes } from "../../constants";
-import { TransactionAlreadyRegisteredError } from "../../errors";
+import { TransactionAlreadyRegisteredError, TransactionTypeNotRegisteredError } from "../../errors";
 import { AbstractTransaction, Transaction, TransferTransaction } from "./transaction";
 
-type TransactionConstructor = new () => AbstractTransaction;
+type TransactionConstructor = typeof AbstractTransaction;
 
-export class TransactionRegistry {
+class TransactionRegistry {
     private static readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
     private static readonly customTypes = new Map<number, TransactionConstructor>();
 
-    public constructor() {
+    constructor() {
         this.registerCoreType(TransferTransaction);
     }
+
     public registerCustomTransactionType(transtransaction: Transaction): void {
-        //
+        throw new Error("Not implemented");
+    }
+
+    public unregisterCustomTransactionType(transaction: number): void {
+        throw new Error("Not implemented");
+    }
+
+    public get(type: TransactionTypes): typeof AbstractTransaction {
+        if (TransactionRegistry.coreTypes.has(type)) {
+            return TransactionRegistry.coreTypes.get(type);
+        }
+
+        throw new TransactionTypeNotRegisteredError(type);
     }
 
     private registerCoreType(constructor: typeof AbstractTransaction) {
@@ -21,6 +34,8 @@ export class TransactionRegistry {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }
 
-        //    TransactionRegistry.coreTypes.set(type, constructor.prototype);
+        TransactionRegistry.coreTypes.set(type, constructor);
     }
 }
+
+export const transactionRegistry = new TransactionRegistry();
