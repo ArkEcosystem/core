@@ -6,7 +6,7 @@ const prompts = require('prompts');
 const { EOL } = require('os');
 
 const main = async () => {
-    const {
+    let {
         corePath,
         coreData,
         coreNetwork
@@ -39,11 +39,9 @@ const main = async () => {
         suffix: 'core'
     });
 
+    corePath = expandHomeDir(corePath);
+
     const paths = {
-        core: {
-            old: expandHomeDir(corePath),
-            new: expandHomeDir('~/core'),
-        },
         cache: {
             old: expandHomeDir(`${coreData}/database`),
             new: `${corePaths.cache}/${coreNetwork}`,
@@ -92,15 +90,7 @@ const main = async () => {
             fs.appendFileSync(commanderEnv, `CORE_PATH_TEMP=${paths.temp.new}${EOL}`);
         }
 
-        const env = require("envfile").parseFileSync(commanderEnv);
-        env.CORE_DIR = env.CORE_DIR.replace('ark-core', 'core');
-
-        let envOutput = '';
-        for(const [key, value] of Object.entries(env)) {
-            envOutput += `${key}=${value}${EOL}`;
-        }
-
-        fs.writeFileSync(commanderEnv, envOutput);
+        fs.writeFileSync(commanderEnv, commanderContents);
     }
 
     // Create directories
@@ -164,17 +154,14 @@ const main = async () => {
     const requiredFiles = [
         {
             copy: `${paths.config.new}/delegates.json`,
-            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/delegates.json`,
+            original: `${corePath}/packages/core/src/config/${coreNetwork}/delegates.json`,
         }, {
             copy: `${paths.config.new}/peers.json`,
-            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/peers.json`,
+            original: `${corePath}/packages/core/src/config/${coreNetwork}/peers.json`,
         }, {
             copy: `${paths.config.new}/plugins.js`,
-            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/plugins.js`,
-        }, {
-            copy: `${paths.config.new}/genesisBlock.json`,
-            original: `${paths.core.new}/packages/core/src/config/${coreNetwork}/genesisBlock.json`,
-        }
+            original: `${corePath}/packages/core/src/config/${coreNetwork}/plugins.js`,
+        },
     ];
 
     for (const file of requiredFiles) {
