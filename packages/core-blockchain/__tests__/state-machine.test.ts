@@ -16,6 +16,7 @@ beforeAll(async () => {
     container = await setUp();
 
     process.env.CORE_SKIP_BLOCKCHAIN = "true";
+    process.env.CORE_ENV = "";
 
     // Manually register the blockchain
     const plugin = require("../src").plugin;
@@ -98,28 +99,28 @@ describe("State Machine", () => {
         });
 
         describe("checkLastDownloadedBlockSynced", () => {
-            it('should dispatch the event "NOTSYNCED" by default', () => {
+            it('should dispatch the event "NOTSYNCED" by default', async () => {
                 blockchain.isSynced = jest.fn(() => false);
                 blockchain.processQueue.length = jest.fn(() => 1);
-                expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NOTSYNCED");
+                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NOTSYNCED");
             });
 
-            it('should dispatch the event "PAUSED" if the blockchain rebuild / process queue is more than 10000 long', () => {
+            it('should dispatch the event "PAUSED" if the blockchain rebuild / process queue is more than 10000 long', async () => {
                 blockchain.isSynced = jest.fn(() => false);
                 blockchain.rebuildQueue.length = jest.fn(() => 10001);
                 blockchain.processQueue.length = jest.fn(() => 1);
-                expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
+                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
 
                 blockchain.rebuildQueue.length = jest.fn(() => 1);
                 blockchain.processQueue.length = jest.fn(() => 10001);
-                expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
+                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
             });
 
-            it('should dispatch the event "NETWORKHALTED" if stateStorage.noBlockCounter > 5 and process queue is empty', () => {
+            it('should dispatch the event "NETWORKHALTED" if stateStorage.noBlockCounter > 5 and process queue is empty', async () => {
                 blockchain.isSynced = jest.fn(() => false);
                 blockchain.processQueue.length = jest.fn(() => 0);
                 stateStorage.noBlockCounter = 6;
-                expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NETWORKHALTED");
+                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NETWORKHALTED");
             });
 
             it(`should dispatch the event "FORK" if
@@ -132,21 +133,21 @@ describe("State Machine", () => {
                 stateStorage.p2pUpdateCounter = 3;
                 jest.spyOn(blockchain.p2p, "updatePeersOnMissingBlocks").mockImplementation(() => "rollback");
 
-                expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
+                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
             });
 
-            it('should dispatch the event "SYNCED" if stateStorage.networkStart is true', () => {
+            it('should dispatch the event "SYNCED" if stateStorage.networkStart is true', async () => {
                 blockchain.isSynced = jest.fn(() => false);
                 stateStorage.noBlockCounter = 0;
                 stateStorage.networkStart = true;
-                expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "SYNCED");
+                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "SYNCED");
             });
 
-            it('should dispatch the event "TEST" if process.env.CORE_ENV === "test"', () => {
+            it('should dispatch the event "TEST" if process.env.CORE_ENV === "test"', async () => {
                 const coreEnv = process.env.CORE_ENV;
                 process.env.CORE_ENV = "test";
                 blockchain.isSynced = jest.fn(() => false);
-                expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "TEST");
+                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "TEST");
 
                 process.env.CORE_ENV = coreEnv;
             });
