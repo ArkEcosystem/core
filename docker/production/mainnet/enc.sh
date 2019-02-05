@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 ##########################################################################
-#									 #
-# This script encrypts your forging secret as well as your password.	 #
+#                                                                        #
+# This script encrypts your forging secret as well as your password.     #
 # Put them in the corresponding variable names $SECRET="" and $BIP38="". #
-# Execute script after that. It will create a local folder named `enc`	 #
-# containing all needed stuff. After starting your Docker container	 #
-# it is desirable to delete that folder (`rm -rf enc`) and remove		 #
-# previously entered secret and password.				 #	
-#									 #
+# Execute script after that. It will create a local folder named `enc`   #
+# containing all needed stuff. After starting your Docker container      #
+# it is desirable to delete that folder (`rm -rf enc`) and remove        #
+# previously entered secret and password.                                #	
+#                                                                        #
 ##########################################################################
 
 SECRET="this is not a secret"   ### <= Your secret here
