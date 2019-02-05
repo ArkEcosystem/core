@@ -176,15 +176,21 @@ describe("State Machine", () => {
         });
 
         describe("rebuildFinished", () => {
-            it('should dispatch the event "PROCESSFINISHED"', () => {
-                expect(actionMap.rebuildFinished).toDispatch(blockchain, "PROCESSFINISHED");
+            it('should dispatch the event "PROCESSFINISHED"', async () => {
+                localConfig.set("state.maxLastBlocks", 50);
+                const config = container.getConfig();
+                const genesisBlock = config.get("genesisBlock");
+
+                stateStorage.setLastBlock(new Block(genesisBlock));
+
+                await expect(actionMap.rebuildFinished).toDispatch(blockchain, "PROCESSFINISHED");
             });
 
-            it('should dispatch the event "FAILURE" when some called method threw an exception', () => {
+            it('should dispatch the event "FAILURE" when some called method threw an exception', async () => {
                 jest.spyOn(blockchain.database, "commitQueuedQueries").mockImplementationOnce(() => {
                     throw new Error("oops");
                 });
-                expect(actionMap.rebuildFinished).toDispatch(blockchain, "FAILURE");
+                await expect(actionMap.rebuildFinished).toDispatch(blockchain, "FAILURE");
             });
         });
 
