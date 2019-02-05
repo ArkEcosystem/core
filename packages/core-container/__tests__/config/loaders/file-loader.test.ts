@@ -8,10 +8,6 @@ const stubConfigPath = resolve(__dirname, "../../__stubs__/config");
 
 const stubConfig = {
     delegates: require(resolve(__dirname, "../../__stubs__/config/delegates")),
-    exceptions: require(resolve(__dirname, "../../__stubs__/config/exceptions")),
-    genesisBlock: require(resolve(__dirname, "../../__stubs__/config/genesisBlock")),
-    milestones: require(resolve(__dirname, "../../__stubs__/config/milestones")),
-    network: require(resolve(__dirname, "../../__stubs__/config/network")),
     peers: require(resolve(__dirname, "../../__stubs__/config/peers")),
     plugins: require(resolve(__dirname, "../../__stubs__/config/plugins")),
 };
@@ -33,7 +29,6 @@ describe("File Loader", () => {
         const { config } = await fileLoader.setUp(Network.setUp({}));
 
         expect(config.delegates).toEqual(stubConfig.delegates);
-        expect(config.genesisBlock).toEqual(stubConfig.genesisBlock);
         expect(config.peers).toEqual(stubConfig.peers);
     });
 });

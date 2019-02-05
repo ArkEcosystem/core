@@ -15,7 +15,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param  {Object}  params
      * @return {Object}
      */
-    public async findAll(parameters: any = {}): Promise<any> {
+    public async findAll(parameters: any = {}, sequenceDesc = true): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
         if (parameters.senderId) {
@@ -50,7 +50,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.__orderBy(selectQuery, parameters, sequenceDesc),
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -93,7 +93,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.__orderBy(selectQuery, parameters),
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -125,7 +125,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.__orderBy(selectQuery, parameters),
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -174,7 +174,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {Object}
      */
     public async findAllByBlock(blockId, parameters: any = {}): Promise<any> {
-        return this.findAll({ ...{ blockId }, ...parameters });
+        return this.findAll({ ...{ blockId }, ...parameters }, false);
     }
 
     /**
@@ -385,7 +385,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit || 100,
             offset: parameters.offset || 0,
-            orderBy: this.__orderBy(parameters),
+            orderBy: this.__orderBy(selectQuery, parameters),
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -500,7 +500,9 @@ export class TransactionsRepository extends Repository implements IRepository {
         return null;
     }
 
-    public __orderBy(parameters): string[] {
+    public __orderBy(selectQuery, parameters, sequenceDesc = true): string[] {
+        selectQuery.order(this.query.sequence[sequenceDesc ? "desc" : "asc"]);
+
         return parameters.orderBy ? parameters.orderBy.split(":").map(p => p.toLowerCase()) : ["timestamp", "desc"];
     }
 }

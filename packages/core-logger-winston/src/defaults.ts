@@ -6,7 +6,7 @@ export const defaults = {
             constructor: "Console",
             options: {
                 level: process.env.CORE_LOG_LEVEL || "debug",
-                format: formatter(true, true),
+                format: formatter(true),
                 stderrLevels: ["error", "warn"],
             },
         },
@@ -15,7 +15,7 @@ export const defaults = {
             constructor: "DailyRotateFile",
             options: {
                 level: process.env.CORE_LOG_LEVEL || "debug",
-                format: formatter(false, true),
+                format: formatter(false),
                 filename: process.env.CORE_LOG_FILE || `${process.env.CORE_PATH_LOG}/%DATE%.log`,
                 datePattern: "YYYY-MM-DD",
                 zippedArchive: true,

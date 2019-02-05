@@ -9,15 +9,19 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist"
+        "/bin",
+        "/dist",
+        "/oclif.manifest.json"
     ],
     "bin": {
-        "core:tester": "node ./dist/index.js"
+        "tester": "./bin/run"
     },
     "scripts": {
-        "start": "node ./dist/index.js",
+        "tester": "./bin/run",
         "prepublishOnly": "yarn test && yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
+        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
@@ -34,6 +38,10 @@
     "dependencies": {
         "@arkecosystem/core-utils": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
+        "@oclif/command": "^1.5.8",
+        "@oclif/config": "^1.12.4",
+        "@oclif/plugin-help": "^2.1.6",
+        "@oclif/plugin-not-found": "^1.2.2",
         "@types/bip39": "^2.4.1",
         "@types/clipboardy": "^1.1.0",
         "@types/lodash.fill": "^3.4.4",
@@ -42,7 +50,6 @@
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",
-        "commander": "^2.19.0",
         "delay": "^4.1.0",
         "lodash.fill": "^3.4.0",
         "pino": "^5.10.1",
@@ -61,5 +68,13 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
+    },
+    "oclif": {
+        "commands": "./dist/commands",
+        "bin": "snapshot",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-not-found"
+        ]
     }
 }

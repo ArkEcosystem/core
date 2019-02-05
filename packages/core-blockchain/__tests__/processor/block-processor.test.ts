@@ -210,6 +210,29 @@ describe("Block processor", () => {
                 expect(rejected).toBe(BlockProcessorResult.Rejected);
             });
 
+            it("should reject a block with invalid timestamp", async () => {
+                const database = app.resolvePlugin("database");
+                const getActiveDelegatesBackup = database.getActiveDelegates;
+                database.getActiveDelegates = jest.fn(() => [delegates[0]]);
+
+                const forkBlockBackup = blockchain.forkBlock;
+                blockchain.forkBlock = jest.fn();
+
+                const block = new Block(getBlock([]));
+                block.verification.verified = true;
+                block.data.timestamp = 46582922;
+
+                blockchain.getLastBlock().data.timestamp = 46583330;
+
+                const rejected = await blockProcessor.process(block);
+                expect(blockchain.forkBlock).not.toHaveBeenCalled();
+                expect(rejected).toBe(BlockProcessorResult.Rejected);
+
+                blockchain.getLastBlock().data.timestamp = 0;
+                blockchain.forkBlock = forkBlockBackup;
+                database.getActiveDelegates = getActiveDelegatesBackup;
+            });
+
             it("should 'discard but broadcast' a block higher than current height + 1", async () => {
                 const blockVerified = new Block(getBlock([]));
                 blockVerified.verification.verified = true;

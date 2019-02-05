@@ -1,15 +1,36 @@
 import { models } from "@arkecosystem/crypto";
+import { flags } from "@oclif/command";
 import { handleOutput } from "../utils";
+import { BaseCommand } from "./command";
 
-function serialize(opts) {
-    const { Block, Transaction } = models;
+export class SerializeCommand extends BaseCommand {
+    public static description: string = "Serialize the given JSON";
 
-    const serialized: any =
-        opts.type === "transaction"
-            ? Transaction.serialize(JSON.parse(opts.data))
-            : Block[opts.full ? "serializeFull" : "serialize"](JSON.parse(opts.data));
+    public static flags = {
+        ...BaseCommand.flags,
+        data: flags.string({
+            description: "the HEX blob to serialize",
+            required: true,
+        }),
+        type: flags.string({
+            description: "transaction or block",
+            required: true,
+        }),
+        full: flags.boolean({
+            description: "serialize a full block with transactions",
+            required: false,
+        }),
+    };
 
-    return handleOutput(opts, serialized.toString("hex"));
+    public async run(): Promise<void> {
+        // tslint:disable-next-line:no-shadowed-variable
+        const { flags } = this.parse(SerializeCommand);
+
+        const serialized: any =
+            flags.type === "transaction"
+                ? models.Transaction.serialize(JSON.parse(flags.data))
+                : models.Block[flags.full ? "serializeFull" : "serialize"](JSON.parse(flags.data));
+
+        return handleOutput(flags, serialized.toString("hex"));
+    }
 }
-
-export { serialize };
