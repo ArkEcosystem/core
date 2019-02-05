@@ -2,8 +2,8 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
-import { DatabaseService, WalletsRepository } from "../../src";
-import { DelegatesRepository } from "../../src";
+import { DelegatesRepository, WalletsRepository } from "../../src";
+import { DatabaseService } from "../../src/database-service";
 import { setUp, tearDown } from "../__support__/setup";
 
 const { ARKTOSHI } = constants;
