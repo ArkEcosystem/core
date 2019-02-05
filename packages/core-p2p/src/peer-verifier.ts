@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { ConnectionInterface } from "@arkecosystem/core-database";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { CappedSet, roundCalculator } from "@arkecosystem/core-utils";
+import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
 import assert from "assert";
 import { Peer } from './peer';
@@ -19,7 +19,7 @@ export class PeerVerifier {
      */
     private static readonly verifiedBlocks = new CappedSet();
 
-    public constructor (peer: Peer) {
+    public constructor(peer: Peer) {
         this.database = app.resolvePlugin<PostgresConnection>("database");
         this.logPrefix = `Peer verify ${peer.ip}:`;
         this.logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -208,50 +208,13 @@ export class PeerVerifier {
 
         const nAry = 8;
 
-        /**
-         * Given an interval [lo, hi], split it in `nAry` intervals and return those intervals'
-         * boundaries.
-         * For example (assuming `nAry` is 8):
-         * [1, 81] -> {
-         *     1: true,
-         *     11: true,
-         *     21: true,
-         *     31: true,
-         *     41: true,
-         *     51: true,
-         *     61: true,
-         *     71: true,
-         *     81: true
-         * }
-         * Later we replace the `true` value with the corresponding block id.
-         * @param {Number} lo lower boundary of the interval to split
-         * @param {Number} hi higher boundary of the interval to split
-         * @return {Object} intervals boundaries
-         */
-        const calcProbes = (lo: number, hi: number): object => {
-            assert(lo <= hi, `${lo} <= ${hi}`);
-            const diff = hi - lo;
-            const p = {};
-            for (let i = 0; i < nAry + 1; i++) {
-                const h = lo + Math.round(diff * i / nAry);
-                p[h] = true;
-            }
-            return p;
-        };
+        const probe = async (heightsToProbe: number[]): Promise<number> => {
+            const ourBlocks = await this.database.getBlocksByHeight(heightsToProbe);
 
-        let highestCommonBlockHeight: number = null;
+            assert.strictEqual(ourBlocks.length, heightsToProbe.length);
 
-        let low = 1;
-        let high = Math.min(claimedHeight, ourHeight);
-
-        for (;;) {
-            const probesIdByHeight = calcProbes(low, high);
+            const probesIdByHeight = {};
             const probesHeightById = {};
-
-            const ourBlocksHeights = Object.keys(probesIdByHeight).map(k => Number(k)).sort((a, b) => a - b);
-            const ourBlocks = await this.database.getBlocksByHeight(ourBlocksHeights);
-
-            assert.strictEqual(ourBlocks.length, ourBlocksHeights.length);
 
             for (const b of ourBlocks) {
                 probesIdByHeight[b.height] = b.id;
@@ -259,7 +222,7 @@ export class PeerVerifier {
             }
 
             // Make sure getBlocksByHeight() returned a block for every height we asked.
-            ourBlocksHeights.forEach(h => assert.strictEqual(typeof probesIdByHeight[h], 'string'));
+            heightsToProbe.forEach(h => assert.strictEqual(typeof probesIdByHeight[h], 'string'));
 
             const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(', ');
             const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;
@@ -269,16 +232,7 @@ export class PeerVerifier {
             const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById));
 
             if (!highestCommon) {
-                if (highestCommonBlockHeight === null) {
-                    // This is the first iteration and no common blocks, including at
-                    // height 1 (the genesis block).
-                    this.logger.info(`${this.logPrefix} failure: could not find common blocks in range ${rangePrint}`)
-                    return null;
-                } else {
-                    // No common blocks, the result from the previous iteration is the
-                    // definitive one.
-                    break;
-                }
+                return null;
             }
 
             if (typeof highestCommon !== 'object' ||
@@ -289,7 +243,6 @@ export class PeerVerifier {
                     `${this.logPrefix} failure: erroneous reply from peer for common blocks ` +
                     `${ourBlocksPrint}: ${JSON.stringify(highestCommon)}`
                 );
-
                 return null;
             }
 
@@ -312,53 +265,17 @@ export class PeerVerifier {
                 return null;
             }
 
-            highestCommonBlockHeight = highestCommon.height;
+            return highestCommon.height;
+        };
 
-            if (low + nAry >= high) {
-                // The range is narrowed so much that we probed every element in the range.
-                // No need to narrow further - highestCommonBlockHeight contains the definitive result.
-                break;
-            }
+        const nSect = new NSect(nAry, probe);
 
-            // If we asked for blocks at heights, for example: 1000, 1100, 1200, 1300
-            // and the peer replied that his highest common block is at:
-            // A. 1300 (the highest), then we end the search and highestCommonBlockHeight
-            //    contains the definitive result. One of the two happened:
-            //    a. this is the first iteration of the loop and the peer has all our
-            //       blocks in common, or
-            //    b. this is the 2+ iteration and on the previous iteration we got a reply
-            //       that the peer does not have 1301.
-            // B. 1100 (anything other than the highest), then this implies that the block
-            //    at 1200 is different. So in the next iteration we ask for blocks between
-            //    1101 and 1199.
-
-            // Case A.
-            if (highestCommonBlockHeight === ourBlocksHeights[ourBlocksHeights.length - 1]) {
-                break;
-            }
-
-            this.logger.debug(`${this.logPrefix} temporary highest common: ${highestCommonBlockHeight}`);
-
-            // Case B. From the example above, we have:
-            // highestCommonBlockHeight = 1100
-            // ourBlocksHeights[0] = 1000, the peer has this block
-            // ourBlocksHeights[1] = 1100, the peer has this block
-            // ourBlocksHeights[2] = 1200, the peer does not have this block
-            // ourBlocksHeights[3] = 1300, the peer does not have this block
-            // we will get indexOfHighestCommon = 1, and for the next iteration:
-            // low = 1100 + 1 = 1101
-            // high = ourBlocksHeights[1 + 1] - 1 = ourBlocksHeights[2] - 1 = 1200 - 1 = 1199
-            const indexOfHighestCommon = ourBlocksHeights.indexOf(highestCommonBlockHeight);
-            assert.notStrictEqual(indexOfHighestCommon, -1);
-            assert(indexOfHighestCommon < ourBlocksHeights.length - 1);
-            low = highestCommonBlockHeight + 1;
-            high = ourBlocksHeights[indexOfHighestCommon + 1] - 1;
-        }
+        const highestCommonBlockHeight = await nSect.find(1, Math.min(claimedHeight, ourHeight));
 
         if (highestCommonBlockHeight === null) {
-            this.logger.info(`${this.logPrefix} failure: could not determine highest common block`);
+            this.logger.info(`${this.logPrefix} failure: could not determine a common block`);
         } else {
-            this.logger.debug(`${this.logPrefix} definitive highest common: ${highestCommonBlockHeight}`);
+            this.logger.debug(`${this.logPrefix} highest common block height: ${highestCommonBlockHeight}`);
         }
 
         return highestCommonBlockHeight;
@@ -457,7 +374,8 @@ export class PeerVerifier {
 
         if (typeof response !== 'object' ||
             typeof response.data !== 'object' ||
-            !Array.isArray(response.data.blocks)) {
+            !Array.isArray(response.data.blocks) ||
+            response.data.blocks.length === 0) {
 
             this.logger.info(
                 `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
@@ -468,6 +386,14 @@ export class PeerVerifier {
 
         for (let i = 0; i < response.data.blocks.length; i++) {
             blocksByHeight[height + i] = response.data.blocks[i];
+            if (typeof blocksByHeight[height + i] !== 'object') {
+                this.logger.info(
+                    `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
+                    `from peer: the block at height ${height + i} is not an object: ` +
+                    JSON.stringify(response)
+                );
+                return false;
+            }
         }
 
         return true;
@@ -487,10 +413,11 @@ export class PeerVerifier {
         delegatesByPublicKey: any[]): Promise<boolean> {
 
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
-            this.logger.debug(
-                `${this.logPrefix} accepting block at height ${blockData.height}, already ` +
-                `successfully verified before`
-            );
+            // This is causing too much noise in the log
+            // this.logger.debug(
+            //     `${this.logPrefix} accepting block at height ${blockData.height}, already ` +
+            //     `successfully verified before`
+            // );
 
             return true;
         }
