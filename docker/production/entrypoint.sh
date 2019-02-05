@@ -2,6 +2,7 @@
 sudo /usr/sbin/ntpd -s
 
 sudo rm -rf /home/node/.config/ark-core/*
+sudo rm -rf /home/node/.local/state/ark-core/*
 sudo chown node:node -R /home/node
 cp -r /home/node/core/packages/core/src/config/$NETWORK /home/node/.config/ark-core/$NETWORK
 cd /home/node/core/packages/core
