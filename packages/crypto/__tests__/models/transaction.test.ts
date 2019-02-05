@@ -3,7 +3,7 @@ import "jest-extended";
 import { transactionBuilder as builder } from "../../src/builder";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
-import { Transaction } from "../../src/models/transaction";
+import { Transaction } from "../../src/models/transactions";
 import { transaction as transactionData } from "../fixtures/transaction";
 
 import { TransactionTypeError } from "../../src/errors";

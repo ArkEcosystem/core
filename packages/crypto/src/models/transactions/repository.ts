@@ -4,6 +4,7 @@ import {
     TransactionAlreadyRegisteredError,
     TransactionTypeNotRegisteredError,
 } from "../../errors";
+import { ITransactionData } from "./interfaces";
 import { AbstractTransaction, TransferTransaction } from "./types";
 
 type TransactionConstructor = typeof AbstractTransaction;
@@ -17,9 +18,16 @@ class TransactionRepository {
         // TODO: register remaining core types.
     }
 
-    public get(type: TransactionTypes): AbstractTransaction {
+    public create(data: ITransactionData): AbstractTransaction {
+        const instance = new (this.get(data.type) as any)() as AbstractTransaction;
+        instance.data = data;
+
+        return instance;
+    }
+
+    public get(type: TransactionTypes): TransactionConstructor {
         if (this.coreTypes.has(type)) {
-            return (this.coreTypes.get(type) as any) as AbstractTransaction;
+            return this.coreTypes.get(type);
         }
 
         throw new TransactionTypeNotRegisteredError(type);
