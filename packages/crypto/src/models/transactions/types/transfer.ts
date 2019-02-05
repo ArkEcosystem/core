@@ -1,7 +1,7 @@
 import bs58check from "bs58check";
+import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../../constants";
 import { Bignum } from "../../../utils";
-import { ITransactionData } from "../interfaces";
 import { AbstractTransaction } from "./abstract";
 
 export class TransferTransaction extends AbstractTransaction {
@@ -9,10 +9,22 @@ export class TransferTransaction extends AbstractTransaction {
         return TransactionTypes.Transfer;
     }
 
-    public serialize(): Buffer {
-        throw new Error("Method not implemented.");
+    public canBeApplied(wallet: any): boolean {
+        return false;
     }
-    public deserialize(data: ITransactionData, buf: ByteBuffer): void {
+
+    public serialize(): ByteBuffer {
+        const { data } = this;
+        const buffer = new ByteBuffer(24, true);
+        buffer.writeUint64(+new Bignum(data.amount).toFixed());
+        buffer.writeUint32(data.expiration || 0);
+        buffer.append(bs58check.decode(data.recipientId));
+
+        return buffer;
+    }
+
+    public deserialize(buf: ByteBuffer): void {
+        const { data } = this;
         data.amount = new Bignum(buf.readUint64().toString());
         data.expiration = buf.readUint32();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());

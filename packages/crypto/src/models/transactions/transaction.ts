@@ -1,9 +1,11 @@
+import { TransactionRepository } from ".";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { TransactionDeserializer } from "../../deserializers";
 import { TransactionSerializer } from "../../serializers";
 import { Bignum, isException } from "../../utils";
 import { ITransactionData } from "./interfaces";
+import { AbstractTransaction } from "./types";
 
 /**
  * TODO copy some parts to ArkDocs

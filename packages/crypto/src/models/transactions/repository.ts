@@ -6,6 +6,7 @@ import {
 } from "../../errors";
 import { ITransactionData } from "./interfaces";
 import { AbstractTransaction, TransferTransaction } from "./types";
+import { VoteTransaction } from "./types/vote";
 
 type TransactionConstructor = typeof AbstractTransaction;
 
@@ -15,6 +16,7 @@ class TransactionRepository {
 
     constructor() {
         this.registerCoreType(TransferTransaction);
+        this.registerCoreType(VoteTransaction);
         // TODO: register remaining core types.
     }
 

@@ -30,6 +30,24 @@ class TransactionDeserializer {
         return transaction;
     }
 
+    public deserializeV2(serializedHex: string): AbstractTransaction {
+        const data = {} as ITransactionData;
+        const buf = ByteBuffer.fromHex(serializedHex, true);
+
+        this.deserializeCommon(data, buf);
+        this.deserializeVendorField(data, buf);
+
+        const instance = TransactionRepository.create(data);
+        instance.deserialize(buf);
+
+        this.deserializeSignatures(data, buf);
+        this.applyV1Compatibility(data);
+
+        instance.serialized = Buffer.from(serializedHex);
+
+        return instance;
+    }
+
     private deserializeCommon(transaction: ITransactionData, buf: ByteBuffer): void {
         buf.skip(1); // Skip 0xFF marker
         transaction.version = buf.readUint8();

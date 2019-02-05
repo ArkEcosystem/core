@@ -5,7 +5,7 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../constants";
 import { TransactionTypeError, TransactionVersionError } from "../errors";
 import { configManager } from "../managers";
-import { ITransactionData, Transaction } from "../models";
+import { AbstractTransaction, ITransactionData, Transaction } from "../models";
 import { Bignum } from "../utils";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
@@ -40,6 +40,24 @@ export class TransactionSerializer {
         this.serializeSignatures(transaction, buffer);
 
         return Buffer.from(buffer.flip().toBuffer());
+    }
+
+    public static serializeV2(transaction: AbstractTransaction): Buffer {
+        const buffer = new ByteBuffer(512, true);
+        const { data } = transaction;
+
+        this.serializeCommon(data, buffer);
+        this.serializeVendorField(data, buffer);
+
+        // Type
+        buffer.append(transaction.serialize());
+
+        this.serializeSignatures(data, buffer);
+
+        const flippedBuffer = Buffer.from(buffer.flip().toBuffer());
+        transaction.serialized = flippedBuffer;
+
+        return flippedBuffer;
     }
 
     /**

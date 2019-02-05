@@ -6,6 +6,7 @@ import { TransactionDeserializer } from "../../../deserializers";
 import { TransactionTypeNotImplementedError } from "../../../errors";
 import { TransactionSerializer } from "../../../serializers";
 import { isException } from "../../../utils";
+import { Wallet } from "../../wallet";
 import { ITransactionData } from "../interfaces";
 
 export abstract class AbstractTransaction {
@@ -13,12 +14,20 @@ export abstract class AbstractTransaction {
         throw new TransactionTypeNotImplementedError();
     }
 
-    public static from(data: ITransactionData) {
-        const transaction = TransactionRepository.create(data);
-        transaction.serialized = TransactionSerializer.serialize(data);
-        transaction.data = TransactionDeserializer.deserialize(transaction.serialized.toString("hex"));
+    public static fromHex(hex: string): AbstractTransaction {
+        return TransactionDeserializer.deserializeV2(hex);
+    }
 
-        transaction.verify();
+    public static from(data: ITransactionData): AbstractTransaction {
+        const transaction = TransactionRepository.create(data);
+
+        // TODO:
+        // 1. validate schema + sanitize
+        // 2. serialize ?
+        // 3. deserialize is not necessary anymore if 1) plus crypto.verify are in place
+
+        TransactionSerializer.serializeV2(transaction);
+        TransactionDeserializer.deserializeV2(transaction.serialized.toString("hex"));
 
         return transaction;
     }
@@ -26,11 +35,11 @@ export abstract class AbstractTransaction {
     public data: ITransactionData;
     public serialized: Buffer;
 
-    public abstract serialize(): Buffer;
+    public abstract serialize(): ByteBuffer;
 
     public abstract deserialize(buf: ByteBuffer): void;
 
-    public abstract canBeApplied(wallet): boolean;
+    public abstract canBeApplied(wallet: Wallet): boolean;
 
     public verify(): boolean {
         const { data } = this;
