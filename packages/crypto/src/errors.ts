@@ -150,8 +150,38 @@ export class EmptyUsernameDelegateRegistrationError extends CryptoError {
     }
 }
 
-export class DelegateRegistrationError extends CryptoError {
+export class WalletUsernameDelegateRegistrationError extends CryptoError {
     constructor() {
         super(`Failed to apply transaction, because the wallet already has a registered username.`);
+    }
+}
+
+export class WalletNoUsernameDelegateResignationError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet has no registered username.`);
+    }
+}
+
+export class SecondSignatureAlreadyRegisteredError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet has no registered username.`);
+    }
+}
+
+export class AlreadyVotedError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet already voted.`);
+    }
+}
+
+export class NoVoteError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet has not voted.`);
+    }
+}
+
+export class UnvoteMismatchError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet vote does not match.`);
     }
 }

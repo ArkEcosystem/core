@@ -1,15 +1,12 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
+import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
 import { AbstractTransaction } from "./abstract";
 
 export class TransferTransaction extends AbstractTransaction {
     public static type: TransactionTypes = TransactionTypes.Transfer;
-
-    public canBeApplied(wallet: any): boolean {
-        return false;
-    }
 
     public serialize(): ByteBuffer {
         const { data } = this;
@@ -26,6 +23,18 @@ export class TransferTransaction extends AbstractTransaction {
         data.amount = new Bignum(buf.readUint64().toString());
         data.expiration = buf.readUint32();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
+    }
+
+    public canBeApplied(wallet: Wallet): boolean {
+        return super.canBeApplied(wallet);
+    }
+
+    protected apply(wallet: Wallet): void {
+        return;
+    }
+
+    protected revert(wallet: Wallet): void {
+        return;
     }
 
     protected hasVendorField(): boolean {

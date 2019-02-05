@@ -1,13 +1,11 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
+import { NotImplementedError } from "../../errors";
+import { Wallet } from "../../models";
 import { AbstractTransaction } from "./abstract";
 
 export class IpfsTransaction extends AbstractTransaction {
     public static type: TransactionTypes = TransactionTypes.Ipfs;
-
-    public canBeApplied(wallet: any): boolean {
-        return false;
-    }
 
     public serialize(): ByteBuffer {
         const { data } = this;
@@ -27,5 +25,16 @@ export class IpfsTransaction extends AbstractTransaction {
                 dag: buf.readBytes(dagLength).toString("hex"),
             },
         };
+    }
+
+    public canBeApplied(wallet: Wallet): boolean {
+        return super.canBeApplied(wallet);
+    }
+
+    protected apply(wallet: Wallet): void {
+        throw new NotImplementedError();
+    }
+    protected revert(wallet: Wallet): void {
+        throw new NotImplementedError();
     }
 }

@@ -1,15 +1,13 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
+import { NotImplementedError } from "../../errors";
+import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
 import { AbstractTransaction } from "./abstract";
 
 export class MultiPaymentTransaction extends AbstractTransaction {
     public static type: TransactionTypes = TransactionTypes.MultiPayment;
-
-    public canBeApplied(wallet: any): boolean {
-        return false;
-    }
 
     public serialize(): ByteBuffer {
         const { data } = this;
@@ -38,5 +36,16 @@ export class MultiPaymentTransaction extends AbstractTransaction {
 
         data.amount = payments.reduce((a, p) => a.plus(p.amount), Bignum.ZERO);
         data.asset = { payments };
+    }
+
+    public canBeApplied(wallet: Wallet): boolean {
+        return super.canBeApplied(wallet);
+    }
+
+    protected apply(wallet: Wallet): void {
+        throw new NotImplementedError();
+    }
+    protected revert(wallet: Wallet): void {
+        throw new NotImplementedError();
     }
 }

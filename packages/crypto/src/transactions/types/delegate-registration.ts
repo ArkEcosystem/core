@@ -30,8 +30,6 @@ export class DelegateRegistrationTransaction extends AbstractTransaction {
     }
 
     public canBeApplied(wallet: Wallet): boolean {
-        super.canBeApplied(wallet);
-
         const username = this.data.asset.delegate.username;
         if (!username) {
             throw new EmptyUsernameDelegateRegistrationError();
@@ -41,12 +39,13 @@ export class DelegateRegistrationTransaction extends AbstractTransaction {
             throw new WalletUsernameDelegateRegistrationError();
         }
 
-        return true;
+        return super.canBeApplied(wallet);
     }
 
     protected apply(wallet: Wallet): void {
         wallet.username = this.data.asset.delegate.username;
     }
+
     protected revert(wallet: Wallet): void {
         wallet.username = null;
     }

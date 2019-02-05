@@ -1,13 +1,11 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
+import { SecondSignatureAlreadyRegisteredError } from "../../errors";
+import { Wallet } from "../../models";
 import { AbstractTransaction } from "./abstract";
 
 export class SecondSignatureRegistrationTransaction extends AbstractTransaction {
     public static type: TransactionTypes = TransactionTypes.SecondSignature;
-
-    public canBeApplied(wallet: any): boolean {
-        return false;
-    }
 
     public serialize(): ByteBuffer {
         const { data } = this;
@@ -25,5 +23,21 @@ export class SecondSignatureRegistrationTransaction extends AbstractTransaction 
                 publicKey: buf.readBytes(33).toString("hex"),
             },
         };
+    }
+
+    public canBeApplied(wallet: Wallet): boolean {
+        if (wallet.secondPublicKey) {
+            throw new SecondSignatureAlreadyRegisteredError();
+        }
+
+        return super.canBeApplied(wallet);
+    }
+
+    protected apply(wallet: Wallet): void {
+        wallet.secondPublicKey = this.data.asset.signature.publicKey;
+    }
+
+    protected revert(wallet: Wallet): void {
+        wallet.secondPublicKey = null;
     }
 }

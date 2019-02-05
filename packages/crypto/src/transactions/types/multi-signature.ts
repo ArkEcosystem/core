@@ -1,14 +1,12 @@
 import ByteBuffer from "bytebuffer";
 import { IMultiSignatureAsset } from "..";
 import { TransactionTypes } from "../../constants";
+import { NotImplementedError } from "../../errors";
+import { Wallet } from "../../models";
 import { AbstractTransaction } from "./abstract";
 
 export class MultiSignatureRegistrationTransaction extends AbstractTransaction {
     public static type: TransactionTypes = TransactionTypes.MultiSignature;
-
-    public canBeApplied(wallet: any): boolean {
-        return false;
-    }
 
     public serialize(): ByteBuffer {
         const { data } = this;
@@ -43,5 +41,17 @@ export class MultiSignatureRegistrationTransaction extends AbstractTransaction {
             const key = buf.readBytes(33).toString("hex");
             data.asset.multisignature.keysgroup.push(key);
         }
+    }
+
+    // TODO: AIP18
+    public canBeApplied(wallet: Wallet): boolean {
+        throw new NotImplementedError();
+    }
+
+    protected apply(wallet: Wallet): void {
+        throw new NotImplementedError();
+    }
+    protected revert(wallet: Wallet): void {
+        throw new NotImplementedError();
     }
 }
