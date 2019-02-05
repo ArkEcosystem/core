@@ -9,7 +9,7 @@ import {
     AbstractTransaction,
     IMultiSignatureAsset,
     ITransactionData,
-    TransactionRegistry,
+    TransactionRepository,
 } from "../models/transactions";
 import { Bignum } from "../utils/bignum";
 

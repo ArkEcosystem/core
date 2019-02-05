@@ -8,7 +8,7 @@ import { AbstractTransaction, TransferTransaction } from "./types";
 
 type TransactionConstructor = typeof AbstractTransaction;
 
-class TransactionRegistry {
+class TransactionRepository {
     private readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
     private readonly customTypes = new Map<number, TransactionConstructor>();
 
@@ -17,9 +17,9 @@ class TransactionRegistry {
         // TODO: register remaining core types.
     }
 
-    public get(type: TransactionTypes): typeof AbstractTransaction {
+    public get(type: TransactionTypes): AbstractTransaction {
         if (this.coreTypes.has(type)) {
-            return this.coreTypes.get(type);
+            return (this.coreTypes.get(type) as any) as AbstractTransaction;
         }
 
         throw new TransactionTypeNotRegisteredError(type);
@@ -43,4 +43,4 @@ class TransactionRegistry {
     }
 }
 
-export const transactionRegistry = new TransactionRegistry();
+export const transactionRepository = new TransactionRepository();
