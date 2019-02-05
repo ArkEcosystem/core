@@ -1,13 +1,11 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
+import { EmptyUsernameDelegateRegistrationError, WalletUsernameDelegateRegistrationError } from "../../errors";
+import { Wallet } from "../../models";
 import { AbstractTransaction } from "./abstract";
 
 export class DelegateRegistrationTransaction extends AbstractTransaction {
     public static type: TransactionTypes = TransactionTypes.DelegateRegistration;
-
-    public canBeApplied(wallet: any): boolean {
-        return false;
-    }
 
     public serialize(): ByteBuffer {
         const { data } = this;
@@ -29,5 +27,27 @@ export class DelegateRegistrationTransaction extends AbstractTransaction {
                 username: buf.readString(usernamelength),
             },
         };
+    }
+
+    public canBeApplied(wallet: Wallet): boolean {
+        super.canBeApplied(wallet);
+
+        const username = this.data.asset.delegate.username;
+        if (!username) {
+            throw new EmptyUsernameDelegateRegistrationError();
+        }
+
+        if (wallet.username) {
+            throw new WalletUsernameDelegateRegistrationError();
+        }
+
+        return true;
+    }
+
+    protected apply(wallet: Wallet): void {
+        wallet.username = this.data.asset.delegate.username;
+    }
+    protected revert(wallet: Wallet): void {
+        wallet.username = null;
     }
 }

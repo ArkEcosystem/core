@@ -143,3 +143,15 @@ export class SecondSignatureVerificationFailedError extends CryptoError {
         super(`Failed to apply transaction, because the second signature could not be verified.`);
     }
 }
+
+export class EmptyUsernameDelegateRegistrationError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the username is empty.`);
+    }
+}
+
+export class DelegateRegistrationError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet already has a registered username.`);
+    }
+}
