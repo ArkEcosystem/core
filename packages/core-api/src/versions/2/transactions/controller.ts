@@ -72,16 +72,16 @@ export class TransactionsController extends Controller {
 
             const pagination = super.paginate(request);
 
-            let transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit);
-            transactions = transactions.map(transaction => ({
-                serialized: transaction,
+            const transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit);
+            const data = transactions.map(transaction => ({
+                serialized: transaction.toString("hex"),
             }));
 
             return super.toPagination(
                 request,
                 {
                     count: this.transactionPool.getPoolSize(),
-                    rows: transactions,
+                    rows: data,
                 },
                 "transaction",
             );
@@ -96,15 +96,14 @@ export class TransactionsController extends Controller {
                 return Boom.serverUnavailable("Transaction pool is disabled.");
             }
 
-            let transaction = this.transactionPool.getTransaction(request.params.id);
-
+            const transaction = this.transactionPool.getTransaction(request.params.id);
             if (!transaction) {
                 return Boom.notFound("Transaction not found");
             }
 
-            transaction = { serialized: transaction.serialized };
+            const data = { serialized: transaction.serialized.toString("hex") };
 
-            return super.respondWithResource(request, transaction, "transaction");
+            return super.respondWithResource(request, data, "transaction");
         } catch (error) {
             return Boom.badImplementation(error);
         }

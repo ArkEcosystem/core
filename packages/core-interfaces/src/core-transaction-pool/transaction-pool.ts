@@ -9,6 +9,7 @@ export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
     transaction: models.AbstractTransaction;
     type: string;
     message: string;
+    success: boolean;
 }
 
 export interface ITransactionPool {
@@ -74,7 +75,7 @@ export interface ITransactionPool {
     /**
      * Get all transactions that are ready to be forged.
      */
-    getTransactionsForForging(blockSize: number): models.AbstractTransaction[];
+    getTransactionsForForging(blockSize: number): string[];
 
     /**
      * Get a transaction by transaction id.
@@ -85,7 +86,7 @@ export interface ITransactionPool {
      * Get all transactions within the specified range [start, start + size), ordered by fee.
      * @return {(Array|void)} array of serialized transaction hex strings
      */
-    getTransactions(start: number, size: number): string[];
+    getTransactions(start: number, size: number): Buffer[];
 
     /**
      * Get all transactions within the specified range [start, start + size).
@@ -109,7 +110,7 @@ export interface ITransactionPool {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    hasExceededMaxTransactions(transaction: models.AbstractTransaction): boolean;
+    hasExceededMaxTransactions(transaction: models.ITransactionData): boolean;
 
     /**
      * Flush the pool (delete all transactions from it).

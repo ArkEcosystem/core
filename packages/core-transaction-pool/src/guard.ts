@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { AbstractTransaction, configManager, constants, slots } from "@arkecosystem/crypto";
+import { Blockchain, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
+import { AbstractTransaction, configManager, constants, ITransactionData, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -10,34 +10,16 @@ import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 const { TransactionTypes } = constants;
 
 export class TransactionGuard implements transanctionPool.ITransactionGuard {
-    public transactions: AbstractTransaction[] = [];
+    public transactions: ITransactionData[] = [];
     public excess: string[] = [];
     public accept: Map<string, AbstractTransaction> = new Map();
     public broadcast: Map<string, AbstractTransaction> = new Map();
-    public invalid: Map<string, AbstractTransaction> = new Map();
+    public invalid: Map<string, ITransactionData> = new Map();
     public errors: { [key: string]: transanctionPool.ITransactionErrorResponse[] } = {};
 
-    /**
-     * Create a new transaction guard instance.
-     * @param  {TransactionPoolInterface} pool
-     * @return {void}
-     */
     constructor(private pool: TransactionPool) {}
 
-    /**
-     * Validate the specified transactions and accepted transactions to the pool.
-     * @param  {Array} transactions
-     * @return Object {
-     *   accept: array of transaction ids that qualify for entering the pool
-     *   broadcast: array of of transaction ids that qualify for broadcasting
-     *   invalid: array of invalid transaction ids
-     *   excess: array of transaction ids that exceed sender's quota in the pool
-     *   errors: Object with
-     *     keys=transaction id (for each element in invalid[]),
-     *     value=[ { type, message }, ... ]
-     * }
-     */
-    public async validate(transactions: AbstractTransaction[]): Promise<transanctionPool.IValidationResult> {
+    public async validate(transactions: ITransactionData[]): Promise<transanctionPool.IValidationResult> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -68,10 +50,9 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
     /**
      * Cache the given transactions and return which got added. Already cached
      * transactions are not returned.
-     * @return {Array}
      */
-    public __cacheTransactions(transactions) {
-        const { added, notAdded } = app.resolve("state").cacheTransactions(transactions);
+    public __cacheTransactions(transactions: ITransactionData[]) {
+        const { added, notAdded } = app.resolve<Blockchain.IStateStorage>("state").cacheTransactions(transactions);
 
         notAdded.forEach(transaction => {
             if (!this.errors[transaction.id]) {
@@ -84,7 +65,6 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
 
     /**
      * Get broadcast transactions.
-     * @return {Array}
      */
     public getBroadcastTransactions(): AbstractTransaction[] {
         return Array.from(this.broadcast.values());
@@ -99,10 +79,8 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * - dynamic fee mismatch
      * - transactions based on type specific restrictions
      * - not valid crypto transactions
-     * @param  {Array} transactions
-     * @return {void}
      */
-    public __filterAndTransformTransactions(transactions) {
+    public __filterAndTransformTransactions(transactions: ITransactionData[]): void {
         transactions.forEach(transaction => {
             const exists = this.pool.transactionExists(transaction.id);
 
@@ -161,7 +139,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      *    - if sender already has another transaction of the same type, for types that
      *    - only allow one transaction at a time in the pool (e.g. vote)
      */
-    public __validateTransaction(transaction) {
+    public __validateTransaction(transaction: ITransactionData): boolean {
         const now = slots.getTime();
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture = transaction.timestamp - now;
@@ -233,7 +211,6 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
 
     /**
      * Remove already forged transactions.
-     * @return {void}
      */
     public async __removeForgedTransactions() {
         const database = app.resolvePlugin<PostgresConnection>("database");
@@ -245,7 +222,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
         app.resolve("state").removeCachedTransactionIds(forgedIdsSet);
 
         forgedIdsSet.forEach(id => {
-            this.__pushError(this.accept.get(id), "ERR_FORGED", "Already forged.");
+            this.__pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
 
             this.accept.delete(id);
             this.broadcast.delete(id);
@@ -254,7 +231,6 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
 
     /**
      * Add accepted transactions to the pool and filter rejected ones.
-     * @return {void}
      */
     public __addTransactionsToPool() {
         // Add transactions to the transaction pool
@@ -277,12 +253,8 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * Adds a transaction to the errors object. The transaction id is mapped to an
      * array of errors. There may be multiple errors associated with a transaction in
      * which case __pushError is called multiple times.
-     * @param {Transaction} transaction
-     * @param {String} type
-     * @param {String} message
-     * @return {void}
      */
-    public __pushError(transaction, type, message) {
+    public __pushError(transaction: ITransactionData, type: string, message: string) {
         if (!this.errors[transaction.id]) {
             this.errors[transaction.id] = [];
         }
@@ -294,7 +266,6 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
 
     /**
      * Print compact transaction stats.
-     * @return {void}
      */
     public __printStats() {
         const properties = ["accept", "broadcast", "excess", "invalid"];

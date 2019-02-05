@@ -41,8 +41,12 @@ export abstract class AbstractTransaction {
         return transaction;
     }
 
-    public get id() {
+    public get id(): string {
         return this.data.id;
+    }
+
+    public get type(): TransactionTypes {
+        return AbstractTransaction.type;
     }
 
     public data: ITransactionData;
@@ -151,7 +155,6 @@ export abstract class AbstractTransaction {
     /**
      * Misc
      */
-
     public verify(): boolean {
         const { data } = this;
         if (isException(data)) {
@@ -162,6 +165,7 @@ export abstract class AbstractTransaction {
             return false;
         }
 
+        // TODO: cache result
         return crypto.verify(data);
     }
 

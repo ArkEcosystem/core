@@ -1,3 +1,1 @@
-import { calculateFee, dynamicFeeMatcher } from "./matcher";
-
-export { calculateFee, dynamicFeeMatcher };
+export { calculateFee, dynamicFeeMatcher } from "./matcher";

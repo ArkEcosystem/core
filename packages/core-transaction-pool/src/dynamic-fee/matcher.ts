@@ -1,16 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { constants, feeManager, formatArktoshi } from "@arkecosystem/crypto";
+import { AbstractTransaction, Bignum, constants, feeManager, formatArktoshi } from "@arkecosystem/crypto";
 import camelCase from "lodash/camelCase";
 import { config as localConfig } from "../config";
 
 /**
  * Calculate minimum fee of a transaction for entering the pool.
- * @param {Number} Minimum fee ARKTOSHI/byte
- * @param {Transaction} Transaction for which we calculate the fee
- * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
  */
-export function calculateFee(arktoshiPerByte, transaction) {
+export function calculateFee(arktoshiPerByte: number, transaction: AbstractTransaction): number {
     if (arktoshiPerByte <= 0) {
         arktoshiPerByte = 1;
     }
@@ -31,10 +28,10 @@ export function calculateFee(arktoshiPerByte, transaction) {
  * @param {Transaction} Transaction - transaction to check
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
-export function dynamicFeeMatcher(transaction) {
+export function dynamicFeeMatcher(transaction: AbstractTransaction): { broadcast: boolean; enterPool: boolean } {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    const fee = +transaction.fee.toFixed();
+    const fee = +(transaction.data.fee as Bignum).toFixed();
     const id = transaction.id;
 
     const dynamicFees = localConfig.get("dynamicFees");
@@ -79,7 +76,7 @@ export function dynamicFeeMatcher(transaction) {
         }
     } else {
         // Static fees
-        const staticFee = feeManager.getForTransaction(transaction);
+        const staticFee = feeManager.getForTransaction(transaction.data);
 
         if (fee === staticFee) {
             broadcast = true;
