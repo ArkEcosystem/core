@@ -1,11 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import { models } from "@arkecosystem/crypto";
+import { AbstractTransaction, models } from "@arkecosystem/crypto";
 import * as schema from "../schemas/transactions";
 
 const config = app.getConfig();
-const { Transaction } = models;
 
 /**
  * @type {Object}
@@ -17,7 +16,7 @@ export const verify = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const transaction = new Transaction(Transaction.deserialize(request.payload.transaction));
+        const transaction = AbstractTransaction.fromHex(request.payload.transaction);
 
         return {
             data: {

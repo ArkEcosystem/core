@@ -1,21 +1,20 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { configManager, constants, models, slots } from "@arkecosystem/crypto";
+import { AbstractTransaction, configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 const { TransactionTypes } = constants;
-const { Transaction } = models;
 
 export class TransactionGuard implements transanctionPool.ITransactionGuard {
-    public transactions: models.Transaction[] = [];
+    public transactions: models.AbstractTransaction[] = [];
     public excess: string[] = [];
-    public accept: Map<string, models.Transaction> = new Map();
-    public broadcast: Map<string, models.Transaction> = new Map();
-    public invalid: Map<string, models.Transaction> = new Map();
+    public accept: Map<string, models.AbstractTransaction> = new Map();
+    public broadcast: Map<string, models.AbstractTransaction> = new Map();
+    public invalid: Map<string, models.AbstractTransaction> = new Map();
     public errors: { [key: string]: transanctionPool.TransactionErrorDTO[] } = {};
 
     /**
@@ -38,7 +37,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      *     value=[ { type, message }, ... ]
      * }
      */
-    public async validate(transactions: models.Transaction[]): Promise<transanctionPool.ValidationResultDTO> {
+    public async validate(transactions: models.AbstractTransaction[]): Promise<transanctionPool.ValidationResultDTO> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -87,7 +86,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * Get broadcast transactions.
      * @return {Array}
      */
-    public getBroadcastTransactions(): models.Transaction[] {
+    public getBroadcastTransactions(): models.AbstractTransaction[] {
         return Array.from(this.broadcast.values());
     }
 
@@ -119,8 +118,8 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 this.excess.push(transaction.id);
             } else if (this.__validateTransaction(transaction)) {
                 try {
-                    const trx = new Transaction(transaction);
-                    if (trx.verified) {
+                    const trx = AbstractTransaction.from(transaction);
+                    if (trx.verify()) {
                         const dynamicFee = dynamicFeeMatcher(trx);
 
                         if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
@@ -131,11 +130,11 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                             );
                         } else {
                             if (dynamicFee.enterPool) {
-                                this.accept.set(trx.id, trx);
+                                this.accept.set(trx.data.id, trx);
                             }
 
                             if (dynamicFee.broadcast) {
-                                this.broadcast.set(trx.id, trx);
+                                this.broadcast.set(trx.data.id, trx);
                             }
                         }
                     } else {

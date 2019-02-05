@@ -7,6 +7,7 @@ import { Transaction } from "../../src/models/transactions";
 import { transaction as transactionData } from "../fixtures/transaction";
 
 import { TransactionTypeError } from "../../src/errors";
+import { AbstractTransaction } from "../../src/models";
 import { devnet } from "../../src/networks";
 
 const createRandomTx = type => {
@@ -97,16 +98,16 @@ describe("Models - Transaction", () => {
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const ser = Transaction.serialize(transaction.data).toString("hex");
-                    const newTransaction = new Transaction(ser);
+                    const newTransaction = AbstractTransaction.fromHex(ser);
                     expect(newTransaction.data).toEqual(transaction.data);
-                    expect(newTransaction.verified).toBeTrue();
+                    expect(newTransaction.verify()).toBeTrue();
                 });
         });
 
         it("should create a transaction", () => {
             const hex = Transaction.serialize(transactionData).toString("hex");
-            const transaction = new Transaction(hex);
-            expect(transaction).toBeInstanceOf(Transaction);
+            const transaction = AbstractTransaction.fromHex(hex);
+            expect(transaction).toBeInstanceOf(AbstractTransaction);
 
             // We can't compare the data directly, since the created instance uses Bignums.
             // ... call toJson() which casts the Bignums to numbers beforehand.
@@ -120,8 +121,8 @@ describe("Models - Transaction", () => {
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const originalId = transaction.data.id;
-                    const newTransaction = new Transaction(transaction.data);
-                    expect(newTransaction.id).toEqual(originalId);
+                    const newTransaction = AbstractTransaction.from(transaction.data);
+                    expect(newTransaction.data.id).toEqual(originalId);
                 });
         });
     });
@@ -217,8 +218,8 @@ describe("Models - Transaction", () => {
         ];
         txs.forEach(tx =>
             it(`txid: ${tx.id}`, () => {
-                const newtx = new Transaction(tx);
-                expect(newtx.id).toEqual(tx.id);
+                const newtx = AbstractTransaction.from(tx);
+                expect(newtx.data.id).toEqual(tx.id);
             }),
         );
     });

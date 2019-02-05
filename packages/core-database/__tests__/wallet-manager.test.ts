@@ -1,12 +1,12 @@
 /* tslint:disable:max-line-length no-empty */
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
-import { IMultiSignatureAsset } from "@arkecosystem/crypto/dist/models";
+import { AbstractTransaction, IMultiSignatureAsset } from "@arkecosystem/crypto/dist/models";
 import genesisBlockTestnet from "../../core-test-utils/src/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block, Transaction, Wallet } = models;
+const { Block, Wallet } = models;
 const { ARKTOSHI, TransactionTypes } = constants;
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
@@ -235,7 +235,7 @@ describe("Wallet Manager", () => {
 
     describe("revertTransaction", () => {
         it("should revert the transaction from the sender & recipient", async () => {
-            const transaction = new Transaction({
+            const transaction = AbstractTransaction.from({
                 type: TransactionTypes.Transfer,
                 amount: 245098000000000,
                 fee: 0,

@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { AbstractTransaction, models } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import fs from "fs-extra";
 import { MemPoolTransaction } from "./mem-pool-transaction";
@@ -100,7 +100,7 @@ export class Storage {
         const rows = this.db.prepare(`SELECT sequence, lower(HEX(serialized)) AS serialized FROM ${this.table};`).all();
 
         return rows
-            .map(r => ({ tx: new Transaction(r.serialized), ...r }))
+            .map(r => ({ tx: AbstractTransaction.fromHex(r.serialized), ...r }))
             .filter(r => r.tx.verified)
             .map(r => new MemPoolTransaction(r.tx, r.sequence));
     }

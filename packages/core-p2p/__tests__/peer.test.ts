@@ -1,11 +1,11 @@
-import { models } from "@arkecosystem/crypto";
+import { AbstractTransaction, models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Peer } from "../src/peer";
 import { setUp, tearDown } from "./__support__/setup";
 
 const axiosMock = new MockAdapter(axios);
-const { Block, Transaction } = models;
+const { Block } = models;
 
 let genesisBlock;
 let genesisTransaction;
@@ -18,7 +18,7 @@ beforeAll(async () => {
     // Create the genesis block after the setup has finished or else it uses a potentially
     // wrong network config.
     genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
-    genesisTransaction = new Transaction(genesisBlock.transactions[0]);
+    genesisTransaction = AbstractTransaction.from(genesisBlock.transactions[0]);
 });
 
 afterAll(async () => {

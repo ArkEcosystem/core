@@ -161,7 +161,7 @@ export abstract class AbstractTransaction {
         return crypto.verify(data);
     }
 
-    protected toJson() {
+    public toJson() {
         const data = Object.assign({}, this.data);
         data.amount = +(data.amount as Bignum).toFixed();
         data.fee = +(data.fee as Bignum).toFixed();

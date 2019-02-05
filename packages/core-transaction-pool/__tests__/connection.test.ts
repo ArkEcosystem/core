@@ -2,7 +2,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, constants, models, slots } from "@arkecosystem/crypto";
+import { AbstractTransaction, Bignum, constants, models, slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
 import randomSeed from "random-seed";
@@ -160,7 +160,7 @@ describe("Connection", () => {
 
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
-            const highFeeTransaction = new Transaction(mockData.dummy3);
+            const highFeeTransaction = AbstractTransaction.from(mockData.dummy3).data;
             highFeeTransaction.fee = bignumify(1e9 * ARKTOSHI);
             // changing public key as fixture transactions have the same one
             highFeeTransaction.senderPublicKey = "000000000000000000000000000000000000000420000000000000000000000000";
@@ -193,13 +193,13 @@ describe("Connection", () => {
 
             const transactions = [];
 
-            transactions.push(new Transaction(mockData.dummyExp1));
+            transactions.push(AbstractTransaction.from(mockData.dummyExp1));
             transactions[transactions.length - 1].expiration = expiration;
 
-            transactions.push(new Transaction(mockData.dummy1));
+            transactions.push(AbstractTransaction.from(mockData.dummy1));
 
             // Workaround: Increase balance of sender wallet to succeed
-            const insufficientBalanceTx: any = new Transaction(mockData.dummyExp2);
+            const insufficientBalanceTx: any = AbstractTransaction.from(mockData.dummyExp2);
             transactions.push(insufficientBalanceTx);
             insufficientBalanceTx.expiration = expiration;
 
@@ -357,7 +357,9 @@ describe("Connection", () => {
             }
 
             for (const i of [0, 1]) {
-                const retrieved = connection.getTransactions(i, 1).map(serializedTx => new Transaction(serializedTx));
+                const retrieved = connection
+                    .getTransactions(i, 1)
+                    .map(serializedTx => AbstractTransaction.fromHex(serializedTx));
 
                 expect(retrieved.length).toBe(1);
                 expect(retrieved[0]).toBeObject();
@@ -459,7 +461,7 @@ describe("Connection", () => {
         });
 
         it("should remove transaction from pool if it's in the chained block", () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = AbstractTransaction.from(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -499,7 +501,7 @@ describe("Connection", () => {
         afterEach(() => connection.walletManager.reset());
 
         it("should build wallets from transactions in the pool", async () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = AbstractTransaction.from(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -516,7 +518,7 @@ describe("Connection", () => {
         });
 
         it("should handle getTransaction() not finding transaction", async () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = AbstractTransaction.from(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -533,7 +535,7 @@ describe("Connection", () => {
         });
 
         it("should not apply transaction to wallet if canApply() failed", async () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = AbstractTransaction.from(block2.transactions[0]);
             connection.addTransaction(transaction0);
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
 
@@ -574,7 +576,7 @@ describe("Connection", () => {
             // Prevent 'wallet has already voted' error
             connection.walletManager.findByPublicKey(tx.senderPublicKey).vote = "";
 
-            const voteTx = new Transaction(tx);
+            const voteTx = AbstractTransaction.from(tx);
             voteTx.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
             voteTx.type = TransactionTypes.Vote;
             voteTx.amount = bignumify(0);
@@ -664,7 +666,7 @@ describe("Connection", () => {
             const testSize = connection.options.syncInterval * 2;
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = new Transaction(mockData.dummy1);
+                const transaction = AbstractTransaction.from(mockData.dummy1);
                 transaction.id = fakeTransactionId(i);
                 connection.addTransaction(transaction);
 
@@ -684,7 +686,7 @@ describe("Connection", () => {
             }
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = new Transaction(mockData.dummy1);
+                const transaction = AbstractTransaction.from(mockData.dummy1);
                 transaction.id = fakeTransactionId(i);
                 connection.removeTransaction(transaction);
             }
@@ -693,12 +695,12 @@ describe("Connection", () => {
         it("delete + add after sync", () => {
             for (let i = 0; i < connection.options.syncInterval; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const transaction = new Transaction(mockData.dummy1);
+                const transaction = AbstractTransaction.from(mockData.dummy1);
                 transaction.id = fakeTransactionId(i);
                 connection.addTransaction(transaction);
             }
 
-            const transaction = new Transaction(mockData.dummy1);
+            const transaction = AbstractTransaction.from(mockData.dummy1);
             transaction.id = fakeTransactionId(0);
             connection.removeTransaction(transaction);
             connection.addTransaction(transaction);
@@ -713,7 +715,7 @@ describe("Connection", () => {
 
             const allTransactions = [];
             for (let i = 0; i < nAdd; i++) {
-                const transaction = new Transaction(mockData.dummy1);
+                const transaction = AbstractTransaction.from(mockData.dummy1);
                 transaction.id = fakeTransactionId(i);
                 transaction.fee = bignumify(rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI));
                 transaction.serialized = Transaction.serialize(transaction).toString("hex");
@@ -736,7 +738,7 @@ describe("Connection", () => {
             const topTransactionsSerialized = connection.getTransactions(0, nGet);
             // console.timeEnd(`time to get first ${nGet}`)
 
-            const topFeesReceived = topTransactionsSerialized.map(e => new Transaction(e).fee.toString());
+            const topFeesReceived = topTransactionsSerialized.map(e => AbstractTransaction.from(e).fee.toString());
 
             expect(topFeesReceived).toEqual(topFeesExpected);
         });

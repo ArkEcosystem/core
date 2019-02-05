@@ -2,7 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { configManager } from "../../managers";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils/bignum";
-import { Transaction } from "../transaction";
+import { AbstractTransaction } from "../types";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -67,8 +67,8 @@ class BlockDeserializer {
         block.transactions = [];
         transactionLengths.forEach(length => {
             const serializedHex = buf.readBytes(length).toString("hex");
-            const transaction = new Transaction(serializedHex);
-            block.transactions.push(transaction);
+            const transaction = AbstractTransaction.fromHex(serializedHex);
+            block.transactions.push(transaction.data); // FIXME
         });
     }
 }

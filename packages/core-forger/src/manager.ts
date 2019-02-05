@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { models, slots } from "@arkecosystem/crypto";
+import { AbstractTransaction, models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
 import uniq from "lodash/uniq";
@@ -9,7 +9,7 @@ import pluralize from "pluralize";
 
 import { Client } from "./client";
 
-const { Delegate, Transaction } = models;
+const { Delegate } = models;
 
 export class ForgerManager {
     private logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -210,7 +210,7 @@ export class ForgerManager {
         const response = await this.client.getTransactions();
 
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => new Transaction(serializedTx))
+            ? response.transactions.map(serializedTx => AbstractTransaction.fromHex(serializedTx))
             : [];
 
         if (isEmpty(response)) {

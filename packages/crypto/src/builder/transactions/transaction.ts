@@ -2,7 +2,7 @@ import { crypto, slots } from "../../crypto";
 import { MissingTransactionSignatureError } from "../../errors";
 import { configManager } from "../../managers";
 import { INetwork } from "../../networks";
-import { ITransactionData, Transaction } from "../../transactions";
+import { AbstractTransaction, ITransactionData } from "../../transactions";
 import { Bignum } from "../../utils";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
@@ -21,8 +21,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     /**
      * Build a new Transaction instance.
      */
-    public build(data: Partial<ITransactionData> = {}): Transaction {
-        return new Transaction({ ...this.data, ...data });
+    public build(data: Partial<ITransactionData> = {}): AbstractTransaction {
+        return AbstractTransaction.from({ ...this.data, ...data });
     }
 
     /**
