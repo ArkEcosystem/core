@@ -601,10 +601,18 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("dispatch - !! to be executed as last test !!", () => {
-        /*
-            NEEDS TO BE EXECUTED LAST : didn't manage to restore back blockchain actions (see below)
-        */
+    describe("stop on emit shutdown", () => {
+        it("should trigger the stop method when receiving 'shutdown' event", async () => {
+            const emitter = container.resolvePlugin("event-emitter");
+
+            const stop = jest.spyOn(blockchain, "stop").mockReturnValue(true);
+
+            emitter.emit("shutdown");
+
+            await delay(200);
+
+            expect(stop).toHaveBeenCalled();
+        });
     });
 });
 
