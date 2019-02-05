@@ -1,21 +1,21 @@
-import { Bignum } from "@arkecosystem/crypto";
+import { Database } from "@arkecosystem/core-interfaces";
 import orderBy from "lodash/orderBy";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 
-export class WalletsRepository {
+export class WalletsRepository implements Database.IWalletsBusinessRepository {
     /**
      * Create a new wallet repository instance.
-     * @param  {ConnectionInterface} connection
+     * @param  {DatabaseConnection} databaseService
      */
-    public constructor(public connection) {}
+    public constructor(private databaseServiceProvider : () => Database.IDatabaseService) {}
 
     /**
      * Get all local wallets.
      * @return {Array}
      */
     public all() {
-        return this.connection.walletManager.all();
+        return this.databaseServiceProvider().walletManager.allByAddress();
     }
 
     /**
@@ -23,7 +23,7 @@ export class WalletsRepository {
      * @param  {{ orderBy?: string }} params
      * @return {Object}
      */
-    public findAll(params: { orderBy?: string } = {}) {
+    public findAll(params: Database.IParameters = {}) {
         const wallets = this.all();
 
         const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
@@ -40,7 +40,7 @@ export class WalletsRepository {
      * @param  {Object} params
      * @return {Object}
      */
-    public findAllByVote(publicKey, params = {}) {
+    public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
 
         return {
@@ -51,16 +51,13 @@ export class WalletsRepository {
 
     /**
      * Find a wallet by address, public key or username.
-     * @param  {Number} id
-     * @return {Object}
      */
-    public findById(id) {
+    public findById(id: string) {
         return this.all().find(wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id);
     }
 
     /**
      * Count all wallets.
-     * @return {Number}
      */
     public count() {
         return this.all().length;
@@ -68,10 +65,8 @@ export class WalletsRepository {
 
     /**
      * Find all wallets sorted by balance.
-     * @param  {Object}  params
-     * @return {Object}
      */
-    public top(params = {}) {
+    public top(params: Database.IParameters = {}) {
         const wallets = Object.values(this.all()).sort((a: any, b: any) => +b.balance.minus(a.balance).toFixed());
 
         return {
@@ -100,7 +95,7 @@ export class WalletsRepository {
      * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
      * @return {Object}
      */
-    public search(params) {
+    public search<T extends Database.IParameters>(params: T) {
         const query: any = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance"],

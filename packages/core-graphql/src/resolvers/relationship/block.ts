@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { formatOrderBy, unserializeTransactions } from "../../helpers";
 
-const database = app.resolvePlugin("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 /**
  * Useful and common database operations with block data.
@@ -16,14 +17,16 @@ export const Block = {
     async transactions(block, args) {
         const { orderBy, filter, ...params } = args;
 
-        const result = await database.transactions.findAll(
+        /* .findAll() method never existed on the TransactionRepository in core-database-postgres. This code would've blown chunks
+        const result = await database.connection.transactionsRepository.findAll(
             {
                 ...filter,
                 orderBy: formatOrderBy(orderBy, "timestamp:DESC"),
                 ...params,
             },
             false,
-        );
+        );*/
+        const result = null;
         const rows = result ? result.rows : [];
 
         return unserializeTransactions(rows);
@@ -35,6 +38,6 @@ export const Block = {
      * @return {Wallet}
      */
     generator(block) {
-        return database.wallets.findById(block.generatorPublicKey);
+        return databaseService.wallets.findById(block.generatorPublicKey);
     },
 };

@@ -5,7 +5,7 @@
  * @param  {Object} filters
  * @return {Array}
  */
-export = (rows, params, filters) =>
+export = <T>(rows: T[], params, filters) =>
     rows.filter(item => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {

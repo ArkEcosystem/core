@@ -1,10 +1,11 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { Wallet } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
 const { wallets: sql } = queries;
 
-export class WalletsRepository extends Repository {
+export class WalletsRepository extends Repository implements Database.IWalletsRepository {
     /**
      * Get all of the wallets from the database.
      * @return {Promise}
@@ -26,7 +27,7 @@ export class WalletsRepository extends Repository {
      * Get the count of wallets that have a negative balance.
      * @return {Promise}
      */
-    public async findNegativeBalances() {
+    public async tallyWithNegativeBalance() {
         return this.db.oneOrNone(sql.findNegativeBalances);
     }
 
@@ -34,7 +35,7 @@ export class WalletsRepository extends Repository {
      * Get the count of wallets that have a negative vote balance.
      * @return {Promise}
      */
-    public async findNegativeVoteBalances() {
+    public async tallyWithNegativeVoteBalance() {
         return this.db.oneOrNone(sql.findNegativeVoteBalances);
     }
 

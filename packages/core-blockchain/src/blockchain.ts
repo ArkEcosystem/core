@@ -1,7 +1,13 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain as blockchain, EventEmitter, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import {
+    Blockchain as blockchain,
+    Database,
+    EventEmitter,
+    Logger,
+    P2P,
+    TransactionPool,
+} from "@arkecosystem/core-interfaces";
 import { models, slots } from "@arkecosystem/crypto";
 
 import delay from "delay";
@@ -47,7 +53,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {ConnectionInterface}
      */
     get database() {
-        return app.resolvePlugin<PostgresConnection>("database");
+        return app.resolvePlugin<Database.IDatabaseService>("database");
     }
 
     public isStopped: boolean;
@@ -377,7 +383,11 @@ export class Blockchain implements blockchain.IBlockchain {
         const blocks = await this.database.getTopBlocks(count);
 
         logger.info(
-            `Removing ${pluralize("block", blocks.length, true)} from height ${blocks[0].height.toLocaleString()}`,
+            `Removing ${pluralize(
+                "block",
+                blocks.length,
+                true,
+            )} from height ${(blocks[0] as any).height.toLocaleString()}`,
         );
 
         for (let block of blocks) {

@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
 
 export function transformBlock(model) {
-    const database = app.resolvePlugin<PostgresConnection>("database");
-    const generator = database.walletManager.findByPublicKey(model.generatorPublicKey);
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    const generator = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
 
     model.reward = bignumify(model.reward);
     model.totalFee = bignumify(model.totalFee);

@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
 import pick from "lodash/pick";
 
@@ -14,7 +15,7 @@ export class SnapshotManager {
     public database: any;
     constructor(readonly options) {}
 
-    public async make(connection) {
+    public async make(connection: PostgresConnection) {
         this.database = await database.make(connection);
 
         return this;

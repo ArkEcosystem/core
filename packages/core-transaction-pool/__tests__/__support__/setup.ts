@@ -1,5 +1,4 @@
 import { app } from "@arkecosystem/core-container";
-import delay from "delay";
 import { registerWithContainer, setUpContainer } from "../../../core-test-utils/src/helpers/container";
 
 jest.setTimeout(60000);
@@ -41,32 +40,17 @@ export const setUpFull = async () => {
         network: "unitnet",
     });
 
-    const { plugin } = require("../../src/plugin");
-    await registerWithContainer(plugin, options);
+    await registerWithContainer(require("../../src/plugin").plugin, options);
 
     // now registering the plugins that need to be registered after transaction pool
     // register p2p
-    const { plugin: pluginP2p } = require("@arkecosystem/core-p2p");
-    await registerWithContainer(pluginP2p, {
+    await registerWithContainer(require("@arkecosystem/core-p2p").plugin, {
         host: "0.0.0.0",
         port: 4000,
         minimumNetworkReach: 5,
         coldStart: 5,
     });
-
-    // register blockchain
-    // a little trick here, we register blockchain plugin without starting it
-    // (it caused some issues where we waited eternally for blockchain to be up)
-    // instead, we start blockchain manually and check manually that it is up with getLastBlock()
-    process.env.CORE_SKIP_BLOCKCHAIN = "true";
-    const { plugin: pluginBlockchain } = require("@arkecosystem/core-blockchain");
-    const blockchain = await registerWithContainer(pluginBlockchain, {});
-    await blockchain.start(true);
-
-    while (!blockchain.getLastBlock()) {
-        await delay(1000);
-    }
-
+    await registerWithContainer(require("@arkecosystem/core-blockchain").plugin, {});
     return app;
 };
 
@@ -75,11 +59,9 @@ export const tearDown = async () => {
 };
 
 export const tearDownFull = async () => {
-    const { plugin: pluginP2p } = require("@arkecosystem/core-p2p");
-    await pluginP2p.deregister(app, {});
-
-    const { plugin } = require("../../src/plugin");
-    await plugin.deregister(app, options);
+    await require("../../src/plugin").plugin.deregister(app, options);
+    await require("@arkecosystem/core-p2p").plugin.deregister(app, {});
+    await require("@arkecosystem/core-blockchain").plugin.deregister(app, {});
 
     await app.tearDown();
 };
