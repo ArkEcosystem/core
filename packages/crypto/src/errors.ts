@@ -72,6 +72,12 @@ export class TransactionTypeError extends CryptoError {
     }
 }
 
+export class TransactionValidationError extends CryptoError {
+    constructor(what: string) {
+        super(what);
+    }
+}
+
 export class TransactionVersionError extends CryptoError {
     constructor(given: number) {
         super(`Version ${given} not supported.`);
@@ -105,5 +111,35 @@ export class MaximumPaymentCountExceededError extends CryptoError {
 export class MissingTransactionSignatureError extends CryptoError {
     constructor() {
         super(`Expected the transaction to be signed.`);
+    }
+}
+
+export class InsufficientBalanceError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because of insufficient balance.`);
+    }
+}
+
+export class SenderWalletMismatchError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the public key does not match the wallet.`);
+    }
+}
+
+export class UnexpectedSecondSignatureError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because wallet does not allow second signatures.`);
+    }
+}
+
+export class UnexpectedMultiSignatureError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because multi signatures are currently not supported.`);
+    }
+}
+
+export class SecondSignatureVerificationFailedError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the second signature could not be verified.`);
     }
 }
