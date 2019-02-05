@@ -2,11 +2,11 @@ import dayjs from "dayjs-ext";
 
 import { constants, models } from "@arkecosystem/crypto";
 
-export interface AddTransactionResponseDTO {
+export interface IAddTransactionResponse {
     success: boolean;
 }
-export interface AddTransactionErrorDTO extends AddTransactionResponseDTO {
-    transaction: models.Transaction;
+export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
+    transaction: models.AbstractTransaction;
     type: string;
     message: string;
 }
@@ -48,23 +48,23 @@ export interface ITransactionPool {
      * }
      */
     addTransactions(
-        transactions: models.Transaction[],
+        transactions: models.AbstractTransaction[],
     ): {
-        added: models.Transaction[];
-        notAdded: AddTransactionErrorDTO[];
+        added: models.AbstractTransaction[];
+        notAdded: IAddTransactionErrorResponse[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: models.Transaction): AddTransactionResponseDTO;
+    addTransaction(transaction: models.AbstractTransaction): IAddTransactionResponse;
 
     /**
      * Remove a transaction from the pool by transaction object.
      * @param  {Transaction} transaction
      * @return {void}
      */
-    removeTransaction(transaction: models.Transaction): void;
+    removeTransaction(transaction: models.AbstractTransaction): void;
 
     /**
      * Remove a transaction from the pool by id.
@@ -74,12 +74,12 @@ export interface ITransactionPool {
     /**
      * Get all transactions that are ready to be forged.
      */
-    getTransactionsForForging(blockSize: number): models.Transaction[];
+    getTransactionsForForging(blockSize: number): models.AbstractTransaction[];
 
     /**
      * Get a transaction by transaction id.
      */
-    getTransaction(id: string): models.Transaction;
+    getTransaction(id: string): models.AbstractTransaction;
 
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.
@@ -109,7 +109,7 @@ export interface ITransactionPool {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    hasExceededMaxTransactions(transaction: models.Transaction): boolean;
+    hasExceededMaxTransactions(transaction: models.AbstractTransaction): boolean;
 
     /**
      * Flush the pool (delete all transactions from it).

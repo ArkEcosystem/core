@@ -61,7 +61,7 @@ export class VoteCommand extends BaseCommand {
 
             transactions.push(transaction);
 
-            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.fee)})`);
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.data.fee)})`);
         });
 
         if (this.options.copy) {

@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 import pluralize from "pluralize";
 import { crypto, slots } from "../crypto";
 import { configManager } from "../managers/config";
-import { ITransactionData, Transaction } from "../transactions";
+import { AbstractTransaction, ITransactionData, Transaction } from "../transactions";
 import { BlockDeserializer } from "../transactions/deserializers";
 import { BlockSerializer } from "../transactions/serializers";
 import { Bignum } from "../utils";
@@ -146,7 +146,7 @@ export class Block implements IBlock {
 
     public serialized: string;
     public data: IBlockData;
-    public transactions: Transaction[];
+    public transactions: AbstractTransaction[];
     public verification: BlockVerification;
 
     constructor(data: IBlockData | string) {

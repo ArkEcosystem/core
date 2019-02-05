@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { AbstractTransaction, configManager, constants, models, slots } from "@arkecosystem/crypto";
+import { AbstractTransaction, configManager, constants, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -10,12 +10,12 @@ import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 const { TransactionTypes } = constants;
 
 export class TransactionGuard implements transanctionPool.ITransactionGuard {
-    public transactions: models.AbstractTransaction[] = [];
+    public transactions: AbstractTransaction[] = [];
     public excess: string[] = [];
-    public accept: Map<string, models.AbstractTransaction> = new Map();
-    public broadcast: Map<string, models.AbstractTransaction> = new Map();
-    public invalid: Map<string, models.AbstractTransaction> = new Map();
-    public errors: { [key: string]: transanctionPool.TransactionErrorDTO[] } = {};
+    public accept: Map<string, AbstractTransaction> = new Map();
+    public broadcast: Map<string, AbstractTransaction> = new Map();
+    public invalid: Map<string, AbstractTransaction> = new Map();
+    public errors: { [key: string]: transanctionPool.ITransactionErrorResponse[] } = {};
 
     /**
      * Create a new transaction guard instance.
@@ -37,7 +37,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      *     value=[ { type, message }, ... ]
      * }
      */
-    public async validate(transactions: models.AbstractTransaction[]): Promise<transanctionPool.ValidationResultDTO> {
+    public async validate(transactions: AbstractTransaction[]): Promise<transanctionPool.IValidationResult> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -86,7 +86,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * Get broadcast transactions.
      * @return {Array}
      */
-    public getBroadcastTransactions(): models.AbstractTransaction[] {
+    public getBroadcastTransactions(): AbstractTransaction[] {
         return Array.from(this.broadcast.values());
     }
 

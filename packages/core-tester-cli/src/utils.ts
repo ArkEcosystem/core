@@ -92,7 +92,9 @@ export function generateTransactions(
 
         if (options.log) {
             logger.info(
-                `${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${this.arktoshiToArk(transaction.fee)})`,
+                `${i} ==> ${transaction.id}, ${transaction.data.recipientId} (fee: ${this.arktoshiToArk(
+                    transaction.data.fee,
+                )})`,
             );
         }
     });

@@ -41,6 +41,10 @@ export abstract class AbstractTransaction {
         return transaction;
     }
 
+    public get id() {
+        return this.data.id;
+    }
+
     public data: ITransactionData;
     public serialized: Buffer;
 
