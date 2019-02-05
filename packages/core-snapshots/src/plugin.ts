@@ -14,7 +14,11 @@ export const plugin: Container.PluginDescriptor = {
     async register(container: Container.IContainer, options) {
         const manager = new SnapshotManager(options);
 
-        const connection = container.resolvePlugin<Database.IDatabaseService>("database").connection as any;
-        return manager.make(connection as PostgresConnection);
+        const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
+        if(!!databaseService) {
+            const connection = databaseService.connection as any;
+            return await manager.make(connection as PostgresConnection);
+        }
+        return await manager.make(null);
     },
 };

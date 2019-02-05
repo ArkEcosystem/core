@@ -20,7 +20,6 @@ export class SPV {
      * @return {void}
      */
     public async build(height) {
-        // this.activeDelegates = config.getMilestone(height).activeDelegates;
 
         logger.info("SPV Step 1 of 8: Received Transactions");
         await this.__buildReceivedTransactions();

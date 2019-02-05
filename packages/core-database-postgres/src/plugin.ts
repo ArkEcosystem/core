@@ -1,8 +1,6 @@
 import {
-    DatabaseManager, DatabaseService, DelegatesRepository,
-    WalletManager, WalletsRepository
-} from "@arkecosystem/core-database";
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+    DatabaseManager, databaseServiceFactory, WalletManager} from "@arkecosystem/core-database";
+import { Container, Database, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { PostgresConnection } from "./postgres-connection";
 
@@ -20,18 +18,12 @@ export const plugin: Container.PluginDescriptor = {
 
         const connection = await databaseManager.makeConnection(new PostgresConnection(options, walletManager));
 
-        let databaseService: DatabaseService;
-        const databaseServiceProvider = () => databaseService;
-        databaseService = new DatabaseService(options, connection, walletManager, new WalletsRepository(databaseServiceProvider), new DelegatesRepository(databaseServiceProvider));
-
-        await databaseService.init();
-
-        return databaseService
+        return await databaseServiceFactory(options, walletManager, connection);
     },
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Closing Database Connection");
 
-        const databaseService = container.resolvePlugin<DatabaseService>("database");
+        const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
         await databaseService.connection.disconnect();
     },
 };
