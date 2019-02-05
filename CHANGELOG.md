@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Return the vote of a wallet via public API ([#2009])
 -   Upgrade script for 2.1 ([#1999])
 -   Installation script for deb/rpm distros ([#2016])
+-   Case specific errors for `crypto` ([#2038])
 
 ### Changed
 
@@ -49,6 +50,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Use system paths for data and configuration ([#1987])
 -   Increased the maximum transaction age to 6 hours ([#1996])
 -   Replaced progress bars with logging to reduce noise ([#2044])
+-   Replaced commander.js with @oclif in `core-debugger-cli` ([#2049])
+-   Replaced commander.js with @oclif in `core-snapshots-cli` ([#2050])
+-   Replaced commander.js with @oclif in `core-tester-cli` ([#2051])
+-   Moved docker files from `docker/*` to `docker/development/*` ([#2053])
+-   Moved the genesis blocks from the `core` configuration to the network configuration in `crypto` ([#2052])
 
 ### Fixed
 
@@ -70,11 +76,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Validate IP ranges to detect loopbacks ([#2045])
 -   https://github.com/ArkEcosystem/security-vulnerabilities/blob/master/core/core-sv-010.md ([#2046])
 -   Check if the blockchain state storage is available before performing fork checks ([#2047])
+-   Gracefully handle a corrupted cached `peers.json` file ([#2061])
+-   Always sort transactions by sequence and the requested field to make API sorting deterministic ([#2058])
 
 ### Removed
 
 -   Removed the `transactionsFromIds` P2P endpoint ([#1911])
 -   Removed the `validator` and `rules` fron `@arkecosystem/crypto` ([#2021])
+-   Ended support for the legacy multisignatures from the previous LISK fork ([#2057])
 
 ## [2.0.19] - 2019-01-31
 
@@ -242,7 +251,16 @@ Closed security vulnerabilities:
 [#2009]: https://github.com/ArkEcosystem/core/pull/2009
 [#2016]: https://github.com/ArkEcosystem/core/pull/2016
 [#2021]: https://github.com/ArkEcosystem/core/pull/2021
+[#2038]: https://github.com/ArkEcosystem/core/pull/2038
 [#2044]: https://github.com/ArkEcosystem/core/pull/2044
 [#2045]: https://github.com/ArkEcosystem/core/pull/2045
 [#2046]: https://github.com/ArkEcosystem/core/pull/2046
 [#2047]: https://github.com/ArkEcosystem/core/pull/2047
+[#2049]: https://github.com/ArkEcosystem/core/pull/2049
+[#2050]: https://github.com/ArkEcosystem/core/pull/2050
+[#2051]: https://github.com/ArkEcosystem/core/pull/2051
+[#2052]: https://github.com/ArkEcosystem/core/pull/2052
+[#2053]: https://github.com/ArkEcosystem/core/pull/2053
+[#2057]: https://github.com/ArkEcosystem/core/pull/2057
+[#2058]: https://github.com/ArkEcosystem/core/pull/2058
+[#2061]: https://github.com/ArkEcosystem/core/pull/2061
