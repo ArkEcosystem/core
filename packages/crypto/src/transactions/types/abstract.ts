@@ -14,7 +14,7 @@ import {
 } from "../../errors";
 import { configManager } from "../../managers";
 import { Wallet } from "../../models/wallet";
-import { isException } from "../../utils";
+import { Bignum, isException } from "../../utils";
 import { transactionValidator } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
 import { ITransactionData } from "../interfaces";
@@ -159,6 +159,14 @@ export abstract class AbstractTransaction {
         }
 
         return crypto.verify(data);
+    }
+
+    protected toJson() {
+        const data = Object.assign({}, this.data);
+        data.amount = +(data.amount as Bignum).toFixed();
+        data.fee = +(data.fee as Bignum).toFixed();
+
+        return data;
     }
 
     protected hasVendorField(): boolean {
