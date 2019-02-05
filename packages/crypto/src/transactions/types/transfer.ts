@@ -5,9 +5,7 @@ import { Bignum } from "../../utils";
 import { AbstractTransaction } from "./abstract";
 
 export class TransferTransaction extends AbstractTransaction {
-    public static getType(): TransactionTypes {
-        return TransactionTypes.Transfer;
-    }
+    public static type: TransactionTypes = TransactionTypes.Transfer;
 
     public canBeApplied(wallet: any): boolean {
         return false;

@@ -4,9 +4,7 @@ import { TransactionTypes } from "../../constants";
 import { AbstractTransaction } from "./abstract";
 
 export class MultiSignatureRegistrationTransaction extends AbstractTransaction {
-    public static getType(): TransactionTypes {
-        return TransactionTypes.MultiSignature;
-    }
+    public static type: TransactionTypes = TransactionTypes.MultiSignature;
 
     public canBeApplied(wallet: any): boolean {
         return false;

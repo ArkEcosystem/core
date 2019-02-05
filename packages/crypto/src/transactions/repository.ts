@@ -56,7 +56,7 @@ class TransactionRepository {
     }
 
     private registerCoreType(constructor: TransactionConstructor) {
-        const type = constructor.getType();
+        const { type } = constructor;
         if (this.coreTypes.has(type)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }

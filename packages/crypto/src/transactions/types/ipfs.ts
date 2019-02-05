@@ -3,9 +3,7 @@ import { TransactionTypes } from "../../constants";
 import { AbstractTransaction } from "./abstract";
 
 export class IpfsTransaction extends AbstractTransaction {
-    public static getType(): TransactionTypes {
-        return TransactionTypes.Ipfs;
-    }
+    public static type: TransactionTypes = TransactionTypes.Ipfs;
 
     public canBeApplied(wallet: any): boolean {
         return false;

@@ -2,7 +2,6 @@ import { JoiObject } from "joi";
 import { TransactionRepository } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
-import { TransactionTypeNotImplementedError } from "../../errors";
 import { Wallet } from "../../models/wallet";
 import { isException } from "../../utils";
 import { TransactionDeserializer } from "../deserializers";
@@ -10,9 +9,7 @@ import { ITransactionData } from "../interfaces";
 import { TransactionSerializer } from "../serializers";
 
 export abstract class AbstractTransaction {
-    public static getType(): TransactionTypes {
-        throw new TransactionTypeNotImplementedError();
-    }
+    public static type: TransactionTypes = null;
 
     public static fromHex(hex: string): AbstractTransaction {
         return TransactionDeserializer.deserializeV2(hex);

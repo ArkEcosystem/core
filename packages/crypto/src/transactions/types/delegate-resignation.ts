@@ -3,9 +3,7 @@ import { TransactionTypes } from "../../constants";
 import { AbstractTransaction } from "./abstract";
 
 export class DelegateResignationTransaction extends AbstractTransaction {
-    public static getType(): TransactionTypes {
-        return TransactionTypes.DelegateResignation;
-    }
+    public static type: TransactionTypes = TransactionTypes.DelegateResignation;
 
     public canBeApplied(wallet: any): boolean {
         return false;
