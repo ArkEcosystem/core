@@ -1,5 +1,6 @@
 import sumBy from "lodash/sumBy";
-import { ITransactionData, Wallet } from "../../models";
+import { Wallet } from "../../models";
+import { ITransactionData } from "../../transactions/interfaces";
 import { Handler } from "./handler";
 
 export class MultiPaymentHandler extends Handler {

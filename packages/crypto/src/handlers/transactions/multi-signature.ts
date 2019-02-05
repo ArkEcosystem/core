@@ -1,4 +1,5 @@
-import { ITransactionData, Wallet } from "../../models";
+import { Wallet } from "../../models";
+import { ITransactionData } from "../../transactions/interfaces";
 import { Handler } from "./handler";
 
 export class MultiSignatureHandler extends Handler {

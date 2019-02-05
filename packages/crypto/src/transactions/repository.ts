@@ -1,9 +1,5 @@
-import { TransactionTypes } from "../../constants";
-import {
-    NotImplementedError,
-    TransactionAlreadyRegisteredError,
-    TransactionTypeNotRegisteredError,
-} from "../../errors";
+import { TransactionTypes } from "../constants";
+import { NotImplementedError, TransactionAlreadyRegisteredError, TransactionTypeNotRegisteredError } from "../errors";
 import { ITransactionData } from "./interfaces";
 import {
     AbstractTransaction,

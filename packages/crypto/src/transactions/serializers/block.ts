@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
-import { Transaction } from "../models";
-import { Block, IBlockData } from "../models/block";
-import { Bignum } from "../utils";
+import { Block, IBlockData } from "../../models/block";
+import { Bignum } from "../../utils";
+import { Transaction } from "../transaction";
 
 class BlockSerializer {
     public serializeFull(block: IBlockData): Buffer {

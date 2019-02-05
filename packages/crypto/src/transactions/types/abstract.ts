@@ -1,13 +1,13 @@
 import { JoiObject } from "joi";
 import { TransactionRepository } from "..";
-import { TransactionTypes } from "../../../constants";
-import { crypto } from "../../../crypto";
-import { TransactionDeserializer } from "../../../deserializers";
-import { TransactionTypeNotImplementedError } from "../../../errors";
-import { TransactionSerializer } from "../../../serializers";
-import { isException } from "../../../utils";
-import { Wallet } from "../../wallet";
+import { TransactionTypes } from "../../constants";
+import { crypto } from "../../crypto";
+import { TransactionTypeNotImplementedError } from "../../errors";
+import { Wallet } from "../../models/wallet";
+import { isException } from "../../utils";
+import { TransactionDeserializer } from "../deserializers";
 import { ITransactionData } from "../interfaces";
+import { TransactionSerializer } from "../serializers";
 
 export abstract class AbstractTransaction {
     public static getType(): TransactionTypes {

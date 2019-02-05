@@ -1,7 +1,6 @@
 import { TransactionTypes } from "../../constants";
-import { crypto } from "../../crypto";
 import { feeManager } from "../../managers";
-import { ITransactionAsset, ITransactionData } from "../../models";
+import { ITransactionAsset, ITransactionData } from "../../transactions";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegistrationBuilder> {

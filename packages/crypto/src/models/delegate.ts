@@ -8,9 +8,9 @@ import { Bignum } from "../utils";
 import { crypto } from "../crypto/crypto";
 import { KeyPair } from "../identities";
 import { INetwork } from "../networks";
+import { Transaction } from "../transactions/transaction";
 import { sortTransactions } from "../utils";
 import { Block, IBlockData } from "./block";
-import { Transaction } from "./transactions/transaction";
 
 export class Delegate {
     /**

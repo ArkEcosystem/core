@@ -3,6 +3,7 @@ export * from "./builder";
 import * as constants from "./constants";
 import * as models from "./models";
 
+export * from "./transactions";
 export * from "./identities";
 export * from "./managers";
 export * from "./utils";

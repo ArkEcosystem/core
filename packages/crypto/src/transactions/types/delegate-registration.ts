@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../../constants";
+import { TransactionTypes } from "../../constants";
 import { AbstractTransaction } from "./abstract";
 
 export class DelegateRegistrationTransaction extends AbstractTransaction {

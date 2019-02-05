@@ -1,8 +1,8 @@
 import secp256k1 from "secp256k1";
 import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { feeManager } from "../managers";
-import { ITransactionData } from "../models";
-import { ISerializeOptions } from "../serializers/transaction";
+import { ITransactionData } from "../transactions";
+import { ISerializeOptions } from "../transactions/serializers/transaction";
 import { HashAlgorithms } from "./hash-algorithms";
 
 class Crypto {
@@ -159,7 +159,7 @@ class Crypto {
      * Dynamically loads the transaction serializer and calls getBytes to prevent a circular reference.
      */
     private getTransactionBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
-        return require("../serializers").TransactionSerializer.getBytes(transaction, options);
+        return require("../transactions/serializers").TransactionSerializer.getBytes(transaction, options);
     }
 }
 

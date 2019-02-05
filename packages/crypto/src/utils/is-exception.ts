@@ -1,5 +1,6 @@
 import { configManager } from "../managers";
-import { IBlockData, ITransactionData } from "../models";
+import { IBlockData } from "../models";
+import { ITransactionData } from "../transactions/interfaces";
 
 /**
  * Check if the given block or transaction id is an exception.

@@ -1,4 +1,4 @@
-import { ITransactionData } from "../models";
+import { ITransactionData } from "../transactions";
 
 /**
  * Sort transactions by type, then id.

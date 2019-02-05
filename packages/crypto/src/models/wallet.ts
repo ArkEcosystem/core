@@ -1,9 +1,9 @@
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
 import { transactionHandler } from "../handlers/transactions";
+import { IMultiSignatureAsset, ITransactionData } from "../transactions";
 import { Bignum, formatArktoshi } from "../utils";
 import { IBlockData } from "./block";
-import { IMultiSignatureAsset, ITransactionData } from "./transactions";
 
 /**
  * TODO copy some parts to ArkDocs

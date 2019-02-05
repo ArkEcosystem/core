@@ -2,11 +2,13 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../constants";
-import { TransactionTypeError, TransactionVersionError } from "../errors";
-import { configManager } from "../managers";
-import { AbstractTransaction, ITransactionData, Transaction } from "../models";
-import { Bignum } from "../utils";
+import { TransactionTypes } from "../../constants";
+import { TransactionTypeError, TransactionVersionError } from "../../errors";
+import { configManager } from "../../managers";
+import { Bignum } from "../../utils";
+import { ITransactionData } from "../interfaces";
+import { Transaction } from "../transaction";
+import { AbstractTransaction } from "../types";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 

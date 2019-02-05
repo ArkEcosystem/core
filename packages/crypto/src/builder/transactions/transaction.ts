@@ -1,8 +1,8 @@
 import { crypto, slots } from "../../crypto";
 import { MissingTransactionSignatureError } from "../../errors";
 import { configManager } from "../../managers";
-import { ITransactionData, Transaction } from "../../models";
 import { INetwork } from "../../networks";
+import { ITransactionData, Transaction } from "../../transactions";
 import { Bignum } from "../../utils";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {

@@ -1,6 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { IMultiSignatureAsset } from "..";
-import { TransactionTypes } from "../../../constants";
+import { TransactionTypes } from "../../constants";
 import { AbstractTransaction } from "./abstract";
 
 export class MultiSignatureRegistrationTransaction extends AbstractTransaction {

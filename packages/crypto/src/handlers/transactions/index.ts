@@ -1,5 +1,6 @@
 import { TransactionTypes } from "../../constants";
-import { ITransactionData, Wallet } from "../../models";
+import { Wallet } from "../../models";
+import { ITransactionData } from "../../transactions/interfaces";
 import { DelegateRegistrationHandler } from "./delegate-registration";
 import { DelegateResignationHandler } from "./delegate-resignation";
 import { Handler } from "./handler";

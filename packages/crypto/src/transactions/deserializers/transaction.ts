@@ -1,17 +1,13 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../constants";
-import { crypto } from "../crypto";
-import { TransactionTypeError } from "../errors";
-import { configManager } from "../managers";
-import { Transaction } from "../models";
-import {
-    AbstractTransaction,
-    IMultiSignatureAsset,
-    ITransactionData,
-    TransactionRepository,
-} from "../models/transactions";
-import { Bignum } from "../utils/bignum";
+import { AbstractTransaction, TransactionRepository } from "..";
+import { TransactionTypes } from "../../constants";
+import { crypto } from "../../crypto";
+import { TransactionTypeError } from "../../errors";
+import { configManager } from "../../managers";
+import { Bignum } from "../../utils/bignum";
+import { IMultiSignatureAsset, ITransactionData } from "../interfaces";
+import { Transaction } from "../transaction";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 

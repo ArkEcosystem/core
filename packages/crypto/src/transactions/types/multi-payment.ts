@@ -1,7 +1,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../../constants";
-import { Bignum } from "../../../utils";
+import { TransactionTypes } from "../../constants";
+import { Bignum } from "../../utils";
 import { AbstractTransaction } from "./abstract";
 
 export class MultiPaymentTransaction extends AbstractTransaction {

@@ -1,11 +1,11 @@
 import { createHash } from "crypto";
 import pluralize from "pluralize";
 import { crypto, slots } from "../crypto";
-import { BlockDeserializer } from "../deserializers";
 import { configManager } from "../managers/config";
-import { BlockSerializer } from "../serializers";
+import { ITransactionData, Transaction } from "../transactions";
+import { BlockDeserializer } from "../transactions/deserializers";
+import { BlockSerializer } from "../transactions/serializers";
 import { Bignum } from "../utils";
-import { ITransactionData, Transaction } from "./transactions";
 
 export interface BlockVerification {
     verified: boolean;

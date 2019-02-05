@@ -1,5 +1,5 @@
-import { TransactionTypes } from "../../constants";
-import { Bignum } from "../../utils";
+import { TransactionTypes } from "../constants";
+import { Bignum } from "../utils";
 
 export interface ITransactionAsset {
     signature?: {
