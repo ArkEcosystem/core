@@ -5,8 +5,18 @@ import {
     TransactionTypeNotRegisteredError,
 } from "../../errors";
 import { ITransactionData } from "./interfaces";
-import { AbstractTransaction, TransferTransaction } from "./types";
-import { VoteTransaction } from "./types/vote";
+import {
+    AbstractTransaction,
+    DelegateRegistrationTransaction,
+    DelegateResignationTransaction,
+    IpfsTransaction,
+    MultiPaymentTransaction,
+    MultiSignatureRegistrationTransaction,
+    SecondSignatureRegistrationTransaction,
+    TimelockTransferTransaction,
+    TransferTransaction,
+    VoteTransaction,
+} from "./types";
 
 type TransactionConstructor = typeof AbstractTransaction;
 
@@ -16,8 +26,14 @@ class TransactionRepository {
 
     constructor() {
         this.registerCoreType(TransferTransaction);
+        this.registerCoreType(SecondSignatureRegistrationTransaction);
+        this.registerCoreType(DelegateRegistrationTransaction);
         this.registerCoreType(VoteTransaction);
-        // TODO: register remaining core types.
+        this.registerCoreType(MultiSignatureRegistrationTransaction);
+        this.registerCoreType(IpfsTransaction);
+        this.registerCoreType(TimelockTransferTransaction);
+        this.registerCoreType(MultiPaymentTransaction);
+        this.registerCoreType(DelegateResignationTransaction);
     }
 
     public create(data: ITransactionData): AbstractTransaction {
