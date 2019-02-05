@@ -7,15 +7,20 @@ import { AbstractTransaction } from "../types";
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
 class BlockDeserializer {
-    public deserialize(serializedHex: string, headerOnly: boolean = false): IBlockData {
+    public deserialize(
+        serializedHex: string,
+        headerOnly: boolean = false,
+    ): { data: IBlockData; transactions: AbstractTransaction[] } {
         const block = {} as IBlockData;
+        let transactions: AbstractTransaction[] = [];
+
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
         this.deserializeHeader(block, buf);
 
         headerOnly = headerOnly || buf.remaining() === 0;
         if (!headerOnly) {
-            this.deserializeTransactions(block, buf);
+            transactions = this.deserializeTransactions(block, buf);
         }
 
         block.idHex = Block.getIdHex(block);
@@ -26,7 +31,8 @@ class BlockDeserializer {
             block.idHex = Block.toBytesHex(block.id);
         }
 
-        return block;
+        // FIXME: only a workaround
+        return { data: block, transactions };
     }
 
     private deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
@@ -57,19 +63,23 @@ class BlockDeserializer {
         block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
     }
 
-    private deserializeTransactions(block: IBlockData, buf: ByteBuffer): any {
+    private deserializeTransactions(block: IBlockData, buf: ByteBuffer): AbstractTransaction[] {
         const transactionLengths = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
             transactionLengths.push(buf.readUint32());
         }
 
+        const transactions: AbstractTransaction[] = [];
         block.transactions = [];
         transactionLengths.forEach(length => {
             const serializedHex = buf.readBytes(length).toString("hex");
             const transaction = AbstractTransaction.fromHex(serializedHex);
-            block.transactions.push(transaction.data); // FIXME
+            transactions.push(transaction);
+            block.transactions.push(transaction.data);
         });
+
+        return transactions;
     }
 }
 
