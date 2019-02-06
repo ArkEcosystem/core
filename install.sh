@@ -325,12 +325,12 @@ fi
 
 cd "$HOME"
 
-if [ -d "core" ]; then
+if [ -d "ark-core" ]; then
    heading "Removing existing folder..."
-   rm -rf core
+   rm -rf ark-core
 fi
 
-git clone https://github.com/ArkEcosystem/core.git -b develop
-cd core
+git clone https://github.com/ArkEcosystem/core.git ~/ark-core -b develop
+cd ark-core
 yarn setup
 
