@@ -30,7 +30,7 @@ describe("Multi Signature Transaction", () => {
                 .multiSignatureSign("multi passphrase 2")
                 .multiSignatureSign("multi passphrase 3");
 
-            expect(actual.build().verify()).toBeTrue();
+            expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });
     });

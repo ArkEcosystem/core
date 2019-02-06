@@ -24,7 +24,9 @@ export abstract class AbstractTransaction {
     public static type: TransactionTypes = null;
 
     public static fromHex(hex: string): AbstractTransaction {
-        return TransactionDeserializer.deserializeV2(hex);
+        const transaction = TransactionDeserializer.deserializeV2(hex);
+        transaction.isVerified = transaction.verify();
+        return transaction;
     }
 
     public static from(data: ITransactionData): AbstractTransaction {
@@ -38,6 +40,8 @@ export abstract class AbstractTransaction {
         TransactionSerializer.serializeV2(transaction);
         TransactionDeserializer.deserializeV2(transaction.serialized.toString("hex"));
 
+        transaction.isVerified = transaction.verify();
+
         return transaction;
     }
 
@@ -47,6 +51,11 @@ export abstract class AbstractTransaction {
 
     public get type(): TransactionTypes {
         return AbstractTransaction.type;
+    }
+
+    private isVerified: boolean;
+    public get verified(): boolean {
+        return this.isVerified;
     }
 
     public data: ITransactionData;
@@ -155,7 +164,7 @@ export abstract class AbstractTransaction {
     /**
      * Misc
      */
-    public verify(): boolean {
+    protected verify(): boolean {
         const { data } = this;
         if (isException(data)) {
             return true;
@@ -165,7 +174,6 @@ export abstract class AbstractTransaction {
             return false;
         }
 
-        // TODO: cache result
         return crypto.verify(data);
     }
 

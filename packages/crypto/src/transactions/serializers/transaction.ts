@@ -51,8 +51,8 @@ export class TransactionSerializer {
         this.serializeCommon(data, buffer);
         this.serializeVendorField(data, buffer);
 
-        // Type
-        buffer.append(transaction.serialize());
+        const typeBuffer = transaction.serialize().flip();
+        buffer.append(typeBuffer);
 
         this.serializeSignatures(data, buffer);
 
@@ -70,8 +70,7 @@ export class TransactionSerializer {
         let assetBytes = null;
 
         switch (transaction.type) {
-            case 1: {
-                // Signature
+            case TransactionTypes.SecondSignature: {
                 const { signature } = transaction.asset;
                 const bb = new ByteBuffer(33, true);
                 const publicKeyBuffer = Buffer.from(signature.publicKey, "hex");
@@ -87,15 +86,13 @@ export class TransactionSerializer {
                 break;
             }
 
-            case 2: {
-                // Delegate
+            case TransactionTypes.DelegateRegistration: {
                 assetBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
                 assetSize = assetBytes.length;
                 break;
             }
 
-            case 3: {
-                // Vote
+            case TransactionTypes.Vote: {
                 if (transaction.asset.votes !== null) {
                     assetBytes = Buffer.from(transaction.asset.votes.join(""), "utf8");
                     assetSize = assetBytes.length;
@@ -103,8 +100,7 @@ export class TransactionSerializer {
                 break;
             }
 
-            case 4: {
-                // Multi-Signature
+            case TransactionTypes.MultiSignature: {
                 const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(""), "utf8");
                 const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
 

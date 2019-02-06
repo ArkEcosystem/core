@@ -3,7 +3,7 @@ import "jest-extended";
 import { transactionBuilder as builder } from "../../src/builder";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
-import { Transaction } from "../../src/models/transactions";
+import { Transaction } from "../../src/transactions";
 import { transaction as transactionData } from "../fixtures/transaction";
 
 import { TransactionTypeError } from "../../src/errors";
@@ -100,7 +100,7 @@ describe("Models - Transaction", () => {
                     const ser = Transaction.serialize(transaction.data).toString("hex");
                     const newTransaction = AbstractTransaction.fromHex(ser);
                     expect(newTransaction.data).toEqual(transaction.data);
-                    expect(newTransaction.verify()).toBeTrue();
+                    expect(newTransaction.verified).toBeTrue();
                 });
         });
 

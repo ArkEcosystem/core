@@ -21,7 +21,7 @@ describe("Transfer Transaction", () => {
                 .vendorField("dummy")
                 .sign("dummy passphrase");
 
-            expect(actual.build().verify()).toBeTrue();
+            expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });
 
@@ -33,7 +33,7 @@ describe("Transfer Transaction", () => {
                 .sign("dummy passphrase")
                 .secondSign("dummy passphrase");
 
-            expect(actual.build().verify()).toBeTrue();
+            expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });
     });

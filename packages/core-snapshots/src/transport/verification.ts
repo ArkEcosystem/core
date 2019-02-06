@@ -14,7 +14,7 @@ export const verifyData = (context, data, prevData, signatureVerification) => {
         }
 
         const transaction = AbstractTransaction.fromHex(Buffer.from(data.serialized).toString("hex"));
-        return transaction.verify();
+        return transaction.verified;
     };
 
     const isBlockChained = () => {

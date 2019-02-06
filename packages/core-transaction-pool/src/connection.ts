@@ -444,7 +444,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * invalid transaction.
      */
     public purgeSendersWithInvalidTransactions(block: models.Block) {
-        const publicKeys = new Set(block.transactions.filter(tx => !tx.verify()).map(tx => tx.data.senderPublicKey));
+        const publicKeys = new Set(block.transactions.filter(tx => !tx.verified).map(tx => tx.data.senderPublicKey));
 
         publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey));
     }

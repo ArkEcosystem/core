@@ -281,7 +281,7 @@ export class Block implements IBlock {
 
             let size = 0;
             const payloadHash = createHash("sha256");
-            const invalidTransactions = this.transactions.filter(tx => !tx.verify());
+            const invalidTransactions = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
                 invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`));
