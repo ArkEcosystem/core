@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { AbstractTransaction, Bignum, constants, models, transactionBuilder } from "@arkecosystem/crypto";
+import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
@@ -36,7 +36,7 @@ describe("Connection Interface", () => {
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-                    const { data } = AbstractTransaction.fromHex(transaction.serialized.toString("hex"));
+                    const { data } = Transaction.fromHex(transaction.serialized.toString("hex"));
                     wallet.username = data.asset.delegate.username;
                     walletManager.reindex(wallet);
                 }

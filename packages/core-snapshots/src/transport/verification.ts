@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { AbstractTransaction, crypto, models } from "@arkecosystem/crypto";
+import { crypto, models, Transaction } from "@arkecosystem/crypto";
 import createHash from "create-hash";
 import { camelizeKeys } from "xcase";
 
@@ -13,7 +13,7 @@ export const verifyData = (context, data, prevData, signatureVerification) => {
             return true;
         }
 
-        const transaction = AbstractTransaction.fromHex(Buffer.from(data.serialized).toString("hex"));
+        const transaction = Transaction.fromHex(Buffer.from(data.serialized).toString("hex"));
         return transaction.verified;
     };
 

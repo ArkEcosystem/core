@@ -2,9 +2,9 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { SecondSignatureAlreadyRegisteredError } from "../../errors";
 import { Wallet } from "../../models";
-import { AbstractTransaction } from "./abstract";
+import { Transaction } from "./transaction";
 
-export class SecondSignatureRegistrationTransaction extends AbstractTransaction {
+export class SecondSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.SecondSignature;
 
     public serialize(): ByteBuffer {

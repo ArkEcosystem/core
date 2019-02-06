@@ -1,4 +1,4 @@
-import { AbstractTransaction, ITransactionData } from "@arkecosystem/crypto";
+import { ITransactionData, Transaction } from "@arkecosystem/crypto";
 
 export interface ITransactionErrorResponse {
     type: string;
@@ -16,5 +16,5 @@ export interface IValidationResult {
 export interface ITransactionGuard {
     validate(transactions: ITransactionData[]): Promise<IValidationResult>;
 
-    getBroadcastTransactions(): AbstractTransaction[];
+    getBroadcastTransactions(): Transaction[];
 }

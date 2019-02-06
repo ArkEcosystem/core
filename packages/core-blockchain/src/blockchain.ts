@@ -2,7 +2,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain as blockchain, EventEmitter, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
-import { AbstractTransaction, models, slots } from "@arkecosystem/crypto";
+import { models, slots, Transaction } from "@arkecosystem/crypto";
 
 import delay from "delay";
 import pluralize from "pluralize";
@@ -209,7 +209,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Hand the given transactions to the transaction handler.
      */
-    public async postTransactions(transactions: AbstractTransaction[]) {
+    public async postTransactions(transactions: Transaction[]) {
         logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)} :moneybag:`);
 
         await this.transactionPool.addTransactions(transactions);

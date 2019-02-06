@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { AbstractTransaction, constants, crypto, models } from "@arkecosystem/crypto";
+import { constants, crypto, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
 import { DelegatesRepository } from "./repositories/delegates";
@@ -455,7 +455,7 @@ export abstract class ConnectionInterface {
      * @param  {Object} transaction
      * @return {void}
      */
-    private __emitTransactionEvents(transaction: AbstractTransaction) {
+    private __emitTransactionEvents(transaction: Transaction) {
         const { data } = transaction;
 
         this.emitter.emit("transaction.applied", data);

@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { AbstractTransaction, configManager, constants, ITransactionData, slots } from "@arkecosystem/crypto";
+import { configManager, constants, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -12,8 +12,8 @@ const { TransactionTypes } = constants;
 export class TransactionGuard implements transanctionPool.ITransactionGuard {
     public transactions: ITransactionData[] = [];
     public excess: string[] = [];
-    public accept: Map<string, AbstractTransaction> = new Map();
-    public broadcast: Map<string, AbstractTransaction> = new Map();
+    public accept: Map<string, Transaction> = new Map();
+    public broadcast: Map<string, Transaction> = new Map();
     public invalid: Map<string, ITransactionData> = new Map();
     public errors: { [key: string]: transanctionPool.ITransactionErrorResponse[] } = {};
 
@@ -66,7 +66,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
     /**
      * Get broadcast transactions.
      */
-    public getBroadcastTransactions(): AbstractTransaction[] {
+    public getBroadcastTransactions(): Transaction[] {
         return Array.from(this.broadcast.values());
     }
 
@@ -96,7 +96,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 this.excess.push(transaction.id);
             } else if (this.__validateTransaction(transaction)) {
                 try {
-                    const trx = AbstractTransaction.from(transaction);
+                    const trx = Transaction.from(transaction);
                     if (trx.verified) {
                         const dynamicFee = dynamicFeeMatcher(trx);
 

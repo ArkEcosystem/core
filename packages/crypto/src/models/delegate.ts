@@ -8,7 +8,7 @@ import { Bignum } from "../utils";
 import { crypto } from "../crypto/crypto";
 import { KeyPair } from "../identities";
 import { INetwork } from "../networks";
-import { AbstractTransaction, ITransactionData } from "../transactions";
+import { ITransactionData, Transaction } from "../transactions";
 import { sortTransactions } from "../utils";
 import { Block, IBlockData } from "./block";
 

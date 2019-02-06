@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { AbstractTransaction, TransactionRepository } from "..";
+import { Transaction, TransactionRepository } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { configManager } from "../../managers";
@@ -10,7 +10,7 @@ const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {
-    public deserialize(serializedHex: string): AbstractTransaction {
+    public deserialize(serializedHex: string): Transaction {
         const data = {} as ITransactionData;
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
@@ -41,7 +41,7 @@ class TransactionDeserializer {
         transaction.amount = Bignum.ZERO;
     }
 
-    private deserializeVendorField(transaction: AbstractTransaction, buf: ByteBuffer): void {
+    private deserializeVendorField(transaction: Transaction, buf: ByteBuffer): void {
         if (!transaction.hasVendorField()) {
             buf.skip(1);
             return;

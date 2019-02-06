@@ -1,4 +1,4 @@
-import { AbstractTransaction, Bignum, slots } from "@arkecosystem/crypto";
+import { Bignum, slots, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 
@@ -200,7 +200,7 @@ export class Mem {
     /**
      * Get a transaction, given its id.
      */
-    public getTransactionById(id: string): AbstractTransaction | undefined {
+    public getTransactionById(id: string): Transaction | undefined {
         if (this.byId[id] === undefined) {
             return undefined;
         }
@@ -241,7 +241,7 @@ export class Mem {
     /**
      * Get the expired transactions.
      */
-    public getExpired(maxTransactionAge: number): AbstractTransaction[] {
+    public getExpired(maxTransactionAge: number): Transaction[] {
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort((a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge));
             this.byExpirationIsSorted = true;

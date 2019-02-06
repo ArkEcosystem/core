@@ -1,4 +1,4 @@
-import { AbstractTransaction, Bignum, models } from "@arkecosystem/crypto";
+import { Bignum, models, Transaction } from "@arkecosystem/crypto";
 import msgpack from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 const { Block } = models;
@@ -24,7 +24,7 @@ export const transactionEncode = transaction =>
 
 export const transactionDecode = bufferData => {
     const [id, blockId, sequence, serialized] = msgpack.decode(bufferData);
-    let transaction: any = AbstractTransaction.fromHex(serialized.toString("hex")).data;
+    let transaction: any = Transaction.fromHex(serialized.toString("hex")).data;
 
     transaction.id = id;
     transaction.block_id = blockId;

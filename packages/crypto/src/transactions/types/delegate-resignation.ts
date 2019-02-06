@@ -2,9 +2,9 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError, WalletNoUsernameDelegateResignationError } from "../../errors";
 import { Wallet } from "../../models";
-import { AbstractTransaction } from "./abstract";
+import { Transaction } from "./transaction";
 
-export class DelegateResignationTransaction extends AbstractTransaction {
+export class DelegateResignationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.DelegateResignation;
 
     public serialize(): ByteBuffer {

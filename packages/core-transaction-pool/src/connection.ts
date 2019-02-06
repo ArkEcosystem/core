@@ -6,7 +6,7 @@ import assert from "assert";
 import dayjs from "dayjs-ext";
 import { PoolWalletManager } from "./pool-wallet-manager";
 
-import { AbstractTransaction, Bignum, constants, models } from "@arkecosystem/crypto";
+import { Bignum, constants, models, Transaction } from "@arkecosystem/crypto";
 import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
@@ -106,7 +106,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
      * }
      */
-    public addTransactions(transactions: AbstractTransaction[]) {
+    public addTransactions(transactions: Transaction[]) {
         const added = [];
         const notAdded = [];
 
@@ -130,7 +130,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * and applied to the pool or not. In case it was not successful, the type and message
      * property yield information about the error.
      */
-    public addTransaction(transaction: AbstractTransaction): transactionPool.IAddTransactionResponse {
+    public addTransaction(transaction: Transaction): transactionPool.IAddTransactionResponse {
         if (this.transactionExists(transaction.id)) {
             logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
@@ -187,7 +187,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     /**
      * Remove a transaction from the pool by transaction.
      */
-    public removeTransaction(transaction: models.AbstractTransaction) {
+    public removeTransaction(transaction: models.Transaction) {
         this.removeTransactionById(transaction.id, transaction.data.senderPublicKey);
     }
 
@@ -210,7 +210,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     /**
      * Get a transaction by transaction id.
      */
-    public getTransaction(id: string): models.AbstractTransaction {
+    public getTransaction(id: string): models.Transaction {
         this.__purgeExpired();
 
         return this.mem.getTransactionById(id);
@@ -503,7 +503,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * Create an error object which the TransactionGuard understands.
      */
     public __createError(
-        transaction: models.AbstractTransaction,
+        transaction: models.Transaction,
         type: string,
         message: string,
     ): transactionPool.IAddTransactionErrorResponse {

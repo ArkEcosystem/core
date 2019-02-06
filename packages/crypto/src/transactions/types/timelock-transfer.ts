@@ -4,9 +4,9 @@ import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
 import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
-import { AbstractTransaction } from "./abstract";
+import { Transaction } from "./transaction";
 
-export class TimelockTransferTransaction extends AbstractTransaction {
+export class TimelockTransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.TimelockTransfer;
 
     public serialize(): ByteBuffer {

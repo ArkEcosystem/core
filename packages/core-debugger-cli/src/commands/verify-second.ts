@@ -22,7 +22,7 @@ export class VerifySecondSignatureCommand extends BaseCommand {
         // tslint:disable-next-line:no-shadowed-variable
         const { flags } = this.parse(VerifySecondSignatureCommand);
 
-        const { data } = models.AbstractTransaction.fromHex(flags.data);
+        const { data } = models.Transaction.fromHex(flags.data);
 
         return handleOutput(flags, crypto.verifySecondSignature(data, flags.publicKey));
     }

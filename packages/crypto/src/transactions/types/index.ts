@@ -1,4 +1,4 @@
-export * from "./abstract";
+export * from "./transaction";
 export * from "./transfer";
 export * from "./second-signature";
 export * from "./delegate-registration";

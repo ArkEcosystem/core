@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils";
-import { AbstractTransaction } from "../types";
+import { Transaction } from "../types";
 
 class BlockSerializer {
     public serializeFull(block: IBlockData): Buffer {
@@ -15,7 +15,7 @@ class BlockSerializer {
             .skip(transactions.length * 4);
 
         for (let i = 0; i < transactions.length; i++) {
-            const serialized = AbstractTransaction.from(transactions[i]).serialized;
+            const serialized = Transaction.from(transactions[i]).serialized;
             buffer.writeUint32(serialized.length, serializedHeader.length + i * 4);
             buffer.append(serialized);
         }

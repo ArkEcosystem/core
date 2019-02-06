@@ -7,7 +7,7 @@ import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";
 
-import { AbstractTransaction } from "@arkecosystem/crypto";
+import { Transaction } from "@arkecosystem/crypto";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -41,7 +41,7 @@ class TransactionIndex extends Index {
             }
 
             rows = rows.map(row => {
-                const transaction: any = AbstractTransaction.fromHex(row.serialized.toString("hex"));
+                const transaction: any = Transaction.fromHex(row.serialized.toString("hex"));
                 transaction.blockId = row.blockId;
 
                 return transaction;

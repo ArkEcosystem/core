@@ -4,9 +4,9 @@ import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
 import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
-import { AbstractTransaction } from "./abstract";
+import { Transaction } from "./transaction";
 
-export class MultiPaymentTransaction extends AbstractTransaction {
+export class MultiPaymentTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiPayment;
 
     public serialize(): ByteBuffer {

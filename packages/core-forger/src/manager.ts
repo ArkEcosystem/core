@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { AbstractTransaction, ITransactionData, models, slots } from "@arkecosystem/crypto";
+import { ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
 import uniq from "lodash/uniq";
@@ -210,7 +210,7 @@ export class ForgerManager {
         const response = await this.client.getTransactions();
 
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => AbstractTransaction.fromHex(serializedTx).data)
+            ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
             : [];
 
         if (isEmpty(response)) {

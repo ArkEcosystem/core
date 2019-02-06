@@ -2,7 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { configManager } from "../../managers";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils/bignum";
-import { AbstractTransaction } from "../types";
+import { Transaction } from "../types";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -10,9 +10,9 @@ class BlockDeserializer {
     public deserialize(
         serializedHex: string,
         headerOnly: boolean = false,
-    ): { data: IBlockData; transactions: AbstractTransaction[] } {
+    ): { data: IBlockData; transactions: Transaction[] } {
         const block = {} as IBlockData;
-        let transactions: AbstractTransaction[] = [];
+        let transactions: Transaction[] = [];
 
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
@@ -63,18 +63,18 @@ class BlockDeserializer {
         block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
     }
 
-    private deserializeTransactions(block: IBlockData, buf: ByteBuffer): AbstractTransaction[] {
+    private deserializeTransactions(block: IBlockData, buf: ByteBuffer): Transaction[] {
         const transactionLengths = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
             transactionLengths.push(buf.readUint32());
         }
 
-        const transactions: AbstractTransaction[] = [];
+        const transactions: Transaction[] = [];
         block.transactions = [];
         transactionLengths.forEach(length => {
             const serializedHex = buf.readBytes(length).toString("hex");
-            const transaction = AbstractTransaction.fromHex(serializedHex);
+            const transaction = Transaction.fromHex(serializedHex);
             transactions.push(transaction);
             block.transactions.push(transaction.data);
         });

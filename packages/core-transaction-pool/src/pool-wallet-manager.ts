@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { AbstractTransaction, constants, crypto, isException, models } from "@arkecosystem/crypto";
+import { constants, crypto, isException, models, Transaction } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
 const { TransactionTypes } = constants;
@@ -47,7 +47,7 @@ export class PoolWalletManager extends WalletManager {
      * @param  {Array} errors The errors are written into the array.
      * @return {Boolean}
      */
-    public canApply(transaction: AbstractTransaction, errors): boolean {
+    public canApply(transaction: Transaction, errors): boolean {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         if (!this.database.walletManager.byPublicKey[transaction.data.senderPublicKey]) {
@@ -104,7 +104,7 @@ export class PoolWalletManager extends WalletManager {
     /**
      * Remove the given transaction from a sender only.
      */
-    public revertTransactionForSender(transaction: AbstractTransaction) {
+    public revertTransactionForSender(transaction: Transaction) {
         const { data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
         sender.revertTransactionForSender(transaction);

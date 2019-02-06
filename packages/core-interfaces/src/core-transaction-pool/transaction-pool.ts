@@ -6,7 +6,7 @@ export interface IAddTransactionResponse {
     success: boolean;
 }
 export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
-    transaction: models.AbstractTransaction;
+    transaction: models.Transaction;
     type: string;
     message: string;
     success: boolean;
@@ -49,23 +49,23 @@ export interface ITransactionPool {
      * }
      */
     addTransactions(
-        transactions: models.AbstractTransaction[],
+        transactions: models.Transaction[],
     ): {
-        added: models.AbstractTransaction[];
+        added: models.Transaction[];
         notAdded: IAddTransactionErrorResponse[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: models.AbstractTransaction): IAddTransactionResponse;
+    addTransaction(transaction: models.Transaction): IAddTransactionResponse;
 
     /**
      * Remove a transaction from the pool by transaction object.
      * @param  {Transaction} transaction
      * @return {void}
      */
-    removeTransaction(transaction: models.AbstractTransaction): void;
+    removeTransaction(transaction: models.Transaction): void;
 
     /**
      * Remove a transaction from the pool by id.
@@ -80,7 +80,7 @@ export interface ITransactionPool {
     /**
      * Get a transaction by transaction id.
      */
-    getTransaction(id: string): models.AbstractTransaction;
+    getTransaction(id: string): models.Transaction;
 
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.

@@ -1,15 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import {
-    AbstractTransaction,
-    Bignum,
-    constants,
-    crypto,
-    formatArktoshi,
-    isException,
-    models,
-} from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, formatArktoshi, isException, models, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const { TransactionTypes } = constants;
@@ -424,7 +416,7 @@ export class WalletManager {
     /**
      * Apply the given transaction to a delegate.
      */
-    public applyTransaction(transaction: AbstractTransaction) {
+    public applyTransaction(transaction: Transaction) {
         const { data } = transaction;
         const { type, asset, recipientId, senderPublicKey } = data;
 
@@ -527,7 +519,7 @@ export class WalletManager {
     /**
      * Remove the given transaction from a delegate.
      */
-    public revertTransaction(transaction: AbstractTransaction) {
+    public revertTransaction(transaction: Transaction) {
         const { type, data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
         const recipient = this.byAddress[data.recipientId];

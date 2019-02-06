@@ -1,4 +1,4 @@
-import { AbstractTransaction, models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../utils";
 import { BaseCommand } from "./command";
@@ -28,7 +28,7 @@ export class SerializeCommand extends BaseCommand {
 
         const serialized =
             flags.type === "transaction"
-                ? AbstractTransaction.from(JSON.parse(flags.data)).serialized
+                ? Transaction.from(JSON.parse(flags.data)).serialized
                 : models.Block[flags.full ? "serializeFull" : "serialize"](JSON.parse(flags.data));
 
         return handleOutput(flags, serialized.toString("hex"));

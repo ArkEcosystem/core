@@ -10,7 +10,7 @@ import { ConnectionInterface } from "@arkecosystem/core-database";
 import { app } from "@arkecosystem/core-container";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { AbstractTransaction, Bignum, models } from "@arkecosystem/crypto";
+import { Bignum, models, Transaction } from "@arkecosystem/crypto";
 
 import { SPV } from "./spv";
 
@@ -449,9 +449,7 @@ export class PostgresConnection extends ConnectionInterface {
         }
 
         const transactions: Array<{ serialized: Buffer }> = await this.db.transactions.findByBlock(block.id);
-        block.transactions = transactions.map(
-            ({ serialized }) => AbstractTransaction.fromHex(serialized.toString("hex")).data,
-        );
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromHex(serialized.toString("hex")).data);
 
         return new models.Block(block);
     }
@@ -468,9 +466,7 @@ export class PostgresConnection extends ConnectionInterface {
         }
 
         const transactions: Array<{ serialized: Buffer }> = await this.db.transactions.latestByBlock(block.id);
-        block.transactions = transactions.map(
-            ({ serialized }) => AbstractTransaction.fromHex(serialized.toString("hex")).data,
-        );
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromHex(serialized.toString("hex")).data);
 
         return new models.Block(block);
     }
@@ -566,7 +562,7 @@ export class PostgresConnection extends ConnectionInterface {
 
         let transactions = await this.db.transactions.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const { data } = AbstractTransaction.fromHex(tx.serialized.toString("hex"));
+            const { data } = Transaction.fromHex(tx.serialized.toString("hex"));
             data.blockId = tx.blockId;
             return data;
         });

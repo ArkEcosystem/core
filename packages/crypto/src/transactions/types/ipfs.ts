@@ -2,9 +2,9 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
 import { Wallet } from "../../models";
-import { AbstractTransaction } from "./abstract";
+import { Transaction } from "./transaction";
 
-export class IpfsTransaction extends AbstractTransaction {
+export class IpfsTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Ipfs;
 
     public serialize(): ByteBuffer {

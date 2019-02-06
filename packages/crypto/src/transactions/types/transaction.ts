@@ -20,16 +20,16 @@ import { TransactionDeserializer } from "../deserializers";
 import { ITransactionData } from "../interfaces";
 import { TransactionSerializer } from "../serializers";
 
-export abstract class AbstractTransaction {
+export abstract class Transaction {
     public static type: TransactionTypes = null;
 
-    public static fromHex(hex: string): AbstractTransaction {
+    public static fromHex(hex: string): Transaction {
         const transaction = TransactionDeserializer.deserialize(hex);
         transaction.isVerified = transaction.verify();
         return transaction;
     }
 
-    public static from(data: ITransactionData): AbstractTransaction {
+    public static from(data: ITransactionData): Transaction {
         const transaction = TransactionRepository.create(data);
 
         // TODO:
@@ -50,7 +50,7 @@ export abstract class AbstractTransaction {
     }
 
     public get type(): TransactionTypes {
-        return AbstractTransaction.type;
+        return Transaction.type;
     }
 
     private isVerified: boolean;

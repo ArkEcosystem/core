@@ -1,6 +1,6 @@
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
-import { AbstractTransaction, IMultiSignatureAsset, ITransactionData } from "../transactions";
+import { IMultiSignatureAsset, ITransactionData, Transaction } from "../transactions";
 import { Bignum, formatArktoshi } from "../utils";
 import { IBlockData } from "./block";
 
@@ -64,35 +64,35 @@ export class Wallet {
     /**
      * Check if can apply a transaction to the wallet.
      */
-    public canApply(transaction: AbstractTransaction): boolean {
+    public canApply(transaction: Transaction): boolean {
         return transaction.canBeApplied(this);
     }
 
     /**
      * Associate this wallet as the sender of a transaction.
      */
-    public applyTransactionToSender(transaction: AbstractTransaction): void {
+    public applyTransactionToSender(transaction: Transaction): void {
         return transaction.applyToSender(this);
     }
 
     /**
      * Remove this wallet as the sender of a transaction.
      */
-    public revertTransactionForSender(transaction: AbstractTransaction): void {
+    public revertTransactionForSender(transaction: Transaction): void {
         return transaction.revertForSender(this);
     }
 
     /**
      * Add transaction balance to this wallet.
      */
-    public applyTransactionToRecipient(transaction: AbstractTransaction): void {
+    public applyTransactionToRecipient(transaction: Transaction): void {
         return transaction.applyToRecipient(this);
     }
 
     /**
      * Remove transaction balance from this wallet.
      */
-    public revertTransactionForRecipient(transaction: AbstractTransaction): void {
+    public revertTransactionForRecipient(transaction: Transaction): void {
         return transaction.revertForRecipient(this);
     }
 

@@ -2,7 +2,6 @@ import { TransactionTypes } from "../constants";
 import { NotImplementedError, TransactionAlreadyRegisteredError, TransactionTypeNotRegisteredError } from "../errors";
 import { ITransactionData } from "./interfaces";
 import {
-    AbstractTransaction,
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,
     IpfsTransaction,
@@ -10,11 +9,12 @@ import {
     MultiSignatureRegistrationTransaction,
     SecondSignatureRegistrationTransaction,
     TimelockTransferTransaction,
+    Transaction,
     TransferTransaction,
     VoteTransaction,
 } from "./types";
 
-type TransactionConstructor = typeof AbstractTransaction;
+type TransactionConstructor = typeof Transaction;
 
 class TransactionRepository {
     private readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
@@ -32,8 +32,8 @@ class TransactionRepository {
         this.registerCoreType(DelegateResignationTransaction);
     }
 
-    public create(data: ITransactionData): AbstractTransaction {
-        const instance = new (this.get(data.type) as any)() as AbstractTransaction;
+    public create(data: ITransactionData): Transaction {
+        const instance = new (this.get(data.type) as any)() as Transaction;
         instance.data = data;
 
         return instance;

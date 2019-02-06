@@ -24,9 +24,7 @@ export class DeserializeCommand extends BaseCommand {
         const { flags } = this.parse(DeserializeCommand);
 
         const { data } =
-            flags.type === "transaction"
-                ? models.AbstractTransaction.fromHex(flags.data)
-                : new models.Block(flags.data);
+            flags.type === "transaction" ? models.Transaction.fromHex(flags.data) : new models.Block(flags.data);
 
         return handleOutput(flags, JSON.stringify(data, null, 4));
     }

@@ -1,6 +1,6 @@
 // tslint:disable:variable-name
 
-import { AbstractTransaction, constants } from "@arkecosystem/crypto";
+import { constants, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 
 const { TransactionTypes } = constants;
@@ -12,14 +12,14 @@ const { TransactionTypes } = constants;
  * + a get-expiration-time method used to remove old transactions from the pool
  */
 export class MemPoolTransaction {
-    private _transaction: AbstractTransaction;
+    private _transaction: Transaction;
     private _sequence: number;
 
     /**
      * Construct a MemPoolTransaction object.
      */
-    constructor(transaction: AbstractTransaction, sequence?: number) {
-        assert(transaction instanceof AbstractTransaction);
+    constructor(transaction: Transaction, sequence?: number) {
+        assert(transaction instanceof Transaction);
         this._transaction = transaction;
 
         if (sequence !== undefined) {
@@ -28,7 +28,7 @@ export class MemPoolTransaction {
         }
     }
 
-    get transaction(): AbstractTransaction {
+    get transaction(): Transaction {
         return this._transaction;
     }
 

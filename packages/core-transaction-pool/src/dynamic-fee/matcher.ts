@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { AbstractTransaction, Bignum, constants, feeManager, formatArktoshi } from "@arkecosystem/crypto";
+import { Bignum, constants, feeManager, formatArktoshi, Transaction } from "@arkecosystem/crypto";
 import camelCase from "lodash/camelCase";
 import { config as localConfig } from "../config";
 
 /**
  * Calculate minimum fee of a transaction for entering the pool.
  */
-export function calculateFee(arktoshiPerByte: number, transaction: AbstractTransaction): number {
+export function calculateFee(arktoshiPerByte: number, transaction: Transaction): number {
     if (arktoshiPerByte <= 0) {
         arktoshiPerByte = 1;
     }
@@ -28,7 +28,7 @@ export function calculateFee(arktoshiPerByte: number, transaction: AbstractTrans
  * @param {Transaction} Transaction - transaction to check
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
-export function dynamicFeeMatcher(transaction: AbstractTransaction): { broadcast: boolean; enterPool: boolean } {
+export function dynamicFeeMatcher(transaction: Transaction): { broadcast: boolean; enterPool: boolean } {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     const fee = +(transaction.data.fee as Bignum).toFixed();

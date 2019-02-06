@@ -3,9 +3,9 @@ import { IMultiSignatureAsset } from "..";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
 import { Wallet } from "../../models";
-import { AbstractTransaction } from "./abstract";
+import { Transaction } from "./transaction";
 
-export class MultiSignatureRegistrationTransaction extends AbstractTransaction {
+export class MultiSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiSignature;
 
     public serialize(): ByteBuffer {

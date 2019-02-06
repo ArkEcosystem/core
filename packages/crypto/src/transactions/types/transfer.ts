@@ -3,9 +3,9 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
-import { AbstractTransaction } from "./abstract";
+import { Transaction } from "./transaction";
 
-export class TransferTransaction extends AbstractTransaction {
+export class TransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Transfer;
 
     public serialize(): ByteBuffer {

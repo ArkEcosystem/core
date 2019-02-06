@@ -7,7 +7,7 @@ import { TransactionTypeError, TransactionVersionError } from "../../errors";
 import { configManager } from "../../managers";
 import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";
-import { AbstractTransaction } from "../types";
+import { Transaction } from "../types";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -32,7 +32,7 @@ export class TransactionSerializer {
     /**
      * Serializes the given transaction according to AIP11.
      */
-    public static serialize(transaction: AbstractTransaction): Buffer {
+    public static serialize(transaction: Transaction): Buffer {
         const buffer = new ByteBuffer(512, true);
         const { data } = transaction;
 
@@ -199,7 +199,7 @@ export class TransactionSerializer {
         buffer.writeUint64(+new Bignum(transaction.fee).toFixed());
     }
 
-    private static serializeVendorField(transaction: AbstractTransaction, buffer: ByteBuffer): void {
+    private static serializeVendorField(transaction: Transaction, buffer: ByteBuffer): void {
         if (transaction.hasVendorField()) {
             const { data } = transaction;
             if (data.vendorField) {
