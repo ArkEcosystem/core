@@ -1,7 +1,6 @@
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
-import { transactionHandler } from "../handlers/transactions";
-import { IMultiSignatureAsset, ITransactionData } from "../transactions";
+import { AbstractTransaction, IMultiSignatureAsset, ITransactionData } from "../transactions";
 import { Bignum, formatArktoshi } from "../utils";
 import { IBlockData } from "./block";
 
@@ -42,6 +41,7 @@ export class Wallet {
     public missedBlocks: number;
     public forgedFees: Bignum;
     public forgedRewards: Bignum;
+    public rate?: number;
 
     constructor(address: string) {
         this.address = address;
@@ -64,36 +64,36 @@ export class Wallet {
     /**
      * Check if can apply a transaction to the wallet.
      */
-    public canApply(transaction: ITransactionData, errors: any[]): boolean {
-        return transactionHandler.canApply(this, transaction, errors);
+    public canApply(transaction: AbstractTransaction): boolean {
+        return transaction.canBeApplied(this);
     }
 
     /**
      * Associate this wallet as the sender of a transaction.
      */
-    public applyTransactionToSender(transaction: ITransactionData): void {
-        return transactionHandler.applyTransactionToSender(this, transaction);
+    public applyTransactionToSender(transaction: AbstractTransaction): void {
+        return transaction.applyToSender(this);
     }
 
     /**
      * Remove this wallet as the sender of a transaction.
      */
-    public revertTransactionForSender(transaction: ITransactionData): void {
-        return transactionHandler.revertTransactionForSender(this, transaction);
+    public revertTransactionForSender(transaction: AbstractTransaction): void {
+        return transaction.revertForSender(this);
     }
 
     /**
      * Add transaction balance to this wallet.
      */
-    public applyTransactionToRecipient(transaction: ITransactionData): void {
-        return transactionHandler.applyTransactionToRecipient(this, transaction);
+    public applyTransactionToRecipient(transaction: AbstractTransaction): void {
+        return transaction.applyToRecipient(this);
     }
 
     /**
      * Remove transaction balance from this wallet.
      */
-    public revertTransactionForRecipient(transaction: ITransactionData): void {
-        return transactionHandler.revertTransactionForRecipient(this, transaction);
+    public revertTransactionForRecipient(transaction: AbstractTransaction): void {
+        return transaction.revertForRecipient(this);
     }
 
     /**

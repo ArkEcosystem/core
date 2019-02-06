@@ -1,10 +1,17 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { AbstractTransaction, constants, crypto, formatArktoshi, isException, models } from "@arkecosystem/crypto";
+import {
+    AbstractTransaction,
+    Bignum,
+    constants,
+    crypto,
+    formatArktoshi,
+    isException,
+    models,
+} from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
-const { Block, Wallet } = models;
 const { TransactionTypes } = constants;
 
 export class WalletManager {
@@ -12,9 +19,9 @@ export class WalletManager {
     public config: any;
 
     public networkId: number;
-    public byAddress: { [key: string]: any };
-    public byPublicKey: { [key: string]: any };
-    public byUsername: { [key: string]: any };
+    public byAddress: { [key: string]: models.Wallet };
+    public byPublicKey: { [key: string]: models.Wallet };
+    public byUsername: { [key: string]: models.Wallet };
 
     /**
      * Create a new wallet manager instance.
@@ -69,7 +76,7 @@ export class WalletManager {
      */
     public findByAddress(address) {
         if (!this.byAddress[address]) {
-            this.byAddress[address] = new Wallet(address);
+            this.byAddress[address] = new models.Wallet(address);
         }
 
         return this.byAddress[address];
@@ -221,7 +228,7 @@ export class WalletManager {
         }
 
         const { round } = roundCalculator.calculateRound(height, maxDelegates);
-        let delegates = this.allByUsername();
+        let delegates: any = this.allByUsername();
 
         if (delegates.length < maxDelegates) {
             throw new Error(
@@ -315,7 +322,7 @@ export class WalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public applyBlock(block) {
+    public applyBlock(block: models.Block) {
         const generatorPublicKey = block.data.generatorPublicKey;
 
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
@@ -324,7 +331,7 @@ export class WalletManager {
             const generator = crypto.getAddress(generatorPublicKey, this.networkId);
 
             if (block.data.height === 1) {
-                delegate = new Wallet(generator);
+                delegate = new models.Wallet(generator);
                 delegate.publicKey = generatorPublicKey;
 
                 this.reindex(delegate);
@@ -353,7 +360,7 @@ export class WalletManager {
             // by reward + totalFee. In which case the vote balance of the
             // delegate's delegate has to be updated.
             if (applied && delegate.vote) {
-                const increase = block.data.reward.plus(block.data.totalFee);
+                const increase = (block.data.reward as Bignum).plus(block.data.totalFee);
                 const votedDelegate = this.byPublicKey[delegate.vote];
                 votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase);
             }
@@ -446,7 +453,7 @@ export class WalletManager {
         // handle exceptions / verify that we can apply the transaction to the sender
         if (isException(data)) {
             this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
-        } else if (!transaction.canBeApplied(sender)) {
+        } else if (!sender.canApply(transaction)) {
             this.logger.error(
                 `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${JSON.stringify(errors)}`,
             );
@@ -454,7 +461,7 @@ export class WalletManager {
             throw new Error(`Can't apply transaction ${data.id}`);
         }
 
-        transaction.applyToSender(sender);
+        sender.applyTransactionToSender(transaction);
 
         if (type === TransactionTypes.DelegateRegistration) {
             this.reindex(sender);
@@ -462,7 +469,7 @@ export class WalletManager {
 
         // TODO: make more generic
         if (recipient && type === TransactionTypes.Transfer) {
-            transaction.applyToRecipient(recipient);
+            recipient.applyTransactionToRecipient(transaction);
         }
 
         this._updateVoteBalances(sender, recipient, data);
@@ -525,7 +532,7 @@ export class WalletManager {
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
         const recipient = this.byAddress[data.recipientId];
 
-        transaction.revertForSender(sender);
+        sender.revertTransactionForSender(transaction);
 
         // removing the wallet from the delegates index
         if (type === TransactionTypes.DelegateRegistration) {
@@ -533,7 +540,7 @@ export class WalletManager {
         }
 
         if (recipient && type === TransactionTypes.Transfer) {
-            transaction.revertForRecipient(recipient);
+            recipient.revertTransactionForRecipient(transaction);
         }
 
         // Revert vote balance updates

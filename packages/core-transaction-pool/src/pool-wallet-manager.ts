@@ -90,7 +90,7 @@ export class PoolWalletManager extends WalletManager {
             this.logger.warn(
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );
-        } else if (!transaction.canBeApplied(sender)) {
+        } else if (!sender.canApply(transaction)) {
             const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
                 sender.address
             }`;
@@ -107,7 +107,6 @@ export class PoolWalletManager extends WalletManager {
     public revertTransactionForSender(transaction: AbstractTransaction) {
         const { data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
-
-        transaction.revertForSender(sender);
+        sender.revertTransactionForSender(transaction);
     }
 }

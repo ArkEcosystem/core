@@ -361,15 +361,15 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                 : false;
 
             if (recipientWallet) {
-                recipientWallet.applyTransactionToRecipient(data);
+                recipientWallet.applyTransactionToRecipient(transaction);
             }
 
             if (exists) {
                 this.removeTransaction(transaction);
             } else if (senderWallet) {
-                const errors = [];
-                if (senderWallet.canApply(data, errors)) {
-                    senderWallet.applyTransactionToSender(data);
+                const errors = ["TODO"];
+                if (senderWallet.canApply(transaction)) {
+                    senderWallet.applyTransactionToSender(transaction);
                 } else {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
@@ -420,8 +420,8 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             }
 
             const senderWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
-            const errors = [];
-            if (senderWallet && senderWallet.canApply(transaction, errors)) {
+            const errors = ["TODO"];
+            if (senderWallet && senderWallet.canApply(transaction)) {
                 senderWallet.applyTransactionToSender(transaction);
             } else {
                 logger.error(`BuildWallets from pool: ${JSON.stringify(errors)}`);
