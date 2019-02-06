@@ -60,12 +60,13 @@ export class PeerVerifier {
      *   This means that we have forked and the peer's chain is lower.
      *   We verify: same as 2.
      *
-     * @param {Peer} peer peer whose chain to verify
      * @param {Object} claimedState the claimed state of the peer, as returned by `/peer/status`
+     * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {Boolean} true if the peer's blockchain is verified to be legit (albeit it may be
      * different than our blockchain)
+     * @throws {Error} if the state verification could not complete before the deadline
      */
-    public async checkState(claimedState: object): Promise<boolean> {
+    public async checkState(claimedState: object, deadline: number): Promise<boolean> {
         if (this.isStateInvalid(claimedState)) {
             return false;
         }
@@ -77,12 +78,13 @@ export class PeerVerifier {
             return true;
         }
 
-        const highestCommonBlockHeight = await this.findHighestCommonBlockHeight(claimedState, ourHeight);
+        const highestCommonBlockHeight =
+            await this.findHighestCommonBlockHeight(claimedState, ourHeight, deadline);
         if (highestCommonBlockHeight === null) {
             return false;
         }
 
-        if (!await this.verifyPeerBlocks(highestCommonBlockHeight + 1)) {
+        if (!await this.verifyPeerBlocks(highestCommonBlockHeight + 1, deadline)) {
             return false;
         }
 
@@ -192,10 +194,15 @@ export class PeerVerifier {
      * Find the height of the highest block that is the same in both our and peer's chain.
      * @param {Object} claimedState peer claimed state (from `/peer/status`)
      * @param {Number} ourHeight the height of our blockchain
+     * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {Number|null} height; if null is returned this means that the
      * peer's replies didn't make sense and it should be treated as malicious or broken.
+     * @throws {Error} if the state verification could not complete before the deadline
      */
-    private async findHighestCommonBlockHeight(claimedState: any, ourHeight: number): Promise<number> {
+    private async findHighestCommonBlockHeight(
+        claimedState: any,
+        ourHeight: number,
+        deadline: number): Promise<number> {
         const claimedHeight = Number(claimedState.header.height);
 
         // The highest common block is in the interval [1, min(claimed height, our height)].
@@ -227,9 +234,11 @@ export class PeerVerifier {
             const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(', ');
             const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;
 
+            const msRemaining = this.throwIfPastDeadline(deadline);
+
             this.logger.debug(`${this.logPrefix} probe for common blocks in range ${rangePrint}`);
 
-            const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById));
+            const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById), msRemaining);
 
             if (!highestCommon) {
                 return null;
@@ -284,9 +293,11 @@ export class PeerVerifier {
     /**
      * Verify the blocks of the peer's chain that are in the range [height, last block in round].
      * @param {Number} height verify blocks at and after this height
+     * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {Boolean} true if the blocks are legit (signed by the appropriate delegates)
+     * @throws {Error} if the state verification could not complete before the deadline
      */
-    private async verifyPeerBlocks(height: number): Promise<boolean> {
+    private async verifyPeerBlocks(height: number, deadline: number): Promise<boolean> {
         const round = roundCalculator.calculateRound(height);
         const lastBlockHeightInRound = round.round * round.maxDelegates;
 
@@ -301,7 +312,7 @@ export class PeerVerifier {
 
         for (let h = height; h <= lastBlockHeightInRound; h++) {
             if (hisBlocksByHeight[h] === undefined) {
-                if (!await this.fetchBlocksFromHeight(h, hisBlocksByHeight)) {
+                if (!await this.fetchBlocksFromHeight(h, hisBlocksByHeight, deadline)) {
                     return false;
                 }
             }
@@ -357,13 +368,18 @@ export class PeerVerifier {
      * @param {Number} height fetch the block at this height and some after it
      * @param {Object} blocksByHeight map of height -> block, this method will add the newly
      * fetched blocks to it
+     * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {Boolean} true if fetched successfully
+     * @throws {Error} if the state verification could not complete before the deadline
      */
-    private async fetchBlocksFromHeight(height: number, blocksByHeight: object): Promise<boolean> {
+    private async fetchBlocksFromHeight(height: number, blocksByHeight: object, deadline: number): Promise<boolean> {
         let response;
 
         try {
-            response = await this.peer.getPeerBlocks(height - 1);  // returns blocks from the next one
+            const msRemaining = this.throwIfPastDeadline(deadline);
+
+            // returns blocks from the next one, thus we do -1
+            response = await this.peer.getPeerBlocks(height - 1, msRemaining);
         } catch (err) {
             this.logger.info(
                 `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
@@ -463,5 +479,25 @@ export class PeerVerifier {
         );
 
         return false;
+    }
+
+    /**
+     * Check if a deadline has passed and throw an exception if so.
+     * @param {Number} deadline deadline, in milliseconds since Epoch
+     * @return {Number} milliseconds remaining, if deadline has not passed
+     * @throws {Error} if deadline passed
+     */
+    private throwIfPastDeadline(deadline: number): number {
+        const now = new Date().getTime();
+
+        if (deadline <= now) {
+            // Throw an exception so that it can cancel everything and break out of peer.ping().
+            throw new Error(
+                `${this.logPrefix} failure: timeout elapsed before successful completion of ` +
+                `the verification`
+            );
+        }
+
+        return deadline - now;
     }
 }

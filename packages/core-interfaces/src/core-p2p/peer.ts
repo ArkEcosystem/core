@@ -50,12 +50,12 @@ export interface IPeer {
     /**
      * Perform ping request on this peer if it has not been
      * recently pinged.
-     * @param  {Number} [delay=5000]
+     * @param  {Number} delay operation timeout, in milliseconds
      * @param  {Boolean} force
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    ping(delay: any, force?: boolean): Promise<any>;
+    ping(delay: number, force?: boolean): Promise<any>;
 
     /**
      * Returns true if this peer was pinged the past 2 minutes.
