@@ -1,6 +1,4 @@
 // tslint:disable:member-ordering
-
-import { JoiObject } from "joi";
 import { TransactionRegistry } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
@@ -18,6 +16,7 @@ import { Bignum, isException } from "../../utils";
 import { transactionValidator } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
 import { ITransactionData } from "../interfaces";
+import * as schemas from "../schemas";
 import { TransactionSerializer } from "../serializers";
 
 export abstract class Transaction {
@@ -187,5 +186,12 @@ export abstract class Transaction {
 
     public hasVendorField(): boolean {
         return false;
+    }
+
+    /**
+     * Base schema - extended by subtypes.
+     */
+    public getSchema(): any {
+        return schemas.base;
     }
 }

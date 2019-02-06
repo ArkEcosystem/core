@@ -8,3 +8,11 @@ import { transactions } from "./transactions";
 import { username } from "./username";
 
 export const extensions = [address, bignumber, publicKey, username, blockId, ...transactions, transactionArray, block];
+
+export const schemas = {
+    address,
+    bignumber,
+    blockId,
+    publicKey,
+    username,
+};
