@@ -11,9 +11,9 @@ describe(".toDispatch", () => {
         expect(() => blockchain.dispatch("EVENT")).toDispatch(blockchain, "EVENT");
     });
 
-    test("fails when the dispatch method is not called with the argument", () => {
+    test("fails when the dispatch method is not called with the argument", async () => {
         // tslint:disable-next-line:no-empty
-        expect(() => {}).not.toDispatch(blockchain, "FAKE-EVENT");
-        expect(() => blockchain.dispatch("OTHER-EVENT")).not.toDispatch(blockchain, "EVENT");
+        await expect(() => {}).not.toDispatch(blockchain, "FAKE-EVENT");
+        await expect(() => blockchain.dispatch("OTHER-EVENT")).not.toDispatch(blockchain, "EVENT");
     });
 });
