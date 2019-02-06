@@ -10,7 +10,7 @@ const { Transaction } = models;
 /**
  * @type {Object}
  */
-export const verify = {
+export const verify: object = {
     /**
      * @param  {Hapi.Request} request
      * @param  {Hapi.Toolkit} h
