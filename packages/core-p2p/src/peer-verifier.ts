@@ -1,11 +1,12 @@
-import { app } from "@arkecosystem/core-container";
-import { ConnectionInterface } from "@arkecosystem/core-database";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
-import { models } from "@arkecosystem/crypto";
 import assert from "assert";
+import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
+import { ConnectionInterface } from "@arkecosystem/core-database";
+import { Logger } from "@arkecosystem/core-interfaces";
 import { Peer } from './peer';
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { app } from "@arkecosystem/core-container";
+import { inspect } from "util";
+import { models } from "@arkecosystem/crypto";
 
 export class PeerVerifier {
     private database: ConnectionInterface;
@@ -109,7 +110,7 @@ export class PeerVerifier {
             return false;
         }
 
-        this.logger.info(`${this.logPrefix} peer's claimed state is invalid: ${JSON.stringify(claimedState)}`);
+        this.logger.info(`${this.logPrefix} peer's claimed state is invalid: ${this.anyToString(claimedState)}`);
 
         return true;
     }
@@ -159,7 +160,7 @@ export class PeerVerifier {
             blocks.length,
             1,
             `database.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
-            JSON.stringify(blocks) + ` (our chain is at height ${ourHeight})`
+            this.anyToString(blocks) + ` (our chain is at height ${ourHeight})`
         );
 
         const ourBlockAtHisHeight = blocks[0];
@@ -250,7 +251,7 @@ export class PeerVerifier {
 
                 this.logger.info(
                     `${this.logPrefix} failure: erroneous reply from peer for common blocks ` +
-                    `${ourBlocksPrint}: ${JSON.stringify(highestCommon)}`
+                    `${ourBlocksPrint}: ${this.anyToString(highestCommon)}`
                 );
                 return null;
             }
@@ -350,7 +351,7 @@ export class PeerVerifier {
                 delegates.length,
                 numDelegates,
                 `Couldn't derive the list of delegates for round ${round.round}. The database ` +
-                `returned empty list and the wallet manager returned ${JSON.stringify(delegates)}.`
+                `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`
             );
         }
 
@@ -395,7 +396,7 @@ export class PeerVerifier {
 
             this.logger.info(
                 `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
-                `from peer: unexpected response: ${JSON.stringify(response)}`
+                `from peer: unexpected response: ${this.anyToString(response)}`
             );
             return false;
         }
@@ -406,7 +407,7 @@ export class PeerVerifier {
                 this.logger.info(
                     `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
                     `from peer: the block at height ${height + i} is not an object: ` +
-                    JSON.stringify(response)
+                    this.anyToString(response)
                 );
                 return false;
             }
@@ -473,9 +474,9 @@ export class PeerVerifier {
         }
 
         this.logger.info(
-            `${this.logPrefix} failure: block ${JSON.stringify(blockData)} is not ` +
+            `${this.logPrefix} failure: block ${this.anyToString(blockData)} is not ` +
             `signed by any of the delegates for the corresponding round: ` +
-            JSON.stringify(Object.values(delegatesByPublicKey))
+            this.anyToString(Object.values(delegatesByPublicKey))
         );
 
         return false;
@@ -496,5 +497,14 @@ export class PeerVerifier {
         }
 
         return deadline - now;
+    }
+
+    /**
+     * Format an arbitrary value to a string.
+     * @param {*} val value to be converted
+     * @return {String} string representation of `val`
+     */
+    private anyToString(val: any): string {
+        return inspect(val, { sorted: true, breakLength: Infinity });
     }
 }
