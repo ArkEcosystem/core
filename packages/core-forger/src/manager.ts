@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { AbstractTransaction, models, slots } from "@arkecosystem/crypto";
+import { AbstractTransaction, ITransactionData, models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
 import uniq from "lodash/uniq";
@@ -175,7 +175,7 @@ export class ForgerManager {
      * @param {Object} delegate
      * @param {Object} round
      */
-    public async __forgeNewBlock(delegate, round) {
+    public async __forgeNewBlock(delegate: models.Delegate, round) {
         // TODO: Disabled for now as this could cause a delay in forging that
         // results in missing a block which we want to avoid.
         //
@@ -206,11 +206,11 @@ export class ForgerManager {
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async __getTransactionsForForging() {
+    public async __getTransactionsForForging(): Promise<ITransactionData[]> {
         const response = await this.client.getTransactions();
 
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => AbstractTransaction.fromHex(serializedTx))
+            ? response.transactions.map(serializedTx => AbstractTransaction.fromHex(serializedTx).data)
             : [];
 
         if (isEmpty(response)) {
