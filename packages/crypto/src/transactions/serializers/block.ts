@@ -1,7 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils";
-import { Transaction } from "../transaction";
 import { AbstractTransaction } from "../types";
 
 class BlockSerializer {

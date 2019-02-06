@@ -38,7 +38,7 @@ export interface IPeer {
      * @param  {Transaction[]}      transactions
      * @return {(Object|undefined)}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<any>;
+    postTransactions(transactions: models.AbstractTransaction[]): Promise<any>;
 
     /**
      * Download blocks from peer.

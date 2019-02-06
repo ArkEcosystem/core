@@ -69,7 +69,7 @@ export interface IBlockchain {
      * @param  {Array}   transactions
      * @return {void}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<void>;
+    postTransactions(transactions: models.AbstractTransaction[]): Promise<void>;
 
     /**
      * Push a block to the process queue.

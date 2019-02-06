@@ -1,7 +1,7 @@
-import { AbstractTransaction, Bignum, ITransactionData, models } from "@arkecosystem/crypto";
+import { AbstractTransaction, Bignum, models } from "@arkecosystem/crypto";
 import msgpack from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
-const { Block, Transaction } = models;
+const { Block } = models;
 
 export const blockEncode = blockRecord => {
     const data = camelizeKeys(blockRecord);

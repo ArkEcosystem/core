@@ -1,9 +1,7 @@
-import { AbstractTransaction, models } from "@arkecosystem/crypto";
+import { AbstractTransaction } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import fs from "fs-extra";
 import { MemPoolTransaction } from "./mem-pool-transaction";
-
-const { Transaction } = models;
 
 /**
  * A permanent storage (on-disk), supporting some basic functionalities required
