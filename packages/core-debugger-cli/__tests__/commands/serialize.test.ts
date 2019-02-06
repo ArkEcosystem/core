@@ -1,37 +1,26 @@
 import "jest-extended";
 
-import { serialize } from "../../src/commands/serialize";
+import { SerializeCommand } from "../../src/commands/serialize";
 
 describe("Commands - Serialize", () => {
     const fixtureBlock = require("../__fixtures__/block.json");
     const fixtureTransaction = require("../__fixtures__/transaction.json");
 
-    it("should serialize a block (not-full)", () => {
-        expect(
-            serialize({
-                data: JSON.stringify(fixtureBlock.data),
-                type: "block",
-                full: false,
-            }),
-        ).toEqual(fixtureBlock.serialized);
+    it("should serialize a block (not-full)", async () => {
+        expect(await SerializeCommand.run(["--data", JSON.stringify(fixtureBlock.data), "--type", "block"])).toEqual(
+            fixtureBlock.serialized,
+        );
     });
 
-    it("should serialize a block (full)", () => {
+    it("should serialize a block (full)", async () => {
         expect(
-            serialize({
-                data: JSON.stringify(fixtureBlock.data),
-                type: "block",
-                full: true,
-            }),
+            await SerializeCommand.run(["--data", JSON.stringify(fixtureBlock.data), "--type", "block", "--full"]),
         ).toEqual(fixtureBlock.serializedFull);
     });
 
-    it("should serialize a transaction", () => {
+    it("should serialize a transaction", async () => {
         expect(
-            serialize({
-                data: JSON.stringify(fixtureTransaction.data),
-                type: "transaction",
-            }),
+            await SerializeCommand.run(["--data", JSON.stringify(fixtureTransaction.data), "--type", "transaction"]),
         ).toEqual(fixtureTransaction.serialized);
     });
 });

@@ -4,6 +4,7 @@ import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import secp256k1 from "secp256k1";
 
+import { TransactionVersionError } from "../errors";
 import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { configManager } from "../managers";
 import { feeManager } from "../managers";
@@ -30,7 +31,7 @@ class Crypto {
         skipSecondSignature: boolean = false,
     ): Buffer {
         if (transaction.version && transaction.version !== 1) {
-            throw new Error("not supported yet");
+            throw new TransactionVersionError(transaction.version);
         }
 
         let assetSize = 0;
@@ -177,7 +178,7 @@ class Crypto {
      */
     public getId(transaction: ITransactionData): string {
         if (transaction.version && transaction.version !== 1) {
-            throw new Error("not supported yet");
+            throw new TransactionVersionError(transaction.version);
         }
 
         return this.getHash(transaction).toString("hex");
@@ -192,7 +193,7 @@ class Crypto {
         skipSecondSignature: boolean = false,
     ): Buffer {
         if (transaction.version && transaction.version !== 1) {
-            throw new Error("not supported yet");
+            throw new TransactionVersionError(transaction.version);
         }
 
         const bytes = this.getBytes(transaction, skipSignature, skipSecondSignature);

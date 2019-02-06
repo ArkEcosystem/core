@@ -6,6 +6,7 @@ import { configManager } from "../../src/managers/config";
 import { Transaction } from "../../src/models/transaction";
 import { transaction as transactionData } from "../fixtures/transaction";
 
+import { TransactionTypeError } from "../../src/errors";
 import { devnet } from "../../src/networks";
 
 const createRandomTx = type => {
@@ -80,7 +81,7 @@ const createRandomTx = type => {
             break;
         }
         default: {
-            throw new Error("Invalid transaction type");
+            throw new TransactionTypeError(type);
         }
     }
 
@@ -92,7 +93,7 @@ describe("Models - Transaction", () => {
 
     describe("static fromBytes", () => {
         it("should verify all transactions", () => {
-            [0, 1, 2, 3, 4]
+            [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const ser = Transaction.serialize(transaction.data).toString("hex");
@@ -115,7 +116,7 @@ describe("Models - Transaction", () => {
 
     describe("static deserialize", () => {
         it("should match transaction id", () => {
-            [0, 1, 2, 3, 4]
+            [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const originalId = transaction.data.id;
@@ -223,7 +224,7 @@ describe("Models - Transaction", () => {
     });
 
     it("Signatures are verified", () => {
-        [0, 1, 2, 3, 4]
+        [0, 1, 2, 3]
             .map(type => createRandomTx(type))
             .forEach(transaction => expect(crypto.verify(transaction)).toBeTrue());
     });

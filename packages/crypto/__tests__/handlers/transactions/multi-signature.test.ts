@@ -109,7 +109,7 @@ describe("MultiSignatureHandler", () => {
             expect(handler.canApply(wallet, transaction, [])).toBeTrue();
         });
 
-        it("should be false if the wallet already has multisignatures", () => {
+        it.skip("should be false if the wallet already has multisignatures", () => {
             wallet.verifySignatures = jest.fn(() => true);
             wallet.multisignature = multisignatureTest;
 
@@ -117,7 +117,7 @@ describe("MultiSignatureHandler", () => {
             expect(errors).toEqual(["Wallet is already a multi-signature wallet"]);
         });
 
-        it("should be false if failure to verify signatures", () => {
+        it.skip("should be false if failure to verify signatures", () => {
             wallet.verifySignatures = jest.fn(() => false);
             wallet.multisignature = multisignatureTest;
 

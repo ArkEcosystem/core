@@ -43,17 +43,10 @@ export function tickSyncTracker(blockCount, count) {
             secDecimalDigits: 0,
         });
 
-        logger.printTracker(
-            "Fast Sync",
-            tracker.percent,
-            100,
-            `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`,
-        );
+        logger.info(`Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`);
     }
 
     if (tracker.percent === 100) {
         tracker = null;
-
-        logger.stopTracker("Fast Sync", 100, 100);
     }
 }

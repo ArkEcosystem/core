@@ -1,5 +1,6 @@
 import bs58check from "bs58check";
 import { HashAlgorithms } from "../crypto";
+import { PublicKeyError } from "../errors";
 import { configManager } from "../managers";
 import { PublicKey } from "./public-key";
 
@@ -11,7 +12,7 @@ export class Address {
     public static fromPublicKey(publicKey, networkVersion?: number): string {
         const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
         if (!pubKeyRegex.test(publicKey)) {
-            throw new Error(`publicKey '${publicKey}' is invalid`);
+            throw new PublicKeyError(publicKey);
         }
 
         if (!networkVersion) {

@@ -32,31 +32,30 @@ export class SPV {
     public async build(height) {
         this.activeDelegates = config.getMilestone(height).activeDelegates;
 
-        logger.printTracker("SPV", 1, 8, "Received Transactions");
+        logger.info("SPV Step 1 of 8: Received Transactions");
         await this.__buildReceivedTransactions();
 
-        logger.printTracker("SPV", 2, 8, "Block Rewards");
+        logger.info("SPV Step 2 of 8: Block Rewards");
         await this.__buildBlockRewards();
 
-        logger.printTracker("SPV", 3, 8, "Last Forged Blocks");
+        logger.info("SPV Step 3 of 8: Last Forged Blocks");
         await this.__buildLastForgedBlocks();
 
-        logger.printTracker("SPV", 4, 8, "Sent Transactions");
+        logger.info("SPV Step 4 of 8: Sent Transactions");
         await this.__buildSentTransactions();
 
-        logger.printTracker("SPV", 5, 8, "Second Signatures");
+        logger.info("SPV Step 5 of 8: Second Signatures");
         await this.__buildSecondSignatures();
 
-        logger.printTracker("SPV", 6, 8, "Votes");
+        logger.info("SPV Step 6 of 8: Votes");
         await this.__buildVotes();
 
-        logger.printTracker("SPV", 7, 8, "Delegates");
+        logger.info("SPV Step 7 of 8: Delegates");
         await this.__buildDelegates();
 
-        logger.printTracker("SPV", 8, 8, "MultiSignatures");
+        logger.info("SPV Step 8 of 8: MultiSignatures");
         await this.__buildMultisignatures();
 
-        logger.stopTracker("SPV", 8, 8);
         logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`);
         logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`);
 

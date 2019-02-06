@@ -8,49 +8,61 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist"
+        "/bin",
+        "/dist",
+        "/oclif.manifest.json"
     ],
     "bin": {
-        "core:snapshot": "node ./dist/index.js"
+        "snapshot": "./bin/run"
     },
     "scripts": {
+        "snapshot": "./bin/run",
         "prepublishOnly": "yarn test && yarn build",
         "pretest": "yarn lint && yarn build",
+        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "start": "node ./dist/index.js",
         "debug": "node --inspect-brk ./dist/index.js",
-        "create:mainnet": "node ./dist/index.js create --config ../core/src/config/mainnet --network mainnet",
-        "create:devnet": "node ./dist/index.js create --config ../core/src/config/devnet --network devnet",
-        "create:testnet": "node ./dist/index.js create --config ../core/src/config/testnet --network testnet",
-        "import:mainnet": "node ./dist/index.js import --config ../core/src/config/mainnet --network mainnet",
-        "import:devnet": "node ./dist/index.js import --config ../core/src/config/devnet --network devnet",
-        "import:testnet": "node ./dist/index.js import --config ../core/src/config/testnet --network testnet",
-        "verify:mainnet": "node ./dist/index.js verify --config ../core/src/config/mainnet --network mainnet",
-        "verify:devnet": "node ./dist/index.js verify --config ../core/src/config/devnet --network devnet",
-        "verify:testnet": "node ./dist/index.js verify --config ../core/src/config/testnet --network testnet",
-        "rollback:mainnet": "node ./dist/index.js rollback --config ../core/src/config/mainnet --network mainnet",
-        "rollback:devnet": "node ./dist/index.js rollback --config ../core/src/config/devnet --network devnet",
-        "rollback:testnet": "node ./dist/index.js rollback --config ../core/src/config/testnet --network testnet",
-        "truncate:mainnet": "node ./dist/index.js truncate --config ../core/src/config/mainnet --network mainnet",
-        "truncate:devnet": "node ./dist/index.js truncate --config ../core/src/config/devnet --network devnet",
-        "truncate:testnet": "node ./dist/index.js truncate --config ../core/src/config/testnet --network testnet",
+        "dump": "yarn snapshot dump",
+        "dump:mainnet": "yarn snapshot dump --network mainnet",
+        "dump:devnet": "yarn snapshot dump --network devnet",
+        "dump:testnet": "yarn snapshot dump --network testnet",
+        "restore": "yarn snapshot restore",
+        "restore:mainnet": "yarn snapshot restore --network mainnet",
+        "restore:devnet": "yarn snapshot restore --network devnet",
+        "restore:testnet": "yarn snapshot restore --network testnet",
+        "verify": "yarn snapshot verify",
+        "verify:mainnet": "yarn snapshot verify --network mainnet",
+        "verify:devnet": "yarn snapshot verify --network devnet",
+        "verify:testnet": "yarn snapshot verify --network testnet",
+        "rollback": "yarn snapshot rollback",
+        "rollback:mainnet": "yarn snapshot rollback --network mainnet",
+        "rollback:devnet": "yarn snapshot rollback --network devnet",
+        "rollback:testnet": "yarn snapshot rollback --network testnet",
+        "truncate": "yarn snapshot truncate",
+        "truncate:mainnet": "yarn snapshot truncate --network mainnet",
+        "truncate:devnet": "yarn snapshot truncate --network devnet",
+        "truncate:testnet": "yarn snapshot truncate --network testnet",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-snapshots": "^2.1.0",
+        "@oclif/command": "^1.5.8",
+        "@oclif/config": "^1.12.4",
+        "@oclif/plugin-help": "^2.1.6",
+        "@oclif/plugin-not-found": "^1.2.2",
         "@types/boom": "^7.2.1",
         "@types/cli-progress": "^1.8.0",
         "@types/commander": "^2.12.2",
         "@types/fs-extra": "^5.0.4",
         "cli-progress": "^2.1.1",
-        "commander": "^2.19.0",
         "fs-extra": "^7.0.1"
     },
     "publishConfig": {
@@ -61,5 +73,13 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
+    },
+    "oclif": {
+        "commands": "./dist/commands",
+        "bin": "snapshot",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-not-found"
+        ]
     }
 }

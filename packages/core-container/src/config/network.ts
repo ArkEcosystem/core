@@ -22,6 +22,7 @@ export class Network {
                 config = {
                     exceptions: require(`${networkPath}/exceptions`),
                     milestones: require(`${networkPath}/milestones`),
+                    genesisBlock: require(`${networkPath}/genesisBlock`),
                     network: require(`${networkPath}/network`),
                 };
             } catch (error) {
