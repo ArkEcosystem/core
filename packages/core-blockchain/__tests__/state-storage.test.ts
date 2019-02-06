@@ -2,17 +2,21 @@ import "@arkecosystem/core-test-utils";
 import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 import { models } from "@arkecosystem/crypto";
-import { stateStorage } from "../src";
+import delay from "delay";
 import { config } from "../src/config";
 import { defaults } from "../src/defaults";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block } = models;
 const blocks = blocks2to100.concat(blocks101to155).map(block => new Block(block));
+let app;
+let stateStorage;
 
 beforeAll(async () => {
-    await setUp();
+    app = await setUp();
     config.init(defaults);
+
+    stateStorage = require("../src").stateStorage;
 });
 
 afterAll(async () => {
@@ -257,6 +261,78 @@ describe("State Storage", () => {
             expect(stateStorage.getLastBlocks()).toHaveLength(100);
             stateStorage.clear();
             expect(stateStorage.getLastBlocks()).toHaveLength(0);
+        });
+    });
+
+    describe("pingBlock", () => {
+        it("should return false if there is no blockPing", () => {
+            stateStorage.blockPing = null;
+            expect(stateStorage.pingBlock(blocks2to100[5])).toBeFalse();
+        });
+
+        it("should return true if block pinged == current blockPing and should update stats", async () => {
+            const currentTime = new Date().getTime();
+            stateStorage.blockPing = {
+                count: 1,
+                first: currentTime,
+                last: currentTime,
+                block: blocks2to100[5],
+            };
+            await delay(20);
+
+            expect(stateStorage.pingBlock(blocks2to100[5])).toBeTrue();
+            expect(stateStorage.blockPing.count).toBe(2);
+            expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
+            expect(stateStorage.blockPing.last).toBeGreaterThan(currentTime);
+            expect(stateStorage.blockPing.first).toBe(currentTime);
+        });
+
+        it("should return false if block pinged != current blockPing", () => {
+            const currentTime = new Date().getTime();
+            stateStorage.blockPing = {
+                count: 1,
+                first: currentTime,
+                last: currentTime,
+                block: blocks2to100[3],
+            };
+            expect(stateStorage.pingBlock(blocks2to100[5])).toBeFalse();
+            expect(stateStorage.blockPing.count).toBe(1);
+            expect(stateStorage.blockPing.block).toBe(blocks2to100[3]);
+            expect(stateStorage.blockPing.last).toBe(currentTime);
+            expect(stateStorage.blockPing.first).toBe(currentTime);
+        });
+    });
+
+    describe("pushPingBlock", () => {
+        it("should push the block provided as blockPing", () => {
+            stateStorage.blockPing = null;
+
+            stateStorage.pushPingBlock(blocks2to100[5]);
+
+            expect(stateStorage.blockPing).toBeObject();
+            expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
+            expect(stateStorage.blockPing.count).toBe(1);
+        });
+
+        it("should log info message if there is already a blockPing", async () => {
+            stateStorage.blockPing = {
+                count: 1,
+                first: new Date().getTime(),
+                last: new Date().getTime(),
+                block: blocks2to100[3],
+            };
+
+            const logger = app.resolvePlugin("logger");
+            const loggerInfo = jest.spyOn(logger, "info");
+
+            stateStorage.pushPingBlock(blocks2to100[5]);
+
+            expect(loggerInfo).toHaveBeenCalledWith(
+                `Block ${blocks2to100[3].height.toLocaleString()} pinged blockchain 1 times`,
+            );
+            expect(stateStorage.blockPing).toBeObject();
+            expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
+            expect(stateStorage.blockPing.count).toBe(1);
         });
     });
 });

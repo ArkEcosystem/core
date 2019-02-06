@@ -11,6 +11,8 @@ let connection;
 beforeAll(async () => {
     await setUp();
     connection = app.resolvePlugin<PostgresConnection>("database");
+
+    await connection.saveBlock(new Block(genesisBlock));
 });
 
 afterAll(async () => {
@@ -31,7 +33,7 @@ describe("Connection", () => {
         it("should get the genesis block as last block", async () => {
             const lastBlock = await connection.getLastBlock();
 
-            expect(lastBlock).toEqual(new Block(genesisBlock));
+            expect(lastBlock).toEqual(new Block(genesisBlock as any));
         });
     });
 });
