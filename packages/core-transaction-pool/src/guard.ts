@@ -152,10 +152,11 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
         }
 
         const errors = [];
-        if (!this.pool.walletManager.canApply(transaction, errors)) {
-            this.__pushError(transaction, "ERR_APPLY", JSON.stringify(errors));
-            return false;
-        }
+        // TODO: it expects an Transaction instance now
+        // if (!this.pool.walletManager.canApply(transaction, errors)) {
+        //     this.__pushError(transaction, "ERR_APPLY", JSON.stringify(errors));
+        //     return false;
+        // }
 
         if (transaction.network && transaction.network !== configManager.get("pubKeyHash")) {
             this.__pushError(

@@ -10,17 +10,16 @@ import { ConnectionInterface } from "@arkecosystem/core-database";
 import { app } from "@arkecosystem/core-container";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, models } from "@arkecosystem/crypto";
+import { AbstractTransaction, Bignum, models } from "@arkecosystem/crypto";
 
 import { SPV } from "./spv";
 
+import { Blockchain } from "@arkecosystem/core-interfaces";
 import { migrations } from "./migrations";
-import { Model } from "./models";
+import { Block, Model } from "./models";
 import { repositories } from "./repositories";
 import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
-
-const { Block, Transaction } = models;
 
 export class PostgresConnection extends ConnectionInterface {
     public models: { [key: string]: Model } = {};
@@ -331,15 +330,13 @@ export class PostgresConnection extends ConnectionInterface {
     /**
      * Commit the given block.
      * NOTE: to be used when node is in sync and committing newly received blocks
-     * @param  {Block} block
-     * @return {void}
      */
-    public async saveBlock(block) {
+    public async saveBlock(block: models.Block) {
         try {
             const queries = [this.db.blocks.create(block.data)];
 
             if (block.transactions.length > 0) {
-                queries.push(this.db.transactions.create(block.transactions));
+                queries.push(this.db.transactions.create(block.transactions.map(tx => tx.data)));
             }
 
             await this.db.tx(t => t.batch(queries));
@@ -350,10 +347,8 @@ export class PostgresConnection extends ConnectionInterface {
 
     /**
      * Delete the given block.
-     * @param  {Block} block
-     * @return {void}
      */
-    public async deleteBlock(block) {
+    public async deleteBlock(block: models.Block) {
         try {
             const queries = [this.db.transactions.deleteByBlock(block.data.id), this.db.blocks.delete(block.data.id)];
 
@@ -373,11 +368,11 @@ export class PostgresConnection extends ConnectionInterface {
      * @param  {Block} block
      * @return {void}
      */
-    public enqueueSaveBlock(block) {
+    public enqueueSaveBlock(block: models.Block) {
         const queries = [this.db.blocks.create(block.data)];
 
         if (block.transactions.length > 0) {
-            queries.push(this.db.transactions.create(block.transactions));
+            queries.push(this.db.transactions.create(block.transactions.map(tx => tx.data)));
         }
 
         this.enqueueQueries(queries);
@@ -387,10 +382,8 @@ export class PostgresConnection extends ConnectionInterface {
      * Generated delete statements are stored in this.queuedQueries to be later
      * executed by calling this.commitQueuedQueries.
      * See also enqueueSaveBlock.
-     * @param  {Block} block
-     * @return {void}
      */
-    public enqueueDeleteBlock(block) {
+    public enqueueDeleteBlock(block: models.Block) {
         const queries = [this.db.transactions.deleteByBlock(block.data.id), this.db.blocks.delete(block.data.id)];
 
         this.enqueueQueries(queries);
@@ -399,10 +392,8 @@ export class PostgresConnection extends ConnectionInterface {
     /**
      * Generated delete statements are stored in this.queuedQueries to be later
      * executed by calling this.commitQueuedQueries.
-     * @param  {Number} round
-     * @return {void}
      */
-    public enqueueDeleteRound(height) {
+    public enqueueDeleteRound(height: number) {
         const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
         if (nextRound === round + 1 && height >= maxDelegates) {
@@ -447,40 +438,41 @@ export class PostgresConnection extends ConnectionInterface {
 
     /**
      * Get a block.
-     * @param  {Number} id
      * @return {Block}
      */
-    public async getBlock(id) {
+    public async getBlock(id: string): Promise<models.Block> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-        const block = await this.db.blocks.findById(id);
+        const block: models.IBlockData = await this.db.blocks.findById(id);
 
         if (!block) {
             return null;
         }
 
-        const transactions = await this.db.transactions.findByBlock(block.id);
+        const transactions: Array<{ serialized: Buffer }> = await this.db.transactions.findByBlock(block.id);
+        block.transactions = transactions.map(
+            ({ serialized }) => AbstractTransaction.fromHex(serialized.toString("hex")).data,
+        );
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
-
-        return new Block(block);
+        return new models.Block(block);
     }
 
     /**
      * Get the last block.
      * @return {(Block|null)}
      */
-    public async getLastBlock() {
-        const block = await this.db.blocks.latest();
+    public async getLastBlock(): Promise<models.Block> {
+        const block: models.IBlockData = await this.db.blocks.latest();
 
         if (!block) {
             return null;
         }
 
-        const transactions = await this.db.transactions.latestByBlock(block.id);
+        const transactions: Array<{ serialized: Buffer }> = await this.db.transactions.latestByBlock(block.id);
+        block.transactions = transactions.map(
+            ({ serialized }) => AbstractTransaction.fromHex(serialized.toString("hex")).data,
+        );
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
-
-        return new Block(block);
+        return new models.Block(block);
     }
 
     /**
@@ -498,7 +490,7 @@ export class PostgresConnection extends ConnectionInterface {
      * @return {Array}
      */
     public async getCommonBlocks(ids) {
-        const state = app.resolve("state");
+        const state = app.resolve<Blockchain.IStateStorage>("state");
         let commonBlocks = state.getCommonBlocks(ids);
         if (commonBlocks.length < ids.length) {
             commonBlocks = await this.db.blocks.common(ids);
@@ -509,10 +501,8 @@ export class PostgresConnection extends ConnectionInterface {
 
     /**
      * Get forged transactions for the given IDs.
-     * @param  {Array} ids
-     * @return {Array}
      */
-    public async getForgedTransactionsIds(ids) {
+    public async getForgedTransactionsIds(ids: string[]): Promise<string[]> {
         if (!ids.length) {
             return [];
         }
@@ -528,15 +518,15 @@ export class PostgresConnection extends ConnectionInterface {
      * @param  {Number} limit
      * @return {Array}
      */
-    public async getBlocks(offset, limit) {
-        let blocks = [];
+    public async getBlocks(offset: number, limit: number) {
+        let blocks: models.IBlockData[] = [];
 
         // The functions below return matches in the range [start, end], including both ends.
         const start = offset;
         const end = offset + limit - 1;
 
         if (app.has("state")) {
-            blocks = app.resolve("state").getLastBlocksByHeight(start, end);
+            blocks = app.resolve<Blockchain.IStateStorage>("state").getLastBlocksByHeight(start, end);
         }
 
         if (blocks.length !== limit) {
@@ -576,7 +566,7 @@ export class PostgresConnection extends ConnectionInterface {
 
         let transactions = await this.db.transactions.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const data = Transaction.deserialize(tx.serialized.toString("hex"));
+            const { data } = AbstractTransaction.fromHex(tx.serialized.toString("hex"));
             data.blockId = tx.blockId;
             return data;
         });
@@ -590,9 +580,8 @@ export class PostgresConnection extends ConnectionInterface {
 
     /**
      * Get the 10 recent block ids.
-     * @return {[]String}
      */
-    public async getRecentBlockIds() {
+    public async getRecentBlockIds(): Promise<string[]> {
         const state = app.resolve("state");
         let blocks = state
             .getLastBlockIds()
@@ -609,14 +598,11 @@ export class PostgresConnection extends ConnectionInterface {
 
     /**
      * Get the headers of blocks for the given offset and limit.
-     * @param  {Number} offset
-     * @param  {Number} limit
-     * @return {Array}
      */
-    public async getBlockHeaders(offset, limit) {
+    public async getBlockHeaders(offset: number, limit: number): Promise<models.Block[]> {
         const blocks = await this.db.blocks.headers(offset, offset + limit);
 
-        return blocks.map(block => Block.serialize(block));
+        return blocks.map(block => models.Block.serialize(block));
     }
 
     /**

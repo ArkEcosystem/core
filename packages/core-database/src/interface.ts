@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { constants, crypto, models } from "@arkecosystem/crypto";
+import { AbstractTransaction, constants, crypto, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
 import { DelegatesRepository } from "./repositories/delegates";
@@ -455,19 +455,21 @@ export abstract class ConnectionInterface {
      * @param  {Object} transaction
      * @return {void}
      */
-    private __emitTransactionEvents(transaction) {
-        this.emitter.emit("transaction.applied", transaction.data);
+    private __emitTransactionEvents(transaction: AbstractTransaction) {
+        const { data } = transaction;
+
+        this.emitter.emit("transaction.applied", data);
 
         if (transaction.type === TransactionTypes.DelegateRegistration) {
-            this.emitter.emit("delegate.registered", transaction.data);
+            this.emitter.emit("delegate.registered", data);
         }
 
         if (transaction.type === TransactionTypes.DelegateResignation) {
-            this.emitter.emit("delegate.resigned", transaction.data);
+            this.emitter.emit("delegate.resigned", data);
         }
 
         if (transaction.type === TransactionTypes.Vote) {
-            const vote = transaction.asset.votes[0];
+            const vote = data.asset.votes[0];
 
             this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
                 delegate: vote,
