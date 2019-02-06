@@ -28,7 +28,7 @@ export abstract class Repository implements IRepository {
     }
 
     public async _findManyWithCount(selectQuery, { limit, offset, orderBy }): Promise<any> {
-        if (this.columns.includes(orderBy[0])) {
+        if (Array.isArray(orderBy) && this.columns.includes(orderBy[0])) {
             selectQuery.order(this.query[snakeCase(orderBy[0])][orderBy[1]]);
         }
 
