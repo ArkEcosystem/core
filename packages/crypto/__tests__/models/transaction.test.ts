@@ -121,7 +121,7 @@ describe("Models - Transaction", () => {
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const originalId = transaction.data.id;
-                    const newTransaction = Transaction.from(transaction.data);
+                    const newTransaction = Transaction.fromData(transaction.data);
                     expect(newTransaction.data.id).toEqual(originalId);
                 });
         });
@@ -218,7 +218,7 @@ describe("Models - Transaction", () => {
         ];
         txs.forEach(tx =>
             it(`txid: ${tx.id}`, () => {
-                const newtx = Transaction.from(tx);
+                const newtx = Transaction.fromData(tx);
                 expect(newtx.data.id).toEqual(tx.id);
             }),
         );

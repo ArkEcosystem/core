@@ -96,7 +96,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 this.excess.push(transaction.id);
             } else if (this.__validateTransaction(transaction)) {
                 try {
-                    const trx = Transaction.from(transaction);
+                    const trx = Transaction.fromData(transaction);
                     if (trx.verified) {
                         const dynamicFee = dynamicFeeMatcher(trx);
 

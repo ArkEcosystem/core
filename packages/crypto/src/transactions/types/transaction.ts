@@ -29,7 +29,7 @@ export abstract class Transaction {
         return transaction;
     }
 
-    public static from(data: ITransactionData): Transaction {
+    public static fromData(data: ITransactionData): Transaction {
         const transaction = TransactionRepository.create(data);
 
         // TODO:
