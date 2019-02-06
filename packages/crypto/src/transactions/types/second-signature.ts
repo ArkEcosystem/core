@@ -2,10 +2,15 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { SecondSignatureAlreadyRegisteredError } from "../../errors";
 import { Wallet } from "../../models";
+import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class SecondSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.SecondSignature;
+
+    protected static getTypeSchema(): any {
+        return schemas.secondSignature;
+    }
 
     public serialize(): ByteBuffer {
         const { data } = this;

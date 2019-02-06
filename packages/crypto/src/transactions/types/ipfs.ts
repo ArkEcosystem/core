@@ -2,10 +2,15 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
 import { Wallet } from "../../models";
+import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class IpfsTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Ipfs;
+
+    protected static getTypeSchema(): any {
+        return schemas.ipfs;
+    }
 
     public serialize(): ByteBuffer {
         const { data } = this;

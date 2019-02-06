@@ -4,10 +4,15 @@ import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
 import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
+import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class TimelockTransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.TimelockTransfer;
+
+    protected static getTypeSchema(): any {
+        return schemas.timelockTransfer;
+    }
 
     public serialize(): ByteBuffer {
         const { data } = this;

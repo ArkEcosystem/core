@@ -4,8 +4,10 @@ import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import {
     InsufficientBalanceError,
+    NotImplementedError,
     SecondSignatureVerificationFailedError,
     SenderWalletMismatchError,
+    TransactionSchemaError,
     TransactionValidationError,
     UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
@@ -13,11 +15,11 @@ import {
 import { configManager } from "../../managers";
 import { Wallet } from "../../models/wallet";
 import { Bignum, isException } from "../../utils";
-import { transactionValidator } from "../../validation";
+import { joi, transactionValidator } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
 import { ITransactionData } from "../interfaces";
-import * as schemas from "../schemas";
 import { TransactionSerializer } from "../serializers";
+import * as schemas from "./schemas";
 
 export abstract class Transaction {
     public static type: TransactionTypes = null;
@@ -29,6 +31,11 @@ export abstract class Transaction {
     }
 
     public static fromData(data: ITransactionData): Transaction {
+        const { value, error } = this.validateSchema(data);
+        if (error !== null) {
+            throw new TransactionSchemaError(error.details.message);
+        }
+
         const transaction = TransactionRegistry.create(data);
 
         // TODO:
@@ -189,9 +196,19 @@ export abstract class Transaction {
     }
 
     /**
-     * Base schema - extended by subtypes.
+     * Schema
      */
-    public getSchema(): any {
-        return schemas.base;
+    private static validateSchema(data: ITransactionData): any {
+        const schema = this.getSchema();
+        const { value, error } = joi.validate(data, schema);
+        return { value, error };
+    }
+
+    public static getSchema(): any {
+        return schemas.base(joi).extend(this.getTypeSchema()(joi));
+    }
+
+    protected static getTypeSchema(): any {
+        throw new NotImplementedError();
     }
 }

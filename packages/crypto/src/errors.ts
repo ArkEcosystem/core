@@ -78,6 +78,12 @@ export class TransactionValidationError extends CryptoError {
     }
 }
 
+export class TransactionSchemaError extends CryptoError {
+    constructor(what: string) {
+        super(what);
+    }
+}
+
 export class TransactionVersionError extends CryptoError {
     constructor(given: number) {
         super(`Version ${given} not supported.`);
