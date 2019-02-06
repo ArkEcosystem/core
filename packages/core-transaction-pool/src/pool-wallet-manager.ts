@@ -43,9 +43,6 @@ export class PoolWalletManager extends WalletManager {
 
     /**
      * Checks if the transaction can be applied.
-     * @param  {Object|Transaction} transaction
-     * @param  {Array} errors The errors are written into the array.
-     * @return {Boolean}
      */
     public canApply(transaction: Transaction, errors): boolean {
         // Edge case if sender is unknown and has no balance.

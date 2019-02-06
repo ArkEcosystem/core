@@ -98,6 +98,12 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 try {
                     const trx = Transaction.fromData(transaction);
                     if (trx.verified) {
+                        const errors = [];
+                        if (!this.pool.walletManager.canApply(trx, errors)) {
+                            this.__pushError(transaction, "ERR_APPLY", JSON.stringify(errors));
+                            return;
+                        }
+
                         const dynamicFee = dynamicFeeMatcher(trx);
 
                         if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
@@ -150,13 +156,6 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             );
             return false;
         }
-
-        const errors = [];
-        // TODO: it expects an Transaction instance now
-        // if (!this.pool.walletManager.canApply(transaction, errors)) {
-        //     this.__pushError(transaction, "ERR_APPLY", JSON.stringify(errors));
-        //     return false;
-        // }
 
         if (transaction.network && transaction.network !== configManager.get("pubKeyHash")) {
             this.__pushError(
