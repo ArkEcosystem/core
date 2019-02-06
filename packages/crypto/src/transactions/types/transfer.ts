@@ -29,15 +29,15 @@ export class TransferTransaction extends AbstractTransaction {
         return super.canBeApplied(wallet);
     }
 
+    public hasVendorField(): boolean {
+        return true;
+    }
+
     protected apply(wallet: Wallet): void {
         return;
     }
 
     protected revert(wallet: Wallet): void {
         return;
-    }
-
-    protected hasVendorField(): boolean {
-        return true;
     }
 }

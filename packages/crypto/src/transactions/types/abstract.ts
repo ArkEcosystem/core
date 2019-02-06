@@ -24,7 +24,7 @@ export abstract class AbstractTransaction {
     public static type: TransactionTypes = null;
 
     public static fromHex(hex: string): AbstractTransaction {
-        const transaction = TransactionDeserializer.deserializeV2(hex);
+        const transaction = TransactionDeserializer.deserialize(hex);
         transaction.isVerified = transaction.verify();
         return transaction;
     }
@@ -37,8 +37,8 @@ export abstract class AbstractTransaction {
         // 2. serialize ?
         // 3. deserialize is not necessary anymore if 1) plus crypto.verify are in place
 
-        TransactionSerializer.serializeV2(transaction);
-        TransactionDeserializer.deserializeV2(transaction.serialized.toString("hex"));
+        TransactionSerializer.serialize(transaction);
+        TransactionDeserializer.deserialize(transaction.serialized.toString("hex"));
 
         transaction.isVerified = transaction.verify();
 
@@ -185,7 +185,7 @@ export abstract class AbstractTransaction {
         return data;
     }
 
-    protected hasVendorField(): boolean {
+    public hasVendorField(): boolean {
         return false;
     }
 }

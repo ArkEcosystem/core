@@ -7,7 +7,6 @@ import { TransactionTypeError, TransactionVersionError } from "../../errors";
 import { configManager } from "../../managers";
 import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";
-import { Transaction } from "../transaction";
 import { AbstractTransaction } from "../types";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
@@ -33,23 +32,12 @@ export class TransactionSerializer {
     /**
      * Serializes the given transaction according to AIP11.
      */
-    public static serialize(transaction: ITransactionData): Buffer {
-        const buffer = new ByteBuffer(512, true);
-
-        this.serializeCommon(transaction, buffer);
-        this.serializeVendorField(transaction, buffer);
-        this.serializeType(transaction, buffer);
-        this.serializeSignatures(transaction, buffer);
-
-        return Buffer.from(buffer.flip().toBuffer());
-    }
-
-    public static serializeV2(transaction: AbstractTransaction): Buffer {
+    public static serialize(transaction: AbstractTransaction): Buffer {
         const buffer = new ByteBuffer(512, true);
         const { data } = transaction;
 
         this.serializeCommon(data, buffer);
-        this.serializeVendorField(data, buffer);
+        this.serializeVendorField(transaction, buffer);
 
         const typeBuffer = transaction.serialize().flip();
         buffer.append(typeBuffer);
@@ -211,107 +199,22 @@ export class TransactionSerializer {
         buffer.writeUint64(+new Bignum(transaction.fee).toFixed());
     }
 
-    private static serializeVendorField(transaction: ITransactionData, buffer: ByteBuffer): void {
-        if (Transaction.canHaveVendorField(transaction.type)) {
-            if (transaction.vendorField) {
-                const vf = Buffer.from(transaction.vendorField, "utf8");
+    private static serializeVendorField(transaction: AbstractTransaction, buffer: ByteBuffer): void {
+        if (transaction.hasVendorField()) {
+            const { data } = transaction;
+            if (data.vendorField) {
+                const vf = Buffer.from(data.vendorField, "utf8");
                 buffer.writeByte(vf.length);
                 buffer.append(vf);
-            } else if (transaction.vendorFieldHex) {
-                buffer.writeByte(transaction.vendorFieldHex.length / 2);
-                buffer.append(transaction.vendorFieldHex, "hex");
+            } else if (data.vendorFieldHex) {
+                buffer.writeByte(data.vendorFieldHex.length / 2);
+                buffer.append(data.vendorFieldHex, "hex");
             } else {
                 buffer.writeByte(0x00);
             }
         } else {
             buffer.writeByte(0x00);
         }
-    }
-
-    private static serializeType(transaction: ITransactionData, buffer: ByteBuffer): void {
-        if (transaction.type === TransactionTypes.Transfer) {
-            this.serializeTransfer(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.SecondSignature) {
-            this.serializeSecondSignature(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.DelegateRegistration) {
-            this.serializeDelegateRegistration(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.Vote) {
-            this.serializeVote(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.MultiSignature) {
-            this.serializeMultiSignature(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.Ipfs) {
-            this.serializeIpfs(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.TimelockTransfer) {
-            this.serializeTimelockTransfer(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.MultiPayment) {
-            this.serializeMultiPayment(transaction, buffer);
-        } else if (transaction.type === TransactionTypes.DelegateResignation) {
-            this.serializeDelegateResignation(transaction, buffer);
-        } else {
-            throw new TransactionTypeError(transaction.type);
-        }
-    }
-
-    private static serializeTransfer(transaction: ITransactionData, buffer: ByteBuffer): void {
-        buffer.writeUint64(+new Bignum(transaction.amount).toFixed());
-        buffer.writeUint32(transaction.expiration || 0);
-        buffer.append(bs58check.decode(transaction.recipientId));
-    }
-
-    private static serializeSecondSignature(transaction: ITransactionData, buffer: ByteBuffer): void {
-        buffer.append(transaction.asset.signature.publicKey, "hex");
-    }
-
-    private static serializeDelegateRegistration(transaction: ITransactionData, buffer: ByteBuffer): void {
-        const delegateBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
-        buffer.writeByte(delegateBytes.length);
-        buffer.append(delegateBytes, "hex");
-    }
-
-    private static serializeVote(transaction: ITransactionData, buffer: ByteBuffer): void {
-        const voteBytes = transaction.asset.votes.map(vote => (vote[0] === "+" ? "01" : "00") + vote.slice(1)).join("");
-        buffer.writeByte(transaction.asset.votes.length);
-        buffer.append(voteBytes, "hex");
-    }
-
-    private static serializeMultiSignature(transaction: ITransactionData, buffer: ByteBuffer): void {
-        let joined = null;
-
-        if (!transaction.version || transaction.version === 1) {
-            joined = transaction.asset.multisignature.keysgroup.map(k => (k[0] === "+" ? k.slice(1) : k)).join("");
-        } else {
-            joined = transaction.asset.multisignature.keysgroup.join("");
-        }
-
-        const keysgroupBuffer = Buffer.from(joined, "hex");
-        buffer.writeByte(transaction.asset.multisignature.min);
-        buffer.writeByte(transaction.asset.multisignature.keysgroup.length);
-        buffer.writeByte(transaction.asset.multisignature.lifetime);
-        buffer.append(keysgroupBuffer, "hex");
-    }
-
-    private static serializeIpfs(transaction: ITransactionData, buffer: ByteBuffer): void {
-        buffer.writeByte(transaction.asset.ipfs.dag.length / 2);
-        buffer.append(transaction.asset.ipfs.dag, "hex");
-    }
-
-    private static serializeTimelockTransfer(transaction: ITransactionData, buffer: ByteBuffer): void {
-        buffer.writeUint64(+new Bignum(transaction.amount).toFixed());
-        buffer.writeByte(transaction.timelockType);
-        buffer.writeUint64(transaction.timelock);
-        buffer.append(bs58check.decode(transaction.recipientId));
-    }
-
-    private static serializeMultiPayment(transaction: ITransactionData, buffer: ByteBuffer): void {
-        buffer.writeUint32(transaction.asset.payments.length);
-        transaction.asset.payments.forEach(p => {
-            buffer.writeUint64(+new Bignum(p.amount).toFixed());
-            buffer.append(bs58check.decode(p.recipientId));
-        });
-    }
-
-    private static serializeDelegateResignation(transaction: ITransactionData, buffer: ByteBuffer): void {
-        return;
     }
 
     private static serializeSignatures(transaction: ITransactionData, buffer: ByteBuffer): void {
