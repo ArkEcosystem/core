@@ -492,10 +492,7 @@ export class PeerVerifier {
 
         if (deadline <= now) {
             // Throw an exception so that it can cancel everything and break out of peer.ping().
-            throw new Error(
-                `${this.logPrefix} failure: timeout elapsed before successful completion of ` +
-                `the verification`
-            );
+            throw new Error('timeout elapsed before successful completion of the verification');
         }
 
         return deadline - now;
