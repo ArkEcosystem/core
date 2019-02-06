@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { Transaction, TransactionRepository } from "..";
+import { Transaction, TransactionRegistry } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { configManager } from "../../managers";
@@ -16,7 +16,7 @@ class TransactionDeserializer {
 
         this.deserializeCommon(data, buf);
 
-        const instance = TransactionRepository.create(data);
+        const instance = TransactionRegistry.create(data);
         this.deserializeVendorField(instance, buf);
 
         // Deserialize type specific parts

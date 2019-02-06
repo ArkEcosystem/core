@@ -1,7 +1,7 @@
 // tslint:disable:member-ordering
 
 import { JoiObject } from "joi";
-import { TransactionRepository } from "..";
+import { TransactionRegistry } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import {
@@ -30,7 +30,7 @@ export abstract class Transaction {
     }
 
     public static fromData(data: ITransactionData): Transaction {
-        const transaction = TransactionRepository.create(data);
+        const transaction = TransactionRegistry.create(data);
 
         // TODO:
         // 1. validate schema + sanitize

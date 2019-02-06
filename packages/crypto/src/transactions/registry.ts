@@ -16,7 +16,7 @@ import {
 
 type TransactionConstructor = typeof Transaction;
 
-class TransactionRepository {
+class TransactionRegistry {
     private readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
     private readonly customTypes = new Map<number, TransactionConstructor>();
 
@@ -65,4 +65,4 @@ class TransactionRepository {
     }
 }
 
-export const transactionRepository = new TransactionRepository();
+export const transactionRegistry = new TransactionRegistry();
