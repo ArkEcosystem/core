@@ -67,7 +67,7 @@ export class PeerVerifier {
      * different than our blockchain)
      * @throws {Error} if the state verification could not complete before the deadline
      */
-    public async checkState(claimedState: object, deadline: number): Promise<boolean> {
+    public async checkState(claimedState: any, deadline: number): Promise<boolean> {
         if (this.isStateInvalid(claimedState)) {
             return false;
         }
@@ -79,13 +79,15 @@ export class PeerVerifier {
             return true;
         }
 
+        const claimedHeight = Number(claimedState.header.height);
+
         const highestCommonBlockHeight =
-            await this.findHighestCommonBlockHeight(claimedState, ourHeight, deadline);
+            await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
         if (highestCommonBlockHeight === null) {
             return false;
         }
 
-        if (!await this.verifyPeerBlocks(highestCommonBlockHeight + 1, deadline)) {
+        if (!await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline)) {
             return false;
         }
 
@@ -193,7 +195,7 @@ export class PeerVerifier {
 
     /**
      * Find the height of the highest block that is the same in both our and peer's chain.
-     * @param {Object} claimedState peer claimed state (from `/peer/status`)
+     * @param {Number} claimedHeight peer's claimed height (from `/peer/status`)
      * @param {Number} ourHeight the height of our blockchain
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {Number|null} height; if null is returned this means that the
@@ -201,11 +203,9 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     private async findHighestCommonBlockHeight(
-        claimedState: any,
+        claimedHeight: number,
         ourHeight: number,
         deadline: number): Promise<number> {
-        const claimedHeight = Number(claimedState.header.height);
-
         // The highest common block is in the interval [1, min(claimed height, our height)].
         // Search in that interval using an 8-ary search. Compared to binary search this
         // will do more comparisons. However, comparisons are practically for free while
@@ -292,14 +292,15 @@ export class PeerVerifier {
     }
 
     /**
-     * Verify the blocks of the peer's chain that are in the range [height, last block in round].
-     * @param {Number} height verify blocks at and after this height
+     * Verify the blocks of the peer's chain that are in the range [height, min(claimed height, last block in round)].
+     * @param {Number} startHeight verify blocks at and after this height
+     * @param {Number} claimedHeight peer's claimed height, don't try to verify blocks past this height
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {Boolean} true if the blocks are legit (signed by the appropriate delegates)
      * @throws {Error} if the state verification could not complete before the deadline
      */
-    private async verifyPeerBlocks(height: number, deadline: number): Promise<boolean> {
-        const round = roundCalculator.calculateRound(height);
+    private async verifyPeerBlocks(startHeight: number, claimedHeight: number, deadline: number): Promise<boolean> {
+        const round = roundCalculator.calculateRound(startHeight);
         const lastBlockHeightInRound = round.round * round.maxDelegates;
 
         // Verify a few blocks that are not too far up from the last common block. Within the
@@ -311,7 +312,9 @@ export class PeerVerifier {
 
         const hisBlocksByHeight = {};
 
-        for (let h = height; h <= lastBlockHeightInRound; h++) {
+        const endHeight = Math.min(claimedHeight, lastBlockHeightInRound);
+
+        for (let h = startHeight; h <= endHeight; h++) {
             if (hisBlocksByHeight[h] === undefined) {
                 if (!await this.fetchBlocksFromHeight(h, hisBlocksByHeight, deadline)) {
                     return false;
