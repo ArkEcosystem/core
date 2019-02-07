@@ -11,11 +11,11 @@ export class NSect {
      * Constructor.
      * @param {Number} nAry type of search to perform.
      * @param {Function} probe a probe callback function, it will be passed an array
-     * of indexes, always with length nAry + 1 and it should return one of those indexes, the
-     * first (lowest) that matches the search criteria. For the algorithm to work the sequence
-     * must be sorted - all elements that are lower than some must match and all elements higher
-     * than that one must not match. This probe function will be called logA(sequence length) times,
-     * where A, the base of the logarithm is equal to nAry.
+     * of indexes, in ascending order, always with length nAry + 1 and it should return one of those
+     * indexes, the last (highest) that matches the search criteria. For the algorithm to work the
+     * sequence must be sorted - all elements that are lower than some must match and all elements
+     * higher than that one must not match. This probe function will be called logA(sequence length)
+     * times, where A, the base of the logarithm is equal to nAry.
      */
     constructor(private readonly nAry: number, private readonly probe: ProbeCallback) {
     }
