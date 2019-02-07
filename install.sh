@@ -252,7 +252,7 @@ success "Installed NTP!"
 
 heading "Installing node.js dependencies..."
 
-yarn global add pm2
+yarn global add pm2;
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 500M
 pm2 set pm2-logrotate:compress true
@@ -330,7 +330,6 @@ if [ -d "ark-core" ]; then
    rm -rf ark-core
 fi
 
-git clone https://github.com/ArkEcosystem/core.git ~/ark-core -b develop
+git clone https://github.com/ArkEcosystem/core.git ~/ark-core
 cd ark-core
 yarn setup
-
