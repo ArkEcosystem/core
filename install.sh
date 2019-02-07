@@ -224,7 +224,7 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get install postgresql postgresql-contrib -y
 elif [[ ! -z $RPM ]]; then
     sudo yum install postgresql-server postgresql-contrib -y
-    
+
     if [[ "$SYS" == "SystemV" ]]; then
         sudo service postgresql initdb
         sudo service postgresql start
@@ -252,7 +252,7 @@ success "Installed NTP!"
 
 heading "Installing node.js dependencies..."
 
-yarn global add pm2;
+sudo yarn global add pm2;
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 500M
 pm2 set pm2-logrotate:compress true
