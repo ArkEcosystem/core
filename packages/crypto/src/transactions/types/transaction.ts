@@ -84,15 +84,6 @@ export abstract class Transaction {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
-        const { error } = Transaction.validateSchema(data, {
-            fromData: false,
-            isGenesis: isGenesisTransaction(data.id),
-        });
-
-        if (error !== null) {
-            throw new TransactionSchemaError(error.message);
-        }
-
         if (wallet.multisignature) {
             throw new UnexpectedMultiSignatureError();
         }
