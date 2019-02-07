@@ -333,3 +333,35 @@ fi
 git clone https://github.com/ArkEcosystem/core.git ~/ark-core
 cd ark-core
 yarn setup
+
+# -----------------------------------
+# SETUP CONFIGURATION
+# -----------------------------------
+
+read -p "Would you like to configure the core? [y/N]: " choice
+
+if [[ "$choice" =~ ^(yes|y|Y) ]]; then
+    info "Which network would you like to configure?"
+
+    validNetworks=("mainnet" "devnet" "testnet")
+
+    select opt in "${validNetworks[@]}"; do
+        case "$opt" in
+            "mainnet")
+                cp -rf "${HOME}/ark-core/packages/core/src/config/mainnet/." "${HOME}/.config/ark-core/mainnet"
+                break
+            ;;
+            "devnet")
+                cp -rf "${HOME}/ark-core/packages/core/src/config/devnet/." "${HOME}/.config/ark-core/devnet"
+                break
+            ;;
+            "testnet")
+                cp -rf "${HOME}/ark-core/packages/core/src/config/testnet/." "${HOME}/.config/ark-core/testnet"
+                break
+            ;;
+            *)
+                echo "Invalid option $REPLY"
+            ;;
+        esac
+    done
+fi
