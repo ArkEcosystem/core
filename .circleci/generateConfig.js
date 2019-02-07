@@ -13,6 +13,8 @@ fs.readdir("./packages", (_, packages) => {
     // test split
     const packagesSplit = chunk(packages.sort(), 10);
 
+    const resetSqlCommand = "cd ~/core/.circleci && ./rebuild-db.sh"
+
     for (const [name, job] of Object.entries(config.jobs)) {
         // save cache
         const saveCacheStep = config.jobs[name].steps.find(step => typeof step === "object" && step.save_cache);
@@ -40,7 +42,7 @@ fs.readdir("./packages", (_, packages) => {
                     return {
                         run: {
                             name,
-                            command: `cd ~/core/packages/${name} && yarn test:coverage`,
+                            command: `${resetSqlCommand} && cd ~/core/packages/${name} && yarn test:coverage`,
                         },
                     };
                 })

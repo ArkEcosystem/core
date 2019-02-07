@@ -10,7 +10,10 @@ let databaseService: Database.IDatabaseService;
 
 beforeAll(async () => {
     await setUp();
+  
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
+    await connection.saveBlock(new Block(genesisBlock));
 });
 
 afterAll(async () => {
@@ -31,7 +34,7 @@ describe("Connection", () => {
         it("should get the genesis block as last block", async () => {
             const lastBlock = await databaseService.getLastBlock();
 
-            expect(lastBlock).toEqual(new Block(genesisBlock));
+            expect(lastBlock).toEqual(new Block(genesisBlock as any));
         });
     });
 });
