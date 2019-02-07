@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.0] - 2019-02-11
+
 ### Added
 
 -   Added a `milestoneHash` identifier to use for peer banning ([#1837])
@@ -164,7 +166,7 @@ Closed security vulnerabilities:
 
 -   Initial Release
 
-[unreleased]: https://github.com/ArkEcosystem/core/compare/2.0.19...develop
+[unreleased]: https://github.com/ArkEcosystem/core/compare/2.1.0...develop
 [2.1.0]: https://github.com/ArkEcosystem/core/compare/2.0.19...2.1.0
 [2.0.19]: https://github.com/ArkEcosystem/core/compare/2.0.18...2.0.19
 [2.0.18]: https://github.com/ArkEcosystem/core/compare/2.0.17...2.0.18
