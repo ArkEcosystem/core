@@ -6,17 +6,19 @@ import { ITransactionSchema, TransactionSchemaConstructor } from "../interfaces"
 
 export const base = joi =>
     joi.object().keys({
-        id: joi.when(joi.ref("$fromData"), {
-            is: true,
-            then: joi
-                .string()
-                .alphanum()
-                .optional(),
-            otherwise: joi
-                .string()
-                .alphanum()
-                .required(),
-        }),
+        id: joi
+            .string()
+            .alphanum()
+            .length(64)
+            .when(joi.ref("$fromData"), {
+                is: true,
+                then: joi.optional().allow("", null),
+                otherwise: joi
+                    .string()
+                    .alphanum()
+                    .length(64)
+                    .required(),
+            }),
         blockid: joi.alternatives().try(joi.blockId(), joi.number().unsafe()),
         network: joi.lazy(
             () =>
@@ -38,30 +40,14 @@ export const base = joi =>
             .min(0)
             .required(),
         amount: joi
-            .alternatives()
-            .try(
-                joi
-                    .bignumber()
-                    .integer()
-                    .positive(),
-                joi
-                    .number()
-                    .integer()
-                    .positive(),
-            )
+            .bignumber()
+            .integer()
+            .positive()
             .required(),
         fee: joi
-            .alternatives()
-            .try(
-                joi
-                    .bignumber()
-                    .integer()
-                    .positive(),
-                joi
-                    .number()
-                    .integer()
-                    .positive(),
-            )
+            .bignumber()
+            .integer()
+            .positive()
             .required(),
         senderId: joi.address(),
         recipientId: joi.address().required(),
@@ -69,7 +55,11 @@ export const base = joi =>
         signature: joi
             .string()
             .alphanum()
-            .required(),
+            .when(joi.ref("$fromData"), {
+                is: true,
+                then: joi.optional().allow("", null),
+                otherwise: joi.required(),
+            }),
         signatures: joi.array(),
         secondSignature: joi.string().alphanum(),
         signSignature: joi.string().alphanum(),
@@ -112,8 +102,8 @@ export const secondSignature: TransactionSchemaConstructor = (joi): ITransaction
             .only(TransactionTypes.SecondSignature)
             .required(),
         amount: joi
-            .alternatives()
-            .try(joi.bignumber().only(0), joi.number().only(0))
+            .bignumber()
+            .only(0)
             .optional(),
         secondSignature: joi.string().only(""),
         asset: joi
@@ -137,8 +127,8 @@ export const delegateRegistration: TransactionSchemaConstructor = (joi): ITransa
             .only(TransactionTypes.DelegateRegistration)
             .required(),
         amount: joi
-            .alternatives()
-            .try(joi.bignumber().only(0), joi.number().only(0))
+            .bignumber()
+            .only(0)
             .optional(),
         asset: joi
             .object({
@@ -162,8 +152,8 @@ export const vote: TransactionSchemaConstructor = (joi): ITransactionSchema => (
             .only(TransactionTypes.Vote)
             .required(),
         amount: joi
-            .alternatives()
-            .try(joi.bignumber().only(0), joi.number().only(0))
+            .bignumber()
+            .only(0)
             .optional(),
         asset: joi
             .object({
@@ -194,8 +184,8 @@ export const multiSignature: TransactionSchemaConstructor = (joi): ITransactionS
             .only(TransactionTypes.MultiSignature)
             .required(),
         amount: joi
-            .alternatives()
-            .try(joi.bignumber().only(0), joi.number().only(0))
+            .bignumber()
+            .only(0)
             .optional(),
         recipientId: joi.empty(),
         signatures: joi
@@ -253,8 +243,8 @@ export const ipfs: TransactionSchemaConstructor = (joi): ITransactionSchema => (
             .only(TransactionTypes.Ipfs)
             .required(),
         amount: joi
-            .alternatives()
-            .try(joi.bignumber().only(0), joi.number().valid(0))
+            .bignumber()
+            .only(0)
             .optional(),
         asset: joi.object().required(),
         recipientId: joi.empty(),
@@ -269,8 +259,8 @@ export const timelockTransfer: TransactionSchemaConstructor = (joi): ITransactio
             .only(TransactionTypes.TimelockTransfer)
             .required(),
         amount: joi
-            .alternatives()
-            .try(joi.bignumber().only(0), joi.number().only(0))
+            .bignumber()
+            .only(0)
             .optional(),
         asset: joi.object().required(),
         vendorFieldHex: joi
@@ -306,8 +296,8 @@ export const delegateResignation: TransactionSchemaConstructor = (joi): ITransac
             .only(TransactionTypes.DelegateResignation)
             .required(),
         amount: joi
-            .alternatives()
-            .try(joi.bignumber().only(0), joi.number().valid(0))
+            .bignumber()
+            .only(0)
             .optional(),
         asset: joi.object().required(),
         recipientId: joi.empty(),
