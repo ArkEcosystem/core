@@ -3,7 +3,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
-import { TransactionTypeError, TransactionVersionError } from "../../errors";
+import { TransactionVersionError } from "../../errors";
 import { configManager } from "../../managers";
 import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";

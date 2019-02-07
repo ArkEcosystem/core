@@ -1,5 +1,5 @@
 import { TransactionTypes } from "../constants";
-import { NotImplementedError, TransactionAlreadyRegisteredError, TransactionTypeNotRegisteredError } from "../errors";
+import { NotImplementedError, TransactionAlreadyRegisteredError, UnkownTransactionError } from "../errors";
 import { JoiWrapper } from "../validation";
 import { ITransactionData } from "./interfaces";
 import {
@@ -45,7 +45,7 @@ class TransactionRegistry {
             return this.coreTypes.get(type);
         }
 
-        throw new TransactionTypeNotRegisteredError(type);
+        throw new UnkownTransactionError(type);
     }
 
     public registerCustomTransactionType(constructor: TransactionConstructor): void {

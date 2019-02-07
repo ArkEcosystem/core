@@ -16,14 +16,7 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        let joined = null;
-
-        if (!data.version || data.version === 1) {
-            joined = data.asset.multisignature.keysgroup.map(k => (k[0] === "+" ? k.slice(1) : k)).join("");
-        } else {
-            joined = data.asset.multisignature.keysgroup.join("");
-        }
-
+        const joined = data.asset.multisignature.keysgroup.map(k => (k[0] === "+" ? k.slice(1) : k)).join("");
         const keysgroupBuffer = Buffer.from(joined, "hex");
         const buffer = new ByteBuffer(keysgroupBuffer.length + 3, true);
 

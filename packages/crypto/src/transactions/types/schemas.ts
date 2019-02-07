@@ -258,10 +258,6 @@ export const timelockTransfer: TransactionSchemaConstructor = (joi): ITransactio
             .number()
             .only(TransactionTypes.TimelockTransfer)
             .required(),
-        amount: joi
-            .bignumber()
-            .only(0)
-            .optional(),
         asset: joi.object().required(),
         vendorFieldHex: joi
             .string()
