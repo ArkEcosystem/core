@@ -336,7 +336,11 @@ export class PostgresConnection extends ConnectionInterface {
             const queries = [this.db.blocks.create(block.data)];
 
             if (block.transactions.length > 0) {
-                queries.push(this.db.transactions.create(block.transactions.map(tx => tx.data)));
+                queries.push(
+                    this.db.transactions.create(
+                        block.transactions.map(tx => ({ ...tx.data, serialized: tx.serialized })),
+                    ),
+                );
             }
 
             await this.db.tx(t => t.batch(queries));

@@ -29,7 +29,7 @@ class TransactionDeserializer {
         this.deserializeSignatures(data, buf);
         this.applyV1Compatibility(data);
 
-        instance.serialized = Buffer.from(serializedHex);
+        instance.serialized = Buffer.from(serializedHex, "hex");
 
         return instance;
     }
