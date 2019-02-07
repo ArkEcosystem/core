@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { migrations, plugin } from "@arkecosystem/core-database-postgres";
+import { migrations, plugin, PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
 import promise from "bluebird";
 
@@ -16,10 +16,10 @@ class Database {
     public blocksColumnSet: any;
     public transactionsColumnSet: any;
 
-    public async make(connection) {
+    public async make(connection : PostgresConnection) {
         if (connection) {
             this.db = connection.db;
-            this.pgp = connection.pgp;
+            this.pgp = (connection as any).pgp;
             this.__createColumnSets();
             this.isSharedConnection = true;
             logger.info("Snapshots: reusing core-database-postgres connection from running core");

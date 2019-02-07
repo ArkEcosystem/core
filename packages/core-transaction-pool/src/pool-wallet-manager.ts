@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import { constants, crypto, isException, models } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
 const { TransactionTypes } = constants;
 
 export class PoolWalletManager extends WalletManager {
-    public database = app.resolvePlugin<PostgresConnection>("database");
+    public databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     /**
      * Create a new pool wallet manager instance.
@@ -27,7 +27,7 @@ export class PoolWalletManager extends WalletManager {
      */
     public findByAddress(address) {
         if (!this.byAddress[address]) {
-            const blockchainWallet = this.database.walletManager.findByAddress(address);
+            const blockchainWallet = this.databaseService.walletManager.findByAddress(address);
             const wallet = Object.assign(new Wallet(address), blockchainWallet); // do not modify
 
             this.reindex(wallet);
@@ -50,10 +50,10 @@ export class PoolWalletManager extends WalletManager {
     public canApply(transaction, errors) {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
-        if (!this.database.walletManager.byPublicKey[transaction.senderPublicKey]) {
+        if (!this.databaseService.walletManager.exists(transaction.senderPublicKey)) {
             const senderAddress = crypto.getAddress(transaction.senderPublicKey, this.networkId);
 
-            if (this.database.walletManager.findByAddress(senderAddress).balance.isZero()) {
+            if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
                 errors.push("Cold wallet is not allowed to send until receiving transaction is confirmed.");
                 return false;
             }
@@ -64,7 +64,7 @@ export class PoolWalletManager extends WalletManager {
 
         if (
             type === TransactionTypes.DelegateRegistration &&
-            this.database.walletManager.byUsername[asset.delegate.username.toLowerCase()]
+            this.databaseService.walletManager.findByUsername(asset.delegate.username.toLowerCase())
         ) {
             this.logger.error(
                 `[PoolWalletManager] Can't apply transaction ${
@@ -76,7 +76,7 @@ export class PoolWalletManager extends WalletManager {
             // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
         } else if (
             type === TransactionTypes.Vote &&
-            !this.database.walletManager.__isDelegate(asset.votes[0].slice(1))
+            !this.databaseService.walletManager.isDelegate(asset.votes[0].slice(1))
         ) {
             this.logger.error(
                 `[PoolWalletManager] Can't apply vote transaction: delegate ${

@@ -1,12 +1,11 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { client } from "../services/client";
 import { storage } from "../services/storage";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const database = app.resolvePlugin<PostgresConnection>("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 export abstract class Index {
     public chunkSize: any;
@@ -173,7 +172,7 @@ export abstract class Index {
     }
 
     public __createQuery() {
-        return database.models[this.getType()].query();
+        return (databaseService.connection as any).models[this.getType()].query();
     }
 
     public __count() {
@@ -181,6 +180,6 @@ export abstract class Index {
 
         const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
 
-        return database.query.one(query.toQuery());
+        return (databaseService.connection as any).query.one(query.toQuery());
     }
 }

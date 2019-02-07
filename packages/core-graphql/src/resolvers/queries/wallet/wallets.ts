@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { formatOrderBy } from "../../../helpers";
 
-const database = app.resolvePlugin("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 /**
  * Get multiple wallets from the database
@@ -13,11 +14,11 @@ export async function wallets(_, args: any) {
     const order = formatOrderBy(orderBy, "height:desc");
     const result =
         filter && filter.vote
-            ? await database.wallets.findAllByVote(filter.vote, {
+            ? await databaseService.wallets.findAllByVote(filter.vote, {
                   orderBy: order,
                   ...params,
               })
-            : await database.wallets.findAll({ orderBy: order, ...params });
+            : await databaseService.wallets.findAll({ orderBy: order, ...params });
 
     return result ? result.rows : [];
 }

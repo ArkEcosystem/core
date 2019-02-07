@@ -1,15 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { constants, crypto, formatArktoshi, isException, models } from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, formatArktoshi, isException, models } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const { Wallet } = models;
 const { TransactionTypes } = constants;
 
-export class WalletManager {
-    public logger: Logger.ILogger;
-    public config: any;
+export class WalletManager implements Database.IWalletManager {
+    public logger = app.resolvePlugin<Logger.ILogger>("logger");
+    public config = app.getConfig();
 
     public networkId: number;
     public byAddress: { [key: string]: any };
@@ -21,36 +21,18 @@ export class WalletManager {
      * @constructor
      */
     constructor() {
-        this.config = app.getConfig();
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
-
         this.networkId = this.config ? this.config.get("network.pubKeyHash") : 0x17;
         this.reset();
     }
 
-    /**
-     * Reset the wallets index.
-     * @return {void}
-     */
-    public reset() {
-        this.byAddress = {};
-        this.byPublicKey = {};
-        this.byUsername = {};
-    }
-
-    /**
-     * Get all wallets by address.
-     * @return {Array}
-     */
-    public all() {
+    public allByAddress(): models.Wallet[] {
         return Object.values(this.byAddress);
     }
 
     /**
      * Get all wallets by publicKey.
-     * @return {Array}
      */
-    public allByPublicKey() {
+    public allByPublicKey(): models.Wallet[] {
         return Object.values(this.byPublicKey);
     }
 
@@ -58,16 +40,14 @@ export class WalletManager {
      * Get all wallets by username.
      * @return {Array}
      */
-    public allByUsername() {
+    public allByUsername(): models.Wallet[] {
         return Object.values(this.byUsername);
     }
 
     /**
      * Find a wallet by the given address.
-     * @param  {String} address
-     * @return {Wallet}
      */
-    public findByAddress(address) {
+    public findByAddress(address: string): models.Wallet {
         if (!this.byAddress[address]) {
             this.byAddress[address] = new Wallet(address);
         }
@@ -78,17 +58,13 @@ export class WalletManager {
     /**
      * Checks if wallet exits in wallet manager
      * @param  {String} key can be publicKey or address of wallet
-     * @return {Boolean} true if exists
      */
-    public exists(key) {
+    public exists(key: string) {
         if (this.byPublicKey[key]) {
             return true;
         }
 
-        if (this.byAddress[key]) {
-            return true;
-        }
-        return false;
+        return !!this.byAddress[key];
     }
 
     /**
@@ -96,7 +72,7 @@ export class WalletManager {
      * @param  {String} publicKey
      * @return {Wallet}
      */
-    public findByPublicKey(publicKey) {
+    public findByPublicKey(publicKey: string): models.Wallet {
         if (!this.byPublicKey[publicKey]) {
             const address = crypto.getAddress(publicKey, this.networkId);
 
@@ -113,7 +89,7 @@ export class WalletManager {
      * @param  {String} username
      * @return {Wallet}
      */
-    public findByUsername(username) {
+    public findByUsername(username: string): models.Wallet {
         return this.byUsername[username];
     }
 
@@ -121,7 +97,6 @@ export class WalletManager {
      * Set wallet by address.
      * @param {String} address
      * @param {Wallet} wallet
-     * @param {void}
      */
     public setByAddress(address, wallet) {
         this.byAddress[address] = wallet;
@@ -131,7 +106,6 @@ export class WalletManager {
      * Set wallet by publicKey.
      * @param {String} publicKey
      * @param {Wallet} wallet
-     * @param {void}
      */
     public setByPublicKey(publicKey, wallet) {
         this.byPublicKey[publicKey] = wallet;
@@ -141,7 +115,6 @@ export class WalletManager {
      * Set wallet by username.
      * @param {String} username
      * @param {Wallet} wallet
-     * @param {void}
      */
     public setByUsername(username, wallet) {
         this.byUsername[username] = wallet;
@@ -150,7 +123,6 @@ export class WalletManager {
     /**
      * Remove wallet by address.
      * @param {String} address
-     * @param {void}
      */
     public forgetByAddress(address) {
         delete this.byAddress[address];
@@ -159,7 +131,6 @@ export class WalletManager {
     /**
      * Remove wallet by publicKey.
      * @param {String} publicKey
-     * @param {void}
      */
     public forgetByPublicKey(publicKey) {
         delete this.byPublicKey[publicKey];
@@ -168,7 +139,6 @@ export class WalletManager {
     /**
      * Remove wallet by username.
      * @param {String} username
-     * @param {void}
      */
     public forgetByUsername(username) {
         delete this.byUsername[username];
@@ -190,7 +160,7 @@ export class WalletManager {
      * @param  {Wallet} wallet
      * @return {void}
      */
-    public reindex(wallet) {
+    public reindex(wallet: models.Wallet) {
         if (wallet.address) {
             this.byAddress[wallet.address] = wallet;
         }
@@ -213,27 +183,28 @@ export class WalletManager {
     /**
      * Load a list of all active delegates.
      * @param  {Number} maxDelegates
+     * @param height
      * @return {Array}
      */
-    public loadActiveDelegateList(maxDelegates, height) {
+    public loadActiveDelegateList(maxDelegates: number, height?: number): any[] {
         if (height > 1 && height % maxDelegates !== 1) {
             throw new Error("Trying to build delegates outside of round change");
         }
 
         const { round } = roundCalculator.calculateRound(height, maxDelegates);
-        let delegates = this.allByUsername();
+        const delegatesWallets = this.allByUsername();
 
-        if (delegates.length < maxDelegates) {
+        if (delegatesWallets.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${
-                    delegates.length
-                }. This indicates an issue with the genesis block & delegates.`,
+                    delegatesWallets.length
+                    }. This indicates an issue with the genesis block & delegates.`,
             );
         }
 
         const equalVotesMap = new Map();
 
-        delegates = delegates
+        const delegates = delegatesWallets
             .sort((a, b) => {
                 const diff = b.voteBalance.comparedTo(a.voteBalance);
 
@@ -250,7 +221,7 @@ export class WalletManager {
                         throw new Error(
                             `The balance and public key of both delegates are identical! Delegate "${
                                 a.username
-                            }" appears twice in the list.`,
+                                }" appears twice in the list.`,
                         );
                     }
 
@@ -303,7 +274,7 @@ export class WalletManager {
      */
     public purgeEmptyNonDelegates() {
         Object.values(this.byPublicKey).forEach(wallet => {
-            if (this.__canBePurged(wallet)) {
+            if (this.canBePurged(wallet)) {
                 delete this.byPublicKey[wallet.publicKey];
                 delete this.byAddress[wallet.address];
             }
@@ -315,7 +286,7 @@ export class WalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public applyBlock(block) {
+    public applyBlock(block: models.Block) {
         const generatorPublicKey = block.data.generatorPublicKey;
 
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
@@ -353,7 +324,7 @@ export class WalletManager {
             // by reward + totalFee. In which case the vote balance of the
             // delegate's delegate has to be updated.
             if (applied && delegate.vote) {
-                const increase = block.data.reward.plus(block.data.totalFee);
+                const increase = (block.data.reward as Bignum).plus(block.data.totalFee);
                 const votedDelegate = this.byPublicKey[delegate.vote];
                 votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase);
             }
@@ -376,7 +347,7 @@ export class WalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public async revertBlock(block) {
+    public revertBlock(block: models.Block) {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
@@ -401,7 +372,7 @@ export class WalletManager {
             // by reward + totalFee. In which case the vote balance of the
             // delegate's delegate has to be updated.
             if (reverted && delegate.vote) {
-                const decrease = block.data.reward.plus(block.data.totalFee);
+                const decrease = (block.data.reward as Bignum).plus(block.data.totalFee);
                 const votedDelegate = this.byPublicKey[delegate.vote];
                 votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease);
             }
@@ -419,7 +390,7 @@ export class WalletManager {
      * @param  {Transaction} transaction
      * @return {Transaction}
      */
-    public applyTransaction(transaction) {
+    public applyTransaction(transaction: models.Transaction) {
         const { data } = transaction;
         const { type, asset, recipientId, senderPublicKey } = data;
 
@@ -432,13 +403,13 @@ export class WalletManager {
             this.logger.error(
                 `Can't apply transaction ${
                     data.id
-                }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
+                    }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
             );
             throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`);
 
             // NOTE: We use the vote public key, because vote transactions
             // have the same sender and recipient
-        } else if (type === TransactionTypes.Vote && !this.__isDelegate(asset.votes[0].slice(1))) {
+        } else if (type === TransactionTypes.Vote && !this.isDelegate(asset.votes[0].slice(1))) {
             this.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
             throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
         } else if (type === TransactionTypes.SecondSignature) {
@@ -525,7 +496,7 @@ export class WalletManager {
      * @param  {Transaction} transaction
      * @return {Transaction}
      */
-    public revertTransaction(transaction) {
+    public revertTransaction(transaction: models.Transaction) {
         const { type, data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
         const recipient = this.byAddress[data.recipientId];
@@ -551,7 +522,7 @@ export class WalletManager {
      * Checks if a given publicKey is a registered delegate
      * @param {String} publicKey
      */
-    public __isDelegate(publicKey) {
+    public isDelegate(publicKey: string) {
         const delegateWallet = this.byPublicKey[publicKey];
 
         if (delegateWallet && delegateWallet.username) {
@@ -566,7 +537,17 @@ export class WalletManager {
      * @param  {Object} wallet
      * @return {Boolean}
      */
-    public __canBePurged(wallet) {
+    public canBePurged(wallet) {
         return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
+    }
+
+    /**
+     * Reset the wallets index.
+     * @return {void}
+     */
+    public reset() {
+        this.byAddress = {};
+        this.byPublicKey = {};
+        this.byUsername = {};
     }
 }

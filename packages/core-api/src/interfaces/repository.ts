@@ -1,5 +1,5 @@
 export interface IRepository {
-    database: any;
+    databaseService: any;
     cache: any;
     model: any;
     query: any;

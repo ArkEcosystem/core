@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { formatOrderBy, unserializeTransactions } from "../../helpers";
 
-const database = app.resolvePlugin("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 /**
  * Useful and common database operations with wallet data.
@@ -16,7 +17,7 @@ export const Wallet = {
     async transactions(wallet, args) {
         const { orderBy, filter, ...params } = args;
 
-        const walletOr = database.createCondition("OR", [
+        const walletOr = (databaseService.connection as any).createCondition("OR", [
             {
                 senderPublicKey: wallet.publicKey,
             },
@@ -25,7 +26,8 @@ export const Wallet = {
             },
         ]);
 
-        const result = await database.transactions.findAll(
+        /* TODO .findAll() method never existed on the TransactionRepository in core-database-postgres. This code would've blown chunks
+        const result = await databaseService.connection.transactionsRepository.findAll(
             {
                 ...filter,
                 orderBy: formatOrderBy(orderBy, "timestamp:DESC"),
@@ -33,7 +35,8 @@ export const Wallet = {
                 ...params,
             },
             false,
-        );
+        );*/
+        const result = null;
         const rows = result ? result.rows : [];
 
         return unserializeTransactions(rows);
@@ -50,13 +53,16 @@ export const Wallet = {
 
         params.generatorPublickKey = wallet.publicKey;
 
-        const result = database.blocks.findAll(
+
+        /* TODO: .findAll() method never existed on the TransactionRepository in core-database-postgres. This code would've blown chunks
+        const result = databaseService.connection.blocksRepository.findAll(
             {
                 orderBy: formatOrderBy(orderBy, "height:DESC"),
                 ...params,
             },
             false,
-        );
+        );*/
+        const result = null;
         const rows = result ? result.rows : [];
         return rows;
     },
