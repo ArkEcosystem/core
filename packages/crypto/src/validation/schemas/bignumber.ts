@@ -1,14 +1,18 @@
 import BigNumber from "bignumber.js";
+import { Bignum } from "../../utils";
 
 export const bignumber = joi => ({
     name: "bignumber",
-    base: joi.object().type(BigNumber),
+    base: joi.alternatives().try(joi.object().type(BigNumber), joi.number(), joi.string().regex(/^\d+$/)),
     language: {
         min: "is less than minimum",
         max: "is greater than maximum",
         only: "is different from allowed value",
         integer: "is not an integer",
         positive: "is not positive",
+    },
+    pre(value, state, options) {
+        return new Bignum(value);
     },
     rules: [
         {
