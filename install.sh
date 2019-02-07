@@ -206,6 +206,16 @@ fi
 
 success "Installed Yarn!"
 
+heading "Installing PM2..."
+
+sudo yarn global add pm2
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 500M
+pm2 set pm2-logrotate:compress true
+pm2 set pm2-logrotate:retain 7
+
+success "Installed PM2!"
+
 heading "Installing program dependencies..."
 
 if [[ ! -z $DEB ]]; then
@@ -249,16 +259,6 @@ fi
 sudo ntpd -gq
 
 success "Installed NTP!"
-
-heading "Installing node.js dependencies..."
-
-sudo yarn global add pm2;
-pm2 install pm2-logrotate
-pm2 set pm2-logrotate:max_size 500M
-pm2 set pm2-logrotate:compress true
-pm2 set pm2-logrotate:retain 7
-
-success "Installed node.js dependencies!"
 
 heading "Installing system updates..."
 
