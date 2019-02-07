@@ -30,12 +30,12 @@ export abstract class Transaction {
     }
 
     public static fromData(data: ITransactionData): Transaction {
-        const { error } = this.validateSchema(data, { fromData: true });
+        const { value, error } = this.validateSchema(data, { fromData: true });
         if (error !== null) {
             throw new TransactionSchemaError(error.message);
         }
 
-        const transaction = TransactionRegistry.create(data);
+        const transaction = TransactionRegistry.create(value);
 
         // TODO:
         // 1. validate schema + sanitize
