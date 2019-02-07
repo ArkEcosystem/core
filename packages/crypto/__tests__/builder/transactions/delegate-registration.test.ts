@@ -4,7 +4,6 @@ import { client } from "../../../src/client";
 import { TransactionTypes } from "../../../src/constants";
 import { crypto } from "../../../src/crypto/crypto";
 import { feeManager } from "../../../src/managers/fee";
-import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: DelegateRegistrationBuilder;
 
