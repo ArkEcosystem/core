@@ -4,8 +4,6 @@ import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils/bignum";
 import { Transaction } from "../types";
 
-const { outlookTable } = configManager.getPreset("mainnet").exceptions;
-
 class BlockDeserializer {
     public deserialize(
         serializedHex: string,
@@ -26,7 +24,8 @@ class BlockDeserializer {
         block.idHex = Block.getIdHex(block);
         block.id = new Bignum(block.idHex, 16).toFixed();
 
-        if (outlookTable[block.id]) {
+        const { outlookTable } = configManager.config.exceptions;
+        if (outlookTable) {
             block.id = outlookTable[block.id];
             block.idHex = Block.toBytesHex(block.id);
         }

@@ -1,34 +1,25 @@
-import { configManager } from "../../src/managers";
-import { dummyBlock2, dummyBlock3 } from "../fixtures/block";
-
-let BlockDeserializer;
-let BlockSerializer;
+import { configManager } from "../../../src/managers";
+import { BlockDeserializer } from "../../../src/transactions/deserializers";
+import { BlockSerializer } from "../../../src/transactions/serializers";
+import { dummyBlock2, dummyBlock3 } from "../../fixtures/block";
 
 describe("block deserializer", () => {
     describe("deserialize", () => {
         it("should get block id from outlook table", () => {
             const outlookTableBlockId = "123456";
-            const getPresetOrig = configManager.getPreset;
-            jest.spyOn(configManager, "getPreset").mockImplementation(network => {
-                const preset = getPresetOrig(network);
-                preset.exceptions.outlookTable = {
-                    [dummyBlock3.id]: outlookTableBlockId,
-                };
-                return preset;
-            });
-            BlockDeserializer = require("../../src/deserializers").BlockDeserializer;
-            BlockSerializer = require("../../src/serializers").BlockSerializer;
+            configManager.config.exceptions.outlookTable = { [dummyBlock3.id]: outlookTableBlockId };
 
             const deserialized = BlockDeserializer.deserialize(
                 BlockSerializer.serialize(dummyBlock3).toString("hex"),
                 true,
-            );
+            ).data;
 
             expect(deserialized.id).toEqual(outlookTableBlockId);
+            delete configManager.config.exceptions.outlookTable;
         });
 
         it("should correctly deserialize a block", () => {
-            const deserialized = BlockDeserializer.deserialize(dummyBlock2.serializedFull);
+            const deserialized = BlockDeserializer.deserialize(dummyBlock2.serializedFull).data;
 
             const blockFields = [
                 "id",
@@ -63,10 +54,10 @@ describe("block deserializer", () => {
                 "signature",
             ];
             deserialized.transactions.forEach(tx => {
-                const dummyBlockTx = dummyBlock2.data.transactions.find(dummyTx => dummyTx.id === tx.data.id);
+                const dummyBlockTx = dummyBlock2.data.transactions.find(dummyTx => dummyTx.id === tx.id);
                 expect(dummyBlockTx).toBeDefined();
                 transactionFields.forEach(field => {
-                    expect(tx.data[field].toString()).toEqual(dummyBlockTx[field].toString());
+                    expect(tx[field].toString()).toEqual(dummyBlockTx[field].toString());
                 });
             });
         });

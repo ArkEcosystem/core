@@ -407,5 +407,4 @@ describe("Transaction serializer / deserializer", () => {
             expect(() => TransactionSerializer.getBytes(transaction)).toThrow(TransactionVersionError);
         });
     });
-
 });
