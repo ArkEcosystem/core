@@ -8,6 +8,7 @@ import { configManager } from "../../src";
 import { slots } from "../../src/crypto";
 import { Block, Delegate } from "../../src/models";
 import { testnet } from "../../src/networks";
+import { BlockDeserializer } from "../../src/transactions/deserializers";
 import { Bignum } from "../../src/utils/bignum";
 import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
@@ -59,18 +60,15 @@ describe("Models - Block", () => {
             expect(block.verification.verified).toBeFalse();
         });
 
-        it("should fail to verify a block with no previous block", () => {
-            const deserializeFunction = Block.deserialize;
-            jest.spyOn(Block, "deserialize").mockImplementation(ser => {
-                const deser = deserializeFunction(ser);
-                return Object.assign(deser, { previousBlock: undefined });
-            });
+        it("should fail to verify a block with an invalid previous block", () => {
+            const previousBlockBackup = dummyBlock.previousBlock;
+            dummyBlock.previousBlock = "0000000000000000000";
             const block = new Block(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
-            expect(block.verification.errors).toEqual(["Invalid previous block", "Failed to verify block signature"]);
+            expect(block.verification.errors).toContain("Failed to verify block signature");
 
-            jest.restoreAllMocks();
+            dummyBlock.previousBlock = previousBlockBackup;
         });
 
         it("should fail to verify a block with incorrect timestamp", () => {
@@ -78,7 +76,7 @@ describe("Models - Block", () => {
             const block = new Block(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
-            expect(block.verification.errors).toEqual(["Invalid block timestamp"]);
+            expect(block.verification.errors).toContain("Invalid block timestamp");
 
             jest.restoreAllMocks();
         });
@@ -108,7 +106,7 @@ describe("Models - Block", () => {
             const block = new Block(blockForged.toJson());
 
             expect(block.verification.verified).toBeFalse();
-            expect(block.verification.errors).toEqual(["Transactions length is too high"]);
+            expect(block.verification.errors).toContain("Transactions length is too high");
         });
 
         it("should fail to verify a block with duplicate transactions", () => {
@@ -136,7 +134,7 @@ describe("Models - Block", () => {
             const block = new Block(blockForged.toJson());
 
             expect(block.verification.verified).toBeFalse();
-            expect(block.verification.errors).toEqual([`Encountered duplicate transaction: ${transactions[0].id}`]);
+            expect(block.verification.errors).toContain(`Encountered duplicate transaction: ${transactions[0].id}`);
         });
 
         it("should fail to verify a block with too large payload", () => {
@@ -151,7 +149,7 @@ describe("Models - Block", () => {
             const block = new Block(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
-            expect(block.verification.errors).toEqual(["Payload is too large"]);
+            expect(block.verification.errors).toContain("Payload is too large");
 
             jest.restoreAllMocks();
         });
@@ -390,6 +388,8 @@ describe("Models - Block", () => {
     });
 
     describe("should reorder correctly transactions in deserialization", () => {
+        configManager.setFromPreset("mainnet");
+
         const issue = {
             version: 0,
             timestamp: 25029544,
@@ -444,6 +444,8 @@ describe("Models - Block", () => {
         const block = new Block(issue);
         expect(block.data.id).toBe(issue.id);
         expect(block.transactions[0].id).toBe(issue.transactions[1].id);
+
+        configManager.setFromPreset("devnet");
     });
 
     describe("v1 fix", () => {
