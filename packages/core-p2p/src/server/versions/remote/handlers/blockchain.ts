@@ -5,7 +5,7 @@ import * as schema from "../schemas/blockchain";
  * Respond with a blockchain event.
  * @type {Object}
  */
-export const emitEvent = {
+export const emitEvent: object = {
     /**
      * @param  {Hapi.Request} request
      * @param  {Hapi.Toolkit} h
