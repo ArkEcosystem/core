@@ -30,7 +30,7 @@ export abstract class Transaction {
     }
 
     public static fromData(data: ITransactionData): Transaction {
-        const { value, error } = this.validateSchema(data);
+        const { error } = this.validateSchema(data);
         if (error !== null) {
             throw new TransactionSchemaError(error.message);
         }
@@ -65,6 +65,7 @@ export abstract class Transaction {
 
     public data: ITransactionData;
     public serialized: Buffer;
+    public timestamp: number;
 
     /**
      * Serde

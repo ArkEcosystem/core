@@ -170,7 +170,7 @@ export class Block implements IBlock {
         const { transactions } = deserialized;
         this.transactions = transactions.map((transaction, index) => {
             transaction.data.blockId = this.data.id;
-            transaction.data.timestamp = this.data.timestamp;
+            transaction.timestamp = this.data.timestamp;
             transaction.data.sequence = index;
             return transaction;
         });
