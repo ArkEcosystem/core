@@ -197,7 +197,7 @@ export abstract class Transaction {
      * Schema
      */
     private static validateSchema(data: ITransactionData): any {
-        const { base } = this.getSchema();
+        const { base } = TransactionRegistry.get(data.type).getSchema();
         const { value, error } = JoiWrapper.instance().validate(data, base, { allowUnknown: true }); // TODO: make it strict
         return { value, error };
     }
