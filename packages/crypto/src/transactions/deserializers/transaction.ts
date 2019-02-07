@@ -11,7 +11,11 @@ const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {
     public deserialize(serializedHex: string): Transaction {
-        const data = {} as ITransactionData;
+        const data = {
+            vendorFieldHex: null, // TODO: if they are missing from data postgres insert fails
+            recipientId: null,
+        } as ITransactionData;
+
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
         this.deserializeCommon(data, buf);

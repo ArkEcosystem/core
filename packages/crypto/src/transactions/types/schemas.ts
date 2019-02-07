@@ -6,10 +6,17 @@ import { ITransactionSchema, TransactionSchemaConstructor } from "../interfaces"
 
 export const base = joi =>
     joi.object().keys({
-        id: joi
-            .string()
-            .alphanum()
-            .required(),
+        id: joi.when(joi.ref("$fromData"), {
+            is: true,
+            then: joi
+                .string()
+                .alphanum()
+                .optional(),
+            otherwise: joi
+                .string()
+                .alphanum()
+                .required(),
+        }),
         blockid: joi.alternatives().try(joi.blockId(), joi.number().unsafe()),
         network: joi.lazy(
             () =>
@@ -91,6 +98,7 @@ export const transfer: TransactionSchemaConstructor = (joi): ITransactionSchema 
         vendorFieldHex: joi
             .string()
             .max(64, "hex")
+            .allow("", null)
             .optional(),
         asset: joi.object().empty(),
     },

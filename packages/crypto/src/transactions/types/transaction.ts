@@ -30,7 +30,7 @@ export abstract class Transaction {
     }
 
     public static fromData(data: ITransactionData): Transaction {
-        const { error } = this.validateSchema(data);
+        const { error } = this.validateSchema(data, { fromData: true });
         if (error !== null) {
             throw new TransactionSchemaError(error.message);
         }
@@ -55,7 +55,7 @@ export abstract class Transaction {
     }
 
     public get type(): TransactionTypes {
-        return Transaction.type;
+        return this.data.type;
     }
 
     private isVerified: boolean;
@@ -81,10 +81,10 @@ export abstract class Transaction {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
-        const { error } = Transaction.validateSchema(data);
+        const { error } = Transaction.validateSchema(data, { fromData: false });
 
         if (error !== null) {
-            throw new TransactionSchemaError(error.description.message);
+            throw new TransactionSchemaError(error.message);
         }
 
         if (wallet.multisignature) {
@@ -197,9 +197,9 @@ export abstract class Transaction {
     /**
      * Schema
      */
-    private static validateSchema(data: ITransactionData): any {
+    private static validateSchema(data: ITransactionData, context: {}): any {
         const { base } = TransactionRegistry.get(data.type).getSchema();
-        const { value, error } = JoiWrapper.instance().validate(data, base, { allowUnknown: true }); // TODO: make it strict
+        const { value, error } = JoiWrapper.instance().validate(data, base, { context, allowUnknown: true }); // TODO: make it strict
         return { value, error };
     }
 
