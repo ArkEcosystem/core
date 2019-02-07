@@ -1,20 +1,22 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import orderBy from "lodash/orderBy";
 import limitRows from "./utils/limit-rows";
 
-export class DelegatesRepository {
+export class DelegatesRepository implements Database.IDelegatesBusinessRepository {
+
     /**
      * Create a new delegate repository instance.
-     * @param  {ConnectionInterface} connection
+     * @param databaseServiceProvider
      */
-    public constructor(public connection) {}
+    public constructor(private databaseServiceProvider : () => Database.IDatabaseService) {}
 
     /**
      * Get all local delegates.
-     * @return {Array}
      */
     public getLocalDelegates() {
-        return this.connection.walletManager.all().filter(wallet => !!wallet.username);
+        // TODO: What's the diff between this and just calling 'allByUsername'
+        return this.databaseServiceProvider().walletManager.allByAddress().filter(wallet => !!wallet.username);
     }
 
     /**
@@ -22,7 +24,7 @@ export class DelegatesRepository {
      * @param  {Object} params
      * @return {Object}
      */
-    public findAll(params: { orderBy?: string } = {}) {
+    public findAll(params: Database.IParameters = {}) {
         const delegates = this.getLocalDelegates();
 
         const [iteratee, order] = this.__orderBy(params);
@@ -34,25 +36,15 @@ export class DelegatesRepository {
     }
 
     /**
-     * Paginate all delegates.
-     * @param  {Object} params
-     * @return {Object}
-     */
-    public paginate(params) {
-        return this.findAll(params);
-    }
-
-    /**
      * Search all delegates.
      * TODO Currently it searches by username only
      * @param  {Object} [params]
      * @param  {String} [params.username] - Search by username
-     * @return {Object}
      */
-    public search(params) {
+    public search(params : Database.IParameters) {
         let delegates = this.getLocalDelegates();
         if (params.hasOwnProperty("username")) {
-            delegates = delegates.filter(delegate => delegate.username.indexOf(params.username) > -1);
+            delegates = delegates.filter(delegate => delegate.username.indexOf(params.username as string) > -1);
         }
 
         if (params.orderBy) {
@@ -92,11 +84,11 @@ export class DelegatesRepository {
      * @param  {Number} height
      * @return {Array}
      */
-    public getActiveAtHeight(height) {
-        const delegates = this.connection.getActiveDelegates(height);
+    public async getActiveAtHeight(height: number) {
+        const delegates = await this.databaseServiceProvider().getActiveDelegates(height);
 
         return delegates.map(delegate => {
-            const wallet = this.connection.wallets.findById(delegate.publicKey);
+            const wallet = this.databaseServiceProvider().wallets.findById(delegate.publicKey);
 
             return {
                 username: wallet.username,

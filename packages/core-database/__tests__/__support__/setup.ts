@@ -7,7 +7,7 @@ export const setUp = async () => {
 
     process.env.CORE_SKIP_BLOCKCHAIN = "true";
 
-    await setUpContainer({
+    return await setUpContainer({
         exit: "@arkecosystem/core-blockchain",
         exclude: [
             "@arkecosystem/core-p2p",

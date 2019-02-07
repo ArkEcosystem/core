@@ -365,11 +365,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         await blockchain.database.commitQueuedQueries();
 
-        let random = Math.floor(4 / Math.random());
-
-        if (random > 102) {
-            random = 102;
-        }
+        const random = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 
         await blockchain.removeBlocks(random);
 

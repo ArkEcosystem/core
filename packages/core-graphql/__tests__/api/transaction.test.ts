@@ -8,8 +8,8 @@ beforeAll(async () => {
     await setUp();
 });
 
-afterAll(() => {
-    tearDown();
+afterAll( async () => {
+    await tearDown();
 });
 
 describe("GraphQL API { transaction }", () => {
@@ -18,7 +18,7 @@ describe("GraphQL API { transaction }", () => {
             const query = `{ transaction(id:"${genesisBlock.transactions[0].id}") { id } }`;
             const response = await utils.request(query);
 
-            expect(response).toBeSuccessfulResponse();
+            await expect(response).toBeSuccessfulResponse();
 
             const data = response.data.data;
             expect(data).toBeObject();

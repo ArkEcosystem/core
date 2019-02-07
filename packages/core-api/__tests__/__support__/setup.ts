@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import delay from "delay";
 import { registerWithContainer, setUpContainer } from "../../../core-test-utils/src/helpers/container";
 import { plugin } from "../../src/plugin";
@@ -31,11 +31,11 @@ async function setUp() {
         ],
     });
 
-    const connection = app.resolvePlugin<PostgresConnection>("database");
-    await connection.db.rounds.truncate();
-    await connection.buildWallets(1);
-    await connection.saveWallets(true);
-    await connection.saveRound(round);
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    await databaseService.connection.roundsRepository.truncate();
+    await databaseService.buildWallets(1);
+    await databaseService.saveWallets(true);
+    await databaseService.saveRound(round);
 
     await registerWithContainer(plugin, options);
     await delay(1000); // give some more time for api server to be up
@@ -48,16 +48,16 @@ async function tearDown() {
 }
 
 async function calculateRanks() {
-    const connection = app.resolvePlugin<PostgresConnection>("database");
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const rows = await connection.query.manyOrNone(queries.spv.delegatesRanks);
+    const rows = await (databaseService.connection as any).query.manyOrNone(queries.spv.delegatesRanks);
 
     rows.forEach((delegate, i) => {
-        const wallet = connection.walletManager.findByPublicKey(delegate.publicKey);
+        const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
         wallet.missedBlocks = +delegate.missedBlocks;
-        wallet.rate = i + 1;
+        (wallet as any).rate = i + 1;
 
-        connection.walletManager.reindex(wallet);
+        databaseService.walletManager.reindex(wallet);
     });
 }
 

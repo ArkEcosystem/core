@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 import * as schema from "../schemas/transactions";
 
@@ -21,7 +20,7 @@ export const verify: object = {
 
         return {
             data: {
-                valid: await app.resolvePlugin<PostgresConnection>("database").verifyTransaction(transaction),
+                valid: await app.resolvePlugin<Database.IDatabaseService>("database").verifyTransaction(transaction),
             },
         };
     },

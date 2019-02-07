@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
+import { Database, Logger, TransactionPool as transactionPool } from "@arkecosystem/core-interfaces";
 import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
@@ -10,13 +9,13 @@ import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 const { TransactionTypes } = constants;
 const { Transaction } = models;
 
-export class TransactionGuard implements transanctionPool.ITransactionGuard {
+export class TransactionGuard implements transactionPool.ITransactionGuard {
     public transactions: models.Transaction[] = [];
     public excess: string[] = [];
     public accept: Map<string, models.Transaction> = new Map();
     public broadcast: Map<string, models.Transaction> = new Map();
     public invalid: Map<string, models.Transaction> = new Map();
-    public errors: { [key: string]: transanctionPool.TransactionErrorDTO[] } = {};
+    public errors: { [key: string]: transactionPool.TransactionErrorDTO[] } = {};
 
     /**
      * Create a new transaction guard instance.
@@ -38,7 +37,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      *     value=[ { type, message }, ... ]
      * }
      */
-    public async validate(transactions: models.Transaction[]): Promise<transanctionPool.ValidationResultDTO> {
+    public async validate(transactions: models.Transaction[]): Promise<transactionPool.ValidationResultDTO> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -237,9 +236,9 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * @return {void}
      */
     public async __removeForgedTransactions() {
-        const database = app.resolvePlugin<PostgresConnection>("database");
+        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-        const forgedIdsSet = await database.getForgedTransactionsIds([
+        const forgedIdsSet = await databaseService.getForgedTransactionsIds([
             ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
         ]);
 

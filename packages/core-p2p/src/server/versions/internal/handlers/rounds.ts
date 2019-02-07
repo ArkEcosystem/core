@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 
 const config = app.getConfig();
@@ -15,7 +14,7 @@ export const current = {
      * @return {Hapi.Response}
      */
     async handler(request, h) {
-        const database = app.resolvePlugin<PostgresConnection>("database");
+        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         const lastBlock = blockchain.getLastBlock();
@@ -24,7 +23,7 @@ export const current = {
         const maxActive = config.getMilestone(height).activeDelegates;
         const blockTime = config.getMilestone(height).blocktime;
         const reward = config.getMilestone(height).reward;
-        const delegates = await database.getActiveDelegates(height);
+        const delegates = await databaseService.getActiveDelegates(height);
         const timestamp = slots.getTime();
 
         const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;

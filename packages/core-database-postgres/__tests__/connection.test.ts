@@ -1,16 +1,19 @@
 import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 import genesisBlock from "../../core-test-utils/src/config/testnet/genesisBlock.json";
-import { PostgresConnection } from "../src/connection";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block } = models;
 
-let connection;
+let databaseService: Database.IDatabaseService;
 
 beforeAll(async () => {
     await setUp();
-    connection = app.resolvePlugin<PostgresConnection>("database");
+  
+    databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
+    await databaseService.saveBlock(new Block(genesisBlock));
 });
 
 afterAll(async () => {
@@ -20,7 +23,7 @@ afterAll(async () => {
 describe("Connection", () => {
     describe("verifyBlockchain", () => {
         it("should be valid - no errors - when verifying blockchain", async () => {
-            expect(await connection.verifyBlockchain()).toEqual({
+            expect(await databaseService.verifyBlockchain()).toEqual({
                 valid: true,
                 errors: [],
             });
@@ -29,9 +32,9 @@ describe("Connection", () => {
 
     describe("getLastBlock", () => {
         it("should get the genesis block as last block", async () => {
-            const lastBlock = await connection.getLastBlock();
+            const lastBlock = await databaseService.getLastBlock();
 
-            expect(lastBlock).toEqual(new Block(genesisBlock));
+            expect(lastBlock).toEqual(new Block(genesisBlock as any));
         });
     });
 });

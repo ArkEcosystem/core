@@ -8,7 +8,7 @@ import { models } from "@arkecosystem/crypto";
 const { Block } = models;
 
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 
 const delegate = {
     username: "genesis_9",
@@ -155,8 +155,8 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all blocks for a delegate by the given identifier", async () => {
                     // save a new block so that we can make the request with generatorPublicKey
                     const block2 = new Block(blocks2to100[0]);
-                    const database = app.resolvePlugin<PostgresConnection>("database");
-                    await database.saveBlock(block2);
+                    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+                    await databaseService.saveBlock(block2);
 
                     const response = await utils[request](
                         "GET",
@@ -166,7 +166,7 @@ describe("API 2.0 - Delegates", () => {
                     expect(response.data.data).toBeArray();
                     utils.expectBlock(response.data.data[0]);
 
-                    await database.deleteBlock(block2); // reset to genesis block
+                    await databaseService.deleteBlock(block2); // reset to genesis block
                 });
             },
         );

@@ -42,7 +42,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         }
 
         if (parameters.ownerId) {
-            const owner = this.database.walletManager.findByAddress(parameters.ownerId);
+            const owner = this.databaseService.walletManager.findByAddress(parameters.ownerId);
 
             selectQuery.and(this.query.sender_public_key.equals(owner.publicKey));
             selectQuery.or(this.query.recipient_id.equals(owner.address));
@@ -403,7 +403,7 @@ export class TransactionsRepository extends Repository implements IRepository {
     }
 
     public getModel(): object {
-        return this.database.models.transaction;
+        return (this.databaseService.connection as any).models.transaction;
     }
 
     /**
@@ -412,7 +412,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {Object}
      */
     public async __mapBlocksToTransactions(data): Promise<any> {
-        const blockQuery = this.database.models.block.query();
+        const blockQuery = (this.databaseService.connection as any).models.block.query();
 
         // Array...
         if (Array.isArray(data)) {
@@ -502,8 +502,8 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {String}
      */
     public __publicKeyFromAddress(senderId): string {
-        if (this.database.walletManager.exists(senderId)) {
-            return this.database.walletManager.findByAddress(senderId).publicKey;
+        if (this.databaseService.walletManager.exists(senderId)) {
+            return this.databaseService.walletManager.findByAddress(senderId).publicKey;
         }
 
         return null;
