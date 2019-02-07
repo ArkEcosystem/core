@@ -16,7 +16,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @param  {Object}  params
      * @return {Object}
      */
-    public async findAll(parameters: any = {}, sequenceDesc = true): Promise<any> {
+    public async findAll(parameters: any = {}, sequenceOrder: "asc" | "desc" = "desc"): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
         if (parameters.senderId) {
@@ -48,7 +48,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             selectQuery.or(this.query.recipient_id.equals(owner.address));
         }
 
-        this.__orderBy(selectQuery, parameters, sequenceDesc);
+        this.__orderBy(selectQuery, parameters, sequenceOrder);
 
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
@@ -181,7 +181,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {Object}
      */
     public async findAllByBlock(blockId, parameters: any = {}): Promise<any> {
-        return this.findAll({ ...{ blockId }, ...parameters }, false);
+        return this.findAll({ ...{ blockId }, ...parameters }, "asc");
     }
 
     /**
@@ -509,13 +509,13 @@ export class TransactionsRepository extends Repository implements IRepository {
         return null;
     }
 
-    public __orderBy(selectQuery, parameters, sequenceDesc = true): void {
+    public __orderBy(selectQuery, parameters, sequenceOrder: "asc" | "desc" = "desc"): void {
         const orderBy = parameters.orderBy
             ? parameters.orderBy.split(":").map(p => p.toLowerCase())
             : ["timestamp", "desc"];
 
         selectQuery.order(this.query[snakeCase(orderBy[0])][orderBy[1]]);
 
-        selectQuery.order(this.query.sequence[sequenceDesc ? "desc" : "asc"]);
+        selectQuery.order(this.query.sequence[sequenceOrder]);
     }
 }
