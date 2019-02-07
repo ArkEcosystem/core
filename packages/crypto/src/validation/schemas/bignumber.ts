@@ -3,7 +3,7 @@ import { Bignum } from "../../utils";
 
 export const bignumber = joi => ({
     name: "bignumber",
-    base: joi.alternatives().try(joi.object().type(BigNumber), joi.number(), joi.string().regex(/^\d+$/)),
+    base: joi.alternatives().try(joi.object().type(BigNumber), joi.number().unsafe(), joi.string().regex(/^\d+$/)),
     language: {
         min: "is less than minimum",
         max: "is greater than maximum",

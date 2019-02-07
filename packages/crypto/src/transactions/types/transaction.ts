@@ -13,7 +13,7 @@ import {
 } from "../../errors";
 import { configManager } from "../../managers";
 import { Wallet } from "../../models/wallet";
-import { Bignum, isException } from "../../utils";
+import { Bignum, isException, isGenesisTransaction } from "../../utils";
 import { JoiWrapper } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
 import { ITransactionData, ITransactionSchema, TransactionSchemaConstructor } from "../interfaces";
@@ -30,7 +30,10 @@ export abstract class Transaction {
     }
 
     public static fromData(data: ITransactionData): Transaction {
-        const { value, error } = this.validateSchema(data, { fromData: true });
+        const { value, error } = this.validateSchema(data, {
+            fromData: true,
+            isGenesis: isGenesisTransaction(data.id),
+        });
         if (error !== null) {
             throw new TransactionSchemaError(error.message);
         }
@@ -81,7 +84,10 @@ export abstract class Transaction {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
-        const { error } = Transaction.validateSchema(data, { fromData: false });
+        const { error } = Transaction.validateSchema(data, {
+            fromData: false,
+            isGenesis: isGenesisTransaction(data.id),
+        });
 
         if (error !== null) {
             throw new TransactionSchemaError(error.message);

@@ -40,14 +40,27 @@ export const base = joi =>
             .min(0)
             .required(),
         amount: joi
-            .bignumber()
-            .integer()
-            .positive()
+            .when(joi.ref("$isGenesis"), {
+                is: true,
+                then: joi
+                    .bignumber()
+                    .integer()
+                    .min(0),
+                otherwise: joi
+                    .bignumber()
+                    .integer()
+                    .positive(),
+            })
             .required(),
         fee: joi
-            .bignumber()
-            .integer()
-            .positive()
+            .when(joi.ref("$isGenesis"), {
+                is: true,
+                then: joi.bignumber().only(0),
+                otherwise: joi
+                    .bignumber()
+                    .integer()
+                    .positive(),
+            })
             .required(),
         senderId: joi.address(),
         recipientId: joi.address().required(),

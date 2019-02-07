@@ -8,7 +8,6 @@ import { configManager } from "../../src";
 import { slots } from "../../src/crypto";
 import { Block, Delegate } from "../../src/models";
 import { testnet } from "../../src/networks";
-import { BlockDeserializer } from "../../src/transactions/deserializers";
 import { Bignum } from "../../src/utils/bignum";
 import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
@@ -365,12 +364,15 @@ describe("Models - Block", () => {
     describe("serializeFull", () => {
         describe("genesis block", () => {
             describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])("%s", (network, length) => {
+                configManager.setFromPreset(network);
                 const genesis = require(`@arkecosystem/crypto/src/networks/${network}/genesisBlock.json`);
                 const serialized = Block.serializeFull(genesis).toString("hex");
                 const genesisBlock = new Block(Block.deserialize(serialized));
                 expect(serialized).toHaveLength(length);
                 expect(genesisBlock.verifySignature()).toBeTrue();
             });
+
+            configManager.setFromPreset("devnet");
         });
 
         describe("should validate hash", () => {
