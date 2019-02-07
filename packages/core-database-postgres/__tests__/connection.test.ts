@@ -13,7 +13,7 @@ beforeAll(async () => {
   
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    await connection.saveBlock(new Block(genesisBlock));
+    await databaseService.saveBlock(new Block(genesisBlock));
 });
 
 afterAll(async () => {
