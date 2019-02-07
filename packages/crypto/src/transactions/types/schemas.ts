@@ -119,6 +119,7 @@ export const secondSignature: TransactionSchemaConstructor = (joi): ITransaction
             .only(0)
             .optional(),
         secondSignature: joi.string().only(""),
+        signSignature: joi.string().only(""),
         asset: joi
             .object({
                 signature: joi

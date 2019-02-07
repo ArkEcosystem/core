@@ -1,4 +1,4 @@
-import { configManager, constants } from "../../src";
+import { configManager, constants, crypto } from "../../src";
 import { transactionBuilder } from "../../src/builder";
 import { TransactionRegistry } from "../../src/transactions";
 import { ITransactionSchema } from "../../src/transactions/interfaces";
@@ -219,6 +219,77 @@ describe("Transfer Transaction", () => {
     });
 });
 
+describe("Second Signature Transaction", () => {
+    beforeAll(() => {
+        transactionSchema = TransactionRegistry.get(TransactionTypes.SecondSignature).getSchema().base;
+    });
+
+    beforeEach(() => {
+        transaction = transactionBuilder.secondSignature();
+    });
+
+    it("should be valid", () => {
+        transaction.signatureAsset("second passphrase").sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).toBeNull();
+    });
+
+    it("should be valid with correct data", () => {
+        transaction
+            .signatureAsset("second passphrase")
+            .fee(1 * constants.ARKTOSHI)
+            .sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).toBeNull();
+    });
+
+    it("should be invalid due to no transaction as object", () => {
+        const { error } = joi.validate("test", transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to non-zero amount", () => {
+        transaction
+            .signatureAsset("second passphrase")
+            .amount(10 * constants.ARKTOSHI)
+            .sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to zero fee", () => {
+        transaction
+            .signatureAsset("second passphrase")
+            .fee(0)
+            .sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to second signature", () => {
+        transaction
+            .signatureAsset("second passphrase")
+            .fee(1)
+            .sign("passphrase")
+            .secondSign("second passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to wrong transaction type", () => {
+        transaction = transactionBuilder.delegateRegistration();
+        transaction.usernameAsset("delegate_name").sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+});
+
 describe("Delegate Registration Transaction", () => {
     beforeAll(() => {
         transactionSchema = TransactionRegistry.get(TransactionTypes.DelegateRegistration).getSchema().base;
@@ -297,6 +368,314 @@ describe("Delegate Registration Transaction", () => {
             .recipientId(null)
             .amount(10 * constants.ARKTOSHI)
             .sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+});
+
+describe("Vote Transaction", () => {
+    const vote = "+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9";
+    const unvote = "-0326580718fc86ba609799ac95fcd2721af259beb5afa81bfce0ab7d9fe95de991";
+    const votes = [vote, "+0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0", unvote];
+    const invalidVotes = [
+        "02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9",
+        "0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0",
+        "0326580718fc86ba609799ac95fcd2721af259beb5afa81bfce0ab7d9fe95de991",
+    ];
+
+    beforeAll(() => {
+        transactionSchema = TransactionRegistry.get(TransactionTypes.Vote).getSchema().base;
+    });
+
+    beforeEach(() => {
+        transaction = transactionBuilder.vote();
+    });
+
+    it("should be valid with 1 vote", () => {
+        transaction.votesAsset([vote]).sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).toBeNull();
+    });
+
+    it("should be valid with 1 unvote", () => {
+        transaction.votesAsset([unvote]).sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).toBeNull();
+    });
+
+    it("should be invalid due to no transaction as object", () => {
+        const { error } = joi.validate("test", transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to non-zero amount", () => {
+        transaction
+            .votesAsset([vote])
+            .amount(10 * constants.ARKTOSHI)
+            .sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to zero fee", () => {
+        transaction
+            .votesAsset(votes)
+            .fee(0)
+            .sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to no votes", () => {
+        transaction.votesAsset([]).sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to more than 1 vote", () => {
+        transaction.votesAsset(votes).sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to invalid votes", () => {
+        transaction.votesAsset(invalidVotes).sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to wrong vote type", () => {
+        const struct = transaction.sign("passphrase").getStruct();
+        struct.asset.votes = vote;
+
+        const { error } = joi.validate(struct, transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to wrong transaction type", () => {
+        const wrongTransaction = transactionBuilder.delegateRegistration();
+        wrongTransaction.usernameAsset("delegate_name").sign("passphrase");
+
+        const { error } = joi.validate(wrongTransaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+});
+
+describe("Multi Signature Transaction", () => {
+    const passphrase = "passphrase 1";
+    const publicKey = "+03e8021105a6c202097e97e6c6d650942d913099bf6c9f14a6815df1023dde3b87";
+    const passphrases = [passphrase, "passphrase 2", "passphrase 3"];
+    const keysGroup = [
+        publicKey,
+        "+03dfdaaa7fd28bc9359874b7e33138f4d0afe9937e152c59b83a99fae7eeb94899",
+        "+03de72ef9d3ebf1b374f1214f5b8dde823690ab2aa32b4b8b3226cc568aaed1562",
+    ];
+
+    let multiSignatureAsset;
+
+    beforeAll(() => {
+        transactionSchema = TransactionRegistry.get(TransactionTypes.MultiSignature).getSchema().base;
+    });
+
+    beforeEach(() => {
+        transaction = transactionBuilder.multiSignature();
+        multiSignatureAsset = {
+            min: 1,
+            keysgroup: keysGroup,
+            lifetime: 72,
+        };
+    });
+
+    const signTransaction = (tx, values) => {
+        values.map(value => tx.multiSignatureSign(value));
+    };
+
+    it("should be valid with min of 3", () => {
+        multiSignatureAsset.min = 3;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).toBeNull();
+    });
+
+    it("should be valid with 3 public keys", () => {
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).toBeNull();
+    });
+
+    it("should be valid with lifetime of 10", () => {
+        multiSignatureAsset.lifetime = 10;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).toBeNull();
+    });
+
+    it("should be invalid due to no transaction as object", () => {
+        const { error } = joi.validate("test", transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to non-zero amount", () => {
+        transaction
+            .multiSignatureAsset(multiSignatureAsset)
+            .amount(10 * constants.ARKTOSHI)
+            .sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to zero fee", () => {
+        transaction
+            .multiSignatureAsset(multiSignatureAsset)
+            .fee(0)
+            .sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to min too low", () => {
+        multiSignatureAsset.min = 0;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to min too high", () => {
+        multiSignatureAsset.min = multiSignatureAsset.keysgroup.length + 1;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to lifetime too low", () => {
+        multiSignatureAsset.lifetime = 0;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to lifetime too high", () => {
+        multiSignatureAsset.lifetime = 100;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to no public keys", () => {
+        multiSignatureAsset.keysgroup = [];
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to too many public keys", () => {
+        const values = [];
+        multiSignatureAsset.keysgroup = [];
+        for (let i = 0; i < 20; i++) {
+            const value = `passphrase ${i}`;
+            values.push(value);
+            multiSignatureAsset.keysgroup.push(crypto.getKeys(value).publicKey);
+        }
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, values);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to duplicate public keys", () => {
+        multiSignatureAsset.keysgroup = [publicKey, publicKey];
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to no signatures", () => {
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to not enough signatures", () => {
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases.slice(1));
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to too many signatures", () => {
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, ["wrong passphrase", ...passphrases]);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it('should be invalid due to no "+" for publicKeys', () => {
+        multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1));
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it('should be invalid due to having "-" for publicKeys', () => {
+        multiSignatureAsset.keysgroup = keysGroup.map(value => `-${value.slice(1)}`);
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const { error } = joi.validate(transaction.getStruct(), transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to wrong keysgroup type", () => {
+        multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1));
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const struct = transaction.getStruct();
+        struct.asset.multisignature = publicKey;
+
+        const { error } = joi.validate(struct, transactionSchema);
+        expect(error).not.toBeNull();
+    });
+
+    it("should be invalid due to wrong transaction type", () => {
+        transaction = transactionBuilder.delegateRegistration();
+        transaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = joi.validate(transaction.getStruct(), transactionSchema);
         expect(error).not.toBeNull();
