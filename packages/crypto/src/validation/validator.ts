@@ -1,10 +1,11 @@
 import Joi from "joi";
-import { extensions } from "./extensions";
+import { schemas } from "./schemas";
 
 export class Validator {
     public static joi: any;
 
     public static init(): void {
+        const extensions = Object.values(schemas);
         this.joi = Joi.extend(extensions);
     }
 

@@ -8,14 +8,13 @@ import {
     SecondSignatureVerificationFailedError,
     SenderWalletMismatchError,
     TransactionSchemaError,
-    TransactionValidationError,
     UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
 } from "../../errors";
 import { configManager } from "../../managers";
 import { Wallet } from "../../models/wallet";
 import { Bignum, isException } from "../../utils";
-import { joi, transactionValidator } from "../../validation";
+import { Joi } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
 import { ITransactionData } from "../interfaces";
 import { TransactionSerializer } from "../serializers";
@@ -33,7 +32,7 @@ export abstract class Transaction {
     public static fromData(data: ITransactionData): Transaction {
         const { value, error } = this.validateSchema(data);
         if (error !== null) {
-            throw new TransactionSchemaError(error.details.message);
+            throw new TransactionSchemaError(error.message);
         }
 
         const transaction = TransactionRegistry.create(data);
@@ -81,11 +80,10 @@ export abstract class Transaction {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
-        // TODO: this overlaps with schema validation  during creation
-        const validationResult = transactionValidator.validate(data);
+        const { error } = Transaction.validateSchema(data);
 
-        if (validationResult.fails) {
-            throw new TransactionValidationError(validationResult.fails.message);
+        if (error !== null) {
+            throw new TransactionSchemaError(error.description.message);
         }
 
         if (wallet.multisignature) {
@@ -200,12 +198,12 @@ export abstract class Transaction {
      */
     private static validateSchema(data: ITransactionData): any {
         const schema = this.getSchema();
-        const { value, error } = joi.validate(data, schema);
+        const { value, error } = Joi.validate(data, schema, { allowUnknown: true }); // TODO: make it strict
         return { value, error };
     }
 
     public static getSchema(): any {
-        return schemas.base(joi).extend(this.getTypeSchema()(joi));
+        return schemas.base(Joi).extend(this.getTypeSchema()(Joi));
     }
 
     protected static getTypeSchema(): any {

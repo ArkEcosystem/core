@@ -72,12 +72,6 @@ export class TransactionTypeError extends CryptoError {
     }
 }
 
-export class TransactionValidationError extends CryptoError {
-    constructor(what: string) {
-        super(what);
-    }
-}
-
 export class TransactionSchemaError extends CryptoError {
     constructor(what: string) {
         super(what);
