@@ -2,8 +2,7 @@ import { Bignum, models } from "@arkecosystem/crypto";
 const { Transaction } = models;
 
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { PostgresConnection } from "./connection";
+import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
@@ -13,16 +12,7 @@ const config = app.getConfig();
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
 
 export class SPV {
-    private models: any;
-    private walletManager: any;
-    private query: QueryExecutor;
-    private activeDelegates: [];
-
-    constructor(connectionInterface: PostgresConnection) {
-        this.models = connectionInterface.models;
-        this.walletManager = connectionInterface.walletManager;
-        this.query = connectionInterface.query;
-    }
+    constructor(private query: QueryExecutor, private walletManager: Database.IWalletManager) {}
 
     /**
      * Perform the SPV (Simple Payment Verification).
@@ -30,7 +20,6 @@ export class SPV {
      * @return {void}
      */
     public async build(height) {
-        this.activeDelegates = config.getMilestone(height).activeDelegates;
 
         logger.info("SPV Step 1 of 8: Received Transactions");
         await this.__buildReceivedTransactions();
@@ -56,8 +45,8 @@ export class SPV {
         logger.info("SPV Step 8 of 8: MultiSignatures");
         await this.__buildMultisignatures();
 
-        logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`);
-        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`);
+        logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`);
+        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
         return this.__verifyWalletsConsistency();
     }
@@ -200,7 +189,8 @@ export class SPV {
         delegates.forEach((delegate, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
             wallet.missedBlocks = +delegate.missedBlocks;
-            wallet.rate = i + 1;
+            // TODO: unknown property 'rate' being access on Wallet class
+            (wallet as any).rate = i + 1;
             this.walletManager.reindex(wallet);
         });
     }

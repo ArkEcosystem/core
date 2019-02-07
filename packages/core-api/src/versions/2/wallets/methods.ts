@@ -1,14 +1,14 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import { transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const database = app.resolvePlugin<PostgresConnection>("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
-    const wallets = await database.wallets.findAll({
+    const wallets = await databaseService.wallets.findAll({
         ...request.query,
         ...paginate(request),
     });
@@ -17,13 +17,13 @@ const index = async request => {
 };
 
 const top = async request => {
-    const wallets = await database.wallets.top(paginate(request));
+    const wallets = await databaseService.wallets.top(paginate(request));
 
     return toPagination(request, wallets, "wallet");
 };
 
 const show = async request => {
-    const wallet = await database.wallets.findById(request.params.id);
+    const wallet = await databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -33,7 +33,7 @@ const show = async request => {
 };
 
 const transactions = async request => {
-    const wallet = await database.wallets.findById(request.params.id);
+    const wallet = await databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -49,7 +49,7 @@ const transactions = async request => {
 };
 
 const transactionsSent = async request => {
-    const wallet = await database.wallets.findById(request.params.id);
+    const wallet = await databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -68,7 +68,7 @@ const transactionsSent = async request => {
 };
 
 const transactionsReceived = async request => {
-    const wallet = await database.wallets.findById(request.params.id);
+    const wallet = await databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -87,7 +87,7 @@ const transactionsReceived = async request => {
 };
 
 const votes = async request => {
-    const wallet = await database.wallets.findById(request.params.id);
+    const wallet = await databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -105,7 +105,7 @@ const votes = async request => {
 };
 
 const search = async request => {
-    const wallets = await database.wallets.search({
+    const wallets = await databaseService.wallets.search({
         ...request.payload,
         ...request.query,
         ...paginate(request),

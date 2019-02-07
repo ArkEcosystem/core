@@ -1,5 +1,4 @@
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, Container } from "@arkecosystem/core-interfaces";
+import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { generators } from "@arkecosystem/core-test-utils";
 import { delegates, genesisBlock, wallets } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
 import { crypto, models } from "@arkecosystem/crypto";
@@ -123,7 +122,7 @@ describe("applyPoolTransactionToSender", () => {
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
                 container
-                    .resolvePlugin<PostgresConnection>("database")
+                    .resolvePlugin<Database.IDatabaseService>("database")
                     .walletManager.findByPublicKey(transfer.senderPublicKey);
 
                 const errors = [];
@@ -140,9 +139,9 @@ describe("applyPoolTransactionToSender", () => {
                     );
                 }
 
-                container
-                    .resolvePlugin<PostgresConnection>("database")
-                    .walletManager.forgetByPublicKey(transfer.publicKey);
+                (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(
+                    transfer.publicKey,
+                );
             });
 
             expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * arktoshi);

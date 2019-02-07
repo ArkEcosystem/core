@@ -71,7 +71,7 @@ export class DelegatesController extends Controller {
 
     public async forged(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const wallet = this.database.walletManager.findByPublicKey(
+            const wallet = this.databaseService.walletManager.findByPublicKey(
                 // @ts-ignore
                 request.query.generatorPublicKey,
             );
@@ -95,7 +95,7 @@ export class DelegatesController extends Controller {
             const delegatesCount = this.config.getMilestone(lastBlock).activeDelegates;
             const currentSlot = slots.getSlotNumber(lastBlock.data.timestamp);
 
-            let activeDelegates = await this.database.getActiveDelegates(lastBlock.data.height);
+            let activeDelegates = await this.databaseService.getActiveDelegates(lastBlock.data.height);
             activeDelegates = activeDelegates.map(delegate => delegate.publicKey);
 
             const nextForgers = [];

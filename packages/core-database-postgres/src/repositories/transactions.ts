@@ -1,10 +1,11 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { Transaction } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
 const { transactions: sql } = queries;
 
-export class TransactionsRepository extends Repository {
+export class TransactionsRepository extends Repository implements Database.ITransactionsRepository {
     /**
      * Find a transactions by its ID.
      * @param  {String} id
@@ -19,7 +20,7 @@ export class TransactionsRepository extends Repository {
      * @param  {String} id
      * @return {Promise}
      */
-    public async findByBlock(id) {
+    public async findByBlockId(id) {
         return this.db.manyOrNone(sql.findByBlock, { id });
     }
 
@@ -63,7 +64,7 @@ export class TransactionsRepository extends Repository {
      * @param  {Number} id
      * @return {Promise}
      */
-    public async deleteByBlock(id) {
+    public async deleteByBlockId(id) {
         return this.db.none(sql.deleteByBlock, { id });
     }
 

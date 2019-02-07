@@ -1,6 +1,7 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { Model } from "../models";
 
-export abstract class Repository {
+export abstract class Repository implements Database.IRepository {
     protected model: Model;
 
     /**
@@ -36,20 +37,20 @@ export abstract class Repository {
 
     /**
      * Create one or many instances of the related models.
-     * @param  {Array|Object} item
+     * @param  {Array|Object} items
      * @return {Promise}
      */
-    public async create(item) {
-        return this.db.none(this.__insertQuery(item));
+    public async insert(items) {
+        return this.db.none(this.__insertQuery(items));
     }
 
     /**
      * Update one or many instances of the related models.
-     * @param  {Array|Object} item
+     * @param  {Array|Object} items
      * @return {Promise}
      */
-    public async update(item) {
-        return this.db.none(this.__updateQuery(item));
+    public async update(items) {
+        return this.db.none(this.__updateQuery(items));
     }
 
     /**

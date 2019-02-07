@@ -329,7 +329,7 @@ class TransactionsRepository extends Repository {
     }
 
     public getModel() {
-        return this.database.models.transaction;
+        return (this.databaseService.connection as any).models.transaction;
     }
 
     /**
@@ -338,7 +338,7 @@ class TransactionsRepository extends Repository {
      * @return {Object}
      */
     public async __mapBlocksToTransactions(data) {
-        const blockQuery = this.database.models.block.query();
+        const blockQuery = (this.databaseService.connection as any).models.block.query();
 
         // Array...
         if (Array.isArray(data)) {
@@ -428,7 +428,7 @@ class TransactionsRepository extends Repository {
      * @return {String}
      */
     public __publicKeyFromSenderId(senderId) {
-        return this.database.walletManager.findByAddress(senderId).publicKey;
+        return this.databaseService.walletManager.findByAddress(senderId).publicKey;
     }
 
     public __orderBy(parameters) {

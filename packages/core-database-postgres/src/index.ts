@@ -1,4 +1,4 @@
-export * from "./connection";
+export * from "./postgres-connection";
 export * from "./migrations";
 export * from "./spv";
 export * from "./models";

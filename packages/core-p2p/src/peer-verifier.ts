@@ -1,7 +1,6 @@
 import assert from "assert";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
-import { ConnectionInterface } from "@arkecosystem/core-database";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { Peer } from './peer';
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { app } from "@arkecosystem/core-container";
@@ -9,7 +8,7 @@ import { inspect } from "util";
 import { models } from "@arkecosystem/crypto";
 
 export class PeerVerifier {
-    private database: ConnectionInterface;
+    private database: Database.IDatabaseService;
     private logPrefix: string;
     private logger: Logger.ILogger;
     private peer: any;
@@ -21,7 +20,7 @@ export class PeerVerifier {
     private static readonly verifiedBlocks = new CappedSet();
 
     public constructor(peer: Peer) {
-        this.database = app.resolvePlugin<PostgresConnection>("database");
+        this.database = app.resolvePlugin<Database.IDatabaseService>("database");
         this.logPrefix = `Peer verify ${peer.ip}:`;
         this.logger = app.resolvePlugin<Logger.ILogger>("logger");
         this.peer = peer;

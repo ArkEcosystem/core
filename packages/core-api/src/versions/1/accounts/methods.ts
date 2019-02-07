@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import { ServerCache } from "../../../services";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
-const database = app.resolvePlugin<PostgresConnection>("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
-    const { rows } = await database.wallets.findAll({
+    const { rows } = await databaseService.wallets.findAll({
         ...request.query,
         ...paginate(request),
     });
@@ -17,7 +17,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const account = await database.wallets.findById(request.query.address);
+    const account = await databaseService.wallets.findById(request.query.address);
 
     if (!account) {
         return respondWith("Account not found", true);
@@ -29,7 +29,7 @@ const show = async request => {
 };
 
 const balance = async request => {
-    const account = await database.wallets.findById(request.query.address);
+    const account = await databaseService.wallets.findById(request.query.address);
 
     if (!account) {
         return respondWith({ balance: "0", unconfirmedBalance: "0" });
@@ -42,7 +42,7 @@ const balance = async request => {
 };
 
 const publicKey = async request => {
-    const account = await database.wallets.findById(request.query.address);
+    const account = await databaseService.wallets.findById(request.query.address);
 
     if (!account) {
         return respondWith("Account not found", true);
