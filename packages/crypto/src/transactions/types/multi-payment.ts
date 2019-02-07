@@ -2,7 +2,7 @@ import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
-import { Wallet } from "../../models";
+import { TransactionSchemaConstructor, Wallet } from "../../models";
 import { Bignum } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -10,7 +10,7 @@ import { Transaction } from "./transaction";
 export class MultiPaymentTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiPayment;
 
-    protected static getTypeSchema(): any {
+    protected static getTypeSchema(): TransactionSchemaConstructor {
         return schemas.multiPayment;
     }
 

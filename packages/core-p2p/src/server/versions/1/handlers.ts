@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
-import { Joi, models, slots } from "@arkecosystem/crypto";
+import { JoiWrapper, models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
@@ -230,7 +230,8 @@ export const postTransactions = {
         },
         validate: {
             payload: {
-                transactions: Joi.transactionArray()
+                transactions: JoiWrapper.instance()
+                    .transactionArray()
                     .min(1)
                     .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
                     .options({ stripUnknown: true }),

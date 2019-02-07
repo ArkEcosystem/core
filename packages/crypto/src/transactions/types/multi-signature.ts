@@ -2,14 +2,14 @@ import ByteBuffer from "bytebuffer";
 import { IMultiSignatureAsset } from "..";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
-import { Wallet } from "../../models";
+import { TransactionSchemaConstructor, Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class MultiSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiSignature;
 
-    protected static getTypeSchema(): any {
+    protected static getTypeSchema(): TransactionSchemaConstructor {
         return schemas.multiSignature;
     }
 

@@ -1,5 +1,6 @@
 import { TransactionTypes } from "../constants";
 import { NotImplementedError, TransactionAlreadyRegisteredError, TransactionTypeNotRegisteredError } from "../errors";
+import { JoiWrapper } from "../validation";
 import { ITransactionData } from "./interfaces";
 import {
     DelegateRegistrationTransaction,
@@ -62,6 +63,12 @@ class TransactionRegistry {
         }
 
         this.coreTypes.set(type, constructor);
+        this.updateSchemas(constructor);
+    }
+
+    private updateSchemas(transactionClass: TransactionConstructor) {
+        const schema = transactionClass.getSchema();
+        JoiWrapper.extendTransaction(schema);
     }
 }
 

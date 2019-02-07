@@ -1,7 +1,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
-import { Wallet } from "../../models";
+import { TransactionSchemaConstructor, Wallet } from "../../models";
 import { Bignum } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -9,7 +9,7 @@ import { Transaction } from "./transaction";
 export class TransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Transfer;
 
-    protected static getTypeSchema(): any {
+    protected static getTypeSchema(): TransactionSchemaConstructor {
         return schemas.transfer;
     }
 

@@ -14,9 +14,9 @@ import {
 import { configManager } from "../../managers";
 import { Wallet } from "../../models/wallet";
 import { Bignum, isException } from "../../utils";
-import { Joi } from "../../validation";
+import { JoiWrapper } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
-import { ITransactionData } from "../interfaces";
+import { ITransactionData, ITransactionSchema, TransactionSchemaConstructor } from "../interfaces";
 import { TransactionSerializer } from "../serializers";
 import * as schemas from "./schemas";
 
@@ -197,16 +197,18 @@ export abstract class Transaction {
      * Schema
      */
     private static validateSchema(data: ITransactionData): any {
-        const schema = this.getSchema();
-        const { value, error } = Joi.validate(data, schema, { allowUnknown: true }); // TODO: make it strict
+        const { base } = this.getSchema();
+        const { value, error } = JoiWrapper.instance().validate(data, base, { allowUnknown: true }); // TODO: make it strict
         return { value, error };
     }
 
-    public static getSchema(): any {
-        return schemas.base(Joi).extend(this.getTypeSchema()(Joi));
+    public static getSchema(): ITransactionSchema {
+        const joi = JoiWrapper.instance();
+        const { name, base } = this.getTypeSchema()(joi);
+        return { name, base: schemas.base(joi).append(base) };
     }
 
-    protected static getTypeSchema(): any {
+    protected static getTypeSchema(): TransactionSchemaConstructor {
         throw new NotImplementedError();
     }
 }

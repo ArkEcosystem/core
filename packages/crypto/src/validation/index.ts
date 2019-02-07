@@ -1,3 +1,1 @@
-import { Validator } from "./validator";
-
-export const Joi = Validator.joi;
+export { joiWrapper as JoiWrapper } from "./joi-wrapper";

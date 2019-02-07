@@ -1,5 +1,6 @@
 import { TransactionTypes } from "../../constants";
 import { configManager } from "../../managers";
+import { ITransactionSchema, TransactionSchemaConstructor } from "../interfaces";
 
 // TODO: cleanup and double check schemata
 
@@ -71,209 +72,236 @@ export const base = joi =>
             .min(0),
     });
 
-export const transfer = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.Transfer)
-        .required(),
-    expiration: joi
-        .number()
-        .integer()
-        .min(0),
-    vendorField: joi
-        .string()
-        .max(64, "utf8")
-        .allow("", null)
-        .optional(),
-    vendorFieldHex: joi
-        .string()
-        .max(64, "hex")
-        .optional(),
-    asset: joi.object().empty(),
+export const transfer: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "transfer",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.Transfer)
+            .required(),
+        expiration: joi
+            .number()
+            .integer()
+            .min(0),
+        vendorField: joi
+            .string()
+            .max(64, "utf8")
+            .allow("", null)
+            .optional(),
+        vendorFieldHex: joi
+            .string()
+            .max(64, "hex")
+            .optional(),
+        asset: joi.object().empty(),
+    },
 });
 
-export const secondSignature = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.SecondSignature)
-        .required(),
-    amount: joi
-        .alternatives()
-        .try(joi.bignumber().only(0), joi.number().only(0))
-        .optional(),
-    secondSignature: joi.string().only(""),
-    asset: joi
-        .object({
-            signature: joi
-                .object({
-                    publicKey: joi.publicKey().required(),
-                })
-                .required(),
-        })
-        .required(),
-    recipientId: joi.empty(),
+export const secondSignature: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "secondSignature",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.SecondSignature)
+            .required(),
+        amount: joi
+            .alternatives()
+            .try(joi.bignumber().only(0), joi.number().only(0))
+            .optional(),
+        secondSignature: joi.string().only(""),
+        asset: joi
+            .object({
+                signature: joi
+                    .object({
+                        publicKey: joi.publicKey().required(),
+                    })
+                    .required(),
+            })
+            .required(),
+        recipientId: joi.empty(),
+    },
 });
 
-export const delegateRegistration = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.DelegateRegistration)
-        .required(),
-    amount: joi
-        .alternatives()
-        .try(joi.bignumber().only(0), joi.number().only(0))
-        .optional(),
-    asset: joi
-        .object({
-            delegate: joi
-                .object({
-                    username: joi.delegateUsername().required(),
-                    publicKey: joi.publicKey(),
-                })
-                .required(),
-        })
-        .required(),
-    recipientId: joi.empty(),
+export const delegateRegistration: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "delegateRegistration",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.DelegateRegistration)
+            .required(),
+        amount: joi
+            .alternatives()
+            .try(joi.bignumber().only(0), joi.number().only(0))
+            .optional(),
+        asset: joi
+            .object({
+                delegate: joi
+                    .object({
+                        username: joi.delegateUsername().required(),
+                        publicKey: joi.publicKey(),
+                    })
+                    .required(),
+            })
+            .required(),
+        recipientId: joi.empty(),
+    },
 });
 
-export const vote = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.Vote)
-        .required(),
-    amount: joi
-        .alternatives()
-        .try(joi.bignumber().only(0), joi.number().only(0))
-        .optional(),
-    asset: joi
-        .object({
-            votes: joi
-                .array()
-                .items(
-                    joi
-                        .string()
-                        .length(67)
-                        .regex(/^(\+|-)[a-zA-Z0-9]+$/),
-                )
-                .length(1)
-                .required(),
-        })
-        .required(),
-    recipientId: joi
-        .address()
-        .allow(null)
-        .optional(),
+export const vote: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "vote",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.Vote)
+            .required(),
+        amount: joi
+            .alternatives()
+            .try(joi.bignumber().only(0), joi.number().only(0))
+            .optional(),
+        asset: joi
+            .object({
+                votes: joi
+                    .array()
+                    .items(
+                        joi
+                            .string()
+                            .length(67)
+                            .regex(/^(\+|-)[a-zA-Z0-9]+$/),
+                    )
+                    .length(1)
+                    .required(),
+            })
+            .required(),
+        recipientId: joi
+            .address()
+            .allow(null)
+            .optional(),
+    },
 });
 
-export const multiSignature = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.MultiSignature)
-        .required(),
-    amount: joi
-        .alternatives()
-        .try(joi.bignumber().only(0), joi.number().only(0))
-        .optional(),
-    recipientId: joi.empty(),
-    signatures: joi
-        .array()
-        .length(joi.ref("asset.multisignature.keysgroup.length"))
-        .required(),
-    asset: joi
-        .object({
-            multisignature: joi
-                .object({
-                    min: joi
-                        .when(joi.ref("keysgroup.length"), {
-                            is: joi.number().greater(16),
-                            then: joi
-                                .number()
-                                .positive()
-                                .max(16),
-                            otherwise: joi
-                                .number()
-                                .positive()
-                                .max(joi.ref("keysgroup.length")),
-                        })
-                        .required(),
-                    keysgroup: joi
-                        .array()
-                        .unique()
-                        .min(2)
-                        .items(
-                            joi
-                                .string()
-                                .not(`+${(base as any).senderPublicKey}`)
-                                .length(67)
-                                .regex(/^\+/)
-                                .required(),
-                        )
-                        .required(),
-                    lifetime: joi
-                        .number()
-                        .integer()
-                        .min(1)
-                        .max(72)
-                        .required(),
-                })
-                .required(),
-        })
-        .required(),
+export const multiSignature: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "multiSignature",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.MultiSignature)
+            .required(),
+        amount: joi
+            .alternatives()
+            .try(joi.bignumber().only(0), joi.number().only(0))
+            .optional(),
+        recipientId: joi.empty(),
+        signatures: joi
+            .array()
+            .length(joi.ref("asset.multisignature.keysgroup.length"))
+            .required(),
+        asset: joi
+            .object({
+                multisignature: joi
+                    .object({
+                        min: joi
+                            .when(joi.ref("keysgroup.length"), {
+                                is: joi.number().greater(16),
+                                then: joi
+                                    .number()
+                                    .positive()
+                                    .max(16),
+                                otherwise: joi
+                                    .number()
+                                    .positive()
+                                    .max(joi.ref("keysgroup.length")),
+                            })
+                            .required(),
+                        keysgroup: joi
+                            .array()
+                            .unique()
+                            .min(2)
+                            .items(
+                                joi
+                                    .string()
+                                    .not(`+${(base as any).senderPublicKey}`)
+                                    .length(67)
+                                    .regex(/^\+/)
+                                    .required(),
+                            )
+                            .required(),
+                        lifetime: joi
+                            .number()
+                            .integer()
+                            .min(1)
+                            .max(72)
+                            .required(),
+                    })
+                    .required(),
+            })
+            .required(),
+    },
 });
 
-export const ipfs = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.Ipfs)
-        .required(),
-    amount: joi
-        .alternatives()
-        .try(joi.bignumber().only(0), joi.number().valid(0))
-        .optional(),
-    asset: joi.object().required(),
-    recipientId: joi.empty(),
+export const ipfs: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "ipfs",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.Ipfs)
+            .required(),
+        amount: joi
+            .alternatives()
+            .try(joi.bignumber().only(0), joi.number().valid(0))
+            .optional(),
+        asset: joi.object().required(),
+        recipientId: joi.empty(),
+    },
 });
 
-export const timelockTransfer = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.TimelockTransfer)
-        .required(),
-    amount: joi
-        .alternatives()
-        .try(joi.bignumber().only(0), joi.number().only(0))
-        .optional(),
-    asset: joi.object().required(),
-    vendorFieldHex: joi
-        .string()
-        .max(64, "hex")
-        .optional(),
-    vendorField: joi
-        .string()
-        .max(64, "utf8")
-        .allow("", null)
-        .optional(),
-    recipientId: joi.empty(),
+export const timelockTransfer: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "timelockTransfer",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.TimelockTransfer)
+            .required(),
+        amount: joi
+            .alternatives()
+            .try(joi.bignumber().only(0), joi.number().only(0))
+            .optional(),
+        asset: joi.object().required(),
+        vendorFieldHex: joi
+            .string()
+            .max(64, "hex")
+            .optional(),
+        vendorField: joi
+            .string()
+            .max(64, "utf8")
+            .allow("", null)
+            .optional(),
+        recipientId: joi.empty(),
+    },
 });
 
-export const multiPayment = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.MultiPayment)
-        .required(),
-    asset: joi.object().required(),
-    recipientId: joi.empty(),
+export const multiPayment: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "multiPayment",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.MultiPayment)
+            .required(),
+        asset: joi.object().required(),
+        recipientId: joi.empty(),
+    },
 });
 
-export const delegateResignation = joi => ({
-    type: joi
-        .number()
-        .only(TransactionTypes.DelegateResignation)
-        .required(),
-    amount: joi
-        .alternatives()
-        .try(joi.bignumber().only(0), joi.number().valid(0))
-        .optional(),
-    asset: joi.object().required(),
-    recipientId: joi.empty(),
+export const delegateResignation: TransactionSchemaConstructor = (joi): ITransactionSchema => ({
+    name: "delegateResignation",
+    base: {
+        type: joi
+            .number()
+            .only(TransactionTypes.DelegateResignation)
+            .required(),
+        amount: joi
+            .alternatives()
+            .try(joi.bignumber().only(0), joi.number().valid(0))
+            .optional(),
+        asset: joi.object().required(),
+        recipientId: joi.empty(),
+    },
 });

@@ -1,10 +1,12 @@
-import { Joi } from "@arkecosystem/crypto";
+import { JoiWrapper } from "@arkecosystem/crypto";
 
 /**
  * @type {Object}
  */
 export const store = {
     payload: {
-        block: Joi.block().options({ stripUnknown: true }),
+        block: JoiWrapper.instance()
+            .block()
+            .options({ stripUnknown: true }),
     },
 };

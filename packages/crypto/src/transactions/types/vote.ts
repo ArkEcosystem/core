@@ -1,14 +1,14 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../../errors";
-import { Wallet } from "../../models";
+import { TransactionSchemaConstructor, Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class VoteTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Vote;
 
-    protected static getTypeSchema(): any {
+    protected static getTypeSchema(): TransactionSchemaConstructor {
         return schemas.vote;
     }
 

@@ -1,14 +1,14 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError, WalletNoUsernameDelegateResignationError } from "../../errors";
-import { Wallet } from "../../models";
+import { TransactionSchemaConstructor, Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class DelegateResignationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.DelegateResignation;
 
-    protected static getTypeSchema(): any {
+    protected static getTypeSchema(): TransactionSchemaConstructor {
         return schemas.delegateResignation;
     }
 
