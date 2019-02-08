@@ -1,6 +1,7 @@
 export * from "./builder";
 
 import * as constants from "./constants";
+import * as errors from "./errors";
 import * as models from "./models";
 
 export * from "./transactions";
@@ -11,4 +12,4 @@ export * from "./validation";
 export * from "./crypto";
 export * from "./client";
 
-export { models, constants };
+export { constants, errors, models };

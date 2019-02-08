@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Blockchain, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { configManager, constants, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
+import { configManager, constants, errors, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -98,9 +98,9 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 try {
                     const trx = Transaction.fromData(transaction);
                     if (trx.verified) {
-                        const errors = [];
-                        if (!this.pool.walletManager.canApply(trx, errors)) {
-                            this.__pushError(transaction, "ERR_APPLY", JSON.stringify(errors));
+                        // TODO: refactor canApply errors
+                        if (!this.pool.walletManager.canApply(trx, [])) {
+                            this.__pushError(transaction, "ERR_APPLY", JSON.stringify(""));
                             return;
                         }
 
@@ -129,7 +129,11 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                         );
                     }
                 } catch (error) {
-                    this.__pushError(transaction, "ERR_UNKNOWN", error.message);
+                    if (error instanceof errors.TransactionSchemaError) {
+                        this.__pushError(transaction, "ERR_TRANSACTION_SCHEMA", error.message);
+                    } else {
+                        this.__pushError(transaction, "ERR_UNKNOWN", error.message);
+                    }
                 }
             }
         });

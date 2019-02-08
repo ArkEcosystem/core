@@ -337,8 +337,14 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
 
-            blockchain.enqueueBlocks(blocks);
-            blockchain.dispatch("DOWNLOADED");
+            try {
+                blockchain.enqueueBlocks(blocks);
+                blockchain.dispatch("DOWNLOADED");
+            } catch (error) {
+                logger.warn(`Failed to enqueue downloaded block.`);
+                blockchain.dispatch("NOBLOCK");
+                return;
+            }
         } else {
             if (empty) {
                 logger.info("No new block found on this peer");
