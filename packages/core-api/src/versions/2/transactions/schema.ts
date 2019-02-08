@@ -2,77 +2,67 @@ import { app } from "@arkecosystem/core-container";
 import { JoiWrapper } from "@arkecosystem/crypto";
 import { pagination } from "../shared/schemas/pagination";
 
-const Joi = () => JoiWrapper.instance();
+const Joi = JoiWrapper.instance();
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi().string(),
-            id: Joi()
-                .string()
+            orderBy: Joi.string(),
+            id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi()
-                .string()
-                .regex(/^[0-9]+$/, "numbers"),
-            type: Joi()
-                .number()
+            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            type: Joi.number()
                 .integer()
                 .min(0),
-            version: Joi()
-                .number()
+            version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi()
-                .string()
+            senderPublicKey: Joi.string()
                 .hex()
                 .length(66),
-            senderId: Joi()
-                .string()
+            senderId: Joi.string()
                 .alphanum()
                 .length(34),
-            recipientId: Joi()
-                .string()
+            recipientId: Joi.string()
                 .alphanum()
                 .length(34),
-            ownerId: Joi()
-                .string()
+            ownerId: Joi.string()
                 .alphanum()
                 .length(34),
-            timestamp: Joi()
-                .number()
+            timestamp: Joi.number()
                 .integer()
                 .min(0),
-            amount: Joi()
-                .number()
+            amount: Joi.number()
                 .integer()
                 .min(0),
-            fee: Joi()
-                .number()
+            fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi()
-                .string()
-                .hex(),
+            vendorFieldHex: Joi.string().hex(),
         },
     },
 };
 
 export const store: object = {
     payload: {
-        transactions: Joi()
-            .transactionArray()
-            .min(1)
-            .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
-            .options({ stripUnknown: true }),
+        transactions: Joi.lazy(() =>
+            Joi.transactionArray()
+                .min(1)
+                .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest, { once: false }),
+        ),
+    },
+    failAction: (a, b, c) => {
+        const x = JoiWrapper.instance();
+        console.log(a);
+        return a;
     },
 };
 
 export const show: object = {
     params: {
-        id: Joi()
-            .string()
+        id: Joi.string()
             .hex()
             .length(64),
     },
@@ -84,88 +74,65 @@ export const unconfirmed: object = {
 
 export const showUnconfirmed: object = {
     params: {
-        id: Joi()
-            .string()
+        id: Joi.string()
             .hex()
             .length(64),
     },
 };
 
-const address: object = Joi()
-    .string()
+const address: object = Joi.string()
     .alphanum()
     .length(34);
 
 export const search: object = {
     query: pagination,
     payload: {
-        orderBy: Joi().string(),
-        id: Joi()
-            .string()
+        orderBy: Joi.string(),
+        id: Joi.string()
             .hex()
             .length(64),
-        blockId: Joi()
-            .string()
-            .regex(/^[0-9]+$/, "numbers"),
-        type: Joi()
-            .number()
+        blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+        type: Joi.number()
             .integer()
             .min(0),
-        version: Joi()
-            .number()
+        version: Joi.number()
             .integer()
             .positive(),
-        senderPublicKey: Joi()
-            .string()
+        senderPublicKey: Joi.string()
             .hex()
             .length(66),
         senderId: address,
         recipientId: address,
         ownerId: address,
-        addresses: Joi()
-            .array()
+        addresses: Joi.array()
             .unique()
             .min(1)
             .max(50)
             .items(address),
-        vendorFieldHex: Joi()
-            .string()
-            .hex(),
-        timestamp: Joi()
-            .object()
-            .keys({
-                from: Joi()
-                    .number()
-                    .integer()
-                    .min(0),
-                to: Joi()
-                    .number()
-                    .integer()
-                    .min(0),
-            }),
-        amount: Joi()
-            .object()
-            .keys({
-                from: Joi()
-                    .number()
-                    .integer()
-                    .min(0),
-                to: Joi()
-                    .number()
-                    .integer()
-                    .min(0),
-            }),
-        fee: Joi()
-            .object()
-            .keys({
-                from: Joi()
-                    .number()
-                    .integer()
-                    .min(0),
-                to: Joi()
-                    .number()
-                    .integer()
-                    .min(0),
-            }),
+        vendorFieldHex: Joi.string().hex(),
+        timestamp: Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
+        amount: Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
+        fee: Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
     },
 };
