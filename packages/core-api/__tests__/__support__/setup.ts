@@ -39,8 +39,6 @@ async function setUp() {
 
     await registerWithContainer(plugin, options);
     await delay(1000); // give some more time for api server to be up
-
-    app.resolveOptions("transactionPool").maxTransactionsPerRequest = 80;
 }
 
 async function tearDown() {

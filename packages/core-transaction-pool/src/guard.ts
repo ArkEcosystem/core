@@ -98,28 +98,26 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 try {
                     const trx = Transaction.fromData(transaction);
                     if (trx.verified) {
-                        // TODO: refactor canApply errors
-                        if (!this.pool.walletManager.canApply(trx, [])) {
-                            this.__pushError(transaction, "ERR_APPLY", JSON.stringify(""));
-                            return;
-                        }
+                        const applyErrors = [];
+                        if (this.pool.walletManager.canApply(trx, applyErrors)) {
+                            const dynamicFee = dynamicFeeMatcher(trx);
+                            if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
+                                this.__pushError(
+                                    transaction,
+                                    "ERR_LOW_FEE",
+                                    "The fee is too low to broadcast and accept the transaction",
+                                );
+                            } else {
+                                if (dynamicFee.enterPool) {
+                                    this.accept.set(trx.data.id, trx);
+                                }
 
-                        const dynamicFee = dynamicFeeMatcher(trx);
-
-                        if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
-                            this.__pushError(
-                                transaction,
-                                "ERR_LOW_FEE",
-                                "The fee is too low to broadcast and accept the transaction",
-                            );
+                                if (dynamicFee.broadcast) {
+                                    this.broadcast.set(trx.data.id, trx);
+                                }
+                            }
                         } else {
-                            if (dynamicFee.enterPool) {
-                                this.accept.set(trx.data.id, trx);
-                            }
-
-                            if (dynamicFee.broadcast) {
-                                this.broadcast.set(trx.data.id, trx);
-                            }
+                            this.__pushError(transaction, "ERR_APPLY", JSON.stringify(applyErrors));
                         }
                     } else {
                         this.__pushError(

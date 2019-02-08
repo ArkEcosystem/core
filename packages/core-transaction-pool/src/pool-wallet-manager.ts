@@ -87,12 +87,16 @@ export class PoolWalletManager extends WalletManager {
             this.logger.warn(
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );
-        } else if (!sender.canApply(transaction)) {
-            const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
-                sender.address
-            }`;
-            this.logger.error(`${message} due to ${JSON.stringify(errors)}`);
-            errors.unshift(message);
+        } else {
+            try {
+                sender.canApply(transaction);
+            } catch (error) {
+                const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
+                    sender.address
+                }`;
+                this.logger.error(`${message} due to ${JSON.stringify(error.message)}`);
+                errors.unshift(error.message);
+            }
         }
 
         return errors.length === 0;

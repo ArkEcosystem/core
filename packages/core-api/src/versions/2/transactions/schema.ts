@@ -53,11 +53,6 @@ export const store: object = {
                 .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest, { once: false }),
         ),
     },
-    failAction: (a, b, c) => {
-        const x = JoiWrapper.instance();
-        console.log(a);
-        return a;
-    },
 };
 
 export const show: object = {

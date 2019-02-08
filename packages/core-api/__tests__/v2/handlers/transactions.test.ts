@@ -549,7 +549,6 @@ describe("API 2.0 - Transactions", () => {
             });
 
             expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeObject();
 
             expect(response.data.data.accept).toHaveLength(1);
             expect(response.data.data.accept[0]).toBe(transactions[0].id);
