@@ -1,6 +1,6 @@
 import "jest-extended";
 import Joi from "joi";
-import { Bignum } from "../../dist";
+import { Bignum } from "../../src/utils";
 import { Validator } from "../../src/validation/validator";
 
 describe("Validator", () => {
