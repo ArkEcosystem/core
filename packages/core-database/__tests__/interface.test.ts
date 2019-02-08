@@ -3,12 +3,12 @@ import "jest-extended";
 import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block, Transaction, Wallet } = models;
+const { Block, Wallet } = models;
 
 const { ARKTOSHI, TransactionTypes } = constants;
 
 let connectionInterface;
-let genesisBlock;
+let genesisBlock: models.Block;
 
 import { DelegatesRepository } from "../src";
 import { WalletsRepository } from "../src";
@@ -35,7 +35,7 @@ describe("Connection Interface", () => {
             // Create delegates
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
-                    const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                    const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
                     const { data } = Transaction.fromBytes(transaction.serialized);
                     wallet.username = data.asset.delegate.username;
                     walletManager.reindex(wallet);
@@ -64,7 +64,7 @@ describe("Connection Interface", () => {
             for (let i = 0; i < 51; i++) {
                 const transfer = transactionBuilder
                     .transfer()
-                    .amount(i * ARKTOSHI)
+                    .amount((1 + i) * ARKTOSHI)
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();
@@ -78,12 +78,12 @@ describe("Connection Interface", () => {
                         timestamp: 0,
                         height: initialHeight + i,
                         numberOfTransactions: 1,
-                        totalAmount: transfer.amount,
+                        totalAmount: transfer.data.amount,
                         totalFee: new Bignum(0.1),
                         reward: new Bignum(2),
                         payloadLength: 0,
                         payloadHash: "a".repeat(64),
-                        transactions: [transfer],
+                        transactions: [transfer.data],
                     },
                     keys,
                 );

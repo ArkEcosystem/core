@@ -8,7 +8,7 @@ import { setUp, tearDown } from "../__support__/setup";
 const { ARKTOSHI } = constants;
 const { Block } = models;
 
-let genesisBlock;
+let genesisBlock: models.Block;
 let repository;
 let walletManager;
 
@@ -41,7 +41,7 @@ beforeEach(async done => {
 
 function generateWallets() {
     return genesisBlock.transactions.map((transaction, index) => {
-        const address = crypto.getAddress(transaction.senderPublicKey);
+        const address = crypto.getAddress(transaction.data.senderPublicKey);
 
         return {
             address,
