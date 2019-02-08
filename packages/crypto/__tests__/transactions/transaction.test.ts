@@ -96,8 +96,8 @@ describe("Models - Transaction", () => {
             [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
-                    const ser = Transaction.fromData(transaction.data).serialized.toString("hex");
-                    const newTransaction = Transaction.fromHex(ser);
+                    const ser = Transaction.toBytes(transaction.data);
+                    const newTransaction = Transaction.fromBytes(ser);
 
                     delete transaction.data.id;
                     delete transaction.data.recipientId;
@@ -110,7 +110,7 @@ describe("Models - Transaction", () => {
         });
 
         it("should create a transaction", () => {
-            const hex = Transaction.fromData(transactionData).serialized.toString("hex");
+            const hex = Transaction.toBytes(transactionData).toString("hex");
             const transaction = Transaction.fromHex(hex);
             expect(transaction).toBeInstanceOf(Transaction);
 

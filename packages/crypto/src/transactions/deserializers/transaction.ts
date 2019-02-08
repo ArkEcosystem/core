@@ -11,23 +11,22 @@ const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {
-    public deserialize(serializedHex: string): Transaction {
+    public deserialize(serialized: string | Buffer): Transaction {
         const data = {
             vendorFieldHex: null, // TODO: if they are missing from data postgres insert fails
             recipientId: null,
         } as ITransactionData;
 
-        const buf = ByteBuffer.fromHex(serializedHex, true);
-
-        this.deserializeCommon(data, buf);
+        const buffer = this.getByteBuffer(serialized);
+        this.deserializeCommon(data, buffer);
 
         const instance = TransactionRegistry.create(data);
-        this.deserializeVendorField(instance, buf);
+        this.deserializeVendorField(instance, buffer);
 
         // Deserialize type specific parts
-        instance.deserialize(buf);
+        instance.deserialize(buffer);
 
-        this.deserializeSignatures(data, buf);
+        this.deserializeSignatures(data, buffer);
 
         switch (data.version) {
             case 1:
@@ -37,7 +36,7 @@ class TransactionDeserializer {
                 throw new TransactionVersionError(data.version);
         }
 
-        instance.serialized = Buffer.from(buf.flip().toBuffer());
+        instance.serialized = Buffer.from(buffer.flip().toBuffer());
 
         return instance;
     }
@@ -138,6 +137,18 @@ class TransactionDeserializer {
         if (transactionIdFixTable[transaction.id]) {
             transaction.id = transactionIdFixTable[transaction.id];
         }
+    }
+
+    private getByteBuffer(serialized: Buffer | string): ByteBuffer {
+        let buffer;
+        if (serialized instanceof Buffer) {
+            buffer = new ByteBuffer(serialized.length, true);
+            buffer.append(serialized);
+        } else {
+            buffer = ByteBuffer.fromHex(serialized, true);
+        }
+
+        return buffer;
     }
 }
 

@@ -453,7 +453,7 @@ export class PostgresConnection extends ConnectionInterface {
         }
 
         const transactions: Array<{ serialized: Buffer }> = await this.db.transactions.findByBlock(block.id);
-        block.transactions = transactions.map(({ serialized }) => Transaction.fromHex(serialized.toString("hex")).data);
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized).data);
 
         return new models.Block(block);
     }
@@ -470,7 +470,7 @@ export class PostgresConnection extends ConnectionInterface {
         }
 
         const transactions: Array<{ serialized: Buffer }> = await this.db.transactions.latestByBlock(block.id);
-        block.transactions = transactions.map(({ serialized }) => Transaction.fromHex(serialized.toString("hex")).data);
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized).data);
 
         return new models.Block(block);
     }
@@ -566,7 +566,7 @@ export class PostgresConnection extends ConnectionInterface {
 
         let transactions = await this.db.transactions.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const { data } = Transaction.fromHex(tx.serialized.toString("hex"));
+            const { data } = Transaction.fromBytes(tx.serialized);
             data.blockId = tx.blockId;
             return data;
         });

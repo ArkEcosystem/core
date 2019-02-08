@@ -36,7 +36,7 @@ describe("Connection Interface", () => {
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-                    const { data } = Transaction.fromHex(transaction.serialized.toString("hex"));
+                    const { data } = Transaction.fromBytes(transaction.serialized);
                     wallet.username = data.asset.delegate.username;
                     walletManager.reindex(wallet);
                 }

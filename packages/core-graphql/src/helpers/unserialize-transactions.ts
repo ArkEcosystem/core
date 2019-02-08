@@ -5,8 +5,7 @@ import { Transaction } from "@arkecosystem/crypto";
  */
 export async function unserializeTransactions(data) {
     const deserialize = buffer => {
-        const serialized = Buffer.from(buffer).toString("hex");
-        return Transaction.fromHex(serialized);
+        return Transaction.fromBytes(buffer);
     };
 
     if (Array.isArray(data)) {

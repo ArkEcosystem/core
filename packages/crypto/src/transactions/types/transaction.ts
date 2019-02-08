@@ -30,7 +30,15 @@ export abstract class Transaction {
     public static type: TransactionTypes = null;
 
     public static fromHex(hex: string): Transaction {
-        const transaction = TransactionDeserializer.deserialize(hex);
+        return this.fromSerialized(hex);
+    }
+
+    public static fromBytes(buffer: Buffer): Transaction {
+        return this.fromSerialized(buffer);
+    }
+
+    private static fromSerialized(serialized: string | Buffer): Transaction {
+        const transaction = TransactionDeserializer.deserialize(serialized);
         transaction.isVerified = transaction.verify();
         return transaction;
     }
@@ -47,6 +55,10 @@ export abstract class Transaction {
         transaction.isVerified = transaction.verify();
 
         return transaction;
+    }
+
+    public static toBytes(data: ITransactionData): Buffer {
+        return this.fromData(data).serialized;
     }
 
     public get id(): string {

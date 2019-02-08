@@ -24,7 +24,7 @@ export const transactionEncode = transaction =>
 
 export const transactionDecode = bufferData => {
     const [id, blockId, sequence, serialized] = msgpack.decode(bufferData);
-    let transaction: any = Transaction.fromHex(serialized.toString("hex")).data;
+    let transaction: any = Transaction.fromBytes(serialized).data;
 
     transaction.id = id;
     transaction.block_id = blockId;

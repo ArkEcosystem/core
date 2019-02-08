@@ -137,7 +137,7 @@ export class SPV {
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            const { data } = Transaction.fromHex(transaction.serialized.toString("hex"));
+            const { data } = Transaction.fromBytes(transaction.serialized);
             wallet.secondPublicKey = data.asset.signature.publicKey;
         }
     }
@@ -153,7 +153,7 @@ export class SPV {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
             if (!wallet.voted) {
-                const { data } = Transaction.fromHex(transaction.serialized.toString("hex"));
+                const { data } = Transaction.fromBytes(transaction.serialized);
                 const vote = data.asset.votes[0];
 
                 if (vote.startsWith("+")) {
@@ -180,7 +180,7 @@ export class SPV {
 
         transactions.forEach(transaction => {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            const { data } = Transaction.fromHex(transaction.serialized.toString("hex"));
+            const { data } = Transaction.fromBytes(transaction.serialized);
             wallet.username = data.asset.delegate.username;
             this.walletManager.reindex(wallet);
         });
@@ -216,7 +216,7 @@ export class SPV {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
             if (!wallet.multisignature) {
-                const { data } = Transaction.fromHex(transaction.serialized.toString("hex"));
+                const { data } = Transaction.fromBytes(transaction.serialized);
                 wallet.multisignature = data.asset.multisignature;
             }
         }

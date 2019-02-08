@@ -7,7 +7,7 @@ export function transformTransaction(model) {
     const config = app.getConfig();
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    const data: models.ITransactionData = Transaction.fromHex(model.serialized.toString("hex")).data;
+    const { data } = Transaction.fromBytes(model.serialized);
     const lastBlock = blockchain.getLastBlock();
 
     return {

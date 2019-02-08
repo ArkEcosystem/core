@@ -13,7 +13,7 @@ export const verifyData = (context, data, prevData, signatureVerification) => {
             return true;
         }
 
-        const transaction = Transaction.fromHex(Buffer.from(data.serialized).toString("hex"));
+        const transaction = Transaction.fromBytes(data.serialized);
         return transaction.verified;
     };
 
