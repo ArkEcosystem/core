@@ -4,8 +4,8 @@ import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import {
     InsufficientBalanceError,
+    InvalidSecondSignatureError,
     NotImplementedError,
-    SecondSignatureVerificationFailedError,
     SenderWalletMismatchError,
     TransactionSchemaError,
     UnexpectedMultiSignatureError,
@@ -103,7 +103,7 @@ export abstract class Transaction {
 
         if (wallet.secondPublicKey) {
             if (!crypto.verifySecondSignature(data, wallet.secondPublicKey)) {
-                throw new SecondSignatureVerificationFailedError();
+                throw new InvalidSecondSignatureError();
             }
         } else {
             if (data.secondSignature || data.signSignature) {

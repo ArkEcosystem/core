@@ -1,6 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
-import { EmptyUsernameDelegateRegistrationError, WalletUsernameDelegateRegistrationError } from "../../errors";
+import { WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../../errors";
 import { TransactionSchemaConstructor, Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -37,11 +37,11 @@ export class DelegateRegistrationTransaction extends Transaction {
     public canBeApplied(wallet: Wallet): boolean {
         const username = this.data.asset.delegate.username;
         if (!username) {
-            throw new EmptyUsernameDelegateRegistrationError();
+            throw new WalletUsernameEmptyError();
         }
 
         if (wallet.username) {
-            throw new WalletUsernameDelegateRegistrationError();
+            throw new WalletUsernameNotEmptyError();
         }
 
         return super.canBeApplied(wallet);

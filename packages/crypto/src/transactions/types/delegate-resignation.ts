@@ -1,6 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
-import { NotImplementedError, WalletNoUsernameDelegateResignationError } from "../../errors";
+import { NotImplementedError, WalletNoUsernameError } from "../../errors";
 import { TransactionSchemaConstructor, Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -22,7 +22,7 @@ export class DelegateResignationTransaction extends Transaction {
 
     public canBeApplied(wallet: Wallet): boolean {
         if (!wallet.username) {
-            throw new WalletNoUsernameDelegateResignationError();
+            throw new WalletNoUsernameError();
         }
 
         return super.canBeApplied(wallet);

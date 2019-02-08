@@ -1,7 +1,13 @@
 import ByteBuffer from "bytebuffer";
 import { IMultiSignatureAsset } from "..";
 import { TransactionTypes } from "../../constants";
-import { NotImplementedError } from "../../errors";
+import {
+    InvalidMultiSignatureError,
+    MultiSignatureAlreadyRegisteredError,
+    MultiSignatureKeyCountMismatchError,
+    MultiSignatureMinimumKeysError,
+    NotImplementedError,
+} from "../../errors";
 import { TransactionSchemaConstructor, Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -43,13 +49,31 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
 
     // TODO: AIP18
     public canBeApplied(wallet: Wallet): boolean {
-        throw new NotImplementedError();
+        if (wallet.multisignature) {
+            throw new MultiSignatureAlreadyRegisteredError();
+        }
+
+        const { data } = this;
+        const { keysgroup, min } = data.asset.multisignature;
+        if (keysgroup.length < min) {
+            throw new MultiSignatureMinimumKeysError();
+        }
+
+        if (keysgroup.length !== data.signatures.length) {
+            throw new MultiSignatureKeyCountMismatchError();
+        }
+
+        if (!wallet.verifySignatures(data, data.asset.multisignature)) {
+            throw new InvalidMultiSignatureError();
+        }
+
+        return super.canBeApplied(wallet);
     }
 
     protected apply(wallet: Wallet): void {
-        throw new NotImplementedError();
+        wallet.multisignature = this.data.asset.multisignature;
     }
     protected revert(wallet: Wallet): void {
-        throw new NotImplementedError();
+        wallet.multisignature = null;
     }
 }

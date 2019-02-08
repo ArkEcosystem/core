@@ -138,25 +138,25 @@ export class UnexpectedMultiSignatureError extends CryptoError {
     }
 }
 
-export class SecondSignatureVerificationFailedError extends CryptoError {
+export class InvalidSecondSignatureError extends CryptoError {
     constructor() {
         super(`Failed to apply transaction, because the second signature could not be verified.`);
     }
 }
 
-export class EmptyUsernameDelegateRegistrationError extends CryptoError {
+export class WalletUsernameEmptyError extends CryptoError {
     constructor() {
         super(`Failed to apply transaction, because the username is empty.`);
     }
 }
 
-export class WalletUsernameDelegateRegistrationError extends CryptoError {
+export class WalletUsernameNotEmptyError extends CryptoError {
     constructor() {
         super(`Failed to apply transaction, because the wallet already has a registered username.`);
     }
 }
 
-export class WalletNoUsernameDelegateResignationError extends CryptoError {
+export class WalletNoUsernameError extends CryptoError {
     constructor() {
         super(`Failed to apply transaction, because the wallet has no registered username.`);
     }
@@ -164,7 +164,7 @@ export class WalletNoUsernameDelegateResignationError extends CryptoError {
 
 export class SecondSignatureAlreadyRegisteredError extends CryptoError {
     constructor() {
-        super(`Failed to apply transaction, because the wallet has no registered username.`);
+        super(`Failed to apply transaction, because second signature is already enabled.`);
     }
 }
 
@@ -183,5 +183,31 @@ export class NoVoteError extends CryptoError {
 export class UnvoteMismatchError extends CryptoError {
     constructor() {
         super(`Failed to apply transaction, because the wallet vote does not match.`);
+    }
+}
+
+export class MultiSignatureAlreadyRegisteredError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because multi signature is already enabled.`);
+    }
+}
+
+export class MultiSignatureMinimumKeysError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because too few keys were provided.`);
+    }
+}
+
+export class MultiSignatureKeyCountMismatchError extends CryptoError {
+    constructor() {
+        super(
+            `Failed to apply transaction, because the number of provided keys does not match the number of signatures.`,
+        );
+    }
+}
+
+export class InvalidMultiSignatureError extends CryptoError {
+    constructor() {
+        super(`Failed to apply transaction, because the multi signature could not be verified.`);
     }
 }
