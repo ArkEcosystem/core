@@ -44,10 +44,6 @@ export abstract class Transaction {
         const transaction = TransactionRegistry.create(value);
         TransactionSerializer.serialize(transaction);
 
-        // TODO:
-        // 1. validate schema + sanitize
-        // 2. serialize ?
-
         transaction.isVerified = transaction.verify();
 
         return transaction;
