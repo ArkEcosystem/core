@@ -1,6 +1,4 @@
-import { models } from "@arkecosystem/crypto";
-
-export const sampleTransaction = new models.Transaction({
+export const sampleTransaction = {
     type: 0,
     amount: 245098000000000,
     fee: 0,
@@ -12,4 +10,4 @@ export const sampleTransaction = new models.Transaction({
         // tslint:disable-next-line:max-line-length
         "304402205fcb0677e06bde7aac3dc776665615f4b93ef8c3ed0fddecef9900e74fcb00f302206958a0c9868ea1b1f3d151bdfa92da1ce24de0b1fcd91933e64fb7971e92f48d",
     id: "db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd",
-});
+};
