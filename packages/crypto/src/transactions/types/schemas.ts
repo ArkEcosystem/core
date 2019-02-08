@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../constants";
 import { configManager } from "../../managers";
 import { ITransactionSchema, TransactionSchemaConstructor } from "../interfaces";
 
-// TODO: cleanup and double check schemata
+// TODO: cleanup and double check schemata in 2.5
 
 export const base = joi =>
     joi.object().keys({
@@ -283,6 +283,11 @@ export const timelockTransfer: TransactionSchemaConstructor = (joi): ITransactio
             .allow("", null)
             .optional(),
         recipientId: joi.empty(),
+        timelockType: joi
+            .number()
+            .min(0)
+            .max(255),
+        timelock: joi.number().min(0),
     },
 });
 

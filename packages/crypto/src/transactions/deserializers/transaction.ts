@@ -2,6 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { Transaction, TransactionRegistry } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
+import { TransactionVersionError } from "../../errors";
 import { configManager } from "../../managers";
 import { Bignum } from "../../utils/bignum";
 import { ITransactionData } from "../interfaces";
@@ -27,9 +28,16 @@ class TransactionDeserializer {
         instance.deserialize(buf);
 
         this.deserializeSignatures(data, buf);
-        this.applyV1Compatibility(data);
 
-        instance.serialized = Buffer.from(serializedHex, "hex");
+        switch (data.version) {
+            case 1:
+                this.applyV1Compatibility(data);
+                break;
+            default:
+                throw new TransactionVersionError(data.version);
+        }
+
+        instance.serialized = Buffer.from(buf.flip().toBuffer());
 
         return instance;
     }
@@ -102,10 +110,6 @@ class TransactionDeserializer {
     }
 
     private applyV1Compatibility(transaction: ITransactionData): void {
-        if (transaction.version && transaction.version !== 1) {
-            return;
-        }
-
         if (transaction.secondSignature) {
             transaction.signSignature = transaction.secondSignature;
         }

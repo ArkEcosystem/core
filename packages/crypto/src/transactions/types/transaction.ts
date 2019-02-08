@@ -16,7 +16,13 @@ import { Wallet } from "../../models/wallet";
 import { Bignum, isException, isGenesisTransaction } from "../../utils";
 import { JoiWrapper } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
-import { ITransactionData, ITransactionSchema, TransactionSchemaConstructor } from "../interfaces";
+import {
+    ISchemaContext,
+    ISchemaValidationResult,
+    ITransactionData,
+    ITransactionSchema,
+    TransactionSchemaConstructor,
+} from "../interfaces";
 import { TransactionSerializer } from "../serializers";
 import * as schemas from "./schemas";
 
@@ -30,23 +36,17 @@ export abstract class Transaction {
     }
 
     public static fromData(data: ITransactionData): Transaction {
-        const { value, error } = this.validateSchema(data, {
-            fromData: true,
-            isGenesis: isGenesisTransaction(data.id),
-        });
+        const { value, error } = this.validateSchema(data);
         if (error !== null) {
             throw new TransactionSchemaError(error.message);
         }
 
         const transaction = TransactionRegistry.create(value);
+        TransactionSerializer.serialize(transaction);
 
         // TODO:
         // 1. validate schema + sanitize
         // 2. serialize ?
-        // 3. deserialize is not necessary anymore if 1) plus crypto.verify are in place
-
-        TransactionSerializer.serialize(transaction);
-        TransactionDeserializer.deserialize(transaction.serialized.toString("hex"));
 
         transaction.isVerified = transaction.verify();
 
@@ -198,9 +198,11 @@ export abstract class Transaction {
     /**
      * Schema
      */
-    private static validateSchema(data: ITransactionData, context: {}): any {
+    private static validateSchema(data: ITransactionData, schemaContext?: ISchemaContext): ISchemaValidationResult {
+        const context = this.getSchemaContext(data.id, schemaContext);
+
         const { base } = TransactionRegistry.get(data.type).getSchema();
-        const { value, error } = JoiWrapper.instance().validate(data, base, { context, allowUnknown: true }); // TODO: make it strict
+        const { value, error } = JoiWrapper.instance().validate(data, base, { context, stripUnknown: true });
         return { value, error };
     }
 
@@ -208,6 +210,10 @@ export abstract class Transaction {
         const joi = JoiWrapper.instance();
         const { name, base } = this.getTypeSchema()(joi);
         return { name, base: schemas.base(joi).append(base) };
+    }
+
+    private static getSchemaContext(transactionId: string, context: ISchemaContext): ISchemaContext {
+        return { fromData: true, isGenesis: isGenesisTransaction(transactionId), ...context };
     }
 
     protected static getTypeSchema(): TransactionSchemaConstructor {

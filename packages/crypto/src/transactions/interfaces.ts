@@ -62,3 +62,13 @@ export interface ITransactionSchema {
     base: any;
 }
 export type TransactionSchemaConstructor = (joi) => ITransactionSchema;
+
+export interface ISchemaContext {
+    fromData?: boolean;
+    isGenesis?: boolean;
+}
+
+export interface ISchemaValidationResult {
+    value: ITransactionData;
+    error: any;
+}
