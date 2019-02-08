@@ -7,7 +7,6 @@ import { Transaction } from "../../src/transactions";
 import { transaction as transactionData } from "../fixtures/transaction";
 
 import { TransactionTypeError } from "../../src/errors";
-import { Transaction } from "../../src/models";
 import { devnet } from "../../src/networks";
 
 const createRandomTx = type => {
@@ -41,7 +40,7 @@ const createRandomTx = type => {
             // delegate registration
             transaction = builder
                 .delegateRegistration()
-                .usernameAsset("dummy-delegate")
+                .usernameAsset("dummydelegate")
                 .sign(Math.random().toString(36))
                 .build();
             break;
@@ -92,20 +91,26 @@ const createRandomTx = type => {
 describe("Models - Transaction", () => {
     beforeEach(() => configManager.setConfig(devnet));
 
-    describe("static fromBytes", () => {
+    describe("fromData", () => {
         it("should verify all transactions", () => {
             [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
-                    const ser = Transaction.serialize(transaction.data).toString("hex");
+                    const ser = Transaction.fromData(transaction.data).serialized.toString("hex");
                     const newTransaction = Transaction.fromHex(ser);
-                    expect(newTransaction.data).toEqual(transaction.data);
+
+                    delete transaction.data.id;
+                    delete transaction.data.recipientId;
+                    transaction.data.amount = +transaction.data.amount;
+                    transaction.data.fee = +transaction.data.fee;
+
+                    expect(newTransaction.toJson()).toMatchObject(transaction.data);
                     expect(newTransaction.verified).toBeTrue();
                 });
         });
 
         it("should create a transaction", () => {
-            const hex = Transaction.serialize(transactionData).toString("hex");
+            const hex = Transaction.fromData(transactionData).serialized.toString("hex");
             const transaction = Transaction.fromHex(hex);
             expect(transaction).toBeInstanceOf(Transaction);
 
@@ -131,7 +136,6 @@ describe("Models - Transaction", () => {
         const txs = [
             {
                 id: "80d75c7b90288246199e4a97ba726bad6639595ef92ad7c2bd14fd31563241ab",
-                network: 0x17,
                 height: 918991,
                 type: 1,
                 timestamp: 7410965,
@@ -225,8 +229,6 @@ describe("Models - Transaction", () => {
     });
 
     it("Signatures are verified", () => {
-        [0, 1, 2, 3]
-            .map(type => createRandomTx(type))
-            .forEach(transaction => expect(crypto.verify(transaction)).toBeTrue());
+        [0, 1, 2, 3].map(type => createRandomTx(type)).forEach(({ data }) => expect(crypto.verify(data)).toBeTrue());
     });
 });

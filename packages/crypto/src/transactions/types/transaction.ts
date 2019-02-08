@@ -184,6 +184,10 @@ export abstract class Transaction {
         data.amount = +(data.amount as Bignum).toFixed();
         data.fee = +(data.fee as Bignum).toFixed();
 
+        if (data.vendorFieldHex === null) {
+            delete data.vendorFieldHex;
+        }
+
         return data;
     }
 
