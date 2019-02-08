@@ -28,7 +28,7 @@ class JoiWrapper {
             base: this.joi.array().items(this.joi.alternatives().try(this.transactionSchemas)),
         };
 
-        this.joi = this.joi.extend(transactionArray);
+        this.joi = this.joi.extend(transactionArray).extend(schemas.block);
     }
 }
 
