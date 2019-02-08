@@ -72,6 +72,12 @@ export class TransactionTypeError extends CryptoError {
     }
 }
 
+export class MalformedTransactionBytesError extends CryptoError {
+    constructor() {
+        super(`Failed to deserialize transaction, because the bytes are malformed.`);
+    }
+}
+
 export class TransactionSchemaError extends CryptoError {
     constructor(what: string) {
         super(what);
@@ -81,12 +87,6 @@ export class TransactionSchemaError extends CryptoError {
 export class TransactionVersionError extends CryptoError {
     constructor(given: number) {
         super(`Version ${given} not supported.`);
-    }
-}
-
-export class TransactionTypeNotImplementedError extends CryptoError {
-    constructor() {
-        super(`Transaction type must be implemented in subclass.`);
     }
 }
 

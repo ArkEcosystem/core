@@ -5,9 +5,11 @@ import { crypto } from "../../crypto";
 import {
     InsufficientBalanceError,
     InvalidSecondSignatureError,
+    MalformedTransactionBytesError,
     NotImplementedError,
     SenderWalletMismatchError,
     TransactionSchemaError,
+    TransactionVersionError,
     UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
 } from "../../errors";
@@ -38,9 +40,17 @@ export abstract class Transaction {
     }
 
     private static fromSerialized(serialized: string | Buffer): Transaction {
-        const transaction = TransactionDeserializer.deserialize(serialized);
-        transaction.isVerified = transaction.verify();
-        return transaction;
+        try {
+            const transaction = TransactionDeserializer.deserialize(serialized);
+            transaction.isVerified = transaction.verify();
+            return transaction;
+        } catch (error) {
+            if (error instanceof TransactionVersionError) {
+                throw error;
+            }
+
+            throw new MalformedTransactionBytesError();
+        }
     }
 
     public static fromData(data: ITransactionData): Transaction {

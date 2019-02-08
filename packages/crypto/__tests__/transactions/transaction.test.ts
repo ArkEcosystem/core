@@ -3,10 +3,16 @@ import "jest-extended";
 import { transactionBuilder as builder } from "../../src/builder";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
-import { Transaction } from "../../src/transactions";
+import { ITransactionData, Transaction } from "../../src/transactions";
 import { transaction as transactionData } from "../fixtures/transaction";
 
-import { TransactionTypeError } from "../../src/errors";
+import {
+    MalformedTransactionBytesError,
+    TransactionSchemaError,
+    TransactionTypeError,
+    TransactionVersionError,
+    UnkownTransactionError,
+} from "../../src/errors";
 import { devnet } from "../../src/networks";
 
 const createRandomTx = type => {
@@ -91,7 +97,7 @@ const createRandomTx = type => {
 describe("Models - Transaction", () => {
     beforeEach(() => configManager.setConfig(devnet));
 
-    describe("fromData", () => {
+    describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
             [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
@@ -118,9 +124,22 @@ describe("Models - Transaction", () => {
             // ... call toJson() which casts the Bignums to numbers beforehand.
             expect(transaction.toJson()).toEqual(transactionData);
         });
+
+        it("should throw when getting garbage", () => {
+            expect(() => Transaction.fromBytes(null)).toThrow(MalformedTransactionBytesError);
+            expect(() => Transaction.fromBytes(Buffer.from("garbage"))).toThrow(MalformedTransactionBytesError);
+            expect(() => Transaction.fromHex(null)).toThrow(MalformedTransactionBytesError);
+            expect(() => Transaction.fromHex("affe")).toThrow(MalformedTransactionBytesError);
+        });
+
+        it("should throw when getting an unsupported version", () => {
+            let hex = Transaction.toBytes(transactionData).toString("hex");
+            hex = hex.slice(0, 2) + "99" + hex.slice(4);
+            expect(() => Transaction.fromHex(hex)).toThrow(TransactionVersionError);
+        });
     });
 
-    describe("static deserialize", () => {
+    describe("fromData", () => {
         it("should match transaction id", () => {
             [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
@@ -129,6 +148,11 @@ describe("Models - Transaction", () => {
                     const newTransaction = Transaction.fromData(transaction.data);
                     expect(newTransaction.data.id).toEqual(originalId);
                 });
+        });
+
+        it("should throw when getting garbage", () => {
+            expect(() => Transaction.fromData({} as ITransactionData)).toThrow(UnkownTransactionError);
+            expect(() => Transaction.fromData({ type: 0 } as ITransactionData)).toThrow(TransactionSchemaError);
         });
     });
 

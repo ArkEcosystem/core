@@ -140,10 +140,11 @@ class TransactionDeserializer {
     }
 
     private getByteBuffer(serialized: Buffer | string): ByteBuffer {
-        let buffer;
+        let buffer: ByteBuffer;
         if (serialized instanceof Buffer) {
             buffer = new ByteBuffer(serialized.length, true);
             buffer.append(serialized);
+            buffer.reset();
         } else {
             buffer = ByteBuffer.fromHex(serialized, true);
         }
