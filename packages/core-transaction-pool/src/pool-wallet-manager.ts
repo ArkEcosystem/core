@@ -96,6 +96,7 @@ export class PoolWalletManager extends WalletManager {
                 }`;
                 this.logger.error(`${message} due to ${JSON.stringify(error.message)}`);
                 errors.unshift(error.message);
+                errors.unshift(message);
             }
         }
 

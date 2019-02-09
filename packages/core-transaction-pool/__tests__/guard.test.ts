@@ -84,7 +84,7 @@ describe("Transaction Guard", () => {
                 for (const t of transfers) {
                     const transferTx = generateTransfers("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
 
-                    await guard.validate([transferTx]);
+                    await guard.validate([transferTx.data]);
                 }
 
                 // apply again transfer from 0 to 1
@@ -96,7 +96,7 @@ describe("Transaction Guard", () => {
                     1,
                 )[0];
 
-                await guard.validate([transfer]);
+                await guard.validate([transfer.data]);
 
                 const expectedError = {
                     message: '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
@@ -126,7 +126,7 @@ describe("Transaction Guard", () => {
             const fee = 10;
             const transfers = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee);
 
-            await guard.validate(transfers);
+            await guard.validate(transfers.map(tx => tx.data));
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance);
             expect(+newWallet.balance).toBe(0);
@@ -146,8 +146,7 @@ describe("Transaction Guard", () => {
             const amount1 = +delegateWallet.balance / 2;
             const fee = 0.1 * 10 ** 8;
             const transfers = generateTransfers("unitnet", delegate1.secret, newAddress, amount1, 1, false, fee);
-
-            await guard.validate(transfers);
+            await guard.validate(transfers.map(tx => tx.data));
             expect(guard.errors).toEqual({});
 
             // simulate forged transaction
@@ -184,11 +183,11 @@ describe("Transaction Guard", () => {
             const allTransactions = [...transfers, ...votes, ...delegateRegs, ...signatures];
 
             allTransactions.forEach(transaction => {
-                container.resolvePlugin("database").walletManager.findByPublicKey(transaction.senderPublicKey);
+                container.resolvePlugin("database").walletManager.findByPublicKey(transaction.data.senderPublicKey);
             });
 
             // first validate the 1st transfer so that new wallet is updated with the amount
-            await guard.validate(transfers);
+            await guard.validate(transfers.map(tx => tx.data));
 
             // simulate forged transaction
             newWallet.applyTransactionToRecipient(transfers[0]);
@@ -199,7 +198,7 @@ describe("Transaction Guard", () => {
             // reset guard, if not the 1st transaction will still be in this.accept and mess up
             guard = new TransactionGuard(transactionPool);
 
-            await guard.validate([votes[0], delegateRegs[0], signatures[0]]);
+            await guard.validate([votes[0].data, delegateRegs[0].data, signatures[0].data]);
 
             expect(guard.errors).toEqual({});
             expect(+delegateWallet.balance).toBe(+delegate2.balance - amount1 - fee);
@@ -225,7 +224,7 @@ describe("Transaction Guard", () => {
             const amount1 = 1000 * 10 ** 8;
             const fee = 0.1 * 10 ** 8;
             const transfers1 = generateTransfers("unitnet", delegate3.secret, newAddress, amount1, 1);
-            await guard.validate(transfers1);
+            await guard.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
             newWallet.applyTransactionToRecipient(transfers1[0]);
@@ -236,7 +235,7 @@ describe("Transaction Guard", () => {
             // transfer almost everything from new wallet so that we don't have enough for any other transaction
             const amount2 = 999 * 10 ** 8;
             const transfers2 = generateTransfers("unitnet", newWalletPassphrase, delegate3.address, amount2, 1);
-            await guard.validate(transfers2);
+            await guard.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
             delegateWallet.applyTransactionToRecipient(transfers2[0]);
@@ -262,13 +261,13 @@ describe("Transaction Guard", () => {
             ];
 
             for (const transaction of allTransactions) {
-                await guard.validate(transaction);
+                await guard.validate(transaction.map(tx => tx.data));
 
                 const errorExpected = [
                     {
                         message: `["[PoolWalletManager] Can't apply transaction id:${transaction[0].id} from sender:${
                             newWallet.address
-                        }","Insufficient balance in the wallet"]`,
+                        }","Insufficient balance in the wallet."]`,
                         type: "ERR_APPLY",
                     },
                 ];
@@ -296,7 +295,7 @@ describe("Transaction Guard", () => {
                 {
                     message: `["[PoolWalletManager] Can't apply transaction id:${transactions[1].id} from sender:${
                         delegates[0].address
-                    }","Insufficient balance in the wallet"]`,
+                    }","Insufficient balance in the wallet."]`,
                     type: "ERR_APPLY",
                 },
             ]);
@@ -373,7 +372,7 @@ describe("Transaction Guard", () => {
                     {
                         message: `["[PoolWalletManager] Can't apply transaction id:${
                             lastTransaction[0].id
-                        } from sender:${sender.address}","Insufficient balance in the wallet"]`,
+                        } from sender:${sender.address}","Insufficient balance in the wallet."]`,
                         type: "ERR_APPLY",
                     },
                 ]);
@@ -386,7 +385,7 @@ describe("Transaction Guard", () => {
 
             const transactions = generateTransfers("unitnet", sender.secret, receivers[0].address, 50, 1, true);
             const transactionId = transactions[0].id;
-            transactions[0].id = "11111";
+            transactions[0].id = "a".repeat(64);
 
             const result = await guard.validate(transactions);
             expect(result.accept).toEqual([transactionId]);
@@ -395,12 +394,6 @@ describe("Transaction Guard", () => {
         });
 
         describe("Sign a transaction then change some fields shouldn't pass validation", () => {
-            const secondSignatureError = (id, address) => [
-                id,
-                "ERR_APPLY",
-                `["[PoolWalletManager] Can't apply transaction id:${id} from sender:${address}","Failed to verify second-signature"]`,
-            ];
-
             it("should not validate when changing fields after signing - transfer", async () => {
                 const sender = delegates[21];
                 const notSender = delegates[22];
@@ -444,18 +437,11 @@ describe("Transaction Guard", () => {
                 const result = await guard.validate(modifiedTransactions);
 
                 const expectedErrors = [
-                    ...transfers.map(transfer => [
+                    ...[...transfers, ...transfers2ndSigned].map(transfer => [
                         transfer.id,
                         "ERR_BAD_DATA",
                         "Transaction didn't pass the verification process.",
                     ]),
-                    ...transfers2ndSigned
-                        .slice(0, -1)
-                        .map(transfer => secondSignatureError(transfer.id, wallets2ndSig[0].address)),
-                    secondSignatureError(
-                        transfers2ndSigned[transfers2ndSigned.length - 1].id,
-                        wallets2ndSig[1].address,
-                    ),
                 ];
 
                 expect(
@@ -506,18 +492,11 @@ describe("Transaction Guard", () => {
                 const result = await guard.validate(modifiedTransactions);
 
                 const expectedErrors = [
-                    ...delegateRegs.map(tx => [
-                        tx.id,
+                    ...[...delegateRegs, ...delegateRegs2ndSigned].map(transfer => [
+                        transfer.id,
                         "ERR_BAD_DATA",
                         "Transaction didn't pass the verification process.",
                     ]),
-                    ...delegateRegs2ndSigned
-                        .slice(0, -1)
-                        .map((tx, index) => secondSignatureError(tx.id, wallets2ndSig[index].address)),
-                    secondSignatureError(
-                        delegateRegs2ndSigned[delegateRegs2ndSigned.length - 1].id,
-                        wallets2ndSig[50].address,
-                    ),
                 ];
 
                 expect(
@@ -567,10 +546,11 @@ describe("Transaction Guard", () => {
 
                 const expectedErrors = [
                     ...votes.map(tx => [tx.id, "ERR_BAD_DATA", "Transaction didn't pass the verification process."]),
-                    ...votes2ndSigned
-                        .slice(0, -1)
-                        .map((tx, index) => secondSignatureError(tx.id, wallets2ndSig[index].address)),
-                    secondSignatureError(votes2ndSigned[votes2ndSigned.length - 1].id, wallets2ndSig[50].address),
+                    ...votes2ndSigned.map(tx => [
+                        tx.id,
+                        "ERR_BAD_DATA",
+                        "Transaction didn't pass the verification process.",
+                    ]),
                 ];
 
                 expect(
@@ -663,7 +643,7 @@ describe("Transaction Guard", () => {
                 await addBlock(transfers);
 
                 const realTransferId = transfers[0].id;
-                transfers[0].id = "123456";
+                transfers[0].id = "c".repeat(64);
 
                 const result = await guard.validate(transfers);
 
@@ -675,13 +655,13 @@ describe("Transaction Guard", () => {
     describe("__cacheTransactions", () => {
         it("should add transactions to cache", () => {
             const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
-            expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
+            expect(guard.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(transactions.map(tx => tx.data));
         });
 
         it("should not add a transaction already in cache and add it as an error", () => {
             const transactions = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
-            expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
-            expect(guard.__cacheTransactions([transactions[0]])).toEqual([]);
+            expect(guard.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(transactions.map(tx => tx.data));
+            expect(guard.__cacheTransactions([transactions[0].data])).toEqual([]);
             expect(guard.errors).toEqual({
                 [transactions[0].id]: [
                     {
@@ -697,7 +677,7 @@ describe("Transaction Guard", () => {
         it("should return broadcast transaction", async () => {
             const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
 
-            await guard.validate(transactions);
+            await guard.validate(transactions.map(tx => tx.data));
             expect(guard.getBroadcastTransactions()).toEqual(transactions);
         });
     });
@@ -855,7 +835,7 @@ describe("Transaction Guard", () => {
                 throw new Error("hey");
             });
 
-            guard.__filterAndTransformTransactions(transactions);
+            guard.__filterAndTransformTransactions(transactions.map(tx => tx.data));
 
             expect(guard.accept).toEqual(new Map());
             expect(guard.broadcast).toEqual(new Map());
@@ -878,13 +858,13 @@ describe("Transaction Guard", () => {
                 1,
             );
 
-            expect(guard.__validateTransaction(transactions[0])).toBeFalse();
+            expect(guard.__validateTransaction(transactions[0].data)).toBeFalse();
             expect(guard.errors).toEqual({
                 [transactions[0].id]: [
                     {
                         type: "ERR_INVALID_RECIPIENT",
                         message: `Recipient ${
-                            transactions[0].recipientId
+                            transactions[0].data.recipientId
                         } is not on the same network: ${configManager.get("pubKeyHash")}`,
                     },
                 ],
@@ -901,13 +881,13 @@ describe("Transaction Guard", () => {
             const signatures = generateSecondSignature("unitnet", wallets[12].passphrase, 2);
 
             for (const transactions of [votes, delegateRegs, signatures]) {
-                await guard.validate([transactions[0]]);
-                expect(guard.__validateTransaction(transactions[1])).toBeFalse();
+                await guard.validate([transactions[0].data]);
+                expect(guard.__validateTransaction(transactions[1].data)).toBeFalse();
                 expect(guard.errors[transactions[1].id]).toEqual([
                     {
                         type: "ERR_PENDING",
                         message:
-                            `Sender ${transactions[1].senderPublicKey} already has a transaction of type ` +
+                            `Sender ${transactions[1].data.senderPublicKey} already has a transaction of type ` +
                             `'${constants.TransactionTypes[transactions[1].type]}' in the pool`,
                     },
                 ]);
@@ -930,8 +910,8 @@ describe("Transaction Guard", () => {
                 constants.TransactionTypes.DelegateResignation,
                 99,
             ]) {
-                baseTransaction.type = transactionType;
-                baseTransaction.id = transactionType;
+                baseTransaction.data.type = transactionType;
+                baseTransaction.data.id = transactionType;
 
                 expect(guard.__validateTransaction(baseTransaction)).toBeFalse();
                 expect(guard.errors[baseTransaction.id]).toEqual([

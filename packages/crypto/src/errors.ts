@@ -116,7 +116,7 @@ export class MissingTransactionSignatureError extends CryptoError {
 
 export class InsufficientBalanceError extends CryptoError {
     constructor() {
-        super(`Failed to apply transaction, because of insufficient balance.`);
+        super(`Insufficient balance in the wallet.`);
     }
 }
 
