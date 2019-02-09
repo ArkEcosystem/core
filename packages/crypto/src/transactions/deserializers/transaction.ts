@@ -108,7 +108,8 @@ class TransactionDeserializer {
         }
     }
 
-    private applyV1Compatibility(transaction: ITransactionData): void {
+    // tslint:disable-next-line:member-ordering
+    public applyV1Compatibility(transaction: ITransactionData): void {
         if (transaction.secondSignature) {
             transaction.signSignature = transaction.secondSignature;
         }
@@ -116,7 +117,9 @@ class TransactionDeserializer {
         if (transaction.type === TransactionTypes.Vote) {
             transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
         } else if (transaction.type === TransactionTypes.MultiSignature) {
-            transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => `+${k}`);
+            transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k =>
+                k.startsWith("+") ? k : `+${k}`,
+            );
         }
 
         if (transaction.vendorFieldHex) {

@@ -31,7 +31,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                         senderPublicKey: "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
                         timestamp,
                         type: 0,
-                        version: 0x02,
+                        version: 0x01,
                     };
                 });
 
@@ -50,7 +50,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                         "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
                     );
                     expect(transaction.data.timestamp).toBe(timestamp);
-                    expect(transaction.data.version).toBe(0x02);
+                    expect(transaction.data.version).toBe(0x01);
                 });
 
                 it("could merge and override the builder data", () => {
@@ -70,7 +70,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                         "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
                     );
                     expect(transaction.data.timestamp).toBe(timestamp);
-                    expect(transaction.data.version).toBe(0x02);
+                    expect(transaction.data.version).toBe(0x01);
                 });
             });
 

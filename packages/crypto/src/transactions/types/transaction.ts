@@ -60,6 +60,7 @@ export abstract class Transaction {
         }
 
         const transaction = TransactionRegistry.create(value);
+        TransactionDeserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
         TransactionSerializer.serialize(transaction);
 
         transaction.isVerified = transaction.verify();
