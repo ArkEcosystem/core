@@ -13,7 +13,7 @@ describe("Signature transaction", () => {
 
     it("should return an array of 4 signature objects", () => {
         for (const transaction of transactions) {
-            expect(transaction).toMatchObject({
+            expect(transaction.data).toMatchObject({
                 type: TransactionTypes.SecondSignature,
             });
         }

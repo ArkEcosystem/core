@@ -13,7 +13,7 @@ describe("Delegate transaction", () => {
 
     it("should return an array of 4 delegate objects", () => {
         for (const transaction of transactions) {
-            expect(transaction).toMatchObject({
+            expect(transaction.data).toMatchObject({
                 type: TransactionTypes.DelegateRegistration,
             });
         }

@@ -132,8 +132,7 @@ describe("Commands - Transfer", () => {
 
         expect(expectedTransactions).toHaveLength(1);
         for (const t of expectedTransactions) {
-            expect(t.secondSignature).toBeDefined();
-            expect(t.signSignature).toEqual(t.secondSignature);
+            expect(t.signSignature).toBeDefined();
         }
     });
 });
