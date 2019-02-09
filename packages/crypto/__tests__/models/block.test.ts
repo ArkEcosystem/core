@@ -92,7 +92,7 @@ describe("Models - Block", () => {
                 reward: new Bignum(0),
             };
             const transactions = generateTransfers(
-                "testnet",
+                "devnet",
                 "super cool passphrase",
                 "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",
                 10,
@@ -120,7 +120,7 @@ describe("Models - Block", () => {
                 reward: new Bignum(0),
             };
             const transactions = generateTransfers(
-                "testnet",
+                "devnet",
                 "super cool passphrase",
                 "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",
                 10,
