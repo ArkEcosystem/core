@@ -376,10 +376,8 @@ export abstract class ConnectionInterface {
 
     /**
      * Verify a transaction.
-     * @param  {Transaction} transaction
-     * @return {Boolean}
      */
-    public async verifyTransaction(transaction) {
+    public async verifyTransaction(transaction: Transaction): Promise<boolean> {
         const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
@@ -391,7 +389,11 @@ export abstract class ConnectionInterface {
 
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
-        return sender.canApply(transaction.data) && !dbTransaction;
+        try {
+            return sender.canApply(transaction) && !dbTransaction;
+        } catch {
+            return false;
+        }
     }
 
     /**
