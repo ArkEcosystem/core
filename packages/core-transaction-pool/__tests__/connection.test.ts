@@ -13,13 +13,13 @@ import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { ARKTOSHI, TransactionTypes } = constants;
-const { Block, Transaction } = models;
+const { Block } = models;
 const { generateTransfers } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 
 let config;
 let database: PostgresConnection;
-let connection: TransactionPool;
+let connection;
 
 beforeAll(async () => {
     await setUpFull();
@@ -72,7 +72,7 @@ describe("Connection", () => {
         });
 
         it("should return 2 if transactions were added", () => {
-            const senderPublicKey = mockData.dummy1.senderPublicKey;
+            const senderPublicKey = mockData.dummy1.data.senderPublicKey;
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(0);
 
@@ -113,7 +113,7 @@ describe("Connection", () => {
                 type: "ERR_POOL_FULL",
                 message:
                     `Pool is full (has 4 transactions) and this transaction's fee ` +
-                    `${mockData.dummy5.fee.toFixed()} is not higher than the lowest fee already in pool 10000000`,
+                    `${mockData.dummy5.data.fee.toFixed()} is not higher than the lowest fee already in pool 10000000`,
                 success: false,
             });
 
@@ -160,10 +160,11 @@ describe("Connection", () => {
 
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
-            const highFeeTransaction = Transaction.fromData(mockData.dummy3).data;
-            highFeeTransaction.fee = bignumify(1e9 * ARKTOSHI);
+            const highFeeTransaction = Transaction.fromData(mockData.dummy3.data);
+            highFeeTransaction.data.fee = bignumify(1e9 * ARKTOSHI);
             // changing public key as fixture transactions have the same one
-            highFeeTransaction.senderPublicKey = "000000000000000000000000000000000000000420000000000000000000000000";
+            highFeeTransaction.data.senderPublicKey =
+                "000000000000000000000000000000000000000420000000000000000000000000";
 
             const transactions = [
                 mockData.dummy1,
@@ -178,7 +179,7 @@ describe("Connection", () => {
             expect(notAdded[0].message).toEqual(
                 `["[PoolWalletManager] Can't apply transaction id:${
                     mockData.dummy3.id
-                } from sender:AHkZLLjUdjjjJzNe1zCXqHh27bUhzg8GZw","Insufficient balance in the wallet"]`,
+                } from sender:AHkZLLjUdjjjJzNe1zCXqHh27bUhzg8GZw","Insufficient balance in the wallet."]`,
             );
             expect(connection.getPoolSize()).toBe(5);
         });
@@ -191,22 +192,22 @@ describe("Connection", () => {
             const expireAfterSeconds = 3;
             const expiration = slots.getTime() + expireAfterSeconds;
 
-            const transactions = [];
+            const transactions: Transaction[] = [];
 
-            transactions.push(Transaction.fromData(mockData.dummyExp1));
-            transactions[transactions.length - 1].expiration = expiration;
+            transactions.push(Transaction.fromData(mockData.dummyExp1.data));
+            transactions[transactions.length - 1].data.expiration = expiration;
 
-            transactions.push(Transaction.fromData(mockData.dummy1));
+            transactions.push(Transaction.fromData(mockData.dummy1.data));
 
             // Workaround: Increase balance of sender wallet to succeed
-            const insufficientBalanceTx: any = Transaction.fromData(mockData.dummyExp2);
+            const insufficientBalanceTx: any = Transaction.fromData(mockData.dummyExp2.data);
             transactions.push(insufficientBalanceTx);
-            insufficientBalanceTx.expiration = expiration;
+            insufficientBalanceTx.data.expiration = expiration;
 
             transactions.push(mockData.dummy2);
 
             // Ensure no cold wallets
-            transactions.forEach(tx => database.walletManager.findByPublicKey(tx.senderPublicKey));
+            transactions.forEach(tx => database.walletManager.findByPublicKey(tx.data.senderPublicKey));
 
             const { added, notAdded } = connection.addTransactions(transactions);
             expect(added).toHaveLength(4);
@@ -263,7 +264,7 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(6);
 
-            connection.removeTransactionsForSender(mockData.dummy1.senderPublicKey);
+            connection.removeTransactionsForSender(mockData.dummy1.data.senderPublicKey);
 
             expect(connection.getPoolSize()).toBe(1);
         });
@@ -296,7 +297,7 @@ describe("Connection", () => {
             connection.addTransaction(mockData.dummy9);
 
             expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
             expect(exceeded).toBeTrue();
         });
 
@@ -396,7 +397,7 @@ describe("Connection", () => {
 
             const transactionsForForging = connection.getTransactionsForForging(4);
 
-            expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized));
+            expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized.toString("hex")));
         });
     });
 
@@ -514,7 +515,7 @@ describe("Connection", () => {
 
             const allWallets = connection.walletManager.all();
             expect(allWallets).toHaveLength(1);
-            expect(allWallets[0].publicKey).toBe(transaction0.senderPublicKey);
+            expect(allWallets[0].publicKey).toBe(transaction0.data.senderPublicKey);
         });
 
         it("should handle getTransaction() not finding transaction", async () => {
@@ -574,19 +575,19 @@ describe("Connection", () => {
             const tx = mockData.dummy1;
 
             // Prevent 'wallet has already voted' error
-            connection.walletManager.findByPublicKey(tx.senderPublicKey).vote = "";
+            connection.walletManager.findByPublicKey(tx.data.senderPublicKey).vote = "";
 
-            const voteTx = Transaction.fromData(tx);
-            voteTx.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-            voteTx.type = TransactionTypes.Vote;
-            voteTx.amount = bignumify(0);
-            voteTx.asset = { votes: [`+${tx.senderPublicKey}`] };
+            const voteTx = Transaction.fromData(tx.data);
+            voteTx.data.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+            voteTx.data.type = TransactionTypes.Vote;
+            voteTx.data.amount = bignumify(0);
+            voteTx.data.asset = { votes: [`+${tx.data.senderPublicKey}`] };
 
             const transactions = [tx, voteTx, mockData.dummy2];
 
             connection.addTransactions(transactions);
 
-            expect(connection.senderHasTransactionsOfType(tx.senderPublicKey, TransactionTypes.Vote)).toBeTrue();
+            expect(connection.senderHasTransactionsOfType(tx.data.senderPublicKey, TransactionTypes.Vote)).toBeTrue();
         });
     });
 
@@ -606,9 +607,7 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(2);
 
-            transactions.forEach(t =>
-                expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(t.serialized.toLowerCase()),
-            );
+            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
 
             connection.flush();
         });
@@ -647,9 +646,7 @@ describe("Connection", () => {
 
             transactions.splice(1, 1);
 
-            transactions.forEach(t =>
-                expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(t.serialized.toLowerCase()),
-            );
+            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
 
             connection.flush();
 
@@ -658,7 +655,7 @@ describe("Connection", () => {
     });
 
     describe("stress", () => {
-        const fakeTransactionId = i => `id${String(i)}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`;
+        const fakeTransactionId = i => `${String(i)}${"a".repeat(64 - String(i).length)}`;
 
         it("multiple additions and retrievals", () => {
             // Abstract number which decides how many iterations are run by the test.
@@ -666,8 +663,8 @@ describe("Connection", () => {
             const testSize = connection.options.syncInterval * 2;
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transaction.fromData(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
+                const transaction = Transaction.fromData(mockData.dummy1.data);
+                transaction.data.id = fakeTransactionId(i);
                 connection.addTransaction(transaction);
 
                 if (i % 27 === 0) {
@@ -677,7 +674,7 @@ describe("Connection", () => {
 
             for (let i = 0; i < testSize * 2; i++) {
                 connection.getPoolSize();
-                for (const sender of ["nonexistent", mockData.dummy1.senderPublicKey]) {
+                for (const sender of ["nonexistent", mockData.dummy1.data.senderPublicKey]) {
                     connection.getSenderSize(sender);
                     connection.hasExceededMaxTransactions(sender);
                 }
@@ -686,8 +683,8 @@ describe("Connection", () => {
             }
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transaction.fromData(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
+                const transaction = Transaction.fromData(mockData.dummy1.data);
+                transaction.data.id = fakeTransactionId(i);
                 connection.removeTransaction(transaction);
             }
         });
@@ -695,13 +692,13 @@ describe("Connection", () => {
         it("delete + add after sync", () => {
             for (let i = 0; i < connection.options.syncInterval; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const transaction = Transaction.fromData(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
+                const transaction = Transaction.fromData(mockData.dummy1.data);
+                transaction.data.id = fakeTransactionId(i);
                 connection.addTransaction(transaction);
             }
 
-            const transaction = Transaction.fromData(mockData.dummy1);
-            transaction.id = fakeTransactionId(0);
+            const transaction = Transaction.fromData(mockData.dummy1.data);
+            transaction.data.id = fakeTransactionId(0);
             connection.removeTransaction(transaction);
             connection.addTransaction(transaction);
         });
@@ -713,12 +710,12 @@ describe("Connection", () => {
             // a deterministic test.
             const rand = randomSeed.create("0");
 
-            const allTransactions = [];
+            const allTransactions: Transaction[] = [];
             for (let i = 0; i < nAdd; i++) {
-                const transaction = Transaction.fromData(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
-                transaction.fee = bignumify(rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI));
-                transaction.serialized = Transaction.serialize(transaction).toString("hex");
+                const transaction = Transaction.fromData(mockData.dummy1.data);
+                transaction.data.id = fakeTransactionId(i);
+                transaction.data.fee = bignumify(rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI));
+                transaction.serialized = Transaction.toBytes(transaction.data);
                 allTransactions.push(transaction);
             }
 
@@ -729,7 +726,7 @@ describe("Connection", () => {
             const nGet = 150;
 
             const topFeesExpected = allTransactions
-                .map(t => t.fee)
+                .map(t => t.data.fee as any)
                 .sort((a, b) => b - a)
                 .slice(0, nGet)
                 .map(f => f.toString());
@@ -738,7 +735,7 @@ describe("Connection", () => {
             const topTransactionsSerialized = connection.getTransactions(0, nGet);
             // console.timeEnd(`time to get first ${nGet}`)
 
-            const topFeesReceived = topTransactionsSerialized.map(e => Transaction.fromData(e).fee.toString());
+            const topFeesReceived = topTransactionsSerialized.map(e => Transaction.fromBytes(e).data.fee.toString());
 
             expect(topFeesReceived).toEqual(topFeesExpected);
         });
@@ -746,9 +743,21 @@ describe("Connection", () => {
 
     describe("purgeSendersWithInvalidTransactions", () => {
         it("should purge transactions from sender when invalid", async () => {
-            const transfersA = generateTransfers("unitnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
+            const transfersA = generateTransfers(
+                "unitnet",
+                delegatesSecrets[0],
+                mockData.dummy1.data.recipientId,
+                1,
+                5,
+            );
 
-            const transfersB = generateTransfers("unitnet", delegatesSecrets[1], mockData.dummy1.recipientId, 1, 1);
+            const transfersB = generateTransfers(
+                "unitnet",
+                delegatesSecrets[1],
+                mockData.dummy1.data.recipientId,
+                1,
+                1,
+            );
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
@@ -759,13 +768,13 @@ describe("Connection", () => {
             expect(connection.getPoolSize()).toBe(6);
 
             // Last tx has a unique sender
-            block.transactions[5].verified = false;
+            block.transactions[5].isVerified = false;
 
             connection.purgeSendersWithInvalidTransactions(block);
             expect(connection.getPoolSize()).toBe(5);
 
             // The remaining tx all have the same sender
-            block.transactions[0].verified = false;
+            block.transactions[0].isVerified = false;
 
             connection.purgeSendersWithInvalidTransactions(block);
             expect(connection.getPoolSize()).toBe(0);
@@ -774,7 +783,13 @@ describe("Connection", () => {
 
     describe("purgeBlock", () => {
         it("should purge transactions from block", async () => {
-            const transactions = generateTransfers("unitnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
+            const transactions = generateTransfers(
+                "unitnet",
+                delegatesSecrets[0],
+                mockData.dummy1.data.recipientId,
+                1,
+                5,
+            );
             const block = { transactions };
 
             block.transactions.forEach(tx => connection.addTransaction(tx));

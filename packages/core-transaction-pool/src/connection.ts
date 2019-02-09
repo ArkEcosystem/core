@@ -170,13 +170,13 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         // Apply transaction to pool wallet manager.
         const senderWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
+        // TODO: rework error handling
         const errors = [];
         if (this.walletManager.canApply(transaction, errors)) {
             senderWallet.applyTransactionToSender(transaction);
         } else {
             // Remove tx again from the pool
             this.mem.remove(transaction.id);
-
             return this.__createError(transaction, "ERR_APPLY", JSON.stringify(errors));
         }
 
@@ -367,19 +367,22 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             if (exists) {
                 this.removeTransaction(transaction);
             } else if (senderWallet) {
-                const errors = ["TODO"];
-                if (senderWallet.canApply(transaction)) {
-                    senderWallet.applyTransactionToSender(transaction);
-                } else {
+                // TODO: rework error handling
+                try {
+                    senderWallet.canApply(transaction);
+                } catch (error) {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
 
                     logger.error(
                         `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
                             data.id
-                        } due to ${JSON.stringify(errors)}. Possible double spending attack :bomb:`,
+                        } due to ${error.message}. Possible double spending attack :bomb:`,
                     );
+                    return;
                 }
+
+                senderWallet.applyTransactionToSender(transaction);
             }
 
             if (
@@ -420,11 +423,13 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             }
 
             const senderWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
-            const errors = ["TODO"];
-            if (senderWallet && senderWallet.canApply(transaction)) {
+
+            // TODO: rework error handling
+            try {
+                senderWallet.canApply(transaction);
                 senderWallet.applyTransactionToSender(transaction);
-            } else {
-                logger.error(`BuildWallets from pool: ${JSON.stringify(errors)}`);
+            } catch (error) {
+                logger.error(`BuildWallets from pool: ${error.message}`);
                 this.purgeByPublicKey(transaction.data.senderPublicKey);
             }
         });
