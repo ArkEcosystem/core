@@ -60,7 +60,7 @@ export class AccountsController extends Controller {
     public async delegates(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             // @ts-ignore
-            const account = await this.database.wallets.findById(request.query.address);
+            const account = await this.databaseService.wallets.findById(request.query.address);
 
             if (!account) {
                 return super.respondWith("Address not found.", true);
@@ -74,7 +74,7 @@ export class AccountsController extends Controller {
                 );
             }
 
-            const delegate = await this.database.delegates.findById(account.vote);
+            const delegate = await this.databaseService.delegates.findById(account.vote);
 
             return super.respondWith({
                 delegates: [super.toResource(request, delegate, "delegate")],
@@ -86,9 +86,9 @@ export class AccountsController extends Controller {
 
     public async top(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            let accounts = this.database.wallets.top(super.paginate(request));
+            const wallets = this.databaseService.wallets.top(super.paginate(request));
 
-            accounts = accounts.rows.map(account => ({
+            const accounts = wallets.rows.map(account => ({
                 address: account.address,
                 balance: `${account.balance}`,
                 publicKey: account.publicKey,
@@ -102,7 +102,7 @@ export class AccountsController extends Controller {
 
     public async count(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const { count } = await this.database.wallets.findAll();
+            const { count } = await this.databaseService.wallets.findAll();
 
             return super.respondWith({ count });
         } catch (error) {

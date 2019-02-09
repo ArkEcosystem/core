@@ -1,10 +1,11 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { Block } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
 const { blocks: sql } = queries;
 
-export class BlocksRepository extends Repository {
+export class BlocksRepository extends Repository implements Database.IBlocksRepository {
     /**
      * Find a block by its ID.
      * @param  {Number} id
@@ -19,7 +20,8 @@ export class BlocksRepository extends Repository {
      * @return {Promise}
      */
     public async count() {
-        return this.db.one(sql.count);
+        const { count } = await this.db.one(sql.count);
+        return count ;
     }
 
     /**

@@ -61,8 +61,7 @@ packages/**/dist/
 *.sqlite
 
 # Random
-peers_backup.json
-docker
+docker/development
 
 #Webstorm/Intellij
 .idea

@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import { ServerCache } from "../../../services";
 import { paginate, respondWith, toCollection, toResource } from "../utils";
 
-const database = app.resolvePlugin<PostgresConnection>("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
-    const { count, rows } = await database.delegates.paginate({
+    const { count, rows } = await databaseService.delegates.findAll({
         ...request.query,
         ...{
             offset: request.query.offset || 0,
@@ -25,7 +25,7 @@ const show = async request => {
         return respondWith("Delegate not found", true);
     }
 
-    const delegate = await database.delegates.findById(request.query.publicKey || request.query.username);
+    const delegate = await databaseService.delegates.findById(request.query.publicKey || request.query.username);
 
     if (!delegate) {
         return respondWith("Delegate not found", true);
@@ -37,13 +37,13 @@ const show = async request => {
 };
 
 const countDelegates = async request => {
-    const delegate = await database.delegates.findAll();
+    const delegate = await databaseService.delegates.findAll();
 
     return respondWith({ count: delegate.count });
 };
 
 const search = async request => {
-    const { rows } = await database.delegates.search({
+    const { rows } = await databaseService.delegates.search({
         ...{ username: request.query.q },
         ...paginate(request),
     });
@@ -54,7 +54,7 @@ const search = async request => {
 };
 
 const voters = async request => {
-    const delegate = await database.delegates.findById(request.query.publicKey);
+    const delegate = await databaseService.delegates.findById(request.query.publicKey);
 
     if (!delegate) {
         return respondWith({
@@ -62,7 +62,7 @@ const voters = async request => {
         });
     }
 
-    const accounts = await database.wallets.findAllByVote(delegate.publicKey);
+    const accounts = await databaseService.wallets.findAllByVote(delegate.publicKey);
 
     return respondWith({
         accounts: toCollection(request, accounts.rows, "voter"),

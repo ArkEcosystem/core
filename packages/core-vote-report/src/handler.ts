@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";
@@ -8,13 +7,13 @@ import sumBy from "lodash/sumBy";
 export function handler(request, h) {
     const config = app.getConfig();
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    const database = app.resolvePlugin<PostgresConnection>("database");
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     const formatDelegates = (delegates, lastHeight) =>
         delegates.map((delegate, index) => {
-            const filteredVoters = database.walletManager
+            const filteredVoters = databaseService.walletManager
                 .allByPublicKey()
-                .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance > 0.1 * 1e8);
+                .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance.toNumber() > 0.1 * 1e8);
 
             const approval = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(
                 undefined,
@@ -49,18 +48,18 @@ export function handler(request, h) {
 
     const supply = supplyCalculator.calculate(lastBlock.data.height);
 
-    const allByUsername = database.walletManager
+    const allByUsername = databaseService.walletManager
         .allByUsername()
         .map((delegate, index) => {
-            delegate.rate = delegate.rate || index + 1;
+            (delegate as any).rate = (delegate as any).rate || index + 1;
             return delegate;
         })
-        .sort((a, b) => a.rate - b.rate);
+        .sort((a, b) => (a as any).rate - (b as any).rate);
 
     const active = allByUsername.slice(0, constants.activeDelegates);
     const standby = allByUsername.slice(constants.activeDelegates + 1, delegateRows);
 
-    const voters = database.walletManager.allByPublicKey().filter(wallet => wallet.vote && wallet.balance > 0.1 * 1e8);
+    const voters = databaseService.walletManager.allByPublicKey().filter(wallet => wallet.vote && wallet.balance.toNumber() > 0.1 * 1e8);
 
     const totalVotes = sumBy(voters, (wallet: any) => +wallet.balance.toFixed());
     const percentage = (totalVotes * 100) / supply;

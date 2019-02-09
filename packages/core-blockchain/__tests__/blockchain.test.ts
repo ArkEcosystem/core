@@ -1,73 +1,65 @@
 /* tslint:disable:max-line-length */
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import "@arkecosystem/core-test-utils";
 import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
 import { crypto, models, slots } from "@arkecosystem/crypto";
 import { asValue } from "awilix";
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import delay from "delay";
-import { Blockchain } from "../dist/blockchain";
-import { defaults } from "../dist/defaults";
+import { Blockchain } from "../src/blockchain";
+import { defaults } from "../src/defaults";
 import { setUp, tearDown } from "./__support__/setup";
 
-const axiosMock = new MockAdapter(axios);
 const { Block, Wallet } = models;
 
 let genesisBlock;
 let configManager;
 let container;
 let blockchain: Blockchain;
-let logger;
 let loggerDebugBackup;
-let peerMock;
-
-beforeAll(async () => {
-    container = await setUp();
-
-    // Backup logger.debug function as we are going to mock it in the test suite
-    logger = container.resolvePlugin("logger");
-    loggerDebugBackup = logger.debug;
-
-    // Mock peer responses so that we can have blocks
-    __mockPeer();
-
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
-
-    configManager = container.getConfig();
-
-    // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
-    // and otherwise don't pass validation.
-    configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
-
-    // Manually register the blockchain and start it
-    await __start();
-});
-
-afterAll(async () => {
-    axiosMock.reset();
-
-    configManager.set("exceptions.transactions", []);
-
-    await __resetToHeight1();
-
-    // Manually stop the blockchain
-    await blockchain.stop();
-
-    await tearDown();
-});
-
-afterEach(async () => {
-    // Restore original logger.debug function
-    logger.debug = loggerDebugBackup;
-
-    await __resetBlocksInCurrentRound();
-});
 
 describe("Blockchain", () => {
+    let logger;
+    beforeAll(async () => {
+        container = await setUp();
+
+        // Backup logger.debug function as we are going to mock it in the test suite
+        logger = container.resolvePlugin("logger");
+        loggerDebugBackup = logger.debug;
+
+        // Create the genesis block after the setup has finished or else it uses a potentially
+        // wrong network config.
+        genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
+
+        configManager = container.getConfig();
+
+        // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
+        // and otherwise don't pass validation.
+        configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
+
+        // Manually register the blockchain and start it
+        await __start(false);
+    });
+
+    afterAll(async () => {
+        configManager.set("exceptions.transactions", []);
+
+        await __resetToHeight1();
+
+        // Manually stop the blockchain
+        await blockchain.stop();
+
+        await tearDown();
+    });
+
+    afterEach(async () => {
+        // Restore original logger.debug function
+        logger.debug = loggerDebugBackup;
+
+        await __resetToHeight1();
+        await __addBlocks(5);
+        await __resetBlocksInCurrentRound();
+    });
+
     describe("dispatch", () => {
         it("should be ok", () => {
             const nextState = blockchain.dispatch("START");
@@ -89,6 +81,16 @@ describe("Blockchain", () => {
     describe("checkNetwork", () => {
         it("should throw an exception", () => {
             expect(() => blockchain.checkNetwork()).toThrow("Method [checkNetwork] not implemented!");
+        });
+    });
+
+    describe("updateNetworkStatus", () => {
+        it("should call p2p updateNetworkStatus", async () => {
+            const p2pUpdateNetworkStatus = jest.spyOn(blockchain.p2p, "updateNetworkStatus");
+
+            await blockchain.updateNetworkStatus();
+
+            expect(p2pUpdateNetworkStatus).toHaveBeenCalled();
         });
     });
 
@@ -114,20 +116,37 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("handleIncomingBlock", () => {
-        it("should be ok", async () => {
-            const block = new Block(blocks101to155[54]);
+    describe("enQueueBlocks", () => {
+        it("should just return if blocks provided are an empty array", async () => {
+            const processQueuePush = jest.spyOn(blockchain.processQueue, "push");
 
-            await blockchain.handleIncomingBlock(blocks101to155[54]);
+            blockchain.enqueueBlocks([]);
+            expect(processQueuePush).not.toHaveBeenCalled();
+        });
 
-            expect(blockchain.state.lastDownloadedBlock).toEqual(block);
+        it("should enqueue the blocks provided", async () => {
+            const processQueuePush = jest.spyOn(blockchain.processQueue, "push");
+
+            const blocksToEnqueue = [blocks101to155[54]];
+            blockchain.enqueueBlocks(blocksToEnqueue);
+            expect(processQueuePush).toHaveBeenCalledWith(blocksToEnqueue);
         });
     });
 
     describe("rollbackCurrentRound", () => {
         it("should rollback", async () => {
+            await __addBlocks(155);
             await blockchain.rollbackCurrentRound();
             expect(blockchain.getLastBlock().data.height).toBe(153);
+        });
+
+        it("shouldnt rollback more if previous round is round 2", async () => {
+            await __addBlocks(140);
+            await blockchain.rollbackCurrentRound();
+            expect(blockchain.getLastBlock().data.height).toBe(102);
+
+            await blockchain.rollbackCurrentRound();
+            expect(blockchain.getLastBlock().data.height).toBe(102);
         });
     });
 
@@ -138,6 +157,25 @@ describe("Blockchain", () => {
             await blockchain.removeBlocks(2);
             expect(blockchain.getLastBlock().data.height).toBe(lastBlockHeight - 2);
         });
+
+        it("should remove (current height - 1) blocks if we provide a greater value", async () => {
+            await __resetToHeight1();
+
+            await blockchain.removeBlocks(9999);
+            expect(blockchain.getLastBlock().data.height).toBe(1);
+        });
+    });
+
+    describe("removeTopBlocks", () => {
+        it("should remove top blocks", async () => {
+            const dbLastBlockBefore = await blockchain.database.getLastBlock();
+            const lastBlockHeight = dbLastBlockBefore.data.height;
+
+            await blockchain.removeTopBlocks(2);
+            const dbLastBlockAfter = await blockchain.database.getLastBlock();
+
+            expect(dbLastBlockAfter.data.height).toBe(lastBlockHeight - 2);
+        });
     });
 
     describe("rebuildBlock", () => {
@@ -146,7 +184,7 @@ describe("Blockchain", () => {
             const lastBlock = blockchain.getLastBlock();
 
             await blockchain.rebuildBlock(lastBlock, mockCallback);
-            await delay(2000); // wait a bit to give enough time for the callback to be called
+            await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
         });
@@ -160,24 +198,99 @@ describe("Blockchain", () => {
             expect(blockchain.getLastBlock()).not.toEqual(lastBlock);
 
             await blockchain.rebuildBlock(lastBlock, mockCallback);
-            await delay(2000); // wait a bit to give enough time for the callback to be called
+            await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(blockchain.getLastBlock()).toEqual(lastBlock);
+        });
+
+        it("should disregard block with height == last height but different id", async () => {
+            const mockCallback = jest.fn(() => true);
+            const lastBlock = blockchain.getLastBlock();
+            const lastBlockCopy = new Block(lastBlock.data);
+            lastBlockCopy.data.id = "123456";
+
+            const loggerInfo = jest.spyOn(logger, "info");
+
+            await blockchain.rebuildBlock(lastBlockCopy, mockCallback);
+            await delay(200);
+
+            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(loggerInfo).toHaveBeenCalledWith(
+                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`,
+            );
+            expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
+        });
+
+        it("should disregard block with height > last height + 1", async () => {
+            const mockCallback = jest.fn(() => true);
+            const lastBlock = blockchain.getLastBlock();
+            const lastBlockCopy = new Block(lastBlock.data);
+            lastBlockCopy.data.height += 2;
+
+            await blockchain.rebuildBlock(lastBlockCopy, mockCallback);
+            await delay(200);
+
+            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
+            expect(blockchain.state.lastDownloadedBlock).toBe(lastBlock);
+        });
+
+        it("should disregard block not verified", async () => {
+            const mockCallback = jest.fn(() => true);
+            const lastBlock = blockchain.getLastBlock();
+            const lastBlockCopy = new Block(lastBlock.data);
+            lastBlockCopy.verification.verified = false;
+
+            const loggerWarn = jest.spyOn(logger, "warn");
+
+            await blockchain.rebuildBlock(lastBlockCopy, mockCallback);
+            await delay(200);
+
+            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(loggerWarn).toHaveBeenCalledWith(
+                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
+            );
+            expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
+        });
+
+        it("should commitQueuedQueries if block height % 20 000 == 0", async () => {
+            const mockCallback = jest.fn(() => true);
+            const lastBlock = blockchain.getLastBlock();
+            const lastBlockHeight = lastBlock.data.height;
+            const nextBlock = new Block(blocks2to100[lastBlock.data.height - 1]);
+            lastBlock.data.height = 19999;
+            nextBlock.data.height = 20000;
+
+            const commitQueuedQueries = jest
+                .spyOn(blockchain.database, "commitQueuedQueries")
+                .mockReturnValueOnce(true);
+            jest.spyOn(blockchain.database, "enqueueSaveBlock").mockReturnValueOnce(true);
+
+            await blockchain.rebuildBlock(nextBlock, mockCallback);
+            await delay(200);
+
+            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(commitQueuedQueries).toHaveBeenCalled();
+            expect(blockchain.getLastBlock().data.id).toBe(nextBlock.data.id);
+
+            // reset to "stable" state
+            lastBlock.data.height = lastBlockHeight;
+            blockchain.state.setLastBlock(lastBlock);
         });
     });
 
     describe("processBlock", () => {
         it("should process a new chained block", async () => {
             const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
+            const lastBlock = blockchain.state.getLastBlock();
 
             await blockchain.removeBlocks(1); // remove 1 block so that we can add it then as a chained block
 
             expect(blockchain.getLastBlock()).not.toEqual(lastBlock);
 
             await blockchain.processBlock(lastBlock, mockCallback);
-            await delay(2000); // wait a bit to give enough time for the callback to be called
+            await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(blockchain.getLastBlock()).toEqual(lastBlock);
@@ -188,10 +301,25 @@ describe("Blockchain", () => {
             const lastBlock = blockchain.getLastBlock();
 
             await blockchain.processBlock(lastBlock, mockCallback);
-            await delay(2000); // wait a bit to give enough time for the callback to be called
+            await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(blockchain.getLastBlock()).toEqual(lastBlock);
+        });
+
+        it("should broadcast a block if (slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
+            const mockCallback = jest.fn(() => true);
+            const lastBlock = blockchain.getLastBlock();
+            lastBlock.data.timestamp =
+                slots.getSlotNumber() * configManager.getMilestone(lastBlock.data.height).blocktime;
+
+            const broadcastBlock = jest.spyOn(blockchain.p2p, "broadcastBlock");
+
+            await blockchain.processBlock(lastBlock, mockCallback);
+            await delay(200);
+
+            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(broadcastBlock).toHaveBeenCalled();
         });
     });
 
@@ -248,6 +376,13 @@ describe("Blockchain", () => {
 
             blockchain.transactionPool.flush();
         });
+
+        it("should return object with count == -1 if getTransactionsForForging returned a falsy value", async () => {
+            jest.spyOn(blockchain.transactionPool, "getTransactionsForForging").mockReturnValueOnce(null);
+
+            const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
+            expect(unconfirmedTransactions.count).toBe(-1);
+        });
     });
 
     describe("getLastBlock", () => {
@@ -298,6 +433,39 @@ describe("Blockchain", () => {
             blockchain.dispatch = dispatch;
             blockchain.enqueueBlocks = enqueueBlocks;
         });
+
+        it("should disregard block when blockchain is not ready", async () => {
+            blockchain.state.started = false;
+            const loggerInfo = jest.spyOn(logger, "info");
+
+            const mockGetSlotNumber = jest
+                .spyOn(slots, "getSlotNumber")
+                .mockReturnValueOnce(1)
+                .mockReturnValueOnce(1);
+
+            await blockchain.handleIncomingBlock(blocks101to155[54]);
+
+            expect(loggerInfo).toHaveBeenCalledWith("Block disregarded because blockchain is not ready :exclamation:");
+            blockchain.state.started = true;
+
+            mockGetSlotNumber.mockRestore();
+        });
+    });
+
+    describe("forceWakeup", () => {
+        it("should dispatch WAKEUP", () => {
+            expect(() => blockchain.forceWakeup()).toDispatch(blockchain, "WAKEUP");
+        });
+    });
+
+    describe("forkBlock", () => {
+        it("should dispatch FORK and set state.forkedBlock", () => {
+            const forkedBlock = new Block(blocks2to100[11]);
+            expect(() => blockchain.forkBlock(forkedBlock)).toDispatch(blockchain, "FORK");
+            expect(blockchain.state.forkedBlock).toBe(forkedBlock);
+
+            blockchain.state.forkedBlock = null; // reset
+        });
     });
 
     describe("isSynced", () => {
@@ -316,14 +484,15 @@ describe("Blockchain", () => {
 
         describe("without a block param", () => {
             it("should use the last block", () => {
-                blockchain.getLastBlock = jest.fn().mockReturnValueOnce({
+                jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
+                const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
                     data: {
                         timestamp: slots.getTime(),
                         height: genesisBlock.height,
                     },
                 });
                 expect(blockchain.isSynced()).toBeTrue();
-                expect(blockchain.getLastBlock).toHaveBeenCalled();
+                expect(getLastBlock).toHaveBeenCalled();
             });
         });
     });
@@ -331,6 +500,7 @@ describe("Blockchain", () => {
     describe("isRebuildSynced", () => {
         describe("with a block param", () => {
             it("should be ok", () => {
+                jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
                 expect(
                     blockchain.isRebuildSynced({
                         data: {
@@ -344,15 +514,80 @@ describe("Blockchain", () => {
 
         describe("without a block param", () => {
             it("should use the last block", () => {
-                blockchain.getLastBlock = jest.fn().mockReturnValueOnce({
+                jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
+                const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
                     data: {
                         timestamp: slots.getTime(),
                         height: genesisBlock.height,
                     },
                 });
                 expect(blockchain.isRebuildSynced()).toBeTrue();
-                expect(blockchain.getLastBlock).toHaveBeenCalled();
+                expect(getLastBlock).toHaveBeenCalled();
             });
+        });
+
+        it("should return true when there is no peer", () => {
+            jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(false);
+
+            expect(blockchain.isRebuildSynced()).toBeTrue();
+        });
+    });
+
+    describe("getBlockPing", () => {
+        it("should return state.blockPing", () => {
+            const blockPing = {
+                count: 1,
+                first: new Date().getTime(),
+                last: new Date().getTime(),
+                block: {},
+            };
+            blockchain.state.blockPing = blockPing;
+
+            expect(blockchain.getBlockPing()).toBe(blockPing);
+        });
+    });
+
+    describe("pingBlock", () => {
+        it("should call state.pingBlock", () => {
+            blockchain.state.blockPing = null;
+
+            // returns false if no state.blockPing
+            expect(blockchain.pingBlock(blocks2to100[3])).toBeFalse();
+        });
+    });
+
+    describe("pushPingBlock", () => {
+        it("should call state.pushPingBlock", () => {
+            blockchain.state.blockPing = null;
+
+            blockchain.pushPingBlock(blocks2to100[3]);
+            expect(blockchain.state.blockPing).toBeObject();
+            expect(blockchain.state.blockPing.block).toBe(blocks2to100[3]);
+        });
+    });
+
+    describe("getEvents", () => {
+        it("should return the events", () => {
+            expect(blockchain.getEvents()).toEqual([
+                "block.applied",
+                "block.forged",
+                "block.reverted",
+                "delegate.registered",
+                "delegate.resigned",
+                "forger.failed",
+                "forger.missing",
+                "forger.started",
+                "peer.added",
+                "peer.removed",
+                "round.created",
+                "state:started",
+                "transaction.applied",
+                "transaction.expired",
+                "transaction.forged",
+                "transaction.reverted",
+                "wallet.saved",
+                "wallet.created.cold",
+            ]);
         });
     });
 
@@ -365,16 +600,30 @@ describe("Blockchain", () => {
             expect(blockchain).toHaveProperty("rebuildQueue");
         });
     });
+
+    describe("stop on emit shutdown", () => {
+        it("should trigger the stop method when receiving 'shutdown' event", async () => {
+            const emitter = container.resolvePlugin("event-emitter");
+
+            const stop = jest.spyOn(blockchain, "stop").mockReturnValue(true);
+
+            emitter.emit("shutdown");
+
+            await delay(200);
+
+            expect(stop).toHaveBeenCalled();
+        });
+    });
 });
 
-async function __start() {
+async function __start(networkStart) {
     process.env.CORE_SKIP_BLOCKCHAIN = "false";
     process.env.CORE_ENV = "false";
 
     const plugin = require("../src").plugin;
 
     blockchain = await plugin.register(container, {
-        networkStart: false,
+        networkStart,
         ...defaults,
     });
 
@@ -388,15 +637,14 @@ async function __start() {
         }),
     );
 
-    const p2p = container.resolvePlugin("p2p");
-    await p2p.acceptNewPeer(peerMock);
+    if (networkStart) {
+        return;
+    }
 
     await __resetToHeight1();
 
-    await blockchain.start(true);
-    while (!blockchain.getLastBlock() || blockchain.getLastBlock().data.height < 155) {
-        await delay(1000);
-    }
+    await blockchain.start();
+    await __addBlocks(5);
 }
 
 async function __resetBlocksInCurrentRound() {
@@ -426,42 +674,12 @@ async function __resetToHeight1() {
     }
 }
 
-function __mockPeer() {
-    // Mocking a peer which will send blocks until height 155
-    peerMock = new Peer("1.0.0.99", 4002);
-    Object.assign(peerMock, peerMock.headers, { status: 200 });
+async function __addBlocks(untilHeight) {
+    const allBlocks = [...blocks2to100, ...blocks101to155];
+    const lastHeight = blockchain.getLastHeight();
 
-    axiosMock
-        .onGet(/.*\/peer\/blocks\/common.*/)
-        .reply(() => [200, { status: 200, success: true, common: true }, peerMock.headers]);
-    axiosMock.onGet(/.*\/peer\/blocks/).reply(config => {
-        let blocks = [];
-
-        if (config.params.lastBlockHeight === 1) {
-            blocks = blocks2to100;
-        } else if (config.params.lastBlockHeight === 100) {
-            blocks = blocks101to155;
-        }
-
-        return [200, { status: 200, success: true, blocks }, peerMock.headers];
-    });
-    axiosMock
-        .onGet(/.*\/peer\/status/)
-        .reply(() => [200, { status: 200, success: true, height: 155 }, peerMock.headers]);
-    axiosMock.onGet(/.*\/peer\/list/).reply(() => [
-        200,
-        {
-            success: true,
-            peers: [
-                {
-                    status: 200,
-                    ip: peerMock.ip,
-                    port: 4002,
-                    height: 155,
-                    delay: 8,
-                },
-            ],
-        },
-        peerMock.headers,
-    ]);
+    for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
+        const blockToProcess = new Block(allBlocks[height - 2]);
+        await blockchain.processBlock(blockToProcess, () => null);
+    }
 }

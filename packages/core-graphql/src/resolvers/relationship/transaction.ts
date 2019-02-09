@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 
-const database = app.resolvePlugin("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 /**
  * Useful and common database operations with transaction data.
@@ -11,19 +12,19 @@ export const Transaction = {
      * @param {Transaction} transaction
      * @return {Block}
      */
-    block: transaction => database.blocks.findById(transaction.blockId),
+    block: transaction => databaseService.connection.blocksRepository.findById(transaction.blockId),
 
     /**
      * Get the recipient of a transaction
      * @param {Transaction} transaction
      * @return {Wallet}
      */
-    recipient: transaction => (transaction.recipientId ? database.wallets.findById(transaction.recipientId) : []),
+    recipient: transaction => (transaction.recipientId ? databaseService.wallets.findById(transaction.recipientId) : []),
 
     /**
      * Get the sender of a transaction
      * @param {Transaction} transaction
      * @return {Wallet}
      */
-    sender: transaction => (transaction.senderPublicKey ? database.wallets.findById(transaction.senderPublicKey) : []),
+    sender: transaction => (transaction.senderPublicKey ? databaseService.wallets.findById(transaction.senderPublicKey) : []),
 };

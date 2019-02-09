@@ -1,6 +1,3 @@
-#
-# For running some services on development without tainting your system
-#
 version: '2'
 services:
 
