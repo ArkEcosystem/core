@@ -1,4 +1,4 @@
-import { AbstractLogCommand } from "../shared/log";
+import { AbstractLogCommand } from "../../shared/log";
 
 export class LogCommand extends AbstractLogCommand {
     public static description: string = "Show the forger log";

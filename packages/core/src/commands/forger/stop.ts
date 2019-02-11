@@ -1,4 +1,4 @@
-import { AbstractStopCommand } from "../shared/stop";
+import { AbstractStopCommand } from "../../shared/stop";
 
 export class StopCommand extends AbstractStopCommand {
     public static description: string = "Stop the forger";

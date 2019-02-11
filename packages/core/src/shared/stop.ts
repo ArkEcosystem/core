@@ -1,6 +1,6 @@
 import { flags } from "@oclif/command";
-import { shutdown, stop } from "../../helpers/pm2";
-import { BaseCommand } from "../command";
+import { BaseCommand } from "../commands/command";
+import { shutdown, stop } from "../helpers/pm2";
 
 export abstract class AbstractStopCommand extends BaseCommand {
     public static flags: Record<string, any> = {

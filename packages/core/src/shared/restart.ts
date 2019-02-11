@@ -1,5 +1,5 @@
-import { restart } from "../../helpers/pm2";
-import { BaseCommand } from "../command";
+import { BaseCommand } from "../commands/command";
+import { restart } from "../helpers/pm2";
 
 export abstract class AbstractRestartCommand extends BaseCommand {
     public static flags: Record<string, any> = {

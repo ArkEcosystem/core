@@ -1,4 +1,4 @@
-import { BaseCommand } from "../command";
+import { BaseCommand } from "../commands/command";
 
 export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {

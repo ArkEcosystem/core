@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
+import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
-import { AbstractStartCommand } from "../shared/start";
 
 export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the core";

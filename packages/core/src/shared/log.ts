@@ -1,6 +1,6 @@
 import { flags } from "@oclif/command";
-import { log } from "../../helpers/pm2";
-import { BaseCommand } from "../command";
+import { BaseCommand } from "../commands/command";
+import { log } from "../helpers/pm2";
 
 export abstract class AbstractLogCommand extends BaseCommand {
     public static flags: Record<string, any> = {

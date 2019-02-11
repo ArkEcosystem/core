@@ -1,4 +1,4 @@
-import { AbstractRestartCommand } from "../shared/restart";
+import { AbstractRestartCommand } from "../../shared/restart";
 
 export class RestartCommand extends AbstractRestartCommand {
     public static description: string = "Restart the forger";
