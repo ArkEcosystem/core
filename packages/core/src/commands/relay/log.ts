@@ -10,6 +10,6 @@ export class LogCommand extends AbstractLogCommand {
     }
 
     public getSuffix(): string {
-        return "core-relay";
+        return "relay";
     }
 }

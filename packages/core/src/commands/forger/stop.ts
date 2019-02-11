@@ -17,6 +17,6 @@ $ ark forger:stop --daemon
     }
 
     public getSuffix(): string {
-        return "core-forger";
+        return "forger";
     }
 }

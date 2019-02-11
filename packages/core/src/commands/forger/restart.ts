@@ -14,6 +14,6 @@ $ ark forger:restart
     }
 
     public getSuffix(): string {
-        return "core-forger";
+        return "forger";
     }
 }

@@ -14,6 +14,6 @@ $ ark relay:restart
     }
 
     public getSuffix(): string {
-        return "core-relay";
+        return "relay";
     }
 }

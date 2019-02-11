@@ -17,6 +17,6 @@ $ ark relay:stop --daemon
     }
 
     public getSuffix(): string {
-        return "core-relay";
+        return "relay";
     }
 }
