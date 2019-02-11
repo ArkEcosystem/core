@@ -34,26 +34,38 @@ export function start(options: any) {
                     initial: true,
                 });
 
-                return response.confirm ? restart(processName) : process.exit();
-            }
+                if (response.confirm) {
+                    pm2.reload(processName, reloadError => {
+                        pm2.disconnect();
 
-            pm2.start(
-                {
-                    ...{
-                        max_restarts: 5,
-                        min_uptime: "5m",
-                        kill_timeout: 30000,
-                    },
-                    ...options,
-                },
-                startError => {
+                        if (reloadError) {
+                            throw reloadError;
+                        }
+
+                        process.exit();
+                    });
+                } else {
                     pm2.disconnect();
+                }
+            } else {
+                pm2.start(
+                    {
+                        ...{
+                            max_restarts: 5,
+                            min_uptime: "5m",
+                            kill_timeout: 30000,
+                        },
+                        ...options,
+                    },
+                    startError => {
+                        pm2.disconnect();
 
-                    if (startError) {
-                        throw startError;
-                    }
-                },
-            );
+                        if (startError) {
+                            throw startError;
+                        }
+                    },
+                );
+            }
         });
     });
 }
