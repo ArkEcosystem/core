@@ -81,6 +81,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Check if the blockchain state storage is available before performing fork checks ([#2047])
 -   Gracefully handle a corrupted cached `peers.json` file ([#2061])
 -   Always sort transactions by sequence and the requested field to make API sorting deterministic ([#2058])
+-   Disallow multiple registrations for same delegate ([#2080])
 
 ### Removed
 
@@ -268,3 +269,4 @@ Closed security vulnerabilities:
 [#2057]: https://github.com/ArkEcosystem/core/pull/2057
 [#2058]: https://github.com/ArkEcosystem/core/pull/2058
 [#2061]: https://github.com/ArkEcosystem/core/pull/2061
+[#2080]: https://github.com/ArkEcosystem/core/pull/2080
