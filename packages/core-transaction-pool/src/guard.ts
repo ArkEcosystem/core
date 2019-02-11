@@ -4,6 +4,7 @@ import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
+import { MemPoolTransaction } from "./mem-pool-transaction";
 import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 const { TransactionTypes } = constants;
@@ -174,6 +175,36 @@ export class TransactionGuard implements transactionPool.ITransactionGuard {
         }
 
         const errors = [];
+
+        // This check must come before canApply otherwise a wallet may be incorrectly assigned a username when multiple
+        // conflicting delegate registrations for the same username exist in the same transaction payload
+        if (transaction.type === TransactionTypes.DelegateRegistration) {
+            const username = transaction.asset.delegate.username;
+            const delegateRegistrationsInPayload = this.transactions.filter(
+                tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username,
+            );
+            if (delegateRegistrationsInPayload.length > 1) {
+                this.__pushError(
+                    transaction,
+                    "ERR_CONFLICT",
+                    `Multiple delegate registrations for "${username}" in transaction payload`,
+                );
+                return false;
+            }
+
+            const delegateRegistrationsInPool: MemPoolTransaction[] = Array.from(
+                this.pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
+            );
+            if (delegateRegistrationsInPool.some(memTx => memTx.transaction.asset.delegate.username === username)) {
+                this.__pushError(
+                    transaction,
+                    "ERR_PENDING",
+                    `Delegate registration for "${username}" already in the pool`,
+                );
+                return false;
+            }
+        }
+
         if (!this.pool.walletManager.canApply(transaction, errors)) {
             this.__pushError(transaction, "ERR_APPLY", JSON.stringify(errors));
             return false;

@@ -78,6 +78,17 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     }
 
     /**
+     * Get all transactions of a given type from the pool.
+     * @param {Number} type of transaction
+     * @return {Set of MemPoolTransaction} all transactions of the given type, could be empty Set
+     */
+    public getTransactionsByType(type) {
+        this.__purgeExpired();
+
+        return this.mem.getByType(type);
+    }
+
+    /**
      * Get the number of transactions in the pool.
      * @return {Number}
      */

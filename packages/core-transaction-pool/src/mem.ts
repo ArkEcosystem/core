@@ -8,6 +8,7 @@ export class Mem {
     public allIsSorted: boolean;
     public byId: { [key: string]: MemPoolTransaction };
     public bySender: { [key: string]: Set<MemPoolTransaction> };
+    public byType: { [key: number]: Set<MemPoolTransaction> };
     public byExpiration: MemPoolTransaction[];
     public byExpirationIsSorted: boolean;
     public dirty: { added: Set<string>; removed: Set<string> };
@@ -57,6 +58,13 @@ export class Mem {
          * - get the number of all transactions from a given sender.
          */
         this.bySender = {};
+
+        /**
+         * A map of (key=transaction type, value=Set of MemPoolTransaction).
+         * Used to:
+         * - get all transactions of a given type
+         */
+        this.byType = {};
 
         /**
          * An array of MemPoolTransaction, sorted by expiration (earliest date
@@ -111,12 +119,22 @@ export class Mem {
         this.byId[transaction.id] = memPoolTransaction;
 
         const sender = transaction.senderPublicKey;
+        const type = transaction.type;
+
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Set.
             this.bySender[sender] = new Set([memPoolTransaction]);
         } else {
             // Append to existing transaction ids for this sender.
             this.bySender[sender].add(memPoolTransaction);
+        }
+
+        if (this.byType[type] === undefined) {
+            // First transaction of this type, create a new Set.
+            this.byType[type] = new Set([memPoolTransaction]);
+        } else {
+            // Append to existing transaction ids for this type.
+            this.byType[type].add(memPoolTransaction);
         }
 
         if (memPoolTransaction.expireAt(maxTransactionAge) !== null) {
@@ -152,6 +170,7 @@ export class Mem {
         }
 
         const memPoolTransaction = this.byId[id];
+        const type = this.byId[id].transaction.type;
 
         // XXX worst case: O(n)
         let i = this.byExpiration.findIndex(e => e.transaction.id === id);
@@ -162,6 +181,11 @@ export class Mem {
         this.bySender[senderPublicKey].delete(memPoolTransaction);
         if (this.bySender[senderPublicKey].size === 0) {
             delete this.bySender[senderPublicKey];
+        }
+
+        this.byType[type].delete(memPoolTransaction);
+        if (this.byType[type].size === 0) {
+            delete this.byType[type];
         }
 
         delete this.byId[id];
@@ -196,6 +220,19 @@ export class Mem {
      */
     public getBySender(senderPublicKey) {
         const memPoolTransactions = this.bySender[senderPublicKey];
+        if (memPoolTransactions !== undefined) {
+            return memPoolTransactions;
+        }
+        return new Set();
+    }
+
+    /**
+     * Get all transactions of a given type.
+     * @param {Number} type of transaction
+     * @return {Set of MemPoolTransaction} all transactions of the given type, could be empty Set
+     */
+    public getByType(type) {
+        const memPoolTransactions = this.byType[type];
         if (memPoolTransactions !== undefined) {
             return memPoolTransactions;
         }
