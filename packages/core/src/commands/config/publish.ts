@@ -48,6 +48,10 @@ $ ark config:publish --network=mainnet
             },
         ]);
 
+        if (!response.network) {
+            this.abortWithInvalidInput();
+        }
+
         if (response.confirm) {
             return this.performPublishment(response);
         }

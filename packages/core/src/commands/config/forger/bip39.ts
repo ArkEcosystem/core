@@ -45,6 +45,10 @@ $ ark config:forger:bip39 --bip39="..."
             },
         ]);
 
+        if (!response.bip39) {
+            this.abortWithInvalidInput();
+        }
+
         if (response.confirm) {
             return this.performConfiguration({ ...flags, ...response });
         }

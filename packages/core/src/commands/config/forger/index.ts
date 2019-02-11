@@ -46,6 +46,10 @@ $ ark config:forger --method=bip39
             },
         ]);
 
+        if (!response.method) {
+            this.abortWithInvalidInput();
+        }
+
         response = { ...flags, ...response };
 
         if (response.method === "bip38") {

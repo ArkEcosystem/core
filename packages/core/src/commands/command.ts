@@ -156,9 +156,18 @@ export abstract class BaseCommand extends Command {
                 },
             ]);
 
+            if (!response.network) {
+                this.abortWithInvalidInput();
+            }
+
             if (response.confirm) {
                 flags.network = response.network;
             }
         }
+    }
+
+    protected abortWithInvalidInput(): void {
+        console.log("Please enter valid data and try again!");
+        process.exit();
     }
 }

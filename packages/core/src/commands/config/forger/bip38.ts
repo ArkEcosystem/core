@@ -57,6 +57,10 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
             },
         ]);
 
+        if (!response.bip39 || !response.password) {
+            this.abortWithInvalidInput();
+        }
+
         if (response.confirm) {
             return this.performConfiguration({ ...flags, ...response });
         }
