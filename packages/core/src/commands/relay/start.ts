@@ -63,7 +63,7 @@ $ ark relay:start --no-daemon
     }
 
     protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
-        await this.buildApplication(app, {
+        await this.buildApplication(app, flags, {
             exclude: ["@arkecosystem/core-forger"],
             options: {
                 "@arkecosystem/core-p2p": buildPeerOptions(flags),

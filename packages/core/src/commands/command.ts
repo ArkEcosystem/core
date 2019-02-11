@@ -3,6 +3,9 @@ import envPaths from "env-paths";
 import Listr from "listr";
 import { resolve } from "path";
 
+// tslint:disable-next-line:no-var-requires
+const { version } = require("../../package.json");
+
 export abstract class BaseCommand extends Command {
     public static flagsConfig: Record<string, object> = {
         data: flags.string({
@@ -66,16 +69,16 @@ export abstract class BaseCommand extends Command {
 
     protected tasks: Array<{ title: string; task: any }> = [];
 
-    protected async buildApplication(app, flags: Record<string, any>) {
+    protected async buildApplication(app, flags: Record<string, any>, config: Record<string, any>) {
         const modifiers: any = { skipPlugins: flags.skipPlugins };
 
         if (flags.preset) {
             modifiers.preset = resolve(__dirname, `../presets/${flags.preset}`);
         }
 
-        await app.setUp(flags.parent._version, flags, {
+        await app.setUp(version, flags, {
             ...modifiers,
-            ...flags,
+            ...config,
         });
 
         return app;

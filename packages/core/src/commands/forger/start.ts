@@ -47,7 +47,7 @@ $ ark forger:start --no-daemon
     }
 
     protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
-        await this.buildApplication(app, {
+        await this.buildApplication(app, flags, {
             include: [
                 "@arkecosystem/core-event-emitter",
                 "@arkecosystem/core-config",
