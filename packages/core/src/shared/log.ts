@@ -1,15 +1,7 @@
-import { flags } from "@oclif/command";
 import { BaseCommand } from "../commands/command";
 import { log } from "../helpers/pm2";
 
 export abstract class AbstractLogCommand extends BaseCommand {
-    public static flags: Record<string, any> = {
-        error: flags.boolean({
-            char: "e",
-            description: "only show error output",
-        }),
-    };
-
     public async run(): Promise<void> {
         const { flags } = this.parse(this.getClass());
 

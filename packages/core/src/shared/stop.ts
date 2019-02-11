@@ -1,16 +1,7 @@
-import { flags } from "@oclif/command";
 import { BaseCommand } from "../commands/command";
 import { shutdown, stop } from "../helpers/pm2";
 
 export abstract class AbstractStopCommand extends BaseCommand {
-    public static flags: Record<string, any> = {
-        ...BaseCommand.flagsNetwork,
-        daemon: flags.boolean({
-            char: "d",
-            description: "stop the process or daemon",
-        }),
-    };
-
     public async run(): Promise<void> {
         const { flags } = this.parse(this.getClass());
 

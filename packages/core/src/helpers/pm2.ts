@@ -91,6 +91,11 @@ export function log(processName: string, onlyErrors: boolean) {
                 throw deleteError;
             }
 
+            if (!apps[0]) {
+                console.log(`The "${processName}" process is not running, thus no logs are to be viewed.`);
+                process.exit();
+            }
+
             const app = apps[0].pm2_env;
 
             const log = new Tail(onlyErrors ? app.pm_err_log_path : app.pm_out_log_path);
