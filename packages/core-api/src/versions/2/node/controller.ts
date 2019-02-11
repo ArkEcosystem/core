@@ -59,7 +59,7 @@ export class NodeController extends Controller {
                     feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
                     transactionPool: {
                         maxTransactionAge: app.resolveOptions("transactionPool").maxTransactionAge,
-                        dynamicFees: dynamicFees && dynamicFees.enabled ? dynamicFees : { enabled: false },
+                        dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
                     },
                 },
             };
