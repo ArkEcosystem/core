@@ -37,7 +37,7 @@ $ ark forger:start --no-daemon
         start({
             name: `${flags.token}-core-forger`,
             script: "./bin/run",
-            args: `forger:run --no-daemon ${this.flagsToStrings(flags)}`,
+            args: `forger:start --no-daemon ${this.flagsToStrings(flags)}`,
             env: {
                 CORE_FORGER_BIP38: flags.bip38,
                 CORE_FORGER_PASSWORD: flags.password,
