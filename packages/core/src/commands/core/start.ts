@@ -3,7 +3,6 @@ import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
-import { buildPeerOptions } from "../helpers";
 
 export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the core";
@@ -43,7 +42,6 @@ $ ark core:start --no-daemon
         ...BaseCommand.flagsBehaviour,
         ...BaseCommand.flagsForger,
         daemon: flags.boolean({
-            char: "d",
             description: "start the process as a daemon",
             default: true,
             allowNo: true,
@@ -57,8 +55,8 @@ $ ark core:start --no-daemon
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
         start({
             name: `${flags.token}-core`,
-            script: "./dist/index.js",
-            args: `core:start ${this.flagsToStrings(flags)}`,
+            script: "./bin/run",
+            args: `core:start --no-daemon ${this.flagsToStrings(flags)}`,
             env: {
                 CORE_FORGER_BIP38: flags.bip38,
                 CORE_FORGER_PASSWORD: flags.password,
@@ -69,7 +67,7 @@ $ ark core:start --no-daemon
     protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
         await this.buildApplication(app, flags, {
             options: {
-                "@arkecosystem/core-p2p": buildPeerOptions(flags),
+                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
                 "@arkecosystem/core-blockchain": {
                     networkStart: flags.networkStart,
                 },

@@ -23,7 +23,6 @@ $ ark forger:start --no-daemon
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsForger,
         daemon: flags.boolean({
-            char: "d",
             description: "start the process as a daemon",
             default: true,
             allowNo: true,
@@ -37,8 +36,8 @@ $ ark forger:start --no-daemon
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
         start({
             name: `${flags.token}-core-forger`,
-            script: "./dist/index.js",
-            args: `forger:run ${this.flagsToStrings(flags)}`,
+            script: "./bin/run",
+            args: `forger:run --no-daemon ${this.flagsToStrings(flags)}`,
             env: {
                 CORE_FORGER_BIP38: flags.bip38,
                 CORE_FORGER_PASSWORD: flags.password,

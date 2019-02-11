@@ -69,6 +69,22 @@ export abstract class BaseCommand extends Command {
 
     protected tasks: Array<{ title: string; task: any }> = [];
 
+    protected buildPeerOptions(flags) {
+        const config = {
+            networkStart: flags.networkStart,
+            disableDiscovery: flags.disableDiscovery,
+            skipDiscovery: flags.skipDiscovery,
+            ignoreMinimumNetworkReach: flags.ignoreMinimumNetworkReach,
+        };
+
+        if (flags.launchMode === "seed") {
+            config.skipDiscovery = true;
+            config.ignoreMinimumNetworkReach = true;
+        }
+
+        return config;
+    }
+
     protected async buildApplication(app, flags: Record<string, any>, config: Record<string, any>) {
         const modifiers: any = { skipPlugins: flags.skipPlugins };
 

@@ -3,7 +3,6 @@ import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
-import { buildPeerOptions } from "../helpers";
 
 export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the relay";
@@ -43,7 +42,6 @@ $ ark relay:start --no-daemon
         ...BaseCommand.flagsBehaviour,
         ...BaseCommand.flagsForger,
         daemon: flags.boolean({
-            char: "d",
             description: "start the process as a daemon",
             default: true,
             allowNo: true,
@@ -57,8 +55,8 @@ $ ark relay:start --no-daemon
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
         start({
             name: `${flags.token}-core-relay`,
-            script: "./dist/index.js",
-            args: `relay:start --daemon ${this.flagsToStrings(flags)}`,
+            script: "./bin/run",
+            args: `relay:start --no-daemon ${this.flagsToStrings(flags)}`,
         });
     }
 
@@ -66,7 +64,7 @@ $ ark relay:start --no-daemon
         await this.buildApplication(app, flags, {
             exclude: ["@arkecosystem/core-forger"],
             options: {
-                "@arkecosystem/core-p2p": buildPeerOptions(flags),
+                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
                 "@arkecosystem/core-blockchain": {
                     networkStart: flags.networkStart,
                 },
