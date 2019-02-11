@@ -1,5 +1,20 @@
 import { app } from "@arkecosystem/core-container";
-import { buildPeerOptions } from "../utils";
+
+export function buildPeerOptions(flags) {
+    const config = {
+        networkStart: flags.networkStart,
+        disableDiscovery: flags.disableDiscovery,
+        skipDiscovery: flags.skipDiscovery,
+        ignoreMinimumNetworkReach: flags.ignoreMinimumNetworkReach,
+    };
+
+    if (flags.launchMode === "seed") {
+        config.skipDiscovery = true;
+        config.ignoreMinimumNetworkReach = true;
+    }
+
+    return config;
+}
 
 export async function startRelay(options, version) {
     await app.setUp(version, options, {

@@ -3,6 +3,7 @@ import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
+import { buildPeerOptions } from "../helpers";
 
 export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the core";
@@ -68,7 +69,7 @@ $ ark core:start --no-daemon
     protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
         await this.buildApplication(app, {
             options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                "@arkecosystem/core-p2p": buildPeerOptions(flags),
                 "@arkecosystem/core-blockchain": {
                     networkStart: flags.networkStart,
                 },

@@ -81,22 +81,6 @@ export abstract class BaseCommand extends Command {
         return app;
     }
 
-    protected buildPeerOptions(flags) {
-        const config = {
-            networkStart: flags.networkStart,
-            disableDiscovery: flags.disableDiscovery,
-            skipDiscovery: flags.skipDiscovery,
-            ignoreMinimumNetworkReach: flags.ignoreMinimumNetworkReach,
-        };
-
-        if (flags.launchMode === "seed") {
-            config.skipDiscovery = true;
-            config.ignoreMinimumNetworkReach = true;
-        }
-
-        return config;
-    }
-
     protected flagsToStrings(flags: Record<string, any>): string {
         const mappedFlags = [];
 

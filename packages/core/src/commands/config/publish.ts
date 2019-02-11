@@ -1,7 +1,6 @@
 import { flags } from "@oclif/command";
-import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
-import { join, resolve } from "path";
+import { resolve } from "path";
 import prompts from "prompts";
 import { BaseCommand } from "../command";
 
@@ -15,11 +14,7 @@ $ ark config:publish --network=mainnet
     ];
 
     public static flags: Record<string, any> = {
-        ...BaseCommand.flagsConfig,
-        network: flags.string({
-            description: "the name of the network that should be used",
-            options: ["mainnet", "devnet", "testnet"],
-        }),
+        ...BaseCommand.flagsNetwork,
         force: flags.boolean({
             char: "f",
             description: "force the configuration to be overwritten",
@@ -29,7 +24,7 @@ $ ark config:publish --network=mainnet
     public async run(): Promise<void> {
         const { flags } = this.parse(PublishCommand);
 
-        if (flags.data && flags.config && flags.network && flags.force) {
+        if (flags.token && flags.network && flags.force) {
             return this.performPublishment(flags);
         }
 

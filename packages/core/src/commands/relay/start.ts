@@ -3,6 +3,7 @@ import { flags } from "@oclif/command";
 import { start } from "../../helpers/pm2";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
+import { buildPeerOptions } from "../helpers";
 
 export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the relay";
@@ -65,7 +66,7 @@ $ ark relay:start --no-daemon
         await this.buildApplication(app, {
             exclude: ["@arkecosystem/core-forger"],
             options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                "@arkecosystem/core-p2p": buildPeerOptions(flags),
                 "@arkecosystem/core-blockchain": {
                     networkStart: flags.networkStart,
                 },
