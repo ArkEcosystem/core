@@ -106,11 +106,11 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected getPaths(token: string, network: string): envPaths.Paths {
-        const paths: envPaths.Paths = envPaths(token, { suffix: "core" });
+    protected getPaths(flags): envPaths.Paths {
+        const paths: envPaths.Paths = envPaths(flags.token, { suffix: "core" });
 
         for (const [key, value] of Object.entries(paths)) {
-            paths[key] = `${value}/${network}`;
+            paths[key] = `${value}/${flags.network}`;
         }
 
         return paths;

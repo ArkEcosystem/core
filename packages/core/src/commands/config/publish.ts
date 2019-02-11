@@ -54,7 +54,7 @@ $ ark config:publish --network=mainnet
     }
 
     private async performPublishment(flags: Record<string, any>): Promise<void> {
-        const corePaths = this.getPaths(flags.token, flags.network);
+        const corePaths = this.getPaths(flags);
 
         const coreConfigDest = corePaths.config;
         const coreConfigSrc = resolve(__dirname, `../../../bin/config/${flags.network}`);

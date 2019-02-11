@@ -14,10 +14,10 @@ $ ark config:forger:bip39 --bip39="..."
     ];
 
     public static flags: Record<string, any> = {
+        ...BaseCommand.flagsNetwork,
         bip39: flags.string({
             char: "b",
             description: "the plain text bip39 passphrase",
-            required: true,
         }),
     };
 
@@ -51,7 +51,7 @@ $ ark config:forger:bip39 --bip39="..."
     }
 
     private async performConfiguration(flags): Promise<void> {
-        const { config } = this.getPaths(flags.token, flags.network);
+        const { config } = this.getPaths(flags);
 
         const delegatesConfig = `${config}/delegates.json`;
 

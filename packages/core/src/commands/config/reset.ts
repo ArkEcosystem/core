@@ -16,11 +16,7 @@ $ ark config:reset --network=mainnet
     ];
 
     public static flags: Record<string, any> = {
-        ...BaseCommand.flagsConfig,
-        network: flags.string({
-            description: "the name of the network that should be used",
-            options: ["mainnet", "devnet", "testnet"],
-        }),
+        ...BaseCommand.flagsNetwork,
         force: flags.boolean({
             char: "f",
             description: "force the configuration to be reset",
@@ -30,7 +26,7 @@ $ ark config:reset --network=mainnet
     public async run(): Promise<void> {
         const { flags } = this.parse(ResetCommand);
 
-        if (flags.data && flags.config && flags.network && flags.force) {
+        if (flags.token && flags.network && flags.force) {
             return this.performReset(flags);
         }
 
@@ -50,7 +46,7 @@ $ ark config:reset --network=mainnet
     }
 
     private async performReset(flags: Record<string, any>): Promise<void> {
-        const { config } = this.getPaths(flags.token, flags.network);
+        const { config } = this.getPaths(flags);
 
         this.addTask("Remove configuration", async () => {
             fs.removeSync(config);

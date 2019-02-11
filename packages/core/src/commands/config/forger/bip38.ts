@@ -17,20 +17,14 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
     ];
 
     public static flags: Record<string, any> = {
-        network: flags.string({
-            description: "the name of the network that should be used",
-            options: ["mainnet", "devnet", "testnet"],
-            required: true,
-        }),
+        ...BaseCommand.flagsNetwork,
         bip39: flags.string({
             char: "b",
             description: "the plain text bip39 passphrase",
-            required: true,
         }),
         password: flags.string({
             char: "p",
             description: "the password for the encrypted bip38",
-            required: true,
         }),
     };
 
@@ -69,7 +63,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
     }
 
     private async performConfiguration(flags): Promise<void> {
-        const { config } = this.getPaths(flags.token, flags.network);
+        const { config } = this.getPaths(flags);
 
         const delegatesConfig = `${config}/delegates.json`;
         let decodedWIF;

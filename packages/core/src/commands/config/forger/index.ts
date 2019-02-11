@@ -17,6 +17,7 @@ $ ark config:forger --method=bip39
     ];
 
     public static flags: Record<string, any> = {
+        ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsForger,
         method: flags.string({ char: "m", description: "the configuration method to use (bip38 or bip39)" }),
     };
@@ -25,15 +26,15 @@ $ ark config:forger --method=bip39
         const { flags } = this.parse(ForgerCommand);
 
         if (flags.method === "bip38") {
-            return BIP38Command.run(this.flagsToStrings(flags).split(" "));
+            return BIP38Command.run(this.formatFlags(flags));
         }
 
         if (flags.method === "bip39") {
-            return BIP39Command.run(this.flagsToStrings(flags).split(" "));
+            return BIP39Command.run(this.formatFlags(flags));
         }
 
         // Interactive CLI
-        const response = await prompts([
+        let response = await prompts([
             {
                 type: "select",
                 name: "method",
@@ -45,12 +46,20 @@ $ ark config:forger --method=bip39
             },
         ]);
 
+        response = { ...flags, ...response };
+
         if (response.method === "bip38") {
-            return BIP38Command.run(this.flagsToStrings(response).split(" "));
+            return BIP38Command.run(this.formatFlags(response));
         }
 
         if (response.method === "bip39") {
-            return BIP39Command.run(this.flagsToStrings(response).split(" "));
+            return BIP39Command.run(this.formatFlags(response));
         }
+    }
+
+    private formatFlags(flags): string[] {
+        delete flags.method;
+
+        return this.flagsToStrings(flags).split(" ");
     }
 }
