@@ -70,6 +70,84 @@ describe('Database Service', () => {
         })
     });
 
+    describe('getBlocksByHeight', () => {
+        it('should deliver blocks for the given heights', async() => {
+            const requestHeightsLow = [ 1, 5, 20 ];
+            const requestHeightsHigh = [ 100, 200, 500 ];
+            const stateStorageStub = new StateStorageStub();
+            jest.spyOn(stateStorageStub, 'getLastBlocksByHeight').mockImplementation(
+                (heightFrom, heightTo) => {
+                    if (requestHeightsHigh[0] <= heightFrom) {
+                        return [ { height: heightFrom, fromState: true } ];
+                    }
+                    return undefined;
+                }
+            );
+            jest.spyOn(container, 'has').mockReturnValue(true);
+            jest.spyOn(container, 'resolve').mockReturnValue(stateStorageStub);
+
+            databaseService = createService();
+            databaseService.connection.blocksRepository = {
+                findById: null,
+                findByHeight: jest.fn(heights => {
+                    const r = heights.map(h => { return { height: Number(h), fromDb: true }; });
+                    return r;
+                }),
+                count: null,
+                common: null,
+                heightRange: null,
+                latest: null,
+                recent: null,
+                statistics: null,
+                top: null,
+                delete: null,
+                estimate: null,
+                truncate: null,
+                insert: null,
+                update: null
+            };
+
+            let requestHeights = requestHeightsHigh;
+
+            let blocks = await databaseService.getBlocksByHeight(requestHeights);
+
+            expect(stateStorageStub.getLastBlocksByHeight).toHaveBeenCalled();
+            expect(blocks).toBeArray();
+            expect(blocks.length).toBe(requestHeights.length);
+            for (let i = 0; i < requestHeights.length; i++) {
+                expect(blocks[i].height).toBe(requestHeights[i]);
+                expect(blocks[i].fromState).toBe(true);
+            }
+
+            requestHeights = [ ...requestHeightsLow, ...requestHeightsHigh ];
+
+            blocks = await databaseService.getBlocksByHeight(requestHeights);
+
+            expect(stateStorageStub.getLastBlocksByHeight).toHaveBeenCalled();
+            expect(blocks).toBeArray();
+            expect(blocks.length).toBe(requestHeights.length);
+            for (let i = 0; i < requestHeights.length; i++) {
+                expect(blocks[i].height).toBe(requestHeights[i]);
+                if (requestHeightsHigh.includes(requestHeights[i])) {
+                    expect(blocks[i].fromState).toBe(true);
+                } else {
+                    expect(blocks[i].fromDb).toBe(true);
+                }
+            }
+
+            jest.spyOn(container, 'has').mockReturnValue(false);
+
+            blocks = await databaseService.getBlocksByHeight(requestHeights);
+
+            expect(blocks).toBeArray();
+            expect(blocks.length).toBe(requestHeights.length);
+            for (let i = 0; i < requestHeights.length; i++) {
+                expect(blocks[i].height).toBe(requestHeights[i]);
+                expect(blocks[i].fromDb).toBe(true);
+            }
+        });
+    });
+
     describe('getBlocksForRound', () => {
         it('should fetch blocks using lastBlock in state-storage', async() => {
             const stateStorageStub = new StateStorageStub();

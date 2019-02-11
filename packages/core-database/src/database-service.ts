@@ -240,7 +240,10 @@ export class DatabaseService implements Database.IDatabaseService {
 
         for (const [i, height] of heights.entries()) {
             if (hasState) {
-                blocks[i] = app.resolve("state").getLastBlocksByHeight(height, height)[0];
+                const stateBlocks = app.resolve("state").getLastBlocksByHeight(height, height);
+                if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
+                    blocks[i] = stateBlocks[0];
+                }
             }
 
             if (blocks[i] === undefined) {
