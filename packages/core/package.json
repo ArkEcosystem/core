@@ -40,15 +40,12 @@
         "start:mainnet": "yarn ark core:start --no-daemon --config ./bin/config/mainnet --network mainnet",
         "start:devnet": "yarn ark core:start --no-daemon --config ./bin/config/devnet --network devnet",
         "start:testnet": "cross-env CORE_ENV=test yarn ark core:start --no-daemon --config ./bin/config/testnet --network testnet",
-        "start:testnet:live": "yarn ark core:start --no-daemon --config ./bin/config/testnet.live --network testnet",
         "relay:mainnet": "yarn ark relay:start --no-daemon --config ./bin/config/mainnet --network mainnet",
         "relay:devnet": "yarn ark relay:start --no-daemon --config ./bin/config/devnet --network devnet",
         "relay:testnet": "cross-env CORE_ENV=test yarn ark relay:start --no-daemon --config ./bin/config/testnet --network testnet",
-        "relay:testnet:live": "yarn ark relay:start --no-daemon --config ./bin/config/testnet.live --network testnet",
         "forger:mainnet": "yarn ark forger:start --no-daemon --config ./bin/config/mainnet --network mainnet",
         "forger:devnet": "yarn ark forger:start --no-daemon --config ./bin/config/devnet --network devnet",
         "forger:testnet": "cross-env CORE_ENV=test yarn ark forger:start --no-daemon --config ./bin/config/testnet --network testnet",
-        "forger:testnet:live": "yarn ark forger:start --no-daemon --config ./bin/config/testnet.live --network testnet",
         "full:testnet": "cross-env CORE_ENV=test yarn ark core:start --no-daemon --config ./bin/config/testnet --network testnet --network-start",
         "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
         "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
@@ -114,10 +111,10 @@
         "bin": "ark",
         "topics": {
             "config": {
-                "description": "manage ark config variables"
+                "description": "manage core config variables"
             },
             "env": {
-                "description": "manage ark environment variables"
+                "description": "manage core environment variables"
             },
             "core": {
                 "description": "manage a core instance (relay & forger)"
