@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
+import socketCluster from "socketcluster-client";
 import util from "util";
 import { config as localConfig } from "./config";
 
@@ -27,6 +28,8 @@ export class Peer implements P2P.IPeer {
         hashid?: string;
         status?: any;
     };
+
+    public socket;
 
     public state: any;
     public url: string;
@@ -62,6 +65,11 @@ export class Peer implements P2P.IPeer {
         if (this.config.get("network.name") !== "mainnet") {
             this.headers.hashid = app.getHashid();
         }
+
+        this.socket = socketCluster.create({
+            port,
+            hostname: ip,
+        });
     }
 
     /**
@@ -114,14 +122,15 @@ export class Peer implements P2P.IPeer {
      * @return {(Object|undefined)}
      */
     public async postBlock(block) {
-        return this.__post(
+        return this.emit("p2p.peer.postBlock", { block });
+        /*return this.__post(
             "/peer/blocks",
             { block },
             {
                 headers: this.headers,
                 timeout: 5000,
             },
-        );
+        );*/
     }
 
     /**
@@ -131,6 +140,9 @@ export class Peer implements P2P.IPeer {
      */
     public async postTransactions(transactions) {
         try {
+            const response = await this.emit("p2p.peer.postTransactions", { transactions });
+
+            /*
             const response = await this.__post(
                 "/peer/transactions",
                 {
@@ -141,7 +153,7 @@ export class Peer implements P2P.IPeer {
                     timeout: 8000,
                 },
             );
-
+            */
             return response;
         } catch (err) {
             throw err;
@@ -155,11 +167,17 @@ export class Peer implements P2P.IPeer {
      */
     public async downloadBlocks(fromBlockHeight) {
         try {
-            const response = await axios.get(`${this.url}/peer/blocks`, {
+            const response: any = await this.emit("p2p.peer.getBlocks", {
                 params: { lastBlockHeight: fromBlockHeight },
                 headers: this.headers,
                 timeout: 10000,
             });
+
+            /*const response = await axios.get(`${this.url}/peer/blocks`, {
+                params: { lastBlockHeight: fromBlockHeight },
+                headers: this.headers,
+                timeout: 10000,
+            });*/
 
             this.__parseHeaders(response);
 
@@ -197,7 +215,10 @@ export class Peer implements P2P.IPeer {
             return;
         }
 
+        const body: any = await this.emit("p2p.peer.getStatus", null);
+        /*
         const body = await this.__get("/peer/status", delay || localConfig.get("globalTimeout"));
+        */
 
         if (!body) {
             throw new Error(`Peer ${this.ip} is unresponsive`);
@@ -225,7 +246,10 @@ export class Peer implements P2P.IPeer {
 
         await this.ping(2000);
 
+        const body: any = await this.emit("p2p.peer.getPeers", null);
+        /*
         const body = await this.__get("/peer/list");
+        */
 
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
@@ -239,11 +263,15 @@ export class Peer implements P2P.IPeer {
      */
     public async hasCommonBlocks(ids) {
         try {
-            let url = `/peer/blocks/common?ids=${ids.join(",")}`;
+            /*let url = `/peer/blocks/common?ids=${ids.join(",")}`;
             if (ids.length === 1) {
                 url += ",";
-            }
+            }*/
+
+            const body: any = await this.emit("p2p.peer.getCommonBlocks", { ids });
+            /*
             const body = await this.__get(url);
+            */
 
             return body && body.success && body.common;
         } catch (error) {
@@ -328,5 +356,25 @@ export class Peer implements P2P.IPeer {
         this.status = response.status;
 
         return response;
+    }
+
+    private async emit(event, data) {
+        if (!data) {
+            data = {};
+        }
+        data.info = {
+            remoteAddress: this.ip,
+        };
+        data.headers = this.headers;
+
+        return new Promise((resolve, reject) => {
+            this.socket.emit(event, data, (err, val) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(val);
+                }
+            });
+        });
     }
 }
