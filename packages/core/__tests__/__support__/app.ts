@@ -6,7 +6,4 @@ export const opts = {
     token: "ark",
     network: "testnet",
     skipPlugins: true,
-    parent: {
-        _version: "2.0.0",
-    },
 };
