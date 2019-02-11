@@ -3,14 +3,14 @@ jobs:
   test-node10-0:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_development
+      CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_development
+          POSTGRES_DB: core_unitnet
           POSTGRES_USER: core
     steps:
       - checkout
@@ -108,14 +108,14 @@ jobs:
   test-node11-0:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_development
+      CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_development
+          POSTGRES_DB: core_unitnet
           POSTGRES_USER: core
     steps:
       - checkout
@@ -213,14 +213,14 @@ jobs:
   test-node10-1:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_development
+      CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_development
+          POSTGRES_DB: core_unitnet
           POSTGRES_USER: core
     steps:
       - checkout
@@ -333,14 +333,14 @@ jobs:
   test-node10-2:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_development
+      CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_development
+          POSTGRES_DB: core_unitnet
           POSTGRES_USER: core
     steps:
       - checkout
@@ -448,14 +448,14 @@ jobs:
   test-node11-1:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_development
+      CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_development
+          POSTGRES_DB: core_unitnet
           POSTGRES_USER: core
     steps:
       - checkout
@@ -568,14 +568,14 @@ jobs:
   test-node11-2:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_development
+      CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_development
+          POSTGRES_DB: core_unitnet
           POSTGRES_USER: core
     steps:
       - checkout

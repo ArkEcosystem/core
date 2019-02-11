@@ -69,3 +69,6 @@ docker/development
 # oclif
 tmp
 oclif.manifest.json
+
+# Vagrant
+.vagrant

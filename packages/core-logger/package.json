@@ -12,7 +12,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",

@@ -18,7 +18,7 @@
     },
     "scripts": {
         "tester": "./bin/run",
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",

@@ -20,7 +20,7 @@
         "ark": "./bin/run"
     },
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",
