@@ -146,7 +146,9 @@ export abstract class BaseCommand extends Command {
                     type: "autocomplete",
                     name: "network",
                     message: "What network do you want to operate on?",
-                    choices: folders.map(folder => ({ title: folder, value: folder })),
+                    choices: folders
+                        .filter(folder => ["mainnet", "devnet", "testnet", "unitnet"].includes(folder))
+                        .map(folder => ({ title: folder, value: folder })),
                 },
                 {
                     type: "confirm",
