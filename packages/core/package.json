@@ -9,8 +9,8 @@
         "Alex Barnsley <alex@ark.io>"
     ],
     "license": "MIT",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/index",
+    "types": "dist/index",
     "files": [
         "/bin",
         "/dist",
@@ -47,11 +47,6 @@
         "forger:devnet": "yarn ark forger:start --no-daemon --config ./bin/config/devnet --network devnet",
         "forger:testnet": "cross-env CORE_ENV=test yarn ark forger:start --no-daemon --config ./bin/config/testnet --network testnet",
         "full:testnet": "cross-env CORE_ENV=test yarn ark core:start --no-daemon --config ./bin/config/testnet --network testnet --network-start",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
