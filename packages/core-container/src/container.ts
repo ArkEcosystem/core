@@ -39,11 +39,6 @@ export class Container implements container.IContainer {
         } catch (e) {
             this.hashid = "unknown";
         }
-
-        /**
-         * Register any exit signal handling.
-         */
-        this.registerExitHandler(["SIGINT", "exit"]);
     }
 
     /**
@@ -54,6 +49,10 @@ export class Container implements container.IContainer {
      * @return {void}
      */
     public async setUp(version: string, variables: any, options: any = {}) {
+        // Register any exit signal handling
+        this.registerExitHandler(["SIGINT", "exit"]);
+
+        // Set options and variables
         this.options = options;
         this.variables = variables;
 
