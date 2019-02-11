@@ -27,3 +27,13 @@ export const tearDown = async () => {
 
     await app.tearDown();
 };
+
+export const setUpFull = async () => {
+    await setUpContainer({
+        exit: "@arkecosystem/core-blockchain",
+    });
+};
+
+export const tearDownFull = async () => {
+    await app.tearDown();
+};
