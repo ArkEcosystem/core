@@ -96,7 +96,7 @@ export function list(token: string) {
             }
 
             const table = new Table({
-                head: ["ID", "Name", "Version", "Status", "Uptime", "CPU %", "Mem %"],
+                head: ["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"],
                 chars: { mid: "", "left-mid": "", "mid-mid": "", "right-mid": "" },
             });
 
@@ -112,7 +112,7 @@ export function list(token: string) {
                     process.pm2_env.status,
                     // @ts-ignore
                     prettyMs(dayjs().diff(process.pm2_env.pm_uptime)),
-                    process.monit.cpu,
+                    `${process.monit.cpu}%`,
                     prettyBytes(process.monit.memory),
                 ]);
             }
