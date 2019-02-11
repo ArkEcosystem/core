@@ -233,7 +233,7 @@ export class Container implements container.IContainer {
      */
     private registerExitHandler(exitEvents: string[]) {
         const handleExit = async () => {
-            if (this.shuttingDown) {
+            if (this.shuttingDown || !this.isReady) {
                 return;
             }
 
