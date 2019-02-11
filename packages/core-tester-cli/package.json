@@ -1,46 +1,80 @@
 {
-  "name": "@arkecosystem/core-tester-cli",
-  "description": "Tester CLI for Ark Core",
-  "version": "0.2.0",
-  "contributors": [
-    "Brian Faust <brian@ark.io>",
-    "Alex Barnsley <alex@ark.io>"
-  ],
-  "license": "MIT",
-  "main": "lib/index.js",
-  "bin": {
-    "ark:tester": "./bin/tester"
-  },
-  "scripts": {
-    "start": "./bin/tester",
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "@arkecosystem/core-utils": "~0.2",
-    "@arkecosystem/crypto": "~0.2",
-    "axios": "^0.18.0",
-    "bip39": "^2.5.0",
-    "clipboardy": "^1.2.3",
-    "commander": "^2.19.0",
-    "delay": "^4.1.0",
-    "lodash.fill": "^3.4.0",
-    "pino": "^5.9.0",
-    "pino-pretty": "^2.3.0",
-    "pluralize": "^7.0.0",
-    "superheroes": "^2.0.0"
-  },
-  "devDependencies": {
-    "axios-mock-adapter": "^1.15.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=10.x"
-  }
+    "name": "@arkecosystem/core-tester-cli",
+    "description": "Tester CLI for Ark Core",
+    "version": "2.1.0",
+    "contributors": [
+        "Brian Faust <brian@ark.io>",
+        "Alex Barnsley <alex@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "/bin",
+        "/dist",
+        "/oclif.manifest.json"
+    ],
+    "bin": {
+        "tester": "./bin/run"
+    },
+    "scripts": {
+        "tester": "./bin/run",
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh",
+        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
+        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
+        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
+        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+    },
+    "dependencies": {
+        "@arkecosystem/core-utils": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
+        "@oclif/command": "^1.5.8",
+        "@oclif/config": "^1.12.4",
+        "@oclif/plugin-help": "^2.1.6",
+        "@oclif/plugin-not-found": "^1.2.2",
+        "@types/bip39": "^2.4.1",
+        "@types/clipboardy": "^1.1.0",
+        "@types/lodash.fill": "^3.4.4",
+        "@types/pino": "^5.8.3",
+        "@types/pluralize": "^0.0.29",
+        "axios": "^0.18.0",
+        "bip39": "^2.5.0",
+        "clipboardy": "^1.2.3",
+        "delay": "^4.1.0",
+        "lodash.fill": "^3.4.0",
+        "pino": "^5.10.1",
+        "pino-pretty": "^2.5.0",
+        "pluralize": "^7.0.0",
+        "superheroes": "^2.0.0"
+    },
+    "devDependencies": {
+        "axios-mock-adapter": "^1.15.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
+    },
+    "oclif": {
+        "commands": "./dist/commands",
+        "bin": "snapshot",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-not-found"
+        ]
+    }
 }

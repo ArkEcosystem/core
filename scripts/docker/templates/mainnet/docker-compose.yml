@@ -1,0 +1,17 @@
+version: '2'
+services:
+
+  postgres:
+    image: "postgres:alpine"
+    container_name: {token}-mainnet-postgres
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    environment:
+     POSTGRES_PASSWORD: password
+     POSTGRES_DB: {token}_mainnet
+     POSTGRES_USER: {token}
+
+volumes:
+  postgres:

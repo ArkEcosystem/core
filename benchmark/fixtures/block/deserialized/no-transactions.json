@@ -1,0 +1,17 @@
+{
+    "version": 0,
+    "timestamp": 58126418,
+    "height": 19,
+    "previousBlockHex": "a099b7651f0e5eb8",
+    "previousBlock": "11572482362445815480",
+    "numberOfTransactions": 150,
+    "totalAmount": "30000000000",
+    "totalFee": "1500000000",
+    "reward": "0",
+    "payloadLength": 4800,
+    "payloadHash": "e5a7e9b5a8a8e2f47f7d8a532e0e9c43d44052dc6c6339ad57246e9a339665e3",
+    "generatorPublicKey": "03a46f2547d20b47003c1c376788db5a54d67264df2ae914f70bf453b6a1fa1b3a",
+    "blockSignature": "304402204e31f1ae02cbcf2bb936e225f9f9db332ac275577b777a389b2d713e48b78c9002203f11c4ee0d30d2e10b2cb4a7fb59569e761571971ffe1be5abaa32fdc42a056b",
+    "idHex": "d9401ad36a03b8b4",
+    "id": "15654541800058894516"
+}

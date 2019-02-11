@@ -1,0 +1,43 @@
+version: '2'
+services:
+
+  postgres:
+    image: "postgres:alpine"
+    container_name: {token}-devnet-postgres
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    environment:
+     POSTGRES_PASSWORD: password
+     POSTGRES_DB: {token}_devnet
+     POSTGRES_USER: {token}
+
+  core:
+    build: .
+    image: core
+    container_name: {token}-devnet-core
+    ports:
+     - "4002:4002"
+     - "4003:4003"
+    volumes:
+     - core:/core
+    tty: true
+    privileged: true
+    links:
+     - postgres
+    depends_on:
+      - postgres
+    command:
+      - /bin/sh
+      - -c
+      - |
+          /entrypoint.sh
+
+volumes:
+  postgres:
+  core:
+    driver_opts:
+      type: none
+      device: $PWD/../../../
+      o: bind

@@ -43,6 +43,7 @@ docs
 
 # Optional npm cache directory
 .npm
+package-lock.json
 
 # Mac OS X local settings
 .DS_Store
@@ -60,4 +61,7 @@ packages/**/dist/
 *.sqlite
 
 # Random
-peers_backup.json
+docker/development
+
+#Webstorm/Intellij
+.idea

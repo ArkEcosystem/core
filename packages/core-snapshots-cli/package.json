@@ -1,49 +1,85 @@
 {
-  "name": "@arkecosystem/core-snapshots-cli",
-  "description": "Provides live cli interface to the core-snapshots module for ARK Core",
-  "version": "0.1.0",
-  "contributors": [
-    "Kristjan Košič <chris@ark.io>"
-  ],
-  "license": "MIT",
-  "bin": {
-    "ark:snapshot": "./bin/snapshot"
-  },
-  "scripts": {
-    "start": "./bin/snapshot",
-    "debug": "node --inspect-brk ./bin/snapshot",
-    "create:mainnet": "./bin/snapshot create --config ../core/lib/config/mainnet --network mainnet",
-    "create:devnet": "./bin/snapshot create --config ../core/lib/config/devnet --network devnet",
-    "create:testnet": "./bin/snapshot create --config ../core/lib/config/testnet --network testnet",
-    "import:mainnet": "./bin/snapshot import --config ../core/lib/config/mainnet --network mainnet",
-    "import:devnet": "./bin/snapshot import --config ../core/lib/config/devnet --network devnet",
-    "import:testnet": "./bin/snapshot import --config ../core/lib/config/testnet --network testnet",
-    "verify:mainnet": "./bin/snapshot verify --config ../core/lib/config/mainnet --network mainnet",
-    "verify:devnet": "./bin/snapshot verify --config ../core/lib/config/devnet --network devnet",
-    "verify:testnet": "./bin/snapshot verify --config ../core/lib/config/testnet --network testnet",
-    "rollback:mainnet": "./bin/snapshot rollback --config ../core/lib/config/mainnet --network mainnet",
-    "rollback:devnet": "./bin/snapshot rollback --config ../core/lib/config/devnet --network devnet",
-    "rollback:testnet": "./bin/snapshot rollback --config ../core/lib/config/testnet --network testnet",
-    "truncate:mainnet": "./bin/snapshot truncate --config ../core/lib/config/mainnet --network mainnet",
-    "truncate:devnet": "./bin/snapshot truncate --config ../core/lib/config/devnet --network devnet",
-    "truncate:testnet": "./bin/snapshot truncate --config ../core/lib/config/testnet --network testnet",
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "@arkecosystem/core-container": "~0.2",
-    "cli-progress": "^2.1.0",
-    "commander": "^2.19.0",
-    "fs-extra": "^7.0.1"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=10.x"
-  }
+    "name": "@arkecosystem/core-snapshots-cli",
+    "description": "Provides live cli interface to the core-snapshots module for ARK Core",
+    "version": "2.1.0",
+    "contributors": [
+        "Kristjan Košič <chris@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "/bin",
+        "/dist",
+        "/oclif.manifest.json"
+    ],
+    "bin": {
+        "snapshot": "./bin/run"
+    },
+    "scripts": {
+        "snapshot": "./bin/run",
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "yarn lint && yarn build",
+        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "debug": "node --inspect-brk ./dist/index.js",
+        "dump": "yarn snapshot dump",
+        "dump:mainnet": "yarn snapshot dump --network mainnet",
+        "dump:devnet": "yarn snapshot dump --network devnet",
+        "dump:testnet": "yarn snapshot dump --network testnet",
+        "restore": "yarn snapshot restore",
+        "restore:mainnet": "yarn snapshot restore --network mainnet",
+        "restore:devnet": "yarn snapshot restore --network devnet",
+        "restore:testnet": "yarn snapshot restore --network testnet",
+        "verify": "yarn snapshot verify",
+        "verify:mainnet": "yarn snapshot verify --network mainnet",
+        "verify:devnet": "yarn snapshot verify --network devnet",
+        "verify:testnet": "yarn snapshot verify --network testnet",
+        "rollback": "yarn snapshot rollback",
+        "rollback:mainnet": "yarn snapshot rollback --network mainnet",
+        "rollback:devnet": "yarn snapshot rollback --network devnet",
+        "rollback:testnet": "yarn snapshot rollback --network testnet",
+        "truncate": "yarn snapshot truncate",
+        "truncate:mainnet": "yarn snapshot truncate --network mainnet",
+        "truncate:devnet": "yarn snapshot truncate --network devnet",
+        "truncate:testnet": "yarn snapshot truncate --network testnet",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+    },
+    "dependencies": {
+        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-interfaces": "^2.1.0",
+        "@arkecosystem/core-snapshots": "^2.1.0",
+        "@oclif/command": "^1.5.8",
+        "@oclif/config": "^1.12.4",
+        "@oclif/plugin-help": "^2.1.6",
+        "@oclif/plugin-not-found": "^1.2.2",
+        "@types/boom": "^7.2.1",
+        "@types/cli-progress": "^1.8.0",
+        "@types/commander": "^2.12.2",
+        "@types/fs-extra": "^5.0.4",
+        "cli-progress": "^2.1.1",
+        "fs-extra": "^7.0.1"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
+    },
+    "oclif": {
+        "commands": "./dist/commands",
+        "bin": "snapshot",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-not-found"
+        ]
+    }
 }

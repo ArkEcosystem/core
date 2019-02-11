@@ -14,8 +14,9 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [Brian Faust](https://github.com/faustbrian)
-- [All Contributors](../../../../contributors)
+-   [Brian Faust](https://github.com/faustbrian)
+-   [Joshua Noack](https://github.com/supaiku0)
+-   [All Contributors](../../../../contributors)
 
 ## License
 

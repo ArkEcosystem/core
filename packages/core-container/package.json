@@ -1,40 +1,68 @@
 {
-  "name": "@arkecosystem/core-container",
-  "description": "Container for Ark Core",
-  "version": "0.2.0",
-  "contributors": [
-    "Brian Faust <brian@ark.io>"
-  ],
-  "license": "MIT",
-  "main": "lib/index.js",
-  "scripts": {
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "@arkecosystem/crypto": "~0.2",
-    "awilix": "^4.0.1",
-    "axios": "^0.18.0",
-    "delay": "^4.1.0",
-    "envfile": "^2.3.0",
-    "expand-home-dir": "^0.0.3",
-    "fs-extra": "^7.0.1",
-    "hoek": "^6.1.1",
-    "lodash.isstring": "^4.0.1",
-    "semver": "^5.6.0"
-  },
-  "devDependencies": {
-    "axios-mock-adapter": "^1.15.0",
-    "jest-mock-process": "^1.1.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=10.x"
-  }
+    "name": "@arkecosystem/core-container",
+    "description": "Container for Ark Core",
+    "version": "2.1.0",
+    "contributors": [
+        "Brian Faust <brian@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index",
+    "types": "dist/index",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "prepublishOnly": "yarn test && yarn build",
+        "pretest": "yarn lint && yarn build",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
+        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
+        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
+        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+    },
+    "dependencies": {
+        "@arkecosystem/core-interfaces": "^2.1.0",
+        "@arkecosystem/crypto": "^2.1.0",
+        "@types/fs-extra": "^5.0.4",
+        "@types/hoek": "^4.1.3",
+        "@types/joi": "^14.0.1",
+        "@types/lodash.get": "^4.4.4",
+        "@types/lodash.isstring": "^4.0.4",
+        "@types/lodash.set": "^4.3.4",
+        "@types/semver": "^5.5.0",
+        "awilix": "^4.0.1",
+        "axios": "^0.18.0",
+        "delay": "^4.1.0",
+        "env-paths": "^2.0.0",
+        "envfile": "^2.3.0",
+        "expand-home-dir": "^0.0.3",
+        "fs-extra": "^7.0.1",
+        "hoek": "^6.1.2",
+        "joi": "^14.3.0",
+        "lodash.get": "^4.4.2",
+        "lodash.isstring": "^4.0.1",
+        "lodash.set": "^4.3.2",
+        "semver": "^5.6.0"
+    },
+    "devDependencies": {
+        "@types/env-paths": "^1.0.2",
+        "axios-mock-adapter": "^1.15.0",
+        "jest-mock-process": "^1.1.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
+    }
 }
