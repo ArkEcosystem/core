@@ -1,4 +1,7 @@
+import Table from "cli-table3";
 import pm2 from "pm2";
+import prettyBytes from "pretty-bytes";
+import prettyMs from "pretty-ms";
 import { Tail } from "tail";
 
 function createConnection(callback) {
@@ -78,6 +81,41 @@ export function destroy(processName: string) {
             if (deleteError) {
                 throw deleteError;
             }
+        });
+    });
+}
+
+export function list(token: string) {
+    createConnection(() => {
+        pm2.list((listError, processDescriptionList) => {
+            pm2.disconnect();
+
+            if (listError) {
+                throw listError;
+            }
+
+            const table = new Table({
+                head: ["ID", "Name", "Version", "Status", "Uptime", "CPU %", "Mem %"],
+                chars: { mid: "", "left-mid": "", "mid-mid": "", "right-mid": "" },
+            });
+
+            const processList = Object.values(processDescriptionList).filter(p => p.name.startsWith(token));
+
+            for (const process of processList) {
+                // @ts-ignore
+                table.push([
+                    process.pid,
+                    process.name,
+                    // @ts-ignore
+                    process.pm2_env.version,
+                    process.pm2_env.status,
+                    process.pm2_env.pm_uptime,
+                    process.monit.cpu,
+                    prettyBytes(process.monit.memory),
+                ]);
+            }
+
+            console.log(table.toString());
         });
     });
 }

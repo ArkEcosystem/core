@@ -1,6 +1,5 @@
 import Table from "cli-table3";
 import envfile from "envfile";
-import expandHomeDir from "expand-home-dir";
 import { existsSync } from "fs-extra";
 import { BaseCommand } from "../command";
 
