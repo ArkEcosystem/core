@@ -35,7 +35,7 @@ $ ark forger:start --no-daemon
 
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
         start({
-            name: `${flags.token}-core-forger`,
+            name: `${flags.token}-forger`,
             script: "./bin/run",
             args: `forger:start --no-daemon ${this.flagsToStrings(flags)}`,
             env: {
