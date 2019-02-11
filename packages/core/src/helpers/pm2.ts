@@ -3,6 +3,7 @@ import dayjs from "dayjs-ext";
 import pm2 from "pm2";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
+import prompts from "prompts";
 import { Tail } from "tail";
 
 function createConnection(callback) {
@@ -17,24 +18,43 @@ function createConnection(callback) {
 }
 
 export function start(options: any) {
-    createConnection(() => {
-        pm2.start(
-            {
-                ...{
-                    max_restarts: 5,
-                    min_uptime: "5m",
-                    kill_timeout: 30000,
-                },
-                ...options,
-            },
-            startError => {
-                pm2.disconnect();
+    const processName = options.name;
 
-                if (startError) {
-                    throw startError;
-                }
-            },
-        );
+    createConnection(() => {
+        pm2.describe(processName, async (describeError, apps) => {
+            if (describeError) {
+                throw describeError;
+            }
+
+            if (apps[0]) {
+                const response = await prompts({
+                    type: "confirm",
+                    name: "confirm",
+                    message: "A process is already running, would you like to restart it?",
+                    initial: true,
+                });
+
+                return response.confirm ? restart(processName) : process.exit();
+            }
+
+            pm2.start(
+                {
+                    ...{
+                        max_restarts: 5,
+                        min_uptime: "5m",
+                        kill_timeout: 30000,
+                    },
+                    ...options,
+                },
+                startError => {
+                    pm2.disconnect();
+
+                    if (startError) {
+                        throw startError;
+                    }
+                },
+            );
+        });
     });
 }
 
@@ -124,11 +144,11 @@ export function list(token: string) {
 
 export function log(processName: string, onlyErrors: boolean) {
     createConnection(() => {
-        pm2.describe(processName, (deleteError, apps) => {
+        pm2.describe(processName, (describeError, apps) => {
             pm2.disconnect();
 
-            if (deleteError) {
-                throw deleteError;
+            if (describeError) {
+                throw describeError;
             }
 
             if (!apps[0]) {
