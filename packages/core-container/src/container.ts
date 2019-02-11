@@ -5,7 +5,6 @@ import delay from "delay";
 import semver from "semver";
 import { configManager } from "./config";
 import { Environment } from "./environment";
-import { Preset } from "./preset";
 import { PluginRegistrar } from "./registrars/plugin";
 
 export class Container implements container.IContainer {
@@ -60,19 +59,9 @@ export class Container implements container.IContainer {
 
         this.setVersion(version);
 
-        // Load the preset
-        let preset;
-        if (options.preset) {
-            preset = new Preset(options.preset);
-        }
-
         // Register the environment variables
         const environment = new Environment(variables);
         environment.setUp();
-
-        if (preset) {
-            environment.merge(preset.getEnvironment());
-        }
 
         // Mainly used for testing environments!
         if (options.skipPlugins) {
@@ -82,10 +71,6 @@ export class Container implements container.IContainer {
 
         // Setup the configuration
         this.config = await configManager.setUp(variables);
-
-        if (preset) {
-            this.config.set("plugins", preset.getPlugins());
-        }
 
         // TODO: Move this out eventually - not really the responsibility of the container
         this.plugins = new PluginRegistrar(this, options);
@@ -129,7 +114,6 @@ export class Container implements container.IContainer {
      * @throws {Error}
      */
     public resolve<T = any>(key): T {
-
         try {
             return this.container.resolve<T>(key);
         } catch (err) {

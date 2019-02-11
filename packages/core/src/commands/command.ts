@@ -46,10 +46,6 @@ export abstract class BaseCommand extends Command {
         launchMode: flags.string({
             description: "the mode the relay will be launched in (seed only at the moment)",
         }),
-        preset: flags.string({
-            description: "the configuration preset to be used",
-            options: ["forger", "full", "relay-api", "relay-forger", "relay-minimal", "relay-rpc", "relay-webhooks"],
-        }),
     };
 
     public static flagsForger: Record<string, object> = {
@@ -86,14 +82,8 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async buildApplication(app, flags: Record<string, any>, config: Record<string, any>) {
-        const modifiers: any = { skipPlugins: flags.skipPlugins };
-
-        if (flags.preset) {
-            modifiers.preset = resolve(__dirname, `../presets/${flags.preset}`);
-        }
-
         await app.setUp(version, flags, {
-            ...modifiers,
+            ...{ skipPlugins: flags.skipPlugins },
             ...config,
         });
 
