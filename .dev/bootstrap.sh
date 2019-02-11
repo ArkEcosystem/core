@@ -201,88 +201,9 @@ success "Installed system updates!"
 
 heading "Installing Ark Core..."
 
-cd "$HOME"
-
-if [ -d "ark-core" ]; then
-   heading "Removing existing folder..."
-   rm -rf ark-core
-fi
-
-git clone https://github.com/ArkEcosystem/core.git ~/ark-core
+cd /home/vagrant
+git clone https://github.com/ArkEcosystem/core.git ark-core -b develop
 cd ark-core
 yarn setup
 
 success "Installed Ark Core!"
-
-# setup configuration
-read -p "Would you like to configure the core? [y/N]: " choice
-
-if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-    info "Which network would you like to configure?"
-
-    validNetworks=("mainnet" "devnet" "testnet")
-
-    select opt in "${validNetworks[@]}"; do
-        case "$opt" in
-            "mainnet")
-                mkdir -p "${HOME}/.config/ark-core/mainnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/mainnet/." "${HOME}/.config/ark-core/mainnet"
-                break
-            ;;
-            "devnet")
-                mkdir -p "${HOME}/.config/ark-core/devnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/devnet/." "${HOME}/.config/ark-core/devnet"
-                break
-            ;;
-            "testnet")
-                mkdir -p "${HOME}/.config/ark-core/testnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/testnet/." "${HOME}/.config/ark-core/testnet"
-                break
-            ;;
-            *)
-                echo "Invalid option $REPLY"
-            ;;
-        esac
-    done
-fi
-
-# setup postgres username, password and database
-read -p "Would you like to configure the database? [y/N]: " choice
-
-if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-    read -p "Enter the database username: " databaseUsername
-    read -p "Enter the database password: " databasePassword
-    read -p "Enter the database name: " databaseName
-
-    userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
-    databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
-
-    if [[ $userExists == 1 ]]; then
-        read -p "The database user ${databaseUsername} already exists, do you want to overwrite it? [y/N]: " choice
-
-        if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-            if [[ $databaseExists == 1 ]]; then
-                sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO postgres;"
-            fi
-            sudo -i -u postgres psql -c "DROP USER ${databaseUsername}"
-            sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
-        elif [[ "$choice" =~ ^(no|n|N) ]]; then
-            continue;
-        fi
-    else
-        sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
-    fi
-
-    if [[ $databaseExists == 1 ]]; then
-        read -p "The database ${databaseName} already exists, do you want to overwrite it? [y/N]: " choice
-
-        if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-            sudo -i -u postgres psql -c "DROP DATABASE ${databaseName};"
-            sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
-        elif [[ "$choice" =~ ^(no|n|N) ]]; then
-            sudo -i -u postgres psql -c "ALTER DATABASE ${databaseName} OWNER TO ${databaseUsername};"
-        fi
-    else
-        sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
-    fi
-fi
