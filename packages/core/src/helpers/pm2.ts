@@ -1,4 +1,5 @@
 import Table from "cli-table3";
+import dayjs from "dayjs-ext";
 import pm2 from "pm2";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
@@ -109,7 +110,8 @@ export function list(token: string) {
                     // @ts-ignore
                     process.pm2_env.version,
                     process.pm2_env.status,
-                    process.pm2_env.pm_uptime,
+                    // @ts-ignore
+                    prettyMs(dayjs().diff(process.pm2_env.pm_uptime)),
                     process.monit.cpu,
                     prettyBytes(process.monit.memory),
                 ]);
