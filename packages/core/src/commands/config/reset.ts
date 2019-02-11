@@ -46,7 +46,7 @@ $ ark config:reset --network=mainnet
     }
 
     private async performReset(flags: Record<string, any>): Promise<void> {
-        const { config } = this.getPaths(flags);
+        const { config } = await this.getPaths(flags);
 
         this.addTask("Remove configuration", async () => {
             fs.removeSync(config);

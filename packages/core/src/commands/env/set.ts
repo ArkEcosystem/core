@@ -29,9 +29,9 @@ $ ark env:set CORE_LOG_LEVEL info
 
     public async run(): Promise<void> {
         const { args, flags } = this.parse(SetCommand);
+        const { config } = await this.getPaths(flags);
 
-        // @ts-ignore
-        const envFile = `${this.getPaths(flags).config}/.env`;
+        const envFile = `${config}/.env`;
 
         if (!existsSync(envFile)) {
             throw new Error(`No environment file found at ${envFile}`);

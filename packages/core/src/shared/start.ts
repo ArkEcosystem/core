@@ -4,6 +4,10 @@ export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(this.getClass());
 
+        if (!flags.network) {
+            await this.getNetwork(flags);
+        }
+
         if (flags.daemon) {
             delete flags.daemon;
 

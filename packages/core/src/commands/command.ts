@@ -1,7 +1,8 @@
 import Command, { flags } from "@oclif/command";
 import envPaths from "env-paths";
+import { readdirSync } from "fs";
 import Listr from "listr";
-import { resolve } from "path";
+import prompts from "prompts";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
@@ -26,7 +27,6 @@ export abstract class BaseCommand extends Command {
         network: flags.string({
             description: "the name of the network that should be used",
             options: ["mainnet", "devnet", "testnet"],
-            required: true,
         }),
     };
 
@@ -115,13 +115,50 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected getPaths(flags): envPaths.Paths {
-        const paths: envPaths.Paths = envPaths(flags.token, { suffix: "core" });
+    protected getEnvPaths(flags): envPaths.Paths {
+        return envPaths(flags.token, { suffix: "core" });
+    }
+
+    protected async getPaths(flags): Promise<envPaths.Paths> {
+        if (!flags.network) {
+            await this.getNetwork(flags);
+        }
+
+        const paths: envPaths.Paths = this.getEnvPaths(flags);
 
         for (const [key, value] of Object.entries(paths)) {
             paths[key] = `${value}/${flags.network}`;
         }
 
         return paths;
+    }
+
+    protected async getNetwork(flags): Promise<void> {
+        const { config } = this.getEnvPaths(flags);
+
+        const folders = readdirSync(config);
+
+        if (folders.length === 1) {
+            flags.network = folders[0];
+        } else {
+            const response = await prompts([
+                {
+                    type: "autocomplete",
+                    name: "network",
+                    message: "What network do you want to operate on?",
+                    choices: folders.map(folder => ({ title: folder, value: folder })),
+                },
+                {
+                    type: "confirm",
+                    name: "confirm",
+                    message: "Can you confirm?",
+                    initial: true,
+                },
+            ]);
+
+            if (response.confirm) {
+                flags.network = response.network;
+            }
+        }
     }
 }

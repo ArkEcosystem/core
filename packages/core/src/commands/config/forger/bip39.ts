@@ -51,7 +51,7 @@ $ ark config:forger:bip39 --bip39="..."
     }
 
     private async performConfiguration(flags): Promise<void> {
-        const { config } = this.getPaths(flags);
+        const { config } = await this.getPaths(flags);
 
         const delegatesConfig = `${config}/delegates.json`;
 
