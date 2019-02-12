@@ -45,6 +45,7 @@ export class NodeController extends Controller {
             const feeStatisticsData = await transactionsRepository.getFeeStatistics();
 
             const network = this.config.get("network");
+            const dynamicFees = app.resolveOptions("transactionPool").dynamicFees;
 
             return {
                 data: {
@@ -58,6 +59,7 @@ export class NodeController extends Controller {
                     feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
                     transactionPool: {
                         maxTransactionAge: app.resolveOptions("transactionPool").maxTransactionAge,
+                        dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
                     },
                 },
             };
