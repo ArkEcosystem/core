@@ -7,6 +7,17 @@ import { app } from "@arkecosystem/core-container";
 import { inspect } from "util";
 import { models } from "@arkecosystem/crypto";
 
+enum Severity {
+    /** Printed at every step of the verification, even if leading to a successful verification. */
+    DEBUG_EXTRA,
+
+    /** One such message per successful peer verification is printed. */
+    DEBUG,
+
+    /** Failures to verify peer state, either designating malicious peer or communication issues. */
+    INFO
+};
+
 export class PeerVerifier {
     private database: Database.IDatabaseService;
     private logPrefix: string;
@@ -90,7 +101,7 @@ export class PeerVerifier {
             return false;
         }
 
-        this.logger.debug(`${this.logPrefix} success`);
+        this.log(Severity.DEBUG, 'success');
 
         return true;
     }
@@ -111,7 +122,7 @@ export class PeerVerifier {
             return false;
         }
 
-        this.logger.info(`${this.logPrefix} peer's claimed state is invalid: ${this.anyToString(claimedState)}`);
+        this.log(Severity.INFO, `peer's claimed state is invalid: ${this.anyToString(claimedState)}`);
 
         return true;
     }
@@ -147,8 +158,8 @@ export class PeerVerifier {
 
         if (claimedHeight > ourHeight) {
             const blocksAhead = claimedHeight - ourHeight;
-            this.logger.debug(
-                `${this.logPrefix} peer's claimed chain is ${blocksAhead} block(s) higher than ` +
+            this.log(Severity.DEBUG_EXTRA,
+                `peer's claimed chain is ${blocksAhead} block(s) higher than ` +
                 `ours (our height ${ourHeight}, his claimed height ${claimedHeight})`
             );
 
@@ -168,13 +179,13 @@ export class PeerVerifier {
 
         if (ourBlockAtHisHeight.id === claimedState.header.id) {
             if (claimedHeight === ourHeight) {
-                this.logger.debug(
-                    `${this.logPrefix} success: peer's latest block is the same as our latest ` +
+                this.log(Severity.DEBUG,
+                    `success: peer's latest block is the same as our latest ` +
                     `block (height=${claimedHeight}, id=${claimedState.header.id}). Identical chains.`
                 );
             } else {
-                this.logger.debug(
-                    `${this.logPrefix} success: peer's latest block ` +
+                this.log(Severity.DEBUG,
+                    `success: peer's latest block ` +
                     `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
                     `Peer is ${ourHeight - claimedHeight} block(s) behind us.`
                 );
@@ -182,9 +193,8 @@ export class PeerVerifier {
             return true;
         }
 
-        this.logger.info(
-            `${this.logPrefix} peer's latest block ` +
-            `(height=${claimedHeight}, id=${claimedState.header.id}), is different than the ` +
+        this.log(Severity.INFO,
+            `peer's latest block (height=${claimedHeight}, id=${claimedState.header.id}), is different than the ` +
             `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
             (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) + ` different chain.`
         );
@@ -236,7 +246,7 @@ export class PeerVerifier {
 
             const msRemaining = this.throwIfPastDeadline(deadline);
 
-            this.logger.debug(`${this.logPrefix} probe for common blocks in range ${rangePrint}`);
+            this.log(Severity.DEBUG_EXTRA, `probe for common blocks in range ${rangePrint}`);
 
             const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById), msRemaining);
 
@@ -248,27 +258,26 @@ export class PeerVerifier {
                 typeof highestCommon.id !== 'string' ||
                 !Number.isInteger(highestCommon.height)) {
 
-                this.logger.info(
-                    `${this.logPrefix} failure: erroneous reply from peer for common blocks ` +
+                this.log(Severity.INFO,
+                    `failure: erroneous reply from peer for common blocks ` +
                     `${ourBlocksPrint}: ${this.anyToString(highestCommon)}`
                 );
                 return null;
             }
 
             if (!probesHeightById[highestCommon.id]) {
-                this.logger.info(
-                    `${this.logPrefix} failure: bogus reply from peer for common blocks ` +
-                    `${ourBlocksPrint}: peer replied with block id ${highestCommon.id} which we ` +
-                    `did not ask for`
+                this.log(Severity.INFO,
+                    `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
+                    `peer replied with block id ${highestCommon.id} which we did not ask for`
                 );
                 return null;
             }
 
             if (probesHeightById[highestCommon.id] !== highestCommon.height) {
-                this.logger.info(
-                    `${this.logPrefix} failure: bogus reply from peer for common blocks ` +
-                    `${ourBlocksPrint}: peer pretends to have block with id ${highestCommon.id} ` +
-                    `at height ${highestCommon.height}, however a block with the same id is at ` +
+                this.log(Severity.INFO,
+                    `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
+                    `peer pretends to have block with id ${highestCommon.id} at height ` +
+                    `${highestCommon.height}, however a block with the same id is at ` +
                     `different height ${probesHeightById[highestCommon.id]} in our chain`
                 );
                 return null;
@@ -282,9 +291,9 @@ export class PeerVerifier {
         const highestCommonBlockHeight = await nSect.find(1, Math.min(claimedHeight, ourHeight));
 
         if (highestCommonBlockHeight === null) {
-            this.logger.info(`${this.logPrefix} failure: could not determine a common block`);
+            this.log(Severity.INFO, `failure: could not determine a common block`);
         } else {
-            this.logger.debug(`${this.logPrefix} highest common block height: ${highestCommonBlockHeight}`);
+            this.log(Severity.DEBUG_EXTRA, `highest common block height: ${highestCommonBlockHeight}`);
         }
 
         return highestCommonBlockHeight;
@@ -384,9 +393,8 @@ export class PeerVerifier {
             // returns blocks from the next one, thus we do -1
             response = await this.peer.getPeerBlocks(height - 1, msRemaining);
         } catch (err) {
-            this.logger.info(
-                `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
-                `from peer: exception: ${err.message}`
+            this.log(Severity.INFO,
+                `failure: could not get blocks starting from height ${height} from peer: exception: ${err.message}`
             );
             return false;
         }
@@ -396,8 +404,8 @@ export class PeerVerifier {
             !Array.isArray(response.data.blocks) ||
             response.data.blocks.length === 0) {
 
-            this.logger.info(
-                `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
+            this.log(Severity.INFO,
+                `failure: could not get blocks starting from height ${height} ` +
                 `from peer: unexpected response: ${this.anyToString(response)}`
             );
             return false;
@@ -406,8 +414,8 @@ export class PeerVerifier {
         for (let i = 0; i < response.data.blocks.length; i++) {
             blocksByHeight[height + i] = response.data.blocks[i];
             if (typeof blocksByHeight[height + i] !== 'object') {
-                this.logger.info(
-                    `${this.logPrefix} failure: could not get blocks starting from height ${height} ` +
+                this.log(Severity.INFO,
+                    `failure: could not get blocks starting from height ${height} ` +
                     `from peer: the block at height ${height + i} is not an object: ` +
                     this.anyToString(response)
                 );
@@ -432,11 +440,9 @@ export class PeerVerifier {
         delegatesByPublicKey: any[]): Promise<boolean> {
 
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
-            // This is causing too much noise in the log
-            // this.logger.debug(
-            //     `${this.logPrefix} accepting block at height ${blockData.height}, already ` +
-            //     `successfully verified before`
-            // );
+            this.log(Severity.DEBUG_EXTRA,
+                `accepting block at height ${blockData.height}, already successfully verified before`
+            );
 
             return true;
         }
@@ -444,9 +450,8 @@ export class PeerVerifier {
         const block = new models.Block(blockData);
 
         if (!block.verification.verified) {
-            this.logger.info(
-                `${this.logPrefix} failure: peer's block at height ${expectedHeight} does not ` +
-                `pass crypto-validation`
+            this.log(Severity.INFO,
+                `failure: peer's block at height ${expectedHeight} does not pass crypto-validation`
             );
             return false;
         }
@@ -454,17 +459,15 @@ export class PeerVerifier {
         const height = block.data.height;
 
         if (height !== expectedHeight) {
-            this.logger.info(
-                `${this.logPrefix} failure: asked for block at height ${expectedHeight}, ` +
-                `but got a block with height ${height} instead`
+            this.log(Severity.INFO,
+                `failure: asked for block at height ${expectedHeight}, but got a block with height ${height} instead`
             );
             return false;
         }
 
         if (delegatesByPublicKey[block.data.generatorPublicKey]) {
-            this.logger.debug(
-                `${this.logPrefix} successfully verified block at height ${height}, signed by ` +
-                block.data.generatorPublicKey
+            this.log(Severity.DEBUG_EXTRA,
+                `successfully verified block at height ${height}, signed by ` + block.data.generatorPublicKey
             );
 
             PeerVerifier.verifiedBlocks.add(block.data.id);
@@ -472,10 +475,9 @@ export class PeerVerifier {
             return true;
         }
 
-        this.logger.info(
-            `${this.logPrefix} failure: block ${this.anyToString(blockData)} is not ` +
-            `signed by any of the delegates for the corresponding round: ` +
-            this.anyToString(Object.values(delegatesByPublicKey))
+        this.log(Severity.INFO,
+            `failure: block ${this.anyToString(blockData)} is not signed by any of the delegates ` +
+            `for the corresponding round: ` + this.anyToString(Object.values(delegatesByPublicKey))
         );
 
         return false;
@@ -505,5 +507,27 @@ export class PeerVerifier {
      */
     private anyToString(val: any): string {
         return inspect(val, { sorted: true, breakLength: Infinity });
+    }
+
+    /**
+     * Log a message with the given severity.
+     * @param {Severity} severity severity of the message, DEBUG_EXTRA messages are only
+     * logged if enabled in the environment.
+     */
+    private log(severity: Severity, msg: string): void {
+        const fullMsg: string = `${this.logPrefix} ${msg}`;
+        switch (severity) {
+            case Severity.DEBUG_EXTRA:
+                if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                    this.logger.debug(fullMsg);
+                }
+                break;
+            case Severity.DEBUG:
+                this.logger.debug(fullMsg);
+                break;
+            case Severity.INFO:
+                this.logger.info(fullMsg);
+                break;
+        }
     }
 }
