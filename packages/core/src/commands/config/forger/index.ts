@@ -19,7 +19,9 @@ $ ark config:forger --method=bip39
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsForger,
-        method: flags.string({ char: "m", description: "the configuration method to use (bip38 or bip39)" }),
+        method: flags.string({
+            description: "the configuration method to use (bip38 or bip39)",
+        }),
     };
 
     public async run(): Promise<void> {

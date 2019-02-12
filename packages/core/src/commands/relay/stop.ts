@@ -17,7 +17,6 @@ $ ark relay:stop --daemon
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
         daemon: flags.boolean({
-            char: "d",
             description: "stop the process or daemon",
         }),
     };

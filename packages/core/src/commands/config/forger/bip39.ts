@@ -16,7 +16,6 @@ $ ark config:forger:bip39 --bip39="..."
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
         bip39: flags.string({
-            char: "b",
             description: "the plain text bip39 passphrase",
         }),
     };
