@@ -44,6 +44,7 @@ describe("constructor - networkStart", () => {
             const stateMachine = require("../src/state-machine").stateMachine;
             const loggerError = jest.spyOn(logger, "error");
 
+            // @ts-ignore
             jest.spyOn(stateMachine, "transition").mockReturnValueOnce({
                 actions: ["yooo"],
             });

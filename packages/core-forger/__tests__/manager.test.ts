@@ -38,6 +38,7 @@ describe("Forger Manager", () => {
         it("should be ok with configured delegates", async () => {
             const secret = "a secret";
             forgeManager.secrets = [secret];
+            // @ts-ignore
             forgeManager.client.getUsernames.mockReturnValue([]);
 
             const delegates = await forgeManager.loadDelegates();
@@ -56,6 +57,7 @@ describe("Forger Manager", () => {
                 "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
             );
 
+            // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
                 transactions: transactions.map(tx => tx.serialized),
             });
@@ -95,6 +97,7 @@ describe("Forger Manager", () => {
 
     describe("__getTransactionsForForging", () => {
         it("should return zero transactions if none to forge", async () => {
+            // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({});
 
             const transactions = await forgeManager.__getTransactionsForForging();
@@ -103,6 +106,7 @@ describe("Forger Manager", () => {
             expect(forgeManager.client.getTransactions).toHaveBeenCalled();
         });
         it("should return deserialized transactions", async () => {
+            // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
                 transactions: [Transaction.serialize(sampleTransaction).toString("hex")],
             });
