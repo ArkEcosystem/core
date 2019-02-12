@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
 import { configManager, constants, errors, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
+import { MemPoolTransaction } from "./mem-pool-transaction";
 import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
 
 const { TransactionTypes } = constants;
@@ -159,6 +159,37 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             return false;
         }
 
+        // This check must come before canApply otherwise a wallet may be incorrectly assigned a username when multiple
+        // conflicting delegate registrations for the same username exist in the same transaction payload
+        if (transaction.type === TransactionTypes.DelegateRegistration) {
+            const username = transaction.asset.delegate.username;
+            const delegateRegistrationsInPayload = this.transactions.filter(
+                tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username,
+            );
+            if (delegateRegistrationsInPayload.length > 1) {
+                this.__pushError(
+                    transaction,
+                    "ERR_CONFLICT",
+                    `Multiple delegate registrations for "${username}" in transaction payload`,
+                );
+                return false;
+            }
+
+            const delegateRegistrationsInPool: MemPoolTransaction[] = Array.from(
+                this.pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
+            );
+            if (
+                delegateRegistrationsInPool.some(memTx => memTx.transaction.data.asset.delegate.username === username)
+            ) {
+                this.__pushError(
+                    transaction,
+                    "ERR_PENDING",
+                    `Delegate registration for "${username}" already in the pool`,
+                );
+                return false;
+            }
+        }
+
         if (transaction.network && transaction.network !== configManager.get("pubKeyHash")) {
             this.__pushError(
                 transaction,
@@ -215,9 +246,9 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * Remove already forged transactions.
      */
     public async __removeForgedTransactions() {
-        const database = app.resolvePlugin<PostgresConnection>("database");
+        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-        const forgedIdsSet = await database.getForgedTransactionsIds([
+        const forgedIdsSet = await databaseService.getForgedTransactionsIds([
             ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
         ]);
 

@@ -15,7 +15,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",

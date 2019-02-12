@@ -1,15 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import orderBy from "lodash/orderBy";
 import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const database = app.resolvePlugin<PostgresConnection>("database");
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
-    const delegates = await database.delegates.paginate({
+    const delegates = await databaseService.delegates.findAll({
         ...request.query,
         ...paginate(request),
     });
@@ -18,7 +18,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const delegate = await database.delegates.findById(request.params.id);
+    const delegate = await databaseService.delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -28,7 +28,7 @@ const show = async request => {
 };
 
 const search = async request => {
-    const delegates = await database.delegates.search({
+    const delegates = await databaseService.delegates.search({
         ...request.payload,
         ...request.query,
         ...paginate(request),
@@ -38,7 +38,7 @@ const search = async request => {
 };
 
 const blocks = async request => {
-    const delegate = await database.delegates.findById(request.params.id);
+    const delegate = await databaseService.delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -50,25 +50,25 @@ const blocks = async request => {
 };
 
 const voters = async request => {
-    const delegate = await database.delegates.findById(request.params.id);
+    const delegate = await databaseService.delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
     }
 
-    const wallets = await database.wallets.findAllByVote(delegate.publicKey, paginate(request));
+    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, paginate(request));
 
     return toPagination(request, wallets, "wallet");
 };
 
 const voterBalances = async request => {
-    const delegate = await database.delegates.findById(request.params.id);
+    const delegate = await databaseService.delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
     }
 
-    const wallets = await database.wallets.all().filter(wallet => wallet.vote === delegate.publicKey);
+    const wallets = await databaseService.wallets.all().filter(wallet => wallet.vote === delegate.publicKey);
 
     const data = {};
     orderBy(wallets, ["balance"], ["desc"]).forEach(wallet => {

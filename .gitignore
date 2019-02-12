@@ -65,3 +65,6 @@ docker/development
 
 #Webstorm/Intellij
 .idea
+
+# Vagrant
+.vagrant

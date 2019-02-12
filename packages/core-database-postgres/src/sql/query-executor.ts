@@ -1,4 +1,4 @@
-import { PostgresConnection } from "../connection";
+import { PostgresConnection } from "../postgres-connection";
 
 export class QueryExecutor {
     /**

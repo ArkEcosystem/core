@@ -13,7 +13,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
@@ -31,7 +31,6 @@
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.1.0",
         "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-database-postgres": "^2.1.0",
         "@arkecosystem/core-http-utils": "^2.1.0",
         "@arkecosystem/core-transaction-pool": "^2.1.0",
         "@arkecosystem/core-utils": "^2.1.0",

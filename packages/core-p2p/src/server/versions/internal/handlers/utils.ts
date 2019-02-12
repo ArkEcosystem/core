@@ -35,7 +35,7 @@ export const usernames = {
  * Emit the given event and payload to the local host.
  * @type {Object}
  */
-export const emitEvent = {
+export const emitEvent: object = {
     /**
      * @param  {Hapi.Request} request
      * @param  {Hapi.Toolkit} h

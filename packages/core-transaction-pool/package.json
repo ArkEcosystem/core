@@ -16,7 +16,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
@@ -34,7 +34,6 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.0",
         "@arkecosystem/core-database": "^2.1.0",
-        "@arkecosystem/core-database-postgres": "^2.1.0",
         "@arkecosystem/crypto": "^2.1.0",
         "@arkecosystem/core-interfaces": "^2.1.0",
         "@types/better-sqlite3": "^5.2.0",

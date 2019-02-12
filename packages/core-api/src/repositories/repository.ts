@@ -1,12 +1,11 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import snakeCase from "lodash/snakeCase";
 import { IRepository } from "../interfaces";
 
 export abstract class Repository implements IRepository {
-    public database = app.resolvePlugin<PostgresConnection>("database");
-    public cache = this.database.getCache();
+    public databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    public cache = this.databaseService.cache;
     public transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
     public model = this.getModel();
     public query = this.model.query();
@@ -20,15 +19,15 @@ export abstract class Repository implements IRepository {
     public abstract getModel(): any;
 
     public async _find(query): Promise<any> {
-        return this.database.query.oneOrNone(query.toQuery());
+        return (this.databaseService.connection as any).query.oneOrNone(query.toQuery());
     }
 
     public async _findMany(query): Promise<any> {
-        return this.database.query.manyOrNone(query.toQuery());
+        return (this.databaseService.connection as any).query.manyOrNone(query.toQuery());
     }
 
     public async _findManyWithCount(selectQuery, { limit, offset, orderBy }): Promise<any> {
-        if (this.columns.includes(orderBy[0])) {
+        if (Array.isArray(orderBy) && this.columns.includes(orderBy[0])) {
             selectQuery.order(this.query[snakeCase(orderBy[0])][orderBy[1]]);
         }
 
@@ -61,7 +60,7 @@ export abstract class Repository implements IRepository {
 
         let count = 0;
         const explainSql = `EXPLAIN ${selectQuery.toString()}`;
-        for (const row of await this.database.query.manyOrNone(explainSql)) {
+        for (const row of await (this.databaseService.connection as any).query.manyOrNone(explainSql)) {
             const line: any = Object.values(row)[0];
             const match = line.match(/rows=([0-9]+)/);
             if (match !== null) {

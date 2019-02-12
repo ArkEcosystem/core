@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { JoiWrapper, models, slots } from "@arkecosystem/crypto";
 
@@ -251,7 +250,7 @@ export const getBlocks = {
      */
     async handler(request, h) {
         try {
-            const database = app.resolvePlugin<PostgresConnection>("database");
+            const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
             const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
             const reqBlockHeight = +request.query.lastBlockHeight + 1;
@@ -260,7 +259,7 @@ export const getBlocks = {
             if (!request.query.lastBlockHeight || isNaN(reqBlockHeight)) {
                 blocks.push(blockchain.getLastBlock());
             } else {
-                blocks = await database.getBlocks(reqBlockHeight, 400);
+                blocks = await databaseService.getBlocks(reqBlockHeight, 400);
             }
 
             logger.info(

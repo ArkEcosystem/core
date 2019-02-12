@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { models, Transaction } from "@arkecosystem/crypto";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { Transaction } from "@arkecosystem/crypto";
 import * as schema from "../schemas/transactions";
 
 const config = app.getConfig();
@@ -9,7 +8,7 @@ const config = app.getConfig();
 /**
  * @type {Object}
  */
-export const verify = {
+export const verify: object = {
     /**
      * @param  {Hapi.Request} request
      * @param  {Hapi.Toolkit} h
@@ -20,7 +19,7 @@ export const verify = {
 
         return {
             data: {
-                valid: await app.resolvePlugin<PostgresConnection>("database").verifyTransaction(transaction),
+                valid: await app.resolvePlugin<Database.IDatabaseService>("database").verifyTransaction(transaction),
             },
         };
     },

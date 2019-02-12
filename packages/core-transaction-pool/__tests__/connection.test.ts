@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database } from "@arkecosystem/core-interfaces";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
@@ -18,19 +18,19 @@ const { generateTransfers } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 
 let config;
-let database: PostgresConnection;
-let connection;
+let databaseService: Database.IDatabaseService;
+let connection: TransactionPool;
 
 beforeAll(async () => {
     await setUpFull();
 
     config = app.getConfig();
-    database = app.resolvePlugin<PostgresConnection>("database");
+    databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     connection = app.resolvePlugin<TransactionPool>("transactionPool");
 
     // Ensure no cold wallet and enough funds
-    database.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
-    database.walletManager.findByPublicKey(
+    databaseService.walletManager.findByPublicKey("000000000000000000000000000000000000000420000000000000000000000000");
+    databaseService.walletManager.findByPublicKey(
         "0310c283aac7b35b4ae6fab201d36e8322c3408331149982e16013a5bcb917081c",
     ).balance = bignumify(200 * 1e8);
 
@@ -207,7 +207,7 @@ describe("Connection", () => {
             transactions.push(mockData.dummy2);
 
             // Ensure no cold wallets
-            transactions.forEach(tx => database.walletManager.findByPublicKey(tx.data.senderPublicKey));
+            transactions.forEach(tx => databaseService.walletManager.findByPublicKey(tx.data.senderPublicKey));
 
             const { added, notAdded } = connection.addTransactions(transactions);
             expect(added).toHaveLength(4);
@@ -421,16 +421,16 @@ describe("Connection", () => {
 
         it("should return true if sender is blocked", () => {
             const publicKey = "thisPublicKeyIsBlocked";
-            connection.blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
             expect(connection.isSenderBlocked(publicKey)).toBeTrue();
         });
 
         it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
             const publicKey = "thisPublicKeyIsNotBlockedAnymore";
-            connection.blockedByPublicKey[publicKey] = dayjs().add(1, "second");
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().add(1, "second");
             await delay(1100);
             expect(connection.isSenderBlocked(publicKey)).toBeFalse();
-            expect(connection.blockedByPublicKey[publicKey]).toBeUndefined();
+            expect((connection as any).blockedByPublicKey[publicKey]).toBeUndefined();
         });
     });
 
@@ -442,7 +442,7 @@ describe("Connection", () => {
             const blockReleaseTime = connection.blockSender(publicKey);
 
             const plus1HourAfter = dayjs().add(1, "hour");
-            expect(connection.blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
+            expect((connection as any).blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
             expect(blockReleaseTime >= plus1HourBefore).toBeTrue();
             expect(blockReleaseTime <= plus1HourAfter).toBeTrue();
         });
@@ -458,7 +458,7 @@ describe("Connection", () => {
 
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(+senderRecipientWallet.balance).toBe(balanceBefore - block2.totalFee);
+            expect(+senderRecipientWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
         });
 
         it("should remove transaction from pool if it's in the chained block", () => {
@@ -476,12 +476,12 @@ describe("Connection", () => {
             const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
             senderRecipientWallet.balance = new Bignum(10); // not enough funds for transactions in block
 
-            expect(connection.walletManager.all()).toEqual([senderRecipientWallet]);
+            expect(connection.walletManager.allByAddress()).toEqual([senderRecipientWallet]);
 
             // canApply should fail because wallet has not enough funds
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
             expect(connection.isSenderBlocked(block2.transactions[0].senderPublicKey)).toBeTrue();
         });
 
@@ -489,11 +489,11 @@ describe("Connection", () => {
             const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
             senderRecipientWallet.balance = new Bignum(block2.totalFee); // exactly enough funds for transactions in block
 
-            expect(connection.walletManager.all()).toEqual([senderRecipientWallet]);
+            expect(connection.walletManager.allByAddress()).toEqual([senderRecipientWallet]);
 
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
         });
     });
 
@@ -509,11 +509,11 @@ describe("Connection", () => {
 
             connection.walletManager.reset();
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
 
             await connection.buildWallets();
 
-            const allWallets = connection.walletManager.all();
+            const allWallets = connection.walletManager.allByAddress();
             expect(allWallets).toHaveLength(1);
             expect(allWallets[0].publicKey).toBe(transaction0.data.senderPublicKey);
         });
@@ -526,13 +526,13 @@ describe("Connection", () => {
 
             connection.walletManager.reset();
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
 
             jest.spyOn(connection, "getTransaction").mockImplementationOnce(id => undefined);
 
             await connection.buildWallets();
 
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
         });
 
         it("should not apply transaction to wallet if canApply() failed", async () => {
@@ -541,7 +541,7 @@ describe("Connection", () => {
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
-            expect(connection.walletManager.all()).toEqual([]);
+            expect(connection.walletManager.allByAddress()).toEqual([]);
 
             const senderRecipientWallet = connection.walletManager.findByAddress(block2.transactions[0].recipientId);
             senderRecipientWallet.balance = new Bignum(10); // not enough funds for transactions in block
@@ -552,7 +552,7 @@ describe("Connection", () => {
 
             await connection.buildWallets();
 
-            expect(connection.walletManager.all()).toEqual([]); // canApply() failed, wallet was purged
+            expect(connection.walletManager.allByAddress()).toEqual([]); // canApply() failed, wallet was purged
         });
     });
 
@@ -615,7 +615,7 @@ describe("Connection", () => {
         it("remove forged when starting", async () => {
             expect(connection.getPoolSize()).toBe(0);
 
-            const block = await database.getLastBlock();
+            const block = await databaseService.getLastBlock();
 
             // XXX This accesses directly block.transactions which is not even
             // documented in packages/crypto/src/models/block.js
@@ -627,8 +627,8 @@ describe("Connection", () => {
             // For some reason all genesis transactions fail signature verification, so
             // they are not loaded from the local storage and this fails otherwise.
             // TODO: Use jest.spyOn() to change behavior instead. jest.restoreAllMocks() will reset afterwards
-            const original = database.getForgedTransactionsIds;
-            database.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
+            const original = databaseService.getForgedTransactionsIds;
+            databaseService.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
 
             expect(forgedTransaction instanceof Transaction).toBeTrue();
 
@@ -650,7 +650,7 @@ describe("Connection", () => {
 
             connection.flush();
 
-            database.getForgedTransactionsIds = original;
+            databaseService.getForgedTransactionsIds = original;
         });
     });
 
@@ -761,7 +761,7 @@ describe("Connection", () => {
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
-            };
+            } as any;
 
             block.transactions.forEach(tx => connection.addTransaction(tx));
 
@@ -790,7 +790,7 @@ describe("Connection", () => {
                 1,
                 5,
             );
-            const block = { transactions };
+            const block = { transactions } as models.Block;
 
             block.transactions.forEach(tx => connection.addTransaction(tx));
 
