@@ -8,11 +8,8 @@ export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the core";
 
     public static examples: string[] = [
-        `Run core on mainnet
-$ ark core:start --network=mainnet
-`,
-        `Run core with custom data and config paths
-$ ark core:start --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
+        `Run core with a daemon
+$ ark core:start
 `,
         `Run core as genesis
 $ ark core:start --networkStart
@@ -28,9 +25,6 @@ $ ark core:start --ignoreMinimumNetworkReach
 `,
         `Start a seed
 $ ark core:start --launchMode=seed
-`,
-        `Run core without any public facing services
-$ ark core:start --preset=relay-minimal
 `,
         `Run core without a daemon
 $ ark core:start --no-daemon

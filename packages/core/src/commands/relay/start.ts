@@ -8,11 +8,8 @@ export class StartCommand extends AbstractStartCommand {
     public static description: string = "Start the relay";
 
     public static examples: string[] = [
-        `Run a mainnet relay
+        `Run a relay with a pm2 daemon
 $ ark relay:start --network=mainnet
-`,
-        `Run a relay with custom data and config paths
-$ ark relay:start --data ~/.my-ark --config ~/.my-ark/conf --network=devnet
 `,
         `Run a genesis relay
 $ ark relay:start --networkStart
@@ -28,9 +25,6 @@ $ ark relay:start --ignoreMinimumNetworkReach
 `,
         `Start a seed
 $ ark relay:start --launchMode=seed
-`,
-        `Run a relay without any public facing services
-$ ark relay:start --preset=relay-minimal
 `,
         `Run a relay without a daemon
 $ ark relay:start --no-daemon

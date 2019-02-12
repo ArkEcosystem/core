@@ -2272,6 +2272,14 @@
     "@types/node" "*"
     "@types/sonic-boom" "*"
 
+"@types/pino@^5.8.4":
+  version "5.8.4"
+  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.8.4.tgz#8f7d4a7ce79f32533758847a1e636a2f3b35a677"
+  integrity sha512-HTW0JVyX6l9wZv4jhgQU2DGpGAFzyDJgVEOTZCyCkPEmO6lAKfMSqxQOuii3HRAADazpD7d6Oj93Lhonk0c0Mw==
+  dependencies:
+    "@types/node" "*"
+    "@types/sonic-boom" "*"
+
 "@types/pluralize@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/pluralize/-/pluralize-0.0.29.tgz#6ffa33ed1fc8813c469b859681d09707eb40d03c"
@@ -11154,6 +11162,18 @@ pino@^5.10.1:
     flatstr "^1.0.9"
     pino-std-serializers "^2.3.0"
     pump "^3.0.0"
+    quick-format-unescaped "^3.0.0"
+    sonic-boom "^0.7.1"
+
+pino@^5.11.1:
+  version "5.11.1"
+  resolved "https://registry.yarnpkg.com/pino/-/pino-5.11.1.tgz#2d6d8edb7ebc7c354be03bfa04fd436352e1d67b"
+  integrity sha512-NIua0mGb9Adknq35ONvQmvh93LCUVUjp2+1q1EcvIkJmpJnSd3E5rHVKlKNjzMXFl/z3fI+QA0xXCjPEKNiLvQ==
+  dependencies:
+    fast-redact "^1.4.2"
+    fast-safe-stringify "^2.0.6"
+    flatstr "^1.0.9"
+    pino-std-serializers "^2.3.0"
     quick-format-unescaped "^3.0.0"
     sonic-boom "^0.7.1"
 

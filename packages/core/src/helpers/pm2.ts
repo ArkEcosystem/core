@@ -5,11 +5,12 @@ import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import prompts from "prompts";
 import { Tail } from "tail";
+import { logger } from "../logger";
 
 function createConnection(callback) {
-    pm2.connect(connectionError => {
-        if (connectionError) {
-            console.error(connectionError);
+    pm2.connect(error => {
+        if (error) {
+            logger.error(error);
             process.exit(2);
         }
 
@@ -21,9 +22,10 @@ export function start(options: any) {
     const processName = options.name;
 
     createConnection(() => {
-        pm2.describe(processName, async (describeError, apps) => {
-            if (describeError) {
-                throw describeError;
+        pm2.describe(processName, async (error, apps) => {
+            if (error) {
+                logger.error(error.message);
+                process.exit();
             }
 
             if (apps[0]) {
@@ -35,11 +37,12 @@ export function start(options: any) {
                 });
 
                 if (response.confirm) {
-                    pm2.reload(processName, reloadError => {
+                    pm2.reload(processName, error => {
                         pm2.disconnect();
 
-                        if (reloadError) {
-                            throw reloadError;
+                        if (error) {
+                            logger.error(error.message);
+                            process.exit();
                         }
 
                         process.exit();
@@ -57,11 +60,12 @@ export function start(options: any) {
                         },
                         ...options,
                     },
-                    startError => {
+                    error => {
                         pm2.disconnect();
 
-                        if (startError) {
-                            throw startError;
+                        if (error) {
+                            logger.error(error.message);
+                            process.exit();
                         }
                     },
                 );
@@ -72,11 +76,15 @@ export function start(options: any) {
 
 export function stop(processName: string) {
     createConnection(() => {
-        pm2.stop(processName, stopError => {
+        pm2.stop(processName, error => {
             pm2.disconnect();
 
-            if (stopError) {
-                throw stopError;
+            if (error) {
+                if (error.message === "process name not found") {
+                    logger.warn(`The "${processName}" process does not exist. Failed to stop!`);
+                } else {
+                    throw error;
+                }
             }
         });
     });
@@ -84,11 +92,15 @@ export function stop(processName: string) {
 
 export function restart(processName: string) {
     createConnection(() => {
-        pm2.reload(processName, reloadError => {
+        pm2.reload(processName, error => {
             pm2.disconnect();
 
-            if (reloadError) {
-                throw reloadError;
+            if (error) {
+                if (error.message === "process name not found") {
+                    logger.warn(`The "${processName}" process does not exist. Failed to restart!`);
+                } else {
+                    throw error;
+                }
             }
         });
     });
@@ -96,23 +108,15 @@ export function restart(processName: string) {
 
 export function shutdown(processName: string) {
     createConnection(() => {
-        pm2.delete(processName, deleteError => {
+        pm2.delete(processName, error => {
             pm2.disconnect();
 
-            if (deleteError) {
-                throw deleteError;
-            }
-        });
-    });
-}
-
-export function destroy(processName: string) {
-    createConnection(() => {
-        pm2.delete(processName, deleteError => {
-            pm2.disconnect();
-
-            if (deleteError) {
-                throw deleteError;
+            if (error) {
+                if (error.message === "process name not found") {
+                    logger.warn(`The "${processName}" process does not exist. Failed to shutdown!`);
+                } else {
+                    throw error;
+                }
             }
         });
     });
@@ -120,11 +124,12 @@ export function destroy(processName: string) {
 
 export function list(token: string) {
     createConnection(() => {
-        pm2.list((listError, processDescriptionList) => {
+        pm2.list((error, processDescriptionList) => {
             pm2.disconnect();
 
-            if (listError) {
-                throw listError;
+            if (error) {
+                logger.error(error.message);
+                process.exit();
             }
 
             const table = new Table({
@@ -156,15 +161,16 @@ export function list(token: string) {
 
 export function log(processName: string, onlyErrors: boolean) {
     createConnection(() => {
-        pm2.describe(processName, (describeError, apps) => {
+        pm2.describe(processName, (error, apps) => {
             pm2.disconnect();
 
-            if (describeError) {
-                throw describeError;
+            if (error) {
+                logger.error(error.message);
+                process.exit();
             }
 
             if (!apps[0]) {
-                console.log(`The "${processName}" process is not running, thus no logs are to be viewed.`);
+                logger.warn(`The "${processName}" process is not running. No logs to be viewed!`);
                 process.exit();
             }
 
