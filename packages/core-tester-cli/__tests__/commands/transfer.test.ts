@@ -37,6 +37,7 @@ describe("Commands - Transfer", () => {
 
         mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
         let expectedTransactions = [];
+        // @ts-ignore
         jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
             expectedTransactions = transactions;
         });
@@ -68,6 +69,7 @@ describe("Commands - Transfer", () => {
 
         mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
         let expectedTransactions = [];
+        // @ts-ignore
         jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
             expectedTransactions = transactions;
         });
@@ -95,6 +97,7 @@ describe("Commands - Transfer", () => {
 
         mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
         let expectedTransactions = [];
+        // @ts-ignore
         jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
             expectedTransactions = transactions;
         });
@@ -123,6 +126,7 @@ describe("Commands - Transfer", () => {
 
         mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
         let expectedTransactions = [];
+        // @ts-ignore
         jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
             expectedTransactions = transactions;
         });

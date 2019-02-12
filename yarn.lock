@@ -651,6 +651,23 @@
   dependencies:
     benchmark "^2.1.4"
 
+"@faustbrian/hapi-version@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@faustbrian/hapi-version/-/hapi-version-0.2.1.tgz#15221e355e3666035e2f009de22908d9e14b9959"
+  integrity sha512-WT/zeXzdqaaSJ9k6u0QXw+pwj+Eilh9UPW+5rEdujsgSvtXclFDAy52trp/TpdrNF2lGuKjzUB8C1o8mWafIsA==
+  dependencies:
+    "@types/boom" "^7.2.1"
+    "@types/hapi" "^18.0.0"
+    "@types/joi" "^14.3.1"
+    "@types/lodash" "^4.14.120"
+    boom "^7.3.0"
+    hapi "^18.1.0"
+    joi "^14.3.1"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
+    media-type "^0.3.1"
+    micromatch "^3.1.10"
+
 "@iamstarkov/listr-update-renderer@0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@iamstarkov/listr-update-renderer/-/listr-update-renderer-0.4.1.tgz#d7c48092a2dcf90fd672b6c8b458649cb350c77e"
@@ -2060,7 +2077,7 @@
   dependencies:
     "@types/lodash" "*"
 
-"@types/lodash@*", "@types/lodash@^4.14.110":
+"@types/lodash@*", "@types/lodash@^4.14.110", "@types/lodash@^4.14.120":
   version "4.14.120"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.120.tgz#cf265d06f6c7a710db087ed07523ab8c1a24047b"
   integrity sha512-jQ21kQ120mo+IrDs1nFNVm/AsdFxIx2+vZ347DbogHJPd/JzKNMOqU6HCYin1W6v8l5R9XSO2/e9cxmn7HAnVw==
@@ -3506,13 +3523,6 @@ boom@7.x.x, boom@^7.1.0, boom@^7.1.1, boom@^7.2.0, boom@^7.3.0:
   integrity sha512-Swpoyi2t5+GhOEGw8rEsKvTxFLIDiiKoUc2gsoV6Lyr43LHBIzch3k2MvYUs8RTROrIkVJ3Al0TkaOGjnb+B6A==
   dependencies:
     hoek "6.x.x"
-
-boom@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/boom/-/boom-5.2.0.tgz#5dd9da6ee3a5f302077436290cb717d3f4a54e02"
-  integrity sha512-Z5BTk6ZRe4tXXQlkqftmsAUANpXmuwlsF5Oov8ThoMbQRzdGTA1ngYRW160GexgOgjsFOKJz0LYhoNi+2AMBUw==
-  dependencies:
-    hoek "4.x.x"
 
 bounce@1.x.x:
   version "1.2.3"
@@ -6523,16 +6533,6 @@ handlebars@4.x.x, handlebars@^4.0.2, handlebars@^4.0.3, handlebars@^4.0.6, handl
   optionalDependencies:
     uglify-js "^3.1.4"
 
-hapi-api-version@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/hapi-api-version/-/hapi-api-version-2.1.1.tgz#1b211cdd425db76b45a5634d8710fb30108365d4"
-  integrity sha512-Wrk1CjBxkkokBQ7IRTjxY9s9sDQx0y3XP6OaTL8ErfKp6Pz6S+AKQRyE8y1wc+LYJ5DpOnBL0Px+JNlKf1FN3g==
-  dependencies:
-    boom "^5.2.0"
-    hoek "^4.2.0"
-    joi "^10.6.0"
-    media-type "^0.3.0"
-
 hapi-pagination@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/hapi-pagination/-/hapi-pagination-2.0.1.tgz#aef33ec4510257612a0b9be3855f77aa6a9635a3"
@@ -6775,7 +6775,7 @@ hoek@2.x.x:
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-2.16.3.tgz#20bb7403d3cea398e91dc4710a8ff1b8274a25ed"
   integrity sha1-ILt0A9POo5jpHcRxCo/xuCdKJe0=
 
-hoek@4.2.x, hoek@4.x.x, hoek@^4.2.0:
+hoek@4.2.x:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-4.2.1.tgz#9634502aa12c445dd5a7c5734b572bb8738aacbb"
   integrity sha512-QLg82fGkfnJ/4iy1xZ81/9SIJiq1NGFUMGs6ParyjBZr6jW2Ufj/snDqTHixNlHdPNwN2RLVD0Pi3igeK9+JfA==
@@ -7583,11 +7583,6 @@ isarray@1.0.0, isarray@^1.0.0, isarray@~1.0.0:
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
 
-isemail@2.x.x:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/isemail/-/isemail-2.2.1.tgz#0353d3d9a62951080c262c2aa0a42b8ea8e9e2a6"
-  integrity sha1-A1PT2aYpUQgMJiwqoKQrjqjp4qY=
-
 isemail@3.x.x:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/isemail/-/isemail-3.2.0.tgz#59310a021931a9fb06bbb51e155ce0b3f236832c"
@@ -8062,16 +8057,6 @@ joi@14.x.x, joi@^14.3.0, joi@^14.3.1:
     hoek "6.x.x"
     isemail "3.x.x"
     topo "3.x.x"
-
-joi@^10.6.0:
-  version "10.6.0"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-10.6.0.tgz#52587f02d52b8b75cdb0c74f0b164a191a0e1fc2"
-  integrity sha512-hBF3LcqyAid+9X/pwg+eXjD2QBZI5eXnBFJYaAkH4SK3mp9QSRiiQnDYlmlz5pccMvnLcJRS4whhDOTCkmsAdQ==
-  dependencies:
-    hoek "4.x.x"
-    isemail "2.x.x"
-    items "2.x.x"
-    topo "2.x.x"
 
 joi@^13.0.2:
   version "13.7.0"
@@ -8966,7 +8951,7 @@ md5.js@^1.3.4:
     inherits "^2.0.1"
     safe-buffer "^5.1.2"
 
-media-type@^0.3.0:
+media-type@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/media-type/-/media-type-0.3.1.tgz#5d569cdd0c52d9c41c7c6451973edd267fb21bcb"
   integrity sha1-XVac3QxS2cQcfGRRlz7dJn+yG8s=
@@ -13073,13 +13058,6 @@ toml@^2.3.2:
   version "2.3.6"
   resolved "https://registry.yarnpkg.com/toml/-/toml-2.3.6.tgz#25b0866483a9722474895559088b436fd11f861b"
   integrity sha512-gVweAectJU3ebq//Ferr2JUY4WKSDe5N+z0FvjDncLGyHmIDoxgY/2Ie4qfEIDm4IS7OA6Rmdm7pdEEdMcV/xQ==
-
-topo@2.x.x:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/topo/-/topo-2.0.2.tgz#cd5615752539057c0dc0491a621c3bc6fbe1d182"
-  integrity sha1-zVYVdSU5BXwNwEkaYhw7xvvh0YI=
-  dependencies:
-    hoek "4.x.x"
 
 topo@3.x.x:
   version "3.0.3"
