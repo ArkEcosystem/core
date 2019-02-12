@@ -124,10 +124,8 @@ describe("Database Service", () => {
             // Create delegates
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
-                    const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-                    wallet.username = Transaction.deserialize(
-                        transaction.serialized.toString(),
-                    ).asset.delegate.username;
+                    const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+                    wallet.username = Transaction.fromBytes(transaction.serialized).data.asset.delegate.username;
                     walletManager.reindex(wallet);
                 }
             }
@@ -154,7 +152,7 @@ describe("Database Service", () => {
             for (let i = 0; i < 51; i++) {
                 const transfer = transactionBuilder
                     .transfer()
-                    .amount(i * ARKTOSHI)
+                    .amount((i + 1) * ARKTOSHI)
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();
@@ -169,12 +167,12 @@ describe("Database Service", () => {
                         timestamp: 0,
                         height: initialHeight + i,
                         numberOfTransactions: 1,
-                        totalAmount: transfer.amount,
+                        totalAmount: transfer.data.amount,
                         totalFee: new Bignum(0.1),
                         reward: new Bignum(2),
                         payloadLength: 0,
                         payloadHash: "a".repeat(64),
-                        transactions: [transfer],
+                        transactions: [transfer.data],
                     },
                     keys,
                 );

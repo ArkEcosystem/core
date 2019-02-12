@@ -43,7 +43,7 @@ beforeEach(async done => {
     done();
 });
 
-function generateWallets() {
+function generateWallets(): models.Wallet[] {
     return genesisBlock.transactions.map((transaction, index) => {
         const address = crypto.getAddress(transaction.data.senderPublicKey);
 
@@ -56,7 +56,7 @@ function generateWallets() {
             balance: new Bignum(100),
             voteBalance: new Bignum(200),
             rate: index + 1,
-        };
+        } as models.Wallet;
     });
 }
 

@@ -249,7 +249,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.latestByBlock(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized));
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized).data);
 
         return new Block(block);
     }
@@ -304,7 +304,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const { data } = Transaction.fromBytes(tx.serialize);
+            const { data } = Transaction.fromBytes(tx.serialized);
             data.blockId = tx.blockId;
             return data;
         });
@@ -503,7 +503,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return tempWalletManager.loadActiveDelegateList(maxDelegates, height);
     }
 
-    private emitTransactionEvents(transaction) {
+    private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
         if (transaction.type === TransactionTypes.DelegateRegistration) {
@@ -515,7 +515,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         if (transaction.type === TransactionTypes.Vote) {
-            const vote = transaction.asset.votes[0];
+            const vote = transaction.data.asset.votes[0];
 
             this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
                 delegate: vote,

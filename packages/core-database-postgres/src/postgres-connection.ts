@@ -180,7 +180,11 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             const queries = [this.blocksRepository.insert(block.data)];
 
             if (block.transactions.length > 0) {
-                queries.push(this.transactionsRepository.insert(block.transactions));
+                queries.push(
+                    this.transactionsRepository.insert(
+                        block.transactions.map(tx => ({ ...tx.data, serialized: tx.serialized })),
+                    ),
+                );
             }
 
             await this.db.tx(t => t.batch(queries));

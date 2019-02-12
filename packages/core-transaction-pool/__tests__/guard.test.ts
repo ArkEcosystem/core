@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-interfaces";
 import { generators } from "@arkecosystem/core-test-utils";
-import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
+import { configManager, constants, crypto, ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../core-test-utils/src/fixtures/unitnet";
@@ -383,7 +383,14 @@ describe("Transaction Guard", () => {
             const sender = delegates[21];
             const receivers = generateWallets("unitnet", 1);
 
-            const transactions = generateTransfers("unitnet", sender.secret, receivers[0].address, 50, 1, true);
+            const transactions: ITransactionData[] = generateTransfers(
+                "unitnet",
+                sender.secret,
+                receivers[0].address,
+                50,
+                1,
+                true,
+            );
             const transactionId = transactions[0].id;
             transactions[0].id = "a".repeat(64);
 
@@ -394,12 +401,12 @@ describe("Transaction Guard", () => {
         });
 
         it("should not validate when multiple wallets register the same username in the same transaction payload", async () => {
-            const delegateRegistrations = [
+            const delegateRegistrations: Transaction[] = [
                 generateDelegateRegistration("unitnet", wallets[14].passphrase, 1, false, "test_delegate")[0],
                 generateDelegateRegistration("unitnet", wallets[15].passphrase, 1, false, "test_delegate")[0],
             ];
 
-            const result = await guard.validate(delegateRegistrations);
+            const result = await guard.validate(delegateRegistrations.map(tx => tx.data));
             expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
 
             delegateRegistrations.forEach(tx => {
@@ -407,7 +414,7 @@ describe("Transaction Guard", () => {
                     {
                         type: "ERR_CONFLICT",
                         message: `Multiple delegate registrations for "${
-                            tx.asset.delegate.username
+                            tx.data.asset.delegate.username
                         }" in transaction payload`,
                     },
                 ]);
@@ -899,21 +906,21 @@ describe("Transaction Guard", () => {
         });
 
         it("should not validate a delegate registration if an existing registration for the same username from a different wallet exists in the pool", async () => {
-            const delegateRegistrations = [
+            const delegateRegistrations: Transaction[] = [
                 generateDelegateRegistration("unitnet", wallets[16].passphrase, 1, false, "test_delegate")[0],
                 generateDelegateRegistration("unitnet", wallets[17].passphrase, 1, false, "test_delegate")[0],
             ];
 
-            expect(guard.__validateTransaction(delegateRegistrations[0])).toBeTrue();
+            expect(guard.__validateTransaction(delegateRegistrations[0].data)).toBeTrue();
             guard.accept.set(delegateRegistrations[0].id, delegateRegistrations[0]);
             guard.__addTransactionsToPool();
             expect(guard.errors).toEqual({});
-            expect(guard.__validateTransaction(delegateRegistrations[1])).toBeFalse();
+            expect(guard.__validateTransaction(delegateRegistrations[1].data)).toBeFalse();
             expect(guard.errors[delegateRegistrations[1].id]).toEqual([
                 {
                     type: "ERR_PENDING",
                     message: `Delegate registration for "${
-                        delegateRegistrations[1].asset.delegate.username
+                        delegateRegistrations[1].data.asset.delegate.username
                     }" already in the pool`,
                 },
             ]);
