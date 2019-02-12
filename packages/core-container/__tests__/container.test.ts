@@ -12,11 +12,11 @@ const dummyPlugin = {
 };
 
 beforeEach(async () => {
+    process.env.CORE_PATH_CONFIG = resolve(__dirname, "../../core/src/config/testnet");
+
     await app.setUp(
         "2.0.0",
         {
-            data: "fake-path",
-            config: resolve(__dirname, "../../core/src/config/testnet"),
             token: "ark",
             network: "testnet",
         },
@@ -81,6 +81,6 @@ describe("Container", () => {
     });
 
     it("should resolve and export paths", () => {
-        expect(process.env.CORE_PATH_DATA).toEqual(resolve("fake-path"));
+        expect(process.env.CORE_PATH_CONFIG).toEqual(resolve(__dirname, "../../core/src/config/testnet"));
     });
 });
