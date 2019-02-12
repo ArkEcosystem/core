@@ -59,11 +59,6 @@ class QuorumDetails {
      * Number of peers with a different slot.
      */
     public peersDifferentSlot = 0;
-
-    /**
-     * Number of peers where forging is not allowed.
-     */
-    public peersForgingNotAllowed = 0;
 }
 
 export enum NetworkStateStatus {
@@ -167,11 +162,6 @@ export class NetworkState {
             if (peer.state.currentSlot !== currentSlot) {
                 quorum = false;
                 this.quorumDetails.peersDifferentSlot++;
-            }
-
-            if (!peer.state.forgingAllowed) {
-                quorum = false;
-                this.quorumDetails.peersForgingNotAllowed++;
             }
 
             quorum ? this.quorumDetails.peersQuorum++ : this.quorumDetails.peersNoQuorum++;
