@@ -2,10 +2,10 @@ import { list } from "../helpers/pm2";
 import { BaseCommand } from "./command";
 
 export class TopCommand extends BaseCommand {
-    public static description: string = "get a value from the environment";
+    public static description: string = "List all core daemons";
 
     public static examples: string[] = [
-        `List all environment variables
+        `List all core daemons
 $ ark top
 `,
     ];
