@@ -321,7 +321,7 @@ export class PeerVerifier {
             }
             assert(hisBlocksByHeight[h] !== undefined);
 
-            if (!this.verifyPeerBlock(hisBlocksByHeight[h], h, delegates)) {
+            if (!await this.verifyPeerBlock(hisBlocksByHeight[h], h, delegates)) {
                 return false;
             }
         }
@@ -443,9 +443,6 @@ export class PeerVerifier {
 
         const block = new models.Block(blockData);
 
-        // XXX would this verify that:
-        // - the signature corresponds to the payload
-        // - the signature was made with the private key that corresponds to generatorPublicKey
         if (!block.verification.verified) {
             this.logger.info(
                 `${this.logPrefix} failure: peer's block at height ${expectedHeight} does not ` +
