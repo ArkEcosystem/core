@@ -8,7 +8,7 @@ import * as path from "path";
 export async function setUpContainer(options: any): Promise<Container.IContainer> {
     options.network = options.network || "testnet";
     await app.setUp(
-        "2.1.0",
+        "2.1.1",
         {
             data: options.data || "~/.core",
             config: options.config ? options.config : path.resolve(__dirname, `../config/${options.network}`),
