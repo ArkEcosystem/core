@@ -1,6 +1,5 @@
 import Table from "cli-table3";
 import { BaseCommand } from "../command";
-import { networks } from "@arkecosystem/crypto";
 
 export class PathsCommand extends BaseCommand {
     public static description: string = "Get all of the environment paths";
@@ -16,7 +15,6 @@ $ ark env:paths
     };
 
     public async run(): Promise<void> {
-        console.log(networks);
         const paths = await this.getPaths(this.parse(PathsCommand).flags);
 
         const table = new Table({ head: ["Type", "Path"] });

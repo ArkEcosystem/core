@@ -1,3 +1,4 @@
+import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import envPaths from "env-paths";
 import { readdirSync } from "fs";
@@ -26,7 +27,7 @@ export abstract class BaseCommand extends Command {
         }),
         network: flags.string({
             description: "the name of the network that should be used",
-            options: ["mainnet", "devnet", "testnet"],
+            options: Object.keys(networks),
         }),
     };
 
@@ -147,7 +148,7 @@ export abstract class BaseCommand extends Command {
                     name: "network",
                     message: "What network do you want to operate on?",
                     choices: folders
-                        .filter(folder => ["mainnet", "devnet", "testnet", "unitnet"].includes(folder))
+                        .filter(folder => Object.keys(networks).includes(folder))
                         .map(folder => ({ title: folder, value: folder })),
                 },
                 {

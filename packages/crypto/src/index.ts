@@ -10,4 +10,6 @@ export * from "./validation";
 export * from "./crypto";
 export * from "./client";
 
-export { models, constants };
+import * as networks from "./networks";
+
+export { constants, models, networks };

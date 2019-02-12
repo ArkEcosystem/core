@@ -28,7 +28,10 @@ $ ark env:list
 
         const env = envfile.parseFileSync(envFile);
 
-        const table = new Table({ chars: { mid: "", "left-mid": "", "mid-mid": "", "right-mid": "" } });
+        const table = new Table({
+            head: ["Key", "Value"],
+            chars: { mid: "", "left-mid": "", "mid-mid": "", "right-mid": "" },
+        });
 
         for (const [key, value] of Object.entries(env)) {
             // @ts-ignore
