@@ -11,206 +11,139 @@ const { Block } = models;
 const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-/**
- * @type {Object}
- */
-export const auth = {
-    /**
-     */
-    async handler(data, res) {
-        try {
-            const requiredHeaders = ["nethash", "milestoneHash", "version", "port", "os"];
+export const acceptNewPeer = async data => {
+    const requiredHeaders = ["nethash", "milestoneHash", "version", "port", "os"];
 
-            const peer = { ip: data.ip };
+    const peer = { ip: data.ip };
 
-            requiredHeaders.forEach(key => {
-                peer[key] = data.headers[key];
-            });
+    requiredHeaders.forEach(key => {
+        peer[key] = data.headers[key];
+    });
 
-            try {
-                await monitor.acceptNewPeer(peer);
-                return res();
-            } catch (error) {
-                return res(error);
-            }
-        } catch (error) {
-            return res(error);
-        }
-    },
+    await monitor.acceptNewPeer(peer);
 };
 
-/**
- * @type {Object}
- */
-export const getPeers = {
-    async handler(data, res) {
-        try {
-            const peers = monitor
-                .getPeers()
-                .map(peer => peer.toBroadcastInfo())
-                .sort((a, b) => a.delay - b.delay);
+export const getPeers = () => {
+    const peers = monitor
+        .getPeers()
+        .map(peer => peer.toBroadcastInfo())
+        .sort((a, b) => a.delay - b.delay);
 
-            return res(null, {
-                success: true,
-                peers,
-            });
-        } catch (error) {
-            return res(error);
-        }
-    },
+    return {
+        success: true,
+        peers,
+    };
 };
 
-/**
- * @type {Object}
- */
-export const getHeight = {
-    handler(data, res) {
-        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+export const getHeight = () => {
+    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
-        return res(null, {
-            success: true,
-            height: lastBlock.data.height,
-            id: lastBlock.data.id,
-        });
-    },
+    return {
+        success: true,
+        height: lastBlock.data.height,
+        id: lastBlock.data.id,
+    };
 };
 
-/**
- * @type {Object}
- */
-export const getCommonBlocks = {
-    async handler(data, res) {
-        if (!data.ids) {
-            return res(null, {
-                success: false,
-            });
-        }
+export const getCommonBlocks = async data => {
+    if (!data.ids) {
+        return {
+            success: false,
+        }; // success false or throw ? TODO
+    }
 
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-        const ids = data.ids
-            .split(",")
-            .slice(0, 9)
-            .filter(id => id.match(/^\d+$/));
+    const ids = data.ids.slice(0, 9).filter(id => id.match(/^\d+$/));
 
-        try {
-            const commonBlocks = await blockchain.database.getCommonBlocks(ids);
+    const commonBlocks = await blockchain.database.getCommonBlocks(ids);
 
-            return res(null, {
-                success: true,
-                common: commonBlocks.length ? commonBlocks[0] : null,
-                lastBlockHeight: blockchain.getLastBlock().data.height,
-            });
-        } catch (error) {
-            return res(error);
-        }
-    },
+    return {
+        success: true,
+        common: commonBlocks.length ? commonBlocks[0] : null,
+        lastBlockHeight: blockchain.getLastBlock().data.height,
+    };
 };
 
-/**
- * @type {Object}
- */
-export const getTransactions = {
-    handler(data, res) {
-        return res(null, { success: true, transactions: [] });
-    },
+export const getTransactions = () => {
+    return { success: true, transactions: [] };
 };
 
-/**
- * @type {Object}
- */
-export const getStatus = {
-    handler(data, res) {
-        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+export const getStatus = () => {
+    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
-        return res(null, {
-            success: true,
-            height: lastBlock ? lastBlock.data.height : 0,
-            forgingAllowed: slots.isForgingAllowed(),
-            currentSlot: slots.getSlotNumber(),
-            header: lastBlock ? lastBlock.getHeader() : {},
-        });
-    },
+    return {
+        success: true,
+        height: lastBlock ? lastBlock.data.height : 0,
+        forgingAllowed: slots.isForgingAllowed(),
+        currentSlot: slots.getSlotNumber(),
+        header: lastBlock ? lastBlock.getHeader() : {},
+    };
 };
 
-/**
- * @type {Object}
- */
-export const postBlock = {
-    async handler(data, res) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+export const postBlock = data => {
+    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-        try {
-            if (!data || !data.block) {
-                return res(null, { success: false });
-            }
+    if (!data || !data.block) {
+        return { success: false };
+    }
 
-            const block = data.block;
+    const block = data.block;
 
-            if (blockchain.pingBlock(block)) {
-                return res(null, { success: true });
-            }
-            // already got it?
-            const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
+    if (blockchain.pingBlock(block)) {
+        return { success: true };
+    }
+    // already got it?
+    const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
 
-            // Are we ready to get it?
-            if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
-                return res(null, { success: true });
-            }
+    // Are we ready to get it?
+    if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
+        return { success: true };
+    }
 
-            const b = new Block(block);
+    const b = new Block(block);
 
-            if (!b.verification.verified) {
-                return res(null, { success: false });
-            }
+    if (!b.verification.verified) {
+        return { success: false };
+    }
 
-            blockchain.pushPingBlock(b.data);
+    blockchain.pushPingBlock(b.data);
 
-            block.ip = data.info.remoteAddress;
-            blockchain.handleIncomingBlock(block);
+    block.ip = data.info.remoteAddress;
+    blockchain.handleIncomingBlock(block);
 
-            return res(null, { success: true });
-        } catch (error) {
-            logger.error(error);
-            return res(error, { success: false });
-        }
-    },
+    return { success: true };
 };
 
-/**
- * @type {Object}
- */
-export const postTransactions = {
-    async handler(data, res) {
-        if (!transactionPool) {
-            return res(null, {
-                success: false,
-                message: "Transaction pool not available",
-            });
-        }
+export const postTransactions = async data => {
+    if (!transactionPool) {
+        return {
+            success: false,
+            message: "Transaction pool not available",
+        };
+    }
 
-        const guard = new TransactionGuard(transactionPool);
+    const guard = new TransactionGuard(transactionPool);
 
-        const result = await guard.validate(data.transactions);
+    const result = await guard.validate(data.transactions);
 
-        if (result.invalid.length > 0) {
-            return res(null, {
-                success: false,
-                message: "Transactions list is not conform",
-                error: "Transactions list is not conform",
-            });
-        }
+    if (result.invalid.length > 0) {
+        return {
+            success: false,
+            message: "Transactions list is not conform",
+            error: "Transactions list is not conform",
+        };
+    }
 
-        if (result.broadcast.length > 0) {
-            app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
-        }
+    if (result.broadcast.length > 0) {
+        app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+    }
 
-        return res(null, {
-            success: true,
-            transactionIds: result.accept,
-        });
-    },
-    options: {
+    return {
+        success: true,
+        transactionIds: result.accept,
+    };
+    /*options: {
         cors: {
             additionalHeaders: ["nethash", "port", "version"],
         },
@@ -222,40 +155,30 @@ export const postTransactions = {
                     .options({ stripUnknown: true }),
             },
         },
-    },
+    },*/
 };
 
-/**
- * @type {Object}
- */
-export const getBlocks = {
-    async handler(data, res) {
-        try {
-            const database = app.resolvePlugin<Database.IDatabaseService>("database");
-            const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+export const getBlocks = async data => {
+    const database = app.resolvePlugin<Database.IDatabaseService>("database");
+    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-            const reqBlockHeight = +data.lastBlockHeight + 1;
-            let blocks = [];
+    const reqBlockHeight = +data.lastBlockHeight + 1;
+    let blocks = [];
 
-            if (!data.lastBlockHeight || isNaN(reqBlockHeight)) {
-                blocks.push(blockchain.getLastBlock());
-            } else {
-                blocks = await database.getBlocks(reqBlockHeight, 400);
-            }
+    if (!data.lastBlockHeight || isNaN(reqBlockHeight)) {
+        blocks.push(blockchain.getLastBlock());
+    } else {
+        blocks = await database.getBlocks(reqBlockHeight, 400);
+    }
 
-            logger.info(
-                `${data.info.remoteAddress} has downloaded ${pluralize(
-                    "block",
-                    blocks.length,
-                    true,
-                )} from height ${(!isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].data.height).toLocaleString()}`,
-            );
+    logger.info(
+        `${data.info.remoteAddress} has downloaded ${pluralize("block", blocks.length, true)} from height ${(!isNaN(
+            reqBlockHeight,
+        )
+            ? reqBlockHeight
+            : blocks[0].data.height
+        ).toLocaleString()}`,
+    );
 
-            return res(null, { success: true, blocks: blocks || [] });
-        } catch (error) {
-            logger.error(error.stack);
-
-            return res(error);
-        }
-    },
+    return { success: true, blocks: blocks || [] };
 };

@@ -181,7 +181,7 @@ export class Peer implements P2P.IPeer {
 
             this.__parseHeaders(response);
 
-            const { blocks } = response.data;
+            const { blocks } = response;
             const size = blocks.length;
 
             if (size === 100 || size === 400) {
@@ -273,7 +273,7 @@ export class Peer implements P2P.IPeer {
             const body = await this.__get(url);
             */
 
-            return body && body.success && body.common;
+            return body && body.success && !!body.common;
         } catch (error) {
             this.logger.error(`Could not determine common blocks with ${this.ip}: ${error}`);
         }

@@ -1,11 +1,13 @@
+import { app } from "@arkecosystem/core-container";
 import SocketCluster from "socketcluster";
-
+import { getHeaders } from "./plugins/get-headers";
+import * as internalHandlers from "./versions/internal";
 import * as peerHandlers from "./versions/peer";
 
 /**
- * Create a new hapi.js server.
+ * Create a new socketcluster server.
  * @param  {Object} config
- * @return {Hapi.Server}
+ * @return {Object}
  */
 const startSocketServer = async config => {
     const server = new SocketCluster({
@@ -14,34 +16,37 @@ const startSocketServer = async config => {
         port: 8000,
         appName: "core-p2p",
 
-        // Switch wsEngine to 'sc-uws' for a performance boost (beta)
         wsEngine: "ws",
-
-        /* A JS file which you can use to configure each of your
-         * workers/servers - This is where most of your backend code should go
-         */
         workerController: __dirname + "/worker.js",
-
-        /* JS file which you can use to configure each of your
-         * brokers - Useful for scaling horizontally across multiple machines (optional)
-         */
         brokerController: __dirname + "/broker.js",
-
-        // Whether or not to reboot the worker in case it crashes (defaults to true)
         rebootWorkerOnCrash: true,
     });
 
-    server.on("workerStart", workerInfo => {
-        console.log("Worker started");
-    });
-
-    server.on("workerMessage", (workerId, data, res) => {
+    server.on("workerMessage", async (workerId, data, res) => {
         const handlers = {
             peer: peerHandlers,
+            internal: internalHandlers,
         };
 
+        if (data.endpoint === "config.getHandlers") {
+            return res(null, {
+                peer: Object.keys(peerHandlers),
+                internal: Object.keys(internalHandlers),
+            });
+        }
+
         const [prefix, version, method] = data.endpoint.split(".");
-        return handlers[version][method].handler(data, res); // TODO handle errors
+
+        try {
+            const result = (await handlers[version][method](data)) || {};
+            result.headers = getHeaders();
+
+            return res(null, result);
+        } catch (e) {
+            const logger = app.resolvePlugin("logger");
+            logger.debug(e);
+            return res(e); // TODO explicit error message
+        }
     });
 
     return server;
