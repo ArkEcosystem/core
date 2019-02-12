@@ -10,17 +10,7 @@ import { logger } from "../logger";
 const { version } = require("../../package.json");
 
 export abstract class BaseCommand extends Command {
-    public static flagsConfig: Record<string, object> = {
-        data: flags.string({
-            description: "the directory that contains the core data",
-        }),
-        config: flags.string({
-            description: "the directory that contains the core configuration",
-        }),
-    };
-
     public static flagsNetwork: Record<string, object> = {
-        ...BaseCommand.flagsConfig,
         token: flags.string({
             description: "the name of the token that should be used",
             default: "ark",

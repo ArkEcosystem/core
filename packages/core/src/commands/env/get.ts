@@ -13,7 +13,6 @@ $ ark env:get CORE_LOG_LEVEL
 
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsConfig,
     };
 
     public static args: Array<{ name: string; required: boolean; hidden: boolean }> = [

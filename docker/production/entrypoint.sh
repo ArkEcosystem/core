@@ -14,6 +14,8 @@ CORE_FORGER_PASSWORD=`openssl rsautl -decrypt -inkey /run/secrets/bip.key -in /r
 
 #startup functions
 
+# @TODO update commands and paths to use the new cli
+
 config_plain ()
 {
         ./dist/index.js forger-plain --config $CONFIG --secret "$SECRET"
@@ -36,7 +38,7 @@ start_forger ()
 
 start_bip ()
 {
-        pm2 --name 'ark-core' --no-daemon start ./dist/index.js -- start --config $CONFIG --network $NETWORK 
+        pm2 --name 'ark-core' --no-daemon start ./dist/index.js -- start --config $CONFIG --network $NETWORK
 }
 
 #configure
@@ -61,6 +63,6 @@ elif [ "$MODE" = "forger" ] && [ -z "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" 
         echo "set SECRET and/or CORE_FORGER_PASWORD if you want to run a forger"
         exit
 elif [ "$MODE" = "forger" ] && [ -n "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
-        start_forger 
+        start_forger
 fi
 

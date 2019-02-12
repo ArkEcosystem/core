@@ -46,16 +46,14 @@ export class Environment {
                         path += `/${this.variables.network}`;
                     }
 
-                    process.env[name] = path;
-                    ensureDirSync(path);
+                    if (process.env[name] === undefined) {
+                        process.env[name] = path;
+                        ensureDirSync(path);
+                    }
                 }
             });
 
         createPathVariables(envPaths(this.variables.token, { suffix: "core" }), this.variables.network);
-
-        if (this.variables.data || this.variables.config) {
-            createPathVariables(this.variables);
-        }
     }
 
     /**

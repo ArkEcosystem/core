@@ -15,7 +15,6 @@ $ ark env:set CORE_LOG_LEVEL info
 
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsConfig,
         force: flags.boolean({
             description: "force the setting to be overwritten",
         }),
