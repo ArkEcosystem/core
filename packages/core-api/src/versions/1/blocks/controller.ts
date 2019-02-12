@@ -1,3 +1,4 @@
+import { supplyCalculator } from "@arkecosystem/core-utils";
 import { bignumify } from "@arkecosystem/core-utils";
 import Boom from "boom";
 import Hapi from "hapi";
@@ -105,14 +106,8 @@ export class BlocksController extends Controller {
 
     public async supply(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const lastBlock = this.blockchain.getLastBlock();
-            const constants = this.config.getMilestone(lastBlock.data.height);
-            const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
-
             return super.respondWith({
-                supply: +bignumify(this.config.get("genesisBlock.totalAmount"))
-                    .plus(rewards)
-                    .toFixed(),
+                supply: supplyCalculator.calculate(this.blockchain.getLastBlock().data.height),
             });
         } catch (error) {
             return Boom.badImplementation(error);
