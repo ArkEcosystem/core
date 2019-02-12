@@ -651,10 +651,10 @@
   dependencies:
     benchmark "^2.1.4"
 
-"@faustbrian/hapi-version@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@faustbrian/hapi-version/-/hapi-version-0.2.1.tgz#15221e355e3666035e2f009de22908d9e14b9959"
-  integrity sha512-WT/zeXzdqaaSJ9k6u0QXw+pwj+Eilh9UPW+5rEdujsgSvtXclFDAy52trp/TpdrNF2lGuKjzUB8C1o8mWafIsA==
+"@faustbrian/hapi-version@^0.2.11":
+  version "0.2.11"
+  resolved "https://registry.yarnpkg.com/@faustbrian/hapi-version/-/hapi-version-0.2.11.tgz#9e897d48ce9c4382e752635c34232ba769854d39"
+  integrity sha512-l8eqFdvB4jcTrFiiyIn6wOjcbss3U4o0ZQWMaydX9BhNllP3/SUwWbV2Q6S+TBQw8W7hFANQDlpVy9LHXP50/A==
   dependencies:
     "@types/boom" "^7.2.1"
     "@types/hapi" "^18.0.0"
