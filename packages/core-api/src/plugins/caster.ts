@@ -24,8 +24,10 @@ const register = async (server: Hapi.Server, options: object): Promise<void> => 
                 if (key === "id" || key === "blockId" || key === "previousBlock") {
                     query[key] = query[key];
                 } else if (isBoolean(query[key])) {
+                    // @ts-ignore
                     query[key] = query[key].toLowerCase() === "true";
                 } else if (isNumber(query[key])) {
+                    // @ts-ignore
                     query[key] =
                         // @ts-ignore
                         // tslint:disable-next-line triple-equals

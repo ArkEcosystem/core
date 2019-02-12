@@ -27,13 +27,13 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-http-utils": "^2.1.0",
-        "@arkecosystem/core-utils": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/handlebars": "^4.0.39",
+        "@arkecosystem/core-container": "^2.1.1",
+        "@arkecosystem/core-http-utils": "^2.1.1",
+        "@arkecosystem/core-utils": "^2.1.1",
+        "@arkecosystem/crypto": "^2.1.1",
+        "@types/handlebars": "^4.0.40",
         "@types/lodash.sumby": "^4.6.4",
-        "handlebars": "^4.0.12",
+        "handlebars": "^4.1.0",
         "lodash.sumby": "^4.6.0"
     },
     "publishConfig": {

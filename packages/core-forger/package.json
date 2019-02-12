@@ -29,10 +29,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-p2p": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
+        "@arkecosystem/core-interfaces": "^2.1.1",
+        "@arkecosystem/core-container": "^2.1.1",
+        "@arkecosystem/core-p2p": "^2.1.1",
+        "@arkecosystem/crypto": "^2.1.1",
         "@types/lodash.isempty": "^4.4.4",
         "@types/lodash.sample": "^4.2.4",
         "@types/lodash.uniq": "^4.5.4",
@@ -45,8 +45,8 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0",
-        "axios-mock-adapter": "^1.15.0"
+        "@arkecosystem/core-test-utils": "^2.1.1",
+        "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {
         "access": "public"
