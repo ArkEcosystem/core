@@ -4,3 +4,5 @@ export * from "./database-connection";
 export * from "./wallet-manager";
 export * from "./database-service";
 export * from "./event-types";
+export * from "./search";
+export * from "./database-model";

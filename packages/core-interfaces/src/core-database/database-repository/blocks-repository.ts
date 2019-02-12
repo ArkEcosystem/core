@@ -1,8 +1,8 @@
 import { Bignum } from "@arkecosystem/crypto";
+import { SearchParameters } from "../search/search-parameters";
 import { IRepository } from "./repository";
 
 export interface IBlocksRepository extends IRepository {
-
     /**
      * Find a block by its ID.
      */
@@ -53,4 +53,6 @@ export interface IBlocksRepository extends IRepository {
      * Delete the block from the database.
      */
     delete(id: string): Promise<void>;
+
+    search(params: SearchParameters): Promise<any>
 }

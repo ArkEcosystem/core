@@ -1,6 +1,7 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import sql from "sql";
 
-export abstract class Model {
+export abstract class Model implements Database.IDatabaseModel {
     /**
      * Create a new model instance.
      * @param {Object} pgp
@@ -48,4 +49,8 @@ export abstract class Model {
             },
         });
     }
+
+    public abstract getName(): string;
+
+    public abstract getSearchableFields(): Database.SearchableField[];
 }

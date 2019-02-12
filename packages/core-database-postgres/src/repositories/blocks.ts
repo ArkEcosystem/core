@@ -101,4 +101,8 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     public getModel() {
         return new Block(this.pgp);
     }
+
+    public async search(params: Database.SearchParameters) {
+        return undefined;
+    }
 }
