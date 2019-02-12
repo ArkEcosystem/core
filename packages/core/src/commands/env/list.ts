@@ -4,7 +4,7 @@ import { existsSync } from "fs-extra";
 import { BaseCommand } from "../command";
 
 export class ListCommand extends BaseCommand {
-    public static description: string = "get a value from the environment";
+    public static description: string = "List all environment variables";
 
     public static examples: string[] = [
         `List all environment variables

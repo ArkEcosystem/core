@@ -16,7 +16,7 @@ $ ark config:reset --network=mainnet
     ];
 
     public static flags: Record<string, any> = {
-        ...BaseCommand.flagsNetwork,
+        ...BaseCommand.flagsNetworkRequired,
         force: flags.boolean({
             char: "f",
             description: "force the configuration to be reset",
