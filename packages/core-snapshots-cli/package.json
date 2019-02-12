@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-snapshots-cli",
     "description": "Provides live cli interface to the core-snapshots module for ARK Core",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "contributors": [
         "Kristjan Košič <chris@ark.io>"
     ],
@@ -17,7 +17,7 @@
     },
     "scripts": {
         "snapshot": "./bin/run",
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",

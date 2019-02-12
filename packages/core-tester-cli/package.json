@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-tester-cli",
     "description": "Tester CLI for Ark Core",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -18,7 +18,7 @@
     },
     "scripts": {
         "tester": "./bin/run",
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",

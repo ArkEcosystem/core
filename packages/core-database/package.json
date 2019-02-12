@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database",
     "description": "Database Interface for Ark Core",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -14,7 +14,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
