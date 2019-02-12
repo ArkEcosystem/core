@@ -3,7 +3,7 @@ import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/contai
 
 export const setUp = async () => {
     return setUpContainer({
-        exit: "@arkecosystem/core-p2p",
+        exit: "@arkecosystem/core-blockchain",
     });
 };
 

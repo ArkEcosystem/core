@@ -4,10 +4,13 @@ import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import axios from "axios";
 import delay from "delay";
 import sample from "lodash/sample";
+import socketCluster from "socketcluster-client";
 import { URL } from "url";
 
 export class Client {
-    public hosts: string[];
+    public hosts: any[];
+    public socket;
+
     private host: any;
     private headers: any;
     private logger: Logger.ILogger;
@@ -20,7 +23,7 @@ export class Client {
         this.hosts = Array.isArray(hosts) ? hosts : [hosts];
         this.logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-        const { port } = new URL(this.hosts[0]);
+        const { port, ip } = this.hosts[0];
 
         if (!port) {
             throw new Error("Failed to determine the P2P communcation port.");
@@ -33,6 +36,11 @@ export class Client {
             "x-auth": "forger",
             "Content-Type": "application/json",
         };
+
+        this.socket = socketCluster.create({
+            port,
+            hostname: ip,
+        });
     }
 
     /**
@@ -47,7 +55,8 @@ export class Client {
             } transactions to ${this.host} :package:`,
         );
 
-        return this.__post(`${this.host}/internal/blocks`, { block });
+        return this.emit("p2p.internal.storeBlock", { block });
+        // return this.__post(`${this.host}/internal/blocks`, { block });
     }
 
     /**
@@ -59,7 +68,8 @@ export class Client {
         this.logger.debug(`Sending wake-up check to relay node ${this.host}`);
 
         try {
-            await this.__get(`${this.host}/internal/blockchain/sync`);
+            await this.emit("p2p.internal.syncBlockchain", {});
+            // await this.__get(`${this.host}/internal/blockchain/sync`);
         } catch (error) {
             this.logger.error(`Could not sync check: ${error.message}`);
         }
@@ -73,9 +83,10 @@ export class Client {
         try {
             await this.__chooseHost();
 
-            const response = await this.__get(`${this.host}/internal/rounds/current`);
+            const response: any = await this.emit("p2p.internal.getCurrentRound", {});
+            // const response = await this.__get(`${this.host}/internal/rounds/current`);
 
-            return response.data.data;
+            return response.data;
         } catch (e) {
             return {};
         }
@@ -87,10 +98,10 @@ export class Client {
      */
     public async getNetworkState(): Promise<NetworkState> {
         try {
-            const response = await this.__get(`${this.host}/internal/network/state`);
-            const { data } = response.data;
+            const response: any = await this.emit("p2p.internal.getNetworkState", {});
+            // const response = await this.__get(`${this.host}/internal/network/state`);
 
-            return NetworkState.parse(data);
+            return NetworkState.parse(response.data);
         } catch (e) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
@@ -102,9 +113,10 @@ export class Client {
      */
     public async getTransactions() {
         try {
-            const response = await this.__get(`${this.host}/internal/transactions/forging`);
+            const response: any = await this.emit("p2p.internal.getUnconfirmedTransactions", {});
+            // const response = await this.__get(`${this.host}/internal/transactions/forging`);
 
-            return response.data.data;
+            return response.data;
         } catch (e) {
             return {};
         }
@@ -118,9 +130,10 @@ export class Client {
         await this.__chooseHost(wait);
 
         try {
-            const response = await this.__get(`${this.host}/internal/utils/usernames`);
+            const response: any = await this.emit("p2p.internal.getUsernames", {});
+            // const response = await this.__get(`${this.host}/internal/utils/usernames`);
 
-            return response.data.data;
+            return response.data;
         } catch (e) {
             return {};
         }
@@ -139,14 +152,15 @@ export class Client {
 
         const allowedHosts = ["localhost", "127.0.0.1", "::ffff:127.0.0.1", "192.168.*"];
 
-        const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.includes(allowedHost)));
+        const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.ip.includes(allowedHost)));
 
         if (!host) {
             return this.logger.error("Was unable to find any local hosts.");
         }
 
         try {
-            await this.__post(`${host}/internal/utils/events`, { event, body });
+            await this.emit("p2p.internal.emitEvent", { event, body });
+            // await this.__post(`${host}/internal/utils/events`, { event, body });
         } catch (error) {
             this.logger.error(`Failed to emit "${event}" to "${host}"`);
         }
@@ -160,7 +174,8 @@ export class Client {
         const host = sample(this.hosts);
 
         try {
-            await this.__get(`${host}/peer/status`);
+            await this.emit("p2p.peer.getStatus", {});
+            // await this.__get(`${host}/peer/status`);
 
             this.host = host;
         } catch (error) {
@@ -180,5 +195,26 @@ export class Client {
 
     public async __post(url, body) {
         return axios.post(url, body, { headers: this.headers, timeout: 2000 });
+    }
+
+    private async emit(event, data) {
+        if (!data) {
+            data = {};
+        }
+        const { ip } = this.hosts[0];
+        data.info = {
+            remoteAddress: ip,
+        };
+        data.headers = this.headers;
+
+        return new Promise((resolve, reject) => {
+            this.socket.emit(event, data, (err, val) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(val);
+                }
+            });
+        });
     }
 }
