@@ -38,7 +38,7 @@ export async function checkForUpdates({ config, error, warn }): Promise<void> {
     try {
         const remoteVersion = await getVersionFromNode(config.name);
 
-        if (semver.eq(remoteVersion, config.version)) {
+        if (semver.gt(remoteVersion, config.version)) {
             warn(
                 `${config.name} update available from ${Chalk.greenBright(config.version)} to ${Chalk.greenBright(
                     remoteVersion,
