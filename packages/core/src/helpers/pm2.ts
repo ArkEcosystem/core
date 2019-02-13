@@ -5,12 +5,11 @@ import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import prompts from "prompts";
 import { Tail } from "tail";
-import { logger } from "../logger";
 
 function createConnection(callback) {
     pm2.connect(error => {
         if (error) {
-            logger.error(error.message);
+            this.error(error.message);
             process.exit(2);
         }
 
@@ -24,7 +23,7 @@ export function start(options: any) {
     createConnection(() => {
         pm2.describe(processName, async (error, apps) => {
             if (error) {
-                logger.error(error.message);
+                this.error(error.message);
                 process.exit();
             }
 
@@ -41,7 +40,7 @@ export function start(options: any) {
                         pm2.disconnect();
 
                         if (error) {
-                            logger.error(error.message);
+                            this.error(error.message);
                             process.exit();
                         }
 
@@ -64,7 +63,7 @@ export function start(options: any) {
                         pm2.disconnect();
 
                         if (error) {
-                            logger.error(error.message);
+                            this.error(error.message);
                             process.exit();
                         }
                     },
@@ -81,7 +80,7 @@ export function stop(processName: string) {
 
             if (error) {
                 if (error.message === "process name not found") {
-                    logger.warn(`The "${processName}" process does not exist. Failed to stop!`);
+                    this.warn(`The "${processName}" process does not exist. Failed to stop!`);
                 } else {
                     throw error;
                 }
@@ -97,7 +96,7 @@ export function restart(processName: string) {
 
             if (error) {
                 if (error.message === "process name not found") {
-                    logger.warn(`The "${processName}" process does not exist. Failed to restart!`);
+                    this.warn(`The "${processName}" process does not exist. Failed to restart!`);
                 } else {
                     throw error;
                 }
@@ -113,7 +112,7 @@ export function shutdown(processName: string) {
 
             if (error) {
                 if (error.message === "process name not found") {
-                    logger.warn(`The "${processName}" process does not exist. Failed to shutdown!`);
+                    this.warn(`The "${processName}" process does not exist. Failed to shutdown!`);
                 } else {
                     throw error;
                 }
@@ -128,7 +127,7 @@ export function list(token: string) {
             pm2.disconnect();
 
             if (error) {
-                logger.error(error.message);
+                this.error(error.message);
                 process.exit();
             }
 
@@ -165,12 +164,12 @@ export function log(processName: string, onlyErrors: boolean) {
             pm2.disconnect();
 
             if (error) {
-                logger.error(error.message);
+                this.error(error.message);
                 process.exit();
             }
 
             if (!apps[0]) {
-                logger.warn(`The "${processName}" process is not running. No logs to be viewed!`);
+                this.warn(`The "${processName}" process is not running. No logs to be viewed!`);
                 process.exit();
             }
 

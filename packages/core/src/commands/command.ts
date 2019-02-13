@@ -4,7 +4,6 @@ import envPaths from "env-paths";
 import { readdirSync } from "fs";
 import Listr from "listr";
 import prompts from "prompts";
-import { logger } from "../logger";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
@@ -116,7 +115,7 @@ export abstract class BaseCommand extends Command {
             const tasks = new Listr(this.tasks);
             await tasks.run();
         } catch (error) {
-            logger.error(error.message);
+            this.error(error.message);
         }
     }
 
@@ -174,7 +173,7 @@ export abstract class BaseCommand extends Command {
     }
 
     protected abortWithInvalidInput(): void {
-        logger.error("Please enter valid data and try again!");
+        this.error("Please enter valid data and try again!");
         process.exit();
     }
 }

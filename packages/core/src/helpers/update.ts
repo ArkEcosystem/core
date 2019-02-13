@@ -1,11 +1,11 @@
 import { Hook, IConfig } from "@oclif/config";
+import Chalk from "chalk";
 import { shell } from "execa";
 import { statSync } from "fs";
 import got from "got";
 import { join } from "path";
 import prompts from "prompts";
 import semver from "semver";
-import { logger } from "../logger";
 
 async function getVersionFromNode(name: string): Promise<string> {
     const { body } = await got(`https://registry.npmjs.org/${name}`);
@@ -28,22 +28,29 @@ export function needsRefresh(config: IConfig) {
 
         return staleAt < new Date();
     } catch (error) {
-        logger.error(error.message);
+        this.error(error.message);
 
         return true;
     }
 }
 
-export async function checkForUpdates(config) {
+export async function checkForUpdates({ config, error, warn }): Promise<void> {
     try {
         const remoteVersion = await getVersionFromNode(config.name);
 
-        if (semver.gt(remoteVersion, config.version)) {
+        if (semver.eq(remoteVersion, config.version)) {
+            warn(
+                `${config.name} update available from ${Chalk.greenBright(config.version)} to ${Chalk.greenBright(
+                    remoteVersion,
+                )}.`,
+            );
+
             const response = await prompts([
                 {
                     type: "confirm",
                     name: "confirm",
-                    message: `Version ${remoteVersion} is available. Would you like to update?`,
+                    message: `Would you like to update?`,
+                    initial: true,
                 },
             ]);
 
@@ -56,12 +63,12 @@ export async function checkForUpdates(config) {
                     }
 
                     console.log(stdout);
-                } catch (error) {
-                    logger.error(error.message);
+                } catch (err) {
+                    error(err.message);
                 }
             }
         }
-    } catch (error) {
-        logger.error(error.message);
+    } catch (err) {
+        error(err.message);
     }
 }
