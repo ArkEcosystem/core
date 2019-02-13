@@ -15,27 +15,27 @@ CORE_FORGER_PASSWORD=`openssl rsautl -decrypt -inkey /run/secrets/bip.key -in /r
 
 config_plain ()
 {
-    yarn ark config:forger:bip39 --bip39 "$SECRET"
+    ark config:forger:bip39 --bip39 "$SECRET"
 }
 
 config_bip ()
 {
-    yarn ark config:forger:bip38 --bip38 "$SECRET" --password "$CORE_FORGER_PASSWORD"
+    ark config:forger:bip38 --bip38 "$SECRET" --password "$CORE_FORGER_PASSWORD"
 }
 
 start_relay ()
 {
-    yarn ark relay:start
+    ark relay:start
 }
 
 start_forger ()
 {
-    yarn ark forger:start --bip39 "$SECRET"
+    ark forger:start --bip39 "$SECRET"
 }
 
 start_bip ()
 {
-    yarn ark forger:start --bip38 "$SECRET" --password "$CORE_FORGER_PASSWORD"
+    ark forger:start --bip38 "$SECRET" --password "$CORE_FORGER_PASSWORD"
 }
 
 #configure
