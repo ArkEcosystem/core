@@ -131,6 +131,7 @@ describe("State Machine", () => {
                 blockchain.processQueue.length = jest.fn(() => 0);
                 stateStorage.noBlockCounter = 6;
                 stateStorage.p2pUpdateCounter = 3;
+                // @ts-ignore
                 jest.spyOn(blockchain.p2p, "updatePeersOnMissingBlocks").mockImplementation(() => "rollback");
 
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
@@ -512,6 +513,7 @@ describe("State Machine", () => {
                         timestamp: genesisBlock.timestamp + 115,
                     },
                 ]);
+                // @ts-ignore
                 const enQueueBlocks = jest.spyOn(blockchain, "enqueueBlocks").mockReturnValue(true);
 
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "DOWNLOADED");
