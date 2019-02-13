@@ -10,7 +10,7 @@ import { logger } from "../logger";
 function createConnection(callback) {
     pm2.connect(error => {
         if (error) {
-            logger.error(error);
+            logger.error(error.message);
             process.exit(2);
         }
 

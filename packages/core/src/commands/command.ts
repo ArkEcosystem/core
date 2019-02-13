@@ -116,7 +116,7 @@ export abstract class BaseCommand extends Command {
             const tasks = new Listr(this.tasks);
             await tasks.run();
         } catch (error) {
-            logger.error(error);
+            logger.error(error.message);
         }
     }
 

@@ -1,5 +1,7 @@
 import { Hook } from "@oclif/config";
+import { shell } from "execa";
 import got from "got";
+import prompts from "prompts";
 import semver from "semver";
 import { logger } from "../logger";
 
@@ -26,6 +28,29 @@ export const init: Hook<"init"> = async function(opts) {
                     opts.config.version
                 } but ${remoteVersion} is available.`,
             );
+
+            const response = await prompts([
+                {
+                    type: "confirm",
+                    name: "confirm",
+                    message: "An update is available, would you like to update?",
+                    initial: true,
+                },
+            ]);
+
+            if (response.confirm) {
+                try {
+                    const { stdout, stderr } = await shell(`yarn global add ${opts.config.name}`);
+
+                    if (stderr) {
+                        console.error(stderr);
+                    }
+
+                    console.log(stdout);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         }
     } catch (error) {
         logger.error(error.message);
