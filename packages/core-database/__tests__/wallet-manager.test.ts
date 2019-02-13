@@ -117,6 +117,7 @@ describe("Wallet Manager", () => {
 
         describe("when 1 transaction fails while applying it", () => {
             it("should revert sequentially (from last to first) all the transactions of the block", async () => {
+                // @ts-ignore
                 jest.spyOn(walletManager, "applyTransaction").mockImplementation(tx => {
                     if (tx === block2.transactions[2]) {
                         throw new Error("Fake error");

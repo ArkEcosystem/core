@@ -274,6 +274,7 @@ describe("Delegate Repository", () => {
 
             // @ts-ignore
             jest.spyOn(databaseService, "getActiveDelegates").mockReturnValue([delegate]);
+            // @ts-ignore
             jest.spyOn(walletsRepository, "findById").mockReturnValue(delegate);
 
             const results = await repository.getActiveAtHeight(height);
