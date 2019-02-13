@@ -52,6 +52,7 @@
         "@arkecosystem/core-blockchain": "^2.1.0",
         "@arkecosystem/core-container": "^2.1.0",
         "@arkecosystem/core-database-postgres": "^2.1.0",
+        "@arkecosystem/core-event-emitter": "^2.1.1",
         "@arkecosystem/core-forger": "^2.1.0",
         "@arkecosystem/core-json-rpc": "^2.1.0",
         "@arkecosystem/core-logger-winston": "^2.1.0",
