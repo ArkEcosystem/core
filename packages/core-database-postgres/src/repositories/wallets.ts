@@ -45,7 +45,7 @@ export class WalletsRepository extends Repository implements Database.IWalletsRe
      * @return {Promise}
      */
     public async updateOrCreate(wallet) {
-        const query = `${this.__insertQuery(wallet)} ON CONFLICT(address) DO UPDATE SET ${this.pgp.helpers.sets(
+        const query = `${this.insertQuery(wallet)} ON CONFLICT(address) DO UPDATE SET ${this.pgp.helpers.sets(
             wallet,
             this.model.getColumnSet(),
         )}`;

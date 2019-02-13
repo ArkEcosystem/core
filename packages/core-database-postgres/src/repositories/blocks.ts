@@ -21,7 +21,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
      */
     public async count() {
         const { count } = await this.db.one(sql.count);
-        return count ;
+        return count;
     }
 
     /**
@@ -103,6 +103,24 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     }
 
     public async search(params: Database.SearchParameters) {
-        return undefined;
+        // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
+        const selectQuery = this.queryModel.select().from(this.queryModel);
+        const parameterList = params.parameters;
+        if (parameterList.length) {
+            let first;
+            do {
+                first = parameterList.shift();
+                // ignore params whose operator is unknown
+            } while (!first.operator && parameterList.length);
+
+            if (first) {
+                selectQuery.where(this.queryModel[first.field][first.operator][first.value]);
+                for (const param of parameterList) {
+                    selectQuery.and(this.queryModel[param.field][param.operator][param.value]);
+                }
+            }
+        }
+
+        return await this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
     }
 }

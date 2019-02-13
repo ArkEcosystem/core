@@ -66,7 +66,7 @@ export class BlockRepository extends Repository implements IRepository {
 
     /**
      * Get the last block for the given generator.
-     * TODO is this right?
+     * TODO is this right? - This is unused anyway
      * @param  {String} generatorPublicKey
      * @return {Object}
      */

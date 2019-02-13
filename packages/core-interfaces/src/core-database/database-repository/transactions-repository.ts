@@ -1,4 +1,5 @@
 import { Bignum } from "@arkecosystem/crypto";
+import { SearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface ITransactionsRepository extends IRepository {
@@ -37,9 +38,14 @@ export interface ITransactionsRepository extends IRepository {
         totalAmount: Bignum
     }>;
 
+    /* TODO: Maybe consolidate this with 'statistics()'. How are they used, and why separate implementations? */
+    getFeeStatistics(minFeeBroadcast: number): Promise<any>;
+
     /**
      * Delete transactions with blockId
      */
     deleteByBlockId(blockId: string): Promise<void>;
+
+    search(parameters: SearchParameters): Promise<any>;
 
 }

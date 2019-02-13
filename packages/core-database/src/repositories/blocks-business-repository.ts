@@ -7,9 +7,12 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findAll(params: any) {
-        const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
-        const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
-        return await blocksRepository.search(searchParameters);
+        /* In core-api/blocks repo. 'findAll' differs from search in that, it assumes 'equal' op for all passed in parameters
+        whereas 'search' checks if certain fields use different ops(such as in, lte/gte, like) etc.
+        Search seems more robust in that sense, and findAll should be doing the same
+         TODO: Remove this method in favor of 'search'
+         */
+        return this.search(params);
     }
 
     public async findAllByGenerator(generatorPublicKey: string, paginate: any) {
@@ -27,7 +30,16 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async search(params: any) {
-        return await this.findAll(params);
+        const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
+        const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
+        if (!searchParameters.orderBy.length) {
+            // default order-by
+            searchParameters.orderBy.push({
+                field: "height",
+                direction: "desc"
+            });
+        }
+        return await blocksRepository.search(searchParameters);
     }
 
 }
