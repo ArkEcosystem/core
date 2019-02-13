@@ -201,50 +201,10 @@ success "Installed system updates!"
 
 heading "Installing Ark Core..."
 
-cd "$HOME"
-
-if [ -d "ark-core" ]; then
-   heading "Removing existing folder..."
-   rm -rf ark-core
-fi
-
-git clone https://github.com/ArkEcosystem/core.git ~/ark-core
-cd ark-core
-yarn setup
+yarn global add @arkecosystem/core@alpha
+ark config:publish
 
 success "Installed Ark Core!"
-
-# setup configuration
-read -p "Would you like to configure the core? [y/N]: " choice
-
-if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-    info "Which network would you like to configure?"
-
-    validNetworks=("mainnet" "devnet" "testnet")
-
-    select opt in "${validNetworks[@]}"; do
-        case "$opt" in
-            "mainnet")
-                mkdir -p "${HOME}/.config/ark-core/mainnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/mainnet/." "${HOME}/.config/ark-core/mainnet"
-                break
-            ;;
-            "devnet")
-                mkdir -p "${HOME}/.config/ark-core/devnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/devnet/." "${HOME}/.config/ark-core/devnet"
-                break
-            ;;
-            "testnet")
-                mkdir -p "${HOME}/.config/ark-core/testnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/testnet/." "${HOME}/.config/ark-core/testnet"
-                break
-            ;;
-            *)
-                echo "Invalid option $REPLY"
-            ;;
-        esac
-    done
-fi
 
 # setup postgres username, password and database
 read -p "Would you like to configure the database? [y/N]: " choice
