@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core",
     "description": "Core of the Ark Blockchain",
-    "version": "2.2.0-alpha.3",
+    "version": "2.2.0-alpha.4",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -56,7 +56,7 @@
         "@arkecosystem/core-forger": "^2.1.0",
         "@arkecosystem/core-json-rpc": "^2.1.0",
         "@arkecosystem/core-logger-winston": "^2.1.0",
-        "@arkecosystem/core-p2p": "^2.1.0",
+        "@arkecosystem/core-p2p": "2.2.0-alpha.0",
         "@arkecosystem/core-snapshots": "^2.1.0",
         "@arkecosystem/core-transaction-pool": "^2.1.0",
         "@arkecosystem/core-webhooks": "^2.1.0",

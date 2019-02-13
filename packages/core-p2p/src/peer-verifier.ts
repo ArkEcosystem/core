@@ -1,11 +1,11 @@
-import assert from "assert";
-import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
-import { Database, Logger } from "@arkecosystem/core-interfaces";
-import { Peer } from './peer';
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { app } from "@arkecosystem/core-container";
-import { inspect } from "util";
+import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
+import assert from "assert";
+import { inspect } from "util";
+import { Peer } from "./peer";
 
 enum Severity {
     /** Printed at every step of the verification, even if leading to a successful verification. */
@@ -15,20 +15,19 @@ enum Severity {
     DEBUG,
 
     /** Failures to verify peer state, either designating malicious peer or communication issues. */
-    INFO
-};
+    INFO,
+}
 
 export class PeerVerifier {
-    private database: Database.IDatabaseService;
-    private logPrefix: string;
-    private logger: Logger.ILogger;
-    private peer: any;
-
     /**
      * A cache of verified blocks' ids. A block is verified if it is connected to a chain
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new CappedSet();
+    private database: Database.IDatabaseService;
+    private logPrefix: string;
+    private logger: Logger.ILogger;
+    private peer: any;
 
     public constructor(peer: Peer) {
         this.database = app.resolvePlugin<Database.IDatabaseService>("database");
@@ -91,17 +90,16 @@ export class PeerVerifier {
 
         const claimedHeight = Number(claimedState.header.height);
 
-        const highestCommonBlockHeight =
-            await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
+        const highestCommonBlockHeight = await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
         if (highestCommonBlockHeight === null) {
             return false;
         }
 
-        if (!await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline)) {
+        if (!(await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline))) {
             return false;
         }
 
-        this.log(Severity.DEBUG, 'success');
+        this.log(Severity.DEBUG, "success");
 
         return true;
     }
@@ -112,13 +110,14 @@ export class PeerVerifier {
      * @return {Boolean} true if invalid
      */
     private isStateInvalid(claimedState: any): boolean {
-        if (typeof claimedState === 'object' &&
-            typeof claimedState.header === 'object' &&
+        if (
+            typeof claimedState === "object" &&
+            typeof claimedState.header === "object" &&
             Number.isInteger(claimedState.header.height) &&
             claimedState.header.height > 0 &&
-            typeof claimedState.header.id === 'string' &&
-            claimedState.header.id.length > 0) {
-
+            typeof claimedState.header.id === "string" &&
+            claimedState.header.id.length > 0
+        ) {
             return false;
         }
 
@@ -158,45 +157,51 @@ export class PeerVerifier {
 
         if (claimedHeight > ourHeight) {
             const blocksAhead = claimedHeight - ourHeight;
-            this.log(Severity.DEBUG_EXTRA,
+            this.log(
+                Severity.DEBUG_EXTRA,
                 `peer's claimed chain is ${blocksAhead} block(s) higher than ` +
-                `ours (our height ${ourHeight}, his claimed height ${claimedHeight})`
+                    `ours (our height ${ourHeight}, his claimed height ${claimedHeight})`,
             );
 
             return false;
         }
 
-        const blocks = await this.database.getBlocksByHeight([ claimedHeight ]);
+        const blocks = await this.database.getBlocksByHeight([claimedHeight]);
 
         assert.strictEqual(
             blocks.length,
             1,
             `database.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
-            this.anyToString(blocks) + ` (our chain is at height ${ourHeight})`
+                this.anyToString(blocks) +
+                ` (our chain is at height ${ourHeight})`,
         );
 
         const ourBlockAtHisHeight = blocks[0];
 
         if (ourBlockAtHisHeight.id === claimedState.header.id) {
             if (claimedHeight === ourHeight) {
-                this.log(Severity.DEBUG,
+                this.log(
+                    Severity.DEBUG,
                     `success: peer's latest block is the same as our latest ` +
-                    `block (height=${claimedHeight}, id=${claimedState.header.id}). Identical chains.`
+                        `block (height=${claimedHeight}, id=${claimedState.header.id}). Identical chains.`,
                 );
             } else {
-                this.log(Severity.DEBUG,
+                this.log(
+                    Severity.DEBUG,
                     `success: peer's latest block ` +
-                    `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
-                    `Peer is ${ourHeight - claimedHeight} block(s) behind us.`
+                        `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
+                        `Peer is ${ourHeight - claimedHeight} block(s) behind us.`,
                 );
             }
             return true;
         }
 
-        this.log(Severity.INFO,
+        this.log(
+            Severity.INFO,
             `peer's latest block (height=${claimedHeight}, id=${claimedState.header.id}), is different than the ` +
-            `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
-            (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) + ` different chain.`
+                `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
+                (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) +
+                ` different chain.`,
         );
 
         return false;
@@ -214,7 +219,8 @@ export class PeerVerifier {
     private async findHighestCommonBlockHeight(
         claimedHeight: number,
         ourHeight: number,
-        deadline: number): Promise<number> {
+        deadline: number,
+    ): Promise<number> {
         // The highest common block is in the interval [1, min(claimed height, our height)].
         // Search in that interval using an 8-ary search. Compared to binary search this
         // will do more comparisons. However, comparisons are practically for free while
@@ -239,9 +245,9 @@ export class PeerVerifier {
             }
 
             // Make sure getBlocksByHeight() returned a block for every height we asked.
-            heightsToProbe.forEach(h => assert.strictEqual(typeof probesIdByHeight[h], 'string'));
+            heightsToProbe.forEach(h => assert.strictEqual(typeof probesIdByHeight[h], "string"));
 
-            const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(', ');
+            const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(", ");
             const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;
 
             const msRemaining = this.throwIfPastDeadline(deadline);
@@ -254,31 +260,35 @@ export class PeerVerifier {
                 return null;
             }
 
-            if (typeof highestCommon !== 'object' ||
-                typeof highestCommon.id !== 'string' ||
-                !Number.isInteger(highestCommon.height)) {
-
-                this.log(Severity.INFO,
+            if (
+                typeof highestCommon !== "object" ||
+                typeof highestCommon.id !== "string" ||
+                !Number.isInteger(highestCommon.height)
+            ) {
+                this.log(
+                    Severity.INFO,
                     `failure: erroneous reply from peer for common blocks ` +
-                    `${ourBlocksPrint}: ${this.anyToString(highestCommon)}`
+                        `${ourBlocksPrint}: ${this.anyToString(highestCommon)}`,
                 );
                 return null;
             }
 
             if (!probesHeightById[highestCommon.id]) {
-                this.log(Severity.INFO,
+                this.log(
+                    Severity.INFO,
                     `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
-                    `peer replied with block id ${highestCommon.id} which we did not ask for`
+                        `peer replied with block id ${highestCommon.id} which we did not ask for`,
                 );
                 return null;
             }
 
             if (probesHeightById[highestCommon.id] !== highestCommon.height) {
-                this.log(Severity.INFO,
+                this.log(
+                    Severity.INFO,
                     `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
-                    `peer pretends to have block with id ${highestCommon.id} at height ` +
-                    `${highestCommon.height}, however a block with the same id is at ` +
-                    `different height ${probesHeightById[highestCommon.id]} in our chain`
+                        `peer pretends to have block with id ${highestCommon.id} at height ` +
+                        `${highestCommon.height}, however a block with the same id is at ` +
+                        `different height ${probesHeightById[highestCommon.id]} in our chain`,
                 );
                 return null;
             }
@@ -324,13 +334,13 @@ export class PeerVerifier {
 
         for (let h = startHeight; h <= endHeight; h++) {
             if (hisBlocksByHeight[h] === undefined) {
-                if (!await this.fetchBlocksFromHeight(h, hisBlocksByHeight, deadline)) {
+                if (!(await this.fetchBlocksFromHeight(h, hisBlocksByHeight, deadline))) {
                     return false;
                 }
             }
             assert(hisBlocksByHeight[h] !== undefined);
 
-            if (!await this.verifyPeerBlock(hisBlocksByHeight[h], h, delegates)) {
+            if (!(await this.verifyPeerBlock(hisBlocksByHeight[h], h, delegates))) {
                 return false;
             }
         }
@@ -362,7 +372,7 @@ export class PeerVerifier {
                 delegates.length,
                 numDelegates,
                 `Couldn't derive the list of delegates for round ${round.round}. The database ` +
-                `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`
+                    `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`,
             );
         }
 
@@ -393,31 +403,35 @@ export class PeerVerifier {
             // returns blocks from the next one, thus we do -1
             response = await this.peer.getPeerBlocks(height - 1, msRemaining);
         } catch (err) {
-            this.log(Severity.INFO,
-                `failure: could not get blocks starting from height ${height} from peer: exception: ${err.message}`
+            this.log(
+                Severity.INFO,
+                `failure: could not get blocks starting from height ${height} from peer: exception: ${err.message}`,
             );
             return false;
         }
 
-        if (typeof response !== 'object' ||
-            typeof response.data !== 'object' ||
+        if (
+            typeof response !== "object" ||
+            typeof response.data !== "object" ||
             !Array.isArray(response.data.blocks) ||
-            response.data.blocks.length === 0) {
-
-            this.log(Severity.INFO,
+            response.data.blocks.length === 0
+        ) {
+            this.log(
+                Severity.INFO,
                 `failure: could not get blocks starting from height ${height} ` +
-                `from peer: unexpected response: ${this.anyToString(response)}`
+                    `from peer: unexpected response: ${this.anyToString(response)}`,
             );
             return false;
         }
 
         for (let i = 0; i < response.data.blocks.length; i++) {
             blocksByHeight[height + i] = response.data.blocks[i];
-            if (typeof blocksByHeight[height + i] !== 'object') {
-                this.log(Severity.INFO,
+            if (typeof blocksByHeight[height + i] !== "object") {
+                this.log(
+                    Severity.INFO,
                     `failure: could not get blocks starting from height ${height} ` +
-                    `from peer: the block at height ${height + i} is not an object: ` +
-                    this.anyToString(response)
+                        `from peer: the block at height ${height + i} is not an object: ` +
+                        this.anyToString(response),
                 );
                 return false;
             }
@@ -437,11 +451,12 @@ export class PeerVerifier {
     private async verifyPeerBlock(
         blockData: models.IBlockData,
         expectedHeight: number,
-        delegatesByPublicKey: any[]): Promise<boolean> {
-
+        delegatesByPublicKey: any[],
+    ): Promise<boolean> {
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
-            this.log(Severity.DEBUG_EXTRA,
-                `accepting block at height ${blockData.height}, already successfully verified before`
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `accepting block at height ${blockData.height}, already successfully verified before`,
             );
 
             return true;
@@ -450,8 +465,9 @@ export class PeerVerifier {
         const block = new models.Block(blockData);
 
         if (!block.verification.verified) {
-            this.log(Severity.INFO,
-                `failure: peer's block at height ${expectedHeight} does not pass crypto-validation`
+            this.log(
+                Severity.INFO,
+                `failure: peer's block at height ${expectedHeight} does not pass crypto-validation`,
             );
             return false;
         }
@@ -459,15 +475,17 @@ export class PeerVerifier {
         const height = block.data.height;
 
         if (height !== expectedHeight) {
-            this.log(Severity.INFO,
-                `failure: asked for block at height ${expectedHeight}, but got a block with height ${height} instead`
+            this.log(
+                Severity.INFO,
+                `failure: asked for block at height ${expectedHeight}, but got a block with height ${height} instead`,
             );
             return false;
         }
 
         if (delegatesByPublicKey[block.data.generatorPublicKey]) {
-            this.log(Severity.DEBUG_EXTRA,
-                `successfully verified block at height ${height}, signed by ` + block.data.generatorPublicKey
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `successfully verified block at height ${height}, signed by ` + block.data.generatorPublicKey,
             );
 
             PeerVerifier.verifiedBlocks.add(block.data.id);
@@ -475,9 +493,11 @@ export class PeerVerifier {
             return true;
         }
 
-        this.log(Severity.INFO,
+        this.log(
+            Severity.INFO,
             `failure: block ${this.anyToString(blockData)} is not signed by any of the delegates ` +
-            `for the corresponding round: ` + this.anyToString(Object.values(delegatesByPublicKey))
+                `for the corresponding round: ` +
+                this.anyToString(Object.values(delegatesByPublicKey)),
         );
 
         return false;
@@ -494,7 +514,7 @@ export class PeerVerifier {
 
         if (deadline <= now) {
             // Throw an exception so that it can cancel everything and break out of peer.ping().
-            throw new Error('timeout elapsed before successful completion of the verification');
+            throw new Error("timeout elapsed before successful completion of the verification");
         }
 
         return deadline - now;

@@ -1,11 +1,11 @@
+import genesisBlockJson from "@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json";
+import { blocks2to100 as blocks2to100Json } from "@arkecosystem/core-test-utils/src/fixtures";
 import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Peer } from "../src/peer";
 import { PeerVerifier } from "../src/peer-verifier";
 import { setUp, tearDown } from "./__support__/setup";
-import genesisBlockJson from "@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json";
-import { blocks2to100 as blocks2to100Json } from "@arkecosystem/core-test-utils/src/fixtures";
 
 const axiosMock = new MockAdapter(axios);
 const { Block, Transaction } = models;
@@ -56,40 +56,38 @@ describe("Peer Verifier", () => {
                 200,
                 {
                     common: null,
-                    success: true
+                    success: true,
                 },
-                peerMock.headers
+                peerMock.headers,
             );
 
             const peerVerifier = new PeerVerifier(peerMock);
-            const state = { header: { height: 1, id: '123' } };
+            const state = { header: { height: 1, id: "123" } };
             const isLegit = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(isLegit).toBe(false);
         });
 
         it("bogus replies for common block", async () => {
             const commonBlockReplies = [
-                'not an object',
-                { id: { a: 'id is not a string' } },
-                { id: 'id is string', height: 'but height is not a number' },
-                { id: 'id is string, but none of the queried ids', height: 1 },
-                { id: `${genesisBlock.data.id}`, height: 42 }
+                "not an object",
+                { id: { a: "id is not a string" } },
+                { id: "id is string", height: "but height is not a number" },
+                { id: "id is string, but none of the queried ids", height: 1 },
+                { id: `${genesisBlock.data.id}`, height: 42 },
             ];
 
             for (const commonBlockReply of commonBlockReplies) {
-                axiosMock.onGet(
-                    `${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`
-                ).reply(
+                axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
                     200,
                     {
                         common: commonBlockReply,
-                        success: true
+                        success: true,
                     },
-                    peerMock.headers
+                    peerMock.headers,
                 );
 
                 const peerVerifier = new PeerVerifier(peerMock);
-                const state = { header: { height: 1, id: '123' } };
+                const state = { header: { height: 1, id: "123" } };
                 const isLegit = await peerVerifier.checkState(state, new Date().getTime() + 10000);
                 expect(isLegit).toBe(false);
             }
@@ -97,15 +95,13 @@ describe("Peer Verifier", () => {
 
         it("higher than our chain (invalid)", async () => {
             axiosMock.reset();
-            axiosMock.onGet(
-                `${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`
-            ).reply(
+            axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
                 200,
                 {
                     common: { id: `${genesisBlock.data.id}`, height: 1 },
-                    success: true
+                    success: true,
                 },
-                peerMock.headers
+                peerMock.headers,
             );
 
             const overrides = [
@@ -114,22 +110,18 @@ describe("Peer Verifier", () => {
                 // Wrong/non-matching signature
                 { blockSignature: blocks2to100Json[1].blockSignature },
                 // Wrong/non-matching signer
-                { generatorPublicKey: blocks2to100Json[1].generatorPublicKey }
+                { generatorPublicKey: blocks2to100Json[1].generatorPublicKey },
             ];
 
             for (const override of overrides) {
                 const block2 = Object.assign({}, blocks2to100Json[0], override);
 
-                axiosMock.onGet(
-                    `${peerMock.url}/peer/blocks`
-                ).reply(
+                axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(
                     200,
                     {
-                        blocks: [
-                            block2
-                        ]
+                        blocks: [block2],
                     },
-                    peerMock.headers
+                    peerMock.headers,
                 );
 
                 const peerVerifier = new PeerVerifier(peerMock);
@@ -141,27 +133,21 @@ describe("Peer Verifier", () => {
 
         it("higher than our chain (legit)", async () => {
             axiosMock.reset();
-            axiosMock.onGet(
-                `${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`
-            ).reply(
+            axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
                 200,
                 {
                     common: { id: `${genesisBlock.data.id}`, height: 1 },
-                    success: true
+                    success: true,
                 },
-                peerMock.headers
+                peerMock.headers,
             );
 
-            axiosMock.onGet(
-                `${peerMock.url}/peer/blocks`
-            ).reply(
+            axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(
                 200,
                 {
-                    blocks: [
-                        blocks2to100Json[0]
-                    ]
+                    blocks: [blocks2to100Json[0]],
                 },
-                peerMock.headers
+                peerMock.headers,
             );
 
             const peerVerifier = new PeerVerifier(peerMock);
