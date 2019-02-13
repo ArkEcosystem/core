@@ -36,7 +36,7 @@ class Worker extends SCWorker {
 
     public async middleware(req, next) {
         // only allow requests with data and headers specified
-        console.log(JSON.stringify(req.data, null, 2));
+        console.log(`Received message from ${req.socket.remoteAddress} : ${JSON.stringify(req.data, null, 2)}`);
         if (req.data && req.data.headers) {
             try {
                 const [prefix, version, method] = req.event.split(".");
@@ -56,6 +56,11 @@ class Worker extends SCWorker {
                         headers: req.data.headers,
                     });
                 }
+
+                // some handlers need this info.remoteAddress info
+                // TODO rationalize all meta info into a "meta" property
+                req.data.info = req.data.info || {};
+                req.data.info.remoteAddress = req.socket.remoteAddress;
             } catch (e) {
                 // TODO explicit error
                 next(e);

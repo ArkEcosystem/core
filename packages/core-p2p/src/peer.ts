@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
+import delay from "delay";
 import socketCluster from "socketcluster-client";
 import util from "util";
 import { config as localConfig } from "./config";
@@ -210,11 +211,12 @@ export class Peer implements P2P.IPeer {
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    public async ping(delay, force = false) {
+    public async ping(maxDelay, force = false) {
         if (this.recentlyPinged() && !force) {
             return;
         }
 
+        // TODO use parameter maxDelay
         const body: any = await this.emit("p2p.peer.getStatus", null);
         /*
         const body = await this.__get("/peer/status", delay || localConfig.get("globalTimeout"));
@@ -362,19 +364,30 @@ export class Peer implements P2P.IPeer {
         if (!data) {
             data = {};
         }
-        data.info = {
-            remoteAddress: this.ip,
-        };
         data.headers = this.headers;
 
+        this.logger.debug(`Sending socket message "${event}" to ${this.ip} : ${JSON.stringify(data, null, 2)}`);
+
+        // if socket is not connected, we give it 1 second
+        for (let i = 0; i < 10 && this.socket.getState() !== this.socket.OPEN; i++) {
+            await delay(100);
+        }
+        if (this.socket.getState() !== this.socket.OPEN) {
+            throw new Error(`Peer socket is not connected. State: ${this.socket.getState()}`);
+        }
+
         return new Promise((resolve, reject) => {
-            this.socket.emit(event, data, (err, val) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(val);
-                }
-            });
+            try {
+                this.socket.emit(event, data, (err, val) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(val);
+                    }
+                });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 }

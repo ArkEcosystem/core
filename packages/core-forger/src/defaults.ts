@@ -1,3 +1,8 @@
 export const defaults = {
-    hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4002}`],
+    hosts: [
+        {
+            port: process.env.CORE_P2P_PORT || 4000,
+            ip: "127.0.0.1",
+        },
+    ],
 };

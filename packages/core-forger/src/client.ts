@@ -207,14 +207,28 @@ export class Client {
         };
         data.headers = this.headers;
 
+        this.logger.debug(`Sending socket message "${event}" to ${ip} : ${JSON.stringify(data, null, 2)}`);
+
+        // if socket is not connected, we give it 1 second
+        for (let i = 0; i < 10 && this.socket.getState() !== this.socket.OPEN; i++) {
+            await delay(100);
+        }
+        if (this.socket.getState() !== this.socket.OPEN) {
+            throw new Error(`Relay socket is not connected. State: ${this.socket.getState()}`);
+        }
+
         return new Promise((resolve, reject) => {
-            this.socket.emit(event, data, (err, val) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(val);
-                }
-            });
+            try {
+                this.socket.emit(event, data, (err, val) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(val);
+                    }
+                });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 }
