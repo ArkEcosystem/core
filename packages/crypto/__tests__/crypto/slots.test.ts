@@ -99,4 +99,13 @@ describe("Slots", () => {
             expect(slots.isForgingAllowed()).toBeDefined();
         });
     });
+
+    describe("getTimeInMsUntilNextSlot", () => {
+        it("should be ok", () => {
+            const nextSlotTime = slots.getSlotTime(slots.getNextSlot());
+            const now = slots.getTime();
+
+            expect(slots.getTimeInMsUntilNextSlot()).toEqual((nextSlotTime - now) * 1000);
+        });
+    });
 });

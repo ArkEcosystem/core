@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database",
     "description": "Database Interface for Ark Core",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
