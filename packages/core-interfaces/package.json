@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-interfaces",
     "description": "Interface types for essential Ark core modules",
-    "version": "2.2.0-alpha.7",
+    "version": "2.2.0-alpha.8",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -26,9 +26,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "2.2.0-alpha.7",
+        "@arkecosystem/crypto": "2.2.0-alpha.8",
         "awilix": "^4.0.1",
-        "eventemitter3": "^3.1.0"
+        "eventemitter3": "^3.1.0",
+        "lodash": "^4.17.11"
     },
     "publishConfig": {
         "access": "public"
