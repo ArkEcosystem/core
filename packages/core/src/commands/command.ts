@@ -161,6 +161,5 @@ export abstract class BaseCommand extends Command {
 
     protected abortWithInvalidInput(): void {
         this.error("Please enter valid data and try again!");
-        process.exit();
     }
 }

@@ -16,7 +16,7 @@ export const getPeers: object = {
         },
         version: {
             type: "string",
-            maxLength: 11,
+            maxLength: 16,
         },
         orderBy: {
             type: "string",

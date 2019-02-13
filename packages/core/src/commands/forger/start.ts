@@ -1,5 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
+import bip39 from "bip39";
+import { join } from "path";
+import prompts from "prompts";
 import { start } from "../../helpers/pm2";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
@@ -34,15 +37,21 @@ $ ark forger:start --no-daemon
     }
 
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
-        start({
-            name: `${flags.token}-forger`,
-            script: "./bin/run",
-            args: `forger:start --no-daemon ${this.flagsToStrings(flags)}`,
-            env: {
-                CORE_FORGER_BIP38: flags.bip38,
-                CORE_FORGER_PASSWORD: flags.password,
-            },
-        });
+        try {
+            const { bip38, password } = await this.buildBIP38(flags);
+
+            start({
+                name: `${flags.token}-forger`,
+                script: "./bin/run",
+                args: `forger:start --no-daemon ${this.flagsToStrings(flags)}`,
+                env: {
+                    CORE_FORGER_BIP38: bip38,
+                    CORE_FORGER_PASSWORD: password,
+                },
+            });
+        } catch (error) {
+            this.error(error.message);
+        }
     }
 
     protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
@@ -55,11 +64,51 @@ $ ark forger:start --no-daemon
                 "@arkecosystem/core-forger",
             ],
             options: {
-                "@arkecosystem/core-forger": {
-                    bip38: flags.bip38,
-                    password: flags.password,
-                },
+                "@arkecosystem/core-forger": await this.buildBIP38(flags),
             },
         });
+    }
+
+    private async buildBIP38(flags: Record<string, any>) {
+        // defaults
+        let bip38 = flags.bip38;
+        let password = flags.password;
+
+        // config
+        const { config } = await this.getPaths(flags);
+        const delegates = require(join(config, "delegates.json"));
+
+        if (!bip38 && delegates.bip38) {
+            bip38 = delegates.bip38;
+        }
+
+        if (!bip38 && !delegates.secrets.length) {
+            this.error("We were unable to detect a BIP38 or BIP39 passphrase.");
+        }
+
+        // fallback
+        if (bip38 && !password) {
+            const response = await prompts([
+                {
+                    type: "password",
+                    name: "password",
+                    message: "Please enter your BIP38 password",
+                },
+                {
+                    type: "confirm",
+                    name: "confirm",
+                    message: "Can you confirm?",
+                    initial: true,
+                },
+            ]);
+
+            if (!response.password) {
+                this.error("We've detected that you are using BIP38 but have not provided the password flag.");
+            }
+
+            password = response.password;
+        }
+
+        return { bip38, password };
     }
 }

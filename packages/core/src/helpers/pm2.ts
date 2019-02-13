@@ -9,7 +9,7 @@ import { Tail } from "tail";
 function createConnection(callback) {
     pm2.connect(error => {
         if (error) {
-            this.error(error.message);
+            console.error(error.message);
             process.exit(2);
         }
 
@@ -23,7 +23,7 @@ export function start(options: any) {
     createConnection(() => {
         pm2.describe(processName, async (error, apps) => {
             if (error) {
-                this.error(error.message);
+                console.error(error.message);
                 process.exit();
             }
 
@@ -40,7 +40,7 @@ export function start(options: any) {
                         pm2.disconnect();
 
                         if (error) {
-                            this.error(error.message);
+                            console.error(error.message);
                             process.exit();
                         }
 
@@ -63,7 +63,7 @@ export function start(options: any) {
                         pm2.disconnect();
 
                         if (error) {
-                            this.error(error.message);
+                            console.error(error.message);
                             process.exit();
                         }
                     },
@@ -80,7 +80,7 @@ export function stop(processName: string) {
 
             if (error) {
                 if (error.message === "process name not found") {
-                    this.warn(`The "${processName}" process does not exist. Failed to stop!`);
+                    console.warn(`The "${processName}" process does not exist. Failed to stop!`);
                 } else {
                     throw error;
                 }
@@ -96,7 +96,7 @@ export function restart(processName: string) {
 
             if (error) {
                 if (error.message === "process name not found") {
-                    this.warn(`The "${processName}" process does not exist. Failed to restart!`);
+                    console.warn(`The "${processName}" process does not exist. Failed to restart!`);
                 } else {
                     throw error;
                 }
@@ -112,7 +112,7 @@ export function shutdown(processName: string) {
 
             if (error) {
                 if (error.message === "process name not found") {
-                    this.warn(`The "${processName}" process does not exist. Failed to shutdown!`);
+                    console.warn(`The "${processName}" process does not exist. Failed to shutdown!`);
                 } else {
                     throw error;
                 }
@@ -127,7 +127,7 @@ export function list(token: string) {
             pm2.disconnect();
 
             if (error) {
-                this.error(error.message);
+                console.error(error.message);
                 process.exit();
             }
 
@@ -164,12 +164,12 @@ export function log(processName: string, onlyErrors: boolean) {
             pm2.disconnect();
 
             if (error) {
-                this.error(error.message);
+                console.error(error.message);
                 process.exit();
             }
 
             if (!apps[0]) {
-                this.warn(`The "${processName}" process is not running. No logs to be viewed!`);
+                console.warn(`The "${processName}" process is not running. No logs to be viewed!`);
                 process.exit();
             }
 
