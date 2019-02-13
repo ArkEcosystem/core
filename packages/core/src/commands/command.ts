@@ -21,19 +21,6 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
-    public static flagsNetworkRequired: Record<string, object> = {
-        token: flags.string({
-            description: "the name of the token that should be used",
-            default: "ark",
-            required: true,
-        }),
-        network: flags.string({
-            description: "the name of the network that should be used",
-            options: Object.keys(networks),
-            required: true,
-        }),
-    };
-
     public static flagsBehaviour: Record<string, object> = {
         networkStart: flags.boolean({
             description: "indicate that this is the first start of seeds",

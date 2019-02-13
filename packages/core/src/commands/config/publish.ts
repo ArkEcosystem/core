@@ -14,7 +14,7 @@ $ ark config:publish --network=mainnet
     ];
 
     public static flags: Record<string, any> = {
-        ...BaseCommand.flagsNetworkRequired,
+        ...BaseCommand.flagsNetwork,
         force: flags.boolean({
             description: "force the configuration to be overwritten",
         }),
@@ -52,7 +52,7 @@ $ ark config:publish --network=mainnet
         }
 
         if (response.confirm) {
-            return this.performPublishment(response);
+            return this.performPublishment({ ...response, ...flags });
         }
     }
 
