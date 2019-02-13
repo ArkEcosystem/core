@@ -129,13 +129,9 @@ export class ForgerManager {
 
             const networkState = await this.client.getNetworkState();
 
-            if (!this.__parseNetworkState(networkState, delegate)) {
-                await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
-
-                return this.__monitor(round);
+            if (this.__parseNetworkState(networkState, delegate)) {
+                await this.__forgeNewBlock(delegate, round);
             }
-
-            await this.__forgeNewBlock(delegate, round);
 
             await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
 
