@@ -357,7 +357,9 @@ describe("Connection", () => {
             }
 
             for (const i of [0, 1]) {
-                const retrieved = connection.getTransactions(i, 1).map(serializedTx => new Transaction(serializedTx));
+                const retrieved = connection
+                    .getTransactions(i, 1, 0)
+                    .map(serializedTx => new Transaction(serializedTx));
 
                 expect(retrieved.length).toBe(1);
                 expect(retrieved[0]).toBeObject();
@@ -385,6 +387,51 @@ describe("Connection", () => {
             expect(transactionIds[4]).toBe(mockData.dummy5.id);
             expect(transactionIds[5]).toBe(mockData.dummy6.id);
         });
+
+        it("should only return transaction ids for transactions not exceeding the maximum payload size", () => {
+            mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
+            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+                mockData.dummyLarge1.data.signatures += "1";
+                mockData.dummyLarge2.data.signatures += "2";
+            }
+
+            const transactions = [
+                mockData.dummyLarge1,
+                mockData.dummyLarge2,
+                mockData.dummy3,
+                mockData.dummy4,
+                mockData.dummy5,
+                mockData.dummy6,
+                mockData.dummy7,
+            ];
+
+            // Add exception for oversized transactions with extra signatures data
+            config.set("exceptions.transactions", [mockData.dummyLarge1.id, mockData.dummyLarge2.id]);
+
+            connection.addTransactions(transactions);
+
+            let transactionIds = connection.getTransactionIdsForForging(0, 7);
+            expect(transactionIds).toBeArray();
+            expect(transactionIds.length).toBe(6);
+            expect(transactionIds[0]).toBe(mockData.dummyLarge1.id);
+            expect(transactionIds[1]).toBe(mockData.dummy3.id);
+            expect(transactionIds[2]).toBe(mockData.dummy4.id);
+            expect(transactionIds[3]).toBe(mockData.dummy5.id);
+            expect(transactionIds[4]).toBe(mockData.dummy6.id);
+            expect(transactionIds[5]).toBe(mockData.dummy7.id);
+
+            connection.removeTransactionById(mockData.dummyLarge1.id);
+            connection.removeTransactionById(mockData.dummy3.id);
+            connection.removeTransactionById(mockData.dummy4.id);
+            connection.removeTransactionById(mockData.dummy5.id);
+            connection.removeTransactionById(mockData.dummy6.id);
+            connection.removeTransactionById(mockData.dummy7.id);
+
+            transactionIds = connection.getTransactionIdsForForging(0, 7);
+            expect(transactionIds).toBeArray();
+            expect(transactionIds.length).toBe(1);
+            expect(transactionIds[0]).toBe(mockData.dummyLarge2.id);
+        });
     });
 
     describe("getTransactionsForForging", () => {
@@ -395,6 +442,49 @@ describe("Connection", () => {
             const transactionsForForging = connection.getTransactionsForForging(4);
 
             expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized));
+        });
+        it("should only return transactions not exceeding the maximum payload size", () => {
+            mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
+            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+                mockData.dummyLarge1.data.signatures += "1";
+                mockData.dummyLarge2.data.signatures += "2";
+            }
+
+            const transactions = [
+                mockData.dummyLarge1,
+                mockData.dummyLarge2,
+                mockData.dummy3,
+                mockData.dummy4,
+                mockData.dummy5,
+                mockData.dummy6,
+                mockData.dummy7,
+            ];
+
+            // Add exception for oversized transactions with extra signatures data
+            config.set("exceptions.transactions", [mockData.dummyLarge1.id, mockData.dummyLarge2.id]);
+
+            connection.addTransactions(transactions);
+
+            let transactionsForForging = connection.getTransactionsForForging(7);
+
+            expect(transactionsForForging.length).toBe(6);
+            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge1.serialized);
+            expect(transactionsForForging[1]).toEqual(mockData.dummy3.serialized);
+            expect(transactionsForForging[2]).toEqual(mockData.dummy4.serialized);
+            expect(transactionsForForging[3]).toEqual(mockData.dummy5.serialized);
+            expect(transactionsForForging[4]).toEqual(mockData.dummy6.serialized);
+            expect(transactionsForForging[5]).toEqual(mockData.dummy7.serialized);
+
+            connection.removeTransactionById(mockData.dummyLarge1.id);
+            connection.removeTransactionById(mockData.dummy3.id);
+            connection.removeTransactionById(mockData.dummy4.id);
+            connection.removeTransactionById(mockData.dummy5.id);
+            connection.removeTransactionById(mockData.dummy6.id);
+            connection.removeTransactionById(mockData.dummy7.id);
+
+            transactionsForForging = connection.getTransactionsForForging(7);
+            expect(transactionsForForging.length).toBe(1);
+            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized);
         });
     });
 
@@ -462,11 +552,11 @@ describe("Connection", () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(connection.getTransactions(0, 10)).toEqual([]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([]);
         });
 
         it("should purge and block sender if canApply() failed for a transaction in the chained block", () => {
@@ -502,7 +592,7 @@ describe("Connection", () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
 
@@ -519,7 +609,7 @@ describe("Connection", () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
 
@@ -535,7 +625,7 @@ describe("Connection", () => {
         it("should not apply transaction to wallet if canApply() failed", async () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
             expect(connection.walletManager.allByAddress()).toEqual([]);
@@ -680,7 +770,7 @@ describe("Connection", () => {
                     connection.hasExceededMaxTransactions(sender);
                 }
                 connection.getTransaction(fakeTransactionId(i));
-                connection.getTransactions(0, i);
+                connection.getTransactions(0, i, 0);
             }
 
             for (let i = 0; i < testSize; i++) {
@@ -733,7 +823,7 @@ describe("Connection", () => {
                 .map(f => f.toString());
 
             // console.time(`time to get first ${nGet}`)
-            const topTransactionsSerialized = connection.getTransactions(0, nGet);
+            const topTransactionsSerialized = connection.getTransactions(0, nGet, 0);
             // console.timeEnd(`time to get first ${nGet}`)
 
             const topFeesReceived = topTransactionsSerialized.map(e => new Transaction(e).fee.toString());

@@ -767,6 +767,24 @@ describe("Transaction Guard", () => {
             guard.pool.transactionExists = transactionExists;
         });
 
+        it("should reject transactions that are too large", () => {
+            const tx = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 1, 3)[0];
+            tx.data.signatures = [""];
+            for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
+                tx.data.signatures += "1";
+            }
+            guard.__filterAndTransformTransactions([tx]);
+
+            expect(guard.errors[tx.id]).toEqual([
+                {
+                    message: `Transaction ${tx.id} is larger than ${
+                        transactionPool.options.maxTransactionBytes
+                    } bytes.`,
+                    type: "ERR_TOO_LARGE",
+                },
+            ]);
+        });
+
         it("should reject transactions from the future", () => {
             const now = 47157042; // seconds since genesis block
             const transactionExists = guard.pool.transactionExists;

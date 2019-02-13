@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.2] - 2019-02-13
+
+### Fixed
+
+-   Fix quorum related issues
+-   Limit payload size
+-   Remove `signatures` from transaction payload
+
 ## [2.1.1] - 2019-02-12
 
 ### Fixed
@@ -184,7 +192,8 @@ Closed security vulnerabilities:
 
 -   Initial Release
 
-[unreleased]: https://github.com/ArkEcosystem/core/compare/2.1.1...develop
+[unreleased]: https://github.com/ArkEcosystem/core/compare/2.1.2...develop
+[2.1.2]: https://github.com/ArkEcosystem/core/compare/2.1.1..2.1.2
 [2.1.1]: https://github.com/ArkEcosystem/core/compare/2.1.0..2.1.1
 [2.1.0]: https://github.com/ArkEcosystem/core/compare/2.0.19...2.1.0
 [2.0.19]: https://github.com/ArkEcosystem/core/compare/2.0.18...2.0.19
@@ -280,3 +289,4 @@ Closed security vulnerabilities:
 [#2080]: https://github.com/ArkEcosystem/core/pull/2080
 [#2082]: https://github.com/ArkEcosystem/core/pull/2082
 [#2083]: https://github.com/ArkEcosystem/core/pull/2083
+[#2091]: https://github.com/ArkEcosystem/core/pull/2091
