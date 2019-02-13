@@ -49,7 +49,8 @@ $ ark relay:start --no-daemon
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
         start({
             name: `${flags.token}-relay`,
-            script: "./bin/run",
+            // @ts-ignore
+            script: this.config.options.root,
             args: `relay:start --no-daemon ${this.flagsToStrings(flags)}`,
         });
     }

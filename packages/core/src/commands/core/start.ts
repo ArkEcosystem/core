@@ -49,7 +49,8 @@ $ ark core:start --no-daemon
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
         start({
             name: `${flags.token}-core`,
-            script: "./bin/run",
+            // @ts-ignore
+            script: this.config.options.root,
             args: `core:start --no-daemon ${this.flagsToStrings(flags)}`,
             env: {
                 CORE_FORGER_BIP38: flags.bip38,
