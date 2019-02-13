@@ -13,7 +13,7 @@ const startSocketServer = async config => {
     const server = new SocketCluster({
         workers: 1,
         brokers: 1,
-        port: 8000,
+        port: 4000,
         appName: "core-p2p",
 
         wsEngine: "ws",

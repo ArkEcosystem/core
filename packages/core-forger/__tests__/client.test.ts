@@ -15,7 +15,7 @@ beforeAll(async () => {
 
     await delay(2000);
     client = new Client({
-        port: 8000,
+        port: 4000,
         ip: "127.0.0.1",
     });
 });

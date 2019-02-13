@@ -43,8 +43,8 @@ beforeEach(() => {
     localConfig.set("port", 4009); // we mock a peer on localhost:4009
 
     const { Peer } = require("../src/peer");
-    peer = new Peer("127.0.0.1", 8000);
-    // the "real" peer (the app we launched with setupFull) is listening on port 8000
+    peer = new Peer("127.0.0.1", 4000);
+    // the "real" peer (the app we launched with setupFull) is listening on port 4000
 });
 
 describe("Peer", () => {
@@ -87,10 +87,10 @@ describe("Peer", () => {
 
     describe("ping", () => {
         it("should be ok", async () => {
-            // we ping the peer on port 8000.
+            // we ping the peer on port 4000.
             // we do this with headers sets with port = 4009
             // so the app will attempt to ping us back on 4009 where our socket server mock is listening
-            // => 127.0.0.1:4009 should be added as a peer in the app (real peer - 8000)
+            // => 127.0.0.1:4009 should be added as a peer in the app (real peer - 4000)
 
             const status = await peer.ping(1000);
 
@@ -101,10 +101,10 @@ describe("Peer", () => {
         });
 
         it.skip("when localhost check is disabled it should add 127.0.0.1 as a peer", async () => {
-            // we ping the peer on port 8000.
+            // we ping the peer on port 4000.
             // we do this with headers sets with port = 4009
             // so the app will attempt to ping us back on 4009 where our socket server mock is listening
-            // => 127.0.0.1:4009 should be added as a peer in the app (real peer - 8000)
+            // => 127.0.0.1:4009 should be added as a peer in the app (real peer - 4000)
 
             const status = await peer.ping(1000);
 

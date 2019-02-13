@@ -15,7 +15,7 @@ beforeAll(async () => {
 
     await delay(3000);
     socket = socketCluster.create({
-        port: 8000,
+        port: 4000,
         hostname: "127.0.0.1",
     });
 
