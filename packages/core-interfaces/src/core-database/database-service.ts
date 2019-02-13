@@ -5,7 +5,6 @@ import { IDatabaseConnection } from "./database-connection";
 import { IWalletManager } from "./wallet-manager";
 
 export interface IDatabaseService {
-
     walletManager: IWalletManager;
 
     wallets: IWalletsBusinessRepository;
@@ -26,7 +25,7 @@ export interface IDatabaseService {
 
     restoredDatabaseIntegrity: boolean;
 
-    verifyBlockchain(): Promise<{ valid: boolean, errors: any[] }>;
+    verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
 
     getActiveDelegates(height: number, delegates?: any[]): Promise<any[]>;
 
@@ -53,6 +52,26 @@ export interface IDatabaseService {
     getLastBlock(): Promise<models.Block>;
 
     getBlocks(offset: number, limit: number): Promise<any[]>;
+
+    /**
+     * Get the blocks at the given heights.
+     * The transactions for those blocks will not be loaded like in `getBlocks()`.
+     * @param {Array} heights array of arbitrary block heights
+     * @return {Array} array for the corresponding blocks. The element (block) at index `i`
+     * in the resulting array corresponds to the requested height at index `i` in the input
+     * array heights[]. For example, if
+     * heights[0] = 100
+     * heights[1] = 200
+     * heights[2] = 150
+     * then the result array will have the same number of elements (3) and will be:
+     * result[0] = block at height 100
+     * result[1] = block at height 200
+     * result[2] = block at height 150
+     * If some of the requested blocks do not exist in our chain (requested height is larger than
+     * the height of our blockchain), then that element will be `undefined` in the resulting array
+     * @throws Error
+     */
+    getBlocksByHeight(heights: number[]): Promise<any[]>;
 
     getTopBlocks(count): Promise<any[]>;
 

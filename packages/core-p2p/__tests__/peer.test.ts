@@ -98,7 +98,17 @@ describe("Peer", () => {
 
     describe("ping", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
+            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
 
             const response = await peerMock.ping(5000);
 
@@ -128,7 +138,17 @@ describe("Peer", () => {
 
             expect(peerMock.recentlyPinged()).toBeFalse();
 
-            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
+            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
 
             const response = await peerMock.ping(5000);
 
@@ -142,7 +162,17 @@ describe("Peer", () => {
     describe("getPeers", () => {
         it("should be ok", async () => {
             const peersMock = [{ ip: "1.1.1.1" }];
-            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
+            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
             axiosMock.onGet(`${peerMock.url}/peer/list`).reply(() => [200, { peers: peersMock }, peerMock.headers]);
 
             const peers = await peerMock.getPeers();

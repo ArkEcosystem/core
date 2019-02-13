@@ -16,12 +16,21 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     }
 
     /**
+     * Get all of the blocks at the given heights.
+     * @param  {Array} heights the heights of the blocks to retrieve
+     * @return {Promise}
+     */
+    public async findByHeight(heights) {
+        return this.db.manyOrNone(sql.findByHeight, { heights });
+    }
+
+    /**
      * Count the number of records in the database.
      * @return {Promise}
      */
     public async count() {
         const { count } = await this.db.one(sql.count);
-        return count ;
+        return count;
     }
 
     /**
