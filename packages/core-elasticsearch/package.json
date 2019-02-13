@@ -27,7 +27,7 @@
         "@arkecosystem/core-http-utils": "^2.1.1",
         "@arkecosystem/crypto": "^2.1.1",
         "@types/elasticsearch": "^5.0.30",
-        "@types/fs-extra": "^5.0.4",
+        "@types/fs-extra": "^5.0.5",
         "@types/joi": "^14.3.1",
         "@types/lodash.first": "^3.0.4",
         "@types/lodash.get": "^4.4.4",

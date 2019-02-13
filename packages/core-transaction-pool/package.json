@@ -37,7 +37,7 @@
         "@arkecosystem/crypto": "^2.1.1",
         "@arkecosystem/core-interfaces": "^2.1.1",
         "@types/better-sqlite3": "^5.2.2",
-        "@types/fs-extra": "^5.0.4",
+        "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
         "bs58check": "^2.1.2",
