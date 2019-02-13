@@ -99,8 +99,6 @@ export class ForgerManager {
             await this.__loadUsernames();
 
             round = await this.client.getRound();
-            const delayTime = +this.config.getMilestone(round.lastBlock.height).blocktime * 1000 - 2000;
-
             if (!round.canForge) {
                 // this.logger.debug('Block already forged in current slot')
                 // technically it is possible to compute doing shennanigan with arkjs.slots lib
@@ -111,7 +109,6 @@ export class ForgerManager {
             }
 
             const delegate = this.__isDelegateActivated(round.currentForger.publicKey);
-
             if (!delegate) {
                 // this.logger.debug(`Current forging delegate ${
                 //  round.currentForger.publicKey
@@ -125,22 +122,18 @@ export class ForgerManager {
                     await this.client.syncCheck();
                 }
 
-                await delay(delayTime); // we will check at next slot
+                await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
 
                 return this.__monitor(round);
             }
 
             const networkState = await this.client.getNetworkState();
 
-            if (!this.__parseNetworkState(networkState, delegate)) {
-                await delay(delayTime); // we will check at next slot
-
-                return this.__monitor(round);
+            if (this.__parseNetworkState(networkState, delegate)) {
+                await this.__forgeNewBlock(delegate, round);
             }
 
-            await this.__forgeNewBlock(delegate, round);
-
-            await delay(delayTime); // we will check at next slot
+            await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
 
             return this.__monitor(round);
         } catch (error) {
