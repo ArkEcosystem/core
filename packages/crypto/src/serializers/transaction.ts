@@ -143,11 +143,6 @@ class TransactionSerializer {
         } else if (transaction.signSignature) {
             buffer.append(transaction.signSignature, "hex");
         }
-
-        if (transaction.signatures) {
-            buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
-            buffer.append(transaction.signatures.join(""), "hex");
-        }
     }
 }
 
