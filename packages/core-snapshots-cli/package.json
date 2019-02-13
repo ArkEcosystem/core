@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-snapshots-cli",
     "description": "Provides live cli interface to the core-snapshots module for ARK Core",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "contributors": [
         "Kristjan Košič <chris@ark.io>"
     ],

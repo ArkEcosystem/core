@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-graphql",
     "description": "GraphQL Integration for Ark Core",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "contributors": [
         "Lúcio Rubens <lucio@ark.io>"
     ],
