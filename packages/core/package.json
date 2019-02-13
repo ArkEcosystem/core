@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core",
     "description": "Core of the Ark Blockchain",
-    "version": "2.1.1",
+    "version": "2.2.0-alpha.3",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -60,7 +60,7 @@
         "@arkecosystem/core-snapshots": "^2.1.0",
         "@arkecosystem/core-transaction-pool": "^2.1.0",
         "@arkecosystem/core-webhooks": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
+        "@arkecosystem/crypto": "2.2.0-alpha.0",
         "@oclif/command": "^1.5.8",
         "@oclif/config": "^1.10.3",
         "@oclif/plugin-autocomplete": "^0.1.0",
