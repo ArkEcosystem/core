@@ -51,7 +51,10 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
     try {
         const channel = getUpdateChannel(config);
         const cacheFile = ensureCacheFile(config);
+
+        cli.action.start(`Checking for updates`);
         const remoteVersion = await getVersionFromNode(config.name, channel);
+        cli.action.stop();
 
         closeSync(openSync(cacheFile, "w"));
 
