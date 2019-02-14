@@ -7,7 +7,7 @@ const config = app.getConfig();
 /**
  * @type {Object}
  */
-export const current = {
+export const current: object = {
     /**
      * @param  {Hapi.Request} request
      * @param  {Hapi.Toolkit} h
