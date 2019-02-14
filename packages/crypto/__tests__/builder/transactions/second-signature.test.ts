@@ -36,6 +36,7 @@ describe("Second Signature Transaction", () => {
 
     describe("signatureAsset", () => {
         it("establishes the signature on the asset", () => {
+            // @ts-ignore
             crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }));
             crypto.sign = jest.fn();
 

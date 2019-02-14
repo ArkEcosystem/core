@@ -715,6 +715,7 @@ describe("Connection", () => {
             // they are not loaded from the local storage and this fails otherwise.
             // TODO: Use jest.spyOn() to change behavior instead. jest.restoreAllMocks() will reset afterwards
             const original = databaseService.getForgedTransactionsIds;
+            // @ts-ignore
             databaseService.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
 
             expect(forgedTransaction instanceof Transaction).toBeTrue();

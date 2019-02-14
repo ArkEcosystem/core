@@ -5,7 +5,6 @@ import { IDatabaseConnection } from "./database-connection";
 import { IWalletManager } from "./wallet-manager";
 
 export interface IDatabaseService {
-
     walletManager: IWalletManager;
 
     wallets: IWalletsBusinessRepository;
@@ -26,7 +25,7 @@ export interface IDatabaseService {
 
     restoredDatabaseIntegrity: boolean;
 
-    verifyBlockchain(): Promise<{ valid: boolean, errors: any[] }>;
+    verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
 
     getActiveDelegates(height: number, delegates?: any[]): Promise<any[]>;
 

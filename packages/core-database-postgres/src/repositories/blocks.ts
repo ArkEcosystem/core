@@ -30,7 +30,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
      */
     public async count() {
         const { count } = await this.db.one(sql.count);
-        return count ;
+        return count;
     }
 
     /**

@@ -11,9 +11,7 @@ import { WalletManager } from "./wallet-manager";
 const { Block, Transaction } = models;
 const { TransactionTypes } = constants;
 
-
 export class DatabaseService implements Database.IDatabaseService {
-
     public connection: Database.IDatabaseConnection;
     public walletManager: Database.IWalletManager;
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -29,11 +27,12 @@ export class DatabaseService implements Database.IDatabaseService {
     public cache: Map<any, any> = new Map();
     private spvFinished: boolean;
 
-    constructor(options: any,
-                connection: Database.IDatabaseConnection,
-                walletManager: Database.IWalletManager,
-                walletsBusinessRepository: Database.IWalletsBusinessRepository,
-                delegatesBusinessRepository: Database.IDelegatesBusinessRepository
+    constructor(
+        options: any,
+        connection: Database.IDatabaseConnection,
+        walletManager: Database.IWalletManager,
+        walletsBusinessRepository: Database.IWalletsBusinessRepository,
+        delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
     ) {
         this.connection = connection;
         this.walletManager = walletManager;
@@ -236,7 +235,7 @@ export class DatabaseService implements Database.IDatabaseService {
         // from app/state and need to get from the database.
         const toGetFromDB = {};
 
-        const hasState = app.has("state")
+        const hasState = app.has("state");
 
         for (const [i, height] of heights.entries()) {
             if (hasState) {
@@ -251,7 +250,7 @@ export class DatabaseService implements Database.IDatabaseService {
             }
         }
 
-        const heightsToGetFromDB = Object.keys(toGetFromDB)
+        const heightsToGetFromDB = Object.keys(toGetFromDB);
         if (heightsToGetFromDB.length > 0) {
             for (const blockFromDB of await this.connection.blocksRepository.findByHeight(heightsToGetFromDB)) {
                 const h = blockFromDB.height;
@@ -444,7 +443,7 @@ export class DatabaseService implements Database.IDatabaseService {
                     this.logger.debug(
                         `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
                             wallet.missedBlocks
-                            }`,
+                        }`,
                     );
                     wallet.dirty = true;
                     this.emitter.emit("forger.missing", {
@@ -484,7 +483,7 @@ export class DatabaseService implements Database.IDatabaseService {
             errors.push(
                 `Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${
                     blockStats.numberOfTransactions
-                    }`,
+                }`,
             );
         }
 
@@ -493,7 +492,7 @@ export class DatabaseService implements Database.IDatabaseService {
             errors.push(
                 `Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${
                     blockStats.totalFee
-                    }`,
+                }`,
             );
         }
 
@@ -502,7 +501,7 @@ export class DatabaseService implements Database.IDatabaseService {
             errors.push(
                 `Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${
                     blockStats.totalAmount
-                    }`,
+                }`,
             );
         }
 
@@ -577,7 +576,6 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     private registerListeners() {
-
         this.emitter.on("state:started", () => {
             this.stateStarted = true;
         });
@@ -607,5 +605,4 @@ export class DatabaseService implements Database.IDatabaseService {
             }
         });
     }
-
 }

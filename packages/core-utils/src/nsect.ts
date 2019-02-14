@@ -17,8 +17,7 @@ export class NSect {
      * higher than that one must not match. This probe function will be called logA(sequence length)
      * times, where A, the base of the logarithm is equal to nAry.
      */
-    constructor(private readonly nAry: number, private readonly probe: ProbeCallback) {
-    }
+    constructor(private readonly nAry: number, private readonly probe: ProbeCallback) {}
 
     /**
      * Find the first (lowest) element satisfying a condition as defined by the probe function
@@ -98,7 +97,7 @@ export class NSect {
         const p: number[] = [];
 
         for (let i = 0; i < this.nAry + 1; i++) {
-            const h: number = low + Math.round(diff * i / this.nAry);
+            const h: number = low + Math.round((diff * i) / this.nAry);
             p.push(h);
         }
 

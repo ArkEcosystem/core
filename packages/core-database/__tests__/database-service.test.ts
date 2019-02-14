@@ -73,6 +73,7 @@ describe("Database Service", () => {
             const requestHeightsLow = [1, 5, 20];
             const requestHeightsHigh = [100, 200, 500];
             const stateStorageStub = new StateStorageStub();
+            // @ts-ignore
             jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation((heightFrom, heightTo) => {
                 if (requestHeightsHigh[0] <= heightFrom) {
                     return [{ height: heightFrom, fromState: true }];
@@ -176,7 +177,9 @@ describe("Database Service", () => {
         it("should fetch blocks from lastBlock height", async () => {
             databaseService = createService();
 
+            // @ts-ignore
             jest.spyOn(databaseService, "getLastBlock").mockReturnValue(genesisBlock);
+            // @ts-ignore
             jest.spyOn(databaseService, "getBlocks").mockReturnValue([]);
             jest.spyOn(container, "has").mockReturnValue(false);
 
@@ -268,10 +271,12 @@ describe("Database Service", () => {
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
             }
 
+            // @ts-ignore
             jest.spyOn(databaseService, "getBlocksForRound").mockReturnValue(blocksInRound);
             databaseService.walletManager = walletManager;
 
             // Necessary for revertRound to not blow up.
+            // @ts-ignore
             walletManager.allByUsername = jest.fn(() => {
                 const usernames = Object.values((walletManager as any).byUsername);
                 usernames.push(sender);
