@@ -1,4 +1,4 @@
-import { checkForUpdates, getUpdateChannel } from "../helpers/update";
+import { checkForUpdates } from "../helpers/update";
 import { BaseCommand } from "./command";
 
 export class UpdateCommand extends BaseCommand {
