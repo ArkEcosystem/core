@@ -25,9 +25,7 @@ export function needsRefresh(config: IConfig) {
         const staleAt = new Date(mtime.valueOf() + 1000 * 60 * 60 * 24 * 1);
 
         return staleAt < new Date();
-    } catch (error) {
-        this.error(error.message);
-
+    } catch (err) {
         return true;
     }
 }
