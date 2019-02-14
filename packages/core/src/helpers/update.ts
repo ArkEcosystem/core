@@ -1,7 +1,9 @@
-import { Hook, IConfig } from "@oclif/config";
+import { IConfig } from "@oclif/config";
 import Chalk from "chalk";
+import cli from "cli-ux";
 import { shell } from "execa";
-import { statSync } from "fs";
+import { closeSync, openSync, statSync } from "fs";
+import { removeSync } from "fs-extra";
 import got from "got";
 import { join } from "path";
 import prompts from "prompts";
@@ -10,15 +12,11 @@ import semver from "semver";
 async function getVersionFromNode(name: string, channel: string): Promise<string> {
     const { body } = await got(`https://registry.npmjs.org/${name}`);
 
-    if (channel === "stable") {
-        channel = "latest";
-    }
-
     return JSON.parse(body)["dist-tags"][channel];
 }
 
 export function needsRefresh(config: IConfig) {
-    const file = join(config.cacheDir, "version");
+    const file = join(config.cacheDir, "update");
 
     try {
         const { mtime } = statSync(file);
@@ -31,8 +29,14 @@ export function needsRefresh(config: IConfig) {
 }
 
 export async function checkForUpdates({ config, error, warn }, channel: string = "stable"): Promise<void> {
+    if (channel === "stable") {
+        channel = "latest";
+    }
+
     try {
         const remoteVersion = await getVersionFromNode(config.name, channel);
+
+        closeSync(openSync(join(config.cacheDir, "update"), "w"));
 
         if (remoteVersion === undefined) {
             error(`We were unable to find any releases for the "${channel}" channel.`);
@@ -55,14 +59,20 @@ export async function checkForUpdates({ config, error, warn }, channel: string =
             ]);
 
             if (response.confirm) {
+                cli.action.start(`Update from ${config.version} to ${remoteVersion} in progress. Please wait`);
+
                 try {
-                    const { stdout, stderr } = await shell(`yarn global add ${config.name}`);
+                    const { stdout, stderr } = await shell(`yarn global add ${config.name}@${channel}`);
 
                     if (stderr) {
                         console.error(stderr);
                     }
 
                     console.log(stdout);
+
+                    removeSync(join(config.cacheDir, "update"));
+
+                    cli.action.stop();
                 } catch (err) {
                     error(err.message);
                 }
