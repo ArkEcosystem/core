@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-logger",
     "description": "Logger Manager for Ark Core",
-    "version": "2.2.0-alpha.12",
+    "version": "2.2.0-alpha.13",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
