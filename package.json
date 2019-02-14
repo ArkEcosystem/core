@@ -16,10 +16,13 @@
         "snyk": "./node_modules/.bin/snyk protect",
         "upgrade": "cross-env-shell ./scripts/upgrade.sh",
         "version": "cross-env-shell ./scripts/version.sh",
-        "release": "cross-env-shell ./scripts/release.sh",
         "updates": "yarn lerna run updates",
         "docker": "node ./scripts/docker/generate-docker.js",
-        "bench": "node benchmark/index.js"
+        "bench": "node benchmark/index.js",
+        "publish:alpha": "yarn lerna publish from-package --yes --dist-tag=alpha",
+        "publish:beta": "yarn lerna publish from-package --yes --dist-tag=beta",
+        "publish:rc": "yarn lerna publish from-package --yes --dist-tag=rc",
+        "publish:stable": "yarn lerna publish from-package --yes --dist-tag=latest"
     },
     "devDependencies": {
         "@babel/core": "^7.2.2",
