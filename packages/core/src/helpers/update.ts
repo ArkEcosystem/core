@@ -3,7 +3,7 @@ import Chalk from "chalk";
 import cli from "cli-ux";
 import { shell } from "execa";
 import { closeSync, openSync, statSync } from "fs";
-import { removeSync } from "fs-extra";
+import { ensureDirSync, removeSync } from "fs-extra";
 import got from "got";
 import { join } from "path";
 import prompts from "prompts";
@@ -15,11 +15,17 @@ async function getVersionFromNode(name: string, channel: string): Promise<string
     return JSON.parse(body)["dist-tags"][channel];
 }
 
-export function needsRefresh(config: IConfig) {
-    const file = join(config.cacheDir, "update");
+function ensureCacheFile(config: IConfig): string {
+    ensureDirSync(config.cacheDir);
+
+    return join(config.cacheDir, "update");
+}
+
+export function needsRefresh(config: IConfig): boolean {
+    const cacheFile = ensureCacheFile(config);
 
     try {
-        const { mtime } = statSync(file);
+        const { mtime } = statSync(cacheFile);
         const staleAt = new Date(mtime.valueOf() + 1000 * 60 * 60 * 24 * 1);
 
         return staleAt < new Date();
@@ -34,9 +40,10 @@ export async function checkForUpdates({ config, error, warn }, channel: string =
     }
 
     try {
+        const cacheFile = ensureCacheFile(config);
         const remoteVersion = await getVersionFromNode(config.name, channel);
 
-        closeSync(openSync(join(config.cacheDir, "update"), "w"));
+        closeSync(openSync(cacheFile, "w"));
 
         if (remoteVersion === undefined) {
             error(`We were unable to find any releases for the "${channel}" channel.`);
@@ -70,7 +77,7 @@ export async function checkForUpdates({ config, error, warn }, channel: string =
 
                     console.log(stdout);
 
-                    removeSync(join(config.cacheDir, "update"));
+                    removeSync(cacheFile);
 
                     cli.action.stop();
                 } catch (err) {
