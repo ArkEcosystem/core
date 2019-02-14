@@ -39,6 +39,10 @@ export function start(options: any) {
 
                     if (!response.confirm) {
                         console.warn(`The "${processName}" process has not been restarted.`);
+
+                        pm2.disconnect();
+
+                        process.exit();
                     }
                 }
 
@@ -52,8 +56,6 @@ export function start(options: any) {
 
                     process.exit();
                 });
-
-                pm2.disconnect();
             } else {
                 pm2.start(
                     {
