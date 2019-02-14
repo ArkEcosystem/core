@@ -47,6 +47,7 @@ beforeEach(async () => {
 
 describe("ProcessQueue", () => {
     it("should call blockchain processBlock when pushing a block to the queue", async () => {
+        // @ts-ignore
         const processBlock = jest.spyOn(blockchain, "processBlock").mockReturnValue(true);
 
         const cb = jest.fn();

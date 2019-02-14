@@ -12,7 +12,7 @@ const { Block } = models;
 let genesisBlock;
 let repository;
 
-let walletsRepository : Database.IWalletsBusinessRepository;
+let walletsRepository: Database.IWalletsBusinessRepository;
 let walletManager: Database.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
@@ -66,7 +66,8 @@ describe("Delegate Repository", () => {
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
         it("should return the local wallets of the connection that are delegates", () => {
-            jest.spyOn(walletManager, 'allByAddress').mockReturnValue(wallets);
+            // @ts-ignore
+            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates();
 
@@ -150,7 +151,7 @@ describe("Delegate Repository", () => {
             describe('when a username is "undefined"', () => {
                 it("should return it", () => {
                     // Index a wallet with username "undefined"
-                    walletManager.allByAddress()[0].username = 'undefined';
+                    walletManager.allByAddress()[0].username = "undefined";
 
                     const username = "undefined";
                     const { count, rows } = repository.search({ username });
@@ -271,8 +272,10 @@ describe("Delegate Repository", () => {
             };
             const height = 1;
 
-            jest.spyOn(databaseService, 'getActiveDelegates').mockReturnValue([delegate]);
-            jest.spyOn(walletsRepository, 'findById').mockReturnValue(delegate);
+            // @ts-ignore
+            jest.spyOn(databaseService, "getActiveDelegates").mockReturnValue([delegate]);
+            // @ts-ignore
+            jest.spyOn(walletsRepository, "findById").mockReturnValue(delegate);
 
             const results = await repository.getActiveAtHeight(height);
 

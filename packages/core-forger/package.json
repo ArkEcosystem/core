@@ -47,7 +47,7 @@
     },
     "devDependencies": {
         "@arkecosystem/core-test-utils": "2.2.0-alpha.8",
-        "axios-mock-adapter": "^1.15.0"
+        "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {
         "access": "public"

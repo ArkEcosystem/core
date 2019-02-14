@@ -39,42 +39,38 @@ describe("N-section (binary search)", () => {
 
     it("arbitrary", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 5678;
-        expect(data[await nSect.find(0, data.length - 1)]).toBe(5670);
-        expect(numberOfProbeCalls).toBe(8);
     });
-
     it("lucky case", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 5000;
+        searchCondition = element => element <= 5000;
         expect(data[await nSect.find(0, data.length - 1)]).toBe(5000);
         expect(numberOfProbeCalls).toBe(2);
     });
 
     it("worst case", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 3560;
+        searchCondition = element => element <= 3560;
         expect(data[await nSect.find(0, data.length - 1)]).toBe(3560);
         expect(numberOfProbeCalls).toBe(9);
     });
 
     it("search in a sub-range", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 4000;
+        searchCondition = element => element <= 4000;
         expect(data[await nSect.find(350, 500)]).toBe(4000);
         expect(numberOfProbeCalls).toBe(6);
     });
 
     it("nonexistent", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => false;
+        searchCondition = element => false;
         expect(await nSect.find(0, data.length - 1)).toBe(null);
         expect(numberOfProbeCalls).toBe(1);
     });
 
     it("biggest one", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => true;
+        searchCondition = element => true;
         expect(data[await nSect.find(0, data.length - 1)]).toBe(9990);
         expect(numberOfProbeCalls).toBe(1);
     });
@@ -87,42 +83,42 @@ describe("N-section (8-ary search)", () => {
 
     it("arbitrary", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 5678;
+        searchCondition = element => element <= 5678;
         expect(data[await nSect.find(0, data.length - 1)]).toBe(5670);
         expect(numberOfProbeCalls).toBe(4);
     });
 
     it("lucky case", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 5000;
+        searchCondition = element => element <= 5000;
         expect(data[await nSect.find(0, data.length - 1)]).toBe(5000);
         expect(numberOfProbeCalls).toBe(2);
     });
 
     it("worst case", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 3560;
+        searchCondition = element => element <= 3560;
         expect(data[await nSect.find(0, data.length - 1)]).toBe(3560);
         expect(numberOfProbeCalls).toBe(4);
     });
 
     it("search in a sub-range", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => element <= 4000;
+        searchCondition = element => element <= 4000;
         expect(data[await nSect.find(350, 500)]).toBe(4000);
         expect(numberOfProbeCalls).toBe(3);
     });
 
     it("nonexistent", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => false;
+        searchCondition = element => false;
         expect(await nSect.find(0, data.length - 1)).toBe(null);
         expect(numberOfProbeCalls).toBe(1);
     });
 
     it("biggest one", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = (element) => true;
+        searchCondition = element => true;
         expect(data[await nSect.find(0, data.length - 1)]).toBe(9990);
         expect(numberOfProbeCalls).toBe(1);
     });

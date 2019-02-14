@@ -204,8 +204,7 @@ export class Peer implements P2P.IPeer {
 
         if (!body.success) {
             throw new Error(
-                `Erroneous response from peer ${this.ip} when trying to retrieve its status: ` +
-                JSON.stringify(body)
+                `Erroneous response from peer ${this.ip} when trying to retrieve its status: ` + JSON.stringify(body),
             );
         }
 
@@ -215,14 +214,13 @@ export class Peer implements P2P.IPeer {
             if (deadline <= new Date().getTime()) {
                 throw new Error(
                     `When pinging peer ${this.ip}: ping timeout (${delay} ms) elapsed ` +
-                    `even before starting peer verification`
+                        `even before starting peer verification`,
                 );
             }
 
-            if (!await peerVerifier.checkState(body, deadline)) {
+            if (!(await peerVerifier.checkState(body, deadline))) {
                 throw new Error(
-                    `Peer state verification failed for peer ${this.ip}, claimed state: ` +
-                    JSON.stringify(body)
+                    `Peer state verification failed for peer ${this.ip}, claimed state: ` + JSON.stringify(body),
                 );
             }
         }
@@ -272,7 +270,7 @@ export class Peer implements P2P.IPeer {
 
             return body && body.success && body.common;
         } catch (error) {
-            const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : '';
+            const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : "";
             this.logger.error(`Could not determine common blocks with ${this.ip}${sfx}: ${error}`);
         }
 

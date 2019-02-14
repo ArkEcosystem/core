@@ -2,7 +2,6 @@ import { Bignum } from "@arkecosystem/crypto";
 import { IRepository } from "./repository";
 
 export interface IBlocksRepository extends IRepository {
-
     /**
      * Find a block by its ID.
      */
@@ -23,7 +22,7 @@ export interface IBlocksRepository extends IRepository {
     /**
      * Get all of the common blocks from the database.
      */
-    common(ids: string[]): Promise<any[]>
+    common(ids: string[]): Promise<any[]>;
 
     /**
      * Get all of the blocks within the given height range and order them by height.
@@ -45,10 +44,10 @@ export interface IBlocksRepository extends IRepository {
      * Get statistics about all blocks from the database.
      */
     statistics(): Promise<{
-        numberOfTransactions: number,
-        totalFee: Bignum,
-        totalAmount: Bignum,
-        count: number
+        numberOfTransactions: number;
+        totalFee: Bignum;
+        totalAmount: Bignum;
+        count: number;
     }>;
 
     /**

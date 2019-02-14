@@ -31,9 +31,9 @@
         "@arkecosystem/core-container": "2.2.0-alpha.8",
         "@arkecosystem/core-http-utils": "2.2.0-alpha.8",
         "@arkecosystem/crypto": "2.2.0-alpha.8",
-        "apollo-server-hapi": "^2.3.1",
+        "apollo-server-hapi": "^2.4.0",
         "dayjs-ext": "^2.2.0",
-        "graphql-tools-types": "^1.1.26"
+        "graphql-tools-types": "^1.2.1"
     },
     "devDependencies": {
         "@arkecosystem/core-container": "2.2.0-alpha.8"

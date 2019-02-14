@@ -5,7 +5,7 @@ export class CappedSet {
     private data: Set<any>;
     private maxSize: number;
 
-    constructor (maxSize: number = 16384) {
+    constructor(maxSize: number = 16384) {
         this.maxSize = maxSize;
         this.data = new Set();
     }

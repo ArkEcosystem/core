@@ -24,11 +24,13 @@ describe("Exception handler", () => {
     describe("execute", () => {
         it("should fork if double forging is detected", async () => {
             jest.spyOn(blockchain, "getLastBlock").mockReturnValue(new Block(blocks2to100[0]));
+            // @ts-ignore
             jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue([
                 {
                     publicKey: blocks2to100[0].generatorPublicKey,
                 },
             ]);
+            // @ts-ignore
             const forkBlock = jest.spyOn(blockchain, "forkBlock").mockReturnValue(true);
 
             const sameBlockDifferentId = new Block(blocks2to100[0]);

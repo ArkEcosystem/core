@@ -12,8 +12,8 @@ const register = async (server: Hapi.Server, options: any): Promise<void> => {
             if (match && match.length === 2) {
                 const apiVersion = parseInt(match[1], 10);
 
-                if (!options.validVersions.includes(apiVersion)) {
-                    return Boom.badRequest(`Invalid api-version! Valid values: ${options.validVersions.join()}`);
+                if (!options.versions.includes(apiVersion)) {
+                    return Boom.badRequest(`Invalid api-version! Valid values: ${options.versions.join()}`);
                 }
 
                 request.pre.apiVersion = apiVersion;

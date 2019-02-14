@@ -31,10 +31,10 @@
         "@arkecosystem/core-http-utils": "2.2.0-alpha.8",
         "@arkecosystem/core-utils": "2.2.0-alpha.8",
         "@arkecosystem/crypto": "2.2.0-alpha.8",
-        "@types/handlebars": "^4.0.39",
+        "@types/handlebars": "^4.0.40",
         "@types/lodash.sumby": "^4.6.4",
         "axios": "^0.18.0",
-        "handlebars": "^4.0.12",
+        "handlebars": "^4.1.0",
         "lodash": "^4.17.11",
         "lodash.sumby": "^4.6.0"
     },

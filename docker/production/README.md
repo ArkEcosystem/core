@@ -1,4 +1,5 @@
-# Ark Core Docker 
+# Ark Core Docker
+
 <p align="center">
     <img src="./ark-core-docker.png" width="100%" height="100%" />
 </p>
@@ -9,21 +10,22 @@ Official Production ready ARK Core images available now at [Docker Hub](https://
 
 ## Documentation
 
-- Development : https://docs.ark.io/guidebook/core/development.html
-- Docker : https://docs.ark.io/guidebook/core/docker.html
+-   Development : https://docs.ark.io/guidebook/core/development.html
+-   Docker : https://docs.ark.io/guidebook/core/docker.html
 
 ## API Documentation
 
-- API v1 : https://docs.ark.io/api/public/v1/
-- API v2 : https://docs.ark.io/api/public/v2/
+-   API v1 : https://docs.ark.io/api/public/v1/
+-   API v2 : https://docs.ark.io/api/public/v2/
 
 ## ARK Core Relay
 
 Run Relay only node using [Docker Compose](https://docs.docker.com/compose/)
 
-***DevNet***
+**_DevNet_**
 
 > Create file `docker-compose.yml` with the following content:
+
 ```bash
 version: '2'
 services:
@@ -77,7 +79,8 @@ networks:
   core:
 ```
 
->Create file `devnet.env` with the following content:
+> Create file `devnet.env` with the following content:
+
 ```bash
 MODE=relay
 NETWORK=devnet
@@ -97,9 +100,10 @@ CORE_JSON_RPC_HOST=0.0.0.0
 CORE_JSON_RPC_PORT=8080
 ```
 
-***MainNet***
+**_MainNet_**
 
 > Create file `docker-compose.yml` with the following content:
+
 ```bash
 version: '2'
 services:
@@ -154,6 +158,7 @@ networks:
 ```
 
 > Create file `mainnet.env` with the following content:
+
 ```bash
 MODE=relay
 NETWORK=mainnet
@@ -173,15 +178,15 @@ CORE_JSON_RPC_HOST=0.0.0.0
 CORE_JSON_RPC_PORT=8080
 ```
 
-*If you prefer to use custom DB Name, DB User and DB Password simply adjust variables `POSTGRES_PASSWORD`, `POSTGRES_USER`, `POSTGRES_DB`, `CORE_DB_PASSWORD`, `CORE_DB_USERNAME` and `CORE_DB_DATABASE` correspondingly.*
+_If you prefer to use custom DB Name, DB User and DB Password simply adjust variables `POSTGRES_PASSWORD`, `POSTGRES_USER`, `POSTGRES_DB`, `CORE_DB_PASSWORD`, `CORE_DB_USERNAME` and `CORE_DB_DATABASE` correspondingly._
 
 **WARNING!**
-***PostgreSQL is run in a separate container and it's port gets mapped to your `localhost`, so you should not have PostgreSQL running locally.***
+**_PostgreSQL is run in a separate container and it's port gets mapped to your `localhost`, so you should not have PostgreSQL running locally._**
 
->*Time to start the relay node*:
+> _Time to start the relay node_:
+
 ```bash
 docker-compose up -d
 ```
 
-### *ARK Core docker image allows you to run a `forger`. However it requires some additional steps that can be found by visiting our [Documentation page](https://docs.ark.io/guidebook/core/docker.html).*
-
+### _ARK Core docker image allows you to run a `forger`. However it requires some additional steps that can be found by visiting our [Documentation page](https://docs.ark.io/guidebook/core/docker.html)._
