@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
     "description": "Forger for Ark Core",
-    "version": "2.1.0",
+    "version": "2.1.2",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -13,7 +13,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
@@ -29,10 +29,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-p2p": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
+        "@arkecosystem/core-interfaces": "^2.1.1",
+        "@arkecosystem/core-container": "^2.1.1",
+        "@arkecosystem/core-p2p": "^2.1.1",
+        "@arkecosystem/crypto": "^2.1.1",
         "@types/lodash.isempty": "^4.4.4",
         "@types/lodash.sample": "^4.2.4",
         "@types/lodash.uniq": "^4.5.4",
@@ -46,8 +46,8 @@
         "socketcluster-client": "^14.2.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0",
-        "axios-mock-adapter": "^1.15.0"
+        "@arkecosystem/core-test-utils": "^2.1.1",
+        "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {
         "access": "public"

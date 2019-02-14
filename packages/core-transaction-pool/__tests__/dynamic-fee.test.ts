@@ -21,6 +21,7 @@ afterAll(async () => {
 
 describe("static fees", () => {
     beforeAll(() => {
+        // @ts-ignore
         blockchain.getLastBlock = jest.fn(plugin => ({
             data: {
                 height: 20,
@@ -54,6 +55,7 @@ describe("static fees", () => {
 describe("dynamic fees", () => {
     let dynFeeConfig;
     beforeAll(() => {
+        // @ts-ignore
         blockchain.getLastBlock = jest.fn(plugin => ({
             data: {
                 height: 20,

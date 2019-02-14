@@ -394,6 +394,33 @@ describe("Transaction Guard", () => {
             expect(result.errors).toBeNull();
         });
 
+        it("should not validate when multiple wallets register the same username in the same transaction payload", async () => {
+            const delegateRegistrations = [
+                generateDelegateRegistration("unitnet", wallets[14].passphrase, 1, false, "test_delegate")[0],
+                generateDelegateRegistration("unitnet", wallets[15].passphrase, 1, false, "test_delegate")[0],
+            ];
+
+            const result = await guard.validate(delegateRegistrations);
+            expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
+
+            delegateRegistrations.forEach(tx => {
+                expect(guard.errors[tx.id]).toEqual([
+                    {
+                        type: "ERR_CONFLICT",
+                        message: `Multiple delegate registrations for "${
+                            tx.asset.delegate.username
+                        }" in transaction payload`,
+                    },
+                ]);
+            });
+
+            const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
+            const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
+
+            expect(wallet1.username).toBe(null);
+            expect(wallet2.username).toBe(null);
+        });
+
         describe("Sign a transaction then change some fields shouldn't pass validation", () => {
             const secondSignatureError = (id, address) => [
                 id,
@@ -740,6 +767,24 @@ describe("Transaction Guard", () => {
             guard.pool.transactionExists = transactionExists;
         });
 
+        it("should reject transactions that are too large", () => {
+            const tx = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 1, 3)[0];
+            tx.data.signatures = [""];
+            for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
+                tx.data.signatures += "1";
+            }
+            guard.__filterAndTransformTransactions([tx]);
+
+            expect(guard.errors[tx.id]).toEqual([
+                {
+                    message: `Transaction ${tx.id} is larger than ${
+                        transactionPool.options.maxTransactionBytes
+                    } bytes.`,
+                    type: "ERR_TOO_LARGE",
+                },
+            ]);
+        });
+
         it("should reject transactions from the future", () => {
             const now = 47157042; // seconds since genesis block
             const transactionExists = guard.pool.transactionExists;
@@ -889,6 +934,33 @@ describe("Transaction Guard", () => {
                     },
                 ],
             });
+        });
+
+        it("should not validate a delegate registration if an existing registration for the same username from a different wallet exists in the pool", async () => {
+            const delegateRegistrations = [
+                generateDelegateRegistration("unitnet", wallets[16].passphrase, 1, false, "test_delegate")[0],
+                generateDelegateRegistration("unitnet", wallets[17].passphrase, 1, false, "test_delegate")[0],
+            ];
+
+            expect(guard.__validateTransaction(delegateRegistrations[0])).toBeTrue();
+            guard.accept.set(delegateRegistrations[0].id, delegateRegistrations[0]);
+            guard.__addTransactionsToPool();
+            expect(guard.errors).toEqual({});
+            expect(guard.__validateTransaction(delegateRegistrations[1])).toBeFalse();
+            expect(guard.errors[delegateRegistrations[1].id]).toEqual([
+                {
+                    type: "ERR_PENDING",
+                    message: `Delegate registration for "${
+                        delegateRegistrations[1].asset.delegate.username
+                    }" already in the pool`,
+                },
+            ]);
+
+            const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[16].keys.publicKey);
+            const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[17].keys.publicKey);
+
+            expect(wallet1.username).toBe("test_delegate");
+            expect(wallet2.username).toBe(null);
         });
 
         it("should not validate when sender has same type transactions in the pool (only for 2nd sig, delegate registration, vote)", async () => {

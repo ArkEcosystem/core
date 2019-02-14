@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.2] - 2019-02-13
+
+### Fixed
+
+-   Fix quorum related issues
+-   Limit payload size
+-   Remove `signatures` from transaction payload
+
+## [2.1.1] - 2019-02-12
+
+### Fixed
+
+-   Configuration endpoint does not show dynamic fees ([#2082])
+-   Return the correct supply for the legacy API ([#2083])
+
+## [2.1.0] - 2019-02-11
+
 ### Added
 
 -   Added a `milestoneHash` identifier to use for peer banning ([#1837])
@@ -55,6 +72,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Replaced commander.js with @oclif in `core-tester-cli` ([#2051])
 -   Moved docker files from `docker/*` to `docker/development/*` ([#2053])
 -   Moved the genesis blocks from the `core` configuration to the network configuration in `crypto` ([#2052])
+-   Separate business-logic from data-layer logic ([#2055])
 
 ### Fixed
 
@@ -78,6 +96,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Check if the blockchain state storage is available before performing fork checks ([#2047])
 -   Gracefully handle a corrupted cached `peers.json` file ([#2061])
 -   Always sort transactions by sequence and the requested field to make API sorting deterministic ([#2058])
+-   Disallow multiple registrations for same delegate ([#2080])
 
 ### Removed
 
@@ -173,7 +192,9 @@ Closed security vulnerabilities:
 
 -   Initial Release
 
-[unreleased]: https://github.com/ArkEcosystem/core/compare/2.0.19...develop
+[unreleased]: https://github.com/ArkEcosystem/core/compare/2.1.2...develop
+[2.1.2]: https://github.com/ArkEcosystem/core/compare/2.1.1..2.1.2
+[2.1.1]: https://github.com/ArkEcosystem/core/compare/2.1.0..2.1.1
 [2.1.0]: https://github.com/ArkEcosystem/core/compare/2.0.19...2.1.0
 [2.0.19]: https://github.com/ArkEcosystem/core/compare/2.0.18...2.0.19
 [2.0.18]: https://github.com/ArkEcosystem/core/compare/2.0.17...2.0.18
@@ -261,6 +282,11 @@ Closed security vulnerabilities:
 [#2051]: https://github.com/ArkEcosystem/core/pull/2051
 [#2052]: https://github.com/ArkEcosystem/core/pull/2052
 [#2053]: https://github.com/ArkEcosystem/core/pull/2053
+[#2055]: https://github.com/ArkEcosystem/core/pull/2055
 [#2057]: https://github.com/ArkEcosystem/core/pull/2057
 [#2058]: https://github.com/ArkEcosystem/core/pull/2058
 [#2061]: https://github.com/ArkEcosystem/core/pull/2061
+[#2080]: https://github.com/ArkEcosystem/core/pull/2080
+[#2082]: https://github.com/ArkEcosystem/core/pull/2082
+[#2083]: https://github.com/ArkEcosystem/core/pull/2083
+[#2091]: https://github.com/ArkEcosystem/core/pull/2091

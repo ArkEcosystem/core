@@ -61,7 +61,7 @@ class Slots {
     /**
      * Get real time from relative epoch time.
      */
-    public getRealTime(epochTime: number): number {
+    public getRealTime(epochTime?: number): number {
         if (epochTime === undefined) {
             epochTime = this.getTime();
         }
@@ -69,6 +69,15 @@ class Slots {
         const start = Math.floor(this.beginEpochTime().valueOf() / 1000) * 1000;
 
         return start + epochTime * 1000;
+    }
+
+    /**
+     * Time left until next slot.
+     */
+    public getTimeInMsUntilNextSlot(): number {
+        const nextSlotTime = this.getSlotTime(this.getNextSlot());
+        const now = this.getTime();
+        return (nextSlotTime - now) * 1000;
     }
 
     /**

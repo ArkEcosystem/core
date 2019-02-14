@@ -15,6 +15,7 @@ beforeAll(async () => {
     app.getConfig().set("milestoneHash", "dummy-milestone");
 
     guard = require("../../src/court/guard").guard;
+    guard.config.set("minimumVersions", [">=2.0.0"]);
 });
 
 afterAll(async () => {
@@ -79,20 +80,12 @@ describe("Guard", () => {
 
     describe("isValidVersion", () => {
         it("should be a valid version", () => {
-            const get = guard.config.get;
-            guard.config.get = jest.fn(() => ">=2.0.0");
-
             expect(guard.isValidVersion({ version: "2.0.0" })).toBeTrue();
             expect(guard.isValidVersion({ version: "2.1.39" })).toBeTrue();
             expect(guard.isValidVersion({ version: "3.0.0" })).toBeTrue();
-
-            guard.config.get = get;
         });
 
         it("should be an invalid version", () => {
-            const get = guard.config.get;
-            guard.config.get = jest.fn(() => ">=2.0.0");
-
             expect(guard.isValidVersion({ version: "1.0.0" })).toBeFalse();
             expect(guard.isValidVersion({ version: "1.0" })).toBeFalse();
             expect(guard.isValidVersion({ version: "---aaa" })).toBeFalse();
@@ -103,8 +96,6 @@ describe("Guard", () => {
             expect(guard.isValidVersion({ version: true })).toBeFalse();
             expect(guard.isValidVersion({ version: () => "1" })).toBeFalse();
             expect(guard.isValidVersion({ version: "2.0.0.0" })).toBeFalse();
-
-            guard.config.get = get;
         });
     });
 
@@ -114,7 +105,7 @@ describe("Guard", () => {
         const dummy = {
             nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
             milestoneHash: "dummy-milestone",
-            version: "2.1.0",
+            version: "2.1.1",
             status: 200,
             state: {},
         };

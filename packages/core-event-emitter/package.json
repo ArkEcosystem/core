@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-event-emitter",
     "description": "Event Manager for Ark Core",
-    "version": "2.1.0",
+    "version": "2.1.2",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -11,7 +11,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",

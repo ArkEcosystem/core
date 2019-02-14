@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-# -----------------------------------
-# TYPOGRAPHY
-# -----------------------------------
-
+# Typography
 red=$(tput setaf 1)
 green=$(tput setaf 2)
 yellow=$(tput setaf 3)
@@ -13,19 +10,9 @@ blue=$(tput setaf 6)
 white=$(tput setaf 7)
 black=$(tput setaf 8)
 
-bg_red=$(tput setab 1)
-bg_green=$(tput setab 2)
-bg_yellow=$(tput setab 3)
-bg_lila=$(tput setab 4)
-bg_pink=$(tput setab 5)
-bg_blue=$(tput setab 6)
-bg_white=$(tput setab 7)
-bg_black=$(tput setab 8)
-
 bold=$(tput bold)
 reset=$(tput sgr0)
 
-# Indicators
 heading ()
 {
     echo "    ${lila}==>${reset}${bold} $1${reset}"
@@ -49,69 +36,6 @@ warning ()
 error ()
 {
     echo "    ${red}==>${reset}${bold} $1${reset}"
-}
-
-# Colored Text
-text_red ()
-{
-    echo "${red}$1${reset}"
-}
-
-text_green ()
-{
-    echo "${green}$1${reset}"
-}
-
-text_yellow ()
-{
-    echo "${yellow}$1${reset}"
-}
-
-text_lila ()
-{
-    echo "${lila}$1${reset}"
-}
-
-text_pink ()
-{
-    echo "${pink}$1${reset}"
-}
-
-text_blue ()
-{
-    echo "${blue}$1${reset}"
-}
-
-text_white ()
-{
-    echo "${white}$1${reset}"
-}
-
-text_black ()
-{
-    echo "${black}$1${reset}"
-}
-
-# Styles
-text_bold ()
-{
-    echo "${bold}"
-}
-
-text_reset ()
-{
-    echo "${reset}"
-}
-
-# Helpers
-divider ()
-{
-        text_lila "    ==============================================================="
-}
-
-paragraph ()
-{
-  text_white "$1" | fold -w67 | paste -sd'\n' -
 }
 
 # Detect pkg type
@@ -206,6 +130,16 @@ fi
 
 success "Installed Yarn!"
 
+heading "Installing PM2..."
+
+sudo yarn global add pm2
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 500M
+pm2 set pm2-logrotate:compress true
+pm2 set pm2-logrotate:retain 7
+
+success "Installed PM2!"
+
 heading "Installing program dependencies..."
 
 if [[ ! -z $DEB ]]; then
@@ -224,7 +158,7 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get install postgresql postgresql-contrib -y
 elif [[ ! -z $RPM ]]; then
     sudo yum install postgresql-server postgresql-contrib -y
-    
+
     if [[ "$SYS" == "SystemV" ]]; then
         sudo service postgresql initdb
         sudo service postgresql start
@@ -250,16 +184,6 @@ sudo ntpd -gq
 
 success "Installed NTP!"
 
-heading "Installing node.js dependencies..."
-
-yarn global add pm2
-pm2 install pm2-logrotate
-pm2 set pm2-logrotate:max_size 500M
-pm2 set pm2-logrotate:compress true
-pm2 set pm2-logrotate:retain 7
-
-success "Installed node.js dependencies!"
-
 heading "Installing system updates..."
 
 if [[ ! -z $DEB ]]; then
@@ -275,10 +199,54 @@ fi
 
 success "Installed system updates!"
 
-# -----------------------------------
-# SETUP POSTGRES USER/PASS/DB
-# -----------------------------------
+heading "Installing Ark Core..."
 
+cd "$HOME"
+
+if [ -d "ark-core" ]; then
+   heading "Removing existing folder..."
+   rm -rf ark-core
+fi
+
+git clone https://github.com/ArkEcosystem/core.git ~/ark-core
+cd ark-core
+yarn setup
+
+success "Installed Ark Core!"
+
+# setup configuration
+read -p "Would you like to configure the core? [y/N]: " choice
+
+if [[ "$choice" =~ ^(yes|y|Y) ]]; then
+    info "Which network would you like to configure?"
+
+    validNetworks=("mainnet" "devnet" "testnet")
+
+    select opt in "${validNetworks[@]}"; do
+        case "$opt" in
+            "mainnet")
+                mkdir -p "${HOME}/.config/ark-core/mainnet"
+                cp -rf "${HOME}/ark-core/packages/core/src/config/mainnet/." "${HOME}/.config/ark-core/mainnet"
+                break
+            ;;
+            "devnet")
+                mkdir -p "${HOME}/.config/ark-core/devnet"
+                cp -rf "${HOME}/ark-core/packages/core/src/config/devnet/." "${HOME}/.config/ark-core/devnet"
+                break
+            ;;
+            "testnet")
+                mkdir -p "${HOME}/.config/ark-core/testnet"
+                cp -rf "${HOME}/ark-core/packages/core/src/config/testnet/." "${HOME}/.config/ark-core/testnet"
+                break
+            ;;
+            *)
+                echo "Invalid option $REPLY"
+            ;;
+        esac
+    done
+fi
+
+# setup postgres username, password and database
 read -p "Would you like to configure the database? [y/N]: " choice
 
 if [[ "$choice" =~ ^(yes|y|Y) ]]; then
@@ -318,19 +286,3 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
         sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
     fi
 fi
-
-# -----------------------------------
-# SETUP @ARKECOSYSTEM/CORE
-# -----------------------------------
-
-cd "$HOME"
-
-if [ -d "ark-core" ]; then
-   heading "Removing existing folder..."
-   rm -rf ark-core
-fi
-
-git clone https://github.com/ArkEcosystem/core.git ~/ark-core -b develop
-cd ark-core
-yarn setup
-
