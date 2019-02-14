@@ -80,6 +80,10 @@ export async function checkForUpdates({ config, error, warn }, channel: string =
                     removeSync(cacheFile);
 
                     cli.action.stop();
+
+                    this.warn(`Version ${remoteVersion} has been installed. Please restart your relay and forger.`);
+
+                    process.exit();
                 } catch (err) {
                     error(err.message);
                 }
