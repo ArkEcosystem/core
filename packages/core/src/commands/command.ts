@@ -138,6 +138,10 @@ export abstract class BaseCommand extends Command {
 
         const folders = readdirSync(config);
 
+        if (!folders || folders.length === 0) {
+            this.error('We were unable to detect any configuration. Please run "ark config: publish" and try again.');
+        }
+
         if (folders.length === 1) {
             flags.network = folders[0];
         } else {
