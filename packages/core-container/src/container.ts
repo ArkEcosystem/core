@@ -2,6 +2,8 @@ import { Container as container, EventEmitter, Logger } from "@arkecosystem/core
 import { createContainer, Resolver } from "awilix";
 import { execSync } from "child_process";
 import delay from "delay";
+import { existsSync } from "fs";
+import { join } from "path";
 import semver from "semver";
 import { configManager } from "./config";
 import { Environment } from "./environment";
@@ -28,14 +30,18 @@ export class Container implements container.IContainer {
      * @constructor
      */
     constructor() {
+        this.hashid = "unknown";
+
         /**
          * The git commit hash of the repository. Used during development to
          * easily idenfity nodes based on their commit hash and version.
          */
         try {
-            this.hashid = execSync("git rev-parse --short=8 HEAD")
-                .toString()
-                .trim();
+            if (existsSync(join(__dirname, "../../..", ".git"))) {
+                this.hashid = execSync("git rev-parse --short=8 HEAD")
+                    .toString()
+                    .trim();
+            }
         } catch (e) {
             this.hashid = "unknown";
         }
