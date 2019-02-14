@@ -136,39 +136,45 @@ export abstract class BaseCommand extends Command {
 
         const { config } = this.getEnvPaths(flags);
 
-        const folders = readdirSync(config);
+        try {
+            const folders = readdirSync(config);
 
-        if (!folders || folders.length === 0) {
-            this.error('We were unable to detect any configuration. Please run "ark config: publish" and try again.');
-        }
-
-        if (folders.length === 1) {
-            flags.network = folders[0];
-        } else {
-            const response = await prompts([
-                {
-                    type: "autocomplete",
-                    name: "network",
-                    message: "What network do you want to operate on?",
-                    choices: folders
-                        .filter(folder => Object.keys(networks).includes(folder))
-                        .map(folder => ({ title: folder, value: folder })),
-                },
-                {
-                    type: "confirm",
-                    name: "confirm",
-                    message: "Can you confirm?",
-                    initial: true,
-                },
-            ]);
-
-            if (!response.network) {
-                this.abortWithInvalidInput();
+            if (!folders || folders.length === 0) {
+                this.error(
+                    'We were unable to detect any configuration. Please run "ark config:publish" and try again.',
+                );
             }
 
-            if (response.confirm) {
-                flags.network = response.network;
+            if (folders.length === 1) {
+                flags.network = folders[0];
+            } else {
+                const response = await prompts([
+                    {
+                        type: "autocomplete",
+                        name: "network",
+                        message: "What network do you want to operate on?",
+                        choices: folders
+                            .filter(folder => Object.keys(networks).includes(folder))
+                            .map(folder => ({ title: folder, value: folder })),
+                    },
+                    {
+                        type: "confirm",
+                        name: "confirm",
+                        message: "Can you confirm?",
+                        initial: true,
+                    },
+                ]);
+
+                if (!response.network) {
+                    this.abortWithInvalidInput();
+                }
+
+                if (response.confirm) {
+                    flags.network = response.network;
+                }
             }
+        } catch (error) {
+            this.error('We were unable to detect any configuration. Please run "ark config:publish" and try again.');
         }
     }
 
