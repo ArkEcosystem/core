@@ -96,6 +96,7 @@ export class TransactionGuard implements transactionPool.ITransactionGuard {
      * It skips:
      * - transactions already in the pool
      * - transactions from blocked senders
+     * - transactions that are too large
      * - transactions from the future
      * - dynamic fee mismatch
      * - transactions based on type specific restrictions
@@ -114,6 +115,12 @@ export class TransactionGuard implements transactionPool.ITransactionGuard {
                     transaction,
                     "ERR_SENDER_BLOCKED",
                     `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked.`,
+                );
+            } else if (JSON.stringify(transaction).length > this.pool.options.maxTransactionBytes) {
+                this.__pushError(
+                    transaction,
+                    "ERR_TOO_LARGE",
+                    `Transaction ${transaction.id} is larger than ${this.pool.options.maxTransactionBytes} bytes.`,
                 );
             } else if (this.pool.hasExceededMaxTransactions(transaction)) {
                 this.excess.push(transaction.id);
