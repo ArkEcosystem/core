@@ -29,27 +29,31 @@ export function start(options: any) {
             }
 
             if (apps[0]) {
-                const response = await prompts({
-                    type: "confirm",
-                    name: "confirm",
-                    message: "A process is already running, would you like to restart it?",
-                    initial: true,
+                if (apps[0].pm2_env.status === "online") {
+                    const response = await prompts({
+                        type: "confirm",
+                        name: "confirm",
+                        message: "A process is already running, would you like to restart it?",
+                        initial: true,
+                    });
+
+                    if (!response.confirm) {
+                        console.warn(`The "${processName}" process has not been restarted.`);
+                    }
+                }
+
+                pm2.reload(processName, error => {
+                    pm2.disconnect();
+
+                    if (error) {
+                        console.error(error.message);
+                        process.exit();
+                    }
+
+                    process.exit();
                 });
 
-                if (response.confirm) {
-                    pm2.reload(processName, error => {
-                        pm2.disconnect();
-
-                        if (error) {
-                            console.error(error.message);
-                            process.exit();
-                        }
-
-                        process.exit();
-                    });
-                } else {
-                    pm2.disconnect();
-                }
+                pm2.disconnect();
             } else {
                 pm2.start(
                     {
