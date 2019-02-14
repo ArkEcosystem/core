@@ -71,6 +71,10 @@ export class Peer implements P2P.IPeer {
             port,
             hostname: ip,
         });
+        this.socket.on("error", err => {
+            this.logger.debug(`Error catched: "${err}"`);
+            // TODO handle error : if socket closed, ban peer ?
+        });
     }
 
     /**
