@@ -11,5 +11,5 @@ export const init: Hook<"init"> = async function({ id, config }) {
         return;
     }
 
-    await checkForUpdates(this, getUpdateChannel(config));
+    await checkForUpdates(this);
 };

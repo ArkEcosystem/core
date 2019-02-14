@@ -21,20 +21,7 @@ function ensureCacheFile(config: IConfig): string {
     return join(config.cacheDir, "update");
 }
 
-export function needsRefresh(config: IConfig): boolean {
-    const cacheFile = ensureCacheFile(config);
-
-    try {
-        const { mtime } = statSync(cacheFile);
-        const staleAt = new Date(mtime.valueOf() + 1000 * 60 * 60 * 24 * 1);
-
-        return staleAt < new Date();
-    } catch (err) {
-        return true;
-    }
-}
-
-export function getUpdateChannel(config: IConfig): string {
+function getUpdateChannel(config: IConfig): string {
     const channels: string[] = ["alpha", "beta", "rc", "stable"];
 
     let channel: string = "stable";
@@ -51,8 +38,22 @@ export function getUpdateChannel(config: IConfig): string {
     return channel;
 }
 
-export async function checkForUpdates({ config, error, log, warn }, channel: string): Promise<void> {
+export function needsRefresh(config: IConfig): boolean {
+    const cacheFile = ensureCacheFile(config);
+
     try {
+        const { mtime } = statSync(cacheFile);
+        const staleAt = new Date(mtime.valueOf() + 1000 * 60 * 60 * 24 * 1);
+
+        return staleAt < new Date();
+    } catch (err) {
+        return true;
+    }
+}
+
+export async function checkForUpdates({ config, error, log, warn }): Promise<void> {
+    try {
+        const channel = getUpdateChannel(config);
         const cacheFile = ensureCacheFile(config);
         const remoteVersion = await getVersionFromNode(config.name, channel);
 
