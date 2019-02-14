@@ -236,6 +236,7 @@ export class Monitor implements P2P.IMonitor {
         const max = keys.length;
 
         logger.info(`Checking ${max} peers :telescope:`);
+        const peerErrors = {};
         await Promise.all(
             keys.map(async ip => {
                 const peer = this.getPeer(ip);
@@ -244,7 +245,12 @@ export class Monitor implements P2P.IMonitor {
                 } catch (error) {
                     unresponsivePeers++;
 
-                    logger.debug(`Removed peer ${ip}:${peer.port}: ${error.message}`);
+                    if (peerErrors[error]) {
+                        peerErrors[error].push(peer);
+                    } else {
+                        peerErrors[error] = [peer];
+                    }
+
                     emitter.emit("peer.removed", peer);
 
                     this.removePeer(peer);
@@ -253,6 +259,11 @@ export class Monitor implements P2P.IMonitor {
                 }
             }),
         );
+
+        Object.keys(peerErrors).forEach((key: any) => {
+            const peerCount = peerErrors[key].length;
+            logger.debug(`Removed ${peerCount} ${pluralize("peers", peerCount)} because of "${key}"`);
+        });
 
         if (this.initializing) {
             logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);

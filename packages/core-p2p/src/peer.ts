@@ -4,6 +4,7 @@ import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
 import { config as localConfig } from "./config";
+import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
@@ -203,25 +204,18 @@ export class Peer implements P2P.IPeer {
         }
 
         if (!body.success) {
-            throw new Error(
-                `Erroneous response from peer ${this.ip} when trying to retrieve its status: ` + JSON.stringify(body),
-            );
+            throw new PeerStatusResponseError(JSON.stringify(body));
         }
 
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
             const peerVerifier = new PeerVerifier(this);
 
             if (deadline <= new Date().getTime()) {
-                throw new Error(
-                    `When pinging peer ${this.ip}: ping timeout (${delay} ms) elapsed ` +
-                        `even before starting peer verification`,
-                );
+                throw new PeerPingTimeoutError(delay);
             }
 
             if (!(await peerVerifier.checkState(body, deadline))) {
-                throw new Error(
-                    `Peer state verification failed for peer ${this.ip}, claimed state: ` + JSON.stringify(body),
-                );
+                throw new PeerVerificationFailedError();
             }
         }
 
