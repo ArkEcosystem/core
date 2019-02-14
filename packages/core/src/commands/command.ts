@@ -125,6 +125,15 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async getNetwork(flags): Promise<void> {
+        if (process.env.CORE_PATH_CONFIG) {
+            const network = process.env.CORE_PATH_CONFIG.split("/").pop();
+
+            if (Object.keys(networks).includes(network)) {
+                flags.network = network;
+                return;
+            }
+        }
+
         const { config } = this.getEnvPaths(flags);
 
         const folders = readdirSync(config);
