@@ -77,10 +77,6 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(claimedState: any, deadline: number): Promise<boolean> {
-        if (this.isStateInvalid(claimedState)) {
-            return false;
-        }
-
         const ourHeight: number = await this.ourHeight();
 
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
@@ -100,28 +96,6 @@ export class PeerVerifier {
         }
 
         this.log(Severity.DEBUG, "success");
-
-        return true;
-    }
-
-    /**
-     * Check if the state claimed by the peer is definitely invalid.
-     * @param {Object} claimedState peer's claimed state (from `/peer/status`)
-     * @return {Boolean} true if invalid
-     */
-    private isStateInvalid(claimedState: any): boolean {
-        if (
-            typeof claimedState === "object" &&
-            typeof claimedState.header === "object" &&
-            Number.isInteger(claimedState.header.height) &&
-            claimedState.header.height > 0 &&
-            typeof claimedState.header.id === "string" &&
-            claimedState.header.id.length > 0
-        ) {
-            return false;
-        }
-
-        this.log(Severity.INFO, `peer's claimed state is invalid: ${this.anyToString(claimedState)}`);
 
         return true;
     }
@@ -257,19 +231,6 @@ export class PeerVerifier {
             const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById), msRemaining);
 
             if (!highestCommon) {
-                return null;
-            }
-
-            if (
-                typeof highestCommon !== "object" ||
-                typeof highestCommon.id !== "string" ||
-                !Number.isInteger(highestCommon.height)
-            ) {
-                this.log(
-                    Severity.INFO,
-                    `failure: erroneous reply from peer for common blocks ` +
-                        `${ourBlocksPrint}: ${this.anyToString(highestCommon)}`,
-                );
                 return null;
             }
 
@@ -410,14 +371,8 @@ export class PeerVerifier {
             return false;
         }
 
-        if (
-            typeof response !== "object" ||
-            typeof response.data !== "object" ||
-            !Array.isArray(response.data.blocks) ||
-            response.data.blocks.length === 0
-        ) {
-            this.log(
-                Severity.INFO,
+        if (response.data.blocks.length === 0) {
+            this.log(Severity.INFO,
                 `failure: could not get blocks starting from height ${height} ` +
                     `from peer: unexpected response: ${this.anyToString(response)}`,
             );
@@ -426,15 +381,6 @@ export class PeerVerifier {
 
         for (let i = 0; i < response.data.blocks.length; i++) {
             blocksByHeight[height + i] = response.data.blocks[i];
-            if (typeof blocksByHeight[height + i] !== "object") {
-                this.log(
-                    Severity.INFO,
-                    `failure: could not get blocks starting from height ${height} ` +
-                        `from peer: the block at height ${height + i} is not an object: ` +
-                        this.anyToString(response),
-                );
-                return false;
-            }
         }
 
         return true;

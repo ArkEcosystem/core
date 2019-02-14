@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
+import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
 import { PeerVerifier } from "./peer-verifier";
@@ -35,6 +36,41 @@ export class Peer implements P2P.IPeer {
 
     private config: any;
     private logger: Logger.ILogger;
+
+    private static replySchemas: any = {
+        '/peer/blocks': Joi.object().keys({
+            blocks: Joi.array().items(
+                Joi.object().keys({
+                    height: Joi.number().integer().min(1).required(),
+                    id: Joi.string().max(64).hex().required()
+                })
+            ).required()
+        }),
+        '/peer/blocks/common?ids=': Joi.object().keys({
+            common: Joi.object().keys({
+                height: Joi.number().integer().min(1).required(),
+                id: Joi.string().max(64).hex().required()
+            }).required(),
+            success: Joi.boolean().equal(true).required()
+        }).required(),
+        '/peer/list': Joi.object().keys({
+            peers: Joi.array().items(
+                Joi.object().keys({
+                    ip: Joi.string().ip({ cidr: 'forbidden' }).required(),
+                    status: [ Joi.string(), Joi.number().integer() ]
+                })
+            ).required(),
+            success: Joi.boolean().equal(true).required()
+        }).required(),
+        '/peer/status': Joi.object().keys({
+            header: Joi.object().keys({
+                height: Joi.number().integer().min(1).required(),
+                id: Joi.string().max(64).hex().required()
+            }).required(),
+            height: Joi.number().integer().min(1),
+            success: Joi.boolean().equal(true).required()
+        }).required()
+    };
 
     /**
      * @constructor
@@ -199,13 +235,7 @@ export class Peer implements P2P.IPeer {
         const body = await this.__get("/peer/status", delay);
 
         if (!body) {
-            throw new Error(`Peer ${this.ip} is unresponsive`);
-        }
-
-        if (!body.success) {
-            throw new Error(
-                `Erroneous response from peer ${this.ip} when trying to retrieve its status: ` + JSON.stringify(body),
-            );
+            throw new Error(`Peer ${this.ip}: could not get status response`);
         }
 
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
@@ -292,6 +322,10 @@ export class Peer implements P2P.IPeer {
                 timeout: timeout || this.config.get("peers.globalTimeout"),
             });
 
+            if (!this.validateReply(response.data, endpoint)) {
+                return;
+            }
+
             this.delay = new Date().getTime() - temp;
 
             this.__parseHeaders(response);
@@ -362,10 +396,58 @@ export class Peer implements P2P.IPeer {
      * @return {(Object[]|undefined)}
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
-        return axios.get(`${this.url}/peer/blocks`, {
+        const endpoint = '/peer/blocks';
+        const response = await axios.get(`${this.url}${endpoint}`, {
             params: { lastBlockHeight: afterBlockHeight },
             headers: this.headers,
             timeout: 10000,
         });
+
+        if (!this.validateReply(response.data, endpoint)) {
+            throw new Error('Invalid reply to request for blocks');
+        }
+
+        return response;
+    }
+
+    /**
+     * Validate a reply from the peer according to a predefined JSON schema rules.
+     * @param {Object} reply peer's reply
+     * @param {String} endpoint the path in the URL for which we got the reply, e.g. /peer/status
+     * @return {Boolean} true if validated successfully
+     */
+    private validateReply(reply: any, endpoint: string): boolean {
+        let schema = Peer.replySchemas[endpoint];
+        if (schema === undefined) {
+            // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
+            let len = 0;
+            const definedEndpoints = Object.keys(Peer.replySchemas);
+            for (const d of definedEndpoints) {
+                if (endpoint.startsWith(d) && len < d.length) {
+                    schema = Peer.replySchemas[d];
+                    len = d.length;
+                }
+            }
+
+            if (schema === undefined) {
+                this.logger.error(
+                    `Can't validate reply from "${endpoint}": none of the predefined ` +
+                    `schemas matches: ` + JSON.stringify(definedEndpoints)
+                );
+                return false;
+            }
+        }
+
+        const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
+
+        if (result.error) {
+            this.logger.error(
+                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` +
+                result.error.message
+            );
+            return false;
+        }
+
+        return true;
     }
 }
