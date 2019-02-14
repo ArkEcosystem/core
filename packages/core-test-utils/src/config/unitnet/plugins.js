@@ -38,7 +38,7 @@ module.exports = {
     "@arkecosystem/core-p2p": {
         host: process.env.CORE_P2P_HOST || "0.0.0.0",
         port: process.env.CORE_P2P_PORT || 4000,
-        minimumVersion: ">=2.0.0",
+        minimumVersions: [">=2.0.0"],
         minimumNetworkReach: 5,
         coldStart: 5,
     },
