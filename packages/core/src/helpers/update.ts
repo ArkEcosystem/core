@@ -34,7 +34,7 @@ export function needsRefresh(config: IConfig): boolean {
     }
 }
 
-export async function checkForUpdates({ config, error, warn }, channel: string = "stable"): Promise<void> {
+export async function checkForUpdates({ config, error, log, warn }, channel: string = "stable"): Promise<void> {
     if (channel === "stable") {
         channel = "latest";
     }
@@ -88,6 +88,8 @@ export async function checkForUpdates({ config, error, warn }, channel: string =
                     error(err.message);
                 }
             }
+        } else {
+            log(`You already have the latest version (${config.version})`);
         }
     } catch (err) {
         error(err.message);
