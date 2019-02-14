@@ -1,4 +1,5 @@
 import Table from "cli-table3";
+import cli from "cli-ux";
 import dayjs from "dayjs-ext";
 import pm2 from "pm2";
 import prettyBytes from "pretty-bytes";
@@ -174,9 +175,20 @@ export function log(processName: string, onlyErrors: boolean) {
             }
 
             const app = apps[0].pm2_env;
+            const file = onlyErrors ? app.pm_err_log_path : app.pm_out_log_path;
 
-            const log = new Tail(onlyErrors ? app.pm_err_log_path : app.pm_out_log_path);
-            log.on("line", data => console.log(data));
+            const log = new Tail(file);
+
+            cli.action.start(`Waiting for ${file}`);
+
+            log.on("line", data => {
+                console.log(data);
+
+                if (cli.action.running) {
+                    cli.action.stop();
+                }
+            });
+
             log.on("error", error => console.error("ERROR: ", error));
         });
     });
