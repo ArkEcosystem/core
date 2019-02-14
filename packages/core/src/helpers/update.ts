@@ -76,7 +76,7 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
             ]);
 
             if (response.confirm) {
-                cli.action.start(`Update from ${config.version} to ${remoteVersion} in progress. Please wait`);
+                cli.action.start(`Update from ${config.version} to ${remoteVersion} in progress`);
 
                 try {
                     const { stdout, stderr } = await shell(`yarn global add ${config.name}@${channel}`);
@@ -91,7 +91,7 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
 
                     cli.action.stop();
 
-                    this.warn(`Version ${remoteVersion} has been installed. Please restart your relay and forger.`);
+                    warn(`Version ${remoteVersion} has been installed. Please restart your relay and forger.`);
 
                     process.exit();
                 } catch (err) {
