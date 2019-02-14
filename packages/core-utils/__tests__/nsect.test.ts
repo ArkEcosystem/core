@@ -39,11 +39,7 @@ describe("N-section (binary search)", () => {
 
     it("arbitrary", async () => {
         numberOfProbeCalls = 0;
-        searchCondition = element => element <= 5678;
-        expect(data[await nSect.find(0, data.length - 1)]).toBe(5670);
-        expect(numberOfProbeCalls).toBe(8);
     });
-
     it("lucky case", async () => {
         numberOfProbeCalls = 0;
         searchCondition = element => element <= 5000;
