@@ -34,11 +34,24 @@ export function needsRefresh(config: IConfig): boolean {
     }
 }
 
-export async function checkForUpdates({ config, error, log, warn }, channel: string = "stable"): Promise<void> {
+export function getUpdateChannel(config: IConfig): string {
+    const channels: string[] = ["alpha", "beta", "rc", "stable"];
+
+    let channel: string = "stable";
+    for (const item of channels) {
+        if (config.version.includes(`-${item}`)) {
+            channel = item;
+        }
+    }
+
     if (channel === "stable") {
         channel = "latest";
     }
 
+    return channel;
+}
+
+export async function checkForUpdates({ config, error, log, warn }, channel: string = "stable"): Promise<void> {
     try {
         const cacheFile = ensureCacheFile(config);
         const remoteVersion = await getVersionFromNode(config.name, channel);

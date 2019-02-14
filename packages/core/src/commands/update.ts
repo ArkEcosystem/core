@@ -1,5 +1,5 @@
 import { flags } from "@oclif/command";
-import { checkForUpdates } from "../helpers/update";
+import { checkForUpdates, getUpdateChannel } from "../helpers/update";
 import { BaseCommand } from "./command";
 
 export class UpdateCommand extends BaseCommand {
@@ -30,6 +30,6 @@ $ ark update --channel=rc
     public async run(): Promise<void> {
         const { flags } = this.parse(UpdateCommand);
 
-        await checkForUpdates(this, flags.channel as string);
+        await checkForUpdates(this, getUpdateChannel(this.config));
     }
 }
