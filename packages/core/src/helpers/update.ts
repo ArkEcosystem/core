@@ -22,17 +22,13 @@ function ensureCacheFile(config: IConfig): string {
 }
 
 function getUpdateChannel(config: IConfig): string {
-    const channels: string[] = ["alpha", "beta", "rc", "stable"];
+    const channels: string[] = ["alpha", "beta", "rc"];
 
-    let channel: string = "stable";
+    let channel: string = "latest";
     for (const item of channels) {
         if (config.version.includes(`-${item}`)) {
             channel = item;
         }
-    }
-
-    if (channel === "stable") {
-        channel = "latest";
     }
 
     return channel;
