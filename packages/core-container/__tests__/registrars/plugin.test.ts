@@ -6,26 +6,35 @@ import { PluginRegistrar } from "../../src/registrars/plugin";
 
 const stubPluginPath = resolve(__dirname, "../__stubs__");
 
+const resolveStubPath = value => resolve(stubPluginPath, value);
+
 let instance;
 beforeEach(() => {
     process.env.CORE_PATH_CONFIG = stubPluginPath;
 
-    instance = new PluginRegistrar(new Container());
+    const container = new Container();
+    container.config = {
+        get: () => {
+            return require("../__stubs__/plugins.js");
+        },
+    };
+
+    instance = new PluginRegistrar(container);
 });
 
 describe("Plugin Registrar", () => {
     it("should load the plugins and their options", () => {
         ["a", "b", "c"].forEach(char => {
-            const pluginName = `./plugin-${char}`;
+            const pluginName = resolveStubPath(`./plugin-${char}`);
             expect(instance.plugins[pluginName]).toBeObject();
         });
 
-        expect(instance.plugins["./plugin-b"]).toHaveProperty("property", "value");
+        expect(instance.plugins[resolveStubPath("./plugin-b")]).toHaveProperty("property", "value");
     });
 
     describe("register", () => {
-        it("should register plugins with relative paths", async () => {
-            const pluginName = "./plugin-a";
+        it("should register plugins from paths", async () => {
+            const pluginName = resolveStubPath("./plugin-a");
 
             await instance.register(pluginName, { enabled: false });
 
@@ -44,10 +53,9 @@ describe("Plugin Registrar", () => {
 
         describe("with a plugin name as the value of the `exit` option", () => {
             it("should register the plugins but ignore the rest", async () => {
-                instance.options.exit = "./plugin-a";
+                instance.options.exit = resolveStubPath("./plugin-a");
 
                 await instance.setUp();
-
                 expect(instance.container.has("stub-plugin-a")).toBeTrue();
                 const plugins = ["b", "c"];
                 plugins.forEach(char => {

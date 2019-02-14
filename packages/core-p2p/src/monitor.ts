@@ -159,12 +159,12 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-            const minimumVersion: string = localConfig.get("minimumVersion");
+            const minimumVersions: string[] = localConfig.get("minimumVersions");
 
             logger.debug(
                 `Rejected peer ${
                     peer.ip
-                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersion} - Received: ${
+                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersions} - Received: ${
                     peer.version
                 }`,
             );

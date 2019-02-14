@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
     "description": "Forger for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0-alpha.8",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -29,10 +29,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.1",
-        "@arkecosystem/core-container": "^2.1.1",
-        "@arkecosystem/core-p2p": "^2.1.1",
-        "@arkecosystem/crypto": "^2.1.1",
+        "@arkecosystem/core-interfaces": "2.2.0-alpha.8",
+        "@arkecosystem/core-container": "2.2.0-alpha.8",
+        "@arkecosystem/core-p2p": "2.2.0-alpha.8",
+        "@arkecosystem/crypto": "2.2.0-alpha.8",
         "@types/lodash.isempty": "^4.4.4",
         "@types/lodash.sample": "^4.2.4",
         "@types/lodash.uniq": "^4.5.4",
@@ -45,7 +45,7 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.1",
+        "@arkecosystem/core-test-utils": "2.2.0-alpha.8",
         "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {

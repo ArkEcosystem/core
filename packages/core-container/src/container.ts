@@ -39,11 +39,6 @@ export class Container implements container.IContainer {
         } catch (e) {
             this.hashid = "unknown";
         }
-
-        /**
-         * Register any exit signal handling.
-         */
-        this.registerExitHandler(["SIGINT", "exit"]);
     }
 
     /**
@@ -54,13 +49,18 @@ export class Container implements container.IContainer {
      * @return {void}
      */
     public async setUp(version: string, variables: any, options: any = {}) {
+        // Register any exit signal handling
+        this.registerExitHandler(["SIGINT", "exit"]);
+
+        // Set options and variables
         this.options = options;
         this.variables = variables;
 
         this.setVersion(version);
 
         // Register the environment variables
-        new Environment(variables).setUp();
+        const environment = new Environment(variables);
+        environment.setUp();
 
         // Mainly used for testing environments!
         if (options.skipPlugins) {
@@ -113,7 +113,6 @@ export class Container implements container.IContainer {
      * @throws {Error}
      */
     public resolve<T = any>(key): T {
-
         try {
             return this.container.resolve<T>(key);
         } catch (err) {
@@ -233,7 +232,7 @@ export class Container implements container.IContainer {
      */
     private registerExitHandler(exitEvents: string[]) {
         const handleExit = async () => {
-            if (this.shuttingDown) {
+            if (this.shuttingDown || !this.isReady) {
                 return;
             }
 

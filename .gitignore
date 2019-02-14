@@ -68,3 +68,8 @@ docker/development
 
 # Vagrant
 .vagrant
+
+# oclif
+tmp
+oclif.manifest.json
+npm-shrinkwrap.json
