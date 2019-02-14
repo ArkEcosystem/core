@@ -1,5 +1,5 @@
+import pm2 from "pm2";
 import { BaseCommand } from "../commands/command";
-import { shutdown, stop } from "../helpers/pm2";
 
 export abstract class AbstractStopCommand extends BaseCommand {
     public async run(): Promise<void> {
@@ -7,7 +7,21 @@ export abstract class AbstractStopCommand extends BaseCommand {
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        flags.daemon ? shutdown(processName) : stop(processName);
+        this.createPm2Connection(() => {
+            const method = flags.daemon ? "delete" : "stop";
+
+            pm2[method](processName, error => {
+                pm2.disconnect();
+
+                if (error) {
+                    if (error.message === "process name not found") {
+                        this.warn(`The "${processName}" process does not exist. Failed to ${method}!`);
+                    } else {
+                        throw error;
+                    }
+                }
+            });
+        });
     }
 
     public abstract getClass();

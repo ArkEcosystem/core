@@ -1,11 +1,46 @@
+import cli from "cli-ux";
+import pm2 from "pm2";
+import { Tail } from "tail";
 import { BaseCommand } from "../commands/command";
-import { log } from "../helpers/pm2";
 
 export abstract class AbstractLogCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(this.getClass());
 
-        log(`${flags.token}-${this.getSuffix()}`, flags.error as boolean);
+        const processName = `${flags.token}-${this.getSuffix()}`;
+
+        this.createPm2Connection(() => {
+            pm2.describe(processName, (error, apps) => {
+                pm2.disconnect();
+
+                if (error) {
+                    this.error(error.message);
+                    process.exit();
+                }
+
+                if (!apps[0]) {
+                    this.warn(`The "${processName}" process is not running. No logs to be viewed!`);
+                    process.exit();
+                }
+
+                const app = apps[0].pm2_env;
+                const file = flags.error ? app.pm_err_log_path : app.pm_out_log_path;
+
+                const log = new Tail(file);
+
+                cli.action.start(`Waiting for ${file}`);
+
+                log.on("line", data => {
+                    console.log(data);
+
+                    if (cli.action.running) {
+                        cli.action.stop();
+                    }
+                });
+
+                log.on("error", error => console.error("ERROR: ", error));
+            });
+        });
     }
 
     public abstract getClass();

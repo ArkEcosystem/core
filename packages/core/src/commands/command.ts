@@ -3,6 +3,7 @@ import Command, { flags } from "@oclif/command";
 import envPaths from "env-paths";
 import { readdirSync } from "fs";
 import Listr from "listr";
+import pm2 from "pm2";
 import prompts from "prompts";
 
 // tslint:disable-next-line:no-var-requires
@@ -180,5 +181,15 @@ export abstract class BaseCommand extends Command {
 
     protected abortWithInvalidInput(): void {
         this.error("Please enter valid data and try again!");
+    }
+
+    protected createPm2Connection(callback): void {
+        pm2.connect(error => {
+            if (error) {
+                this.error(error.message);
+            }
+
+            callback();
+        });
     }
 }

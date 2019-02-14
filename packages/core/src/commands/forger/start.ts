@@ -1,9 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
-import bip39 from "bip39";
 import { join } from "path";
 import prompts from "prompts";
-import { start } from "../../helpers/pm2";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
 
@@ -40,7 +38,7 @@ $ ark forger:start --no-daemon
         try {
             const { bip38, password } = await this.buildBIP38(flags);
 
-            start({
+            this.runWithPm2({
                 name: `${flags.token}-forger`,
                 // @ts-ignore
                 script: this.config.options.root,

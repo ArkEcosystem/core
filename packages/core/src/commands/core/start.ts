@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
-import { start } from "../../helpers/pm2";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
 
@@ -47,7 +46,7 @@ $ ark core:start --no-daemon
     }
 
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
-        start({
+        this.runWithPm2({
             name: `${flags.token}-core`,
             // @ts-ignore
             script: this.config.options.root,
