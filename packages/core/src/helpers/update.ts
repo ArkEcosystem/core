@@ -7,16 +7,14 @@ import { join } from "path";
 import prompts from "prompts";
 import semver from "semver";
 
-async function getVersionFromNode(name: string): Promise<string> {
+async function getVersionFromNode(name: string, channel: string): Promise<string> {
     const { body } = await got(`https://registry.npmjs.org/${name}`);
 
-    return JSON.parse(body)["dist-tags"].latest;
-}
+    if (channel === "stable") {
+        channel = "latest";
+    }
 
-async function getVersionFromGithub(name: string): Promise<string> {
-    const { body } = await got(`https://api.github.com/repos/${name.substr(1)}/releases/latest`);
-
-    return JSON.parse(body).tag_name;
+    return JSON.parse(body)["dist-tags"][channel];
 }
 
 export function needsRefresh(config: IConfig) {
@@ -34,9 +32,13 @@ export function needsRefresh(config: IConfig) {
     }
 }
 
-export async function checkForUpdates({ config, error, warn }): Promise<void> {
+export async function checkForUpdates({ config, error, warn }, channel: string = "stable"): Promise<void> {
     try {
-        const remoteVersion = await getVersionFromNode(config.name);
+        const remoteVersion = await getVersionFromNode(config.name, channel);
+
+        if (remoteVersion === undefined) {
+            error(`We were unable to find any releases for the "${channel}" channel.`);
+        }
 
         if (semver.gt(remoteVersion, config.version)) {
             warn(
