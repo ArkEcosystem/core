@@ -51,7 +51,7 @@ export function getUpdateChannel(config: IConfig): string {
     return channel;
 }
 
-export async function checkForUpdates({ config, error, log, warn }, channel: string = "stable"): Promise<void> {
+export async function checkForUpdates({ config, error, log, warn }, channel: string): Promise<void> {
     try {
         const cacheFile = ensureCacheFile(config);
         const remoteVersion = await getVersionFromNode(config.name, channel);
