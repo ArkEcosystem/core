@@ -4,7 +4,7 @@ sudo /usr/sbin/ntpd -s
 sudo rm -rf /home/node/.config/ark-core/*
 sudo rm -rf /home/node/.local/state/ark-core/*
 sudo chown node:node -R /home/node
-~/.yarn/bin/ark config:publish --network=$NETWORK
+~/.yarn/bin/ark config:publish --network=$NETWORK --force
 sudo rm -f /home/node/.config/ark-core/$NETWORK/.env
 
 CONFIG=/home/node/.config/ark-core/$NETWORK
