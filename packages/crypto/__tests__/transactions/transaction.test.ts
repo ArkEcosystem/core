@@ -120,9 +120,12 @@ describe("Models - Transaction", () => {
             const transaction = Transaction.fromHex(hex);
             expect(transaction).toBeInstanceOf(Transaction);
 
-            // We can't compare the data directly, since the created instance uses Bignums.
-            // ... call toJson() which casts the Bignums to numbers beforehand.
-            expect(transaction.toJson()).toEqual(transactionData);
+            const actual = transaction.toJson();
+            delete actual.network;
+            delete actual.expiration;
+            delete actual.vendorFieldHex;
+
+            expect(actual).toEqual(transactionData);
         });
 
         it("should throw when getting garbage", () => {

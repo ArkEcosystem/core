@@ -10,11 +10,13 @@ export type TransactionSchema = typeof transactionBaseSchema;
 const transactionBaseSchema = {
     $id: null,
     type: "object",
-    required: ["id", "type", "signature", "senderPublicKey", "amount", "fee", "timestamp"],
+    required: ["type", "senderPublicKey", "amount", "fee", "timestamp"],
     additionalProperties: false,
     properties: {
-        id: { $ref: "transactionId" },
+        // id: { $ref: "transactionId" },
         version: { enum: [1, 2] },
+        network: { type: "integer" },
+        expiration: { type: "integer" },
         type: { type: "integer", minimum: 0, maximum: 255 },
         timestamp: { type: "integer", minimum: 0 },
         amount: { bignumber: { minimum: 1 } },
