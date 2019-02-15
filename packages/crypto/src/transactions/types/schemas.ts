@@ -96,3 +96,43 @@ export const vote = extend(transactionBaseSchema, {
         },
     },
 });
+
+export const multiSignature = extend(transactionBaseSchema, {
+    $id: "multiSignature",
+    properties: {
+        type: { transactionType: TransactionTypes.MultiSignature },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+    },
+});
+
+export const ipfs = extend(transactionBaseSchema, {
+    $id: "ipfs",
+    properties: {
+        type: { transactionType: TransactionTypes.Ipfs },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+    },
+});
+
+export const timelockTransfer = extend(transactionBaseSchema, {
+    $id: "timelockTransfer",
+    properties: {
+        type: { transactionType: TransactionTypes.TimelockTransfer },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+    },
+});
+
+export const multiPayment = extend(transactionBaseSchema, {
+    $id: "multiPayment",
+    properties: {
+        type: { transactionType: TransactionTypes.MultiPayment },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+    },
+});
+
+export const delegateResignation = extend(transactionBaseSchema, {
+    $id: "delegateResignation",
+    properties: {
+        type: { transactionType: TransactionTypes.DelegateResignation },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+    },
+});
