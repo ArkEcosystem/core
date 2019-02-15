@@ -17,6 +17,10 @@
     },
     "scripts": {
         "snapshot": "./bin/run",
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
