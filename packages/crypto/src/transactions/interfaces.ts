@@ -1,5 +1,6 @@
 import { TransactionTypes } from "../constants";
 import { Bignum } from "../utils";
+import { TransactionSchema } from "./types/schemas";
 
 export interface ITransactionAsset {
     signature?: {
@@ -56,12 +57,6 @@ export interface ITransactionData {
     ipfsHash?: string;
     payments?: { [key: string]: any };
 }
-
-export interface ITransactionSchema {
-    name: string;
-    base: any;
-}
-export type TransactionSchemaConstructor = (joi) => ITransactionSchema;
 
 export interface ISchemaContext {
     fromData?: boolean;

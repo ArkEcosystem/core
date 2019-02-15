@@ -6,17 +6,16 @@ import {
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
-    NotImplementedError,
 } from "../../errors";
-import { TransactionSchemaConstructor, Wallet } from "../../models";
+import { Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class MultiSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiSignature;
 
-    protected static getTypeSchema(): TransactionSchemaConstructor {
-        return schemas.multiSignature;
+    protected static getTypeSchema(): schemas.TransactionSchema {
+        return schemas.transfer;
     }
 
     public serialize(): ByteBuffer {

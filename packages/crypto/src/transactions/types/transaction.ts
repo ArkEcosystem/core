@@ -16,17 +16,11 @@ import {
 import { configManager } from "../../managers";
 import { Wallet } from "../../models/wallet";
 import { Bignum, isException, isGenesisTransaction } from "../../utils";
-import { JoiWrapper } from "../../validation";
+import { AjvWrapper } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
-import {
-    ISchemaContext,
-    ISchemaValidationResult,
-    ITransactionData,
-    ITransactionSchema,
-    TransactionSchemaConstructor,
-} from "../interfaces";
+import { ISchemaContext, ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { TransactionSerializer } from "../serializers";
-import * as schemas from "./schemas";
+import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction {
     public static type: TransactionTypes = null;
@@ -220,22 +214,18 @@ export abstract class Transaction {
     private static validateSchema(data: ITransactionData, schemaContext?: ISchemaContext): ISchemaValidationResult {
         const context = this.getSchemaContext(data.id, schemaContext);
 
-        const { base } = TransactionRegistry.get(data.type).getSchema();
-        const { value, error } = JoiWrapper.instance().validate(data, base, { context, stripUnknown: true });
-        return { value, error };
-    }
+        const { $id } = TransactionRegistry.get(data.type).getTypeSchema();
+        const valid = AjvWrapper.instance().validate($id, data);
 
-    public static getSchema(): ITransactionSchema {
-        const joi = JoiWrapper.instance();
-        const { name, base } = this.getTypeSchema()(joi);
-        return { name, base: schemas.base(joi).append(base) };
+        return { value: data, error: null };
+        // const { value, error } = JoiWrapper.instance().validate(data, base, { context, stripUnknown: true });
     }
 
     private static getSchemaContext(transactionId: string, context: ISchemaContext): ISchemaContext {
         return { fromData: true, isGenesis: isGenesisTransaction(transactionId), ...context };
     }
 
-    protected static getTypeSchema(): TransactionSchemaConstructor {
+    protected static getTypeSchema(): TransactionSchema {
         throw new NotImplementedError();
     }
 }

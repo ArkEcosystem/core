@@ -1,1 +1,1 @@
-export { joiWrapper as JoiWrapper } from "./joi-wrapper";
+export { ajvWrapper as AjvWrapper } from "./ajv-wrapper";

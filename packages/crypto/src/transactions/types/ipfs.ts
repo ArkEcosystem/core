@@ -1,15 +1,15 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
-import { TransactionSchemaConstructor, Wallet } from "../../models";
+import { Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class IpfsTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Ipfs;
 
-    protected static getTypeSchema(): TransactionSchemaConstructor {
-        return schemas.ipfs;
+    protected static getTypeSchema(): schemas.TransactionSchema {
+        return schemas.transfer;
     }
 
     public serialize(): ByteBuffer {

@@ -1,14 +1,14 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../../errors";
-import { TransactionSchemaConstructor, Wallet } from "../../models";
+import { Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class DelegateRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.DelegateRegistration;
 
-    protected static getTypeSchema(): TransactionSchemaConstructor {
+    protected static getTypeSchema(): schemas.TransactionSchema {
         return schemas.delegateRegistration;
     }
 

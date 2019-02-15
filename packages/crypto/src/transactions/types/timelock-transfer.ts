@@ -2,7 +2,7 @@ import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError } from "../../errors";
-import { TransactionSchemaConstructor, Wallet } from "../../models";
+import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -10,8 +10,8 @@ import { Transaction } from "./transaction";
 export class TimelockTransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.TimelockTransfer;
 
-    protected static getTypeSchema(): TransactionSchemaConstructor {
-        return schemas.timelockTransfer;
+    protected static getTypeSchema(): schemas.TransactionSchema {
+        return schemas.transfer;
     }
 
     public serialize(): ByteBuffer {

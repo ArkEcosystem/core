@@ -1,15 +1,15 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { NotImplementedError, WalletNoUsernameError } from "../../errors";
-import { TransactionSchemaConstructor, Wallet } from "../../models";
+import { Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class DelegateResignationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.DelegateResignation;
 
-    protected static getTypeSchema(): TransactionSchemaConstructor {
-        return schemas.delegateResignation;
+    protected static getTypeSchema(): schemas.TransactionSchema {
+        return schemas.transfer;
     }
 
     public serialize(): ByteBuffer {
