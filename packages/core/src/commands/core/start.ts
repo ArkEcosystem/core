@@ -45,7 +45,7 @@ $ ark core:start --no-daemon
         return StartCommand;
     }
 
-    protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
+    protected async runProcess(flags: Record<string, any>): Promise<void> {
         try {
             const { bip38, password } = await this.buildBIP38(flags);
 
@@ -54,7 +54,7 @@ $ ark core:start --no-daemon
                     name: `${flags.token}-core`,
                     // @ts-ignore
                     script: this.config.options.root,
-                    args: `core:start --no-daemon ${this.flagsToStrings(flags)}`,
+                    args: `core:run ${this.flagsToStrings(flags, ["daemon"])}`,
                     env: {
                         CORE_FORGER_BIP38: bip38,
                         CORE_FORGER_PASSWORD: password,
@@ -65,17 +65,5 @@ $ ark core:start --no-daemon
         } catch (error) {
             this.error(error.message);
         }
-    }
-
-    protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
-        await this.buildApplication(app, flags, {
-            options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
-                "@arkecosystem/core-blockchain": {
-                    networkStart: flags.networkStart,
-                },
-                "@arkecosystem/core-forger": await this.buildBIP38(flags),
-            },
-        });
     }
 }

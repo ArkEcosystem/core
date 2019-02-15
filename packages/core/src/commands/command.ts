@@ -83,11 +83,13 @@ export abstract class BaseCommand extends Command {
         return app;
     }
 
-    protected flagsToStrings(flags: Record<string, any>): string {
+    protected flagsToStrings(flags: Record<string, any>, ignoreKeys?: string[]): string {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {
-            mappedFlags.push(value === true ? `--${key}` : `--${key}=${value}`);
+            if (!ignoreKeys.includes(key)) {
+                mappedFlags.push(value === true ? `--${key}` : `--${key}=${value}`);
+            }
         }
 
         return mappedFlags.join(" ");
@@ -184,8 +186,8 @@ export abstract class BaseCommand extends Command {
         this.error("Please enter valid data and try again!");
     }
 
-    protected createPm2Connection(callback, daemonMode: boolean = false): void {
-        pm2.connect(!daemonMode, error => {
+    protected createPm2Connection(callback, noDaemonMode: boolean = false): void {
+        pm2.connect(noDaemonMode, error => {
             if (error) {
                 this.error(error.message);
             }

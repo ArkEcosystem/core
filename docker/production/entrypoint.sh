@@ -15,7 +15,7 @@ CORE_FORGER_PASSWORD=`openssl rsautl -decrypt -inkey /run/secrets/bip.key -in /r
 
 start_relay ()
 {
-    ~/.yarn/bin/ark relay:start
+    ~/.yarn/bin/ark relay:start --no-daemon
 }
 
 config_bip38 ()

@@ -10,22 +10,16 @@ export abstract class AbstractStartCommand extends BaseCommand {
             await this.getNetwork(flags);
         }
 
-        if (flags.daemon) {
-            delete flags.daemon;
-
-            return this.runWithDaemon(flags);
-        }
-
-        return this.runWithoutDaemon(flags);
+        return this.runProcess(flags);
     }
 
     public abstract getClass();
 
-    protected abstract async runWithDaemon(flags: Record<string, any>): Promise<void>;
-    protected abstract async runWithoutDaemon(flags: Record<string, any>): Promise<void>;
+    protected abstract async runProcess(flags: Record<string, any>): Promise<void>;
 
-    protected runWithPm2(options: any, daemonMode: boolean = false) {
+    protected runWithPm2(options: any, flags: Record<string, any>) {
         const processName = options.name;
+        const noDaemonMode = flags.daemon === false;
 
         this.createPm2Connection(() => {
             pm2.describe(processName, async (error, apps) => {
@@ -80,6 +74,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
                     );
                 }
             });
-        }, daemonMode);
+        }, noDaemonMode);
     }
 }

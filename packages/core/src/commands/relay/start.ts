@@ -44,27 +44,15 @@ $ ark relay:start --no-daemon
         return StartCommand;
     }
 
-    protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
+    protected async runProcess(flags: Record<string, any>): Promise<void> {
         this.runWithPm2(
             {
                 name: `${flags.token}-relay`,
                 // @ts-ignore
                 script: this.config.options.root,
-                args: `relay:start --no-daemon ${this.flagsToStrings(flags)}`,
+                args: `relay:run ${this.flagsToStrings(flags, ["daemon"])}`,
             },
-            flags.daemon,
+            flags,
         );
-    }
-
-    protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
-        await this.buildApplication(app, flags, {
-            exclude: ["@arkecosystem/core-forger"],
-            options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
-                "@arkecosystem/core-blockchain": {
-                    networkStart: flags.networkStart,
-                },
-            },
-        });
     }
 }
