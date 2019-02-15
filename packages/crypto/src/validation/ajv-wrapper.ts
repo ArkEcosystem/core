@@ -1,6 +1,5 @@
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
-import ajvMerge from "ajv-merge-patch";
 
 import { ISchemaValidationResult } from "../models";
 import { signedSchema, TransactionSchema } from "../transactions/types/schemas";
@@ -14,7 +13,6 @@ class AjvWrapper {
     constructor() {
         const ajv = new Ajv({ $data: true, schemas, removeAdditional: true });
         ajvKeywords(ajv);
-        ajvMerge(ajv);
 
         keywords.forEach(addKeyword => {
             addKeyword(ajv);
