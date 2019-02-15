@@ -33,7 +33,6 @@ $ ark relay:start --no-daemon
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsBehaviour,
-        ...BaseCommand.flagsForger,
         daemon: flags.boolean({
             description: "start the process as a daemon",
             default: true,

@@ -232,7 +232,7 @@ export abstract class BaseCommand extends Command {
             ]);
 
             if (!response.password) {
-                this.error("We've detected that you are using BIP38 but have not provided the password flag.");
+                this.error("We've detected that you are using BIP38 but have not provided a valid password.");
             }
 
             password = response.password;
