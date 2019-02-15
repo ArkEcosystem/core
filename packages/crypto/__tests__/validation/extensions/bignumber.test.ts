@@ -1,101 +1,110 @@
-import BigNumber from "bignumber.js";
-import { JoiWrapper } from "../../../src/validation";
+import "jest-extended";
 
-const shouldPass = value => expect(value.error).toBeNull();
-const shouldFail = (value, message) => expect(value.error.details[0].message).toBe(`"value" ${message}`);
+import { Bignum } from "../../../src/utils";
+import { AjvWrapper } from "../../../src/validation";
 
-const joi = JoiWrapper.instance();
-
-let bigNumber;
-
-beforeEach(() => {
-    bigNumber = new BigNumber(100);
-});
+const ajv = AjvWrapper.instance();
 
 describe("BigNumber validation extension", () => {
-    it("passes when validating if only the same number", () => {
-        shouldPass(joi.validate(bigNumber, joi.bignumber().only(100)));
+    it("should be ok if only one possible value is allowed", () => {
+        const schema = { bignumber: { minimum: 100, maximum: 100 } };
+        const validate = ajv.compile(schema);
+
+        expect(validate(100)).toBeTrue();
+        expect(validate(99)).toBeFalse();
+        expect(validate(101)).toBeFalse();
     });
 
-    it("fails when validating if only a different number", () => {
-        shouldFail(joi.validate(bigNumber, joi.bignumber().only(2)), "is different from allowed value");
+    it("should be ok if above or equal minimum", () => {
+        const schema = { bignumber: { minimum: 20 }, additionalItems: false };
+        const validate = ajv.compile(schema);
+
+        expect(validate(25)).toBeTrue();
+        expect(validate(20)).toBeTrue();
+        expect(validate(19)).toBeFalse();
     });
 
-    it("passes when validating if minimum a smaller or equal number", () => {
-        shouldPass(joi.validate(bigNumber, joi.bignumber().min(20)));
+    it("should be ok if above or equal maximum", () => {
+        const schema = { bignumber: { maximum: 20 }, additionalItems: false };
+        const validate = ajv.compile(schema);
 
-        shouldPass(joi.validate(bigNumber, joi.bignumber().min(100)));
+        expect(validate(20)).toBeTrue();
+        expect(validate(Number.MAX_SAFE_INTEGER)).toBeFalse();
+        expect(validate(25)).toBeFalse();
+    });
+
+    it("should not be ok for values bigger than the absolute maximum", () => {
+        const schema = { bignumber: {} };
+        const validate = ajv.compile(schema);
+
+        expect(validate(Number.MAX_SAFE_INTEGER)).toBeTrue();
+        expect(validate(Number.MAX_SAFE_INTEGER + 1)).toBeFalse();
+        expect(validate(String(Number.MAX_SAFE_INTEGER) + "100")).toBeFalse();
+    });
+
+    it("should be ok for number, string and bignumber as input", () => {
+        const schema = { bignumber: { minimum: 100, maximum: 2000 }, additionalItems: false };
+        const validate = ajv.compile(schema);
+
+        [100, 1e2, 1020.0, 500, 2000].forEach(value => {
+            expect(validate(value)).toBeTrue();
+            expect(validate(String(value))).toBeTrue();
+            expect(validate(new Bignum(value))).toBeTrue();
+        });
+
+        [1e8, 1999.000001, 1 / 1e8, -100, -500, -2000.1].forEach(value => {
+            expect(validate(value)).toBeFalse();
+            expect(validate(String(value))).toBeFalse();
+            expect(validate(new Bignum(value))).toBeFalse();
+        });
     });
 
     it("should not accept garbage", () => {
-        expect(joi.validate(null, joi.bignumber().integer()).error).not.toBeNull();
-        expect(joi.validate({}, joi.bignumber().integer()).error).not.toBeNull();
-        expect(joi.validate(/d+/, joi.bignumber().integer()).error).not.toBeNull();
+        const schema = { bignumber: {} };
+        const validate = ajv.compile(schema);
+
+        expect(validate(null)).toBeFalse();
+        expect(validate({})).toBeFalse();
+        expect(validate(/d+/)).toBeFalse();
+        expect(validate("")).toBeFalse();
+        expect(validate("\u0000")).toBeFalse();
     });
 
-    describe("min", () => {
-        it("should pass", () => {
-            shouldPass(joi.validate(new BigNumber(1), joi.bignumber().min(1)));
+    describe("cast", () => {
+        it("should cast number to Bignumber", () => {
+            const schema = {
+                type: "object",
+                properties: {
+                    amount: { bignumber: {} },
+                },
+            };
+
+            const data = {
+                amount: 100,
+            };
+
+            const validate = ajv.compile(schema);
+            expect(validate(data)).toBeTrue();
+            expect(data.amount).toBeInstanceOf(Bignum);
+            expect(data.amount).toEqual(new Bignum(100));
         });
 
-        it("should fail", () => {
-            shouldFail(joi.validate(new BigNumber(1), joi.bignumber().min(2)), "is less than minimum");
-        });
-    });
+        it("should cast string to Bignumber", () => {
+            const schema = {
+                type: "object",
+                properties: {
+                    amount: { bignumber: {} },
+                },
+            };
 
-    describe("max", () => {
-        it("should pass", () => {
-            shouldPass(joi.validate(new BigNumber(1), joi.bignumber().max(2)));
-        });
+            const data = {
+                amount: "100",
+            };
 
-        it("should fail", () => {
-            shouldFail(joi.validate(new BigNumber(2), joi.bignumber().max(1)), "is greater than maximum");
-        });
-    });
-
-    describe("only", () => {
-        it("should pass", () => {
-            shouldPass(joi.validate(new BigNumber(0), joi.bignumber().only(0)));
-        });
-
-        it("should fail", () => {
-            shouldFail(joi.validate(new BigNumber(0), joi.bignumber().only(1)), "is different from allowed value");
-        });
-    });
-
-    describe("integer", () => {
-        it("should pass", () => {
-            shouldPass(joi.validate(new BigNumber(1), joi.bignumber().integer()));
-        });
-
-        it("should fail", () => {
-            shouldFail(joi.validate(new BigNumber(123.456), joi.bignumber().integer()), "is not an integer");
-        });
-    });
-
-    describe("positive", () => {
-        it("should pass", () => {
-            shouldPass(joi.validate(new BigNumber(1), joi.bignumber().positive()));
-        });
-
-        it("should fail", () => {
-            shouldFail(joi.validate(new BigNumber(-1), joi.bignumber().positive()), "is not positive");
-        });
-    });
-
-    describe("convert", () => {
-        it("should convert number to Bignumber", () => {
-            const { value, error } = joi.validate(1000, joi.bignumber().integer());
-            expect(error).toBeNull();
-            expect(value).toBeInstanceOf(BigNumber);
-            expect(value).toEqual(new BigNumber(1000));
-        });
-
-        it("should convert string to Bignumber", () => {
-            const { value, error } = joi.validate("1000", joi.bignumber().integer());
-            expect(error).toBeNull();
-            expect(value).toBeInstanceOf(BigNumber);
-            expect(value).toEqual(new BigNumber(1000));
+            const validate = ajv.compile(schema);
+            expect(validate(data)).toBeTrue();
+            expect(data.amount).toBeInstanceOf(Bignum);
+            expect(data.amount).toEqual(new Bignum(100));
         });
     });
 });
