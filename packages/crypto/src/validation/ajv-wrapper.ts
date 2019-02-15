@@ -1,0 +1,46 @@
+import Ajv from "ajv";
+import ajvKeywords from "ajv-keywords";
+import ajvMerge from "ajv-merge-patch";
+
+import { ITransactionSchema } from "../models";
+import { keywords } from "./keywords";
+import { schemas } from "./schemas";
+
+class AjvWrapper {
+    private ajv: Ajv.Ajv;
+    private transactionSchemas = new Set<string>();
+
+    constructor() {
+        const ajv = new Ajv({ $data: true, schemas, removeAdditional: true });
+        ajvKeywords(ajv);
+        ajvMerge(ajv);
+
+        keywords.forEach(addKeyword => {
+            addKeyword(ajv);
+        });
+    }
+
+    public instance(): Ajv.Ajv {
+        return this.ajv;
+    }
+
+    public extendTransaction(schema: ITransactionSchema) {
+        this.transactionSchemas.add(schema.name);
+
+        this.joi = this.joi.extend(schema);
+        this.updateTransactionArray();
+    }
+
+    private updateTransactionArray() {
+        const transactionSchemas = [...this.transactionSchemas].map(schema => this.joi[schema]());
+
+        const transactionArray = {
+            name: "transactionArray",
+            base: this.joi.array().items(this.joi.alternatives().try(transactionSchemas)),
+        };
+
+        this.joi = this.joi.extend(transactionArray).extend(schemas.block);
+    }
+}
+
+export const ajvWrapper = new AjvWrapper();
