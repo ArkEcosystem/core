@@ -2,7 +2,7 @@ import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 import ajvMerge from "ajv-merge-patch";
 
-import { ISchemaValidationResult, ITransactionData } from "../models";
+import { ISchemaValidationResult } from "../models";
 import { signedSchema, TransactionSchema } from "../transactions/types/schemas";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
