@@ -203,7 +203,6 @@ heading "Installing Ark Core..."
 
 yarn global add @arkecosystem/core@alpha
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
-exec "$BASH"
 ark config:publish
 
 success "Installed Ark Core!"
@@ -248,3 +247,5 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
         sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
     fi
 fi
+
+exec "$BASH"
