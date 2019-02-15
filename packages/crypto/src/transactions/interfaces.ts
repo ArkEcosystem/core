@@ -63,7 +63,7 @@ export interface ISchemaContext {
     isGenesis?: boolean;
 }
 
-export interface ISchemaValidationResult {
-    value: ITransactionData;
+export interface ISchemaValidationResult<T = any> {
+    value: T;
     error: any;
 }

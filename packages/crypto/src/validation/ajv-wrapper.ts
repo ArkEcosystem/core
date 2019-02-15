@@ -2,6 +2,7 @@ import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 import ajvMerge from "ajv-merge-patch";
 
+import { ISchemaValidationResult } from "../models";
 import { TransactionSchema } from "../transactions/types/schemas";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
@@ -30,6 +31,12 @@ class AjvWrapper {
         this.transactionSchemas.add(schema.$id);
         this.ajv.addSchema(schema);
         this.updateTransactionArray();
+    }
+
+    public validate<T = any>(schemaName: string, data: T): ISchemaValidationResult<T> {
+        const valid = this.ajv.validate(schemaName, data);
+        const error = this.ajv.errors !== null ? this.ajv.errorsText() : null;
+        return { value: data, error };
     }
 
     private updateTransactionArray() {

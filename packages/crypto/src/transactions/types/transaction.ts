@@ -50,7 +50,7 @@ export abstract class Transaction {
     public static fromData(data: ITransactionData): Transaction {
         const { value, error } = this.validateSchema(data);
         if (error !== null) {
-            throw new TransactionSchemaError(error.message);
+            throw new TransactionSchemaError(error);
         }
 
         const transaction = TransactionRegistry.create(value);
@@ -219,10 +219,7 @@ export abstract class Transaction {
         const context = this.getSchemaContext(data.id, schemaContext);
 
         const { $id } = TransactionRegistry.get(data.type).getSchema();
-        const valid = AjvWrapper.instance().validate($id, data);
-
-        return { value: data, error: null };
-        // const { value, error } = JoiWrapper.instance().validate(data, base, { context, stripUnknown: true });
+        return AjvWrapper.validate<ITransactionData>($id, data);
     }
 
     private static getSchemaContext(transactionId: string, context: ISchemaContext): ISchemaContext {
