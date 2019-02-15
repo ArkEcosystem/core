@@ -18,6 +18,8 @@ class AjvWrapper {
         keywords.forEach(addKeyword => {
             addKeyword(ajv);
         });
+
+        this.ajv = ajv;
     }
 
     public instance(): Ajv.Ajv {
