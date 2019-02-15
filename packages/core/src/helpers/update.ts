@@ -4,15 +4,17 @@ import cli from "cli-ux";
 import { shell } from "execa";
 import { closeSync, openSync, statSync } from "fs";
 import { ensureDirSync, removeSync } from "fs-extra";
-import got from "got";
+import latestVersion from "latest-version";
 import { join } from "path";
 import prompts from "prompts";
 import semver from "semver";
 
 async function getVersionFromNode(name: string, channel: string): Promise<string> {
-    const { body } = await got(`https://registry.npmjs.org/${name}`);
-
-    return JSON.parse(body)["dist-tags"][channel];
+    try {
+        return latestVersion(name, { version: channel });
+    } catch (error) {
+        return undefined;
+    }
 }
 
 function ensureCacheFile(config: IConfig): string {
