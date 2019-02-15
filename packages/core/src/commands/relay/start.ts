@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";

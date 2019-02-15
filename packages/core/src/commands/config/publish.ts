@@ -59,6 +59,10 @@ $ ark config:publish --network=mainnet
     private async performPublishment(flags: Record<string, any>): Promise<void> {
         const corePaths = await this.getPaths(flags);
 
+        if (!this.isValidNetwork(flags.network)) {
+            this.error(`The given network "${flags.network}" is not valid.`);
+        }
+
         const coreConfigDest = corePaths.config;
         const coreConfigSrc = resolve(__dirname, `../../../bin/config/${flags.network}`);
 

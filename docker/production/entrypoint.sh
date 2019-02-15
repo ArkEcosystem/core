@@ -20,7 +20,7 @@ start_relay ()
 
 config_bip38 ()
 {
-    ~/.yarn/bin/ark config:forger:bip38 --bip38 "$SECRET" --password "$CORE_FORGER_PASSWORD"
+    ~/.yarn/bin/ark config:forger:bip38 --bip39 "$SECRET" --password "$CORE_FORGER_PASSWORD"
 }
 
 config_bip39 ()

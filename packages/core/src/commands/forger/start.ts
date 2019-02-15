@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
 import { AbstractStartCommand } from "../../shared/start";
 import { BaseCommand } from "../command";
@@ -47,7 +46,7 @@ $ ark forger:start --no-daemon
                         CORE_FORGER_PASSWORD: password,
                     },
                 },
-                flags.daemon,
+                flags,
             );
         } catch (error) {
             this.error(error.message);

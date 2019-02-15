@@ -132,7 +132,7 @@ export abstract class BaseCommand extends Command {
         if (process.env.CORE_PATH_CONFIG) {
             const network = process.env.CORE_PATH_CONFIG.split("/").pop();
 
-            if (Object.keys(networks).includes(network)) {
+            if (this.isValidNetwork(network)) {
                 flags.network = network;
                 return;
             }
@@ -158,7 +158,7 @@ export abstract class BaseCommand extends Command {
                         name: "network",
                         message: "What network do you want to operate on?",
                         choices: folders
-                            .filter(folder => Object.keys(networks).includes(folder))
+                            .filter(folder => this.isValidNetwork(folder))
                             .map(folder => ({ title: folder, value: folder })),
                     },
                     {
@@ -241,5 +241,9 @@ export abstract class BaseCommand extends Command {
         }
 
         return { bip38, password };
+    }
+
+    protected isValidNetwork(network: string): boolean {
+        return Object.keys(networks).includes(network);
     }
 }

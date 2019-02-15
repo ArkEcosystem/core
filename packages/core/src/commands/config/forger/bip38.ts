@@ -46,6 +46,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
                 type: "password",
                 name: "password",
                 message: "Please enter your desired BIP38 password",
+                validate: value => (typeof value !== "string" ? `The BIP38 password has to be a string.` : true),
             },
             {
                 type: "confirm",
