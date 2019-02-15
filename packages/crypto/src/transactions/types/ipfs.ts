@@ -9,7 +9,7 @@ export class IpfsTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Ipfs;
 
     public static getSchema(): schemas.TransactionSchema {
-        return schemas.transfer;
+        return schemas.ipfs;
     }
 
     public serialize(): ByteBuffer {

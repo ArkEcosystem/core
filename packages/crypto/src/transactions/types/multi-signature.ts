@@ -15,7 +15,7 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiSignature;
 
     public static getSchema(): schemas.TransactionSchema {
-        return schemas.transfer;
+        return schemas.multiSignature;
     }
 
     public serialize(): ByteBuffer {

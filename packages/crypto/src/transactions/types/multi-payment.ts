@@ -11,7 +11,7 @@ export class MultiPaymentTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiPayment;
 
     public static getSchema(): schemas.TransactionSchema {
-        return schemas.transfer;
+        return schemas.multiPayment;
     }
 
     public serialize(): ByteBuffer {

@@ -9,7 +9,7 @@ export class DelegateResignationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.DelegateResignation;
 
     public static getSchema(): schemas.TransactionSchema {
-        return schemas.transfer;
+        return schemas.delegateResignation;
     }
 
     public serialize(): ByteBuffer {

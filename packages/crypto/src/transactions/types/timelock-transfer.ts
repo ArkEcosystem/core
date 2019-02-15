@@ -11,7 +11,7 @@ export class TimelockTransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.TimelockTransfer;
 
     public static getSchema(): schemas.TransactionSchema {
-        return schemas.transfer;
+        return schemas.timelockTransfer;
     }
 
     public serialize(): ByteBuffer {
