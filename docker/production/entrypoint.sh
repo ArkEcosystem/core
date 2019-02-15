@@ -22,7 +22,7 @@ fi
 
 # relay
 if [[ "$MODE" = "relay" ]]; then
-        ark relay:start --no-daemon
+    ark relay:start --no-daemon
 fi
 
 # forging
