@@ -1,31 +1,27 @@
 import { app } from "@arkecosystem/core-container";
-import { flags } from "@oclif/command";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
-    public static description: string = "Start the core";
+    public static description: string = "Run the core (without pm2)";
 
     public static examples: string[] = [
-        `Run core with a daemon
-$ ark core:start
+        `Run core
+$ ark core:run
 `,
         `Run core as genesis
-$ ark core:start --networkStart
+$ ark core:run --networkStart
 `,
         `Disable any discovery by other peers
-$ ark core:start --disableDiscovery
+$ ark core:run --disableDiscovery
 `,
         `Skip the initial discovery
-$ ark core:start --skipDiscovery
+$ ark core:run --skipDiscovery
 `,
         `Ignore the minimum network reach
-$ ark core:start --ignoreMinimumNetworkReach
+$ ark core:run --ignoreMinimumNetworkReach
 `,
         `Start a seed
-$ ark core:start --launchMode=seed
-`,
-        `Run core without a daemon
-$ ark core:start --no-daemon
+$ ark core:run --launchMode=seed
 `,
     ];
 

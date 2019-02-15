@@ -1,19 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { flags } from "@oclif/command";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
-    public static description: string = "Start the forger";
+    public static description: string = "Run the forger (without pm2)";
 
     public static examples: string[] = [
         `Run a forger with a bip39 passphrase
-$ ark forger:start --bip39="..."
+$ ark forger:run --bip39="..."
 `,
         `Run a forger with an encrypted bip38
-$ ark forger:start --bip38="..." --password="..."
-`,
-        `Run a forger without a daemon
-$ ark forger:start --no-daemon
+$ ark forger:run --bip38="..." --password="..."
 `,
     ];
 
