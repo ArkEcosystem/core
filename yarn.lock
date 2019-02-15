@@ -4563,7 +4563,7 @@ cli-ux@^4.4.0, cli-ux@^4.9.0:
     treeify "^1.1.0"
     tslib "^1.9.3"
 
-cli-ux@^5.0.0:
+cli-ux@^5.0.0, cli-ux@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/cli-ux/-/cli-ux-5.1.0.tgz#945c672bb835f68f590924cbf83b975743299c64"
   integrity sha512-cSBrgGkS1yDC7aHVZU9+TzLdqyvHumyyKXs3Ts4q3YKzOPFy2d9EaNkBgeV5JVR4gdCwNJuQJhYTXguewE70lA==

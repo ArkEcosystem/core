@@ -31,7 +31,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
             pm2.describe(processName, async (error, apps) => {
                 if (error) {
                     this.error(error.message);
-                    process.exit();
                 }
 
                 if (apps[0]) {
@@ -57,7 +56,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
                         if (error) {
                             this.error(error.message);
-                            process.exit();
                         }
 
                         process.exit();
@@ -77,7 +75,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
                             if (error) {
                                 this.error(error.message);
-                                process.exit();
                             }
                         },
                     );

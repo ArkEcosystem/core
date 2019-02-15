@@ -183,8 +183,8 @@ export abstract class BaseCommand extends Command {
         this.error("Please enter valid data and try again!");
     }
 
-    protected createPm2Connection(callback): void {
-        pm2.connect(error => {
+    protected createPm2Connection(callback, noDaemonMode: boolean = false): void {
+        pm2.connect(noDaemonMode, error => {
             if (error) {
                 this.error(error.message);
             }

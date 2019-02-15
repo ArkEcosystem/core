@@ -43,7 +43,6 @@
         "@types/bip39": "^2.4.1",
         "@types/bytebuffer": "^5.0.40",
         "@types/create-hash": "^1.2.0",
-        "@types/deepmerge": "^2.2.0",
         "@types/joi": "^14.3.1",
         "@types/lodash.camelcase": "^4.3.4",
         "@types/lodash.get": "^4.4.4",

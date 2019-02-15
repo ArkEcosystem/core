@@ -15,12 +15,10 @@ export abstract class AbstractLogCommand extends BaseCommand {
 
                 if (error) {
                     this.error(error.message);
-                    process.exit();
                 }
 
                 if (!apps[0]) {
                     this.warn(`The "${processName}" process is not running. No logs to be viewed!`);
-                    process.exit();
                 }
 
                 const app = apps[0].pm2_env;

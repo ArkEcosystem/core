@@ -26,8 +26,7 @@ $ ark top
                 pm2.disconnect();
 
                 if (error) {
-                    console.error(error.message);
-                    process.exit();
+                    this.error(error.message);
                 }
 
                 const table = new Table({
