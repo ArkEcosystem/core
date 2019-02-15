@@ -4,10 +4,10 @@ sudo /usr/sbin/ntpd -s
 sudo rm -rf /home/node/.config/ark-core/*
 sudo rm -rf /home/node/.local/state/ark-core/*
 sudo chown node:node -R /home/node
-~/.yarn/bin/ark config:publish --network=$NETWORK --force
+ark config:publish --network=$NETWORK --force
 sudo rm -f /home/node/.config/ark-core/$NETWORK/.env
 
-CONFIG=/home/node/.config/ark-core/$NETWORK
+
 SECRET=`openssl rsautl -decrypt -inkey /run/secrets/secret.key -in /run/secrets/secret.dat`
 CORE_FORGER_PASSWORD=`openssl rsautl -decrypt -inkey /run/secrets/bip.key -in /run/secrets/bip.dat`
 
@@ -15,27 +15,27 @@ CORE_FORGER_PASSWORD=`openssl rsautl -decrypt -inkey /run/secrets/bip.key -in /r
 
 start_relay ()
 {
-    ~/.yarn/bin/ark relay:start --no-daemon
+    ark relay:start --no-daemon
 }
 
 config_bip38 ()
 {
-    ~/.yarn/bin/ark config:forger:bip38 --bip39 "$SECRET" --password "$CORE_FORGER_PASSWORD"
+    ark config:forger:bip38 --bip39 "$SECRET" --password "$CORE_FORGER_PASSWORD"
 }
 
 config_bip39 ()
 {
-    ~/.yarn/bin/ark config:forger:bip39 --bip39 "$SECRET"
+    ark config:forger:bip39 --bip39 "$SECRET"
 }
 
 start_forger_with_bip38 ()
 {
-    ~/.yarn/bin/ark forger:start --bip38 "$SECRET" --password "$CORE_FORGER_PASSWORD"
+    ark core:start --no-daemon
 }
 
 start_forger_with_bip39 ()
 {
-    ~/.yarn/bin/ark forger:start --bip39 "$SECRET"
+    ark core:start --no-daemon
 }
 
 #configure
@@ -44,7 +44,7 @@ if [ -n "$SECRET" ] && [ -n "$CORE_FORGER_PASSWORD" ]; then
 elif [ "$MODE" = "forger" ] && [ -z "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
         echo "set SECRET and/or CORE_FORGER_PASWORD if you want to run a forger"
         exit
-elif [ -n "$CORE_FORGER_PASSWORD" ]; then
+elif [ -n "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
         config_bip39
 fi
 
@@ -62,3 +62,4 @@ elif [ "$MODE" = "forger" ] && [ -z "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" 
 elif [ "$MODE" = "forger" ] && [ -n "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
         start_forger_with_bip39
 fi
+
