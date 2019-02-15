@@ -46,12 +46,15 @@ $ ark relay:start --no-daemon
     }
 
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
-        this.runWithPm2({
-            name: `${flags.token}-relay`,
-            // @ts-ignore
-            script: this.config.options.root,
-            args: `relay:start --no-daemon ${this.flagsToStrings(flags)}`,
-        });
+        this.runWithPm2(
+            {
+                name: `${flags.token}-relay`,
+                // @ts-ignore
+                script: this.config.options.root,
+                args: `relay:start --no-daemon ${this.flagsToStrings(flags)}`,
+            },
+            flags.daemon,
+        );
     }
 
     protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {

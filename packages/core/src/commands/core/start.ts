@@ -46,16 +46,25 @@ $ ark core:start --no-daemon
     }
 
     protected async runWithDaemon(flags: Record<string, any>): Promise<void> {
-        this.runWithPm2({
-            name: `${flags.token}-core`,
-            // @ts-ignore
-            script: this.config.options.root,
-            args: `core:start --no-daemon ${this.flagsToStrings(flags)}`,
-            env: {
-                CORE_FORGER_BIP38: flags.bip38,
-                CORE_FORGER_PASSWORD: flags.password,
-            },
-        });
+        try {
+            const { bip38, password } = await this.buildBIP38(flags);
+
+            this.runWithPm2(
+                {
+                    name: `${flags.token}-core`,
+                    // @ts-ignore
+                    script: this.config.options.root,
+                    args: `core:start --no-daemon ${this.flagsToStrings(flags)}`,
+                    env: {
+                        CORE_FORGER_BIP38: bip38,
+                        CORE_FORGER_PASSWORD: password,
+                    },
+                },
+                flags.daemon,
+            );
+        } catch (error) {
+            this.error(error.message);
+        }
     }
 
     protected async runWithoutDaemon(flags: Record<string, any>): Promise<void> {
@@ -65,10 +74,7 @@ $ ark core:start --no-daemon
                 "@arkecosystem/core-blockchain": {
                     networkStart: flags.networkStart,
                 },
-                "@arkecosystem/core-forger": {
-                    bip38: flags.bip38 || process.env.CORE_FORGER_BIP38,
-                    password: flags.password || process.env.CORE_FORGER_BIP39,
-                },
+                "@arkecosystem/core-forger": await this.buildBIP38(flags),
             },
         });
     }

@@ -24,7 +24,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
     protected abstract async runWithDaemon(flags: Record<string, any>): Promise<void>;
     protected abstract async runWithoutDaemon(flags: Record<string, any>): Promise<void>;
 
-    protected runWithPm2(options: any) {
+    protected runWithPm2(options: any, daemonMode: boolean = false) {
         const processName = options.name;
 
         this.createPm2Connection(() => {
@@ -80,6 +80,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
                     );
                 }
             });
-        });
+        }, daemonMode);
     }
 }

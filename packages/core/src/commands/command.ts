@@ -3,6 +3,7 @@ import Command, { flags } from "@oclif/command";
 import envPaths from "env-paths";
 import { readdirSync } from "fs";
 import Listr from "listr";
+import { join } from "path";
 import pm2 from "pm2";
 import prompts from "prompts";
 
@@ -183,13 +184,60 @@ export abstract class BaseCommand extends Command {
         this.error("Please enter valid data and try again!");
     }
 
-    protected createPm2Connection(callback, noDaemonMode: boolean = false): void {
-        pm2.connect(noDaemonMode, error => {
+    protected createPm2Connection(callback, daemonMode: boolean = false): void {
+        pm2.connect(!daemonMode, error => {
             if (error) {
                 this.error(error.message);
             }
 
             callback();
         });
+    }
+
+    protected async buildBIP38(flags: Record<string, any>) {
+        // initial values
+        let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
+        let password = flags.password || process.env.CORE_FORGER_PASSWORD;
+
+        if (bip38 && password) {
+            return { bip38, password };
+        }
+
+        // config
+        const { config } = await this.getPaths(flags);
+        const delegates = require(join(config, "delegates.json"));
+
+        if (!bip38 && delegates.bip38) {
+            bip38 = delegates.bip38;
+        }
+
+        if (!bip38 && !delegates.secrets.length) {
+            this.error("We were unable to detect a BIP38 or BIP39 passphrase.");
+        }
+
+        // fallback
+        if (bip38 && !password) {
+            const response = await prompts([
+                {
+                    type: "password",
+                    name: "password",
+                    message: "Please enter your BIP38 password",
+                },
+                {
+                    type: "confirm",
+                    name: "confirm",
+                    message: "Can you confirm?",
+                    initial: true,
+                },
+            ]);
+
+            if (!response.password) {
+                this.error("We've detected that you are using BIP38 but have not provided the password flag.");
+            }
+
+            password = response.password;
+        }
+
+        return { bip38, password };
     }
 }
