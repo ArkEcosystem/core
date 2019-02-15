@@ -1,6 +1,6 @@
 import { TransactionTypes } from "../constants";
 import { NotImplementedError, TransactionAlreadyRegisteredError, UnkownTransactionError } from "../errors";
-import { JoiWrapper } from "../validation";
+import { AjvWrapper } from "../validation";
 import { ITransactionData } from "./interfaces";
 import {
     DelegateRegistrationTransaction,
@@ -68,7 +68,7 @@ class TransactionRegistry {
 
     private updateSchemas(transactionClass: TransactionConstructor) {
         const schema = transactionClass.getSchema();
-        JoiWrapper.extendTransaction(schema);
+        AjvWrapper.extendTransaction(schema);
     }
 }
 

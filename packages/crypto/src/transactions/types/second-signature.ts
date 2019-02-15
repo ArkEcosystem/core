@@ -8,7 +8,7 @@ import { Transaction } from "./transaction";
 export class SecondSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.SecondSignature;
 
-    protected static getTypeSchema(): schemas.TransactionSchema {
+    public static getSchema(): schemas.TransactionSchema {
         return schemas.secondSignature;
     }
 

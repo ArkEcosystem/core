@@ -14,7 +14,7 @@ import { Transaction } from "./transaction";
 export class MultiSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiSignature;
 
-    protected static getTypeSchema(): schemas.TransactionSchema {
+    public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;
     }
 

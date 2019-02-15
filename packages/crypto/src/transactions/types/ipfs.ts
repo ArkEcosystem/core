@@ -8,7 +8,7 @@ import { Transaction } from "./transaction";
 export class IpfsTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Ipfs;
 
-    protected static getTypeSchema(): schemas.TransactionSchema {
+    public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;
     }
 

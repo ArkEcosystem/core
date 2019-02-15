@@ -9,7 +9,7 @@ import { Transaction } from "./transaction";
 export class TransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.Transfer;
 
-    protected static getTypeSchema(): schemas.TransactionSchema {
+    public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;
     }
 

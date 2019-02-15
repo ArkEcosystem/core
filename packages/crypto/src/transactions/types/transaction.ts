@@ -211,10 +211,14 @@ export abstract class Transaction {
     /**
      * Schema
      */
+    public static getSchema(): TransactionSchema {
+        throw new NotImplementedError();
+    }
+
     private static validateSchema(data: ITransactionData, schemaContext?: ISchemaContext): ISchemaValidationResult {
         const context = this.getSchemaContext(data.id, schemaContext);
 
-        const { $id } = TransactionRegistry.get(data.type).getTypeSchema();
+        const { $id } = TransactionRegistry.get(data.type).getSchema();
         const valid = AjvWrapper.instance().validate($id, data);
 
         return { value: data, error: null };
@@ -223,9 +227,5 @@ export abstract class Transaction {
 
     private static getSchemaContext(transactionId: string, context: ISchemaContext): ISchemaContext {
         return { fromData: true, isGenesis: isGenesisTransaction(transactionId), ...context };
-    }
-
-    protected static getTypeSchema(): TransactionSchema {
-        throw new NotImplementedError();
     }
 }

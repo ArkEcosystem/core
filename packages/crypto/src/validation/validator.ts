@@ -1,30 +1,11 @@
-import Joi from "joi";
-import { schemas } from "./schemas";
+import { AjvWrapper } from ".";
 
 export class Validator {
-    public static joi: any;
-
-    public static init(): void {
-        const extensions = Object.values(schemas);
-        this.joi = Joi.extend(extensions);
-    }
-
-    public static validate(attributes, rules, options?) {
+    public static validate(data, schema, options?) {
         try {
-            return this.joi.validate(
-                attributes,
-                rules,
-                Object.assign(
-                    {
-                        convert: true,
-                    },
-                    options,
-                ),
-            );
+            return AjvWrapper.instance().validate(data, schema);
         } catch (error) {
             return { value: null, error: error.stack };
         }
     }
 }
-
-Validator.init();

@@ -8,7 +8,7 @@ import { Transaction } from "./transaction";
 export class DelegateResignationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.DelegateResignation;
 
-    protected static getTypeSchema(): schemas.TransactionSchema {
+    public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;
     }
 
