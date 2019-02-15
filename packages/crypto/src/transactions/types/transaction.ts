@@ -18,7 +18,7 @@ import { Wallet } from "../../models/wallet";
 import { Bignum, isException, isGenesisTransaction } from "../../utils";
 import { AjvWrapper } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
-import { ISchemaContext, ISchemaValidationResult, ITransactionData } from "../interfaces";
+import { ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { TransactionSerializer } from "../serializers";
 import { TransactionSchema } from "./schemas";
 
@@ -215,14 +215,9 @@ export abstract class Transaction {
         throw new NotImplementedError();
     }
 
-    private static validateSchema(data: ITransactionData, schemaContext?: ISchemaContext): ISchemaValidationResult {
-        const context = this.getSchemaContext(data.id, schemaContext);
-
+    private static validateSchema(data: ITransactionData, signed?: boolean): ISchemaValidationResult {
         const { $id } = TransactionRegistry.get(data.type).getSchema();
-        return AjvWrapper.validate<ITransactionData>($id, data);
-    }
-
-    private static getSchemaContext(transactionId: string, context: ISchemaContext): ISchemaContext {
-        return { fromData: true, isGenesis: isGenesisTransaction(transactionId), ...context };
+        const name = signed ? `${$id}Signed` : $id;
+        return AjvWrapper.validate(name, data);
     }
 }

@@ -2,8 +2,8 @@ import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 import ajvMerge from "ajv-merge-patch";
 
-import { ISchemaValidationResult } from "../models";
-import { TransactionSchema } from "../transactions/types/schemas";
+import { ISchemaValidationResult, ITransactionData } from "../models";
+import { signedSchema, TransactionSchema } from "../transactions/types/schemas";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
 
@@ -30,6 +30,8 @@ class AjvWrapper {
     public extendTransaction(schema: TransactionSchema) {
         this.transactionSchemas.add(schema.$id);
         this.ajv.addSchema(schema);
+        this.ajv.addSchema(signedSchema(schema));
+
         this.updateTransactionArray();
     }
 

@@ -58,11 +58,6 @@ export interface ITransactionData {
     payments?: { [key: string]: any };
 }
 
-export interface ISchemaContext {
-    fromData?: boolean;
-    isGenesis?: boolean;
-}
-
 export interface ISchemaValidationResult<T = any> {
     value: T;
     error: any;

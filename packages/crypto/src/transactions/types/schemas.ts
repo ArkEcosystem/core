@@ -7,17 +7,21 @@ const extend = (parent, properties): TransactionSchema => {
 
 export type TransactionSchema = typeof transactionBaseSchema;
 
+export const signedSchema = (schema: TransactionSchema): TransactionSchema => {
+    const signed = extend(schema, signedTransaction);
+    signed.$id = `${schema.$id}Signed`;
+    return signed;
+};
+
 const transactionBaseSchema = {
     $id: null,
     type: "object",
-    required: ["type", "senderPublicKey", "amount", "fee", "timestamp"],
+    required: ["type", "senderPublicKey", "fee", "timestamp"],
     additionalProperties: false,
     properties: {
-        // id: { $ref: "transactionId" },
         version: { enum: [1, 2] },
         network: { type: "integer" },
         expiration: { type: "integer" },
-        type: { type: "integer", minimum: 0, maximum: 255 },
         timestamp: { type: "integer", minimum: 0 },
         amount: { bignumber: { minimum: 1 } },
         fee: { bignumber: { minimum: 1 } },
@@ -27,9 +31,16 @@ const transactionBaseSchema = {
     },
 };
 
+const signedTransaction = {
+    required: ["id", "signature"],
+    properties: {
+        id: { $ref: "transactionId" },
+    },
+};
+
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
-    required: ["recipientId"],
+    required: ["recipientId", "amount"],
     properties: {
         type: { transactionType: TransactionTypes.Transfer },
         vendorField: { type: "string", maxBytes: 64 },
@@ -90,6 +101,7 @@ export const vote = extend(transactionBaseSchema, {
                 votes: {
                     type: "array",
                     minItems: 1,
+                    maxItems: 1,
                     additionalItems: false,
                     uniqueItems: true,
                     items: { $ref: "walletVote" },
