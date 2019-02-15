@@ -1,6 +1,7 @@
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
+import { TransactionSchemaAlreadyExistsError } from "../errors";
 import { ISchemaValidationResult } from "../models";
 import { signedSchema, TransactionSchema } from "../transactions/types/schemas";
 import { keywords } from "./keywords";
@@ -25,18 +26,22 @@ class AjvWrapper {
         return this.ajv;
     }
 
+    public validate<T = any>(schemaName: string, data: T): ISchemaValidationResult<T> {
+        const valid = this.ajv.validate(schemaName, data);
+        const error = this.ajv.errors !== null ? this.ajv.errorsText() : null;
+        return { value: data, error };
+    }
+
     public extendTransaction(schema: TransactionSchema) {
+        if (this.transactionSchemas.has(schema.$id)) {
+            throw new TransactionSchemaAlreadyExistsError(schema.$id);
+        }
+
         this.transactionSchemas.add(schema.$id);
         this.ajv.addSchema(schema);
         this.ajv.addSchema(signedSchema(schema));
 
         this.updateTransactionArray();
-    }
-
-    public validate<T = any>(schemaName: string, data: T): ISchemaValidationResult<T> {
-        const valid = this.ajv.validate(schemaName, data);
-        const error = this.ajv.errors !== null ? this.ajv.errorsText() : null;
-        return { value: data, error };
     }
 
     private updateTransactionArray() {

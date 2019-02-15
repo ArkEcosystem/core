@@ -102,6 +102,12 @@ export class TransactionAlreadyRegisteredError extends CryptoError {
     }
 }
 
+export class TransactionSchemaAlreadyExistsError extends CryptoError {
+    constructor(name: string) {
+        super(`Schema ${name} is already registered.`);
+    }
+}
+
 export class MaximumPaymentCountExceededError extends CryptoError {
     constructor(given: number) {
         super(`Expected a maximum of 2258 payments, but got ${given}.`);
