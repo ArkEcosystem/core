@@ -30,10 +30,11 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.1",
         "@arkecosystem/core-container": "^2.1.1",
+        "@arkecosystem/core-interfaces": "^2.1.1",
         "@arkecosystem/core-utils": "^2.1.1",
         "@arkecosystem/crypto": "^2.1.1",
+        "@arkecosystem/utils": "^0.2.3",
         "@types/lodash.clonedeep": "^4.5.4",
         "@types/lodash.compact": "^3.0.4",
         "@types/lodash.uniq": "^4.5.4",
