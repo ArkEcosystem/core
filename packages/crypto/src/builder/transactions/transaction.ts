@@ -130,8 +130,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     public secondSign(secondPassphrase: string): TBuilder {
         if (secondPassphrase) {
             const keys = crypto.getKeys(secondPassphrase);
-            // TODO sign or second?
-            this.data.signSignature = crypto.secondSign(this.getSigningObject(), keys);
+            this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
         }
 
         return this.instance();
@@ -145,8 +144,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             const keys = crypto.getKeysFromWIF(wif, {
                 wif: networkWif || configManager.get("wif"),
             } as INetwork);
-            // TODO sign or second?
-            this.data.signSignature = crypto.secondSign(this.getSigningObject(), keys);
+            this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
         }
 
         return this.instance();
@@ -183,7 +181,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         const struct = {
             id: crypto.getId(this.data).toString(),
             signature: this.data.signature,
-            signSignature: this.data.signSignature,
+            secondSignature: this.data.secondSignature,
             timestamp: this.data.timestamp,
             version: this.data.version,
             type: this.data.type,
