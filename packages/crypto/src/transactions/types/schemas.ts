@@ -20,7 +20,7 @@ const transactionBaseSchema = {
     additionalProperties: false,
     properties: {
         version: { enum: [1, 2] },
-        network: { type: "integer" },
+        network: { $ref: "networkByte" },
         expiration: { type: "integer" },
         timestamp: { type: "integer", minimum: 0 },
         amount: { bignumber: { minimum: 1 } },

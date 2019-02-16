@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { configManager } from "../../src";
 import { TransactionTypes } from "../../src/constants";
 import { Bignum } from "../../src/utils";
 import { AjvWrapper } from "../../src/validation";
@@ -16,6 +17,33 @@ describe("keyword maxBytes", () => {
         expect(validate("a".repeat(65))).toBeFalse();
         expect(validate("⊁".repeat(21))).toBeTrue();
         expect(validate("⊁".repeat(22))).toBeFalse();
+        expect(validate({})).toBeFalse();
+        expect(validate(null)).toBeFalse();
+        expect(validate(undefined)).toBeFalse();
+    });
+});
+
+describe("keyword network", () => {
+    it("should be ok", () => {
+        const schema = { network: true };
+        const validate = ajv.compile(schema);
+
+        expect(validate(30)).toBeTrue();
+        expect(validate(23)).toBeFalse();
+        expect(validate("a")).toBeFalse();
+
+        configManager.setFromPreset("mainnet");
+
+        expect(validate(23)).toBeTrue();
+        expect(validate(30)).toBeFalse();
+
+        configManager.setFromPreset("devnet");
+
+        expect(validate(30)).toBeTrue();
+        expect(validate(23)).toBeFalse();
+        expect(validate({})).toBeFalse();
+        expect(validate(null)).toBeFalse();
+        expect(validate(undefined)).toBeFalse();
     });
 });
 
@@ -30,6 +58,7 @@ describe("keyword transactionType", () => {
         expect(validate("")).toBeFalse();
         expect(validate("0")).toBeFalse();
         expect(validate(null)).toBeFalse();
+        expect(validate(undefined)).toBeFalse();
     });
 });
 
@@ -92,6 +121,7 @@ describe("keyword bignumber", () => {
         const validate = ajv.compile(schema);
 
         expect(validate(null)).toBeFalse();
+        expect(validate(undefined)).toBeFalse();
         expect(validate({})).toBeFalse();
         expect(validate(/d+/)).toBeFalse();
         expect(validate("")).toBeFalse();

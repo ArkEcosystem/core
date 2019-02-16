@@ -28,6 +28,11 @@ export const schemas = {
         allOf: [{ minLength: 64 }, { maxLength: 64 }, { $ref: "alphanumeric" }],
     },
 
+    networkByte: {
+        $id: "networkByte",
+        network: true,
+    },
+
     address: {
         $id: "address",
         allOf: [{ $ref: "base58" }, { minLength: 34, maxLength: 34 }],

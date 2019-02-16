@@ -1,5 +1,6 @@
 import { Ajv } from "ajv";
 import ajvKeywords from "ajv-keywords";
+import { configManager } from "../managers";
 import { Bignum } from "../utils";
 
 const maxBytes = (ajv: Ajv) => {
@@ -37,6 +38,20 @@ const transactionType = (ajv: Ajv) => {
     });
 };
 
+const network = (ajv: Ajv) => {
+    ajv.addKeyword("network", {
+        compile(schema) {
+            return data => {
+                return schema && data === configManager.get("pubKeyHash");
+            };
+        },
+        errors: false,
+        metaSchema: {
+            type: "boolean",
+        },
+    });
+};
+
 const bignumber = (ajv: Ajv) => {
     const instanceOf = ajvKeywords.get("instanceof").definition;
     instanceOf.CONSTRUCTORS.Bignum = Bignum;
@@ -70,6 +85,7 @@ const bignumber = (ajv: Ajv) => {
             };
         },
         errors: false,
+        modifying: true,
         metaSchema: {
             type: "object",
             properties: {
@@ -81,4 +97,4 @@ const bignumber = (ajv: Ajv) => {
     });
 };
 
-export const keywords = [bignumber, maxBytes, transactionType];
+export const keywords = [bignumber, maxBytes, network, transactionType];
