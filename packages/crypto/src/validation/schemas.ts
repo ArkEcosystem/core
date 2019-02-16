@@ -25,7 +25,7 @@ export const schemas = {
 
     transactionId: {
         $id: "transactionId",
-        allOf: [{ minLength: 64 }, { maxLength: 64 }, { $ref: "alphanumeric" }],
+        allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "alphanumeric" }],
     },
 
     networkByte: {
@@ -35,7 +35,7 @@ export const schemas = {
 
     address: {
         $id: "address",
-        allOf: [{ $ref: "base58" }, { minLength: 34, maxLength: 34 }],
+        allOf: [{ minLength: 34, maxLength: 34 }, { $ref: "base58" }],
     },
 
     blockId: {
@@ -45,7 +45,7 @@ export const schemas = {
 
     publicKey: {
         $id: "publicKey",
-        allOf: [{ $ref: "hex" }, { minLength: 66, maxLength: 66 }, { transform: ["toLowerCase"] }],
+        allOf: [{ minLength: 66, maxLength: 66 }, { $ref: "hex" }, { transform: ["toLowerCase"] }],
     },
 
     walletVote: {
@@ -60,5 +60,40 @@ export const schemas = {
             { minLength: 1, maxLength: 20 },
             { transform: ["toLowerCase"] },
         ],
+    },
+
+    block: {
+        $id: "block",
+        type: "object",
+        required: [
+            "id",
+            "timestamp",
+            "previousBlock",
+            "height",
+            "totalAmount",
+            "totalFee",
+            "reward",
+            "generatorPublicKey",
+            "blockSignature",
+        ],
+        additionalProperties: false,
+        properties: {
+            id: { $ref: "blockId" },
+            idHex: { $ref: "hex" },
+            version: { type: "integer", minimum: 0 },
+            timestamp: { type: "integer", minimum: 0 },
+            previousBlock: { $ref: "blockId" },
+            previousBlockHex: { $ref: "hex" },
+            height: { type: "integer", minimum: 1 },
+            numberOfTransactions: {},
+            totalAmount: { bignumber: { minimum: 0, bypassGenesis: true } },
+            totalFee: { bignumber: { minimum: 0, bypassGenesis: true } },
+            reward: { bignumber: { minimum: 0 } },
+            payloadLength: { type: "integer", minimum: 0 },
+            payloadHash: { $ref: "hex" },
+            generatorPublicKey: { $ref: "publicKey" },
+            blockSignature: { $ref: "hex" },
+            transactions: { $ref: "transactions" },
+        },
     },
 };
