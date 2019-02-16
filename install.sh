@@ -203,6 +203,7 @@ heading "Installing Ark Core..."
 
 yarn global add @arkecosystem/core@alpha
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
+export PATH=$(yarn global bin):$PATH
 ark config:publish
 
 success "Installed Ark Core!"
