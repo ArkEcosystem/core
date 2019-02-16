@@ -12,7 +12,7 @@ class AjvWrapper {
     private transactionSchemas = new Set<string>();
 
     constructor() {
-        const ajv = new Ajv({ $data: true, schemas, removeAdditional: true });
+        const ajv = new Ajv({ $data: true, schemas, removeAdditional: true, extendRefs: true });
         ajvKeywords(ajv);
 
         keywords.forEach(addKeyword => {
