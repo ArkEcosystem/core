@@ -165,4 +165,24 @@ describe("keyword bignumber", () => {
             expect(data.amount).toEqual(new Bignum(100));
         });
     });
+
+    describe("bypassGenesis", () => {
+        it("should be ok", () => {
+            const schema = {
+                type: "object",
+                properties: {
+                    amount: { bignumber: { minimum: 100, bypassGenesis: true } },
+                },
+            };
+
+            const validate = ajv.compile(schema);
+            expect(
+                validate({ amount: 0, id: "3e3817fd0c35bc36674f3874c2953fa3e35877cbcdb44a08bdc6083dbd39d572" }),
+            ).toBeTrue();
+            expect(
+                validate({ amount: 0, id: "affe17fd0c35bc36674f3874c2953fa3e35877cbcdb44a08bdc6083dbd39d572" }),
+            ).toBeFalse();
+            expect(validate({ amount: 0 })).toBeFalse();
+        });
+    });
 });
