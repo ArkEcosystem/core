@@ -9,7 +9,7 @@ import { ITransactionData } from "../../src/models";
 import { Delegate } from "../../src/models/delegate";
 import { Wallet } from "../../src/models/wallet";
 import { INetwork, testnet } from "../../src/networks";
-import { Bignum } from "../../src/utils/bignum";
+import { Bignum } from "../../src/utils";
 import { sortTransactions } from "../../src/utils/sort-transactions";
 
 const dummy = {

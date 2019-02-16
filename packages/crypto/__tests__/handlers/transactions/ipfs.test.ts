@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { IpfsHandler } from "../../../src/handlers/transactions/ipfs";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 import { transaction as originalTransaction } from "./__fixtures__/transaction";
 import { wallet as originalWallet } from "./__fixtures__/wallet";
 

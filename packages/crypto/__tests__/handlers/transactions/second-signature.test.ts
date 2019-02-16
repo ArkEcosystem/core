@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { SecondSignatureHandler } from "../../../src/handlers/transactions/second-signature";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 
 const handler = new SecondSignatureHandler();
 

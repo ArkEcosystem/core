@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { VoteHandler } from "../../../src/handlers/transactions/vote";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 
 const handler = new VoteHandler();
 

@@ -3,7 +3,7 @@ import "jest-extended";
 import { crypto } from "../../../src/crypto";
 import { MultiSignatureHandler } from "../../../src/handlers/transactions/multi-signature";
 import { Wallet } from "../../../src/models/wallet";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 import { transactionValidator } from "../../../src/validation";
 
 const handler = new MultiSignatureHandler();

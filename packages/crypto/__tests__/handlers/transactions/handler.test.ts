@@ -8,7 +8,7 @@ import { SecondSignatureHandler } from "../../../src/handlers/transactions/secon
 import { TransferHandler } from "../../../src/handlers/transactions/transfer";
 import { VoteHandler } from "../../../src/handlers/transactions/vote";
 import { configManager } from "../../../src/managers";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 
 let wallet;
 let transaction;

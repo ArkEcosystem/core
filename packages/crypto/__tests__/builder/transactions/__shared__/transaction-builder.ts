@@ -1,7 +1,7 @@
 import { TransactionBuilder } from "../../../../src/builder/transactions/transaction";
 import { crypto, slots } from "../../../../src/crypto";
 import { Transaction } from "../../../../src/models/transaction";
-import { Bignum } from "../../../../src/utils/bignum";
+import { Bignum } from "../../../../src/utils";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {

@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { DelegateResignationHandler } from "../../../src/handlers/transactions/delegate-resignation";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 import { transaction as originalTransaction } from "./__fixtures__/transaction";
 import { wallet as originalWallet } from "./__fixtures__/wallet";
 
