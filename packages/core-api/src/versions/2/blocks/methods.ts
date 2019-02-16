@@ -5,8 +5,8 @@ import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-const blocksRepository = databaseService.blocks;
-const transactionsRepository = databaseService.transactions;
+const blocksRepository = databaseService.blocksBusinessRepository;
+const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {
     const blocks = await blocksRepository.findAll({

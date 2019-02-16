@@ -74,9 +74,12 @@ export abstract class Repository implements Database.IRepository {
     }
 
     protected propToColumnName(prop: string): string {
-        const columnSet = this.model.getColumnSet() as any[];
-        const columnDef = columnSet.find(value => value.prop === prop);
-        return columnDef ? columnDef.name : null;
+        if(prop) {
+            const columnSet = this.model.getColumnSet();
+            const columnDef = columnSet.columns.find(col => col.prop === prop || col.name === prop);
+            return columnDef ? columnDef.name : null;
+        }
+        return prop;
     }
 
     protected async find(query): Promise<any> {

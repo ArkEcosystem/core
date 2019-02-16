@@ -58,7 +58,11 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
 
     private parseSearchParameters(searchParameters: Database.SearchParameters, params: any) {
         const searchableFields = this.databaseModel.getSearchableFields();
-        const mapByFieldName = searchableFields.reduce((p, c) => p[c.fieldName] = c, {});
+        const mapByFieldName = searchableFields.reduce((p, c) => {
+            const map = {};
+            map[c.fieldName] = c;
+            return Object.assign(map, p);
+        }, {});
         /*
             orderBy, limit and offset are parsed earlier.
             page, pagination are added automatically by hapi-pagination

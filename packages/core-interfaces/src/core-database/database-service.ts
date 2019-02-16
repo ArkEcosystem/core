@@ -16,9 +16,9 @@ export interface IDatabaseService {
 
     delegates: IDelegatesBusinessRepository;
 
-    blocks: IBlocksBusinessRepository;
+    blocksBusinessRepository: IBlocksBusinessRepository;
 
-    transactions: ITransactionsBusinessRepository;
+    transactionsBusinessRepository: ITransactionsBusinessRepository;
 
     connection: IDatabaseConnection;
 
