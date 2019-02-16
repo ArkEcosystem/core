@@ -2,6 +2,7 @@ import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
+// TODO: Deprecate this with v1 code
 export class BlockRepository extends Repository implements IRepository {
     constructor() {
         super();

@@ -20,6 +20,11 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         return await this.findAll(params);
     }
 
+    public async findLastByPublicKey(generatorPublicKey: string) {
+        // we order by height,desc by default
+        return await this.findAll({ generatorPublicKey});
+    }
+
     public async findByHeight(height: number) {
         const params = { ...{ height } };
         return await this.findAll(params);

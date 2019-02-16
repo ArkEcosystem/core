@@ -3,6 +3,8 @@ import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import snakeCase from "lodash/snakeCase";
 import { IRepository } from "../interfaces";
 
+
+// TODO: Deprecate this with v1
 export abstract class Repository implements IRepository {
     public databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     public cache = this.databaseService.cache;

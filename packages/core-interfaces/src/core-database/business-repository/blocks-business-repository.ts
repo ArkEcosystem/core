@@ -1,4 +1,4 @@
-import { SearchPaginate } from "../search/search-parameters";
+import { SearchPaginate } from "../search";
 
 export interface IBlocksBusinessRepository {
 
@@ -7,4 +7,5 @@ export interface IBlocksBusinessRepository {
     findById(id: string): Promise<any>;
     findByHeight(height: number): Promise<any>;
     findAllByGenerator(generatorPublicKey: string, paginate: SearchPaginate);
+    findLastByPublicKey(generatorPublicKey: string): Promise<any>;
 }
