@@ -58,7 +58,7 @@ export abstract class BaseCommand extends Command {
 
     protected tasks: Array<{ title: string; task: any }> = [];
 
-    protected buildPeerOptions(flags) {
+    protected buildPeerOptions(flags: Record<string, any>) {
         const config = {
             networkStart: flags.networkStart,
             disableDiscovery: flags.disableDiscovery,
@@ -110,11 +110,11 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected getEnvPaths(flags): envPaths.Paths {
+    protected getEnvPaths(flags: Record<string, any>): envPaths.Paths {
         return envPaths(flags.token, { suffix: "core" });
     }
 
-    protected async getPaths(flags): Promise<envPaths.Paths> {
+    protected async getPaths(flags: Record<string, any>): Promise<envPaths.Paths> {
         if (!flags.network) {
             await this.getNetwork(flags);
         }
@@ -128,9 +128,9 @@ export abstract class BaseCommand extends Command {
         return paths;
     }
 
-    protected async getNetwork(flags): Promise<void> {
+    protected async getNetwork(flags: Record<string, any>): Promise<void> {
         if (process.env.CORE_PATH_CONFIG) {
-            const network = process.env.CORE_PATH_CONFIG.split("/").pop();
+            const network: string = process.env.CORE_PATH_CONFIG.split("/").pop();
 
             if (this.isValidNetwork(network)) {
                 flags.network = network;
@@ -141,7 +141,7 @@ export abstract class BaseCommand extends Command {
         const { config } = this.getEnvPaths(flags);
 
         try {
-            const folders = readdirSync(config);
+            const folders: string[] = readdirSync(config);
 
             if (!folders || folders.length === 0) {
                 this.error(
@@ -196,7 +196,7 @@ export abstract class BaseCommand extends Command {
         });
     }
 
-    protected async buildBIP38(flags: Record<string, any>) {
+    protected async buildBIP38(flags: Record<string, any>): Promise<Record<string, string>> {
         // initial values
         let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
         let password = flags.password || process.env.CORE_FORGER_PASSWORD;

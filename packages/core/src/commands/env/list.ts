@@ -1,6 +1,7 @@
 import Table from "cli-table3";
 import envfile from "envfile";
 import { existsSync } from "fs-extra";
+import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class ListCommand extends BaseCommand {
@@ -26,18 +27,13 @@ $ ark env:list
             throw new Error(`No environment file found at ${envFile}`);
         }
 
-        const env = envfile.parseFileSync(envFile);
+        renderTable(["Key", "Value"], (table: Table.Table) => {
+            const env = envfile.parseFileSync(envFile);
 
-        const table = new Table({
-            head: ["Key", "Value"],
-            chars: { mid: "", "left-mid": "", "mid-mid": "", "right-mid": "" },
+            for (const [key, value] of Object.entries(env)) {
+                // @ts-ignore
+                table.push([key, value]);
+            }
         });
-
-        for (const [key, value] of Object.entries(env)) {
-            // @ts-ignore
-            table.push([key, value]);
-        }
-
-        console.log(table.toString());
     }
 }

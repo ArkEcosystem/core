@@ -1,4 +1,5 @@
 import Table from "cli-table3";
+import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class PathsCommand extends BaseCommand {
@@ -15,15 +16,13 @@ $ ark env:paths
     };
 
     public async run(): Promise<void> {
-        const paths = await this.getPaths(this.parse(PathsCommand).flags);
+        renderTable(["Type", "Path"], async (table: Table.Table) => {
+            const paths = await this.getPaths(this.parse(PathsCommand).flags);
 
-        const table = new Table({ head: ["Type", "Path"] });
-
-        for (const [type, path] of Object.entries(paths)) {
-            // @ts-ignore
-            table.push([type, path]);
-        }
-
-        console.log(table.toString());
+            for (const [type, path] of Object.entries(paths)) {
+                // @ts-ignore
+                table.push([type, path]);
+            }
+        });
     }
 }
