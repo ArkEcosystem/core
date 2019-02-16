@@ -62,79 +62,79 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
         // Only consider fields that this model supports.
         Object.keys(params).filter(value => !["orderBy", "limit", "offset"].includes(value))
             .forEach(fieldName => {
-            const fieldDescriptor = mapByFieldName[fieldName] as Database.SearchableField;
+                const fieldDescriptor = mapByFieldName[fieldName] as Database.SearchableField;
 
-            /* null op means that the business repo doesn't know how to categorize what to do w/ with this field so
-            let the repo layer decide how it will handle querying this field
-            i.e Transactions repo, when parameters contains 'ownerId', some extra logic is done.
-             */
-            if(!fieldDescriptor) {
-                searchParameters.parameters.push({
-                    field: fieldName,
-                    operator: null,
-                    value: params[fieldName]
-                });
-                return;
-            }
+                /* null op means that the business repo doesn't know how to categorize what to do w/ with this field so
+                let the repo layer decide how it will handle querying this field
+                i.e Transactions repo, when parameters contains 'ownerId', some extra logic is done.
+                 */
+                if (!fieldDescriptor) {
+                    searchParameters.parameters.push({
+                        field: fieldName,
+                        operator: null,
+                        value: params[fieldName]
+                    });
+                    return;
+                }
 
-            // if the field supports EQ, then ignore any others.
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_EQ)) {
-                searchParameters.parameters.push({
-                    field: fieldName,
-                    operator: Database.SearchOperator.OP_EQ,
-                    value: params[fieldName]
-                });
-                return;
-            }
+                if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LIKE)) {
+                    searchParameters.parameters.push({
+                        field: fieldName,
+                        operator: Database.SearchOperator.OP_LIKE,
+                        value: `%${params[fieldName]}%`
+                    });
+                    return;
+                }
 
-            // 'between'
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_GTE) ||
-                fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LTE)) {
-                // check if we have 'to' & 'from', if not, default to OP_EQ
-                if (!params[fieldName].hasOwnProperty("from") && !params[fieldName].hasOwnProperty("to")) {
+                // 'between'
+                if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_GTE) ||
+                    fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LTE)) {
+                    // check if we have 'to' & 'from', if not, default to OP_EQ
+                    if (!params[fieldName].hasOwnProperty("from") && !params[fieldName].hasOwnProperty("to")) {
+                        searchParameters.parameters.push({
+                            field: fieldName,
+                            operator: Database.SearchOperator.OP_EQ,
+                            value: params[fieldName]
+                        });
+                        return;
+                    } else {
+                        if (params[fieldName].hasOwnProperty("from")) {
+                            searchParameters.parameters.push({
+                                field: fieldName,
+                                operator: Database.SearchOperator.OP_GTE,
+                                value: params[fieldName].from
+                            })
+                        }
+                        if (params[fieldName].hasOwnProperty("to")) {
+                            searchParameters.parameters.push({
+                                field: fieldName,
+                                operator: Database.SearchOperator.OP_LTE,
+                                value: params[fieldName].to
+                            })
+                        }
+                        return;
+                    }
+                }
+
+                // If we support 'IN', then the value must be an array(of values)
+                if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_IN) && Array.isArray(params[fieldName])) {
+                    searchParameters.parameters.push({
+                        field: fieldName,
+                        operator: Database.SearchOperator.OP_IN,
+                        value: params[fieldName]
+                    });
+                    return;
+                }
+
+                // if the field supports EQ, then ignore any others.
+                if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_EQ)) {
                     searchParameters.parameters.push({
                         field: fieldName,
                         operator: Database.SearchOperator.OP_EQ,
                         value: params[fieldName]
                     });
                     return;
-                } else {
-                    if (params[fieldName].hasOwnProperty("from")) {
-                        searchParameters.parameters.push({
-                            field: fieldName,
-                            operator: Database.SearchOperator.OP_GTE,
-                            value: params[fieldName].from
-                        })
-                    }
-                    if (params[fieldName].hasOwnProperty("to")) {
-                        searchParameters.parameters.push({
-                            field: fieldName,
-                            operator: Database.SearchOperator.OP_LTE,
-                            value: params[fieldName].to
-                        })
-                    }
-                    return;
                 }
-            }
-
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_IN)) {
-                searchParameters.parameters.push({
-                    field: fieldName,
-                    operator: Database.SearchOperator.OP_IN,
-                    value: params[fieldName]
-                });
-                return;
-            }
-
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LIKE)) {
-                searchParameters.parameters.push({
-                    field: fieldName,
-                    operator: Database.SearchOperator.OP_LIKE,
-                    value: params[fieldName]
-                });
-                return;
-            }
-
-        });
+            });
     }
 }

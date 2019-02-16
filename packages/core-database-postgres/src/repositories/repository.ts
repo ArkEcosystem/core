@@ -3,7 +3,7 @@ import { Model } from "../models";
 
 export abstract class Repository implements Database.IRepository {
     protected model: Model;
-    protected queryModel;
+    protected q;
 
     /**
      * Create a new repository instance.
@@ -12,7 +12,7 @@ export abstract class Repository implements Database.IRepository {
      */
     constructor(public db, public pgp) {
         this.model = this.getModel();
-        this.queryModel = this.model.query();
+        this.q = this.model.query();
     }
 
     /**
@@ -73,6 +73,12 @@ export abstract class Repository implements Database.IRepository {
         return this.pgp.helpers.update(data, this.model.getColumnSet());
     }
 
+    protected propToColumnName(prop: string): string {
+        const columnSet = this.model.getColumnSet() as any[];
+        const columnDef = columnSet.find(value => value.prop === prop);
+        return columnDef ? columnDef.name : null;
+    }
+
     protected async find(query): Promise<any> {
         return this.db.oneOrNone(query.toQuery());
     }
@@ -84,7 +90,7 @@ export abstract class Repository implements Database.IRepository {
     protected async findManyWithCount(selectQuery, paginate?: Database.SearchPaginate, orderBy?: Database.SearchOrderBy[]): Promise<any> {
 
         if (!!orderBy) {
-            orderBy.forEach(o => selectQuery.order(this.queryModel[o.field][o.direction]));
+            orderBy.forEach(o => selectQuery.order(this.q[o.field][o.direction]));
         }
 
         if (!paginate || (!paginate.limit && !paginate.offset)) {

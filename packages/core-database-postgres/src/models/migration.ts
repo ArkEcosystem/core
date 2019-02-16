@@ -1,3 +1,4 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { Model } from "./model";
 
 export class Migration extends Model {
@@ -19,5 +20,13 @@ export class Migration extends Model {
                 name: "name",
             },
         ]);
+    }
+
+    public getName(): string {
+        return "Migration";
+    }
+
+    public getSearchableFields(): Database.SearchableField[] {
+        return [];
     }
 }

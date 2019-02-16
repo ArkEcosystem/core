@@ -114,6 +114,6 @@ export class Block extends Model {
                 fieldName: col.prop || col.name,
                 supportedOperators: col.supportedOperators
             }
-        })
+        });
     }
 }

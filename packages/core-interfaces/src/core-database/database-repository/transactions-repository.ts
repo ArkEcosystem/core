@@ -1,5 +1,5 @@
 import { Bignum } from "@arkecosystem/crypto";
-import { SearchParameters } from "../search";
+import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface ITransactionsRepository extends IRepository {
@@ -47,5 +47,11 @@ export interface ITransactionsRepository extends IRepository {
     deleteByBlockId(blockId: string): Promise<void>;
 
     search(parameters: SearchParameters): Promise<any>;
+
+    findAllByWallet(wallet: any, paginate?: SearchPaginate, orderBy?: SearchOrderBy[]): Promise<any>;
+
+    findWithVendorField(): Promise<any>;
+
+    findAll(parameters: SearchParameters): Promise<any>
 
 }

@@ -15,6 +15,11 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.oneOrNone(sql.findById, { id });
     }
 
+    public async findByIds(ids: string[]) {
+        const query = this.q.select().from(this.q).where(this.q.id.in(ids)).group(this.q.id);
+        return await this.findMany(query);
+    }
+
     /**
      * Get all of the blocks at the given heights.
      * @param  {Array} heights the heights of the blocks to retrieve
@@ -113,7 +118,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
 
     public async search(params: Database.SearchParameters) {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
-        const selectQuery = this.queryModel.select().from(this.queryModel);
+        const selectQuery = this.q.select().from(this.q);
         const parameterList = params.parameters;
         if (parameterList.length) {
             let first;
@@ -123,9 +128,9 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
             } while (!first.operator && parameterList.length);
 
             if (first) {
-                selectQuery.where(this.queryModel[first.field][first.operator][first.value]);
+                selectQuery.where(this.q[first.field][first.operator](first.value));
                 for (const param of parameterList) {
-                    selectQuery.and(this.queryModel[param.field][param.operator][param.value]);
+                    selectQuery.and(this.q[param.field][param.operator](param.value));
                 }
             }
         }
