@@ -45,14 +45,13 @@ export const schemas = {
 
     walletVote: {
         $id: "walletVote",
-        allOf: [{ pattern: "^[+|-][a-zA-Z0-9]{66}$" }, { transform: ["toLowerCase"] }],
+        allOf: [{ type: "string", pattern: "^[+|-][a-zA-Z0-9]{66}$" }, { transform: ["toLowerCase"] }],
     },
 
     username: {
         $id: "delegateUsername",
         allOf: [
-            { type: "string" },
-            { pattern: "^[a-z0-9!@$&_.]+$" },
+            { type: "string", pattern: "^[a-z0-9!@$&_.]+$" },
             { minLength: 1, maxLength: 20 },
             { transform: ["toLowerCase"] },
         ],

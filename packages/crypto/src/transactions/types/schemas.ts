@@ -55,11 +55,14 @@ export const secondSignature = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionTypes.SecondSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        secondSignature: { type: "null" },
         asset: {
-            maxProperties: 1,
+            type: "object",
+            required: ["signature"],
             properties: {
                 signature: {
                     type: "object",
+                    required: ["publicKey"],
                     properties: {
                         publicKey: {
                             $ref: "publicKey",
@@ -78,9 +81,12 @@ export const delegateRegistration = extend(transactionBaseSchema, {
         type: { transactionType: TransactionTypes.DelegateRegistration },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
-            maxProperties: 1,
+            type: "object",
+            required: ["delegate"],
             properties: {
                 delegate: {
+                    type: "object",
+                    required: ["username"],
                     properties: {
                         username: { $ref: "delegateUsername" },
                     },
@@ -97,13 +103,14 @@ export const vote = extend(transactionBaseSchema, {
         type: { transactionType: TransactionTypes.Vote },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
+            type: "object",
+            required: ["votes"],
             properties: {
                 votes: {
                     type: "array",
                     minItems: 1,
                     maxItems: 1,
                     additionalItems: false,
-                    uniqueItems: true,
                     items: { $ref: "walletVote" },
                 },
             },
