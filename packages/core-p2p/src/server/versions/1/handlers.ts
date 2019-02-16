@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
-import { JoiWrapper, models, slots } from "@arkecosystem/crypto";
+import { models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
@@ -227,15 +227,15 @@ export const postTransactions = {
         cors: {
             additionalHeaders: ["nethash", "port", "version"],
         },
-        validate: {
-            payload: {
-                transactions: JoiWrapper.instance()
-                    .transactionArray()
-                    .min(1)
-                    .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
-                    .options({ stripUnknown: true }),
-            },
-        },
+        // validate: {
+        //     payload: {
+        //         transactions: JoiWrapper.instance()
+        //             .transactionArray()
+        //             .min(1)
+        //             .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
+        //             .options({ stripUnknown: true }),
+        //     },
+        // },
     },
 };
 
