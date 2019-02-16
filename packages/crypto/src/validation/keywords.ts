@@ -1,7 +1,7 @@
 import { Ajv } from "ajv";
 import ajvKeywords from "ajv-keywords";
 import { configManager } from "../managers";
-import { Bignum } from "../utils";
+import { Bignum, isGenesisTransaction } from "../utils";
 
 const maxBytes = (ajv: Ajv) => {
     ajv.addKeyword("maxBytes", {
@@ -58,8 +58,7 @@ const bignumber = (ajv: Ajv) => {
 
     ajv.addKeyword("bignumber", {
         compile(schema) {
-            const validateCoerced = ajv.compile(schema);
-            return (data, dataPath, parentObject, property) => {
+            return (data, dataPath, parentObject: any, property) => {
                 const minimum = typeof schema.minimum !== "undefined" ? schema.minimum : 0;
                 const maximum = typeof schema.maximum !== "undefined" ? schema.maximum : Number.MAX_SAFE_INTEGER;
 
@@ -69,11 +68,18 @@ const bignumber = (ajv: Ajv) => {
                     return false;
                 }
 
-                if (bignum.isLessThan(minimum)) {
+                let bypassGenesis = false;
+                if (schema.bypassGenesis) {
+                    if (parentObject.id) {
+                        bypassGenesis = isGenesisTransaction(parentObject.id);
+                    }
+                }
+
+                if (bignum.isLessThan(minimum) && !(bignum.isZero() && bypassGenesis)) {
                     return false;
                 }
 
-                if (bignum.isGreaterThan(maximum)) {
+                if (bignum.isGreaterThan(maximum) && !bypassGenesis) {
                     return false;
                 }
 
@@ -81,7 +87,7 @@ const bignumber = (ajv: Ajv) => {
                     parentObject[property] = bignum;
                 }
 
-                return validateCoerced(data);
+                return true;
             };
         },
         errors: false,
@@ -91,6 +97,7 @@ const bignumber = (ajv: Ajv) => {
             properties: {
                 minimum: { type: "integer" },
                 maximum: { type: "integer" },
+                bypassGenesis: { type: "boolean" },
             },
             additionalItems: false,
         },

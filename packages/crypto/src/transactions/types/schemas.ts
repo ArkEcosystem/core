@@ -19,12 +19,13 @@ const transactionBaseSchema = {
     required: ["type", "senderPublicKey", "fee", "timestamp"],
     additionalProperties: false,
     properties: {
+        id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
         network: { $ref: "networkByte" },
         expiration: { type: "integer" },
         timestamp: { type: "integer", minimum: 0 },
-        amount: { bignumber: { minimum: 1 } },
-        fee: { bignumber: { minimum: 1 } },
+        amount: { bignumber: { minimum: 1, bypassGenesis: true } },
+        fee: { bignumber: { minimum: 1, bypassGenesis: true } },
         senderPublicKey: { $ref: "publicKey" },
         signature: { $ref: "alphanumeric" },
         secondSignature: { $ref: "alphanumeric" },
@@ -33,9 +34,6 @@ const transactionBaseSchema = {
 
 const signedTransaction = {
     required: ["id", "signature"],
-    properties: {
-        id: { $ref: "transactionId" },
-    },
 };
 
 export const transfer = extend(transactionBaseSchema, {
@@ -43,8 +41,8 @@ export const transfer = extend(transactionBaseSchema, {
     required: ["recipientId", "amount"],
     properties: {
         type: { transactionType: TransactionTypes.Transfer },
-        vendorField: { type: "string", maxBytes: 64 },
-        vendorFieldHex: { $ref: "hex", maximumLength: 128 },
+        vendorField: { anyOf: [{ type: "null" }, { type: "string", maxBytes: 64 }] },
+        vendorFieldHex: { anyOf: [{ type: "null" }, { $ref: "hex", maximumLength: 128 }] },
         recipientId: { $ref: "address" },
     },
 });
