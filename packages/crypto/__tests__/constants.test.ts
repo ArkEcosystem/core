@@ -2,9 +2,9 @@ import "jest-extended";
 import * as constants from "../src/constants";
 
 describe("Constants", () => {
-    it("arktoshi is valid", () => {
-        expect(constants.ARKTOSHI).toBeDefined();
-        expect(constants.ARKTOSHI).toBe(100000000);
+    it("satoshi is valid", () => {
+        expect(constants.SATOSHI).toBeDefined();
+        expect(constants.SATOSHI).toBe(100000000);
     });
 
     it("transaction types are defined", () => {

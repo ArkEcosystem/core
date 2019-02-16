@@ -49,9 +49,9 @@ export interface IBlockData {
  *   - previousBlock (id of the previous block)
  *   - height
  *   - numberOfTransactions
- *   - totalAmount (in arktoshi)
- *   - totalFee (in arktoshi)
- *   - reward (in arktoshi)
+ *   - totalAmount (in satoshi)
+ *   - totalFee (in satoshi)
+ *   - reward (in satoshi)
  *   - payloadHash (hash of the transactions)
  *   - payloadLength (total length in bytes of the IDs of the transactions)
  *   - generatorPublicKey (public key of the delegate that forged this block)

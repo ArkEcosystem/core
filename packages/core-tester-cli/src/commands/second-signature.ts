@@ -2,7 +2,7 @@ import { client } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import pluralize from "pluralize";
 import { customFlags } from "../flags";
-import { arktoshiToArk, logger, parseFee } from "../utils";
+import { logger, parseFee, satoshiToArk } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -54,7 +54,7 @@ export class SecondSignatureCommand extends BaseCommand {
             wallet.secondPublicKey = transaction.asset.signature.publicKey;
             transactions.push(transaction);
 
-            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.fee)})`);
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${satoshiToArk(transaction.fee)})`);
         });
 
         if (this.options.copy) {

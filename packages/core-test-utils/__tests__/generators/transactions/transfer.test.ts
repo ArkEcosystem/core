@@ -1,10 +1,10 @@
 import { Bignum, constants } from "../../../../crypto";
 import { generateTransfers } from "../../../src/generators";
 
-const { TransactionTypes, ARKTOSHI } = constants;
+const { TransactionTypes, SATOSHI } = constants;
 
 describe("Transfer transaction", () => {
-    const amount = new (Bignum as any)(20 * ARKTOSHI);
+    const amount = new (Bignum as any)(20 * SATOSHI);
     const quantity = 4;
     const transactions = generateTransfers(undefined, undefined, undefined, amount, quantity);
 

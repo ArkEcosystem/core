@@ -3,7 +3,7 @@ import { flags } from "@oclif/command";
 import delay from "delay";
 import unique from "lodash/uniq";
 import pluralize from "pluralize";
-import { arkToArktoshi, arktoshiToArk, generateTransactions, logger } from "../utils";
+import { arkToSatoshi, generateTransactions, logger, satoshiToArk } from "../utils";
 import { BaseCommand } from "./command";
 
 export class TransferCommand extends BaseCommand {
@@ -49,11 +49,11 @@ export class TransferCommand extends BaseCommand {
         const walletBalance = await this.getWalletBalance(primaryAddress);
 
         if (!this.options.skipValidation) {
-            logger.info(`Sender starting balance: ${arktoshiToArk(walletBalance)}`);
+            logger.info(`Sender starting balance: ${satoshiToArk(walletBalance)}`);
         }
 
         let totalDeductions = Bignum.ZERO;
-        const transactionAmount = arkToArktoshi(this.options.amount || 2);
+        const transactionAmount = arkToSatoshi(this.options.amount || 2);
 
         const transactions = this.generateTransactions(transactionAmount, wallets, null, true);
         for (const transaction of transactions) {
@@ -67,7 +67,7 @@ export class TransferCommand extends BaseCommand {
 
         const expectedSenderBalance = new Bignum(walletBalance).minus(totalDeductions);
         if (!this.options.skipValidation) {
-            logger.info(`Sender expected ending balance: ${arktoshiToArk(expectedSenderBalance)}`);
+            logger.info(`Sender expected ending balance: ${satoshiToArk(expectedSenderBalance)}`);
         }
 
         const runOptions = {
@@ -237,7 +237,7 @@ export class TransferCommand extends BaseCommand {
             if (!walletBalance.isEqualTo(runOptions.expectedSenderBalance)) {
                 successfulTest = false;
                 logger.error(
-                    `Sender balance incorrect: '${arktoshiToArk(walletBalance)}' but should be '${arktoshiToArk(
+                    `Sender balance incorrect: '${satoshiToArk(walletBalance)}' but should be '${satoshiToArk(
                         runOptions.expectedSenderBalance,
                     )}'`,
                 );
@@ -249,9 +249,9 @@ export class TransferCommand extends BaseCommand {
             if (!balance.isEqualTo(runOptions.transactionAmount)) {
                 successfulTest = false;
                 logger.error(
-                    `Incorrect destination balance for ${wallet.address}. Should be '${arktoshiToArk(
+                    `Incorrect destination balance for ${wallet.address}. Should be '${satoshiToArk(
                         runOptions.transactionAmount,
-                    )}' but is '${arktoshiToArk(balance)}'`,
+                    )}' but is '${satoshiToArk(balance)}'`,
                 );
             }
         }
@@ -267,7 +267,7 @@ export class TransferCommand extends BaseCommand {
     public async testVendorField(wallets) {
         logger.info("Testing VendorField value is set correctly");
 
-        const transactions = this.generateTransactions(arkToArktoshi(2), wallets, null, null, "Testing VendorField");
+        const transactions = this.generateTransactions(arkToSatoshi(2), wallets, null, null, "Testing VendorField");
 
         try {
             await this.sendTransactions(transactions);
@@ -293,7 +293,7 @@ export class TransferCommand extends BaseCommand {
     public async testEmptyVendorField(wallets) {
         logger.info("Testing empty VendorField value");
 
-        const transactions = this.generateTransactions(arkToArktoshi(2), wallets, null, null, null);
+        const transactions = this.generateTransactions(arkToSatoshi(2), wallets, null, null, null);
 
         try {
             await this.sendTransactions(transactions);

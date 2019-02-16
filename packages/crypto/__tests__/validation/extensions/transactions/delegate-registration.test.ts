@@ -25,7 +25,7 @@ describe("Delegate Registration Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .usernameAsset("delegate1")
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * constants.SATOSHI)
             .sign("passphrase");
 
         expect(validator.validate(transaction.getStruct(), validator.delegateRegistration()).error).not.toBeNull();
@@ -72,7 +72,7 @@ describe("Delegate Registration Transaction", () => {
         transaction = transactionBuilder.transfer();
         transaction
             .recipientId(null)
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * constants.SATOSHI)
             .sign("passphrase");
 
         expect(validator.validate(transaction.getStruct(), validator.delegateRegistration()).error).not.toBeNull();
