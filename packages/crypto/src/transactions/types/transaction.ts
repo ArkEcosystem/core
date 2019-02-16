@@ -15,7 +15,7 @@ import {
 } from "../../errors";
 import { configManager } from "../../managers";
 import { Wallet } from "../../models/wallet";
-import { Bignum, isException, isGenesisTransaction } from "../../utils";
+import { Bignum, isException } from "../../utils";
 import { AjvWrapper } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
 import { ISchemaValidationResult, ITransactionData } from "../interfaces";

@@ -45,12 +45,19 @@ class AjvWrapper {
     }
 
     private updateTransactionArray() {
-        // const transactionSchemas = [...this.transactionSchemas].map(schema => this.joi[schema]());
-        // const transactionArray = {
-        //     name: "transactionArray",
-        //     base: this.joi.array().items(this.joi.alternatives().try(transactionSchemas)),
-        // };
-        // this.joi = this.joi.extend(transactionArray).extend(schemas.block);
+        const items = [...this.transactionSchemas].map(schema => ({ $ref: `${schema}Signed` }));
+
+        const transactionsSchema = {
+            $id: "transactions",
+            type: "array",
+            additionalItems: false,
+            items,
+        };
+
+        this.ajv.removeSchema("block");
+        this.ajv.removeSchema("transactions");
+        this.ajv.addSchema(transactionsSchema);
+        this.ajv.addSchema(schemas.block);
     }
 }
 
