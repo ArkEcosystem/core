@@ -118,7 +118,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
         const params = parameters.parameters;
         if (params.length) {
             // custom operators have a null 'operator' prop
-            const [customOps, simpleOps] = partition(params, param => !param.operator);
+            const [customOps, simpleOps] = partition(params, param => param.operator === Database.SearchOperator.OP_CUSTOM);
 
             const [participants, rest] = partition(simpleOps, op => ["sender_public_key", "recipient_id"].includes(this.propToColumnName(op.field)));
 

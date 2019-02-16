@@ -1,7 +1,10 @@
+import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
-import { transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
+
+const transactionsRepository = app.resolvePlugin<Database.IDatabaseService>("database").transactions;
 
 const index = async request => {
     const transactions = await transactionsRepository.findAll({

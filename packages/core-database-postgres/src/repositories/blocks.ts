@@ -119,7 +119,8 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     public async search(params: Database.SearchParameters) {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
         const selectQuery = this.q.select().from(this.q);
-        const parameterList = params.parameters;
+        // Blocks repo atm, doesn't search using any custom parameters
+        const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
         if (parameterList.length) {
             let first;
             do {
@@ -128,9 +129,9 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
             } while (!first.operator && parameterList.length);
 
             if (first) {
-                selectQuery.where(this.q[first.field][first.operator](first.value));
+                selectQuery.where(this.q[this.propToColumnName(first.field)][first.operator](first.value));
                 for (const param of parameterList) {
-                    selectQuery.and(this.q[param.field][param.operator](param.value));
+                    selectQuery.and(this.q[this.propToColumnName(param.field)][param.operator](param.value));
                 }
             }
         }

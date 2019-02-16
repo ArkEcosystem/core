@@ -1,6 +1,6 @@
 export interface ITransactionsBusinessRepository {
 
-    findAll(params: any, sequenceOrder: "asc" | "desc"): Promise<any>;
+    findAll(params: any, sequenceOrder?: "asc" | "desc"): Promise<any>;
     findAllLegacy(parameters: any): Promise<any>;
     findWithVendorField(): Promise<any>;
     findAllByWallet(wallet, parameters: any): Promise<any>;

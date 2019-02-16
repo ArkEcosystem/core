@@ -36,12 +36,23 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         }
 
         const searchParameters = new SearchParameterConverter(databaseService.connection.transactionsRepository.getModel()).convert(params);
+
+        if(!searchParameters.paginate) {
+            searchParameters.paginate = {
+                offset: 0,
+                limit: 100
+            };
+        }
+
         searchParameters.orderBy.push({
             field: "sequence",
             direction: sequenceOrder
         });
+
         const result = await databaseService.connection.transactionsRepository.findAll(searchParameters);
-        return await this.mapBlocksToTransactions(result.rows);
+        result.rows = await this.mapBlocksToTransactions(result.rows);
+
+        return result;
     }
 
     public async findAllByBlock(blockId: any, parameters: any = {}) {

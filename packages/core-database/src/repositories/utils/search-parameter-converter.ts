@@ -38,8 +38,8 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
     private parsePaginate(searchParameters: Database.SearchParameters, paginate?: any) {
         if (paginate) {
             searchParameters.paginate = {
-                limit: Number.isInteger(paginate.limit) ? paginate.limit : null,
-                offset: Number.isInteger(paginate.offset) && +paginate.offset > 0 ? paginate.offset : null
+                limit: Number.isInteger(paginate.limit) ? paginate.limit : 100,
+                offset: Number.isInteger(paginate.offset) && +paginate.offset > 0 ? paginate.offset : 0
             }
         }
     }
@@ -59,8 +59,11 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
     private parseSearchParameters(searchParameters: Database.SearchParameters, params: any) {
         const searchableFields = this.databaseModel.getSearchableFields();
         const mapByFieldName = searchableFields.reduce((p, c) => p[c.fieldName] = c, {});
-        // Only consider fields that this model supports.
-        Object.keys(params).filter(value => !["orderBy", "limit", "offset"].includes(value))
+        /*
+            orderBy, limit and offset are parsed earlier.
+            page, pagination are added automatically by hapi-pagination
+         */
+        Object.keys(params).filter(value => !["orderBy", "limit", "offset", "page", "pagination"].includes(value))
             .forEach(fieldName => {
                 const fieldDescriptor = mapByFieldName[fieldName] as Database.SearchableField;
 
@@ -71,7 +74,7 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
                 if (!fieldDescriptor) {
                     searchParameters.parameters.push({
                         field: fieldName,
-                        operator: null,
+                        operator: Database.SearchOperator.OP_CUSTOM,
                         value: params[fieldName]
                     });
                     return;
