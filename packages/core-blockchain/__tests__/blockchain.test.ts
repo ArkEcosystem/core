@@ -264,7 +264,9 @@ describe("Blockchain", () => {
 
             const commitQueuedQueries = jest
                 .spyOn(blockchain.database, "commitQueuedQueries")
+                // @ts-ignore
                 .mockReturnValueOnce(true);
+            // @ts-ignore
             jest.spyOn(blockchain.database, "enqueueSaveBlock").mockReturnValueOnce(true);
 
             await blockchain.rebuildBlock(nextBlock, mockCallback);
@@ -486,6 +488,7 @@ describe("Blockchain", () => {
             it("should use the last block", () => {
                 jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
                 const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
+                    // @ts-ignore
                     data: {
                         timestamp: slots.getTime(),
                         height: genesisBlock.height,
@@ -516,6 +519,7 @@ describe("Blockchain", () => {
             it("should use the last block", () => {
                 jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
                 const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
+                    // @ts-ignore
                     data: {
                         timestamp: slots.getTime(),
                         height: genesisBlock.height,
@@ -605,6 +609,7 @@ describe("Blockchain", () => {
         it("should trigger the stop method when receiving 'shutdown' event", async () => {
             const emitter = container.resolvePlugin("event-emitter");
 
+            // @ts-ignore
             const stop = jest.spyOn(blockchain, "stop").mockReturnValue(true);
 
             emitter.emit("shutdown");
@@ -618,6 +623,7 @@ describe("Blockchain", () => {
 
 async function __start(networkStart) {
     process.env.CORE_SKIP_BLOCKCHAIN = "false";
+    process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
     process.env.CORE_ENV = "false";
 
     const plugin = require("../src").plugin;

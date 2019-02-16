@@ -9,6 +9,13 @@ export interface IBlocksRepository extends IRepository {
     findById(id: string): Promise<any>;
 
     /**
+     * Get all of the blocks at the given heights.
+     * @param {Array} heights the heights of the blocks to retrieve
+     * @return {Promise}
+     */
+    findByHeight(heights): Promise<any>;
+
+    /**
      * Count the number of records in the database.
      */
     count(): Promise<number>;
@@ -16,7 +23,7 @@ export interface IBlocksRepository extends IRepository {
     /**
      * Get all of the common blocks from the database.
      */
-    common(ids: string[]): Promise<any[]>
+    common(ids: string[]): Promise<any[]>;
 
     /**
      * Get all of the blocks within the given height range and order them by height.
@@ -38,10 +45,10 @@ export interface IBlocksRepository extends IRepository {
      * Get statistics about all blocks from the database.
      */
     statistics(): Promise<{
-        numberOfTransactions: number,
-        totalFee: Bignum,
-        totalAmount: Bignum,
-        count: number
+        numberOfTransactions: number;
+        totalFee: Bignum;
+        totalAmount: Bignum;
+        count: number;
     }>;
 
     /**
@@ -54,5 +61,5 @@ export interface IBlocksRepository extends IRepository {
      */
     delete(id: string): Promise<void>;
 
-    search(params: SearchParameters): Promise<any>
+    search(params: SearchParameters): Promise<any>;
 }
