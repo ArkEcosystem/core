@@ -46,7 +46,7 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
         const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["balance", "desc"];
 
         return {
-            rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
+            rows: limitRows(orderBy(wallets, [iteratee], [order as "desc" | "asc"]), params),
             count: wallets.length,
         };
     }
