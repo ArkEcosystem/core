@@ -2,7 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
 import { Block, IBlockData } from "../models/block";
-import { Bignum } from "../utils/bignum";
+import { Bignum } from "../utils";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
