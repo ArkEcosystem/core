@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database-postgres",
     "description": "PostgreSQL integration for Ark Core",
-    "version": "2.2.0-alpha.24",
+    "version": "2.2.0-alpha.25",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -33,11 +33,11 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-alpha.24",
-        "@arkecosystem/core-database": "^2.2.0-alpha.24",
-        "@arkecosystem/core-interfaces": "^2.2.0-alpha.24",
-        "@arkecosystem/core-utils": "^2.2.0-alpha.24",
-        "@arkecosystem/crypto": "^2.2.0-alpha.24",
+        "@arkecosystem/core-container": "^2.2.0-alpha.25",
+        "@arkecosystem/core-database": "^2.2.0-alpha.25",
+        "@arkecosystem/core-interfaces": "^2.2.0-alpha.25",
+        "@arkecosystem/core-utils": "^2.2.0-alpha.25",
+        "@arkecosystem/crypto": "^2.2.0-alpha.25",
         "@types/bluebird": "^3.5.25",
         "@types/lodash.chunk": "^4.2.4",
         "@types/pluralize": "^0.0.29",

@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-sentry",
     "description": "Sentry error tracker integration for Ark Core.",
-    "version": "2.2.0-alpha.24",
+    "version": "2.2.0-alpha.25",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
