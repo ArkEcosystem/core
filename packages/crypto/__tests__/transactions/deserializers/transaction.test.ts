@@ -116,7 +116,7 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe("ser/deserialize - multi signature", () => {
+    describe.skip("ser/deserialize - multi signature", () => {
         const multiSignature = client
             .getBuilder()
             .multiSignature()
@@ -159,7 +159,7 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe("ser/deserialize - ipfs", () => {
+    describe.skip("ser/deserialize - ipfs", () => {
         it("should ser/deserialize giving back original fields", () => {
             const ipfs = client
                 .getBuilder()
@@ -180,7 +180,7 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe("ser/deserialize - timelock transfer", () => {
+    describe.skip("ser/deserialize - timelock transfer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const timelockTransfer = client
                 .getBuilder()
@@ -205,7 +205,7 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe("ser/deserialize - multi payment", () => {
+    describe.skip("ser/deserialize - multi payment", () => {
         it("should ser/deserialize giving back original fields", () => {
             const multiPayment = client
                 .getBuilder()
@@ -227,7 +227,7 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe("ser/deserialize - delegate resignation", () => {
+    describe.skip("ser/deserialize - delegate resignation", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateResignation = client
                 .getBuilder()

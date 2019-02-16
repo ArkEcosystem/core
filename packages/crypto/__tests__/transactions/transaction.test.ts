@@ -4,8 +4,9 @@ import { transactionBuilder as builder } from "../../src/builder";
 import { crypto } from "../../src/crypto/crypto";
 import { configManager } from "../../src/managers/config";
 import { ITransactionData, Transaction } from "../../src/transactions";
-import { transaction as transactionData } from "../fixtures/transaction";
+import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
+import deepmerge = require("deepmerge");
 import {
     MalformedTransactionBytesError,
     TransactionSchemaError,
@@ -14,6 +15,8 @@ import {
     UnkownTransactionError,
 } from "../../src/errors";
 import { devnet } from "../../src/networks";
+
+let transactionData: ITransactionData;
 
 const createRandomTx = type => {
     let transaction;
@@ -95,7 +98,10 @@ const createRandomTx = type => {
 };
 
 describe("Models - Transaction", () => {
-    beforeEach(() => configManager.setConfig(devnet));
+    beforeEach(() => {
+        configManager.setConfig(devnet);
+        transactionData = deepmerge({}, transactionDataFixture);
+    });
 
     describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
@@ -119,13 +125,7 @@ describe("Models - Transaction", () => {
             const hex = Transaction.toBytes(transactionData).toString("hex");
             const transaction = Transaction.fromHex(hex);
             expect(transaction).toBeInstanceOf(Transaction);
-
-            const actual = transaction.toJson();
-            delete actual.network;
-            delete actual.expiration;
-            delete actual.vendorFieldHex;
-
-            expect(actual).toEqual(transactionData);
+            expect(transaction.toJson()).toEqual(transactionDataFixture);
         });
 
         it("should throw when getting garbage", () => {
