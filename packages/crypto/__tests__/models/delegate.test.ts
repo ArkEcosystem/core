@@ -9,8 +9,8 @@ import { ITransactionData } from "../../src/models";
 import { Delegate } from "../../src/models/delegate";
 import { Wallet } from "../../src/models/wallet";
 import { INetwork, testnet } from "../../src/networks";
-import { Bignum } from "../../src/utils/bignum";
-import { sortTransactions } from "../../src/utils/sort-transactions";
+import { Bignum } from "../../src/utils";
+import { sortTransactions } from "../../src/utils";
 
 const dummy = {
     plainPassphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",

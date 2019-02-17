@@ -4,7 +4,7 @@ import { SATOSHI, TransactionTypes } from "../../src/constants";
 import { transactionHandler } from "../../src/handlers/transactions";
 import { configManager } from "../../src/managers/config";
 import { Wallet } from "../../src/models/wallet";
-import { Bignum } from "../../src/utils/bignum";
+import { Bignum } from "../../src/utils";
 
 import { generators } from "@arkecosystem/core-test-utils";
 const { generateTransfers, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
