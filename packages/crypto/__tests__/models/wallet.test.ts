@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { ARKTOSHI, TransactionTypes } from "../../src/constants";
+import { SATOSHI, TransactionTypes } from "../../src/constants";
 import { transactionHandler } from "../../src/handlers/transactions";
 import { configManager } from "../../src/managers/config";
 import { Wallet } from "../../src/models/wallet";
@@ -20,7 +20,7 @@ describe("Models - Wallet", () => {
             const address = "Abcde";
             const wallet = new Wallet(address);
             const balance = +(Math.random() * 1000).toFixed(8);
-            wallet.balance = new Bignum(balance * ARKTOSHI);
+            wallet.balance = new Bignum(balance * SATOSHI);
             expect(wallet.toString()).toBe(`${address} (${balance} ${configManager.config.client.symbol})`);
         });
     });
@@ -94,9 +94,9 @@ describe("Models - Wallet", () => {
 
     describe("revert block", () => {
         const walletInit = {
-            balance: new Bignum(1000 * ARKTOSHI),
-            forgedFees: new Bignum(10 * ARKTOSHI),
-            forgedRewards: new Bignum(50 * ARKTOSHI),
+            balance: new Bignum(1000 * SATOSHI),
+            forgedFees: new Bignum(10 * SATOSHI),
+            forgedRewards: new Bignum(50 * SATOSHI),
             producedBlocks: 1,
             dirty: false,
             lastBlock: { id: 1234856 },
@@ -106,8 +106,8 @@ describe("Models - Wallet", () => {
         const block = {
             id: 1,
             generatorPublicKey: walletInit.publicKey,
-            reward: new Bignum(2 * ARKTOSHI),
-            totalFee: new Bignum(1 * ARKTOSHI),
+            reward: new Bignum(2 * SATOSHI),
+            totalFee: new Bignum(1 * SATOSHI),
         };
         let testWallet;
 
@@ -183,9 +183,9 @@ describe("Models - Wallet", () => {
 
     describe("audit transaction - auditApply", () => {
         const walletInit = {
-            balance: new Bignum(1000 * ARKTOSHI),
-            forgedFees: new Bignum(10 * ARKTOSHI),
-            forgedRewards: new Bignum(50 * ARKTOSHI),
+            balance: new Bignum(1000 * SATOSHI),
+            forgedFees: new Bignum(10 * SATOSHI),
+            forgedRewards: new Bignum(50 * SATOSHI),
             producedBlocks: 1,
             dirty: false,
             lastBlock: { id: 1234856 },
@@ -210,7 +210,7 @@ describe("Models - Wallet", () => {
                 "devnet",
                 "super secret passphrase",
                 "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-                ARKTOSHI,
+                SATOSHI,
                 1,
                 true,
             )[0];
@@ -370,7 +370,7 @@ describe("Models - Wallet", () => {
                     "devnet",
                     "super secret passphrase",
                     "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-                    ARKTOSHI,
+                    SATOSHI,
                     1,
                     true,
                 )[0];
@@ -402,7 +402,7 @@ describe("Models - Wallet", () => {
                         secondPassphrase: "super secret secondpassphrase",
                     },
                     "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-                    ARKTOSHI,
+                    SATOSHI,
                     1,
                     true,
                 )[0];

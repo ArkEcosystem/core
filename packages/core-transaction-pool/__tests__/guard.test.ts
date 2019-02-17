@@ -51,7 +51,7 @@ describe("Transaction Guard", () => {
                   A => B needs to be first confirmed (forged), then B can transfer to C
                 */
 
-                const arktoshi = 10 ** 8;
+                const satoshi = 10 ** 8;
                 // don't re-use the same delegate (need clean balance)
                 const delegate = inverseOrder ? delegates[8] : delegates[9];
                 const delegateWallet = transactionPool.walletManager.findByAddress(delegate.address);
@@ -68,13 +68,13 @@ describe("Transaction Guard", () => {
                     // transfer from delegate to wallet 0
                     from: delegate,
                     to: newWallets[0],
-                    amount: 100 * arktoshi,
+                    amount: 100 * satoshi,
                 };
                 const transfer1 = {
                     // transfer from wallet 0 to wallet 1
                     from: newWallets[0],
                     to: newWallets[1],
-                    amount: 55 * arktoshi,
+                    amount: 55 * satoshi,
                 };
                 const transfers = [transfer0, transfer1];
                 if (inverseOrder) {
@@ -105,7 +105,7 @@ describe("Transaction Guard", () => {
                 expect(guard.errors[transfer.id]).toContainEqual(expectedError);
 
                 // check final balances
-                expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * arktoshi);
+                expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
                 expect(+poolWallets[0].balance).toBe(0);
                 expect(+poolWallets[1].balance).toBe(0);
             },
@@ -336,7 +336,7 @@ describe("Transaction Guard", () => {
         });
 
         it.each([3, 5, 8])(
-            "should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much",
+            "should not validate emptying wallet with %i transactions when the last one is 1 satoshi too much",
             async txNumber => {
                 // use txNumber + 1 so that we don't use the same delegates as the above test
                 const sender = delegates[txNumber + 1];

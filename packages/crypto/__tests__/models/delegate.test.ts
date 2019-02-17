@@ -3,7 +3,7 @@ import "jest-extended";
 import { generators } from "@arkecosystem/core-test-utils";
 const { generateSecondSignature } = generators;
 
-import { ARKTOSHI } from "../../src/constants";
+import { SATOSHI } from "../../src/constants";
 import { configManager } from "../../src/managers/config";
 import { ITransactionData } from "../../src/models";
 import { Delegate } from "../../src/models/delegate";

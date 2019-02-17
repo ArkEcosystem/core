@@ -58,7 +58,7 @@ describe("Multi Signature Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .multiSignatureAsset(multiSignatureAsset)
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * constants.SATOSHI)
             .sign("passphrase");
         signTransaction(transaction, passphrases);
         expect(validator.validate(transaction.getStruct(), validator.multiSignature()).error).not.toBeNull();

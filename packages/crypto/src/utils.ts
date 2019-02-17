@@ -13,7 +13,7 @@ Bignum.config({ DECIMAL_PLACES: 0 });
 /**
  * Get human readable string from satoshis
  */
-export function formatSatoshis(amount: Bignum | number | string): string {
+export function formatSatoshi(amount: Bignum | number | string): string {
     const localeString = (+amount / SATOSHI).toLocaleString("en", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
