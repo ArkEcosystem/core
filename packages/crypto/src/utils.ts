@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { ARKTOSHI } from "./constants";
+import { SATOSHI } from "./constants";
 import { configManager } from "./managers";
 import { IBlockData, ITransactionData } from "./models";
 
@@ -11,10 +11,10 @@ class Bignum extends BigNumber {
 Bignum.config({ DECIMAL_PLACES: 0 });
 
 /**
- * Get human readable string from arktoshis
+ * Get human readable string from satoshis
  */
-export function formatArktoshi(amount: Bignum | number | string): string {
-    const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
+export function formatSatoshis(amount: Bignum | number | string): string {
+    const localeString = (+amount / SATOSHI).toLocaleString("en", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
     });
