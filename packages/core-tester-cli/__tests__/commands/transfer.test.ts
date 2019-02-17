@@ -3,7 +3,7 @@ import "jest-extended";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { TransferCommand } from "../../src/commands/transfer";
-import { arkToArktoshi } from "../../src/utils";
+import { arkToSatoshi } from "../../src/utils";
 import { toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
@@ -26,7 +26,7 @@ describe("Commands - Transfer", () => {
     it("should postTransactions using custom smartBridge value", async () => {
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
         const expectedTransactionAmount = 2;
-        const expectedFee = arkToArktoshi(0.1);
+        const expectedFee = arkToSatoshi(0.1);
         const opts = {
             amount: expectedTransactionAmount,
             transferFee: expectedFee,
@@ -49,8 +49,8 @@ describe("Commands - Transfer", () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     vendorField: "foo bar",
-                    amount: arkToArktoshi(expectedTransactionAmount),
-                    fee: arkToArktoshi(expectedFee),
+                    amount: arkToSatoshi(expectedTransactionAmount),
+                    fee: arkToSatoshi(expectedFee),
                     recipientId: expectedRecipientId,
                 }),
             ]),
@@ -61,8 +61,8 @@ describe("Commands - Transfer", () => {
         const expectedTxCount = 5;
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
         const opts = {
-            amount: arkToArktoshi(2),
-            transferFee: arkToArktoshi(2),
+            amount: arkToSatoshi(2),
+            transferFee: arkToSatoshi(2),
             number: expectedTxCount,
             recipient: expectedRecipientId,
         };
@@ -89,8 +89,8 @@ describe("Commands - Transfer", () => {
         const expectedTxCount = 10;
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
         const opts = {
-            amount: arkToArktoshi(2),
-            transferFee: arkToArktoshi(0.1),
+            amount: arkToSatoshi(2),
+            transferFee: arkToSatoshi(0.1),
             number: expectedTxCount,
             recipient: expectedRecipientId,
         };
@@ -112,8 +112,8 @@ describe("Commands - Transfer", () => {
     });
 
     it("should sign with 2nd passphrase if specified", async () => {
-        const expectedTransactionAmount = arkToArktoshi(2);
-        const expectedFee = arkToArktoshi(0.1);
+        const expectedTransactionAmount = arkToSatoshi(2);
+        const expectedFee = arkToSatoshi(0.1);
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
 
         const opts = {

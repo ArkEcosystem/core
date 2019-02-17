@@ -1,12 +1,12 @@
-import { ARKTOSHI } from "../constants";
+import { SATOSHI } from "../constants";
 import { configManager } from "../managers";
 import { Bignum } from "./bignum";
 
 /**
- * Get human readable string from arktoshis
+ * Get human readable string from satoshis
  */
-export const formatArktoshi = (amount: Bignum | number | string): string => {
-    const localeString = (+amount / ARKTOSHI).toLocaleString("en", {
+export const formatSatoshi = (amount: Bignum | number | string): string => {
+    const localeString = (+amount / SATOSHI).toLocaleString("en", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
     });
