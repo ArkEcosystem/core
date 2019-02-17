@@ -83,7 +83,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public findById(id: string): Promise<any> {
-        return this.findAll({ id });
+        return this.databaseServiceProvider().connection.transactionsRepository.findById(id);
     }
 
     public async findByTypeAndId(type: any, id: string) {
