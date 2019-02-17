@@ -37,8 +37,7 @@ describe("Commands - Vote", () => {
         const flags = toFlags(opts);
         await VoteCommand.run(flags);
 
-        expect(axios.post).toHaveBeenNthCalledWith(
-            4,
+        expect(axios.post).toHaveBeenCalledWith(
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
@@ -72,8 +71,7 @@ describe("Commands - Vote", () => {
         const flags = toFlags(opts);
         await VoteCommand.run(flags);
 
-        expect(axios.post).toHaveBeenNthCalledWith(
-            4,
+        expect(axios.post).toHaveBeenCalledWith(
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [

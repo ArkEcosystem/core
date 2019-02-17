@@ -316,34 +316,21 @@ export abstract class BaseCommand extends Command {
         return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions);
     }
 
-    protected castFlags(values: Record<string, any>): any[] {
-        const fields = [
-            "number",
-            "amount",
-            "transferFee",
-            "baseUrl",
-            "apiPort",
-            "p2pPort",
-            "passphrase",
-            "secondPassphrase",
-            "skipValidation",
-            "skipTesting",
-            "copy",
-        ];
+    protected castFlags(values: Record<string, any>): string[] {
+        return ["number", "baseUrl", "apiPort", "p2pPort", "skipValidation", "skipTesting"]
+            .map((key: string) => {
+                const value = values[key];
 
-        const mappedFlags = [];
+                if (value === undefined) {
+                    return undefined;
+                }
 
-        for (const key of fields) {
-            const value = values[key];
+                if (value === true) {
+                    return `--${key}`;
+                }
 
-            if (value === true) {
-                mappedFlags.push(`--${key}`);
-            } else if (value !== undefined) {
-                mappedFlags.push(`--${key}`);
-                mappedFlags.push(value);
-            }
-        }
-
-        return mappedFlags;
+                return `--${key}=${value}`;
+            })
+            .filter(value => value !== undefined);
     }
 }
