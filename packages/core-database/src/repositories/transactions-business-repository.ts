@@ -87,7 +87,8 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findByTypeAndId(type: any, id: string) {
-        return this.findAll({ type, id });
+        const results = await this.findAll({ type, id });
+        return results.rows.length ? results.rows[0]: null;
     }
 
     public async findWithVendorField() {

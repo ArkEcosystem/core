@@ -27,7 +27,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
     public findAll(params: Database.IParameters = {}) {
         const delegates = this.getLocalDelegates();
 
-        const [iteratee, order] = this.__orderBy(params);
+        const [iteratee, order] = this.orderBy(params);
 
         return {
             rows: limitRows(orderBy(delegates, iteratee, order as "desc" | "asc"), params),
@@ -41,7 +41,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
      * @param  {Object} [params]
      * @param  {String} [params.username] - Search by username
      */
-    public search(params : Database.IParameters) {
+    public search(params: Database.IParameters) {
         let delegates = this.getLocalDelegates();
         if (params.hasOwnProperty("username")) {
             delegates = delegates.filter(delegate => delegate.username.indexOf(params.username as string) > -1);
@@ -98,7 +98,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         });
     }
 
-    public __orderBy(params): string[] {
+    private orderBy(params): string[] {
         if (!params.orderBy) {
             return ["rate", "asc"];
         }
@@ -108,10 +108,10 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             return ["rate", "asc"];
         }
 
-        return [this.__manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
+        return [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
     }
 
-    public __manipulateIteratee(iteratee): any {
+    private manipulateIteratee(iteratee): any {
         switch (iteratee) {
             case "rank":
                 return "rate";

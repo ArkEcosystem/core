@@ -6,9 +6,8 @@ export interface SearchableField {
 }
 export interface IDatabaseModel {
 
-    /* Model name */
     getName(): string;
 
-    /* A list of fields on this model that can be queried, and each search operator they support */
+    /* A list of fields on this model that can be queried, and each search-operator they support */
     getSearchableFields(): SearchableField[];
 }
