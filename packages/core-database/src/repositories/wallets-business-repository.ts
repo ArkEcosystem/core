@@ -43,8 +43,10 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
     public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
 
+        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["balance", "desc"];
+
         return {
-            rows: limitRows(wallets, params),
+            rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
             count: wallets.length,
         };
     }
