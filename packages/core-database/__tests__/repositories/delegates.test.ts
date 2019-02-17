@@ -38,7 +38,7 @@ beforeEach(async done => {
 
     repository = new DelegatesBusinessRepository(() => databaseService);
     walletsRepository = new WalletsBusinessRepository(() => databaseService);
-    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository);
+    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
 
     done();
 });

@@ -35,7 +35,7 @@ beforeEach(() => {
 });
 
 function createService() {
-    return new DatabaseService({}, connection, walletManager, null, null);
+    return new DatabaseService({}, connection, walletManager, null, null, null, null);
 }
 
 describe("Database Service", () => {
@@ -84,25 +84,10 @@ describe("Database Service", () => {
             jest.spyOn(container, "resolve").mockReturnValue(stateStorageStub);
 
             databaseService = createService();
-            databaseService.connection.blocksRepository = {
-                findById: null,
-                findByHeight: jest.fn(heights => {
-                    const r = heights.map(h => ({ height: Number(h), fromDb: true }));
-                    return r;
-                }),
-                count: null,
-                common: null,
-                heightRange: null,
-                latest: null,
-                recent: null,
-                statistics: null,
-                top: null,
-                delete: null,
-                estimate: null,
-                truncate: null,
-                insert: null,
-                update: null,
-            };
+
+            connection.blocksRepository = {
+                findByHeight: heights => heights.map(h => ({ height: Number(h), fromDb: true }))
+            } as Database.IBlocksRepository;
 
             let requestHeights = requestHeightsHigh;
 
