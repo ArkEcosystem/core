@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-snapshots",
     "description": "Provides live local streamed snapshots functionality for ARK Core",
-    "version": "2.2.0-alpha.25",
+    "version": "2.2.0-beta.0",
     "contributors": [
         "Kristjan Košič <chris@ark.io>"
     ],
@@ -32,10 +32,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-alpha.25",
-        "@arkecosystem/core-database-postgres": "^2.2.0-alpha.25",
-        "@arkecosystem/core-interfaces": "^2.2.0-alpha.25",
-        "@arkecosystem/crypto": "^2.2.0-alpha.25",
+        "@arkecosystem/core-container": "^2.2.0-beta.0",
+        "@arkecosystem/core-database-postgres": "^2.2.0-beta.0",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.0",
+        "@arkecosystem/crypto": "^2.2.0-beta.0",
         "@types/bluebird": "^3.5.25",
         "@types/create-hash": "^1.2.0",
         "@types/fs-extra": "^5.0.5",

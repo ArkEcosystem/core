@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-api",
     "description": "Public API for Ark Core",
-    "version": "2.2.0-alpha.25",
+    "version": "2.2.0-beta.0",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -33,12 +33,12 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-alpha.25",
-        "@arkecosystem/core-http-utils": "^2.2.0-alpha.25",
-        "@arkecosystem/core-interfaces": "^2.2.0-alpha.25",
-        "@arkecosystem/core-transaction-pool": "^2.2.0-alpha.25",
-        "@arkecosystem/core-utils": "^2.2.0-alpha.25",
-        "@arkecosystem/crypto": "^2.2.0-alpha.25",
+        "@arkecosystem/core-container": "^2.2.0-beta.0",
+        "@arkecosystem/core-http-utils": "^2.2.0-beta.0",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.0",
+        "@arkecosystem/core-transaction-pool": "^2.2.0-beta.0",
+        "@arkecosystem/core-utils": "^2.2.0-beta.0",
+        "@arkecosystem/crypto": "^2.2.0-beta.0",
         "@faustbrian/hapi-version": "^0.2.11",
         "@types/lodash.orderby": "^4.6.4",
         "@types/lodash.partition": "^4.6.4",
@@ -57,7 +57,7 @@
         "lodash.snakecase": "^4.1.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.0-alpha.25",
+        "@arkecosystem/core-test-utils": "^2.2.0-beta.0",
         "@types/boom": "^7.2.1",
         "@types/ip": "^1.1.0",
         "@types/joi": "^14.3.1",
