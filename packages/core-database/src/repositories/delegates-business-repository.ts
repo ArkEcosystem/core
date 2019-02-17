@@ -3,7 +3,7 @@ import { delegateCalculator } from "@arkecosystem/core-utils";
 import { orderBy } from "@arkecosystem/utils";
 import limitRows from "./utils/limit-rows";
 
-export class DelegatesRepository implements Database.IDelegatesBusinessRepository {
+export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
     /**
      * Create a new delegate repository instance.
      * @param databaseServiceProvider
