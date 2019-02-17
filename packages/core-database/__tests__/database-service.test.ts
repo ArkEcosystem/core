@@ -9,7 +9,7 @@ import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
 
-const { ARKTOSHI, TransactionTypes } = constants;
+const { SATOSHI, TransactionTypes } = constants;
 
 let connection: Database.IDatabaseConnection;
 let databaseService: DatabaseService;
@@ -86,7 +86,7 @@ describe("Database Service", () => {
             databaseService = createService();
 
             connection.blocksRepository = {
-                findByHeight: heights => heights.map(h => ({ height: Number(h), fromDb: true }))
+                findByHeight: heights => heights.map(h => ({ height: Number(h), fromDb: true })),
             } as Database.IBlocksRepository;
 
             let requestHeights = requestHeightsHigh;
@@ -218,7 +218,7 @@ describe("Database Service", () => {
             for (let i = 0; i < 51; i++) {
                 const transfer = transactionBuilder
                     .transfer()
-                    .amount(i * ARKTOSHI)
+                    .amount(i * SATOSHI)
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();

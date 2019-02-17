@@ -31,6 +31,7 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.1",
         "@arkecosystem/crypto": "^2.1.1",
+        "@arkecosystem/utils": "^0.2.3",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.isequal": "^4.5.3",

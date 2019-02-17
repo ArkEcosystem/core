@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { ARKTOSHI } from "../../../src/constants";
+import { SATOSHI } from "../../../src/constants";
 import { DelegateRegistrationHandler } from "../../../src/handlers/transactions/delegate-registration";
 import { DelegateResignationHandler } from "../../../src/handlers/transactions/delegate-resignation";
 import { Handler } from "../../../src/handlers/transactions/handler";
@@ -8,7 +8,7 @@ import { SecondSignatureHandler } from "../../../src/handlers/transactions/secon
 import { TransferHandler } from "../../../src/handlers/transactions/transfer";
 import { VoteHandler } from "../../../src/handlers/transactions/vote";
 import { configManager } from "../../../src/managers";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 
 let wallet;
 let transaction;
@@ -131,7 +131,7 @@ describe.each([
         });
 
         it("should be false if wallet has not enough balance", () => {
-            wallet.balance = transaction.amount.plus(transaction.fee).minus(1); // 1 arktoshi short
+            wallet.balance = transaction.amount.plus(transaction.fee).minus(1); // 1 satoshi short
 
             expect(handler.canApply(wallet, transaction, errors)).toBeFalse();
             expect(errors).toContain("Insufficient balance in the wallet");
@@ -142,7 +142,7 @@ describe.each([
         it("should be ok", () => {
             handler.apply = jest.fn();
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.applyTransactionToSender(wallet, transaction);
@@ -155,7 +155,7 @@ describe.each([
 
             transaction.senderPublicKey = "a".repeat(66);
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.applyTransactionToSender(wallet, transaction);
@@ -166,7 +166,7 @@ describe.each([
         it("should not fail due to case mismatch", () => {
             handler.apply = jest.fn();
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             wallet.publicKey = wallet.publicKey.toLowerCase();
@@ -181,7 +181,7 @@ describe.each([
         it("should be ok", () => {
             handler.revert = jest.fn();
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.revertTransactionForSender(wallet, transaction);
@@ -194,7 +194,7 @@ describe.each([
 
             transaction.senderPublicKey = "a".repeat(66);
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.revertTransactionForSender(wallet, transaction);
@@ -205,7 +205,7 @@ describe.each([
         it("should not fail due to case mismatch", () => {
             handler.revert = jest.fn();
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             wallet.publicKey = wallet.publicKey.toLowerCase();
@@ -218,7 +218,7 @@ describe.each([
 
     describe("applyTransactionToRecipient", () => {
         it("should be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.applyTransactionToRecipient(wallet, transaction);
@@ -229,7 +229,7 @@ describe.each([
         it("should not be ok", () => {
             transaction.recipientId = "invalid-recipientId";
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.applyTransactionToRecipient(wallet, transaction);
@@ -240,7 +240,7 @@ describe.each([
 
     describe("revertTransactionForRecipient", () => {
         it("should be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.revertTransactionForRecipient(wallet, transaction);
@@ -251,7 +251,7 @@ describe.each([
         it("should not be ok", () => {
             transaction.recipientId = "invalid-recipientId";
 
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * SATOSHI;
             wallet.balance = new Bignum(initialBalance);
 
             handler.revertTransactionForRecipient(wallet, transaction);

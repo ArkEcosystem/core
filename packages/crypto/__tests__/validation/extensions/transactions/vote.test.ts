@@ -42,7 +42,7 @@ describe("Vote Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .votesAsset([vote])
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * constants.SATOSHI)
             .sign("passphrase");
 
         expect(validator.validate(transaction.getStruct(), validator.vote()).error).not.toBeNull();

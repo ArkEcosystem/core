@@ -1,22 +1,23 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
-import orderBy from "lodash/orderBy";
+import { orderBy } from "@arkecosystem/utils";
 import limitRows from "./utils/limit-rows";
 
-export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
-
+export class DelegatesRepository implements Database.IDelegatesBusinessRepository {
     /**
      * Create a new delegate repository instance.
      * @param databaseServiceProvider
      */
-    public constructor(private databaseServiceProvider : () => Database.IDatabaseService) {}
+    public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 
     /**
      * Get all local delegates.
      */
     public getLocalDelegates() {
         // TODO: What's the diff between this and just calling 'allByUsername'
-        return this.databaseServiceProvider().walletManager.allByAddress().filter(wallet => !!wallet.username);
+        return this.databaseServiceProvider()
+            .walletManager.allByAddress()
+            .filter(wallet => !!wallet.username);
     }
 
     /**
@@ -30,7 +31,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         const [iteratee, order] = this.orderBy(params);
 
         return {
-            rows: limitRows(orderBy(delegates, iteratee, order as "desc" | "asc"), params),
+            rows: limitRows(orderBy(delegates, [iteratee], [order as "desc" | "asc"]), params),
             count: delegates.length,
         };
     }

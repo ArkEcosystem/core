@@ -6,7 +6,7 @@ import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../sr
 import { DatabaseService } from "../../src/database-service";
 import { setUp, tearDown } from "../__support__/setup";
 
-const { ARKTOSHI } = constants;
+const { SATOSHI } = constants;
 const { Block } = models;
 
 let genesisBlock;
@@ -266,7 +266,7 @@ describe("Delegate Repository", () => {
             const delegate = {
                 username: "test",
                 publicKey: "test",
-                voteBalance: new Bignum(10000 * ARKTOSHI),
+                voteBalance: new Bignum(10000 * SATOSHI),
                 producedBlocks: 1000,
                 missedBlocks: 500,
             };
