@@ -317,7 +317,8 @@ export abstract class BaseCommand extends Command {
     }
 
     protected castFlags(values: Record<string, any>): string[] {
-        return ["number", "baseUrl", "apiPort", "p2pPort", "skipValidation", "skipTesting"]
+        return Object.keys(BaseCommand.flags)
+            .filter(k => !["copy"].includes(k))
             .map((key: string) => {
                 const value = values[key];
 
