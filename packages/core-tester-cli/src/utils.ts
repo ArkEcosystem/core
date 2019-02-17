@@ -1,5 +1,5 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, client, formatArktoshi } from "@arkecosystem/crypto";
+import { Bignum, client, formatSatoshi } from "@arkecosystem/crypto";
 import axios from "axios";
 import pino from "pino";
 
@@ -92,7 +92,7 @@ export function generateTransactions(
 
         if (options.log) {
             logger.info(
-                `${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${this.arktoshiToArk(transaction.fee)})`,
+                `${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${this.satoshiToArk(transaction.fee)})`,
             );
         }
     });
@@ -124,19 +124,19 @@ export function parseFee(fee): Bignum {
 }
 
 /**
- * Convert ARK to Arktoshi.
+ * Convert ARK to Satoshi.
  * @param  {Number} ark
  * @return {Bignum}
  */
-export function arkToArktoshi(ark) {
+export function arkToSatoshi(ark) {
     return bignumify(ark * 1e8);
 }
 
 /**
- * Convert Arktoshi to ARK.
- * @param  {Bignum} arktoshi
+ * Convert Satoshi to ARK.
+ * @param  {Bignum} satoshi
  * @return {String}
  */
-export function arktoshiToArk(arktoshi) {
-    return formatArktoshi(arktoshi);
+export function satoshiToArk(satoshi) {
+    return formatSatoshi(satoshi);
 }

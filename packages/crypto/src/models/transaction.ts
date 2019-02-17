@@ -73,8 +73,8 @@ export interface ITransactionData {
  *   - recipientId (address of the recipient)
  *   - type
  *   - vendorFieldHex (hexadecimal version of the vendorField)
- *   - amount (in arktoshi)
- *   - fee (in arktoshi)
+ *   - amount (in satoshi)
+ *   - fee (in satoshi)
  *   - serialized
  *
  * Apart, the Model includes other fields:

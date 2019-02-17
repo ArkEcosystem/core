@@ -3,7 +3,7 @@ import "jest-extended";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { SecondSignatureCommand } from "../../src/commands/second-signature";
-import { arkToArktoshi } from "../../src/utils";
+import { arkToSatoshi } from "../../src/utils";
 import { toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
@@ -38,7 +38,7 @@ describe("Commands - Second signature", () => {
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: arkToArktoshi(opts.signatureFee),
+                        fee: arkToSatoshi(opts.signatureFee),
                         asset: {
                             signature: {
                                 publicKey: expect.any(String),

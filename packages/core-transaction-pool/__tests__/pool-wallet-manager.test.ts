@@ -8,7 +8,7 @@ import { setUpFull, tearDownFull } from "./__support__/setup";
 const { Block } = models;
 const { generateTransfers, generateWallets, generateDelegateRegistration, generateVote } = generators;
 
-const arktoshi = 10 ** 8;
+const satoshi = 10 ** 8;
 let container: Container.IContainer;
 let PoolWalletManager;
 let poolWalletManager;
@@ -106,13 +106,13 @@ describe("applyPoolTransactionToSender", () => {
                     // transfer from delegate to wallet 0
                     from: delegate,
                     to: walletsGen[0],
-                    amount: 100 * arktoshi,
+                    amount: 100 * satoshi,
                 },
                 {
                     // transfer from wallet 0 to delegatej
                     from: walletsGen[0],
                     to: delegate,
-                    amount: 55 * arktoshi,
+                    amount: 55 * satoshi,
                 },
             ];
 
@@ -144,7 +144,7 @@ describe("applyPoolTransactionToSender", () => {
                 );
             });
 
-            expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * arktoshi);
+            expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
             expect(poolWallets[0].balance.isZero()).toBeTrue();
         });
     });
@@ -157,7 +157,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
     beforeEach(__resetToHeight1);
     afterEach(__resetToHeight1);
 
-    it.each([2 * arktoshi, 0])("should apply forged block reward %i to delegate wallet", async reward => {
+    it.each([2 * satoshi, 0])("should apply forged block reward %i to delegate wallet", async reward => {
         const forgingDelegate = delegates[reward ? 2 : 3]; // use different delegate to have clean initial balance
         const generatorPublicKey = forgingDelegate.publicKey;
 
@@ -173,7 +173,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
             true,
         )[0];
 
-        const totalFee = 0.1 * arktoshi;
+        const totalFee = 0.1 * satoshi;
         const blockWithReward = {
             id: "17882607875259085966",
             version: 0,

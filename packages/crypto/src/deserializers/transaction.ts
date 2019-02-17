@@ -6,7 +6,7 @@ import { TransactionTypeError } from "../errors";
 import { configManager } from "../managers";
 import { Transaction } from "../models";
 import { IMultiSignatureAsset, ITransactionData } from "../models/transaction";
-import { Bignum } from "../utils/bignum";
+import { Bignum } from "../utils";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
