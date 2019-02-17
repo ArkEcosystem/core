@@ -135,6 +135,18 @@
     webpack-node-externals "^1.7.2"
     wif "^2.0.6"
 
+"@arkecosystem/utils@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.3.tgz#8e8cac978cd892b6e8d9cd956d60f2e6c4312fd0"
+  integrity sha512-7DrnQlrPWxIUQA/C1c1Grry0aAkxIwt4uN7aKd0afSkqpwg+rIyByT9N+rwqwYyhSxEZtN6og+iOHXnbNs0epQ==
+  dependencies:
+    "@flatten/array" "^1.1.7"
+    dottie "^2.0.1"
+    fast-safe-stringify "^2.0.6"
+    fast-sort "^1.5.4"
+    fast.js "^0.1.1"
+    hyperid "^2.0.1"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.0.0-beta.35":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.0.0.tgz#06e2ab19bdb535385559aabb5ba59729482800f8"
@@ -788,6 +800,11 @@
     lodash.set "^4.3.2"
     media-type "^0.3.1"
     micromatch "^3.1.10"
+
+"@flatten/array@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@flatten/array/-/array-1.1.7.tgz#f94659bbf32d558f692a6234304a247312a6fa38"
+  integrity sha512-qoKzWImYDQ3MR+bhycIZbRYmzeFabPXZKojrZJCO0QyFWZisob+1+OelW2XE3aRtWgOymdm08k8FlXN9jCZgkQ==
 
 "@iamstarkov/listr-update-renderer@0.4.1":
   version "0.4.1"
@@ -5334,7 +5351,7 @@ deep-metrics@0.0.2:
   dependencies:
     semver "^5.3.0"
 
-deepmerge@*, deepmerge@3.1.0, deepmerge@^3.0.0, deepmerge@^3.1.0:
+deepmerge@*, deepmerge@3.1.0, deepmerge@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-3.1.0.tgz#a612626ce4803da410d77554bfd80361599c034d"
   integrity sha512-/TnecbwXEdycfbsM2++O3eGiatEFHjjNciHEwJclM+T5Kd94qD1AP+2elP/Mq0L5b9VZJao5znR01Mz6eX8Seg==
@@ -5343,6 +5360,11 @@ deepmerge@2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.1.1.tgz#e862b4e45ea0555072bf51e7fd0d9845170ae768"
   integrity sha512-urQxA1smbLZ2cBbXbaYObM1dJ82aJ2H57A1C/Kklfh/ZN1bgH4G/n5KWhdNfOK11W98gqZfyYj7W4frJJRwA2w==
+
+deepmerge@^3.0.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-3.2.0.tgz#58ef463a57c08d376547f8869fdc5bcee957f44e"
+  integrity sha512-6+LuZGU7QCNUnAJyX8cIrlzoEgggTM6B7mm+znKOX4t5ltluT9KLjN6g61ECMS0LTsLW7yDpNoxhix5FZcrIow==
 
 default-require-extensions@^1.0.0:
   version "1.0.0"
@@ -5571,7 +5593,7 @@ dot-prop@^4.1.0, dot-prop@^4.2.0:
   dependencies:
     is-obj "^1.0.0"
 
-dottie@^2.0.0:
+dottie@^2.0.0, dottie@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/dottie/-/dottie-2.0.1.tgz#697ad9d72004db7574d21f892466a3c285893659"
   integrity sha512-ch5OQgvGDK2u8pSZeSYAQaV/lczImd7pMJ7BcEPXmnFVjy4yJIzP6CsODJUTH8mg1tyH1Z2abOiuJO3DjZ/GBw==
@@ -6259,6 +6281,16 @@ fast-safe-stringify@2.0.x, fast-safe-stringify@^2.0.4, fast-safe-stringify@^2.0.
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.6.tgz#04b26106cc56681f51a044cfc0d76cf0008ac2c2"
   integrity sha512-q8BZ89jjc+mz08rSxROs8VsrBBcn1SIw1kq9NjolL509tkABRk9io01RAjSaEv1Xb2uFLt8VtRiZbGp5H8iDtg==
+
+fast-sort@^1.5.4:
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/fast-sort/-/fast-sort-1.5.5.tgz#83e962f53bcb716440a3231fd6d0b811b345c2a0"
+  integrity sha512-3yDkva6FYchpKvwC7HglDSod+w9a7LslOzhRonL5w9IXVA3zRcgujPpGWrnWG2hm4pD00VMZ8jUIAaWz3AqGDw==
+
+fast.js@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/fast.js/-/fast.js-0.1.1.tgz#7c024d55ae144882fbcee44b79005fe2dcabd9fe"
+  integrity sha1-fAJNVa4USIL7zuRLeQBf4tyr2f4=
 
 fb-watchman@^2.0.0:
   version "2.0.0"
@@ -7507,6 +7539,14 @@ husky@^1.3.0:
     read-pkg "^4.0.1"
     run-node "^1.0.0"
     slash "^2.0.0"
+
+hyperid@^2.0.1:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/hyperid/-/hyperid-2.0.2.tgz#f56d898f810f0b737c81475803ea4b63515a92d5"
+  integrity sha512-D4krJfLyXZTZZibL5CEUJzyL001ah1TOK+5wlsra9eMnb0RtMZcBRkblxVRDwzB9VIm9PKXJ4zZtAisFCKuuKQ==
+  dependencies:
+    uuid "^3.3.2"
+    uuid-parse "^1.0.0"
 
 hyperlinker@^1.0.0:
   version "1.0.0"
@@ -14473,6 +14513,11 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
+
+uuid-parse@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/uuid-parse/-/uuid-parse-1.0.0.tgz#f4657717624b0e4b88af36f98d89589a5bbee569"
+  integrity sha1-9GV3F2JLDkuIrzb5jYlYmlu+5Wk=
 
 uuid@^3.0.1, uuid@^3.1.0, uuid@^3.2.1, uuid@^3.3.2:
   version "3.3.2"

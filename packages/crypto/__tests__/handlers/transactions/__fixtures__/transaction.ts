@@ -1,4 +1,4 @@
-import { Bignum } from "../../../../src/utils/bignum";
+import { Bignum } from "../../../../src/utils";
 
 export const transaction = {
     version: 1,

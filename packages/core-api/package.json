@@ -39,6 +39,7 @@
         "@arkecosystem/core-transaction-pool": "^2.2.0-beta.0",
         "@arkecosystem/core-utils": "^2.2.0-beta.0",
         "@arkecosystem/crypto": "^2.2.0-beta.0",
+        "@arkecosystem/utils": "^0.2.3",
         "@faustbrian/hapi-version": "^0.2.11",
         "@types/lodash.orderby": "^4.6.4",
         "@types/lodash.partition": "^4.6.4",
