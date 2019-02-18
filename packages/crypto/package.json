@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the Ark Blockchain",
-    "version": "2.1.2",
+    "version": "2.2.0-beta.3",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -19,6 +19,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -39,7 +43,6 @@
         "@types/bip39": "^2.4.1",
         "@types/bytebuffer": "^5.0.40",
         "@types/create-hash": "^1.2.0",
-        "@types/deepmerge": "^2.2.0",
         "@types/joi": "^14.3.1",
         "@types/lodash.camelcase": "^4.3.4",
         "@types/lodash.get": "^4.4.4",

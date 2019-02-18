@@ -12,3 +12,4 @@ ignore:
   - "packages/core-test-utils/src/fixtures/**/*"
   - "packages/core-tester-cli/**/*"
   - "packages/core-webhooks/src/database/migrations/**/*"
+  - "packages/core/**/*"
