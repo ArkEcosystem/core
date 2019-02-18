@@ -88,7 +88,7 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
             ]);
 
             if (response.confirm) {
-                cli.action.start(`Update from ${config.version} to ${remoteVersion} in progress`);
+                cli.action.start(`Updating from ${config.version} to ${remoteVersion}`);
 
                 try {
                     const { stdout, stderr } = await shell(`yarn global add ${config.name}@${channel}`);

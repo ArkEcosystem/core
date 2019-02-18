@@ -15,9 +15,6 @@ $ ark env:set CORE_LOG_LEVEL info
 
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
-        force: flags.boolean({
-            description: "force the setting to be overwritten",
-        }),
     };
 
     public static args: Array<{ name: string; required: boolean; hidden: boolean }> = [
@@ -26,7 +23,7 @@ $ ark env:set CORE_LOG_LEVEL info
     ];
 
     public async run(): Promise<void> {
-        const { args, flags, paths } = await this.parseWithNetwork(SetCommand);
+        const { args, paths } = await this.parseWithNetwork(SetCommand);
 
         const envFile = `${paths.config}/.env`;
 
@@ -35,10 +32,6 @@ $ ark env:set CORE_LOG_LEVEL info
         }
 
         const env = envfile.parseFileSync(envFile);
-
-        if (env[args.key] && !flags.force) {
-            this.error(`The "${args.key}" already exists. If you wish to overwrite it use the --force flag.`);
-        }
 
         env[args.key] = args.value;
 
