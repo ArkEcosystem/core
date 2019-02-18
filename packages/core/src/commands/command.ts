@@ -196,6 +196,18 @@ export abstract class BaseCommand extends Command {
         });
     }
 
+    protected async describePm2Process(processName: string, callback): Promise<void> {
+        pm2.describe(processName, (error, apps) => {
+            if (error) {
+                pm2.disconnect();
+
+                this.error(error.message);
+            }
+
+            callback(apps[0]);
+        });
+    }
+
     protected async buildBIP38(flags: Record<string, any>): Promise<Record<string, string>> {
         // initial values
         let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
@@ -233,7 +245,8 @@ export abstract class BaseCommand extends Command {
             ]);
 
             if (!response.password) {
-                this.error("We've detected that you are using BIP38 but have not provided a valid password.");
+                this.warn("We've detected that you are using BIP38 but have not provided a valid password.");
+                process.exit();
             }
 
             password = response.password;

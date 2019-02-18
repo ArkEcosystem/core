@@ -1,5 +1,5 @@
 import cli from "cli-ux";
-import pm2 from "pm2";
+import pm2, { ProcessDescription } from "pm2";
 import prompts from "prompts";
 import { BaseCommand } from "../commands/command";
 
@@ -81,5 +81,12 @@ export abstract class AbstractStartCommand extends BaseCommand {
                 }
             });
         }, noDaemonMode);
+    }
+
+    protected abortWhenRunning(processName: string, app: ProcessDescription): void {
+        if (app && app.pm2_env.status === "online") {
+            this.warn(`The "${processName}" process is already running.`);
+            process.exit();
+        }
     }
 }
