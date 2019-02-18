@@ -3,6 +3,7 @@ import Chalk from "chalk";
 import cli from "cli-ux";
 import { shell } from "execa";
 import { closeSync, openSync, statSync } from "fs";
+import { existsSync } from "fs-extra";
 import { ensureDirSync, removeSync } from "fs-extra";
 import latestVersion from "latest-version";
 import { join } from "path";
@@ -11,7 +12,9 @@ import semver from "semver";
 
 async function getVersionFromNode(name: string, channel: string): Promise<string> {
     try {
-        return latestVersion(name, { version: channel });
+        const version = await latestVersion(name, { version: channel });
+
+        return version;
     } catch (error) {
         return undefined;
     }
@@ -50,6 +53,11 @@ export function needsRefresh(config: IConfig): boolean {
 }
 
 export async function checkForUpdates({ config, error, log, warn }): Promise<void> {
+    if (existsSync(join(__dirname, "../../../..", ".git"))) {
+        warn(`You are using a git clone for developers. Please install core via yarn for auto-updates.`);
+        return;
+    }
+
     try {
         const channel = getUpdateChannel(config);
         const cacheFile = ensureCacheFile(config);

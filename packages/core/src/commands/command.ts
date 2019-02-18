@@ -83,7 +83,7 @@ export abstract class BaseCommand extends Command {
         return app;
     }
 
-    protected flagsToStrings(flags: Record<string, any>, ignoreKeys?: string[]): string {
+    protected flagsToStrings(flags: Record<string, any>, ignoreKeys: string[] = []): string {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {

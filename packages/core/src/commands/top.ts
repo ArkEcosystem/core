@@ -33,7 +33,8 @@ $ ark top
                 const processes = Object.values(processList).filter(p => p.name.startsWith(flags.token as string));
 
                 if (!Object.keys(processes).length) {
-                    this.error("No processes are running.");
+                    this.warn("No processes are running.");
+                    return;
                 }
 
                 renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
