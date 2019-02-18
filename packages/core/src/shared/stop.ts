@@ -1,3 +1,4 @@
+import cli from "cli-ux";
 import pm2 from "pm2";
 import { BaseCommand } from "../commands/command";
 
@@ -15,11 +16,15 @@ export abstract class AbstractStopCommand extends BaseCommand {
 
                 if (error) {
                     if (error.message === "process name not found") {
-                        this.warn(`The "${processName}" process does not exist. Failed to ${method}!`);
-                    } else {
-                        throw error;
+                        this.warn(`The "${processName}" process does not exist.`);
+                        return;
                     }
+
+                    throw error;
                 }
+
+                cli.action.start(`Stopping ${processName}`);
+                cli.action.stop();
             });
         });
     }

@@ -22,6 +22,7 @@ export abstract class AbstractStatusCommand extends BaseCommand {
 
                 if (!apps[0]) {
                     this.warn(`The "${processName}" process is not running.`);
+                    return;
                 }
 
                 renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {

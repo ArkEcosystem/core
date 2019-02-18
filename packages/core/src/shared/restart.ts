@@ -9,19 +9,19 @@ export abstract class AbstractRestartCommand extends BaseCommand {
         const processName = `${flags.token}-${this.getSuffix()}`;
 
         this.createPm2Connection(() => {
-            cli.action.start(`Restarting ${processName}. Please wait`);
-
             pm2.reload(processName, error => {
                 pm2.disconnect();
 
                 if (error) {
                     if (error.message === "process name not found") {
-                        this.warn(`The "${processName}" process does not exist. Failed to restart!`);
-                    } else {
-                        throw error;
+                        this.warn(`The "${processName}" process does not exist.`);
+                        return;
                     }
+
+                    throw error;
                 }
 
+                cli.action.start(`Restarting ${processName}`);
                 cli.action.stop();
             });
         });

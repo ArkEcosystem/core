@@ -1,5 +1,5 @@
 import cli from "cli-ux";
-import pm2 from "pm2";
+import pm2, { ProcessDescription } from "pm2";
 import { Tail } from "tail";
 import { BaseCommand } from "../commands/command";
 
@@ -19,10 +19,11 @@ export abstract class AbstractLogCommand extends BaseCommand {
 
                 if (!apps[0]) {
                     this.warn(`The "${processName}" process is not running.`);
+                    return;
                 }
 
-                const app = apps[0].pm2_env;
-                const file = flags.error ? app.pm_err_log_path : app.pm_out_log_path;
+                const { pm2_env } = apps[0];
+                const file = flags.error ? pm2_env.pm_err_log_path : pm2_env.pm_out_log_path;
 
                 const log = new Tail(file);
 
