@@ -216,9 +216,9 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
     read -p "Enter the database password: " databasePassword
     read -p "Enter the database name: " databaseName
 
-    ark env:set CORE_DB_USERNAME $databaseUsername --force
-    ark env:set CORE_DB_PASSWORD $databasePassword --force
-    ark env:set CORE_DB_DATABASE $databaseName --force
+    ark env:set CORE_DB_USERNAME $databaseUsername
+    ark env:set CORE_DB_PASSWORD $databasePassword
+    ark env:set CORE_DB_DATABASE $databaseName
 
     userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
     databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
