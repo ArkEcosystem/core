@@ -33,11 +33,8 @@ $ ark config:publish --network=mainnet
                 type: "autocomplete",
                 name: "network",
                 message: "What network do you want to operate on?",
-                choices: [
-                    { title: "Production", value: "mainnet" },
-                    { title: "Development", value: "devnet" },
-                    { title: "Test", value: "testnet" },
-                ],
+                choices: this.getNetworksForPrompt(),
+                validate: value => (this.isValidNetwork(value) ? true : `Failed to verify the given network.`),
             },
             {
                 type: "confirm",

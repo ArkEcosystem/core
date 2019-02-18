@@ -10,6 +10,8 @@ import prompts from "prompts";
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
 
+const validNetworks = Object.keys(networks).filter(network => network !== "unitnet");
+
 export abstract class BaseCommand extends Command {
     public static flagsNetwork: Record<string, object> = {
         token: flags.string({
@@ -19,7 +21,7 @@ export abstract class BaseCommand extends Command {
         }),
         network: flags.string({
             description: "the name of the network that should be used",
-            options: Object.keys(networks),
+            options: validNetworks,
         }),
     };
 
@@ -243,7 +245,15 @@ export abstract class BaseCommand extends Command {
         return { bip38, password };
     }
 
+    protected getNetworks(): string[] {
+        return validNetworks;
+    }
+
     protected isValidNetwork(network: string): boolean {
-        return Object.keys(networks).includes(network);
+        return this.getNetworks().includes(network);
+    }
+
+    protected getNetworksForPrompt(): any {
+        return this.getNetworks().map(network => ({ title: network, value: network }));
     }
 }
