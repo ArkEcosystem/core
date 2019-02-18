@@ -26,12 +26,15 @@ export class VoteCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        await this.initialize(VoteCommand);
+        // tslint:disable-next-line: no-shadowed-variable
+        const { flags } = await this.initialize(VoteCommand);
 
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
-            await TransferCommand.run(["--recipient", wallet.address, "--amount", String(2), "--skipTesting"]);
+            await TransferCommand.run(
+                ["--recipient", wallet.address, "--amount", String(2), "--skipTesting"].concat(this.castFlags(flags)),
+            );
         }
 
         let delegate = this.options.delegate;

@@ -22,18 +22,17 @@ export class SecondSignatureCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        await this.initialize(SecondSignatureCommand);
+        // tslint:disable-next-line: no-shadowed-variable
+        const { flags } = await this.initialize(SecondSignatureCommand);
 
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
-            await TransferCommand.run([
-                "--recipient",
-                wallet.address,
-                "--amount",
-                String(this.options.amount || 5),
-                "--skipTesting",
-            ]);
+            await TransferCommand.run(
+                ["--recipient", wallet.address, "--amount", String(this.options.amount || 5), "--skipTesting"].concat(
+                    this.castFlags(flags),
+                ),
+            );
         }
 
         logger.info(`Sending ${this.options.number} second signature ${pluralize("transaction", this.options.number)}`);

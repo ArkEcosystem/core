@@ -23,18 +23,17 @@ export class DelegateRegistrationCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        await this.initialize(DelegateRegistrationCommand);
+        // tslint:disable-next-line: no-shadowed-variable
+        const { flags } = await this.initialize(DelegateRegistrationCommand);
 
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
-            await TransferCommand.run([
-                "--amount",
-                String(this.options.amount || 25),
-                "--recipient",
-                wallet.address,
-                "--skipTesting",
-            ]);
+            await TransferCommand.run(
+                ["--amount", String(this.options.amount || 25), "--recipient", wallet.address, "--skipTesting"].concat(
+                    this.castFlags(flags),
+                ),
+            );
         }
 
         const delegates = await this.getDelegates();

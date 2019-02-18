@@ -32,8 +32,7 @@ describe("Commands - Second signature", () => {
         const flags = toFlags(opts);
         await SecondSignatureCommand.run(flags);
 
-        expect(axios.post).toHaveBeenNthCalledWith(
-            4,
+        expect(axios.post).toHaveBeenCalledWith(
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
