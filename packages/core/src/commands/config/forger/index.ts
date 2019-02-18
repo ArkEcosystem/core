@@ -25,7 +25,7 @@ $ ark config:forger --method=bip39
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ForgerCommand);
+        const { flags } = await this.parseWithNetwork(ForgerCommand);
 
         if (flags.method === "bip38") {
             return BIP38Command.run(this.formatFlags(flags));

@@ -4,11 +4,7 @@ import { BaseCommand } from "../commands/command";
 
 export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {
-        const { flags } = this.parse(this.getClass());
-
-        if (!flags.network) {
-            await this.getNetwork(flags);
-        }
+        const { flags } = await this.parseWithNetwork(this.getClass());
 
         return this.runProcess(flags);
     }

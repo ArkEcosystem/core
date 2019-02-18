@@ -18,10 +18,9 @@ $ ark env:list
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ListCommand);
-        const { config } = await this.getPaths(flags);
+        const { paths } = await this.parseWithNetwork(ListCommand);
 
-        const envFile = `${config}/.env`;
+        const envFile = `${paths.config}/.env`;
 
         if (!existsSync(envFile)) {
             this.error(`No environment file found at ${envFile}`);

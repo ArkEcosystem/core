@@ -20,7 +20,7 @@ $ ark top
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(TopCommand);
+        const { flags } = await this.parseWithNetwork(TopCommand);
 
         this.createPm2Connection(() => {
             pm2.list((error, processList) => {

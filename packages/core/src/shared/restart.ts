@@ -4,13 +4,17 @@ import { BaseCommand } from "../commands/command";
 
 export abstract class AbstractRestartCommand extends BaseCommand {
     public async run(): Promise<void> {
-        const { flags } = this.parse(this.getClass());
+        const { flags } = await this.parseWithNetwork(this.getClass());
 
         const processName = `${flags.token}-${this.getSuffix()}`;
+
+        cli.action.start(`Restarting ${processName}`);
 
         this.createPm2Connection(() => {
             pm2.reload(processName, error => {
                 pm2.disconnect();
+
+                cli.action.stop();
 
                 if (error) {
                     if (error.message === "process name not found") {
@@ -20,9 +24,6 @@ export abstract class AbstractRestartCommand extends BaseCommand {
 
                     throw error;
                 }
-
-                cli.action.start(`Restarting ${processName}`);
-                cli.action.stop();
             });
         });
     }

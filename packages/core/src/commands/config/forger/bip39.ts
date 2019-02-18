@@ -21,7 +21,7 @@ $ ark config:forger:bip39 --bip39="..."
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(BIP39Command);
+        const { flags } = await this.parseWithNetwork(BIP39Command);
 
         if (flags.bip39) {
             return this.performConfiguration(flags);
@@ -60,13 +60,13 @@ $ ark config:forger:bip39 --bip39="..."
 
         this.addTask("Prepare configuration", async () => {
             if (!fs.existsSync(delegatesConfig)) {
-                throw new Error(`Couldn't find the core configuration at ${delegatesConfig}.`);
+                this.error(`Couldn't find the delegates configuration at ${delegatesConfig}.`);
             }
         });
 
         this.addTask("Validate passphrase", async () => {
             if (!bip39.validateMnemonic(flags.bip39)) {
-                throw new Error(`Failed to verify the given passphrase as BIP39 compliant.`);
+                this.error(`Failed to verify the given passphrase as BIP39 compliant.`);
             }
         });
 

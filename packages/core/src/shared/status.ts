@@ -8,7 +8,7 @@ import { renderTable } from "../utils";
 
 export abstract class AbstractStatusCommand extends BaseCommand {
     public async run(): Promise<void> {
-        const { flags } = this.parse(this.getClass());
+        const { flags } = await this.parseWithNetwork(this.getClass());
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 

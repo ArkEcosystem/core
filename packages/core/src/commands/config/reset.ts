@@ -23,9 +23,9 @@ $ ark config:reset --network=mainnet
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(ResetCommand);
+        const { flags } = await this.parseWithNetwork(ResetCommand);
 
-        if (flags.token && flags.network && flags.force) {
+        if (flags.force) {
             return this.performReset(flags);
         }
 

@@ -112,15 +112,7 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected getEnvPaths(flags: Record<string, any>): envPaths.Paths {
-        return envPaths(flags.token, { suffix: "core" });
-    }
-
     protected async getPaths(flags: Record<string, any>): Promise<envPaths.Paths> {
-        if (!flags.network) {
-            await this.getNetwork(flags);
-        }
-
         const paths: envPaths.Paths = this.getEnvPaths(flags);
 
         for (const [key, value] of Object.entries(paths)) {
@@ -130,58 +122,65 @@ export abstract class BaseCommand extends Command {
         return paths;
     }
 
-    protected async getNetwork(flags: Record<string, any>): Promise<void> {
+    protected async parseWithNetwork(command: any): Promise<any> {
+        const { args, flags } = this.parse(command);
+
         if (process.env.CORE_PATH_CONFIG) {
             const network: string = process.env.CORE_PATH_CONFIG.split("/").pop();
 
-            if (this.isValidNetwork(network)) {
-                flags.network = network;
-                return;
+            if (!this.isValidNetwork(network)) {
+                this.error(`The given network "${flags.network}" is not valid.`);
             }
-        }
 
-        const { config } = this.getEnvPaths(flags);
+            flags.network = network;
+        } else {
+            const { config } = this.getEnvPaths(flags);
 
-        try {
-            const folders: string[] = readdirSync(config);
+            try {
+                const folders: string[] = readdirSync(config);
 
-            if (!folders || folders.length === 0) {
+                if (!folders || folders.length === 0) {
+                    this.error(
+                        'We were unable to detect any configuration. Please run "ark config:publish" and try again.',
+                    );
+                }
+
+                if (folders.length === 1) {
+                    flags.network = folders[0];
+                } else {
+                    const response = await prompts([
+                        {
+                            type: "select",
+                            name: "network",
+                            message: "What network do you want to operate on?",
+                            choices: folders
+                                .filter(folder => this.isValidNetwork(folder))
+                                .map(folder => ({ title: folder, value: folder })),
+                        },
+                        {
+                            type: "confirm",
+                            name: "confirm",
+                            message: "Can you confirm?",
+                            initial: true,
+                        },
+                    ]);
+
+                    if (!response.network) {
+                        this.abortWithInvalidInput();
+                    }
+
+                    if (response.confirm) {
+                        flags.network = response.network;
+                    }
+                }
+            } catch (error) {
                 this.error(
                     'We were unable to detect any configuration. Please run "ark config:publish" and try again.',
                 );
             }
-
-            if (folders.length === 1) {
-                flags.network = folders[0];
-            } else {
-                const response = await prompts([
-                    {
-                        type: "autocomplete",
-                        name: "network",
-                        message: "What network do you want to operate on?",
-                        choices: folders
-                            .filter(folder => this.isValidNetwork(folder))
-                            .map(folder => ({ title: folder, value: folder })),
-                    },
-                    {
-                        type: "confirm",
-                        name: "confirm",
-                        message: "Can you confirm?",
-                        initial: true,
-                    },
-                ]);
-
-                if (!response.network) {
-                    this.abortWithInvalidInput();
-                }
-
-                if (response.confirm) {
-                    flags.network = response.network;
-                }
-            }
-        } catch (error) {
-            this.error('We were unable to detect any configuration. Please run "ark config:publish" and try again.');
         }
+
+        return { args, flags, paths: await this.getPaths(flags) };
     }
 
     protected abortWithInvalidInput(): void {
@@ -255,5 +254,9 @@ export abstract class BaseCommand extends Command {
 
     protected getNetworksForPrompt(): any {
         return this.getNetworks().map(network => ({ title: network, value: network }));
+    }
+
+    private getEnvPaths(flags: Record<string, any>): envPaths.Paths {
+        return envPaths(flags.token, { suffix: "core" });
     }
 }

@@ -17,7 +17,7 @@ $ ark env:paths
 
     public async run(): Promise<void> {
         renderTable(["Type", "Path"], async (table: Table.Table) => {
-            const paths = await this.getPaths(this.parse(PathsCommand).flags);
+            const { paths } = await this.parseWithNetwork(PathsCommand);
 
             for (const [type, path] of Object.entries(paths)) {
                 // @ts-ignore

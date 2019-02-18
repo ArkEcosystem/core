@@ -30,11 +30,10 @@ $ ark config:publish --network=mainnet
         // Interactive CLI
         const response = await prompts([
             {
-                type: "autocomplete",
+                type: "select",
                 name: "network",
                 message: "What network do you want to operate on?",
                 choices: this.getNetworksForPrompt(),
-                validate: value => (this.isValidNetwork(value) ? true : `Failed to verify the given network.`),
             },
             {
                 type: "confirm",
@@ -54,18 +53,24 @@ $ ark config:publish --network=mainnet
     }
 
     private async performPublishment(flags: Record<string, any>): Promise<void> {
-        const corePaths = await this.getPaths(flags);
+        const { config } = await this.getPaths(flags);
 
         if (!this.isValidNetwork(flags.network)) {
             this.error(`The given network "${flags.network}" is not valid.`);
         }
 
-        const coreConfigDest = corePaths.config;
+        const coreConfigDest = config;
         const coreConfigSrc = resolve(__dirname, `../../../bin/config/${flags.network}`);
 
         this.addTask("Prepare directories", async () => {
+            if (fs.existsSync(coreConfigDest)) {
+                this.error(
+                    `${coreConfigDest} already exists. Please run "ark config:reset" if you wish to reset your configuration.`,
+                );
+            }
+
             if (!fs.existsSync(coreConfigSrc)) {
-                throw new Error(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
+                this.error(`Couldn't find the core configuration files at ${coreConfigSrc}.`);
             }
 
             fs.ensureDirSync(coreConfigDest);
@@ -73,7 +78,7 @@ $ ark config:publish --network=mainnet
 
         this.addTask("Publish environment", async () => {
             if (!fs.existsSync(`${coreConfigSrc}/.env`)) {
-                throw new Error(`Couldn't find the environment file at ${coreConfigSrc}/.env.`);
+                this.error(`Couldn't find the environment file at ${coreConfigSrc}/.env.`);
             }
 
             fs.copySync(`${coreConfigSrc}/.env`, `${coreConfigDest}/.env`);

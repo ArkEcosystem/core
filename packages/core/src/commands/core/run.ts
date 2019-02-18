@@ -32,11 +32,7 @@ $ ark core:run --launchMode=seed
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(RunCommand);
-
-        if (!flags.network) {
-            await this.getNetwork(flags);
-        }
+        const { flags } = await this.parseWithNetwork(RunCommand);
 
         await this.buildApplication(app, flags, {
             options: {
