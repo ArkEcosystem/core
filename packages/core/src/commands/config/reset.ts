@@ -52,10 +52,6 @@ $ ark config:reset --network=mainnet
 
         await this.runTasks();
 
-        await PublishCommand.run(
-            this.flagsToStrings(flags)
-                .split(" ")
-                .concat(["--force"]),
-        );
+        await PublishCommand.run(this.flagsToStrings(flags).split(" "));
     }
 }

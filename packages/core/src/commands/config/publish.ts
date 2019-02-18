@@ -15,15 +15,12 @@ $ ark config:publish --network=mainnet
 
     public static flags: Record<string, any> = {
         ...BaseCommand.flagsNetwork,
-        force: flags.boolean({
-            description: "force the configuration to be overwritten",
-        }),
     };
 
     public async run(): Promise<void> {
         const { flags } = this.parse(PublishCommand);
 
-        if (flags.token && flags.network && flags.force) {
+        if (flags.network) {
             return this.performPublishment(flags);
         }
 

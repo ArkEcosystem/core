@@ -87,9 +87,8 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
         });
 
         this.addTask("Loading private key", async () => {
-            const keys = crypto.getKeys(flags.bip39);
             // @ts-ignore
-            decodedWIF = wif.decode(crypto.keysToWIF(keys));
+            decodedWIF = wif.decode(crypto.keysToWIF(crypto.getKeys(flags.bip39)));
         });
 
         this.addTask("Encrypt BIP38", async () => {
