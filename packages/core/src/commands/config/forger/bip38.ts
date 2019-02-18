@@ -52,7 +52,6 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
                 type: "confirm",
                 name: "confirm",
                 message: "Can you confirm?",
-                initial: true,
             },
         ]);
 

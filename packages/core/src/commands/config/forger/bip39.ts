@@ -40,7 +40,6 @@ $ ark config:forger:bip39 --bip39="..."
                 type: "confirm",
                 name: "confirm",
                 message: "Can you confirm?",
-                initial: true,
             },
         ]);
 

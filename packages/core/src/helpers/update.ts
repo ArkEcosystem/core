@@ -84,7 +84,6 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
                     type: "confirm",
                     name: "confirm",
                     message: `Would you like to update?`,
-                    initial: true,
                 },
             ]);
 

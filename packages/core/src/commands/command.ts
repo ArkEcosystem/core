@@ -161,7 +161,6 @@ export abstract class BaseCommand extends Command {
                             type: "confirm",
                             name: "confirm",
                             message: "Can you confirm?",
-                            initial: true,
                         },
                     ]);
 
@@ -230,7 +229,6 @@ export abstract class BaseCommand extends Command {
                     type: "confirm",
                     name: "confirm",
                     message: "Can you confirm?",
-                    initial: true,
                 },
             ]);
 

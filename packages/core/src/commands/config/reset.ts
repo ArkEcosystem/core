@@ -35,7 +35,6 @@ $ ark config:reset --network=mainnet
                 type: "confirm",
                 name: "confirm",
                 message: "Are you absolutely sure that you want to reset the configuration?",
-                initial: true,
             },
         ]);
 

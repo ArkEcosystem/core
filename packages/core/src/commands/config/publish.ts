@@ -39,7 +39,6 @@ $ ark config:publish --network=mainnet
                 type: "confirm",
                 name: "confirm",
                 message: "Can you confirm?",
-                initial: true,
             },
         ]);
 

@@ -29,7 +29,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
                             type: "confirm",
                             name: "confirm",
                             message: "A process is already running, would you like to restart it?",
-                            initial: true,
                         });
 
                         if (!response.confirm) {
