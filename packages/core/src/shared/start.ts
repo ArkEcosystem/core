@@ -1,3 +1,4 @@
+import cli from "cli-ux";
 import pm2 from "pm2";
 import prompts from "prompts";
 import { BaseCommand } from "../commands/command";
@@ -40,6 +41,8 @@ export abstract class AbstractStartCommand extends BaseCommand {
                         }
                     }
 
+                    cli.action.start(`Restarting ${processName}`);
+
                     pm2.reload(processName, error => {
                         pm2.disconnect();
 
@@ -47,9 +50,13 @@ export abstract class AbstractStartCommand extends BaseCommand {
                             this.error(error.message);
                         }
 
+                        cli.action.stop();
+
                         process.exit();
                     });
                 } else {
+                    cli.action.start(`Starting ${processName}`);
+
                     pm2.start(
                         {
                             ...{
@@ -65,6 +72,10 @@ export abstract class AbstractStartCommand extends BaseCommand {
                             if (error) {
                                 this.error(error.message);
                             }
+
+                            cli.action.stop();
+
+                            process.exit();
                         },
                     );
                 }

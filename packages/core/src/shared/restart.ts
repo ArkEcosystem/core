@@ -24,6 +24,8 @@ export abstract class AbstractRestartCommand extends BaseCommand {
 
                     throw error;
                 }
+
+                process.exit();
             });
         });
     }

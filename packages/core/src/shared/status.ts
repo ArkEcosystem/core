@@ -41,6 +41,8 @@ export abstract class AbstractStatusCommand extends BaseCommand {
                         prettyBytes(process.monit.memory),
                     ]);
                 });
+
+                process.exit();
             });
         });
     }

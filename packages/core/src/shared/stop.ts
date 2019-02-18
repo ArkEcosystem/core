@@ -26,6 +26,8 @@ export abstract class AbstractStopCommand extends BaseCommand {
 
                     throw error;
                 }
+
+                process.exit();
             });
         });
     }
