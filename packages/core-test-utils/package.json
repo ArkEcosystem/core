@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-test-utils",
     "description": "Test Utilities for Ark Core",
-    "version": "2.2.0-beta.2",
+    "version": "2.2.0-beta.3",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Erwann Gentric <erwann@ark.io>",
@@ -34,10 +34,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.2",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.2",
-        "@arkecosystem/core-jest-matchers": "^2.2.0-beta.2",
-        "@arkecosystem/crypto": "^2.2.0-beta.2",
+        "@arkecosystem/core-container": "^2.2.0-beta.3",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.3",
+        "@arkecosystem/core-jest-matchers": "^2.2.0-beta.3",
+        "@arkecosystem/crypto": "^2.2.0-beta.3",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.isequal": "^4.5.3",
