@@ -24,7 +24,7 @@ $ ark env:list
         const envFile = `${config}/.env`;
 
         if (!existsSync(envFile)) {
-            throw new Error(`No environment file found at ${envFile}`);
+            this.error(`No environment file found at ${envFile}`);
         }
 
         renderTable(["Key", "Value"], (table: Table.Table) => {

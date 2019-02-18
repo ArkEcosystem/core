@@ -26,13 +26,13 @@ $ ark env:get CORE_LOG_LEVEL
         const envFile = `${config}/.env`;
 
         if (!existsSync(envFile)) {
-            throw new Error(`No environment file found at ${envFile}`);
+            this.error(`No environment file found at ${envFile}`);
         }
 
         const env = envfile.parseFileSync(envFile);
 
         if (!env[args.key]) {
-            throw new Error(`The "${args.key}" doesn't exist.`);
+            this.error(`The "${args.key}" doesn't exist.`);
         }
 
         console.log(env[args.key]);

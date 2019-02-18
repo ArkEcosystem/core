@@ -32,13 +32,13 @@ $ ark env:set CORE_LOG_LEVEL info
         const envFile = `${config}/.env`;
 
         if (!existsSync(envFile)) {
-            throw new Error(`No environment file found at ${envFile}`);
+            this.error(`No environment file found at ${envFile}`);
         }
 
         const env = envfile.parseFileSync(envFile);
 
         if (env[args.key] && !flags.force) {
-            throw new Error(`The "${args.key}" already exists. If you wish to overwrite it use the --force flag.`);
+            this.error(`The "${args.key}" already exists. If you wish to overwrite it use the --force flag.`);
         }
 
         env[args.key] = args.value;
