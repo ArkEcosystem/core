@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-blockchain",
     "description": "Blockchain Manager for Ark Core",
-    "version": "2.2.0-beta.0",
+    "version": "2.2.0-beta.1",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -34,10 +34,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.0",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.0",
-        "@arkecosystem/core-utils": "^2.2.0-beta.0",
-        "@arkecosystem/crypto": "^2.2.0-beta.0",
+        "@arkecosystem/core-container": "^2.2.0-beta.1",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.1",
+        "@arkecosystem/core-utils": "^2.2.0-beta.1",
+        "@arkecosystem/crypto": "^2.2.0-beta.1",
         "@types/lodash.get": "^4.4.4",
         "async": "^2.6.2",
         "awilix": "^4.2.0",
@@ -49,8 +49,8 @@
         "xstate": "^4.3.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.2.0-beta.0",
-        "@arkecosystem/core-test-utils": "^2.2.0-beta.0",
+        "@arkecosystem/core-p2p": "^2.2.0-beta.1",
+        "@arkecosystem/core-test-utils": "^2.2.0-beta.1",
         "@types/async": "^2.4.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
