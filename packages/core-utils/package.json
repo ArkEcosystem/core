@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-utils",
     "description": "Utilities for Ark Core",
-    "version": "2.2.0-beta.1",
+    "version": "2.2.0-beta.2",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -31,8 +31,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.1",
-        "@arkecosystem/crypto": "^2.2.0-beta.1",
+        "@arkecosystem/core-container": "^2.2.0-beta.2",
+        "@arkecosystem/crypto": "^2.2.0-beta.2",
         "cli-table3": "^0.5.1",
         "dayjs-ext": "^2.2.0"
     },
