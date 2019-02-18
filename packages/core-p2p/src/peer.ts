@@ -210,13 +210,13 @@ export class Peer implements P2P.IPeer {
         if (false && process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
             const peerVerifier = new PeerVerifier(this);
 
-            if (deadline <= new Date().getTime()) {
-                throw new PeerPingTimeoutError(delay);
-            }
-
             if (!(await peerVerifier.checkState(body, deadline))) {
                 throw new PeerVerificationFailedError();
             }
+        }
+
+        if (deadline <= new Date().getTime()) {
+            throw new PeerPingTimeoutError(delay);
         }
 
         this.lastPinged = dayjs();
