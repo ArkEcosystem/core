@@ -35,7 +35,7 @@ export class Transactions extends Index {
                 );
 
                 try {
-                    await client.bulk(this.buildBulkUpsert(rows));
+                    await this.bulkUpsert(rows);
 
                     storage.update({
                         lastTransaction: +last(rows).data.timestamp,
@@ -48,9 +48,9 @@ export class Transactions extends Index {
     }
 
     public listen() {
-        this.registerCreateListener("transaction.applied");
+        this.registerListener("create", "transaction.applied");
 
-        this.registerDeleteListener("transaction.expired");
-        this.registerDeleteListener("transaction.reverted");
+        this.registerListener("delete", "transaction.expired");
+        this.registerListener("delete", "transaction.reverted");
     }
 }

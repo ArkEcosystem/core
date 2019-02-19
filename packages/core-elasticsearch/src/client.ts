@@ -1,9 +1,9 @@
-import { Client as ElasticSearch } from "elasticsearch";
+import { Client as ElasticSearch, ConfigOptions } from "elasticsearch";
 
 class Client {
     private client: ElasticSearch;
 
-    public async setUp(options: Record<string, any>) {
+    public async setUp(options: ConfigOptions) {
         this.client = new ElasticSearch(options);
     }
 

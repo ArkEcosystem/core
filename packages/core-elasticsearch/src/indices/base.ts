@@ -18,27 +18,31 @@ export abstract class Index {
     public abstract index(): void;
     public abstract listen(): void;
 
-    protected registerCreateListener(event) {
+    protected registerListener(method: "create" | "delete", event: string) {
         this.emitter.on(event, async doc => {
             try {
                 const exists = await this.exists(doc);
+                const shouldTakeAction = method === "create" ? !exists : exists;
 
-                if (!exists) {
-                    await this.create(doc);
-                }
-            } catch (error) {
-                this.logger.error(`[ES] ${error.message}`);
-            }
-        });
-    }
+                if (shouldTakeAction) {
+                    if (method === "create") {
+                        this.logger.info(`[ES] Creating ${this.getType()} with ID ${doc.id}`);
 
-    protected registerDeleteListener(event) {
-        this.emitter.on(event, async doc => {
-            try {
-                const exists = await this.exists(doc);
+                        storage.update(
+                            this.getType() === "block" ? { lastBlock: doc.height } : { lastTransaction: doc.timestamp },
+                        );
 
-                if (exists) {
-                    await this.delete(doc);
+                        await client.create({
+                            index: this.getIndex(),
+                            type: this.getType(),
+                            id: doc.id,
+                            body: doc,
+                        });
+                    } else {
+                        this.logger.info(`[ES] Deleting ${this.getType()} with ID ${doc.id}`);
+
+                        await client.delete(this.getReadQuery(doc));
+                    }
                 }
             } catch (error) {
                 this.logger.error(`[ES] ${error.message}`);
@@ -50,16 +54,16 @@ export abstract class Index {
         return (this.database.connection as any).models[this.getType()].query();
     }
 
-    protected buildBulkUpsert(items) {
+    protected bulkUpsert(rows) {
         const actions = [];
 
-        items.forEach(item => {
+        rows.forEach(item => {
             const query = this.getUpsertQuery(item);
             actions.push(query.action);
             actions.push(query.document);
         });
 
-        return actions;
+        return client.bulk(actions);
     }
 
     protected async count() {
@@ -94,29 +98,6 @@ export abstract class Index {
 
     private async exists(doc): Promise<boolean> {
         return client.exists(this.getReadQuery(doc));
-    }
-
-    private create(doc) {
-        this.logger.info(`[ES] Creating ${this.getType()} with ID ${doc.id}`);
-
-        storage.update(this.getType() === "block" ? { lastBlock: doc.height } : { lastTransaction: doc.timestamp });
-
-        return client.create(this.getWriteQuery(doc));
-    }
-
-    private delete(doc) {
-        this.logger.info(`[ES] Deleting ${this.getType()} with ID ${doc.id}`);
-
-        return client.delete(this.getReadQuery(doc));
-    }
-
-    private getWriteQuery(doc) {
-        return {
-            index: this.getIndex(),
-            type: this.getType(),
-            id: doc.id,
-            body: doc,
-        };
     }
 
     private getReadQuery(doc) {

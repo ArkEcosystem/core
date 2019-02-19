@@ -25,7 +25,7 @@ export class Rounds extends Index {
                 this.logger.info(`[ES] Indexing ${rows.length} rounds [${first(roundIds)} - ${last(roundIds)}]`);
 
                 try {
-                    await client.bulk(this.buildBulkUpsert(rows));
+                    await this.bulkUpsert(rows);
 
                     storage.update({
                         lastRound: +last(roundIds),

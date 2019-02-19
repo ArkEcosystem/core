@@ -25,7 +25,7 @@ export class Wallets extends Index {
                         row.id = row.address;
                     });
 
-                    await client.bulk(this.buildBulkUpsert(rows));
+                    await this.bulkUpsert(rows);
                 } catch (error) {
                     this.logger.error(`[ES] ${error.message}`);
                 }

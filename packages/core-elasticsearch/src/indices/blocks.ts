@@ -25,7 +25,7 @@ export class Blocks extends Index {
                 this.logger.info(`[ES] Indexing ${rows.length} blocks [${first(heights)} - ${last(heights)}]`);
 
                 try {
-                    await client.bulk(this.buildBulkUpsert(rows));
+                    await this.bulkUpsert(rows);
 
                     storage.update({
                         lastBlock: +last(heights),
@@ -38,7 +38,7 @@ export class Blocks extends Index {
     }
 
     public listen() {
-        this.registerCreateListener("block.applied");
-        this.registerDeleteListener("block.reverted");
+        this.registerListener("create", "block.applied");
+        this.registerListener("delete", "block.reverted");
     }
 }
