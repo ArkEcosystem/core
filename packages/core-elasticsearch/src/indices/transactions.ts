@@ -30,35 +30,32 @@ export class Transactions extends Index {
 
             let rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 
-            if (!rows.length) {
-                continue;
-            }
+            if (rows.length) {
+                rows = rows.map(row => {
+                    const transaction: any = new Transaction(row.serialized.toString("hex"));
+                    transaction.blockId = row.blockId;
 
-            rows = rows.map(row => {
-                const transaction: any = new Transaction(row.serialized.toString("hex"));
-                transaction.blockId = row.blockId;
-
-                return transaction;
-            });
-
-            const blockIds = rows.map(row => row.blockId);
-            logger.info(`[ES] Indexing transactions from block ${first(blockIds)} to ${last(blockIds)}`);
-
-            try {
-                await client.bulk(this.buildBulkUpsert(rows));
-
-                storage.update({
-                    lastTransaction: +last(rows.map(row => row.timestamp)),
+                    return transaction;
                 });
-            } catch (error) {
-                logger.error(`[ES] ${error.message}`);
+
+                const blockIds = rows.map(row => row.blockId);
+                logger.info(`[ES] Indexing transactions from block ${first(blockIds)} to ${last(blockIds)}`);
+
+                try {
+                    await client.bulk(this.buildBulkUpsert(rows));
+
+                    storage.update({
+                        lastTransaction: +last(rows).data.timestamp,
+                    });
+                } catch (error) {
+                    logger.error(`[ES] ${error.message}`);
+                }
             }
         }
     }
 
     public listen() {
         this.registerCreateListener("transaction.applied");
-        this.registerCreateListener("transaction.forged");
 
         this.registerDeleteListener("transaction.expired");
         this.registerDeleteListener("transaction.reverted");

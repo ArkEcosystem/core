@@ -11,7 +11,7 @@ export const plugin: Container.PluginDescriptor = {
     async register(_, options) {
         await client.setUp(options.client);
 
-        watchIndices(options.chunkSize);
+        await watchIndices(options.chunkSize);
 
         return startServer(options.server);
     },

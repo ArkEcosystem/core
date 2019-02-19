@@ -12,11 +12,6 @@ export abstract class Index {
 
     public constructor(chunkSize: number) {
         this.chunkSize = chunkSize;
-
-        logger.info(`[ES] Initialising ${this.getIndex()}`);
-
-        this.listen();
-        this.index();
     }
 
     public abstract index(): void;

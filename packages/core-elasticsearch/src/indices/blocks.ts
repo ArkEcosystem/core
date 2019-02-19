@@ -27,29 +27,25 @@ export class Blocks extends Index {
 
             const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 
-            if (!rows.length) {
-                continue;
-            }
+            if (rows.length) {
+                const heights = rows.map(row => row.height);
+                logger.info(`[ES] Indexing blocks from height ${first(heights)} to ${last(heights)}`);
 
-            const heights = rows.map(row => row.height);
-            logger.info(`[ES] Indexing blocks from height ${first(heights)} to ${last(heights)}`);
+                try {
+                    await client.bulk(this.buildBulkUpsert(rows));
 
-            try {
-                await client.bulk(this.buildBulkUpsert(rows));
-
-                storage.update({
-                    lastBlock: +last(heights),
-                });
-            } catch (error) {
-                logger.error(`[ES] ${error.message}`);
+                    storage.update({
+                        lastBlock: +last(heights),
+                    });
+                } catch (error) {
+                    logger.error(`[ES] ${error.message}`);
+                }
             }
         }
     }
 
     public listen() {
         this.registerCreateListener("block.applied");
-        // this.registerCreateListener('block.forged')
-
         this.registerDeleteListener("block.reverted");
     }
 }

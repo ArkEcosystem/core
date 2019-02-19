@@ -28,7 +28,7 @@ class Storage {
     }
 
     public get(key) {
-        return this.read()[key];
+        return this.read()[key] || 0;
     }
 }
 

@@ -24,20 +24,18 @@ export class Wallets extends Index {
 
             const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 
-            if (!rows.length) {
-                continue;
-            }
+            if (rows.length) {
+                logger.info(`[ES] Indexing ${rows.length} wallets`);
 
-            logger.info(`[ES] Indexing ${rows.length} wallets`);
+                try {
+                    rows.forEach(row => {
+                        row.id = row.address;
+                    });
 
-            try {
-                rows.forEach(row => {
-                    row.id = row.address;
-                });
-
-                await client.bulk(this.buildBulkUpsert(rows));
-            } catch (error) {
-                logger.error(`[ES] ${error.message}`);
+                    await client.bulk(this.buildBulkUpsert(rows));
+                } catch (error) {
+                    logger.error(`[ES] ${error.message}`);
+                }
             }
         }
     }

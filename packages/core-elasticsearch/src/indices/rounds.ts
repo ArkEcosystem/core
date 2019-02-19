@@ -28,21 +28,19 @@ export class Rounds extends Index {
 
             const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 
-            if (!rows.length) {
-                continue;
-            }
+            if (rows.length) {
+                const roundIds = rows.map(row => row.round);
+                logger.info(`[ES] Indexing rounds from ${first(roundIds)} to ${last(roundIds)}`);
 
-            const roundIds = rows.map(row => row.round);
-            logger.info(`[ES] Indexing rounds from ${first(roundIds)} to ${last(roundIds)}`);
+                try {
+                    await client.bulk(this.buildBulkUpsert(rows));
 
-            try {
-                await client.bulk(this.buildBulkUpsert(rows));
-
-                storage.update({
-                    lastRound: +last(roundIds),
-                });
-            } catch (error) {
-                logger.error(`[ES] ${error.message}`);
+                    storage.update({
+                        lastRound: +last(roundIds),
+                    });
+                } catch (error) {
+                    logger.error(`[ES] ${error.message}`);
+                }
             }
         }
     }
