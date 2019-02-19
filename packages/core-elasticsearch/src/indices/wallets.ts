@@ -3,11 +3,10 @@ import { Index } from "./base";
 
 export class Wallets extends Index {
     public async index() {
-        const { count } = await this.count();
+        const count = await this.count();
+        const cycles = Math.ceil(count / this.chunkSize);
 
-        const queries = Math.ceil(count / this.chunkSize);
-
-        for (let i = 0; i < queries; i++) {
+        for (let i = 0; i < cycles; i++) {
             const modelQuery = this.createQuery();
 
             const query = modelQuery

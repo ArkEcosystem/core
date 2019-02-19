@@ -50,14 +50,6 @@ export abstract class Index {
         return (this.database.connection as any).models[this.getType()].query();
     }
 
-    protected count() {
-        const modelQuery = this.createQuery();
-
-        const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
-
-        return (this.database.connection as any).query.one(query.toQuery());
-    }
-
     protected buildBulkUpsert(items) {
         const actions = [];
 
@@ -70,18 +62,44 @@ export abstract class Index {
         return actions;
     }
 
-    private exists(doc) {
+    protected async count() {
+        const countES = await this.countWithElastic();
+        const countDB = await this.countWithDatabase();
+
+        return countDB - countES;
+    }
+
+    private async countWithDatabase(): Promise<number> {
+        const modelQuery = this.createQuery();
+
+        const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
+
+        const { count } = await (this.database.connection as any).query.one(query.toQuery());
+
+        return +count;
+    }
+
+    private async countWithElastic(): Promise<number> {
+        try {
+            const { count } = await client.count({
+                index: this.getIndex(),
+                type: this.getType(),
+            });
+
+            return +count;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    private async exists(doc): Promise<boolean> {
         return client.exists(this.getReadQuery(doc));
     }
 
     private create(doc) {
         this.logger.info(`[ES] Creating ${this.getType()} with ID ${doc.id}`);
 
-        if (this.getType() === "block") {
-            storage.update({ lastBlock: doc.height });
-        } else {
-            storage.update({ lastTransaction: doc.timestamp });
-        }
+        storage.update(this.getType() === "block" ? { lastBlock: doc.height } : { lastTransaction: doc.timestamp });
 
         return client.create(this.getWriteQuery(doc));
     }

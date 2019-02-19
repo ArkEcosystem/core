@@ -6,11 +6,10 @@ import { Index } from "./base";
 
 export class Transactions extends Index {
     public async index() {
-        const { count } = await this.count();
+        const count = await this.count();
+        const cycles = Math.ceil(count / this.chunkSize);
 
-        const queries = Math.ceil(count / this.chunkSize);
-
-        for (let i = 0; i < queries; i++) {
+        for (let i = 0; i < cycles; i++) {
             const modelQuery = this.createQuery();
 
             const query = modelQuery
@@ -39,7 +38,7 @@ export class Transactions extends Index {
                     await client.bulk(this.buildBulkUpsert(rows));
 
                     storage.update({
-                        lastTransaction: +last(timestamps),
+                        lastTransaction: +last(rows).data.timestamp,
                     });
                 } catch (error) {
                     this.logger.error(`[ES] ${error.message}`);
