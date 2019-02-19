@@ -22,8 +22,7 @@ export class Blocks extends Index {
                 .from(modelQuery)
                 .where(modelQuery.height.gte(storage.get("lastBlock")))
                 .order(modelQuery.height.asc)
-                .limit(this.chunkSize)
-                .offset(this.chunkSize * i);
+                .limit(this.chunkSize);
 
             const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 

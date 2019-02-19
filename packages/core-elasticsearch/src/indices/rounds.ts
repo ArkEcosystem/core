@@ -23,8 +23,7 @@ export class Rounds extends Index {
                 .from(modelQuery)
                 .where(modelQuery.round.gte(storage.get("lastRound")))
                 .order(modelQuery.round.asc)
-                .limit(this.chunkSize)
-                .offset(this.chunkSize * i);
+                .limit(this.chunkSize);
 
             const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 

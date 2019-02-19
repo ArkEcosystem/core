@@ -25,8 +25,7 @@ export class Transactions extends Index {
                 .from(modelQuery)
                 .where(modelQuery.timestamp.gte(storage.get("lastTransaction")))
                 .order(modelQuery.timestamp.asc)
-                .limit(this.chunkSize)
-                .offset(this.chunkSize * i);
+                .limit(this.chunkSize);
 
             let rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
 
