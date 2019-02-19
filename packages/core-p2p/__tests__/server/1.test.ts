@@ -2,6 +2,7 @@ import { generateTransfers } from "@arkecosystem/core-test-utils/src/generators/
 import { models } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
+import fullBlock from "../fixtures/block-with-transactions.json";
 
 const { Block } = models;
 
@@ -138,8 +139,9 @@ describe("API - Version 1", () => {
 
     describe("POST /peer/blocks", () => {
         it("should be ok", async () => {
+            const block = new Block(fullBlock as any);
             const response = await utils.POST("peer/blocks", {
-                block: genesisBlock.toJson(),
+                block: block.toJson(),
             });
 
             expect(response.status).toBe(200);
@@ -148,6 +150,14 @@ describe("API - Version 1", () => {
 
             expect(response.data).toHaveProperty("success");
             expect(response.data.success).toBeTrue();
+        });
+
+        it("should not be ok, because previous block id is missing", async () => {
+            const response = await utils.POST("peer/blocks", {
+                block: genesisBlock.toJson(),
+            });
+
+            expect(response.status).toBe(400);
         });
     });
 

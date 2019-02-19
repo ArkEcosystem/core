@@ -1,4 +1,3 @@
-import { configManager } from "@arkecosystem/crypto";
 import axios from "axios";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
 import Joi from "joi";

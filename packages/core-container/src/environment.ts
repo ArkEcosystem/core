@@ -1,4 +1,5 @@
 import envPaths from "env-paths";
+import envfile from "envfile";
 import expandHomeDir from "expand-home-dir";
 import { ensureDirSync, existsSync } from "fs-extra";
 import { resolve } from "path";
@@ -20,6 +21,15 @@ export class Environment {
     }
 
     /**
+     * Merge the given variables into the environment.
+     */
+    public merge(variables: object) {
+        for (const [key, value] of Object.entries(variables)) {
+            process.env[key] = value;
+        }
+    }
+
+    /**
      * Export all path variables for the core environment.
      * @return {void}
      */
@@ -36,16 +46,14 @@ export class Environment {
                         path += `/${this.variables.network}`;
                     }
 
-                    process.env[name] = path;
-                    ensureDirSync(path);
+                    if (process.env[name] === undefined) {
+                        process.env[name] = path;
+                        ensureDirSync(path);
+                    }
                 }
             });
 
         createPathVariables(envPaths(this.variables.token, { suffix: "core" }), this.variables.network);
-
-        if (this.variables.data || this.variables.config) {
-            createPathVariables(this.variables);
-        }
     }
 
     /**
@@ -63,11 +71,7 @@ export class Environment {
         const envPath = expandHomeDir(`${process.env.CORE_PATH_CONFIG}/.env`);
 
         if (existsSync(envPath)) {
-            const env = require("envfile").parseFileSync(envPath);
-
-            Object.keys(env).forEach(key => {
-                process.env[key] = env[key];
-            });
+            this.merge(envfile.parseFileSync(envPath));
         }
     }
 }

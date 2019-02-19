@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-jest-matchers",
     "description": "Jest matchers for Ark Core",
-    "version": "2.1.0",
+    "version": "2.2.0-beta.3",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Erwann Gentric <erwann@ark.io>",
@@ -13,6 +13,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -29,8 +33,9 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
+        "@arkecosystem/core-container": "^2.2.0-beta.3",
+        "@arkecosystem/crypto": "^2.2.0-beta.3",
+        "@arkecosystem/utils": "^0.2.3",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",
         "@types/lodash.isequal": "^4.5.3",
@@ -40,7 +45,7 @@
         "lodash.isequal": "^4.5.0",
         "lodash.sortby": "^4.7.0",
         "superheroes": "^2.0.0",
-        "xstate": "^4.2.2"
+        "xstate": "^4.3.1"
     },
     "publishConfig": {
         "access": "public"

@@ -70,6 +70,7 @@ describe("Multi Signature Transaction", () => {
         it("establishes the recipient id", () => {
             const pass = "dummy pass";
 
+            // @ts-ignore
             crypto.getKeys = jest.fn(() => ({
                 publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
             }));
@@ -85,6 +86,7 @@ describe("Multi Signature Transaction", () => {
             const pass = "dummy pass";
             const signature = `${pass} signature`;
 
+            // @ts-ignore
             crypto.getKeys = jest.fn(value => ({ publicKey: `${value} public key` }));
             crypto.sign = jest.fn(() => signature);
 

@@ -51,7 +51,7 @@ describe("Transaction Guard", () => {
                   A => B needs to be first confirmed (forged), then B can transfer to C
                 */
 
-                const arktoshi = 10 ** 8;
+                const satoshi = 10 ** 8;
                 // don't re-use the same delegate (need clean balance)
                 const delegate = inverseOrder ? delegates[8] : delegates[9];
                 const delegateWallet = transactionPool.walletManager.findByAddress(delegate.address);
@@ -68,13 +68,13 @@ describe("Transaction Guard", () => {
                     // transfer from delegate to wallet 0
                     from: delegate,
                     to: newWallets[0],
-                    amount: 100 * arktoshi,
+                    amount: 100 * satoshi,
                 };
                 const transfer1 = {
                     // transfer from wallet 0 to wallet 1
                     from: newWallets[0],
                     to: newWallets[1],
-                    amount: 55 * arktoshi,
+                    amount: 55 * satoshi,
                 };
                 const transfers = [transfer0, transfer1];
                 if (inverseOrder) {
@@ -105,7 +105,7 @@ describe("Transaction Guard", () => {
                 expect(guard.errors[transfer.id]).toContainEqual(expectedError);
 
                 // check final balances
-                expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * arktoshi);
+                expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
                 expect(+poolWallets[0].balance).toBe(0);
                 expect(+poolWallets[1].balance).toBe(0);
             },
@@ -335,7 +335,7 @@ describe("Transaction Guard", () => {
         });
 
         it.each([3, 5, 8])(
-            "should not validate emptying wallet with %i transactions when the last one is 1 arktoshi too much",
+            "should not validate emptying wallet with %i transactions when the last one is 1 satoshi too much",
             async txNumber => {
                 // use txNumber + 1 so that we don't use the same delegates as the above test
                 const sender = delegates[txNumber + 1];
@@ -401,7 +401,34 @@ describe("Transaction Guard", () => {
         });
 
         it("should not validate when multiple wallets register the same username in the same transaction payload", async () => {
-            const delegateRegistrations: Transaction[] = [
+            const delegateRegistrations = [
+                generateDelegateRegistration("unitnet", wallets[14].passphrase, 1, false, "test_delegate")[0],
+                generateDelegateRegistration("unitnet", wallets[15].passphrase, 1, false, "test_delegate")[0],
+            ];
+
+            const result = await guard.validate(delegateRegistrations);
+            expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
+
+            delegateRegistrations.forEach(tx => {
+                expect(guard.errors[tx.id]).toEqual([
+                    {
+                        type: "ERR_CONFLICT",
+                        message: `Multiple delegate registrations for "${
+                            tx.data.asset.delegate.username
+                        }" in transaction payload`,
+                    },
+                ]);
+            });
+
+            const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
+            const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
+
+            expect(wallet1.username).toBe(null);
+            expect(wallet2.username).toBe(null);
+        });
+
+        describe("Sign a transaction then change some fields shouldn't pass validation", async () => {
+            const delegateRegistrations = [
                 generateDelegateRegistration("unitnet", wallets[14].passphrase, 1, false, "test_delegate")[0],
                 generateDelegateRegistration("unitnet", wallets[15].passphrase, 1, false, "test_delegate")[0],
             ];
@@ -752,6 +779,24 @@ describe("Transaction Guard", () => {
 
             guard.pool.isSenderBlocked = isSenderBlocked;
             guard.pool.transactionExists = transactionExists;
+        });
+
+        it("should reject transactions that are too large", () => {
+            const tx = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 1, 3)[0];
+            tx.data.signatures = [""];
+            for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
+                tx.data.signatures += "1";
+            }
+            guard.__filterAndTransformTransactions([tx]);
+
+            expect(guard.errors[tx.id]).toEqual([
+                {
+                    message: `Transaction ${tx.id} is larger than ${
+                        transactionPool.options.maxTransactionBytes
+                    } bytes.`,
+                    type: "ERR_TOO_LARGE",
+                },
+            ]);
         });
 
         it("should reject transactions from the future", () => {

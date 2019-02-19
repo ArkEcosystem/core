@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto, formatArktoshi, isException, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, formatSatoshi, isException, models, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const { TransactionTypes } = constants;
@@ -241,7 +241,7 @@ export class WalletManager implements Database.IWalletManager {
             if (delegates.includes(values[0])) {
                 const mapped = values.map(v => `${v.username} (${v.publicKey})`);
                 this.logger.warn(
-                    `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatArktoshi(
+                    `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatSatoshi(
                         voteBalance,
                     )}`,
                 );

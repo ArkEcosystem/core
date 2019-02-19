@@ -1,18 +1,25 @@
 /* tslint:disable:max-line-length  */
+import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { defaults } from "../src/defaults";
 import { Peer } from "../src/peer";
 import { setUp, tearDown } from "./__support__/setup";
+const { Block } = models;
 
 const axiosMock = new MockAdapter(axios);
 
+let genesisBlock;
 let peerMock: Peer;
 let monitor;
 
 beforeAll(async () => {
     await setUp();
     monitor = require("../src/monitor").monitor;
+
+    // Create the genesis block after the setup has finished or else it uses a potentially
+    // wrong network config.
+    genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
 });
 
 afterAll(async () => {
@@ -52,7 +59,18 @@ describe("Monitor", () => {
 
     describe("acceptNewPeer", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
+            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
+
             process.env.CORE_ENV = "false";
 
             await monitor.acceptNewPeer(peerMock);
@@ -97,7 +115,17 @@ describe("Monitor", () => {
 
     describe("discoverPeers", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true }, peerMock.headers]);
+            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
             axiosMock
                 .onGet(/.*\/peer\/list/)
                 .reply(() => [200, { peers: [peerMock.toBroadcastInfo()] }, peerMock.headers]);
@@ -113,7 +141,18 @@ describe("Monitor", () => {
 
     describe("getNetworkHeight", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers]);
+            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    height: 2,
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
             axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
             await monitor.discoverPeers();
 

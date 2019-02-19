@@ -1,4 +1,6 @@
 import "@arkecosystem/core-test-utils";
+
+import { app } from "@arkecosystem/core-container";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
@@ -51,7 +53,7 @@ describe("API 2.0 - Loader", () => {
             "using the %s header",
             (header, request) => {
                 it("should GET the node configuration", async () => {
-                    const response = await utils[request]("GET", "node/configuration");
+                    let response = await utils[request]("GET", "node/configuration");
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeObject();
 
@@ -60,6 +62,16 @@ describe("API 2.0 - Loader", () => {
                     expect(response.data.data.symbol).toBeString();
                     expect(response.data.data.explorer).toBeString();
                     expect(response.data.data.version).toBeNumber();
+
+                    const dynamicFees = app.resolveOptions("transactionPool").dynamicFees;
+                    expect(response.data.data.transactionPool.dynamicFees).toEqual(dynamicFees);
+
+                    app.resolveOptions("transactionPool").dynamicFees.enabled = false;
+
+                    response = await utils[request]("GET", "node/configuration");
+                    expect(response.data.data.transactionPool.dynamicFees).toEqual({ enabled: false });
+
+                    app.resolveOptions("transactionPool").dynamicFees.enabled = true;
                 });
             },
         );

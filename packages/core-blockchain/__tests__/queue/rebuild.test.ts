@@ -47,6 +47,7 @@ beforeEach(async () => {
 
 describe("RebuildQueue", () => {
     it("should call blockchain rebuildBlock when pushing a block to the queue", async () => {
+        // @ts-ignore
         const rebuildBlock = jest.spyOn(blockchain, "rebuildBlock").mockReturnValue(true);
 
         const cb = jest.fn();
@@ -58,6 +59,7 @@ describe("RebuildQueue", () => {
 
     it.skip("should just call callback if queue is paused when pushing a block to the queue", async () => {
         // should call callback, but doesn't seem so... TODO
+        // @ts-ignore
         const rebuildBlock = jest.spyOn(blockchain, "rebuildBlock").mockReturnValue(true);
 
         const cb = jest.fn(() => {

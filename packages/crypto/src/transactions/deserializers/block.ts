@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { configManager } from "../../managers";
 import { Block, IBlockData } from "../../models/block";
-import { Bignum } from "../../utils/bignum";
+import { Bignum } from "../../utils";
 import { Transaction } from "../types";
 
 class BlockDeserializer {

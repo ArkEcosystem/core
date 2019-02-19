@@ -91,13 +91,13 @@ export class Server {
         });
 
         await server.register({
-            plugin: require("hapi-api-version"),
+            plugin: require("@faustbrian/hapi-version"),
             options: this.config.versions,
         });
 
         await server.register({
             plugin: require("./plugins/endpoint-version"),
-            options: { validVersions: this.config.versions.validVersions },
+            options: { versions: this.config.versions.versions.allowed },
         });
 
         await server.register({

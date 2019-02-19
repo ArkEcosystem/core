@@ -5,6 +5,7 @@ import { models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
+import { store as schemaBlock } from "../internal/schemas/blocks";
 
 const { Block } = models;
 
@@ -182,6 +183,9 @@ export const postBlock = {
             logger.error(error);
             return { success: false };
         }
+    },
+    options: {
+        validate: schemaBlock,
     },
 };
 

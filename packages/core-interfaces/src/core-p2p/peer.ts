@@ -50,12 +50,12 @@ export interface IPeer {
     /**
      * Perform ping request on this peer if it has not been
      * recently pinged.
-     * @param  {Number} [delay=5000]
+     * @param  {Number} delay operation timeout, in milliseconds
      * @param  {Boolean} force
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    ping(delay: any, force?: boolean): Promise<any>;
+    ping(delay: number, force?: boolean): Promise<any>;
 
     /**
      * Returns true if this peer was pinged the past 2 minutes.
@@ -75,4 +75,13 @@ export interface IPeer {
      * @return {Boolean}
      */
     hasCommonBlocks(ids: string[]): Promise<any>;
+
+    /**
+     * GET /peer/blocks and return the raw response.
+     * The API is such that the response is supposed to contain blocks at height
+     * afterBlockHeight + 1, afterBlockHeight + 2, and so on up to some limit determined by the peer.
+     * @param  {Number} afterBlockHeight
+     * @return {(Object[]|undefined)}
+     */
+    getPeerBlocks(afterBlockHeight: number): Promise<any>;
 }

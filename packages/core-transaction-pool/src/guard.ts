@@ -5,7 +5,7 @@ import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { MemPoolTransaction } from "./mem-pool-transaction";
-import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
+import { isRecipientOnActiveNetwork } from "./utils";
 
 const { TransactionTypes } = constants;
 
@@ -75,6 +75,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      * It skips:
      * - transactions already in the pool
      * - transactions from blocked senders
+     * - transactions that are too large
      * - transactions from the future
      * - dynamic fee mismatch
      * - transactions based on type specific restrictions
@@ -91,6 +92,12 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                     transaction,
                     "ERR_SENDER_BLOCKED",
                     `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked.`,
+                );
+            } else if (JSON.stringify(transaction).length > this.pool.options.maxTransactionBytes) {
+                this.__pushError(
+                    transaction,
+                    "ERR_TOO_LARGE",
+                    `Transaction ${transaction.id} is larger than ${this.pool.options.maxTransactionBytes} bytes.`,
                 );
             } else if (this.pool.hasExceededMaxTransactions(transaction)) {
                 this.excess.push(transaction.id);

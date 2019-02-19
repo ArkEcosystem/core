@@ -242,7 +242,7 @@ export class Blockchain implements blockchain.IBlockchain {
             return;
         }
 
-        if (this.state.started && this.state.blockchain.value === "idle") {
+        if (this.state.started) {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
         } else {

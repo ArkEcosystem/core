@@ -6,7 +6,7 @@ import { DelegatesRepository, WalletsRepository } from "../../src";
 import { DatabaseService } from "../../src/database-service";
 import { setUp, tearDown } from "../__support__/setup";
 
-const { ARKTOSHI } = constants;
+const { SATOSHI } = constants;
 const { Block } = models;
 
 let genesisBlock: models.Block;
@@ -66,6 +66,7 @@ describe("Delegate Repository", () => {
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
         it("should return the local wallets of the connection that are delegates", () => {
+            // @ts-ignore
             jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates();
@@ -265,13 +266,15 @@ describe("Delegate Repository", () => {
             const delegate = {
                 username: "test",
                 publicKey: "test",
-                voteBalance: new Bignum(10000 * ARKTOSHI),
+                voteBalance: new Bignum(10000 * SATOSHI),
                 producedBlocks: 1000,
                 missedBlocks: 500,
             };
             const height = 1;
 
+            // @ts-ignore
             jest.spyOn(databaseService, "getActiveDelegates").mockReturnValue([delegate]);
+            // @ts-ignore
             jest.spyOn(walletsRepository, "findById").mockReturnValue(delegate);
 
             const results = await repository.getActiveAtHeight(height);

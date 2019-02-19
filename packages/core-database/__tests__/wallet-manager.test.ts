@@ -9,7 +9,7 @@ import wallets from "./__fixtures__/wallets.json";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;
-const { ARKTOSHI, TransactionTypes } = constants;
+const { SATOSHI, TransactionTypes } = constants;
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
 
@@ -87,6 +87,7 @@ describe("Wallet Manager", () => {
 
         beforeEach(() => {
             delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey };
+            // @ts-ignore
             jest.spyOn(walletManager, "findByPublicKey").mockReturnValue(delegateMock);
             jest.spyOn(walletManager, "applyTransaction").mockImplementation();
             jest.spyOn(walletManager, "revertTransaction").mockImplementation();
@@ -117,6 +118,7 @@ describe("Wallet Manager", () => {
 
         describe("when 1 transaction fails while applying it", () => {
             it("should revert sequentially (from last to first) all the transactions of the block", async () => {
+                // @ts-ignore
                 jest.spyOn(walletManager, "applyTransaction").mockImplementation(tx => {
                     if (tx === block2.transactions[2]) {
                         throw new Error("Fake error");
@@ -181,11 +183,11 @@ describe("Wallet Manager", () => {
         const secondSign = generateSecondSignature("testnet", Math.random().toString(36), 1)[0];
         const vote = generateVote("testnet", Math.random().toString(36), walletData2.publicKey, 1)[0];
         describe.each`
-            type          | transaction    | amount               | balanceSuccess               | balanceFail
-            ${"transfer"} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(ARKTOSHI)}      | ${Bignum.ONE}
-            ${"delegate"} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * ARKTOSHI)} | ${Bignum.ONE}
-            ${"2nd sign"} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * ARKTOSHI)} | ${Bignum.ONE}
-            ${"vote"}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * ARKTOSHI)}  | ${Bignum.ONE}
+            type          | transaction    | amount               | balanceSuccess              | balanceFail
+            ${"transfer"} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(SATOSHI)}      | ${Bignum.ONE}
+            ${"delegate"} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * SATOSHI)} | ${Bignum.ONE}
+            ${"2nd sign"} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * SATOSHI)} | ${Bignum.ONE}
+            ${"vote"}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * SATOSHI)}  | ${Bignum.ONE}
         `("when the transaction is a $type", ({ type, transaction, amount, balanceSuccess, balanceFail }) => {
             let sender;
             let recipient;
@@ -200,6 +202,7 @@ describe("Wallet Manager", () => {
                 walletManager.reindex(sender);
                 walletManager.reindex(recipient);
 
+                // @ts-ignore
                 jest.spyOn(walletManager, "isDelegate").mockReturnValue(true);
             });
 
@@ -415,7 +418,7 @@ describe("Wallet Manager", () => {
                 delegate.voteBalance = Bignum.ZERO;
 
                 const voter = new Wallet(crypto.getAddress((i + 5).toString().repeat(66)));
-                voter.balance = new Bignum((i + 1) * 1000 * ARKTOSHI);
+                voter.balance = new Bignum((i + 1) * 1000 * SATOSHI);
                 voter.publicKey = `v${delegateKey}`;
                 voter.vote = delegateKey;
 
@@ -427,7 +430,7 @@ describe("Wallet Manager", () => {
             const delegates = walletManager.allByUsername();
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[4 - i];
-                expect(delegate.voteBalance).toEqual(new Bignum((5 - i) * 1000 * ARKTOSHI));
+                expect(delegate.voteBalance).toEqual(new Bignum((5 - i) * 1000 * SATOSHI));
             }
         });
     });

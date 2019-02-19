@@ -76,6 +76,7 @@ function generateFullWallets() {
 describe("Wallet Repository", () => {
     describe("all", () => {
         it("should return the local wallets of the connection", () => {
+            // @ts-ignore
             jest.spyOn(walletManager, "allByAddress").mockReturnValue(null);
 
             repository.all();

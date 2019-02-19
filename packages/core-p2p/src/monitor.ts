@@ -159,12 +159,12 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-            const minimumVersion: string = localConfig.get("minimumVersion");
+            const minimumVersions: string[] = localConfig.get("minimumVersions");
 
             logger.debug(
                 `Rejected peer ${
                     peer.ip
-                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersion} - Received: ${
+                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersions} - Received: ${
                     peer.version
                 }`,
             );
@@ -207,7 +207,7 @@ export class Monitor implements P2P.IMonitor {
 
             emitter.emit("peer.added", newPeer);
         } catch (error) {
-            logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`);
+            logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
 
             this.guard.suspend(newPeer);
         } finally {
@@ -236,6 +236,7 @@ export class Monitor implements P2P.IMonitor {
         const max = keys.length;
 
         logger.info(`Checking ${max} peers :telescope:`);
+        const peerErrors = {};
         await Promise.all(
             keys.map(async ip => {
                 const peer = this.getPeer(ip);
@@ -244,8 +245,12 @@ export class Monitor implements P2P.IMonitor {
                 } catch (error) {
                     unresponsivePeers++;
 
-                    const formattedDelay = prettyMs(pingDelay, { verbose: true });
-                    logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`);
+                    if (peerErrors[error]) {
+                        peerErrors[error].push(peer);
+                    } else {
+                        peerErrors[error] = [peer];
+                    }
+
                     emitter.emit("peer.removed", peer);
 
                     this.removePeer(peer);
@@ -254,6 +259,11 @@ export class Monitor implements P2P.IMonitor {
                 }
             }),
         );
+
+        Object.keys(peerErrors).forEach((key: any) => {
+            const peerCount = peerErrors[key].length;
+            logger.debug(`Removed ${peerCount} ${pluralize("peers", peerCount)} because of "${key}"`);
+        });
 
         if (this.initializing) {
             logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);

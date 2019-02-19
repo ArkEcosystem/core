@@ -207,6 +207,61 @@ export class DatabaseService implements Database.IDatabaseService {
         return blocks;
     }
 
+    /**
+     * Get the blocks at the given heights.
+     * The transactions for those blocks will not be loaded like in `getBlocks()`.
+     * @param {Array} heights array of arbitrary block heights
+     * @return {Array} array for the corresponding blocks. The element (block) at index `i`
+     * in the resulting array corresponds to the requested height at index `i` in the input
+     * array heights[]. For example, if
+     * heights[0] = 100
+     * heights[1] = 200
+     * heights[2] = 150
+     * then the result array will have the same number of elements (3) and will be:
+     * result[0] = block at height 100
+     * result[1] = block at height 200
+     * result[2] = block at height 150
+     * If some of the requested blocks do not exist in our chain (requested height is larger than
+     * the height of our blockchain), then that element will be `undefined` in the resulting array
+     * @throws Error
+     */
+    public async getBlocksByHeight(heights: number[]) {
+        const blocks = [];
+
+        // Map of height -> index in heights[], e.g. if
+        // heights[5] == 6000000, then
+        // toGetFromDB[6000000] == 5
+        // In this map we only store a subset of the heights - the ones we could not retrieve
+        // from app/state and need to get from the database.
+        const toGetFromDB = {};
+
+        const hasState = app.has("state");
+
+        for (const [i, height] of heights.entries()) {
+            if (hasState) {
+                const stateBlocks = app.resolve("state").getLastBlocksByHeight(height, height);
+                if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
+                    blocks[i] = stateBlocks[0];
+                }
+            }
+
+            if (blocks[i] === undefined) {
+                toGetFromDB[height] = i;
+            }
+        }
+
+        const heightsToGetFromDB = Object.keys(toGetFromDB);
+        if (heightsToGetFromDB.length > 0) {
+            for (const blockFromDB of await this.connection.blocksRepository.findByHeight(heightsToGetFromDB)) {
+                const h = blockFromDB.height;
+                const i = toGetFromDB[h];
+                blocks[i] = blockFromDB;
+            }
+        }
+
+        return blocks;
+    }
+
     public async getBlocksForRound(round?: number) {
         let lastBlock;
         if (app.has("state")) {
@@ -456,7 +511,7 @@ export class DatabaseService implements Database.IDatabaseService {
         };
     }
 
-    public async verifyTransaction(transaction: models.Transaction): Promise<boolean> {
+    public async verifyTransaction(transaction: Transaction): Promise<boolean> {
         const senderId = arkCrypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist

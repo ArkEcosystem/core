@@ -18,7 +18,9 @@ beforeAll(async () => {
     logger = app.resolvePlugin("logger");
 
     // mock apply / saveBlock - we dont want to actually do anything to the db
+    // @ts-ignore
     jest.spyOn(blockchain.database, "applyBlock").mockReturnValue(true);
+    // @ts-ignore
     jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true);
 });
 

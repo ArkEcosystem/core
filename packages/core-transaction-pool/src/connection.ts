@@ -220,7 +220,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * Get all transactions that are ready to be forged.
      */
     public getTransactionsForForging(blockSize: number): string[] {
-        return this.getTransactions(0, blockSize).map(tx => tx.toString("hex"));
+        return this.getTransactions(0, blockSize, this.options.maxTransactionBytes).map(tx => tx.toString("hex"));
     }
 
     /**
@@ -235,15 +235,15 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.
      */
-    public getTransactions(start: number, size: number): Buffer[] {
-        return this.getTransactionsData(start, size, "serialized") as Buffer[];
+    public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
+        return this.getTransactionsData(start, size, "serialized", maxBytes) as Buffer[];
     }
 
     /**
      * Get all transactions within the specified range [start, start + size).
      */
     public getTransactionIdsForForging(start: number, size: number): string[] {
-        return this.getTransactionsData(start, size, "id") as string[];
+        return this.getTransactionsData(start, size, "id", this.options.maxTransactionBytes) as string[];
     }
 
     /**
@@ -251,10 +251,12 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * Transactions are ordered by fee (highest fee first) or by
      * insertion time, if fees equal (earliest transaction first).
      */
-    public getTransactionsData(start: number, size: number, property: string): string[] | Buffer[] {
+    public getTransactionsData(start: number, size: number, property: string, maxBytes = 0): string[] | Buffer[] {
         this.__purgeExpired();
 
         const data = [];
+
+        let transactionBytes = 0;
 
         let i = 0;
         for (const memPoolTransaction of this.mem.getTransactionsOrderedByFee()) {
@@ -263,11 +265,25 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             }
 
             if (i >= start) {
+                let pushTransaction = false;
                 assert.notStrictEqual(memPoolTransaction.transaction[property], undefined);
-                data.push(memPoolTransaction.transaction[property]);
+                if (maxBytes > 0) {
+                    // Only add the transaction if it will not make the total payload size exceed the maximum
+                    const transactionSize = JSON.stringify(memPoolTransaction.transaction.data).length;
+                    if (transactionBytes + transactionSize <= maxBytes) {
+                        transactionBytes += transactionSize;
+                        pushTransaction = true;
+                    }
+                } else {
+                    pushTransaction = true;
+                }
+                if (pushTransaction) {
+                    data.push(memPoolTransaction.transaction[property]);
+                    i++;
+                }
+            } else {
+                i++;
             }
-
-            i++;
         }
 
         return data;

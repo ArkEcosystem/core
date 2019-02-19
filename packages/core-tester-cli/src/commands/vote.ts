@@ -3,7 +3,7 @@ import { flags } from "@oclif/command";
 import sample from "lodash/sample";
 import pluralize from "pluralize";
 import { customFlags } from "../flags";
-import { arktoshiToArk, logger, parseFee } from "../utils";
+import { logger, parseFee, satoshiToArk } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -26,12 +26,15 @@ export class VoteCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        await this.initialize(VoteCommand);
+        // tslint:disable-next-line: no-shadowed-variable
+        const { flags } = await this.initialize(VoteCommand);
 
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
-            await TransferCommand.run(["--recipient", wallet.address, "--amount", String(2), "--skipTesting"]);
+            await TransferCommand.run(
+                ["--recipient", wallet.address, "--amount", String(2), "--skipTesting"].concat(this.castFlags(flags)),
+            );
         }
 
         let delegate = this.options.delegate;
@@ -61,7 +64,7 @@ export class VoteCommand extends BaseCommand {
 
             transactions.push(transaction);
 
-            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(transaction.data.fee)})`);
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${satoshiToArk(transaction.data.fee)})`);
         });
 
         if (this.options.copy) {

@@ -9,7 +9,7 @@ import { MemPoolTransaction } from "./mem-pool-transaction";
  */
 export class Storage {
     private table: string;
-    private db: BetterSqlite3;
+    private db: BetterSqlite3.Database;
 
     /**
      * Construct the storage.

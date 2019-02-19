@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-http-utils",
     "description": "Http Utilities for Ark Core",
-    "version": "2.1.0",
+    "version": "2.2.0-beta.3",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -11,6 +11,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -27,15 +31,15 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.1.0",
+        "@arkecosystem/core-container": "^2.2.0-beta.3",
         "@types/boom": "^7.2.1",
         "@types/micromatch": "^3.1.0",
         "boom": "^7.3.0",
         "expand-home-dir": "^0.0.3",
-        "good": "^8.1.1",
-        "good-console": "^7.1.0",
+        "good": "^8.1.2",
+        "good-console": "^8.0.0",
         "good-squeeze": "^5.1.0",
-        "hapi": "^17.8.1",
+        "hapi": "^18.1.0",
         "hapi-trailing-slash": "^3.0.1",
         "inert": "^5.1.2",
         "lout": "^11.1.0",
@@ -52,7 +56,7 @@
         "preset": "../../jest-preset.json"
     },
     "devDependencies": {
-        "@types/hapi": "^17.8.2",
+        "@types/hapi": "^18.0.0",
         "@types/inert": "^5.1.2",
         "@types/vision": "^5.3.5",
         "axios": "^0.18.0"

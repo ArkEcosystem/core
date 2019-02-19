@@ -1,6 +1,6 @@
 import { TransactionBuilder } from "../../../../src/builder/transactions/transaction";
 import { crypto, slots } from "../../../../src/crypto";
-import { Bignum } from "../../../../src/utils/bignum";
+import { Bignum } from "../../../../src/utils";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {
@@ -117,6 +117,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
                 };
+                // @ts-ignore
                 crypto.getKeys = jest.fn(() => keys);
                 crypto.sign = jest.fn();
 
@@ -131,6 +132,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
                 };
+                // @ts-ignore
                 crypto.getKeys = jest.fn(() => keys);
                 crypto.sign = jest.fn();
                 builder.sign("my real pass");
@@ -144,6 +146,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
                 };
+                // @ts-ignore
                 crypto.getKeysFromWIF = jest.fn(() => keys);
                 crypto.sign = jest.fn();
 
@@ -160,6 +163,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
                 };
+                // @ts-ignore
                 crypto.getKeysFromWIF = jest.fn(() => keys);
                 crypto.sign = jest.fn();
                 builder.signWithWif("my real pass");

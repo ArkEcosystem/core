@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-p2p",
     "description": "P2P API for Ark Core",
-    "version": "2.1.0",
+    "version": "2.2.0-beta.3",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -15,6 +15,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -31,12 +35,12 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-http-utils": "^2.1.0",
-        "@arkecosystem/core-transaction-pool": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/joi": "^14.0.1",
+        "@arkecosystem/core-container": "^2.2.0-beta.3",
+        "@arkecosystem/core-http-utils": "^2.2.0-beta.3",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.3",
+        "@arkecosystem/core-transaction-pool": "^2.2.0-beta.3",
+        "@arkecosystem/crypto": "^2.2.0-beta.3",
+        "@types/joi": "^14.3.1",
         "@types/lodash.chunk": "^4.2.4",
         "@types/lodash.flatten": "^4.4.4",
         "@types/lodash.get": "^4.4.4",
@@ -50,14 +54,15 @@
         "@types/micromatch": "^3.1.0",
         "@types/pluralize": "^0.0.29",
         "@types/semver": "^5.5.0",
-        "ajv": "^6.6.2",
+        "ajv": "^6.9.1",
         "axios": "^0.18.0",
         "boom": "^7.3.0",
         "dayjs-ext": "^2.2.0",
         "delay": "^4.1.0",
-        "hapi-rate-limit": "^3.0.0",
+        "hapi-rate-limit": "^3.1.1",
         "ip": "^1.1.5",
-        "joi": "^14.3.0",
+        "ipaddr.js": "^1.9.0",
+        "joi": "^14.3.1",
         "lodash.chunk": "^4.2.0",
         "lodash.flatten": "^4.4.0",
         "lodash.get": "^4.4.2",
@@ -75,11 +80,11 @@
         "sntp": "^3.0.2"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0",
+        "@arkecosystem/core-test-utils": "^2.2.0-beta.3",
         "@types/boom": "^7.2.1",
         "@types/ip": "^1.1.0",
         "@types/pretty-ms": "^4.0.0",
-        "axios-mock-adapter": "^1.15.0"
+        "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {
         "access": "public"

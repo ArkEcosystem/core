@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.2] - 2019-02-13
+
+### Fixed
+
+-   Fix quorum related issues
+-   Limit payload size
+-   Remove `signatures` from transaction payload
+
+## [2.1.1] - 2019-02-12
+
+### Fixed
+
+-   Configuration endpoint does not show dynamic fees ([#2082])
+-   Return the correct supply for the legacy API ([#2083])
+
 ## [2.1.0] - 2019-02-11
 
 ### Added
@@ -177,7 +192,9 @@ Closed security vulnerabilities:
 
 -   Initial Release
 
-[unreleased]: https://github.com/ArkEcosystem/core/compare/2.0.19...develop
+[unreleased]: https://github.com/ArkEcosystem/core/compare/2.1.2...develop
+[2.1.2]: https://github.com/ArkEcosystem/core/compare/2.1.1..2.1.2
+[2.1.1]: https://github.com/ArkEcosystem/core/compare/2.1.0..2.1.1
 [2.1.0]: https://github.com/ArkEcosystem/core/compare/2.0.19...2.1.0
 [2.0.19]: https://github.com/ArkEcosystem/core/compare/2.0.18...2.0.19
 [2.0.18]: https://github.com/ArkEcosystem/core/compare/2.0.17...2.0.18
@@ -270,3 +287,6 @@ Closed security vulnerabilities:
 [#2058]: https://github.com/ArkEcosystem/core/pull/2058
 [#2061]: https://github.com/ArkEcosystem/core/pull/2061
 [#2080]: https://github.com/ArkEcosystem/core/pull/2080
+[#2082]: https://github.com/ArkEcosystem/core/pull/2082
+[#2083]: https://github.com/ArkEcosystem/core/pull/2083
+[#2091]: https://github.com/ArkEcosystem/core/pull/2091

@@ -1,18 +1,13 @@
 import { configManager as crypto, HashAlgorithms } from "@arkecosystem/crypto";
 import get from "lodash/get";
 import set from "lodash/set";
-import { fileLoader, RemoteLoader } from "./loaders";
+import { fileLoader } from "./loaders";
 import { Network } from "./network";
 
 class Config {
     private config: Record<string, any>;
 
     public async setUp(opts) {
-        if (opts.remote) {
-            const remoteLoader = new RemoteLoader(opts);
-            await remoteLoader.setUp();
-        }
-
         const network = Network.setUp(opts);
 
         const { files } = await fileLoader.setUp(network);

@@ -131,6 +131,7 @@ describe("State Machine", () => {
                 blockchain.processQueue.length = jest.fn(() => 0);
                 stateStorage.noBlockCounter = 6;
                 stateStorage.p2pUpdateCounter = 3;
+                // @ts-ignore
                 jest.spyOn(blockchain.p2p, "updatePeersOnMissingBlocks").mockImplementation(() => "rollback");
 
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
@@ -249,19 +250,27 @@ describe("State Machine", () => {
             beforeEach(() => {
                 databaseMocks = {
                     getLastBlock: jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
+                        // @ts-ignore
                         data: {
                             height: 1,
                             timestamp: slots.getTime(),
                         },
                     }),
+                    // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
+                        // @ts-ignore
                         valid: true,
                     }),
+                    // @ts-ignore
                     deleteRound: jest.spyOn(blockchain.database, "deleteRound").mockReturnValue(true),
+                    // @ts-ignore
                     buildWallets: jest.spyOn(blockchain.database, "buildWallets").mockReturnValue(true),
+                    // @ts-ignore
                     saveWallets: jest.spyOn(blockchain.database, "saveWallets").mockReturnValue(true),
+                    // @ts-ignore
                     applyRound: jest.spyOn(blockchain.database, "applyRound").mockReturnValue(true),
+                    // @ts-ignore
                     getActiveDelegates: jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue(true),
                 };
             });
@@ -301,6 +310,7 @@ describe("State Machine", () => {
 
             it("should dispatch ROLLBACK if database recovery was not successful and verifyBlockchain failed", async () => {
                 jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
+                    // @ts-ignore
                     valid: false,
                 });
 
@@ -346,6 +356,7 @@ describe("State Machine", () => {
 
                 // mock getLastBlock() timestamp and fastRebuild config to trigger stateStorage.fastRebuild = true
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
+                    // @ts-ignore
                     data: {
                         height: 1,
                         timestamp: 0,
@@ -372,11 +383,13 @@ describe("State Machine", () => {
             it("should rebuild wallets table and dispatch STARTED if database.buildWallets() failed", async () => {
                 process.env.NODE_ENV = "";
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
+                    // @ts-ignore
                     data: {
                         height: 2,
                         timestamp: slots.getTime(),
                     },
                 });
+                // @ts-ignore
                 jest.spyOn(blockchain.database, "buildWallets").mockReturnValue(false);
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
@@ -500,6 +513,7 @@ describe("State Machine", () => {
                         timestamp: genesisBlock.timestamp + 115,
                     },
                 ]);
+                // @ts-ignore
                 const enQueueBlocks = jest.spyOn(blockchain, "enqueueBlocks").mockReturnValue(true);
 
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "DOWNLOADED");
@@ -549,10 +563,14 @@ describe("State Machine", () => {
                 const loggerInfo = jest.spyOn(logger, "info");
 
                 const methodsCalled = [
+                    // @ts-ignore
                     jest.spyOn(blockchain.database, "commitQueuedQueries").mockReturnValue(true),
+                    // @ts-ignore
                     jest.spyOn(blockchain.transactionPool, "buildWallets").mockReturnValue(true),
+                    // @ts-ignore
                     jest.spyOn(blockchain.p2p, "refreshPeersAfterFork").mockReturnValue(true),
                     jest.spyOn(blockchain, "clearAndStopQueue"),
+                    // @ts-ignore
                     jest.spyOn(blockchain, "removeBlocks").mockReturnValue(true),
                 ];
                 await expect(() => actionMap.startForkRecovery()).toDispatch(blockchain, "SUCCESS");
@@ -575,12 +593,15 @@ describe("State Machine", () => {
                     maxBlockRewind: 14,
                     steps: 3,
                 });
+                // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
                 jest.spyOn(blockchain.database, "verifyBlockchain")
+                    // @ts-ignore
                     .mockReturnValue({ valid: true }) // default
                     .mockReturnValueOnce({ valid: false }) // first call
                     .mockReturnValueOnce({ valid: false }); // 2nd call
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
+                    // @ts-ignore
                     data: {
                         height: 1,
                     },
@@ -603,9 +624,12 @@ describe("State Machine", () => {
                     maxBlockRewind: 14,
                     steps: 3,
                 });
+                // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
+                // @ts-ignore
                 jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({ valid: false });
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
+                    // @ts-ignore
                     data: {
                         height: 1,
                     },

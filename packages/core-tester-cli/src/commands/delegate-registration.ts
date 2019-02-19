@@ -3,7 +3,7 @@ import { flags } from "@oclif/command";
 import pluralize from "pluralize";
 import superheroes from "superheroes";
 import { customFlags } from "../flags";
-import { arktoshiToArk, logger, parseFee } from "../utils";
+import { logger, parseFee, satoshiToArk } from "../utils";
 import { BaseCommand } from "./command";
 import { TransferCommand } from "./transfer";
 
@@ -23,18 +23,17 @@ export class DelegateRegistrationCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        await this.initialize(DelegateRegistrationCommand);
+        // tslint:disable-next-line: no-shadowed-variable
+        const { flags } = await this.initialize(DelegateRegistrationCommand);
 
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
-            await TransferCommand.run([
-                "--amount",
-                String(this.options.amount || 25),
-                "--recipient",
-                wallet.address,
-                "--skipTesting",
-            ]);
+            await TransferCommand.run(
+                ["--amount", String(this.options.amount || 25), "--recipient", wallet.address, "--skipTesting"].concat(
+                    this.castFlags(flags),
+                ),
+            );
         }
 
         const delegates = await this.getDelegates();
@@ -71,9 +70,9 @@ export class DelegateRegistrationCommand extends BaseCommand {
             transactions.push(transaction);
 
             logger.info(
-                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${arktoshiToArk(
-                    transaction.data.fee,
-                )}, username: ${wallet.username})`,
+                `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${satoshiToArk(transaction.data.fee)}, username: ${
+                    wallet.username
+                })`,
             );
         });
 

@@ -4,6 +4,8 @@ import axios from "axios";
 import dayjs from "dayjs-ext";
 import util from "util";
 import { config as localConfig } from "./config";
+import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
+import { PeerVerifier } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
@@ -155,11 +157,7 @@ export class Peer implements P2P.IPeer {
      */
     public async downloadBlocks(fromBlockHeight) {
         try {
-            const response = await axios.get(`${this.url}/peer/blocks`, {
-                params: { lastBlockHeight: fromBlockHeight },
-                headers: this.headers,
-                timeout: 10000,
-            });
+            const response = await this.getPeerBlocks(fromBlockHeight);
 
             this.__parseHeaders(response);
 
@@ -187,20 +185,38 @@ export class Peer implements P2P.IPeer {
     /**
      * Perform ping request on this peer if it has not been
      * recently pinged.
-     * @param  {Number} [delay=5000]
+     * @param  {Number} delay operation timeout, in milliseconds
      * @param  {Boolean} force
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    public async ping(delay, force = false) {
+    public async ping(delay: number, force = false) {
+        const deadline = new Date().getTime() + delay;
+
         if (this.recentlyPinged() && !force) {
             return;
         }
 
-        const body = await this.__get("/peer/status", delay || localConfig.get("globalTimeout"));
+        const body = await this.__get("/peer/status", delay);
 
         if (!body) {
             throw new Error(`Peer ${this.ip} is unresponsive`);
+        }
+
+        if (!body.success) {
+            throw new PeerStatusResponseError(JSON.stringify(body));
+        }
+
+        if (false && process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
+            const peerVerifier = new PeerVerifier(this);
+
+            if (!(await peerVerifier.checkState(body, deadline))) {
+                throw new PeerVerificationFailedError();
+            }
+        }
+
+        if (deadline <= new Date().getTime()) {
+            throw new PeerPingTimeoutError(delay);
         }
 
         this.lastPinged = dayjs();
@@ -235,19 +251,21 @@ export class Peer implements P2P.IPeer {
     /**
      * Check if peer has common blocks.
      * @param  {[]String} ids
+     * @param {Number} timeoutMsec timeout for the operation, in milliseconds
      * @return {Boolean}
      */
-    public async hasCommonBlocks(ids) {
+    public async hasCommonBlocks(ids, timeoutMsec?: number) {
         try {
             let url = `/peer/blocks/common?ids=${ids.join(",")}`;
             if (ids.length === 1) {
                 url += ",";
             }
-            const body = await this.__get(url);
+            const body = await this.__get(url, timeoutMsec);
 
             return body && body.success && body.common;
         } catch (error) {
-            this.logger.error(`Could not determine common blocks with ${this.ip}: ${error}`);
+            const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : "";
+            this.logger.error(`Could not determine common blocks with ${this.ip}${sfx}: ${error}`);
         }
 
         return false;
@@ -328,5 +346,20 @@ export class Peer implements P2P.IPeer {
         this.status = response.status;
 
         return response;
+    }
+
+    /**
+     * GET /peer/blocks and return the raw response.
+     * The API is such that the response is supposed to contain blocks at height
+     * afterBlockHeight + 1, afterBlockHeight + 2, and so on up to some limit determined by the peer.
+     * @param  {Number} afterBlockHeight
+     * @return {(Object[]|undefined)}
+     */
+    public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
+        return axios.get(`${this.url}/peer/blocks`, {
+            params: { lastBlockHeight: afterBlockHeight },
+            headers: this.headers,
+            timeout: 10000,
+        });
     }
 }

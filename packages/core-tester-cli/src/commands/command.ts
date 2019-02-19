@@ -315,4 +315,23 @@ export abstract class BaseCommand extends Command {
 
         return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions);
     }
+
+    protected castFlags(values: Record<string, any>): string[] {
+        return Object.keys(BaseCommand.flags)
+            .filter(k => !["copy"].includes(k))
+            .map((key: string) => {
+                const value = values[key];
+
+                if (value === undefined) {
+                    return undefined;
+                }
+
+                if (value === true) {
+                    return `--${key}`;
+                }
+
+                return `--${key}=${value}`;
+            })
+            .filter(value => value !== undefined);
+    }
 }
