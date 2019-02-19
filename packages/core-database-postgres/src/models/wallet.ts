@@ -4,9 +4,6 @@ import { Model } from "./model";
 
 export class Wallet extends Model {
 
-    private readonly columnsDescriptor: any[];
-    private columnSet: any[];
-
     constructor(pgp) {
         super(pgp);
 
@@ -63,39 +60,5 @@ export class Wallet extends Model {
      */
     public getTable() {
         return "wallets";
-    }
-
-    /**
-     * The read-only structure with query-formatting columns.
-     * @return {Object}
-     */
-    public getColumnSet() {
-        if(!this.columnSet) {
-            this.columnSet = this.createColumnSet(this.columnsDescriptor.map(col => {
-                const colDef: any = {
-                    name : col.name
-                };
-                ["prop", "init", "def"].forEach(prop => {
-                    if(col.hasOwnProperty(prop)) {
-                        colDef[prop] = col[prop];
-                    }
-                });
-                return colDef;
-            }))
-        }
-        return this.columnSet;
-    }
-
-    public getName(): string {
-        return "Wallet";
-    }
-
-    public getSearchableFields(): Database.SearchableField[] {
-        return this.columnsDescriptor.map(col => {
-            return {
-                fieldName: col.prop || col.name,
-                supportedOperators: col.supportedOperators
-            }
-        });
     }
 }

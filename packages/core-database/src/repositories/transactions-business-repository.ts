@@ -15,41 +15,10 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         });
     }
 
+    // TODO: Remove with v1
     public async findAll(params: any, sequenceOrder: "asc" | "desc" = "desc") {
-        const databaseService = this.databaseServiceProvider();
-        // Custom logic for these fields. Fetch/Prepare the necessary data before sending the data layer repo.
-        if (params.senderId) {
-            const senderPublicKey = this.getPublicKeyFromAddress(params.senderId);
 
-            if (!senderPublicKey) {
-                return { rows: [], count: 0 };
-            }
-            delete params.senderId;
-            params.senderPublicKey = senderPublicKey;
-        }
-
-
-        if (params.ownerId) {
-            // custom OP here
-            params.ownerWallet = databaseService.walletManager.findByAddress(params.ownerId);
-            delete params.ownerId;
-        }
-
-        const searchParameters = new SearchParameterConverter(databaseService.connection.transactionsRepository.getModel()).convert(params);
-
-        if(!searchParameters.paginate) {
-            searchParameters.paginate = {
-                offset: 0,
-                limit: 100
-            };
-        }
-
-        searchParameters.orderBy.push({
-            field: "sequence",
-            direction: sequenceOrder
-        });
-
-        const result = await databaseService.connection.transactionsRepository.findAll(searchParameters);
+        const result = await this.databaseServiceProvider().connection.transactionsRepository.findAll(this.parseSearchParameters(params, sequenceOrder));
         result.rows = await this.mapBlocksToTransactions(result.rows);
 
         return result;
@@ -88,7 +57,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     public async findByTypeAndId(type: any, id: string) {
         const results = await this.findAll({ type, id });
-        return results.rows.length ? results.rows[0]: null;
+        return results.rows.length ? results.rows[0] : null;
     }
 
     public async findWithVendorField() {
@@ -101,22 +70,12 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return await this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(opts.dynamicFees.minFeeBroadcast)
     }
 
+    public async search(params: any) {
 
-    // TODO: At some point we need to combine 'search' and 'findAll'
-    public async search(parameters: any) {
-        if (parameters.addresses) {
-            if (!parameters.recipientId) {
-                parameters.recipientId = parameters.addresses;
-            }
-            if (!parameters.senderPublicKey) {
-                parameters.senderPublicKey = parameters.addresses.map(address => {
-                    return this.getPublicKeyFromAddress(address);
-                });
-            }
+        const result = await this.databaseServiceProvider().connection.transactionsRepository.search(this.parseSearchParameters(params));
+        result.rows = await this.mapBlocksToTransactions(result.rows);
 
-            delete parameters.addresses;
-        }
-        return this.findAll(parameters);
+        return result;
     }
 
     private getPublicKeyFromAddress(senderId: string): string {
@@ -164,7 +123,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return rows;
     }
 
-    private getCachedBlock(blockId): any {
+    private getCachedBlock(blockId: string): any {
         // TODO: Improve caching mechanism. Would be great if we have the caching directly linked to the data-layer repos.
         // Such that when you try to fetch a block, it'll transparently check the cache first, before querying db.
         const height = this.databaseServiceProvider().cache.get(`heights:${blockId}`);
@@ -179,6 +138,45 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
      */
     private cacheBlock({ id, height }): void {
         this.databaseServiceProvider().cache.set(`heights:${id}`, height);
+    }
+
+    private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.SearchParameters {
+
+        const databaseService = this.databaseServiceProvider();
+        if (params.addresses) {
+            if (!params.recipientId) {
+                params.recipientId = params.addresses;
+            }
+            if (!params.senderPublicKey) {
+                params.senderPublicKey = params.addresses.map(address => {
+                    return this.getPublicKeyFromAddress(address);
+                });
+            }
+
+            delete params.addresses;
+        }
+
+        // TODO: supported by 'findAll' but was replaced by 'addresses' in 'search' so remove this when removing v1 code
+        if (params.ownerId) {
+            // custom OP here
+            params.ownerWallet = databaseService.walletManager.findByAddress(params.ownerId);
+            delete params.ownerId;
+        }
+
+        const searchParameters = new SearchParameterConverter(databaseService.connection.transactionsRepository.getModel()).convert(params);
+        if (!searchParameters.paginate) {
+            searchParameters.paginate = {
+                offset: 0,
+                limit: 100
+            };
+        }
+
+        searchParameters.orderBy.push({
+            field: "sequence",
+            direction: sequenceOrder
+        });
+
+        return searchParameters;
     }
 
 }

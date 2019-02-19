@@ -6,13 +6,9 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     constructor(private databaseServiceProvider: () => Database.IDatabaseService) {
     }
 
+    /* TODO: Remove with v1 */
     public async findAll(params: any) {
-        /* In core-api/blocks repo. 'findAll' differs from search in that, it assumes 'equal' op for all passed in parameters
-        whereas 'search' checks if certain fields use different ops(such as in, lte/gte, like) etc.
-        Search seems more robust in that sense, and findAll should be doing the same
-         TODO: Remove this method in favor of 'search'
-         */
-        return this.search(params);
+        return this.databaseServiceProvider().connection.blocksRepository.findAll(this.parseSearchParams(params));
     }
 
     public async findAllByGenerator(generatorPublicKey: string, paginate: any) {
@@ -22,7 +18,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
 
     public async findLastByPublicKey(generatorPublicKey: string) {
         // we order by height,desc by default
-        return await this.findAll({ generatorPublicKey});
+        return await this.findAll({ generatorPublicKey });
     }
 
     public async findByHeight(height: number) {
@@ -35,6 +31,10 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async search(params: any) {
+        return await this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
+    }
+
+    private parseSearchParams(params: any): Database.SearchParameters {
         const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
         if (!searchParameters.orderBy.length) {
@@ -44,7 +44,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
                 direction: "desc"
             });
         }
-        return await blocksRepository.search(searchParameters);
+        return searchParameters;
     }
 
 }

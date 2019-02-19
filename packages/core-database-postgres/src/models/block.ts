@@ -4,8 +4,6 @@ import { Model } from "./model";
 
 export class Block extends Model {
 
-    private readonly columnsDescriptor: any[];
-
     constructor(pgp) {
 
         super(pgp);
@@ -86,34 +84,4 @@ export class Block extends Model {
         return "blocks";
     }
 
-    /**
-     * The read-only structure with query-formatting columns.
-     * @return {Object}
-     */
-    public getColumnSet() {
-        return this.createColumnSet(this.columnsDescriptor.map(col => {
-            const colDef: any = {
-                name : col.name
-            };
-            ["prop", "init", "def"].forEach(prop => {
-                if(col.hasOwnProperty(prop)) {
-                    colDef[prop] = col[prop];
-                }
-            });
-            return colDef;
-        }));
-    }
-
-    public getName(): string {
-        return "Block";
-    }
-
-    public getSearchableFields(): Database.SearchableField[] {
-        return this.columnsDescriptor.map(col => {
-            return {
-                fieldName: col.prop || col.name,
-                supportedOperators: col.supportedOperators
-            }
-        });
-    }
 }

@@ -63,5 +63,8 @@ export interface IBlocksRepository extends IRepository {
      */
     delete(id: string): Promise<void>;
 
+    /* TODO: Remove with V1 */
+    findAll(params: SearchParameters): Promise<any>;
+
     search(params: SearchParameters): Promise<any>;
 }

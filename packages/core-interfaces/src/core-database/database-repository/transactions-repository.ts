@@ -46,12 +46,14 @@ export interface ITransactionsRepository extends IRepository {
      */
     deleteByBlockId(blockId: string): Promise<void>;
 
-    search(parameters: SearchParameters): Promise<any>;
 
     findAllByWallet(wallet: any, paginate?: SearchPaginate, orderBy?: SearchOrderBy[]): Promise<any>;
 
     findWithVendorField(): Promise<any>;
 
-    findAll(parameters: SearchParameters): Promise<any>
+    /* TODO: Remove with v1 */
+    findAll(parameters: SearchParameters): Promise<any>;
+
+    search(parameters: SearchParameters): Promise<any>;
 
 }

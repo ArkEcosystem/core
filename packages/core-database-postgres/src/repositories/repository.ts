@@ -3,7 +3,7 @@ import { Model } from "../models";
 
 export abstract class Repository implements Database.IRepository {
     protected model: Model;
-    protected q;
+    protected query;
 
     /**
      * Create a new repository instance.
@@ -12,7 +12,7 @@ export abstract class Repository implements Database.IRepository {
      */
     constructor(public db, public pgp) {
         this.model = this.getModel();
-        this.q = this.model.query();
+        this.query = this.model.query();
     }
 
     /**
@@ -93,7 +93,7 @@ export abstract class Repository implements Database.IRepository {
     protected async findManyWithCount(selectQuery, paginate?: Database.SearchPaginate, orderBy?: Database.SearchOrderBy[]): Promise<any> {
 
         if (!!orderBy) {
-            orderBy.forEach(o => selectQuery.order(this.q[o.field][o.direction]));
+            orderBy.forEach(o => selectQuery.order(this.query[o.field][o.direction]));
         }
 
         if (!paginate || (!paginate.limit && !paginate.offset)) {
