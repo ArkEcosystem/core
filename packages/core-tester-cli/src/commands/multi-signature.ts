@@ -38,7 +38,8 @@ export class MultiSignatureCommand extends BaseCommand {
      * @return {void}
      */
     public async run(): Promise<void> {
-        this.initialize(MultiSignatureCommand);
+        // tslint:disable-next-line: no-shadowed-variable
+        const { flags } = await this.initialize(MultiSignatureCommand);
 
         const approvalWallets = this.generateWallets(this.options.quantity);
         const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`);
@@ -48,13 +49,15 @@ export class MultiSignatureCommand extends BaseCommand {
         const wallets = this.generateWallets();
 
         for (const wallet of wallets) {
-            await TransferCommand.run([
-                "--recipient",
-                wallet.address,
-                "--amount",
-                (publicKeys.length + 1) * 5 + testCosts,
-                "--skipTesting",
-            ]);
+            await TransferCommand.run(
+                [
+                    "--recipient",
+                    wallet.address,
+                    "--amount",
+                    (publicKeys.length + 1) * 5 + testCosts,
+                    "--skipTesting",
+                ].concat(this.castFlags(flags)),
+            );
         }
 
         const transactions = this.generateTransactions(wallets, approvalWallets, publicKeys, min);

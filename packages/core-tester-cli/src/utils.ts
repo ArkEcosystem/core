@@ -13,7 +13,7 @@ export function request(config) {
     const headers: any = {};
     if (config && config.network) {
         headers.nethash = config.network.nethash;
-        headers.version = "2.0.0";
+        headers.version = "2.1.0";
         headers.port = config.p2pPort;
         headers["Content-Type"] = "application/json";
     }

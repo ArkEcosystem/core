@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-http-utils",
     "description": "Http Utilities for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0-beta.3",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -11,6 +11,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -27,7 +31,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.1.1",
+        "@arkecosystem/core-container": "^2.2.0-beta.3",
         "@types/boom": "^7.2.1",
         "@types/micromatch": "^3.1.0",
         "boom": "^7.3.0",

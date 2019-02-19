@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-tester-cli",
     "description": "Tester CLI for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0-beta.3",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -18,6 +18,10 @@
     },
     "scripts": {
         "tester": "./bin/run",
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
@@ -36,8 +40,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-utils": "^2.1.1",
-        "@arkecosystem/crypto": "^2.1.1",
+        "@arkecosystem/core-utils": "^2.2.0-beta.3",
+        "@arkecosystem/crypto": "^2.2.0-beta.3",
         "@oclif/command": "^1.5.10",
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",
