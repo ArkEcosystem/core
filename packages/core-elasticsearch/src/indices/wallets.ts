@@ -1,13 +1,7 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { client } from "../client";
 import { Index } from "./base";
 
 export class Wallets extends Index {
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
     public async index() {
         const { count } = await this.count();
 

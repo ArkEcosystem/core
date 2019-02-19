@@ -3,12 +3,13 @@ import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { client } from "../client";
 import { storage } from "../storage";
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
 export abstract class Index {
-    public chunkSize: number;
+    protected readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>(
+        "event-emitter",
+    );
+    protected readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    protected readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    protected chunkSize: number;
 
     public constructor(chunkSize: number) {
         this.chunkSize = chunkSize;
@@ -18,7 +19,7 @@ export abstract class Index {
     public abstract listen(): void;
 
     protected registerCreateListener(event) {
-        emitter.on(event, async doc => {
+        this.emitter.on(event, async doc => {
             try {
                 const exists = await this.exists(doc);
 
@@ -26,13 +27,13 @@ export abstract class Index {
                     await this.create(doc);
                 }
             } catch (error) {
-                logger.error(`[ES] ${error.message}`);
+                this.logger.error(`[ES] ${error.message}`);
             }
         });
     }
 
     protected registerDeleteListener(event) {
-        emitter.on(event, async doc => {
+        this.emitter.on(event, async doc => {
             try {
                 const exists = await this.exists(doc);
 
@@ -40,13 +41,13 @@ export abstract class Index {
                     await this.delete(doc);
                 }
             } catch (error) {
-                logger.error(`[ES] ${error.message}`);
+                this.logger.error(`[ES] ${error.message}`);
             }
         });
     }
 
     protected createQuery() {
-        return (databaseService.connection as any).models[this.getType()].query();
+        return (this.database.connection as any).models[this.getType()].query();
     }
 
     protected count() {
@@ -54,7 +55,7 @@ export abstract class Index {
 
         const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
 
-        return (databaseService.connection as any).query.one(query.toQuery());
+        return (this.database.connection as any).query.one(query.toQuery());
     }
 
     protected buildBulkUpsert(items) {
@@ -74,7 +75,7 @@ export abstract class Index {
     }
 
     private create(doc) {
-        logger.info(`[ES] Creating ${this.getType()} with ID ${doc.id}`);
+        this.logger.info(`[ES] Creating ${this.getType()} with ID ${doc.id}`);
 
         if (this.getType() === "block") {
             storage.update({ lastBlock: doc.height });
@@ -86,7 +87,7 @@ export abstract class Index {
     }
 
     private delete(doc) {
-        logger.info(`[ES] Deleting ${this.getType()} with ID ${doc.id}`);
+        this.logger.info(`[ES] Deleting ${this.getType()} with ID ${doc.id}`);
 
         return client.delete(this.getReadQuery(doc));
     }
