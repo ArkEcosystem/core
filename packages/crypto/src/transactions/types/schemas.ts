@@ -13,11 +13,17 @@ export const signedSchema = (schema: TransactionSchema): TransactionSchema => {
     return signed;
 };
 
+export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
+    const signed = signedSchema(schema);
+    const strict = extend(signed, strictTransaction);
+    strict.$id = `${schema.$id}Strict`;
+    return strict;
+};
+
 const transactionBaseSchema = {
     $id: null,
     type: "object",
     required: ["type", "senderPublicKey", "fee", "timestamp"],
-    additionalProperties: false,
     properties: {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
@@ -34,6 +40,10 @@ const transactionBaseSchema = {
 
 const signedTransaction = {
     required: ["id", "signature"],
+};
+
+const strictTransaction = {
+    additionalProperties: false,
 };
 
 export const transfer = extend(transactionBaseSchema, {

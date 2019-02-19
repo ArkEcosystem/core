@@ -3,7 +3,7 @@ import ajvKeywords from "ajv-keywords";
 
 import { TransactionSchemaAlreadyExistsError } from "../errors";
 import { ISchemaValidationResult } from "../models";
-import { signedSchema, TransactionSchema } from "../transactions/types/schemas";
+import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
 
@@ -40,6 +40,7 @@ class AjvWrapper {
         this.transactionSchemas.add(schema.$id);
         this.ajv.addSchema(schema);
         this.ajv.addSchema(signedSchema(schema));
+        this.ajv.addSchema(strictSchema(schema));
 
         this.updateTransactionArray();
     }
@@ -51,7 +52,7 @@ class AjvWrapper {
             $id: "transactions",
             type: "array",
             additionalItems: false,
-            items,
+            items: { oneOf: items },
         };
 
         this.ajv.removeSchema("block");

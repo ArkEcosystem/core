@@ -215,9 +215,8 @@ export abstract class Transaction {
         throw new NotImplementedError();
     }
 
-    private static validateSchema(data: ITransactionData, signed?: boolean): ISchemaValidationResult {
+    private static validateSchema(data: ITransactionData): ISchemaValidationResult {
         const { $id } = TransactionRegistry.get(data.type).getSchema();
-        const name = signed ? `${$id}Signed` : $id;
-        return AjvWrapper.validate(name, data);
+        return AjvWrapper.validate(`${$id}Strict`, data);
     }
 }
