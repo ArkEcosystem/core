@@ -103,6 +103,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 this.excess.push(transaction.id);
             } else if (this.__validateTransaction(transaction)) {
                 try {
+                    const receivedId = transaction.id;
                     const trx = Transaction.fromData(transaction);
                     if (trx.verified) {
                         const applyErrors = [];
@@ -127,6 +128,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                             this.__pushError(transaction, "ERR_APPLY", JSON.stringify(applyErrors));
                         }
                     } else {
+                        transaction.id = receivedId;
                         this.__pushError(
                             transaction,
                             "ERR_BAD_DATA",

@@ -1,9 +1,11 @@
 import secp256k1 from "secp256k1";
 import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
-import { feeManager } from "../managers";
+import { configManager, feeManager } from "../managers";
 import { ITransactionData } from "../transactions";
 import { ISerializeOptions } from "../transactions/serializers/transaction";
 import { HashAlgorithms } from "./hash-algorithms";
+
+const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
 
 class Crypto {
     /**
@@ -17,7 +19,15 @@ class Crypto {
      * Get transaction id.
      */
     public getId(transaction: ITransactionData): string {
-        return this.getHash(transaction).toString("hex");
+        const id = this.getHash(transaction).toString("hex");
+
+        // Apply fix for broken type 1 and 4 transactions, which were
+        // erroneously calculated with a recipient id.
+        if (transactionIdFixTable[transaction.id]) {
+            return transactionIdFixTable[transaction.id];
+        }
+
+        return id;
     }
 
     /**

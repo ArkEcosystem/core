@@ -57,6 +57,7 @@ export abstract class Transaction {
         TransactionDeserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
         TransactionSerializer.serialize(transaction);
 
+        data.id = crypto.getId(data);
         transaction.isVerified = transaction.verify();
 
         return transaction;

@@ -7,8 +7,6 @@ import { configManager } from "../../managers";
 import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";
 
-const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
-
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {
     public deserialize(serialized: string | Buffer): Transaction {
@@ -36,6 +34,7 @@ class TransactionDeserializer {
                 throw new TransactionVersionError(data.version);
         }
 
+        data.id = crypto.getId(data);
         instance.serialized = Buffer.from(buffer.flip().toBuffer());
 
         return instance;
@@ -131,14 +130,6 @@ class TransactionDeserializer {
             transaction.type === TransactionTypes.MultiSignature
         ) {
             transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
-        }
-
-        transaction.id = crypto.getId(transaction);
-
-        // Apply fix for broken type 1 and 4 transactions, which were
-        // erroneously calculated with a recipient id.
-        if (transactionIdFixTable[transaction.id]) {
-            transaction.id = transactionIdFixTable[transaction.id];
         }
     }
 
