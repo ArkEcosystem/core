@@ -54,7 +54,9 @@ export function needsRefresh(config: IConfig): boolean {
 
 export async function checkForUpdates({ config, error, log, warn }): Promise<void> {
     if (existsSync(join(__dirname, "../../../..", ".git"))) {
-        warn(`You are using a git clone for developers. Please install core via yarn for auto-updates.`);
+        if (!process.env.CORE_DEVELOPER_MODE) {
+            warn(`You are using a git clone for developers. Please install core via yarn for auto-updates.`);
+        }
         return;
     }
 
