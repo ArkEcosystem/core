@@ -38,14 +38,14 @@ export class Transactions extends Index {
                     return transaction;
                 });
 
-                const blockIds = rows.map(row => row.blockId);
-                logger.info(`[ES] Indexing transactions from block ${first(blockIds)} to ${last(blockIds)}`);
+                const timestamps = rows.map(row => row.data.timestamp);
+                logger.info(`[ES] Indexing ${rows.length} transactions [${first(timestamps)} to ${last(timestamps)}]`);
 
                 try {
                     await client.bulk(this.buildBulkUpsert(rows));
 
                     storage.update({
-                        lastTransaction: +last(rows).data.timestamp,
+                        lastTransaction: +last(timestamps),
                     });
                 } catch (error) {
                     logger.error(`[ES] ${error.message}`);

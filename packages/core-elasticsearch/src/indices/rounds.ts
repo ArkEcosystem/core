@@ -30,7 +30,7 @@ export class Rounds extends Index {
 
             if (rows.length) {
                 const roundIds = rows.map(row => row.round);
-                logger.info(`[ES] Indexing rounds from ${first(roundIds)} to ${last(roundIds)}`);
+                logger.info(`[ES] Indexing ${rows.length} rounds [${first(roundIds)} - ${last(roundIds)}]`);
 
                 try {
                     await client.bulk(this.buildBulkUpsert(rows));

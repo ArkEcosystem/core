@@ -29,7 +29,7 @@ export class Blocks extends Index {
 
             if (rows.length) {
                 const heights = rows.map(row => row.height);
-                logger.info(`[ES] Indexing blocks from height ${first(heights)} to ${last(heights)}`);
+                logger.info(`[ES] Indexing ${rows.length} blocks [${first(heights)} - ${last(heights)}]`);
 
                 try {
                     await client.bulk(this.buildBulkUpsert(rows));
