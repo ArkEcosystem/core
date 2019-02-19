@@ -3,11 +3,11 @@ import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { client } from "../client";
 import { Index } from "./base";
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
 export class Wallets extends Index {
+    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
     public async index() {
         const { count } = await this.count();
 
@@ -22,10 +22,10 @@ export class Wallets extends Index {
                 .limit(this.chunkSize)
                 .offset(this.chunkSize * i);
 
-            const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
+            const rows = await (this.database.connection as any).query.manyOrNone(query.toQuery());
 
             if (rows.length) {
-                logger.info(`[ES] Indexing ${rows.length} wallets`);
+                this.logger.info(`[ES] Indexing ${rows.length} wallets`);
 
                 try {
                     rows.forEach(row => {
@@ -34,13 +34,13 @@ export class Wallets extends Index {
 
                     await client.bulk(this.buildBulkUpsert(rows));
                 } catch (error) {
-                    logger.error(`[ES] ${error.message}`);
+                    this.logger.error(`[ES] ${error.message}`);
                 }
             }
         }
     }
 
     public listen() {
-        emitter.on("round.applied", () => this.index());
+        this.emitter.on("round.applied", () => this.index());
     }
 }

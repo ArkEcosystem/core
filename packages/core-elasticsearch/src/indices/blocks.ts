@@ -5,10 +5,10 @@ import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
 export class Blocks extends Index {
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
     public async index() {
         const { count } = await this.count();
 
@@ -24,11 +24,11 @@ export class Blocks extends Index {
                 .order(modelQuery.height.asc)
                 .limit(this.chunkSize);
 
-            const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
+            const rows = await (this.database.connection as any).query.manyOrNone(query.toQuery());
 
             if (rows.length) {
                 const heights = rows.map(row => row.height);
-                logger.info(`[ES] Indexing ${rows.length} blocks [${first(heights)} - ${last(heights)}]`);
+                this.logger.info(`[ES] Indexing ${rows.length} blocks [${first(heights)} - ${last(heights)}]`);
 
                 try {
                     await client.bulk(this.buildBulkUpsert(rows));
@@ -37,7 +37,7 @@ export class Blocks extends Index {
                         lastBlock: +last(heights),
                     });
                 } catch (error) {
-                    logger.error(`[ES] ${error.message}`);
+                    this.logger.error(`[ES] ${error.message}`);
                 }
             }
         }

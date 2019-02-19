@@ -5,11 +5,11 @@ import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
 
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
 export class Rounds extends Index {
+    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
     public async index() {
         const { count } = await this.count();
 
@@ -25,11 +25,11 @@ export class Rounds extends Index {
                 .order(modelQuery.round.asc)
                 .limit(this.chunkSize);
 
-            const rows = await (databaseService.connection as any).query.manyOrNone(query.toQuery());
+            const rows = await (this.database.connection as any).query.manyOrNone(query.toQuery());
 
             if (rows.length) {
                 const roundIds = rows.map(row => row.round);
-                logger.info(`[ES] Indexing ${rows.length} rounds [${first(roundIds)} - ${last(roundIds)}]`);
+                this.logger.info(`[ES] Indexing ${rows.length} rounds [${first(roundIds)} - ${last(roundIds)}]`);
 
                 try {
                     await client.bulk(this.buildBulkUpsert(rows));
@@ -38,13 +38,13 @@ export class Rounds extends Index {
                         lastRound: +last(roundIds),
                     });
                 } catch (error) {
-                    logger.error(`[ES] ${error.message}`);
+                    this.logger.error(`[ES] ${error.message}`);
                 }
             }
         }
     }
 
     public listen() {
-        emitter.on("round.created", () => this.index());
+        this.emitter.on("round.created", () => this.index());
     }
 }
