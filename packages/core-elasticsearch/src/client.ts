@@ -1,14 +1,10 @@
-import elasticsearch from "elasticsearch";
+import { Client as ElasticSearch } from "elasticsearch";
 
 class Client {
-    private client: elasticsearch.Client;
+    private client: ElasticSearch;
 
-    public async setUp(options) {
-        this.client = new elasticsearch.Client(options);
-    }
-
-    public async getClient() {
-        return this.client;
+    public async setUp(options: Record<string, any>) {
+        this.client = new ElasticSearch(options);
     }
 
     public async bulk(body) {

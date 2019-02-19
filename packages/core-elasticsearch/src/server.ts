@@ -1,7 +1,7 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 import Boom from "boom";
 import Joi from "joi";
-import { client } from "./services/client";
+import { client } from "./client";
 
 export async function startServer(config) {
     const server = await createServer({

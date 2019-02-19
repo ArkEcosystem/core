@@ -1,20 +1,20 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { client } from "../services/client";
-import { Index } from "./index";
+import { client } from "../client";
+import { Index } from "./base";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-class WalletIndex extends Index {
+export class Wallets extends Index {
     public async index() {
-        const { count } = await this.__count();
+        const { count } = await this.count();
 
         const queries = Math.ceil(count / this.chunkSize);
 
         for (let i = 0; i < queries; i++) {
-            const modelQuery = this.__createQuery();
+            const modelQuery = this.createQuery();
 
             const query = modelQuery
                 .select()
@@ -28,16 +28,16 @@ class WalletIndex extends Index {
                 continue;
             }
 
-            logger.info(`[Elasticsearch] Indexing ${rows.length} wallets :card_index_dividers:`);
+            logger.info(`[ES] Indexing ${rows.length} wallets`);
 
             try {
                 rows.forEach(row => {
                     row.id = row.address;
                 });
 
-                await client.bulk(this._buildBulkUpsert(rows));
+                await client.bulk(this.buildBulkUpsert(rows));
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                logger.error(`[ES] ${error.message}`);
             }
         }
     }
@@ -45,14 +45,4 @@ class WalletIndex extends Index {
     public listen() {
         emitter.on("round.applied", () => this.index());
     }
-
-    public getIndex() {
-        return "wallets";
-    }
-
-    public getType() {
-        return "wallet";
-    }
 }
-
-export const walletIndex = new WalletIndex();

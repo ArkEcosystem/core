@@ -1,10 +1,9 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import first from "lodash/first";
-import last from "lodash/last";
-import { client } from "../services/client";
-import { storage } from "../services/storage";
-import { Index } from "./index";
+import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { client } from "../client";
+import { storage } from "../storage";
+import { first, last } from "../utils";
+import { Index } from "./base";
 
 import { models } from "@arkecosystem/crypto";
 const { Transaction } = models;
@@ -12,14 +11,14 @@ const { Transaction } = models;
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-class TransactionIndex extends Index {
+export class Transactions extends Index {
     public async index() {
-        const { count } = await this.__count();
+        const { count } = await this.count();
 
         const queries = Math.ceil(count / this.chunkSize);
 
         for (let i = 0; i < queries; i++) {
-            const modelQuery = this.__createQuery();
+            const modelQuery = this.createQuery();
 
             const query = modelQuery
                 .select(modelQuery.block_id, modelQuery.serialized)
@@ -43,39 +42,25 @@ class TransactionIndex extends Index {
             });
 
             const blockIds = rows.map(row => row.blockId);
-            logger.info(
-                `[Elasticsearch] Indexing transactions from block ${first(blockIds)} to ${last(
-                    blockIds,
-                )} :card_index_dividers:`,
-            );
+            logger.info(`[ES] Indexing transactions from block ${first(blockIds)} to ${last(blockIds)}`);
 
             try {
-                await client.bulk(this._buildBulkUpsert(rows));
+                await client.bulk(this.buildBulkUpsert(rows));
 
                 storage.update({
                     lastTransaction: +last(rows.map(row => row.timestamp)),
                 });
             } catch (error) {
-                logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
+                logger.error(`[ES] ${error.message}`);
             }
         }
     }
 
     public listen() {
-        this._registerCreateListener("transaction.applied");
-        this._registerCreateListener("transaction.forged");
+        this.registerCreateListener("transaction.applied");
+        this.registerCreateListener("transaction.forged");
 
-        this._registerDeleteListener("transaction.expired");
-        this._registerDeleteListener("transaction.reverted");
-    }
-
-    public getIndex() {
-        return "transactions";
-    }
-
-    public getType() {
-        return "transaction";
+        this.registerDeleteListener("transaction.expired");
+        this.registerDeleteListener("transaction.reverted");
     }
 }
-
-export const transactionIndex = new TransactionIndex();
