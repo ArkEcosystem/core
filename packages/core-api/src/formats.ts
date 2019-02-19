@@ -3,9 +3,9 @@ import { Ajv } from "ajv";
 import * as bs58check from "bs58check";
 import * as ipAddress from "ip";
 
-const config = app.getConfig();
-
 export const registerFormats = (ajv: Ajv) => {
+    const config = app.getConfig();
+
     ajv.addFormat("address", {
         type: "string",
         validate: value => {

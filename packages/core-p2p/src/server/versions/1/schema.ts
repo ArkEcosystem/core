@@ -46,7 +46,7 @@ export const schema = {
         required: ["transactions"],
         additionalProperties: false,
         properties: {
-            transactions: { $ref: "transactions", minItems: 1 },
+            transactions: { $ref: "transactions", minItems: 1, maxItems: 40 }, // TODO: use config
         },
     },
     getTransactions: {
