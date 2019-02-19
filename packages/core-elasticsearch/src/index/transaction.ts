@@ -13,10 +13,6 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 class TransactionIndex extends Index {
-    /**
-     * Index transactions using the specified chunk size.
-     * @return {void}
-     */
     public async index() {
         const { count } = await this.__count();
 
@@ -28,7 +24,7 @@ class TransactionIndex extends Index {
             const query = modelQuery
                 .select(modelQuery.block_id, modelQuery.serialized)
                 .from(modelQuery)
-                .where(modelQuery.timestamp.gte(storage.get("history", "lastTransaction")))
+                .where(modelQuery.timestamp.gte(storage.get("lastTransaction")))
                 .order(modelQuery.timestamp.asc)
                 .limit(this.chunkSize)
                 .offset(this.chunkSize * i);
@@ -56,8 +52,8 @@ class TransactionIndex extends Index {
             try {
                 await client.bulk(this._buildBulkUpsert(rows));
 
-                storage.update("history", {
-                    lastTransaction: last(rows.map(row => row.timestamp)),
+                storage.update({
+                    lastTransaction: +last(rows.map(row => row.timestamp)),
                 });
             } catch (error) {
                 logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
@@ -65,10 +61,6 @@ class TransactionIndex extends Index {
         }
     }
 
-    /**
-     * Register listeners for "transaction.*" events.
-     * @return {void}
-     */
     public listen() {
         this._registerCreateListener("transaction.applied");
         this._registerCreateListener("transaction.forged");
@@ -77,18 +69,10 @@ class TransactionIndex extends Index {
         this._registerDeleteListener("transaction.reverted");
     }
 
-    /**
-     * Get the document index.
-     * @return {String}
-     */
     public getIndex() {
         return "transactions";
     }
 
-    /**
-     * Get the document type.
-     * @return {String}
-     */
     public getType() {
         return "transaction";
     }

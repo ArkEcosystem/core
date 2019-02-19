@@ -8,10 +8,6 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 class WalletIndex extends Index {
-    /**
-     * Index wallets using the specified chunk size.
-     * @return {void}
-     */
     public async index() {
         const { count } = await this.__count();
 
@@ -46,26 +42,14 @@ class WalletIndex extends Index {
         }
     }
 
-    /**
-     * Register listeners for "wallet.*" events.
-     * @return {void}
-     */
     public listen() {
-        emitter.on("wallets:updated", data => this.index());
+        emitter.on("round.applied", () => this.index());
     }
 
-    /**
-     * Get the document index.
-     * @return {String}
-     */
     public getIndex() {
         return "wallets";
     }
 
-    /**
-     * Get the document type.
-     * @return {String}
-     */
     public getType() {
         return "wallet";
     }

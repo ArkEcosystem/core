@@ -13,12 +13,8 @@ export const plugin: Container.PluginDescriptor = {
     defaults,
     alias: "elasticsearch",
     async register(container: Container.IContainer, options) {
-        const logger = container.resolvePlugin<Logger.ILogger>("logger");
+        storage.ensure();
 
-        logger.info("[Elasticsearch] Initialising History :hourglass:");
-        storage.ensure("history");
-
-        logger.info("[Elasticsearch] Initialising Client :joystick:");
         await client.setUp(options.client);
 
         blockIndex.setUp(options.chunkSize);
@@ -29,8 +25,6 @@ export const plugin: Container.PluginDescriptor = {
         return startServer(options.server);
     },
     async deregister(container: Container.IContainer, options) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("[Elasticsearch] Stopping API :warning:");
-
         return container.resolvePlugin("elasticsearch").stop();
     },
 };

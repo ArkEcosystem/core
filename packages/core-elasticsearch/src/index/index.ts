@@ -15,11 +15,6 @@ export abstract class Index {
     public abstract index(): any;
     public abstract listen(): any;
 
-    /**
-     * Create a new index instance.
-     * @param  {Number} chunkSize
-     * @return {void}
-     */
     public setUp(chunkSize) {
         logger.info(`[Elasticsearch] Initialising ${this.getType()} index :scroll:`);
         this.chunkSize = chunkSize;
@@ -31,11 +26,6 @@ export abstract class Index {
         this.index();
     }
 
-    /**
-     * Register a new "CREATE" operation listener.
-     * @param  {String} event
-     * @return {void}
-     */
     public _registerCreateListener(event) {
         emitter.on(event, async doc => {
             try {
@@ -50,11 +40,6 @@ export abstract class Index {
         });
     }
 
-    /**
-     * Register a new "DELETE" operation listener.
-     * @param  {String} event
-     * @return {void}
-     */
     public _registerDeleteListener(event) {
         emitter.on(event, async doc => {
             try {
@@ -69,48 +54,28 @@ export abstract class Index {
         });
     }
 
-    /**
-     * Check if the specified document exists.
-     * @param  {String} doc
-     * @return {Promise}
-     */
     public _exists(doc) {
         return client.exists(this._getReadQuery(doc));
     }
 
-    /**
-     * Create a new document.
-     * @param  {String} doc
-     * @return {Promise}
-     */
     public _create(doc) {
         logger.info(`[Elasticsearch] Creating ${this.getType()} with ID ${doc.id}`);
 
         if (this.getType() === "block") {
-            storage.update("history", { lastBlock: doc.height });
+            storage.update({ lastBlock: doc.height });
         } else {
-            storage.update("history", { lastTransaction: doc.timestamp });
+            storage.update({ lastTransaction: doc.timestamp });
         }
 
         return client.create(this._getWriteQuery(doc));
     }
 
-    /**
-     * Delete the specified document.
-     * @param  {String} doc
-     * @return {Promise}
-     */
     public _delete(doc) {
         logger.info(`[Elasticsearch] Deleting ${this.getType()} with ID ${doc.id}`);
 
         return client.delete(this._getReadQuery(doc));
     }
 
-    /**
-     * Get a query for a "WRITE" operation.
-     * @param  {String} doc
-     * @return {Object}
-     */
     public _getWriteQuery(doc) {
         return {
             index: this.getIndex(),
@@ -120,11 +85,6 @@ export abstract class Index {
         };
     }
 
-    /**
-     * Get a query for a "READ" operation.
-     * @param  {String} doc
-     * @return {Object}
-     */
     public _getReadQuery(doc) {
         return {
             index: this.getIndex(),
@@ -133,11 +93,6 @@ export abstract class Index {
         };
     }
 
-    /**
-     * Get a query for a "READ" operation.
-     * @param  {String} doc
-     * @return {Object}
-     */
     public _getUpsertQuery(doc) {
         return {
             action: {
@@ -154,11 +109,6 @@ export abstract class Index {
         };
     }
 
-    /**
-     * Get a query for a "READ" operation.
-     * @param  {Array} items
-     * @return {Object}
-     */
     public _buildBulkUpsert(items) {
         const actions = [];
 

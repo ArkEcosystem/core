@@ -2,66 +2,32 @@ import { ensureFileSync, existsSync, readFileSync, writeFileSync } from "fs-extr
 import get from "lodash/get";
 
 class Storage {
-    private base: string;
+    private cacheFile: string = `${process.env.CORE_PATH_CACHE}/elasticsearch.json`;
 
-    /**
-     * Create a new storage instance.
-     * @return {void}
-     */
-    constructor() {
-        this.base = `${process.env.CORE_PATH_DATA}/plugins/core-elasticsearch`;
+    public read() {
+        return JSON.parse(readFileSync(this.cacheFile).toString());
     }
 
-    /**
-     * Read & parse the specified file.
-     * @param  {String} file
-     * @return {Object}
-     */
-    public read(file) {
-        if (!this.exists(file)) {
-            return {};
-        }
+    public write(data) {
+        ensureFileSync(this.cacheFile);
 
-        return JSON.parse(readFileSync(`${this.base}/${file}.json`).toString());
+        writeFileSync(this.cacheFile, JSON.stringify(data, null, 4));
     }
 
-    /**
-     * Write the specified data to the specified file.
-     * @param  {String} file
-     * @param  {Object} data
-     * @return {void}
-     */
-    public write(file, data) {
-        ensureFileSync(`${this.base}/${file}.json`);
+    public update(data) {
+        ensureFileSync(this.cacheFile);
 
-        writeFileSync(`${this.base}/${file}.json`, JSON.stringify(data, null, 2));
+        data = Object.assign(this.read(), data);
+
+        writeFileSync(this.cacheFile, JSON.stringify(data, null, 4));
     }
 
-    /**
-     * Update the specified data in the specified file.
-     * @param  {String} file
-     * @param  {Object} data
-     * @return {void}
-     */
-    public update(file, data) {
-        ensureFileSync(`${this.base}/${file}.json`);
-
-        data = Object.assign(this.read(file), data);
-
-        writeFileSync(`${this.base}/${file}.json`, JSON.stringify(data, null, 2));
-    }
-
-    /**
-     * Update the specified data in the specified file.
-     * @param  {String} file
-     * @return {void}
-     */
-    public ensure(file) {
-        if (!this.exists(file)) {
-            ensureFileSync(`${this.base}/${file}.json`);
+    public ensure() {
+        if (!this.exists()) {
+            ensureFileSync(this.cacheFile);
 
             writeFileSync(
-                `${this.base}/${file}.json`,
+                this.cacheFile,
                 JSON.stringify(
                     {
                         lastRound: 0,
@@ -69,31 +35,18 @@ class Storage {
                         lastTransaction: 0,
                     },
                     null,
-                    2,
+                    4,
                 ),
             );
         }
     }
 
-    /**
-     * Determine if the specified file exists.
-     * @param  {String} file
-     * @return {Boolean}
-     */
-    public exists(file) {
-        return existsSync(`${this.base}/${file}.json`);
+    public exists() {
+        return existsSync(this.cacheFile);
     }
 
-    /**
-     * Get a value from the specified file for the specified key.
-     * @param  {String} file
-     * @param  {String} key
-     * @param defaultValue
-     * @param  {*} key
-     * @return {*}
-     */
-    public get(file, key, defaultValue = null) {
-        return get(this.read(file), key, defaultValue);
+    public get(key, defaultValue = null) {
+        return get(this.read(), key, defaultValue);
     }
 }
 

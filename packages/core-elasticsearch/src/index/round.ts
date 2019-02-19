@@ -11,10 +11,6 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 class RoundIndex extends Index {
-    /**
-     * Index rounds using the specified chunk size.
-     * @return {void}
-     */
     public async index() {
         const { count } = await this.__count();
 
@@ -26,7 +22,7 @@ class RoundIndex extends Index {
             const query = modelQuery
                 .select()
                 .from(modelQuery)
-                .where(modelQuery.round.gte(storage.get("history", "lastRound")))
+                .where(modelQuery.round.gte(storage.get("lastRound")))
                 .order(modelQuery.round.asc)
                 .limit(this.chunkSize)
                 .offset(this.chunkSize * i);
@@ -45,8 +41,8 @@ class RoundIndex extends Index {
             try {
                 await client.bulk(this._buildBulkUpsert(rows));
 
-                storage.update("history", {
-                    lastRound: last(roundIds),
+                storage.update({
+                    lastRound: +last(roundIds),
                 });
             } catch (error) {
                 logger.error(`[Elasticsearch] ${error.message} :exclamation:`);
@@ -54,26 +50,14 @@ class RoundIndex extends Index {
         }
     }
 
-    /**
-     * Register listeners for "round.*" events.
-     * @return {void}
-     */
     public listen() {
-        emitter.on("round.created", data => this.index());
+        emitter.on("round.created", () => this.index());
     }
 
-    /**
-     * Get the document index.
-     * @return {String}
-     */
     public getIndex() {
         return "rounds";
     }
 
-    /**
-     * Get the document type.
-     * @return {String}
-     */
     public getType() {
         return "round";
     }
