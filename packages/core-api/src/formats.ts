@@ -3,9 +3,9 @@ import { Ajv } from "ajv";
 import * as bs58check from "bs58check";
 import * as ipAddress from "ip";
 
-const address = (ajv: Ajv) => {
-    const config = app.getConfig();
+const config = app.getConfig();
 
+export const registerFormats = (ajv: Ajv) => {
     ajv.addFormat("address", {
         type: "string",
         validate: value => {
@@ -16,9 +16,7 @@ const address = (ajv: Ajv) => {
             }
         },
     });
-};
 
-const csv = (ajv: Ajv) => {
     ajv.addFormat("csv", {
         type: "string",
         validate: value => {
@@ -31,23 +29,17 @@ const csv = (ajv: Ajv) => {
             }
         },
     });
-};
 
-const hex = (ajv: Ajv) => {
     ajv.addFormat("hex", {
         type: "string",
         validate: value => value.match(/^[0-9a-f]+$/i) !== null && value.length % 2 === 0,
     });
-};
 
-const ip = (ajv: Ajv) => {
     ajv.addFormat("ip", {
         type: "string",
         validate: value => ipAddress.isV4Format(value) || ipAddress.isV6Format(value),
     });
-};
 
-const parsedInt = (ajv: Ajv) => {
     ajv.addFormat("parsedInt", {
         type: "string",
         validate: (value: any) => {
@@ -60,9 +52,7 @@ const parsedInt = (ajv: Ajv) => {
             return true;
         },
     });
-};
 
-const publicKey = (ajv: Ajv) => {
     ajv.addFormat("publicKey", {
         type: "string",
         validate: value => {
@@ -73,9 +63,7 @@ const publicKey = (ajv: Ajv) => {
             }
         },
     });
-};
 
-const signature = (ajv: Ajv) => {
     ajv.addFormat("signature", {
         type: "string",
         validate: value => {
@@ -86,9 +74,7 @@ const signature = (ajv: Ajv) => {
             }
         },
     });
-};
 
-const vendorField = (ajv: Ajv) => {
     ajv.addFormat("vendorField", {
         type: "string",
         validate: value => {
@@ -100,5 +86,3 @@ const vendorField = (ajv: Ajv) => {
         },
     });
 };
-
-export const formats = [address, csv, hex, ip, parsedInt, publicKey, signature, vendorField];

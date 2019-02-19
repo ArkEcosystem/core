@@ -10,11 +10,8 @@ export const hapiAjv = {
     register: async (server: Hapi.Server, options: any): Promise<void> => {
         const ajv = AjvWrapper.instance();
 
-        const { formats } = options;
-        if (Array.isArray(formats)) {
-            formats.forEach(registerFormat => {
-                registerFormat(ajv);
-            });
+        if (options.registerFormats) {
+            options.registerFormats(ajv);
         }
 
         const validate = (schema, data) => {

@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { createSecureServer, createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import { Logger } from "@arkecosystem/core-interfaces";
 import Hapi from "hapi";
-import { formats } from "./formats";
+import { registerFormats } from "./formats";
 
 export class Server {
     private logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -108,7 +108,7 @@ export class Server {
         await server.register({
             plugin: plugins.hapiAjv,
             options: {
-                formats,
+                registerFormats,
             },
         });
 
