@@ -5,7 +5,7 @@ import { models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
-import { store as schemaBlock } from "../internal/schemas/blocks";
+import { schema } from "./schema";
 
 const { Block } = models;
 
@@ -146,7 +146,7 @@ export const postBlock = {
      * @param  {Hapi.Toolkit} h
      * @return {Hapi.Response}
      */
-    async handler(request, h) {
+    handler: async (request, h) => {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         try {
@@ -185,7 +185,11 @@ export const postBlock = {
         }
     },
     options: {
-        validate: schemaBlock,
+        plugins: {
+            "hapi-ajv": {
+                payloadSchema: schema.postBlock,
+            },
+        },
     },
 };
 
@@ -231,15 +235,13 @@ export const postTransactions = {
         cors: {
             additionalHeaders: ["nethash", "port", "version"],
         },
-        // validate: {
-        //     payload: {
-        //         transactions: JoiWrapper.instance()
-        //             .transactionArray()
-        //             .min(1)
-        //             .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
-        //             .options({ stripUnknown: true }),
-        //     },
-        // },
+        plugins: {
+            validate: {
+                "hapi-ajv": {
+                    payloadSchema: schema.postTransactions,
+                },
+            },
+        },
     },
 };
 
