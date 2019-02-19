@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-http-utils",
     "description": "Http Utilities for Ark Core",
-    "version": "2.2.0-beta.3",
+    "version": "2.2.0-beta.4",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "^2.2.0-beta.3",
-        "@arkecosystem/core-container": "^2.2.0-beta.3",
+        "@arkecosystem/core-container": "^2.2.0-beta.4",
         "@types/boom": "^7.2.1",
         "@types/micromatch": "^3.1.0",
         "boom": "^7.3.0",
