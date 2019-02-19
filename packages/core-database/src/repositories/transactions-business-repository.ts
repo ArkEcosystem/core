@@ -17,11 +17,14 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     // TODO: Remove with v1
     public async findAll(params: any, sequenceOrder: "asc" | "desc" = "desc") {
+        try {
+            const result = await this.databaseServiceProvider().connection.transactionsRepository.findAll(this.parseSearchParameters(params, sequenceOrder));
+            result.rows = await this.mapBlocksToTransactions(result.rows);
 
-        const result = await this.databaseServiceProvider().connection.transactionsRepository.findAll(this.parseSearchParameters(params, sequenceOrder));
-        result.rows = await this.mapBlocksToTransactions(result.rows);
-
-        return result;
+            return result;
+        } catch (e) {
+            return { rows: [], count: 0 };
+        }
     }
 
     public async findAllByBlock(blockId: any, parameters: any = {}) {
@@ -72,10 +75,14 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     public async search(params: any) {
 
-        const result = await this.databaseServiceProvider().connection.transactionsRepository.search(this.parseSearchParameters(params));
-        result.rows = await this.mapBlocksToTransactions(result.rows);
+        try {
+            const result = await this.databaseServiceProvider().connection.transactionsRepository.search(this.parseSearchParameters(params));
+            result.rows = await this.mapBlocksToTransactions(result.rows);
 
-        return result;
+            return result;
+        } catch (e) {
+            return { rows: [], count: 0};
+        }
     }
 
     private getPublicKeyFromAddress(senderId: string): string {
@@ -141,8 +148,18 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.SearchParameters {
-
         const databaseService = this.databaseServiceProvider();
+
+        if (params.senderId) {
+            const senderPublicKey = this.getPublicKeyFromAddress(params.senderId);
+
+            if (!senderPublicKey) {
+                throw new Error(`Invalid senderId:${params.senderId}`);
+            }
+            delete params.senderId;
+            params.senderPublicKey = senderPublicKey;
+        }
+
         if (params.addresses) {
             if (!params.recipientId) {
                 params.recipientId = params.addresses;
