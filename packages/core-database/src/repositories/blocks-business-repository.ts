@@ -12,8 +12,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findAllByGenerator(generatorPublicKey: string, paginate: any) {
-        const params = { ...{ generatorPublicKey }, ...paginate };
-        return await this.findAll(params);
+        return await this.findAll({ ...{ generatorPublicKey }, ...paginate });
     }
 
     public async findLastByPublicKey(generatorPublicKey: string) {
@@ -22,8 +21,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findByHeight(height: number) {
-        const params = { ...{ height } };
-        return await this.findAll(params);
+        return await this.findAll({ ...{ height } });
     }
 
     public async findById(id: string) {
