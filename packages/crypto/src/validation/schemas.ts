@@ -75,6 +75,7 @@ export const schemas = {
             "reward",
             "generatorPublicKey",
             "blockSignature",
+            "transactions",
         ],
         additionalProperties: false,
         properties: {
@@ -85,7 +86,7 @@ export const schemas = {
             previousBlock: { $ref: "blockId" },
             previousBlockHex: { $ref: "hex" },
             height: { type: "integer", minimum: 1 },
-            numberOfTransactions: {},
+            numberOfTransactions: { type: "integer" },
             totalAmount: { bignumber: { minimum: 0, bypassGenesis: true } },
             totalFee: { bignumber: { minimum: 0, bypassGenesis: true } },
             reward: { bignumber: { minimum: 0 } },

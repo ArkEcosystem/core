@@ -157,7 +157,7 @@ describe("API - Version 1", () => {
                 block: genesisBlock.toJson(),
             });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(422);
         });
     });
 

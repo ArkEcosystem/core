@@ -75,7 +75,12 @@ export const schema = {
         required: ["blocks"],
     },
     postBlock: {
-        $ref: "block",
+        type: "object",
+        required: ["block"],
+        additionalProperties: false,
+        properties: {
+            block: { $ref: "block" },
+        },
     },
     getBlock: {
         type: "object",

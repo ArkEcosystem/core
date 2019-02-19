@@ -1,5 +1,4 @@
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
