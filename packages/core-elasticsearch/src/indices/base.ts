@@ -126,10 +126,13 @@ export abstract class Index {
     }
 
     private getType(): string {
-        return this.getIndex().slice(0, -1);
+        return this.constructor.name.toLowerCase().slice(0, -1);
     }
 
     private getIndex(): string {
-        return this.constructor.name.toLowerCase();
+        return app
+            .getConfig()
+            .get("network.client.token")
+            .toLowerCase();
     }
 }
