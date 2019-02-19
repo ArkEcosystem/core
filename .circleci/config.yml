@@ -105,6 +105,9 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node11-0:
     working_directory: ~/core
     environment:
@@ -210,6 +213,9 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node10-1:
     working_directory: ~/core
     environment:
@@ -330,6 +336,9 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node10-2:
     working_directory: ~/core
     environment:
@@ -445,6 +454,9 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node11-1:
     working_directory: ~/core
     environment:
@@ -565,6 +577,9 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node11-2:
     working_directory: ~/core
     environment:
@@ -680,6 +695,9 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
 workflows:
   version: 2
   build_and_test:
