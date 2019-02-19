@@ -103,8 +103,8 @@ jobs:
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
+          name: Lint
+          command: yarn lint
   test-node11-0:
     working_directory: ~/core
     environment:
@@ -208,8 +208,8 @@ jobs:
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
+          name: Lint
+          command: yarn lint
   test-node10-1:
     working_directory: ~/core
     environment:
@@ -328,8 +328,8 @@ jobs:
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
+          name: Lint
+          command: yarn lint
   test-node10-2:
     working_directory: ~/core
     environment:
@@ -443,8 +443,8 @@ jobs:
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
+          name: Lint
+          command: yarn lint
   test-node11-1:
     working_directory: ~/core
     environment:
@@ -563,8 +563,8 @@ jobs:
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
+          name: Lint
+          command: yarn lint
   test-node11-2:
     working_directory: ~/core
     environment:
@@ -678,8 +678,8 @@ jobs:
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
+          name: Lint
+          command: yarn lint
 workflows:
   version: 2
   build_and_test:
