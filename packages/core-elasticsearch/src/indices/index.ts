@@ -13,8 +13,8 @@ export async function watchIndices(chunkSize: number): Promise<void> {
 
         app.resolvePlugin<Logger.ILogger>("logger").info(`[ES] Initialising ${instance.constructor.name}`);
 
-        instance.listen();
-
         await instance.index();
+
+        instance.listen();
     }
 }
