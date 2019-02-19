@@ -21,7 +21,7 @@ import {
 } from "../../src/errors";
 import { configManager } from "../../src/managers";
 import { Wallet } from "../../src/models";
-import { Bignum } from "../../src/utils/bignum";
+import { Bignum } from "../../src/utils";
 import { transaction as transactionFixture } from "./__fixtures__/transaction";
 import { wallet as walletFixture } from "./__fixtures__/wallet";
 
