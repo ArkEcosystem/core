@@ -54,15 +54,11 @@ export const index: object = {
 };
 
 export const store: object = {
-    payload: {
-        transactions: joi.lazy(
-            () =>
-                joi
-                    .array() // TODO: fixme
-                    .min(1)
-                    .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest),
-            { once: false },
-        ),
+    type: "object",
+    required: ["transactions"],
+    additionalProperties: false,
+    properties: {
+        transactions: { $ref: "transactions", minItems: 1 },
     },
 };
 

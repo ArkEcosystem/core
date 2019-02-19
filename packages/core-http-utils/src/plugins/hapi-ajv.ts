@@ -46,7 +46,7 @@ export const hapiAjv = {
                     errors = validate(config.payloadSchema, request.payload);
 
                     if (errors) {
-                        return createErrorResponse(request, h, errors);
+                        return createErrorResponse(request, h, errors[0].message);
                     }
                 }
 
