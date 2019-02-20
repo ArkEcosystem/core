@@ -48,11 +48,11 @@ class TransactionRegistry {
         throw new UnkownTransactionError(type);
     }
 
-    public registerCustomTransactionType(constructor: TransactionConstructor): void {
+    public registerCustomType(constructor: TransactionConstructor): void {
         throw new NotImplementedError();
     }
 
-    public unregisterCustomTransactionType(constructor: TransactionConstructor): void {
+    public deregisterCustomType(constructor: TransactionConstructor): void {
         throw new NotImplementedError();
     }
 
@@ -66,9 +66,8 @@ class TransactionRegistry {
         this.updateSchemas(constructor);
     }
 
-    private updateSchemas(transactionClass: TransactionConstructor) {
-        const schema = transactionClass.getSchema();
-        AjvWrapper.extendTransaction(schema);
+    private updateSchemas(transaction: TransactionConstructor) {
+        AjvWrapper.extendTransaction(transaction.getSchema());
     }
 }
 
