@@ -3,9 +3,9 @@ import { Index } from "./base";
 
 export class Wallets extends Index {
     public async index() {
-        const cycles = await this.getCycles();
+        const iterations = await this.getIterations();
 
-        for (let i = 0; i < cycles; i++) {
+        for (let i = 0; i < iterations; i++) {
             const modelQuery = this.createQuery();
 
             const query = modelQuery

@@ -66,7 +66,7 @@ export abstract class Index {
         return client.bulk(actions);
     }
 
-    protected async getCycles() {
+    protected async getIterations() {
         const countES = await this.countWithElastic();
         const countDB = await this.countWithDatabase();
 
