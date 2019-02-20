@@ -71,13 +71,9 @@ describe("Monitor", () => {
                 peerMock.headers,
             ]);
 
-            process.env.CORE_ENV = "false";
-
             await monitor.acceptNewPeer(peerMock);
 
             expect(monitor.peers[peerMock.ip]).toBeObject();
-
-            process.env.CORE_ENV = "test";
         });
     });
 
@@ -155,6 +151,7 @@ describe("Monitor", () => {
             ]);
             axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
             await monitor.discoverPeers();
+            await monitor.cleanPeers();
 
             const height = await monitor.getNetworkHeight();
             expect(height).toBe(2);
