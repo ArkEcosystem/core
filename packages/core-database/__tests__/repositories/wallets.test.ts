@@ -5,7 +5,7 @@ import uniq from "lodash/uniq";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../__support__/setup";
 
-import { WalletsRepository } from "../../src";
+import { WalletsBusinessRepository } from "../../src";
 import { DatabaseService } from "../../src/database-service";
 
 const { Block, Wallet } = models;
@@ -37,9 +37,9 @@ beforeEach(async done => {
     const { WalletManager } = require("../../src/wallet-manager");
     walletManager = new WalletManager();
 
-    repository = new WalletsRepository(() => databaseService);
+    repository = new WalletsBusinessRepository(() => databaseService);
 
-    databaseService = new DatabaseService(null, null, walletManager, repository, null);
+    databaseService = new DatabaseService(null, null, walletManager, repository, null, null, null);
 
     done();
 });

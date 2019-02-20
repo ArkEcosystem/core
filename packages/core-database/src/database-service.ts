@@ -20,6 +20,8 @@ export class DatabaseService implements Database.IDatabaseService {
     public options: any;
     public wallets: Database.IWalletsBusinessRepository;
     public delegates: Database.IDelegatesBusinessRepository;
+    public blocksBusinessRepository: Database.IBlocksBusinessRepository;
+    public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
@@ -33,12 +35,16 @@ export class DatabaseService implements Database.IDatabaseService {
         walletManager: Database.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
         delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
+        transactionsBusinessRepository: Database.ITransactionsBusinessRepository,
+        blocksBusinessRepository: Database.IBlocksBusinessRepository,
     ) {
         this.connection = connection;
         this.walletManager = walletManager;
         this.options = options;
         this.wallets = walletsBusinessRepository;
         this.delegates = delegatesBusinessRepository;
+        this.blocksBusinessRepository = blocksBusinessRepository;
+        this.transactionsBusinessRepository = transactionsBusinessRepository;
 
         this.registerListeners();
     }
