@@ -249,17 +249,35 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public async hasCommonBlocks(ids, timeoutMsec?: number) {
+        const errorMessage = `Could not determine common blocks with ${this.ip}`;
         try {
             let url = `/peer/blocks/common?ids=${ids.join(",")}`;
             if (ids.length === 1) {
                 url += ",";
             }
+
             const body = await this.__get(url, timeoutMsec);
 
-            return body && body.success && body.common;
+            if (!body) {
+                return false;
+            }
+
+            if (!body.success) {
+                const bodyStr = util.inspect(body, { depth: 2 });
+                this.logger.error(`${errorMessage}: unsuccessful response: ${bodyStr}`);
+                return false;
+            }
+
+            if (!body.common) {
+                const bodyStr = util.inspect(body, { depth: 2 });
+                this.logger.error(`${errorMessage}: falsy "common" property in response: ${bodyStr}`);
+                return false;
+            }
+
+            return body.common;
         } catch (error) {
             const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : "";
-            this.logger.error(`Could not determine common blocks with ${this.ip}${sfx}: ${error}`);
+            this.logger.error(`Could not determine common blocks with ${this.ip}${sfx}: ${error.message}`);
         }
 
         return false;
@@ -284,11 +302,16 @@ export class Peer implements P2P.IPeer {
 
             this.__parseHeaders(response);
 
+            if (!response.data) {
+                this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
+                return;
+            }
+
             return response.data;
         } catch (error) {
             this.delay = -1;
 
-            this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
+            this.logger.debug(`Request to ${this.url}${endpoint} failed: ${error.message}`);
 
             if (error.response) {
                 this.__parseHeaders(error.response);

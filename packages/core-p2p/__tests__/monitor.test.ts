@@ -96,19 +96,6 @@ describe("Monitor", () => {
         });
     });
 
-    describe("getRandomDownloadBlocksPeer", () => {
-        it("should be ok", async () => {
-            axiosMock
-                .onGet(/.*\/peer\/blocks\/common/)
-                .reply(() => [200, { success: true, common: true }, peerMock.headers]);
-            const peer = await monitor.getRandomDownloadBlocksPeer();
-
-            expect(peer).toBeObject();
-            expect(peer).toHaveProperty("ip");
-            expect(peer).toHaveProperty("port");
-        });
-    });
-
     describe("discoverPeers", () => {
         it("should be ok", async () => {
             axiosMock.onGet(/.*\/peer\/status/).reply(() => [

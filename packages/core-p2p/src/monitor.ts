@@ -296,17 +296,15 @@ export class Monitor implements P2P.IMonitor {
     }
 
     public async peerHasCommonBlocks(peer, blockIds) {
-        if (!(await peer.hasCommonBlocks(blockIds))) {
-            logger.error(`Could not get common block for ${peer.ip}`);
-
-            peer.commonBlocks = false;
-
-            this.guard.suspend(peer);
-
-            return false;
+        if (await peer.hasCommonBlocks(blockIds)) {
+            return true;
         }
 
-        return true;
+        peer.commonBlocks = false;
+
+        this.guard.suspend(peer);
+
+        return false;
     }
 
     /**
@@ -317,7 +315,9 @@ export class Monitor implements P2P.IMonitor {
     public getRandomPeer(acceptableDelay?, downloadSize?, failedAttempts?) {
         failedAttempts = failedAttempts === undefined ? 0 : failedAttempts;
 
-        const peers = this.getPeers().filter(peer => {
+        const peersAll = this.getPeers();
+
+        const peersFiltered = peersAll.filter(peer => {
             if (peer.ban < new Date().getTime()) {
                 return true;
             }
@@ -333,32 +333,20 @@ export class Monitor implements P2P.IMonitor {
             return false;
         });
 
-        const randomPeer = sample(peers);
+        const randomPeer = sample(peersFiltered);
         if (!randomPeer) {
             failedAttempts++;
 
             if (failedAttempts > 10) {
-                throw new Error("Failed to find random peer");
+                throw new Error(
+                    `Failed to pick a random peer from our list of ${peersAll.length} peers ` +
+                        `(${peersFiltered.length} after filtering)`,
+                );
             } else if (failedAttempts > 5) {
                 return this.getRandomPeer(null, downloadSize, failedAttempts);
             }
 
             return this.getRandomPeer(acceptableDelay, downloadSize, failedAttempts);
-        }
-
-        return randomPeer;
-    }
-
-    /**
-     * Get a random, available peer which can be used for downloading blocks.
-     * @return {Peer}
-     */
-    public async getRandomDownloadBlocksPeer() {
-        const randomPeer = this.getRandomPeer(null, 100);
-
-        const recentBlockIds = await this.__getRecentBlockIds();
-        if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
-            return this.getRandomDownloadBlocksPeer();
         }
 
         return randomPeer;
@@ -472,7 +460,7 @@ export class Monitor implements P2P.IMonitor {
         let randomPeer;
 
         try {
-            randomPeer = await this.getRandomDownloadBlocksPeer();
+            randomPeer = await this.getRandomPeer();
         } catch (error) {
             logger.error(`Could not download blocks: ${error.message}`);
 
