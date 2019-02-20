@@ -69,7 +69,7 @@ export class Monitor implements P2P.IMonitor {
         const cachedPeers = restorePeers();
         localConfig.set("peers", cachedPeers);
 
-        this.populateSeedPeers();
+        await this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
             logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
@@ -121,7 +121,7 @@ export class Monitor implements P2P.IMonitor {
         let nextRunDelaySeconds = 600;
 
         if (!this.hasMinimumPeers()) {
-            this.populateSeedPeers();
+            await this.populateSeedPeers();
             nextRunDelaySeconds = 5;
             logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
@@ -134,7 +134,7 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Peer} peer
      * @throws {Error} If invalid peer
      */
-    public async acceptNewPeer(peer) {
+    public async acceptNewPeer(peer, seed?: boolean) {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
             logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return;
@@ -167,7 +167,7 @@ export class Monitor implements P2P.IMonitor {
             return this.guard.suspend(newPeer);
         }
 
-        if (!this.guard.isValidNetwork(peer)) {
+        if (!this.guard.isValidNetwork(peer) && !seed) {
             logger.debug(
                 `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${config.get(
                     "network.nethash",
@@ -177,7 +177,7 @@ export class Monitor implements P2P.IMonitor {
             return this.guard.suspend(newPeer);
         }
 
-        if (!this.guard.isValidMilestoneHash(newPeer)) {
+        if (!this.guard.isValidMilestoneHash(newPeer) && !seed) {
             logger.debug(
                 `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${config.get(
                     "milestoneHash",
@@ -383,10 +383,7 @@ export class Monitor implements P2P.IMonitor {
         for (const peer of shuffledPeers) {
             try {
                 const hisPeers = await peer.getPeers();
-
-                for (const p of hisPeers) {
-                    await this.acceptNewPeer(p);
-                }
+                await Promise.all(hisPeers.map(p => this.acceptNewPeer(p)));
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
             }
@@ -799,7 +796,7 @@ export class Monitor implements P2P.IMonitor {
      * Populate the initial seed list.
      * @return {void}
      */
-    private populateSeedPeers() {
+    private async populateSeedPeers() {
         const peerList = config.get("peers.list");
 
         if (!peerList) {
@@ -815,26 +812,12 @@ export class Monitor implements P2P.IMonitor {
             peers = { ...peers, ...localConfig.get("peers") };
         }
 
-        const filteredPeers: any[] = Object.values(peers).filter((peer: any) => {
-            if (!isValidPeer(peer)) {
-                return false;
-            }
-
-            if (!this.guard.isValidPort(peer)) {
-                return false;
-            }
-
-            if (!this.guard.isValidVersion(peer)) {
-                return false;
-            }
-
-            return true;
-        });
-
-        for (const peer of filteredPeers) {
-            delete this.guard.suspensions[peer.ip];
-            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
-        }
+        return Promise.all(
+            Object.values(peers).map((peer: any) => {
+                delete this.guard.suspensions[peer.ip];
+                return this.acceptNewPeer(peer, true);
+            }),
+        );
     }
 }
 
