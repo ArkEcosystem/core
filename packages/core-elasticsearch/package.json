@@ -33,15 +33,9 @@
         "@types/elasticsearch": "^5.0.30",
         "@types/fs-extra": "^5.0.5",
         "@types/joi": "^14.3.1",
-        "@types/lodash.first": "^3.0.4",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.last": "^3.0.4",
         "elasticsearch": "^15.4.1",
         "fs-extra": "^7.0.1",
-        "joi": "^14.3.1",
-        "lodash.first": "^3.0.0",
-        "lodash.get": "^4.4.2",
-        "lodash.last": "^3.0.0"
+        "joi": "^14.3.1"
     },
     "publishConfig": {
         "access": "public"
