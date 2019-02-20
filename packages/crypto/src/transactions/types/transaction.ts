@@ -47,8 +47,8 @@ export abstract class Transaction {
         }
     }
 
-    public static fromData(data: ITransactionData): Transaction {
-        const { value, error } = this.validateSchema(data);
+    public static fromData(data: ITransactionData, strict: boolean = true): Transaction {
+        const { value, error } = this.validateSchema(data, strict);
         if (error !== null) {
             throw new TransactionSchemaError(error);
         }
@@ -216,8 +216,8 @@ export abstract class Transaction {
         throw new NotImplementedError();
     }
 
-    private static validateSchema(data: ITransactionData): ISchemaValidationResult {
+    private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
         const { $id } = TransactionRegistry.get(data.type).getSchema();
-        return AjvWrapper.validate(`${$id}Strict`, data);
+        return AjvWrapper.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 }

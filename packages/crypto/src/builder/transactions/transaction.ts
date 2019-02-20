@@ -22,7 +22,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
      * Build a new Transaction instance.
      */
     public build(data: Partial<ITransactionData> = {}): Transaction {
-        return Transaction.fromData({ ...this.data, ...data });
+        return Transaction.fromData({ ...this.data, ...data }, false);
     }
 
     /**
