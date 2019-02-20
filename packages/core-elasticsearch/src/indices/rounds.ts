@@ -20,14 +20,14 @@ export class Rounds extends Index {
             const rows = await (this.database.connection as any).query.manyOrNone(query.toQuery());
 
             if (rows.length) {
-                const roundIds = rows.map(row => row.round);
-                this.logger.info(`[ES] Indexing ${rows.length} rounds [${first(roundIds)} - ${last(roundIds)}]`);
+                const rounds = rows.map(row => row.round);
+                this.logger.info(`[ES] Indexing ${rows.length} round slots [${first(rounds)} - ${last(rounds)}]`);
 
                 try {
                     await this.bulkUpsert(rows);
 
                     storage.update({
-                        lastRound: +last(roundIds),
+                        lastRound: +last(rounds),
                     });
                 } catch (error) {
                     this.logger.error(`[ES] ${error.message}`);
