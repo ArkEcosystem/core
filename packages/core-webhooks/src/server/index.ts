@@ -49,24 +49,20 @@ export async function startServer(config) {
 
     server.route({
         method: "GET",
-        path: "/webhooks",
+        path: "/api/webhooks",
         handler: request => {
-            const webhooks = database.paginate(utils.paginate(request));
-
-            return utils.toPagination(webhooks);
+            return utils.toPagination(database.paginate(utils.paginate(request)));
         },
     });
 
     server.route({
         method: "POST",
-        path: "/webhooks",
-        handler(request, h) {
+        path: "/api/webhooks",
+        handler(request: any, h) {
             const token = randomBytes(32).toString("hex");
-
-            // @ts-ignore
             request.payload.token = token.substring(0, 32);
 
-            const webhook = database.create(request.payload);
+            const webhook: any = database.create(request.payload);
             webhook.token = token;
 
             return h.response(utils.respondWithResource(webhook)).code(201);
@@ -83,9 +79,9 @@ export async function startServer(config) {
 
     server.route({
         method: "GET",
-        path: "/webhooks/{id}",
+        path: "/api/webhooks/{id}",
         async handler(request) {
-            const webhook = await database.findById(request.params.id);
+            const webhook: any = database.findById(request.params.id);
             delete webhook.token;
 
             return utils.respondWithResource(webhook);
@@ -97,7 +93,7 @@ export async function startServer(config) {
 
     server.route({
         method: "PUT",
-        path: "/webhooks/{id}",
+        path: "/api/webhooks/{id}",
         handler: (request, h) => {
             database.update(request.params.id, request.payload);
 
@@ -110,7 +106,7 @@ export async function startServer(config) {
 
     server.route({
         method: "DELETE",
-        path: "/webhooks/{id}",
+        path: "/api/webhooks/{id}",
         handler: (request, h) => {
             database.destroy(request.params.id);
 
