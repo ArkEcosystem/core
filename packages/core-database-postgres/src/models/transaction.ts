@@ -63,7 +63,7 @@ export class Transaction extends Model {
                 init: col => col.value,
                 supportedOperators: [ Database.SearchOperator.OP_EQ ]
             },
-        ]);
+        ];
     }
 
     /**
