@@ -71,13 +71,9 @@ describe("Monitor", () => {
                 peerMock.headers,
             ]);
 
-            process.env.CORE_ENV = "false";
-
             await monitor.acceptNewPeer(peerMock);
 
             expect(monitor.peers[peerMock.ip]).toBeObject();
-
-            process.env.CORE_ENV = "test";
         });
     });
 

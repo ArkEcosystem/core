@@ -140,12 +140,7 @@ export class Monitor implements P2P.IMonitor {
             return;
         }
 
-        if (
-            !isValidPeer(peer) ||
-            this.guard.isSuspended(peer) ||
-            this.pendingPeers[peer.ip] ||
-            process.env.CORE_ENV === "test"
-        ) {
+        if (!isValidPeer(peer) || this.guard.isSuspended(peer) || this.pendingPeers[peer.ip]) {
             return;
         }
 
@@ -390,9 +385,7 @@ export class Monitor implements P2P.IMonitor {
                 const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
-                    if (isValidPeer(p) && !this.getPeer(p.ip)) {
-                        this.addPeer(p);
-                    }
+                    this.acceptNewPeer(p);
                 }
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
@@ -767,35 +760,6 @@ export class Monitor implements P2P.IMonitor {
         } catch (error) {
             logger.error(error.message);
         }
-    }
-
-    /**
-     * Add a new peer after it passes a few checks.
-     * @param  {Peer} peer
-     * @return {void}
-     */
-    private addPeer(peer) {
-        if (this.guard.isBlacklisted(peer)) {
-            return;
-        }
-
-        if (!this.guard.isValidVersion(peer)) {
-            return;
-        }
-
-        if (!this.guard.isValidNetwork(peer)) {
-            return;
-        }
-
-        if (!this.guard.isValidMilestoneHash(peer)) {
-            return;
-        }
-
-        if (!this.guard.isValidPort(peer)) {
-            return;
-        }
-
-        this.peers[peer.ip] = new Peer(peer.ip, peer.port);
     }
 
     /**
