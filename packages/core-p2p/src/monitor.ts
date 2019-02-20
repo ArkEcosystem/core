@@ -573,7 +573,21 @@ export class Monitor implements P2P.IMonitor {
             await this.cleanPeers(true);
         }
 
-        const peersGroupedByHeight = groupBy(this.getPeers(), "state.height");
+        const lastBlock = app.resolve("state").getLastBlock();
+
+        const nodes = this.getPeers();
+        // Also count ourselves in the calculations below.
+        nodes.push({
+            me: true,
+            state: {
+                height: lastBlock.data.height,
+                header: {
+                    id: lastBlock.data.id,
+                },
+            },
+        });
+
+        const peersGroupedByHeight = groupBy(nodes, "state.height");
         const commonHeightGroups = Object.values(peersGroupedByHeight).sort((a, b) => b.length - a.length);
         const peersMostCommonHeight = commonHeightGroups[0];
         const groupedByCommonId = groupBy(peersMostCommonHeight, "state.header.id");
@@ -584,8 +598,6 @@ export class Monitor implements P2P.IMonitor {
             // No need to do anything.
             return state;
         }
-
-        const lastBlock = app.resolve("state").getLastBlock();
 
         // Do nothing if majority of peers are lagging behind
         if (commonHeightGroups.length > 1) {
@@ -606,7 +618,7 @@ export class Monitor implements P2P.IMonitor {
 
         // Peers are sitting on the same height, but there might not be enough
         // quorum to move on, because of different last blocks.
-        if (commonIdGroupCount > 1) {
+        if (commonIdGroupCount > 1 || lastBlock.data.id !== peersMostCommonHeight[0].state.header.id) {
             const chosenPeers = commonIdGroups[0];
             const restGroups = commonIdGroups.slice(1);
 
@@ -614,13 +626,22 @@ export class Monitor implements P2P.IMonitor {
                 logger.warn("Peers are evenly split at same height with different block ids. :zap:");
             }
 
-            logger.info(
-                `Detected peers at the same height ${peersMostCommonHeight[0].state.height.toLocaleString()} with different block ids: ${JSON.stringify(
-                    Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`),
-                    null,
-                    4,
-                )}`,
-            );
+            if (commonIdGroupCount > 1) {
+                logger.info(
+                    `Detected peers at the same height ${peersMostCommonHeight[0].state.height.toLocaleString()} with different block ids: ${JSON.stringify(
+                        Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`),
+                        null,
+                        4,
+                    )}`,
+                );
+            }
+
+            // XXX We don't have enough information here whether to rollback or not.
+            // If our last block height and id differ from chosenPeers[0].state.height and
+            // chosenPeers[0].state.header.id, then we do not know which one is true:
+            // 1. we are on a different chain (fork), we need to rollback,
+            // 2. we are just lagging behind the chosenPeers[] group (same chain), we need to download blocks
+            // 3. we are ahead of the chosenPeers[] group (same chain), they need to download blocks from us
 
             const badLastBlock =
                 chosenPeers[0].state.height === lastBlock.data.height &&
@@ -641,7 +662,7 @@ export class Monitor implements P2P.IMonitor {
 
             if (state === "rollback") {
                 // Ban all rest peers
-                const peersToBan = flatten(restGroups);
+                const peersToBan = flatten(restGroups).filter(peer => !peer.me);
                 peersToBan.forEach(peer => {
                     (peer as any).commonId = false;
                     this.suspendPeer(peer.ip);
