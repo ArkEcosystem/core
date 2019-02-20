@@ -11,7 +11,6 @@ export class Peer implements P2P.IPeer {
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
-    public milestoneHash: string;
     public version: any;
     public os: any;
     public status: any;
@@ -23,7 +22,6 @@ export class Peer implements P2P.IPeer {
         version: string;
         port: number;
         nethash: number;
-        milestoneHash: string;
         height: number | null;
         "Content-Type": "application/json";
         hashid?: string;
@@ -56,7 +54,6 @@ export class Peer implements P2P.IPeer {
             version: app.getVersion(),
             port: localConfig.get("port"),
             nethash: this.config.get("network.nethash"),
-            milestoneHash: this.config.get("milestoneHash"),
             height: null,
             "Content-Type": "application/json",
         };
@@ -72,7 +69,7 @@ export class Peer implements P2P.IPeer {
      * @return {void}
      */
     public setHeaders(headers) {
-        ["nethash", "milestoneHash", "os", "version"].forEach(key => {
+        ["nethash", "os", "version"].forEach(key => {
             this[key] = headers[key];
         });
     }
@@ -95,7 +92,6 @@ export class Peer implements P2P.IPeer {
             ip: this.ip,
             port: +this.port,
             nethash: this.nethash,
-            milestoneHash: this.milestoneHash,
             version: this.version,
             os: this.os,
             status: this.status,
@@ -239,8 +235,6 @@ export class Peer implements P2P.IPeer {
     public async getPeers() {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
-        await this.ping(2000);
-
         const body = await this.__get("/peer/list");
 
         const blacklisted = {};
@@ -357,10 +351,6 @@ export class Peer implements P2P.IPeer {
         ["nethash", "os", "version", "hashid"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });
-
-        if (response.headers.milestonehash) {
-            this.milestoneHash = response.headers.milestonehash;
-        }
 
         if (response.headers.height) {
             this.state.height = +response.headers.height;
