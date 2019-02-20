@@ -406,7 +406,7 @@ describe("Transaction Guard", () => {
                 generateDelegateRegistration("unitnet", wallets[15].passphrase, 1, false, "test_delegate")[0],
             ];
 
-            const result = await guard.validate(delegateRegistrations);
+            const result = await guard.validate(delegateRegistrations.map(transaction => transaction.data));
             expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
 
             delegateRegistrations.forEach(tx => {
