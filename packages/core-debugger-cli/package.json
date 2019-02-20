@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-debugger-cli",
     "description": "Debugger CLI for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0-beta.4",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -17,6 +17,10 @@
     },
     "scripts": {
         "debugger": "./bin/run",
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
@@ -35,7 +39,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.1.1",
+        "@arkecosystem/crypto": "^2.2.0-beta.4",
         "@oclif/command": "^1.5.10",
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",

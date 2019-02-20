@@ -5,13 +5,13 @@ import dayjs from "dayjs-ext";
 import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
+import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
-    public milestoneHash: string;
     public version: any;
     public os: any;
     public status: any;
@@ -23,7 +23,6 @@ export class Peer implements P2P.IPeer {
         version: string;
         port: number;
         nethash: number;
-        milestoneHash: string;
         height: number | null;
         "Content-Type": "application/json";
         hashid?: string;
@@ -91,7 +90,6 @@ export class Peer implements P2P.IPeer {
             version: app.getVersion(),
             port: localConfig.get("port"),
             nethash: this.config.get("network.nethash"),
-            milestoneHash: this.config.get("milestoneHash"),
             height: null,
             "Content-Type": "application/json",
         };
@@ -107,7 +105,7 @@ export class Peer implements P2P.IPeer {
      * @return {void}
      */
     public setHeaders(headers) {
-        ["nethash", "milestoneHash", "os", "version"].forEach(key => {
+        ["nethash", "os", "version"].forEach(key => {
             this[key] = headers[key];
         });
     }
@@ -130,7 +128,6 @@ export class Peer implements P2P.IPeer {
             ip: this.ip,
             port: +this.port,
             nethash: this.nethash,
-            milestoneHash: this.milestoneHash,
             version: this.version,
             os: this.os,
             status: this.status,
@@ -238,20 +235,19 @@ export class Peer implements P2P.IPeer {
             throw new Error(`Peer ${this.ip}: could not get status response`);
         }
 
+        if (!body.success) {
+            throw new PeerStatusResponseError(JSON.stringify(body));
+        }
+
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
             const peerVerifier = new PeerVerifier(this);
 
             if (deadline <= new Date().getTime()) {
-                throw new Error(
-                    `When pinging peer ${this.ip}: ping timeout (${delay} ms) elapsed ` +
-                        `even before starting peer verification`,
-                );
+                throw new PeerPingTimeoutError(delay);
             }
 
             if (!(await peerVerifier.checkState(body, deadline))) {
-                throw new Error(
-                    `Peer state verification failed for peer ${this.ip}, claimed state: ` + JSON.stringify(body),
-                );
+                throw new PeerVerificationFailedError();
             }
         }
 
@@ -275,8 +271,6 @@ export class Peer implements P2P.IPeer {
     public async getPeers() {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
-        await this.ping(2000);
-
         const body = await this.__get("/peer/list");
 
         const blacklisted = {};
@@ -291,17 +285,35 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public async hasCommonBlocks(ids, timeoutMsec?: number) {
+        const errorMessage = `Could not determine common blocks with ${this.ip}`;
         try {
             let url = `/peer/blocks/common?ids=${ids.join(",")}`;
             if (ids.length === 1) {
                 url += ",";
             }
+
             const body = await this.__get(url, timeoutMsec);
 
-            return body && body.success && body.common;
+            if (!body) {
+                return false;
+            }
+
+            if (!body.success) {
+                const bodyStr = util.inspect(body, { depth: 2 });
+                this.logger.error(`${errorMessage}: unsuccessful response: ${bodyStr}`);
+                return false;
+            }
+
+            if (!body.common) {
+                const bodyStr = util.inspect(body, { depth: 2 });
+                this.logger.error(`${errorMessage}: falsy "common" property in response: ${bodyStr}`);
+                return false;
+            }
+
+            return body.common;
         } catch (error) {
             const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : "";
-            this.logger.error(`Could not determine common blocks with ${this.ip}${sfx}: ${error}`);
+            this.logger.error(`Could not determine common blocks with ${this.ip}${sfx}: ${error.message}`);
         }
 
         return false;
@@ -330,11 +342,16 @@ export class Peer implements P2P.IPeer {
 
             this.__parseHeaders(response);
 
+            if (!response.data) {
+                this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
+                return;
+            }
+
             return response.data;
         } catch (error) {
             this.delay = -1;
 
-            this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
+            this.logger.debug(`Request to ${this.url}${endpoint} failed: ${error.message}`);
 
             if (error.response) {
                 this.__parseHeaders(error.response);
@@ -374,10 +391,6 @@ export class Peer implements P2P.IPeer {
         ["nethash", "os", "version", "hashid"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });
-
-        if (response.headers.milestonehash) {
-            this.milestoneHash = response.headers.milestonehash;
-        }
 
         if (response.headers.height) {
             this.state.height = +response.headers.height;

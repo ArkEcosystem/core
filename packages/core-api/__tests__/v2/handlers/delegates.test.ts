@@ -164,7 +164,7 @@ describe("API 2.0 - Delegates", () => {
                     );
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-                    utils.expectBlock(response.data.data[0]);
+                    response.data.data.forEach(utils.expectBlock);
 
                     await databaseService.deleteBlock(block2); // reset to genesis block
                 });
@@ -181,7 +181,22 @@ describe("API 2.0 - Delegates", () => {
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
 
-                    utils.expectWallet(response.data.data[0]);
+                    response.data.data.forEach(utils.expectWallet);
+                    expect(response.data.data.sort((a, b) => a.balance > b.balance)).toEqual(response.data.data);
+                });
+            },
+        );
+
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET all voters (wallets) for a delegate by the given identifier ordered by 'balance:asc'", async () => {
+                    const response = await utils[request]("GET", `delegates/${delegate.publicKey}/voters`);
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    response.data.data.forEach(utils.expectWallet);
+                    expect(response.data.data.sort((a, b) => a.balance < b.balance)).toEqual(response.data.data);
                 });
             },
         );

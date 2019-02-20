@@ -20,7 +20,7 @@ describe("Second Signature Transaction", () => {
     it("should be valid with correct data", () => {
         transaction
             .signatureAsset("second passphrase")
-            .fee(1 * constants.ARKTOSHI)
+            .fee(1 * constants.SATOSHI)
             .sign("passphrase");
         expect(validator.validate(transaction.getStruct(), validator.secondSignature()).error).toBeNull();
     });
@@ -32,7 +32,7 @@ describe("Second Signature Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .signatureAsset("second passphrase")
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * constants.SATOSHI)
             .sign("passphrase");
         expect(validator.validate(transaction.getStruct(), validator.secondSignature()).error).not.toBeNull();
     });

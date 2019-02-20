@@ -16,6 +16,9 @@ enum Severity {
 
     /** Failures to verify peer state, either designating malicious peer or communication issues. */
     INFO,
+
+    /** Discarded. */
+    IGNORE,
 }
 
 export class PeerVerifier {
@@ -95,7 +98,7 @@ export class PeerVerifier {
             return false;
         }
 
-        this.log(Severity.DEBUG, "success");
+        this.log(Severity.IGNORE, "success");
 
         return true;
     }
@@ -155,13 +158,13 @@ export class PeerVerifier {
         if (ourBlockAtHisHeight.id === claimedState.header.id) {
             if (claimedHeight === ourHeight) {
                 this.log(
-                    Severity.DEBUG,
+                    Severity.IGNORE,
                     `success: peer's latest block is the same as our latest ` +
                         `block (height=${claimedHeight}, id=${claimedState.header.id}). Identical chains.`,
                 );
             } else {
                 this.log(
-                    Severity.DEBUG,
+                    Severity.IGNORE,
                     `success: peer's latest block ` +
                         `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
                         `Peer is ${ourHeight - claimedHeight} block(s) behind us.`,

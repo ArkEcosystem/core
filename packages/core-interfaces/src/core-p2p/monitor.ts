@@ -67,12 +67,6 @@ export interface IMonitor {
     getRandomPeer(acceptableDelay?: any, downloadSize?: any, failedAttempts?: any): any;
 
     /**
-     * Get a random, available peer which can be used for downloading blocks.
-     * @return {IPeer}
-     */
-    getRandomDownloadBlocksPeer(minHeight: any): any;
-
-    /**
      * Populate list of available peers from random peers.
      */
     discoverPeers(): Promise<void>;
