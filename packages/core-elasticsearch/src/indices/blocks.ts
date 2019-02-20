@@ -5,8 +5,7 @@ import { Index } from "./base";
 
 export class Blocks extends Index {
     public async index() {
-        const count = await this.count();
-        const cycles = Math.ceil(count / this.chunkSize);
+        const cycles = await this.getCycles();
 
         for (let i = 0; i < cycles; i++) {
             const modelQuery = this.createQuery();

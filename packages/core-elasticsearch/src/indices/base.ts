@@ -66,11 +66,11 @@ export abstract class Index {
         return client.bulk(actions);
     }
 
-    protected async count() {
+    protected async getCycles() {
         const countES = await this.countWithElastic();
         const countDB = await this.countWithDatabase();
 
-        return countDB - countES;
+        return Math.ceil((countDB - countES) / this.chunkSize);
     }
 
     private async countWithDatabase(): Promise<number> {
