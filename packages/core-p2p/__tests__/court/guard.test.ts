@@ -11,8 +11,6 @@ let peerMock;
 beforeAll(async () => {
     await setUp();
 
-    app.getConfig().set("milestoneHash", "dummy-milestone");
-
     guard = require("../../src/court/guard").guard;
     guard.config.set("minimumVersions", [">=2.0.0"]);
 });
@@ -27,7 +25,6 @@ beforeEach(async () => {
 
     // this peer is here to be ready for future use in tests (not added to initial peers)
     peerMock = new Peer("1.0.0.99", 4002);
-    peerMock.milestoneHash = "dummy-milestone";
     Object.assign(peerMock, peerMock.headers);
 });
 
@@ -99,7 +96,6 @@ describe("Guard", () => {
 
         const dummy = {
             nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-            milestoneHash: "dummy-milestone",
             version: "2.1.1",
             status: 200,
             state: {},
@@ -110,7 +106,6 @@ describe("Guard", () => {
 
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-                milestoneHash: "dummy-milestone",
                 ip: "dummy-ip-addr",
             });
 
@@ -135,23 +130,12 @@ describe("Guard", () => {
         it('should return a 5 minute suspension for "Invalid Version"', () => {
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-                milestoneHash: "dummy-milestone",
                 version: "1.0.0",
                 status: 200,
                 delay: 1000,
             });
 
             expect(reason).toBe("Invalid Version");
-            expect(convertToMinutes(until)).toBe(5);
-        });
-
-        it('should return a 5 minute suspension for "Invalid Milestones"', () => {
-            const { until, reason } = guard.__determineOffence({
-                ...dummy,
-                milestoneHash: "wrong-milestone",
-            });
-
-            expect(reason).toBe("Invalid Milestones");
             expect(convertToMinutes(until)).toBe(5);
         });
 

@@ -177,16 +177,6 @@ export class Monitor implements P2P.IMonitor {
             return this.guard.suspend(newPeer);
         }
 
-        if (!this.guard.isValidMilestoneHash(newPeer) && !seed) {
-            logger.debug(
-                `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${config.get(
-                    "milestoneHash",
-                )} - Received: ${peer.milestoneHash}`,
-            );
-
-            return this.guard.suspend(newPeer);
-        }
-
         if (this.getPeer(peer.ip)) {
             return;
         }
