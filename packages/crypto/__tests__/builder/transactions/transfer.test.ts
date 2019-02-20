@@ -80,7 +80,7 @@ describe("Transfer Transaction", () => {
             wifTransaction.secondSignWithWif(wif, 170);
             passphraseTransaction.secondSign(secondPassphrase);
 
-            expect(wifTransaction.data.signSignature).toBe(passphraseTransaction.data.signSignature);
+            expect(wifTransaction.data.secondSignature).toBe(passphraseTransaction.data.secondSignature);
         });
     });
 
