@@ -60,10 +60,10 @@ export class Transaction extends Model {
             },
             {
                 name: "serialized",
-                init: col => Buffer.from(col.value, "hex"),
+                init: col => col.value,
                 supportedOperators: [ Database.SearchOperator.OP_EQ ]
-            }
-        ]
+            },
+        ];
     }
 
     /**

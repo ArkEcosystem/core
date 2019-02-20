@@ -10,7 +10,7 @@ import { DatabaseService } from "../../src/database-service";
 
 const { Block, Wallet } = models;
 
-let genesisBlock;
+let genesisBlock: models.Block;
 let genesisSenders;
 let repository;
 let walletManager: Database.IWalletManager;
@@ -22,7 +22,7 @@ beforeAll(async done => {
     // Create the genesis block after the setup has finished or else it uses a potentially
     // wrong network config.
     genesisBlock = new Block(genesisBlockTestnet);
-    genesisSenders = uniq(compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)));
+    genesisSenders = uniq(compact(genesisBlock.transactions.map(tx => tx.data.senderPublicKey)));
 
     done();
 });
@@ -53,7 +53,7 @@ function generateWallets() {
 function generateVotes() {
     return genesisSenders.map(senderPublicKey => ({
         address: crypto.getAddress(senderPublicKey),
-        vote: genesisBlock.transactions[0].senderPublicKey,
+        vote: genesisBlock.transactions[0].data.senderPublicKey,
     }));
 }
 

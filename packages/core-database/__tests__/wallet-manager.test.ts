@@ -2,12 +2,13 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { fixtures, generators } from "@arkecosystem/core-test-utils";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
-import { IMultiSignatureAsset } from "@arkecosystem/crypto/dist/models";
+import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
+import { InsufficientBalanceError } from "@arkecosystem/crypto/dist/errors";
 import genesisBlockTestnet from "../../core-test-utils/src/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block, Transaction, Wallet } = models;
+const { Block, Wallet } = models;
 const { SATOSHI, TransactionTypes } = constants;
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
@@ -71,11 +72,11 @@ describe("Wallet Manager", () => {
 
     describe("applyBlock", () => {
         let delegateMock;
-        let block2;
+        let block2: models.Block;
 
         const delegatePublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
-        const txs = [];
+        const txs: Transaction[] = [];
         for (let i = 0; i < 3; i++) {
             txs[i] = transactionBuilder
                 .vote()
@@ -93,9 +94,9 @@ describe("Wallet Manager", () => {
 
             const { data } = block;
             data.transactions = [];
-            data.transactions.push(txs[0]);
-            data.transactions.push(txs[1]);
-            data.transactions.push(txs[2]);
+            data.transactions.push(txs[0].data);
+            data.transactions.push(txs[1].data);
+            data.transactions.push(txs[2].data);
             block2 = new Block(data);
 
             walletManager.reindex(delegateMock);
@@ -196,7 +197,7 @@ describe("Wallet Manager", () => {
                 recipient = new Wallet(walletData2.address);
                 recipient.publicKey = walletData2.publicKey;
 
-                sender.publicKey = transaction.senderPublicKey;
+                sender.publicKey = transaction.data.senderPublicKey;
 
                 walletManager.reindex(sender);
                 walletManager.reindex(recipient);
@@ -213,7 +214,7 @@ describe("Wallet Manager", () => {
 
                 await walletManager.applyTransaction(transaction);
 
-                expect(sender.balance).toEqual(balanceSuccess.minus(amount).minus(transaction.fee));
+                expect(sender.balance).toEqual(balanceSuccess.minus(amount).minus(transaction.data.fee));
 
                 if (type === "transfer") {
                     expect(recipient.balance).toEqual(amount);
@@ -229,7 +230,7 @@ describe("Wallet Manager", () => {
                 try {
                     expect(async () => {
                         await walletManager.applyTransaction(transaction);
-                    }).toThrow(/apply transaction/);
+                    }).toThrow(InsufficientBalanceError);
 
                     expect(null).toBe("this should fail if no error is thrown");
                 } catch (error) {
@@ -242,7 +243,7 @@ describe("Wallet Manager", () => {
 
     describe("revertTransaction", () => {
         it("should revert the transaction from the sender & recipient", async () => {
-            const transaction = new Transaction({
+            const transaction = Transaction.fromData({
                 type: TransactionTypes.Transfer,
                 amount: new Bignum(245098000000000),
                 fee: 0,

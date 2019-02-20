@@ -1,7 +1,7 @@
 /**
  * @type {Object}
  */
-export = {
+export const schema = {
     getStatus: {
         type: "object",
         properties: {
@@ -43,6 +43,11 @@ export = {
     },
     postTransactions: {
         type: "object",
+        required: ["transactions"],
+        additionalProperties: false,
+        properties: {
+            transactions: { $ref: "transactions", minItems: 1, maxItems: 40 }, // TODO: use config
+        },
     },
     getTransactions: {
         type: "object",
@@ -71,15 +76,11 @@ export = {
     },
     postBlock: {
         type: "object",
+        required: ["block"],
+        additionalProperties: false,
         properties: {
-            success: {
-                type: "boolean",
-            },
-            blockId: {
-                type: "string",
-            },
+            block: { $ref: "block" },
         },
-        required: ["success", "blockId"],
     },
     getBlock: {
         type: "object",

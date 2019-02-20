@@ -2,18 +2,19 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, constants, models, slots } from "@arkecosystem/crypto";
+import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
+import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
 import { generators } from "../../core-test-utils";
 import { block2, delegates } from "../../core-test-utils/src/fixtures/unitnet";
-import { TransactionPool } from "../dist";
+import { TransactionPool } from "../src/connection";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { SATOSHI, TransactionTypes } = constants;
-const { Block, Transaction } = models;
+const { Block } = models;
 const { generateTransfers } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 
@@ -72,7 +73,7 @@ describe("Connection", () => {
         });
 
         it("should return 2 if transactions were added", () => {
-            const senderPublicKey = mockData.dummy1.senderPublicKey;
+            const senderPublicKey = mockData.dummy1.data.senderPublicKey;
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(0);
 
@@ -113,7 +114,7 @@ describe("Connection", () => {
                 type: "ERR_POOL_FULL",
                 message:
                     `Pool is full (has 4 transactions) and this transaction's fee ` +
-                    `${mockData.dummy5.fee.toFixed()} is not higher than the lowest fee already in pool 10000000`,
+                    `${mockData.dummy5.data.fee.toFixed()} is not higher than the lowest fee already in pool 10000000`,
                 success: false,
             });
 
@@ -160,10 +161,11 @@ describe("Connection", () => {
 
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
-            const highFeeTransaction = new Transaction(mockData.dummy3);
-            highFeeTransaction.fee = bignumify(1e9 * SATOSHI);
+            const highFeeTransaction = Transaction.fromData(cloneDeep(mockData.dummy3.data));
+            highFeeTransaction.data.fee = bignumify(1e9 * SATOSHI);
             // changing public key as fixture transactions have the same one
-            highFeeTransaction.senderPublicKey = "000000000000000000000000000000000000000420000000000000000000000000";
+            highFeeTransaction.data.senderPublicKey =
+                "000000000000000000000000000000000000000420000000000000000000000000";
 
             const transactions = [
                 mockData.dummy1,
@@ -178,7 +180,7 @@ describe("Connection", () => {
             expect(notAdded[0].message).toEqual(
                 `["[PoolWalletManager] Can't apply transaction id:${
                     mockData.dummy3.id
-                } from sender:AHkZLLjUdjjjJzNe1zCXqHh27bUhzg8GZw","Insufficient balance in the wallet"]`,
+                } from sender:AHkZLLjUdjjjJzNe1zCXqHh27bUhzg8GZw","Insufficient balance in the wallet."]`,
             );
             expect(connection.getPoolSize()).toBe(5);
         });
@@ -191,22 +193,22 @@ describe("Connection", () => {
             const expireAfterSeconds = 3;
             const expiration = slots.getTime() + expireAfterSeconds;
 
-            const transactions = [];
+            const transactions: Transaction[] = [];
 
-            transactions.push(new Transaction(mockData.dummyExp1));
-            transactions[transactions.length - 1].expiration = expiration;
+            transactions.push(Transaction.fromData(cloneDeep(mockData.dummyExp1.data)));
+            transactions[transactions.length - 1].data.expiration = expiration;
 
-            transactions.push(new Transaction(mockData.dummy1));
+            transactions.push(Transaction.fromData(cloneDeep(mockData.dummy1.data)));
 
             // Workaround: Increase balance of sender wallet to succeed
-            const insufficientBalanceTx: any = new Transaction(mockData.dummyExp2);
+            const insufficientBalanceTx: any = Transaction.fromData(cloneDeep(mockData.dummyExp2.data));
             transactions.push(insufficientBalanceTx);
-            insufficientBalanceTx.expiration = expiration;
+            insufficientBalanceTx.data.expiration = expiration;
 
             transactions.push(mockData.dummy2);
 
             // Ensure no cold wallets
-            transactions.forEach(tx => databaseService.walletManager.findByPublicKey(tx.senderPublicKey));
+            transactions.forEach(tx => databaseService.walletManager.findByPublicKey(tx.data.senderPublicKey));
 
             const { added, notAdded } = connection.addTransactions(transactions);
             expect(added).toHaveLength(4);
@@ -263,7 +265,7 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(6);
 
-            connection.removeTransactionsForSender(mockData.dummy1.senderPublicKey);
+            connection.removeTransactionsForSender(mockData.dummy1.data.senderPublicKey);
 
             expect(connection.getPoolSize()).toBe(1);
         });
@@ -296,7 +298,7 @@ describe("Connection", () => {
             connection.addTransaction(mockData.dummy9);
 
             expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
             expect(exceeded).toBeTrue();
         });
 
@@ -357,7 +359,9 @@ describe("Connection", () => {
             }
 
             for (const i of [0, 1]) {
-                const retrieved = connection.getTransactions(i, 1).map(serializedTx => new Transaction(serializedTx));
+                const retrieved = connection
+                    .getTransactions(i, 1)
+                    .map(serializedTx => Transaction.fromBytes(serializedTx));
 
                 expect(retrieved.length).toBe(1);
                 expect(retrieved[0]).toBeObject();
@@ -439,7 +443,7 @@ describe("Connection", () => {
 
             const transactionsForForging = connection.getTransactionsForForging(4);
 
-            expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized));
+            expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized.toString("hex")));
         });
         it("should only return transactions not exceeding the maximum payload size", () => {
             mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
@@ -466,12 +470,12 @@ describe("Connection", () => {
             let transactionsForForging = connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
-            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge1.serialized);
-            expect(transactionsForForging[1]).toEqual(mockData.dummy3.serialized);
-            expect(transactionsForForging[2]).toEqual(mockData.dummy4.serialized);
-            expect(transactionsForForging[3]).toEqual(mockData.dummy5.serialized);
-            expect(transactionsForForging[4]).toEqual(mockData.dummy6.serialized);
-            expect(transactionsForForging[5]).toEqual(mockData.dummy7.serialized);
+            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge1.serialized.toString("hex"));
+            expect(transactionsForForging[1]).toEqual(mockData.dummy3.serialized.toString("hex"));
+            expect(transactionsForForging[2]).toEqual(mockData.dummy4.serialized.toString("hex"));
+            expect(transactionsForForging[3]).toEqual(mockData.dummy5.serialized.toString("hex"));
+            expect(transactionsForForging[4]).toEqual(mockData.dummy6.serialized.toString("hex"));
+            expect(transactionsForForging[5]).toEqual(mockData.dummy7.serialized.toString("hex"));
 
             connection.removeTransactionById(mockData.dummyLarge1.id);
             connection.removeTransactionById(mockData.dummy3.id);
@@ -482,7 +486,7 @@ describe("Connection", () => {
 
             transactionsForForging = connection.getTransactionsForForging(7);
             expect(transactionsForForging.length).toBe(1);
-            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized);
+            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized.toString("hex"));
         });
     });
 
@@ -506,16 +510,16 @@ describe("Connection", () => {
 
         it("should return true if sender is blocked", () => {
             const publicKey = "thisPublicKeyIsBlocked";
-            connection.blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
             expect(connection.isSenderBlocked(publicKey)).toBeTrue();
         });
 
         it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
             const publicKey = "thisPublicKeyIsNotBlockedAnymore";
-            connection.blockedByPublicKey[publicKey] = dayjs().add(1, "second");
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().add(1, "second");
             await delay(1100);
             expect(connection.isSenderBlocked(publicKey)).toBeFalse();
-            expect(connection.blockedByPublicKey[publicKey]).toBeUndefined();
+            expect((connection as any).blockedByPublicKey[publicKey]).toBeUndefined();
         });
     });
 
@@ -527,7 +531,7 @@ describe("Connection", () => {
             const blockReleaseTime = connection.blockSender(publicKey);
 
             const plus1HourAfter = dayjs().add(1, "hour");
-            expect(connection.blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
+            expect((connection as any).blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
             expect(blockReleaseTime >= plus1HourBefore).toBeTrue();
             expect(blockReleaseTime <= plus1HourAfter).toBeTrue();
         });
@@ -543,11 +547,11 @@ describe("Connection", () => {
 
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(+senderRecipientWallet.balance).toBe(balanceBefore - block2.totalFee);
+            expect(+senderRecipientWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
         });
 
         it("should remove transaction from pool if it's in the chained block", () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -587,7 +591,7 @@ describe("Connection", () => {
         afterEach(() => connection.walletManager.reset());
 
         it("should build wallets from transactions in the pool", async () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -600,11 +604,11 @@ describe("Connection", () => {
 
             const allWallets = connection.walletManager.allByAddress();
             expect(allWallets).toHaveLength(1);
-            expect(allWallets[0].publicKey).toBe(transaction0.senderPublicKey);
+            expect(allWallets[0].publicKey).toBe(transaction0.data.senderPublicKey);
         });
 
         it("should handle getTransaction() not finding transaction", async () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -621,7 +625,7 @@ describe("Connection", () => {
         });
 
         it("should not apply transaction to wallet if canApply() failed", async () => {
-            const transaction0 = new Transaction(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
 
@@ -660,19 +664,19 @@ describe("Connection", () => {
             const tx = mockData.dummy1;
 
             // Prevent 'wallet has already voted' error
-            connection.walletManager.findByPublicKey(tx.senderPublicKey).vote = "";
+            connection.walletManager.findByPublicKey(tx.data.senderPublicKey).vote = "";
 
-            const voteTx = new Transaction(tx);
-            voteTx.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-            voteTx.type = TransactionTypes.Vote;
-            voteTx.amount = bignumify(0);
-            voteTx.asset = { votes: [`+${tx.senderPublicKey}`] };
+            const voteTx = Transaction.fromData(cloneDeep(tx.data));
+            voteTx.data.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+            voteTx.data.type = TransactionTypes.Vote;
+            voteTx.data.amount = bignumify(0);
+            voteTx.data.asset = { votes: [`+${tx.data.senderPublicKey}`] };
 
             const transactions = [tx, voteTx, mockData.dummy2];
 
             connection.addTransactions(transactions);
 
-            expect(connection.senderHasTransactionsOfType(tx.senderPublicKey, TransactionTypes.Vote)).toBeTrue();
+            expect(connection.senderHasTransactionsOfType(tx.data.senderPublicKey, TransactionTypes.Vote)).toBeTrue();
         });
     });
 
@@ -692,9 +696,7 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(2);
 
-            transactions.forEach(t =>
-                expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(t.serialized.toLowerCase()),
-            );
+            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
 
             connection.flush();
         });
@@ -734,9 +736,7 @@ describe("Connection", () => {
 
             transactions.splice(1, 1);
 
-            transactions.forEach(t =>
-                expect(connection.getTransaction(t.id).serialized.toLowerCase()).toBe(t.serialized.toLowerCase()),
-            );
+            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
 
             connection.flush();
 
@@ -745,16 +745,23 @@ describe("Connection", () => {
     });
 
     describe("stress", () => {
-        const fakeTransactionId = i => `id${String(i)}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`;
+        const fakeTransactionId = i => `${String(i)}${"a".repeat(64 - String(i).length)}`;
 
         it("multiple additions and retrievals", () => {
             // Abstract number which decides how many iterations are run by the test.
             // Increase it to run more iterations.
             const testSize = connection.options.syncInterval * 2;
 
+            const usedId = {};
             for (let i = 0; i < testSize; i++) {
-                const transaction = new Transaction(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                transaction.data.id = fakeTransactionId(i);
+                if (usedId[transaction.data.id]) {
+                    console.log("AAAAA");
+                } else {
+                    usedId[transaction.data.id] = true;
+                }
+
                 connection.addTransaction(transaction);
 
                 if (i % 27 === 0) {
@@ -764,7 +771,7 @@ describe("Connection", () => {
 
             for (let i = 0; i < testSize * 2; i++) {
                 connection.getPoolSize();
-                for (const sender of ["nonexistent", mockData.dummy1.senderPublicKey]) {
+                for (const sender of ["nonexistent", mockData.dummy1.data.senderPublicKey]) {
                     connection.getSenderSize(sender);
                     connection.hasExceededMaxTransactions(sender);
                 }
@@ -773,8 +780,8 @@ describe("Connection", () => {
             }
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = new Transaction(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                transaction.data.id = fakeTransactionId(i);
                 connection.removeTransaction(transaction);
             }
         });
@@ -782,13 +789,13 @@ describe("Connection", () => {
         it("delete + add after sync", () => {
             for (let i = 0; i < connection.options.syncInterval; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const transaction = new Transaction(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                transaction.data.id = fakeTransactionId(i);
                 connection.addTransaction(transaction);
             }
 
-            const transaction = new Transaction(mockData.dummy1);
-            transaction.id = fakeTransactionId(0);
+            const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
+            transaction.data.id = fakeTransactionId(0);
             connection.removeTransaction(transaction);
             connection.addTransaction(transaction);
         });
@@ -800,12 +807,12 @@ describe("Connection", () => {
             // a deterministic test.
             const rand = randomSeed.create("0");
 
-            const allTransactions = [];
+            const allTransactions: Transaction[] = [];
             for (let i = 0; i < nAdd; i++) {
-                const transaction = new Transaction(mockData.dummy1);
-                transaction.id = fakeTransactionId(i);
-                transaction.fee = bignumify(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
-                transaction.serialized = Transaction.serialize(transaction).toString("hex");
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                transaction.data.id = fakeTransactionId(i);
+                transaction.data.fee = bignumify(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
+                transaction.serialized = Transaction.toBytes(transaction.data);
                 allTransactions.push(transaction);
             }
 
@@ -816,7 +823,7 @@ describe("Connection", () => {
             const nGet = 150;
 
             const topFeesExpected = allTransactions
-                .map(t => t.fee)
+                .map(t => t.data.fee as any)
                 .sort((a, b) => b - a)
                 .slice(0, nGet)
                 .map(f => f.toString());
@@ -825,7 +832,7 @@ describe("Connection", () => {
             const topTransactionsSerialized = connection.getTransactions(0, nGet);
             // console.timeEnd(`time to get first ${nGet}`)
 
-            const topFeesReceived = topTransactionsSerialized.map(e => new Transaction(e).fee.toString());
+            const topFeesReceived = topTransactionsSerialized.map(e => Transaction.fromBytes(e).data.fee.toString());
 
             expect(topFeesReceived).toEqual(topFeesExpected);
         });
@@ -833,26 +840,38 @@ describe("Connection", () => {
 
     describe("purgeSendersWithInvalidTransactions", () => {
         it("should purge transactions from sender when invalid", async () => {
-            const transfersA = generateTransfers("unitnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
+            const transfersA = generateTransfers(
+                "unitnet",
+                delegatesSecrets[0],
+                mockData.dummy1.data.recipientId,
+                1,
+                5,
+            );
 
-            const transfersB = generateTransfers("unitnet", delegatesSecrets[1], mockData.dummy1.recipientId, 1, 1);
+            const transfersB = generateTransfers(
+                "unitnet",
+                delegatesSecrets[1],
+                mockData.dummy1.data.recipientId,
+                1,
+                1,
+            );
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
-            };
+            } as any;
 
             block.transactions.forEach(tx => connection.addTransaction(tx));
 
             expect(connection.getPoolSize()).toBe(6);
 
             // Last tx has a unique sender
-            block.transactions[5].verified = false;
+            block.transactions[5].isVerified = false;
 
             connection.purgeSendersWithInvalidTransactions(block);
             expect(connection.getPoolSize()).toBe(5);
 
             // The remaining tx all have the same sender
-            block.transactions[0].verified = false;
+            block.transactions[0].isVerified = false;
 
             connection.purgeSendersWithInvalidTransactions(block);
             expect(connection.getPoolSize()).toBe(0);
@@ -861,8 +880,14 @@ describe("Connection", () => {
 
     describe("purgeBlock", () => {
         it("should purge transactions from block", async () => {
-            const transactions = generateTransfers("unitnet", delegatesSecrets[0], mockData.dummy1.recipientId, 1, 5);
-            const block = { transactions };
+            const transactions = generateTransfers(
+                "unitnet",
+                delegatesSecrets[0],
+                mockData.dummy1.data.recipientId,
+                1,
+                5,
+            );
+            const block = { transactions } as models.Block;
 
             block.transactions.forEach(tx => connection.addTransaction(tx));
 

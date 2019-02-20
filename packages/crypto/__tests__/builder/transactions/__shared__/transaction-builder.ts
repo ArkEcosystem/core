@@ -1,6 +1,5 @@
 import { TransactionBuilder } from "../../../../src/builder/transactions/transaction";
 import { crypto, slots } from "../../../../src/crypto";
-import { Transaction } from "../../../../src/models/transaction";
 import { Bignum } from "../../../../src/utils";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
@@ -25,14 +24,14 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     timestamp = slots.getTime();
 
                     data = {
-                        id: "fake-id",
-                        amount: 0,
-                        fee: 0,
+                        id: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8dae1a1f",
+                        amount: 1,
+                        fee: 1,
                         recipientId: "DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42",
                         senderPublicKey: "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
                         timestamp,
                         type: 0,
-                        version: 0x03,
+                        version: 0x01,
                     };
                 });
 
@@ -43,16 +42,15 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
 
                     const transaction = builder.build();
 
-                    expect(transaction).toBeInstanceOf(Transaction);
-                    expect(transaction.amount).toEqual(Bignum.ZERO);
-                    expect(transaction.fee).toEqual(Bignum.ZERO);
-                    expect(transaction.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
-                    expect(transaction.senderPublicKey).toBe(
+                    expect(transaction.type).toBe(0);
+                    expect(transaction.data.amount).toEqual(new Bignum(1));
+                    expect(transaction.data.fee).toEqual(new Bignum(1));
+                    expect(transaction.data.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
+                    expect(transaction.data.senderPublicKey).toBe(
                         "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
                     );
-                    expect(transaction.timestamp).toBe(timestamp);
-                    expect(transaction.type).toBe(0);
-                    expect(transaction.version).toBe(0x03);
+                    expect(transaction.data.timestamp).toBe(timestamp);
+                    expect(transaction.data.version).toBe(0x01);
                 });
 
                 it("could merge and override the builder data", () => {
@@ -65,15 +63,14 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                         fee: 1000,
                     });
 
-                    expect(transaction).toBeInstanceOf(Transaction);
-                    expect(transaction.amount).toEqual(new Bignum(33));
-                    expect(transaction.fee).toEqual(new Bignum(1000));
-                    expect(transaction.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
-                    expect(transaction.senderPublicKey).toBe(
+                    expect(transaction.data.amount).toEqual(new Bignum(33));
+                    expect(transaction.data.fee).toEqual(new Bignum(1000));
+                    expect(transaction.data.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
+                    expect(transaction.data.senderPublicKey).toBe(
                         "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
                     );
-                    expect(transaction.timestamp).toBe(timestamp);
-                    expect(transaction.version).toBe(0x03);
+                    expect(transaction.data.timestamp).toBe(timestamp);
+                    expect(transaction.data.version).toBe(0x01);
                 });
             });
 

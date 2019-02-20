@@ -3,7 +3,6 @@ import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface ITransactionsRepository extends IRepository {
-
     /**
      * Find a transactions by its ID.
      */
@@ -33,9 +32,9 @@ export interface ITransactionsRepository extends IRepository {
      * Get statistics about all transactions from the database.
      */
     statistics(): Promise<{
-        count: number,
-        totalFee: Bignum,
-        totalAmount: Bignum
+        count: number;
+        totalFee: Bignum;
+        totalAmount: Bignum;
     }>;
 
     getFeeStatistics(minFeeBroadcast: number): Promise<any>;
@@ -45,7 +44,6 @@ export interface ITransactionsRepository extends IRepository {
      */
     deleteByBlockId(blockId: string): Promise<void>;
 
-
     findAllByWallet(wallet: any, paginate?: SearchPaginate, orderBy?: SearchOrderBy[]): Promise<any>;
 
     findWithVendorField(): Promise<any>;
@@ -54,5 +52,4 @@ export interface ITransactionsRepository extends IRepository {
     findAll(parameters: SearchParameters): Promise<any>;
 
     search(parameters: SearchParameters): Promise<any>;
-
 }

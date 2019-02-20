@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { crypto, models } from "@arkecosystem/crypto";
+import { crypto, models, Transaction } from "@arkecosystem/crypto";
 import createHash from "create-hash";
 import { camelizeKeys } from "xcase";
 
-const { Block, Transaction } = models;
+const { Block } = models;
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const verifyData = (context, data, prevData, signatureVerification) => {
@@ -13,7 +13,7 @@ export const verifyData = (context, data, prevData, signatureVerification) => {
             return true;
         }
 
-        const transaction = new Transaction(Buffer.from(data.serialized).toString("hex"));
+        const transaction = Transaction.fromBytes(data.serialized);
         return transaction.verified;
     };
 

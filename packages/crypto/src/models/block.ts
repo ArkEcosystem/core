@@ -1,11 +1,11 @@
 import { createHash } from "crypto";
 import pluralize from "pluralize";
 import { crypto, slots } from "../crypto";
-import { BlockDeserializer } from "../deserializers";
 import { configManager } from "../managers/config";
-import { BlockSerializer } from "../serializers";
+import { ITransactionData, Transaction } from "../transactions";
+import { BlockDeserializer } from "../transactions/deserializers";
+import { BlockSerializer } from "../transactions/serializers";
 import { Bignum } from "../utils";
-import { ITransactionData, Transaction } from "./transaction";
 
 export interface BlockVerification {
     verified: boolean;
@@ -89,7 +89,7 @@ export class Block implements IBlock {
      * Deserialize block from hex string.
      */
     public static deserialize(hexString, headerOnly = false): IBlockData {
-        return BlockDeserializer.deserialize(hexString, headerOnly);
+        return BlockDeserializer.deserialize(hexString, headerOnly).data;
     }
 
     /**
@@ -155,7 +155,9 @@ export class Block implements IBlock {
         }
 
         this.serialized = Block.serializeFull(data).toString("hex");
-        this.data = Block.deserialize(this.serialized);
+
+        const deserialized = BlockDeserializer.deserialize(this.serialized);
+        this.data = deserialized.data;
 
         // TODO genesis block calculated id is wrong for some reason
         if (data.height === 1) {
@@ -165,15 +167,13 @@ export class Block implements IBlock {
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
-        const { transactions } = this.data;
-        this.transactions = transactions
-            ? transactions.map((transaction, index) => {
-                  transaction.blockId = this.data.id;
-                  transaction.timestamp = this.data.timestamp;
-                  transaction.sequence = index;
-                  return transaction as Transaction;
-              })
-            : [];
+        const { transactions } = deserialized;
+        this.transactions = transactions.map((transaction, index) => {
+            transaction.data.blockId = this.data.id;
+            transaction.timestamp = this.data.timestamp;
+            transaction.data.sequence = index;
+            return transaction;
+        });
 
         delete this.data.transactions;
 

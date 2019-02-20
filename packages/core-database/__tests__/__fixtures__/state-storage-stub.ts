@@ -3,15 +3,15 @@ import { Blockchain } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 
 export class StateStorageStub implements Blockchain.IStateStorage {
-    public cacheTransactions(transactions: models.ITransactionData[]): { added: models.ITransactionData[]; notAdded: models.ITransactionData[] } {
+    public cacheTransactions(
+        transactions: models.ITransactionData[],
+    ): { added: models.ITransactionData[]; notAdded: models.ITransactionData[] } {
         return undefined;
     }
 
-    public clear(): void {
-    }
+    public clear(): void {}
 
-    public clearWakeUpTimeout(): void {
-    }
+    public clearWakeUpTimeout(): void {}
 
     public getCachedTransactionIds(): string[] {
         return [];
@@ -41,16 +41,11 @@ export class StateStorageStub implements Blockchain.IStateStorage {
         return false;
     }
 
-    public pushPingBlock(block: models.IBlockData): void {
-    }
+    public pushPingBlock(block: models.IBlockData): void {}
 
-    public removeCachedTransactionIds(transactionIds: string[]): void {
-    }
+    public removeCachedTransactionIds(transactionIds: string[]): void {}
 
-    public reset(): void {
-    }
+    public reset(): void {}
 
-    public setLastBlock(block: models.Block): void {
-    }
-
+    public setLastBlock(block: models.Block): void {}
 }

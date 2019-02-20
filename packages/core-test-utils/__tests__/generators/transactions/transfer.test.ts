@@ -14,7 +14,7 @@ describe("Transfer transaction", () => {
 
     it("should return an array of 4 transfer objects", () => {
         for (const transaction of transactions) {
-            expect(transaction).toMatchObject({
+            expect(transaction.data).toMatchObject({
                 type: TransactionTypes.Transfer,
             });
         }
@@ -22,7 +22,7 @@ describe("Transfer transaction", () => {
 
     it("should return an array sending 20 ark", () => {
         for (const transaction of transactions) {
-            expect(transaction).toMatchObject({ amount });
+            expect(transaction.data).toMatchObject({ amount });
         }
     });
 });

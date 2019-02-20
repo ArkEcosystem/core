@@ -6,8 +6,7 @@ import { client } from "../services/client";
 import { storage } from "../services/storage";
 import { Index } from "./index";
 
-import { models } from "@arkecosystem/crypto";
-const { Transaction } = models;
+import { ITransactionData, Transaction } from "@arkecosystem/crypto";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
@@ -40,7 +39,7 @@ class TransactionIndex extends Index {
             }
 
             rows = rows.map(row => {
-                const transaction: any = new Transaction(row.serialized.toString("hex"));
+                const transaction: ITransactionData = Transaction.fromBytes(row.serialized).data;
                 transaction.blockId = row.blockId;
 
                 return transaction;

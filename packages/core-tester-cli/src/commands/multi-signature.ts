@@ -146,7 +146,9 @@ export class MultiSignatureCommand extends BaseCommand {
             transactions.push(transaction);
 
             if (log) {
-                logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${satoshiToArk(transaction.fee)})`);
+                logger.info(
+                    `${i} ==> ${transaction.id}, ${wallet.address} (fee: ${satoshiToArk(transaction.data.fee)})`,
+                );
             }
         });
 

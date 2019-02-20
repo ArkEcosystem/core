@@ -9,7 +9,7 @@ describe("generateTransactions", () => {
         const transactions = generateTransaction("devnet", TransactionTypes.Transfer, undefined, devnetAddress);
 
         for (const transaction of transactions) {
-            expect(transaction).toMatchObject({ recipientId: devnetAddress });
+            expect(transaction.data).toMatchObject({ recipientId: devnetAddress });
         }
     });
 });

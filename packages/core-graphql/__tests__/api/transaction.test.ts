@@ -8,7 +8,7 @@ beforeAll(async () => {
     await setUp();
 });
 
-afterAll( async () => {
+afterAll(async () => {
     await tearDown();
 });
 
