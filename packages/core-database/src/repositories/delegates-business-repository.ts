@@ -3,7 +3,7 @@ import { delegateCalculator } from "@arkecosystem/core-utils";
 import { orderBy } from "@arkecosystem/utils";
 import limitRows from "./utils/limit-rows";
 
-export class DelegatesRepository implements Database.IDelegatesBusinessRepository {
+export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
     /**
      * Create a new delegate repository instance.
      * @param databaseServiceProvider
@@ -28,7 +28,7 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
     public findAll(params: Database.IParameters = {}) {
         const delegates = this.getLocalDelegates();
 
-        const [iteratee, order] = this.__orderBy(params);
+        const [iteratee, order] = this.orderBy(params);
 
         return {
             rows: limitRows(orderBy(delegates, [iteratee], [order as "desc" | "asc"]), params),
@@ -99,7 +99,7 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
         });
     }
 
-    public __orderBy(params): string[] {
+    private orderBy(params): string[] {
         if (!params.orderBy) {
             return ["rate", "asc"];
         }
@@ -109,10 +109,10 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
             return ["rate", "asc"];
         }
 
-        return [this.__manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
+        return [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
     }
 
-    public __manipulateIteratee(iteratee): any {
+    private manipulateIteratee(iteratee): any {
         switch (iteratee) {
             case "rank":
                 return "rate";

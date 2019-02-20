@@ -3,10 +3,10 @@ import { orderBy } from "@arkecosystem/utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 
-export class WalletsRepository implements Database.IWalletsBusinessRepository {
+export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
     /**
      * Create a new wallet repository instance.
-     * @param  {DatabaseConnection} databaseService
+     * @param databaseServiceProvider
      */
     public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 

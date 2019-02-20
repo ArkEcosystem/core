@@ -3,6 +3,7 @@ import { Model } from "../models";
 
 export abstract class Repository implements Database.IRepository {
     protected model: Model;
+    protected query;
 
     /**
      * Create a new repository instance.
@@ -11,6 +12,7 @@ export abstract class Repository implements Database.IRepository {
      */
     constructor(public db, public pgp) {
         this.model = this.getModel();
+        this.query = this.model.query();
     }
 
     /**
@@ -41,7 +43,7 @@ export abstract class Repository implements Database.IRepository {
      * @return {Promise}
      */
     public async insert(items) {
-        return this.db.none(this.__insertQuery(items));
+        return this.db.none(this.insertQuery(items));
     }
 
     /**
@@ -50,7 +52,7 @@ export abstract class Repository implements Database.IRepository {
      * @return {Promise}
      */
     public async update(items) {
-        return this.db.none(this.__updateQuery(items));
+        return this.db.none(this.updateQuery(items));
     }
 
     /**
@@ -58,7 +60,7 @@ export abstract class Repository implements Database.IRepository {
      * @param  {Array|Object} data
      * @return {String}
      */
-    public __insertQuery(data) {
+    protected insertQuery(data) {
         return this.pgp.helpers.insert(data, this.model.getColumnSet());
     }
 
@@ -67,7 +69,67 @@ export abstract class Repository implements Database.IRepository {
      * @param  {Array|Object} data
      * @return {String}
      */
-    public __updateQuery(data) {
+    protected updateQuery(data) {
         return this.pgp.helpers.update(data, this.model.getColumnSet());
+    }
+
+    protected propToColumnName(prop: string): string {
+        if(prop) {
+            const columnSet = this.model.getColumnSet();
+            const columnDef = columnSet.columns.find(col => col.prop === prop || col.name === prop);
+            return columnDef ? columnDef.name : null;
+        }
+        return prop;
+    }
+
+    protected async find(query): Promise<any> {
+        return this.db.oneOrNone(query.toQuery());
+    }
+
+    protected async findMany(query): Promise<any> {
+        return this.db.manyOrNone(query.toQuery());
+    }
+
+    protected async findManyWithCount(selectQuery, paginate?: Database.SearchPaginate, orderBy?: Database.SearchOrderBy[]): Promise<any> {
+
+        if (!!orderBy) {
+            orderBy.forEach(o => selectQuery.order(this.query[o.field][o.direction]));
+        }
+
+        if (!paginate || (!paginate.limit && !paginate.offset)) {
+            // tslint:disable-next-line:no-shadowed-variable
+            const rows = await this.findMany(selectQuery);
+
+            return { rows, count: rows.length };
+        }
+
+        selectQuery.offset(paginate.offset).limit(paginate.limit);
+
+        const rows = await this.findMany(selectQuery);
+
+        if (rows.length < paginate.limit) {
+            return { rows, count: paginate.limit + rows.length };
+        }
+
+        // Get the last rows=... from something that looks like (1 column, few rows):
+        //
+        //                            QUERY PLAN
+        // ------------------------------------------------------------------
+        //  Limit  (cost=15.34..15.59 rows=100 width=622)
+        //    ->  Sort  (cost=15.34..15.64 rows=120 width=622)
+        //          Sort Key: "timestamp" DESC
+        //          ->  Seq Scan on transactions  (cost=0.00..11.20 rows=120 width=622)
+
+        let count = 0;
+        const explainedQuery = await this.db.manyOrNone(`EXPLAIN ${selectQuery.toString()}`);
+        for (const row of explainedQuery) {
+            const line: any = Object.values(row)[0];
+            const match = line.match(/rows=([0-9]+)/);
+            if (match !== null) {
+                count = Number(match[1]);
+            }
+        }
+
+        return { rows, count: Math.max(count, rows.length) };
     }
 }

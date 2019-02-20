@@ -1,5 +1,9 @@
+import { IDatabaseModel } from "../database-model";
+
 export interface IRepository {
-    estimate(): Promise<number>;
+    getModel(): IDatabaseModel;
+
+    estimate() : Promise<number>;
 
     truncate(): Promise<void>;
 
