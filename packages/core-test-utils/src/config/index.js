@@ -1,3 +1,3 @@
 module.exports = {
-    passphrase: "prison tobacco acquire stone dignity palace note decade they current lesson robot",
+    passphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
 };

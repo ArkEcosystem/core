@@ -156,7 +156,7 @@ class Helpers {
             .amount(1 * 1e8)
             .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
             .vendorField("test")
-            .sign("prison tobacco acquire stone dignity palace note decade they current lesson robot")
+            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .getStruct();
 
         await axios.post(
