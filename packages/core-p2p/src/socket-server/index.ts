@@ -10,11 +10,12 @@ import { getHeaders } from "./plugins/get-headers";
 const startSocketServer = async config => {
     const peerHandlers = require("./versions/peer");
     const internalHandlers = require("./versions/internal");
+    const utilsHandlers = require("./versions/utils");
 
     const server = new SocketCluster({
         workers: 1,
         brokers: 1,
-        port: 4000, // TODO get from config
+        port: config.port,
         appName: "core-p2p",
 
         wsEngine: "ws",
@@ -27,14 +28,8 @@ const startSocketServer = async config => {
         const handlers = {
             peer: peerHandlers,
             internal: internalHandlers,
+            utils: utilsHandlers, // not publicly exposed, only used between worker / master
         };
-
-        if (data.endpoint === "config.getHandlers") {
-            return res(null, {
-                peer: Object.keys(peerHandlers),
-                internal: Object.keys(internalHandlers),
-            });
-        }
 
         const [prefix, version, method] = data.endpoint.split(".");
 
@@ -45,15 +40,24 @@ const startSocketServer = async config => {
             return res(null, result);
         } catch (e) {
             const logger = app.resolvePlugin("logger");
-            logger.debug(e);
-            return res(e); // TODO explicit error message
+            logger.error(e);
+            return res(new Error(`Socket call to ${data.endpoint} failed.`));
         }
     });
 
-    return new Promise((resolve, reject) => {
-        server.on("ready", () => resolve(server));
-        // TODO wait a bit and reject (timeout)
+    // Create a promise that rejects in 10 seconds
+    // TODO configurable timeout ?
+    const timeoutPromise = new Promise((resolve, reject) => {
+        const id = setTimeout(() => {
+            clearTimeout(id);
+            reject("Socket server failed to setup in 10 seconds.");
+        }, 10000);
     });
+    const serverReadyPromise = new Promise((resolve, reject) => {
+        server.on("ready", () => resolve(server));
+    });
+
+    return Promise.race([serverReadyPromise, timeoutPromise]);
 };
 
 export { startSocketServer };

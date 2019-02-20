@@ -93,4 +93,10 @@ export const offences = {
         reason: "Repeat Offender",
         weight: 100,
     },
+    SOCKET_NOT_OPEN: {
+        number: 5,
+        period: "minutes",
+        reason: "Socket not open",
+        weight: 3,
+    },
 };

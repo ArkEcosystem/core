@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
-import { Joi, models, slots } from "@arkecosystem/crypto";
+import { models, slots } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
@@ -166,7 +166,10 @@ export const getBlocks = async data => {
     let blocks = [];
 
     if (!data.lastBlockHeight || isNaN(reqBlockHeight)) {
-        blocks.push(blockchain.getLastBlock());
+        const lastBlock = blockchain.getLastBlock();
+        if (lastBlock) {
+            blocks.push(lastBlock.data); // lastBlock is a Block, we want its data
+        }
     } else {
         blocks = await database.getBlocks(reqBlockHeight, 400);
     }

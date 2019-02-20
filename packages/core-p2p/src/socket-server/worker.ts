@@ -1,4 +1,6 @@
 import SCWorker from "socketcluster/scworker";
+import { SocketErrors } from "./constants";
+import { validateHeaders } from "./plugins/validate-headers";
 
 class Worker extends SCWorker {
     public run() {
@@ -18,7 +20,7 @@ class Worker extends SCWorker {
         const self = this;
 
         const handlers: any = await this.sendToMasterAsync({
-            endpoint: "config.getHandlers",
+            endpoint: "p2p.utils.getHandlers",
         });
 
         for (const name of handlers.peer) {
@@ -35,41 +37,80 @@ class Worker extends SCWorker {
     }
 
     public async middleware(req, next) {
+        const createError = (name, message) => {
+            const err = new Error(message);
+            err.name = name;
+            return err;
+        };
+
         // only allow requests with data and headers specified
         console.log(`Received message from ${req.socket.remoteAddress} : ${JSON.stringify(req.data, null, 2)}`);
-        if (req.data && req.data.headers) {
-            try {
-                const [prefix, version, method] = req.event.split(".");
-                if (prefix !== "p2p") {
-                    throw new Error("Wrong socket event prefix");
-                }
-
-                if (version === "internal") {
-                    // TODO
-                }
-
-                if (version === "peer") {
-                    // here is where we can acceptNewPeer()
-                    await this.sendToMasterAsync({
-                        endpoint: "p2p.peer.acceptNewPeer",
-                        ip: req.socket.remoteAddress,
-                        headers: req.data.headers,
-                    });
-                }
-
-                // some handlers need this info.remoteAddress info
-                // TODO rationalize all meta info into a "meta" property
-                req.data.info = req.data.info || {};
-                req.data.info.remoteAddress = req.socket.remoteAddress;
-            } catch (e) {
-                // TODO explicit error
-                next(e);
-            }
-            next(); // Allow
-        } else {
-            const err = new Error("Request data and data.headers is mandatory");
-            next(err);
+        if (!req.data || !req.data.headers) {
+            return next(createError(SocketErrors.HeadersRequired, "Request data and data.headers is mandatory"));
         }
+
+        try {
+            const [prefix, version, method] = req.event.split(".");
+            if (prefix !== "p2p") {
+                return next(createError(SocketErrors.WrongEndpoint, `Wrong endpoint : ${req.event}`));
+            }
+
+            // Validate headers
+            const headersValidation = validateHeaders(req.data.headers);
+            if (!headersValidation.valid) {
+                return next(
+                    createError(
+                        SocketErrors.HeadersValidationFailed,
+                        `Headers validation failed: ${headersValidation.errors.map(e => e.message).join()}`,
+                    ),
+                );
+            }
+
+            // Check that blockchain, tx-pool and monitor gard are ready
+            const isAppReady = await this.sendToMasterAsync({
+                endpoint: "p2p.utils.isAppReady",
+            });
+            for (const [plugin, ready] of Object.entries(isAppReady)) {
+                if (!ready) {
+                    return next(
+                        createError(SocketErrors.AppNotReady, `Application is not ready : ${plugin} is not ready`),
+                    );
+                }
+            }
+
+            if (version === "internal") {
+                // Only allow internal to whitelisted (remoteAccess) peer / forger
+                const isForgerAuthorized = await this.sendToMasterAsync({
+                    endpoint: "p2p.utils.isForgerAuthorized",
+                    data: { ip: req.socket.remoteAddress },
+                });
+                if (!isForgerAuthorized) {
+                    return next(
+                        createError(
+                            SocketErrors.ForgerNotAuthorized,
+                            "Not authorized: internal endpoint is only available for whitelisted forger",
+                        ),
+                    );
+                }
+            } else if (version === "peer") {
+                // here is where we can acceptNewPeer()
+                await this.sendToMasterAsync({
+                    endpoint: "p2p.peer.acceptNewPeer",
+                    ip: req.socket.remoteAddress,
+                    headers: req.data.headers,
+                });
+            }
+
+            // some handlers need this info.remoteAddress info
+            // TODO rationalize all meta info into a "meta" property
+            req.data.info = req.data.info || {};
+            req.data.info.remoteAddress = req.socket.remoteAddress;
+        } catch (e) {
+            // Log explicit error, return unknown error
+            // TODO
+            return next(createError(SocketErrors.Unknown, "Unknown error"));
+        }
+        next(); // Allow
     }
 
     public async sendToMasterAsync(data) {
@@ -88,6 +129,7 @@ class Worker extends SCWorker {
     public async forwardToMaster(data, res) {
         try {
             const masterResponse = await this.sendToMasterAsync(data);
+            console.log(`Sending response: ${JSON.stringify(masterResponse, null, 2)}`);
             return res(null, masterResponse);
         } catch (e) {
             return res(e);

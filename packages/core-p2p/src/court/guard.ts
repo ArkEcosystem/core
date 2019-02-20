@@ -7,6 +7,7 @@ import prettyMs from "pretty-ms";
 import semver from "semver";
 
 import { config as localConfig } from "../config";
+import { SocketErrors } from "../socket-server/constants";
 import * as utils from "../utils";
 import { offences } from "./offences";
 
@@ -255,19 +256,15 @@ export class Guard {
             return this.__determinePunishment(peer, offences.NO_COMMON_ID);
         }
 
-        // NOTE: We check this extra because a response can still succeed if
-        // it returns any codes that are not 4xx or 5xx.
-        if (peer.status === 503) {
+        if (peer.socket.getState() !== peer.socket.OPEN) {
+            return this.__determinePunishment(peer, offences.SOCKET_NOT_OPEN);
+        }
+
+        if (peer.socketError === SocketErrors.AppNotReady) {
             return this.__determinePunishment(peer, offences.BLOCKCHAIN_NOT_READY);
         }
 
-        if (peer.status === 429) {
-            return this.__determinePunishment(peer, offences.TOO_MANY_REQUESTS);
-        }
-
-        if (peer.status && peer.status !== 200) {
-            return this.__determinePunishment(peer, offences.INVALID_STATUS);
-        }
+        // TODO : removed TOO_MANY_REQUESTS, INVALID_STATUS : ok ?
 
         if (peer.delay === -1) {
             return this.__determinePunishment(peer, offences.TIMEOUT);
