@@ -199,7 +199,7 @@ export class Monitor implements P2P.IMonitor {
         try {
             this.pendingPeers[peer.ip] = true;
 
-            await newPeer.ping(1500);
+            await newPeer.ping(3000);
 
             this.peers[peer.ip] = newPeer;
 
