@@ -5,10 +5,11 @@ import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
+import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
 import { generators } from "../../core-test-utils";
 import { block2, delegates } from "../../core-test-utils/src/fixtures/unitnet";
-import { TransactionPool } from "../dist";
+import { TransactionPool } from "../src/connection";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
@@ -160,7 +161,7 @@ describe("Connection", () => {
 
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
-            const highFeeTransaction = Transaction.fromData(mockData.dummy3.data);
+            const highFeeTransaction = Transaction.fromData(cloneDeep(mockData.dummy3.data));
             highFeeTransaction.data.fee = bignumify(1e9 * SATOSHI);
             // changing public key as fixture transactions have the same one
             highFeeTransaction.data.senderPublicKey =
@@ -194,13 +195,13 @@ describe("Connection", () => {
 
             const transactions: Transaction[] = [];
 
-            transactions.push(Transaction.fromData(mockData.dummyExp1.data));
+            transactions.push(Transaction.fromData(cloneDeep(mockData.dummyExp1.data)));
             transactions[transactions.length - 1].data.expiration = expiration;
 
-            transactions.push(Transaction.fromData(mockData.dummy1.data));
+            transactions.push(Transaction.fromData(cloneDeep(mockData.dummy1.data)));
 
             // Workaround: Increase balance of sender wallet to succeed
-            const insufficientBalanceTx: any = Transaction.fromData(mockData.dummyExp2.data);
+            const insufficientBalanceTx: any = Transaction.fromData(cloneDeep(mockData.dummyExp2.data));
             transactions.push(insufficientBalanceTx);
             insufficientBalanceTx.data.expiration = expiration;
 
@@ -469,12 +470,12 @@ describe("Connection", () => {
             let transactionsForForging = connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
-            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge1.serialized);
-            expect(transactionsForForging[1]).toEqual(mockData.dummy3.serialized);
-            expect(transactionsForForging[2]).toEqual(mockData.dummy4.serialized);
-            expect(transactionsForForging[3]).toEqual(mockData.dummy5.serialized);
-            expect(transactionsForForging[4]).toEqual(mockData.dummy6.serialized);
-            expect(transactionsForForging[5]).toEqual(mockData.dummy7.serialized);
+            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge1.serialized.toString("hex"));
+            expect(transactionsForForging[1]).toEqual(mockData.dummy3.serialized.toString("hex"));
+            expect(transactionsForForging[2]).toEqual(mockData.dummy4.serialized.toString("hex"));
+            expect(transactionsForForging[3]).toEqual(mockData.dummy5.serialized.toString("hex"));
+            expect(transactionsForForging[4]).toEqual(mockData.dummy6.serialized.toString("hex"));
+            expect(transactionsForForging[5]).toEqual(mockData.dummy7.serialized.toString("hex"));
 
             connection.removeTransactionById(mockData.dummyLarge1.id);
             connection.removeTransactionById(mockData.dummy3.id);
@@ -485,7 +486,7 @@ describe("Connection", () => {
 
             transactionsForForging = connection.getTransactionsForForging(7);
             expect(transactionsForForging.length).toBe(1);
-            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized);
+            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized.toString("hex"));
         });
     });
 
@@ -550,7 +551,7 @@ describe("Connection", () => {
         });
 
         it("should remove transaction from pool if it's in the chained block", () => {
-            const transaction0 = Transaction.fromData(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -590,7 +591,7 @@ describe("Connection", () => {
         afterEach(() => connection.walletManager.reset());
 
         it("should build wallets from transactions in the pool", async () => {
-            const transaction0 = Transaction.fromData(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -607,7 +608,7 @@ describe("Connection", () => {
         });
 
         it("should handle getTransaction() not finding transaction", async () => {
-            const transaction0 = Transaction.fromData(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
 
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
@@ -624,7 +625,7 @@ describe("Connection", () => {
         });
 
         it("should not apply transaction to wallet if canApply() failed", async () => {
-            const transaction0 = Transaction.fromData(block2.transactions[0]);
+            const transaction0 = Transaction.fromData(cloneDeep(block2.transactions[0]));
             connection.addTransaction(transaction0);
             expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
 
@@ -665,7 +666,7 @@ describe("Connection", () => {
             // Prevent 'wallet has already voted' error
             connection.walletManager.findByPublicKey(tx.data.senderPublicKey).vote = "";
 
-            const voteTx = Transaction.fromData(tx.data);
+            const voteTx = Transaction.fromData(cloneDeep(tx.data));
             voteTx.data.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
             voteTx.data.type = TransactionTypes.Vote;
             voteTx.data.amount = bignumify(0);
@@ -751,9 +752,16 @@ describe("Connection", () => {
             // Increase it to run more iterations.
             const testSize = connection.options.syncInterval * 2;
 
+            const usedId = {};
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transaction.fromData(mockData.dummy1.data);
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
+                if (usedId[transaction.data.id]) {
+                    console.log("AAAAA");
+                } else {
+                    usedId[transaction.data.id] = true;
+                }
+
                 connection.addTransaction(transaction);
 
                 if (i % 27 === 0) {
@@ -772,7 +780,7 @@ describe("Connection", () => {
             }
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transaction.fromData(mockData.dummy1.data);
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 connection.removeTransaction(transaction);
             }
@@ -781,12 +789,12 @@ describe("Connection", () => {
         it("delete + add after sync", () => {
             for (let i = 0; i < connection.options.syncInterval; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const transaction = Transaction.fromData(mockData.dummy1.data);
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 connection.addTransaction(transaction);
             }
 
-            const transaction = Transaction.fromData(mockData.dummy1.data);
+            const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
             transaction.data.id = fakeTransactionId(0);
             connection.removeTransaction(transaction);
             connection.addTransaction(transaction);
@@ -801,7 +809,7 @@ describe("Connection", () => {
 
             const allTransactions: Transaction[] = [];
             for (let i = 0; i < nAdd; i++) {
-                const transaction = Transaction.fromData(mockData.dummy1.data);
+                const transaction = Transaction.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 transaction.data.fee = bignumify(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
                 transaction.serialized = Transaction.toBytes(transaction.data);
