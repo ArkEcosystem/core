@@ -385,7 +385,7 @@ export class Monitor implements P2P.IMonitor {
                 const hisPeers = await peer.getPeers();
 
                 for (const p of hisPeers) {
-                    this.acceptNewPeer(p);
+                    await this.acceptNewPeer(p);
                 }
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
