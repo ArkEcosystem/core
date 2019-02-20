@@ -81,6 +81,8 @@ export class DatabaseService implements Database.IDatabaseService {
                     await this.saveRound(delegates); // save next round delegate list non-blocking
                     this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates); // generate the new active delegates list
                     this.blocksInCurrentRound.length = 0;
+
+                    this.emitter.emit("round.applied");
                 } catch (error) {
                     // trying to leave database state has it was
                     await this.deleteRound(round);
