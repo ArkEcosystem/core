@@ -151,6 +151,7 @@ describe("Monitor", () => {
             ]);
             axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
             await monitor.discoverPeers();
+            await monitor.cleanPeers();
 
             const height = await monitor.getNetworkHeight();
             expect(height).toBe(2);
