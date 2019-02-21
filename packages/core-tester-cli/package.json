@@ -72,7 +72,15 @@
     },
     "oclif": {
         "commands": "./dist/commands",
-        "bin": "snapshot",
+        "bin": "ark-tester",
+        "topics": {
+            "debug": {
+                "description": "debug blocks and transactions"
+            },
+            "send": {
+                "description": "send transactions of various types"
+            }
+        },
         "plugins": [
             "@oclif/plugin-help",
             "@oclif/plugin-not-found"
