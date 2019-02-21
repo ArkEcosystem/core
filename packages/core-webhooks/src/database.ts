@@ -5,11 +5,9 @@ import uuidv4 from "uuid/v4";
 
 class Database {
     private readonly adapterFile: string = `${process.env.CORE_PATH_CACHE}/webhooks.json`;
-    private database: lowdb.LowdbSync<any>;
+    private readonly database: lowdb.LowdbSync<any> = lowdb(new FileSync(this.adapterFile));
 
     public constructor() {
-        this.database = lowdb(new FileSync(this.adapterFile));
-
         if (!existsSync(this.adapterFile)) {
             ensureFileSync(this.adapterFile);
         }
