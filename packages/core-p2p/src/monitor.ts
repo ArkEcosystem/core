@@ -558,7 +558,7 @@ export class Monitor implements P2P.IMonitor {
         const peers = this.getPeers();
         const suspendedPeers = Object.values(this.getSuspendedPeers())
             .map(suspendedPeer => suspendedPeer.peer)
-            .filter(peer => !!peer.verification);
+            .filter(peer => peer.verification !== null);
 
         const allPeers = [...peers, ...suspendedPeers];
 

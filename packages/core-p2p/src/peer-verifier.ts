@@ -8,7 +8,11 @@ import { inspect } from "util";
 import { Peer } from "./peer";
 
 enum Severity {
-    /** Printed at every step of the verification, even if leading to a successful verification. */
+    /**
+     * Printed at every step of the verification, even if leading to a successful verification.
+     * Multiple such messages are printed even for successfully verified peers. To enable these
+     * messages define CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA in the environment.
+     */
     DEBUG_EXTRA,
 
     /** One such message per successful peer verification is printed. */
@@ -16,16 +20,14 @@ enum Severity {
 
     /** Failures to verify peer state, either designating malicious peer or communication issues. */
     INFO,
-
-    /** Discarded. */
-    IGNORE,
 }
 
 export class PeerVerificationResult {
-    public forked = false;
-    public highestCommonHeight: number;
+    public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
 
-    public constructor(readonly myHeight: number, readonly hisHeight: number) {}
+    get forked(): boolean {
+        return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
+    }
 }
 
 export class PeerVerifier {
@@ -82,39 +84,35 @@ export class PeerVerifier {
      *
      * @param {Object} claimedState the claimed state of the peer, as returned by `/peer/status`
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
-     * @return {Boolean} true if the peer's blockchain is verified to be legit (albeit it may be
-     * different than our blockchain)
+     * @return {PeerVerificationResut|null} PeerVerificationResut object if the peer's blockchain
+     * is verified to be legit (albeit it may be different than our blockchain), or null if
+     * the peer's state could not be verified.
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | null> {
-        this.peer.verification = null;
-
         if (this.isStateInvalid(claimedState)) {
             return null;
         }
 
         const ourHeight: number = await this.ourHeight();
         const claimedHeight = Number(claimedState.header.height);
-        const result = new PeerVerificationResult(ourHeight, claimedHeight);
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
-            return result;
+            return new PeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
         }
 
         const highestCommonBlockHeight = await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
         if (highestCommonBlockHeight === null) {
-            result.forked = true;
-            return result;
+            return null;
         }
 
-        result.highestCommonHeight = highestCommonBlockHeight;
         if (!(await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline))) {
-            result.forked = true;
-        } else {
-            this.log(Severity.IGNORE, "success");
+            return null;
         }
 
-        return result;
+        this.log(Severity.DEBUG, "success");
+
+        return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
     /**
@@ -194,13 +192,13 @@ export class PeerVerifier {
         if (ourBlockAtHisHeight.id === claimedState.header.id) {
             if (claimedHeight === ourHeight) {
                 this.log(
-                    Severity.IGNORE,
+                    Severity.DEBUG_EXTRA,
                     `success: peer's latest block is the same as our latest ` +
                         `block (height=${claimedHeight}, id=${claimedState.header.id}). Identical chains.`,
                 );
             } else {
                 this.log(
-                    Severity.IGNORE,
+                    Severity.DEBUG_EXTRA,
                     `success: peer's latest block ` +
                         `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
                         `Peer is ${ourHeight - claimedHeight} block(s) behind us.`,

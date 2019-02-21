@@ -31,7 +31,7 @@ export class Peer implements P2P.IPeer {
     public state: any;
     public url: string;
     public lastPinged: dayjs.Dayjs | null;
-    public verification?: PeerVerificationResult;
+    public verification: PeerVerificationResult | null;
 
     private config: any;
     private logger: Logger.ILogger;
@@ -213,7 +213,7 @@ export class Peer implements P2P.IPeer {
             }
 
             this.verification = await peerVerifier.checkState(body, deadline);
-            if (!this.verification || this.verification.forked) {
+            if (this.verification === null) {
                 throw new PeerVerificationFailedError();
             }
         }
