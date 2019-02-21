@@ -1,12 +1,12 @@
 import { flags } from "@oclif/command";
 import delay from "delay";
-import { BaseCommand } from "./command";
+import { BaseCommand } from "../command";
 
 export class TransferCommand extends BaseCommand {
     public static description: string = "send multiple transactions";
 
     public static flags = {
-        ...BaseCommand.flags,
+        ...BaseCommand.flagsSent,
         recipient: flags.string({
             description: "recipient address",
         }),

@@ -1,13 +1,13 @@
 import { crypto, models } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import { handleOutput } from "../utils";
-import { BaseCommand } from "./command";
+import { handleOutput } from "../../utils";
+import { BaseCommand } from "../command";
 
 export class VerifySecondSignatureCommand extends BaseCommand {
     public static description: string = "Verify a second signature of a transaction";
 
     public static flags = {
-        ...BaseCommand.flags,
+        ...BaseCommand.flagsDebug,
         data: flags.string({
             description: "the HEX blob to deserialize and verify",
             required: true,
@@ -19,8 +19,7 @@ export class VerifySecondSignatureCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(VerifySecondSignatureCommand);
+        const { flags } = await this.make(VerifySecondSignatureCommand);
 
         const transaction = new models.Transaction(flags.data);
 

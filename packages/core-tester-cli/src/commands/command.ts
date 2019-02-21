@@ -6,7 +6,7 @@ import { http } from "../http-client";
 import { logger } from "../logger";
 
 export abstract class BaseCommand extends Command {
-    public static flags = {
+    public static flagsSent = {
         network: flags.string({
             description: "crypto network",
             default: "testnet",
@@ -37,6 +37,15 @@ export abstract class BaseCommand extends Command {
         transferFee: satoshiFlag({
             description: "transfer fee",
             default: 0.1,
+        }),
+    };
+
+    public static flagsDebug = {
+        log: flags.string({
+            description: "log the data to the console",
+        }),
+        copy: flags.string({
+            description: "copy the data to the clipboard",
         }),
     };
 

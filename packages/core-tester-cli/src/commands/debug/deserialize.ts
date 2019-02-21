@@ -1,13 +1,13 @@
 import { models } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import { handleOutput } from "../utils";
-import { BaseCommand } from "./command";
+import { handleOutput } from "../../utils";
+import { BaseCommand } from "../command";
 
 export class DeserializeCommand extends BaseCommand {
     public static description: string = "Deserialize the given HEX";
 
     public static flags = {
-        ...BaseCommand.flags,
+        ...BaseCommand.flagsDebug,
         data: flags.string({
             description: "the HEX blob to deserialize",
             required: true,
@@ -20,8 +20,7 @@ export class DeserializeCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(DeserializeCommand);
+        const { flags } = await this.make(DeserializeCommand);
 
         const deserialized =
             flags.type === "transaction" ? new models.Transaction(flags.data) : new models.Block(flags.data);

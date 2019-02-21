@@ -51,12 +51,14 @@
         "@types/pluralize": "^0.0.29",
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
+        "clipboardy": "^1.2.3",
         "delay": "^4.1.0",
         "pino": "^5.11.1",
         "pino-pretty": "^2.5.0",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
+        "@types/clipboardy": "^1.1.0",
         "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {

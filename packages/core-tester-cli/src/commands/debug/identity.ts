@@ -1,13 +1,13 @@
 import { crypto } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import { handleOutput } from "../utils";
-import { BaseCommand } from "./command";
+import { handleOutput } from "../../utils";
+import { BaseCommand } from "../command";
 
 export class IdentityCommand extends BaseCommand {
     public static description: string = "Get identities from the given input";
 
     public static flags = {
-        ...BaseCommand.flags,
+        ...BaseCommand.flagsDebug,
         data: flags.string({
             description: "the data to get the identities from",
             required: true,
@@ -24,8 +24,7 @@ export class IdentityCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(IdentityCommand);
+        const { flags } = await this.make(IdentityCommand);
 
         let output;
 

@@ -1,13 +1,13 @@
 import { models } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import { handleOutput } from "../utils";
-import { BaseCommand } from "./command";
+import { handleOutput } from "../../utils";
+import { BaseCommand } from "../command";
 
 export class VerifyCommand extends BaseCommand {
     public static description: string = "Verify the given HEX";
 
     public static flags = {
-        ...BaseCommand.flags,
+        ...BaseCommand.flagsDebug,
         data: flags.string({
             description: "the HEX blob to deserialize and verify",
             required: true,

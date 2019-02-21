@@ -1,13 +1,13 @@
 import { models } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import { handleOutput } from "../utils";
-import { BaseCommand } from "./command";
+import { handleOutput } from "../../utils";
+import { BaseCommand } from "../command";
 
 export class SerializeCommand extends BaseCommand {
     public static description: string = "Serialize the given JSON";
 
     public static flags = {
-        ...BaseCommand.flags,
+        ...BaseCommand.flagsDebug,
         data: flags.string({
             description: "the HEX blob to serialize",
             required: true,
@@ -23,8 +23,7 @@ export class SerializeCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(SerializeCommand);
+        const { flags } = await this.make(SerializeCommand);
 
         const serialized: any =
             flags.type === "transaction"
