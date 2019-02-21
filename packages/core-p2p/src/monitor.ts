@@ -561,7 +561,8 @@ export class Monitor implements P2P.IMonitor {
             .filter(peer => peer.verification !== null);
 
         const allPeers = [...peers, ...suspendedPeers];
-        const forked = suspendedPeers.length / allPeers.length > 0.5;
+        const forkedPeers = allPeers.filter(peer => peer.verification.forked);
+        const forked = forkedPeers.length / allPeers.length > 0.5;
         if (!forked) {
             // Majority of our peers is not forked, so everything is fine.
             logger.info("Majority of peers is not forked.No need to rollback.");
