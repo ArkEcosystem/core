@@ -110,7 +110,7 @@ export class PeerVerifier {
             return null;
         }
 
-        this.log(Severity.DEBUG, "success");
+        this.log(Severity.DEBUG_EXTRA, "success");
 
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
