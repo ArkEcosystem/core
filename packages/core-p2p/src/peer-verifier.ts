@@ -22,18 +22,9 @@ enum Severity {
 }
 
 export class PeerVerificationResult {
-    public get forked(): boolean {
-        if (!this.highestCommonHeight) {
-            // We know it's case 3 or 5
-            if (this.myHeight >= this.hisHeight) {
-                return false;
-            }
-        }
+    public forked = false;
+    public highestCommonHeight: number;
 
-        return this.myHeight < this.highestCommonHeight && this.hisHeight > this.highestCommonHeight;
-    }
-
-    public highestCommonHeight?: number;
     public constructor(readonly myHeight: number, readonly hisHeight: number) {}
 }
 
@@ -105,19 +96,22 @@ export class PeerVerifier {
         const ourHeight: number = await this.ourHeight();
         const claimedHeight = Number(claimedState.header.height);
         const result = new PeerVerificationResult(ourHeight, claimedHeight);
-
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
             return result;
         }
 
         const highestCommonBlockHeight = await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
-        if (highestCommonBlockHeight !== null) {
-            result.highestCommonHeight = highestCommonBlockHeight;
+        if (highestCommonBlockHeight === null) {
+            result.forked = true;
+            return result;
+        }
 
-            if (await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline)) {
-                this.log(Severity.IGNORE, "success");
-            }
+        result.highestCommonHeight = highestCommonBlockHeight;
+        if (!(await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline))) {
+            result.forked = true;
+        } else {
+            this.log(Severity.IGNORE, "success");
         }
 
         return result;
