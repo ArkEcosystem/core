@@ -40,13 +40,14 @@ describe("Peer Verifier", () => {
         it("invalid state", async () => {
             const peerVerifier = new PeerVerifier(peerMock);
             const result = await peerVerifier.checkState({}, new Date().getTime() + 10000);
-            expect(result).toBe(null);
+            expect(result).toBeNull();
         });
 
         it("identical chains", async () => {
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 1, id: genesisBlock.data.id } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+            expect(result).toBeObject();
             expect(result.forked).toBe(false);
         });
 
@@ -63,7 +64,7 @@ describe("Peer Verifier", () => {
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 1, id: "123" } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-            expect(result.forked).toBe(true);
+            expect(result).toBeNull();
         });
 
         it("bogus replies for common block", async () => {
@@ -88,7 +89,7 @@ describe("Peer Verifier", () => {
                 const peerVerifier = new PeerVerifier(peerMock);
                 const state = { header: { height: 1, id: "123" } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-                expect(result.forked).toBe(true);
+                expect(result).toBeNull();
             }
         });
 
@@ -126,7 +127,7 @@ describe("Peer Verifier", () => {
                 const peerVerifier = new PeerVerifier(peerMock);
                 const state = { header: { height: 2, id: block2.id } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-                expect(result.forked).toBe(true);
+                expect(result).toBeNull();
             }
         });
 
@@ -152,6 +153,7 @@ describe("Peer Verifier", () => {
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 2, id: blocks2to100Json[0].id } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+            expect(result).toBeObject();
             expect(result.forked).toBe(false);
         });
     });
