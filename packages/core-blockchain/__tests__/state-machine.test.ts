@@ -126,13 +126,13 @@ describe("State Machine", () => {
             it(`should dispatch the event "FORK" if
                     - stateStorage.noBlockCounter > 5 and process queue is empty
                     - stateStorage.p2pUpdateCounter + 1 > 3 (network keeps missing blocks)
-                    - blockchain.p2p.checkNetworkHealth() returns "rollback"`, async () => {
+                    - blockchain.p2p.checkNetworkHealth() returns a forked network status`, async () => {
                 blockchain.isSynced = jest.fn(() => false);
                 blockchain.processQueue.length = jest.fn(() => 0);
                 stateStorage.noBlockCounter = 6;
                 stateStorage.p2pUpdateCounter = 3;
                 // @ts-ignore
-                jest.spyOn(blockchain.p2p, "checkNetworkHealth").mockImplementation(() => "rollback");
+                jest.spyOn(blockchain.p2p, "checkNetworkHealth").mockImplementation(() => ({ forked: true }));
 
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
             });
