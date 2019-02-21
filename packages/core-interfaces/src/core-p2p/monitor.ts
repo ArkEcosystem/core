@@ -1,3 +1,8 @@
+export interface INetworkStatus {
+    forked: boolean;
+    blocksToRollback?: number;
+}
+
 export interface IMonitor {
     peers: { [ip: string]: any };
 
@@ -117,26 +122,11 @@ export interface IMonitor {
     broadcastTransactions(transactions: any): Promise<any[]>;
 
     /**
-     * Update all peers based on height and last block id.
-     *
-     * Grouping peers by height and then by common id results in one of the following
-     * scenarios:
-     *
-     *  1) Same height, same common id
-     *  2) Same height, mixed common id
-     *  3) Mixed height, same common id
-     *  4) Mixed height, mixed common id
-     *
-     * Scenario 1: Do nothing.
-     * Scenario 2-4:
-     *  - If own height is ahead of majority do nothing for now.
-     *  - Pick most common id from peers with most common height and calculate quota,
-     *    depending on which the node rolls back or waits.
-     *
-     * NOTE: Only called when the network is consecutively missing blocks `p2pUpdateCounter` times.
-     * @return {String}
+     * Check if too many peers are forked and if rollback is necessary.
+     * Returns the number of blocks to rollback if any.
+     * @return {Promise<INetworkStatus>}
      */
-    updatePeersOnMissingBlocks(): Promise<string>;
+    checkNetworkHealth(): Promise<INetworkStatus>;
 
     /**
      * Dump the list of active peers.
