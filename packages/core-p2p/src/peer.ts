@@ -6,7 +6,7 @@ import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { PeerVerifier } from "./peer-verifier";
+import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
@@ -32,6 +32,7 @@ export class Peer implements P2P.IPeer {
     public state: any;
     public url: string;
     public lastPinged: dayjs.Dayjs | null;
+    public verification: PeerVerificationResult | null;
 
     private config: any;
     private logger: Logger.ILogger;
@@ -85,6 +86,7 @@ export class Peer implements P2P.IPeer {
         this.state = {};
         this.offences = [];
         this.lastPinged = null;
+        this.verification = null;
 
         this.headers = {
             version: app.getVersion(),
@@ -246,7 +248,8 @@ export class Peer implements P2P.IPeer {
                 throw new PeerPingTimeoutError(delay);
             }
 
-            if (!(await peerVerifier.checkState(body, deadline))) {
+            this.verification = await peerVerifier.checkState(body, deadline);
+            if (this.verification === null) {
                 throw new PeerVerificationFailedError();
             }
         }
