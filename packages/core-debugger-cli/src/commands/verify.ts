@@ -22,13 +22,12 @@ export class VerifyCommand extends BaseCommand {
         // tslint:disable-next-line:no-shadowed-variable
         const { flags } = this.parse(VerifyCommand);
 
-        const deserialized =
-            flags.type === "transaction"
-                ? new models.Transaction(flags.data)
-                : new models.Block(models.Block.deserialize(flags.data));
-
-        const output =
-            deserialized instanceof models.Transaction ? deserialized.verify() : deserialized.verification.verified;
+        let output = false;
+        if (flags.type === "transaction") {
+            output = models.Transaction.fromHex(flags.data).verified;
+        } else {
+            output = new models.Block(models.Block.deserialize(flags.data)).verification.verified;
+        }
 
         return handleOutput(flags, output);
     }

@@ -2,7 +2,6 @@ import { models } from "@arkecosystem/crypto";
 import { Logger } from "../index";
 
 export interface IWalletManager {
-
     logger: Logger.ILogger;
 
     config: any;
@@ -37,9 +36,9 @@ export interface IWalletManager {
 
     revertBlock(block: models.Block): void;
 
-    applyTransaction(transaction: models.Transaction): models.Transaction;
+    applyTransaction(transaction: models.Transaction);
 
-    revertTransaction(transaction: models.Transaction): any;
+    revertTransaction(transaction: models.Transaction);
 
     isDelegate(publicKey: string): boolean;
 
@@ -47,7 +46,7 @@ export interface IWalletManager {
 
     forgetByAddress(address: string): void;
 
-    forgetByPublicKey( publicKey: string): void;
+    forgetByPublicKey(publicKey: string): void;
 
     forgetByUsername(username: string): void;
 

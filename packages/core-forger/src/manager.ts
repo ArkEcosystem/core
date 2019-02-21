@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { models, slots } from "@arkecosystem/crypto";
+import { ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
 import uniq from "lodash/uniq";
@@ -9,7 +9,7 @@ import pluralize from "pluralize";
 
 import { Client } from "./client";
 
-const { Delegate, Transaction } = models;
+const { Delegate } = models;
 
 export class ForgerManager {
     private logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -168,7 +168,7 @@ export class ForgerManager {
      * @param {Object} delegate
      * @param {Object} round
      */
-    public async __forgeNewBlock(delegate, round) {
+    public async __forgeNewBlock(delegate: models.Delegate, round) {
         // TODO: Disabled for now as this could cause a delay in forging that
         // results in missing a block which we want to avoid.
         //
@@ -193,17 +193,17 @@ export class ForgerManager {
         await this.client.broadcast(block.toJson());
 
         this.client.emitEvent("block.forged", block.data);
-        transactions.forEach(transaction => this.client.emitEvent("transaction.forged", transaction.data));
+        transactions.forEach(transaction => this.client.emitEvent("transaction.forged", transaction));
     }
 
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async __getTransactionsForForging() {
+    public async __getTransactionsForForging(): Promise<ITransactionData[]> {
         const response = await this.client.getTransactions();
 
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => new Transaction(serializedTx))
+            ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
             : [];
 
         if (isEmpty(response)) {

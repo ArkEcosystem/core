@@ -8,9 +8,9 @@ import { Bignum } from "../utils";
 import { crypto } from "../crypto/crypto";
 import { KeyPair } from "../identities";
 import { INetwork } from "../networks";
+import { ITransactionData, Transaction } from "../transactions";
 import { sortTransactions } from "../utils";
 import { Block, IBlockData } from "./block";
-import { Transaction } from "./transaction";
 
 export class Delegate {
     /**
@@ -93,7 +93,7 @@ export class Delegate {
     /**
      * Forge block - we consider transactions are signed, verified and unique.
      */
-    public forge(transactions: Transaction[], options: any): Block | null {
+    public forge(transactions: ITransactionData[], options: any): Block | null {
         if (!options.version && (this.encryptedKeys || !this.bip38)) {
             const transactionData = {
                 amount: Bignum.ZERO,

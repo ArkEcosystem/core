@@ -5,12 +5,12 @@ import uniq from "lodash/uniq";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../__support__/setup";
 
-import { WalletsRepository } from "../../src";
+import { WalletsBusinessRepository } from "../../src";
 import { DatabaseService } from "../../src/database-service";
 
 const { Block, Wallet } = models;
 
-let genesisBlock;
+let genesisBlock: models.Block;
 let genesisSenders;
 let repository;
 let walletManager: Database.IWalletManager;
@@ -22,7 +22,7 @@ beforeAll(async done => {
     // Create the genesis block after the setup has finished or else it uses a potentially
     // wrong network config.
     genesisBlock = new Block(genesisBlockTestnet);
-    genesisSenders = uniq(compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)));
+    genesisSenders = uniq(compact(genesisBlock.transactions.map(tx => tx.data.senderPublicKey)));
 
     done();
 });
@@ -37,9 +37,9 @@ beforeEach(async done => {
     const { WalletManager } = require("../../src/wallet-manager");
     walletManager = new WalletManager();
 
-    repository = new WalletsRepository(() => databaseService);
+    repository = new WalletsBusinessRepository(() => databaseService);
 
-    databaseService = new DatabaseService(null, null, walletManager, repository, null);
+    databaseService = new DatabaseService(null, null, walletManager, repository, null, null, null);
 
     done();
 });
@@ -53,7 +53,7 @@ function generateWallets() {
 function generateVotes() {
     return genesisSenders.map(senderPublicKey => ({
         address: crypto.getAddress(senderPublicKey),
-        vote: genesisBlock.transactions[0].senderPublicKey,
+        vote: genesisBlock.transactions[0].data.senderPublicKey,
     }));
 }
 

@@ -1,10 +1,9 @@
 // tslint:disable:variable-name
 
-import { constants, models } from "@arkecosystem/crypto";
+import { constants, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 
 const { TransactionTypes } = constants;
-const { Transaction } = models;
 
 /**
  * A mem pool transaction.
@@ -13,18 +12,13 @@ const { Transaction } = models;
  * + a get-expiration-time method used to remove old transactions from the pool
  */
 export class MemPoolTransaction {
-    private _transaction: any;
+    private _transaction: Transaction;
     private _sequence: number;
 
     /**
      * Construct a MemPoolTransaction object.
-     * @param {Transaction} transaction base transaction object
-     * @param {Number}      sequence    insertion order sequence or undefined;
-     *                                  if this is undefined at creation time,
-     *                                  then it is assigned later using the
-     *                                  setter method below
      */
-    constructor(transaction, sequence?) {
+    constructor(transaction: Transaction, sequence?: number) {
         assert(transaction instanceof Transaction);
         this._transaction = transaction;
 
@@ -34,15 +28,15 @@ export class MemPoolTransaction {
         }
     }
 
-    get transaction() {
+    get transaction(): Transaction {
         return this._transaction;
     }
 
-    get sequence() {
+    get sequence(): number {
         return this._sequence;
     }
 
-    set sequence(seq) {
+    set sequence(seq: number) {
         assert.strictEqual(this._sequence, undefined);
         this._sequence = seq;
     }
@@ -53,15 +47,15 @@ export class MemPoolTransaction {
      * @param {Number} maxTransactionAge maximum age (in seconds) of a transaction
      * @return {Number} expiration time or null if the transaction does not expire
      */
-    public expireAt(maxTransactionAge) {
+    public expireAt(maxTransactionAge: number): number {
         const t = this._transaction;
 
-        if (t.expiration > 0) {
-            return t.expiration;
+        if (t.data.expiration > 0) {
+            return t.data.expiration;
         }
 
         if (t.type !== TransactionTypes.TimelockTransfer) {
-            return t.timestamp + maxTransactionAge;
+            return t.data.timestamp + maxTransactionAge;
         }
 
         return null;

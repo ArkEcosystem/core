@@ -1,4 +1,6 @@
 export * from "./block";
-export * from "./transaction";
 export * from "./delegate";
 export * from "./wallet";
+
+// FIXME: just for compatibility since all exports changed
+export * from "../transactions";

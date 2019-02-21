@@ -1,14 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto as arkCrypto, models } from "@arkecosystem/crypto";
+import { Bignum, constants, crypto as arkCrypto, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import crypto from "crypto";
 import cloneDeep from "lodash/cloneDeep";
 import pluralize from "pluralize";
 import { WalletManager } from "./wallet-manager";
 
-const { Block, Transaction } = models;
+const { Block } = models;
 const { TransactionTypes } = constants;
 
 export class DatabaseService implements Database.IDatabaseService {
@@ -20,6 +20,8 @@ export class DatabaseService implements Database.IDatabaseService {
     public options: any;
     public wallets: Database.IWalletsBusinessRepository;
     public delegates: Database.IDelegatesBusinessRepository;
+    public blocksBusinessRepository: Database.IBlocksBusinessRepository;
+    public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
@@ -33,12 +35,16 @@ export class DatabaseService implements Database.IDatabaseService {
         walletManager: Database.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
         delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
+        transactionsBusinessRepository: Database.ITransactionsBusinessRepository,
+        blocksBusinessRepository: Database.IBlocksBusinessRepository,
     ) {
         this.connection = connection;
         this.walletManager = walletManager;
         this.options = options;
         this.wallets = walletsBusinessRepository;
         this.delegates = delegatesBusinessRepository;
+        this.blocksBusinessRepository = blocksBusinessRepository;
+        this.transactionsBusinessRepository = transactionsBusinessRepository;
 
         this.registerListeners();
     }
@@ -184,7 +190,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.findByBlockId(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized));
 
         return new Block(block);
     }
@@ -306,7 +312,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.latestByBlock(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized).data);
 
         return new Block(block);
     }
@@ -361,7 +367,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const data = Transaction.deserialize(tx.serialized.toString("hex"));
+            const { data } = Transaction.fromBytes(tx.serialized);
             data.blockId = tx.blockId;
             return data;
         });
@@ -513,7 +519,7 @@ export class DatabaseService implements Database.IDatabaseService {
         };
     }
 
-    public async verifyTransaction(transaction: models.Transaction) {
+    public async verifyTransaction(transaction: Transaction): Promise<boolean> {
         const senderId = arkCrypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
@@ -525,7 +531,11 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
-        return sender.canApply(transaction.data, []) && !dbTransaction;
+        try {
+            return sender.canApply(transaction) && !dbTransaction;
+        } catch {
+            return false;
+        }
     }
 
     private async calcPreviousActiveDelegates(round: number) {
@@ -556,7 +566,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return tempWalletManager.loadActiveDelegateList(maxDelegates, height);
     }
 
-    private emitTransactionEvents(transaction) {
+    private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
         if (transaction.type === TransactionTypes.DelegateRegistration) {
@@ -568,7 +578,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         if (transaction.type === TransactionTypes.Vote) {
-            const vote = transaction.asset.votes[0];
+            const vote = transaction.data.asset.votes[0];
 
             this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
                 delegate: vote,

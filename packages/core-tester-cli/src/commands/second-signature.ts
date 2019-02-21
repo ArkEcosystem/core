@@ -49,11 +49,11 @@ export class SecondSignatureCommand extends BaseCommand {
                 .sign(wallet.passphrase)
                 .build();
 
-            wallet.publicKey = transaction.senderPublicKey;
-            wallet.secondPublicKey = transaction.asset.signature.publicKey;
+            wallet.publicKey = transaction.data.senderPublicKey;
+            wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
             transactions.push(transaction);
 
-            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${satoshiToArk(transaction.fee)})`);
+            logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${satoshiToArk(transaction.data.fee)})`);
         });
 
         if (this.options.copy) {

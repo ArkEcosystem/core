@@ -10,7 +10,7 @@ let databaseService: Database.IDatabaseService;
 
 beforeAll(async () => {
     await setUp();
-  
+
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     await databaseService.saveBlock(new Block(genesisBlock));

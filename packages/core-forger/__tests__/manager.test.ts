@@ -2,7 +2,7 @@ import { generators } from "@arkecosystem/core-test-utils";
 import "jest-extended";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Bignum, models } from "@arkecosystem/crypto";
+import { models } from "@arkecosystem/crypto";
 import { testnet } from "../../crypto/src/networks";
 import { defaults } from "../src/defaults";
 import { ForgerManager } from "../src/manager";
@@ -59,7 +59,7 @@ describe("Forger Manager", () => {
 
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
-                transactions: transactions.map(tx => tx.serialized),
+                transactions: transactions.map(tx => tx.serialized.toString("hex")),
             });
 
             forgeManager.usernames = [];
@@ -108,16 +108,15 @@ describe("Forger Manager", () => {
         it("should return deserialized transactions", async () => {
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
-                transactions: [Transaction.serialize(sampleTransaction).toString("hex")],
+                transactions: [Transaction.fromData(sampleTransaction).serialized.toString("hex")],
             });
 
             const transactions = await forgeManager.__getTransactionsForForging();
 
             expect(transactions).toHaveLength(1);
             expect(forgeManager.client.getTransactions).toHaveBeenCalled();
-            expect(transactions[0]).toBeInstanceOf(Transaction);
-            expect(transactions[0].data.recipientId).toEqual(sampleTransaction.data.recipientId);
-            expect(transactions[0].data.senderPublicKey).toEqual(sampleTransaction.data.senderPublicKey);
+            expect(transactions[0].recipientId).toEqual(sampleTransaction.recipientId);
+            expect(transactions[0].senderPublicKey).toEqual(sampleTransaction.senderPublicKey);
         });
     });
 

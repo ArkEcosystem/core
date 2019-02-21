@@ -2,13 +2,14 @@ import dayjs from "dayjs-ext";
 
 import { constants, models } from "@arkecosystem/crypto";
 
-export interface AddTransactionResponseDTO {
+export interface IAddTransactionResponse {
     success: boolean;
 }
-export interface AddTransactionErrorDTO extends AddTransactionResponseDTO {
+export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
     transaction: models.Transaction;
     type: string;
     message: string;
+    success: boolean;
 }
 
 export interface ITransactionPool {
@@ -51,13 +52,13 @@ export interface ITransactionPool {
         transactions: models.Transaction[],
     ): {
         added: models.Transaction[];
-        notAdded: AddTransactionErrorDTO[];
+        notAdded: IAddTransactionErrorResponse[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: models.Transaction): AddTransactionResponseDTO;
+    addTransaction(transaction: models.Transaction): IAddTransactionResponse;
 
     /**
      * Remove a transaction from the pool by transaction object.
@@ -74,7 +75,7 @@ export interface ITransactionPool {
     /**
      * Get all transactions that are ready to be forged.
      */
-    getTransactionsForForging(blockSize: number): models.Transaction[];
+    getTransactionsForForging(blockSize: number): string[];
 
     /**
      * Get a transaction by transaction id.
@@ -85,7 +86,7 @@ export interface ITransactionPool {
      * Get all transactions within the specified range [start, start + size), ordered by fee.
      * @return {(Array|void)} array of serialized transaction hex strings
      */
-    getTransactions(start: number, size: number, maxBytes?: number): string[];
+    getTransactions(start: number, size: number, maxBytes?: number): Buffer[];
 
     /**
      * Get all transactions within the specified range [start, start + size).
@@ -99,7 +100,7 @@ export interface ITransactionPool {
      * insertion time, if fees equal (earliest transaction first).
      * @return {Array} array of transaction[property]
      */
-    getTransactionsData(start: number, size: number, property: string, maxBytes?: number): any[];
+    getTransactionsData(start: number, size: number, property: string, maxBytes?: number): string[] | Buffer[];
 
     /**
      * Remove all transactions from the transaction pool belonging to specific sender.
@@ -109,7 +110,7 @@ export interface ITransactionPool {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    hasExceededMaxTransactions(transaction: models.Transaction): boolean;
+    hasExceededMaxTransactions(transaction: models.ITransactionData): boolean;
 
     /**
      * Flush the pool (delete all transactions from it).

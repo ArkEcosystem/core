@@ -1,18 +1,15 @@
 import "jest-extended";
 
 import { SATOSHI, TransactionTypes } from "../../src/constants";
-import { transactionHandler } from "../../src/handlers/transactions";
 import { configManager } from "../../src/managers/config";
 import { Wallet } from "../../src/models/wallet";
 import { Bignum } from "../../src/utils";
 
 import { generators } from "@arkecosystem/core-test-utils";
 const { generateTransfers, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
-import { devnet } from "../../src/networks";
-import { multiTransaction } from "../fixtures/multi-transaction";
 
 describe("Models - Wallet", () => {
-    beforeEach(() => configManager.setConfig(devnet));
+    beforeEach(() => configManager.setFromPreset("devnet"));
 
     describe("toString", () => {
         // TODO implementation is right?
@@ -22,29 +19,6 @@ describe("Models - Wallet", () => {
             const balance = +(Math.random() * 1000).toFixed(8);
             wallet.balance = new Bignum(balance * SATOSHI);
             expect(wallet.toString()).toBe(`${address} (${balance} ${configManager.config.client.symbol})`);
-        });
-    });
-
-    describe("apply transaction", () => {
-        const testWallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
-        const data = {
-            publicKey: "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
-            secondPublicKey: "020d3c837d0a47ee7de1082cd48885003c5e92964e58bb34af3b58c6e42208ae03",
-            balance: new Bignum(109390000000),
-            vote: null,
-            username: null,
-            voteBalance: Bignum.ZERO,
-            multisignature: null,
-            dirty: false,
-            producedBlocks: 0,
-            missedBlocks: 0,
-        };
-
-        it.skip("should be ok for a multi-transaction", () => {
-            Object.keys(data).forEach(k => {
-                testWallet[k] = data[k];
-            });
-            expect(testWallet.canApply(multiTransaction, [])).toBeTrue();
         });
     });
 
@@ -150,34 +124,6 @@ describe("Models - Wallet", () => {
             for (const key of Object.keys(invalidWallet)) {
                 expect(testWallet[key]).toBe(invalidWallet[key]);
             }
-        });
-    });
-
-    describe("calling transactionHandler canApply, applyTransaction, revertTransaction", () => {
-        const mockBackup = {
-            canApply: transactionHandler.canApply,
-            applyTransactionToSender: transactionHandler.applyTransactionToSender,
-            revertTransactionForSender: transactionHandler.revertTransactionForSender,
-            applyTransactionToRecipient: transactionHandler.applyTransactionToRecipient,
-            revertTransactionForRecipient: transactionHandler.revertTransactionForRecipient,
-        };
-        let testWallet;
-
-        beforeEach(() => {
-            Object.assign(transactionHandler, mockBackup);
-            testWallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
-        });
-
-        afterAll(() => {
-            Object.assign(transactionHandler, mockBackup);
-        });
-
-        it.each(Object.keys(mockBackup))("should call transactionHandler %s with correct parameters", fn => {
-            transactionHandler[fn] = jest.fn();
-            const transaction = { id: 123456 };
-            const params = fn === "canApply" ? [transaction, []] : [transaction];
-            testWallet[fn](...params);
-            expect(transactionHandler[fn]).toHaveBeenCalledWith(testWallet, ...params);
         });
     });
 

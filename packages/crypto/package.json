@@ -53,6 +53,8 @@
         "@types/pluralize": "^0.0.29",
         "@types/secp256k1": "^3.5.0",
         "@types/wif": "^2.0.1",
+        "ajv": "^6.9.1",
+        "ajv-keywords": "^3.4.0",
         "bignumber.js": "^8.0.2",
         "bip32": "^1.0.2",
         "bip39": "^2.5.0",

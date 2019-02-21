@@ -1,5 +1,5 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, crypto } from "@arkecosystem/crypto";
+import { Bignum, crypto, Transaction } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import bip39 from "bip39";
 import clipboardy from "clipboardy";
@@ -206,7 +206,7 @@ export abstract class BaseCommand extends Command {
      * @param  {Boolean} [wait=true]
      * @return {Object}
      */
-    public async sendTransactions(transactions, transactionType: any = null, wait = true) {
+    public async sendTransactions(transactions: Transaction[], transactionType: any = null, wait = true) {
         const response = await this.postTransactions(transactions);
 
         if (wait) {
@@ -224,10 +224,10 @@ export abstract class BaseCommand extends Command {
      * @param  {Object[]} transactions
      * @return {Object}
      */
-    public async postTransactions(transactions) {
+    public async postTransactions(transactions: Transaction[]) {
         try {
             const response = await request(this.config).post("/api/v2/transactions", {
-                transactions,
+                transactions: transactions.map(tx => tx.data),
             });
             return response.data;
         } catch (error) {

@@ -2,14 +2,14 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
-import { DelegatesRepository, WalletsRepository } from "../../src";
+import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../src";
 import { DatabaseService } from "../../src/database-service";
 import { setUp, tearDown } from "../__support__/setup";
 
 const { SATOSHI } = constants;
 const { Block } = models;
 
-let genesisBlock;
+let genesisBlock: models.Block;
 let repository;
 
 let walletsRepository: Database.IWalletsBusinessRepository;
@@ -36,16 +36,16 @@ beforeEach(async done => {
     const { WalletManager } = require("../../src/wallet-manager");
     walletManager = new WalletManager();
 
-    repository = new DelegatesRepository(() => databaseService);
-    walletsRepository = new WalletsRepository(() => databaseService);
-    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository);
+    repository = new DelegatesBusinessRepository(() => databaseService);
+    walletsRepository = new WalletsBusinessRepository(() => databaseService);
+    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
 
     done();
 });
 
-function generateWallets() {
+function generateWallets(): models.Wallet[] {
     return genesisBlock.transactions.map((transaction, index) => {
-        const address = crypto.getAddress(transaction.senderPublicKey);
+        const address = crypto.getAddress(transaction.data.senderPublicKey);
 
         return {
             address,
@@ -56,7 +56,7 @@ function generateWallets() {
             balance: new Bignum(100),
             voteBalance: new Bignum(200),
             rate: index + 1,
-        };
+        } as models.Wallet;
     });
 }
 

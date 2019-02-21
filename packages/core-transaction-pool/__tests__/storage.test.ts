@@ -20,7 +20,7 @@ describe("Storage", () => {
 
             storage.bulkAdd(memPoolTransactions);
             const allMemPoolTransactions = storage.loadAll();
-            expect(allMemPoolTransactions.map(pooltx => pooltx.transaction)).toEqual(
+            expect(allMemPoolTransactions.map(pooltx => pooltx.transaction)).toMatchObject(
                 memPoolTransactions.map(pooltx => pooltx.transaction),
             );
         });
@@ -37,7 +37,7 @@ describe("Storage", () => {
             storage.bulkAdd([...memPoolTransactions, anotherMemPoolTransaction]);
             storage.bulkRemoveById([transactions.dummy3.id]);
             const allMemPoolTransactions = storage.loadAll();
-            expect(allMemPoolTransactions.map(pooltx => pooltx.transaction)).toEqual(
+            expect(allMemPoolTransactions.map(pooltx => pooltx.transaction)).toMatchObject(
                 memPoolTransactions.map(pooltx => pooltx.transaction),
             );
         });
