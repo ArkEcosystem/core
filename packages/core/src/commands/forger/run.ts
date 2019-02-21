@@ -26,7 +26,7 @@ $ ark forger:run --bip38="..." --password="..."
                 "@arkecosystem/core-event-emitter",
                 "@arkecosystem/core-config",
                 "@arkecosystem/core-logger",
-                "@arkecosystem/core-logger-winston",
+                "@arkecosystem/core-logger-pino",
                 "@arkecosystem/core-forger",
             ],
             options: {

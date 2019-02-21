@@ -1,19 +1,6 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
-    "@arkecosystem/core-logger-winston": {
-        transports: {
-            console: {
-                options: {
-                    level: process.env.CORE_LOG_LEVEL || "debug",
-                },
-            },
-            dailyRotate: {
-                options: {
-                    level: process.env.CORE_LOG_LEVEL || "debug",
-                },
-            },
-        },
-    },
+    "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
