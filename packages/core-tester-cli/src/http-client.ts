@@ -1,18 +1,16 @@
 import Axios from "axios";
 import { logger } from "./logger";
 
-class HttpClient {
+export class HttpClient {
     private instance: any;
 
-    public setup(host: string, port: number) {
-        this.instance = Axios.create({
-            baseURL: `${host}:${port}/api/v2/`,
-        });
+    public constructor(baseURL: string) {
+        this.instance = Axios.create({ baseURL });
     }
 
-    public async get(path: string, params?: Record<string, any>): Promise<any> {
+    public async get(path: string, params?: Record<string, any>, headers?: Record<string, any>): Promise<any> {
         try {
-            const { data } = await this.instance.get(path, { params });
+            const { data } = await this.instance.get(path, { params, headers });
 
             return data;
         } catch (error) {
@@ -30,5 +28,3 @@ class HttpClient {
         }
     }
 }
-
-export const http = new HttpClient();

@@ -1,3 +1,4 @@
+import { crypto } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import delay from "delay";
 import { BaseCommand } from "../command";

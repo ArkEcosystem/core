@@ -1,23 +1,23 @@
-import { Bignum, configManager } from "@arkecosystem/crypto";
+import { Bignum } from "@arkecosystem/crypto";
 import { client } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import { satoshiFlag } from "../flags";
-import { http } from "../http-client";
+import { HttpClient } from "../http-client";
 import { logger } from "../logger";
 
 export abstract class BaseCommand extends Command {
     public static flagsSent = {
-        network: flags.string({
-            description: "crypto network",
-            default: "testnet",
-        }),
         host: flags.string({
             description: "API host",
             default: "http://localhost",
         }),
-        port: flags.integer({
+        portAPI: flags.integer({
             description: "API port",
             default: 4003,
+        }),
+        portP2P: flags.integer({
+            description: "P2P port",
+            default: 4000,
         }),
         passphrase: flags.string({
             description: "passphrase of initial wallet",
@@ -49,6 +49,23 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
+    protected api: HttpClient;
+    protected p2p: HttpClient;
+    protected network: Record<string, any>;
+    protected constants: Record<string, any>;
+
+    protected async make(command): Promise<any> {
+        const { args, flags } = this.parse(command);
+
+        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/v2/`);
+        this.p2p = new HttpClient(`${flags.host}:${flags.portP2P}/`);
+
+        await this.setupConstants();
+        await this.setupNetwork();
+
+        return { args, flags };
+    }
+
     protected async sendTransaction(transactions: any[]): Promise<Record<string, any>> {
         if (!Array.isArray(transactions)) {
             transactions = [transactions];
@@ -58,12 +75,12 @@ export abstract class BaseCommand extends Command {
             logger.info(`Posting Transaction: ${transaction.id}`);
         }
 
-        return http.post("transactions", { transactions });
+        return this.api.post("transactions", { transactions });
     }
 
     protected async knockTransaction(id: string): Promise<void> {
         try {
-            const { data } = await http.get(`transactions/${id}`);
+            const { data } = await this.api.get(`transactions/${id}`);
 
             logger.info(`${id} was included in block ${data.blockId}`);
         } catch (error) {
@@ -71,16 +88,6 @@ export abstract class BaseCommand extends Command {
 
             logger.info(`${id} was not included in any blocks`);
         }
-    }
-
-    protected async make(command): Promise<any> {
-        const { args, flags } = this.parse(command);
-
-        http.setup(flags.host, flags.port);
-
-        configManager.setFromPreset(flags.network);
-
-        return { args, flags };
     }
 
     protected signTransaction(opts: Record<string, any>): any {
@@ -102,6 +109,18 @@ export abstract class BaseCommand extends Command {
         }
 
         return transfer.getStruct();
+    }
+
+    private async setupConstants() {
+        const { data } = await this.api.get("node/configuration");
+
+        this.constants = data.constants;
+    }
+
+    private async setupNetwork() {
+        const { data } = await this.p2p.get("config");
+
+        this.network = data.network;
     }
 
     private toSatoshi(value: number): number {
