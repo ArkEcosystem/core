@@ -562,11 +562,8 @@ export class Monitor implements P2P.IMonitor {
 
         const allPeers = [...peers, ...suspendedPeers];
         const forkedPeers = allPeers.filter(peer => peer.verification.forked);
-        const forked = forkedPeers.length / allPeers.length > 0.5;
-        if (!forked) {
-            // Majority of our peers is not forked, so everything is fine.
-            logger.info("Majority of peers is not forked.No need to rollback.");
-        } else {
+        const majorityForked = forkedPeers.length / allPeers.length > 0.5;
+        if (majorityForked) {
             const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
             const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
 
@@ -579,11 +576,16 @@ export class Monitor implements P2P.IMonitor {
             longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
             const peersMostCommonHeight = longestGroups[0];
 
+            logger.info(
+                `Rolling back to most common height ${peersMostCommonHeight}. Own height: ${lastBlock.data.height}`,
+            );
+
             // Now rollback blocks equal to the distance to the most common height.
-            const blocksToRollback =
-                Math.abs(lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight) + 1;
+            const blocksToRollback = lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight;
             return blocksToRollback;
         }
+
+        logger.info("The majority of peers is not forked. No need to rollback.");
 
         return null;
     }
