@@ -63,7 +63,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
         if (stateStorage.noBlockCounter > 5 && blockchain.processQueue.length() === 0) {
-            // TODO: make this dynamic in 2.1
             logger.info(
                 "Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:",
             );
@@ -74,9 +73,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (stateStorage.p2pUpdateCounter + 1 > 3) {
                 logger.info("Network keeps missing blocks. :umbrella:");
 
-                const result = await blockchain.p2p.updatePeersOnMissingBlocks();
-                stateStorage.numberOfBlocksToRollback = result;
-                if (result) {
+                const networkStatus = await blockchain.p2p.checkNetworkHealth();
+                if (networkStatus.forked) {
+                    stateStorage.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                     event = "FORK";
                 }
 

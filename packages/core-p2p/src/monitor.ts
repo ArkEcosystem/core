@@ -545,9 +545,9 @@ export class Monitor implements P2P.IMonitor {
     /**
      * Check if too many peers are forked and rollback if necessary.
      * Returns the number of blocks to rollback if any.
-     * @return {Promise<number | null>}
+     * @return {Promise<INetworkStatus>}
      */
-    public async updatePeersOnMissingBlocks(): Promise<number | null> {
+    public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.__isColdStartActive()) {
             await this.cleanPeers(true, true);
             await this.guard.resetSuspendedPeers();
@@ -563,6 +563,7 @@ export class Monitor implements P2P.IMonitor {
         const allPeers = [...peers, ...suspendedPeers];
         const forkedPeers = allPeers.filter(peer => peer.verification.forked);
         const majorityForked = forkedPeers.length / allPeers.length > 0.5;
+
         if (majorityForked) {
             const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
             const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
@@ -582,12 +583,12 @@ export class Monitor implements P2P.IMonitor {
 
             // Now rollback blocks equal to the distance to the most common height.
             const blocksToRollback = lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight;
-            return blocksToRollback;
+            return { forked: true, blocksToRollback };
         }
 
         logger.info("The majority of peers is not forked. No need to rollback.");
 
-        return null;
+        return { forked: false };
     }
 
     /**

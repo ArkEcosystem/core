@@ -1,3 +1,8 @@
+export interface INetworkStatus {
+    forked: boolean;
+    blocksToRollback?: number;
+}
+
 export interface IMonitor {
     peers: { [ip: string]: any };
 
@@ -119,9 +124,9 @@ export interface IMonitor {
     /**
      * Check if too many peers are forked and rollback if necessary.
      * Returns the number of blocks to rollback if any.
-     * @return {Promise<number | null>}
+     * @return {Promise<INetworkStatus>}
      */
-    updatePeersOnMissingBlocks(): Promise<number | null>;
+    checkNetworkHealth(): Promise<INetworkStatus>;
 
     /**
      * Dump the list of active peers.
