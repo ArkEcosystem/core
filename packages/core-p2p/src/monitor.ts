@@ -543,7 +543,7 @@ export class Monitor implements P2P.IMonitor {
     }
 
     /**
-     * Check if too many peers are forked and rollback if necessary.
+     * Check if too many peers are forked and if rollback is necessary.
      * Returns the number of blocks to rollback if any.
      * @return {Promise<INetworkStatus>}
      */
@@ -562,33 +562,33 @@ export class Monitor implements P2P.IMonitor {
 
         const allPeers = [...peers, ...suspendedPeers];
         const forkedPeers = allPeers.filter(peer => peer.verification.forked);
-        const majorityForked = forkedPeers.length / allPeers.length > 0.5;
+        const majorityOnOurChain = forkedPeers.length / allPeers.length < 0.5;
 
-        if (majorityForked) {
-            const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
-            const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
-
-            // Sort by longest
-            // @ts-ignore
-            const longest = Object.keys(groupedByLength).sort((a, b) => b - a)[0];
-            const longestGroups = groupedByLength[longest];
-
-            // Sort by highest common height DESC
-            longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
-            const peersMostCommonHeight = longestGroups[0];
-
-            logger.info(
-                `Rolling back to most common height ${peersMostCommonHeight}. Own height: ${lastBlock.data.height}`,
-            );
-
-            // Now rollback blocks equal to the distance to the most common height.
-            const blocksToRollback = lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight;
-            return { forked: true, blocksToRollback };
+        if (majorityOnOurChain) {
+            logger.info("The majority of peers is not forked. No need to rollback.");
+            return { forked: false };
         }
 
-        logger.info("The majority of peers is not forked. No need to rollback.");
+        const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
 
-        return { forked: false };
+        const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
+
+        // Sort by longest
+        // @ts-ignore
+        const longest = Object.keys(groupedByLength).sort((a, b) => b - a)[0];
+        const longestGroups = groupedByLength[longest];
+
+        // Sort by highest common height DESC
+        longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
+        const peersMostCommonHeight = longestGroups[0];
+
+        logger.info(
+            `Rolling back to most common height ${peersMostCommonHeight}. Own height: ${lastBlock.data.height}`,
+        );
+
+        // Now rollback blocks equal to the distance to the most common height.
+        const blocksToRollback = lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight;
+        return { forked: true, blocksToRollback };
     }
 
     /**

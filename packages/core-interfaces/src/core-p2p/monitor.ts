@@ -122,7 +122,7 @@ export interface IMonitor {
     broadcastTransactions(transactions: any): Promise<any[]>;
 
     /**
-     * Check if too many peers are forked and rollback if necessary.
+     * Check if too many peers are forked and if rollback is necessary.
      * Returns the number of blocks to rollback if any.
      * @return {Promise<INetworkStatus>}
      */
