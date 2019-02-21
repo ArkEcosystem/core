@@ -549,12 +549,12 @@ export class Monitor implements P2P.IMonitor {
      */
     public async updatePeersOnMissingBlocks(): Promise<number | null> {
         if (!this.__isColdStartActive()) {
-            await this.cleanPeers(true);
+            await this.guard.resetSuspendedPeers();
+            await this.cleanPeers(true, true);
         }
 
         const lastBlock = app.resolve("state").getLastBlock();
 
-        // NOTE: Information about the suspended peers are not up-to-date.
         const peers = this.getPeers();
         const suspendedPeers = Object.values(this.getSuspendedPeers())
             .map(suspendedPeer => suspendedPeer.peer)
