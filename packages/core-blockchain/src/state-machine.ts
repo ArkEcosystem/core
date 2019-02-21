@@ -75,7 +75,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 logger.info("Network keeps missing blocks. :umbrella:");
 
                 const result = await blockchain.p2p.updatePeersOnMissingBlocks();
-                if (result === "rollback") {
+                stateStorage.numberOfBlocksToRollback = result;
+                if (result) {
                     event = "FORK";
                 }
 
@@ -367,7 +368,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         const random = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 
-        await blockchain.removeBlocks(random);
+        await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
+        stateStorage.numberOfBlocksToRollback = null;
 
         logger.info(`Removed ${pluralize("block", random, true)} :wastebasket:`);
 

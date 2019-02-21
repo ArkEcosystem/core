@@ -1,5 +1,5 @@
+// tslint:disable:max-classes-per-file
 import { app } from "@arkecosystem/core-container";
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
@@ -19,6 +19,22 @@ enum Severity {
 
     /** Discarded. */
     IGNORE,
+}
+
+export class PeerVerificationResult {
+    public get forked(): boolean {
+        if (!this.highestCommonHeight) {
+            // We know it's case 3 or 5
+            if (this.myHeight >= this.hisHeight) {
+                return false;
+            }
+        }
+
+        return this.myHeight < this.highestCommonHeight && this.hisHeight > this.highestCommonHeight;
+    }
+
+    public highestCommonHeight?: number;
+    public constructor(readonly myHeight: number, readonly hisHeight: number) {}
 }
 
 export class PeerVerifier {
@@ -79,32 +95,32 @@ export class PeerVerifier {
      * different than our blockchain)
      * @throws {Error} if the state verification could not complete before the deadline
      */
-    public async checkState(claimedState: any, deadline: number): Promise<boolean> {
+    public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | null> {
+        this.peer.verification = null;
+
         if (this.isStateInvalid(claimedState)) {
-            return false;
+            return null;
         }
 
         const ourHeight: number = await this.ourHeight();
+        const claimedHeight = Number(claimedState.header.height);
+        const result = new PeerVerificationResult(ourHeight, claimedHeight);
 
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
-            return true;
+            return result;
         }
-
-        const claimedHeight = Number(claimedState.header.height);
 
         const highestCommonBlockHeight = await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
-        if (highestCommonBlockHeight === null) {
-            return false;
+        if (highestCommonBlockHeight !== null) {
+            result.highestCommonHeight = highestCommonBlockHeight;
+
+            if (await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline)) {
+                this.log(Severity.IGNORE, "success");
+            }
         }
 
-        if (!(await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline))) {
-            return false;
-        }
-
-        this.log(Severity.IGNORE, "success");
-
-        return true;
+        return result;
     }
 
     /**

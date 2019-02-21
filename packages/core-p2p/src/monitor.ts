@@ -6,7 +6,6 @@ import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
 import fs from "fs";
-import flatten from "lodash/flatten";
 import groupBy from "lodash/groupBy";
 import sample from "lodash/sample";
 import shuffle from "lodash/shuffle";
@@ -544,147 +543,43 @@ export class Monitor implements P2P.IMonitor {
     }
 
     /**
-     * Update all peers based on height and last block id.
-     *
-     * Grouping peers by height and then by common id results in one of the following
-     * scenarios:
-     *
-     *  1) Same height, same common id
-     *  2) Same height, mixed common id
-     *  3) Mixed height, same common id
-     *  4) Mixed height, mixed common id
-     *
-     * Scenario 1: Do nothing.
-     * Scenario 2-4:
-     *  - If own height is ahead of majority do nothing for now.
-     *  - Pick most common id from peers with most common height and calculate quota,
-     *    depending on which the node rolls back or waits.
-     *
-     * NOTE: Only called when the network is consecutively missing blocks `p2pUpdateCounter` times.
-     * @return {String}
+     * Check if too many peers are forked and rollback if necessary.
+     * Returns the number of blocks to rollback if any.
+     * @return {Promise<number | null>}
      */
-    public async updatePeersOnMissingBlocks() {
-        // First ping all peers to get updated heights and remove unresponsive ones.
+    public async updatePeersOnMissingBlocks(): Promise<number | null> {
         if (!this.__isColdStartActive()) {
             await this.cleanPeers(true);
         }
 
         const lastBlock = app.resolve("state").getLastBlock();
 
-        const nodes = this.getPeers();
-        // Also count ourselves in the calculations below.
-        nodes.push({
-            me: true,
-            state: {
-                height: lastBlock.data.height,
-                header: {
-                    id: lastBlock.data.id,
-                },
-            },
-        });
+        // NOTE: Information about the suspended peers are not up-to-date.
+        const peers = this.getPeers();
+        const suspendedPeers = Object.values(this.getSuspendedPeers())
+            .map(suspendedPeer => suspendedPeer.peer)
+            .filter(peer => !!peer.verification);
 
-        const peersGroupedByHeight = groupBy(nodes, "state.height");
-        const commonHeightGroups = Object.values(peersGroupedByHeight).sort((a, b) => b.length - a.length);
-        const peersMostCommonHeight = commonHeightGroups[0];
-        const groupedByCommonId = groupBy(peersMostCommonHeight, "state.header.id");
-        const commonIdGroupCount = Object.keys(groupedByCommonId).length;
-        let state = "";
+        const allPeers = [...peers, ...suspendedPeers];
 
-        if (commonHeightGroups.length === 1 && commonIdGroupCount === 1) {
-            // No need to do anything.
-            return state;
+        const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
+        const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
+
+        const longest = Object.keys(groupedByLength).reverse()[0];
+        const longestGroups = groupedByLength[longest];
+
+        // Sort by highest common height DESC
+        longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
+        const peersMostCommonHeight = longestGroups[0];
+
+        // Get peers with most common height, if any of them is forked rollback.
+        if (peersMostCommonHeight.some(peer => peer.verification.forked)) {
+            const blocksToRollback =
+                Math.abs(lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight) + 1;
+            return blocksToRollback;
         }
 
-        // Do nothing if majority of peers are lagging behind
-        if (commonHeightGroups.length > 1) {
-            if (lastBlock.data.height > peersMostCommonHeight[0].state.height) {
-                logger.info(
-                    `${pluralize(
-                        "peer",
-                        peersMostCommonHeight.length,
-                        true,
-                    )} are at height ${peersMostCommonHeight[0].state.height.toLocaleString()} and lagging behind last height ${lastBlock.data.height.toLocaleString()}. :zzz:`,
-                );
-                return state;
-            }
-        }
-
-        // Sort common id groups by length DESC
-        const commonIdGroups = Object.values(groupedByCommonId).sort((a, b) => b.length - a.length);
-
-        // Peers are sitting on the same height, but there might not be enough
-        // quorum to move on, because of different last blocks.
-        if (commonIdGroupCount > 1 || lastBlock.data.id !== peersMostCommonHeight[0].state.header.id) {
-            const chosenPeers = commonIdGroups[0];
-            const restGroups = commonIdGroups.slice(1);
-
-            if (restGroups.some(group => group.length === chosenPeers.length)) {
-                logger.warn("Peers are evenly split at same height with different block ids. :zap:");
-            }
-
-            if (commonIdGroupCount > 1) {
-                logger.info(
-                    `Detected peers at the same height ${peersMostCommonHeight[0].state.height.toLocaleString()} with different block ids: ${JSON.stringify(
-                        Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`),
-                        null,
-                        4,
-                    )}`,
-                );
-            }
-
-            // XXX We don't have enough information here whether to rollback or not.
-            // If our last block height and id differ from chosenPeers[0].state.height and
-            // chosenPeers[0].state.header.id, then we do not know which one is true:
-            // 1. we are on a different chain (fork), we need to rollback,
-            // 2. we are just lagging behind the chosenPeers[] group (same chain), we need to download blocks
-            // 3. we are ahead of the chosenPeers[] group (same chain), they need to download blocks from us
-
-            const badLastBlock =
-                chosenPeers[0].state.height === lastBlock.data.height &&
-                chosenPeers[0].state.header.id !== lastBlock.data.id;
-            const quota = chosenPeers.length / flatten(commonIdGroups).length;
-            if (quota < 0.66) {
-                // or quota too low TODO: find better number
-                logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`);
-                state = "rollback";
-            } else if (badLastBlock) {
-                // Rollback if last block is bad and quota high
-                logger.info(
-                    `Last block id ${lastBlock.data.id} is bad, ` +
-                        `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
-                );
-                state = "rollback";
-            }
-
-            if (state === "rollback") {
-                // Ban all rest peers
-                const peersToBan = flatten(restGroups).filter(peer => !peer.me);
-                peersToBan.forEach(peer => {
-                    (peer as any).commonId = false;
-                    this.suspendPeer(peer.ip);
-                });
-
-                logger.debug(
-                    `Banned ${pluralize(
-                        "peer",
-                        peersToBan.length,
-                        true,
-                    )} at height '${peersMostCommonHeight[0].state.height.toLocaleString()}' which do not have common id '${
-                        chosenPeers[0].state.header.id
-                    }'.`,
-                );
-            }
-        } else {
-            // Under certain circumstances the headers can be missing (i.e. seed peers when starting up)
-            const commonHeader = peersMostCommonHeight[0].state.header;
-            logger.info(
-                `All peers at most common height ${peersMostCommonHeight[0].state.height.toLocaleString()} share the same block id${
-                    commonHeader ? ` '${commonHeader.id}'` : ""
-                }. :pray:`,
-            );
-        }
-
-        return state;
+        return null;
     }
 
     /**
