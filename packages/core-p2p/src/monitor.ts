@@ -582,7 +582,7 @@ export class Monitor implements P2P.IMonitor {
         longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
         const peersMostCommonHeight = longestGroups[0];
 
-        const highestCommonHeight = peersMostCommonHeight[0].verification.highestCommonHeight;
+        const { highestCommonHeight } = peersMostCommonHeight[0].verification;
         logger.info(`Rolling back to most common height ${highestCommonHeight}. Own height: ${lastBlock.data.height}`);
 
         // Now rollback blocks equal to the distance to the most common height.
