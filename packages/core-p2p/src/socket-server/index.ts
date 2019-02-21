@@ -24,24 +24,26 @@ const startSocketServer = async config => {
         rebootWorkerOnCrash: true,
     });
 
-    server.on("workerMessage", async (workerId, data, res) => {
+    server.on("workerMessage", async (workerId, req, res) => {
         const handlers = {
             peer: peerHandlers,
             internal: internalHandlers,
             utils: utilsHandlers, // not publicly exposed, only used between worker / master
         };
 
-        const [prefix, version, method] = data.endpoint.split(".");
+        const [prefix, version, method] = req.endpoint.split(".");
 
         try {
-            const result = (await handlers[version][method](data)) || {};
-            result.headers = getHeaders();
+            const result = {
+                data: (await handlers[version][method](req)) || {},
+                headers: getHeaders(),
+            };
 
             return res(null, result);
         } catch (e) {
             const logger = app.resolvePlugin("logger");
             logger.error(e);
-            return res(new Error(`Socket call to ${data.endpoint} failed.`));
+            return res(new Error(`Socket call to ${req.endpoint} failed.`));
         }
     });
 

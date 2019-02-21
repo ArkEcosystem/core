@@ -6,8 +6,8 @@ import { models } from "@arkecosystem/crypto";
 const config = app.getConfig();
 const { Transaction } = models;
 
-export const verifyTransaction = async data => {
-    const transaction = new Transaction(Transaction.deserialize(data.transaction));
+export const verifyTransaction = async req => {
+    const transaction = new Transaction(Transaction.deserialize(req.data.transaction));
 
     return {
         data: {

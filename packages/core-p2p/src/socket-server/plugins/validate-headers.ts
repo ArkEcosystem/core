@@ -52,7 +52,7 @@ const validateHeaders = headers => {
         : ajv.errors;
 
     return {
-        valid: !!errors,
+        valid: !errors,
         errors,
     };
 };

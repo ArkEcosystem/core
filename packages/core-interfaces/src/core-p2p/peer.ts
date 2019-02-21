@@ -4,13 +4,6 @@ export interface IPeer {
     setHeaders(headers: any): void;
 
     /**
-     * Set the given status for the peer.
-     * @param  {String} value
-     * @return {void}
-     */
-    setStatus(value: any): void;
-
-    /**
      * Get information to broadcast.
      * @return {Object}
      */
@@ -21,7 +14,6 @@ export interface IPeer {
         milestoneHash: string;
         version: any;
         os: any;
-        status: any;
         height: any;
         delay: any;
     };

@@ -21,8 +21,8 @@ export const getUsernames = async () => {
     return { data };
 };
 
-export const emitEvent = data => {
-    emitter.emit(data.event, data.body);
+export const emitEvent = req => {
+    emitter.emit(req.data.event, req.data.body);
     /*,
     options: {
         validate: schema.emitEvent,

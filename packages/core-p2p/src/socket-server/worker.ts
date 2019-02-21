@@ -96,18 +96,18 @@ class Worker extends SCWorker {
                 // here is where we can acceptNewPeer()
                 await this.sendToMasterAsync({
                     endpoint: "p2p.peer.acceptNewPeer",
-                    ip: req.socket.remoteAddress,
+                    data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
                 });
             }
 
-            // some handlers need this info.remoteAddress info
-            // TODO rationalize all meta info into a "meta" property
-            req.data.info = req.data.info || {};
-            req.data.info.remoteAddress = req.socket.remoteAddress;
+            // some handlers need this remoteAddress info
+            // req.data is socketcluster request data, which corresponds to our own "request" object
+            // which is like this { endpoint, data, headers }
+            req.data.headers.remoteAddress = req.socket.remoteAddress;
         } catch (e) {
             // Log explicit error, return unknown error
-            // TODO
+            console.error(e);
             return next(createError(SocketErrors.Unknown, "Unknown error"));
         }
         next(); // Allow

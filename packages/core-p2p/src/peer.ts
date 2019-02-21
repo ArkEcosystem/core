@@ -8,6 +8,7 @@ import { config as localConfig } from "./config";
 import { guard } from "./court";
 import { PeerVerifier } from "./peer-verifier";
 import { SocketErrors } from "./socket-server/constants";
+import { socketEmit } from "./utils/socket";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
@@ -304,37 +305,13 @@ export class Peer implements P2P.IPeer {
      * @param  {number|undefined} timeout
      * @return {(Object[]|undefined)}
      */
-    private async emit(event: string, data: any = {}, timeout?: number) {
-        data.headers = this.headers;
-
-        this.logger.debug(`Sending socket message "${event}" to ${this.ip} : ${JSON.stringify(data, null, 2)}`);
-
-        // if socket is not connected, we give it 1 second
-        for (let i = 0; i < 10 && this.socket.getState() !== this.socket.OPEN; i++) {
-            await delay(100);
-        }
-        if (this.socket.getState() !== this.socket.OPEN) {
-            this.logger.error(`Peer ${this.ip} socket is not connected. State: ${this.socket.getState()}`);
-            guard.suspend(this);
-            return;
-        }
-
-        const socketEmitPromise = new Promise((resolve, reject) => {
-            this.socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
-        });
-        const timeoutPromise = new Promise((resolve, reject) => {
-            const id = setTimeout(() => {
-                clearTimeout(id);
-                reject(`Socket emit "${event}" : timed out (${timeout}ms)`);
-            }, timeout);
-        });
-
+    private async emit(event: string, data: any, timeout?: number) {
         let response;
         try {
             this.socketError = null; // reset socket error between each call
             const timeBeforeSocketCall = new Date().getTime();
 
-            response = timeout ? await Promise.race([socketEmitPromise, timeoutPromise]) : await socketEmitPromise;
+            response = await socketEmit(this.socket, event, data, this.headers, timeout);
 
             this.delay = new Date().getTime() - timeBeforeSocketCall;
             this.__parseHeaders(response);

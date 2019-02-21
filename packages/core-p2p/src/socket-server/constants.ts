@@ -4,6 +4,7 @@
 
 export enum SocketErrors {
     Timeout = "CoreTimeoutError",
+    SocketNotOpen = "CoreSocketNotOpenError",
     WrongEndpoint = "CoreWrongEndpointError",
     AppNotReady = "CoreAppNotReadyError",
     HeadersRequired = "CoreHeadersRequiredError",

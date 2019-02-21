@@ -11,13 +11,13 @@ const { Block } = models;
 const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-export const acceptNewPeer = async data => {
+export const acceptNewPeer = async req => {
     const requiredHeaders = ["nethash", "milestoneHash", "version", "port", "os"];
 
-    const peer = { ip: data.ip };
+    const peer = { ip: req.data.ip };
 
     requiredHeaders.forEach(key => {
-        peer[key] = data.headers[key];
+        peer[key] = req.headers[key];
     });
 
     await monitor.acceptNewPeer(peer);
@@ -45,8 +45,8 @@ export const getHeight = () => {
     };
 };
 
-export const getCommonBlocks = async data => {
-    if (!data.ids) {
+export const getCommonBlocks = async req => {
+    if (!req.data.ids) {
         return {
             success: false,
         }; // success false or throw ? TODO
@@ -54,7 +54,7 @@ export const getCommonBlocks = async data => {
 
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    const ids = data.ids.slice(0, 9).filter(id => id.match(/^\d+$/));
+    const ids = req.data.ids.slice(0, 9).filter(id => id.match(/^\d+$/));
 
     const commonBlocks = await blockchain.database.getCommonBlocks(ids);
 
@@ -81,14 +81,14 @@ export const getStatus = () => {
     };
 };
 
-export const postBlock = data => {
+export const postBlock = req => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    if (!data || !data.block) {
+    if (!req.data || !req.data.block) {
         return { success: false };
     }
 
-    const block = data.block;
+    const block = req.data.block;
 
     if (blockchain.pingBlock(block)) {
         return { success: true };
@@ -109,13 +109,13 @@ export const postBlock = data => {
 
     blockchain.pushPingBlock(b.data);
 
-    block.ip = data.info.remoteAddress;
+    block.ip = req.headers.remoteAddress;
     blockchain.handleIncomingBlock(block);
 
     return { success: true };
 };
 
-export const postTransactions = async data => {
+export const postTransactions = async req => {
     if (!transactionPool) {
         return {
             success: false,
@@ -125,7 +125,7 @@ export const postTransactions = async data => {
 
     const guard = new TransactionGuard(transactionPool);
 
-    const result = await guard.validate(data.transactions);
+    const result = await guard.validate(req.data.transactions);
 
     if (result.invalid.length > 0) {
         return {
@@ -158,14 +158,14 @@ export const postTransactions = async data => {
     },*/
 };
 
-export const getBlocks = async data => {
+export const getBlocks = async req => {
     const database = app.resolvePlugin<Database.IDatabaseService>("database");
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    const reqBlockHeight = +data.lastBlockHeight + 1;
+    const reqBlockHeight = +req.data.lastBlockHeight + 1;
     let blocks = [];
 
-    if (!data.lastBlockHeight || isNaN(reqBlockHeight)) {
+    if (!req.data.lastBlockHeight || isNaN(reqBlockHeight)) {
         const lastBlock = blockchain.getLastBlock();
         if (lastBlock) {
             blocks.push(lastBlock.data); // lastBlock is a Block, we want its data
@@ -175,7 +175,7 @@ export const getBlocks = async data => {
     }
 
     logger.info(
-        `${data.info.remoteAddress} has downloaded ${pluralize("block", blocks.length, true)} from height ${(!isNaN(
+        `${req.headers.remoteAddress} has downloaded ${pluralize("block", blocks.length, true)} from height ${(!isNaN(
             reqBlockHeight,
         )
             ? reqBlockHeight
