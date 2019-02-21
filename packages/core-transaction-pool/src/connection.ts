@@ -394,7 +394,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
-        logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`);
+        logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]}`);
 
         return blockReleaseTime;
     }
@@ -437,7 +437,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                     logger.error(
                         `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
                             data.id
-                        } due to ${JSON.stringify(errors)}. Possible double spending attack :bomb:`,
+                        } due to ${JSON.stringify(errors)}. Possible double spending attack`,
                     );
                 }
             }

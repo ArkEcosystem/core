@@ -16,7 +16,7 @@ export const validateGenerator = async (block: models.Block): Promise<boolean> =
         logger.debug(
             `Could not decide if delegate ${generatorUsername} (${
                 block.data.generatorPublicKey
-            }) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`,
+            }) is allowed to forge block ${block.data.height.toLocaleString()}`,
         );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
         const forgingUsername = database.walletManager.findByPublicKey(forgingDelegate.publicKey).username;

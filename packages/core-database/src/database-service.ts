@@ -91,7 +91,7 @@ export class DatabaseService implements Database.IDatabaseService {
             } else {
                 this.logger.warn(
                     // tslint:disable-next-line:max-line-length
-                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
+                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
             }
         }

@@ -54,7 +54,7 @@ export class UnchainedHandler extends BlockHandler {
         const lastBlock = this.blockchain.getLastBlock();
         if (this.block.data.height > lastBlock.data.height + 1) {
             this.logger.debug(
-                `Blockchain not ready to accept new block at height ${this.block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()} :warning:`,
+                `Blockchain not ready to accept new block at height ${this.block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,
             );
 
             // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
@@ -68,7 +68,7 @@ export class UnchainedHandler extends BlockHandler {
             return UnchainedBlockStatus.NotReadyToAcceptNewHeight;
         } else if (this.block.data.height < lastBlock.data.height) {
             this.logger.debug(
-                `Block ${this.block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`,
+                `Block ${this.block.data.height.toLocaleString()} disregarded because already in blockchain`,
             );
 
             return UnchainedBlockStatus.AlreadyInBlockchain;

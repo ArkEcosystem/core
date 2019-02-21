@@ -1,5 +1,4 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
-import "colors";
 import isEmpty from "lodash/isEmpty";
 import pino from "pino";
 import { inspect } from "util";

@@ -104,7 +104,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     downloadFinished() {
-        logger.info("Block download finished :rocket:");
+        logger.info("Block download finished");
 
         if (stateStorage.networkStart) {
             // next time we will use normal behaviour
@@ -394,7 +394,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         if (!blockchainAudit.valid) {
             // TODO: multiple attempts? rewind further? restore snapshot?
-            logger.error("FATAL: Failed to restore database integrity :skull: :skull: :skull:");
+            logger.error("FATAL: Failed to restore database integrity");
             logger.error(JSON.stringify(blockchainAudit.errors, null, 4));
             blockchain.dispatch("FAILURE");
             return;
@@ -404,7 +404,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         const lastBlock = await blockchain.database.getLastBlock();
         logger.info(
-            `Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()} :green_heart:`,
+            `Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()}`,
         );
 
         blockchain.dispatch("SUCCESS");

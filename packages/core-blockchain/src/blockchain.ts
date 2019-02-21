@@ -75,9 +75,9 @@ export class Blockchain implements blockchain.IBlockchain {
 
         if (this.state.networkStart) {
             logger.warn(
-                "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:",
+                "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
-            logger.info("Starting Ark Core for a new world, welcome aboard :rocket:");
+            logger.info("Starting Ark Core for a new world, welcome aboard");
         }
 
         this.actions = stateMachine.actionMap(this);
@@ -110,7 +110,7 @@ export class Blockchain implements blockchain.IBlockchain {
             if (action) {
                 setTimeout(() => action.call(this, event), 0);
             } else {
-                logger.error(`No action '${actionKey}' found :interrobang:`);
+                logger.error(`No action '${actionKey}' found`);
             }
         });
 
@@ -248,7 +248,7 @@ export class Blockchain implements blockchain.IBlockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
         } else {
-            logger.info(`Block disregarded because blockchain is not ready :exclamation:`);
+            logger.info(`Block disregarded because blockchain is not ready`);
         }
     }
 
@@ -291,7 +291,7 @@ export class Blockchain implements blockchain.IBlockchain {
             this.state.lastDownloadedBlock = newLastBlock;
         };
 
-        logger.info(`Removing ${pluralize("block", height - newHeight, true)} to reset current round :warning:`);
+        logger.info(`Removing ${pluralize("block", height - newHeight, true)} to reset current round`);
 
         let count = 0;
         const max = this.state.getLastBlock().data.height - newHeight;
@@ -527,7 +527,7 @@ export class Blockchain implements blockchain.IBlockchain {
         block = block || this.getLastBlock();
 
         const remaining = slots.getTime() - block.data.timestamp;
-        logger.info(`Remaining block timestamp ${remaining} :hourglass:`);
+        logger.info(`Remaining block timestamp ${remaining}`);
 
         // stop fast rebuild 7 days before the last network block
         return slots.getTime() - block.data.timestamp < 3600 * 24 * 7;
