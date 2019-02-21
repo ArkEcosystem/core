@@ -47,19 +47,14 @@
         "@oclif/plugin-help": "^2.1.6",
         "@oclif/plugin-not-found": "^1.2.2",
         "@types/bip39": "^2.4.1",
-        "@types/clipboardy": "^1.1.0",
-        "@types/lodash.fill": "^3.4.4",
         "@types/pino": "^5.8.4",
         "@types/pluralize": "^0.0.29",
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
-        "clipboardy": "^1.2.3",
         "delay": "^4.1.0",
-        "lodash.fill": "^3.4.0",
         "pino": "^5.11.1",
         "pino-pretty": "^2.5.0",
-        "pluralize": "^7.0.0",
-        "superheroes": "^2.0.0"
+        "pluralize": "^7.0.0"
     },
     "devDependencies": {
         "axios-mock-adapter": "^1.16.0"
