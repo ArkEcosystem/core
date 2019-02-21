@@ -549,8 +549,8 @@ export class Monitor implements P2P.IMonitor {
      */
     public async updatePeersOnMissingBlocks(): Promise<number | null> {
         if (!this.__isColdStartActive()) {
-            await this.guard.resetSuspendedPeers();
             await this.cleanPeers(true, true);
+            await this.guard.resetSuspendedPeers();
         }
 
         const lastBlock = app.resolve("state").getLastBlock();
@@ -561,22 +561,29 @@ export class Monitor implements P2P.IMonitor {
             .filter(peer => peer.verification !== null);
 
         const allPeers = [...peers, ...suspendedPeers];
+        const ratioForked = suspendedPeers.length / allPeers.length;
+        if (ratioForked < 0.5) {
+            // Majority of our peers is not forked, so everything is fine.
+            logger.info("Majority of peers is not forked.No need to rollback.");
+        } else {
+            const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
+            const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
 
-        const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
-        const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
+            // Sort by longest
+            // @ts-ignore
+            const longest = Object.keys(groupedByLength).sort((a, b) => b - a)[0];
+            const longestGroups = groupedByLength[longest];
 
-        const longest = Object.keys(groupedByLength).reverse()[0];
-        const longestGroups = groupedByLength[longest];
+            // Sort by highest common height DESC
+            longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
+            const peersMostCommonHeight = longestGroups[0];
 
-        // Sort by highest common height DESC
-        longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
-        const peersMostCommonHeight = longestGroups[0];
-
-        // Get peers with most common height, if any of them is forked rollback.
-        if (peersMostCommonHeight.some(peer => peer.verification.forked)) {
-            const blocksToRollback =
-                Math.abs(lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight) + 1;
-            return blocksToRollback;
+            // Get peers with most common height, if any of them is forked rollback.
+            if (peersMostCommonHeight.some(peer => peer.verification.forked)) {
+                const blocksToRollback =
+                    Math.abs(lastBlock.data.height - peersMostCommonHeight[0].verification.highestCommonHeight) + 1;
+                return blocksToRollback;
+            }
         }
 
         return null;
