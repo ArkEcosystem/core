@@ -369,7 +369,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         await blockchain.removeBlocks(random);
 
-        logger.info(`Removed ${pluralize("block", random, true)} :wastebasket:`);
+        logger.info(`Removed ${pluralize("block", random, true)}`);
 
         await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.refreshPeersAfterFork();

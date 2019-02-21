@@ -147,7 +147,7 @@ export class ForgerManager {
             }
 
             // README: The Blockchain is ready but an action still failed.
-            this.logger.error(`Forging failed: ${error.message} :bangbang:`);
+            this.logger.error(`Forging failed: ${error.message}`);
 
             if (!isEmpty(round)) {
                 this.logger.info(
@@ -188,7 +188,7 @@ export class ForgerManager {
         const block = await delegate.forge(transactions, blockOptions);
 
         const username = this.usernames[delegate.publicKey];
-        this.logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`);
+        this.logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey})`);
 
         await this.client.broadcast(block.toJson());
 
@@ -212,7 +212,7 @@ export class ForgerManager {
             this.logger.debug(
                 `Received ${pluralize("transaction", transactions.length, true)} from the pool containing ${
                     response.poolSize
-                } :money_with_wings:`,
+                }`,
             );
         }
 

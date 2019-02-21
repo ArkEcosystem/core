@@ -73,7 +73,7 @@ export class UnchainedHandler extends BlockHandler {
 
             return UnchainedBlockStatus.AlreadyInBlockchain;
         } else if (this.block.data.height === lastBlock.data.height && this.block.data.id === lastBlock.data.id) {
-            this.logger.debug(`Block ${this.block.data.height.toLocaleString()} just received :chains:`);
+            this.logger.debug(`Block ${this.block.data.height.toLocaleString()} just received`);
             return UnchainedBlockStatus.EqualToLastBlock;
         } else if (this.block.data.timestamp < lastBlock.data.timestamp) {
             this.logger.debug(
@@ -82,14 +82,14 @@ export class UnchainedHandler extends BlockHandler {
             return UnchainedBlockStatus.InvalidTimestamp;
         } else {
             if (this.isValidGenerator) {
-                this.logger.warn(`Detect double forging by ${this.block.data.generatorPublicKey} :chains:`);
+                this.logger.warn(`Detect double forging by ${this.block.data.generatorPublicKey}`);
                 return UnchainedBlockStatus.DoubleForging;
             }
 
             this.logger.info(
                 `Forked block disregarded because it is not allowed to be forged. Caused by delegate: ${
                     this.block.data.generatorPublicKey
-                } :bangbang:`,
+                }`,
             );
 
             return UnchainedBlockStatus.GeneratorMismatch;

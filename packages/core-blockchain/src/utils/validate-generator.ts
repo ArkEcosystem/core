@@ -24,7 +24,7 @@ export const validateGenerator = async (block: models.Block): Promise<boolean> =
         logger.warn(
             `Delegate ${generatorUsername} (${
                 block.data.generatorPublicKey
-            }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`,
+            }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,
         );
 
         return false;
@@ -33,7 +33,7 @@ export const validateGenerator = async (block: models.Block): Promise<boolean> =
     logger.debug(
         `Delegate ${generatorUsername} (${
             block.data.generatorPublicKey
-        }) allowed to forge block ${block.data.height.toLocaleString()} :+1:`,
+        }) allowed to forge block ${block.data.height.toLocaleString()}`,
     );
 
     return true;

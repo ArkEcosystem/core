@@ -218,7 +218,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public async postTransactions(transactions) {
-        logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)} :moneybag:`);
+        logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
 
         await this.transactionPool.addTransactions(transactions);
     }
@@ -437,10 +437,10 @@ export class Blockchain implements blockchain.IBlockchain {
                 return callback();
             }
             this.state.lastDownloadedBlock = lastBlock;
-            logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`);
+            logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork`);
             return callback();
         }
-        logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
+        logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed`);
         logger.warn(JSON.stringify(block.verification, null, 4));
         return callback();
     }

@@ -220,7 +220,7 @@ export class Monitor implements P2P.IMonitor {
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
 
-        logger.info(`Checking ${max} peers :telescope:`);
+        logger.info(`Checking ${max} peers`);
         const peerErrors = {};
         await Promise.all(
             keys.map(async ip => {
@@ -595,7 +595,7 @@ export class Monitor implements P2P.IMonitor {
                         "peer",
                         peersMostCommonHeight.length,
                         true,
-                    )} are at height ${peersMostCommonHeight[0].state.height.toLocaleString()} and lagging behind last height ${lastBlock.data.height.toLocaleString()}. :zzz:`,
+                    )} are at height ${peersMostCommonHeight[0].state.height.toLocaleString()} and lagging behind last height ${lastBlock.data.height.toLocaleString()}.`,
                 );
                 return state;
             }
@@ -628,13 +628,13 @@ export class Monitor implements P2P.IMonitor {
             const quota = chosenPeers.length / flatten(commonIdGroups).length;
             if (quota < 0.66) {
                 // or quota too low TODO: find better number
-                logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`);
+                logger.info(`Common id quota '${quota}' is too low. Going to rollback.`);
                 state = "rollback";
             } else if (badLastBlock) {
                 // Rollback if last block is bad and quota high
                 logger.info(
                     `Last block id ${lastBlock.data.id} is bad, ` +
-                        `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
+                        `but got enough common id quota: ${quota}. Going to rollback.`,
                 );
                 state = "rollback";
             }
@@ -663,7 +663,7 @@ export class Monitor implements P2P.IMonitor {
             logger.info(
                 `All peers at most common height ${peersMostCommonHeight[0].state.height.toLocaleString()} share the same block id${
                     commonHeader ? ` '${commonHeader.id}'` : ""
-                }. :pray:`,
+                }.`,
             );
         }
 
@@ -729,9 +729,7 @@ export class Monitor implements P2P.IMonitor {
 
             logger.info(`Your NTP connectivity has been verified by ${host}`);
 
-            logger.info(
-                `Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP :alarm_clock:`,
-            );
+            logger.info(`Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP`);
         } catch (error) {
             logger.error(error.message);
         }
