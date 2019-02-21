@@ -1,4 +1,5 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { database } from "./database";
 import { defaults } from "./defaults";
 import { webhookManager } from "./manager";
 import { startServer } from "./server";
@@ -12,6 +13,8 @@ export const plugin: Container.PluginDescriptor = {
             container.resolvePlugin<Logger.ILogger>("logger").info("Webhooks are disabled :grey_exclamation:");
             return;
         }
+
+        database.make();
 
         await webhookManager.setUp();
 

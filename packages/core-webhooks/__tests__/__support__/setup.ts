@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
 import { tmpdir } from "os";
+import { database } from "../../src/database";
 import { startServer } from "../../src/server";
 
 export async function setUp() {
@@ -10,6 +11,8 @@ export async function setUp() {
     await setUpContainer({
         exit: "@arkecosystem/core-logger-winston",
     });
+
+    database.make();
 
     await startServer({
         host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",

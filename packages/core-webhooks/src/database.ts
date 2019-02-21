@@ -4,14 +4,16 @@ import FileSync from "lowdb/adapters/FileSync";
 import uuidv4 from "uuid/v4";
 
 class Database {
-    private readonly adapterFile: string = `${process.env.CORE_PATH_CACHE}/webhooks.json`;
-    private readonly database: lowdb.LowdbSync<any> = lowdb(new FileSync(this.adapterFile));
+    private database: lowdb.LowdbSync<any>;
 
-    public constructor() {
-        if (!existsSync(this.adapterFile)) {
-            ensureFileSync(this.adapterFile);
+    public make() {
+        const adapterFile: string = `${process.env.CORE_PATH_CACHE}/webhooks.json`;
+
+        if (!existsSync(adapterFile)) {
+            ensureFileSync(adapterFile);
         }
 
+        this.database = lowdb(new FileSync(adapterFile));
         this.database.defaults({ webhooks: [] }).write();
     }
 
