@@ -116,7 +116,7 @@ describe("calculateFee", () => {
         expect(calculateFee(9, transactions.dummy1)).toBe((transactions.dummy1.serialized.length / 2) * 9);
     });
 
-    it("should default arktoshiPerByte to 1 if value provided is <= 0", () => {
+    it("should default satoshiPerByte to 1 if value provided is <= 0", () => {
         expect(calculateFee(-50, transactions.dummy1)).toBe(calculateFee(1, transactions.dummy1));
         expect(calculateFee(0, transactions.dummy1)).toBe(calculateFee(1, transactions.dummy1));
     });

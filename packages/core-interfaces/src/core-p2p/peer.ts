@@ -11,7 +11,6 @@ export interface IPeer {
         ip: any;
         port: number;
         nethash: any;
-        milestoneHash: string;
         version: any;
         os: any;
         height: any;

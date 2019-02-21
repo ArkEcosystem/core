@@ -5,7 +5,7 @@ import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { MemPoolTransaction } from "./mem-pool-transaction";
-import { isRecipientOnActiveNetwork } from "./utils/is-on-active-network";
+import { isRecipientOnActiveNetwork } from "./utils";
 
 const { TransactionTypes } = constants;
 const { Transaction } = models;

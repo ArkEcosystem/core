@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import orderBy from "lodash/orderBy";
+import { orderBy } from "@arkecosystem/utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 
@@ -8,7 +8,7 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
      * Create a new wallet repository instance.
      * @param  {DatabaseConnection} databaseService
      */
-    public constructor(private databaseServiceProvider : () => Database.IDatabaseService) {}
+    public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 
     /**
      * Get all local wallets.
@@ -29,7 +29,7 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
         const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
 
         return {
-            rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
+            rows: limitRows(orderBy(wallets, [iteratee], [order as "desc" | "asc"]), params),
             count: wallets.length,
         };
     }
@@ -43,8 +43,10 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
     public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
 
+        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["balance", "desc"];
+
         return {
-            rows: limitRows(wallets, params),
+            rows: limitRows(orderBy(wallets, [iteratee], [order as "desc" | "asc"]), params),
             count: wallets.length,
         };
     }

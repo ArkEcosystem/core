@@ -5,14 +5,11 @@ import { defaults } from "../../src/defaults";
 import { Peer } from "../../src/peer";
 import { setUp, tearDown } from "../__support__/setup";
 
-const CORE_ENV = process.env.CORE_ENV;
 let guard;
 let peerMock;
 
 beforeAll(async () => {
     await setUp();
-
-    app.getConfig().set("milestoneHash", "dummy-milestone");
 
     guard = require("../../src/court/guard").guard;
     guard.config.set("minimumVersions", [">=2.0.0"]);
@@ -28,25 +25,20 @@ beforeEach(async () => {
 
     // this peer is here to be ready for future use in tests (not added to initial peers)
     peerMock = new Peer("1.0.0.99", 4002);
-    peerMock.milestoneHash = "dummy-milestone";
     Object.assign(peerMock, peerMock.headers);
 });
 
 describe("Guard", () => {
     describe("isSuspended", () => {
         it("should return true", async () => {
-            process.env.CORE_ENV = "false";
             await guard.monitor.acceptNewPeer(peerMock);
-            process.env.CORE_ENV = CORE_ENV;
 
             expect(guard.isSuspended(peerMock)).toBe(true);
         });
 
         it("should return false because passed", async () => {
-            process.env.CORE_ENV = "false";
             await guard.monitor.acceptNewPeer(peerMock);
             guard.suspensions[peerMock.ip].until = dayjs().subtract(1, "minute");
-            process.env.CORE_ENV = CORE_ENV;
 
             expect(guard.isSuspended(peerMock)).toBe(false);
         });
@@ -104,7 +96,6 @@ describe("Guard", () => {
 
         const dummy = {
             nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-            milestoneHash: "dummy-milestone",
             version: "2.1.1",
             status: 200,
             state: {},
@@ -115,7 +106,6 @@ describe("Guard", () => {
 
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-                milestoneHash: "dummy-milestone",
                 ip: "dummy-ip-addr",
             });
 
@@ -140,23 +130,12 @@ describe("Guard", () => {
         it('should return a 5 minute suspension for "Invalid Version"', () => {
             const { until, reason } = guard.__determineOffence({
                 nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
-                milestoneHash: "dummy-milestone",
                 version: "1.0.0",
                 status: 200,
                 delay: 1000,
             });
 
             expect(reason).toBe("Invalid Version");
-            expect(convertToMinutes(until)).toBe(5);
-        });
-
-        it('should return a 5 minute suspension for "Invalid Milestones"', () => {
-            const { until, reason } = guard.__determineOffence({
-                ...dummy,
-                milestoneHash: "wrong-milestone",
-            });
-
-            expect(reason).toBe("Invalid Milestones");
             expect(convertToMinutes(until)).toBe(5);
         });
 

@@ -4,7 +4,7 @@ import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import superheroes from "superheroes";
 import { DelegateRegistrationCommand } from "../../src/commands/delegate-registration";
-import { arkToArktoshi } from "../../src/utils";
+import { arkToSatoshi } from "../../src/utils";
 import { toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
@@ -41,13 +41,12 @@ describe("Commands - Delegate Registration", () => {
         const flags = toFlags(opts);
         await DelegateRegistrationCommand.run(flags);
 
-        expect(axios.post).toHaveBeenNthCalledWith(
-            4,
+        expect(axios.post).toHaveBeenCalledWith(
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: arkToArktoshi(opts.delegateFee),
+                        fee: arkToSatoshi(opts.delegateFee),
                         asset: {
                             delegate: {
                                 username: expectedDelegateName,

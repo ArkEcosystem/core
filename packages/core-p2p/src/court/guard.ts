@@ -200,16 +200,6 @@ export class Guard {
     }
 
     /**
-     * Determine if the peer is has the same milestones.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isValidMilestoneHash(peer) {
-        const milestoneHash = peer.milestoneHash || (peer.headers && peer.headers.milestoneHash);
-        return milestoneHash === config.get("milestoneHash");
-    }
-
-    /**
      * Determine if the peer has a valid port.
      * @param  {Peer}  peer
      * @return {Boolean}
@@ -280,10 +270,6 @@ export class Guard {
 
         if (!this.isValidVersion(peer)) {
             return this.__determinePunishment(peer, offences.INVALID_VERSION);
-        }
-
-        if (!this.isValidMilestoneHash(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_MILESTONE_HASH);
         }
 
         // NOTE: Suspending this peer only means that we no longer
