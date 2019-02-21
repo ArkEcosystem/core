@@ -445,10 +445,6 @@ export class Monitor implements P2P.IMonitor {
         if (forkedBlock) {
             this.suspendPeer(forkedBlock.ip);
         }
-
-        const recentBlockIds = await this.__getRecentBlockIds();
-
-        await Promise.all(this.getPeers().map(peer => this.peerHasCommonBlocks(peer, recentBlockIds)));
     }
 
     /**
