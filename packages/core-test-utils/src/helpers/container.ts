@@ -35,7 +35,7 @@ export async function registerWithContainer(plugin, options = {}) {
     const defaults = plugin.defaults || plugin.pkg.defaults;
     const alias = plugin.alias || plugin.pkg.alias;
 
-    options = applyToDefaults(name, defaults, options);
+    options = applyToDefaults(defaults, options);
 
     const pluginRegistered = await plugin.register(app, options || {});
     app.register(
@@ -52,7 +52,7 @@ export async function registerWithContainer(plugin, options = {}) {
 }
 
 // copied from core-container registrars/plugin and slightly modified
-function applyToDefaults(name, defaults, options) {
+function applyToDefaults(defaults, options) {
     if (defaults) {
         options = Object.assign(defaults, options);
     }
