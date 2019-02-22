@@ -1,44 +1,31 @@
 import { Address } from "@arkecosystem/crypto";
 import { satoshiFlag } from "../../flags";
 import { logger } from "../../logger";
-import { BaseCommand } from "../command";
+import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
-export class VoteCommand extends BaseCommand {
-    public static description: string = "send multiple transactions";
+export class VoteCommand extends SendCommand {
+    public static description: string = "create multiple votes for a delegate";
 
     public static flags = {
-        ...BaseCommand.flagsSend,
+        ...SendCommand.flagsSend,
         voteFee: satoshiFlag({
             description: "vote fee",
             default: 1,
         }),
     };
 
-    public async run(): Promise<void> {
-        const { flags } = await this.make(VoteCommand);
-
-        // Prepare...
-        const wallets = await TransferCommand.run(
-            [`--amount=${flags.voteFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
-        );
-
-        // Sign...
-        const transactions = await this.signTransactions(flags, wallets);
-
-        // Expect...
-        await this.expectBalances(transactions, wallets);
-
-        // Send...
-        await this.broadcastTransactions(transactions);
-
-        // Verify...
-        await this.verifyTransactions(transactions, wallets);
-
-        return wallets;
+    protected getCommand(): any {
+        return VoteCommand;
     }
 
-    protected async signTransactions(flags: Record<string, any>, wallets: Record<string, any>) {
+    protected async createWalletsWithBalance(flags: Record<string, any>): Promise<any[]> {
+        return TransferCommand.run(
+            [`--amount=${flags.voteFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
+        );
+    }
+
+    protected async signTransactions(flags: Record<string, any>, wallets: Record<string, any>): Promise<any[]> {
         const transactions = [];
 
         for (const [address, wallet] of Object.entries(wallets)) {
@@ -60,7 +47,7 @@ export class VoteCommand extends BaseCommand {
         return transactions;
     }
 
-    private async expectBalances(transactions, wallets) {
+    protected async expectBalances(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
             const recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
 
@@ -69,7 +56,7 @@ export class VoteCommand extends BaseCommand {
         }
     }
 
-    private async verifyTransactions(transactions, wallets) {
+    protected async verifyTransactions(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
             const wasCreated = await this.knockTransaction(transaction.id);
 

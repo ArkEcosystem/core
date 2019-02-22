@@ -2,44 +2,31 @@ import { Address } from "@arkecosystem/crypto";
 import pokemon from "pokemon";
 import { satoshiFlag } from "../../flags";
 import { logger } from "../../logger";
-import { BaseCommand } from "../command";
+import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
-export class DelegateRegistrationCommand extends BaseCommand {
-    public static description: string = "send multiple transactions";
+export class DelegateRegistrationCommand extends SendCommand {
+    public static description: string = "create multiple delegates";
 
     public static flags = {
-        ...BaseCommand.flagsSend,
+        ...SendCommand.flagsSend,
         delegateFee: satoshiFlag({
             description: "delegate registration fee",
             default: 25,
         }),
     };
 
-    public async run(): Promise<void> {
-        const { flags } = await this.make(DelegateRegistrationCommand);
-
-        // Prepare...
-        const wallets = await TransferCommand.run(
-            [`--amount=${flags.delegateFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
-        );
-
-        // Sign...
-        const transactions = this.signTransactions(flags, wallets);
-
-        // Expect...
-        await this.expectBalances(transactions, wallets);
-
-        // Send...
-        await this.broadcastTransactions(transactions);
-
-        // Verify...
-        await this.verifyTransactions(transactions, wallets);
-
-        return wallets;
+    protected getCommand(): any {
+        return DelegateRegistrationCommand;
     }
 
-    protected signTransactions(flags: Record<string, any>, wallets: Record<string, any>) {
+    protected async createWalletsWithBalance(flags: Record<string, any>): Promise<any[]> {
+        return TransferCommand.run(
+            [`--amount=${flags.delegateFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
+        );
+    }
+
+    protected async signTransactions(flags: Record<string, any>, wallets: Record<string, any>): Promise<any[]> {
         const transactions = [];
 
         for (const [address, wallet] of Object.entries(wallets)) {
@@ -63,7 +50,7 @@ export class DelegateRegistrationCommand extends BaseCommand {
         return transactions;
     }
 
-    private async expectBalances(transactions, wallets) {
+    protected async expectBalances(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
             const recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
 
@@ -72,7 +59,7 @@ export class DelegateRegistrationCommand extends BaseCommand {
         }
     }
 
-    private async verifyTransactions(transactions, wallets) {
+    protected async verifyTransactions(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
             const wasCreated = await this.knockTransaction(transaction.id);
 
