@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-jest-matchers",
     "description": "Jest matchers for Ark Core",
-    "version": "2.2.0-beta.6",
+    "version": "2.2.0-beta.7",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Erwann Gentric <erwann@ark.io>",
@@ -33,8 +33,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.6",
-        "@arkecosystem/crypto": "^2.2.0-beta.6",
+        "@arkecosystem/core-container": "^2.2.0-beta.7",
+        "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@arkecosystem/utils": "^0.2.3",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",
