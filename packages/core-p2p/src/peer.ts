@@ -168,11 +168,7 @@ export class Peer implements P2P.IPeer {
 
             return blocks;
         } catch (error) {
-            this.logger.debug(
-                `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
-                    depth: 1,
-                })}`,
-            );
+            this.logger.debug(`Cannot download blocks from peer ${this.url} because of "${error.message}"`);
 
             this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000;
 
