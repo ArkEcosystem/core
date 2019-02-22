@@ -65,13 +65,6 @@ export interface IMonitor {
     peerHasCommonBlocks(peer: any, blockIds: any): Promise<boolean>;
 
     /**
-     * Get a random, available peer.
-     * @param  {(Number|undefined)} acceptableDelay
-     * @return {IPeer}
-     */
-    getRandomPeer(acceptableDelay?: any, downloadSize?: any, failedAttempts?: any): any;
-
-    /**
      * Populate list of available peers from random peers.
      */
     discoverPeers(): Promise<void>;
