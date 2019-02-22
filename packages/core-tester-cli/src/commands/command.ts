@@ -120,7 +120,7 @@ export abstract class BaseCommand extends Command {
 
             return bignumify(data.balance);
         } catch (error) {
-            return bignumify(0);
+            return Bignum.ZERO;
         }
     }
 
@@ -181,8 +181,7 @@ export abstract class BaseCommand extends Command {
 
         await Promise.all(sendTransactions);
 
-        // @TODO make this dynamic
-        await delay(8000);
+        return this.awaitConfirmations(transactions);
     }
 
     protected castFlags(values: Record<string, any>): string[] {
@@ -233,5 +232,16 @@ export abstract class BaseCommand extends Command {
             logger.error(error.message);
             process.exit(1);
         }
+    }
+
+    private async awaitConfirmations(transactions): Promise<void> {
+        if (process.env.NODE_ENV === "test") {
+            return;
+        }
+
+        const waitPerBlock =
+            this.constants.blocktime * Math.ceil(transactions.length / this.constants.block.maxTransactions);
+
+        await delay(waitPerBlock * 1000);
     }
 }
