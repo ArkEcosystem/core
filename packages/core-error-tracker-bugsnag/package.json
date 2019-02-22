@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-bugsnag",
     "description": "Bugsnag error tracker integration for Ark Core.",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.5",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
