@@ -37,12 +37,6 @@ beforeEach(() => {
 
 describe("Peer Verifier", () => {
     describe("checkState", () => {
-        it("invalid state", async () => {
-            const peerVerifier = new PeerVerifier(peerMock);
-            const result = await peerVerifier.checkState({}, new Date().getTime() + 10000);
-            expect(result).toBeNull();
-        });
-
         it("identical chains", async () => {
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 1, id: genesisBlock.data.id } };

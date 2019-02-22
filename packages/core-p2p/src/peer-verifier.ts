@@ -82,7 +82,9 @@ export class PeerVerifier {
      *   This means that we have forked and the peer's chain is lower.
      *   We verify: same as 2.
      *
-     * @param {Object} claimedState the claimed state of the peer, as returned by `/peer/status`
+     * @param {Object} claimedState the claimed state of the peer, as returned by `/peer/status`.
+     * The caller should ensure that it is a valid state: must have .header.height and .header.id
+     * properties.
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {PeerVerificationResut|null} PeerVerificationResut object if the peer's blockchain
      * is verified to be legit (albeit it may be different than our blockchain), or null if
@@ -90,10 +92,6 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | null> {
-        if (this.isStateInvalid(claimedState)) {
-            return null;
-        }
-
         const ourHeight: number = await this.ourHeight();
         const claimedHeight = Number(claimedState.header.height);
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
@@ -113,28 +111,6 @@ export class PeerVerifier {
         this.log(Severity.DEBUG_EXTRA, "success");
 
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
-    }
-
-    /**
-     * Check if the state claimed by the peer is definitely invalid.
-     * @param {Object} claimedState peer's claimed state (from `/peer/status`)
-     * @return {Boolean} true if invalid
-     */
-    private isStateInvalid(claimedState: any): boolean {
-        if (
-            typeof claimedState === "object" &&
-            typeof claimedState.header === "object" &&
-            Number.isInteger(claimedState.header.height) &&
-            claimedState.header.height > 0 &&
-            typeof claimedState.header.id === "string" &&
-            claimedState.header.id.length > 0
-        ) {
-            return false;
-        }
-
-        this.log(Severity.DEBUG_EXTRA, `peer's claimed state is invalid: ${this.anyToString(claimedState)}`);
-
-        return true;
     }
 
     /**
@@ -268,19 +244,6 @@ export class PeerVerifier {
             const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById), msRemaining);
 
             if (!highestCommon) {
-                return null;
-            }
-
-            if (
-                typeof highestCommon !== "object" ||
-                typeof highestCommon.id !== "string" ||
-                !Number.isInteger(highestCommon.height)
-            ) {
-                this.log(
-                    Severity.DEBUG_EXTRA,
-                    `failure: erroneous reply from peer for common blocks ` +
-                        `${ourBlocksPrint}: ${this.anyToString(highestCommon)}`,
-                );
                 return null;
             }
 
@@ -421,12 +384,7 @@ export class PeerVerifier {
             return false;
         }
 
-        if (
-            typeof response !== "object" ||
-            typeof response.data !== "object" ||
-            !Array.isArray(response.data.blocks) ||
-            response.data.blocks.length === 0
-        ) {
+        if (response.data.blocks.length === 0) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} ` +
@@ -437,15 +395,6 @@ export class PeerVerifier {
 
         for (let i = 0; i < response.data.blocks.length; i++) {
             blocksByHeight[height + i] = response.data.blocks[i];
-            if (typeof blocksByHeight[height + i] !== "object") {
-                this.log(
-                    Severity.DEBUG_EXTRA,
-                    `failure: could not get blocks starting from height ${height} ` +
-                        `from peer: the block at height ${height + i} is not an object: ` +
-                        this.anyToString(response),
-                );
-                return false;
-            }
         }
 
         return true;
