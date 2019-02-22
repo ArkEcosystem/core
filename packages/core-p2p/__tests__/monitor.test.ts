@@ -86,16 +86,6 @@ describe("Monitor", () => {
         });
     });
 
-    describe("getRandomPeer", () => {
-        it("should be ok", async () => {
-            const peer = monitor.getRandomPeer();
-
-            expect(peer).toBeObject();
-            expect(peer).toHaveProperty("ip");
-            expect(peer).toHaveProperty("port");
-        });
-    });
-
     describe("discoverPeers", () => {
         it("should be ok", async () => {
             axiosMock.onGet(/.*\/peer\/status/).reply(() => [

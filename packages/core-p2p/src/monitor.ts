@@ -314,51 +314,6 @@ export class Monitor implements P2P.IMonitor {
     }
 
     /**
-     * Get a random, available peer.
-     * @param  {(Number|undefined)} acceptableDelay
-     * @return {Peer}
-     */
-    public getRandomPeer(acceptableDelay?, downloadSize?, failedAttempts?) {
-        failedAttempts = failedAttempts === undefined ? 0 : failedAttempts;
-
-        const peersAll = this.getPeers();
-
-        const peersFiltered = peersAll.filter(peer => {
-            if (peer.ban < new Date().getTime()) {
-                return true;
-            }
-
-            if (acceptableDelay && peer.delay < acceptableDelay) {
-                return true;
-            }
-
-            if (downloadSize && peer.downloadSize !== downloadSize) {
-                return true;
-            }
-
-            return false;
-        });
-
-        const randomPeer = sample(peersFiltered);
-        if (!randomPeer) {
-            failedAttempts++;
-
-            if (failedAttempts > 10) {
-                throw new Error(
-                    `Failed to pick a random peer from our list of ${peersAll.length} peers ` +
-                        `(${peersFiltered.length} after filtering)`,
-                );
-            } else if (failedAttempts > 5) {
-                return this.getRandomPeer(null, downloadSize, failedAttempts);
-            }
-
-            return this.getRandomPeer(acceptableDelay, downloadSize, failedAttempts);
-        }
-
-        return randomPeer;
-    }
-
-    /**
      * Populate list of available peers from random peers.
      */
     public async discoverPeers() {
@@ -462,7 +417,7 @@ export class Monitor implements P2P.IMonitor {
         let randomPeer;
 
         try {
-            randomPeer = await this.getRandomPeer();
+            randomPeer = this.getRandomPeerForDownloadingBlocks();
         } catch (error) {
             logger.error(`Could not download blocks: ${error.message}`);
 
@@ -662,6 +617,27 @@ export class Monitor implements P2P.IMonitor {
         } catch (error) {
             logger.error(error.message);
         }
+    }
+
+    /**
+     * Get a random peer for downloading blocks.
+     * @return {Peer}
+     * @throws {Error} if a peer could not be selected
+     */
+    private getRandomPeerForDownloadingBlocks() {
+        const now = new Date().getTime();
+        const peersAll = this.getPeers();
+
+        const peersFiltered = peersAll.filter(peer => peer.ban < now && !peer.verification.forked);
+
+        if (peersFiltered.length === 0) {
+            throw new Error(
+                `Failed to pick a random peer from our list of ${peersAll.length} peers: ` +
+                    `all are either banned or on a different chain than us`,
+            );
+        }
+
+        return sample(peersFiltered);
     }
 
     /**
