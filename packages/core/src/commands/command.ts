@@ -1,9 +1,9 @@
 import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import envPaths from "env-paths";
-import { readdirSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 import Listr from "listr";
-import { join } from "path";
+import { join, resolve } from "path";
 import pm2 from "pm2";
 import prompts from "prompts";
 
@@ -113,10 +113,14 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async getPaths(flags: Record<string, any>): Promise<envPaths.Paths> {
-        const paths: envPaths.Paths = this.getEnvPaths(flags);
+        let paths: envPaths.Paths = this.getEnvPaths(flags);
 
         for (const [key, value] of Object.entries(paths)) {
             paths[key] = `${value}/${flags.network}`;
+        }
+
+        if (process.env.CORE_PATH_CONFIG) {
+            paths = { ...paths, ...{ config: resolve(process.env.CORE_PATH_CONFIG) } };
         }
 
         return paths;
@@ -127,6 +131,10 @@ export abstract class BaseCommand extends Command {
 
         if (process.env.CORE_PATH_CONFIG && !flags.network) {
             let config: string = process.env.CORE_PATH_CONFIG;
+
+            if (!existsSync(config)) {
+                this.error(`The given config "${config}" does not exist.`);
+            }
 
             if (config.endsWith("/")) {
                 config = config.slice(0, -1);
@@ -227,7 +235,14 @@ export abstract class BaseCommand extends Command {
 
         // config
         const { config } = await this.getPaths(flags);
-        const delegates = require(join(config, "delegates.json"));
+
+        const configDelegates = join(config, "delegates.json");
+
+        if (!existsSync(configDelegates)) {
+            this.error(`The ${configDelegates} file does not exist.`);
+        }
+
+        const delegates = require(configDelegates);
 
         if (!bip38 && delegates.bip38) {
             bip38 = delegates.bip38;
