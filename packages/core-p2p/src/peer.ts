@@ -7,87 +7,9 @@ import util from "util";
 import { config as localConfig } from "./config";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
+import { replySchemas } from "./reply-schemas";
 
 export class Peer implements P2P.IPeer {
-    private static replySchemas: any = {
-        "/peer/blocks": Joi.object().keys({
-            blocks: Joi.array()
-                .items(
-                    Joi.object().keys({
-                        height: Joi.number()
-                            .integer()
-                            .min(1)
-                            .required(),
-                        id: Joi.string()
-                            .max(64)
-                            .hex()
-                            .required(),
-                    }),
-                )
-                .required(),
-        }),
-        "/peer/blocks/common?ids=": Joi.object()
-            .keys({
-                common: [
-                    Joi.object()
-                        .keys({
-                            height: Joi.number()
-                                .integer()
-                                .min(1)
-                                .required(),
-                            id: Joi.string()
-                                .max(64)
-                                .hex()
-                                .required(),
-                        })
-                        .required(),
-                    Joi.any().valid(null),
-                ],
-                success: Joi.boolean()
-                    .equal(true)
-                    .required(),
-            })
-            .required(),
-        "/peer/list": Joi.object()
-            .keys({
-                peers: Joi.array()
-                    .items(
-                        Joi.object().keys({
-                            ip: Joi.string()
-                                .ip({ cidr: "forbidden" })
-                                .required(),
-                            status: [Joi.string(), Joi.number().integer()],
-                        }),
-                    )
-                    .required(),
-                success: Joi.boolean()
-                    .equal(true)
-                    .required(),
-            })
-            .required(),
-        "/peer/status": Joi.object()
-            .keys({
-                header: Joi.object()
-                    .keys({
-                        height: Joi.number()
-                            .integer()
-                            .min(1)
-                            .required(),
-                        id: Joi.string()
-                            .max(64)
-                            .hex()
-                            .required(),
-                    })
-                    .required(),
-                height: Joi.number()
-                    .integer()
-                    .min(1),
-                success: Joi.boolean()
-                    .equal(true)
-                    .required(),
-            })
-            .required(),
-    };
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
@@ -475,14 +397,14 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean} true if validated successfully
      */
     private validateReply(reply: any, endpoint: string): boolean {
-        let schema = Peer.replySchemas[endpoint];
+        let schema = replySchemas[endpoint];
         if (schema === undefined) {
             // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
             let len = 0;
-            const definedEndpoints = Object.keys(Peer.replySchemas);
+            const definedEndpoints = Object.keys(replySchemas);
             for (const d of definedEndpoints) {
                 if (endpoint.startsWith(d) && len < d.length) {
-                    schema = Peer.replySchemas[d];
+                    schema = replySchemas[d];
                     len = d.length;
                 }
             }
