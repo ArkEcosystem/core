@@ -251,10 +251,8 @@ export class Guard {
         }
 
         if (peer.socketError === SocketErrors.AppNotReady) {
-            return this.__determinePunishment(peer, offences.BLOCKCHAIN_NOT_READY);
+            return this.__determinePunishment(peer, offences.APPLICATION_NOT_READY);
         }
-
-        // TODO : removed TOO_MANY_REQUESTS, INVALID_STATUS : ok ?
 
         if (peer.delay === -1) {
             return this.__determinePunishment(peer, offences.TIMEOUT);

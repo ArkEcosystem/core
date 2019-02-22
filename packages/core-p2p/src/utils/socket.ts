@@ -30,7 +30,5 @@ export const socketEmit = async (socket: any, event: string, data: any, headers:
     };
     const allPromises = timeout ? [socketEmitPromise, new Promise(timeoutPromiseFn)] : [socketEmitPromise];
 
-    const response: any = await Promise.race(allPromises);
-
-    return response ? response.data : null;
+    return Promise.race(allPromises);
 };

@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import SocketCluster from "socketcluster";
-import { getHeaders } from "./plugins/get-headers";
+import { getHeaders } from "./utils/get-headers";
 
 /**
  * Create a new socketcluster server.
@@ -47,8 +47,7 @@ const startSocketServer = async config => {
         }
     });
 
-    // Create a promise that rejects in 10 seconds
-    // TODO configurable timeout ?
+    // Create a timeout promise so that if socket server is not ready in 10 seconds, it rejects
     const timeoutPromise = new Promise((resolve, reject) => {
         const id = setTimeout(() => {
             clearTimeout(id);

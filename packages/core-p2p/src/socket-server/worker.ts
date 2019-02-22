@@ -1,10 +1,10 @@
 import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "./constants";
-import { validateHeaders } from "./plugins/validate-headers";
+import { validateHeaders } from "./utils/validate-headers";
 
 class Worker extends SCWorker {
     public run() {
-        console.log(`   >> Worker PID: ${process.pid}`);
+        this.logInfo(`Socket worker started, PID: ${process.pid}`);
 
         const scServer = (this as any).scServer;
         const self = this;
@@ -23,13 +23,13 @@ class Worker extends SCWorker {
             endpoint: "p2p.utils.getHandlers",
         });
 
-        for (const name of handlers.peer) {
+        for (const name of handlers.data.peer) {
             socket.on(`p2p.peer.${name}`, async (data, res) =>
                 self.forwardToMaster(Object.assign(data, { endpoint: `p2p.peer.${name}` }), res),
             );
         }
 
-        for (const name of handlers.internal) {
+        for (const name of handlers.data.internal) {
             socket.on(`p2p.internal.${name}`, async (data, res) =>
                 self.forwardToMaster(Object.assign(data, { endpoint: `p2p.internal.${name}` }), res),
             );
@@ -44,7 +44,8 @@ class Worker extends SCWorker {
         };
 
         // only allow requests with data and headers specified
-        console.log(`Received message from ${req.socket.remoteAddress} : ${JSON.stringify(req.data, null, 2)}`);
+        // TODO we log into error right now to have it in separate log, this needs to be deleted after dev
+        this.logError(`Received message from ${req.socket.remoteAddress} : ${JSON.stringify(req.data, null, 2)}`);
         if (!req.data || !req.data.headers) {
             return next(createError(SocketErrors.HeadersRequired, "Request data and data.headers is mandatory"));
         }
@@ -67,10 +68,10 @@ class Worker extends SCWorker {
             }
 
             // Check that blockchain, tx-pool and monitor gard are ready
-            const isAppReady = await this.sendToMasterAsync({
+            const isAppReady: any = await this.sendToMasterAsync({
                 endpoint: "p2p.utils.isAppReady",
             });
-            for (const [plugin, ready] of Object.entries(isAppReady)) {
+            for (const [plugin, ready] of Object.entries(isAppReady.data)) {
                 if (!ready) {
                     return next(
                         createError(SocketErrors.AppNotReady, `Application is not ready : ${plugin} is not ready`),
@@ -80,11 +81,11 @@ class Worker extends SCWorker {
 
             if (version === "internal") {
                 // Only allow internal to whitelisted (remoteAccess) peer / forger
-                const isForgerAuthorized = await this.sendToMasterAsync({
+                const isForgerAuthorized: any = await this.sendToMasterAsync({
                     endpoint: "p2p.utils.isForgerAuthorized",
                     data: { ip: req.socket.remoteAddress },
                 });
-                if (!isForgerAuthorized) {
+                if (!isForgerAuthorized.data) {
                     return next(
                         createError(
                             SocketErrors.ForgerNotAuthorized,
@@ -107,7 +108,7 @@ class Worker extends SCWorker {
             req.data.headers.remoteAddress = req.socket.remoteAddress;
         } catch (e) {
             // Log explicit error, return unknown error
-            console.error(e);
+            this.logError(e.message);
             return next(createError(SocketErrors.Unknown, "Unknown error"));
         }
         next(); // Allow
@@ -116,23 +117,43 @@ class Worker extends SCWorker {
     public async sendToMasterAsync(data) {
         const self: any = this;
         return new Promise((resolve, reject) => {
-            self.sendToMaster(data, (err, val) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(val);
-                }
-            });
+            self.sendToMaster(data, (err, val) => (err ? reject(err) : resolve(val)));
         });
     }
 
     public async forwardToMaster(data, res) {
         try {
             const masterResponse = await this.sendToMasterAsync(data);
-            console.log(`Sending response: ${JSON.stringify(masterResponse, null, 2)}`);
+
+            // TODO we log into error right now to have it in separate log, this needs to be deleted after dev
+            this.logError(`Sending response: ${JSON.stringify(masterResponse, null, 2)}`);
             return res(null, masterResponse);
         } catch (e) {
             return res(e);
+        }
+    }
+
+    private async logInfo(message) {
+        try {
+            await this.sendToMasterAsync({
+                endpoint: "p2p.utils.logInfo",
+                data: { message },
+            });
+        } catch (e) {
+            // Fallback to console.error if we catched an error sending message to master
+            console.error(`Error while trying to log the following message : ${message}`);
+        }
+    }
+
+    private async logError(message) {
+        try {
+            await this.sendToMasterAsync({
+                endpoint: "p2p.utils.logError",
+                data: { message },
+            });
+        } catch (e) {
+            // Fallback to console.error if we catched an error sending message to master
+            console.error(`Error while trying to log the following error : ${message}`);
         }
     }
 }

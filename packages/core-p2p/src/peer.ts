@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import dayjs from "dayjs-ext";
-import delay from "delay";
 import socketCluster from "socketcluster-client";
 import util from "util";
 import { config as localConfig } from "./config";
@@ -143,8 +142,6 @@ export class Peer implements P2P.IPeer {
     public async downloadBlocks(fromBlockHeight) {
         try {
             const response = await this.getPeerBlocks(fromBlockHeight);
-
-            this.__parseHeaders(response);
 
             const { blocks } = response;
             const size = blocks.length;
@@ -312,6 +309,11 @@ export class Peer implements P2P.IPeer {
             this.socketError = null; // reset socket error between each call
             const timeBeforeSocketCall = new Date().getTime();
 
+            this.updateHeaders();
+
+            // TODO we log into error right now to have it in separate log, this needs to be deleted after dev
+            this.logger.error(`[peer] Sending ${event} message to ${this.ip}`);
+
             response = await socketEmit(this.socket, event, data, this.headers, timeout);
 
             this.delay = new Date().getTime() - timeBeforeSocketCall;
@@ -320,7 +322,22 @@ export class Peer implements P2P.IPeer {
             this.handleSocketError(e);
         }
 
-        return response;
+        return response.data;
+    }
+
+    /*
+     * Updates the headers to be sent : to call before each socket call.
+     * Right now only this.headers.height needs to be updated.
+     * @return {undefined}
+     */
+    private updateHeaders() {
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+        if (blockchain) {
+            const lastBlock = blockchain.getLastBlock();
+            if (lastBlock) {
+                this.headers.height = lastBlock.data.height;
+            }
+        }
     }
 
     private handleSocketError(error) {

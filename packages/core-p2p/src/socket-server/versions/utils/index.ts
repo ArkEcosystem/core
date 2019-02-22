@@ -11,6 +11,20 @@ export const getHandlers = () => {
     };
 };
 
+export const logInfo = req => {
+    const logger = app.resolvePlugin("logger");
+    if (logger) {
+        logger.info(req.data.message);
+    }
+};
+
+export const logError = req => {
+    const logger = app.resolvePlugin("logger");
+    if (logger) {
+        logger.error(req.data.message);
+    }
+};
+
 export const isForgerAuthorized = req => {
     const config = require("../../../config");
 

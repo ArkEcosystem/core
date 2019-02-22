@@ -7,7 +7,6 @@ const config = app.getConfig();
 export const getHeaders = () => {
     const headers = {
         nethash: config.get("network.nethash"),
-        milestoneHash: config.get("milestoneHash"),
         version: app.getVersion(),
         port: localConfig.get("port"),
         os: require("os").platform(),

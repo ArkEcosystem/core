@@ -12,7 +12,7 @@ const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const acceptNewPeer = async req => {
-    const requiredHeaders = ["nethash", "milestoneHash", "version", "port", "os"];
+    const requiredHeaders = ["nethash", "version", "port", "os"];
 
     const peer = { ip: req.data.ip };
 
@@ -49,7 +49,7 @@ export const getCommonBlocks = async req => {
     if (!req.data.ids) {
         return {
             success: false,
-        }; // success false or throw ? TODO
+        };
     }
 
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
