@@ -125,7 +125,7 @@ export abstract class BaseCommand extends Command {
     protected async parseWithNetwork(command: any): Promise<any> {
         const { args, flags } = this.parse(command);
 
-        if (process.env.CORE_PATH_CONFIG) {
+        if (process.env.CORE_PATH_CONFIG && !flags.network) {
             const network: string = process.env.CORE_PATH_CONFIG.split("/").pop();
 
             if (!this.isValidNetwork(network)) {
@@ -133,7 +133,9 @@ export abstract class BaseCommand extends Command {
             }
 
             flags.network = network;
-        } else {
+        }
+
+        if (!flags.network) {
             const { config } = this.getEnvPaths(flags);
 
             try {
