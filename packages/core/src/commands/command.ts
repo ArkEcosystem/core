@@ -126,7 +126,13 @@ export abstract class BaseCommand extends Command {
         const { args, flags } = this.parse(command);
 
         if (process.env.CORE_PATH_CONFIG && !flags.network) {
-            const network: string = process.env.CORE_PATH_CONFIG.split("/").pop();
+            let config: string = process.env.CORE_PATH_CONFIG;
+
+            if (config.endsWith("/")) {
+                config = config.slice(0, -1);
+            }
+
+            const network: string = config.split("/").pop();
 
             if (!this.isValidNetwork(network)) {
                 this.error(`The given network "${flags.network}" is not valid.`);
