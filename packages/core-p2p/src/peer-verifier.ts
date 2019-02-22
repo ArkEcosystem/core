@@ -82,7 +82,9 @@ export class PeerVerifier {
      *   This means that we have forked and the peer's chain is lower.
      *   We verify: same as 2.
      *
-     * @param {Object} claimedState the claimed state of the peer, as returned by `/peer/status`
+     * @param {Object} claimedState the claimed state of the peer, as returned by `/peer/status`.
+     * The caller should ensure that it is a valid state: must have .header.height and .header.id
+     * properties.
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
      * @return {PeerVerificationResut|null} PeerVerificationResut object if the peer's blockchain
      * is verified to be legit (albeit it may be different than our blockchain), or null if

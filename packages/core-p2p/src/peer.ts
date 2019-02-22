@@ -313,6 +313,10 @@ export class Peer implements P2P.IPeer {
 
         const body = await this.__get("/peer/list");
 
+        if (!body) {
+            return [];
+        }
+
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
         return body.peers.filter(peer => !blacklisted[peer.ip]);
@@ -372,13 +376,13 @@ export class Peer implements P2P.IPeer {
                 timeout: timeout || this.config.get("peers.globalTimeout"),
             });
 
+            this.__parseHeaders(response);
+
             if (!this.validateReply(response.data, endpoint)) {
                 return;
             }
 
             this.delay = new Date().getTime() - temp;
-
-            this.__parseHeaders(response);
 
             if (!response.data) {
                 this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);

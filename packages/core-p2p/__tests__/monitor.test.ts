@@ -109,9 +109,14 @@ describe("Monitor", () => {
                 },
                 peerMock.headers,
             ]);
-            axiosMock
-                .onGet(/.*\/peer\/list/)
-                .reply(() => [200, { peers: [peerMock.toBroadcastInfo()] }, peerMock.headers]);
+            axiosMock.onGet(/.*\/peer\/list/).reply(() => [
+                200,
+                {
+                    peers: [peerMock.toBroadcastInfo()],
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
 
             await monitor.discoverPeers();
             const peers = monitor.getPeers();
@@ -162,13 +167,29 @@ describe("Monitor", () => {
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            axiosMock
-                .onGet(/.*\/peer\/blocks\/common/)
-                .reply(() => [200, { success: true, common: true }, peerMock.headers]);
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers]);
-            axiosMock
-                .onGet(/.*\/peer\/blocks/)
-                .reply(() => [200, { blocks: [{ id: 1 }, { id: 2 }] }, peerMock.headers]);
+            axiosMock.onGet(/.*\/peer\/blocks\/common/).reply(() => [
+                200,
+                {
+                    success: true,
+                    common: true,
+                },
+                peerMock.headers,
+            ]);
+            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
+                200,
+                {
+                    success: true,
+                    height: 2,
+                },
+                peerMock.headers,
+            ]);
+            axiosMock.onGet(/.*\/peer\/blocks/).reply(() => [
+                200,
+                {
+                    blocks: [{ height: 1, id: "1" }, { height: 2, id: "2" }],
+                },
+                peerMock.headers,
+            ]);
 
             const blocks = await monitor.downloadBlocks(1);
 
