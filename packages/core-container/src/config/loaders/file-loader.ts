@@ -60,6 +60,14 @@ class FileLoader {
             }
         }
 
+        for (const file of ["peers.json", "plugins.js"]) {
+            const fullPath = `${basePath}/${file}`;
+
+            if (!existsSync(fullPath)) {
+                throw new Error(`The ${fullPath} file could not be found.`);
+            }
+        }
+
         return configTree;
     }
 
