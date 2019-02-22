@@ -24,6 +24,11 @@ let config;
 let logger: Logger.ILogger;
 let emitter: EventEmitter.EventEmitter;
 
+interface IAcceptNewPeerOptions {
+    seed?: boolean;
+    lessVerbose?: boolean;
+}
+
 export class Monitor implements P2P.IMonitor {
     public peers: { [ip: string]: any };
     public server: any;
@@ -133,7 +138,7 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Peer} peer
      * @throws {Error} If invalid peer
      */
-    public async acceptNewPeer(peer, seed?: boolean) {
+    public async acceptNewPeer(peer, options: IAcceptNewPeerOptions = {}) {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
             logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return;
@@ -166,7 +171,7 @@ export class Monitor implements P2P.IMonitor {
             return this.guard.suspend(newPeer);
         }
 
-        if (!this.guard.isValidNetwork(peer) && !seed) {
+        if (!this.guard.isValidNetwork(peer) && !options.seed) {
             logger.debug(
                 `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${config.get(
                     "network.nethash",
@@ -187,7 +192,9 @@ export class Monitor implements P2P.IMonitor {
 
             this.peers[peer.ip] = newPeer;
 
-            logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            if (!options.lessVerbose) {
+                logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            }
 
             emitter.emit("peer.added", newPeer);
         } catch (error) {
@@ -360,7 +367,7 @@ export class Monitor implements P2P.IMonitor {
         for (const peer of shuffledPeers) {
             try {
                 const hisPeers = await peer.getPeers();
-                await Promise.all(hisPeers.map(p => this.acceptNewPeer(p)));
+                await Promise.all(hisPeers.map(p => this.acceptNewPeer(p, { lessVerbose: true })));
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
             }
@@ -713,7 +720,7 @@ export class Monitor implements P2P.IMonitor {
         return Promise.all(
             Object.values(peers).map((peer: any) => {
                 delete this.guard.suspensions[peer.ip];
-                return this.acceptNewPeer(peer, true);
+                return this.acceptNewPeer(peer, { seed: true, lessVerbose: true });
             }),
         );
     }
