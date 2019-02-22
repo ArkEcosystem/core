@@ -1,12 +1,14 @@
-import { Bignum } from "@arkecosystem/crypto";
+import { bignumify } from "@arkecosystem/core-utils";
+import { Bignum, formatSatoshi } from "@arkecosystem/crypto";
 import { client } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
+import delay from "delay";
 import { satoshiFlag } from "../flags";
 import { HttpClient } from "../http-client";
 import { logger } from "../logger";
 
 export abstract class BaseCommand extends Command {
-    public static flagsSent = {
+    public static flagsConfig = {
         host: flags.string({
             description: "API host",
             default: "http://localhost",
@@ -19,6 +21,10 @@ export abstract class BaseCommand extends Command {
             description: "P2P port",
             default: 4000,
         }),
+    };
+
+    public static flagsSent = {
+        ...BaseCommand.flagsConfig,
         passphrase: flags.string({
             description: "passphrase of initial wallet",
             default: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
@@ -72,29 +78,58 @@ export abstract class BaseCommand extends Command {
         }
 
         for (const transaction of transactions) {
-            logger.info(`Posting Transaction: ${transaction.id}`);
+            logger.info(
+                `[T] ${transaction.id} (${transaction.recipientId} / ${this.fromSatoshi(
+                    transaction.amount,
+                )} / ${this.fromSatoshi(transaction.fee)})`,
+            );
         }
 
         return this.api.post("transactions", { transactions });
     }
 
-    protected async knockTransaction(id: string): Promise<void> {
+    protected async knockTransaction(id: string): Promise<boolean> {
         try {
             const { data } = await this.api.get(`transactions/${id}`);
 
-            logger.info(`${id} was included in block ${data.blockId}`);
+            logger.info(`[T] ${id} (${data.blockId})`);
+
+            return true;
         } catch (error) {
             logger.error(error.message);
 
-            logger.info(`${id} was not included in any blocks`);
+            logger.error(`[T] ${id} (not forged)`);
+
+            return false;
         }
     }
 
-    protected signTransaction(opts: Record<string, any>): any {
+    protected async knockBalance(address: string, expected: Bignum): Promise<void> {
+        const actual = await this.getWalletBalance(address);
+
+        if (bignumify(expected).isEqualTo(actual)) {
+            logger.info(`[W] ${address} (${this.fromSatoshi(actual)})`);
+        } else {
+            logger.error(`[W] ${address} (${this.fromSatoshi(expected)} / ${this.fromSatoshi(actual)})`);
+        }
+    }
+
+    protected async getWalletBalance(address: string): Promise<Bignum> {
+        try {
+            const { data } = await this.api.get(`wallets/${address}`);
+
+            return bignumify(data.balance);
+        } catch (error) {
+            return bignumify(0);
+        }
+    }
+
+    protected signTransfer(opts: Record<string, any>): any {
         const transfer = client
             .getBuilder()
             .transfer()
             .fee(this.toSatoshi(opts.transferFee))
+            .network(this.network.version)
             .recipientId(opts.recipient)
             .amount(this.toSatoshi(opts.amount));
 
@@ -111,19 +146,92 @@ export abstract class BaseCommand extends Command {
         return transfer.getStruct();
     }
 
-    private async setupConstants() {
-        const { data } = await this.api.get("node/configuration");
+    protected signTransfers(flags: Record<string, any>, wallets: Record<string, any>) {
+        const transactions = [];
 
-        this.constants = data.constants;
+        for (const wallet of Object.keys(wallets)) {
+            transactions.push(this.signTransfer({ ...flags, ...{ recipient: wallet } }));
+        }
+
+        return transactions;
+    }
+
+    protected async verifyTransfers(transactions, wallets) {
+        for (const transaction of transactions) {
+            const wasCreated = await this.knockTransaction(transaction.id);
+
+            if (wasCreated) {
+                await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
+            }
+        }
+    }
+
+    protected async expectBalances(transactions, wallets) {
+        for (const transaction of transactions) {
+            const currentBalance = await this.getWalletBalance(transaction.recipientId);
+            wallets[transaction.recipientId].expectedBalance = currentBalance.plus(transaction.amount);
+        }
+    }
+
+    protected async broadcastTransfers(transactions) {
+        const sendTransactions = [];
+        for (const transaction of transactions) {
+            sendTransactions.push(this.sendTransaction(transaction));
+        }
+
+        await Promise.all(sendTransactions);
+
+        // @TODO make this dynamic
+        await delay(8000);
+    }
+
+    protected castFlags(values: Record<string, any>): string[] {
+        return Object.keys(BaseCommand.flagsConfig)
+            .map((key: string) => {
+                const value = values[key];
+
+                if (value === undefined) {
+                    return undefined;
+                }
+
+                if (value === true) {
+                    return `--${key}`;
+                }
+
+                return `--${key}=${value}`;
+            })
+            .filter(value => value !== undefined);
+    }
+
+    protected toSatoshi(value) {
+        return bignumify(value)
+            .times(1e8)
+            .toFixed();
+    }
+
+    protected fromSatoshi(satoshi) {
+        return formatSatoshi(satoshi);
+    }
+
+    private async setupConstants() {
+        try {
+            const { data } = await this.api.get("node/configuration");
+
+            this.constants = data.constants;
+        } catch (error) {
+            logger.error(error.message);
+            process.exit(1);
+        }
     }
 
     private async setupNetwork() {
-        const { data } = await this.p2p.get("config");
+        try {
+            const { data } = await this.p2p.get("config");
 
-        this.network = data.network;
-    }
-
-    private toSatoshi(value: number): number {
-        return +new Bignum(value).times(1e8).toFixed();
+            this.network = data.network;
+        } catch (error) {
+            logger.error(error.message);
+            process.exit(1);
+        }
     }
 }

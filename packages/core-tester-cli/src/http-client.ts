@@ -1,5 +1,4 @@
 import Axios from "axios";
-import { logger } from "./logger";
 
 export class HttpClient {
     private instance: any;
@@ -14,7 +13,7 @@ export class HttpClient {
 
             return data;
         } catch (error) {
-            logger.error(error.message);
+            // do nothing...
         }
     }
 
@@ -24,7 +23,7 @@ export class HttpClient {
 
             return data;
         } catch (error) {
-            logger.error(error.message);
+            // do nothing...
         }
     }
 }

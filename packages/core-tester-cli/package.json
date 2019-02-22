@@ -79,6 +79,9 @@
             },
             "send": {
                 "description": "send transactions of various types"
+            },
+            "make": {
+                "description": "make new identities"
             }
         },
         "plugins": [

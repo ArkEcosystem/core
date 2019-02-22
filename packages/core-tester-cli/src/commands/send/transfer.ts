@@ -2,6 +2,7 @@ import { crypto } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import delay from "delay";
 import { BaseCommand } from "../command";
+import { WalletCommand } from "../make/wallets";
 
 export class TransferCommand extends BaseCommand {
     public static description: string = "send multiple transactions";
@@ -19,12 +20,17 @@ export class TransferCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = await this.make(TransferCommand);
 
-        const transaction = this.signTransaction(flags);
+        // Prepare...
+        const wallets = await WalletCommand.run([`--quantity=${flags.number}`].concat(this.castFlags(flags)));
+        const transactions = this.signTransfers(flags, wallets);
 
-        await this.sendTransaction(transaction);
+        // Expect...
+        await this.expectBalances(transactions, wallets);
 
-        await delay(8000);
+        // Send...
+        await this.broadcastTransfers(transactions);
 
-        await this.knockTransaction(transaction.id);
+        // Verify...
+        await this.verifyTransfers(transactions, wallets);
     }
 }
