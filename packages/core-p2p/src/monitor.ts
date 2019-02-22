@@ -24,7 +24,7 @@ let config;
 let logger: Logger.ILogger;
 let emitter: EventEmitter.EventEmitter;
 
-interface IAcceptPeerOptions {
+interface IAcceptNewPeerOptions {
     seed?: boolean;
     lessVerbose?: boolean;
 }
@@ -138,7 +138,7 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Peer} peer
      * @throws {Error} If invalid peer
      */
-    public async acceptNewPeer(peer, options: IAcceptPeerOptions = {}) {
+    public async acceptNewPeer(peer, options: IAcceptNewPeerOptions = {}) {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
             logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return;

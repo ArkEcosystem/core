@@ -268,8 +268,6 @@ export class Peer implements P2P.IPeer {
             }
 
             if (!body.common) {
-                const bodyStr = util.inspect(body, { depth: 2 });
-                this.logger.error(`${errorMessage}: falsy "common" property in response: ${bodyStr}`);
                 return false;
             }
 
