@@ -9,6 +9,82 @@ import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedEr
 import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
+    private static replySchemas: any = {
+        "/peer/blocks": Joi.object().keys({
+            blocks: Joi.array()
+                .items(
+                    Joi.object().keys({
+                        height: Joi.number()
+                            .integer()
+                            .min(1)
+                            .required(),
+                        id: Joi.string()
+                            .max(64)
+                            .hex()
+                            .required(),
+                    }),
+                )
+                .required(),
+        }),
+        "/peer/blocks/common?ids=": Joi.object()
+            .keys({
+                common: Joi.object()
+                    .keys({
+                        height: Joi.number()
+                            .integer()
+                            .min(1)
+                            .required(),
+                        id: Joi.string()
+                            .max(64)
+                            .hex()
+                            .required(),
+                    })
+                    .required(),
+                success: Joi.boolean()
+                    .equal(true)
+                    .required(),
+            })
+            .required(),
+        "/peer/list": Joi.object()
+            .keys({
+                peers: Joi.array()
+                    .items(
+                        Joi.object().keys({
+                            ip: Joi.string()
+                                .ip({ cidr: "forbidden" })
+                                .required(),
+                            status: [Joi.string(), Joi.number().integer()],
+                        }),
+                    )
+                    .required(),
+                success: Joi.boolean()
+                    .equal(true)
+                    .required(),
+            })
+            .required(),
+        "/peer/status": Joi.object()
+            .keys({
+                header: Joi.object()
+                    .keys({
+                        height: Joi.number()
+                            .integer()
+                            .min(1)
+                            .required(),
+                        id: Joi.string()
+                            .max(64)
+                            .hex()
+                            .required(),
+                    })
+                    .required(),
+                height: Joi.number()
+                    .integer()
+                    .min(1),
+                success: Joi.boolean()
+                    .equal(true)
+                    .required(),
+            })
+            .required(),
+    };
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
@@ -36,41 +112,6 @@ export class Peer implements P2P.IPeer {
 
     private config: any;
     private logger: Logger.ILogger;
-
-    private static replySchemas: any = {
-        '/peer/blocks': Joi.object().keys({
-            blocks: Joi.array().items(
-                Joi.object().keys({
-                    height: Joi.number().integer().min(1).required(),
-                    id: Joi.string().max(64).hex().required()
-                })
-            ).required()
-        }),
-        '/peer/blocks/common?ids=': Joi.object().keys({
-            common: Joi.object().keys({
-                height: Joi.number().integer().min(1).required(),
-                id: Joi.string().max(64).hex().required()
-            }).required(),
-            success: Joi.boolean().equal(true).required()
-        }).required(),
-        '/peer/list': Joi.object().keys({
-            peers: Joi.array().items(
-                Joi.object().keys({
-                    ip: Joi.string().ip({ cidr: 'forbidden' }).required(),
-                    status: [ Joi.string(), Joi.number().integer() ]
-                })
-            ).required(),
-            success: Joi.boolean().equal(true).required()
-        }).required(),
-        '/peer/status': Joi.object().keys({
-            header: Joi.object().keys({
-                height: Joi.number().integer().min(1).required(),
-                id: Joi.string().max(64).hex().required()
-            }).required(),
-            height: Joi.number().integer().min(1),
-            success: Joi.boolean().equal(true).required()
-        }).required()
-    };
 
     /**
      * @constructor
@@ -204,11 +245,7 @@ export class Peer implements P2P.IPeer {
 
             return blocks;
         } catch (error) {
-            this.logger.debug(
-                `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
-                    depth: 1,
-                })}`,
-            );
+            this.logger.debug(`Cannot download blocks from peer ${this.url} because of "${error.message}"`);
 
             this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000;
 
@@ -308,8 +345,6 @@ export class Peer implements P2P.IPeer {
             }
 
             if (!body.common) {
-                const bodyStr = util.inspect(body, { depth: 2 });
-                this.logger.error(`${errorMessage}: falsy "common" property in response: ${bodyStr}`);
                 return false;
             }
 
@@ -412,7 +447,7 @@ export class Peer implements P2P.IPeer {
      * @return {(Object[]|undefined)}
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
-        const endpoint = '/peer/blocks';
+        const endpoint = "/peer/blocks";
         const response = await axios.get(`${this.url}${endpoint}`, {
             params: { lastBlockHeight: afterBlockHeight },
             headers: this.headers,
@@ -420,7 +455,7 @@ export class Peer implements P2P.IPeer {
         });
 
         if (!this.validateReply(response.data, endpoint)) {
-            throw new Error('Invalid reply to request for blocks');
+            throw new Error("Invalid reply to request for blocks");
         }
 
         return response;
@@ -448,7 +483,8 @@ export class Peer implements P2P.IPeer {
             if (schema === undefined) {
                 this.logger.error(
                     `Can't validate reply from "${endpoint}": none of the predefined ` +
-                    `schemas matches: ` + JSON.stringify(definedEndpoints)
+                        `schemas matches: ` +
+                        JSON.stringify(definedEndpoints),
                 );
                 return false;
             }
@@ -458,8 +494,7 @@ export class Peer implements P2P.IPeer {
 
         if (result.error) {
             this.logger.error(
-                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` +
-                result.error.message
+                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` + result.error.message,
             );
             return false;
         }

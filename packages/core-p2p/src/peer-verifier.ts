@@ -251,7 +251,7 @@ export class PeerVerifier {
 
             if (!probesHeightById[highestCommon.id]) {
                 this.log(
-                    Severity.INFO,
+                    Severity.DEBUG_EXTRA,
                     `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
                         `peer replied with block id ${highestCommon.id} which we did not ask for`,
                 );
@@ -260,7 +260,7 @@ export class PeerVerifier {
 
             if (probesHeightById[highestCommon.id] !== highestCommon.height) {
                 this.log(
-                    Severity.INFO,
+                    Severity.DEBUG_EXTRA,
                     `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
                         `peer pretends to have block with id ${highestCommon.id} at height ` +
                         `${highestCommon.height}, however a block with the same id is at ` +
@@ -380,14 +380,15 @@ export class PeerVerifier {
             response = await this.peer.getPeerBlocks(height - 1, msRemaining);
         } catch (err) {
             this.log(
-                Severity.INFO,
+                Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} from peer: exception: ${err.message}`,
             );
             return false;
         }
 
         if (response.data.blocks.length === 0) {
-            this.log(Severity.INFO,
+            this.log(
+                Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} ` +
                     `from peer: unexpected response: ${this.anyToString(response)}`,
             );
@@ -427,7 +428,7 @@ export class PeerVerifier {
 
         if (!block.verification.verified) {
             this.log(
-                Severity.INFO,
+                Severity.DEBUG_EXTRA,
                 `failure: peer's block at height ${expectedHeight} does not pass crypto-validation`,
             );
             return false;
@@ -437,7 +438,7 @@ export class PeerVerifier {
 
         if (height !== expectedHeight) {
             this.log(
-                Severity.INFO,
+                Severity.DEBUG_EXTRA,
                 `failure: asked for block at height ${expectedHeight}, but got a block with height ${height} instead`,
             );
             return false;
@@ -455,7 +456,7 @@ export class PeerVerifier {
         }
 
         this.log(
-            Severity.INFO,
+            Severity.DEBUG_EXTRA,
             `failure: block ${this.anyToString(blockData)} is not signed by any of the delegates ` +
                 `for the corresponding round: ` +
                 this.anyToString(Object.values(delegatesByPublicKey)),
