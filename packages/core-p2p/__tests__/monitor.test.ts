@@ -34,6 +34,7 @@ beforeEach(async () => {
         const initialPeer = new Peer(ip, 4000);
         initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, {
             ban: 0,
+            verification: { forked: false },
         });
     });
 
