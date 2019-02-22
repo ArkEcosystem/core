@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database",
     "description": "Database Interface for Ark Core",
-    "version": "2.2.0-beta.6",
+    "version": "2.2.0-beta.7",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -34,10 +34,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.6",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.6",
-        "@arkecosystem/core-utils": "^2.2.0-beta.6",
-        "@arkecosystem/crypto": "^2.2.0-beta.6",
+        "@arkecosystem/core-container": "^2.2.0-beta.7",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
+        "@arkecosystem/core-utils": "^2.2.0-beta.7",
+        "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@arkecosystem/utils": "^0.2.3",
         "@types/lodash.clonedeep": "^4.5.4",
         "@types/lodash.compact": "^3.0.4",
@@ -48,7 +48,7 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.0-beta.6",
+        "@arkecosystem/core-test-utils": "^2.2.0-beta.7",
         "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
