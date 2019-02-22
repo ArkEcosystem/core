@@ -185,7 +185,7 @@ export class Client {
     }
 
     private async emit(event: string, data: any, timeout: number = 2000) {
-        const response = await socketEmit(this.socket, event, data, this.headers, timeout);
+        const response: any = await socketEmit(this.socket, event, data, this.headers, timeout);
         return response.data;
     }
 }

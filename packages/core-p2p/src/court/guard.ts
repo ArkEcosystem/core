@@ -8,7 +8,6 @@ import semver from "semver";
 
 import { config as localConfig } from "../config";
 import { SocketErrors } from "../socket-server/constants";
-import * as utils from "../utils";
 import { offences } from "./offences";
 
 const config = app.getConfig();
