@@ -227,7 +227,14 @@ export abstract class BaseCommand extends Command {
 
         // config
         const { config } = await this.getPaths(flags);
-        const delegates = require(join(config, "delegates.json"));
+
+        const configDelegates = join(config, "delegates.json");
+
+        if (!existsSync(configDelegates)) {
+            this.error(`The ${configDelegates} file does not exist.`);
+        }
+
+        const delegates = require(configDelegates);
 
         if (!bip38 && delegates.bip38) {
             bip38 = delegates.bip38;
