@@ -1,9 +1,9 @@
 import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import envPaths from "env-paths";
-import { readdirSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 import Listr from "listr";
-import { join } from "path";
+import { join, resolve } from "path";
 import pm2 from "pm2";
 import prompts from "prompts";
 
@@ -113,10 +113,14 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async getPaths(flags: Record<string, any>): Promise<envPaths.Paths> {
-        const paths: envPaths.Paths = this.getEnvPaths(flags);
+        let paths: envPaths.Paths = this.getEnvPaths(flags);
 
         for (const [key, value] of Object.entries(paths)) {
             paths[key] = `${value}/${flags.network}`;
+        }
+
+        if (process.env.CORE_PATH_CONFIG) {
+            paths = { ...paths, ...{ config: resolve(process.env.CORE_PATH_CONFIG) } };
         }
 
         return paths;
@@ -126,6 +130,10 @@ export abstract class BaseCommand extends Command {
         const { args, flags } = this.parse(command);
 
         if (process.env.CORE_PATH_CONFIG) {
+            if (!existsSync(process.env.CORE_PATH_CONFIG)) {
+                this.error(`The given config "${process.env.CORE_PATH_CONFIG}" does not exist.`);
+            }
+
             const network: string = process.env.CORE_PATH_CONFIG.split("/").pop();
 
             if (!this.isValidNetwork(network)) {
