@@ -34,6 +34,7 @@ beforeEach(async () => {
         const initialPeer = new Peer(ip, 4000);
         initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, {
             ban: 0,
+            verification: { forked: false },
         });
     });
 
@@ -83,16 +84,6 @@ describe("Monitor", () => {
 
             expect(peers).toBeArray();
             expect(peers.length).toBe(5); // 5 from peers.json
-        });
-    });
-
-    describe("getRandomPeer", () => {
-        it("should be ok", async () => {
-            const peer = monitor.getRandomPeer();
-
-            expect(peer).toBeObject();
-            expect(peer).toHaveProperty("ip");
-            expect(peer).toHaveProperty("port");
         });
     });
 
