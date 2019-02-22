@@ -28,18 +28,21 @@ export class Peer implements P2P.IPeer {
         }),
         "/peer/blocks/common?ids=": Joi.object()
             .keys({
-                common: Joi.object()
-                    .keys({
-                        height: Joi.number()
-                            .integer()
-                            .min(1)
-                            .required(),
-                        id: Joi.string()
-                            .max(64)
-                            .hex()
-                            .required(),
-                    })
-                    .required(),
+                common: [
+                    Joi.object()
+                        .keys({
+                            height: Joi.number()
+                                .integer()
+                                .min(1)
+                                .required(),
+                            id: Joi.string()
+                                .max(64)
+                                .hex()
+                                .required(),
+                        })
+                        .required(),
+                    Joi.any().valid(null),
+                ],
                 success: Joi.boolean()
                     .equal(true)
                     .required(),
