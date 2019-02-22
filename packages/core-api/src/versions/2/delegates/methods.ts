@@ -56,7 +56,10 @@ const voters = async request => {
         return Boom.notFound("Delegate not found");
     }
 
-    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, paginate(request));
+    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, {
+        ...request.query,
+        ...paginate(request)
+    });
 
     return toPagination(request, wallets, "wallet");
 };
