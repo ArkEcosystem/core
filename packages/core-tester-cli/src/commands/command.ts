@@ -24,7 +24,7 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
-    public static flagsSent = {
+    public static flagsSend = {
         ...BaseCommand.flagsConfig,
         passphrase: flags.string({
             description: "passphrase of initial wallet",
@@ -134,7 +134,7 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected async broadcastTransfers(transactions) {
+    protected async broadcastTransactions(transactions) {
         const sendTransactions = [];
         for (const transaction of transactions) {
             sendTransactions.push(this.sendTransaction(transaction));

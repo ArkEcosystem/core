@@ -5,23 +5,23 @@ import { logger } from "../../logger";
 import { BaseCommand } from "../command";
 import { TransferCommand } from "./transfer";
 
-export class DelegateRegistrationCommand extends BaseCommand {
+export class SecondSignatureRegistrationCommand extends BaseCommand {
     public static description: string = "send multiple transactions";
 
     public static flags = {
         ...BaseCommand.flagsSend,
-        delegateFee: satoshiFlag({
-            description: "delegate registration fee",
-            default: 25,
+        signatureFee: satoshiFlag({
+            description: "second signature fee",
+            default: 5,
         }),
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.make(DelegateRegistrationCommand);
+        const { flags } = await this.make(SecondSignatureRegistrationCommand);
 
         // Prepare...
         const wallets = await TransferCommand.run(
-            [`--amount=${flags.delegateFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
+            [`--amount=${flags.signatureFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
         );
 
         // Sign...
@@ -43,21 +43,18 @@ export class DelegateRegistrationCommand extends BaseCommand {
         const transactions = [];
 
         for (const [address, wallet] of Object.entries(wallets)) {
-            wallets[address].username = pokemon
-                .random()
-                .toLowerCase()
-                .replace(/ /g, "_");
+            const transaction = this.signer.makeSecondSignature({
+                ...flags,
+                ...{
+                    passphrase: wallet.passphrase,
+                    secondPassphrase: wallet.passphrase,
+                },
+            });
 
-            transactions.push(
-                this.signer.makeDelegate({
-                    ...flags,
-                    ...{
-                        username: wallets[address].username,
-                        // @ts-ignore
-                        passphrase: wallet.passphrase,
-                    },
-                }),
-            );
+            wallets[address].publicKey = transaction.senderPublicKey;
+            wallets[address].secondPublicKey = transaction.asset.signature.publicKey;
+
+            transactions.push(transaction);
         }
 
         return transactions;
@@ -80,13 +77,13 @@ export class DelegateRegistrationCommand extends BaseCommand {
                 const recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
 
                 await this.knockBalance(recipientId, wallets[recipientId].expectedBalance);
-                await this.knockUsername(recipientId, wallets[recipientId].username);
+                await this.knockSignature(recipientId, wallets[recipientId].secondPublicKey);
             }
         }
     }
 
-    private async knockUsername(address: string, expected: string): Promise<void> {
-        const { username: actual } = (await this.api.get(`wallets/${address}`)).data;
+    private async knockSignature(address: string, expected: string): Promise<void> {
+        const { secondPublicKey: actual } = (await this.api.get(`wallets/${address}`)).data;
 
         if (actual === expected) {
             logger.info(`[W] ${address} (${actual})`);

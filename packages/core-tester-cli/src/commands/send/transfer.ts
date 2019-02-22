@@ -8,7 +8,7 @@ export class TransferCommand extends BaseCommand {
     public static description: string = "send multiple transactions";
 
     public static flags = {
-        ...BaseCommand.flagsSent,
+        ...BaseCommand.flagsSend,
         recipient: flags.string({
             description: "recipient address",
         }),
@@ -30,7 +30,7 @@ export class TransferCommand extends BaseCommand {
         await this.expectBalances(transactions, wallets);
 
         // Send...
-        await this.broadcastTransfers(transactions);
+        await this.broadcastTransactions(transactions);
 
         // Verify...
         await this.verifyTransactions(transactions, wallets);

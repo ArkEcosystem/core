@@ -48,6 +48,17 @@ export class Signer {
         return transaction.getStruct();
     }
 
+    public makeSecondSignature(opts: Record<string, any>): any {
+        return client
+            .getBuilder()
+            .secondSignature()
+            .fee(this.toSatoshi(opts.signatureFee))
+            .network(this.network.version)
+            .signatureAsset(opts.secondPassphrase)
+            .sign(opts.passphrase)
+            .getStruct();
+    }
+
     private toSatoshi(value) {
         return bignumify(value)
             .times(1e8)
