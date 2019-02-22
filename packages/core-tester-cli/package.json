@@ -55,7 +55,8 @@
         "delay": "^4.1.0",
         "pino": "^5.11.1",
         "pino-pretty": "^2.5.0",
-        "pluralize": "^7.0.0"
+        "pluralize": "^7.0.0",
+        "pokemon": "^1.2.3"
     },
     "devDependencies": {
         "@types/clipboardy": "^1.1.0",

@@ -22,7 +22,9 @@ export class TransferCommand extends BaseCommand {
 
         // Prepare...
         const wallets = await WalletCommand.run([`--quantity=${flags.number}`].concat(this.castFlags(flags)));
-        const transactions = this.signTransfers(flags, wallets);
+
+        // Sign...
+        const transactions = this.signTransactions(flags, wallets);
 
         // Expect...
         await this.expectBalances(transactions, wallets);
@@ -31,6 +33,35 @@ export class TransferCommand extends BaseCommand {
         await this.broadcastTransfers(transactions);
 
         // Verify...
-        await this.verifyTransfers(transactions, wallets);
+        await this.verifyTransactions(transactions, wallets);
+
+        return wallets;
+    }
+
+    protected signTransactions(flags: Record<string, any>, wallets: Record<string, any>) {
+        const transactions = [];
+
+        for (const wallet of Object.keys(wallets)) {
+            transactions.push(this.signer.makeTransfer({ ...flags, ...{ recipient: wallet } }));
+        }
+
+        return transactions;
+    }
+
+    private async expectBalances(transactions, wallets) {
+        for (const transaction of transactions) {
+            const currentBalance = await this.getWalletBalance(transaction.recipientId);
+            wallets[transaction.recipientId].expectedBalance = currentBalance.plus(transaction.amount);
+        }
+    }
+
+    private async verifyTransactions(transactions, wallets) {
+        for (const transaction of transactions) {
+            const wasCreated = await this.knockTransaction(transaction.id);
+
+            if (wasCreated) {
+                await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
+            }
+        }
     }
 }

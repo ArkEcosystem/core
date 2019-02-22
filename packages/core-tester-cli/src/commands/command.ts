@@ -1,11 +1,12 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, formatSatoshi } from "@arkecosystem/crypto";
+import { Address, Bignum, formatSatoshi } from "@arkecosystem/crypto";
 import { client } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
 import { satoshiFlag } from "../flags";
 import { HttpClient } from "../http-client";
 import { logger } from "../logger";
+import { Signer } from "../signer";
 
 export abstract class BaseCommand extends Command {
     public static flagsConfig = {
@@ -34,7 +35,7 @@ export abstract class BaseCommand extends Command {
         }),
         number: flags.integer({
             description: "number of wallets",
-            default: 10,
+            default: 1,
         }),
         amount: satoshiFlag({
             description: "initial wallet token amount",
@@ -57,6 +58,7 @@ export abstract class BaseCommand extends Command {
 
     protected api: HttpClient;
     protected p2p: HttpClient;
+    protected signer: Signer;
     protected network: Record<string, any>;
     protected constants: Record<string, any>;
 
@@ -69,6 +71,8 @@ export abstract class BaseCommand extends Command {
         await this.setupConstants();
         await this.setupNetwork();
 
+        this.signer = new Signer(this.network);
+
         return { args, flags };
     }
 
@@ -78,10 +82,16 @@ export abstract class BaseCommand extends Command {
         }
 
         for (const transaction of transactions) {
+            let recipientId = transaction.recipientId;
+
+            if (!recipientId) {
+                recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
+            }
+
             logger.info(
-                `[T] ${transaction.id} (${transaction.recipientId} / ${this.fromSatoshi(
-                    transaction.amount,
-                )} / ${this.fromSatoshi(transaction.fee)})`,
+                `[T] ${transaction.id} (${recipientId} / ${this.fromSatoshi(transaction.amount)} / ${this.fromSatoshi(
+                    transaction.fee,
+                )})`,
             );
         }
 
@@ -121,55 +131,6 @@ export abstract class BaseCommand extends Command {
             return bignumify(data.balance);
         } catch (error) {
             return Bignum.ZERO;
-        }
-    }
-
-    protected signTransfer(opts: Record<string, any>): any {
-        const transfer = client
-            .getBuilder()
-            .transfer()
-            .fee(this.toSatoshi(opts.transferFee))
-            .network(this.network.version)
-            .recipientId(opts.recipient)
-            .amount(this.toSatoshi(opts.amount));
-
-        if (opts.vendorField) {
-            transfer.vendorField(opts.vendorField);
-        }
-
-        transfer.sign(opts.passphrase);
-
-        if (opts.secondPassphrase) {
-            transfer.secondSign(opts.secondPassphrase);
-        }
-
-        return transfer.getStruct();
-    }
-
-    protected signTransfers(flags: Record<string, any>, wallets: Record<string, any>) {
-        const transactions = [];
-
-        for (const wallet of Object.keys(wallets)) {
-            transactions.push(this.signTransfer({ ...flags, ...{ recipient: wallet } }));
-        }
-
-        return transactions;
-    }
-
-    protected async verifyTransfers(transactions, wallets) {
-        for (const transaction of transactions) {
-            const wasCreated = await this.knockTransaction(transaction.id);
-
-            if (wasCreated) {
-                await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
-            }
-        }
-    }
-
-    protected async expectBalances(transactions, wallets) {
-        for (const transaction of transactions) {
-            const currentBalance = await this.getWalletBalance(transaction.recipientId);
-            wallets[transaction.recipientId].expectedBalance = currentBalance.plus(transaction.amount);
         }
     }
 
