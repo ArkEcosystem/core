@@ -37,9 +37,8 @@ export class Signer {
             .delegateRegistration()
             .fee(this.toSatoshi(opts.delegateFee))
             .network(this.network.version)
-            .usernameAsset(opts.username);
-
-        transaction.sign(opts.passphrase);
+            .usernameAsset(opts.username)
+            .sign(opts.passphrase);
 
         if (opts.secondPassphrase) {
             transaction.secondSign(opts.secondPassphrase);
@@ -59,13 +58,25 @@ export class Signer {
             .getStruct();
     }
 
+    public makeVote(opts: Record<string, any>): any {
+        const transaction = client
+            .getBuilder()
+            .vote()
+            .fee(this.toSatoshi(opts.voteFee))
+            .votesAsset([`+${opts.delegate}`])
+            .network(this.network.version)
+            .sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
     private toSatoshi(value) {
         return bignumify(value)
             .times(1e8)
             .toFixed();
-    }
-
-    private fromSatoshi(satoshi) {
-        return formatSatoshi(satoshi);
     }
 }

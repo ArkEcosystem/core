@@ -10,7 +10,6 @@ export function handleOutput(opts, data) {
     }
 
     if (opts.log) {
-        // tslint:disable-next-line:no-console
         return console.log(data);
     }
 
