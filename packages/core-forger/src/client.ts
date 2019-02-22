@@ -31,7 +31,6 @@ export class Client {
             version: app.getVersion(),
             port,
             nethash: app.getConfig().get("network.nethash"),
-            "x-auth": "forger",
             "Content-Type": "application/json",
         };
 
@@ -186,6 +185,7 @@ export class Client {
     }
 
     private async emit(event: string, data: any, timeout: number = 2000) {
-        return socketEmit(this.socket, event, data, this.headers, timeout);
+        const response = await socketEmit(this.socket, event, data, this.headers, timeout);
+        return response.data;
     }
 }
