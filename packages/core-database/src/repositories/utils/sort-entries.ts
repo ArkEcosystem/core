@@ -6,13 +6,7 @@ export function sortEntries(params: Database.IParameters, entries: any[], defaul
 
     const properties = ["balance", "fee", "amount", "reward", "voteBalance", "totalFee", "totalAmount"];
 
-    if (properties.includes(iteratee)) {
-        return Object.values(entries).sort((a: any, b: any) => {
-            return order === "asc"
-                ? +a[iteratee].minus(b[iteratee]).toFixed()
-                : +b[iteratee].minus(a[iteratee]).toFixed();
-        });
-    }
+    const iteratees = properties.includes(iteratee) ? value => value[iteratee] : [iteratee];
 
-    return orderBy(entries, [iteratee], [order as "desc" | "asc"]);
+    return orderBy(entries, iteratees, [order as "desc" | "asc"]);
 }
