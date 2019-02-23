@@ -2,10 +2,12 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
+import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
+import { replySchemas } from "./reply-schemas";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
@@ -194,7 +196,7 @@ export class Peer implements P2P.IPeer {
         const body = await this.__get("/peer/status", delay);
 
         if (!body) {
-            throw new Error(`Peer ${this.ip} is unresponsive`);
+            throw new Error(`Peer ${this.ip}: could not get status response`);
         }
 
         if (!body.success) {
@@ -235,6 +237,10 @@ export class Peer implements P2P.IPeer {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
         const body = await this.__get("/peer/list");
+
+        if (!body) {
+            return [];
+        }
 
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
@@ -295,9 +301,13 @@ export class Peer implements P2P.IPeer {
                 timeout: timeout || this.config.get("peers.globalTimeout"),
             });
 
-            this.delay = new Date().getTime() - temp;
-
             this.__parseHeaders(response);
+
+            if (!this.validateReply(response.data, endpoint)) {
+                return;
+            }
+
+            this.delay = new Date().getTime() - temp;
 
             if (!response.data) {
                 this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
@@ -366,10 +376,58 @@ export class Peer implements P2P.IPeer {
      * @return {(Object[]|undefined)}
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
-        return axios.get(`${this.url}/peer/blocks`, {
+        const endpoint = "/peer/blocks";
+        const response = await axios.get(`${this.url}${endpoint}`, {
             params: { lastBlockHeight: afterBlockHeight },
             headers: this.headers,
             timeout: 10000,
         });
+
+        if (!this.validateReply(response.data, endpoint)) {
+            throw new Error("Invalid reply to request for blocks");
+        }
+
+        return response;
+    }
+
+    /**
+     * Validate a reply from the peer according to a predefined JSON schema rules.
+     * @param {Object} reply peer's reply
+     * @param {String} endpoint the path in the URL for which we got the reply, e.g. /peer/status
+     * @return {Boolean} true if validated successfully
+     */
+    private validateReply(reply: any, endpoint: string): boolean {
+        let schema = replySchemas[endpoint];
+        if (schema === undefined) {
+            // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
+            let len = 0;
+            const definedEndpoints = Object.keys(replySchemas);
+            for (const d of definedEndpoints) {
+                if (endpoint.startsWith(d) && len < d.length) {
+                    schema = replySchemas[d];
+                    len = d.length;
+                }
+            }
+
+            if (schema === undefined) {
+                this.logger.error(
+                    `Can't validate reply from "${endpoint}": none of the predefined ` +
+                        `schemas matches: ` +
+                        JSON.stringify(definedEndpoints),
+                );
+                return false;
+            }
+        }
+
+        const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
+
+        if (result.error) {
+            this.logger.error(
+                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` + result.error.message,
+            );
+            return false;
+        }
+
+        return true;
     }
 }
