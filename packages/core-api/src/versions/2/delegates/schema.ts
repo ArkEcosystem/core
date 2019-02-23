@@ -52,7 +52,12 @@ export const show: object = {
 };
 
 export const search: object = {
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            orderBy: Joi.string(),
+        },
+    },
     payload: {
         username: schemaUsername,
         usernames: Joi.array()
