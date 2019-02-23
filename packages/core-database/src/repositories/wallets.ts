@@ -23,13 +23,12 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
      * @param  {{ orderBy?: string }} params
      * @return {Object}
      */
+    // @ts-ignore
     public findAll(params: Database.IParameters = {}) {
-        const wallets = this.all();
-
-        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
+        const wallets = this.orderBy(params, this.all(), ["rate", "asc"]);
 
         return {
-            rows: limitRows(orderBy(wallets, [iteratee], [order as "desc" | "asc"]), params),
+            rows: limitRows(wallets, params),
             count: wallets.length,
         };
     }
@@ -40,13 +39,12 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
      * @param  {Object} params
      * @return {Object}
      */
+    // @ts-ignore
     public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
 
-        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["balance", "desc"];
-
         return {
-            rows: limitRows(orderBy(wallets, [iteratee], [order as "desc" | "asc"]), params),
+            rows: limitRows(this.orderBy(params, wallets, ["balance", "desc"]), params),
             count: wallets.length,
         };
     }
@@ -68,8 +66,9 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
     /**
      * Find all wallets sorted by balance.
      */
+    // @ts-ignore
     public top(params: Database.IParameters = {}) {
-        const wallets = Object.values(this.all()).sort((a: any, b: any) => +b.balance.minus(a.balance).toFixed());
+        const wallets = this.orderBy(params, this.all(), ["balance", "desc"]);
 
         return {
             rows: limitRows(wallets, params),
@@ -119,5 +118,19 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
             rows: limitRows(wallets, params),
             count: wallets.length,
         };
+    }
+
+    private orderBy(params, wallets, defaultValue) {
+        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : defaultValue;
+
+        if (iteratee === "balance") {
+            wallets = Object.values(wallets).sort((a: any, b: any) => {
+                return order === "asc" ? +a.balance.minus(b.balance).toFixed() : +b.balance.minus(a.balance).toFixed();
+            });
+        } else {
+            wallets = orderBy(wallets, [iteratee], [order as "desc" | "asc"]);
+        }
+
+        return wallets;
     }
 }
