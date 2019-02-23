@@ -1,6 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { orderBy } from "@arkecosystem/utils";
+import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 
 export class DelegatesRepository implements Database.IDelegatesBusinessRepository {
@@ -41,32 +42,28 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
      * TODO Currently it searches by username only
      * @param  {Object} [params]
      * @param  {String} [params.username] - Search by username
+     * @param  {Array}  [params.usernames] - Search by usernames
      */
     public search(params: Database.IParameters) {
-        let delegates = this.getLocalDelegates();
-        if (params.hasOwnProperty("username")) {
-            delegates = delegates.filter(delegate => delegate.username.indexOf(params.username as string) > -1);
+        const query: any = {
+            like: ["username"],
+        };
+
+        if (params.usernames) {
+            if (!params.username) {
+                params.username = params.usernames;
+                query.like.shift();
+                query.in = ["username"];
+            }
+            delete params.usernames;
         }
 
-        if (params.orderBy) {
-            const orderByField = params.orderBy.split(":")[0];
-            const orderByDirection = params.orderBy.split(":")[1] || "desc";
+        const delegates = filterRows(this.getLocalDelegates(), params, query);
 
-            delegates = delegates.sort((a, b) => {
-                if (orderByDirection === "desc" && a[orderByField] < b[orderByField]) {
-                    return -1;
-                }
-
-                if (orderByDirection === "asc" && a[orderByField] > b[orderByField]) {
-                    return 1;
-                }
-
-                return 0;
-            });
-        }
+        const [iteratee, order] = this.__orderBy(params);
 
         return {
-            rows: limitRows(delegates, params),
+            rows: limitRows(orderBy(delegates, [iteratee], [order as "desc" | "asc"]), params),
             count: delegates.length,
         };
     }

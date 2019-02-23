@@ -55,6 +55,11 @@ export const search: object = {
     query: pagination,
     payload: {
         username: schemaUsername,
+        usernames: Joi.array()
+            .unique()
+            .min(1)
+            .max(50)
+            .items(schemaUsername),
     },
 };
 
