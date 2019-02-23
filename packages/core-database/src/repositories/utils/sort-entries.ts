@@ -7,14 +7,12 @@ export function sortEntries(params: Database.IParameters, entries: any[], defaul
     const properties = ["balance", "fee", "amount", "reward", "voteBalance", "totalFee", "totalAmount"];
 
     if (properties.includes(iteratee)) {
-        entries = Object.values(entries).sort((a: any, b: any) => {
+        return Object.values(entries).sort((a: any, b: any) => {
             return order === "asc"
                 ? +a[iteratee].minus(b[iteratee]).toFixed()
                 : +b[iteratee].minus(a[iteratee]).toFixed();
         });
-    } else {
-        entries = orderBy(entries, [iteratee], [order as "desc" | "asc"]);
     }
 
-    return entries;
+    return orderBy(entries, [iteratee], [order as "desc" | "asc"]);
 }
