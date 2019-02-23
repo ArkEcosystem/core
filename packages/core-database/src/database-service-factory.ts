@@ -10,11 +10,11 @@ export const databaseServiceFactory = async (
     connection: Database.IDatabaseConnection,
 ): Promise<Database.IDatabaseService> => {
     let databaseService: DatabaseService;
-    // @ts-ignore
     databaseService = new DatabaseService(
         opts,
         connection,
         walletManager,
+        // @ts-ignore
         new WalletsRepository(() => databaseService),
         new DelegatesRepository(() => databaseService),
     );
