@@ -6,7 +6,7 @@ export function sortEntries(params: Database.IParameters, entries: any[], defaul
 
     const properties = ["balance", "fee", "amount", "reward", "voteBalance", "totalFee", "totalAmount"];
 
-    const iteratees = properties.includes(iteratee) ? value => value[iteratee] : [iteratee];
+    const iteratees = properties.includes(iteratee) ? value => value[iteratee].toFixed() : [iteratee];
 
     return orderBy(entries, iteratees, [order as "desc" | "asc"]);
 }
