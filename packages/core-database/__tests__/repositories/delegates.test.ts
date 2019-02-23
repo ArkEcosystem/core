@@ -223,8 +223,9 @@ describe("Delegate Repository", () => {
 
                 expect(count).toBe(3);
                 expect(rows).toHaveLength(3);
-                rows.forEach((row, i) => {
-                    expect(row.username).toEqual(usernames[i]);
+
+                rows.forEach(row => {
+                    expect(usernames.includes(row.username)).toBeTrue();
                 });
             });
 
@@ -255,40 +256,52 @@ describe("Delegate Repository", () => {
 
             it("should be ok with params", () => {
                 const { count, rows } = repository.search({
-                    usernames: ["username"],
-                    offset: 10,
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
+                    offset: 1,
                     limit: 10,
                 });
-                expect(count).toBe(52);
-                expect(rows).toHaveLength(10);
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
             });
 
             it("should be ok with params (no offset)", () => {
                 const { count, rows } = repository.search({
-                    usernames: ["username"],
-                    limit: 10,
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
+                    limit: 1,
                 });
-                expect(count).toBe(52);
-                expect(rows).toHaveLength(10);
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
             });
 
             it("should be ok with params (offset = 0)", () => {
                 const { count, rows } = repository.search({
-                    usernames: ["username"],
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
                     offset: 0,
-                    limit: 12,
+                    limit: 2,
                 });
-                expect(count).toBe(52);
-                expect(rows).toHaveLength(12);
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(2);
             });
 
             it("should be ok with params (no limit)", () => {
                 const { count, rows } = repository.search({
-                    usernames: ["username"],
-                    offset: 10,
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
+                    offset: 1,
                 });
-                expect(count).toBe(52);
-                expect(rows).toHaveLength(42);
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
             });
         });
 
