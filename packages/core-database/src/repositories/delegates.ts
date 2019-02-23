@@ -115,6 +115,7 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
                 return "rate";
             case "productivity":
                 return delegateCalculator.calculateProductivity;
+            case "votes":
             case "approval":
                 return delegateCalculator.calculateApproval;
             default:
