@@ -100,20 +100,20 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
         });
     }
 
-    private applyOrder(params): void {
+    private applyOrder(params): string {
+        const assignOrder = (params, value) => (params.orderBy = value.join(":"));
+
         if (!params.orderBy) {
-            params.orderBy = ["rate", "asc"];
-            return;
+            return assignOrder(params, ["rate", "asc"]);
         }
 
         const orderByMapped = params.orderBy.split(":").map(p => p.toLowerCase());
 
         if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
-            params.orderBy = ["rate", "asc"];
-            return;
+            return assignOrder(params, ["rate", "asc"]);
         }
 
-        params.orderBy = [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]].join(":");
+        return assignOrder(params, [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]]);
     }
 
     private manipulateIteratee(iteratee): any {
