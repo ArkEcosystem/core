@@ -6,11 +6,11 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
     constructor(private databaseModel: Database.IDatabaseModel) {
     }
 
-    public convert(params: any, orderBy?: any, paginate?: any): Database.SearchParameters {
+    public convert(params: Database.IParameters, orderBy?: any, paginate?: any): Database.SearchParameters {
 
         const searchParameters: Database.SearchParameters = {
             orderBy: [],
-            paginate: {},
+            paginate: null,
             parameters: []
         };
 

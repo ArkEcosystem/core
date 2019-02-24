@@ -8,7 +8,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     constructor(private databaseServiceProvider: () => Database.IDatabaseService) {
     }
 
-    public allVotesBySender(senderPublicKey: any, parameters: any): Promise<any> {
+    public async allVotesBySender(senderPublicKey: any, parameters: any) {
         return this.findAll({
             ...{ senderPublicKey, type: constants.TransactionTypes.Vote },
             ...parameters,
@@ -50,11 +50,11 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return await this.mapBlocksToTransactions(result.rows);
     }
 
-    public findAllLegacy(parameters: any): Promise<any> {
+    public async findAllLegacy(parameters: any) {
         throw new Error("This is deprecated in v2");
     }
 
-    public findById(id: string): Promise<any> {
+    public async findById(id: string) {
         return this.databaseServiceProvider().connection.transactionsRepository.findById(id);
     }
 

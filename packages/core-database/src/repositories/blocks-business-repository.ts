@@ -7,11 +7,11 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     /* TODO: Remove with v1 */
-    public async findAll(params: any) {
+    public async findAll(params: Database.IParameters) {
         return this.databaseServiceProvider().connection.blocksRepository.findAll(this.parseSearchParams(params));
     }
 
-    public async findAllByGenerator(generatorPublicKey: string, paginate: any) {
+    public async findAllByGenerator(generatorPublicKey: string, paginate: Database.SearchPaginate) {
         return await this.findAll({ ...{ generatorPublicKey }, ...paginate });
     }
 
@@ -28,11 +28,11 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         return await this.databaseServiceProvider().connection.blocksRepository.findById(id);
     }
 
-    public async search(params: any) {
+    public async search(params: Database.IParameters) {
         return await this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
     }
 
-    private parseSearchParams(params: any): Database.SearchParameters {
+    private parseSearchParams(params: Database.IParameters): Database.SearchParameters {
         const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
         if (!searchParameters.orderBy.length) {
