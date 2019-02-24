@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { removeSync } from "fs-extra";
+import { existsSync } from "fs";
+import { readJsonSync, removeSync, writeJsonSync } from "fs-extra";
 import { getRegistryChannel } from "./update";
 
 class ConfigManager {
@@ -37,11 +37,11 @@ class ConfigManager {
     }
 
     private read() {
-        return JSON.parse(readFileSync(this.file).toString());
+        return readJsonSync(this.file);
     }
 
     private write(data): void {
-        writeFileSync(this.file, JSON.stringify(data, null, 4));
+        writeJsonSync(this.file, data);
     }
 }
 
