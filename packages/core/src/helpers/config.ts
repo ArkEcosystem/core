@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { removeSync } from "fs-extra";
-import { getUpdateChannel } from "./update";
+import { getRegistryChannel } from "./update";
 
 class ConfigManager {
     private config;
@@ -31,7 +31,7 @@ class ConfigManager {
         if (!existsSync(this.file)) {
             this.write({
                 token: this.config.bin,
-                channel: getUpdateChannel(this.config),
+                channel: getRegistryChannel(this.config),
             });
         }
     }

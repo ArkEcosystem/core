@@ -27,7 +27,7 @@ function ensureCacheFile(config: IConfig): string {
     return join(config.cacheDir, "update");
 }
 
-export function getUpdateChannel(config: IConfig): string {
+export function getRegistryChannel(config: IConfig): string {
     const channels: string[] = ["alpha", "beta", "rc"];
 
     let channel: string = "latest";
