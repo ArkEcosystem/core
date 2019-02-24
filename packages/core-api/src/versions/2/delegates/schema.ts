@@ -1,5 +1,8 @@
 import * as Joi from "joi";
+import { app } from "@arkecosystem/core-container";
 import { pagination } from "../shared/schemas/pagination";
+
+const config = app.getConfig();
 
 const schemaIdentifier = Joi.string()
     .regex(/^[a-zA-Z0-9!@$&_.]+$/)
@@ -63,7 +66,7 @@ export const search: object = {
         usernames: Joi.array()
             .unique()
             .min(1)
-            .max(50)
+            .max(config.getMilestone().activeDelegates)
             .items(schemaUsername),
     },
 };
