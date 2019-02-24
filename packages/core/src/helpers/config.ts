@@ -12,8 +12,12 @@ class ConfigManager {
         this.ensureDefaults();
     }
 
+    public get(key) {
+        return this.read()[key];
+    }
+
     public update(data) {
-        this.write({ ...JSON.parse(readFileSync(this.file).toString()), ...data });
+        this.write({ ...this.read(), ...data });
     }
 
     private ensureDefaults() {
@@ -21,6 +25,10 @@ class ConfigManager {
             token: this.config.bin,
             channel: getUpdateChannel(this.config),
         });
+    }
+
+    private read() {
+        return JSON.parse(readFileSync(this.file).toString());
     }
 
     private write(data) {

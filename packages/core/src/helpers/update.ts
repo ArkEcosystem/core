@@ -9,6 +9,7 @@ import latestVersion from "latest-version";
 import { join } from "path";
 import prompts from "prompts";
 import semver from "semver";
+import { configManager } from "./config";
 
 async function getVersionFromNode(name: string, channel: string): Promise<string> {
     try {
@@ -61,7 +62,7 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
     }
 
     try {
-        const channel = getUpdateChannel(config);
+        const channel = configManager.get("channel");
         const cacheFile = ensureCacheFile(config);
 
         cli.action.start(`Checking for updates`);
