@@ -71,13 +71,9 @@ describe("Monitor", () => {
                 peerMock.headers,
             ]);
 
-            process.env.CORE_ENV = "false";
-
             await monitor.acceptNewPeer(peerMock);
 
             expect(monitor.peers[peerMock.ip]).toBeObject();
-
-            process.env.CORE_ENV = "test";
         });
     });
 
@@ -93,19 +89,6 @@ describe("Monitor", () => {
     describe("getRandomPeer", () => {
         it("should be ok", async () => {
             const peer = monitor.getRandomPeer();
-
-            expect(peer).toBeObject();
-            expect(peer).toHaveProperty("ip");
-            expect(peer).toHaveProperty("port");
-        });
-    });
-
-    describe("getRandomDownloadBlocksPeer", () => {
-        it("should be ok", async () => {
-            axiosMock
-                .onGet(/.*\/peer\/blocks\/common/)
-                .reply(() => [200, { success: true, common: true }, peerMock.headers]);
-            const peer = await monitor.getRandomDownloadBlocksPeer();
 
             expect(peer).toBeObject();
             expect(peer).toHaveProperty("ip");
@@ -155,6 +138,7 @@ describe("Monitor", () => {
             ]);
             axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
             await monitor.discoverPeers();
+            await monitor.cleanPeers();
 
             const height = await monitor.getNetworkHeight();
             expect(height).toBe(2);

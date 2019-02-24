@@ -88,11 +88,9 @@ describe("API 2.0 - Webhooks", () => {
             utils.expectSuccessful(response);
             utils.expectResource(response);
 
-            const { data } = response.data;
-            const webhookData = Object.assign(webhook.data.data, {
-                token: data.token.substring(0, 32),
-            });
-            expect(data).toEqual(webhookData);
+            delete webhook.data.data.token;
+
+            expect(response.data.data).toEqual(webhook.data.data);
         });
     });
 
