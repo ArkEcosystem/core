@@ -122,7 +122,10 @@
     "oclif": {
         "commands": "./dist/commands",
         "hooks": {
-            "init": "./dist/hooks/init"
+            "init": [
+                "./dist/hooks/init/config",
+                "./dist/hooks/init/update"
+            ]
         },
         "bin": "ark",
         "topics": {
