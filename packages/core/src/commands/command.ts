@@ -6,6 +6,7 @@ import Listr from "listr";
 import { join, resolve } from "path";
 import pm2 from "pm2";
 import prompts from "prompts";
+import { configManager } from "../helpers/config";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
@@ -16,8 +17,6 @@ export abstract class BaseCommand extends Command {
     public static flagsNetwork: Record<string, object> = {
         token: flags.string({
             description: "the name of the token that should be used",
-            default: "ark",
-            required: true,
         }),
         network: flags.string({
             description: "the name of the network that should be used",
@@ -128,6 +127,10 @@ export abstract class BaseCommand extends Command {
 
     protected async parseWithNetwork(command: any): Promise<any> {
         const { args, flags } = this.parse(command);
+
+        if (!flags.token) {
+            flags.token = configManager.get("token");
+        }
 
         if (process.env.CORE_PATH_CONFIG && !flags.network) {
             let config: string = process.env.CORE_PATH_CONFIG;

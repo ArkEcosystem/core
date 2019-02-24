@@ -2,6 +2,7 @@ import { flags } from "@oclif/command";
 import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
+import { configManager } from "../../helpers/config";
 import { BaseCommand } from "../command";
 
 export class PublishCommand extends BaseCommand {
@@ -19,6 +20,10 @@ $ ark config:publish --network=mainnet
 
     public async run(): Promise<void> {
         const { flags } = this.parse(PublishCommand);
+
+        if (!flags.token) {
+            flags.token = configManager.get("token");
+        }
 
         if (flags.network) {
             return this.performPublishment(flags);
