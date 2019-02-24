@@ -22,7 +22,7 @@ $ ark config:cli --channel=mine
             description: "the name of the token that should be used",
         }),
         channel: flags.string({
-            description: "the name of the token that should be used",
+            description: "the name of the channel that should be used",
             options: ["alpha", "beta", "rc", "latest"],
         }),
     };
