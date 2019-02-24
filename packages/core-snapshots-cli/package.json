@@ -13,7 +13,7 @@
         "/oclif.manifest.json"
     ],
     "bin": {
-        "snapshot": "./bin/run"
+        "ark-snapshot": "./bin/run"
     },
     "scripts": {
         "snapshot": "./bin/run",
