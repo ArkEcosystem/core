@@ -17,7 +17,6 @@ export abstract class BaseCommand extends Command {
         token: flags.string({
             description: "the name of the token that should be used",
             default: "ark",
-            required: true,
         }),
         network: flags.string({
             description: "the name of the network that should be used",

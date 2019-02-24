@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter } from "@arkecosystem/core-interfaces";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
-import _cliProgress from "cli-progress";
+import cliProgress from "cli-progress";
 import { setUpLite } from "../utils";
 import { BaseCommand } from "./command";
 
@@ -37,11 +37,11 @@ export class RestoreCommand extends BaseCommand {
 
         const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-        const progressBar = new _cliProgress.Bar(
+        const progressBar = new cliProgress.Bar(
             {
                 format: "{bar} {percentage}% | ETA: {eta}s | {value}/{total} | Duration: {duration}s",
             },
-            _cliProgress.Presets.shades_classic,
+            cliProgress.Presets.shades_classic,
         );
 
         emitter.on("start", data => {

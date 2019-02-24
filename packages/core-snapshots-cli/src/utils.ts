@@ -1,9 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 
-export const setUpLite = async options => {
+// tslint:disable-next-line:no-var-requires
+const { version } = require("../package.json");
+
+export async function setUpLite(options) {
     process.env.CORE_SKIP_BLOCKCHAIN = "true";
 
-    await app.setUp("2.0.0", options, {
+    await app.setUp(version, options, {
         include: [
             "@arkecosystem/core-logger",
             "@arkecosystem/core-logger-winston",
@@ -13,6 +16,8 @@ export const setUpLite = async options => {
     });
 
     return app;
-};
+}
 
-export const tearDown = async () => app.tearDown();
+export async function tearDown() {
+    return app.tearDown();
+}

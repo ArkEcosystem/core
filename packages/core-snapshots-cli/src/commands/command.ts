@@ -1,19 +1,17 @@
+import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
+
+const validNetworks = Object.keys(networks).filter(network => network !== "unitnet");
 
 export abstract class BaseCommand extends Command {
     public static flags = {
-        data: flags.string({
-            description: "data directory",
-        }),
-        config: flags.string({
-            description: "network config",
-        }),
         token: flags.string({
-            description: "token name",
+            description: "the name of the token that should be used",
             default: "ark",
         }),
         network: flags.string({
-            description: "token network",
+            description: "the name of the network that should be used",
+            options: validNetworks,
         }),
         skipCompression: flags.boolean({
             description: "skip gzip compression",
