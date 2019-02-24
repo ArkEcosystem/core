@@ -80,7 +80,7 @@
     },
     "oclif": {
         "commands": "./dist/commands",
-        "bin": "snapshot",
+        "bin": "ark-snapshot",
         "plugins": [
             "@oclif/plugin-help",
             "@oclif/plugin-not-found"
