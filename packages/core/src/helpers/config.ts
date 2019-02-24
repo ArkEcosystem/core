@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { removeSync } from "fs-extra";
 import { getUpdateChannel } from "./update";
 
 class ConfigManager {
@@ -9,29 +10,37 @@ class ConfigManager {
         this.config = config;
         this.file = `${config.configDir}/config.json`;
 
-        this.ensureDefaults();
+        try {
+            this.read();
+        } catch (error) {
+            removeSync(this.file);
+
+            this.ensureDefaults();
+        }
     }
 
     public get(key) {
         return this.read()[key];
     }
 
-    public update(data) {
+    public update(data): void {
         this.write({ ...this.read(), ...data });
     }
 
-    private ensureDefaults() {
-        this.write({
-            token: this.config.bin,
-            channel: getUpdateChannel(this.config),
-        });
+    private ensureDefaults(): void {
+        if (!existsSync(this.file)) {
+            this.write({
+                token: this.config.bin,
+                channel: getUpdateChannel(this.config),
+            });
+        }
     }
 
     private read() {
         return JSON.parse(readFileSync(this.file).toString());
     }
 
-    private write(data) {
+    private write(data): void {
         writeFileSync(this.file, JSON.stringify(data, null, 4));
     }
 }

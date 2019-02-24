@@ -1,5 +1,8 @@
 import { flags } from "@oclif/command";
+import cli from "cli-ux";
+import { removeSync } from "fs-extra";
 import { configManager } from "../../helpers/config";
+import { installFromChannel } from "../../helpers/update";
 import { BaseCommand } from "../command";
 
 export class CommandLineInterfaceCommand extends BaseCommand {
@@ -20,7 +23,7 @@ $ yarn ark config:cli --channel=mine
         }),
         channel: flags.string({
             description: "the name of the token that should be used",
-            options: ["alpha", "beta", "rc", "stable"],
+            options: ["alpha", "beta", "rc", "latest"],
         }),
     };
 
@@ -32,13 +35,32 @@ $ yarn ark config:cli --channel=mine
         }
 
         if (flags.channel) {
-            let channel = flags.channel;
+            this.changeChannel(flags.channel);
+        }
+    }
 
-            if (channel === "stable") {
-                channel = "latest";
-            }
+    private async changeChannel(newChannel): Promise<void> {
+        const oldChannel = configManager.get("channel");
 
-            configManager.update({ channel });
+        if (oldChannel === newChannel) {
+            this.warn(`You are already on the "${newChannel}" channel.`);
+            return;
+        }
+
+        configManager.update({ channel: newChannel });
+
+        const pkg = `${this.config.name}@${newChannel}`;
+
+        try {
+            cli.action.start(`Installing ${pkg}`);
+
+            await installFromChannel(this.config.name, newChannel);
+
+            cli.action.stop();
+
+            this.warn(`${pkg} has been installed. Please restart your relay and forger.`);
+        } catch (err) {
+            this.error(err.message);
         }
     }
 }
