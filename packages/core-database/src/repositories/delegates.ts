@@ -118,6 +118,8 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
 
     private manipulateIteratee(iteratee): any {
         switch (iteratee) {
+            case "votes":
+                return "voteBalance";
             case "rank":
                 return "rate";
             case "productivity":
