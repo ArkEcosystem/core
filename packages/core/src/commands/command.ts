@@ -1,11 +1,14 @@
 import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
+import cli from "cli-ux";
 import envPaths from "env-paths";
 import { existsSync, readdirSync } from "fs";
 import Listr from "listr";
 import { join, resolve } from "path";
 import prompts from "prompts";
 import { configManager } from "../helpers/config";
+import { confirm } from "../helpers/prompts";
+import { processManager } from "../process-manager";
 import { CommandFlags, Options } from "../types";
 
 // tslint:disable-next-line:no-var-requires
@@ -279,6 +282,22 @@ export abstract class BaseCommand extends Command {
 
     protected getNetworksForPrompt(): any {
         return this.getNetworks().map(network => ({ title: network, value: network }));
+    }
+
+    protected async restartProcess(processName: string) {
+        if (processManager.exists(processName)) {
+            await confirm(`Would you like to restart the ${processName} process?`, () => {
+                try {
+                    cli.action.start(`Restarting ${processName}`);
+
+                    processManager.restart(processName);
+                } catch (error) {
+                    this.error(error.message);
+                } finally {
+                    cli.action.stop();
+                }
+            });
+        }
     }
 
     private getEnvPaths(flags: CommandFlags): envPaths.Paths {

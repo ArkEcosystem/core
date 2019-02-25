@@ -1,7 +1,7 @@
 import Chalk from "chalk";
 import cli from "cli-ux";
 import { removeSync } from "fs-extra";
-import { requestConfirmation } from "../helpers/prompts";
+import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
 import { BaseCommand } from "./command";
 
@@ -27,7 +27,7 @@ export class UpdateCommand extends BaseCommand {
                 )}.`,
             );
 
-            await requestConfirmation("Would you like to update?", async () => {
+            await confirm("Would you like to update?", async () => {
                 try {
                     cli.action.start(`Updating from ${currentVersion} to ${newVersion}`);
 
@@ -38,17 +38,16 @@ export class UpdateCommand extends BaseCommand {
                     removeSync(state.cache);
 
                     this.warn(`Version ${newVersion} has been installed.`);
-                    this.warn(
-                        'Respectively run "ark relay:restart", "ark forger:restart" or "ark core:restart" to restart your processes.',
-                    );
 
-                    // @TODO ask the user if he wants to restart the core
-                    // @TODO ask the user if he wants to restart the relay
-                    // @TODO ask the user if he wants to restart the forger
+                    const { flags } = await this.parseWithNetwork(UpdateCommand);
 
-                    process.exit();
+                    await this.restartProcess(`${flags.token}-core`);
+                    await this.restartProcess(`${flags.token}-relay`);
+                    await this.restartProcess(`${flags.token}-forger`);
                 } catch (err) {
                     this.error(err.message);
+                } finally {
+                    cli.action.stop();
                 }
             });
         } catch (err) {

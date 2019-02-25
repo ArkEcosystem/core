@@ -56,11 +56,19 @@ $ ark config:cli --channel=mine
 
             await installFromChannel(this.config.name, newChannel);
 
+            this.warn(`${pkg} has been installed.`);
+
             cli.action.stop();
 
-            this.warn(`${pkg} has been installed. Please restart your relay and forger.`);
+            const { flags } = await this.parseWithNetwork(CommandLineInterfaceCommand);
+
+            await this.restartProcess(`${flags.token}-core`);
+            await this.restartProcess(`${flags.token}-relay`);
+            await this.restartProcess(`${flags.token}-forger`);
         } catch (err) {
             this.error(err.message);
+        } finally {
+            cli.action.stop();
         }
     }
 }
