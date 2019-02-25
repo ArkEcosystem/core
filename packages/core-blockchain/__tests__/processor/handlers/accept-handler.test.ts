@@ -37,7 +37,7 @@ describe("Accept handler", () => {
             blockchain.state.forkedBlock = new Block(blocks2to100[0]);
 
             expect(await handler.execute()).toBe(BlockProcessorResult.Accepted);
-            expect(loggerInfo).toHaveBeenCalledWith("Successfully recovered from fork :star2:");
+            expect(loggerInfo).toHaveBeenCalledWith("Successfully recovered from fork");
             expect(blockchain.state.forkedBlock).toBe(null);
         });
 

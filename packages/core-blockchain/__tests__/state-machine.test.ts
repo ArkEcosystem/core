@@ -201,7 +201,7 @@ describe("State Machine", () => {
                 const logger = container.resolvePlugin("logger");
                 const loggerInfo = jest.spyOn(logger, "info");
                 actionMap.downloadPaused();
-                expect(loggerInfo).lastCalledWith("Blockchain download paused :clock1030:");
+                expect(loggerInfo).lastCalledWith("Blockchain download paused ");
             });
         });
 
@@ -222,7 +222,7 @@ describe("State Machine", () => {
                 const logger = container.resolvePlugin("logger");
                 const loggerInfo = jest.spyOn(logger, "info");
                 actionMap.stopped();
-                expect(loggerInfo).lastCalledWith("The blockchain has been stopped :guitar:");
+                expect(loggerInfo).lastCalledWith("The blockchain has been stopped");
             });
         });
 
@@ -230,7 +230,7 @@ describe("State Machine", () => {
             it("should call container forceExit with error message", () => {
                 const forceExit = jest.spyOn(container, "forceExit").mockImplementationOnce(() => null);
                 actionMap.exitApp();
-                expect(forceExit).lastCalledWith("Failed to startup blockchain. Exiting Ark Core! :rotating_light:");
+                expect(forceExit).lastCalledWith("Failed to startup blockchain. Exiting Ark Core!");
             });
         });
 
@@ -304,8 +304,8 @@ describe("State Machine", () => {
 
             it("should verify database integrity if database recovery was not successful (!restoredDatabaseIntegrity)", async () => {
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(loggerInfo).nthCalledWith(1, "Verifying database integrity :hourglass_flowing_sand:");
-                expect(loggerInfo).nthCalledWith(2, "Verified database integrity :smile_cat:");
+                expect(loggerInfo).nthCalledWith(1, "Verifying database integrity");
+                expect(loggerInfo).nthCalledWith(2, "Verified database integrity");
             });
 
             it("should dispatch ROLLBACK if database recovery was not successful and verifyBlockchain failed", async () => {
@@ -315,7 +315,7 @@ describe("State Machine", () => {
                 });
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "ROLLBACK");
-                expect(loggerError).nthCalledWith(1, "FATAL: The database is corrupted :fire:");
+                expect(loggerError).nthCalledWith(1, "FATAL: The database is corrupted");
             });
 
             it("should skip database integrity check if database recovery was successful (restoredDatabaseIntegrity)", async () => {
@@ -324,7 +324,7 @@ describe("State Machine", () => {
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(loggerInfo).nthCalledWith(
                     1,
-                    "Skipping database integrity check after successful database recovery :smile_cat:",
+                    "Skipping database integrity check after successful database recovery",
                 );
             });
 
@@ -347,7 +347,7 @@ describe("State Machine", () => {
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
                 expect(loggerVerbose).toHaveBeenCalledWith(
-                    "TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY. :bangbang:",
+                    "TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.",
                 );
             });
 
@@ -394,7 +394,7 @@ describe("State Machine", () => {
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(loggerWarn).toHaveBeenCalledWith(
-                    "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown. :hammer:",
+                    "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
                 expect(databaseMocks.saveWallets).toHaveBeenCalledWith(true);
             });
@@ -553,7 +553,7 @@ describe("State Machine", () => {
 
                 actionMap.analyseFork();
 
-                expect(loggerInfo).toHaveBeenCalledWith("Analysing fork :mag:");
+                expect(loggerInfo).toHaveBeenCalledWith("Analysing fork");
             });
         });
 
@@ -575,7 +575,7 @@ describe("State Machine", () => {
                 ];
                 await expect(() => actionMap.startForkRecovery()).toDispatch(blockchain, "SUCCESS");
 
-                expect(loggerInfo).toHaveBeenCalledWith("Starting fork recovery :fork_and_knife:");
+                expect(loggerInfo).toHaveBeenCalledWith("Starting fork recovery");
                 methodsCalled.forEach(method => {
                     expect(method).toHaveBeenCalled();
                 });
@@ -609,9 +609,7 @@ describe("State Machine", () => {
 
                 await expect(() => actionMap.rollbackDatabase()).toDispatch(blockchain, "SUCCESS");
 
-                expect(loggerInfo).toHaveBeenCalledWith(
-                    "Database integrity verified again after rollback to height 1 :green_heart:",
-                );
+                expect(loggerInfo).toHaveBeenCalledWith("Database integrity verified again after rollback to height 1");
                 expect(removeTopBlocks).toHaveBeenCalledTimes(3); // because the 3rd time verifyBlockchain returned true
             });
 
