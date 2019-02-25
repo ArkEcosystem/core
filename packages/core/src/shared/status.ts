@@ -3,7 +3,7 @@ import dayjs from "dayjs-ext";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { BaseCommand } from "../commands/command";
-import { processManager } from "../services/process-manager";
+import { processManager } from "../process-manager";
 import { ProcessDescription } from "../types";
 import { renderTable } from "../utils";
 

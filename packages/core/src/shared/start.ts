@@ -1,7 +1,7 @@
 import cli from "cli-ux";
 import prompts from "prompts";
 import { BaseCommand } from "../commands/command";
-import { processManager } from "../services/process-manager";
+import { processManager } from "../process-manager";
 import { CommandFlags, ProcessDescription } from "../types";
 
 export abstract class AbstractStartCommand extends BaseCommand {

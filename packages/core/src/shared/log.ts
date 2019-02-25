@@ -1,7 +1,7 @@
 import cli from "cli-ux";
 import { Tail } from "tail";
 import { BaseCommand } from "../commands/command";
-import { processManager } from "../services/process-manager";
+import { processManager } from "../process-manager";
 
 export abstract class AbstractLogCommand extends BaseCommand {
     public async run(): Promise<void> {

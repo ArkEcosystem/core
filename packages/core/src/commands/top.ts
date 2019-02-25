@@ -2,7 +2,7 @@ import Table from "cli-table3";
 import dayjs from "dayjs-ext";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
-import { processManager } from "../services/process-manager";
+import { processManager } from "../process-manager";
 import { CommandFlags } from "../types";
 import { renderTable } from "../utils";
 import { BaseCommand } from "./command";
