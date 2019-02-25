@@ -317,17 +317,21 @@ export class Monitor implements P2P.IMonitor {
      * Populate list of available peers from random peers.
      */
     public async discoverPeers() {
+        const queryAtLeastNPeers = 4;
+        let queriedPeers = 0;
+
         const shuffledPeers = shuffle(this.getPeers());
 
         for (const peer of shuffledPeers) {
             try {
                 const hisPeers = await peer.getPeers();
+                queriedPeers++;
                 await Promise.all(hisPeers.map(p => this.acceptNewPeer(p, { lessVerbose: true })));
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
             }
 
-            if (this.hasMinimumPeers()) {
+            if (this.hasMinimumPeers() && queriedPeers >= queryAtLeastNPeers) {
                 return;
             }
         }
