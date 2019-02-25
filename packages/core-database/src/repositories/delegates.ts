@@ -59,12 +59,13 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
             delete params.usernames;
         }
 
-        const delegates = filterRows(this.getLocalDelegates(), params, query);
+        this.applyOrder(params);
 
-        const [iteratee, order] = this.__orderBy(params);
+        let delegates = filterRows(this.getLocalDelegates(), params, query);
+        delegates = sortEntries(params, delegates, ["rate", "asc"]);
 
         return {
-            rows: limitRows(orderBy(delegates, [iteratee], [order as "desc" | "asc"]), params),
+            rows: limitRows(delegates, params),
             count: delegates.length,
         };
     }
