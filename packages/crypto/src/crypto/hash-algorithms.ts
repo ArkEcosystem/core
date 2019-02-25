@@ -1,22 +1,18 @@
-import createHash from "create-hash";
+import { Hash160, Hash256, RIPEMD160, SHA1, SHA256 } from "bcrypto";
 
 export class HashAlgorithms {
     /**
      * Create a "ripemd160" buffer.
      */
     public static ripemd160(buffer: Buffer | string): Buffer {
-        return createHash("rmd160")
-            .update(buffer)
-            .digest();
+        return RIPEMD160.digest(buffer);
     }
 
     /**
      * Create a "sha1" buffer.
      */
     public static sha1(buffer: Buffer | string): Buffer {
-        return createHash("sha1")
-            .update(buffer)
-            .digest();
+        return SHA1.digest(buffer);
     }
 
     /**
@@ -25,22 +21,20 @@ export class HashAlgorithms {
      * @return {Buffer}
      */
     public static sha256(buffer: Buffer | string): Buffer {
-        return createHash("sha256")
-            .update(buffer)
-            .digest();
+        return SHA256.digest(buffer);
     }
 
     /**
      * Create a "hash160" buffer.
      */
     public static hash160(buffer: Buffer | string): Buffer {
-        return this.ripemd160(this.sha256(buffer));
+        return Hash160.digest(buffer);
     }
 
     /**
      * Create a "hash256" buffer.
      */
     public static hash256(buffer: Buffer | string): Buffer {
-        return this.sha256(this.sha256(buffer));
+        return Hash256.digest(buffer);
     }
 }
