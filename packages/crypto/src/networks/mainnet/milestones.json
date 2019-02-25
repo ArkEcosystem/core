@@ -34,5 +34,11 @@
             "maxTransactions": 150,
             "maxPayload": 6300000
         }
+    },
+    {
+        "height": 7400000,
+        "block": {
+            "idFullSha256": true
+        }
     }
 ]

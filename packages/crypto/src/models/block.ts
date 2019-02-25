@@ -107,10 +107,17 @@ export class Block implements IBlock {
     }
 
     public static getIdHex(data): string {
+        const constants = configManager.getMilestone(data.id);
         const payloadHash: any = Block.serialize(data);
+
         const hash = createHash("sha256")
             .update(payloadHash)
             .digest();
+
+        if (constants.block.idFullSha256) {
+            return hash.toString("hex");
+        }
+
         const temp = Buffer.alloc(8);
 
         for (let i = 0; i < 8; i++) {
@@ -124,23 +131,14 @@ export class Block implements IBlock {
         return "0".repeat(16 - temp.length) + temp;
     }
 
-    /**
-     * Get block id from already serialized buffer
-     */
-    public static getIdFromSerialized(serializedBuffer: Buffer): string {
-        const hash = createHash("sha256")
-            .update(serializedBuffer)
-            .digest();
-        const temp = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            temp[i] = hash[7 - i];
-        }
-        return new Bignum(temp.toString("hex"), 16).toFixed();
-    }
-
     public static getId(data): string {
+        const constants = configManager.getMilestone(data.id);
         const idHex = Block.getIdHex(data);
+
+        if (constants.block.idFullSha256) {
+            return idHex;
+        }
+
         return new Bignum(idHex, 16).toFixed();
     }
 

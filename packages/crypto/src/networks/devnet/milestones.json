@@ -46,5 +46,11 @@
     {
         "height": 950000,
         "ignoreInvalidSecondSignatureField": false
+    },
+    {
+        "height": 1610000,
+        "block": {
+            "idFullSha256": true
+        }
     }
 ]

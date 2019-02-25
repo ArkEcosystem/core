@@ -353,14 +353,6 @@ describe("Models - Block", () => {
         });
     });
 
-    describe("getIdFromSerialized", () => {
-        it("should get the id from serialized buffer", () => {
-            const serialized = Block.serialize(data);
-
-            expect(Block.getIdFromSerialized(serialized)).toBe(data.id);
-        });
-    });
-
     describe("serializeFull", () => {
         describe("genesis block", () => {
             describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])("%s", (network, length) => {

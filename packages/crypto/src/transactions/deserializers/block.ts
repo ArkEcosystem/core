@@ -22,7 +22,7 @@ class BlockDeserializer {
         }
 
         block.idHex = Block.getIdHex(block);
-        block.id = new Bignum(block.idHex, 16).toFixed();
+        block.id = Block.getId(block);
 
         const { outlookTable } = configManager.config.exceptions;
         if (outlookTable && outlookTable[block.id]) {
