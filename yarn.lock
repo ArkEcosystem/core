@@ -135,10 +135,10 @@
     webpack-node-externals "^1.7.2"
     wif "^2.0.6"
 
-"@arkecosystem/utils@^0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.3.tgz#8e8cac978cd892b6e8d9cd956d60f2e6c4312fd0"
-  integrity sha512-7DrnQlrPWxIUQA/C1c1Grry0aAkxIwt4uN7aKd0afSkqpwg+rIyByT9N+rwqwYyhSxEZtN6og+iOHXnbNs0epQ==
+"@arkecosystem/utils@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.4.tgz#1458a1046141adb55e9b8af0a355b00920d35332"
+  integrity sha512-24+DQLJ42KOJywFiq6oWd7oUJwbUZMRrVUkec8HprwXXza5MjmcIYf62cHqSfikTCxWJdXXKujUaKNd9ZJpPoA==
   dependencies:
     "@flatten/array" "^1.1.7"
     dottie "^2.0.1"
@@ -1956,13 +1956,6 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@types/clipboardy/-/clipboardy-1.1.0.tgz#316fe1a3ed71b1a51becb925e7e0497986c6a85c"
   integrity sha512-KOxf4ah9diZWmREM5jCupx2+pZaBPwKk5d5jeNK2+TY6IgEO35uhG55NnDT4cdXeRX8irDSHQPtdRrr0JOTQIw==
-
-"@types/commander@^2.12.2":
-  version "2.12.2"
-  resolved "https://registry.yarnpkg.com/@types/commander/-/commander-2.12.2.tgz#183041a23842d4281478fa5d23c5ca78e6fd08ae"
-  integrity sha512-0QEFiR8ljcHp9bAbWxecjVRuAMr16ivPiGOw6KFQBVrVd0RQIcM3xKdRisH2EDWgVWujiYtHwhSkSUoAAGzH7Q==
-  dependencies:
-    commander "*"
 
 "@types/connect@*":
   version "3.4.32"
@@ -4758,15 +4751,15 @@ combined-stream@^1.0.5, combined-stream@^1.0.6, combined-stream@~1.0.5, combined
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@*, commander@2.19.0, commander@^2.12.1, commander@^2.14.1, commander@^2.9.0:
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
-  integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
-
 commander@2.15.1:
   version "2.15.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.15.1.tgz#df46e867d0fc2aec66a34662b406a9ccafff5b0f"
   integrity sha512-VlfT9F3V0v+jr4yxPc5gg9s62/fIVWsd2Bk2iD435um1NlGMYdVCq+MjcXnhYq2icNOizHr1kK+5TI6H0Hy0ag==
+
+commander@2.19.0, commander@^2.12.1, commander@^2.14.1, commander@^2.9.0:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
+  integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
 
 commander@~2.17.1:
   version "2.17.1"

@@ -2,6 +2,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { orderBy } from "@arkecosystem/utils";
 import limitRows from "./utils/limit-rows";
+import { sortEntries } from "./utils/sort-entries";
 
 export class DelegatesRepository implements Database.IDelegatesBusinessRepository {
     /**
@@ -26,12 +27,12 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
      * @return {Object}
      */
     public findAll(params: Database.IParameters = {}) {
-        const delegates = this.getLocalDelegates();
+        this.applyOrder(params);
 
-        const [iteratee, order] = this.__orderBy(params);
+        const delegates = sortEntries(params, this.getLocalDelegates(), ["rate", "asc"]);
 
         return {
-            rows: limitRows(orderBy(delegates, [iteratee], [order as "desc" | "asc"]), params),
+            rows: limitRows(delegates, params),
             count: delegates.length,
         };
     }
@@ -99,21 +100,26 @@ export class DelegatesRepository implements Database.IDelegatesBusinessRepositor
         });
     }
 
-    public __orderBy(params): string[] {
+    private applyOrder(params): string {
+        const assignOrder = (params, value) => (params.orderBy = value.join(":"));
+
         if (!params.orderBy) {
-            return ["rate", "asc"];
+            return assignOrder(params, ["rate", "asc"]);
         }
 
         const orderByMapped = params.orderBy.split(":").map(p => p.toLowerCase());
+
         if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
-            return ["rate", "asc"];
+            return assignOrder(params, ["rate", "asc"]);
         }
 
-        return [this.__manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
+        return assignOrder(params, [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]]);
     }
 
-    public __manipulateIteratee(iteratee): any {
+    private manipulateIteratee(iteratee): any {
         switch (iteratee) {
+            case "votes":
+                return "voteBalance";
             case "rank":
                 return "rate";
             case "productivity":

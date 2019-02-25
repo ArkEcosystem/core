@@ -82,7 +82,7 @@ describe("Peer", () => {
                 });
 
         it("should return the blocks with status 200", async () => {
-            const blocks = [{}];
+            const blocks = [];
             axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(200, { blocks }, peerMock.headers);
             const result = await peerMock.downloadBlocks(1);
 
@@ -119,7 +119,7 @@ describe("Peer", () => {
 
         it("should not be ok", async () => {
             axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [500, {}, peerMock.headers]);
-            return expect(peerMock.ping(1)).rejects.toThrowError("is unresponsive");
+            return expect(peerMock.ping(1)).rejects.toThrowError("could not get status response");
         });
 
         it.each([200, 500, 503])("should update peer status from http response %i", async status => {
@@ -173,7 +173,14 @@ describe("Peer", () => {
                 },
                 peerMock.headers,
             ]);
-            axiosMock.onGet(`${peerMock.url}/peer/list`).reply(() => [200, { peers: peersMock }, peerMock.headers]);
+            axiosMock.onGet(`${peerMock.url}/peer/list`).reply(() => [
+                200,
+                {
+                    peers: peersMock,
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
 
             const peers = await peerMock.getPeers();
 
@@ -183,7 +190,7 @@ describe("Peer", () => {
 
     describe("height", () => {
         it("should update the height after download", async () => {
-            const blocks = [{}];
+            const blocks = [];
             const headers = Object.assign({}, peerMock.headers, { height: 1 });
 
             axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(200, { blocks }, headers);
