@@ -36,7 +36,7 @@ class ProcessManager {
 
     public exists(name: string): boolean {
         try {
-            const { stdout } = shellSync(`pm2 id ${name} | awk '{ print $2 }'`);
+            const { stdout } = this.exec(`pm2 id ${name} | awk '{ print $2 }'`);
 
             return !!stdout;
         } catch (error) {
@@ -60,7 +60,7 @@ class ProcessManager {
 
     private execWithHandler(command: string): boolean {
         try {
-            shellSync(command);
+            this.exec(command);
 
             return true;
         } catch (error) {
