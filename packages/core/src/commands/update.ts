@@ -39,9 +39,6 @@ export class UpdateCommand extends BaseCommand {
                     removeSync(state.cache);
 
                     this.warn(`Version ${newVersion} has been installed.`);
-                    this.warn(
-                        'Respectively run "ark relay:restart", "ark forger:restart" or "ark core:restart" to restart your processes.',
-                    );
 
                     const { flags } = await this.parseWithNetwork(UpdateCommand);
 
