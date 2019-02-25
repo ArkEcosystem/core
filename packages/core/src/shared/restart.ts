@@ -14,8 +14,6 @@ export abstract class AbstractRestartCommand extends BaseCommand {
             processManager.restart(processName);
         } catch (error) {
             this.warn(`The "${processName}" process does not exist.`);
-
-            process.exit();
         } finally {
             cli.action.stop();
         }
