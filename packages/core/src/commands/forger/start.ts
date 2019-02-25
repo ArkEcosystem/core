@@ -38,7 +38,7 @@ $ ark forger:start --no-daemon
         try {
             const { bip38, password } = await this.buildBIP38(flags);
 
-            this.runWithPm2(
+            await this.runWithPm2(
                 {
                     name: `${flags.token}-forger`,
                     // @ts-ignore
