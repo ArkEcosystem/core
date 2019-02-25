@@ -2,6 +2,8 @@ import { AbstractLogger } from "@arkecosystem/core-logger";
 import isEmpty from "lodash/isEmpty";
 import pino from "pino";
 import { multistream } from "pino-multi-stream";
+import PinoPretty from "pino-pretty";
+import { getPrettyStream } from "pino/lib/tools";
 import rfs from "rotating-file-stream";
 import { inspect } from "util";
 
@@ -17,8 +19,8 @@ export class PinoLogger extends AbstractLogger {
         this.logger = pino(
             this.options,
             multistream([
-                { level: this.options.level, stream: process.stdout },
-                { level: this.options.level, stream: this.getWriteStream() },
+                { level: this.options.level, stream: this.getConsoleStream() },
+                { level: this.options.level, stream: this.getFileStream() },
             ]),
         );
 
@@ -65,7 +67,19 @@ export class PinoLogger extends AbstractLogger {
         this.logger[method](message);
     }
 
-    private getWriteStream() {
+    private getConsoleStream() {
+        return getPrettyStream(
+            {
+                levelFirst: false,
+                translateTime: true,
+                colorize: true,
+            },
+            PinoPretty,
+            process.stdout,
+        );
+    }
+
+    private getFileStream() {
         const withLeadingZero = (num: number) => (num > 9 ? "" : "0") + num;
 
         const createFileName = (time: Date) => {
