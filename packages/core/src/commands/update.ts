@@ -3,7 +3,6 @@ import cli from "cli-ux";
 import { removeSync } from "fs-extra";
 import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
-import { processManager } from "../process-manager";
 import { BaseCommand } from "./command";
 
 export class UpdateCommand extends BaseCommand {
@@ -53,22 +52,6 @@ export class UpdateCommand extends BaseCommand {
             });
         } catch (err) {
             this.error(err.message);
-        }
-    }
-
-    private async restartProcess(processName: string) {
-        if (processManager.exists(processName)) {
-            await confirm(`Would you like to restart the ${processName} process?`, () => {
-                try {
-                    cli.action.start(`Restarting ${processName}`);
-
-                    processManager.restart(processName);
-                } catch (error) {
-                    this.error(error.message);
-                } finally {
-                    cli.action.stop();
-                }
-            });
         }
     }
 }
