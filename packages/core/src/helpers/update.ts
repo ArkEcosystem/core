@@ -106,6 +106,8 @@ export async function checkForUpdates({ config, error, warn }): Promise<any> {
         }
     } catch (err) {
         error(err.message);
+    } finally {
+        cli.action.stop();
     }
 
     return state;
