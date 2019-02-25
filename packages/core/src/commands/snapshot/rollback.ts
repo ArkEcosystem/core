@@ -3,12 +3,13 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import { setUpLite } from "../../helpers/snapshot";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RollbackCommand extends BaseCommand {
     public static description: string = "rollback chain to specified height";
 
-    public static flags = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,
         height: flags.integer({
             description: "block network height number to rollback",

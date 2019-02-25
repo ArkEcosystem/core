@@ -2,6 +2,7 @@ import { flags } from "@oclif/command";
 import cli from "cli-ux";
 import { configManager } from "../../helpers/config";
 import { installFromChannel } from "../../helpers/update";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class CommandLineInterfaceCommand extends BaseCommand {
@@ -16,7 +17,7 @@ $ ark config:cli --channel=mine
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         token: flags.string({
             description: "the name of the token that should be used",
         }),

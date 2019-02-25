@@ -1,5 +1,6 @@
 import { flags } from "@oclif/command";
 import { AbstractStartCommand } from "../../shared/start";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
@@ -17,7 +18,7 @@ $ ark forger:start --no-daemon
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsForger,
         daemon: flags.boolean({
@@ -31,31 +32,27 @@ $ ark forger:start --no-daemon
         return StartCommand;
     }
 
-    protected async runProcess(flags: Record<string, any>): Promise<void> {
-        this.createPm2Connection(() => {
-            this.describePm2Process(`${flags.token}-core`, async core => {
-                this.abortWhenRunning(`${flags.token}-core`, core);
+    protected async runProcess(flags: CommandFlags): Promise<void> {
+        this.abortWhenRunning(`${flags.token}-core`);
 
-                try {
-                    const { bip38, password } = await this.buildBIP38(flags);
+        try {
+            const { bip38, password } = await this.buildBIP38(flags);
 
-                    this.runWithPm2(
-                        {
-                            name: `${flags.token}-forger`,
-                            // @ts-ignore
-                            script: this.config.options.root,
-                            args: `forger:run ${this.flagsToStrings(flags, ["daemon"])}`,
-                            env: {
-                                CORE_FORGER_BIP38: bip38,
-                                CORE_FORGER_PASSWORD: password,
-                            },
-                        },
-                        flags,
-                    );
-                } catch (error) {
-                    this.error(error.message);
-                }
-            });
-        });
+            await this.runWithPm2(
+                {
+                    name: `${flags.token}-forger`,
+                    // @ts-ignore
+                    script: this.config.options.root,
+                    args: `forger:run ${this.flagsToStrings(flags, ["daemon"])}`,
+                    env: {
+                        CORE_FORGER_BIP38: bip38,
+                        CORE_FORGER_PASSWORD: password,
+                    },
+                },
+                flags,
+            );
+        } catch (error) {
+            this.error(error.message);
+        }
     }
 }

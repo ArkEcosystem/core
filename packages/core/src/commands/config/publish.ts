@@ -3,6 +3,7 @@ import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
 import { configManager } from "../../helpers/config";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class PublishCommand extends BaseCommand {
@@ -14,7 +15,7 @@ $ ark config:publish --network=mainnet
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 
@@ -53,7 +54,7 @@ $ ark config:publish --network=mainnet
         }
     }
 
-    private async performPublishment(flags: Record<string, any>): Promise<void> {
+    private async performPublishment(flags: CommandFlags): Promise<void> {
         const { config } = await this.getPaths(flags);
 
         if (!this.isValidNetwork(flags.network)) {

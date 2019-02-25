@@ -1,4 +1,5 @@
 import Table from "cli-table3";
+import { CommandFlags } from "../../types";
 import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";
 
@@ -11,7 +12,7 @@ $ ark env:paths
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 
