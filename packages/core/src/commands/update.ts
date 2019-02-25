@@ -59,11 +59,11 @@ export class UpdateCommand extends BaseCommand {
 
     private async restartProcess(processName: string) {
         if (processManager.exists(processName)) {
-            await confirm(`Would you like to restart the ${processName} process?`, async () => {
+            await confirm(`Would you like to restart the ${processName} process?`, () => {
                 try {
                     cli.action.start(`Restarting ${processName}`);
 
-                    await processManager.restart(processName);
+                    processManager.restart(processName);
                 } catch (error) {
                     this.error(error.message);
                 } finally {
