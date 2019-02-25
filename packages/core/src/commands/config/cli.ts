@@ -58,6 +58,8 @@ $ ark config:cli --channel=mine
 
             this.warn(`${pkg} has been installed.`);
 
+            cli.action.stop();
+
             const { flags } = await this.parseWithNetwork(CommandLineInterfaceCommand);
 
             await this.restartProcess(`${flags.token}-core`);
