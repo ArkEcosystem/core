@@ -6,9 +6,7 @@ export function sortEntries(params: Database.IParameters, entries: any[], defaul
 
     if (["balance", "voteBalance"].includes(iteratee)) {
         return Object.values(entries).sort((a: any, b: any) => {
-            return order === "asc"
-                ? +a[iteratee].minus(b[iteratee]).toFixed()
-                : +b[iteratee].minus(a[iteratee]).toFixed();
+            return order === "asc" ? a[iteratee].comparedTo(b[iteratee]) : b[iteratee].comparedTo(a[iteratee]);
         });
     }
 
