@@ -18,6 +18,7 @@ export class PinoLogger extends AbstractLogger {
     public make() {
         this.logger = pino(
             {
+                base: null,
                 safe: true,
                 level: this.options.level,
             },
