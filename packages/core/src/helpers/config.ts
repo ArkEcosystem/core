@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { readJsonSync, removeSync, writeJsonSync } from "fs-extra";
+import { ensureFileSync, readJsonSync, removeSync, writeJsonSync } from "fs-extra";
 import { getRegistryChannel } from "./update";
 
 class ConfigManager {
@@ -29,6 +29,8 @@ class ConfigManager {
 
     private ensureDefaults(): void {
         if (!existsSync(this.file)) {
+            ensureFileSync(this.file);
+
             this.write({
                 token: this.config.bin,
                 channel: getRegistryChannel(this.config),
@@ -37,6 +39,10 @@ class ConfigManager {
     }
 
     private read() {
+        if (!existsSync(this.file)) {
+            this.ensureDefaults();
+        }
+
         return readJsonSync(this.file);
     }
 
