@@ -58,6 +58,16 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
+    public static flagsSnapshot: Record<string, object> = {
+        ...BaseCommand.flagsNetwork,
+        skipCompression: flags.boolean({
+            description: "skip gzip compression",
+        }),
+        trace: flags.boolean({
+            description: "dumps generated queries and settings to console",
+        }),
+    };
+
     protected tasks: Array<{ title: string; task: any }> = [];
 
     protected buildPeerOptions(flags: Record<string, any>) {
