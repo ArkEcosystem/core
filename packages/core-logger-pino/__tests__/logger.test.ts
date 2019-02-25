@@ -13,7 +13,6 @@ beforeAll(() => {
     const driver = new PinoLogger({
         name: "ark-core",
         safe: true,
-        prettyPrint: { translateTime: true },
         level: "trace",
     });
 
@@ -21,6 +20,10 @@ beforeAll(() => {
 
     capcon.startCapture(process.stdout, stdout => {
         message += stdout;
+    });
+
+    capcon.startCapture(process.stderr, stderr => {
+        message += stderr;
     });
 });
 

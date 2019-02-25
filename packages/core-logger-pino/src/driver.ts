@@ -1,6 +1,7 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import isEmpty from "lodash/isEmpty";
 import pino from "pino";
+import { multistream } from "pino-multi-stream";
 import rfs from "rotating-file-stream";
 import { inspect } from "util";
 
@@ -13,9 +14,13 @@ export class PinoLogger extends AbstractLogger {
     }
 
     public make() {
-        // @TODO add support for multistream
-        this.logger = pino(this.options);
-        // this.logger = pino(this.options, this.getWriteStream());
+        this.logger = pino(
+            this.options,
+            multistream([
+                { level: this.options.level, stream: process.stdout },
+                { level: this.options.level, stream: this.getWriteStream() },
+            ]),
+        );
 
         return this;
     }
@@ -65,8 +70,10 @@ export class PinoLogger extends AbstractLogger {
 
         const createFileName = (time: Date) => {
             if (!time) {
-                return "core.log";
+                return new Date().toISOString().slice(0, 10) + ".log";
             }
+
+            console.log(time.getMonth());
 
             const year = withLeadingZero(time.getFullYear());
             const month = withLeadingZero(time.getMonth());
