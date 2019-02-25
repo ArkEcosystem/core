@@ -4,7 +4,7 @@ import { utils } from "../utils";
 
 import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
 
-import { models } from "@arkecosystem/crypto";
+import { Bignum, models } from "@arkecosystem/crypto";
 const { Block } = models;
 
 import { app } from "@arkecosystem/core-container";
@@ -43,6 +43,34 @@ describe("API 2.0 - Delegates", () => {
 
                     response.data.data.forEach(utils.expectDelegate);
                     expect(response.data.data.sort((a, b) => a.rank < b.rank)).toEqual(response.data.data);
+                });
+
+                it("should GET all the delegates sorted by votes,asc", async () => {
+                    const wm = app.resolvePlugin("database").walletManager;
+                    const wallet = wm.findByUsername("genesis_51");
+                    wallet.voteBalance = new Bignum(1);
+                    wm.reindex(wallet);
+
+                    const response = await utils[request]("GET", "delegates", { orderBy: "votes:asc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    expect(response.data.data[0].username).toBe(wallet.username);
+                    expect(response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
+                });
+
+                it("should GET all the delegates sorted by votes,desc", async () => {
+                    const wm = app.resolvePlugin("database").walletManager;
+                    const wallet = wm.findByUsername("genesis_1");
+                    wallet.voteBalance = new Bignum(12500000000000000);
+                    wm.reindex(wallet);
+
+                    const response = await utils[request]("GET", "delegates", { orderBy: "votes:desc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    expect(response.data.data[0].username).toBe(wallet.username);
+                    expect(response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
                 });
             },
         );
