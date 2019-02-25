@@ -25,7 +25,7 @@ fs.readdir("./packages", (_, packages) => {
         const jobs = [
             config.jobs[name],
             jason(config.jobs[name]),
-            jason(config.jobs[name]),
+            jason(config.jobs[name]), 
         ];
 
         jobs.forEach((job, index) => {

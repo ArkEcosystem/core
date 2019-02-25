@@ -31,7 +31,7 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -56,7 +56,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -72,32 +71,32 @@ jobs:
           name: core-api
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-api && yarn test:coverage
+            ~/core/__tests__/unit/core-api && yarn test:coverage
       - run:
           name: core-blockchain
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-blockchain && yarn test:coverage
+            ~/core/__tests__/unit/core-blockchain && yarn test:coverage
       - run:
           name: core-container
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-container && yarn test:coverage
+            ~/core/__tests__/unit/core-container && yarn test:coverage
       - run:
           name: core-database
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database && yarn test:coverage
+            ~/core/__tests__/unit/core-database && yarn test:coverage
       - run:
           name: core-database-postgres
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database-postgres && yarn test:coverage
+            ~/core/__tests__/unit/core-database-postgres && yarn test:coverage
       - run:
           name: core-debugger-cli
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-debugger-cli && yarn test:coverage
+            ~/core/__tests__/unit/core-debugger-cli && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -139,7 +138,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -164,7 +163,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -180,32 +178,32 @@ jobs:
           name: core-api
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-api && yarn test:coverage
+            ~/core/__tests__/unit/core-api && yarn test:coverage
       - run:
           name: core-blockchain
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-blockchain && yarn test:coverage
+            ~/core/__tests__/unit/core-blockchain && yarn test:coverage
       - run:
           name: core-container
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-container && yarn test:coverage
+            ~/core/__tests__/unit/core-container && yarn test:coverage
       - run:
           name: core-database
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database && yarn test:coverage
+            ~/core/__tests__/unit/core-database && yarn test:coverage
       - run:
           name: core-database-postgres
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database-postgres && yarn test:coverage
+            ~/core/__tests__/unit/core-database-postgres && yarn test:coverage
       - run:
           name: core-debugger-cli
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-debugger-cli && yarn test:coverage
+            ~/core/__tests__/unit/core-debugger-cli && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -247,7 +245,7 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -272,7 +270,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -288,47 +285,47 @@ jobs:
           name: core-event-emitter
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-event-emitter && yarn test:coverage
+            ~/core/__tests__/unit/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-forger && yarn test:coverage
+            ~/core/__tests__/unit/core-forger && yarn test:coverage
       - run:
           name: core-graphql
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-graphql && yarn test:coverage
+            ~/core/__tests__/unit/core-graphql && yarn test:coverage
       - run:
           name: core-http-utils
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-http-utils && yarn test:coverage
+            ~/core/__tests__/unit/core-http-utils && yarn test:coverage
       - run:
           name: core-jest-matchers
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-jest-matchers && yarn test:coverage
+            ~/core/__tests__/unit/core-jest-matchers && yarn test:coverage
       - run:
           name: core-json-rpc
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-json-rpc && yarn test:coverage
+            ~/core/__tests__/unit/core-json-rpc && yarn test:coverage
       - run:
           name: core-logger
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger && yarn test:coverage
+            ~/core/__tests__/unit/core-logger && yarn test:coverage
       - run:
           name: core-logger-winston
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger-winston && yarn test:coverage
+            ~/core/__tests__/unit/core-logger-winston && yarn test:coverage
       - run:
           name: core-p2p
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-p2p && yarn test:coverage
+            ~/core/__tests__/unit/core-p2p && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -370,7 +367,7 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -395,7 +392,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -411,42 +407,42 @@ jobs:
           name: core-snapshots
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-snapshots && yarn test:coverage
+            ~/core/__tests__/unit/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-test-utils && yarn test:coverage
+            ~/core/__tests__/unit/core-test-utils && yarn test:coverage
       - run:
           name: core-tester-cli
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-tester-cli && yarn test:coverage
+            ~/core/__tests__/unit/core-tester-cli && yarn test:coverage
       - run:
           name: core-transaction-pool
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-transaction-pool && yarn test:coverage
+            ~/core/__tests__/unit/core-transaction-pool && yarn test:coverage
       - run:
           name: core-utils
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-utils && yarn test:coverage
+            ~/core/__tests__/unit/core-utils && yarn test:coverage
       - run:
           name: core-vote-report
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-vote-report && yarn test:coverage
+            ~/core/__tests__/unit/core-vote-report && yarn test:coverage
       - run:
           name: core-webhooks
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-webhooks && yarn test:coverage
+            ~/core/__tests__/unit/core-webhooks && yarn test:coverage
       - run:
           name: crypto
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/crypto
-            && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
+            ~/core/__tests__/unit/crypto && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -488,7 +484,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -513,7 +509,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -529,47 +524,47 @@ jobs:
           name: core-event-emitter
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-event-emitter && yarn test:coverage
+            ~/core/__tests__/unit/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-forger && yarn test:coverage
+            ~/core/__tests__/unit/core-forger && yarn test:coverage
       - run:
           name: core-graphql
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-graphql && yarn test:coverage
+            ~/core/__tests__/unit/core-graphql && yarn test:coverage
       - run:
           name: core-http-utils
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-http-utils && yarn test:coverage
+            ~/core/__tests__/unit/core-http-utils && yarn test:coverage
       - run:
           name: core-jest-matchers
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-jest-matchers && yarn test:coverage
+            ~/core/__tests__/unit/core-jest-matchers && yarn test:coverage
       - run:
           name: core-json-rpc
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-json-rpc && yarn test:coverage
+            ~/core/__tests__/unit/core-json-rpc && yarn test:coverage
       - run:
           name: core-logger
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger && yarn test:coverage
+            ~/core/__tests__/unit/core-logger && yarn test:coverage
       - run:
           name: core-logger-winston
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger-winston && yarn test:coverage
+            ~/core/__tests__/unit/core-logger-winston && yarn test:coverage
       - run:
           name: core-p2p
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-p2p && yarn test:coverage
+            ~/core/__tests__/unit/core-p2p && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -611,7 +606,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -636,7 +631,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -652,42 +646,42 @@ jobs:
           name: core-snapshots
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-snapshots && yarn test:coverage
+            ~/core/__tests__/unit/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-test-utils && yarn test:coverage
+            ~/core/__tests__/unit/core-test-utils && yarn test:coverage
       - run:
           name: core-tester-cli
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-tester-cli && yarn test:coverage
+            ~/core/__tests__/unit/core-tester-cli && yarn test:coverage
       - run:
           name: core-transaction-pool
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-transaction-pool && yarn test:coverage
+            ~/core/__tests__/unit/core-transaction-pool && yarn test:coverage
       - run:
           name: core-utils
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-utils && yarn test:coverage
+            ~/core/__tests__/unit/core-utils && yarn test:coverage
       - run:
           name: core-vote-report
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-vote-report && yarn test:coverage
+            ~/core/__tests__/unit/core-vote-report && yarn test:coverage
       - run:
           name: core-webhooks
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-webhooks && yarn test:coverage
+            ~/core/__tests__/unit/core-webhooks && yarn test:coverage
       - run:
           name: crypto
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/crypto
-            && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
+            ~/core/__tests__/unit/crypto && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
