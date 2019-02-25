@@ -1,4 +1,3 @@
-import { existsSync } from "fs";
 import { ensureFileSync, readJsonSync, removeSync, writeJsonSync } from "fs-extra";
 import { getRegistryChannel } from "./update";
 
@@ -10,13 +9,7 @@ class ConfigManager {
         this.config = config;
         this.file = `${config.configDir}/config.json`;
 
-        try {
-            this.read();
-        } catch (error) {
-            removeSync(this.file);
-
-            this.ensureDefaults();
-        }
+        this.ensureDefaults();
     }
 
     public get(key) {
@@ -28,7 +21,9 @@ class ConfigManager {
     }
 
     private ensureDefaults(): void {
-        if (!existsSync(this.file)) {
+        if (!this.read()) {
+            removeSync(this.file);
+
             ensureFileSync(this.file);
 
             this.write({
@@ -38,12 +33,12 @@ class ConfigManager {
         }
     }
 
-    private read() {
-        if (!existsSync(this.file)) {
-            this.ensureDefaults();
+    private read(): any {
+        try {
+            return readJsonSync(this.file);
+        } catch (error) {
+            return false;
         }
-
-        return readJsonSync(this.file);
     }
 
     private write(data): void {
