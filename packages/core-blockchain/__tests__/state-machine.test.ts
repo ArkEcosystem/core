@@ -201,7 +201,7 @@ describe("State Machine", () => {
                 const logger = container.resolvePlugin("logger");
                 const loggerInfo = jest.spyOn(logger, "info");
                 actionMap.downloadPaused();
-                expect(loggerInfo).lastCalledWith("Blockchain download paused ");
+                expect(loggerInfo).lastCalledWith("Blockchain download paused");
             });
         });
 
