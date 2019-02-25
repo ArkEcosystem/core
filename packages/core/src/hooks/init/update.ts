@@ -1,5 +1,5 @@
 import { Hook } from "@oclif/config";
-import { checkForUpdates, needsRefresh } from "../helpers/update";
+import { checkForUpdates, needsRefresh } from "../../helpers/update";
 
 // tslint:disable-next-line:only-arrow-functions
 export const init: Hook<"init"> = async function({ id, config }) {
