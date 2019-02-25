@@ -22,9 +22,16 @@ export const init: Hook<"init"> = async function({ id, config }) {
             )}. Review the latest release and run "ark update" once you wish to update.`,
         );
 
+        const branch = {
+            alpha: "develop",
+            beta: "develop",
+            rc: "develop",
+            latest: "master",
+        }[state.channel];
+
         await cli.url(
-            `Click here to read the changelog for v${state.currentVersion}`,
-            "https://github.com/ArkEcosystem/core/blob/master/CHANGELOG.md",
+            `Click here to read the changelog for ${state.currentVersion}.`,
+            `https://github.com/ArkEcosystem/core/blob/${branch}/CHANGELOG.md`,
         );
     }
 };

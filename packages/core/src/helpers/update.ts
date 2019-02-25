@@ -66,10 +66,11 @@ export function needsRefresh(config: IConfig): boolean {
 }
 
 export async function checkForUpdates({ config, error, warn }): Promise<any> {
-    const initialState = {
+    const state = {
         ready: false,
         name: config.name,
         currentVersion: config.version,
+        channel: configManager.get("channel"),
     };
 
     if (existsSync(join(__dirname, "../../../..", ".git"))) {
@@ -77,26 +78,25 @@ export async function checkForUpdates({ config, error, warn }): Promise<any> {
             warn(`You are using a git clone for developers. Please install core via yarn for auto-updates.`);
         }
 
-        return initialState;
+        return state;
     }
 
     try {
-        const channel = configManager.get("channel");
         const cacheFile = ensureCacheFile(config);
 
         cli.action.start(`Checking for updates`);
-        const latestVersion = await getLatestVersion(config.name, channel);
+        const latestVersion = await getLatestVersion(state.name, state.channel);
         cli.action.stop();
 
         if (latestVersion === undefined) {
-            error(`We were unable to find any releases for the "${channel}" channel.`);
+            error(`We were unable to find any releases for the "${state.channel}" channel.`);
 
-            return initialState;
+            return state;
         }
 
         if (semver.gt(latestVersion, config.version)) {
             return {
-                ...initialState,
+                ...state,
                 ...{
                     ready: true,
                     updateVersion: latestVersion,
@@ -108,5 +108,5 @@ export async function checkForUpdates({ config, error, warn }): Promise<any> {
         error(err.message);
     }
 
-    return initialState;
+    return state;
 }
