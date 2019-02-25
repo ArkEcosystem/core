@@ -1,27 +1,20 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import * as capcon from "capture-console";
 import "jest-extended";
-import * as winston from "winston";
-import { WinstonLogger } from "../src";
+import { tmpdir } from "os";
+import { PinoLogger } from "../src";
 
 let logger: AbstractLogger;
 let message;
 
 beforeAll(() => {
-    const driver = new WinstonLogger({
-        transports: [
-            {
-                constructor: "Console",
-                package: "winston/lib/winston/transports/console",
-                options: {
-                    level: "debug",
-                },
-            },
-            {
-                constructor: "File",
-                options: { filename: "tmp.log", level: "silly" },
-            },
-        ],
+    process.env.CORE_PATH_LOG = tmpdir();
+
+    const driver = new PinoLogger({
+        name: "ark-core",
+        safe: true,
+        prettyPrint: { translateTime: true },
+        level: "trace",
     });
 
     logger = driver.make();

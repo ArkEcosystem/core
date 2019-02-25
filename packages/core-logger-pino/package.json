@@ -35,6 +35,7 @@
         "@arkecosystem/core-interfaces": "^2.2.0-beta.4",
         "@arkecosystem/core-logger": "^2.2.0-beta.4",
         "lodash.isempty": "^4.4.0",
+        "pino-multi-stream": "^4.0.2",
         "rotating-file-stream": "^1.4.0"
     },
     "devDependencies": {

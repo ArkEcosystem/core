@@ -13,8 +13,9 @@ export class PinoLogger extends AbstractLogger {
     }
 
     public make() {
-        // @TODO enable CLI output
-        this.logger = pino(this.options, this.getWriteStream());
+        // @TODO add support for multistream
+        this.logger = pino(this.options);
+        // this.logger = pino(this.options, this.getWriteStream());
 
         return this;
     }
@@ -77,7 +78,7 @@ export class PinoLogger extends AbstractLogger {
         return rfs(createFileName, {
             path: process.env.CORE_PATH_LOG,
             interval: "1d",
-            maxSize: "100m",
+            maxSize: "100M",
             maxFiles: 10,
         });
     }
