@@ -21,10 +21,6 @@ export class Logger extends AbstractLogger {
         //
     }
 
-    public verbose(message: string): void {
-        //
-    }
-
     public suppressConsoleOutput(suppress: boolean): void {
         //
     }

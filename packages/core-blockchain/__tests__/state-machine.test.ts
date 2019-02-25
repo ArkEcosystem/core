@@ -342,11 +342,11 @@ describe("State Machine", () => {
             it('should dispatch STARTED if NODE_ENV === "test"', async () => {
                 process.env.NODE_ENV = "test";
                 const logger = container.resolvePlugin("logger");
-                const loggerVerbose = jest.spyOn(logger, "verbose");
+                const loggerWarn = jest.spyOn(logger, "warn");
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
-                expect(loggerVerbose).toHaveBeenCalledWith(
+                expect(loggerWarn).toHaveBeenCalledWith(
                     "TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.",
                 );
             });

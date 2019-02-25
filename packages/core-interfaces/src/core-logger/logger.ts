@@ -34,13 +34,6 @@ export interface ILogger {
     debug(message: string): void;
 
     /**
-     * Log a verbose message.
-     * @param  {String} message
-     * @return {void}
-     */
-    verbose(message: string): void;
-
-    /**
      * Suppress console output.
      * @param  {Boolean}
      * @return {void}

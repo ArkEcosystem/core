@@ -10,7 +10,7 @@ let message;
 beforeAll(() => {
     process.env.CORE_PATH_LOG = tmpdir();
 
-    const driver = new PinoLogger({ level: "trace" });
+    const driver = new PinoLogger({ level: "debug" });
 
     logger = driver.make();
 
@@ -60,16 +60,6 @@ describe("Logger", () => {
 
             expect(message).toMatch(/debug/);
             expect(message).toMatch(/debug_message/);
-            message = null;
-        });
-    });
-
-    describe("verbose", () => {
-        it("should log a message", () => {
-            logger.verbose("verbose_message");
-
-            expect(message).toMatch(/verbose/);
-            expect(message).toMatch(/verbose_message/);
             message = null;
         });
     });

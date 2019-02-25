@@ -42,13 +42,6 @@ export abstract class AbstractLogger implements Logger.ILogger {
     public abstract debug(message: any): void;
 
     /**
-     * Log a verbose message.
-     * @param  {*} message
-     * @return {void}
-     */
-    public abstract verbose(message: any): void;
-
-    /**
      * Suppress console output.
      * @param  {Boolean}
      * @return {void}
