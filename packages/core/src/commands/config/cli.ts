@@ -1,6 +1,5 @@
 import { flags } from "@oclif/command";
 import cli from "cli-ux";
-import { removeSync } from "fs-extra";
 import { configManager } from "../../helpers/config";
 import { installFromChannel } from "../../helpers/update";
 import { BaseCommand } from "../command";
