@@ -10,11 +10,7 @@ let message;
 beforeAll(() => {
     process.env.CORE_PATH_LOG = tmpdir();
 
-    const driver = new PinoLogger({
-        name: "ark-core",
-        safe: true,
-        level: "trace",
-    });
+    const driver = new PinoLogger({ level: "trace" });
 
     logger = driver.make();
 

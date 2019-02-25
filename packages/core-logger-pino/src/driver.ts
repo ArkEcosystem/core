@@ -17,10 +17,14 @@ export class PinoLogger extends AbstractLogger {
 
     public make() {
         this.logger = pino(
-            this.options,
+            {
+                name: `${process.env.CORE_TOKEN}-core`,
+                safe: true,
+                level: this.options.level,
+            },
             multistream([
                 { level: this.options.level, stream: this.getConsoleStream() },
-                { level: this.options.level, stream: this.getFileStream() },
+                { level: "trace", stream: this.getFileStream() },
             ]),
         );
 
