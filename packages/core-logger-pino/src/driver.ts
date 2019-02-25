@@ -18,7 +18,6 @@ export class PinoLogger extends AbstractLogger {
     public make() {
         this.logger = pino(
             {
-                name: `${process.env.CORE_TOKEN}-core`,
                 safe: true,
                 level: this.options.level,
             },
