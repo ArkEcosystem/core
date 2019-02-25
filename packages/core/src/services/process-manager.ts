@@ -3,7 +3,13 @@ import { ProcessDescription } from "pm2";
 
 class ProcessManager {
     public start(opts: Record<string, any>, noDaemonMode: boolean): any {
-        // @TODO implement
+        const flags = ["--max-restarts=5", "--kill-timeout=30000"];
+
+        if (noDaemonMode) {
+            flags.push("--no-daemon");
+        }
+
+        return this.exec(`pm2 --name ${opts.name} ${flags.join(" ")} start ${opts.script} -- ${opts.args}`);
     }
 
     public stop(name: string): boolean {

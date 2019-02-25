@@ -20,20 +20,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
         try {
             if (processManager.exists(processName)) {
-                cli.action.start(`Starting ${processName}`);
-
-                processManager.start(
-                    {
-                        ...{
-                            max_restarts: 5,
-                            min_uptime: "5m",
-                            kill_timeout: 30000,
-                        },
-                        ...options,
-                    },
-                    flags.daemon === false,
-                );
-            } else {
                 const app: ProcessDescription = processManager.describe(processName);
 
                 if (app.pm2_env.status === "online") {
@@ -50,6 +36,10 @@ export abstract class AbstractStartCommand extends BaseCommand {
                         return;
                     }
                 }
+            } else {
+                cli.action.start(`Starting ${processName}`);
+
+                processManager.start(options, flags.daemon === false);
             }
         } catch (error) {
             this.error(error.message);
