@@ -1,14 +1,17 @@
 import Chalk from "chalk";
 import cli from "cli-ux";
 import { removeSync } from "fs-extra";
-import { requestConfirmation } from "../helpers/prompts";
+import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
+import { processManager } from "../process-manager";
 import { BaseCommand } from "./command";
 
 export class UpdateCommand extends BaseCommand {
     public static description: string = "Update the core installation";
 
     public async run(): Promise<void> {
+        const { flags } = await this.parseWithNetwork(UpdateCommand);
+
         const state = await checkForUpdates(this);
 
         if (!state.ready) {
@@ -27,7 +30,7 @@ export class UpdateCommand extends BaseCommand {
                 )}.`,
             );
 
-            await requestConfirmation("Would you like to update?", async () => {
+            await confirm("Would you like to update?", async () => {
                 try {
                     cli.action.start(`Updating from ${currentVersion} to ${newVersion}`);
 
@@ -42,17 +45,31 @@ export class UpdateCommand extends BaseCommand {
                         'Respectively run "ark relay:restart", "ark forger:restart" or "ark core:restart" to restart your processes.',
                     );
 
-                    // @TODO ask the user if he wants to restart the core
-                    // @TODO ask the user if he wants to restart the relay
-                    // @TODO ask the user if he wants to restart the forger
-
-                    process.exit();
+                    await this.restartProcess(`${flags.token}-core`);
+                    await this.restartProcess(`${flags.token}-relay`);
+                    await this.restartProcess(`${flags.token}-forger`);
                 } catch (err) {
                     this.error(err.message);
                 }
             });
         } catch (err) {
             this.error(err.message);
+        }
+    }
+
+    private async restartProcess(processName: string) {
+        if (processManager.exists(processName)) {
+            await confirm(`Would you like to restart the ${processName} process?`, async () => {
+                try {
+                    cli.action.start(`Restarting ${processName}`);
+
+                    await processManager.restart(processName);
+                } catch (error) {
+                    this.error(error.message);
+                } finally {
+                    cli.action.stop();
+                }
+            });
         }
     }
 }
