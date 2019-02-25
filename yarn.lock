@@ -12540,6 +12540,11 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
+rotating-file-stream@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/rotating-file-stream/-/rotating-file-stream-1.4.0.tgz#7df5dcfe1c8ac32296cee4ab79430d189608c780"
+  integrity sha512-y1hYZ+JcgPSCchbfeZYuFed0GyWpdcs7TR3eagZmvFTv4nWZq86gxyMmtuV4z8/D8ozcfJ2uJw4QCzQdn5X+WQ==
+
 router-ips@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/router-ips/-/router-ips-1.0.0.tgz#44e00858ebebc0133d58e40b2cd8a1fbb04203f5"

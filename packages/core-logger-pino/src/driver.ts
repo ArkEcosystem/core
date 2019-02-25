@@ -1,6 +1,7 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import isEmpty from "lodash/isEmpty";
 import pino from "pino";
+import rfs from "rotating-file-stream";
 import { inspect } from "util";
 
 export class PinoLogger extends AbstractLogger {
@@ -11,75 +12,37 @@ export class PinoLogger extends AbstractLogger {
         super(options);
     }
 
-    /**
-     * Make the logger instance.
-     */
     public make() {
-        this.logger = pino(this.options);
+        // @TODO enable CLI output
+        this.logger = pino(this.options, this.getWriteStream());
 
         return this;
     }
 
-    /**
-     * Log an error message.
-     * @param  {*} message
-     * @return {void}
-     */
     public error(message: any): void {
         this.createLog("error", message);
     }
 
-    /**
-     * Log a warning message.
-     * @param  {*} message
-     * @return {void}
-     */
     public warn(message: any): void {
         this.createLog("warn", message);
     }
 
-    /**
-     * Log an info message.
-     * @param  {*} message
-     * @return {void}
-     */
     public info(message: any): void {
         this.createLog("info", message);
     }
 
-    /**
-     * Log a debug message.
-     * @param  {*} message
-     * @return {void}
-     */
     public debug(message: any): void {
         this.createLog("debug", message);
     }
 
-    /**
-     * Log a verbose message.
-     * @param  {*} message
-     * @return {void}
-     */
     public verbose(message: any): void {
         this.createLog("trace", message);
     }
 
-    /**
-     * Suppress console output.
-     * @param  {Boolean}
-     * @return {void}
-     */
     public suppressConsoleOutput(suppress: boolean): void {
         this.silent = suppress;
     }
 
-    /**
-     * Log a message with the given method.
-     * @param  {String} method
-     * @param  {*} message
-     * @return {void}
-     */
     private createLog(method: string, message: any): void {
         if (this.silent) {
             return;
@@ -94,5 +57,28 @@ export class PinoLogger extends AbstractLogger {
         }
 
         this.logger[method](message);
+    }
+
+    private getWriteStream() {
+        const withLeadingZero = (num: number) => (num > 9 ? "" : "0") + num;
+
+        const createFileName = (time: Date) => {
+            if (!time) {
+                return "core.log";
+            }
+
+            const year = withLeadingZero(time.getFullYear());
+            const month = withLeadingZero(time.getMonth());
+            const day = withLeadingZero(time.getDate());
+
+            return `${year}-${month}-${day}.log`;
+        };
+
+        return rfs(createFileName, {
+            path: process.env.CORE_PATH_LOG,
+            interval: "1d",
+            maxSize: "100m",
+            maxFiles: 10,
+        });
     }
 }
