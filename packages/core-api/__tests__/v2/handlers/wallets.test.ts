@@ -1,4 +1,5 @@
 import "@arkecosystem/core-test-utils";
+import { Bignum } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
@@ -27,6 +28,24 @@ describe("API 2.0 - Wallets", () => {
                     expect(response.data.data).toBeArray();
 
                     utils.expectWallet(response.data.data[0]);
+                });
+
+                it("should GET all the wallets sorted by balance,asc", async () => {
+                    const response = await utils[request]("GET", "wallets", { orderBy: "balance:asc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    expect(response.data.data[0].address).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
+                    expect(response.data.data[0].balance).toBe(-12500000000000000);
+                });
+
+                it("should GET all the wallets sorted by balance,desc", async () => {
+                    const response = await utils[request]("GET", "wallets", { orderBy: "balance:desc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    expect(response.data.data[0].address).toBe("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
+                    expect(response.data.data[0].balance).toBe(245100000000000);
                 });
             },
         );

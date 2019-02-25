@@ -1,7 +1,7 @@
 import Hapi from "hapi";
 import { monitorServer } from "./monitor";
 
-async function createServer(options, callback: any = null) {
+export async function createServer(options, callback: any = null) {
     const server = new Hapi.Server(options);
 
     await server.register([require("vision"), require("inert"), require("lout")]);
@@ -21,5 +21,3 @@ async function createServer(options, callback: any = null) {
 
     return server;
 }
-
-export { createServer };
