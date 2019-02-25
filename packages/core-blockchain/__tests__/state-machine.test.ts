@@ -637,9 +637,7 @@ describe("State Machine", () => {
 
                 await expect(() => actionMap.rollbackDatabase()).toDispatch(blockchain, "FAILURE");
 
-                expect(loggerError).toHaveBeenCalledWith(
-                    "FATAL: Failed to restore database integrity :skull: :skull: :skull:",
-                );
+                expect(loggerError).toHaveBeenCalledWith("FATAL: Failed to restore database integrity");
                 expect(removeTopBlocks).toHaveBeenCalledTimes(5); // because after 5 times we get past maxBlockRewind
             });
         });
