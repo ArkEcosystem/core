@@ -10,8 +10,6 @@ export class UpdateCommand extends BaseCommand {
     public static description: string = "Update the core installation";
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(UpdateCommand);
-
         const state = await checkForUpdates(this);
 
         if (!state.ready) {
@@ -44,6 +42,8 @@ export class UpdateCommand extends BaseCommand {
                     this.warn(
                         'Respectively run "ark relay:restart", "ark forger:restart" or "ark core:restart" to restart your processes.',
                     );
+
+                    const { flags } = await this.parseWithNetwork(UpdateCommand);
 
                     await this.restartProcess(`${flags.token}-core`);
                     await this.restartProcess(`${flags.token}-relay`);
