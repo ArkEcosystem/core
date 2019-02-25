@@ -42,7 +42,7 @@ fs.readdir("./packages", (_, packages) => {
                     return {
                         run: {
                             name,
-                            command: `${resetSqlCommand} && cd ~/core/packages/${name} && yarn test:coverage`,
+                            command: `${resetSqlCommand} && cd ~/core/__tests__/unit/${name} && yarn test:coverage`,
                         },
                     };
                 })
