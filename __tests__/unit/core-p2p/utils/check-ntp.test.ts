@@ -1,6 +1,17 @@
 import { checkNTP } from "../../../../packages/core-p2p/src/utils";
 import { setUp, tearDown } from "../__support__/setup";
 
+jest.mock("sntp", () => {
+    return {
+        time: jest.fn().mockImplementation(options => {
+            if (options.host === "notime.unknown.not") {
+                throw new Error("Host unreachable");
+            }
+            return { t: 111 };
+        }),
+    };
+});
+
 beforeAll(async () => {
     await setUp();
 });

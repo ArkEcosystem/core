@@ -1,6 +1,6 @@
 import { generateTransfers } from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
-import blockFixture from "../../../../packages/core-debugger-cli/__tests__/__fixtures__/block.json";
+import blockFixture from "../fixtures/block.json";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
 

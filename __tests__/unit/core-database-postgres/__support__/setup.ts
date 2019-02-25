@@ -7,7 +7,7 @@ const options = {
     connection: {
         host: "localhost",
         port: 5432,
-        database: "core_development",
+        database: "core_unitnet",
         user: "core",
         password: "password",
     },
