@@ -3,6 +3,7 @@ import dayjs from "dayjs-ext";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { processManager } from "../services/process-manager";
+import { CommandFlags } from "../types";
 import { renderTable } from "../utils";
 import { BaseCommand } from "./command";
 
@@ -15,7 +16,7 @@ $ ark top
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 

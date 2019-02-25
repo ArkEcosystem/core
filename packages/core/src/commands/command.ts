@@ -6,6 +6,7 @@ import Listr from "listr";
 import { join, resolve } from "path";
 import prompts from "prompts";
 import { configManager } from "../helpers/config";
+import { CommandFlags, Options } from "../types";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
@@ -68,7 +69,7 @@ export abstract class BaseCommand extends Command {
 
     protected tasks: Array<{ title: string; task: any }> = [];
 
-    protected buildPeerOptions(flags: Record<string, any>) {
+    protected buildPeerOptions(flags: CommandFlags) {
         const config = {
             networkStart: flags.networkStart,
             disableDiscovery: flags.disableDiscovery,
@@ -84,7 +85,7 @@ export abstract class BaseCommand extends Command {
         return config;
     }
 
-    protected async buildApplication(app, flags: Record<string, any>, config: Record<string, any>) {
+    protected async buildApplication(app, flags: CommandFlags, config: Options) {
         await app.setUp(version, flags, {
             ...{ skipPlugins: flags.skipPlugins },
             ...config,
@@ -93,7 +94,7 @@ export abstract class BaseCommand extends Command {
         return app;
     }
 
-    protected flagsToStrings(flags: Record<string, any>, ignoreKeys: string[] = []): string {
+    protected flagsToStrings(flags: CommandFlags, ignoreKeys: string[] = []): string {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {
@@ -120,7 +121,7 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected async getPaths(flags: Record<string, any>): Promise<envPaths.Paths> {
+    protected async getPaths(flags: CommandFlags): Promise<envPaths.Paths> {
         let paths: envPaths.Paths = this.getEnvPaths(flags);
 
         for (const [key, value] of Object.entries(paths)) {
@@ -214,7 +215,7 @@ export abstract class BaseCommand extends Command {
         this.error("Please enter valid data and try again!");
     }
 
-    protected async buildBIP38(flags: Record<string, any>): Promise<Record<string, string>> {
+    protected async buildBIP38(flags: CommandFlags): Promise<Record<string, string>> {
         // initial values
         let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
         let password = flags.password || process.env.CORE_FORGER_PASSWORD;
@@ -280,7 +281,7 @@ export abstract class BaseCommand extends Command {
         return this.getNetworks().map(network => ({ title: network, value: network }));
     }
 
-    private getEnvPaths(flags: Record<string, any>): envPaths.Paths {
+    private getEnvPaths(flags: CommandFlags): envPaths.Paths {
         return envPaths(flags.token, { suffix: "core" });
     }
 }

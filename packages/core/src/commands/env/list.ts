@@ -1,6 +1,7 @@
 import Table from "cli-table3";
 import envfile from "envfile";
 import { existsSync } from "fs-extra";
+import { CommandFlags } from "../../types";
 import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";
 
@@ -13,7 +14,7 @@ $ ark env:list
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 

@@ -2,7 +2,7 @@ import cli from "cli-ux";
 import prompts from "prompts";
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../services/process-manager";
-import { ProcessDescription } from "../types";
+import { CommandFlags, ProcessDescription } from "../types";
 
 export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {
@@ -13,9 +13,9 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
     public abstract getClass();
 
-    protected abstract async runProcess(flags: Record<string, any>): Promise<void>;
+    protected abstract async runProcess(flags: CommandFlags): Promise<void>;
 
-    protected async runWithPm2(options: any, flags: Record<string, any>) {
+    protected async runWithPm2(options: any, flags: CommandFlags) {
         const processName = options.name;
 
         try {
