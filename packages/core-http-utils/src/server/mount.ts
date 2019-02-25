@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 
-async function mountServer(name, server) {
+export async function mountServer(name, server) {
     try {
         await server.start();
 
@@ -11,5 +11,3 @@ async function mountServer(name, server) {
         app.forceExit(`Could not start ${name} Server!`, error);
     }
 }
-
-export { mountServer };
