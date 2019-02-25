@@ -1,7 +1,8 @@
 import cli from "cli-ux";
-import pm2, { ProcessDescription } from "pm2";
+import { ProcessDescription } from "pm2";
 import prompts from "prompts";
 import { BaseCommand } from "../commands/command";
+import { processManager } from "../services/process-manager";
 
 export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {
@@ -14,76 +15,52 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
     protected abstract async runProcess(flags: Record<string, any>): Promise<void>;
 
-    protected runWithPm2(options: any, flags: Record<string, any>) {
+    protected async runWithPm2(options: any, flags: Record<string, any>) {
         const processName = options.name;
-        const noDaemonMode = flags.daemon === false;
 
-        this.createPm2Connection(() => {
-            pm2.describe(processName, async (error, apps) => {
-                if (error) {
-                    this.error(error.message);
-                }
+        try {
+            if (processManager.exists(processName)) {
+                cli.action.start(`Starting ${processName}`);
 
-                if (apps[0]) {
-                    if (apps[0].pm2_env.status === "online") {
-                        const response = await prompts({
-                            type: "confirm",
-                            name: "confirm",
-                            message: "A process is already running, would you like to restart it?",
-                        });
+                processManager.start(
+                    {
+                        ...{
+                            max_restarts: 5,
+                            min_uptime: "5m",
+                            kill_timeout: 30000,
+                        },
+                        ...options,
+                    },
+                    flags.daemon === false,
+                );
+            } else {
+                const app: ProcessDescription = processManager.describe(processName);
 
-                        if (!response.confirm) {
-                            this.warn(`The "${processName}" process has not been restarted.`);
-
-                            pm2.disconnect();
-
-                            process.exit();
-                        }
-                    }
-
+                if (app.pm2_env.status === "online") {
                     cli.action.start(`Restarting ${processName}`);
 
-                    pm2.reload(processName, error => {
-                        pm2.disconnect();
-
-                        if (error) {
-                            this.error(error.message);
-                        }
-
-                        cli.action.stop();
-
-                        process.exit();
+                    const response = await prompts({
+                        type: "confirm",
+                        name: "confirm",
+                        message: "A process is already running, would you like to restart it?",
                     });
-                } else {
-                    cli.action.start(`Starting ${processName}`);
 
-                    pm2.start(
-                        {
-                            ...{
-                                max_restarts: 5,
-                                min_uptime: "5m",
-                                kill_timeout: 30000,
-                            },
-                            ...options,
-                        },
-                        error => {
-                            pm2.disconnect();
-
-                            if (error) {
-                                this.error(error.message);
-                            }
-
-                            cli.action.stop();
-
-                            process.exit();
-                        },
-                    );
+                    if (!response.confirm) {
+                        this.warn(`The "${processName}" process has not been restarted.`);
+                        return;
+                    }
                 }
-            });
-        }, noDaemonMode);
+            }
+        } catch (error) {
+            this.error(error.message);
+        } finally {
+            cli.action.stop();
+        }
     }
 
-    protected abortWhenRunning(processName: string, app: ProcessDescription): void {
+    protected abortWhenRunning(processName: string): void {
+        const app: ProcessDescription = processManager.describe(processName);
+
         if (app && app.pm2_env.status === "online") {
             this.warn(`The "${processName}" process is already running.`);
             process.exit();

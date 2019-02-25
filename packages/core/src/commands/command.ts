@@ -4,7 +4,6 @@ import envPaths from "env-paths";
 import { existsSync, readdirSync } from "fs";
 import Listr from "listr";
 import { join, resolve } from "path";
-import pm2 from "pm2";
 import prompts from "prompts";
 import { configManager } from "../helpers/config";
 
@@ -213,28 +212,6 @@ export abstract class BaseCommand extends Command {
 
     protected abortWithInvalidInput(): void {
         this.error("Please enter valid data and try again!");
-    }
-
-    protected createPm2Connection(callback, noDaemonMode: boolean = false): void {
-        pm2.connect(noDaemonMode, error => {
-            if (error) {
-                this.error(error.message);
-            }
-
-            callback();
-        });
-    }
-
-    protected async describePm2Process(processName: string, callback): Promise<void> {
-        pm2.describe(processName, (error, apps) => {
-            if (error) {
-                pm2.disconnect();
-
-                this.error(error.message);
-            }
-
-            callback(apps[0]);
-        });
     }
 
     protected async buildBIP38(flags: Record<string, any>): Promise<Record<string, string>> {

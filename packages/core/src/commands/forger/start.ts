@@ -32,30 +32,26 @@ $ ark forger:start --no-daemon
     }
 
     protected async runProcess(flags: Record<string, any>): Promise<void> {
-        this.createPm2Connection(() => {
-            this.describePm2Process(`${flags.token}-core`, async core => {
-                this.abortWhenRunning(`${flags.token}-core`, core);
+        this.abortWhenRunning(`${flags.token}-core`);
 
-                try {
-                    const { bip38, password } = await this.buildBIP38(flags);
+        try {
+            const { bip38, password } = await this.buildBIP38(flags);
 
-                    this.runWithPm2(
-                        {
-                            name: `${flags.token}-forger`,
-                            // @ts-ignore
-                            script: this.config.options.root,
-                            args: `forger:run ${this.flagsToStrings(flags, ["daemon"])}`,
-                            env: {
-                                CORE_FORGER_BIP38: bip38,
-                                CORE_FORGER_PASSWORD: password,
-                            },
-                        },
-                        flags,
-                    );
-                } catch (error) {
-                    this.error(error.message);
-                }
-            });
-        });
+            this.runWithPm2(
+                {
+                    name: `${flags.token}-forger`,
+                    // @ts-ignore
+                    script: this.config.options.root,
+                    args: `forger:run ${this.flagsToStrings(flags, ["daemon"])}`,
+                    env: {
+                        CORE_FORGER_BIP38: bip38,
+                        CORE_FORGER_PASSWORD: password,
+                    },
+                },
+                flags,
+            );
+        } catch (error) {
+            this.error(error.message);
+        }
     }
 }
