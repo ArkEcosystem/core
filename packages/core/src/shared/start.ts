@@ -1,8 +1,8 @@
 import cli from "cli-ux";
-import { ProcessDescription } from "pm2";
 import prompts from "prompts";
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../services/process-manager";
+import { ProcessDescription } from "../types";
 
 export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {

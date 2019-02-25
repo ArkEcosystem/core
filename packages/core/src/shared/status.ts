@@ -1,10 +1,10 @@
 import Table from "cli-table3";
 import dayjs from "dayjs-ext";
-import { ProcessDescription } from "pm2";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../services/process-manager";
+import { ProcessDescription } from "../types";
 import { renderTable } from "../utils";
 
 export abstract class AbstractStatusCommand extends BaseCommand {

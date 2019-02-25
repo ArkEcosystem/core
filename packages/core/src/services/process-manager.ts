@@ -1,5 +1,5 @@
 import { ExecaReturns, shellSync } from "execa";
-import { ProcessDescription } from "pm2";
+import { ProcessDescription } from "../types";
 
 class ProcessManager {
     public start(opts: Record<string, any>, noDaemonMode: boolean): any {
