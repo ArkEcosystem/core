@@ -215,7 +215,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 slots.getTime() - block.data.timestamp > 3600 * 24 * 7 && !!localConfig.get("fastRebuild");
 
             if (process.env.NODE_ENV === "test") {
-                logger.warn("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
+                logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                 stateStorage.setLastBlock(new Block(config.get("genesisBlock")));
                 await blockchain.database.buildWallets(block.data.height);

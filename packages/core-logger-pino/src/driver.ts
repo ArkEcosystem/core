@@ -46,6 +46,10 @@ export class PinoLogger extends AbstractLogger {
         this.createLog("debug", message);
     }
 
+    public verbose(message: any): void {
+        this.createLog("trace", message);
+    }
+
     public suppressConsoleOutput(suppress: boolean): void {
         this.silent = suppress;
     }
