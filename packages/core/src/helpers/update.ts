@@ -9,6 +9,7 @@ import latestVersion from "latest-version";
 import { join } from "path";
 import prompts from "prompts";
 import semver from "semver";
+import { configManager } from "./config";
 
 async function getVersionFromNode(name: string, channel: string): Promise<string> {
     try {
@@ -26,7 +27,7 @@ function ensureCacheFile(config: IConfig): string {
     return join(config.cacheDir, "update");
 }
 
-function getUpdateChannel(config: IConfig): string {
+export function getRegistryChannel(config: IConfig): string {
     const channels: string[] = ["alpha", "beta", "rc"];
 
     let channel: string = "latest";
@@ -52,6 +53,16 @@ export function needsRefresh(config: IConfig): boolean {
     }
 }
 
+export async function installFromChannel(pkg, channel) {
+    const { stdout, stderr } = await shell(`yarn global add ${pkg}@${channel}`);
+
+    if (stderr) {
+        console.error(stderr);
+    }
+
+    console.log(stdout);
+}
+
 export async function checkForUpdates({ config, error, log, warn }): Promise<void> {
     if (existsSync(join(__dirname, "../../../..", ".git"))) {
         if (!process.env.CORE_DEVELOPER_MODE) {
@@ -61,7 +72,7 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
     }
 
     try {
-        const channel = getUpdateChannel(config);
+        const channel = configManager.get("channel");
         const cacheFile = ensureCacheFile(config);
 
         cli.action.start(`Checking for updates`);
@@ -90,24 +101,16 @@ export async function checkForUpdates({ config, error, log, warn }): Promise<voi
             ]);
 
             if (response.confirm) {
-                cli.action.start(`Updating from ${config.version} to ${remoteVersion}`);
-
                 try {
-                    const { stdout, stderr } = await shell(`yarn global add ${config.name}@${channel}`);
+                    cli.action.start(`Updating from ${config.version} to ${remoteVersion}`);
 
-                    if (stderr) {
-                        console.error(stderr);
-                    }
-
-                    console.log(stdout);
+                    await installFromChannel(config.name, channel);
 
                     removeSync(cacheFile);
 
                     cli.action.stop();
 
                     warn(`Version ${remoteVersion} has been installed. Please restart your relay and forger.`);
-
-                    process.exit();
                 } catch (err) {
                     error(err.message);
                 }

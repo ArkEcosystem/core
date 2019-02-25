@@ -23,7 +23,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
@@ -126,7 +126,10 @@
     "oclif": {
         "commands": "./dist/commands",
         "hooks": {
-            "init": "./dist/hooks/init"
+            "init": [
+                "./dist/hooks/init/config",
+                "./dist/hooks/init/update"
+            ]
         },
         "bin": "ark",
         "topics": {
