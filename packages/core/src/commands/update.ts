@@ -47,6 +47,8 @@ export class UpdateCommand extends BaseCommand {
                     await this.restartProcess(`${flags.token}-forger`);
                 } catch (err) {
                     this.error(err.message);
+                } finally {
+                    cli.action.stop();
                 }
             });
         } catch (err) {
