@@ -9,7 +9,7 @@ export async function setUp() {
     process.env.CORE_WEBHOOKS_ENABLED = "true";
 
     await setUpContainer({
-        exit: "@arkecosystem/core-logger-winston",
+        exit: "@arkecosystem/core-logger-pino",
     });
 
     database.make();

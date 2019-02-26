@@ -46,11 +46,6 @@ module.exports = {
             whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
         },
     },
-    "@arkecosystem/core-graphql": {
-        enabled: process.env.CORE_GRAPHQL_ENABLED,
-        host: process.env.CORE_GRAPHQL_HOST || "0.0.0.0",
-        port: process.env.CORE_GRAPHQL_PORT || 4005,
-    },
     "@arkecosystem/core-forger": {
         hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4000}`],
     },
