@@ -6,7 +6,6 @@ export async function createServer(options, callback: any = null, plugins?: any[
 
     if (Array.isArray(plugins)) {
         for (const plugin of plugins) {
-            console.log(plugin);
             await server.register(plugin);
         }
     }
