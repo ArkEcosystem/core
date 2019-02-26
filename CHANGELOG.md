@@ -25,12 +25,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 -   Replaced lodash.sortBy/orderBy with faster implementations ([#2106])
--   Remove unnecessary ping call in ([#2123])
--   Remove broken getRandomDownloadBlocksPeer ([#2121])
 -   Improve fork handling in updatePeersOnMissingBlocks ([#2125])
 -   Throw an error if the peers or plugins file are missing ([#2135])
 -   Improve selection of peer for downloading blocks ([#2137])
 -   Merge core-snapshot-cli commands into core ([#2149])
+
+### Removed
+
+-   Remove unnecessary ping call in ([#2123])
+-   Remove broken getRandomDownloadBlocksPeer ([#2121])
 
 ## [2.1.2] - 2019-02-13
 
