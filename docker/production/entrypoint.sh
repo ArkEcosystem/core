@@ -4,20 +4,22 @@ sudo /usr/sbin/ntpd -s
 sudo rm -rf /home/node/.config/ark-core/*
 sudo rm -rf /home/node/.local/state/ark-core/*
 sudo chown node:node -R /home/node
-ark config:publish --network=$NETWORK --force
+ark config:publish --network=$NETWORK
 sudo rm -f /home/node/.config/ark-core/$NETWORK/.env
 
-SECRET=`openssl rsautl -decrypt -inkey /run/secrets/secret.key -in /run/secrets/secret.dat`
-CORE_FORGER_PASSWORD=`openssl rsautl -decrypt -inkey /run/secrets/bip.key -in /run/secrets/bip.dat`
+if [ "$MODE" = "forger" ]; then
+  SECRET=`openssl rsautl -decrypt -inkey /run/secrets/secret.key -in /run/secrets/secret.dat`
+  CORE_FORGER_PASSWORD=`openssl rsautl -decrypt -inkey /run/secrets/bip.key -in /run/secrets/bip.dat`
 
-# configure
-if [ -n "$SECRET" ] && [ -n "$CORE_FORGER_PASSWORD" ]; then
+  # configure
+  if [ -n "$SECRET" ] && [ -n "$CORE_FORGER_PASSWORD" ]; then
     ark config:forger:bip38 --bip39 "$SECRET" --password "$CORE_FORGER_PASSWORD"
-elif [ "$MODE" = "forger" ] && [ -z "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
+  elif [ "$MODE" = "forger" ] && [ -z "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
     echo "set SECRET and/or CORE_FORGER_PASWORD if you want to run a forger"
     exit
-elif [ -n "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
+  elif [ -n "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
     ark config:forger:bip39 --bip39 "$SECRET"
+  fi
 fi
 
 # relay
@@ -37,4 +39,3 @@ elif [ "$MODE" = "forger" ] && [ -z "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" 
 elif [ "$MODE" = "forger" ] && [ -n "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
     ark core:start --no-daemon
 fi
-
