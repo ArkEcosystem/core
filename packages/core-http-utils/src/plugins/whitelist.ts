@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
-import mm from "micromatch";
+import nm from "nanomatch";
 
 export const whitelist = {
     name: "whitelist",
@@ -14,7 +14,7 @@ export const whitelist = {
                 if (Array.isArray(options.whitelist)) {
                     for (const ip of options.whitelist) {
                         try {
-                            if (mm.isMatch(remoteAddress, ip)) {
+                            if (nm.isMatch(remoteAddress, ip)) {
                                 return h.continue;
                             }
                         } catch {
