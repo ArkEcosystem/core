@@ -70,38 +70,33 @@ jobs:
       - run:
           name: core-api
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-api && yarn test:coverage /core-api/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-api/
       - run:
           name: core-blockchain
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-blockchain && yarn test:coverage
-            /core-blockchain/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-blockchain/
       - run:
           name: core-container
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-container && yarn test:coverage
-            /core-container/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-container/
       - run:
           name: core-database
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-database && yarn test:coverage
-            /core-database/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-database/
       - run:
           name: core-database-postgres
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-database-postgres && yarn test:coverage
-            /core-database-postgres/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-database-postgres/
       - run:
           name: core-debugger-cli
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-debugger-cli && yarn test:coverage
-            /core-debugger-cli/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-debugger-cli/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -182,38 +177,33 @@ jobs:
       - run:
           name: core-api
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-api && yarn test:coverage /core-api/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-api/
       - run:
           name: core-blockchain
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-blockchain && yarn test:coverage
-            /core-blockchain/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-blockchain/
       - run:
           name: core-container
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-container && yarn test:coverage
-            /core-container/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-container/
       - run:
           name: core-database
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-database && yarn test:coverage
-            /core-database/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-database/
       - run:
           name: core-database-postgres
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-database-postgres && yarn test:coverage
-            /core-database-postgres/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-database-postgres/
       - run:
           name: core-debugger-cli
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-debugger-cli && yarn test:coverage
-            /core-debugger-cli/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-debugger-cli/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -294,56 +284,48 @@ jobs:
       - run:
           name: core-event-emitter
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-event-emitter && yarn test:coverage
-            /core-event-emitter/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-event-emitter/
       - run:
           name: core-forger
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-forger && yarn test:coverage
-            /core-forger/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-forger/
       - run:
           name: core-graphql
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-graphql && yarn test:coverage
-            /core-graphql/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-graphql/
       - run:
           name: core-http-utils
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-http-utils && yarn test:coverage
-            /core-http-utils/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-http-utils/
       - run:
           name: core-jest-matchers
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-jest-matchers && yarn test:coverage
-            /core-jest-matchers/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-jest-matchers/
       - run:
           name: core-json-rpc
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-json-rpc && yarn test:coverage
-            /core-json-rpc/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-json-rpc/
       - run:
           name: core-logger
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-logger && yarn test:coverage
-            /core-logger/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-logger/
       - run:
           name: core-logger-winston
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-logger-winston && yarn test:coverage
-            /core-logger-winston/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-logger-winston/
       - run:
           name: core-p2p
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-p2p && yarn test:coverage /core-p2p/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-p2p/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -424,49 +406,43 @@ jobs:
       - run:
           name: core-snapshots
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-snapshots && yarn test:coverage
-            /core-snapshots/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-snapshots/
       - run:
           name: core-test-utils
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-test-utils && yarn test:coverage
-            /core-test-utils/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-test-utils/
       - run:
           name: core-tester-cli
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-tester-cli && yarn test:coverage
-            /core-tester-cli/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-tester-cli/
       - run:
           name: core-transaction-pool
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-transaction-pool && yarn test:coverage
-            /core-transaction-pool/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-transaction-pool/
       - run:
           name: core-utils
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-utils && yarn test:coverage /core-utils/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-utils/
       - run:
           name: core-vote-report
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-vote-report && yarn test:coverage
-            /core-vote-report/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-vote-report/
       - run:
           name: core-webhooks
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-webhooks && yarn test:coverage
-            /core-webhooks/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-webhooks/
       - run:
           name: crypto
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/crypto && yarn test:coverage /crypto/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /crypto/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -547,56 +523,48 @@ jobs:
       - run:
           name: core-event-emitter
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-event-emitter && yarn test:coverage
-            /core-event-emitter/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-event-emitter/
       - run:
           name: core-forger
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-forger && yarn test:coverage
-            /core-forger/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-forger/
       - run:
           name: core-graphql
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-graphql && yarn test:coverage
-            /core-graphql/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-graphql/
       - run:
           name: core-http-utils
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-http-utils && yarn test:coverage
-            /core-http-utils/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-http-utils/
       - run:
           name: core-jest-matchers
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-jest-matchers && yarn test:coverage
-            /core-jest-matchers/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-jest-matchers/
       - run:
           name: core-json-rpc
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-json-rpc && yarn test:coverage
-            /core-json-rpc/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-json-rpc/
       - run:
           name: core-logger
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-logger && yarn test:coverage
-            /core-logger/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-logger/
       - run:
           name: core-logger-winston
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-logger-winston && yarn test:coverage
-            /core-logger-winston/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-logger-winston/
       - run:
           name: core-p2p
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-p2p && yarn test:coverage /core-p2p/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-p2p/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -677,49 +645,43 @@ jobs:
       - run:
           name: core-snapshots
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-snapshots && yarn test:coverage
-            /core-snapshots/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-snapshots/
       - run:
           name: core-test-utils
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-test-utils && yarn test:coverage
-            /core-test-utils/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-test-utils/
       - run:
           name: core-tester-cli
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-tester-cli && yarn test:coverage
-            /core-tester-cli/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-tester-cli/
       - run:
           name: core-transaction-pool
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-transaction-pool && yarn test:coverage
-            /core-transaction-pool/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-transaction-pool/
       - run:
           name: core-utils
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-utils && yarn test:coverage /core-utils/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-utils/
       - run:
           name: core-vote-report
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-vote-report && yarn test:coverage
-            /core-vote-report/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-vote-report/
       - run:
           name: core-webhooks
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/core-webhooks && yarn test:coverage
-            /core-webhooks/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /core-webhooks/
       - run:
           name: crypto
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/__tests__/unit/crypto && yarn test:coverage /crypto/
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /crypto/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
