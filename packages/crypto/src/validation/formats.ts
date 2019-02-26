@@ -14,10 +14,14 @@ const vendorField = (ajv: Ajv) => {
 const vendorFieldHex = (ajv: Ajv) => {
     ajv.addFormat("vendorFieldHex", data => {
         try {
-            return Buffer.from(data, "hex").length <= maxVendorFieldLength();
+            if (/^[0123456789A-Fa-f]+$/.test(data)) {
+                return Buffer.from(data, "hex").length <= maxVendorFieldLength();
+            }
         } catch {
             return false;
         }
+
+        return false;
     });
 };
 
