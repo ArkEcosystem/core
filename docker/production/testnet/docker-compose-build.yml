@@ -12,7 +12,7 @@ services:
       - core 
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: core_testnet
+     POSTGRES_DB: osmose-testnet
      POSTGRES_USER: node
 
   core:

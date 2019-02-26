@@ -16,11 +16,11 @@ module.exports = {
   },
   "@arkecosystem/core-database-postgres": {
     connection: {
-      host: "localhost",
-      port: 5432,
-      user: "node",
-      password: "password",
-      database: "core_testnet"
+      host: process.env.CORE_DB_HOST || "localhost",
+      port: process.env.CORE_DB_PORT || 5432,
+      database: process.env.CORE_DB_DATABASE || "osmose-testnet",
+      user: process.env.CORE_DB_USERNAME || "node",
+      password: process.env.CORE_DB_PASSWORD || "password",
     }
   },
   "@arkecosystem/core-transaction-pool": {
@@ -29,8 +29,8 @@ module.exports = {
     allowedSenders: [],
     dynamicFees: {
       enabled: true,
-      minFeePool: 1000,
-      minFeeBroadcast: 1000,
+      minFeePool: 3000,
+      minFeeBroadcast: 3000,
       addonBytes: {
         transfer: 100,
         secondSignature: 250,
@@ -45,8 +45,8 @@ module.exports = {
     },
   },
   "@arkecosystem/core-p2p": {
-    host: "0.0.0.0",
-    port: 4002,
+    host: process.env.CORE_P2P_HOST || "0.0.0.0",
+    port: process.env.CORE_P2P_PORT || 4001,
     minimumNetworkReach: 1
   },
   "@arkecosystem/core-blockchain": {
@@ -54,8 +54,8 @@ module.exports = {
   },
   "@arkecosystem/core-api": {
     enabled: true,
-    host: "0.0.0.0",
-    port: 4003,
+    host: process.env.CORE_API_HOST || "0.0.0.0",
+    port: process.env.CORE_API_PORT || 4003,
     whitelist: [
       "*"
     ]
