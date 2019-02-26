@@ -23,9 +23,14 @@ export class DeserializeCommand extends BaseCommand {
         // tslint:disable-next-line:no-shadowed-variable
         const { flags } = this.parse(DeserializeCommand);
 
-        const deserialized =
-            flags.type === "transaction" ? new models.Transaction(flags.data) : new models.Block(flags.data);
+        let output;
+        if (flags.type === "transaction") {
+            output = models.Transaction.fromHex(flags.data).data;
+        } else {
+            const block = new models.Block(flags.data);
+            output = { data: block.data, transactions: block.transactions.map(tx => tx.data) };
+        }
 
-        return handleOutput(flags, JSON.stringify(deserialized, null, 4));
+        return handleOutput(flags, JSON.stringify(output, null, 4));
     }
 }

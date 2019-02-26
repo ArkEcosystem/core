@@ -1,9 +1,8 @@
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
-import { transactionHandler } from "../handlers/transactions";
+import { IMultiSignatureAsset, ITransactionData, Transaction } from "../transactions";
 import { Bignum, formatSatoshi } from "../utils";
 import { IBlockData } from "./block";
-import { IMultiSignatureAsset, ITransactionData } from "./transaction";
 
 /**
  * TODO copy some parts to ArkDocs
@@ -42,6 +41,7 @@ export class Wallet {
     public missedBlocks: number;
     public forgedFees: Bignum;
     public forgedRewards: Bignum;
+    public rate?: number;
 
     constructor(address: string) {
         this.address = address;
@@ -64,36 +64,36 @@ export class Wallet {
     /**
      * Check if can apply a transaction to the wallet.
      */
-    public canApply(transaction: ITransactionData, errors: any[]): boolean {
-        return transactionHandler.canApply(this, transaction, errors);
+    public canApply(transaction: Transaction): boolean {
+        return transaction.canBeApplied(this);
     }
 
     /**
      * Associate this wallet as the sender of a transaction.
      */
-    public applyTransactionToSender(transaction: ITransactionData): void {
-        return transactionHandler.applyTransactionToSender(this, transaction);
+    public applyTransactionToSender(transaction: Transaction): void {
+        return transaction.applyToSender(this);
     }
 
     /**
      * Remove this wallet as the sender of a transaction.
      */
-    public revertTransactionForSender(transaction: ITransactionData): void {
-        return transactionHandler.revertTransactionForSender(this, transaction);
+    public revertTransactionForSender(transaction: Transaction): void {
+        return transaction.revertForSender(this);
     }
 
     /**
      * Add transaction balance to this wallet.
      */
-    public applyTransactionToRecipient(transaction: ITransactionData): void {
-        return transactionHandler.applyTransactionToRecipient(this, transaction);
+    public applyTransactionToRecipient(transaction: Transaction): void {
+        return transaction.applyToRecipient(this);
     }
 
     /**
      * Remove transaction balance from this wallet.
      */
-    public revertTransactionForRecipient(transaction: ITransactionData): void {
-        return transactionHandler.revertTransactionForRecipient(this, transaction);
+    public revertTransactionForRecipient(transaction: Transaction): void {
+        return transaction.revertForRecipient(this);
     }
 
     /**
@@ -282,7 +282,7 @@ export class Wallet {
      * Verify the wallet.
      */
     private verify(transaction: ITransactionData, signature: string, publicKey: string): boolean {
-        const hash = crypto.getHash(transaction, true, true);
+        const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         return crypto.verifyHash(hash, signature, publicKey);
     }
 }

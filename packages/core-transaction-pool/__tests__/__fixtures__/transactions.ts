@@ -143,15 +143,15 @@ export const transactions = {
         100,
     )[0],
 
-    dynamicFeeZero: generateTransfers(
-        "unitnet",
-        delegates[0].passphrase,
-        "AVnRZSvrAeeSJZN3oSBxEF6mvvVpuKUXL5",
-        200000000,
-        1,
-        false,
-        0,
-    )[0],
+    // dynamicFeeZero: generateTransfers(
+    //     "unitnet",
+    //     delegates[0].passphrase,
+    //     "AVnRZSvrAeeSJZN3oSBxEF6mvvVpuKUXL5",
+    //     200000000,
+    //     1,
+    //     false,
+    //     0,
+    // )[0],
 
     dummyExp1: generateTransfers(
         "unitnet",

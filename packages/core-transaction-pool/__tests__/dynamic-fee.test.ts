@@ -43,12 +43,10 @@ describe("static fees", () => {
 
     it("should not broadcast transactions with a fee other than the static fee", () => {
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).broadcast).toBeFalse();
-        expect(dynamicFeeMatcher(transactions.dynamicFeeZero).broadcast).toBeFalse();
     });
 
     it("should not allow transactions with a fee other than the static fee to enter the pool", () => {
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).enterPool).toBeFalse();
-        expect(dynamicFeeMatcher(transactions.dynamicFeeZero).enterPool).toBeFalse();
     });
 });
 
@@ -93,12 +91,10 @@ describe("dynamic fees", () => {
 
     it("should not broadcast transactions with too low fee", () => {
         expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2).broadcast).toBeFalse();
-        expect(dynamicFeeMatcher(transactions.dynamicFeeZero).broadcast).toBeFalse();
     });
 
     it("should not allow transactions with too low fee to enter the pool", () => {
         expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2).enterPool).toBeFalse();
-        expect(dynamicFeeMatcher(transactions.dynamicFeeZero).enterPool).toBeFalse();
     });
 });
 

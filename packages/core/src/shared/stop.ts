@@ -1,6 +1,6 @@
 import cli from "cli-ux";
-import pm2 from "pm2";
 import { BaseCommand } from "../commands/command";
+import { processManager } from "../process-manager";
 
 export abstract class AbstractStopCommand extends BaseCommand {
     public async run(): Promise<void> {
@@ -8,28 +8,15 @@ export abstract class AbstractStopCommand extends BaseCommand {
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        this.createPm2Connection(() => {
-            const method = flags.daemon ? "delete" : "stop";
-
+        try {
             cli.action.start(`Stopping ${processName}`);
 
-            pm2[method](processName, error => {
-                pm2.disconnect();
-
-                cli.action.stop();
-
-                if (error) {
-                    if (error.message === "process name not found") {
-                        this.warn(`The "${processName}" process does not exist.`);
-                        return;
-                    }
-
-                    throw error;
-                }
-
-                process.exit();
-            });
-        });
+            processManager[flags.daemon ? "delete" : "stop"](processName);
+        } catch (error) {
+            this.warn(`The "${processName}" process does not exist.`);
+        } finally {
+            cli.action.stop();
+        }
     }
 
     public abstract getClass();

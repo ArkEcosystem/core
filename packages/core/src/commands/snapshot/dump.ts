@@ -2,12 +2,13 @@ import { app } from "@arkecosystem/core-container";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import { setUpLite } from "../../helpers/snapshot";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class DumpCommand extends BaseCommand {
     public static description: string = "create a full snapshot of the database";
 
-    public static flags = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,
         blocks: flags.string({
             description: "blocks to append to, correlates to folder name",

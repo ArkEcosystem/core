@@ -1,5 +1,4 @@
-import { Bignum, models } from "@arkecosystem/crypto";
-const { Transaction } = models;
+import { Bignum, Transaction } from "@arkecosystem/crypto";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
@@ -20,7 +19,6 @@ export class SPV {
      * @return {void}
      */
     public async build(height) {
-
         logger.info("SPV Step 1 of 8: Received Transactions");
         await this.__buildReceivedTransactions();
 
@@ -45,7 +43,9 @@ export class SPV {
         logger.info("SPV Step 8 of 8: MultiSignatures");
         await this.__buildMultisignatures();
 
-        logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`);
+        logger.info(
+            `SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
+        );
         logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
         return this.__verifyWalletsConsistency();
@@ -127,9 +127,8 @@ export class SPV {
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.secondPublicKey = Transaction.deserialize(
-                transaction.serialized.toString("hex"),
-            ).asset.signature.publicKey;
+            const { data } = Transaction.fromBytes(transaction.serialized);
+            wallet.secondPublicKey = data.asset.signature.publicKey;
         }
     }
 
@@ -144,7 +143,8 @@ export class SPV {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
             if (!wallet.voted) {
-                const vote = Transaction.deserialize(transaction.serialized.toString("hex")).asset.votes[0];
+                const { data } = Transaction.fromBytes(transaction.serialized);
+                const vote = data.asset.votes[0];
 
                 if (vote.startsWith("+")) {
                     wallet.vote = vote.slice(1);
@@ -170,7 +170,8 @@ export class SPV {
 
         transactions.forEach(transaction => {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.username = Transaction.deserialize(transaction.serialized.toString("hex")).asset.delegate.username;
+            const { data } = Transaction.fromBytes(transaction.serialized);
+            wallet.username = data.asset.delegate.username;
             this.walletManager.reindex(wallet);
         });
 
@@ -206,9 +207,8 @@ export class SPV {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
             if (!wallet.multisignature) {
-                wallet.multisignature = Transaction.deserialize(
-                    transaction.serialized.toString("hex"),
-                ).asset.multisignature;
+                const { data } = Transaction.fromBytes(transaction.serialized);
+                wallet.multisignature = data.asset.multisignature;
             }
         }
     }

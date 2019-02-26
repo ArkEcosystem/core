@@ -1,6 +1,6 @@
 import prompts from "prompts";
 
-export async function requestConfirmation(message: string, callback: any): Promise<void> {
+export async function confirm(message: string, callback: any): Promise<void> {
     const { confirm } = await prompts([
         {
             type: "confirm",

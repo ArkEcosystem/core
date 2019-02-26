@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
@@ -13,7 +14,7 @@ $ ark forger:run --bip38="..." --password="..."
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsForger,
     };

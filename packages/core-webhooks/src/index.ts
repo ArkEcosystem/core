@@ -9,23 +9,16 @@ export const plugin: Container.PluginDescriptor = {
     defaults,
     alias: "webhooks",
     async register(container: Container.IContainer, options) {
-        const logger = container.resolvePlugin<Logger.ILogger>("logger");
-
         if (!options.enabled) {
-            logger.info("Webhooks are disabled");
-
+            container.resolvePlugin<Logger.ILogger>("logger").info("Webhooks are disabled");
             return;
         }
 
-        await database.setUp(options.database);
+        database.make();
 
         await webhookManager.setUp();
 
-        if (options.server.enabled) {
-            return startServer(options.server);
-        }
-
-        logger.info("Webhooks API server is disabled");
+        return startServer(options.server);
     },
     async deregister(container: Container.IContainer, options) {
         if (options.server.enabled) {

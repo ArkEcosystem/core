@@ -15,7 +15,6 @@ import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Database.IDatabaseConnection {
-
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public models: { [key: string]: Model } = {};
     public query: QueryExecutor;
@@ -26,15 +25,11 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     public walletsRepository: Database.IWalletsRepository;
     public pgp: any;
     private emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    private migrationsRepository : MigrationsRepository;
+    private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
-
-    public constructor(readonly options: any, private walletManager: Database.IWalletManager) {
-
-    }
-
+    public constructor(readonly options: any, private walletManager: Database.IWalletManager) {}
 
     public async buildWallets(height: number) {
         const spvPath = `${process.env.CORE_PATH_CACHE}/spv.json`;
@@ -76,7 +71,6 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     }
 
     public async connect() {
-
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
         const initialization = {
             receive(data, result, e) {
@@ -97,7 +91,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
     public async deleteBlock(block: models.Block) {
         try {
-            const queries = [this.transactionsRepository.deleteByBlockId(block.data.id), this.blocksRepository.delete(block.data.id)];
+            const queries = [
+                this.transactionsRepository.deleteByBlockId(block.data.id),
+                this.blocksRepository.delete(block.data.id),
+            ];
 
             await this.db.tx(t => t.batch(queries));
         } catch (error) {
@@ -125,7 +122,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     }
 
     public enqueueDeleteBlock(block: models.Block): any {
-        const queries = [this.transactionsRepository.deleteByBlockId(block.data.id), this.blocksRepository.delete(block.data.id)];
+        const queries = [
+            this.transactionsRepository.deleteByBlockId(block.data.id),
+            this.blocksRepository.delete(block.data.id),
+        ];
 
         this.enqueueQueries(queries);
     }
@@ -180,7 +180,11 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             const queries = [this.blocksRepository.insert(block.data)];
 
             if (block.transactions.length > 0) {
-                queries.push(this.transactionsRepository.insert(block.transactions));
+                queries.push(
+                    this.transactionsRepository.insert(
+                        block.transactions.map(tx => ({ ...tx.data, serialized: tx.serialized })),
+                    ),
+                );
             }
 
             await this.db.tx(t => t.batch(queries));
@@ -237,7 +241,6 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             }
         }
     }
-
 
     /**
      * Register all models.

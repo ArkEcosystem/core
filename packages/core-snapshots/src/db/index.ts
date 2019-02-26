@@ -16,7 +16,7 @@ class Database {
     public blocksColumnSet: any;
     public transactionsColumnSet: any;
 
-    public async make(connection : PostgresConnection) {
+    public async make(connection: PostgresConnection) {
         if (connection) {
             this.db = connection.db;
             this.pgp = (connection as any).pgp;
