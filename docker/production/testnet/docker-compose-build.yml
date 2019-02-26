@@ -2,7 +2,7 @@ version: '2'
 services:
   postgres:
     image: "postgres:alpine"
-    container_name: postgres-devnet
+    container_name: postgres-testnet
     restart: always
     ports:
       - '127.0.0.1:5432:5432'
@@ -12,12 +12,15 @@ services:
       - core 
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: core_devnet
+     POSTGRES_DB: core_testnet
      POSTGRES_USER: node
 
   core:
-    image: arkecosystem/core:devnet
-    container_name: core-devnet
+    build:   
+      context: ../../../
+      dockerfile: docker/production/Dockerfile
+    image: core
+    container_name: core-testnet
     restart: always
     ports:
      - "4002:4002"
@@ -38,7 +41,7 @@ services:
      - ./enc:/run/secrets
     networks:
       - core 
-    env_file: ./devnet.env
+    env_file: ./testnet.env
     tty: true
     links:
      - postgres

@@ -1,0 +1,18 @@
+{
+    "name": "osmose_testnet",
+    "messagePrefix": "TESTMOSE message:\n",
+    "bip32": {
+      "public": 70617039,
+      "private": 70615956
+    },
+    "pubKeyHash": 75,
+    "nethash": "32d38282cfc302fd9d1fb2a7c1cdfc3683565333cea2e4ad1ba93a7cbea22169",
+    "wif": 187,
+    "aip20": 0,
+    "client": {
+      "token": "TESTMOSE",
+      "symbol": "TSM",
+      "explorer": "http://51.15.88.55:4200"
+    }
+  }
+
