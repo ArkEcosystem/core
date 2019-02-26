@@ -144,6 +144,7 @@ describe("Models - Block", () => {
                     maxPayload: 0,
                 },
                 reward: 200000000,
+                vendorFieldLength: 64,
             }));
             const block = new Block(dummyBlock);
 
