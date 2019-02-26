@@ -31,10 +31,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.2.0-beta.3",
         "@arkecosystem/core-container": "^2.2.0-beta.7",
+        "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@types/boom": "^7.2.1",
-        "@types/micromatch": "^3.1.0",
+        "@types/hapi": "^18.0.0",
         "boom": "^7.3.0",
         "expand-home-dir": "^0.0.3",
         "good": "^8.1.2",
@@ -42,10 +42,10 @@
         "good-squeeze": "^5.1.0",
         "hapi": "^18.1.0",
         "hapi-trailing-slash": "^3.0.1",
-        "inert": "^5.1.2",
-        "lout": "^11.1.0",
-        "micromatch": "^3.1.10",
-        "vision": "^5.4.4"
+        "nanomatch": "^1.2.13"
+    },
+    "devDependencies": {
+        "axios": "^0.18.0"
     },
     "publishConfig": {
         "access": "public"
@@ -55,11 +55,5 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
-    },
-    "devDependencies": {
-        "@types/hapi": "^18.0.0",
-        "@types/inert": "^5.1.2",
-        "@types/vision": "^5.3.5",
-        "axios": "^0.18.0"
     }
 }

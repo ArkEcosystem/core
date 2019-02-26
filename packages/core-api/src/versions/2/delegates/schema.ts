@@ -1,5 +1,5 @@
-import * as Joi from "joi";
 import { app } from "@arkecosystem/core-container";
+import * as Joi from "joi";
 import { pagination } from "../shared/schemas/pagination";
 
 const config = app.getConfig();
