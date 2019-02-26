@@ -3593,6 +3593,16 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+bcrypto@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/bcrypto/-/bcrypto-3.0.2.tgz#3fd96da06447724cebdfeed14821ade86babec53"
+  integrity sha512-JGPVqeO+uvlo+5QTEO78jL4/5UVvBcqc8UPd7ctLMQTb2FR85aocdDDKk0vtyLpXY2/orRrD51h3/Q0GwuyZAg==
+  dependencies:
+    bindings "~1.3.1"
+    bsert "~0.0.8"
+    bufio "~1.0.4"
+    nan "~2.12.1"
+
 before-after-hook@^1.2.0:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/before-after-hook/-/before-after-hook-1.3.2.tgz#7bfbf844ad670aa7a96b5a4e4e15bd74b08ed66b"
@@ -3645,6 +3655,11 @@ bindings@^1.2.1, bindings@^1.3.0:
   integrity sha512-7znEVX22Djn+nYjxCWKDne0RRloa9XfYa84yk3s+HkE3LpDYZmhArYr9O9huBoHY3/oXispx5LorIX7Sl2CgSQ==
   dependencies:
     file-uri-to-path "1.0.0"
+
+bindings@~1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.3.1.tgz#21fc7c6d67c18516ec5aaa2815b145ff77b26ea5"
+  integrity sha512-i47mqjF9UbjxJhxGf+pZ6kSxrnI3wBLlnGI2ArWJ4r0VrvDS7ZYXkprq/pLaBWYq4GM0r4zdHY+NNRqEMU7uew==
 
 bip32@^1.0.2:
   version "1.0.2"
@@ -3917,6 +3932,11 @@ bser@^2.0.0:
   dependencies:
     node-int64 "^0.4.0"
 
+bsert@~0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/bsert/-/bsert-0.0.8.tgz#1614b6d0faf6b5940d8ba2ab9520180e2b9a695d"
+  integrity sha512-MzSxGNGymvJ2wAJ0lrC2cT+Irq2q+EMz5ijt8qXIxt02VoO+ZFWPNrmzNHGq6F8RJnIzzRmKz8mv1/j2xU1TQg==
+
 btoa-lite@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/btoa-lite/-/btoa-lite-1.0.0.tgz#337766da15801210fdd956c22e9c6891ab9d0337"
@@ -3950,6 +3970,11 @@ buffer@^4.3.0:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
     isarray "^1.0.0"
+
+bufio@~1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/bufio/-/bufio-1.0.4.tgz#f6e197928cf4d1196c19b9dba6c3e89bb879aca7"
+  integrity sha512-z5HOP06DHRlwB6C4Ol6RNA2HWam8Pluo5pasPniQVyC4dzwutzYHHHDjDSOgSyGeThE7kmgT7ynV1A+EuD8s3w==
 
 builtin-modules@^1.0.0, builtin-modules@^1.1.1:
   version "1.1.1"
@@ -9701,7 +9726,7 @@ mute-stream@~0.0.4:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nan@^2.10.0, nan@^2.2.1, nan@^2.9.2:
+nan@^2.10.0, nan@^2.2.1, nan@^2.9.2, nan@~2.12.1:
   version "2.12.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.12.1.tgz#7b1aa193e9aa86057e3c7bbd0ac448e770925552"
   integrity sha512-JY7V6lRkStKcKTvHO5NVSQRv+RV+FIL5pvDoLiAtSL9pKlC5x9PKQcZDsq7m4FO4d57mkhC6Z+QhAh3Jdk5JFw==
