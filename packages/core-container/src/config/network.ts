@@ -10,7 +10,7 @@ export class Network {
      * @return {void}
      */
     public static setUp(opts: any) {
-        let config = NetworkManager.findByName(opts.network);
+        const config = NetworkManager.findByName(opts.network);
 
         const { error } = Joi.validate(config, schemaNetwork);
 
