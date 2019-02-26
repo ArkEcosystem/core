@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-tester-cli",
     "description": "Tester CLI for Ark Core",
-    "version": "2.2.0-beta.7",
+    "version": "2.2.0-beta.8",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -40,8 +40,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-utils": "^2.2.0-beta.7",
-        "@arkecosystem/crypto": "^2.2.0-beta.7",
+        "@arkecosystem/core-utils": "^2.2.0-beta.8",
+        "@arkecosystem/crypto": "^2.2.0-beta.8",
         "@oclif/command": "^1.5.10",
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",
