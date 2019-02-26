@@ -27,5 +27,9 @@
     {
         "height": 75600,
         "reward": 200000000
+    },
+    {
+        "height": 100000,
+        "vendorField255": true
     }
 ]
