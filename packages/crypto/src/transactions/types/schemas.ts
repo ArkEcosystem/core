@@ -52,7 +52,7 @@ export const transfer = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionTypes.Transfer },
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
-        vendorFieldHex: { anyOf: [{ type: "null" }, { $ref: "hex", format: "vendorFieldHex" }] },
+        vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         recipientId: { $ref: "address" },
     },
 });
