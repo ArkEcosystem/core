@@ -45,6 +45,9 @@ export abstract class BaseCommand extends Command {
             description: "transfer fee",
             default: 0.1,
         }),
+        skipProbing: flags.boolean({
+            description: "skip transaction probing",
+        }),
     };
 
     public static flagsDebug = {

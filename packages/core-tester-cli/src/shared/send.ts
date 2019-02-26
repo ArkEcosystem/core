@@ -12,13 +12,17 @@ export abstract class SendCommand extends BaseCommand {
         const transactions = await this.signTransactions(flags, wallets);
 
         // Expect...
-        await this.expectBalances(transactions, wallets);
+        if (!flags.skipProbing) {
+            await this.expectBalances(transactions, wallets);
+        }
 
         // Send...
         await this.broadcastTransactions(transactions);
 
         // Verify...
-        await this.verifyTransactions(transactions, wallets);
+        if (!flags.skipProbing) {
+            await this.verifyTransactions(transactions, wallets);
+        }
 
         // Return...
         return wallets;
