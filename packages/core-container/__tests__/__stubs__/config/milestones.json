@@ -22,7 +22,8 @@
                 "multiPayment": 0,
                 "delegateResignation": 0
             }
-        }
+        },
+        "vendorFieldLength": 64
     },
     {
         "height": 75600,
@@ -30,6 +31,6 @@
     },
     {
         "height": 100000,
-        "vendorField255": true
+        "vendorFieldLength": 255
     }
 ]

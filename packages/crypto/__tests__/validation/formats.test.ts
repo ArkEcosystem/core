@@ -27,7 +27,7 @@ describe("format vendorField", () => {
     });
 
     it("should be ok with up to 255 bytes with milestone ", () => {
-        configManager.getMilestone().vendorField255 = true;
+        configManager.getMilestone().vendorFieldLength = 255;
         const schema = { type: "string", format: "vendorField" };
         const validate = ajv.compile(schema);
         expect(validate("a".repeat(65))).toBeTrue();
@@ -35,7 +35,7 @@ describe("format vendorField", () => {
         expect(validate("a".repeat(256))).toBeFalse();
         expect(validate("⊁".repeat(86))).toBeFalse();
 
-        configManager.getMilestone().vendorField255 = false;
+        configManager.getMilestone().vendorFieldLength = 64;
     });
 });
 
@@ -49,15 +49,15 @@ describe("format vendorFieldHex", () => {
         expect(validate("⊁".repeat(22))).toBeFalse();
     });
 
-    it("should be ok with 510 hex when milestone vendorField255 is active", () => {
-        configManager.getMilestone().vendorField255 = true;
+    it("should be ok with 510 hex when milestone vendorFieldLength=255 is active", () => {
+        configManager.getMilestone().vendorFieldLength = 255;
         const schema = { type: "string", format: "vendorFieldHex" };
         const validate = ajv.compile(schema);
 
         expect(validate("affe".repeat(127))).toBeTrue();
         expect(validate("affe".repeat(128))).toBeFalse();
 
-        configManager.getMilestone().vendorField255 = false;
+        configManager.getMilestone().vendorFieldLength = 64;
     });
 
     it("should not be ok with non hex", () => {

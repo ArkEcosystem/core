@@ -54,8 +54,8 @@ describe("Transaction serializer / deserializer", () => {
             expect(deserialized.data.recipientId).toBe(transfer.recipientId);
         });
 
-        it("should ser/deserialize with long vendorfield when vendorField255 milestone is active", () => {
-            configManager.getMilestone().vendorField255 = true;
+        it("should ser/deserialize with long vendorfield when vendorFieldLength=255 milestone is active", () => {
+            configManager.getMilestone().vendorFieldLength = 255;
 
             const transferWithLongVendorfield = client
                 .getBuilder()
@@ -77,10 +77,10 @@ describe("Transaction serializer / deserializer", () => {
             expect(deserialized.data.vendorFieldHex).toHaveLength(510);
             expect(deserialized.data.vendorField).toEqual("y".repeat(255));
 
-            configManager.getMilestone().vendorField255 = false;
+            configManager.getMilestone().vendorFieldLength = 64;
         });
 
-        it("should not ser/deserialize long vendorfield when vendorField255 milestone is not active", () => {
+        it("should not ser/deserialize long vendorfield when vendorFieldLength=255 milestone is not active", () => {
             const transferWithLongVendorfield = client
                 .getBuilder()
                 .transfer()
