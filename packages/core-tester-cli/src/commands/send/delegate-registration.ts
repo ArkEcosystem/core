@@ -22,7 +22,9 @@ export class DelegateRegistrationCommand extends SendCommand {
 
     protected async createWalletsWithBalance(flags: Record<string, any>): Promise<any[]> {
         return TransferCommand.run(
-            [`--amount=${flags.delegateFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
+            [`--amount=${flags.delegateFee}`, `--number=${flags.number}`, "--skipProbing"].concat(
+                this.castFlags(flags),
+            ),
         );
     }
 

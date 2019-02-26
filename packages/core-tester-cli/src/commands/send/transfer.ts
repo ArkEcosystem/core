@@ -1,4 +1,5 @@
 import { flags } from "@oclif/command";
+import { delay } from "bluebird";
 import { SendCommand } from "../../shared/send";
 import { WalletCommand } from "../make/wallets";
 
@@ -26,8 +27,18 @@ export class TransferCommand extends SendCommand {
     protected async signTransactions(flags: Record<string, any>, wallets: Record<string, any>): Promise<any[]> {
         const transactions = [];
 
-        for (const wallet of Object.keys(wallets)) {
-            transactions.push(this.signer.makeTransfer({ ...flags, ...{ recipient: wallet } }));
+        for (let i = 0; i < flags.number; i++) {
+            const vendorField = flags.vendorField || `Transaction ${i}`;
+
+            if (flags.recipient) {
+                transactions.push(
+                    this.signer.makeTransfer({ ...flags, ...{ recipient: flags.recipient, vendorField } }),
+                );
+            } else {
+                for (const wallet of Object.keys(wallets)) {
+                    transactions.push(this.signer.makeTransfer({ ...flags, ...{ recipient: wallet, vendorField } }));
+                }
+            }
         }
 
         return transactions;

@@ -2,9 +2,8 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { SecondSignatureCommand } from "../../src/commands/second-signature";
-import { arkToSatoshi } from "../../src/utils";
-import { toFlags } from "../shared";
+import { SecondSignatureRegistrationCommand } from "../../src/commands/send/second-signature-registration";
+import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
 
@@ -27,26 +26,20 @@ describe("Commands - Second signature", () => {
             number: 1,
         };
 
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
 
-        const flags = toFlags(opts);
-        await SecondSignatureCommand.run(flags);
+        await SecondSignatureRegistrationCommand.run(toFlags(opts));
 
-        expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:4003/api/v2/transactions",
-            {
-                transactions: [
-                    expect.objectContaining({
-                        fee: arkToSatoshi(opts.signatureFee),
-                        asset: {
-                            signature: {
-                                publicKey: expect.any(String),
-                            },
-                        },
-                    }),
-                ],
+        expect(axios.post).toHaveBeenCalledTimes(2);
+
+        expectTransactions(expectedTransactions, {
+            fee: arkToSatoshi(opts.signatureFee),
+            asset: {
+                signature: {
+                    publicKey: expect.any(String),
+                },
             },
-            expect.any(Object),
-        );
+        });
     });
 });

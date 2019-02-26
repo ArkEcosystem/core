@@ -2,9 +2,8 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { VoteCommand } from "../../src/commands/vote";
-import { arkToSatoshi } from "../../src/utils";
-import { toFlags } from "../shared";
+import { VoteCommand } from "../../src/commands/send/vote";
+import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
 
@@ -18,6 +17,7 @@ beforeEach(() => {
 
 afterEach(() => {
     mockAxios.reset();
+    jest.restoreAllMocks();
 });
 
 afterAll(() => mockAxios.restore());
@@ -31,59 +31,45 @@ describe("Commands - Vote", () => {
             delegate: expectedDelegate,
         };
 
-        mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates.*/).reply(200);
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
 
-        const flags = toFlags(opts);
-        await VoteCommand.run(flags);
+        await VoteCommand.run(toFlags(opts));
 
-        expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:4003/api/v2/transactions",
-            {
-                transactions: [
-                    expect.objectContaining({
-                        fee: arkToSatoshi(opts.voteFee),
-                        asset: {
-                            votes: [`+${expectedDelegate}`],
-                        },
-                    }),
-                ],
+        expect(axios.post).toHaveBeenCalledTimes(2);
+
+        expectTransactions(expectedTransactions, {
+            fee: arkToSatoshi(opts.voteFee),
+            asset: {
+                votes: [`+${expectedDelegate}`],
             },
-            expect.any(Object),
-        );
+        });
     });
 
     it("should vote random delegate if non specified", async () => {
-        const expectedDelegate = "03f294777f7376e970b2bd4805b4a90c8449b5935d530bdb566d02800ac44a4c00";
+        const expectedDelegate = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
         const opts = {
             number: 1,
             voteFee: 1,
         };
 
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
-        mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates\/.*/).reply(200); // call to delegates/{publicKey}/voters
-        // call to /delegates
         mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200, {
             meta: { pageCount: 1 },
             data: [{ publicKey: expectedDelegate }],
         });
 
-        const flags = toFlags(opts);
-        await VoteCommand.run(flags);
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
 
-        expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:4003/api/v2/transactions",
-            {
-                transactions: [
-                    expect.objectContaining({
-                        fee: arkToSatoshi(opts.voteFee),
-                        asset: {
-                            votes: [`+${expectedDelegate}`],
-                        },
-                    }),
-                ],
+        await VoteCommand.run(toFlags(opts));
+
+        expect(axios.post).toHaveBeenCalledTimes(2);
+
+        expectTransactions(expectedTransactions, {
+            fee: arkToSatoshi(opts.voteFee),
+            asset: {
+                votes: [`+${expectedDelegate}`],
             },
-            expect.any(Object),
-        );
+        });
     });
 });

@@ -21,7 +21,9 @@ export class SecondSignatureRegistrationCommand extends SendCommand {
 
     protected async createWalletsWithBalance(flags: Record<string, any>): Promise<any[]> {
         return TransferCommand.run(
-            [`--amount=${flags.signatureFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
+            [`--amount=${flags.signatureFee}`, `--number=${flags.number}`, "--skipProbing"].concat(
+                this.castFlags(flags),
+            ),
         );
     }
 

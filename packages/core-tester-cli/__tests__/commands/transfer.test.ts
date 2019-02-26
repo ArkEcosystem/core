@@ -2,9 +2,8 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { TransferCommand } from "../../src/commands/transfer";
-import { arkToSatoshi } from "../../src/utils";
-import { toFlags } from "../shared";
+import { TransferCommand } from "../../src/commands/send/transfer";
+import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
 
@@ -26,56 +25,42 @@ describe("Commands - Transfer", () => {
     it("should postTransactions using custom smartBridge value", async () => {
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
         const expectedTransactionAmount = 2;
-        const expectedFee = arkToSatoshi(0.1);
+        const expectedFee = 0.1;
         const opts = {
             amount: expectedTransactionAmount,
             transferFee: expectedFee,
             number: 1,
-            smartBridge: "foo bar",
+            vendorField: "foo bar",
             recipient: expectedRecipientId,
         };
 
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
-        let expectedTransactions = [];
-        // @ts-ignore
-        jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
-            expectedTransactions = transactions;
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
+
+        await TransferCommand.run(toFlags(opts));
+
+        expectTransactions(expectedTransactions, {
+            vendorField: "foo bar",
+            amount: arkToSatoshi(expectedTransactionAmount),
+            fee: arkToSatoshi(expectedFee),
+            recipientId: expectedRecipientId,
         });
-
-        const flags = toFlags(opts);
-        await TransferCommand.run(flags);
-
-        expect(expectedTransactions).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    vendorField: "foo bar",
-                    amount: arkToSatoshi(expectedTransactionAmount),
-                    fee: arkToSatoshi(expectedFee),
-                    recipientId: expectedRecipientId,
-                }),
-            ]),
-        );
     });
 
     it("should generate n transactions", async () => {
         const expectedTxCount = 5;
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
         const opts = {
-            amount: arkToSatoshi(2),
-            transferFee: arkToSatoshi(2),
+            amount: 2,
+            transferFee: 2,
             number: expectedTxCount,
             recipient: expectedRecipientId,
         };
 
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
-        let expectedTransactions = [];
-        // @ts-ignore
-        jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
-            expectedTransactions = transactions;
-        });
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
 
-        const flags = toFlags(opts);
-        await TransferCommand.run(flags);
+        await TransferCommand.run(toFlags(opts));
 
         expect(expectedTransactions).toHaveLength(expectedTxCount);
         for (const t of expectedTransactions) {
@@ -89,21 +74,16 @@ describe("Commands - Transfer", () => {
         const expectedTxCount = 10;
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
         const opts = {
-            amount: arkToSatoshi(2),
-            transferFee: arkToSatoshi(0.1),
+            amount: 2,
+            transferFee: 0.1,
             number: expectedTxCount,
             recipient: expectedRecipientId,
         };
 
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
-        let expectedTransactions = [];
-        // @ts-ignore
-        jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
-            expectedTransactions = transactions;
-        });
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
 
-        const flags = toFlags(opts);
-        await TransferCommand.run(flags);
+        await TransferCommand.run(toFlags(opts));
 
         expect(expectedTransactions).toHaveLength(expectedTxCount);
         for (const t of expectedTransactions) {
@@ -112,8 +92,8 @@ describe("Commands - Transfer", () => {
     });
 
     it("should sign with 2nd passphrase if specified", async () => {
-        const expectedTransactionAmount = arkToSatoshi(2);
-        const expectedFee = arkToSatoshi(0.1);
+        const expectedTransactionAmount = 2;
+        const expectedFee = 0.1;
         const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
 
         const opts = {
@@ -124,20 +104,14 @@ describe("Commands - Transfer", () => {
             recipient: expectedRecipientId,
         };
 
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
-        let expectedTransactions = [];
-        // @ts-ignore
-        jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
-            expectedTransactions = transactions;
-        });
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
 
-        const flags = toFlags(opts);
-        await TransferCommand.run(flags);
+        await TransferCommand.run(toFlags(opts));
 
         expect(expectedTransactions).toHaveLength(1);
         for (const t of expectedTransactions) {
-            expect(t.secondSignature).toBeDefined();
-            expect(t.signSignature).toEqual(t.secondSignature);
+            expect(t.signSignature).toBeDefined();
         }
     });
 });

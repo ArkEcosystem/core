@@ -1,4 +1,5 @@
 import { Address } from "@arkecosystem/crypto";
+import { flags } from "@oclif/command";
 import { satoshiFlag } from "../../flags";
 import { logger } from "../../logger";
 import { SendCommand } from "../../shared/send";
@@ -9,6 +10,9 @@ export class VoteCommand extends SendCommand {
 
     public static flags = {
         ...SendCommand.flagsSend,
+        delegate: flags.string({
+            description: "delegate public key",
+        }),
         voteFee: satoshiFlag({
             description: "vote fee",
             default: 1,
@@ -21,7 +25,7 @@ export class VoteCommand extends SendCommand {
 
     protected async createWalletsWithBalance(flags: Record<string, any>): Promise<any[]> {
         return TransferCommand.run(
-            [`--amount=${flags.voteFee}`, `--number=${flags.number}`].concat(this.castFlags(flags)),
+            [`--amount=${flags.voteFee}`, `--number=${flags.number}`, "--skipProbing"].concat(this.castFlags(flags)),
         );
     }
 
@@ -29,7 +33,7 @@ export class VoteCommand extends SendCommand {
         const transactions = [];
 
         for (const [address, wallet] of Object.entries(wallets)) {
-            const delegate = await this.getRandomDelegate();
+            const delegate = flags.delegate || (await this.getRandomDelegate());
 
             const transaction = this.signer.makeVote({
                 ...flags,

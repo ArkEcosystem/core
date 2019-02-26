@@ -2,10 +2,9 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import superheroes from "superheroes";
-import { DelegateRegistrationCommand } from "../../src/commands/delegate-registration";
-import { arkToSatoshi } from "../../src/utils";
-import { toFlags } from "../shared";
+import pokemon from "pokemon";
+import { DelegateRegistrationCommand } from "../../src/commands/send/delegate-registration";
+import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
 
@@ -34,28 +33,22 @@ describe("Commands - Delegate Registration", () => {
             meta: { pageCount: 1 },
             data: [],
         });
-        jest.spyOn(superheroes, "random").mockImplementation(() => expectedDelegateName);
+        jest.spyOn(pokemon, "random").mockImplementation(() => expectedDelegateName);
 
-        mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
+        const expectedTransactions = [];
+        captureTransactions(mockAxios, expectedTransactions);
 
-        const flags = toFlags(opts);
-        await DelegateRegistrationCommand.run(flags);
+        await DelegateRegistrationCommand.run(toFlags(opts));
 
-        expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:4003/api/v2/transactions",
-            {
-                transactions: [
-                    expect.objectContaining({
-                        fee: arkToSatoshi(opts.delegateFee),
-                        asset: {
-                            delegate: {
-                                username: expectedDelegateName,
-                            },
-                        },
-                    }),
-                ],
+        expect(axios.post).toHaveBeenCalledTimes(2);
+
+        expectTransactions(expectedTransactions, {
+            fee: arkToSatoshi(opts.delegateFee),
+            asset: {
+                delegate: {
+                    username: expectedDelegateName,
+                },
             },
-            expect.any(Object),
-        );
+        });
     });
 });

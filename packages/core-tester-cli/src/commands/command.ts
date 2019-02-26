@@ -138,12 +138,7 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async broadcastTransactions(transactions) {
-        const sendTransactions = [];
-        for (const transaction of transactions) {
-            sendTransactions.push(this.sendTransaction(transaction));
-        }
-
-        await Promise.all(sendTransactions);
+        await this.sendTransaction(transactions);
 
         return this.awaitConfirmations(transactions);
     }
