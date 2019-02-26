@@ -7,6 +7,10 @@ export class TruncateCommand extends BaseCommand {
     public static description: string = "truncate blockchain database";
 
     public async run(): Promise<void> {
+        if (!app.has("snapshots")) {
+            this.error("The @arkecosystem/core-snapshots plugin is not installed.");
+        }
+
         const { flags } = await this.parseWithNetwork(TruncateCommand);
 
         await setUpLite(flags);

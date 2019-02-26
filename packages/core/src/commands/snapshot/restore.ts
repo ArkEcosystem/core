@@ -31,7 +31,10 @@ export class RestoreCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
+        if (!app.has("snapshots")) {
+            this.error("The @arkecosystem/core-snapshots plugin is not installed.");
+        }
+
         const { flags } = this.parse(RestoreCommand);
 
         await setUpLite(flags);
