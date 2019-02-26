@@ -2,15 +2,14 @@ import { Database } from "@arkecosystem/core-interfaces";
 import sql from "sql";
 
 interface ColumnDescriptor {
-    name: string,
-    supportedOperators?: Database.SearchOperator[],
-    prop?: string,
-    init?: any,
-    def?: any
+    name: string;
+    supportedOperators?: Database.SearchOperator[];
+    prop?: string;
+    init?: any;
+    def?: any;
 }
 
 export abstract class Model implements Database.IDatabaseModel {
-
     protected columnsDescriptor: ColumnDescriptor[];
     protected columnSet: any;
 
@@ -18,8 +17,7 @@ export abstract class Model implements Database.IDatabaseModel {
      * Create a new model instance.
      * @param {Object} pgp
      */
-    protected constructor(public pgp) {
-    }
+    protected constructor(public pgp) {}
 
     /**
      * Get table name for model.
@@ -33,17 +31,19 @@ export abstract class Model implements Database.IDatabaseModel {
      */
     public getColumnSet() {
         if (!this.columnSet) {
-            this.columnSet = this.createColumnSet(this.columnsDescriptor.map(col => {
-                const colDef: any = {
-                    name: col.name
-                };
-                ["prop", "init", "def"].forEach(prop => {
-                    if (col.hasOwnProperty(prop)) {
-                        colDef[prop] = col[prop];
-                    }
-                });
-                return colDef;
-            }));
+            this.columnSet = this.createColumnSet(
+                this.columnsDescriptor.map(col => {
+                    const colDef: any = {
+                        name: col.name,
+                    };
+                    ["prop", "init", "def"].forEach(prop => {
+                        if (col.hasOwnProperty(prop)) {
+                            colDef[prop] = col[prop];
+                        }
+                    });
+                    return colDef;
+                }),
+            );
         }
         return this.columnSet;
     }
@@ -52,8 +52,8 @@ export abstract class Model implements Database.IDatabaseModel {
         return this.columnsDescriptor.map(col => {
             return {
                 fieldName: col.prop || col.name,
-                supportedOperators: col.supportedOperators
-            }
+                supportedOperators: col.supportedOperators,
+            };
         });
     }
 
@@ -76,7 +76,6 @@ export abstract class Model implements Database.IDatabaseModel {
             })),
         });
     }
-
 
     /**
      * Convert the "camelCase" keys to "snake_case".

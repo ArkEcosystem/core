@@ -19,7 +19,7 @@ export const databaseServiceFactory = async (
         new WalletsBusinessRepository(() => databaseService),
         new DelegatesBusinessRepository(() => databaseService),
         new TransactionsBusinessRepository(() => databaseService),
-        new BlocksBusinessRepository(() => databaseService)
+        new BlocksBusinessRepository(() => databaseService),
     );
     await databaseService.init();
     return databaseService;

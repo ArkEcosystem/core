@@ -4,9 +4,7 @@ import { constants } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
-
-    constructor(private databaseServiceProvider: () => Database.IDatabaseService) {
-    }
+    constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 
     public async allVotesBySender(senderPublicKey: any, parameters: any) {
         return this.findAll({
@@ -18,7 +16,9 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     // TODO: Remove with v1
     public async findAll(params: any, sequenceOrder: "asc" | "desc" = "desc") {
         try {
-            const result = await this.databaseServiceProvider().connection.transactionsRepository.findAll(this.parseSearchParameters(params, sequenceOrder));
+            const result = await this.databaseServiceProvider().connection.transactionsRepository.findAll(
+                this.parseSearchParameters(params, sequenceOrder),
+            );
             result.rows = await this.mapBlocksToTransactions(result.rows);
 
             return result;
@@ -32,7 +32,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findAllByRecipient(recipientId: any, parameters: any = {}) {
-        return this.findAll({ recipientId, ...parameters })
+        return this.findAll({ recipientId, ...parameters });
     }
 
     public async findAllBySender(senderPublicKey: any, parameters: any = {}) {
@@ -46,7 +46,11 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     public async findAllByWallet(wallet: any, parameters: any) {
         const transactionsRepository = this.databaseServiceProvider().connection.transactionsRepository;
         const searchParameters = new SearchParameterConverter(transactionsRepository.getModel()).convert(parameters);
-        const result = await transactionsRepository.findAllByWallet(wallet, searchParameters.paginate, searchParameters.orderBy);
+        const result = await transactionsRepository.findAllByWallet(
+            wallet,
+            searchParameters.paginate,
+            searchParameters.orderBy,
+        );
         return await this.mapBlocksToTransactions(result.rows);
     }
 
@@ -70,18 +74,21 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     public async getFeeStatistics() {
         const opts = app.resolveOptions("transactionPool");
-        return await this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(opts.dynamicFees.minFeeBroadcast)
+        return await this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
+            opts.dynamicFees.minFeeBroadcast,
+        );
     }
 
     public async search(params: any) {
-
         try {
-            const result = await this.databaseServiceProvider().connection.transactionsRepository.search(this.parseSearchParameters(params));
+            const result = await this.databaseServiceProvider().connection.transactionsRepository.search(
+                this.parseSearchParameters(params),
+            );
             result.rows = await this.mapBlocksToTransactions(result.rows);
 
             return result;
         } catch (e) {
-            return { rows: [], count: 0};
+            return { rows: [], count: 0 };
         }
     }
 
@@ -91,9 +98,8 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     private async mapBlocksToTransactions(rows) {
-
         if (!Array.isArray(rows)) {
-            rows = [rows]
+            rows = [rows];
         }
 
         // 1. get heights from cache
@@ -114,7 +120,6 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
         // 2. get uncached blocks from database
         if (missingFromCache.length) {
-
             const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
             const result = await blocksRepository.findByIds(missingFromCache.map(d => d.blockId));
 
@@ -180,20 +185,21 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             delete params.ownerId;
         }
 
-        const searchParameters = new SearchParameterConverter(databaseService.connection.transactionsRepository.getModel()).convert(params);
+        const searchParameters = new SearchParameterConverter(
+            databaseService.connection.transactionsRepository.getModel(),
+        ).convert(params);
         if (!searchParameters.paginate) {
             searchParameters.paginate = {
                 offset: 0,
-                limit: 100
+                limit: 100,
             };
         }
 
         searchParameters.orderBy.push({
             field: "sequence",
-            direction: sequenceOrder
+            direction: sequenceOrder,
         });
 
         return searchParameters;
     }
-
 }

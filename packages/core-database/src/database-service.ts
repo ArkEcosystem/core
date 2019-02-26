@@ -77,7 +77,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 this.forgingDelegates.length === 0 ||
                 (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
             ) {
-                this.logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
+                this.logger.info(`Starting Round ${round.toLocaleString()}`);
 
                 try {
                     this.updateDelegateStats(this.forgingDelegates);
@@ -96,7 +96,7 @@ export class DatabaseService implements Database.IDatabaseService {
             } else {
                 this.logger.warn(
                     // tslint:disable-next-line:max-line-length
-                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
+                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
             }
         }
@@ -385,7 +385,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
         if (nextRound === round + 1 && height >= maxDelegates) {
-            this.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
+            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
             const delegates = await this.calcPreviousActiveDelegates(round);
             this.forgingDelegates = await this.getActiveDelegates(height, delegates);

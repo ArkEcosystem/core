@@ -10,7 +10,7 @@ export const plugin: Container.PluginDescriptor = {
     alias: "webhooks",
     async register(container: Container.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Webhooks are disabled :grey_exclamation:");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Webhooks are disabled");
             return;
         }
 

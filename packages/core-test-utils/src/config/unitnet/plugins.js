@@ -1,19 +1,6 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
-    "@arkecosystem/core-logger-winston": {
-        transports: {
-            console: {
-                options: {
-                    level: process.env.CORE_LOG_LEVEL || "debug",
-                },
-            },
-            dailyRotate: {
-                options: {
-                    level: process.env.CORE_LOG_LEVEL || "debug",
-                },
-            },
-        },
-    },
+    "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
@@ -58,11 +45,6 @@ module.exports = {
             port: process.env.CORE_WEBHOOKS_PORT || 4004,
             whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
         },
-    },
-    "@arkecosystem/core-graphql": {
-        enabled: process.env.CORE_GRAPHQL_ENABLED,
-        host: process.env.CORE_GRAPHQL_HOST || "0.0.0.0",
-        port: process.env.CORE_GRAPHQL_PORT || 4005,
     },
     "@arkecosystem/core-forger": {
         hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4000}`],

@@ -16,7 +16,11 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     }
 
     public async findByIds(ids: string[]) {
-        const query = this.query.select().from(this.query).where(this.query.id.in(ids)).group(this.query.id);
+        const query = this.query
+            .select()
+            .from(this.query)
+            .where(this.query.id.in(ids))
+            .group(this.query.id);
         return await this.findMany(query);
     }
 
@@ -134,7 +138,6 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
 
         return await this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
     }
-
 
     public async search(params: Database.SearchParameters) {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.

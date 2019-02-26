@@ -226,7 +226,7 @@ export class Monitor implements P2P.IMonitor {
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
 
-        logger.info(`Checking ${max} peers :telescope:`);
+        logger.info(`Checking ${max} peers`);
         const peerErrors = {};
         await Promise.all(
             keys.map(async ip => {
@@ -615,9 +615,7 @@ export class Monitor implements P2P.IMonitor {
 
             logger.info(`Your NTP connectivity has been verified by ${host}`);
 
-            logger.info(
-                `Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP :alarm_clock:`,
-            );
+            logger.info(`Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP`);
         } catch (error) {
             logger.error(error.message);
         }
@@ -685,7 +683,7 @@ export class Monitor implements P2P.IMonitor {
         const peerList = config.get("peers.list");
 
         if (!peerList) {
-            app.forceExit("No seed peers defined in peers.json :interrobang:");
+            app.forceExit("No seed peers defined in peers.json");
         }
 
         let peers = peerList.map(peer => {

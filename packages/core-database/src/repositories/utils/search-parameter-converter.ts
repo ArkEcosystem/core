@@ -2,16 +2,13 @@ import { Database } from "@arkecosystem/core-interfaces";
 import snakeCase from "lodash/snakeCase";
 
 export class SearchParameterConverter implements Database.ISearchParameterConverter {
-
-    constructor(private databaseModel: Database.IDatabaseModel) {
-    }
+    constructor(private databaseModel: Database.IDatabaseModel) {}
 
     public convert(params: Database.IParameters, orderBy?: any, paginate?: any): Database.SearchParameters {
-
         const searchParameters: Database.SearchParameters = {
             orderBy: [],
             paginate: null,
-            parameters: []
+            parameters: [],
         };
 
         if (!params || !Object.keys(params).length) {
@@ -39,18 +36,18 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
         if (paginate) {
             searchParameters.paginate = {
                 limit: Number.isInteger(paginate.limit) ? paginate.limit : 100,
-                offset: Number.isInteger(paginate.offset) && +paginate.offset > 0 ? paginate.offset : 0
-            }
+                offset: Number.isInteger(paginate.offset) && +paginate.offset > 0 ? paginate.offset : 0,
+            };
         }
     }
 
     private parseOrderBy(searchParameters: Database.SearchParameters, orderBy?: any) {
-        if (orderBy && typeof (orderBy) === "string") {
+        if (orderBy && typeof orderBy === "string") {
             const fieldDirection = orderBy.split(":").map(o => o.toLowerCase());
             if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
                 searchParameters.orderBy.push({
                     field: snakeCase(fieldDirection[0]),
-                    direction: (fieldDirection[1] as "asc" | "desc")
+                    direction: fieldDirection[1] as "asc" | "desc",
                 });
             }
         }
@@ -67,7 +64,8 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
             orderBy, limit and offset are parsed earlier.
             page, pagination are added automatically by hapi-pagination
          */
-        Object.keys(params).filter(value => !["orderBy", "limit", "offset", "page", "pagination"].includes(value))
+        Object.keys(params)
+            .filter(value => !["orderBy", "limit", "offset", "page", "pagination"].includes(value))
             .forEach(fieldName => {
                 const fieldDescriptor = mapByFieldName[fieldName] as Database.SearchableField;
 
@@ -79,7 +77,7 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
                     searchParameters.parameters.push({
                         field: fieldName,
                         operator: Database.SearchOperator.OP_CUSTOM,
-                        value: params[fieldName]
+                        value: params[fieldName],
                     });
                     return;
                 }
@@ -88,20 +86,22 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
                     searchParameters.parameters.push({
                         field: fieldName,
                         operator: Database.SearchOperator.OP_LIKE,
-                        value: `%${params[fieldName]}%`
+                        value: `%${params[fieldName]}%`,
                     });
                     return;
                 }
 
                 // 'between'
-                if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_GTE) ||
-                    fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LTE)) {
+                if (
+                    fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_GTE) ||
+                    fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LTE)
+                ) {
                     // check if we have 'to' & 'from', if not, default to OP_EQ
                     if (!params[fieldName].hasOwnProperty("from") && !params[fieldName].hasOwnProperty("to")) {
                         searchParameters.parameters.push({
                             field: fieldName,
                             operator: Database.SearchOperator.OP_EQ,
-                            value: params[fieldName]
+                            value: params[fieldName],
                         });
                         return;
                     } else {
@@ -109,26 +109,29 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
                             searchParameters.parameters.push({
                                 field: fieldName,
                                 operator: Database.SearchOperator.OP_GTE,
-                                value: params[fieldName].from
-                            })
+                                value: params[fieldName].from,
+                            });
                         }
                         if (params[fieldName].hasOwnProperty("to")) {
                             searchParameters.parameters.push({
                                 field: fieldName,
                                 operator: Database.SearchOperator.OP_LTE,
-                                value: params[fieldName].to
-                            })
+                                value: params[fieldName].to,
+                            });
                         }
                         return;
                     }
                 }
 
                 // If we support 'IN', then the value must be an array(of values)
-                if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_IN) && Array.isArray(params[fieldName])) {
+                if (
+                    fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_IN) &&
+                    Array.isArray(params[fieldName])
+                ) {
                     searchParameters.parameters.push({
                         field: fieldName,
                         operator: Database.SearchOperator.OP_IN,
-                        value: params[fieldName]
+                        value: params[fieldName],
                     });
                     return;
                 }
@@ -138,7 +141,7 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
                     searchParameters.parameters.push({
                         field: fieldName,
                         operator: Database.SearchOperator.OP_EQ,
-                        value: params[fieldName]
+                        value: params[fieldName],
                     });
                     return;
                 }

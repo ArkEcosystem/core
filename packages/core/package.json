@@ -59,7 +59,7 @@
         "@arkecosystem/core-event-emitter": "^2.2.0-beta.7",
         "@arkecosystem/core-forger": "^2.2.0-beta.7",
         "@arkecosystem/core-json-rpc": "^2.2.0-beta.7",
-        "@arkecosystem/core-logger-winston": "^2.2.0-beta.7",
+        "@arkecosystem/core-logger-pino": "^2.2.0-beta.7",
         "@arkecosystem/core-p2p": "^2.2.0-beta.7",
         "@arkecosystem/core-snapshots": "^2.2.0-beta.7",
         "@arkecosystem/core-transaction-pool": "^2.2.0-beta.7",
