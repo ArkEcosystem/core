@@ -4,7 +4,8 @@ sudo /usr/sbin/ntpd -s
 sudo rm -rf /home/node/.config/ark-core/*
 sudo rm -rf /home/node/.local/state/ark-core/*
 sudo chown node:node -R /home/node
-ark config:publish --network=$NETWORK --force
+ark config:publish --network=$NETWORK
+ark config:reset --network=$NETWORK
 sudo rm -f /home/node/.config/ark-core/$NETWORK/.env
 
 SECRET=`openssl rsautl -decrypt -inkey /run/secrets/secret.key -in /run/secrets/secret.dat`
