@@ -56,7 +56,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-utils/node_modules
@@ -163,7 +162,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-utils/node_modules
@@ -270,7 +268,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-utils/node_modules
@@ -392,7 +389,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-utils/node_modules
@@ -408,11 +404,6 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-snapshots/
-      - run:
-          name: core-test-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-test-utils/
       - run:
           name: core-tester-cli
           command: >-
@@ -509,7 +500,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-utils/node_modules
@@ -631,7 +621,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-utils/node_modules
@@ -647,11 +636,6 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-snapshots/
-      - run:
-          name: core-test-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-test-utils/
       - run:
           name: core-tester-cli
           command: >-
