@@ -5,16 +5,14 @@ export class HashAlgorithms {
      * Create a "ripemd160" buffer.
      */
     public static ripemd160(buffer: Buffer | string): Buffer {
-        buffer = buffer instanceof Buffer ? buffer : Buffer.from(buffer);
-        return RIPEMD160.digest(buffer);
+        return RIPEMD160.digest(this.bufferize(buffer));
     }
 
     /**
      * Create a "sha1" buffer.
      */
     public static sha1(buffer: Buffer | string): Buffer {
-        buffer = buffer instanceof Buffer ? buffer : Buffer.from(buffer);
-        return SHA1.digest(buffer);
+        return SHA1.digest(this.bufferize(buffer));
     }
 
     /**
@@ -33,23 +31,23 @@ export class HashAlgorithms {
             return sha256.final();
         }
 
-        buffer = buffer instanceof Buffer ? buffer : Buffer.from(buffer);
-        return SHA256.digest(buffer);
+        return SHA256.digest(this.bufferize(buffer));
     }
 
     /**
      * Create a "hash160" buffer.
      */
     public static hash160(buffer: Buffer | string): Buffer {
-        buffer = buffer instanceof Buffer ? buffer : Buffer.from(buffer);
-        return Hash160.digest(buffer);
+        return Hash160.digest(this.bufferize(buffer));
     }
 
     /**
      * Create a "hash256" buffer.
      */
     public static hash256(buffer: Buffer | string): Buffer {
-        buffer = buffer instanceof Buffer ? buffer : Buffer.from(buffer);
-        return Hash256.digest(buffer);
+        return Hash256.digest(this.bufferize(buffer));
     }
+
+    private static bufferize = (buffer: Buffer | string) =>
+        (buffer = buffer instanceof Buffer ? buffer : Buffer.from(buffer));
 }
