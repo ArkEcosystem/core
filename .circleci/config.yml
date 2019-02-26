@@ -41,7 +41,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -94,10 +93,10 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-database-postgres && yarn test:coverage
       - run:
-          name: core-debugger-cli
+          name: core-event-emitter
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-debugger-cli && yarn test:coverage
+            ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -149,7 +148,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -202,10 +200,10 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-database-postgres && yarn test:coverage
       - run:
-          name: core-debugger-cli
+          name: core-event-emitter
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-debugger-cli && yarn test:coverage
+            ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -257,7 +255,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -284,11 +281,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-event-emitter
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
           command: >-
@@ -329,6 +321,11 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-p2p && yarn test:coverage
+      - run:
+          name: core-snapshots
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
+            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -380,7 +377,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -407,11 +403,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-snapshots
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
           command: >-
@@ -498,7 +489,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -525,11 +515,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-event-emitter
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-event-emitter && yarn test:coverage
       - run:
           name: core-forger
           command: >-
@@ -570,6 +555,11 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd
             ~/core/packages/core-p2p && yarn test:coverage
+      - run:
+          name: core-snapshots
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
+            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -621,7 +611,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -648,11 +637,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-snapshots
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: core-test-utils
           command: >-
