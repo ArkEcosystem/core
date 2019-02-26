@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { generators } from "@arkecosystem/core-test-utils";
+import { generators } from "../../../utils";
 const { generateTransfers } = generators;
 
 import ByteBuffer from "bytebuffer";

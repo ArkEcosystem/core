@@ -1,9 +1,9 @@
 /* tslint:disable:max-line-length no-empty */
 import { Database } from "@arkecosystem/core-interfaces";
-import { fixtures, generators } from "@arkecosystem/core-test-utils";
+import { fixtures, generators } from "../../utils";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset } from "@arkecosystem/crypto/dist/models";
-import genesisBlockTestnet from "../../../packages/core-test-utils/src/config/testnet/genesisBlock.json";
+import genesisBlockTestnet from "../../utils/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
 import { setUp, tearDown } from "./__support__/setup";
 

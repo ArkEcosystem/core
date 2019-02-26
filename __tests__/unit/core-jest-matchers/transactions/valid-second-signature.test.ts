@@ -1,6 +1,6 @@
 import "../../../../packages/core-jest-matchers/src/transactions/valid-second-signature";
 
-// import { generators } from "@arkecosystem/core-test-utils";
+// import { generators } from "../../../utils";
 // const wallets = generators.generateWallets("testnet", 2);
 // const transaction = generators.generateTransfers("testnet", wallets.map(w => w.passphrase))[0];
 

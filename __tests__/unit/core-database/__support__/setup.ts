@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import "@arkecosystem/core-test-utils";
-import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
+import "../../../utils";
+import { setUpContainer } from "../../../utils/helpers/container";
 
 export const setUp = async () => {
     jest.setTimeout(60000);

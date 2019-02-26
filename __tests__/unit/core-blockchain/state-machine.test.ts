@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils";
+import "../../utils";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { slots } from "@arkecosystem/crypto";
 import { Block } from "@arkecosystem/crypto/dist/models";

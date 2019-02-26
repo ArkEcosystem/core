@@ -6,7 +6,7 @@ import { configManager } from "../../../../packages/crypto/src/managers/config";
 import { Wallet } from "../../../../packages/crypto/src/models/wallet";
 import { Bignum } from "../../../../packages/crypto/src/utils";
 
-import { generators } from "@arkecosystem/core-test-utils";
+import { generators } from "../../../utils";
 const { generateTransfers, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
 import { devnet } from "../../../../packages/crypto/src/networks";
 import { multiTransaction } from "../fixtures/multi-transaction";

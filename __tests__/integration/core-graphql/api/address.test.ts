@@ -1,4 +1,4 @@
-import "@arkecosystem/core-test-utils";
+import "../../../utils";
 
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";

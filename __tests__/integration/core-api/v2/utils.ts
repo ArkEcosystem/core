@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
 import axios from "axios";
 import "jest-extended";
-import { ApiHelpers } from "../../../../packages/core-test-utils/src/helpers/api";
+import { ApiHelpers } from "../../../utils/helpers/api";
 
 class Helpers {
     public async request(method, path, params = {}) {

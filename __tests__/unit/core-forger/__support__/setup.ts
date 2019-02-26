@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
+import { setUpContainer } from "../../../utils/helpers/container";
 
 export const setUp = async () => {
     return setUpContainer({

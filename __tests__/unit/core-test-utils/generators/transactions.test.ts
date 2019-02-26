@@ -1,5 +1,5 @@
 import { constants } from "../../../../packages/crypto";
-import { generateTransaction } from "../../../../packages/core-test-utils/src/generators";
+import { generateTransaction } from "../../../utils/generators";
 
 const { TransactionTypes } = constants;
 

@@ -1,4 +1,4 @@
-import { generators } from "@arkecosystem/core-test-utils";
+import { generators } from "../../utils";
 import "jest-extended";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";

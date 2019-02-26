@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { ApiHelpers } from "@arkecosystem/core-test-utils/src/helpers/api";
+import { ApiHelpers } from "../../../utils/helpers/api";
 
 class Helpers {
     public headers: any;

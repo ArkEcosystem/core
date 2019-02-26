@@ -21,7 +21,7 @@ let emitter: EventEmitter.EventEmitter;
 beforeAll(async () => {
     container = await setUp();
     emitter = container.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
+    genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
     connection = new DatabaseConnectionStub();
     walletManager = new WalletManager();
 });

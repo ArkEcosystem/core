@@ -1,6 +1,6 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
-import { generators } from "@arkecosystem/core-test-utils";
-import { delegates, genesisBlock, wallets } from "@arkecosystem/core-test-utils/src/fixtures/unitnet";
+import { generators } from "../../utils";
+import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import { setUpFull, tearDownFull } from "./__support__/setup";

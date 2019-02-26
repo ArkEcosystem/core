@@ -2,7 +2,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { Bignum, crypto, models } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
-import genesisBlockTestnet from "../../../../packages/core-test-utils/src/config/testnet/genesisBlock.json";
+import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../__support__/setup";
 
 import { WalletsRepository } from "../../../../packages/core-database/src";

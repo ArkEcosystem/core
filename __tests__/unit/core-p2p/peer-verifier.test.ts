@@ -1,5 +1,5 @@
-import genesisBlockJson from "@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json";
-import { blocks2to100 as blocks2to100Json } from "@arkecosystem/core-test-utils/src/fixtures";
+import genesisBlockJson from "../../utils/config/testnet/genesisBlock.json";
+import { blocks2to100 as blocks2to100Json } from "../../utils/fixtures";
 import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";

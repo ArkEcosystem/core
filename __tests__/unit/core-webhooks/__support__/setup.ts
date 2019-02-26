@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { setUpContainer } from "@arkecosystem/core-test-utils/src/helpers/container";
+import { setUpContainer } from "../../../utils/helpers/container";
 import { database } from "../../../../packages/core-webhooks/src/database";
 import { webhookManager } from "../../../../packages/core-webhooks/src/manager";
 import { startServer } from "../../../../packages/core-webhooks/src/server";

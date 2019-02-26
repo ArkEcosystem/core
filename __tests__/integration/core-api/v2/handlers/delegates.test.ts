@@ -1,8 +1,8 @@
-import "@arkecosystem/core-test-utils";
+import "../../../../utils";
 import { calculateRanks, setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-import { blocks2to100 } from "../../../../../packages/core-test-utils/src/fixtures/testnet/blocks2to100";
+import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
 import { Bignum, models } from "@arkecosystem/crypto";
 const { Block } = models;

@@ -1,5 +1,5 @@
 /* tslint:disable:max-line-length */
-import "@arkecosystem/core-test-utils";
+import "../../utils";
 import { asValue } from "awilix";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";

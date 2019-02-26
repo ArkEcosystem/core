@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import delay from "delay";
-import { registerWithContainer, setUpContainer } from "../../../../packages/core-test-utils/src/helpers/container";
+import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 import { plugin } from "../../../../packages/core-api/src/plugin";
 
-import { delegates } from "../../../../packages/core-test-utils/src/fixtures";
+import { delegates } from "../../../utils/fixtures";
 import { generateRound } from "./utils/generate-round";
 
 import { queries } from "../../../../packages/core-database-postgres/src/queries";

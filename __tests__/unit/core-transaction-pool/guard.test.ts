@@ -1,14 +1,9 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { generators } from "@arkecosystem/core-test-utils";
+import { generators } from "../../utils";
 import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
-import {
-    delegates,
-    genesisBlock,
-    wallets,
-    wallets2ndSig,
-} from "../../../packages/core-test-utils/src/fixtures/unitnet";
+import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 

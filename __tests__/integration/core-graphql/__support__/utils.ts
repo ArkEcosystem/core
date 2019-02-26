@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { ApiHelpers } from "../../../../packages/core-test-utils/src/helpers/api";
+import { ApiHelpers } from "../../../utils/helpers/api";
 
 class Helpers {
     public async request(query) {

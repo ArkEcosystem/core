@@ -1,6 +1,6 @@
-import "@arkecosystem/core-test-utils";
-import { fixtures, generators } from "@arkecosystem/core-test-utils";
-import genesisBlockTestnet from "@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json";
+import "../../../utils";
+import { fixtures, generators } from "../../../utils";
+import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";

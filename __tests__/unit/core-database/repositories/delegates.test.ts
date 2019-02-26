@@ -1,7 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
-import genesisBlockTestnet from "../../../../packages/core-test-utils/src/config/testnet/genesisBlock.json";
+import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { DelegatesRepository, WalletsRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 import { setUp, tearDown } from "../__support__/setup";

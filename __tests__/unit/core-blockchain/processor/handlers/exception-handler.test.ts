@@ -1,8 +1,8 @@
-import "@arkecosystem/core-test-utils";
+import "../../../../utils";
 import { ExceptionHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
 
 import { models } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../../../packages/core-test-utils/src/fixtures/testnet/blocks2to100";
+import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 import { Blockchain } from "../../../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
 import { setUpFull, tearDownFull } from "../../__support__/setup";

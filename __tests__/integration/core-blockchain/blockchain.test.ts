@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
-import "@arkecosystem/core-test-utils";
-import { blocks101to155 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "@arkecosystem/core-test-utils/src/fixtures/testnet/blocks2to100";
+import "../../utils";
+import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { crypto, models, slots } from "@arkecosystem/crypto";
 import { asValue } from "awilix";
 import delay from "delay";
@@ -28,7 +28,7 @@ describe("Blockchain", () => {
 
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
+        genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
 
         configManager = container.getConfig();
 

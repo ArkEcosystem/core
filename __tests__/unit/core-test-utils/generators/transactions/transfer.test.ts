@@ -1,5 +1,5 @@
 import { Bignum, constants } from "../../../../../packages/crypto";
-import { generateTransfers } from "../../../../../packages/core-test-utils/src/generators";
+import { generateTransfers } from "../../../../utils/generators";
 
 const { TransactionTypes, SATOSHI } = constants;
 

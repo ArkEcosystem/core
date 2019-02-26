@@ -1,12 +1,12 @@
-import "@arkecosystem/core-test-utils";
+import "../../../../utils";
 import { constants } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-import genesisBlock from "../../../../../packages/core-test-utils/src/config/testnet/genesisBlock.json";
-import { delegates } from "../../../../../packages/core-test-utils/src/fixtures/testnet/delegates";
-import { generateTransfers } from "../../../../../packages/core-test-utils/src/generators/transactions/transfer";
-import { generateWallets } from "../../../../../packages/core-test-utils/src/generators/wallets";
+import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
+import { delegates } from "../../../../utils/fixtures/testnet/delegates";
+import { generateTransfers } from "../../../../utils/generators/transactions/transfer";
+import { generateWallets } from "../../../../utils/generators/wallets";
 
 const transferFee = 10000000;
 

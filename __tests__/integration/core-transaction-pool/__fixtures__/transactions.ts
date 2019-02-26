@@ -1,5 +1,5 @@
-import { generators } from "@arkecosystem/core-test-utils";
-import { delegates } from "@arkecosystem/core-test-utils/src/fixtures/unitnet/delegates";
+import { generators } from "../../../utils";
+import { delegates } from "../../../utils/fixtures/unitnet/delegates";
 const { generateTransfers } = generators;
 
 export const transactions = {

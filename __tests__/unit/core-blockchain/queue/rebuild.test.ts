@@ -1,7 +1,7 @@
-import "@arkecosystem/core-test-utils";
+import "../../../utils";
 import { asValue } from "awilix";
 import delay from "delay";
-import { blocks2to100 } from "../../../../packages/core-test-utils/src/fixtures/testnet/blocks2to100";
+import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
 import { setUp, tearDown } from "../__support__/setup";
 
