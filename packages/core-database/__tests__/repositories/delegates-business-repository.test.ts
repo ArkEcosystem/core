@@ -212,6 +212,114 @@ describe("Delegate Repository", () => {
             });
         });
 
+        describe("by `usernames`", () => {
+            it("should search by exact match", () => {
+                const usernames = [
+                    "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                    "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo",
+                    "username-AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri"
+                ];
+                const { count, rows } = repository.search({ usernames });
+
+                expect(count).toBe(3);
+                expect(rows).toHaveLength(3);
+
+                rows.forEach(row => {
+                    expect(usernames.includes(row.username)).toBeTrue();
+                });
+            });
+
+            describe('when a username is "undefined"', () => {
+                it("should return it", () => {
+                    // Index a wallet with username "undefined"
+                    walletManager.allByAddress()[0].username = "undefined";
+
+                    const usernames = ["undefined"];
+                    const { count, rows } = repository.search({ usernames });
+
+                    expect(count).toBe(1);
+                    expect(rows).toHaveLength(1);
+                    expect(rows[0].username).toEqual(usernames[0]);
+                });
+            });
+
+            describe("when the username does not exist", () => {
+                it("should return no results", () => {
+                    const { count, rows } = repository.search({
+                        usernames: ["unknown-dummy-username"],
+                    });
+
+                    expect(count).toBe(0);
+                    expect(rows).toHaveLength(0);
+                });
+            });
+
+            it("should be ok with params", () => {
+                const { count, rows } = repository.search({
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
+                    offset: 1,
+                    limit: 10,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
+            });
+
+            it("should be ok with params (no offset)", () => {
+                const { count, rows } = repository.search({
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
+                    limit: 1,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
+            });
+
+            it("should be ok with params (offset = 0)", () => {
+                const { count, rows } = repository.search({
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
+                    offset: 0,
+                    limit: 2,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(2);
+            });
+
+            it("should be ok with params (no limit)", () => {
+                const { count, rows } = repository.search({
+                    usernames: [
+                        "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                        "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo"
+                    ],
+                    offset: 1,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
+            });
+        });
+
+        describe("when searching by `username` and `usernames`", () => {
+            it("should search delegates only by `username`", () => {
+                const username = "username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn";
+                const usernames = [
+                    "username-AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo",
+                    "username-AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri"
+                ]
+
+                const { count, rows } = repository.search({ username, usernames });
+
+                expect(count).toBe(1);
+                expect(rows).toHaveLength(1);
+            });
+        });
+
         describe("when searching without params", () => {
             it("should return all results", () => {
                 const { count, rows } = repository.search({});
