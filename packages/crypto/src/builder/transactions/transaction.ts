@@ -3,7 +3,7 @@ import { MissingTransactionSignatureError } from "../../errors";
 import { configManager } from "../../managers";
 import { INetwork } from "../../networks";
 import { ITransactionData, Transaction } from "../../transactions";
-import { Bignum } from "../../utils";
+import { Bignum, maxVendorFieldLength } from "../../utils";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
@@ -80,7 +80,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
      * Set vendor field.
      */
     public vendorField(vendorField: string): TBuilder {
-        if (vendorField && Buffer.from(vendorField).length <= 64) {
+        if (vendorField && Buffer.from(vendorField).length <= maxVendorFieldLength()) {
             this.data.vendorField = vendorField;
         }
 

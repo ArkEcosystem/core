@@ -4,6 +4,7 @@ import ajvKeywords from "ajv-keywords";
 import { TransactionSchemaAlreadyExistsError } from "../errors";
 import { ISchemaValidationResult } from "../models";
 import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
+import { formats } from "./formats";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
 
@@ -17,6 +18,10 @@ class AjvWrapper {
 
         keywords.forEach(addKeyword => {
             addKeyword(ajv);
+        });
+
+        formats.forEach(addFormat => {
+            addFormat(ajv);
         });
 
         this.ajv = ajv;
