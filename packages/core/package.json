@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core",
     "description": "Core of the Ark Blockchain",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.7",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -23,7 +23,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
@@ -52,19 +52,19 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-api": "^2.2.0-beta.4",
-        "@arkecosystem/core-blockchain": "^2.2.0-beta.4",
-        "@arkecosystem/core-container": "^2.2.0-beta.4",
-        "@arkecosystem/core-database-postgres": "^2.2.0-beta.4",
-        "@arkecosystem/core-event-emitter": "^2.2.0-beta.4",
-        "@arkecosystem/core-forger": "^2.2.0-beta.4",
-        "@arkecosystem/core-json-rpc": "^2.2.0-beta.4",
-        "@arkecosystem/core-logger-winston": "^2.2.0-beta.4",
-        "@arkecosystem/core-p2p": "^2.2.0-beta.4",
-        "@arkecosystem/core-snapshots": "^2.2.0-beta.4",
-        "@arkecosystem/core-transaction-pool": "^2.2.0-beta.4",
-        "@arkecosystem/core-webhooks": "^2.2.0-beta.4",
-        "@arkecosystem/crypto": "^2.2.0-beta.4",
+        "@arkecosystem/core-api": "^2.2.0-beta.7",
+        "@arkecosystem/core-blockchain": "^2.2.0-beta.7",
+        "@arkecosystem/core-container": "^2.2.0-beta.7",
+        "@arkecosystem/core-database-postgres": "^2.2.0-beta.7",
+        "@arkecosystem/core-event-emitter": "^2.2.0-beta.7",
+        "@arkecosystem/core-forger": "^2.2.0-beta.7",
+        "@arkecosystem/core-json-rpc": "^2.2.0-beta.7",
+        "@arkecosystem/core-logger-winston": "^2.2.0-beta.7",
+        "@arkecosystem/core-p2p": "^2.2.0-beta.7",
+        "@arkecosystem/core-snapshots": "^2.2.0-beta.7",
+        "@arkecosystem/core-transaction-pool": "^2.2.0-beta.7",
+        "@arkecosystem/core-webhooks": "^2.2.0-beta.7",
+        "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@oclif/command": "^1.5.8",
         "@oclif/config": "^1.10.3",
         "@oclif/plugin-autocomplete": "^0.1.0",
@@ -75,6 +75,7 @@
         "bip38": "^2.0.2",
         "bip39": "^2.5.0",
         "chalk": "^2.4.2",
+        "cli-progress": "^2.1.1",
         "cli-table3": "^0.5.1",
         "cli-ux": "^5.1.0",
         "dayjs-ext": "^2.2.0",
@@ -85,7 +86,6 @@
         "latest-version": "^4.0.0",
         "listr": "^0.14.3",
         "ora": "^3.0.0",
-        "pm2": "^3.2.3",
         "pretty-bytes": "^5.1.0",
         "pretty-ms": "^4.0.0",
         "prompts": "^2.0.0",
@@ -96,6 +96,8 @@
     "devDependencies": {
         "@types/bip38": "^2.0.0",
         "@types/bip39": "^2.4.1",
+        "@types/cli-progress": "^1.8.0",
+        "@types/env-paths": "^1.0.2",
         "@types/execa": "^0.9.0",
         "@types/fs-extra": "^5.0.4",
         "@types/got": "^9.4.0",
@@ -105,6 +107,7 @@
         "@types/ora": "^3.0.0",
         "@types/pino": "^5.8.4",
         "@types/pretty-bytes": "^5.1.0",
+        "@types/pretty-ms": "^4.0.0",
         "@types/prompts": "^1.2.0",
         "@types/semver": "^5.5.0",
         "@types/tail": "^1.2.0",
@@ -122,7 +125,10 @@
     "oclif": {
         "commands": "./dist/commands",
         "hooks": {
-            "init": "./dist/hooks/init"
+            "init": [
+                "./dist/hooks/init/config",
+                "./dist/hooks/init/update"
+            ]
         },
         "bin": "ark",
         "topics": {
@@ -140,6 +146,9 @@
             },
             "relay": {
                 "description": "manage a relay instance"
+            },
+            "snapshot": {
+                "description": "manage a relay snapshots"
             }
         },
         "plugins": [

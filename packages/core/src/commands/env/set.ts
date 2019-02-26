@@ -1,7 +1,6 @@
-import { flags } from "@oclif/command";
 import envfile from "envfile";
-import expandHomeDir from "expand-home-dir";
 import { existsSync, writeFileSync } from "fs-extra";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class SetCommand extends BaseCommand {
@@ -13,7 +12,7 @@ $ ark env:set CORE_LOG_LEVEL info
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 

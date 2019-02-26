@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
@@ -25,7 +26,7 @@ $ ark core:run --launchMode=seed
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsBehaviour,
         ...BaseCommand.flagsForger,
