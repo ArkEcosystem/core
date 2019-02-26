@@ -56,7 +56,6 @@
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.2.0-beta.7",
-        "@arkecosystem/core-test-utils": "^2.2.0-beta.7",
         "@types/is-reachable": "^3.0.0",
         "@types/keyv__sqlite": "^2.0.0",
         "axios-mock-adapter": "^1.16.0"

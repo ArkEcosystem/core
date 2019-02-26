@@ -49,7 +49,6 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.0-beta.7",
         "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {
