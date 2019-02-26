@@ -44,7 +44,7 @@ export class Client {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
-            } transactions to ${this.host} :package:`,
+            } transactions to ${this.host}`,
         );
 
         return this.__post(`${this.host}/internal/blocks`, { block });
@@ -164,7 +164,7 @@ export class Client {
 
             this.host = host;
         } catch (error) {
-            this.logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`);
+            this.logger.debug(`${host} didn't respond to the forger. Trying another host`);
 
             if (wait > 0) {
                 await delay(wait);

@@ -63,19 +63,17 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
         if (stateStorage.noBlockCounter > 5 && blockchain.processQueue.length() === 0) {
-            // TODO: make this dynamic in 2.1
-            logger.info(
-                "Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:",
-            );
+            logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             stateStorage.noBlockCounter = 0;
             event = "NETWORKHALTED";
 
             if (stateStorage.p2pUpdateCounter + 1 > 3) {
-                logger.info("Network keeps missing blocks. :umbrella:");
+                logger.info("Network keeps missing blocks.");
 
-                const result = await blockchain.p2p.updatePeersOnMissingBlocks();
-                if (result === "rollback") {
+                const networkStatus = await blockchain.p2p.checkNetworkHealth();
+                if (networkStatus.forked) {
+                    stateStorage.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                     event = "FORK";
                 }
 
@@ -104,7 +102,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     downloadFinished() {
-        logger.info("Block download finished :rocket:");
+        logger.info("Block download finished");
 
         if (stateStorage.networkStart) {
             // next time we will use normal behaviour
@@ -118,7 +116,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async rebuildFinished() {
         try {
-            logger.info("Blockchain rebuild finished :chains:");
+            logger.info("Blockchain rebuild finished");
 
             stateStorage.rebuild = false;
 
@@ -135,24 +133,24 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
     },
 
-    downloadPaused: () => logger.info("Blockchain download paused :clock1030:"),
+    downloadPaused: () => logger.info("Blockchain download paused"),
 
     syncingComplete() {
-        logger.info("Blockchain 100% in sync :100:");
+        logger.info("Blockchain 100% in sync");
         blockchain.dispatch("SYNCFINISHED");
     },
 
     rebuildingComplete() {
-        logger.info("Blockchain rebuild complete :unicorn_face:");
+        logger.info("Blockchain rebuild complete");
         blockchain.dispatch("REBUILDCOMPLETE");
     },
 
     stopped() {
-        logger.info("The blockchain has been stopped :guitar:");
+        logger.info("The blockchain has been stopped");
     },
 
     exitApp() {
-        app.forceExit("Failed to startup blockchain. Exiting Ark Core! :rotating_light:");
+        app.forceExit("Failed to startup blockchain. Exiting Ark Core!");
     },
 
     async init() {
@@ -160,14 +158,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             let block = await blockchain.database.getLastBlock();
 
             if (!block) {
-                logger.warn("No block found in database :hushed:");
+                logger.warn("No block found in database");
 
                 block = new Block(config.get("genesisBlock"));
 
                 if (block.data.payloadHash !== config.get("network.nethash")) {
-                    logger.error(
-                        "FATAL: The genesis block payload hash is different from configured the nethash :rotating_light:",
-                    );
+                    logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
 
                     return blockchain.dispatch("FAILURE");
                 }
@@ -176,19 +172,19 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
 
             if (!blockchain.database.restoredDatabaseIntegrity) {
-                logger.info("Verifying database integrity :hourglass_flowing_sand:");
+                logger.info("Verifying database integrity");
 
                 const blockchainAudit = await blockchain.database.verifyBlockchain();
                 if (!blockchainAudit.valid) {
-                    logger.error("FATAL: The database is corrupted :fire:");
+                    logger.error("FATAL: The database is corrupted");
                     logger.error(JSON.stringify(blockchainAudit.errors, null, 4));
 
                     return blockchain.dispatch("ROLLBACK");
                 }
 
-                logger.info("Verified database integrity :smile_cat:");
+                logger.info("Verified database integrity");
             } else {
-                logger.info("Skipping database integrity check after successful database recovery :smile_cat:");
+                logger.info("Skipping database integrity check after successful database recovery");
             }
 
             // only genesis block? special case of first round needs to be dealt with
@@ -219,7 +215,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 slots.getTime() - block.data.timestamp > 3600 * 24 * 7 && !!localConfig.get("fastRebuild");
 
             if (process.env.NODE_ENV === "test") {
-                logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY. :bangbang:");
+                logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                 stateStorage.setLastBlock(new Block(config.get("genesisBlock")));
                 await blockchain.database.buildWallets(block.data.height);
@@ -248,7 +244,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             const verifiedWalletsIntegrity = await blockchain.database.buildWallets(block.data.height);
             if (!verifiedWalletsIntegrity && block.data.height > 1) {
                 logger.warn(
-                    "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown. :hammer:",
+                    "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
                 await blockchain.database.saveWallets(true);
             }
@@ -362,20 +358,21 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async analyseFork() {
-        logger.info("Analysing fork :mag:");
+        logger.info("Analysing fork");
     },
 
     async startForkRecovery() {
-        logger.info("Starting fork recovery :fork_and_knife:");
+        logger.info("Starting fork recovery");
         blockchain.clearAndStopQueue();
 
         await blockchain.database.commitQueuedQueries();
 
         const random = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 
-        await blockchain.removeBlocks(random);
+        await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
+        stateStorage.numberOfBlocksToRollback = null;
 
-        logger.info(`Removed ${pluralize("block", random, true)} :wastebasket:`);
+        logger.info(`Removed ${pluralize("block", random, true)}`);
 
         await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.refreshPeersAfterFork();
@@ -384,7 +381,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async rollbackDatabase() {
-        logger.info("Trying to restore database integrity :fire_engine:");
+        logger.info("Trying to restore database integrity");
 
         const { maxBlockRewind, steps } = localConfig.get("databaseRollback");
         let blockchainAudit;
@@ -400,7 +397,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         if (!blockchainAudit.valid) {
             // TODO: multiple attempts? rewind further? restore snapshot?
-            logger.error("FATAL: Failed to restore database integrity :skull: :skull: :skull:");
+            logger.error("FATAL: Failed to restore database integrity");
             logger.error(JSON.stringify(blockchainAudit.errors, null, 4));
             blockchain.dispatch("FAILURE");
             return;
@@ -410,12 +407,11 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         const lastBlock = await blockchain.database.getLastBlock();
         logger.info(
-            `Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()} :green_heart:`,
+            `Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()}`,
         );
 
         blockchain.dispatch("SUCCESS");
     },
 });
 
-const stateMachine = blockchainMachine;
-export { stateMachine };
+export const stateMachine = blockchainMachine;

@@ -74,7 +74,7 @@ export abstract class Repository implements Database.IRepository {
     }
 
     protected propToColumnName(prop: string): string {
-        if(prop) {
+        if (prop) {
             const columnSet = this.model.getColumnSet();
             const columnDef = columnSet.columns.find(col => col.prop === prop || col.name === prop);
             return columnDef ? columnDef.name : null;
@@ -90,8 +90,11 @@ export abstract class Repository implements Database.IRepository {
         return this.db.manyOrNone(query.toQuery());
     }
 
-    protected async findManyWithCount(selectQuery, paginate?: Database.SearchPaginate, orderBy?: Database.SearchOrderBy[]): Promise<any> {
-
+    protected async findManyWithCount(
+        selectQuery,
+        paginate?: Database.SearchPaginate,
+        orderBy?: Database.SearchOrderBy[],
+    ): Promise<any> {
         if (!!orderBy) {
             orderBy.forEach(o => selectQuery.order(this.query[o.field][o.direction]));
         }

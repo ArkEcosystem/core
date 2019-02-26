@@ -3,7 +3,7 @@ import { IDatabaseModel } from "../database-model";
 export interface IRepository {
     getModel(): IDatabaseModel;
 
-    estimate() : Promise<number>;
+    estimate(): Promise<number>;
 
     truncate(): Promise<void>;
 

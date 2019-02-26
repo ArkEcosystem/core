@@ -302,7 +302,7 @@ export class WalletManager implements Database.IWalletManager {
                 this.logger.debug(`Delegate by address: ${this.byAddress[generator]}`);
 
                 if (this.byAddress[generator]) {
-                    this.logger.info("This look like a bug, please report :bug:");
+                    this.logger.info("This look like a bug, please report");
                 }
 
                 throw new Error(`Could not find delegate with publicKey ${generatorPublicKey}`);
@@ -350,9 +350,7 @@ export class WalletManager implements Database.IWalletManager {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
-            app.forceExit(
-                `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`,
-            );
+            app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }
 
         const revertedTransactions = [];

@@ -1,9 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto as arkCrypto, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
-import crypto from "crypto";
 import cloneDeep from "lodash/cloneDeep";
 import pluralize from "pluralize";
 import { WalletManager } from "./wallet-manager";
@@ -78,7 +77,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 this.forgingDelegates.length === 0 ||
                 (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
             ) {
-                this.logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
+                this.logger.info(`Starting Round ${round.toLocaleString()}`);
 
                 try {
                     this.updateDelegateStats(this.forgingDelegates);
@@ -97,7 +96,7 @@ export class DatabaseService implements Database.IDatabaseService {
             } else {
                 this.logger.warn(
                     // tslint:disable-next-line:max-line-length
-                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
+                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
             }
         }
@@ -154,10 +153,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         const seedSource = round.toString();
-        let currentSeed = crypto
-            .createHash("sha256")
-            .update(seedSource, "utf8")
-            .digest();
+        let currentSeed = HashAlgorithms.sha256(seedSource);
 
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
@@ -166,10 +162,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 delegates[newIndex] = delegates[i];
                 delegates[i] = b;
             }
-            currentSeed = crypto
-                .createHash("sha256")
-                .update(currentSeed)
-                .digest();
+            currentSeed = HashAlgorithms.sha256(currentSeed);
         }
 
         this.forgingDelegates = delegates.map(delegate => {
@@ -392,7 +385,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
         if (nextRound === round + 1 && height >= maxDelegates) {
-            this.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
+            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
             const delegates = await this.calcPreviousActiveDelegates(round);
             this.forgingDelegates = await this.getActiveDelegates(height, delegates);
@@ -520,7 +513,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async verifyTransaction(transaction: Transaction): Promise<boolean> {
-        const senderId = arkCrypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
+        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
 

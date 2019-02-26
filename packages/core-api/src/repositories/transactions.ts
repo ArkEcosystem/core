@@ -6,7 +6,6 @@ import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
-
 // TODO: Deprecate this with v1
 export class TransactionsRepository extends Repository implements IRepository {
     constructor() {

@@ -1,6 +1,5 @@
-import { createHash } from "crypto";
 import pluralize from "pluralize";
-import { crypto, slots } from "../crypto";
+import { crypto, HashAlgorithms, slots } from "../crypto";
 import { configManager } from "../managers/config";
 import { ITransactionData, Transaction } from "../transactions";
 import { BlockDeserializer } from "../transactions/deserializers";
@@ -75,9 +74,7 @@ export class Block implements IBlock {
         data.generatorPublicKey = keys.publicKey;
 
         const payloadHash: Buffer = Block.serialize(data, false);
-        const hash = createHash("sha256")
-            .update(payloadHash)
-            .digest();
+        const hash = HashAlgorithms.sha256(payloadHash);
 
         data.blockSignature = crypto.signHash(hash, keys);
         data.id = Block.getId(data);
@@ -108,9 +105,8 @@ export class Block implements IBlock {
 
     public static getIdHex(data): string {
         const payloadHash: any = Block.serialize(data);
-        const hash = createHash("sha256")
-            .update(payloadHash)
-            .digest();
+        const hash = HashAlgorithms.sha256(payloadHash);
+
         const temp = Buffer.alloc(8);
 
         for (let i = 0; i < 8; i++) {
@@ -128,9 +124,7 @@ export class Block implements IBlock {
      * Get block id from already serialized buffer
      */
     public static getIdFromSerialized(serializedBuffer: Buffer): string {
-        const hash = createHash("sha256")
-            .update(serializedBuffer)
-            .digest();
+        const hash = HashAlgorithms.sha256(serializedBuffer);
         const temp = Buffer.alloc(8);
 
         for (let i = 0; i < 8; i++) {
@@ -217,9 +211,7 @@ export class Block implements IBlock {
      */
     public verifySignature(): boolean {
         const bytes: any = Block.serialize(this.data, false);
-        const hash = createHash("sha256")
-            .update(bytes)
-            .digest();
+        const hash = HashAlgorithms.sha256(bytes);
 
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
@@ -280,7 +272,6 @@ export class Block implements IBlock {
             // }
 
             let size = 0;
-            const payloadHash = createHash("sha256");
             const invalidTransactions = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
@@ -301,6 +292,7 @@ export class Block implements IBlock {
             const appliedTransactions = {};
             let totalAmount = Bignum.ZERO;
             let totalFee = Bignum.ZERO;
+            const payloadBuffers = [];
             this.transactions.forEach(transaction => {
                 const bytes = Buffer.from(transaction.data.id, "hex");
 
@@ -314,7 +306,7 @@ export class Block implements IBlock {
                 totalFee = totalFee.plus(transaction.data.fee);
                 size += bytes.length;
 
-                payloadHash.update(bytes);
+                payloadBuffers.push(bytes);
             });
 
             if (!totalAmount.isEqualTo(block.totalAmount)) {
@@ -329,7 +321,7 @@ export class Block implements IBlock {
                 result.errors.push("Payload is too large");
             }
 
-            if (payloadHash.digest().toString("hex") !== block.payloadHash) {
+            if (HashAlgorithms.sha256(payloadBuffers).toString("hex") !== block.payloadHash) {
                 result.errors.push("Invalid payload hash");
             }
         } catch (error) {

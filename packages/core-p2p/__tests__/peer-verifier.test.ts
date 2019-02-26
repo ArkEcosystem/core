@@ -36,18 +36,12 @@ beforeEach(() => {
 
 describe("Peer Verifier", () => {
     describe("checkState", () => {
-        it("invalid state", async () => {
-            const peerVerifier = new PeerVerifier(peerMock);
-            const state = {};
-            const isLegit = await peerVerifier.checkState({}, new Date().getTime() + 10000);
-            expect(isLegit).toBe(false);
-        });
-
         it("identical chains", async () => {
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 1, id: genesisBlock.data.id } };
-            const isLegit = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-            expect(isLegit).toBe(true);
+            const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+            expect(result).toBeObject();
+            expect(result.forked).toBe(false);
         });
 
         it("different chains, including the genesis block", async () => {
@@ -62,8 +56,8 @@ describe("Peer Verifier", () => {
 
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 1, id: "123" } };
-            const isLegit = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-            expect(isLegit).toBe(false);
+            const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+            expect(result).toBeNull();
         });
 
         it("bogus replies for common block", async () => {
@@ -87,8 +81,8 @@ describe("Peer Verifier", () => {
 
                 const peerVerifier = new PeerVerifier(peerMock);
                 const state = { header: { height: 1, id: "123" } };
-                const isLegit = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-                expect(isLegit).toBe(false);
+                const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+                expect(result).toBeNull();
             }
         });
 
@@ -125,8 +119,8 @@ describe("Peer Verifier", () => {
 
                 const peerVerifier = new PeerVerifier(peerMock);
                 const state = { header: { height: 2, id: block2.id } };
-                const isLegit = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-                expect(isLegit).toBe(false);
+                const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+                expect(result).toBeNull();
             }
         });
 
@@ -151,8 +145,9 @@ describe("Peer Verifier", () => {
 
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 2, id: blocks2to100Json[0].id } };
-            const isLegit = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-            expect(isLegit).toBe(true);
+            const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+            expect(result).toBeObject();
+            expect(result.forked).toBe(false);
         });
     });
 });

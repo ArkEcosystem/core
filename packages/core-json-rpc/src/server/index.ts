@@ -7,7 +7,7 @@ import { Processor } from "./services/processor";
 export async function startServer(options) {
     if (options.allowRemote) {
         app.resolvePlugin<Logger.ILogger>("logger").warn(
-            "JSON-RPC server allows remote connections, this is a potential security risk :warning:",
+            "JSON-RPC server allows remote connections, this is a potential security risk",
         );
     }
 

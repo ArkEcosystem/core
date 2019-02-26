@@ -2,7 +2,6 @@ import { SearchPaginate } from "../search";
 import { IParameters } from "./parameters";
 
 export interface IBlocksBusinessRepository {
-
     search(params: IParameters): Promise<any>;
 
     findAll(params: IParameters): Promise<any>;

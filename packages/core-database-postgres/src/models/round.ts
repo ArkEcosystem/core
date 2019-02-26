@@ -9,19 +9,27 @@ export class Round extends Model {
             {
                 name: "public_key",
                 prop: "publicKey",
-                supportedOperators: [ Database.SearchOperator.OP_EQ ]
+                supportedOperators: [Database.SearchOperator.OP_EQ],
             },
             {
                 name: "balance",
                 prop: "voteBalance",
                 init: col => bignumify(col.value).toFixed(),
-                supportedOperators: [ Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_LTE, Database.SearchOperator.OP_GTE ]
+                supportedOperators: [
+                    Database.SearchOperator.OP_EQ,
+                    Database.SearchOperator.OP_LTE,
+                    Database.SearchOperator.OP_GTE,
+                ],
             },
             {
                 name: "round",
-                supportedOperators: [ Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_LTE, Database.SearchOperator.OP_GTE ]
+                supportedOperators: [
+                    Database.SearchOperator.OP_EQ,
+                    Database.SearchOperator.OP_LTE,
+                    Database.SearchOperator.OP_GTE,
+                ],
             },
-        ]
+        ];
     }
 
     /**

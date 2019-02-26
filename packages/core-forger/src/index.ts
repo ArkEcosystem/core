@@ -13,7 +13,7 @@ export const plugin: Container.PluginDescriptor = {
         const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         if (!forgers) {
-            logger.info("Forger is disabled :grey_exclamation:");
+            logger.info("Forger is disabled");
             return false;
         }
 

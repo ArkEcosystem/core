@@ -1,14 +1,14 @@
-import { createHash } from "crypto";
 import forge from "node-forge";
 import { authenticator } from "otplib";
 import wif from "wif";
 import * as bip38 from "../crypto/bip38";
 import { Bignum } from "../utils";
 
+import { HashAlgorithms } from "../crypto";
 import { crypto } from "../crypto/crypto";
 import { KeyPair } from "../identities";
 import { INetwork } from "../networks";
-import { ITransactionData, Transaction } from "../transactions";
+import { ITransactionData } from "../transactions";
 import { sortTransactions } from "../utils";
 import { Block, IBlockData } from "./block";
 
@@ -98,14 +98,14 @@ export class Delegate {
             const transactionData = {
                 amount: Bignum.ZERO,
                 fee: Bignum.ZERO,
-                sha256: createHash("sha256"),
             };
 
+            const payloadBuffers = [];
             const sortedTransactions = sortTransactions(transactions);
             sortedTransactions.forEach(transaction => {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
-                transactionData.sha256.update(Buffer.from(transaction.id, "hex"));
+                payloadBuffers.push(Buffer.from(transaction.id, "hex"));
             });
 
             const data: IBlockData = {
@@ -120,7 +120,7 @@ export class Delegate {
                 totalFee: transactionData.fee,
                 reward: options.reward,
                 payloadLength: 32 * sortedTransactions.length,
-                payloadHash: transactionData.sha256.digest().toString("hex"),
+                payloadHash: HashAlgorithms.sha256(payloadBuffers).toString("hex"),
                 transactions: sortedTransactions,
             };
 
